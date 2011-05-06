@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-04-28 15:13+0000\n"
-"PO-Revision-Date: 2011-04-29 06:44+0200\n"
+"POT-Creation-Date: 2011-05-05 09:22+0000\n"
+"PO-Revision-Date: 2011-05-06 07:51+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -529,6 +529,8 @@ msgid "File to extract metadata for"
 msgstr "Soubor, pro který se mají rozbalit metadata"
 
 #: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -591,7 +593,7 @@ msgstr ""
 "Přepínače  --force-internal-extractors a --force-module nelze použít "
 "dohromady"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -701,12 +703,53 @@ msgstr "Nízká úroveň nabití baterie"
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
+#: ../src/miners/rss/tracker-main.c:44
+msgid "Add feed (must be used with --title)"
+msgstr "Přidat kanál (musí být použito s --title)"
+
+#: ../src/miners/rss/tracker-main.c:45
+msgid "URL"
+msgstr "Adresa URL"
+
+#: ../src/miners/rss/tracker-main.c:48
+msgid "Title to use (must be used with --add-feed)"
+msgstr "Název, který se má použít (musí být použito s --add-feed)"
+
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:65
+#: ../src/miners/rss/tracker-main.c:76
 msgid "- start the feeds indexer"
 msgstr "- spustí indexovač tracker"
+
+#: ../src/miners/rss/tracker-main.c:81
+msgid "Adding a feed requires --add-feed and --title"
+msgstr "Přidání kanálu vyžaduje --addfeed a --title"
+
+#: ../src/miners/rss/tracker-main.c:115
+#: ../src/tracker-utils/tracker-import.c:115
+#: ../src/tracker-utils/tracker-info.c:360
+#: ../src/tracker-utils/tracker-search.c:1441
+#: ../src/tracker-utils/tracker-sparql.c:291
+#: ../src/tracker-utils/tracker-stats.c:92
+#: ../src/tracker-utils/tracker-tag.c:944
+msgid "Could not establish a connection to Tracker"
+msgstr "Nelze vytvořit spojení k prohledávači Tracker"
+
+#: ../src/miners/rss/tracker-main.c:116
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:361
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+msgid "No error given"
+msgstr "Není uvedena žádná chyba"
+
+#: ../src/miners/rss/tracker-main.c:141
+#| msgid "Could not read file"
+msgid "Could not add feed"
+msgstr "Nelze přidat kanál"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -940,24 +983,25 @@ msgstr ""
 "Tracker"
 
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
-#: ../src/tracker-needle/tracker-utils.vala:43
+#: ../src/tracker-needle/tracker-utils.vala:44
+#, no-c-format
 msgid "%x"
 msgstr "%e. %B %Y"
 
-#: ../src/tracker-needle/tracker-utils.vala:47
+#: ../src/tracker-needle/tracker-utils.vala:48
 msgid "Today"
 msgstr "Dnes"
 
-#: ../src/tracker-needle/tracker-utils.vala:56
+#: ../src/tracker-needle/tracker-utils.vala:57
 msgid "Tomorrow"
 msgstr "Zítra"
 
-#: ../src/tracker-needle/tracker-utils.vala:58
+#: ../src/tracker-needle/tracker-utils.vala:59
 msgid "Yesterday"
 msgstr "Včera"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:62
+#: ../src/tracker-needle/tracker-utils.vala:63
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -966,7 +1010,7 @@ msgstr[1] "%ld dny od teď"
 msgstr[2] "%ld dní od teď"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:65
+#: ../src/tracker-needle/tracker-utils.vala:66
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
@@ -974,8 +1018,8 @@ msgstr[0] "před %ld dnem"
 msgstr[1] "před %ld dny"
 msgstr[2] "před %ld dny"
 
-#: ../src/tracker-needle/tracker-utils.vala:77
-#: ../src/tracker-needle/tracker-utils.vala:106
+#: ../src/tracker-needle/tracker-utils.vala:78
+#: ../src/tracker-needle/tracker-utils.vala:107
 msgid "Less than one second"
 msgstr "méně než jedna sekunda"
 
@@ -1186,11 +1230,11 @@ msgstr "Přepínače stavu a přepínače démona nelze použít dohromady"
 msgid "Unrecognized options"
 msgstr "Nerozpoznaný přepínač"
 
-#: ../src/tracker-control/tracker-control-general.c:72
+#: ../src/tracker-control/tracker-control-general.c:76
 msgid "List all Tracker processes"
 msgstr "Vypsat všechny procesy náležející aplikaci Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:74
+#: ../src/tracker-control/tracker-control-general.c:78
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1198,12 +1242,12 @@ msgstr ""
 "Použít SIGKILL k zastavení všech odpovídajících procesů. Zadat můžete buď "
 "„store“, „miners“ nebo „all“, když nezadáte nic, použije se „all“"
 
-#: ../src/tracker-control/tracker-control-general.c:75
-#: ../src/tracker-control/tracker-control-general.c:78
+#: ../src/tracker-control/tracker-control-general.c:79
+#: ../src/tracker-control/tracker-control-general.c:82
 msgid "APPS"
 msgstr "APPS"
 
-#: ../src/tracker-control/tracker-control-general.c:77
+#: ../src/tracker-control/tracker-control-general.c:81
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1212,43 +1256,51 @@ msgstr ""
 "„store“ (ukládání dat), „miners“ (dolování dat) nebo „all“ (všechny), když "
 "nezadáte nic, použije se „all“"
 
-#: ../src/tracker-control/tracker-control-general.c:80
+#: ../src/tracker-control/tracker-control-general.c:84
 msgid "Kill all Tracker processes and remove all databases"
 msgstr ""
 "Zabít všechny procesy prohledávače Tracker a odstranit všechny jeho databáze"
 
-#: ../src/tracker-control/tracker-control-general.c:83
+#: ../src/tracker-control/tracker-control-general.c:87
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Stejné jako --hard-reset, akorát jsou po restartu obnoveny záloha a žurnál"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:90
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Odstranit všechny soubory nastavení, takže se při příštím spuštění "
 "vygenerují znovu"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Spouští démona na dolování dat (což také nepřímo spustí tracker-store)"
 
-#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-general.c:96
+msgid "Backup databases to the file provided"
+msgstr "Zálohovat databázi do poskytovatele souboru"
+
+#: ../src/tracker-control/tracker-control-general.c:99
+msgid "Restore databases from the file provided"
+msgstr "Obnovit databázi z poskytovatele souboru"
+
+#: ../src/tracker-control/tracker-control-general.c:121
 msgid "Could not open /proc"
 msgstr "Nelze otevřít /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:306
-#: ../src/tracker-control/tracker-control-general.c:346
-#: ../src/tracker-control/tracker-control-general.c:367
+#: ../src/tracker-control/tracker-control-general.c:122
+#: ../src/tracker-control/tracker-control-general.c:353
+#: ../src/tracker-control/tracker-control-general.c:393
+#: ../src/tracker-control/tracker-control-general.c:414
 msgid "no error given"
 msgstr "neobdržena žádná chyba"
 
-#: ../src/tracker-control/tracker-control-general.c:260
+#: ../src/tracker-control/tracker-control-general.c:307
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Přepínače --kill a --terminate nemůžete použít dohromady"
 
-#: ../src/tracker-control/tracker-control-general.c:266
+#: ../src/tracker-control/tracker-control-general.c:313
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -1256,61 +1308,69 @@ msgstr ""
 "Přepínač --terminate nemůžete použít s --hard-reset nebo --soft-reset, "
 "předpokládá se --kill"
 
-#: ../src/tracker-control/tracker-control-general.c:272
+#: ../src/tracker-control/tracker-control-general.c:319
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Přepínače --hard-reset a --soft-reset nemůžete použít dohromady"
 
-#: ../src/tracker-control/tracker-control-general.c:303
+#: ../src/tracker-control/tracker-control-general.c:350
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Nelze otevřít „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:328
+#: ../src/tracker-control/tracker-control-general.c:375
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Nalezen proces s ID %d pro „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:343
+#: ../src/tracker-control/tracker-control-general.c:390
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Nelze ukončit proces %d"
 
-#: ../src/tracker-control/tracker-control-general.c:349
+#: ../src/tracker-control/tracker-control-general.c:396
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proces %d byl ukončen"
 
-#: ../src/tracker-control/tracker-control-general.c:364
+#: ../src/tracker-control/tracker-control-general.c:411
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Nelze zabít proces %d"
 
-#: ../src/tracker-control/tracker-control-general.c:370
+#: ../src/tracker-control/tracker-control-general.c:417
 #, c-format
 msgid "Killed process %d"
 msgstr "Proces %d byl zabit"
 
-#: ../src/tracker-control/tracker-control-general.c:488
+#: ../src/tracker-control/tracker-control-general.c:535
 msgid "Removing configuration files…"
 msgstr "Odstraňují se soubory s nastavením…"
 
-#: ../src/tracker-control/tracker-control-general.c:502
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "Waiting one second before starting miners…"
 msgstr "Chvilku se čeká, než se spustí démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:508
+#: ../src/tracker-control/tracker-control-general.c:555
 msgid "Starting miners…"
 msgstr "Spouští se démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:529
+#: ../src/tracker-control/tracker-control-general.c:576
 msgid "perhaps a disabled plugin?"
 msgstr "není vypnutý zásuvný modul?"
 
-#: ../src/tracker-control/tracker-control-general.c:552
+#: ../src/tracker-control/tracker-control-general.c:598
+msgid "Backing up database"
+msgstr "Zálohuje se databáze"
+
+#: ../src/tracker-control/tracker-control-general.c:670
+msgid "Restoring database from backup"
+msgstr "Obnovuje se databáze ze zálohy"
+
+#: ../src/tracker-control/tracker-control-general.c:743
 msgid "General options"
 msgstr "Obecné přepínače"
 
-#: ../src/tracker-control/tracker-control-general.c:553
+#: ../src/tracker-control/tracker-control-general.c:744
 msgid "Show general options"
 msgstr "Zobrazí obecné přepínače"
 
@@ -1434,7 +1494,7 @@ msgid "No miners are running"
 msgstr "Neběží žádný démon na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:304
-#: ../src/tracker-control/tracker-control-status.c:552
+#: ../src/tracker-control/tracker-control-status.c:550
 msgid "Miners"
 msgstr "Démoni na dolování dat"
 
@@ -1475,7 +1535,7 @@ msgid "Show miner options"
 msgstr "Zobrazí přepínače démonů na získávání dat"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:294
+#: ../src/tracker-control/tracker-control-status.c:292
 msgid "Unavailable"
 msgstr "Nedostupný"
 
@@ -1524,38 +1584,41 @@ msgstr "Vypsat běžné stavy démonů na dolování dat a úložišť"
 msgid "Could not get status from miner: %s"
 msgstr "Nelze získat udaje o stavu od démona na dolování dat: %s"
 
-#: ../src/tracker-control/tracker-control-status.c:198
-msgid "remaining"
-msgstr "zbývá"
+#. Translators: %s is a time string
+#: ../src/tracker-control/tracker-control-status.c:197
+#, c-format
+#| msgid "remaining"
+msgid "%s remaining"
+msgstr "zbývá %s"
 
-#: ../src/tracker-control/tracker-control-status.c:202
+#: ../src/tracker-control/tracker-control-status.c:200
 msgid "unknown time left"
 msgstr "neznámý zbývající čas"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:215
-#: ../src/tracker-control/tracker-control-status.c:536
+#: ../src/tracker-control/tracker-control-status.c:213
+#: ../src/tracker-control/tracker-control-status.c:534
 msgid "PAUSED"
 msgstr "POZASTAVENO"
 
-#: ../src/tracker-control/tracker-control-status.c:232
+#: ../src/tracker-control/tracker-control-status.c:230
 msgid "Not running or is a disabled plugin"
 msgstr "Neběží nebo je vypnutý zásuvný modul"
 
-#: ../src/tracker-control/tracker-control-status.c:510
+#: ../src/tracker-control/tracker-control-status.c:508
 msgid "Common statuses include"
 msgstr "Běžné stavy zahrnují"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:546
+#: ../src/tracker-control/tracker-control-status.c:544
 msgid "Store"
 msgstr "Úložište"
 
-#: ../src/tracker-control/tracker-control-status.c:667
+#: ../src/tracker-control/tracker-control-status.c:665
 msgid "Status options"
 msgstr "Přepínače stavu"
 
-#: ../src/tracker-control/tracker-control-status.c:668
+#: ../src/tracker-control/tracker-control-status.c:666
 msgid "Show status options"
 msgstr "Zobrazí přepínače stavu"
 
@@ -1569,24 +1632,6 @@ msgstr "- importuje data za použití souborů Turtle"
 #: ../src/tracker-utils/tracker-info.c:338
 msgid "One or more files have not been specified"
 msgstr "Musí být uveden jeden nebo více souborů"
-
-#: ../src/tracker-utils/tracker-import.c:115
-#: ../src/tracker-utils/tracker-info.c:360
-#: ../src/tracker-utils/tracker-search.c:1441
-#: ../src/tracker-utils/tracker-sparql.c:291
-#: ../src/tracker-utils/tracker-stats.c:92
-#: ../src/tracker-utils/tracker-tag.c:944
-msgid "Could not establish a connection to Tracker"
-msgstr "Nelze vytvořit spojení k prohledávači Tracker"
-
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:361
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-msgid "No error given"
-msgstr "Není uvedena žádná chyba"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
