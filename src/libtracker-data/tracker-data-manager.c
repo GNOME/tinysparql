@@ -2173,30 +2173,6 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_ontologies_add_id_uri_pair (id, uri);
 			tracker_class_set_id (class, id);
 
-			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
-			/* no need to fetch resource count if we are running in read-only mode (direct access) */
-			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:") &&
-			    (tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
-				/* update statistics */
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-				                                              "SELECT COUNT(1) FROM \"%s\"",
-				                                              tracker_class_get_name (class));
-
-				if (error) {
-					g_warning ("%s", error->message);
-					g_clear_error (&error);
-				} else {
-					TrackerDBCursor *stat_cursor;
-
-					stat_cursor = tracker_db_statement_start_cursor (stmt, NULL);
-					tracker_db_cursor_iter_next (stat_cursor, NULL, NULL);
-					count = tracker_db_cursor_get_int (stat_cursor, 0);
-					tracker_class_set_count (class, count);
-					g_object_unref (stat_cursor);
-					g_object_unref (stmt);
-				}
-			}
-
 			g_object_unref (class);
 		}
 
