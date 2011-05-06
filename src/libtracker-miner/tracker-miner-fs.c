@@ -1693,90 +1693,80 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			ctxt->builder = tracker_sparql_builder_new_update ();
 
 			do_process_file (fs, task);
-			g_free (uri);
-
-			return;
-
 		} else {
-			fs->priv->total_files_notified_error++;
-			g_message ("Could not process '%s': %s",
-			            uri,
-			            error->message ? error->message : "No error given");
-		}
-	}
+			g_message ("Could not process '%s': %s", uri, error->message);
 
-	if (ctxt->urn) {
-		gboolean attribute_update_only;
+			fs->private->total_files_notified_error++;
 
-		attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (task_file),
-		                                                               fs->priv->quark_attribute_updated));
-		g_debug ("Updating item%s%s%s '%s' with urn '%s'%s",
-		         error != NULL ? " (which had extractor error '" : "",
-		         error != NULL ? (error->message ? error->message : "No error given") : "",
-		         error != NULL ? "')" : "",
-		         uri,
-		         ctxt->urn,
-		         attribute_update_only ? " (attributes only)" : "");
+			tracker_processing_pool_remove_task (fs->private->processing_pool, task);
+			tracker_processing_task_free (task);
 
-		if (!attribute_update_only) {
-			gchar *full_sparql;
-
-			/* Update, delete all statements inserted by miner except:
-			 *  - rdf:type statements as they could cause implicit deletion of user data
-			 *  - nie:contentCreated so it persists across updates
-			 *
-			 * Additionally, delete also nie:url as it might have been set by 3rd parties,
-			 * and it's used to know whether a file is known to tracker or not.
-			 */
-			full_sparql = g_strdup_printf ("DELETE {"
-			                               "  GRAPH <%s> {"
-			                               "    <%s> ?p ?o"
-			                               "  } "
-			                               "} "
-			                               "WHERE {"
-			                               "  GRAPH <%s> {"
-			                               "    <%s> ?p ?o"
-			                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
-			                               "  } "
-			                               "} "
-						       "DELETE {"
-						       "  <%s> nie:url ?o"
-						       "} WHERE {"
-						       "  <%s> nie:url ?o"
-						       "}"
-			                               "%s",
-			                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
-			                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
-						       ctxt->urn, ctxt->urn,
-			                               tracker_sparql_builder_get_result (ctxt->builder));
-
-			/* Note that set_sparql_string() takes ownership of the passed string */
-			tracker_processing_task_set_sparql_string (task, full_sparql);
-		} else {
-			/* Do not drop graph if only updating attributes, the SPARQL builder
-			 * will already contain the necessary DELETE statements for the properties
-			 * being updated */
-			tracker_processing_task_set_sparql (task, ctxt->builder);
+			item_queue_handlers_set_up (fs);
 		}
 	} else {
-		if (error != NULL) {
-			g_debug ("Creating minimal info for new item '%s' which had error: '%s'",
+		if (ctxt->urn) {
+			gboolean attribute_update_only;
+
+			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (task_file),
+			                                                               fs->private->quark_attribute_updated));
+			g_debug ("Updating item '%s' with urn '%s'%s",
 			         uri,
-			         error->message ? error->message : "No error given");
+			         ctxt->urn,
+			         attribute_update_only ? " (attributes only)" : "");
+
+			if (!attribute_update_only) {
+				gchar *full_sparql;
+
+				/* Update, delete all statements inserted by miner except:
+				 *  - rdf:type statements as they could cause implicit deletion of user data
+				 *  - nie:contentCreated so it persists across updates
+				 *
+				 * Additionally, delete also nie:url as it might have been set by 3rd parties,
+				 * and it's used to know whether a file is known to tracker or not.
+				 */
+				full_sparql = g_strdup_printf ("DELETE {"
+				                               "  GRAPH <%s> {"
+				                               "    <%s> ?p ?o"
+				                               "  } "
+				                               "} "
+				                               "WHERE {"
+				                               "  GRAPH <%s> {"
+				                               "    <%s> ?p ?o"
+				                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+				                               "  } "
+				                               "} "
+				                               "DELETE {"
+				                               "  <%s> nie:url ?o"
+				                               "} WHERE {"
+				                               "  <%s> nie:url ?o"
+				                               "}"
+				                               "%s",
+				                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
+				                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
+				                               ctxt->urn, ctxt->urn,
+				                               tracker_sparql_builder_get_result (ctxt->builder));
+
+				/* Note that set_sparql_string() takes ownership of the passed string */
+				tracker_processing_task_set_sparql_string (task, full_sparql);
+			} else {
+				/* Do not drop graph if only updating attributes, the SPARQL builder
+				 * will already contain the necessary DELETE statements for the properties
+				 * being updated */
+				tracker_processing_task_set_sparql (task, ctxt->builder);
+			}
 		} else {
 			g_debug ("Creating new item '%s'", uri);
+			tracker_processing_task_set_sparql (task, ctxt->builder);
 		}
 
-		tracker_processing_task_set_sparql (task, ctxt->builder);
-	}
-
-	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
-	 * and in this case we need to setup queue handlers again */
-	if (!tracker_processing_pool_push_ready_task (fs->priv->processing_pool,
-	                                              task,
-	                                              processing_pool_task_finished_cb,
-	                                              fs)) {
-		item_queue_handlers_set_up (fs);
+		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
+		 * and in this case we need to setup queue handlers again */
+		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+		                                              task,
+		                                              processing_pool_task_finished_cb,
+		                                              fs)) {
+			item_queue_handlers_set_up (fs);
+		}
 	}
 
 	g_free (uri);

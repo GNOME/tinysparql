@@ -1957,9 +1957,6 @@ extractor_get_embedded_metadata_cb (const gchar *preupdate,
 	const gchar *uuid;
 
 	if (error) {
-		tracker_sparql_builder_graph_close (data->sparql);
-		tracker_sparql_builder_insert_close (data->sparql);
-
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
