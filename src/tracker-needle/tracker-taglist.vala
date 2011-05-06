@@ -59,10 +59,9 @@ public class Tracker.TagList : ScrolledWindow {
 //		col.pack_start (renderer, false);
 //		col.add_attribute (renderer, "active", 0);
 
-		renderer = new Tracker.CellRendererText ();
+		renderer = new CellRendererText ();
 		col.pack_start (renderer, true);
-		col.add_attribute (renderer, "text", 1);
-		col.add_attribute (renderer, "subtext", 2);
+		col.set_cell_data_func (renderer, text_renderer_func);
 
 		renderer = new CellRendererText ();
 		renderer.xpad = 5;
@@ -83,6 +82,27 @@ public class Tracker.TagList : ScrolledWindow {
 		}
 
 		get_tags.begin ();
+	}
+
+	private void text_renderer_func (CellLayout   cell_layout,
+	                                 CellRenderer cell,
+	                                 TreeModel    tree_model,
+	                                 TreeIter     iter) {
+		string text, subtext;
+		string markup = null;
+		int n_children;
+
+		tree_model.get (iter, 1, out text, 2, out subtext, -1);
+
+		if (text != null) {
+			markup = Markup.escape_text (text);
+
+			if (subtext != null) {
+				markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
+			}
+		}
+
+		cell.set ("markup", markup);
 	}
 
 	private async void get_tags () {

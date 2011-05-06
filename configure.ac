@@ -183,7 +183,7 @@ DBUS_REQUIRED=1.3.1
 DBUS_GLIB_REQUIRED=0.82
 GLIB_REQUIRED=2.26.0
 PANGO_REQUIRED=1.0.0
-GTK_REQUIRED=2.18.0
+GTK_REQUIRED=3.0.0
 LIBXML2_REQUIRED=2.6
 LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
@@ -304,7 +304,7 @@ TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
                            gthread-2.0  >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED
-                           gtk+-2.0     >= $GTK_REQUIRED
+                           gtk+-3.0     >= $GTK_REQUIRED
 			   gee-1.0      >= $GEE_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
@@ -423,7 +423,7 @@ TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED
                          gthread-2.0  >= $GLIB_REQUIRED
                          gmodule-2.0  >= $GLIB_REQUIRED
-                         gtk+-2.0     >= $GTK_REQUIRED"
+                         gtk+-3.0     >= $GTK_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
                   [have_tracker_needle=yes],
@@ -434,7 +434,7 @@ TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gio-unix-2.0   >= $GLIB_REQUIRED
                               gthread-2.0    >= $GLIB_REQUIRED
                               gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-2.0       >= $GTK_REQUIRED"
+                              gtk+-3.0       >= $GTK_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
@@ -459,7 +459,7 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
 TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                                      gio-unix-2.0   >= $GLIB_REQUIRED
                                      gthread-2.0    >= $GLIB_REQUIRED
-                                     gtk+-2.0       >= $GTK_REQUIRED
+                                     gtk+-3.0       >= $GTK_REQUIRED
                                      libnautilus-extension"
 
 PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],

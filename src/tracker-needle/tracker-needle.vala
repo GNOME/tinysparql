@@ -37,7 +37,7 @@ public class Tracker.Needle {
 	private ToggleToolButton find_in_titles;
 	private ToggleToolButton find_in_all;
 	private ToolItem search_entry;
-	private ComboBoxEntry search_list;
+	private ComboBoxText search_list;
 	private Entry search;
 	private Spinner spinner;
 	private ToolItem spinner_shell;
@@ -262,7 +262,7 @@ public class Tracker.Needle {
 		find_in_all.toggled.connect (find_in_toggled);
 
 		search_entry = builder.get_object ("toolitem_search_entry") as ToolItem;
-		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
+		search_list = builder.get_object ("comboboxtext_search") as ComboBoxText;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
 		search.activate.connect (search_activated);

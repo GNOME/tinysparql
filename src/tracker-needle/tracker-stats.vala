@@ -32,7 +32,6 @@ public class Tracker.Stats : Dialog {
 
 	public Stats () {
 		this.title = "Statistics";
-		this.has_separator = false;
 		this.border_width = 12;
 		this.resizable = false;
 
@@ -64,7 +63,7 @@ public class Tracker.Stats : Dialog {
 		debug ("Setting up statistics UI");
 
 		// Spacing between major units
-		var vbox = this.get_content_area() as VBox;
+		var vbox = this.get_content_area() as Box;
 		vbox.set_spacing (18);
 		vbox.set_border_width (0);
 
