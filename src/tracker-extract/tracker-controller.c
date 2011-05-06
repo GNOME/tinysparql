@@ -39,6 +39,8 @@
 #warning Controller thread traces enabled
 #endif /* THREAD_ENABLE_TRACE */
 
+#define WATCHDOG_TIMEOUT 20
+
 typedef struct TrackerControllerPrivate TrackerControllerPrivate;
 typedef struct GetMetadataData GetMetadataData;
 
@@ -74,6 +76,8 @@ struct GetMetadataData {
 	gchar *uri;
 	gchar *mimetype;
 	gint fd; /* Only for fast queries */
+
+	GSource *watchdog_source;
 };
 
 #define TRACKER_EXTRACT_SERVICE   "org.freedesktop.Tracker1.Extract"
@@ -230,6 +234,37 @@ tracker_controller_class_init (TrackerControllerClass *klass)
 	g_type_class_add_private (object_class, sizeof (TrackerControllerPrivate));
 }
 
+static GSource *
+controller_timeout_source_new (guint       interval,
+			       GSourceFunc func,
+			       gpointer    user_data)
+{
+	GMainContext *context;
+	GSource *source;
+
+	context = g_main_context_get_thread_default ();
+
+	source = g_timeout_source_new_seconds (interval);
+	g_source_set_callback (source, func, user_data, NULL);
+	g_source_attach (source, context);
+
+	return source;
+}
+
+static gboolean
+watchdog_timeout_cb (gpointer user_data)
+{
+	GetMetadataData *data = user_data;
+	TrackerControllerPrivate *priv = data->controller->priv;
+
+	g_critical ("Extraction task for '%s' went rogue and took more than %d seconds. Forcing exit.",
+		    data->uri, WATCHDOG_TIMEOUT);
+
+	g_main_loop_quit (priv->main_loop);
+
+	return FALSE;
+}
+
 static GetMetadataData *
 metadata_data_new (TrackerController     *controller,
                    const gchar           *uri,
@@ -247,6 +282,9 @@ metadata_data_new (TrackerController     *controller,
 	data->invocation = invocation;
 	data->request = request;
 
+	data->watchdog_source = controller_timeout_source_new (WATCHDOG_TIMEOUT,
+							       watchdog_timeout_cb,
+							       data);
 	return data;
 }
 
@@ -259,6 +297,7 @@ metadata_data_free (GetMetadataData *data)
 	g_free (data->uri);
 	g_free (data->mimetype);
 	g_object_unref (data->cancellable);
+	g_source_destroy (data->watchdog_source);
 	g_slice_free (GetMetadataData, data);
 }
 
@@ -334,7 +373,6 @@ static void
 reset_shutdown_timeout (TrackerController *controller)
 {
 	TrackerControllerPrivate *priv;
-	GSource *source;
 
 	priv = controller->priv;
 
@@ -351,13 +389,9 @@ reset_shutdown_timeout (TrackerController *controller)
 		priv->shutdown_source = NULL;
 	}
 
-	source = g_timeout_source_new_seconds (priv->shutdown_timeout);
-	g_source_set_callback (source,
-	                       reset_shutdown_timeout_cb,
-	                       controller, NULL);
-
-	g_source_attach (source, priv->context);
-	priv->shutdown_source = source;
+	priv->shutdown_source = controller_timeout_source_new (priv->shutdown_timeout,
+							       reset_shutdown_timeout_cb,
+							       controller);
 }
 
 static void
