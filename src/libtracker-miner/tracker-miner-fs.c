@@ -354,6 +354,10 @@ static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *f
 static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
                                                             GFile          *file);
 
+static void           processing_pool_cancel_foreach          (gpointer        data,
+                                                               gpointer        user_data);
+
+
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMinerFS, tracker_miner_fs, TRACKER_TYPE_MINER)
@@ -776,6 +780,10 @@ fs_finalize (GObject *object)
 	g_queue_foreach (priv->crawled_directories, (GFunc) crawled_directory_data_free, NULL);
 	g_queue_free (priv->crawled_directories);
 
+	/* Cancel every pending task */
+	tracker_processing_pool_foreach (priv->processing_pool,
+	                                 processing_pool_cancel_foreach,
+	                                 NULL);
 	tracker_processing_pool_free (priv->processing_pool);
 
 	g_queue_foreach (priv->items_moved, (GFunc) item_moved_data_free, NULL);
@@ -4033,8 +4041,9 @@ processing_pool_cancel_foreach (gpointer data,
 
 	if (ctxt &&
 	    ctxt->cancellable &&
-	    (g_file_equal (task_file, file) ||
-	     g_file_has_prefix (task_file, file))) {
+	    (!file ||
+	     (g_file_equal (task_file, file) ||
+	      g_file_has_prefix (task_file, file)))) {
 		g_cancellable_cancel (ctxt->cancellable);
 	}
 }
