@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-23 17:54+0900\n"
-"PO-Revision-Date: 2011-04-23 17:53+0900\n"
+"POT-Creation-Date: 2011-05-07 15:25+0900\n"
+"PO-Revision-Date: 2011-05-07 15:25+0900\n"
 "Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
 "Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
 "Language: ja\n"
@@ -247,6 +247,8 @@ msgid "File to extract metadata for"
 msgstr "ファイルを指定してメタデータを展開する"
 
 #: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -310,7 +312,7 @@ msgstr ""
 "--force-internal-extractors と --force-module オプションは一緒に指定できませ"
 "ん"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -426,12 +428,52 @@ msgstr "バッテリーが少なくなっています"
 msgid "Low disk space"
 msgstr "ディスクの空き容量が少なくなっています"
 
+#: ../src/miners/rss/tracker-main.c:44
+msgid "Add feed (must be used with --title)"
+msgstr "配信元を追加する (--title も同時に指定すること)"
+
+#: ../src/miners/rss/tracker-main.c:45
+msgid "URL"
+msgstr "URL"
+
+#: ../src/miners/rss/tracker-main.c:48
+msgid "Title to use (must be used with --add-feed)"
+msgstr "タイトルを指定する (--add-feed も同時に指定すること)"
+
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:65
+#: ../src/miners/rss/tracker-main.c:76
 msgid "- start the feeds indexer"
 msgstr "- 配信元のインデックス生成デーモン"
+
+#: ../src/miners/rss/tracker-main.c:81
+msgid "Adding a feed requires --add-feed and --title"
+msgstr "配信元を追加する際は --add-feed と --title の両方を指定して下さい"
+
+#: ../src/miners/rss/tracker-main.c:115
+#: ../src/tracker-utils/tracker-import.c:115
+#: ../src/tracker-utils/tracker-info.c:360
+#: ../src/tracker-utils/tracker-search.c:1441
+#: ../src/tracker-utils/tracker-sparql.c:291
+#: ../src/tracker-utils/tracker-stats.c:92
+#: ../src/tracker-utils/tracker-tag.c:944
+msgid "Could not establish a connection to Tracker"
+msgstr "Tracker への接続を確立できませんでした"
+
+#: ../src/miners/rss/tracker-main.c:116
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:361
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+msgid "No error given"
+msgstr "エラーはありません"
+
+#: ../src/miners/rss/tracker-main.c:141
+msgid "Could not add feed"
+msgstr "配信元を追加できませんでした"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -659,8 +701,26 @@ msgstr "[検索の条件]"
 msgid "Desktop Search user interface using Tracker"
 msgstr "Tracker を使ったデスクトップ検索ツールです"
 
+#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
+#: ../src/tracker-needle/tracker-utils.vala:43
+#, c-format
+msgid "%x"
+msgstr "%x"
+
+#: ../src/tracker-needle/tracker-utils.vala:47
+msgid "Today"
+msgstr "今日"
+
+#: ../src/tracker-needle/tracker-utils.vala:56
+msgid "Tomorrow"
+msgstr "明日"
+
+#: ../src/tracker-needle/tracker-utils.vala:58
+msgid "Yesterday"
+msgstr "昨日"
+
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:61
+#: ../src/tracker-needle/tracker-utils.vala:62
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -668,15 +728,15 @@ msgstr[0] "今から%ld日まで"
 msgstr[1] "今から%ld日まで"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:64
+#: ../src/tracker-needle/tracker-utils.vala:65
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
 msgstr[0] "%ld日前"
 msgstr[1] "%ld日間前"
 
-#: ../src/tracker-needle/tracker-utils.vala:76
-#: ../src/tracker-needle/tracker-utils.vala:105
+#: ../src/tracker-needle/tracker-utils.vala:77
+#: ../src/tracker-needle/tracker-utils.vala:106
 msgid "Less than one second"
 msgstr "1秒以下"
 
@@ -883,11 +943,11 @@ msgstr "ステータスのオプションと収集オプションを同時には
 msgid "Unrecognized options"
 msgstr "不明なオプション"
 
-#: ../src/tracker-control/tracker-control-general.c:72
+#: ../src/tracker-control/tracker-control-general.c:76
 msgid "List all Tracker processes"
 msgstr "全ての Tracker プロセスを一覧表示する"
 
-#: ../src/tracker-control/tracker-control-general.c:74
+#: ../src/tracker-control/tracker-control-general.c:78
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -895,12 +955,12 @@ msgstr ""
 "SIGKILL を使って APPS にマッチするプロセスを停止する (APP は \"store"
 "\"、\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
 
-#: ../src/tracker-control/tracker-control-general.c:75
-#: ../src/tracker-control/tracker-control-general.c:78
+#: ../src/tracker-control/tracker-control-general.c:79
+#: ../src/tracker-control/tracker-control-general.c:82
 msgid "APPS"
 msgstr "APPS"
 
-#: ../src/tracker-control/tracker-control-general.c:77
+#: ../src/tracker-control/tracker-control-general.c:81
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -908,39 +968,47 @@ msgstr ""
 "SIGTERM を使って APPS にマッチするプロセスを停止する (APP は \"store"
 "\"、\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
 
-#: ../src/tracker-control/tracker-control-general.c:80
+#: ../src/tracker-control/tracker-control-general.c:84
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "全ての Tracker プロセスを強制終了してデータベースを全て削除する"
 
-#: ../src/tracker-control/tracker-control-general.c:83
+#: ../src/tracker-control/tracker-control-general.c:87
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr "--hard-reset に加え再起動後にバックアップしたジャーナルをリストアする"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:90
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr "全ての設定ファイルを削除する (そのため次回起動した時に再生成される)"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "収集デーモンを起動する (tracker-store も間接的に起動する)"
 
-#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-general.c:96
+msgid "Backup databases to the file provided"
+msgstr "指定したファイルにデータベースをバックアップする"
+
+#: ../src/tracker-control/tracker-control-general.c:99
+msgid "Restore databases from the file provided"
+msgstr "指定したファイルからデータベースをリストアする"
+
+#: ../src/tracker-control/tracker-control-general.c:121
 msgid "Could not open /proc"
 msgstr "/proc ファイルシステムをオープンできませんでした"
 
-#: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:306
-#: ../src/tracker-control/tracker-control-general.c:346
-#: ../src/tracker-control/tracker-control-general.c:367
+#: ../src/tracker-control/tracker-control-general.c:122
+#: ../src/tracker-control/tracker-control-general.c:353
+#: ../src/tracker-control/tracker-control-general.c:393
+#: ../src/tracker-control/tracker-control-general.c:414
 msgid "no error given"
 msgstr "エラーはありませんでした"
 
-#: ../src/tracker-control/tracker-control-general.c:260
+#: ../src/tracker-control/tracker-control-general.c:307
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "--kill オプションと一緒に --terminate オプションは指定できません"
 
-#: ../src/tracker-control/tracker-control-general.c:266
+#: ../src/tracker-control/tracker-control-general.c:313
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -948,62 +1016,70 @@ msgstr ""
 "--terminate オプションと一緒に --hard-reset または --soft-reset または --"
 "kill オプションは指定できません"
 
-#: ../src/tracker-control/tracker-control-general.c:272
+#: ../src/tracker-control/tracker-control-general.c:319
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 "--hard-reset オプションと一緒に --soft-reset オプションは指定できません"
 
-#: ../src/tracker-control/tracker-control-general.c:303
+#: ../src/tracker-control/tracker-control-general.c:350
 #, c-format
 msgid "Could not open '%s'"
 msgstr "'%s' を開けませんでした"
 
-#: ../src/tracker-control/tracker-control-general.c:328
+#: ../src/tracker-control/tracker-control-general.c:375
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "'%2$s' プロセス (PID:%1$d) が起動中です"
 
-#: ../src/tracker-control/tracker-control-general.c:343
+#: ../src/tracker-control/tracker-control-general.c:390
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "PID:%d のプロセスを終了できませんでした"
 
-#: ../src/tracker-control/tracker-control-general.c:349
+#: ../src/tracker-control/tracker-control-general.c:396
 #, c-format
 msgid "Terminated process %d"
 msgstr "PID:%d のプロセスを終了しました"
 
-#: ../src/tracker-control/tracker-control-general.c:364
+#: ../src/tracker-control/tracker-control-general.c:411
 #, c-format
 msgid "Could not kill process %d"
 msgstr "PID:%d のプロセスを強制終了できませんでした"
 
-#: ../src/tracker-control/tracker-control-general.c:370
+#: ../src/tracker-control/tracker-control-general.c:417
 #, c-format
 msgid "Killed process %d"
 msgstr "PID:%d のプロセスを強制終了しました"
 
-#: ../src/tracker-control/tracker-control-general.c:487
+#: ../src/tracker-control/tracker-control-general.c:534
 msgid "Removing configuration files…"
 msgstr "設定ファイルの削除中..."
 
-#: ../src/tracker-control/tracker-control-general.c:501
+#: ../src/tracker-control/tracker-control-general.c:548
 msgid "Waiting one second before starting miners…"
 msgstr "収集デーモンを起動する前に1秒間待機しています..."
 
-#: ../src/tracker-control/tracker-control-general.c:507
+#: ../src/tracker-control/tracker-control-general.c:554
 msgid "Starting miners…"
 msgstr "収集デーモンの起動中..."
 
-#: ../src/tracker-control/tracker-control-general.c:525
+#: ../src/tracker-control/tracker-control-general.c:572
 msgid "perhaps a disabled plugin?"
 msgstr "プラグインが無効になっているかも？"
 
-#: ../src/tracker-control/tracker-control-general.c:548
+#: ../src/tracker-control/tracker-control-general.c:594
+msgid "Backing up database"
+msgstr "データベースのバックアップ中"
+
+#: ../src/tracker-control/tracker-control-general.c:666
+msgid "Restoring database from backup"
+msgstr "データベースのリストア中"
+
+#: ../src/tracker-control/tracker-control-general.c:739
 msgid "General options"
 msgstr "全般のオプション"
 
-#: ../src/tracker-control/tracker-control-general.c:549
+#: ../src/tracker-control/tracker-control-general.c:740
 msgid "Show general options"
 msgstr "全般のオプションを表示する"
 
@@ -1252,24 +1328,6 @@ msgstr "- Turtle 形式のファイルを使ってデータをインポートす
 msgid "One or more files have not been specified"
 msgstr "1個以上のファイルを指定して下さい"
 
-#: ../src/tracker-utils/tracker-import.c:115
-#: ../src/tracker-utils/tracker-info.c:360
-#: ../src/tracker-utils/tracker-search.c:1441
-#: ../src/tracker-utils/tracker-sparql.c:291
-#: ../src/tracker-utils/tracker-stats.c:92
-#: ../src/tracker-utils/tracker-tag.c:944
-msgid "Could not establish a connection to Tracker"
-msgstr "Tracker への接続を確立できませんでした"
-
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:361
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-msgid "No error given"
-msgstr "エラーはありません"
-
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
 msgstr "Turtle 形式のファイルのインポート中"
@@ -1428,8 +1486,8 @@ msgstr "式"
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
-"注意: 制限に到達しました (そのため、ここに表示されていないアイテムがデータ"
-"ベースの中にあります)"
+"注意: 上限に到達しました (そのため、ここに表示されていないアイテムがまだデー"
+"タベースの中にあります)"
 
 #: ../src/tracker-utils/tracker-search.c:221
 #: ../src/tracker-utils/tracker-search.c:326
