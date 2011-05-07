@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-04-29 16:48+0000\n"
-"PO-Revision-Date: 2011-04-29 20:40+0200\n"
+"POT-Creation-Date: 2011-05-05 09:22+0000\n"
+"PO-Revision-Date: 2011-05-06 10:31+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -527,6 +527,8 @@ msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
 #: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -588,7 +590,7 @@ msgstr ""
 "Las opciones «--force-internal-extractors» y «--force-module» no se pueden "
 "usar a la vez"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -704,12 +706,53 @@ msgstr "Batería baja"
 msgid "Low disk space"
 msgstr "Espacio en disco bajo"
 
+#: ../src/miners/rss/tracker-main.c:44
+msgid "Add feed (must be used with --title)"
+msgstr "Añadir proveedor (se debe usar con «--title»)"
+
+#: ../src/miners/rss/tracker-main.c:45
+msgid "URL"
+msgstr "URL"
+
+#: ../src/miners/rss/tracker-main.c:48
+msgid "Title to use (must be used with --add-feed)"
+msgstr "Título que usar (se debe usar con «--add-feed»)"
+
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:65
+#: ../src/miners/rss/tracker-main.c:76
 msgid "- start the feeds indexer"
 msgstr "- iniciar el indexador de proveedores"
+
+#: ../src/miners/rss/tracker-main.c:81
+msgid "Adding a feed requires --add-feed and --title"
+msgstr "Para añadir un proveedor se requiere «--add-feed» y «--title»"
+
+#: ../src/miners/rss/tracker-main.c:115
+#: ../src/tracker-utils/tracker-import.c:115
+#: ../src/tracker-utils/tracker-info.c:360
+#: ../src/tracker-utils/tracker-search.c:1441
+#: ../src/tracker-utils/tracker-sparql.c:291
+#: ../src/tracker-utils/tracker-stats.c:92
+#: ../src/tracker-utils/tracker-tag.c:944
+msgid "Could not establish a connection to Tracker"
+msgstr "No se pudo establecer una conexión con Tracker"
+
+#: ../src/miners/rss/tracker-main.c:116
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:361
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+msgid "No error given"
+msgstr "No se proporcionó ningún error"
+
+#: ../src/miners/rss/tracker-main.c:141
+#| msgid "Could not read file"
+msgid "Could not add feed"
+msgstr "No se pudo añadir el proveedor"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -1192,11 +1235,11 @@ msgstr "Las opciones de estados y de mineros no se pueden usar juntas"
 msgid "Unrecognized options"
 msgstr "No se reconocieron las opciones"
 
-#: ../src/tracker-control/tracker-control-general.c:72
+#: ../src/tracker-control/tracker-control-general.c:76
 msgid "List all Tracker processes"
 msgstr "Listar todos los procesos de Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:74
+#: ../src/tracker-control/tracker-control-general.c:78
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1204,12 +1247,12 @@ msgstr ""
 "Usar SIGKILL para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro iguala a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:75
-#: ../src/tracker-control/tracker-control-general.c:78
+#: ../src/tracker-control/tracker-control-general.c:79
+#: ../src/tracker-control/tracker-control-general.c:82
 msgid "APPS"
 msgstr "APLICACIONES"
 
-#: ../src/tracker-control/tracker-control-general.c:77
+#: ../src/tracker-control/tracker-control-general.c:81
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1217,105 +1260,121 @@ msgstr ""
 "Usar SIGTERM para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro equivale a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:80
+#: ../src/tracker-control/tracker-control-general.c:84
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matar todos los procesos de Tracker y borrar todas las bases de datos"
 
-#: ../src/tracker-control/tracker-control-general.c:83
+#: ../src/tracker-control/tracker-control-general.c:87
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Igual que --hard-reset pero el respaldo y el diario se restauran después de "
 "reiniciar"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:90
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Quitar todos los archivos de configuración para que se regeneren en el "
 "siguiente inicio"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Iniciar mineros (que indirectamente inicia Tracker también)"
 
-#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-general.c:96
+msgid "Backup databases to the file provided"
+msgstr "Respaldar bases de datos al archivo proporcionado"
+
+#: ../src/tracker-control/tracker-control-general.c:99
+msgid "Restore databases from the file provided"
+msgstr "Restaurar bases de datos desde el archivo proporcionado"
+
+#: ../src/tracker-control/tracker-control-general.c:121
 msgid "Could not open /proc"
 msgstr "No se pudo abrir /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:306
-#: ../src/tracker-control/tracker-control-general.c:346
-#: ../src/tracker-control/tracker-control-general.c:367
+#: ../src/tracker-control/tracker-control-general.c:122
+#: ../src/tracker-control/tracker-control-general.c:353
+#: ../src/tracker-control/tracker-control-general.c:393
+#: ../src/tracker-control/tracker-control-general.c:414
 msgid "no error given"
 msgstr "no se proporcionó ningún error"
 
-#: ../src/tracker-control/tracker-control-general.c:260
+#: ../src/tracker-control/tracker-control-general.c:307
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos «--kill» y «--terminate» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:266
+#: ../src/tracker-control/tracker-control-general.c:313
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» "
-"está implicado"
+"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
+"implicado"
 
-#: ../src/tracker-control/tracker-control-general.c:272
+#: ../src/tracker-control/tracker-control-general.c:319
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "No puede usar los argumentos «--hard-reset» y «--soft-reset» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:303
+#: ../src/tracker-control/tracker-control-general.c:350
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No se pudo abrir «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:328
+#: ../src/tracker-control/tracker-control-general.c:375
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:343
+#: ../src/tracker-control/tracker-control-general.c:390
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No se pudo terminar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:349
+#: ../src/tracker-control/tracker-control-general.c:396
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proceso %d terminado"
 
-#: ../src/tracker-control/tracker-control-general.c:364
+#: ../src/tracker-control/tracker-control-general.c:411
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No se pudo matar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:370
+#: ../src/tracker-control/tracker-control-general.c:417
 #, c-format
 msgid "Killed process %d"
 msgstr "Proceso %d matado"
 
-#: ../src/tracker-control/tracker-control-general.c:488
+#: ../src/tracker-control/tracker-control-general.c:535
 msgid "Removing configuration files…"
 msgstr "Quitando archivos de configuración…"
 
-#: ../src/tracker-control/tracker-control-general.c:502
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "Waiting one second before starting miners…"
 msgstr "Esperando un segundo antes de iniciar los mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:508
+#: ../src/tracker-control/tracker-control-general.c:555
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:529
+#: ../src/tracker-control/tracker-control-general.c:576
 msgid "perhaps a disabled plugin?"
 msgstr "¿quizá es un complemento desactivado?"
 
-#: ../src/tracker-control/tracker-control-general.c:552
+#: ../src/tracker-control/tracker-control-general.c:598
+msgid "Backing up database"
+msgstr "Respaldando base de datos"
+
+#: ../src/tracker-control/tracker-control-general.c:670
+msgid "Restoring database from backup"
+msgstr "Restaurando base de datos desde el respaldo"
+
+#: ../src/tracker-control/tracker-control-general.c:743
 msgid "General options"
 msgstr "Opciones generales"
 
-#: ../src/tracker-control/tracker-control-general.c:553
+#: ../src/tracker-control/tracker-control-general.c:744
 msgid "Show general options"
 msgstr "Mostrar las opciones generales"
 
@@ -1528,7 +1587,6 @@ msgstr "No se pudo obtener el estado del minero: %s"
 #. Translators: %s is a time string
 #: ../src/tracker-control/tracker-control-status.c:197
 #, c-format
-#| msgid "remaining"
 msgid "%s remaining"
 msgstr "%s restante"
 
@@ -1573,24 +1631,6 @@ msgstr "- Importar datos usando archivos Turtle"
 #: ../src/tracker-utils/tracker-info.c:338
 msgid "One or more files have not been specified"
 msgstr "No se especificó uno o más archivos"
-
-#: ../src/tracker-utils/tracker-import.c:115
-#: ../src/tracker-utils/tracker-info.c:360
-#: ../src/tracker-utils/tracker-search.c:1441
-#: ../src/tracker-utils/tracker-sparql.c:291
-#: ../src/tracker-utils/tracker-stats.c:92
-#: ../src/tracker-utils/tracker-tag.c:944
-msgid "Could not establish a connection to Tracker"
-msgstr "No se pudo establecer una conexión con Tracker"
-
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:361
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-msgid "No error given"
-msgstr "No se proporcionó ningún error"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
@@ -1678,8 +1718,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
-"music-artists», «--feeds», «--software», «--software-categories»)"
+"Mostrar URN para los resultados (no se aplica para «--music-albums», «--music-"
+"artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker-utils/tracker-search.c:83
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2273,8 +2313,8 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Include details with state updates (only applies to --follow)"
 #~ msgstr ""
-#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a "
-#~ "«--follow»)"
+#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a «--"
+#~ "follow»)"
 
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Icono de estado de Tracker"
@@ -2879,8 +2919,7 @@ msgstr "Conjunto de resultados vacío"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
-#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los "
-#~ "datos)"
+#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
 
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
@@ -3419,8 +3458,7 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
 
 #~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-#~ msgstr ""
-#~ "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
 
 #~ msgid "Last file to be indexed was '%s'"
 #~ msgstr "El último archivo indexado fue «%s»"
@@ -3803,8 +3841,7 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-#~ msgstr ""
-#~ "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #~ msgid "Could not delete \"%s\"."
 #~ msgstr "No se pudo borrar «%s»."
