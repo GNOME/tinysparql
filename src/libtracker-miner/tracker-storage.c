@@ -47,11 +47,13 @@ typedef struct {
 
 	GNode *mounts;
 	GHashTable *mounts_by_uuid;
+	GHashTable *unmount_watchdogs;
 } TrackerStoragePrivate;
 
 typedef struct {
 	gchar *mount_point;
 	gchar *uuid;
+	guint unmount_timer_id;
 	guint removable : 1;
 	guint optical : 1;
 } MountInfo;
@@ -67,6 +69,11 @@ typedef struct {
 	gboolean exact_match;
 } GetRoots;
 
+typedef struct {
+	TrackerStorage *storage;
+	GMount *mount;
+} UnmountCheckData;
+
 static void     tracker_storage_finalize (GObject        *object);
 static gboolean mount_info_free          (GNode          *node,
                                           gpointer        user_data);
@@ -76,6 +83,9 @@ static void     mount_added_cb           (GVolumeMonitor *monitor,
                                           GMount         *mount,
                                           gpointer        user_data);
 static void     mount_removed_cb         (GVolumeMonitor *monitor,
+                                          GMount         *mount,
+                                          gpointer        user_data);
+static void     mount_pre_removed_cb     (GVolumeMonitor *monitor,
                                           GMount         *mount,
                                           gpointer        user_data);
 
@@ -143,6 +153,8 @@ tracker_storage_init (TrackerStorage *storage)
 	                                              g_str_equal,
 	                                              (GDestroyNotify) g_free,
 	                                              NULL);
+	priv->unmount_watchdogs = g_hash_table_new_full (NULL, NULL, NULL,
+							 (GDestroyNotify) g_source_remove);
 
 	priv->volume_monitor = g_volume_monitor_get ();
 
@@ -150,7 +162,7 @@ tracker_storage_init (TrackerStorage *storage)
 	g_signal_connect_object (priv->volume_monitor, "mount-removed",
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
 	g_signal_connect_object (priv->volume_monitor, "mount-pre-unmount",
-	                         G_CALLBACK (mount_removed_cb), storage, 0);
+	                         G_CALLBACK (mount_pre_removed_cb), storage, 0);
 	g_signal_connect_object (priv->volume_monitor, "mount-added",
 	                         G_CALLBACK (mount_added_cb), storage, 0);
 
@@ -168,6 +180,8 @@ tracker_storage_finalize (GObject *object)
 	TrackerStoragePrivate *priv;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (object);
+
+	g_hash_table_destroy (priv->unmount_watchdogs);
 
 	if (priv->mounts_by_uuid) {
 		g_hash_table_unref (priv->mounts_by_uuid);
@@ -717,11 +731,9 @@ mount_added_cb (GVolumeMonitor *monitor,
 }
 
 static void
-mount_removed_cb (GVolumeMonitor *monitor,
-                  GMount         *mount,
-                  gpointer        user_data)
+mount_remove (TrackerStorage *storage,
+              GMount         *mount)
 {
-	TrackerStorage *storage;
 	TrackerStoragePrivate *priv;
 	MountInfo *info;
 	GNode *node;
@@ -730,7 +742,6 @@ mount_removed_cb (GVolumeMonitor *monitor,
 	gchar *mount_point;
 	gchar *mp;
 
-	storage = user_data;
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	file = g_mount_get_root (mount);
@@ -762,6 +773,72 @@ mount_removed_cb (GVolumeMonitor *monitor,
 	g_free (name);
 	g_free (mount_point);
 	g_object_unref (file);
+}
+
+static void
+mount_removed_cb (GVolumeMonitor *monitor,
+                  GMount         *mount,
+                  gpointer        user_data)
+{
+	TrackerStorage *storage;
+	TrackerStoragePrivate *priv;
+
+	storage = user_data;
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
+
+	mount_remove (storage, mount);
+
+	/* Unmount suceeded, remove the pending check */
+	g_hash_table_remove (priv->unmount_watchdogs, mount);
+}
+
+static gboolean
+unmount_failed_cb (gpointer user_data)
+{
+	UnmountCheckData *data = user_data;
+	TrackerStoragePrivate *priv;
+
+	/* If this timeout gets to be executed, this is due
+	 * to a pre-unmount signal with no corresponding
+	 * unmount in a timely fashion, we assume this is
+	 * due to an error, and add back the still mounted
+	 * path.
+	 */
+	priv = TRACKER_STORAGE_GET_PRIVATE (data->storage);
+
+	g_warning ("Unmount operation failed, adding back mount point...");
+
+	mount_add (data->storage, data->mount);
+
+	g_hash_table_remove (priv->unmount_watchdogs, data->mount);
+	return FALSE;
+}
+
+static void
+mount_pre_removed_cb (GVolumeMonitor *monitor,
+                      GMount         *mount,
+                      gpointer        user_data)
+{
+	TrackerStorage *storage;
+	TrackerStoragePrivate *priv;
+	UnmountCheckData *data;
+	guint id;
+
+	storage = user_data;
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
+
+	mount_remove (storage, mount);
+
+	/* Add check for failed unmounts */
+	data = g_new (UnmountCheckData, 1);
+	data->storage = storage;
+	data->mount = mount;
+
+	id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 1,
+	                                 unmount_failed_cb,
+	                                 data, (GDestroyNotify) g_free);
+	g_hash_table_insert (priv->unmount_watchdogs, data->mount,
+	                     GUINT_TO_POINTER (id));
 }
 
 /**
