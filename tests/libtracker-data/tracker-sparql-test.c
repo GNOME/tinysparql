@@ -76,6 +76,7 @@ const TestInfo tests[] = {
 	{ "datetime/delete-1", "datetime/data-3", FALSE },
 	{ "datetime/functions-localtime-1", "datetime/data-1", FALSE },
 	{ "datetime/functions-timezone-1", "datetime/data-2", FALSE },
+	{ "datetime/functions-timezone-2", "datetime/data-2", FALSE },
 	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },
