@@ -89,47 +89,47 @@ public class Tracker.Stats : Dialog {
 
 				switch (key) {
 				case "nao:Tag":
-					key_used = ngettext ("Tag", "Tags", val.to_int ());
+					key_used = ngettext ("Tag", "Tags", int.parse (val));
 					break;
 				case "nco:Contact":
-					key_used = ngettext ("Contact", "Contacts", val.to_int ());
+					key_used = ngettext ("Contact", "Contacts", int.parse (val));
 					break;
 				case "nfo:Audio":
-					key_used = ngettext ("Audio", "Audios", val.to_int ());
+					key_used = ngettext ("Audio", "Audios", int.parse (val));
 					break;
 				case "nfo:Document":
-					key_used = ngettext ("Document", "Documents", val.to_int ());
+					key_used = ngettext ("Document", "Documents", int.parse (val));
 					break;
 				case "nfo:FileDataObject":
-					key_used = ngettext ("File", "Files", val.to_int ());
+					key_used = ngettext ("File", "Files", int.parse (val));
 					break;
 				case "nfo:Folder":
-					key_used = ngettext ("Folder", "Folders", val.to_int ());
+					key_used = ngettext ("Folder", "Folders", int.parse (val));
 					break;
 				case "nfo:Image":
-					key_used = ngettext ("Image", "Images", val.to_int ());
+					key_used = ngettext ("Image", "Images", int.parse (val));
 					break;
 				case "nfo:SoftwareApplication":
-					key_used = ngettext ("Application", "Applications", val.to_int ());
+					key_used = ngettext ("Application", "Applications", int.parse (val));
 					break;
 				case "nfo:Video":
 			  //case "nmm:Video":
-					key_used = ngettext ("Video", "Videos", val.to_int ());
+					key_used = ngettext ("Video", "Videos", int.parse (val));
 					break;
 				case "nmm:MusicAlbum":
-					key_used = ngettext ("Album", "Albums", val.to_int ());
+					key_used = ngettext ("Album", "Albums", int.parse (val));
 					break;
 				case "nmm:MusicPiece":
-					key_used = ngettext ("Music Track", "Music Tracks", val.to_int ());
+					key_used = ngettext ("Music Track", "Music Tracks", int.parse (val));
 					break;
 				case "nmm:Photo":
-					key_used = ngettext ("Photo", "Photos", val.to_int ());
+					key_used = ngettext ("Photo", "Photos", int.parse (val));
 					break;
 				case "nmm:Playlist":
-					key_used = ngettext ("Playlist", "Playlists", val.to_int ());
+					key_used = ngettext ("Playlist", "Playlists", int.parse (val));
 					break;
 				case "nmo:Email":
-					key_used = ngettext ("Email", "Emails", val.to_int ());
+					key_used = ngettext ("Email", "Emails", int.parse (val));
 					break;
 				
 				default:

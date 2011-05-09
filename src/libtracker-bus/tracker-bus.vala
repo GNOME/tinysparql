@@ -33,8 +33,6 @@ private interface Tracker.Bus.Steroids : DBusProxy {
 	public abstract async void batch_update (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
 	[DBus (signature = "as")]
 	public abstract async Variant update_array (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	[DBus (signature = "as")]
-	public abstract async Variant batch_update_array (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
 
 	[DBus (visible = false)]
 	public void update_begin (UnixInputStream sparql_stream, int priority, Cancellable? cancellable, AsyncReadyCallback callback) {

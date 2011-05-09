@@ -374,7 +374,7 @@ public class Tracker.View : ScrolledWindow {
 		tree_model.get (iter, 4, out size, -1);
 
 		if (size != null) {
-			size = GLib.format_size_for_display (size.to_int());
+			size = GLib.format_size_for_display (int.parse (size));
 		}
 
 		cell.set ("text", size);
@@ -425,7 +425,7 @@ public class Tracker.View : ScrolledWindow {
 			detail = detail + " " + _("Pages");
 			break;
 		case Tracker.Query.Type.IMAGES:
-			detail = GLib.format_size_for_display (detail.to_int());
+			detail = GLib.format_size_for_display (int.parse (detail));
 			break;
 		}
 

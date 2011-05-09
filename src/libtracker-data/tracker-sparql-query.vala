@@ -354,8 +354,7 @@ public class Tracker.Sparql.Query : Object {
 
 	internal string get_last_string (int strip = 0) {
 		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
-		// do not switch to substring for performance reasons until we require Vala 0.11.6
-		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
+		return ((string) (tokens[last_index].begin.pos + strip)).substring (0, (int) (tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
 	void parse_prologue () throws Sparql.Error {
@@ -498,7 +497,7 @@ public class Tracker.Sparql.Query : Object {
 			} else if (binding.data_type == PropertyType.DATETIME) {
 				stmt.bind_int (i, string_to_date (binding.literal, null));
 			} else if (binding.data_type == PropertyType.INTEGER) {
-				stmt.bind_int (i, binding.literal.to_int ());
+				stmt.bind_int (i, int.parse (binding.literal));
 			} else {
 				stmt.bind_text (i, binding.literal);
 			}

@@ -239,7 +239,7 @@ public class Tracker.Store {
 	public static void init () {
 		string max_task_time_env = Environment.get_variable ("TRACKER_STORE_MAX_TASK_TIME");
 		if (max_task_time_env != null) {
-			max_task_time = max_task_time_env.to_int ();
+			max_task_time = int.parse (max_task_time_env);
 		} else {
 			max_task_time = MAX_TASK_TIME;
 		}

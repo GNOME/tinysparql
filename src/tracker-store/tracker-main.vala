@@ -259,14 +259,14 @@ License which can be viewed at:
 
 		cache_size_s = Environment.get_variable ("TRACKER_STORE_SELECT_CACHE_SIZE");
 		if (cache_size_s != null && cache_size_s != "") {
-			select_cache_size = cache_size_s.to_int ();
+			select_cache_size = int.parse (cache_size_s);
 		} else {
 			select_cache_size = SELECT_CACHE_SIZE;
 		}
 
 		cache_size_s = Environment.get_variable ("TRACKER_STORE_UPDATE_CACHE_SIZE");
 		if (cache_size_s != null && cache_size_s != "") {
-			update_cache_size = cache_size_s.to_int ();
+			update_cache_size = int.parse (cache_size_s);
 		} else {
 			update_cache_size = UPDATE_CACHE_SIZE;
 		}

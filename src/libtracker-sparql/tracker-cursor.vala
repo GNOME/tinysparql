@@ -220,7 +220,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public virtual int64 get_integer (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
 		unowned string as_str = get_string (column);
-		return as_str.to_int64();
+		return int64.parse (as_str);
 	}
 
 	/**
@@ -237,7 +237,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public virtual double get_double (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
 		unowned string as_str = get_string (column);
-		return as_str.to_double();
+		return double.parse (as_str);
 	}
 
 	/**

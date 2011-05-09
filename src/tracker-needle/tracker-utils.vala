@@ -69,7 +69,7 @@ public string tracker_time_format_from_iso8601 (string s) {
 }
 
 public string tracker_time_format_from_seconds (string seconds_str) {
-	double seconds = seconds_str.to_int ();
+	double seconds = int.parse (seconds_str);
 	double total;
 	int d, h, m, s;
 	
