@@ -961,6 +961,11 @@ class Tracker.Sparql.Pattern : Object {
 							// first used in optional part
 							context.parent_context.var_set.insert (v, VariableState.OPTIONAL);
 							select.append_printf ("t%d_g.%s", right_index, v.sql_expression);
+
+							if (v.binding.data_type == PropertyType.DATETIME) {
+								select.append_printf (", t%d_g.%s", right_index, v.get_extra_sql_expression ("localDate"));
+								select.append_printf (", t%d_g.%s", right_index, v.get_extra_sql_expression ("localTime"));
+							}
 						} else {
 							if (first_common) {
 								sql.append (" ON ");
@@ -973,10 +978,20 @@ class Tracker.Sparql.Pattern : Object {
 								// variable definitely bound in non-optional part
 								sql.append_printf ("t%d_g.%s = t%d_g.%s", left_index, v.sql_expression, right_index, v.sql_expression);
 								select.append_printf ("t%d_g.%s", left_index, v.sql_expression);
+
+								if (v.binding.data_type == PropertyType.DATETIME) {
+									select.append_printf (", t%d_g.%s", left_index, v.get_extra_sql_expression ("localDate"));
+									select.append_printf (", t%d_g.%s", left_index, v.get_extra_sql_expression ("localTime"));
+								}
 							} else if (old_state == VariableState.OPTIONAL) {
 								// variable maybe bound in non-optional part
 								sql.append_printf ("(t%d_g.%s IS NULL OR t%d_g.%s = t%d_g.%s)", left_index, v.sql_expression, left_index, v.sql_expression, right_index, v.sql_expression);
 								select.append_printf ("COALESCE (t%d_g.%s, t%d_g.%s) AS %s", left_index, v.sql_expression, right_index, v.sql_expression, v.sql_expression);
+
+								if (v.binding.data_type == PropertyType.DATETIME) {
+									select.append_printf (", COALESCE (t%d_g.%s, t%d_g.%s) AS %s", left_index, v.get_extra_sql_expression ("localDate"), right_index, v.get_extra_sql_expression ("localDate"), v.get_extra_sql_expression ("localDate"));
+									select.append_printf (", COALESCE (t%d_g.%s, t%d_g.%s) AS %s", left_index, v.get_extra_sql_expression ("localTime"), right_index, v.get_extra_sql_expression ("localTime"), v.get_extra_sql_expression ("localTime"));
+								}
 							}
 						}
 					}
@@ -990,6 +1005,11 @@ class Tracker.Sparql.Pattern : Object {
 							}
 
 							select.append_printf ("t%d_g.%s", left_index, v.sql_expression);
+
+							if (v.binding.data_type == PropertyType.DATETIME) {
+								select.append_printf (", t%d_g.%s", left_index, v.get_extra_sql_expression ("localDate"));
+								select.append_printf (", t%d_g.%s", left_index, v.get_extra_sql_expression ("localTime"));
+							}
 						}
 					}
 					if (first) {
