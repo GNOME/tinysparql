@@ -316,7 +316,7 @@ class Tracker.Sparql.Backend : Connection {
 		int verbosity = 0;
 		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
 		if (env_verbosity != null)
-			verbosity = env_verbosity.to_int ();
+			verbosity = int.parse (env_verbosity);
 
 		LogLevelFlags remove_levels = 0;
 

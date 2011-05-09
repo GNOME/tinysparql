@@ -384,17 +384,17 @@ class Tracker.Sparql.Pattern : Object {
 
 		if (accept (SparqlTokenType.LIMIT)) {
 			expect (SparqlTokenType.INTEGER);
-			limit = get_last_string ().to_int ();
+			limit = int.parse (get_last_string ());
 			if (accept (SparqlTokenType.OFFSET)) {
 				expect (SparqlTokenType.INTEGER);
-				offset = get_last_string ().to_int ();
+				offset = int.parse (get_last_string ());
 			}
 		} else if (accept (SparqlTokenType.OFFSET)) {
 			expect (SparqlTokenType.INTEGER);
-			offset = get_last_string ().to_int ();
+			offset = int.parse (get_last_string ());
 			if (accept (SparqlTokenType.LIMIT)) {
 				expect (SparqlTokenType.INTEGER);
-				limit = get_last_string ().to_int ();
+				limit = int.parse (get_last_string ());
 			}
 		}
 

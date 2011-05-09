@@ -27,7 +27,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
 		if (env_cache_size != null) {
-			select_cache_size = env_cache_size.to_int();
+			select_cache_size = int.parse (env_cache_size);
 		}
 
 		try {

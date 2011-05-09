@@ -90,7 +90,6 @@ public class Tracker.TagList : ScrolledWindow {
 	                                 TreeIter     iter) {
 		string text, subtext;
 		string markup = null;
-		int n_children;
 
 		tree_model.get (iter, 1, out text, 2, out subtext, -1);
 
