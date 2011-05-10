@@ -24,6 +24,8 @@
 #include "tracker-module-manager.h"
 
 #define EXTRACTOR_FUNCTION "tracker_extract_get_metadata"
+#define INIT_FUNCTION      "tracker_extract_module_init"
+#define SHUTDOWN_FUNCTION  "tracker_extract_module_shutdown"
 
 typedef struct {
 	const gchar *module_path; /* intern string */
@@ -32,7 +34,10 @@ typedef struct {
 
 typedef struct {
 	GModule *module;
-	TrackerExtractMetadataFunc func;
+	TrackerModuleThreadAwareness thread_awareness;
+	TrackerExtractMetadataFunc extract_func;
+	TrackerExtractInitFunc init_func;
+	TrackerExtractShutdownFunc shutdown_func;
 } ModuleInfo;
 
 static GHashTable *modules = NULL;
@@ -205,16 +210,24 @@ lookup_rule (const gchar *mimetype)
 }
 
 GModule *
-tracker_extract_module_manager_get_for_mimetype (const gchar                *mimetype,
-                                                 TrackerExtractMetadataFunc *func)
+tracker_extract_module_manager_get_for_mimetype (const gchar                  *mimetype,
+                                                 TrackerExtractInitFunc       *init_func,
+                                                 TrackerExtractShutdownFunc   *shutdown_func,
+                                                 TrackerExtractMetadataFunc   *extract_func)
 {
-	TrackerExtractMetadataFunc extract_func;
-	ModuleInfo *module_info;
-	GModule *module;
+	ModuleInfo *module_info = NULL;
 	RuleInfo *info;
 
-	if (*func) {
-		*func = NULL;
+	if (init_func) {
+		*init_func = NULL;
+	}
+
+	if (shutdown_func) {
+		*shutdown_func = NULL;
+	}
+
+	if (extract_func) {
+		*extract_func = NULL;
 	}
 
 	if (!initialized &&
@@ -230,53 +243,60 @@ tracker_extract_module_manager_get_for_mimetype (const gchar                *mim
 
 	if (modules) {
 		module_info = g_hash_table_lookup (modules, info->module_path);
+	}
 
-		if (module_info) {
-			if (func) {
-				*func = module_info->func;
-			}
+	if (!module_info) {
+		GModule *module;
 
-			return module_info->module;
+		/* Load the module */
+		module = g_module_open (info->module_path, G_MODULE_BIND_LOCAL);
+
+		if (!module) {
+			g_warning ("Could not load module '%s': %s",
+			           info->module_path,
+			           g_module_error ());
+			return NULL;
 		}
+
+		g_module_make_resident (module);
+
+		module_info = g_slice_new0 (ModuleInfo);
+		module_info->module = module;
+
+		if (!g_module_symbol (module, EXTRACTOR_FUNCTION, (gpointer *) &module_info->extract_func)) {
+			g_warning ("Could not load module '%s': Function %s() was not found, is it exported?",
+			           g_module_name (module), EXTRACTOR_FUNCTION);
+			g_slice_free (ModuleInfo, module_info);
+			return NULL;
+		}
+
+		g_module_symbol (module, INIT_FUNCTION, (gpointer *) &module_info->init_func);
+		g_module_symbol (module, SHUTDOWN_FUNCTION, (gpointer *) &module_info->shutdown_func);
+
+		/* Add it to the cache */
+		if (G_UNLIKELY (!modules)) {
+			/* Key is an intern string, so
+			 * pointer comparison suffices
+			 */
+			modules = g_hash_table_new (NULL, NULL);
+		}
+
+		g_hash_table_insert (modules, (gpointer) info->module_path, module_info);
 	}
 
-	/* Load the module */
-	module = g_module_open (info->module_path, G_MODULE_BIND_LOCAL);
-
-	if (!module) {
-		g_warning ("Could not load module '%s': %s",
-		           info->module_path,
-		           g_module_error ());
-		return NULL;
+	if (extract_func) {
+		*extract_func = module_info->extract_func;
 	}
 
-	g_module_make_resident (module);
-
-	if (!g_module_symbol (module, EXTRACTOR_FUNCTION, (gpointer *) &extract_func)) {
-		g_warning ("Could not load module '%s': Function %s() was not found, is it exported?",
-		           g_module_name (module), EXTRACTOR_FUNCTION);
-		return NULL;
+	if (init_func) {
+		*init_func = module_info->init_func;
 	}
 
-	/* Add it to the cache */
-	if (G_UNLIKELY (!modules)) {
-		/* Key is an intern string, so
-		 * pointer comparison suffices
-		 */
-		modules = g_hash_table_new (NULL, NULL);
+	if (shutdown_func) {
+		*shutdown_func = module_info->shutdown_func;
 	}
 
-	module_info = g_slice_new0 (ModuleInfo);
-	module_info->module = module;
-	module_info->func = extract_func;
-
-	g_hash_table_insert (modules, (gpointer) info->module_path, module_info);
-
-	if (func) {
-		*func = extract_func;
-	}
-
-	return module;
+	return module_info->module;
 }
 
 gboolean

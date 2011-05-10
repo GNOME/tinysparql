@@ -25,6 +25,7 @@
 #endif
 
 #include <libtracker-sparql/tracker-sparql.h>
+#include "tracker-module-manager.h"
 
 G_BEGIN_DECLS
 
@@ -94,6 +95,10 @@ G_BEGIN_DECLS
  * Since: 0.12
  */
 
+gboolean tracker_extract_module_init     (TrackerModuleThreadAwareness  *thread_awareness_ret,
+                                          GError                       **error);
+gboolean tracker_extract_module_shutdown (void);
+
 /**
  * tracker_extract_get_metadata:
  * @uri: a string representing a URI.
@@ -139,7 +144,7 @@ gboolean tracker_extract_get_metadata (const gchar          *uri,
                                        TrackerSparqlBuilder *preupdate,
                                        TrackerSparqlBuilder *metadata,
                                        GString              *where);
-                                       
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_EXTRACT_DATA_H__ */

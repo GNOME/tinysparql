@@ -31,6 +31,17 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+	TRACKER_MODULE_NONE,
+	TRACKER_MODULE_MAIN_THREAD,
+	TRACKER_MODULE_SINGLE_THREAD,
+	TRACKER_MODULE_MULTI_THREAD
+} TrackerModuleThreadAwareness;
+
+typedef gboolean (* TrackerExtractInitFunc)     (TrackerModuleThreadAwareness  *thread_awareness_ret,
+                                                 GError                       **error);
+typedef void     (* TrackerExtractShutdownFunc) (void);
+
 typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
                                                  const gchar          *mime_type,
                                                  TrackerSparqlBuilder *preupdate,
@@ -39,8 +50,10 @@ typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
 
 
 gboolean  tracker_extract_module_manager_init                (void) G_GNUC_CONST;
-GModule * tracker_extract_module_manager_get_for_mimetype    (const gchar                *mimetype,
-                                                              TrackerExtractMetadataFunc *func);
+GModule * tracker_extract_module_manager_get_for_mimetype    (const gchar                  *mimetype,
+                                                              TrackerExtractInitFunc       *init_func,
+                                                              TrackerExtractShutdownFunc   *shutdown_func,
+                                                              TrackerExtractMetadataFunc   *extract_func);
 gboolean  tracker_extract_module_manager_mimetype_is_handled (const gchar                *mimetype);
 
 G_END_DECLS
