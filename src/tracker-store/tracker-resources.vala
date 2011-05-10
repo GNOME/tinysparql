@@ -278,13 +278,16 @@ public class Tracker.Resources : Object {
 	void check_graph_updated_signal () {
 		/* Check for whether we need an immediate emit */
 		if (Tracker.Events.get_total (false) > GRAPH_UPDATED_IMMEDIATE_EMIT_AT) {
-
-			foreach (var cl in Tracker.Events.get_classes ()) {
-				emit_graph_updated (cl);
+			// possibly active timeout no longer necessary as signals
+			// for committed transactions will be emitted by the following on_emit_signals call
+			// do this before actually calling on_emit_signals as on_emit_signals sets signal_timeout to 0
+			if (signal_timeout != 0) {
+				Source.remove (signal_timeout);
+				signal_timeout = 0;
 			}
 
-			/* Reset counter */
-			Tracker.Events.get_total (true);
+			// immediately emit signals for already committed transaction
+			on_emit_signals ();
 		}
 	}
 
