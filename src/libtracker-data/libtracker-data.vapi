@@ -161,10 +161,17 @@ namespace Tracker {
 	}
 
 	public delegate void StatementCallback (int graph_id, string? graph, int subject_id, string subject, int predicate_id, int object_id, string object, GLib.PtrArray rdf_types);
-	public delegate void CommitCallback (bool start_timer);
+	public delegate void CommitCallback (Data.CommitType commit_type);
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h,libtracker-data/tracker-data-backup.h")]
 	namespace Data {
+		[CCode (cprefix = "TRACKER_DATA_COMMIT_")]
+		public enum CommitType {
+			REGULAR,
+			BATCH,
+			BATCH_LAST
+		}
+
 		public int query_resource_id (string uri);
 		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 		public void begin_db_transaction ();
@@ -175,7 +182,7 @@ namespace Tracker {
 		public void update_sparql (string update) throws Sparql.Error;
 		public GLib.Variant update_sparql_blank (string update) throws Sparql.Error;
 		public void load_turtle_file (GLib.File file) throws Sparql.Error;
-		public void notify_transaction (bool start_timer);
+		public void notify_transaction (CommitType commit_type);
 		public void delete_statement (string? graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
 		public void update_statement (string? graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
 		public void insert_statement (string? graph, string subject, string predicate, string object) throws Sparql.Error, DateError;

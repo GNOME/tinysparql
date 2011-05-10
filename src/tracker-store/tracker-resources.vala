@@ -52,6 +52,7 @@ public class Tracker.Resources : Object {
 
 	DBusConnection connection;
 	uint signal_timeout;
+	bool regular_commit_pending;
 
 	public signal void writeback ([DBus (signature = "a{iai}")] Variant subjects);
 	public signal void graph_updated (string classname, [DBus (signature = "a(iiii)")] Variant deletes, [DBus (signature = "a(iiii)")] Variant inserts);
@@ -251,26 +252,49 @@ public class Tracker.Resources : Object {
 
 		Tracker.Writeback.reset_ready ();
 
+		regular_commit_pending = false;
 		signal_timeout = 0;
 		return false;
 	}
 
-	void on_statements_committed (bool start_timer) {
+	void on_statements_committed (Tracker.Data.CommitType commit_type) {
 		/* Class signal feature */
 
 		foreach (var cl in Tracker.Events.get_classes ()) {
 			cl.transact_events ();
 		}
 
-		if (start_timer && signal_timeout == 0) {
-			signal_timeout = Timeout.add (SIGNALS_SECONDS_PER_EMIT * 1000, on_emit_signals);
+		if (!regular_commit_pending) {
+			// never cancel timeout for non-batch commits as we want
+			// to ensure that the signal corresponding to a certain
+			// update arrives within a fixed time limit
+
+			// cancel it in all other cases
+			// in the BATCH_LAST case, the timeout will be reenabled
+			// further down but it's important to cancel it first
+			// to reset the timeout to 1 s starting now
+			if (signal_timeout != 0) {
+				Source.remove (signal_timeout);
+				signal_timeout = 0;
+			}
+		}
+
+		if (commit_type == Tracker.Data.CommitType.REGULAR) {
+			regular_commit_pending = true;
+		}
+
+		if (regular_commit_pending || commit_type == Tracker.Data.CommitType.BATCH_LAST) {
+			// timer wanted for non-batch commits and the last in a series of batch commits
+			if (signal_timeout == 0) {
+				signal_timeout = Timeout.add (SIGNALS_SECONDS_PER_EMIT * 1000, on_emit_signals);
+			}
 		}
 
 		/* Writeback feature */
 		Tracker.Writeback.transact ();
 	}
 
-	void on_statements_rolled_back (bool start_timer) {
+	void on_statements_rolled_back (Tracker.Data.CommitType commit_type) {
 		Tracker.Events.reset_pending ();
 		Tracker.Writeback.reset_pending ();
 	}
