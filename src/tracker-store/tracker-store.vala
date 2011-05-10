@@ -135,24 +135,27 @@ public class Tracker.Store {
 		}
 	}
 
-	static bool start_timer_or_not (Task task) {
-		bool result;
-
+	static Tracker.Data.CommitType commit_type (Task task) {
 		switch (task.type) {
 			case TaskType.UPDATE:
 			case TaskType.UPDATE_BLANK:
-				result = !(((UpdateTask) task).priority == Priority.LOW && update_queues[Priority.LOW].get_length () > 0);
-				break;
+				if (((UpdateTask) task).priority == Priority.HIGH) {
+					return Tracker.Data.CommitType.REGULAR;
+				} else if (update_queues[Priority.LOW].get_length () > 0) {
+					return Tracker.Data.CommitType.BATCH;
+				} else {
+					return Tracker.Data.CommitType.BATCH_LAST;
+				}
 			case TaskType.TURTLE:
-				result = update_queues[Priority.TURTLE].get_length () == 0;
-				break;
-			case TaskType.QUERY:
+				if (update_queues[Priority.TURTLE].get_length () > 0) {
+					return Tracker.Data.CommitType.BATCH;
+				} else {
+					return Tracker.Data.CommitType.BATCH_LAST;
+				}
 			default:
-				result = false;
-				break;
+				warn_if_reached ();
+				return Tracker.Data.CommitType.REGULAR;
 		}
-
-		return result;
 	}
 
 	static bool task_finish_cb (Task task) {
@@ -174,7 +177,7 @@ public class Tracker.Store {
 			n_queries_running--;
 		} else if (task.type == TaskType.UPDATE || task.type == TaskType.UPDATE_BLANK) {
 			if (task.error == null) {
-				Tracker.Data.notify_transaction (start_timer_or_not (task));
+				Tracker.Data.notify_transaction (commit_type (task));
 			}
 
 			task.callback ();
@@ -183,7 +186,7 @@ public class Tracker.Store {
 			update_running = false;
 		} else if (task.type == TaskType.TURTLE) {
 			if (task.error == null) {
-				Tracker.Data.notify_transaction (start_timer_or_not (task));
+				Tracker.Data.notify_transaction (commit_type (task));
 			}
 
 			task.callback ();

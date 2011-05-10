@@ -3070,14 +3070,14 @@ tracker_data_commit_transaction (GError **error)
 }
 
 void
-tracker_data_notify_transaction (gboolean start_timer)
+tracker_data_notify_transaction (TrackerDataCommitType commit_type)
 {
 	if (commit_callbacks) {
 		guint n;
 		for (n = 0; n < commit_callbacks->len; n++) {
 			TrackerCommitDelegate *delegate;
 			delegate = g_ptr_array_index (commit_callbacks, n);
-			delegate->callback (start_timer, delegate->user_data);
+			delegate->callback (commit_type, delegate->user_data);
 		}
 	}
 }
