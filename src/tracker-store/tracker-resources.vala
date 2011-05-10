@@ -215,12 +215,8 @@ public class Tracker.Resources : Object {
 	}
 
 	bool on_emit_signals () {
-		bool had_any = false;
-
 		foreach (var cl in Tracker.Events.get_classes ()) {
-			if (emit_graph_updated (cl)) {
-				had_any = true;
-			}
+			emit_graph_updated (cl);
 		}
 
 		/* Reset counter */
@@ -230,7 +226,6 @@ public class Tracker.Resources : Object {
 		var writebacks = Tracker.Writeback.get_ready ();
 
 		if (writebacks != null) {
-			had_any = true;
 			var builder = new VariantBuilder ((VariantType) "a{iai}");
 
 			var wb_iter = HashTableIter<int, GLib.Array<int>> (writebacks);
@@ -256,11 +251,8 @@ public class Tracker.Resources : Object {
 
 		Tracker.Writeback.reset_ready ();
 
-		if (!had_any) {
-			signal_timeout = 0;
-		}
-
-		return had_any;
+		signal_timeout = 0;
+		return false;
 	}
 
 	void on_statements_committed (bool start_timer) {
