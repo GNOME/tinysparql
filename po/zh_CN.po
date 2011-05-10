@@ -5,15 +5,16 @@
 #  <zyangmath@gmail.com>, 2007.
 #  YunQiang Su <wzssyqa@gmail.com>, 2010
 #  Jessica Ban <bancage@gmail.com>, 2010
+#  Yinghua Wang <wantinghard@gmail.com>, 2010
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker trunk\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-03-24 23:18+0000\n"
-"PO-Revision-Date: 2011-03-25 05:15+0000\n"
-"Last-Translator: Jessica Ban <bancage@gmail.com>\n"
+"POT-Creation-Date: 2011-05-09 18:25+0000\n"
+"PO-Revision-Date: 2011-04-17 13:42+0800\n"
+"Last-Translator: Yinghua Wang <wantinghard@gmail.com>\n"
 "Language-Team: Chinese(simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-view.vala:311
+#: ../src/tracker-needle/tracker-view.vala:326
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "应用程序"
@@ -65,39 +66,41 @@ msgstr "RSS/ATOM Feed"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Location of journal pieces"
-msgstr ""
+msgstr "日志片段的位置"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
 msgid "Maximum size of journal"
-msgstr ""
+msgstr "日志的最大尺寸"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+#, fuzzy
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
+msgstr "轮换日志的大小，单位为 MB。使用 -1 来禁止轮换。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
 msgid "Where to store a journal chunk when it hits the max size."
-msgstr ""
+msgstr "在日志块达到最大尺寸时将它存储于何处。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 #, fuzzy
 #| msgid "Enable for _first time"
 msgid "Enable stemmer"
-msgstr "第一次时启用(_F)"
+msgstr "启用要点提取器"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
 msgid "Enable unaccent"
-msgstr ""
+msgstr "启用声调去除"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
 msgid "If enabled, numbers will not be indexed."
-msgstr ""
+msgstr "如果启用，将不索引数字。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+#, fuzzy
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
 "words like 'the', 'yes', 'no', etc."
-msgstr ""
+msgstr "如果启用，将忽略位于禁止词表中的词。例如，常见词“the”、“yes”、“no”等"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
 msgid "Ignore numbers"
@@ -105,140 +108,131 @@ msgstr "忽略数字"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid "Ignore stop words"
-msgstr ""
+msgstr "忽略停止词"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid ""
 "Indexer will read only this maximum number of words from a single document."
-msgstr ""
+msgstr "索引器将只从单个文档中读取最多这个数量的词。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid "Maximum length of a word to be indexed"
-msgstr ""
+msgstr "被索引词的最大长度"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Maximum number of words to index in a document"
-msgstr ""
+msgstr "一篇文档中可索引词的最大数量"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
 msgid "Minimum length of a word to be indexed"
-msgstr ""
+msgstr "一个词可索引的最大长度"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
 msgid ""
 "Simplify the words to their root to provide more results. E.g. 'shelves' and "
 "'shelf' to 'shel'"
 msgstr ""
+"将词语简化为它们的词根以提供更多结果。如“shelves”和“shelf”将简化为“shel”"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#, fuzzy
 msgid ""
 "Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to "
 "'Idea' for improved matching."
 msgstr ""
+"将带声调的字符转换为对应的不带声调字符。如将“Idéa”转换为“Idea”以改进匹配。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
 msgid "Words with less characters than this will be ignored by the indexer."
-msgstr ""
+msgstr "字数不够这个数量的词将被索引器忽略。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
 msgid ""
 "Words with more characters than this length will be ignored by the indexer."
-msgstr ""
+msgstr "字数超过这个数量的词将被索引器忽略。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
 msgid "Log verbosity"
-msgstr ""
+msgstr "日志详细度"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
 msgid "Log verbosity."
-msgstr ""
+msgstr "日志的详细程度。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
 msgid "Max bytes to extract"
-msgstr ""
+msgstr "要提取的最大字节数"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 msgid "Maximum number of UTF-8 bytes to extract."
-msgstr ""
+msgstr "要提取的最大 UTF-8 字节数。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
 msgid "Avoid any directory containing a file blacklisted here"
-msgstr ""
+msgstr "忽略任何包含此处所列黑名单文件的目录"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
 msgid "Crawling interval"
-msgstr ""
+msgstr "抓取间隔"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
 msgid "Directories to index non-recursively"
-msgstr ""
+msgstr "非递归索引的目录"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
 msgid "Directories to index recursively"
-msgstr ""
+msgstr "递归索引的目录"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
 msgid ""
 "Disk space threshold in MB at which to pause indexing, or -1 to disable."
-msgstr ""
+msgstr "暂停索引的磁盘空间阈值，单位为 MB；或设为 -1 以禁止。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
 msgid "Enable monitors"
 msgstr "启用监视"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
-#, fuzzy
-#| msgid "Include mou_nted directories"
 msgid "Ignored directories"
-msgstr "索引已挂载的目录(_N)"
+msgstr "忽略的目录"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
 msgid "Ignored directories with content"
-msgstr ""
+msgstr "忽略的含内容的目录"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
-#, fuzzy
-#| msgid "Tag one or more files"
 msgid "Ignored files"
-msgstr "标记一个或多个文件"
+msgstr "忽略的文件"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-#, fuzzy
-#| msgid "Include optical di_scs"
 msgid "Index optical discs"
-msgstr "包括光盘(_S)"
+msgstr "索引光盘"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
-#, fuzzy
-#| msgid "Include _removable media"
 msgid "Index removable devices"
-msgstr "包括可移动介质(_R)"
+msgstr "索引可移动设备"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
-#, fuzzy
-#| msgid "Enable when running on _battery"
 msgid "Index when running on battery"
-msgstr "电池供电时启用(_B)"
+msgstr "在电池供电时进行索引"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Indexing speed, the higher the slower."
-msgstr ""
+msgstr "索引速度，越高越慢。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
 msgid "Initial sleep"
-msgstr ""
+msgstr "初始睡眠"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
-#, fuzzy
-#| msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgid "Initial sleep time, in seconds."
-msgstr "以秒为单位的初始睡眠时间，0 到 1000 (默认 15)"
+msgstr "以秒为单位的初始睡眠时间。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
 msgid ""
@@ -246,10 +240,12 @@ msgid ""
 "database. 0 forces crawling anytime, -1 forces it only after unclean "
 "shutdowns, and -2 disables it entirely."
 msgstr ""
+"检查数据库中的文件系统是否为最新的间隔天数。0 强制在任意时间抓取，-1 强制只在"
+"非正常关机后抓取，-2 完全禁止检查。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
 msgid "List of directories to avoid"
-msgstr ""
+msgstr "忽略目录列表"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
 msgid ""
@@ -258,6 +254,9 @@ msgid ""
 "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
 "and $HOME/.config/user-dirs.default"
 msgstr ""
+"递归索引的目录列表，特殊值包括：&amp;DESKTOP、&amp;DOCUMENTS、&amp;DOWNLOAD、"
+"&amp;MUSIC、&amp;PICTURES、&amp;PUBLIC_SHARE、&amp;TEMPLATES、&amp;VIDEOS。参"
+"见 /etc/xdg/user-dirs.defaults 和 $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
 msgid ""
@@ -266,63 +265,63 @@ msgid ""
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
+"索引但不检查子文件夹的目录列表，特殊值包括：&amp;DESKTOP、&amp;DOCUMENTS、"
+"&amp;DOWNLOAD、&amp;MUSIC、&amp;PICTURES、&amp;PUBLIC_SHARE、&amp;"
+"TEMPLATES&amp;VIDEOS。参见 /etc/xdg/user-dirs.defaults 和 $HOME/.config/user-"
+"dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
 msgid "List of file patterns to avoid"
-msgstr ""
+msgstr "要忽略的文件模式列表"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
-#, fuzzy
-#| msgid "Low disk space"
 msgid "Low disk space limit"
-msgstr "磁盘空间不足"
+msgstr "磁盘空间下限"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
-#, fuzzy
-#| msgid "Enable when running on _battery"
 msgid "Perform initial indexing when running on battery"
-msgstr "电池供电时启用(_B)"
+msgstr "电池供电时进行初始索引"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
 msgid "Removable devices' data permanence threshold"
-msgstr ""
+msgstr "可移动设备的数据保留阈值"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
 msgid "Set to false to completely disable any file monitoring"
-msgstr ""
+msgstr "设为 false 以完全禁止任何文件监视"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
 "removable devices are not indexed, optical discs won't be either)"
 msgstr ""
+"设为 true 来启用对 CD、DVD 和常规光学媒体的索引(如果不索引可移动设备，则也不"
+"索引光盘)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid ""
 "Set to true to enable indexing mounted directories for removable devices."
-msgstr ""
+msgstr "设为 true 来启用对可移动设备挂载目录的索引。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
-#, fuzzy
-#| msgid "Enable when running on _battery"
 msgid "Set to true to index while running on battery"
-msgstr "电池供电时启用(_B)"
+msgstr "设置为 true 以在电池供电时进行索引"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid "Set to true to index while running on battery for the first time only"
-msgstr ""
+msgstr "设为 true 来只在首次电池供电时进行索引"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid ""
 "Threshold in days after which files from removables devices will be removed "
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
+"在可移动设备未挂载情况下，其中的文件从数据库中移除的天数阈值。0 表示从不移"
+"除，最大值为 365。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
-#, fuzzy
-#| msgid "Thr_ottle:"
 msgid "Throttle"
-msgstr "油门："
+msgstr "油门"
 
 #: ../data/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Processes images and albums on Flickr"
@@ -392,73 +391,72 @@ msgstr "标签..."
 msgid "Tag one or more files"
 msgstr "标记一个或多个文件"
 
-#: ../src/libtracker-common/tracker-utils.c:69
-#: ../src/libtracker-common/tracker-utils.c:76
+#: ../src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
 msgstr "未知时间"
 
-#: ../src/libtracker-common/tracker-utils.c:94
-#: ../src/libtracker-common/tracker-utils.c:145
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
 msgid "less than one second"
 msgstr "不到一秒"
 
 #. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:109
+#: ../src/libtracker-common/tracker-utils.c:119
 #, c-format
 msgid " %dd"
 msgstr " %dd"
 
 #. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:113
+#: ../src/libtracker-common/tracker-utils.c:123
 #, c-format
 msgid " %2.2dh"
 msgstr " %2.2dh"
 
 #. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:117
+#: ../src/libtracker-common/tracker-utils.c:127
 #, c-format
 msgid " %2.2dm"
 msgstr " %2.2dm"
 
 #. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:121
+#: ../src/libtracker-common/tracker-utils.c:131
 #, c-format
 msgid " %2.2ds"
 msgstr " %2.2ds"
 
-#: ../src/libtracker-common/tracker-utils.c:125
+#: ../src/libtracker-common/tracker-utils.c:135
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
 msgstr[0] " %d 天"
 
-#: ../src/libtracker-common/tracker-utils.c:129
+#: ../src/libtracker-common/tracker-utils.c:139
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
 msgstr[0] " %2.2d 小时"
 
-#: ../src/libtracker-common/tracker-utils.c:133
+#: ../src/libtracker-common/tracker-utils.c:143
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
 msgstr[0] " %2.2d 分钟"
 
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d 秒"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:758
+#: ../src/libtracker-miner/tracker-miner-object.c:812
 msgid "Pause application and reason match an already existing pause request"
 msgstr "暂停应用并合理匹配一个已经存在的暂停请求"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:844
+#: ../src/libtracker-miner/tracker-miner-object.c:898
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie 未被识别用以恢复暂停的挖掘器"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1229
+#: ../src/libtracker-miner/tracker-miner-object.c:1303
 msgid "Data store is not available"
 msgstr "数据存储不可用"
 
@@ -490,7 +488,7 @@ msgstr "搜索(_S):"
 msgid "_URN:"
 msgstr "URN (_U)："
 
-#: ../src/tracker-extract/tracker-main.c:83
+#: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -498,47 +496,49 @@ msgid ""
 msgstr ""
 "正在记录日志，0 = 只记录错误，1 = 最小， 2 = 细节， 3 = 调试 (默认 = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:88
+#: ../src/tracker-extract/tracker-main.c:93
 msgid "File to extract metadata for"
 msgstr "为其提取元素就的文件"
 
-#: ../src/tracker-extract/tracker-main.c:89 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:57
-#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:62
+#: ../src/tracker-utils/tracker-info.c:63
 #: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "文件"
 
-#: ../src/tracker-extract/tracker-main.c:92
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "文件的 MIME 类型 (如果不提供，将进行猜测)"
 
-#: ../src/tracker-extract/tracker-main.c:93
+#: ../src/tracker-extract/tracker-main.c:98
 #: ../src/tracker-control/tracker-control-miners.c:55
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:98
+#: ../src/tracker-extract/tracker-main.c:103
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr "闲置 30 秒之后禁用关闭"
 
-#: ../src/tracker-extract/tracker-main.c:102
+#: ../src/tracker-extract/tracker-main.c:107
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
 msgstr "强制内部提取器接管像 libstreamanalyzer 的第三方提取器"
 
-#: ../src/tracker-extract/tracker-main.c:106
+#: ../src/tracker-extract/tracker-main.c:111
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "强制将一个模块用来解压(比如 强制“foo代替”“foo.so”)"
 
-#: ../src/tracker-extract/tracker-main.c:107
+#: ../src/tracker-extract/tracker-main.c:112
 msgid "MODULE"
 msgstr "模块"
 
 #. Daemon options
-#: ../src/tracker-extract/tracker-main.c:110
+#: ../src/tracker-extract/tracker-main.c:115
 #: ../src/miners/fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
@@ -547,20 +547,20 @@ msgstr "显示版本信息"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:330
+#: ../src/tracker-extract/tracker-main.c:324
 msgid "- Extract file meta data"
 msgstr "- 提取文件元数据"
 
-#: ../src/tracker-extract/tracker-main.c:339
+#: ../src/tracker-extract/tracker-main.c:333
 msgid "Filename and mime type must be provided together"
 msgstr "必须同时提供文件名和 mime 类型"
 
-#: ../src/tracker-extract/tracker-main.c:353
+#: ../src/tracker-extract/tracker-main.c:347
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr "选项 --fore-internal-extractors 和 --force-module 不能同时使用"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -573,107 +573,149 @@ msgstr "以秒为单位的初始睡眠时间，0 到 1000 (默认 15)"
 
 #: ../src/miners/fs/tracker-main.c:89
 msgid "Runs until all configured locations are indexed and then exits"
-msgstr ""
+msgstr "运行到所有配置的位置都已索引，然后退出"
 
 #: ../src/miners/fs/tracker-main.c:93
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "检查文件是否适宜基于配置的挖掘"
 
-#: ../src/miners/fs/tracker-main.c:412
+#: ../src/miners/fs/tracker-main.c:444
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "数据对象“%s”目前存在"
 
-#: ../src/miners/fs/tracker-main.c:413
+#: ../src/miners/fs/tracker-main.c:445
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "数据对象“%s”目前不存在"
 
-#: ../src/miners/fs/tracker-main.c:428
+#: ../src/miners/fs/tracker-main.c:460
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "目录适宜进行挖掘(基于规范)"
 
-#: ../src/miners/fs/tracker-main.c:429
+#: ../src/miners/fs/tracker-main.c:461
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "目录不适宜进行挖掘(基于规范)"
 
-#: ../src/miners/fs/tracker-main.c:449
+#: ../src/miners/fs/tracker-main.c:481
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "目录适宜进行挖掘(基于内容)"
 
-#: ../src/miners/fs/tracker-main.c:450
+#: ../src/miners/fs/tracker-main.c:482
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "目录不适宜进行挖掘(基于内容)"
 
-#: ../src/miners/fs/tracker-main.c:497
+#: ../src/miners/fs/tracker-main.c:529
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "目录适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:498
+#: ../src/miners/fs/tracker-main.c:530
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "目录不适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:502
+#: ../src/miners/fs/tracker-main.c:534
 msgid "File is eligible to be monitored (based on config)"
 msgstr "文件适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:503
+#: ../src/miners/fs/tracker-main.c:535
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "文件不适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:507
+#: ../src/miners/fs/tracker-main.c:539
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "文件或目录适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:508
+#: ../src/miners/fs/tracker-main.c:540
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "文件或目录不适宜进行监控(基于配置)"
 
-#: ../src/miners/fs/tracker-main.c:523
+#: ../src/miners/fs/tracker-main.c:555
 msgid "File is eligible to be mined (based on rules)"
 msgstr "文件适宜进行挖掘(基于规范)"
 
-#: ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:556
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "文件不适宜进行挖掘(基于规范)"
 
-#: ../src/miners/fs/tracker-main.c:533
+#: ../src/miners/fs/tracker-main.c:565
 msgid "Would be indexed"
 msgstr "可能会被索引"
 
-#: ../src/miners/fs/tracker-main.c:534 ../src/miners/fs/tracker-main.c:536
+#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
 msgid "Yes"
 msgstr "是"
 
-#: ../src/miners/fs/tracker-main.c:534 ../src/miners/fs/tracker-main.c:536
+#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
 msgid "No"
 msgstr "否"
 
-#: ../src/miners/fs/tracker-main.c:535
+#: ../src/miners/fs/tracker-main.c:567
 msgid "Would be monitored"
 msgstr "可能会被监控"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:579
+#: ../src/miners/fs/tracker-main.c:686
 msgid "- start the tracker indexer"
 msgstr "- 启动 tracker 索引器"
 
-#: ../src/miners/fs/tracker-miner-files.c:1330
+#: ../src/miners/fs/tracker-miner-files.c:1331
 msgid "Low battery"
 msgstr "电池电量低"
 
-#: ../src/miners/fs/tracker-miner-files.c:1453
+#: ../src/miners/fs/tracker-miner-files.c:1454
 msgid "Low disk space"
 msgstr "磁盘空间不足"
+
+#: ../src/miners/rss/tracker-main.c:44
+msgid "Add feed (must be used with --title)"
+msgstr ""
+
+#: ../src/miners/rss/tracker-main.c:45
+msgid "URL"
+msgstr ""
+
+#: ../src/miners/rss/tracker-main.c:48
+msgid "Title to use (must be used with --add-feed)"
+msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:65
+#: ../src/miners/rss/tracker-main.c:76
 msgid "- start the feeds indexer"
 msgstr "- 启动 Feed 索引器"
+
+#: ../src/miners/rss/tracker-main.c:81
+msgid "Adding a feed requires --add-feed and --title"
+msgstr ""
+
+#: ../src/miners/rss/tracker-main.c:115
+#: ../src/tracker-utils/tracker-import.c:115
+#: ../src/tracker-utils/tracker-info.c:360
+#: ../src/tracker-utils/tracker-search.c:1441
+#: ../src/tracker-utils/tracker-sparql.c:291
+#: ../src/tracker-utils/tracker-stats.c:92
+#: ../src/tracker-utils/tracker-tag.c:944
+msgid "Could not establish a connection to Tracker"
+msgstr "无法建立到 Tracker 的连接"
+
+#: ../src/miners/rss/tracker-main.c:116
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:361
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+msgid "No error given"
+msgstr "没有给定错误"
+
+#: ../src/miners/rss/tracker-main.c:141
+#, fuzzy
+#| msgid "Could not read file"
+msgid "Could not add feed"
+msgstr "不能读取文件"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -691,7 +733,7 @@ msgid "Directory"
 msgstr "目录"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:121
-#: ../src/tracker-needle/tracker-view.vala:164
+#: ../src/tracker-needle/tracker-view.vala:180
 msgid "File"
 msgstr "文件"
 
@@ -724,10 +766,10 @@ msgid "Select directory"
 msgstr "选择目录"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:497
-#: ../src/tracker-needle/tracker-needle.vala:545
+#: ../src/tracker-needle/tracker-needle.vala:614
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:49
+#: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:139
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
@@ -736,10 +778,8 @@ msgid "Print version"
 msgstr "显示版本"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:503
-#, fuzzy
-#| msgid "Desktop Search"
 msgid "Desktop Search preferences"
-msgstr "桌面搜索首选择"
+msgstr "桌面搜索首选项"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Day(s)"
@@ -894,94 +934,108 @@ msgid ""
 "Tracker"
 msgstr "在计算机上用 Tracker 按名称或内容查找需要的内容"
 
-#: ../src/tracker-needle/tracker-needle.vala:552
-#: ../src/tracker-needle/tracker-needle.vala:553
+#: ../src/tracker-needle/tracker-needle.vala:621
+#: ../src/tracker-needle/tracker-needle.vala:622
 msgid "[SEARCH-CRITERIA]"
 msgstr "[搜索条件]"
 
-#: ../src/tracker-needle/tracker-needle.vala:558
+#: ../src/tracker-needle/tracker-needle.vala:627
 msgid "Desktop Search user interface using Tracker"
 msgstr "使用 Tracker 的桌面搜索用户界面"
 
+#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
+#: ../src/tracker-needle/tracker-utils.vala:44
+#, no-c-format
+msgid "%x"
+msgstr ""
+
+#: ../src/tracker-needle/tracker-utils.vala:48
+msgid "Today"
+msgstr ""
+
+#: ../src/tracker-needle/tracker-utils.vala:57
+msgid "Tomorrow"
+msgstr ""
+
+#: ../src/tracker-needle/tracker-utils.vala:59
+msgid "Yesterday"
+msgstr ""
+
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:61
+#: ../src/tracker-needle/tracker-utils.vala:63
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
 msgstr[0] "距今 %ld 天"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:64
+#: ../src/tracker-needle/tracker-utils.vala:66
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
 msgstr[0] " %ld 天前"
 
-#: ../src/tracker-needle/tracker-utils.vala:76
-#: ../src/tracker-needle/tracker-utils.vala:105
+#: ../src/tracker-needle/tracker-utils.vala:78
+#: ../src/tracker-needle/tracker-utils.vala:107
 msgid "Less than one second"
 msgstr "不到一秒"
 
-#: ../src/tracker-needle/tracker-view.vala:97
+#: ../src/tracker-needle/tracker-view.vala:109
 msgid "No Search Results"
 msgstr "无搜索结果"
 
-#: ../src/tracker-needle/tracker-view.vala:176
+#: ../src/tracker-needle/tracker-view.vala:192
 msgid "Last Changed"
 msgstr "上次修改"
 
-#: ../src/tracker-needle/tracker-view.vala:185
+#: ../src/tracker-needle/tracker-view.vala:201
 msgid "Size"
 msgstr "大小"
 
-#: ../src/tracker-needle/tracker-view.vala:314
+#: ../src/tracker-needle/tracker-view.vala:329
 msgid "Music"
 msgstr "音乐"
 
-#: ../src/tracker-needle/tracker-view.vala:317
+#: ../src/tracker-needle/tracker-view.vala:332
 #: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Images"
 msgstr "图像"
 
-#: ../src/tracker-needle/tracker-view.vala:320
+#: ../src/tracker-needle/tracker-view.vala:335
 #: ../src/tracker-search-bar/tracker-results-window.c:727
 msgid "Videos"
 msgstr "视频"
 
-#: ../src/tracker-needle/tracker-view.vala:323
+#: ../src/tracker-needle/tracker-view.vala:338
 #: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Documents"
 msgstr "文档"
 
-#: ../src/tracker-needle/tracker-view.vala:326
-#, fuzzy
-#| msgid "Emails"
+#: ../src/tracker-needle/tracker-view.vala:341
 msgid "Mail"
-msgstr "电子邮件"
+msgstr "邮件"
 
-#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-needle/tracker-view.vala:344
 #: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Folders"
 msgstr "文件夹"
 
-#: ../src/tracker-needle/tracker-view.vala:333
-#, fuzzy
-#| msgid "Item"
+#: ../src/tracker-needle/tracker-view.vala:348
 msgid "Items"
 msgstr "条目"
 
-#: ../src/tracker-needle/tracker-view.vala:345
+#: ../src/tracker-needle/tracker-view.vala:360
 #, c-format
 msgid "Loading..."
-msgstr ""
+msgstr "正在加载..."
 
-#: ../src/tracker-needle/tracker-view.vala:410
+#: ../src/tracker-needle/tracker-view.vala:425
 msgid "Pages"
 msgstr "页"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display found images"
-msgstr ""
+msgstr "显示找到的图像"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid ""
@@ -1128,11 +1182,11 @@ msgstr "状态和挖掘器选项不能同时使用"
 msgid "Unrecognized options"
 msgstr "无法识别的选项"
 
-#: ../src/tracker-control/tracker-control-general.c:72
+#: ../src/tracker-control/tracker-control-general.c:76
 msgid "List all Tracker processes"
 msgstr "列出所有 Tracker 进程"
 
-#: ../src/tracker-control/tracker-control-general.c:74
+#: ../src/tracker-control/tracker-control-general.c:78
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1140,112 +1194,128 @@ msgstr ""
 "使用 SIGKILL 信号杀死所有匹配的进程，可以使用“store”、“miners”或“all”之一的参"
 "数，任意参数组合均不与“all”效果相等"
 
-#: ../src/tracker-control/tracker-control-general.c:75
-#: ../src/tracker-control/tracker-control-general.c:78
+#: ../src/tracker-control/tracker-control-general.c:79
+#: ../src/tracker-control/tracker-control-general.c:82
 msgid "APPS"
 msgstr "APPS"
 
-#: ../src/tracker-control/tracker-control-general.c:77
+#: ../src/tracker-control/tracker-control-general.c:81
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "使用 SIGTERM 信号杀死所有匹配的进程，可以使用“store”、“miners”或“all”之一的参"
-"数，任意参数组合均不与“all”效果相等 "
+"数，任意参数组合均不与“all”效果相等"
 
-#: ../src/tracker-control/tracker-control-general.c:80
+#: ../src/tracker-control/tracker-control-general.c:84
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "杀死所有 Tracker 进程并删除所有数据库"
 
-#: ../src/tracker-control/tracker-control-general.c:83
+#: ../src/tracker-control/tracker-control-general.c:87
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr "与 --hard-reset 功能相同， 但是重启后将储存备份和日志"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:90
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr "删除所有配置文件，以使下次启动时重新生成"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "启动挖掘器 (也间接启动 tracker-store)"
 
-#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-general.c:96
+msgid "Backup databases to the file provided"
+msgstr "将数据库备份到提供的文件"
+
+#: ../src/tracker-control/tracker-control-general.c:99
+msgid "Restore databases from the file provided"
+msgstr "从提供的文件中恢复数据库"
+
+#: ../src/tracker-control/tracker-control-general.c:121
 msgid "Could not open /proc"
 msgstr "无法打开 /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:306
-#: ../src/tracker-control/tracker-control-general.c:346
-#: ../src/tracker-control/tracker-control-general.c:367
+#: ../src/tracker-control/tracker-control-general.c:122
+#: ../src/tracker-control/tracker-control-general.c:353
+#: ../src/tracker-control/tracker-control-general.c:393
+#: ../src/tracker-control/tracker-control-general.c:414
 msgid "no error given"
 msgstr "没有给定错误"
 
-#: ../src/tracker-control/tracker-control-general.c:260
+#: ../src/tracker-control/tracker-control-general.c:307
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "不能同时使用 --kill 和 --terminate 选项"
 
-#: ../src/tracker-control/tracker-control-general.c:266
+#: ../src/tracker-control/tracker-control-general.c:313
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr "不能使用 --terminate 时提供 --hard-reset、--soft-reset 或 --kill。"
 
-#: ../src/tracker-control/tracker-control-general.c:272
+#: ../src/tracker-control/tracker-control-general.c:319
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "不能同时使用 --hard-reset 和 --soft-reset 参数。"
 
-#: ../src/tracker-control/tracker-control-general.c:303
+#: ../src/tracker-control/tracker-control-general.c:350
 #, c-format
 msgid "Could not open '%s'"
 msgstr "无法打开“%s”"
 
-#: ../src/tracker-control/tracker-control-general.c:328
+#: ../src/tracker-control/tracker-control-general.c:375
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "发现对应“%2$s”的进程 ID %1$d"
 
-#: ../src/tracker-control/tracker-control-general.c:343
+#: ../src/tracker-control/tracker-control-general.c:390
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "无法终结进程 %d"
 
-#: ../src/tracker-control/tracker-control-general.c:349
+#: ../src/tracker-control/tracker-control-general.c:396
 #, c-format
 msgid "Terminated process %d"
 msgstr "已终止的进程 %d"
 
-#: ../src/tracker-control/tracker-control-general.c:364
+#: ../src/tracker-control/tracker-control-general.c:411
 #, c-format
 msgid "Could not kill process %d"
 msgstr "无法杀死进程 %d"
 
-#: ../src/tracker-control/tracker-control-general.c:370
+#: ../src/tracker-control/tracker-control-general.c:417
 #, c-format
 msgid "Killed process %d"
 msgstr "已杀死的进程 %d"
 
-#: ../src/tracker-control/tracker-control-general.c:488
+#: ../src/tracker-control/tracker-control-general.c:535
 msgid "Removing configuration files…"
 msgstr "正在删除配置文件..."
 
-#: ../src/tracker-control/tracker-control-general.c:502
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "Waiting one second before starting miners…"
-msgstr "一秒后开始挖掘"
+msgstr "一秒后开始挖掘..."
 
-#: ../src/tracker-control/tracker-control-general.c:508
+#: ../src/tracker-control/tracker-control-general.c:555
 msgid "Starting miners…"
 msgstr "正在开始挖掘..."
 
-#: ../src/tracker-control/tracker-control-general.c:526
+#: ../src/tracker-control/tracker-control-general.c:576
 msgid "perhaps a disabled plugin?"
 msgstr "可能是一个禁用的插件？"
 
-#: ../src/tracker-control/tracker-control-general.c:549
+#: ../src/tracker-control/tracker-control-general.c:598
+msgid "Backing up database"
+msgstr "备份数据库"
+
+#: ../src/tracker-control/tracker-control-general.c:670
+msgid "Restoring database from backup"
+msgstr "从备份中恢复数据库"
+
+#: ../src/tracker-control/tracker-control-general.c:743
 msgid "General options"
 msgstr "常规选项"
 
-#: ../src/tracker-control/tracker-control-general.c:550
+#: ../src/tracker-control/tracker-control-general.c:744
 msgid "Show general options"
 msgstr "显示常规选项"
 
@@ -1348,7 +1418,7 @@ msgid "(Re)indexing file was successful"
 msgstr "(重新)索引文件成功"
 
 #: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:289
+#: ../src/tracker-control/tracker-control-miners.c:264
 #, c-format
 msgid "Could not contact the miner manager"
 msgstr "无法联系挖掘器管理器"
@@ -1363,57 +1433,51 @@ msgstr "找到 %d 个安装的挖掘器"
 msgid "Found %d miners running"
 msgstr "找到 %d 个正在运行的挖掘器"
 
-#: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:137
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "无法从挖掘器获得状态：%s。"
-
-#: ../src/tracker-control/tracker-control-miners.c:296
+#: ../src/tracker-control/tracker-control-miners.c:271
 msgid "No miners are running"
 msgstr "没有正在运行的挖掘器"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:524
+#: ../src/tracker-control/tracker-control-miners.c:304
+#: ../src/tracker-control/tracker-control-status.c:550
 msgid "Miners"
 msgstr "挖掘器"
 
-#: ../src/tracker-control/tracker-control-miners.c:340
+#: ../src/tracker-control/tracker-control-miners.c:311
 msgid "Application"
 msgstr "应用程序"
 
-#: ../src/tracker-control/tracker-control-miners.c:342
+#: ../src/tracker-control/tracker-control-miners.c:313
 msgid "Reason"
 msgstr "原因"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:322
 msgid "No miners are paused"
 msgstr "没有暂停了的挖掘器"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:346
 msgid "You can not use miner pause and resume switches together"
 msgstr "不能同时使用挖掘器暂停和恢复选择"
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:352
 msgid "You must provide the miner for pause or resume commands"
 msgstr "必须为暂停或恢复命令提供挖掘器"
 
-#: ../src/tracker-control/tracker-control-miners.c:387
+#: ../src/tracker-control/tracker-control-miners.c:358
 msgid "You must provide a pause or resume command for the miner"
 msgstr "必须为挖掘器提供暂停或恢复命令"
 
-#: ../src/tracker-control/tracker-control-miners.c:431
+#: ../src/tracker-control/tracker-control-miners.c:402
 msgid "Miner options"
 msgstr "挖掘器选项"
 
-#: ../src/tracker-control/tracker-control-miners.c:432
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "Show miner options"
 msgstr "显示挖掘器选项"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:269
+#: ../src/tracker-control/tracker-control-status.c:292
 msgid "Unavailable"
-msgstr ""
+msgstr "不可用"
 
 #. generic
 #: ../src/tracker-control/tracker-control-status.c:51
@@ -1455,30 +1519,45 @@ msgstr "更改发生时跟随状态"
 msgid "List common statuses for miners and the store"
 msgstr "列出挖掘和储存的常见状态"
 
+#: ../src/tracker-control/tracker-control-status.c:141
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "无法从挖掘器获得状态：%s"
+
+#. Translators: %s is a time string
+#: ../src/tracker-control/tracker-control-status.c:197
+#, c-format
+msgid "%s remaining"
+msgstr "剩余 %s"
+
+#: ../src/tracker-control/tracker-control-status.c:200
+msgid "unknown time left"
+msgstr "未知剩余时间"
+
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:191
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:213
+#: ../src/tracker-control/tracker-control-status.c:534
 msgid "PAUSED"
 msgstr "暂停"
 
-#: ../src/tracker-control/tracker-control-status.c:205
+#: ../src/tracker-control/tracker-control-status.c:230
 msgid "Not running or is a disabled plugin"
 msgstr "没有运行或者是一个被禁用的插件"
 
-#: ../src/tracker-control/tracker-control-status.c:482
+#: ../src/tracker-control/tracker-control-status.c:508
 msgid "Common statuses include"
 msgstr "包括常见状态"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:518
+#: ../src/tracker-control/tracker-control-status.c:544
 msgid "Store"
 msgstr "存储"
 
-#: ../src/tracker-control/tracker-control-status.c:631
+#: ../src/tracker-control/tracker-control-status.c:665
 msgid "Status options"
 msgstr "状态选项"
 
-#: ../src/tracker-control/tracker-control-status.c:632
+#: ../src/tracker-control/tracker-control-status.c:666
 msgid "Show status options"
 msgstr "显示状态选项"
 
@@ -1489,29 +1568,9 @@ msgid "- Import data using Turtle files"
 msgstr "- 使用 Turtle 文件导入数据"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:200
+#: ../src/tracker-utils/tracker-info.c:338
 msgid "One or more files have not been specified"
 msgstr "没有指定一个或多个文件"
-
-#: ../src/tracker-utils/tracker-import.c:115
-#: ../src/tracker-utils/tracker-info.c:222
-#: ../src/tracker-utils/tracker-search.c:1441
-#: ../src/tracker-utils/tracker-sparql.c:291
-#: ../src/tracker-utils/tracker-stats.c:92
-#: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:97
-msgid "Could not establish a connection to Tracker"
-msgstr "无法建立到 Tracker 的连接"
-
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:223
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:98
-msgid "No error given"
-msgstr "没有给定错误"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
@@ -1521,42 +1580,46 @@ msgstr "正在导入 Turtle 文件"
 msgid "Unable to import Turtle file"
 msgstr "无法导入 Turtle 文件"
 
-#: ../src/tracker-utils/tracker-info.c:53
+#: ../src/tracker-utils/tracker-info.c:54
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr "显示所有命名空间(即不要使用 nie:title，而是使用URL)"
 
-#: ../src/tracker-utils/tracker-info.c:131
+#: ../src/tracker-utils/tracker-info.c:58
+msgid "Output results as RDF in Turtle format"
+msgstr "将结果输出为 Turtle 格式 的 RDF 文件"
+
+#: ../src/tracker-utils/tracker-info.c:136
 msgid "Unable to retrieve namespace prefixes"
 msgstr "无法获取名字空间前缀"
 
-#: ../src/tracker-utils/tracker-info.c:139
+#: ../src/tracker-utils/tracker-info.c:144
 msgid "No namespace prefixes were returned"
 msgstr "没有返回名字空间前缀"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:182
+#: ../src/tracker-utils/tracker-info.c:320
 msgid "- Get all information about one or more files"
 msgstr "- 获取一个或多个文件的所有信息"
 
-#: ../src/tracker-utils/tracker-info.c:237
+#: ../src/tracker-utils/tracker-info.c:382
 msgid "Querying information for entity"
 msgstr "查询实体的信息"
 
-#: ../src/tracker-utils/tracker-info.c:257
+#: ../src/tracker-utils/tracker-info.c:403
 msgid "Unable to retrieve URN for URI"
 msgstr "无法为 URI 检索 URN"
 
-#: ../src/tracker-utils/tracker-info.c:267
-#: ../src/tracker-utils/tracker-info.c:294
+#: ../src/tracker-utils/tracker-info.c:413
+#: ../src/tracker-utils/tracker-info.c:448
 msgid "Unable to retrieve data for URI"
 msgstr "无法为 URI 检索数据"
 
-#: ../src/tracker-utils/tracker-info.c:303
+#: ../src/tracker-utils/tracker-info.c:457
 msgid "No metadata available for that URI"
 msgstr "没有那个 URI 可用的元数据"
 
-#: ../src/tracker-utils/tracker-info.c:305
+#: ../src/tracker-utils/tracker-info.c:462
 #: ../src/tracker-utils/tracker-search.c:1261
 #: ../src/tracker-utils/tracker-sparql.c:613
 #: ../utils/tracker-sql/tracker-sql.c:170
@@ -1773,7 +1836,7 @@ msgstr "丢失搜索条件"
 #: ../src/tracker-utils/tracker-search.c:1414
 #, c-format
 msgid "Search term '%s' is a stop word."
-msgstr "搜索条件“%s”是一个终止词。"
+msgstr "搜索条件“%s”是一个停止词。"
 
 #: ../src/tracker-utils/tracker-search.c:1425
 #, c-format
@@ -2145,481 +2208,3 @@ msgstr "初始化数据管理器失败"
 #: ../utils/tracker-sql/tracker-sql.c:204
 msgid "Empty result set"
 msgstr "空结果集"
-
-#~ msgid "Unknown"
-#~ msgstr "未知"
-
-#~| msgid "Subject:"
-#~ msgid "No Subject"
-#~ msgstr "无主题"
-
-#~ msgid "To"
-#~ msgstr "到"
-
-#~ msgid "Display results by files found in a grid view"
-#~ msgstr "以网格视图显示所找到文件的结果"
-
-#~ msgid "No options specified"
-#~ msgstr "没有指定选项"
-
-#~ msgid "Include details with state updates (only applies to --follow)"
-#~ msgstr "包括状态更新细节(只适用于 --follow 参数)"
-
-#~ msgid "Tracker Status Icon"
-#~ msgstr "Tracker 状态图标"
-
-#~ msgid "Tracker Status Notification Application"
-#~ msgstr "Tracker 状态通知程序"
-
-#~ msgid "<b>Notification area</b>"
-#~ msgstr "<b>通知区域</b>"
-
-#~ msgid "Al_ways display icon"
-#~ msgstr "总是显示图标(_W)"
-
-#~ msgid "_Never display icon"
-#~ msgstr "从不显示图标(_N)"
-
-#~ msgid "_Only display when indexing content"
-#~ msgstr "只在索引内容时显示(_O)"
-
-#, fuzzy
-#~| msgid "Idle"
-#~ msgid "Needle"
-#~ msgstr "空闲"
-
-#~ msgid "Search Bar"
-#~ msgstr "搜索栏"
-
-#~ msgid "- Miner status and control notification area icon"
-#~ msgstr "- 挖掘器状态和控制通知区域图标"
-
-#~ msgid "Miner is not running"
-#~ msgstr "挖掘器未运行"
-
-#~ msgid "Paused by user"
-#~ msgstr "被用户暂停"
-
-#~ msgid ""
-#~ "Tracker is free software; you can redistribute it and/or modify it under "
-#~ "the terms of the GNU General Public License as published by the Free "
-#~ "Software Foundation; either version 2 of the License, or (at your option) "
-#~ "any later version."
-#~ msgstr ""
-#~ "Tracker 是自由软件；您可以在自由软件基金会发布的 GNU 通用公共许可证下重新"
-#~ "发布或修改它；许可证应使用第二版本或您所选择的更新的版本。"
-
-#~ msgid ""
-#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
-#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
-#~ "more details."
-#~ msgstr ""
-#~ "发布 Tracker 的目的是希望它有用。但我们并不为它提供任何形式的担保，也无法"
-#~ "保证它可以在特定用途中得到您希望的结果。请参看 GNU GPL 许可中的更多细节。"
-
-#~ msgid ""
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
-#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
-#~ msgstr ""
-#~ "您应该在收到 Tracker 的同时收到了 GNU GPL 协议的副本；如果您没有收到的话，"
-#~ "请给自由软件基金会写信，地址是 51 Franklin Street, Fifth Floor, Boston, "
-#~ "MA  02110-1301, USA。"
-
-#~ msgid "A notification icon application to monitor data miners for Tracker"
-#~ msgstr "通知图标程序以监视 Tracker 的数据挖掘器"
-
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "YangZhang <zyangmath@gmail.com>, 2007-2008\n"
-#~ "YunQiang Su <wzssyqa@gmail.com>, 2010\n"
-#~ "Jessica Ban <bancage@gmail.com>, 2010"
-
-#~ msgid "_Search"
-#~ msgstr "搜索(_S)"
-
-#~ msgid "_Pause All Indexing"
-#~ msgstr "暂停所有索引(_P)"
-
-#~ msgid "_Preferences"
-#~ msgstr "首选项(_P)"
-
-#~ msgid "Control and monitor the Tracker search and indexing service"
-#~ msgstr "控制并监视 Tracker 搜索与索引服务"
-
-#~ msgid "Tracker Applet"
-#~ msgstr "Tracker 面板小程序"
-
-#~ msgid "List pause reasons and applications for a miner"
-#~ msgstr "列出暂停原因和挖掘器的程序"
-
-#~ msgid "- Monitor and control status"
-#~ msgstr "- 监视和控制状态"
-
-#~ msgid "All Files"
-#~ msgstr "所有文件"
-
-#~ msgid "Clear the search text"
-#~ msgstr "清除搜索文本"
-
-#~ msgid "Name:"
-#~ msgstr "名称"
-
-#~ msgid "Folder:"
-#~ msgstr "文件夹："
-
-#~ msgid "Type:"
-#~ msgstr "类型："
-
-#~ msgid "Modified:"
-#~ msgstr "修改："
-
-#~ msgid "Height:"
-#~ msgstr "高度："
-
-#~ msgid "Width:"
-#~ msgstr "宽度："
-
-#~ msgid "Title:"
-#~ msgstr "标题："
-
-#~ msgid "Artist:"
-#~ msgstr "艺人："
-
-#~ msgid "Album:"
-#~ msgstr "相册："
-
-#~ msgid "Duration:"
-#~ msgstr "长度："
-
-#~ msgid "From:"
-#~ msgstr "来自："
-
-#~ msgid "Received:"
-#~ msgstr "已接收："
-
-#~ msgid "Author:"
-#~ msgstr "作者："
-
-#~ msgid "Page count:"
-#~ msgstr "页数："
-
-#~ msgid "Description:"
-#~ msgstr "描述："
-
-#~ msgid "Tracker Search Tool"
-#~ msgstr "Tracker 搜索工具"
-
-#~ msgid ""
-#~ "Failed to load UI\n"
-#~ "%s"
-#~ msgstr ""
-#~ "加载界面失败\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Could not launch \"%s\"\n"
-#~ "Error: %s\n"
-#~ msgstr ""
-#~ "无法启动 %s\n"
-#~ "错误：%s\n"
-
-#~ msgid ""
-#~ "Could not get application info for %s\n"
-#~ "Error: %s\n"
-#~ msgstr ""
-#~ "无法为 %s 获得应用程序信息\n"
-#~ "错误：%s\n"
-
-#~ msgid ""
-#~ "Could not lauch %s\n"
-#~ "Error: %s\n"
-#~ msgstr ""
-#~ "无法启动 %s\n"
-#~ "错误：%s\n"
-
-#~ msgid "Journal replay"
-#~ msgstr "重新播放日志"
-
-#~ msgid "Forces the insertion of FILE into the store"
-#~ msgstr "强制将文件插入到内存"
-
-#~ msgid "Could not establish a D-Bus connection to Tracker"
-#~ msgstr "无法建立到 Tracker 的 D-Bus 连接"
-
-#~ msgid "Path : <b>%s</b>"
-#~ msgstr "路径：<b>%s</b>"
-
-#~ msgid "Modified : <b>%s</b>"
-#~ msgstr "最后修改：<b>%s</b>"
-
-#~ msgid "Size : <b>%s</b>"
-#~ msgstr "大小：<b>%s</b>"
-
-#~ msgid "Accessed : <b>%s</b>"
-#~ msgstr "最后访问：<b>%s</b>"
-
-#~ msgid "Mime : <b>%s</b>"
-#~ msgstr "MIME 类型：<b>%s</b>"
-
-#~ msgid "Sender : <b>%s</b>"
-#~ msgstr "发送者：<b>%s</b>"
-
-#~ msgid "Date : <b>%s</b>"
-#~ msgstr "日期：<b>%s</b>"
-
-#~ msgid "Comment : <b>%s</b>"
-#~ msgstr "备注：<b>%s</b>"
-
-#~ msgid "Categories : <b>%s</b>"
-#~ msgstr "类别：<b>%s</b>"
-
-#~ msgid "Genre : <b>%s</b>"
-#~ msgstr "流派：<b>%s</b>"
-
-#~ msgid "Bitrate : <b>%s Kbs</b>"
-#~ msgstr "比特率：<b>%s Kbs</b>"
-
-#~ msgid "Year : <b>%s</b>"
-#~ msgstr "年份：<b>%s</b>"
-
-#~ msgid "Codec : <b>%s</b>"
-#~ msgstr "编码：<b>%s</b>"
-
-#~ msgid " taken with a <span size='large'><i>%s</i></span>"
-#~ msgstr " 用<span size='large'><i>%s</i></span>拍摄"
-
-#~ msgid " <span size='large'><i>%s</i></span>"
-#~ msgstr " <span size='large'><i>%s</i></span>"
-
-#~ msgid "Dimensions : <b>%d x %d</b>"
-#~ msgstr "尺寸：<b>%dx%d</b>"
-
-#~ msgid "Date Taken : <b>%s</b>"
-#~ msgstr "拍摄日期：<b>%s</b>"
-
-#~ msgid "Orientation : <b>%s</b>"
-#~ msgstr "方向：<b>%s</b>"
-
-#~ msgid "Flash : <b>%s</b>"
-#~ msgstr "闪光灯：<b>%s</b>"
-
-#~ msgid "Focal Length : <b>%s</b>"
-#~ msgstr "焦距：<b>%s</b>"
-
-#~ msgid "Exposure Time : <b>%s</b>"
-#~ msgstr "曝光时间：<b>%s</b>"
-
-#~ msgid "Author : <b>%s</b>"
-#~ msgstr "作者：<b>%s</b>"
-
-#~ msgid "Bitrate : <b>%s</b>"
-#~ msgstr "比特率：<b>%s</b>"
-
-#~ msgid "Encoded In : <b>%s</b>"
-#~ msgstr "编码：<b>%s</b>"
-
-#~ msgid "Framerate : <b>%s</b>"
-#~ msgstr "帧率：<b>%s</b>"
-
-#~ msgid "Subject : <b>%s</b>"
-#~ msgstr "主题：<b>%s</b>"
-
-#~ msgid "Word Count : <b>%s</b>"
-#~ msgstr "字数：<b>%s</b>"
-
-#~ msgid "Created : <b>%s</b>"
-#~ msgstr "创建于：<b>%s</b>"
-
-#~ msgid "Comments : <b>%s</b>"
-#~ msgstr "备注：<b>%s</b>"
-
-#~ msgid "%.1f KB"
-#~ msgstr "%.1f KB"
-
-#~ msgid "%.1f MB"
-#~ msgstr "%.1f MB"
-
-#~ msgid "%.1f GB"
-#~ msgstr "%.1f GB"
-
-#~ msgid "Type tags you want to add here, separated by commas"
-#~ msgstr "在此输入您要添加的标签，以逗号分隔"
-
-#~ msgid "Tags :"
-#~ msgstr "标签："
-
-#~ msgid "_Search For Tag"
-#~ msgstr "搜索标签(_S)"
-
-#~ msgid "_Remove Tag"
-#~ msgstr "删除标签(_R)"
-
-#~ msgid "Launch %s (%s)"
-#~ msgstr "启动 %s (%s)"
-
-#~ msgid ""
-#~ "See %s conversation\n"
-#~ "%s %s\n"
-#~ "from %s"
-#~ msgstr ""
-#~ "查看 %s 会话\n"
-#~ "%s %s\n"
-#~ "开始于 %s"
-
-#~ msgid "Email from %s"
-#~ msgstr "来自的 %s 邮件"
-
-#~ msgid ""
-#~ "Listen to music %s\n"
-#~ "in %s"
-#~ msgstr ""
-#~ "收听音乐 %s\n"
-#~ "位于 %s"
-
-#~ msgid ""
-#~ "See document %s\n"
-#~ "in %s"
-#~ msgstr ""
-#~ "查看文档 %s\n"
-#~ "位于 %s"
-
-#~ msgid ""
-#~ "Open file %s\n"
-#~ "in %s"
-#~ msgstr ""
-#~ "打开文件 %s\n"
-#~ "位于 %s"
-
-#~ msgid ""
-#~ "View image %s\n"
-#~ "in %s"
-#~ msgstr ""
-#~ "查看图像 %s\n"
-#~ "位于 %s"
-
-#~ msgid ""
-#~ "Watch video  %s\n"
-#~ "in %s"
-#~ msgstr ""
-#~ "观看视频 %s\n"
-#~ "位于 %s"
-
-#~ msgid ""
-#~ "Open folder %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "打开文件夹 %s\n"
-#~ "%s"
-
-#~ msgid "in channel"
-#~ msgstr "频道"
-
-#~ msgid "Search all of your documents, <b>as you type</b>"
-#~ msgstr "搜索您的所有文档，<b>即输即搜</b>"
-
-#~ msgid "Development Files"
-#~ msgstr "开发文件"
-
-#~ msgid "Search for %s with Tracker Search Tool"
-#~ msgstr "用 Tracker 搜索工具搜索 %s"
-
-#~ msgid "Search all of your documents with Tracker Search Tool"
-#~ msgstr "用 Tracker 搜索工具搜索您的所有文档"
-
-#~ msgid "Tracker Search"
-#~ msgstr "Tracker 搜索"
-
-#~ msgid "Search with Tracker Search Tool"
-#~ msgstr "用 Tracker 搜索工具搜索"
-
-#~ msgid "Search with Tracker, as you type"
-#~ msgstr "用 Tracker 搜索，即输即搜"
-
-#~ msgid "Resuming"
-#~ msgstr "恢复"
-
-#~ msgid "Tracker Preferences"
-#~ msgstr "Tracker 首选项"
-
-#~ msgid "_Disk space:"
-#~ msgstr "磁盘空间(_D)："
-
-#~ msgid "Office Documents"
-#~ msgstr "办公文档"
-
-#~ msgid "Text Documents"
-#~ msgstr "文本文档"
-
-#~ msgid "Details"
-#~ msgstr "详情"
-
-#~ msgid "Minimizes the use of memory but may slow indexing down"
-#~ msgstr "最小化内存占用，但可能会降低索引速度"
-
-#~ msgid ""
-#~ "Use SIGKILL to stop all tracker processes found - guarantees death :)"
-#~ msgstr "使用 SIGKILL 停止发现的所有 tracker 进程 - 保证能杀死 :)"
-
-#~ msgid "Use SIGTERM to stop all tracker processes found"
-#~ msgstr "使用 SIGTERM 停止发现的所有 tracker 进程"
-
-#~ msgid "Failed"
-#~ msgstr "失败"
-
-#~ msgid "Could not get miner status"
-#~ msgstr "无法获取挖掘器状态"
-
-#~ msgid "Show more detailed results (only applies to general search)"
-#~ msgstr "显示更多的详细结果 (只适用于一般搜索)"
-
-#~ msgid ""
-#~ "This means this search term will never be found when matching FTS entries."
-#~ msgstr "这意味着在匹配 FTS 条目时此搜索条件将永远不会被发现。"
-
-#~ msgid "Either a file or query needs to be specified"
-#~ msgstr "需要指定文件或查询"
-
-#~ msgid "gtk-refresh"
-#~ msgstr "gtk-refresh"
-
-#~ msgid "gtk-go-back"
-#~ msgstr "gtk-go-back"
-
-#~ msgid "gtk-go-forward"
-#~ msgstr "gtk-go-forward"
-
-#~ msgid "Progress"
-#~ msgstr "进度"
-
-#~ msgid "Status"
-#~ msgstr "状态"
-
-#~ msgid "Key"
-#~ msgstr "键"
-
-#~ msgid "[R] = Running"
-#~ msgstr "[R] = 正在运行"
-
-#~ msgid "[ ] = Not Running"
-#~ msgstr "[ ] = 未运行"
-
-#~ msgid "Websites"
-#~ msgstr "网站"
-
-#~ msgid "File: %d"
-#~ msgid_plural "Files: %d"
-#~ msgstr[0] "文件：%d"
-
-#~ msgid "%d Song"
-#~ msgid_plural "%d Songs"
-#~ msgstr[0] "%d 首歌曲"
-
-#~ msgid "%d Second"
-#~ msgid_plural "%d Seconds"
-#~ msgstr[0] "%d 秒"
-
-#~ msgid "%d file"
-#~ msgid_plural "%d files"
-#~ msgstr[0] "%d 个文件"
