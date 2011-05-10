@@ -263,7 +263,7 @@ public class Tracker.Resources : Object {
 		}
 
 		if (start_timer && signal_timeout == 0) {
-			signal_timeout = Timeout.add_seconds (SIGNALS_SECONDS_PER_EMIT, on_emit_signals);
+			signal_timeout = Timeout.add (SIGNALS_SECONDS_PER_EMIT * 1000, on_emit_signals);
 		}
 
 		/* Writeback feature */
