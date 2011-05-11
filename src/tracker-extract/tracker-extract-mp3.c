@@ -1256,7 +1256,7 @@ get_id3v24_tags (id3v24frame           frame,
 		}
 
 #ifdef FRAME_ENABLE_TRACE
-		g_debug ("Frame is %d, word is %s", frame, word);
+		g_debug ("ID3v2.4: Frame is %d, word is %s", frame, word);
 #endif /* FRAME_ENABLE_TRACE */
 
 		switch (frame) {
@@ -1445,6 +1445,10 @@ get_id3v23_tags (id3v24frame           frame,
 			g_strstrip (word);
 		}
 
+#ifdef FRAME_ENABLE_TRACE
+		g_debug ("ID3v2.3: Frame is %d, word is %s", frame, word);
+#endif /* FRAME_ENABLE_TRACE */
+
 		switch (frame) {
 		case ID3V24_TALB:
 			tag->album = word;
@@ -1585,6 +1589,10 @@ get_id3v20_tags (id3v2frame            frame,
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
 		}
+
+#ifdef FRAME_ENABLE_TRACE
+		g_debug ("ID3v2.2: Frame is %d, word is %s", frame, word);
+#endif /* FRAME_ENABLE_TRACE */
 
 		switch (frame) {
 		case ID3V2_COM:
