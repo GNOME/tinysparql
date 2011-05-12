@@ -1255,7 +1255,6 @@ xls_get_extended_record_string (GsfInput  *stream,
                                 GString  **p_content)
 {
 	ExcelExtendedStringRecord *record;
-	guint32 cst_total;
 	guint32 cst_unique;
 	guint parsing_record = 0;
 	guint8 tmp_buffer[4] = { 0 };
@@ -1283,7 +1282,7 @@ xls_get_extended_record_string (GsfInput  *stream,
 
 	/* Reading cst total */
 	gsf_input_read (stream, 4, tmp_buffer);
-	cst_total = read_32bit (tmp_buffer);
+	read_32bit (tmp_buffer);
 
 	/* Reading cst unique */
 	gsf_input_read (stream, 4, tmp_buffer);
