@@ -862,13 +862,11 @@ get_mount_point_by_uuid_foreach (gpointer key,
                                  gpointer user_data)
 {
 	GetRoots *gr;
-	const gchar *uuid;
 	GNode *node;
 	MountInfo *info;
 	TrackerStorageType mount_type;
 
 	gr = user_data;
-	uuid = key;
 	node = value;
 	info = node->data;
 	mount_type = mount_info_get_type (info);
