@@ -245,11 +245,9 @@ xml_start_element_handler_metadata (GMarkupParseContext  *context,
 		data->current = ODT_TAG_TYPE_COMMENTS;
 	} else if (g_ascii_strcasecmp (element_name, "meta:document-statistic") == 0) {
 		TrackerSparqlBuilder *metadata;
-		const gchar *uri;
 		const gchar **a, **v;
 
 		metadata = data->metadata;
-		uri = data->uri;
 
 		for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
 			if (g_ascii_strcasecmp (*a, "meta:word-count") == 0) {
@@ -289,12 +287,10 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 {
 	ODTMetadataParseInfo *data;
 	TrackerSparqlBuilder *metadata;
-	const gchar *uri;
 	gchar *date;
 
 	data = user_data;
 	metadata = data->metadata;
-	uri = data->uri;
 
 	switch (data->current) {
 	case ODT_TAG_TYPE_TITLE:

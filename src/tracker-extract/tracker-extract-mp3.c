@@ -1208,14 +1208,12 @@ get_id3v24_tags (id3v24frame           frame,
 	case ID3V24_COMM: {
 		gchar *word;
 		gchar text_encode;
-		const gchar *text_language;
 		const gchar *text_desc;
 		const gchar *text;
 		guint offset;
 		gint text_desc_len;
 
 		text_encode   =  data[pos + 0]; /* $xx */
-		text_language = &data[pos + 1]; /* $xx xx xx */
 		text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
 		text_desc_len = id3v2_strlen (text_encode, text_desc, csize - 4);
 
@@ -1396,14 +1394,12 @@ get_id3v23_tags (id3v24frame           frame,
 	case ID3V24_COMM: {
 		gchar *word;
 		gchar text_encode;
-		const gchar *text_language;
 		const gchar *text_desc;
 		const gchar *text;
 		guint offset;
 		gint text_desc_len;
 
 		text_encode   =  data[pos + 0]; /* $xx */
-		text_language = &data[pos + 1]; /* $xx xx xx */
 		text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
 		text_desc_len = id3v2_strlen (text_encode, text_desc, csize - 4);
 
@@ -1675,11 +1671,9 @@ parse_id3v24 (const gchar           *data,
 	gint unsync;
 	gint ext_header;
 	gint experimental;
-	gint footer;
 	guint tsize;
 	guint pos;
 	guint ext_header_size;
-	guint padding;
 
 	if ((size < 16) ||
 	    (data[0] != 0x49) ||
@@ -1693,7 +1687,6 @@ parse_id3v24 (const gchar           *data,
 	unsync = (data[5] & 0x80) > 0;
 	ext_header = (data[5] & 0x40) > 0;
 	experimental = (data[5] & 0x20) > 0;
-	footer = (data[5] & 0x10) > 0;
 	tsize = (((data[6] & 0x7F) << 21) |
 	         ((data[7] & 0x7F) << 14) |
 	         ((data[8] & 0x7F) << 7) |
@@ -1704,7 +1697,6 @@ parse_id3v24 (const gchar           *data,
 	}
 
 	pos = 10;
-	padding = 0;
 
 	if (ext_header) {
 		ext_header_size = (((data[10] & 0x7F) << 21) |
