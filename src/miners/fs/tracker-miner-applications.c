@@ -111,12 +111,10 @@ miner_applications_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
                                   GError       **error)
 {
-	TrackerMinerApplications *ma;
 	TrackerMinerFS *fs;
 	GFile *file;
 	GError *inner_error = NULL;
 
-	ma = TRACKER_MINER_APPLICATIONS (initable);
 	fs = TRACKER_MINER_FS (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
