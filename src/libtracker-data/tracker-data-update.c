@@ -1034,10 +1034,6 @@ tracker_data_update_buffer_might_flush (GError **error)
 static void
 tracker_data_update_buffer_clear (void)
 {
-	TrackerDBInterface *iface;
-
-	iface = tracker_db_manager_get_db_interface ();
-
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	g_hash_table_remove_all (update_buffer.resource_cache);

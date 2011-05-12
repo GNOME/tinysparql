@@ -138,10 +138,6 @@ read_line_of_tar_output (GIOChannel  *channel,
                          GIOCondition condition,
                          gpointer     user_data)
 {
-	ProcessContext *context;
-
-	context = user_data;
-
 	if (condition & G_IO_ERR || condition & G_IO_HUP) {
 		return FALSE;
 	}
