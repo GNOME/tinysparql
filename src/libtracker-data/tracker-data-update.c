@@ -1484,6 +1484,7 @@ string_to_gvalue (const gchar         *value,
                   GError             **error)
 {
 	gint object_id;
+	gchar *datetime;
 
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -1505,6 +1506,11 @@ string_to_gvalue (const gchar         *value,
 		g_value_set_double (gvalue, atof (value));
 		break;
 	case TRACKER_PROPERTY_TYPE_DATE:
+		g_value_init (gvalue, G_TYPE_INT64);
+		datetime = g_strdup_printf ("%sT00:00:00Z", value);
+		g_value_set_int64 (gvalue, tracker_string_to_date (datetime, NULL, error));
+		g_free (datetime);
+		break;
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 		g_value_init (gvalue, TRACKER_TYPE_DATE_TIME);
 		tracker_date_time_set_from_string (gvalue, value, error);
