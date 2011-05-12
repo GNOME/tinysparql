@@ -1,3 +1,28 @@
+NEW in 0.10.13 - 2011-05-12
+===========================
+
+The changes are:
+
+  * Fixes: NB#254154, Signal batching on update could be more efficient
+  * Fixes: NB#253807, Timezone query with optional geolocation params returns incorrect results
+  * Fixes: NB#248873, Re-add mount points if unmount operation fails
+  * libtracker-miner: Cancel TrackerMinerFS cancellables on finalize
+  * tracker-store: Use lazy loading for stats to improve start up speed
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+  * Updated sl: Andrej Žnidaršič
+  * Updated zh_CN: Yinghua Wang
+
+Notes:
+
+  None
+
+
 NEW in 0.10.12 - 2011-05-05
 ===========================
 
