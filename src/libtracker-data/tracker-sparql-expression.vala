@@ -71,7 +71,7 @@ class Tracker.Sparql.Expression : Object {
 	}
 
 	bool maybe_numeric (PropertyType type) {
-		return (type == PropertyType.INTEGER || type == PropertyType.DOUBLE || type == PropertyType.DATETIME || type == PropertyType.UNKNOWN);
+		return (type == PropertyType.INTEGER || type == PropertyType.DOUBLE || type == PropertyType.DATE || type == PropertyType.DATETIME || type == PropertyType.UNKNOWN);
 	}
 
 	void append_collate (StringBuilder sql) {
@@ -286,6 +286,11 @@ class Tracker.Sparql.Expression : Object {
 			// 0/1 => false/true
 			sql.insert (begin, "CASE ");
 			sql.append (" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
+			break;
+		case PropertyType.DATE:
+			// ISO 8601 format
+			sql.insert (begin, "strftime (\"%Y-%m-%d\", ");
+			sql.append (", \"unixepoch\")");
 			break;
 		case PropertyType.DATETIME:
 			// ISO 8601 format
@@ -965,6 +970,7 @@ class Tracker.Sparql.Expression : Object {
 			case PropertyType.INTEGER:
 			case PropertyType.BOOLEAN:
 			case PropertyType.DOUBLE:
+			case PropertyType.DATE:
 			case PropertyType.DATETIME:
 				if (query.no_cache) {
 					sql.append (escape_sql_string_literal (literal));
@@ -1223,6 +1229,13 @@ class Tracker.Sparql.Expression : Object {
 			if (query.bindings.length () == n_bindings + 1) {
 				// trigger string => datetime conversion
 				query.bindings.last ().data.data_type = PropertyType.DATETIME;
+			}
+		} else if ((op1type == PropertyType.DATE && op2type == PropertyType.STRING)
+		           || (op1type == PropertyType.STRING && op2type == PropertyType.DATE)) {
+			// TODO: improve performance (linked list)
+			if (query.bindings.length () == n_bindings + 1) {
+				// trigger string => date conversion
+				query.bindings.last ().data.data_type = PropertyType.DATE;
 			}
 		}
 		return PropertyType.BOOLEAN;
