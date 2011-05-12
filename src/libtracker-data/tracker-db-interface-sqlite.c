@@ -1307,9 +1307,8 @@ execute_stmt (TrackerDBInterface  *interface,
               GCancellable        *cancellable,
               GError             **error)
 {
-	gint columns, result;
+	gint result;
 
-	columns = sqlite3_column_count (stmt);
 	result = SQLITE_OK;
 
 	/* Statement is going to start, check if we got a request to reset the

@@ -2088,7 +2088,6 @@ tracker_db_journal_rotate (GError **error)
 	GInputStream *istream;
 	GOutputStream *ostream, *cstream;
 	static gint max = 0;
-	static gboolean needs_move;
 	GError *n_error = NULL;
 	gboolean ret;
 
@@ -2098,7 +2097,6 @@ tracker_db_journal_rotate (GError **error)
 		const gchar *f_name;
 
 		directory = g_path_get_dirname (writer.journal_filename);
-		needs_move = (g_strcmp0 (rotating_settings.rotate_to, directory) != 0);
 		journal_dir = g_dir_open (directory, 0, NULL);
 
 		f_name = g_dir_read_name (journal_dir);

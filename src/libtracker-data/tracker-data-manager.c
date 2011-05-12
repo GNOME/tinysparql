@@ -2140,7 +2140,6 @@ db_get_static_data (TrackerDBInterface *iface)
 			TrackerClass *class;
 			const gchar  *uri;
 			gint          id;
-			gint          count;
 			GValue        value = { 0 };
 			gboolean      notify;
 
