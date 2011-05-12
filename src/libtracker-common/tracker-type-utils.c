@@ -147,7 +147,7 @@ tracker_string_list_to_gslist (gchar **strv,
 
 	list = NULL;
 
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < size_used; i++) {
 		if (strv[i]) {
 			list = g_slist_prepend (list, g_strdup (strv[i]));
 		} else {
@@ -177,7 +177,7 @@ tracker_string_list_to_string (gchar **strv,
 
 	string = g_string_new ("");
 
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < size_used; i++) {
 		if (strv[i]) {
 			if (i > 0) {
 				g_string_append_c (string, sep);
