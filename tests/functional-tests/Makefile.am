@@ -24,7 +24,7 @@ config_SCRIPTS += \
 endif
 
 dconfdir = $(sysconfdir)/dconf/profile
-dconf_DATA = tracker-test
+dconf_DATA = trackertest
 
 standard_tests = \
 	01-insertion.py \
