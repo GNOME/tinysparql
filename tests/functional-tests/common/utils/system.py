@@ -194,7 +194,7 @@ class TrackerMinerFsLifeCycle():
         self.loop.quit ()
         return False
 
-    def __minerfs_status_cb (self, status, handle):
+    def __minerfs_status_cb (self, status, progress, remaining_time):
         print "[miner-fs] status is now", status.encode ("utf-8")
         if (status == "Idle"):
             if (self.timeout_id != 0):
