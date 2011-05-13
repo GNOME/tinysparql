@@ -220,6 +220,7 @@ tracker_monitor_init (TrackerMonitor *object)
 	GFile                 *file;
 	GFileMonitor          *monitor;
 	const gchar           *name;
+	GError                *error = NULL;
 
 	object->private = TRACKER_MONITOR_GET_PRIVATE (object);
 
@@ -253,16 +254,23 @@ tracker_monitor_init (TrackerMonitor *object)
 	monitor = g_file_monitor_directory (file,
 	                                    G_FILE_MONITOR_WATCH_MOUNTS,
 	                                    NULL,
-	                                    NULL);
+	                                    &error);
 
-	priv->monitor_backend = G_OBJECT_TYPE (monitor);
+	if (error) {
+		g_critical ("Could not create sample directory monitor: %s", error->message);
+		g_error_free (error);
 
-	/* We use the name because the type itself is actually
-	 * private and not available publically. Note this is
-	 * subject to change, but unlikely of course.
-	 */
-	name = g_type_name (priv->monitor_backend);
-	if (name) {
+		/* Guessing limit... */
+		priv->monitor_limit = 100;
+	} else {
+		priv->monitor_backend = G_OBJECT_TYPE (monitor);
+
+		/* We use the name because the type itself is actually
+		 * private and not available publically. Note this is
+		 * subject to change, but unlikely of course.
+		 */
+		name = g_type_name (priv->monitor_backend);
+
 		/* Set limits based on backend... */
 		if (strcmp (name, "GInotifyDirectoryMonitor") == 0) {
 			/* Using inotify */
@@ -319,12 +327,12 @@ tracker_monitor_init (TrackerMonitor *object)
 			/* Guessing limit... */
 			priv->monitor_limit = 100;
 		}
+
+		g_file_monitor_cancel (monitor);
+		g_object_unref (monitor);
 	}
 
-	g_file_monitor_cancel (monitor);
-	g_object_unref (monitor);
 	g_object_unref (file);
-
 	g_message ("Monitor limit is %d", priv->monitor_limit);
 }
 
