@@ -3224,6 +3224,150 @@ should_process_file (TrackerMinerFS *fs,
 	return should_change_index_for_file (fs, file);
 }
 
+static gint
+compare_files (gconstpointer a,
+	       gconstpointer b)
+{
+	if (g_file_equal (G_FILE (a), G_FILE (b))) {
+		return 0;
+	}
+
+	return 1;
+}
+
+static gint
+compare_moved_files (gconstpointer a,
+                     gconstpointer b)
+{
+	const ItemMovedData *data = a;
+	GFile *file = G_FILE (b);
+
+	/* Compare with dest file */
+	if (g_file_equal (data->file, file)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+/* Checks previous created/updated/deleted/moved queues for
+ * monitor events. Returns TRUE if the item should still
+ * be added to the queue.
+ */
+static gboolean
+check_item_queues (TrackerMinerFS *fs,
+		   QueueState      queue,
+		   GFile          *file,
+		   GFile          *other_file)
+{
+	GList *elem;
+
+	if (!fs->private->been_crawled) {
+		/* Only do this after initial crawling, so
+		 * we are mostly sure that we won't be doing
+		 * checks on huge lists.
+		 */
+		return TRUE;
+	}
+
+	switch (queue) {
+	case QUEUE_CREATED:
+		/* Created items aren't likely to have
+		 * anything in other queues for the same
+		 * file.
+		 */
+		return TRUE;
+	case QUEUE_UPDATED:
+		/* No further updates after a previous created/updated event */
+		if (g_queue_find_custom (fs->private->items_created, file, compare_files) ||
+		    g_queue_find_custom (fs->private->items_updated, file, compare_files)) {
+			g_debug ("  Found previous unhandled CREATED/UPDATED event");
+			return FALSE;
+		}
+
+		return TRUE;
+	case QUEUE_DELETED:
+		elem = g_queue_find_custom (fs->private->items_updated, file, compare_files);
+
+		if (elem) {
+			/* Remove all previous updates */
+			g_debug ("  Deleting previous unhandled UPDATED event");
+			g_object_unref (elem->data);
+			g_queue_delete_link (fs->private->items_updated, elem);
+		}
+
+		elem = g_queue_find_custom (fs->private->items_created, file, compare_files);
+
+		if (elem) {
+			/* Created event still in the queue,
+			 * remove it and ignore the current event
+			 */
+			g_debug ("  Found matching unhandled CREATED event, removing file altogether");
+			g_object_unref (elem->data);
+			g_queue_delete_link (fs->private->items_created, elem);
+			return FALSE;
+		}
+
+		return TRUE;
+	case QUEUE_MOVED:
+		/* Kill any events on other_file (The dest one), since it will be rewritten anyway */
+		elem = g_queue_find_custom (fs->private->items_created, other_file, compare_files);
+
+		if (elem) {
+			g_debug ("  Removing previous unhandled CREATED event for dest file, will be rewritten anyway");
+			g_object_unref (elem->data);
+			g_queue_delete_link (fs->private->items_created, elem);
+		}
+
+		elem = g_queue_find_custom (fs->private->items_updated, other_file, compare_files);
+
+		if (elem) {
+			g_debug ("  Removing previous unhandled UPDATED event for dest file, will be rewritten anyway");
+			g_object_unref (elem->data);
+			g_queue_delete_link (fs->private->items_updated, elem);
+		}
+
+		/* Now check file (Origin one) */
+		elem = g_queue_find_custom (fs->private->items_created, file, compare_files);
+
+		if (elem) {
+			/* If source file was created, replace the
+			 * GFile there, we assume all posterior updates
+			 * have been merged together previously by this
+			 * same function.
+			 */
+			g_debug ("  Found matching unhandled CREATED event "
+			         "for source file, merging both events together");
+			g_object_unref (elem->data);
+			elem->data = g_object_ref (other_file);
+
+			return FALSE;
+		}
+
+		elem = g_queue_find_custom (fs->private->items_moved, file, compare_moved_files);
+
+		if (elem) {
+			ItemMovedData *data = elem->data;
+
+			/* Origin file was the dest of a previous
+			 * move operation, merge these together.
+			 */
+			g_debug ("  Source file is the destination of a previous "
+			         "unhandled MOVED event, merging both events together");
+			g_object_unref (data->file);
+			data->file = g_object_ref (other_file);
+			return FALSE;
+		}
+
+		return TRUE;
+		break;
+	default:
+		g_assert_not_reached ();
+	}
+
+	return TRUE;
+}
+
 static void
 monitor_item_created_cb (TrackerMonitor *monitor,
                          GFile          *file,
@@ -3280,7 +3424,8 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	         uri,
 	         is_directory ? "DIR" : "FILE");
 
-	if (should_process) {
+	if (should_process &&
+	    check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
 		trace_eq_push_tail ("UPDATED", file, "On monitor event");
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
@@ -3311,12 +3456,14 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 	         uri,
 	         is_directory ? "DIR" : "FILE");
 
-	if (should_process) {
+	if (should_process &&
+	    check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
 		/* Set the Quark specifying that ONLY attributes were
 		 * modified */
 		g_object_set_qdata (G_OBJECT (file),
 		                    fs->private->quark_attribute_updated,
 		                    GINT_TO_POINTER (TRUE));
+
 		trace_eq_push_tail ("UPDATED", file, "On monitor event (attributes)");
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
@@ -3347,7 +3494,8 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	         uri,
 	         is_directory ? "DIR" : "FILE");
 
-	if (should_process) {
+	if (should_process &&
+	    check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
 		trace_eq_push_tail ("DELETED", file, "On monitor event");
 		g_queue_push_tail (fs->private->items_deleted,
 		                   g_object_ref (file));
@@ -3462,10 +3610,12 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			}
 
 			/* Delete old file */
-			trace_eq_push_tail ("DELETED", file, "On move monitor event");
-			g_queue_push_tail (fs->private->items_deleted,
-			                   g_object_ref (file));
-			item_queue_handlers_set_up (fs);
+			if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
+				trace_eq_push_tail ("DELETED", file, "On move monitor event");
+				g_queue_push_tail (fs->private->items_deleted,
+						   g_object_ref (file));
+				item_queue_handlers_set_up (fs);
+			}
 		} else {
 			/* Move monitors to the new place */
 			if (is_directory) {
@@ -3473,11 +3623,14 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				                      file,
 				                      other_file);
 			}
+
 			/* Move old file to new file */
-			trace_eq_push_tail_2 ("MOVED", file, other_file, "On monitor event");
-			g_queue_push_tail (fs->private->items_moved,
-			                   item_moved_data_new (other_file, file));
-			item_queue_handlers_set_up (fs);
+			if (check_item_queues (fs, QUEUE_MOVED, file, other_file)) {
+				trace_eq_push_tail_2 ("MOVED", file, other_file, "On monitor event");
+				g_queue_push_tail (fs->private->items_moved,
+				                   item_moved_data_new (other_file, file));
+				item_queue_handlers_set_up (fs);
+			}
 		}
 
 		g_free (other_uri);
