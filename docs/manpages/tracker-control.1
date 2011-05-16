@@ -162,6 +162,13 @@ pauses have been resumed will it continue. If successful, a cookie
 will be given to uniquely identify the request. This cookie is used to
 resume the pause at a later stage.
 .TP
+.B \-\-pause-for-process=REASON
+This works exactly the same way as
+.B \-\-pause
+with the exception that it only keeps the pause active while the
+calling process is alive. As soon as you press Ctrl+C the pause is
+resumed automatically.
+.TP
 .B \-\-resume=COOKIE
 The COOKIE is given by a successful
 .B \-\-pause

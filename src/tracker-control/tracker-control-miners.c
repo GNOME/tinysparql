@@ -34,6 +34,7 @@ static const gchar **reindex_mime_types;
 static gchar *index_file;
 static gchar *miner_name;
 static gchar *pause_reason;
+static gchar *pause_for_process_reason;
 static gint resume_cookie = -1;
 static gboolean list_miners_running;
 static gboolean list_miners_available;
@@ -44,6 +45,7 @@ static gboolean pause_details;
 	 index_file || \
 	 miner_name || \
 	 pause_reason || \
+	 pause_for_process_reason || \
 	 resume_cookie != -1 || \
 	 list_miners_running || \
 	 list_miners_available || \
@@ -58,6 +60,10 @@ static GOptionEntry entries[] = {
 	  N_("FILE") },
 	{ "pause", 0 , 0, G_OPTION_ARG_STRING, &pause_reason,
 	  N_("Pause a miner (you must use this with --miner)"),
+	  N_("REASON")
+	},
+	{ "pause-for-process", 0 , 0, G_OPTION_ARG_STRING, &pause_for_process_reason,
+	  N_("Pause a miner while the calling process is alive or until resumed (you must use this with --miner)"),
 	  N_("REASON")
 	},
 	{ "resume", 0 , 0, G_OPTION_ARG_INT, &resume_cookie,
@@ -91,7 +97,8 @@ tracker_control_miners_options_enabled (void)
 
 static gint
 miner_pause (const gchar *miner,
-             const gchar *reason)
+             const gchar *reason,
+             gboolean     for_process)
 {
 	TrackerMinerManager *manager;
 	GError *error = NULL;
@@ -114,16 +121,28 @@ miner_pause (const gchar *miner,
 	g_print ("%s\n", str);
 	g_free (str);
 
-	if (!tracker_miner_manager_pause (manager, miner, reason, &cookie)) {
-		g_printerr (_("Could not pause miner: %s"), miner);
-		g_printerr ("\n");
-		return EXIT_FAILURE;
+	if (for_process) {
+		if (!tracker_miner_manager_pause_for_process (manager, miner, reason, &cookie)) {
+			g_printerr (_("Could not pause miner: %s"), miner);
+			g_printerr ("\n");
+			return EXIT_FAILURE;
+		}
+	} else {
+		if (!tracker_miner_manager_pause (manager, miner, reason, &cookie)) {
+			g_printerr (_("Could not pause miner: %s"), miner);
+			g_printerr ("\n");
+			return EXIT_FAILURE;
+		}
 	}
 
 	str = g_strdup_printf (_("Cookie is %d"), cookie);
 	g_print ("  %s\n", str);
 	g_free (str);
 	g_object_unref (manager);
+
+	if (for_process) {
+		g_print ("%s\n", _("Press Ctrl+C to end pause"));
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -319,7 +338,7 @@ miner_get_details (TrackerMinerManager  *manager,
 	return TRUE;
 }
 
-static gboolean
+static gint
 miner_pause_details (void)
 {
 	TrackerMinerManager *manager;
@@ -424,13 +443,13 @@ tracker_control_miners_run (void)
 		return EXIT_FAILURE;
 	}
 
-	if ((pause_reason || resume_cookie != -1) && !miner_name) {
+	if ((pause_reason || pause_for_process_reason  || resume_cookie != -1) && !miner_name) {
 		g_printerr ("%s\n",
 		            _("You must provide the miner for pause or resume commands"));
 		return EXIT_FAILURE;
 	}
 
-	if ((!pause_reason && resume_cookie == -1) && miner_name) {
+	if ((!pause_reason && !pause_for_process_reason && resume_cookie == -1) && miner_name) {
 		g_printerr ("%s\n",
 		            _("You must provide a pause or resume command for the miner"));
 		return EXIT_FAILURE;
@@ -452,7 +471,24 @@ tracker_control_miners_run (void)
 	}
 
 	if (pause_reason) {
-		return miner_pause (miner_name, pause_reason);
+		return miner_pause (miner_name, pause_reason, FALSE);
+	}
+
+	if (pause_for_process_reason) {
+		gint retval;
+
+		retval = miner_pause (miner_name, pause_for_process_reason, TRUE);
+
+		if (retval == EXIT_SUCCESS) {
+			GMainLoop *main_loop;
+
+			main_loop = g_main_loop_new (NULL, FALSE);
+			/* Block until Ctrl+C */
+			g_main_loop_run (main_loop);
+			g_object_unref (main_loop);
+		}
+
+		return retval;
 	}
 
 	if (resume_cookie != -1) {
