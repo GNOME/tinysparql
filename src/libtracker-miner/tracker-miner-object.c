@@ -90,6 +90,11 @@ static const gchar introspection_xml[] =
   "      <arg type='s' name='reason' direction='in' />"
   "      <arg type='i' name='cookie' direction='out' />"
   "    </method>"
+  "    <method name='PauseForProcess'>"
+  "      <arg type='s' name='application' direction='in' />"
+  "      <arg type='s' name='reason' direction='in' />"
+  "      <arg type='i' name='cookie' direction='out' />"
+  "    </method>"
   "    <method name='Resume'>"
   "      <arg type='i' name='cookie' direction='in' />"
   "    </method>"
@@ -129,6 +134,8 @@ typedef struct {
 	gint cookie;
 	gchar *application;
 	gchar *reason;
+	gchar *watch_name;
+	guint watch_name_id;
 } PauseData;
 
 enum {
@@ -166,7 +173,9 @@ static gboolean   miner_initable_init          (GInitable              *initable
                                                 GError                **error);
 static void       pause_data_destroy           (gpointer                data);
 static PauseData *pause_data_new               (const gchar            *application,
-                                                const gchar            *reason);
+                                                const gchar            *reason,
+                                                const gchar            *watch_name,
+                                                guint                   watch_name_id);
 static void       handle_method_call           (GDBusConnection        *connection,
                                                 const gchar            *sender,
                                                 const gchar            *object_path,
@@ -700,7 +709,9 @@ miner_get_property (GObject    *object,
 
 static PauseData *
 pause_data_new (const gchar *application,
-                const gchar *reason)
+                const gchar *reason,
+                const gchar *watch_name,
+                guint        watch_name_id)
 {
 	PauseData *data;
 	static gint cookie = 1;
@@ -710,6 +721,8 @@ pause_data_new (const gchar *application,
 	data->cookie = cookie++;
 	data->application = g_strdup (application);
 	data->reason = g_strdup (reason);
+	data->watch_name = g_strdup (watch_name);
+	data->watch_name_id = watch_name_id;
 
 	return data;
 }
@@ -720,6 +733,12 @@ pause_data_destroy (gpointer data)
 	PauseData *pd;
 
 	pd = data;
+
+	if (pd->watch_name_id) {
+		g_bus_unwatch_name (pd->watch_name_id);
+	}
+
+	g_free (pd->watch_name);
 
 	g_free (pd->reason);
 	g_free (pd->application);
@@ -873,15 +892,58 @@ tracker_miner_get_n_pause_reasons (TrackerMiner *miner)
 	return g_hash_table_size (miner->priv->pauses);
 }
 
+static void
+pause_process_disappeared_cb (GDBusConnection *connection,
+                              const gchar     *name,
+                              gpointer         user_data)
+{
+	TrackerMiner *miner;
+	PauseData *pd = NULL;
+	GError *error = NULL;
+	GHashTableIter iter;
+	gpointer key, value;
+
+	miner = user_data;
+
+	g_message ("Process with name:'%s' has disappeared", name);
+
+	g_hash_table_iter_init (&iter, miner->priv->pauses);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		PauseData *pd_iter = value;
+
+		if (g_strcmp0 (name, pd_iter->watch_name) == 0) {
+			pd = pd_iter;
+			break;
+		}
+	}
+
+	if (!pd) {
+		g_critical ("Could not find PauseData for process with name:'%s'", name);
+		return;
+	}
+
+	/* Resume */
+	g_message ("Resuming pause associated with process");
+
+	tracker_miner_resume (miner, pd->cookie, &error);
+
+	if (error) {
+		g_warning ("Could not resume miner, %s", error->message);
+		g_error_free (error);
+	}
+}
+
 static gint
-tracker_miner_pause_internal (TrackerMiner  *miner,
-                              const gchar   *application,
-                              const gchar   *reason,
-                              GError       **error)
+miner_pause_internal (TrackerMiner  *miner,
+                      const gchar   *application,
+                      const gchar   *reason,
+                      const gchar   *calling_name,
+                      GError       **error)
 {
 	PauseData *pd;
 	GHashTableIter iter;
 	gpointer key, value;
+	guint watch_name_id = 0;
 
 	/* Check this is not a duplicate pause */
 	g_hash_table_iter_init (&iter, miner->priv->pauses);
@@ -897,7 +959,18 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 		}
 	}
 
-	pd = pause_data_new (application, reason);
+	if (calling_name) {
+		g_message ("Watching process with name:'%s'", calling_name);
+		watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+		                                  calling_name,
+		                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                  NULL,
+		                                  pause_process_disappeared_cb,
+		                                  miner,
+		                                  NULL);
+	}
+
+	pd = pause_data_new (application, reason, calling_name, watch_name_id);
 
 	g_hash_table_insert (miner->priv->pauses,
 	                     GINT_TO_POINTER (pd->cookie),
@@ -952,7 +1025,7 @@ tracker_miner_pause (TrackerMiner  *miner,
 		application = miner->priv->name;
 	}
 
-	return tracker_miner_pause_internal (miner, application, reason, error);
+	return miner_pause_internal (miner, application, reason, NULL, error);
 }
 
 /**
@@ -1177,7 +1250,48 @@ handle_method_call_pause (TrackerMiner          *miner,
 	                                        application,
 	                                        reason);
 
-	cookie = tracker_miner_pause_internal (miner, application, reason, &local_error);
+	cookie = miner_pause_internal (miner, application, reason, NULL, &local_error);
+	if (cookie == -1) {
+		tracker_dbus_request_end (request, local_error);
+
+		g_dbus_method_invocation_return_gerror (invocation, local_error);
+
+		g_error_free (local_error);
+
+		return;
+	}
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("(i)", cookie));
+}
+
+static void
+handle_method_call_pause_for_process (TrackerMiner          *miner,
+                                      GDBusMethodInvocation *invocation,
+                                      GVariant              *parameters)
+{
+	GError *local_error = NULL;
+	gint cookie;
+	const gchar *application = NULL, *reason = NULL;
+	TrackerDBusRequest *request;
+
+	g_variant_get (parameters, "(&s&s)", &application, &reason);
+
+	tracker_gdbus_async_return_if_fail (application != NULL, invocation);
+	tracker_gdbus_async_return_if_fail (reason != NULL, invocation);
+
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s(application:'%s', reason:'%s')",
+	                                        __PRETTY_FUNCTION__,
+	                                        application,
+	                                        reason);
+
+	cookie = miner_pause_internal (miner,
+	                               application,
+	                               reason,
+	                               g_dbus_method_invocation_get_sender (invocation),
+	                               &local_error);
 	if (cookie == -1) {
 		tracker_dbus_request_end (request, local_error);
 
@@ -1294,23 +1408,19 @@ handle_method_call (GDBusConnection       *connection,
 
 	if (g_strcmp0 (method_name, "IgnoreNextUpdate") == 0) {
 		handle_method_call_ignore_next_update (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "Resume") == 0) {
+	} else if (g_strcmp0 (method_name, "Resume") == 0) {
 		handle_method_call_resume (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "Pause") == 0) {
+	} else if (g_strcmp0 (method_name, "Pause") == 0) {
 		handle_method_call_pause (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "GetPauseDetails") == 0) {
+	} else if (g_strcmp0 (method_name, "PauseForProcess") == 0) {
+		handle_method_call_pause_for_process (miner, invocation, parameters);
+	} else if (g_strcmp0 (method_name, "GetPauseDetails") == 0) {
 		handle_method_call_get_pause_details (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "GetRemainingTime") == 0) {
+	} else if (g_strcmp0 (method_name, "GetRemainingTime") == 0) {
 		handle_method_call_get_remaining_time (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "GetProgress") == 0) {
+	} else if (g_strcmp0 (method_name, "GetProgress") == 0) {
 		handle_method_call_get_progress (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "GetStatus") == 0) {
+	} else if (g_strcmp0 (method_name, "GetStatus") == 0) {
 		handle_method_call_get_status (miner, invocation, parameters);
 	} else {
 		g_assert_not_reached ();

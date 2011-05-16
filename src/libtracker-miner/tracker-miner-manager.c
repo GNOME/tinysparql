@@ -895,6 +895,80 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 }
 
 /**
+ * tracker_miner_manager_pause_for_process:
+ * @manager: a #TrackerMinerManager.
+ * @miner: miner reference
+ * @reason: reason to pause
+ * @cookie: return location for the pause cookie ID
+ *
+ * This function operates exactly the same way as
+ * tracker_miner_manager_pause() with the exception that if the calling
+ * process dies, the pause is resumed. This API is useful for cases
+ * where the calling process has a risk of crashing without resuming
+ * the pause.
+ *
+ * Returns: %TRUE if the miner was paused successfully, otherwise
+ * %FALSE.
+ *
+ * Since: 0.10.15
+ **/
+gboolean
+tracker_miner_manager_pause_for_process (TrackerMinerManager *manager,
+                                         const gchar         *miner,
+                                         const gchar         *reason,
+                                         guint32             *cookie)
+{
+	GDBusProxy *proxy;
+	const gchar *app_name;
+	GError *error = NULL;
+	GVariant *v;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+	g_return_val_if_fail (reason != NULL, FALSE);
+
+	proxy = find_miner_proxy (manager, miner, TRUE);
+
+	if (!proxy) {
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	/* Find a reasonable app name */
+	app_name = g_get_application_name ();
+
+	if (!app_name) {
+		app_name = g_get_prgname ();
+	}
+
+	if (!app_name) {
+		app_name = "TrackerMinerManager client";
+	}
+
+	v = g_dbus_proxy_call_sync (proxy,
+	                            "PauseForProcess",
+	                            g_variant_new ("(ss)", app_name, reason),
+	                            G_DBUS_CALL_FLAGS_NONE,
+	                            -1,
+	                            NULL,
+	                            &error);
+
+	if (error) {
+		g_critical ("Could not pause miner '%s': %s", miner, error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	if (cookie) {
+		g_variant_get (v, "(i)", cookie);
+	}
+
+	g_variant_unref (v);
+
+	return TRUE;
+}
+
+/**
  * tracker_miner_manager_resume:
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
