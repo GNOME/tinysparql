@@ -36,6 +36,15 @@ namespace Tracker {
 		NO_SPACE
 	}
 
+	[CCode (cheader_filename = "libtracker-data/tracker-db-journal.h")]
+	public errordomain DBJournalError {
+		UNKNOWN,
+		DAMAGED_JOURNAL_ENTRY,
+		COULD_NOT_WRITE,
+		COULD_NOT_CLOSE,
+		BEGIN_OF_JOURNAL
+	}
+
 	[CCode (cprefix = "TRACKER_DATA_BACKUP_ERROR_", cheader_filename = "libtracker-data/tracker-data-backup.h")]
 	public errordomain DataBackupError {
 		INVALID_URI
@@ -210,7 +219,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
 	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError;
+		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
 	}
 

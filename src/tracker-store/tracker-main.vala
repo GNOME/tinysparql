@@ -282,7 +282,7 @@ License which can be viewed at:
 			                           update_cache_size,
 			                           busy_callback,
 			                           "Initializing");
-		} catch (Tracker.DBInterfaceError e) {
+		} catch (GLib.Error e) {
 			critical ("Cannot initialize database: %s", e.message);
 			return 1;
 		}
