@@ -106,6 +106,10 @@ gboolean             tracker_miner_manager_pause              (TrackerMinerManag
                                                                const gchar          *miner,
                                                                const gchar          *reason,
                                                                guint32              *cookie);
+gboolean             tracker_miner_manager_pause_for_process  (TrackerMinerManager  *manager,
+                                                               const gchar          *miner,
+                                                               const gchar          *reason,
+                                                               guint32              *cookie);
 gboolean             tracker_miner_manager_resume             (TrackerMinerManager  *manager,
                                                                const gchar          *miner,
                                                                guint32               cookie);
