@@ -3565,18 +3565,29 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	if (read_journal) {
 		in_journal_replay = TRUE;
 
-		tracker_db_journal_reader_ontology_init (NULL, &internal_error);
+		if (tracker_db_journal_reader_ontology_init (NULL, &internal_error)) {
+			/* Load ontology IDs from journal into memory */
+			load_ontology_ids_from_journal (&uri_id_map, &max_id);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
+			tracker_db_journal_reader_shutdown ();
+		} else {
+			if (internal_error) {
+				if (!g_error_matches (internal_error,
+					              TRACKER_DB_JOURNAL_ERROR,
+					              TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
+					g_propagate_error (error, internal_error);
+					return FALSE;
+				} else {
+					g_clear_error (&internal_error);
+				}
+			}
 
-			return FALSE;
+			/* do not trigger journal replay if ontology journal
+			   does not exist or is not valid,
+			   same as with regular journal further above */
+			in_journal_replay = FALSE;
+			read_journal = FALSE;
 		}
-
-		/* Load ontology IDs from journal into memory */
-		load_ontology_ids_from_journal (&uri_id_map, &max_id);
-
-		tracker_db_journal_reader_shutdown ();
 	}
 
 	if (is_first_time_index && !read_only) {
