@@ -495,6 +495,11 @@ db_journal_init_file (JournalWriter  *jwriter,
 		jwriter->cur_block[7] = '4';
 
 		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8, error)) {
+			cur_block_kill (jwriter);
+			/* delete empty journal file */
+			g_unlink (jwriter->journal_filename);
+			close (jwriter->journal);
+			jwriter->journal = 0;
 			return FALSE;
 		}
 
