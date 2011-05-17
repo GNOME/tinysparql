@@ -478,14 +478,6 @@ db_journal_init_file (JournalWriter  *jwriter,
 
 		cur_block_maybe_expand (jwriter, 8);
 
-		/* If it didn't expand properly */
-		if (jwriter->cur_block == NULL) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
-			             "Could not write journal, not enough memory");
-			return FALSE;
-		}
-
 		jwriter->cur_block[0] = 't';
 		jwriter->cur_block[1] = 'r';
 		jwriter->cur_block[2] = 'l';
