@@ -3539,10 +3539,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				read_journal = TRUE;
 			}
 			tracker_db_journal_reader_shutdown ();
-		} else if (internal_error && (internal_error->domain != TRACKER_DB_JOURNAL_ERROR ||
-			    internal_error->code != TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
+		} else if (internal_error) {
+			if (!g_error_matches (internal_error,
+			                      TRACKER_DB_JOURNAL_ERROR,
+			                      TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			} else {
+				g_clear_error (&internal_error);
+			}
 		}
 	}
 
