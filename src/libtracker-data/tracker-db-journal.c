@@ -393,37 +393,43 @@ cur_setstr (gchar       *dest,
 }
 
 static gboolean
-write_all_data (int    fd, 
-                gchar *data, 
-                gsize  len)
+write_all_data (int      fd,
+                gchar   *data,
+                gsize    len,
+                GError **error)
 {
 	gssize written;
-	gboolean result;
-
-	result = FALSE;
 
 	while (len > 0) {
 		written = write (fd, data, len);
 		
 		if (written < 0) {
-			if (errno == EINTR) {
+			gint err = errno;
+
+			if (err == EINTR) {
 				/* interrupted by signal, try again */
 				continue;
 			}
-			goto out;
+
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
+			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
+			             "Could not write to journal file, %s",
+			             g_strerror (err));
+
+			return FALSE;
 		} else if (written == 0) {
-			goto out; /* WTH? Don't loop forever*/
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
+			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
+			             "Could not write to journal file, write returned 0 without error");
+
+			return FALSE;
 		}
 		
 		len -= written;
 		data += written;
 	}
 
-	result = TRUE; /* Succeeded! */
-
-out:
-
-	return result;
+	return TRUE; /* Succeeded! */
 }
 
 GQuark
@@ -488,11 +494,7 @@ db_journal_init_file (JournalWriter  *jwriter,
 		jwriter->cur_block[6] = '0';
 		jwriter->cur_block[7] = '4';
 
-		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8)) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
-			             "Could not write to journal file, %s",
-			             g_strerror (errno));
+		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8, error)) {
 			return FALSE;
 		}
 
@@ -1166,11 +1168,7 @@ db_journal_writer_commit_db_transaction (JournalWriter  *jwriter,
 	crc = tracker_crc32 (jwriter->cur_block + offset, jwriter->cur_block_len - offset);
 	cur_setnum (jwriter->cur_block, &begin_pos, crc);
 
-	if (!write_all_data (jwriter->journal, jwriter->cur_block, jwriter->cur_block_len)) {
-		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-		             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
-		             "Could not write to journal, %s",
-		             g_strerror (errno));
+	if (!write_all_data (jwriter->journal, jwriter->cur_block, jwriter->cur_block_len, error)) {
 		return FALSE;
 	}
 
