@@ -1337,7 +1337,6 @@ db_journal_reader_init_file (JournalReader  *jreader,
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 		             TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL,
 		             "Damaged journal entry at begin of journal");
-		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
 
@@ -1392,8 +1391,6 @@ db_journal_reader_init (JournalReader  *jreader,
 
 		g_error_free (n_error);
 		g_free (filename_open);
-		g_free (jreader->filename);
-		jreader->filename = NULL;
 
 		tracker_db_journal_reader_shutdown ();
 		return FALSE;
@@ -1483,6 +1480,7 @@ reader_next_file (GError **error)
 
 	if (!db_journal_reader_init_file (&reader, filename_open, error)) {
 		g_free (filename_open);
+		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
 
