@@ -62,7 +62,9 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
 	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h                          
+	tracker-thumbnailer.h                          \
+	tracker-albumart.c                             \
+	tracker-albumart.h
 
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \

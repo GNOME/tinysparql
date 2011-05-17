@@ -27,6 +27,7 @@
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-fs.h"
+#include "tracker-albumart.h"
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
 #include "tracker-thumbnailer.h"
@@ -1861,6 +1862,7 @@ item_remove (TrackerMinerFS *fs,
 	}
 
 	tracker_thumbnailer_remove_add (uri, mime);
+	tracker_albumart_remove_add (uri, mime);
 
 	g_free (mime);
 
@@ -2775,6 +2777,7 @@ item_queue_handlers_cb (gpointer user_data)
 		                                      "Queue handlers NONE");
 
 		tracker_thumbnailer_send ();
+		tracker_albumart_check_cleanup (tracker_miner_get_connection (TRACKER_MINER (fs)));
 		/* No more files left to process */
 		keep_processing = FALSE;
 		break;
