@@ -1382,14 +1382,14 @@ db_journal_reader_init (JournalReader  *jreader,
 		    !g_error_matches (n_error, G_FILE_ERROR, G_FILE_ERROR_NOENT)) {
 			/* Do not set error if the file does not exist, just return FALSE */
 
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-			             TRACKER_DB_JOURNAL_ERROR_UNKNOWN,
-			             "Could not create TrackerDBJournalReader for file '%s', %s",
-			             jreader->filename,
-			             n_error->message ? n_error->message : "no error given");
+			g_propagate_prefixed_error (error,
+			                            n_error,
+			                            "Could not create TrackerDBJournalReader for file '%s', ",
+			                            jreader->filename);
+		} else {
+			g_error_free (n_error);
 		}
 
-		g_error_free (n_error);
 		g_free (filename_open);
 
 		tracker_db_journal_reader_shutdown ();
