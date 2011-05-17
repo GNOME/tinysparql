@@ -469,7 +469,7 @@ db_journal_init_file (JournalWriter  *jwriter,
 		return FALSE;
 	}
 
-	if (g_stat (jwriter->journal_filename, &st) == 0) {
+	if (fstat (jwriter->journal, &st) == 0) {
 		jwriter->cur_size = (gsize) st.st_size;
 	}
 
