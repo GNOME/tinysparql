@@ -3637,7 +3637,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 
-		tracker_data_begin_ontology_transaction (NULL);
+		tracker_data_begin_ontology_transaction (&internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
@@ -3766,7 +3770,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		/* check ontology against database */
 
-		tracker_data_begin_ontology_transaction (NULL);
+		tracker_data_begin_ontology_transaction (&internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		/* Get a map of tracker:Ontology v. nao:lastModified so that we can test
 		 * for all the ontology files in ontologies_dir whether the last-modified
