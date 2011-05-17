@@ -30,6 +30,7 @@
 #include "tracker-albumart.h"
 
 static gboolean had_any = FALSE;
+static guint timer_id = 0;
 
 static void
 on_query_finished (GObject      *source_object,
@@ -57,6 +58,7 @@ on_query_finished (GObject      *source_object,
 	                            NULL);
 
 	if (!g_file_test (dirname, G_FILE_TEST_EXISTS)) {
+		/* Ignore this and just quit the function */
 		goto on_error;
 	}
 
@@ -72,17 +74,23 @@ on_query_finished (GObject      *source_object,
 	                               (GDestroyNotify) g_free);
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		const gchar *album = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		gchar *album_stripped, *target = NULL;
+		gchar *artist_stripped = NULL;
+		gchar *album_stripped;
+		gchar *target = NULL;
 
-		if (album) {
-			album_stripped = tracker_albumart_strip_invalid_entities (album);
-			tracker_albumart_get_path (NULL,
-			                           album_stripped,
-			                           "album", NULL,
-			                           &target, NULL);
-			g_hash_table_replace (table, target, album_stripped);
+		if (tracker_sparql_cursor_get_value_type (cursor, 1) != TRACKER_SPARQL_VALUE_TYPE_UNBOUND) {
+			artist_stripped = tracker_albumart_strip_invalid_entities (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 		}
+
+		album_stripped = tracker_albumart_strip_invalid_entities (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+
+		tracker_albumart_get_path (artist_stripped,
+		                           album_stripped,
+		                           "album", NULL,
+		                           &target, NULL);
+
+		g_hash_table_replace (table, target, album_stripped);
+		g_free (artist_stripped);
 	}
 
 	/* Perhaps we should have an internal list of albumart files that we made,
@@ -154,6 +162,32 @@ tracker_albumart_remove_add (const gchar *uri,
 	return TRUE;
 }
 
+static gboolean
+on_timer_callback (gpointer data)
+{
+	TrackerSparqlConnection *connection = data;
+
+	tracker_sparql_connection_query_async (connection,
+	                                       "SELECT ?title nmm:artistName (nmm:albumArtist (?album)) WHERE { "
+	                                       "   ?mpiece nmm:musicAlbum ?album . "
+	                                       "   ?album nmm:albumTitle ?title "
+	                                       "}",
+	                                       NULL,
+	                                       on_query_finished,
+	                                       NULL);
+
+	return FALSE;
+}
+
+static void
+on_timer_destroy (gpointer data)
+{
+	TrackerSparqlConnection *connection = data;
+
+	g_object_unref (connection);
+	timer_id = 0;
+}
+
 /**
  * tracker_albumart_process:
  *
@@ -164,15 +198,14 @@ tracker_albumart_remove_add (const gchar *uri,
 void
 tracker_albumart_check_cleanup (TrackerSparqlConnection *connection)
 {
-	if (had_any) {
-		tracker_sparql_connection_query_async (connection,
-		                                       "SELECT ?title WHERE { "
-		                                       "   ?mpiece nmm:musicAlbum ?album . "
-		                                       "   ?album nmm:albumTitle ?title "
-		                                       "}",
-		                                       NULL,
-		                                       on_query_finished,
-		                                       NULL);
+	if (had_any && timer_id == 0) {
+
+		timer_id = g_timeout_add_seconds_full (G_PRIORITY_LOW,
+		                                       1800 /* Half an hour worth of seconds*/,
+		                                       on_timer_callback,
+		                                       g_object_ref (connection),
+		                                       on_timer_destroy);
+
 		had_any = FALSE;
 	}
 }
