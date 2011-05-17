@@ -406,7 +406,8 @@ write_all_data (int    fd,
 		written = write (fd, data, len);
 		
 		if (written < 0) {
-			if (errno == EAGAIN) {
+			if (errno == EINTR) {
+				/* interrupted by signal, try again */
 				continue;
 			}
 			goto out;
