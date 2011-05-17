@@ -464,8 +464,6 @@ db_journal_init_file (JournalWriter  *jwriter,
 		             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
 		             "Could not open journal for writing, %s",
 		             g_strerror (errno));
-		g_free (jwriter->journal_filename);
-		jwriter->journal_filename = NULL;
 		return FALSE;
 	}
 
@@ -485,8 +483,6 @@ db_journal_init_file (JournalWriter  *jwriter,
 			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
 			             "Could not write journal, not enough memory");
-			g_free (jwriter->journal_filename);
-			jwriter->journal_filename = NULL;
 			return FALSE;
 		}
 
@@ -504,8 +500,6 @@ db_journal_init_file (JournalWriter  *jwriter,
 			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
 			             "Could not write to journal file, %s",
 			             g_strerror (errno));
-			g_free (jwriter->journal_filename);
-			jwriter->journal_filename = NULL;
 			return FALSE;
 		}
 
@@ -551,6 +545,8 @@ db_journal_writer_init (JournalWriter  *jwriter,
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
+		g_free (jwriter->journal_filename);
+		jwriter->journal_filename = NULL;
 	}
 
 	return ret;
@@ -2173,6 +2169,8 @@ tracker_db_journal_rotate (GError **error)
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
+		g_free (writer.journal_filename);
+		writer.journal_filename = NULL;
 	}
 
 	return ret;
