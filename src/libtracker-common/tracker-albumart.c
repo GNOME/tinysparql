@@ -74,6 +74,18 @@ albumart_strip_find_next_block (const gchar    *original,
 	return FALSE;
 }
 
+/**
+ * tracker_albumart_strip_invalid_entities:
+ * @original: original string
+ *
+ * Strip a albumname or artistname string to prepare it for calculating the
+ * albumart path with it. Certain characters and charactersets will be stripped
+ * and a newly allocated string returned which you must free with g_free.
+ *
+ * Returns: copy of original but then stripped
+ *
+ * Since: 0.10.4
+ */
 gchar *
 tracker_albumart_strip_invalid_entities (const gchar *original)
 {
@@ -188,6 +200,20 @@ albumart_checksum_for_data (GChecksumType  checksum_type,
 	return retval;
 }
 
+/**
+ * tracker_albumart_get_path:
+ * @artist: the artist
+ * @album: the album
+ * @prefix: For example "album"
+ * @uri: NULL or the uri of the file
+ * @path: the location to store the local path
+ * @local_uri: the location to store the local uri or NULL
+ *
+ * Get the path to albumart for a given album or song. Newly allocated data in
+ * @path and @local_uri must be freed with g_free.
+ *
+ * Since: 0.10.4
+ */
 void
 tracker_albumart_get_path (const gchar  *artist,
                            const gchar  *album,
