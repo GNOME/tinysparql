@@ -71,26 +71,22 @@ on_query_finished (GObject      *source_object,
 	table = g_hash_table_new_full (g_str_hash,
 	                               g_str_equal,
 	                               (GDestroyNotify) g_free,
-	                               (GDestroyNotify) g_free);
+	                               (GDestroyNotify) NULL);
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		gchar *artist_stripped = NULL;
-		gchar *album_stripped;
 		gchar *target = NULL;
+		const gchar *album, *artist;
 
-		if (tracker_sparql_cursor_get_value_type (cursor, 1) != TRACKER_SPARQL_VALUE_TYPE_UNBOUND) {
-			artist_stripped = tracker_albumart_strip_invalid_entities (tracker_sparql_cursor_get_string (cursor, 1, NULL));
-		}
+		album = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		artist = tracker_sparql_cursor_get_value_type (cursor, 1) != TRACKER_SPARQL_VALUE_TYPE_UNBOUND ? tracker_sparql_cursor_get_string (cursor, 1, NULL) : NULL;
 
-		album_stripped = tracker_albumart_strip_invalid_entities (tracker_sparql_cursor_get_string (cursor, 0, NULL));
-
-		tracker_albumart_get_path (artist_stripped,
-		                           album_stripped,
+		/* The get_path API does stripping itself */
+		tracker_albumart_get_path (artist,
+		                           album,
 		                           "album", NULL,
 		                           &target, NULL);
 
-		g_hash_table_replace (table, target, album_stripped);
-		g_free (artist_stripped);
+		g_hash_table_replace (table, target, target);
 	}
 
 	/* Perhaps we should have an internal list of albumart files that we made,
@@ -99,17 +95,23 @@ on_query_finished (GObject      *source_object,
 
 	for (name = g_dir_read_name (dir); name != NULL; name = g_dir_read_name (dir)) {
 		gpointer value;
+		gchar *full;
 
-		value = g_hash_table_lookup (table, name);
+		full = g_build_filename (dirname, name, NULL);
+
+		value = g_hash_table_lookup (table, full);
 
 		if (!value) {
 			g_message ("Removing media-art file %s: no album exists that has "
-			           "more than one song for this media-art cache", name);
-			to_remove = g_list_prepend (to_remove, (gpointer) name);
+			           "any songs for this media-art cache", name);
+			to_remove = g_list_prepend (to_remove, (gpointer) full);
+		} else {
+			g_free (full);
 		}
 	}
 
 	g_list_foreach (to_remove, (GFunc) g_unlink, NULL);
+	g_list_foreach (to_remove, (GFunc) g_free, NULL);
 	g_list_free (to_remove);
 
 on_error:
@@ -155,7 +157,7 @@ tracker_albumart_remove_add (const gchar *uri,
 
 	g_return_val_if_fail (uri != NULL, FALSE);
 
-	if (!mime_type || (g_str_has_prefix (mime_type, "video/") || g_str_has_prefix (mime_type, "audio/"))) {
+	if (mime_type && (g_str_has_prefix (mime_type, "video/") || g_str_has_prefix (mime_type, "audio/"))) {
 		had_any = TRUE;
 	}
 
@@ -168,9 +170,10 @@ on_timer_callback (gpointer data)
 	TrackerSparqlConnection *connection = data;
 
 	tracker_sparql_connection_query_async (connection,
-	                                       "SELECT ?title nmm:artistName (nmm:albumArtist (?album)) WHERE { "
-	                                       "   ?mpiece nmm:musicAlbum ?album . "
-	                                       "   ?album nmm:albumTitle ?title "
+	                                       "SELECT ?title nmm:artistName (?artist) WHERE { "
+	                                       "  ?mpiece nmm:musicAlbum ?album . "
+	                                       "  ?album nmm:albumTitle ?title . "
+	                                       "  OPTIONAL { ?album nmm:albumArtist ?artist } "
 	                                       "}",
 	                                       NULL,
 	                                       on_query_finished,
