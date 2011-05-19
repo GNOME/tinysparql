@@ -52,13 +52,11 @@ private interface Tracker.Bus.Statistics : DBusProxy {
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
-	static Resources resources_object;
-	static Steroids steroids_object;
-	static Statistics statistics_object;
-	static bool initialized;
+	Resources resources_object;
+	Steroids steroids_object;
+	Statistics statistics_object;
 
-	public Connection () throws Sparql.Error, IOError, DBusError
-	requires (!initialized) {
+	public Connection () throws Sparql.Error, IOError, DBusError {
 		// FIXME: Ideally we would just get these as and when we need them
 		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                            TRACKER_DBUS_SERVICE,
@@ -74,12 +72,6 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		                                             TRACKER_DBUS_SERVICE,
 		                                             TRACKER_DBUS_OBJECT_STATISTICS,
 		                                             DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
-
-		initialized = true;
-	}
-
-	~Connection () {
-		initialized = false;
 	}
 
 	void pipe (out UnixInputStream input, out UnixOutputStream output) throws IOError {
