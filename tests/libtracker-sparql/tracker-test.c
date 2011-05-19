@@ -320,6 +320,38 @@ test_tracker_sparql_nb237150 (void)
 	g_test_trap_assert_stdout ("*Calling both finished*");
 }
 
+static void
+test_tracker_sparql_connection_interleaved (void)
+{
+	GError *error = NULL;
+
+	TrackerSparqlCursor *cursor1;
+	TrackerSparqlCursor *cursor2;
+	TrackerSparqlConnection *connection;
+
+	const gchar* query = "select ?u {?u a rdfs:Resource .}";
+
+	connection = tracker_sparql_connection_get (NULL, &error);
+	g_assert_no_error (error);
+
+	cursor1 = tracker_sparql_connection_query (connection, query, 0, &error);
+	g_assert_no_error (error);
+
+	/* intentionally not freeing cursor1 here */
+	g_object_unref(connection);
+
+	connection = tracker_sparql_connection_get (NULL, &error);
+	g_assert_no_error (error);
+
+	cursor2 = tracker_sparql_connection_query (connection, query, 0, &error);
+	g_assert_no_error (error);
+
+	g_object_unref(connection);
+
+	g_object_unref(cursor2);
+	g_object_unref(cursor1);
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -343,6 +375,8 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_escape_string);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_uri_vprintf",
 	                 test_tracker_sparql_escape_uri_vprintf);
+	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_interleaved",
+	                 test_tracker_sparql_connection_interleaved);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_sync",
 	                 test_tracker_sparql_connection_locking_sync);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_async",
