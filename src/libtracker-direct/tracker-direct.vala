@@ -18,35 +18,43 @@
  */
 
 public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
-	// only single connection is currently supported per process
-	static bool initialized;
+	static int use_count;
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
-		if (initialized) {
-			
-		}
-
-		uint select_cache_size = 100;
-		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
-
-		if (env_cache_size != null) {
-			select_cache_size = int.parse (env_cache_size);
-		}
+		DBManager.lock ();
 
 		try {
-			Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
-		} catch (DBInterfaceError e) {
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+			if (use_count == 0) {
+				uint select_cache_size = 100;
+				string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
-		initialized = true;
+				if (env_cache_size != null) {
+					select_cache_size = int.parse (env_cache_size);
+				}
+
+				Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
+			}
+
+			use_count++;
+		} catch (Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		} finally {
+			DBManager.unlock ();
+		}
 	}
 
 	~Connection () {
 		// Clean up connection
-		if (initialized) {
-			Data.Manager.shutdown ();
-			initialized = false;
+		DBManager.lock ();
+
+		try {
+			use_count--;
+
+			if (use_count == 0) {
+				Data.Manager.shutdown ();
+			}
+		} finally {
+			DBManager.unlock ();
 		}
 	}
 
