@@ -21,8 +21,11 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	// only single connection is currently supported per process
 	static bool initialized;
 
-	public Connection () throws Sparql.Error, IOError, DBusError
-	requires (!initialized) {
+	public Connection () throws Sparql.Error, IOError, DBusError {
+		if (initialized) {
+			
+		}
+
 		uint select_cache_size = 100;
 		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
