@@ -164,7 +164,7 @@ class Tracker.Sparql.Backend : Connection {
 			try {
 				direct = new Tracker.Direct.Connection ();
 			} catch (Error e) {
-				debug ("Unable to initialize direct backend");
+				debug ("Unable to initialize direct backend: " + e.message);
 			}
 
 			bus = new Tracker.Bus.Connection ();
