@@ -52,6 +52,24 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
+	public override void dispose () {
+		door.lock ();
+
+		try {
+			// Ensure this instance is not used for any new calls to Tracker.Sparql.Connection.get.
+			// However, a call to Tracker.Sparql.Connection.get between g_object_unref and the
+			// above lock might have increased the reference count of this instance to 2 (or more).
+			// Therefore, we must not clean up direct/bus connection in dispose.
+			if (singleton == this) {
+				singleton = null;
+			}
+		} finally {
+			door.unlock ();
+		}
+
+		base.dispose ();
+	}
+
 	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null || direct != null) {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
@@ -211,7 +229,6 @@ class Tracker.Sparql.Backend : Connection {
 				}
 
 				singleton = result;
-				result.add_weak_pointer ((void**) (&singleton));
 			}
 
 			assert (direct_only == is_direct_only);
