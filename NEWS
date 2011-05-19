@@ -1,3 +1,28 @@
+NEW in 0.10.14 - 2011-05-19
+===========================
+
+The changes are:
+
+  * libtracker-data: Handle EINTR instead of EGAIN when writing journal
+  * libtracker-data: Delete empty file if unable to write journal header
+  * libtracker-data: Do not trigger a journal replay with invalid ontology journals
+  * libtracker-data: Propagate errors for ontology transactions
+  * libtracker-bus: Support multiple bus connection objects
+  * libtracker-direct: Support multiple bus connection objects
+  * libtracker-sparql: Protect singleton weak pointer with mutex
+  * libtracker-miner: Cleanup media-art that isn't valid anymore every 30 minutes or so
+  * tracker-store: Improved error handling for Data.Manager.init
+  * functional-tests: Add UID::user and GID::users to tracker-tests aegis file
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.13 - 2011-05-12
 ===========================
 
