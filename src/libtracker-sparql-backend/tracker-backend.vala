@@ -23,6 +23,7 @@ interface Tracker.Backend.Status : DBusProxy {
 }
 
 class Tracker.Sparql.Backend : Connection {
+	bool initialized;
 	Tracker.Sparql.Connection direct = null;
 	Tracker.Sparql.Connection bus = null;
 	enum Backend {
@@ -50,21 +51,26 @@ class Tracker.Sparql.Backend : Connection {
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
+
+		initialized = true;
 	}
 
 	public override void dispose () {
-		door.lock ();
+		// trying to lock on partially initialized instances will deadlock
+		if (initialized) {
+			door.lock ();
 
-		try {
-			// Ensure this instance is not used for any new calls to Tracker.Sparql.Connection.get.
-			// However, a call to Tracker.Sparql.Connection.get between g_object_unref and the
-			// above lock might have increased the reference count of this instance to 2 (or more).
-			// Therefore, we must not clean up direct/bus connection in dispose.
-			if (singleton == this) {
-				singleton = null;
+			try {
+				// Ensure this instance is not used for any new calls to Tracker.Sparql.Connection.get.
+				// However, a call to Tracker.Sparql.Connection.get between g_object_unref and the
+				// above lock might have increased the reference count of this instance to 2 (or more).
+				// Therefore, we must not clean up direct/bus connection in dispose.
+				if (singleton == this) {
+					singleton = null;
+				}
+			} finally {
+				door.unlock ();
 			}
-		} finally {
-			door.unlock ();
 		}
 
 		base.dispose ();
