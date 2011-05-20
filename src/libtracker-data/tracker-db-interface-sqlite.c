@@ -1561,9 +1561,17 @@ tracker_db_cursor_finalize (GObject *object)
 	}
 	g_free (cursor->variable_names);
 
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
 	cursor->ref_stmt->stmt_is_sunk = FALSE;
 	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
 	g_object_unref (cursor->ref_stmt);
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
 
 	G_OBJECT_CLASS (tracker_db_cursor_parent_class)->finalize (object);
 }
