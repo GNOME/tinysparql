@@ -67,6 +67,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-albumart.h
 
 libtracker_minerinclude_HEADERS =                      \
+	tracker-albumart.h                             \
 	tracker-crawler.h                              \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
