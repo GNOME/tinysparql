@@ -834,7 +834,7 @@ mount_pre_removed_cb (GVolumeMonitor *monitor,
 	data->storage = storage;
 	data->mount = mount;
 
-	id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 1,
+	id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT_IDLE + 10, 3,
 	                                 unmount_failed_cb,
 	                                 data, (GDestroyNotify) g_free);
 	g_hash_table_insert (priv->unmount_watchdogs, data->mount,
