@@ -3904,8 +3904,15 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
-	/* Check if any file was left after whole crawling */
-	check_if_files_removed (fs);
+	if (!was_interrupted) {
+		/* Check if any file was left after whole crawling */
+		check_if_files_removed (fs);
+	} else {
+		/* Ditch files to check for removal, as the crawler was
+		 * interrupted, it can lead to false positives.
+		 */
+		g_hash_table_remove_all (fs->private->check_removed);
+	}
 
 	/* Proceed to next thing to process */
 	crawl_directories_start (fs);
