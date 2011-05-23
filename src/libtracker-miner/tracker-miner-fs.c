@@ -4229,12 +4229,22 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 {
 	TrackerMinerFSPrivate *priv;
 	gboolean return_val = FALSE;
+	GTimer *timer;
 	GList *dirs;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = fs->private;
+	timer = g_timer_new ();
+	g_debug ("Removing directory");
+
+	/* Cancel all pending tasks on files inside the path given by file */
+	tracker_processing_pool_foreach (priv->processing_pool,
+	                                 processing_pool_cancel_foreach,
+	                                 file);
+
+	g_debug ("  Cancelled processing pool tasks at %f\n", g_timer_elapsed (timer, NULL));
 
 	if (fs->private->current_directory) {
 		GFile *current_file;
@@ -4280,19 +4290,35 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		}
 	}
 
+	dirs = fs->private->crawled_directories->head;
+
+	while (dirs) {
+		CrawledDirectoryData *data = dirs->data;
+		GList *link = dirs;
+
+		dirs = dirs->next;
+
+		if (g_file_equal (file, data->tree->data) ||
+		    g_file_has_prefix (file, data->tree->data)) {
+			crawled_directory_data_free (data);
+			g_queue_delete_link (priv->crawled_directories, link);
+			return_val = TRUE;
+		}
+	}
+
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
 	 */
 	check_files_removal (priv->items_updated, file);
 	check_files_removal (priv->items_created, file);
 
-	/* Cancel all pending tasks on files inside the path given by file */
-	tracker_processing_pool_foreach (fs->private->processing_pool,
-	                                 processing_pool_cancel_foreach,
-	                                 file);
+	g_debug ("  Removed files at %f\n", g_timer_elapsed (timer, NULL));
 
 	/* Remove all monitors */
 	tracker_monitor_remove_recursively (fs->private->monitor, file);
+
+	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
+	g_timer_destroy (timer);
 
 	return return_val;
 }
