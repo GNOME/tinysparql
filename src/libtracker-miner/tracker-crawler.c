@@ -202,9 +202,9 @@ tracker_crawler_init (TrackerCrawler *object)
 {
 	TrackerCrawlerPrivate *priv;
 
-	object->private = TRACKER_CRAWLER_GET_PRIVATE (object);
+	object->priv = TRACKER_CRAWLER_GET_PRIVATE (object);
 
-	priv = object->private;
+	priv = object->priv;
 
 	priv->directories = g_queue_new ();
 	priv->cancellable = g_cancellable_new ();
@@ -424,7 +424,7 @@ process_func (gpointer data)
 	gboolean                 stop_idle = FALSE;
 
 	crawler = TRACKER_CRAWLER (data);
-	priv = crawler->private;
+	priv = crawler->priv;
 
 	if (priv->is_paused) {
 		/* Stop the idle func for now until we are unpaused */
@@ -537,16 +537,16 @@ process_func (gpointer data)
 static gboolean
 process_func_start (TrackerCrawler *crawler)
 {
-	if (crawler->private->is_paused) {
+	if (crawler->priv->is_paused) {
 		return FALSE;
 	}
 
-	if (crawler->private->is_finished) {
+	if (crawler->priv->is_finished) {
 		return FALSE;
 	}
 
-	if (crawler->private->idle_id == 0) {
-		crawler->private->idle_id = g_idle_add (process_func, crawler);
+	if (crawler->priv->idle_id == 0) {
+		crawler->priv->idle_id = g_idle_add (process_func, crawler);
 	}
 
 	return TRUE;
@@ -555,9 +555,9 @@ process_func_start (TrackerCrawler *crawler)
 static void
 process_func_stop (TrackerCrawler *crawler)
 {
-	if (crawler->private->idle_id != 0) {
-		g_source_remove (crawler->private->idle_id);
-		crawler->private->idle_id = 0;
+	if (crawler->priv->idle_id != 0) {
+		g_source_remove (crawler->priv->idle_id);
+		crawler->priv->idle_id = 0;
 	}
 }
 
@@ -658,13 +658,13 @@ file_enumerate_next_cb (GObject      *object,
 
 	ed = user_data;
 	crawler = ed->crawler;
-	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
+	cancelled = g_cancellable_is_cancelled (crawler->priv->cancellable);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
 	                                             result,
 	                                             &error);
 
-	if (error || !files || !crawler->private->is_running) {
+	if (error || !files || !crawler->priv->is_running) {
 		if (error && !cancelled) {
 			g_critical ("Could not crawl through directory: %s", error->message);
 			g_error_free (error);
@@ -724,7 +724,7 @@ file_enumerate_next (GFileEnumerator *enumerator,
 	g_file_enumerator_next_files_async (enumerator,
 	                                    FILES_GROUP_SIZE,
 	                                    G_PRIORITY_DEFAULT,
-	                                    ed->crawler->private->cancellable,
+	                                    ed->crawler->priv->cancellable,
 	                                    file_enumerate_next_cb,
 	                                    ed);
 }
@@ -744,7 +744,7 @@ file_enumerate_children_cb (GObject      *file,
 	parent = G_FILE (file);
 	ed = (EnumeratorData*) user_data;
 	crawler = ed->crawler;
-	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
+	cancelled = g_cancellable_is_cancelled (crawler->priv->cancellable);
 	enumerator = g_file_enumerate_children_finish (parent, result, &error);
 
 	if (!enumerator) {
@@ -782,7 +782,7 @@ file_enumerate_children (TrackerCrawler          *crawler,
 	                                 FILE_ATTRIBUTES,
 	                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                 G_PRIORITY_LOW,
-	                                 crawler->private->cancellable,
+	                                 crawler->priv->cancellable,
 	                                 file_enumerate_children_cb,
 	                                 ed);
 }
@@ -798,7 +798,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	priv = crawler->private;
+	priv = crawler->priv;
 
 	if (!g_file_query_exists (file, NULL)) {
 		return FALSE;
@@ -841,7 +841,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	priv = crawler->private;
+	priv = crawler->priv;
 
 	/* If already not running, just ignore */
 	if (!priv->is_running) {
@@ -875,15 +875,15 @@ tracker_crawler_pause (TrackerCrawler *crawler)
 {
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	crawler->private->is_paused = TRUE;
+	crawler->priv->is_paused = TRUE;
 
-	if (crawler->private->is_running) {
-		g_timer_stop (crawler->private->timer);
+	if (crawler->priv->is_running) {
+		g_timer_stop (crawler->priv->timer);
 		process_func_stop (crawler);
 	}
 
 	g_message ("Crawler is paused, %s",
-	           crawler->private->is_running ? "currently running" : "not running");
+	           crawler->priv->is_running ? "currently running" : "not running");
 }
 
 void
@@ -891,15 +891,15 @@ tracker_crawler_resume (TrackerCrawler *crawler)
 {
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	crawler->private->is_paused = FALSE;
+	crawler->priv->is_paused = FALSE;
 
-	if (crawler->private->is_running) {
-		g_timer_continue (crawler->private->timer);
+	if (crawler->priv->is_running) {
+		g_timer_continue (crawler->priv->timer);
 		process_func_start (crawler);
 	}
 
 	g_message ("Crawler is resuming, %s",
-	           crawler->private->is_running ? "currently running" : "not running");
+	           crawler->priv->is_running ? "currently running" : "not running");
 }
 
 void
@@ -909,15 +909,15 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
 	throttle = CLAMP (throttle, 0, 1);
-	crawler->private->throttle = throttle;
+	crawler->priv->throttle = throttle;
 
 	/* Update timeouts */
-	if (crawler->private->idle_id != 0) {
+	if (crawler->priv->idle_id != 0) {
 		guint interval, idle_id;
 
-		interval = MAX_TIMEOUT_INTERVAL * crawler->private->throttle;
+		interval = MAX_TIMEOUT_INTERVAL * crawler->priv->throttle;
 
-		g_source_remove (crawler->private->idle_id);
+		g_source_remove (crawler->priv->idle_id);
 
 		if (interval == 0) {
 			idle_id = g_idle_add (process_func, crawler);
@@ -925,6 +925,6 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 			idle_id = g_timeout_add (interval, process_func, crawler);
 		}
 
-		crawler->private->idle_id = idle_id;
+		crawler->priv->idle_id = idle_id;
 	}
 }

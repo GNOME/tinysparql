@@ -52,7 +52,7 @@ typedef struct _TrackerMinerFSPrivate TrackerMinerFSPrivate;
  **/
 struct _TrackerMinerFS {
 	TrackerMiner parent;
-	TrackerMinerFSPrivate *private;
+	TrackerMinerFSPrivate *priv;
 };
 
 /**

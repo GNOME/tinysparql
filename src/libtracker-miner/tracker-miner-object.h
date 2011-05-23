@@ -51,7 +51,7 @@ typedef struct _TrackerMinerPrivate TrackerMinerPrivate;
  **/
 struct _TrackerMiner {
 	GObject parent_instance;
-	TrackerMinerPrivate *private;
+	TrackerMinerPrivate *priv;
 };
 
 /**

@@ -387,28 +387,28 @@ miner_initable_init (GInitable     *initable,
 	};
 
 	/* Try to get SPARQL connection... */
-	miner->private->connection = tracker_sparql_connection_get (NULL, &inner_error);
-	if (!miner->private->connection) {
+	miner->priv->connection = tracker_sparql_connection_get (NULL, &inner_error);
+	if (!miner->priv->connection) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
 	/* Try to get DBus connection... */
-	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
-	if (!miner->private->d_connection) {
+	miner->priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	if (!miner->priv->d_connection) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
 	/* Setup introspection data */
-	miner->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
-	if (!miner->private->introspection_data) {
+	miner->priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
+	if (!miner->priv->introspection_data) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
 	/* Check miner has a proper name */
-	if (!miner->private->name) {
+	if (!miner->priv->name) {
 		g_set_error (error,
 		             TRACKER_MINER_ERROR,
 		             0,
@@ -418,23 +418,23 @@ miner_initable_init (GInitable     *initable,
 	}
 
 	/* Setup full name */
-	miner->private->full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX,
-	                                         miner->private->name,
+	miner->priv->full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX,
+	                                         miner->priv->name,
 	                                         NULL);
 
 	/* Register the D-Bus object */
-	miner->private->full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX,
-	                                         miner->private->name,
+	miner->priv->full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX,
+	                                         miner->priv->name,
 	                                         NULL);
 
 	g_message ("Registering D-Bus object...");
-	g_message ("  Path:'%s'", miner->private->full_path);
+	g_message ("  Path:'%s'", miner->priv->full_path);
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (miner));
 
-	miner->private->registration_id =
-		g_dbus_connection_register_object (miner->private->d_connection,
-		                                   miner->private->full_path,
-	                                       miner->private->introspection_data->interfaces[0],
+	miner->priv->registration_id =
+		g_dbus_connection_register_object (miner->priv->d_connection,
+		                                   miner->priv->full_path,
+	                                       miner->priv->introspection_data->interfaces[0],
 	                                       &interface_vtable,
 	                                       miner,
 	                                       NULL,
@@ -443,18 +443,18 @@ miner_initable_init (GInitable     *initable,
 		g_propagate_error (error, inner_error);
 		g_prefix_error (error,
 		                "Could not register the D-Bus object '%s'. ",
-		                miner->private->full_path);
+		                miner->priv->full_path);
 		return FALSE;
 	}
 
 	/* Request the D-Bus name */
-	reply = g_dbus_connection_call_sync (miner->private->d_connection,
+	reply = g_dbus_connection_call_sync (miner->priv->d_connection,
 	                                     "org.freedesktop.DBus",
 	                                     "/org/freedesktop/DBus",
 	                                     "org.freedesktop.DBus",
 	                                     "RequestName",
 	                                     g_variant_new ("(su)",
-	                                                    miner->private->full_name,
+	                                                    miner->priv->full_name,
 	                                                    0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
 	                                     G_VARIANT_TYPE ("(u)"),
 	                                     0, -1, NULL, &inner_error);
@@ -462,7 +462,7 @@ miner_initable_init (GInitable     *initable,
 		g_propagate_error (error, inner_error);
 		g_prefix_error (error,
 		                "Could not acquire name:'%s'. ",
-		                miner->private->full_name);
+		                miner->priv->full_name);
 		return FALSE;
 	}
 
@@ -475,11 +475,11 @@ miner_initable_init (GInitable     *initable,
 		             0,
 		             "D-Bus service name:'%s' is already taken, "
 		             "perhaps the application is already running?",
-		             miner->private->full_name);
+		             miner->priv->full_name);
 		return FALSE;
 	}
 
-	miner->private->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+	miner->priv->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
 	                                                  TRACKER_SERVICE,
 	                                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
 	                                                  on_tracker_store_appeared,
@@ -494,7 +494,7 @@ static void
 tracker_miner_init (TrackerMiner *miner)
 {
 	TrackerMinerPrivate *priv;
-	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
+	miner->priv = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
 	priv->pauses = g_hash_table_new_full (g_direct_hash,
 	                                      g_direct_equal,
@@ -506,20 +506,20 @@ static void
 miner_update_progress (TrackerMiner *miner)
 {
 	g_signal_emit (miner, signals[PROGRESS], 0,
-	               miner->private->status,
-	               miner->private->progress,
-	               miner->private->remaining_time);
+	               miner->priv->status,
+	               miner->priv->progress,
+	               miner->priv->remaining_time);
 
-	if (miner->private->d_connection) {
-		g_dbus_connection_emit_signal (miner->private->d_connection,
+	if (miner->priv->d_connection) {
+		g_dbus_connection_emit_signal (miner->priv->d_connection,
 		                               NULL,
-		                               miner->private->full_path,
+		                               miner->priv->full_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               "Progress",
 		                               g_variant_new ("(sdi)",
-		                                              miner->private->status,
-		                                              miner->private->progress,
-		                                              miner->private->remaining_time),
+		                                              miner->priv->status,
+		                                              miner->priv->progress,
+		                                              miner->priv->remaining_time),
 		                               NULL);
 	}
 }
@@ -534,21 +534,21 @@ miner_set_property (GObject      *object,
 
 	switch (prop_id) {
 	case PROP_NAME:
-		g_free (miner->private->name);
-		miner->private->name = g_value_dup_string (value);
+		g_free (miner->priv->name);
+		miner->priv->name = g_value_dup_string (value);
 		break;
 	case PROP_STATUS: {
 		const gchar *new_status;
 
 		new_status = g_value_get_string (value);
-		if (miner->private->status && new_status &&
-		    strcmp (miner->private->status, new_status) == 0) {
+		if (miner->priv->status && new_status &&
+		    strcmp (miner->priv->status, new_status) == 0) {
 			/* Same, do nothing */
 			break;
 		}
 
-		g_free (miner->private->status);
-		miner->private->status = g_strdup (new_status);
+		g_free (miner->priv->status);
+		miner->priv->status = g_strdup (new_status);
 		miner_update_progress (miner);
 		break;
 	}
@@ -563,12 +563,12 @@ miner_set_property (GObject      *object,
 		 *
 		 * Only notify 1% changes
 		 */
-		if (new_progress == miner->private->progress) {
+		if (new_progress == miner->priv->progress) {
 			/* Same, do nothing */
 			break;
 		}
 
-		miner->private->progress = new_progress;
+		miner->priv->progress = new_progress;
 		miner_update_progress (miner);
 		break;
 	}
@@ -576,9 +576,9 @@ miner_set_property (GObject      *object,
 		gint new_remaining_time;
 
 		new_remaining_time = g_value_get_int (value);
-		if (new_remaining_time != miner->private->remaining_time) {
+		if (new_remaining_time != miner->priv->remaining_time) {
 			/* Just set the new remaining time, don't notify it */
-			miner->private->remaining_time = new_remaining_time;
+			miner->priv->remaining_time = new_remaining_time;
 		}
 		break;
 	}
@@ -598,16 +598,16 @@ miner_get_property (GObject    *object,
 
 	switch (prop_id) {
 	case PROP_NAME:
-		g_value_set_string (value, miner->private->name);
+		g_value_set_string (value, miner->priv->name);
 		break;
 	case PROP_STATUS:
-		g_value_set_string (value, miner->private->status);
+		g_value_set_string (value, miner->priv->status);
 		break;
 	case PROP_PROGRESS:
-		g_value_set_double (value, miner->private->progress);
+		g_value_set_double (value, miner->priv->progress);
 		break;
 	case PROP_REMAINING_TIME:
-		g_value_set_int (value, miner->private->remaining_time);
+		g_value_set_int (value, miner->priv->remaining_time);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -671,16 +671,16 @@ void
 tracker_miner_start (TrackerMiner *miner)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
-	g_return_if_fail (miner->private->started == FALSE);
+	g_return_if_fail (miner->priv->started == FALSE);
 
-	miner->private->started = TRUE;
+	miner->priv->started = TRUE;
 
 	g_signal_emit (miner, signals[STARTED], 0);
 
-	if (miner->private->d_connection) {
-		g_dbus_connection_emit_signal (miner->private->d_connection,
+	if (miner->priv->d_connection) {
+		g_dbus_connection_emit_signal (miner->priv->d_connection,
 		                               NULL,
-		                               miner->private->full_path,
+		                               miner->priv->full_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               "Started",
 		                               NULL,
@@ -700,16 +700,16 @@ void
 tracker_miner_stop (TrackerMiner *miner)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
-	g_return_if_fail (miner->private->started == TRUE);
+	g_return_if_fail (miner->priv->started == TRUE);
 
-	miner->private->started = FALSE;
+	miner->priv->started = FALSE;
 
 	g_signal_emit (miner, signals[STOPPED], 0);
 
-	if (miner->private->d_connection) {
-		g_dbus_connection_emit_signal (miner->private->d_connection,
+	if (miner->priv->d_connection) {
+		g_dbus_connection_emit_signal (miner->priv->d_connection,
 		                               NULL,
-		                               miner->private->full_path,
+		                               miner->priv->full_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               "Stopped",
 		                               NULL,
@@ -750,7 +750,7 @@ tracker_miner_is_started (TrackerMiner *miner)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), TRUE);
 
-	return miner->private->started;
+	return miner->priv->started;
 }
 
 /**
@@ -768,7 +768,7 @@ tracker_miner_is_paused (TrackerMiner *miner)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), TRUE);
 
-	return g_hash_table_size (miner->private->pauses) > 0 ? TRUE : FALSE;
+	return g_hash_table_size (miner->priv->pauses) > 0 ? TRUE : FALSE;
 }
 
 /**
@@ -787,7 +787,7 @@ tracker_miner_get_n_pause_reasons (TrackerMiner *miner)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), 0);
 
-	return g_hash_table_size (miner->private->pauses);
+	return g_hash_table_size (miner->priv->pauses);
 }
 
 static gint
@@ -801,7 +801,7 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 	gpointer key, value;
 
 	/* Check this is not a duplicate pause */
-	g_hash_table_iter_init (&iter, miner->private->pauses);
+	g_hash_table_iter_init (&iter, miner->priv->pauses);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		PauseData *pd = value;
 
@@ -816,19 +816,19 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 
 	pd = pause_data_new (application, reason);
 
-	g_hash_table_insert (miner->private->pauses,
+	g_hash_table_insert (miner->priv->pauses,
 	                     GINT_TO_POINTER (pd->cookie),
 	                     pd);
 
-	if (g_hash_table_size (miner->private->pauses) == 1) {
+	if (g_hash_table_size (miner->priv->pauses) == 1) {
 		/* Pause */
-		g_message ("Miner:'%s' is pausing", miner->private->name);
+		g_message ("Miner:'%s' is pausing", miner->priv->name);
 		g_signal_emit (miner, signals[PAUSED], 0);
 
-		if (miner->private->d_connection) {
-			g_dbus_connection_emit_signal (miner->private->d_connection,
+		if (miner->priv->d_connection) {
+			g_dbus_connection_emit_signal (miner->priv->d_connection,
 			                               NULL,
-			                               miner->private->full_path,
+			                               miner->priv->full_path,
 			                               TRACKER_MINER_DBUS_INTERFACE,
 			                               "Paused",
 			                               NULL,
@@ -866,7 +866,7 @@ tracker_miner_pause (TrackerMiner  *miner,
 	application = g_get_application_name ();
 
 	if (!application) {
-		application = miner->private->name;
+		application = miner->priv->name;
 	}
 
 	return tracker_miner_pause_internal (miner, application, reason, error);
@@ -893,21 +893,21 @@ tracker_miner_resume (TrackerMiner  *miner,
 {
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
 
-	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
+	if (!g_hash_table_remove (miner->priv->pauses, GINT_TO_POINTER (cookie))) {
 		g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
 		                     _("Cookie not recognized to resume paused miner"));
 		return FALSE;
 	}
 
-	if (g_hash_table_size (miner->private->pauses) == 0) {
+	if (g_hash_table_size (miner->priv->pauses) == 0) {
 		/* Resume */
-		g_message ("Miner:'%s' is resuming", miner->private->name);
+		g_message ("Miner:'%s' is resuming", miner->priv->name);
 		g_signal_emit (miner, signals[RESUMED], 0);
 
-		if (miner->private->d_connection) {
-			g_dbus_connection_emit_signal (miner->private->d_connection,
+		if (miner->priv->d_connection) {
+			g_dbus_connection_emit_signal (miner->priv->d_connection,
 			                               NULL,
-			                               miner->private->full_path,
+			                               miner->priv->full_path,
 			                               TRACKER_MINER_DBUS_INTERFACE,
 			                               "Resumed",
 			                               NULL,
@@ -931,7 +931,7 @@ tracker_miner_resume (TrackerMiner  *miner,
 TrackerSparqlConnection *
 tracker_miner_get_connection (TrackerMiner *miner)
 {
-	return miner->private->connection;
+	return miner->priv->connection;
 }
 
 /**
@@ -947,7 +947,7 @@ tracker_miner_get_connection (TrackerMiner *miner)
 GDBusConnection *
 tracker_miner_get_dbus_connection (TrackerMiner *miner)
 {
-	return miner->private->d_connection;
+	return miner->priv->d_connection;
 }
 
 /**
@@ -963,7 +963,7 @@ tracker_miner_get_dbus_connection (TrackerMiner *miner)
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_name (TrackerMiner *miner)
 {
-	return miner->private->full_name;
+	return miner->priv->full_name;
 }
 
 /**
@@ -979,7 +979,7 @@ tracker_miner_get_dbus_full_name (TrackerMiner *miner)
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_path (TrackerMiner *miner)
 {
-	return miner->private->full_path;
+	return miner->priv->full_path;
 }
 
 static void
@@ -987,34 +987,34 @@ miner_finalize (GObject *object)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
 
-	if (miner->private->watch_name_id != 0) {
-		g_bus_unwatch_name (miner->private->watch_name_id);
+	if (miner->priv->watch_name_id != 0) {
+		g_bus_unwatch_name (miner->priv->watch_name_id);
 	}
 
-	if (miner->private->registration_id != 0) {
-		g_dbus_connection_unregister_object (miner->private->d_connection,
-		                                     miner->private->registration_id);
+	if (miner->priv->registration_id != 0) {
+		g_dbus_connection_unregister_object (miner->priv->d_connection,
+		                                     miner->priv->registration_id);
 	}
 
-	if (miner->private->introspection_data) {
-		g_dbus_node_info_unref (miner->private->introspection_data);
+	if (miner->priv->introspection_data) {
+		g_dbus_node_info_unref (miner->priv->introspection_data);
 	}
 
-	if (miner->private->d_connection) {
-		g_object_unref (miner->private->d_connection);
+	if (miner->priv->d_connection) {
+		g_object_unref (miner->priv->d_connection);
 	}
 
-	g_free (miner->private->status);
-	g_free (miner->private->name);
-	g_free (miner->private->full_name);
-	g_free (miner->private->full_path);
+	g_free (miner->priv->status);
+	g_free (miner->priv->name);
+	g_free (miner->priv->full_name);
+	g_free (miner->priv->full_path);
 
-	if (miner->private->connection) {
-		g_object_unref (miner->private->connection);
+	if (miner->priv->connection) {
+		g_object_unref (miner->priv->connection);
 	}
 
-	if (miner->private->pauses) {
-		g_hash_table_unref (miner->private->pauses);
+	if (miner->priv->pauses) {
+		g_hash_table_unref (miner->priv->pauses);
 	}
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
@@ -1121,7 +1121,7 @@ handle_method_call_get_pause_details (TrackerMiner          *miner,
 
 	applications = NULL;
 	reasons = NULL;
-	g_hash_table_iter_init (&iter, miner->private->pauses);
+	g_hash_table_iter_init (&iter, miner->priv->pauses);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		PauseData *pd = value;
 
@@ -1157,7 +1157,7 @@ handle_method_call_get_remaining_time (TrackerMiner          *miner,
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
 	                                       g_variant_new ("(i)",
-	                                                      miner->private->remaining_time));
+	                                                      miner->priv->remaining_time));
 }
 
 static void
@@ -1172,7 +1172,7 @@ handle_method_call_get_progress (TrackerMiner          *miner,
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
 	                                       g_variant_new ("(d)",
-	                                                      miner->private->progress));
+	                                                      miner->priv->progress));
 }
 
 static void
@@ -1187,7 +1187,7 @@ handle_method_call_get_status (TrackerMiner          *miner,
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
 	                                       g_variant_new ("(s)",
-	                                                      miner->private->status ? miner->private->status : ""));
+	                                                      miner->priv->status ? miner->priv->status : ""));
 
 }
 
@@ -1267,13 +1267,13 @@ on_tracker_store_appeared (GDBusConnection *connection,
 	TrackerMiner *miner = user_data;
 
 	g_debug ("Miner:'%s' noticed store availability has changed to AVAILABLE",
-	         miner->private->name);
+	         miner->priv->name);
 
-	if (miner->private->availability_cookie != 0) {
+	if (miner->priv->availability_cookie != 0) {
 		GError *error = NULL;
 
 		tracker_miner_resume (miner,
-		                      miner->private->availability_cookie,
+		                      miner->priv->availability_cookie,
 		                      &error);
 
 		if (error) {
@@ -1281,7 +1281,7 @@ on_tracker_store_appeared (GDBusConnection *connection,
 			g_error_free (error);
 		}
 
-		miner->private->availability_cookie = 0;
+		miner->priv->availability_cookie = 0;
 	}
 }
 
@@ -1293,9 +1293,9 @@ on_tracker_store_disappeared (GDBusConnection *connection,
 	TrackerMiner *miner = user_data;
 
 	g_debug ("Miner:'%s' noticed store availability has changed to UNAVAILABLE",
-	         miner->private->name);
+	         miner->priv->name);
 
-	if (miner->private->availability_cookie == 0) {
+	if (miner->priv->availability_cookie == 0) {
 		GError *error = NULL;
 		gint cookie_id;
 
@@ -1307,7 +1307,7 @@ on_tracker_store_disappeared (GDBusConnection *connection,
 			g_warning ("Could not pause, %s", error->message);
 			g_error_free (error);
 		} else {
-			miner->private->availability_cookie = cookie_id;
+			miner->priv->availability_cookie = cookie_id;
 		}
 	}
 }

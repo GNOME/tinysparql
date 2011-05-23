@@ -42,7 +42,7 @@ typedef struct TrackerMonitorPrivate  TrackerMonitorPrivate;
 
 struct TrackerMonitor {
 	GObject         parent;
-	TrackerMonitorPrivate *private;
+	TrackerMonitorPrivate *priv;
 };
 
 struct TrackerMonitorClass {
