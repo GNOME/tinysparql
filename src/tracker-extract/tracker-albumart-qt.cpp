@@ -47,7 +47,10 @@ tracker_albumart_plugin_init (void)
 void
 tracker_albumart_plugin_shutdown (void)
 {
-	delete app;
+	// Apparently isn't destructing a QApplication something you should do, as
+	// QApplication is designed to work on stack of the main() function.
+
+	// delete app;
 }
 
 gboolean
