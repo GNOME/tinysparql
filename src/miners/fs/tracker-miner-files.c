@@ -2052,6 +2052,10 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 
 	error = g_error_new_literal (miner_files_error_quark, 0,
 	                             "Embedded metadata extraction was cancelled");
+
+	tracker_sparql_builder_graph_close (data->sparql);
+	tracker_sparql_builder_insert_close (data->sparql);
+
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 
 	process_file_data_free (data);
