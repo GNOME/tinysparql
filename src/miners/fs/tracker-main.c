@@ -279,9 +279,16 @@ miner_handle_first_cb (gpointer data)
 }
 
 static void
-miner_handle_first (TrackerConfig *config)
+miner_handle_first (TrackerConfig *config,
+		    gboolean       do_mtime_checking)
 {
 	gint initial_sleep;
+
+	if (!do_mtime_checking) {
+		g_debug ("Avoiding initial sleep, no mtime check needed");
+		miner_handle_next ();
+		return;
+	}
 
 	/* If requesting to run as no-daemon, start right away */
 	if (no_daemon) {
@@ -291,6 +298,7 @@ miner_handle_first (TrackerConfig *config)
 
 	/* If no need to initially sleep, start right away */
 	initial_sleep = tracker_config_get_initial_sleep (config);
+
 	if (initial_sleep <= 0) {
 		miner_handle_next ();
 		return;
@@ -822,7 +830,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_thumbnailer_init ();
 
-	miner_handle_first (config);
+	miner_handle_first (config, do_mtime_checking);
 
 	/* Go, go, go! */
 	g_main_loop_run (main_loop);
