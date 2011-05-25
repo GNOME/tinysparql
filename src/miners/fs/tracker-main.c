@@ -72,6 +72,7 @@ static gint initial_sleep = -1;
 static gboolean no_daemon;
 static gchar *eligible;
 static gboolean version;
+static guint miners_timeout_id = 0;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -274,6 +275,7 @@ miner_handle_next (void)
 static gboolean
 miner_handle_first_cb (gpointer data)
 {
+	miners_timeout_id = 0;
 	miner_handle_next ();
 	return FALSE;
 }
@@ -306,9 +308,9 @@ miner_handle_first (TrackerConfig *config,
 
 	g_debug ("Performing initial sleep of %d seconds",
 	         initial_sleep);
-	g_timeout_add_seconds (initial_sleep,
-	                       miner_handle_first_cb,
-	                       NULL);
+	miners_timeout_id = g_timeout_add_seconds (initial_sleep,
+						   miner_handle_first_cb,
+						   NULL);
 }
 
 static void
@@ -839,7 +841,8 @@ main (gint argc, gchar *argv[])
 
 	store_available = store_is_available ();
 
-	if (!miner_needs_check (miner_files, store_available) &&
+	if (miners_timeout_id == 0 &&
+	    !miner_needs_check (miner_files, store_available) &&
 	    !miner_needs_check (miner_applications, store_available)) {
 		tracker_db_manager_set_need_mtime_check (FALSE);
 	}
