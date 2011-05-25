@@ -1464,35 +1464,34 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 	GHashTableIter iter;
 	gpointer iter_file, iter_file_monitor;
 	guint items_removed = 0;
+	gchar *uri;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	g_hash_table_iter_init (&iter, monitor->priv->monitors);
 	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
-		gchar *uri;
-
 		if (!g_file_has_prefix (iter_file, file) &&
 		    !g_file_equal (iter_file, file)) {
 			continue;
 		}
 
-		uri = g_file_get_uri (iter_file);
-
 		g_hash_table_iter_remove (&iter);
-
-		g_debug ("Removed monitor for path:'%s', total monitors:%d",
-		         uri,
-		         g_hash_table_size (monitor->priv->monitors));
-
-		g_free (uri);
-
-		/* We reset this because now it is possible we have limit - 1 */
-		monitor->priv->monitor_limit_warned = FALSE;
 		items_removed++;
 	}
 
-	return items_removed > 0;
+	uri = g_file_get_uri (file);
+	g_debug ("Removed all monitors recursively for path:'%s', total monitors:%d",
+		 uri, g_hash_table_size (monitor->priv->monitors));
+	g_free (uri);
+
+	if (items_removed > 0) {
+		/* We reset this because now it is possible we have limit - 1 */
+		monitor->priv->monitor_limit_warned = FALSE;
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static gboolean
