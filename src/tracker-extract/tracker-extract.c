@@ -411,6 +411,9 @@ get_file_metadata (TrackerExtract         *extract,
 #ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
 #endif
+	gint items;
+
+	g_debug ("Extracting...");
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
@@ -423,7 +426,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
-		g_message ("  Extracting with libstreamanalyzer...");
+		g_debug ("  Using libstreamanalyzer...");
 
 		tracker_topanalyzer_extract (uri, statements, &content_type);
 
@@ -436,7 +439,7 @@ get_file_metadata (TrackerExtract         *extract,
 			return TRUE;
 		}
 	} else {
-		g_message ("  Extracting with internal extractors ONLY...");
+		g_debug ("  Using internal extractors ONLY...");
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */
 
@@ -519,6 +522,9 @@ get_file_metadata (TrackerExtract         *extract,
 			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
 				gint items;
 
+				g_debug ("  Using %s... (specific match)", 
+				         g_module_name ((GModule*) mdata->module));
+
 				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
@@ -537,6 +543,9 @@ get_file_metadata (TrackerExtract         *extract,
 
 				*preupdate_out = preupdate;
 				*statements_out = statements;
+
+				g_debug ("Done (%d items)", items);
+
 				return TRUE;
 			}
 		}
@@ -551,14 +560,12 @@ get_file_metadata (TrackerExtract         *extract,
 			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
 				gint items;
 
-				g_message ("  Extracting with module:'%s'",
-				           g_module_name ((GModule*) mdata->module));
+				g_debug ("  Using %s... (generic match)", 
+				         g_module_name ((GModule*) mdata->module));
 
 				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
-
-				g_message ("  Found %d metadata items", items);
 
 				mdata->extracted_count++;
 
@@ -575,20 +582,29 @@ get_file_metadata (TrackerExtract         *extract,
 				*preupdate_out = preupdate;
 				*statements_out = statements;
 
+				g_debug ("Done (%d items)", items);
+
 				return TRUE;
 			}
 		}
+
+		g_debug ("  No extractor was available for this mime type:'%s'",
+		         mime_used);
 
 		g_free (mime_used);
 		g_free (reversed);
 	}
 
-	if (tracker_sparql_builder_get_length (statements) > 0) {
+	items = tracker_sparql_builder_get_length (statements);
+
+	if (items > 0) {
 		tracker_sparql_builder_insert_close (statements);
 	}
 
 	*preupdate_out = preupdate;
 	*statements_out = statements;
+
+	g_debug ("No extractor or failed (%d items)", items);
 
 	return TRUE;
 }
@@ -723,8 +739,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	priv->disable_summary_on_finalize = TRUE;
 
 	g_return_if_fail (uri != NULL);
-
-	g_message ("Extracting...");
 
 	if (get_file_metadata (object, uri, mime, &preupdate, &statements)) {
 		const gchar *preupdate_str, *statements_str;
