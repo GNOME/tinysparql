@@ -227,6 +227,9 @@ get_file_metadata (TrackerExtract         *extract,
 #ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
 #endif
+	gint items;
+
+	g_debug ("Extracting...");
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
@@ -241,8 +244,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
-		tracker_dbus_request_comment (request,
-		                              "  Extracting with libstreamanalyzer...");
+		g_debug ("  Using libstreamanalyzer...");
 
 		tracker_topanalyzer_extract (uri, statements, &content_type);
 
@@ -256,8 +258,7 @@ get_file_metadata (TrackerExtract         *extract,
 			return TRUE;
 		}
 	} else {
-		tracker_dbus_request_comment (request,
-		                              "  Extracting with internal extractors ONLY...");
+		g_debug ("  Using internal extractors ONLY...");
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */
 
@@ -327,7 +328,8 @@ get_file_metadata (TrackerExtract         *extract,
 
 		if (module) {
 			StatisticsData *data;
-			gint items;
+
+			g_debug ("  Using %s...", g_module_name (module));
 
 			(func) (uri, mime_used, preupdate, statements, where);
 
@@ -349,22 +351,31 @@ get_file_metadata (TrackerExtract         *extract,
 				*statements_out = statements;
 				*where_out = g_string_free (where, FALSE);
 
+				g_debug ("Done (%d items)", items);
+
 				return TRUE;
 			} else {
 				data->failed_count++;
 			}
 		} else {
+			g_debug ("  No extractor was available for this mime type:'%s'",
+			         mime_used);
+
 			priv->unhandled_count++;
 		}
 	}
 
-	if (tracker_sparql_builder_get_length (statements) > 0) {
+	items = tracker_sparql_builder_get_length (statements);
+
+	if (items > 0) {
 		tracker_sparql_builder_insert_close (statements);
 	}
 
 	*preupdate_out = preupdate;
 	*statements_out = statements;
 	*where_out = g_string_free (where, FALSE);
+
+	g_debug ("No extractor or failed (%d items)", items);
 
 	return TRUE;
 }
@@ -502,8 +513,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	priv->disable_summary_on_finalize = TRUE;
 
 	g_return_if_fail (uri != NULL);
-
-	g_message ("Extracting...");
 
 	if (get_file_metadata (object, uri, mime, &preupdate, &statements, &where)) {
 		const gchar *preupdate_str, *statements_str;
