@@ -679,6 +679,8 @@ on_folder_summary_changed (CamelFolder           *folder,
 		if (linfo && uid) {
 			gchar *uri;
 			gchar *size;
+			gchar *str;
+			const gchar *folder_name;
 			TrackerSparqlBuilder *sparql;
 
 			subject = camel_message_info_subject (linfo);
@@ -771,11 +773,22 @@ on_folder_summary_changed (CamelFolder           *folder,
 			/* FIXME: Actually report accurate percentages and don't spam */
 			g_debug ("Tracker plugin setting progress to '%2.2f' and status to 'Updating an E-mail'",
 			         (gdouble) i / merged->len);
+
+			folder_name = camel_folder_get_name (folder);
+
+			if (folder_name && *folder_name) {
+				str = g_strdup_printf ("Updating E-mails for %s",
+				                       folder_name);
+			} else {
+				str = g_strdup ("Updating E-mails");
+			}
+
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
-			              "status", "Updating E-mails",
+			              "status", str,
 			              NULL);
 
+			g_free (str);
 			g_object_unref (sparql);
 
 			g_free (size);
