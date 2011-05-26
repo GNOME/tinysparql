@@ -130,7 +130,7 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 static void
 tracker_miner_web_init (TrackerMinerWeb *miner)
 {
-	miner->private = TRACKER_MINER_WEB_GET_PRIVATE (miner);
+	miner->priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
 }
 
 static void
@@ -164,8 +164,8 @@ miner_web_initable_init (GInitable     *initable,
 	}
 
 	/* Setup web-interface introspection data */
-	mw->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
-	if (!mw->private->introspection_data) {
+	mw->priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
+	if (!mw->priv->introspection_data) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
@@ -174,10 +174,10 @@ miner_web_initable_init (GInitable     *initable,
 	g_message ("  Path:'%s'", tracker_miner_get_dbus_full_path (miner));
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (initable));
 
-	mw->private->registration_id =
+	mw->priv->registration_id =
 		g_dbus_connection_register_object (tracker_miner_get_dbus_connection (miner),
 		                                   tracker_miner_get_dbus_full_path (miner),
-		                                   mw->private->introspection_data->interfaces[0],
+		                                   mw->priv->introspection_data->interfaces[0],
 		                                   &interface_vtable,
 		                                   mw,
 		                                   NULL,

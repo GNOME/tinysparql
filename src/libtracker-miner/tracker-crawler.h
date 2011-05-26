@@ -45,7 +45,7 @@ typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 
 struct TrackerCrawler {
 	GObject parent;
-	TrackerCrawlerPrivate *private;
+	TrackerCrawlerPrivate *priv;
 };
 
 struct TrackerCrawlerClass {

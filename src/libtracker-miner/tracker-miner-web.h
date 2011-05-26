@@ -72,7 +72,7 @@ typedef enum {
 
 struct TrackerMinerWeb {
 	TrackerMiner            parent_instance;
-	TrackerMinerWebPrivate *private;
+	TrackerMinerWebPrivate *priv;
 };
 
 /**
