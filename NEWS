@@ -1,3 +1,33 @@
+NEW in 0.10.15 - 2011-05-26
+===========================
+
+The changes are:
+
+  * Fixes: NB#254855, GDBusProxy created from threads without own GMainContext may cause memory corruption due to race condition in handling NameOwnerChangedsignal
+  * Fixes: NB#259000, tracker-extract crashes when destroying QApplication on shutdown, QApplication shouldn't be destroyed
+  * Fixes: NB#244556, Protect cursor finalization with mutex necessary for parallel queries with direct access
+  * Fixes: NB#252898, tracker-miner-fs initial sleep can be used to shutdown cleanly (e.g. with ctrl+c) when mtime checks are required
+  * Fixes: NB#258488, Don't (re)instantiate tracker-extract after recent pre-unmount signals causing potential unmount failures
+  * Fixes: NB#258459, Close sparql insert/graph braces on extractor cancellation
+  * libtracker-sparql: Fix deadlock on initialization error
+  * libtracker-miner: Fixed c++ builds where headers use "private" keyword
+  * libtracker-miner: Include missing header tracker-albumart.h in main header
+  * libtracker-miner: Do not perform removed files check if crawling was cancelled
+  * tracker-store: Reenable signals after failing to load Turtle file
+  * tracker-extract: Improve logging around which module is used for extraction per file
+  * evolution: Fixed completely broken status reporting as a miner
+  * evolution: Don't send "Idle" status twice
+  * evolution: Added debug logging to know if the module was loaded or not on the command line
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.14 - 2011-05-19
 ===========================
 
