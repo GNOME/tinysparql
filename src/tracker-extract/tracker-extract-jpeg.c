@@ -94,6 +94,51 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
 	longjmp (h->setjmp_buffer, 1);
 }
 
+static gboolean
+guess_dlna_profile (gint          width,
+                    gint          height,
+                    const gchar **dlna_profile,
+                    const gchar **dlna_mimetype)
+{
+	gchar *profile = NULL;
+
+	if (dlna_profile) {
+		*dlna_profile = NULL;
+	}
+
+	if (dlna_mimetype) {
+		*dlna_mimetype = NULL;
+	}
+
+	if (width == 48 && height == 48) {
+		profile = "JPEG_SM_ICO";
+	} else if (width == 120 && height == 120) {
+		profile = "JPEG_LRG_ICO";
+	} else if (width <= 160 && height <= 160) {
+		profile = "JPEG_TN";
+	} else if (width <= 640 && height <= 480) {
+		profile = "JPEG_SM";
+	} else if (width <= 1024 && height <= 768) {
+		profile = "JPEG_MED";
+	} else if (width <= 4096 && height <= 4096) {
+		profile = "JPEG_LRG";
+	}
+
+	if (profile) {
+		if (dlna_profile) {
+			*dlna_profile = profile;
+		}
+
+		if (dlna_mimetype) {
+			*dlna_mimetype = "image/jpeg";
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
@@ -112,6 +157,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	goffset size;
 	gchar *filename;
 	gchar *comment = NULL;
+	const gchar *dlna_profile;
 	GPtrArray *keywords;
 	gboolean success = TRUE;
 	guint i;
@@ -269,6 +315,11 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 	tracker_sparql_builder_predicate (metadata, "nfo:height");
 	tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
+
+	if (guess_dlna_profile (cinfo.image_width, cinfo.image_height, &dlna_profile, NULL)) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, dlna_profile);
+	}
 
 	if (id->contact) {
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", id->contact);
