@@ -482,6 +482,40 @@ id3v2tag_free (id3v2tag *tags)
 	g_free (tags->title3);
 }
 
+static gboolean
+guess_dlna_profile (gint          bitrate,
+                    gint          frequency,
+                    gint          mpeg_version,
+                    gint          layer_version,
+                    gint          n_channels,
+                    const gchar **dlna_profile,
+                    const gchar **dlna_mimetype)
+{
+	if (mpeg_version == MPEG_V1 &&
+	    layer_version == LAYER_3 &&
+	    (bitrate >= 32000 && bitrate <= 320000) &&
+	    (n_channels == 1 || n_channels == 2) &&
+	    (frequency == freq_table[0][0] ||
+	     frequency == freq_table[1][0] ||
+	     frequency == freq_table[2][0])) {
+		*dlna_profile = "MP3";
+		*dlna_mimetype = "audio/mpeg";
+		return TRUE;
+	}
+
+	if ((bitrate >= 8000 && bitrate <= 320000) &&
+	    (mpeg_version == MPEG_V1 || mpeg_version == MPEG_V2) &&
+	    (frequency == freq_table[0][0] || frequency == freq_table[0][1] ||
+	     frequency == freq_table[1][0] || frequency == freq_table[1][1] ||
+	     frequency == freq_table[2][0] || frequency == freq_table[2][1])) {
+		*dlna_profile = "MP3X";
+		*dlna_mimetype = "audio/mpeg";
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static char *
 read_id3v1_buffer (int     fd,
                    goffset size)
@@ -817,6 +851,7 @@ mp3_parse_header (const gchar          *data,
                   TrackerSparqlBuilder *metadata,
                   MP3Data              *filedata)
 {
+	const gchar *dlna_profile, *dlna_mimetype;
 	guint header;
 	gchar mpeg_ver = 0;
 	gchar layer_ver = 0;
@@ -831,6 +866,7 @@ mp3_parse_header (const gchar          *data,
 	guint frame_size;
 	guint frames = 0;
 	size_t pos = 0;
+	gint n_channels;
 
 	pos = seek_pos;
 
@@ -932,12 +968,10 @@ mp3_parse_header (const gchar          *data,
 	tracker_sparql_builder_predicate (metadata, "nfo:codec");
 	tracker_sparql_builder_object_string (metadata, "MPEG");
 
+	n_channels = ((header & ch_mask) == ch_mask) ? 1 : 2;
+
 	tracker_sparql_builder_predicate (metadata, "nfo:channels");
-	if ((header & ch_mask) == ch_mask) {
-		tracker_sparql_builder_object_int64 (metadata, 1);
-	} else {
-		tracker_sparql_builder_object_int64 (metadata, 2);
-	}
+	tracker_sparql_builder_object_int64 (metadata, n_channels);
 
 	avg_bps /= frames;
 
@@ -957,6 +991,13 @@ mp3_parse_header (const gchar          *data,
 	tracker_sparql_builder_object_int64 (metadata, sample_rate);
 	tracker_sparql_builder_predicate (metadata, "nfo:averageBitrate");
 	tracker_sparql_builder_object_int64 (metadata, avg_bps*1000);
+
+	if (guess_dlna_profile (bitrate, sample_rate,
+	                        mpeg_ver, layer_ver, n_channels,
+	                        &dlna_profile, &dlna_mimetype)) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, dlna_profile);
+	}
 
 	return TRUE;
 }
@@ -2406,10 +2447,6 @@ extract_mp3 (const gchar          *uri,
 	}
 
 	g_free (md.album_uri);
-
-	/* FIXME We use a hardcoded value here for now. In reality there's a second option MP3X */
-	tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
-	tracker_sparql_builder_object_string (metadata, "MP3");
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
