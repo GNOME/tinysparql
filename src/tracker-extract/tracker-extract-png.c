@@ -533,6 +533,48 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	g_free (pd.creation_time);
 }
 
+static gboolean
+guess_dlna_profile (gint          depth,
+                    gint          width,
+                    gint          height,
+                    const gchar **dlna_profile,
+                    const gchar **dlna_mimetype)
+{
+	gchar *profile = NULL;
+
+	if (dlna_profile) {
+		*dlna_profile = NULL;
+	}
+
+	if (dlna_mimetype) {
+		*dlna_mimetype = NULL;
+	}
+
+	if (width == 120 && height == 120) {
+		profile = "PNG_LRG_ICO";
+	} else if (width == 48 && height == 48) {
+		profile = "PNG_SM_ICO";
+	} else if (width <= 160 && height <= 160) {
+		profile = "PNG_TN";
+	} else if (depth <= 32 && width <= 4096 && height <= 4096) {
+		profile = "PNG_LRG";
+	}
+
+	if (profile) {
+		if (dlna_profile) {
+			*dlna_profile = profile;
+		}
+
+		if (dlna_mimetype) {
+			*dlna_mimetype = "image/png";
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
@@ -550,6 +592,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	png_uint_32 width, height;
 	gint bit_depth, color_type;
 	gint interlace_type, compression_type, filter_type;
+	const gchar *dlna_profile;
 	gchar *filename;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
@@ -643,6 +686,11 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 	tracker_sparql_builder_predicate (metadata, "nfo:height");
 	tracker_sparql_builder_object_int64 (metadata, height);
+
+	if (guess_dlna_profile (bit_depth, width, height, &dlna_profile, NULL)) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, dlna_profile);
+	}
 
 	png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 	tracker_file_close (f, FALSE);
