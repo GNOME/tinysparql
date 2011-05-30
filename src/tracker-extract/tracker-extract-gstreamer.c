@@ -869,6 +869,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (composer_uri);
 		g_free (album_uri);
 		g_free (album_disc_uri);
+		g_free (artist_uri);
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
@@ -1268,6 +1269,8 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	if (!extractor->pipeline) {
 		g_warning ("No valid pipeline for uri %s", uri);
+
+		g_list_free (extractor->fsinks);
 		g_slice_free (MetadataExtractor, extractor);
 		return;
 	}

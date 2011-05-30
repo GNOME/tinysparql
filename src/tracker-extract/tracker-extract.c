@@ -116,6 +116,12 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 }
 
 static void
+statistics_data_free (StatisticsData *data)
+{
+	g_slice_free (StatisticsData, data);
+}
+
+static void
 tracker_extract_init (TrackerExtract *object)
 {
 	TrackerExtractPrivate *priv;
@@ -125,7 +131,8 @@ tracker_extract_init (TrackerExtract *object)
 #endif /* HAVE_STREAMANALYZER */
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
-	priv->statistics_data = g_hash_table_new (NULL, NULL);
+	priv->statistics_data = g_hash_table_new_full (NULL, NULL, NULL,
+						       (GDestroyNotify) statistics_data_free);
 }
 
 static void
@@ -353,6 +360,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 				g_debug ("Done (%d items)", items);
 
+				g_free (mime_used);
 				return TRUE;
 			} else {
 				data->failed_count++;
@@ -363,6 +371,8 @@ get_file_metadata (TrackerExtract         *extract,
 
 			priv->unhandled_count++;
 		}
+
+		g_free (mime_used);
 	}
 
 	items = tracker_sparql_builder_get_length (statements);
