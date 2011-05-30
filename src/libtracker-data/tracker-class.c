@@ -407,6 +407,10 @@ tracker_class_reset_super_classes (TrackerClass *service)
 
 	priv = GET_PRIV (service);
 
+	if (priv->last_super_classes) {
+		g_array_free (priv->last_super_classes, TRUE);
+	}
+
 	priv->last_super_classes = priv->super_classes;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 }
