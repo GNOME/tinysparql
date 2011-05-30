@@ -513,6 +513,7 @@ settings_get_dir_mapping (GVariant *value,
 
 	for (l = dirs; l; l = l->next) {
 		const gchar *path_to_use;
+		gchar *freeme = NULL;
 
 		/* Must be a special dir */
 		if (strcmp (l->data, "&DESKTOP") == 0) {
@@ -532,13 +533,15 @@ settings_get_dir_mapping (GVariant *value,
 		} else if (strcmp (l->data, "&VIDEOS") == 0) {
 			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
 		} else {
-			path_to_use = tracker_path_evaluate_name (l->data);
+			freeme = path_to_use = tracker_path_evaluate_name (l->data);
 		}
 
 		if (path_to_use) {
 			g_free (l->data);
 			l->data = g_strdup (path_to_use);
 		}
+
+		g_free (freeme);
 	}
 
 	*result = dirs;
