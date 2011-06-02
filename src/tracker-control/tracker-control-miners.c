@@ -344,6 +344,7 @@ miner_pause_details (void)
 
 		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
 		g_slist_free (miners_running);
+		g_object_unref (manager);
 
 		return EXIT_SUCCESS;
 	}
