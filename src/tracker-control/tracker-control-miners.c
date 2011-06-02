@@ -94,10 +94,20 @@ miner_pause (const gchar *miner,
              const gchar *reason)
 {
 	TrackerMinerManager *manager;
+	GError *error = NULL;
 	gchar *str;
 	gint cookie;
 
-	manager = tracker_miner_manager_new ();
+	/* Don't auto-start the miners here */
+	manager = tracker_miner_manager_new_full (FALSE, &error);
+	if (!manager) {
+		g_printerr (_("Could not pause miner, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
+		return EXIT_FAILURE;
+	}
+
 	str = g_strdup_printf (_("Attempting to pause miner '%s' with reason '%s'"),
 	                       miner,
 	                       reason);
@@ -123,9 +133,19 @@ miner_resume (const gchar *miner,
               gint         cookie)
 {
 	TrackerMinerManager *manager;
+	GError *error = NULL;
 	gchar *str;
 
-	manager = tracker_miner_manager_new ();
+	/* Don't auto-start the miners here */
+	manager = tracker_miner_manager_new_full (FALSE, &error);
+	if (!manager) {
+		g_printerr (_("Could not resume miner, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
+		return EXIT_FAILURE;
+	}
+
 	str = g_strdup_printf (_("Attempting to resume miner %s with cookie %d"),
 	                       miner,
 	                       cookie);
@@ -150,12 +170,21 @@ miner_reindex_mime_types (const gchar **mime_types)
 	GError *error = NULL;
 	TrackerMinerManager *manager;
 
-	manager = tracker_miner_manager_new ();
+	/* Auto-start the miners here if we need to */
+	manager = tracker_miner_manager_new_full (TRUE, &error);
+	if (!manager) {
+		g_printerr (_("Could not reindex mimetypes, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
+		return EXIT_FAILURE;
+	}
+
 	tracker_miner_manager_reindex_by_mimetype (manager, (GStrv)reindex_mime_types, &error);
 	if (error) {
 		g_printerr ("%s: %s\n",
 		            _("Could not reindex mimetypes"),
-			            error->message);
+		            error->message);
 		g_error_free (error);
 		return EXIT_FAILURE;
 	}
@@ -173,8 +202,17 @@ miner_index_file (const gchar *filepath)
 	GError *error = NULL;
 	GFile *file;
 
+	/* Auto-start the miners here if we need to */
+	manager = tracker_miner_manager_new_full (TRUE, &error);
+	if (!manager) {
+		g_printerr (_("Could not (re)index file, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
+		return EXIT_FAILURE;
+	}
+
 	file = g_file_new_for_commandline_arg (index_file);
-	manager = tracker_miner_manager_new ();
 
 	tracker_miner_manager_index_file (manager, file, &error);
 
@@ -199,11 +237,15 @@ miner_list (gboolean available,
             gboolean running)
 {
 	TrackerMinerManager *manager;
+	GError *error = NULL;
 
-	manager = tracker_miner_manager_new ();
-
+	/* Don't auto-start the miners here */
+	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
-		g_printerr (_("Could not contact the miner manager"));
+		g_printerr (_("Could not list miners, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
 		return EXIT_FAILURE;
 	}
 
@@ -281,12 +323,17 @@ static gboolean
 miner_pause_details (void)
 {
 	TrackerMinerManager *manager;
+	GError *error = NULL;
 	GSList *miners_running, *l;
 	gint paused_miners = 0;
 
-	manager = tracker_miner_manager_new ();
+	/* Don't auto-start the miners here */
+	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
-		g_printerr (_("Could not contact the miner manager"));
+		g_printerr (_("Could not get pause details, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
 		return EXIT_FAILURE;
 	}
 
