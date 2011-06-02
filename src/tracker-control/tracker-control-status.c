@@ -494,10 +494,13 @@ tracker_control_status_run (void)
 		GSList *miners_running;
 		GSList *l;
 
+		/* Don't auto-start the miners here */
 		manager = tracker_miner_manager_new_full (FALSE, &error);
 		if (!manager) {
-			g_printerr ("Couldn't create manager: '%s'\n",
+			g_printerr (_("Could not get status, manager could not be created, %s"),
 			            error ? error->message : "unknown error");
+			g_printerr ("\n");
+			g_clear_error (&error);
 			return EXIT_FAILURE;
 		}
 
