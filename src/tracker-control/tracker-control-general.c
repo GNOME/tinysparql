@@ -553,7 +553,17 @@ tracker_control_general_run (void)
 
 		g_print ("%s\n", _("Starting miners…"));
 
-		manager = tracker_miner_manager_new ();
+
+		/* Auto-start the miners here */
+		manager = tracker_miner_manager_new_full (TRUE, &error);
+		if (!manager) {
+			g_printerr (_("Could not start miners, manager could not be created, %s"),
+			            error ? error->message : "unknown error");
+			g_printerr ("\n");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
 		miners = tracker_miner_manager_get_available (manager);
 
 		/* Get the status of all miners, this will start all
