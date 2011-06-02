@@ -599,7 +599,7 @@ tracker_miner_manager_new_full (gboolean   auto_start,
 	manager = g_initable_new (TRACKER_TYPE_MINER_MANAGER,
 	                          NULL,
 	                          &inner_error,
-	                          "auto-start", FALSE,
+	                          "auto-start", auto_start,
 	                          NULL);
 	if (!manager) {
 		g_critical ("Couldn't create new TrackerMinerManager: '%s'",
@@ -1139,7 +1139,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 		g_critical ("Could not get pause details for miner '%s': %s", miner,
 		            error->message);
 		g_error_free (error);
-		return TRUE;
+		return FALSE;
 	}
 
 	g_variant_get (v, "(^as^as)", &apps, &r);
