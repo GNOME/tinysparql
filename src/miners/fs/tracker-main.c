@@ -746,6 +746,37 @@ main (gint argc, gchar *argv[])
 	           no_daemon ? "No" : "Yes",
 	           no_daemon ? "(forced by command line)" : "");
 
+	/* Create new TrackerMinerFiles object */
+	miner_files = tracker_miner_files_new (config, &error);
+	if (!miner_files) {
+		g_critical ("Couldn't create new Files miner: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
+	/* Create miner for applications */
+	miner_applications = tracker_miner_applications_new (&error);
+	if (!miner_applications) {
+		g_critical ("Couldn't create new Applications miner: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (miner_files_index);
+		g_object_unref (miner_files);
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
+	/* Create new TrackerMinerFilesIndex object */
+	miner_files_index = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
+	if (!miner_files_index) {
+		g_object_unref (miner_files);
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
 	/* Check if we should crawl and if we should force mtime
 	 * checking based on the config.
 	 */
@@ -776,41 +807,14 @@ main (gint argc, gchar *argv[])
 	 */
 	tracker_db_manager_set_need_mtime_check (TRUE);
 
-	/* Create new TrackerMinerFiles object */
-	miner_files = tracker_miner_files_new (config, &error);
-	if (!miner_files) {
-		g_critical ("Couldn't create new Files miner: '%s'",
-		            error ? error->message : "unknown error");
-		g_object_unref (config);
-		tracker_log_shutdown ();
-		return EXIT_FAILURE;
-	}
+	/* Configure files miner */
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
 	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_files), do_mtime_checking);
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
 
-	/* Create new TrackerMinerFilesIndex object */
-	miner_files_index = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
-	if (!miner_files_index) {
-		g_object_unref (miner_files);
-		g_object_unref (config);
-		tracker_log_shutdown ();
-		return EXIT_FAILURE;
-	}
-
-	/* Create miner for applications */
-	miner_applications = tracker_miner_applications_new (&error);
-	if (!miner_applications) {
-		g_critical ("Couldn't create new Applications miner: '%s'",
-		            error ? error->message : "unknown error");
-		g_object_unref (miner_files_index);
-		g_object_unref (miner_files);
-		g_object_unref (config);
-		tracker_log_shutdown ();
-		return EXIT_FAILURE;
-	}
+	/* Configure applications miner */
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_applications), do_crawling);
 
 	/* If a locale change was detected, always do mtime checks */
