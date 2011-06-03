@@ -2067,13 +2067,6 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	g_error_free (error);
 }
 
-static gboolean
-extractor_skip_embedded_metadata_idle (gpointer user_data)
-{
-	extractor_get_embedded_metadata_cb (NULL, NULL, NULL, NULL, user_data);
-	return FALSE;
-}
-
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
@@ -2506,10 +2499,9 @@ process_file_cb (GObject      *object,
 		/* Next step, if handled by the extractor, get embedded metadata */
 		extractor_get_embedded_metadata (data, uri, mime_type);
 	} else {
-		/* Otherwise, don't request embedded metadata extraction.
-		 * We setup an idle so that we keep the previous behavior. */
+		/* Otherwise, don't request embedded metadata extraction. */
 		g_debug ("Avoiding embedded metadata request for uri '%s'", uri);
-		g_idle_add (extractor_skip_embedded_metadata_idle, data);
+		extractor_get_embedded_metadata_cb (NULL, NULL, NULL, NULL, user_data);
 	}
 
 	g_object_unref (file_info);
