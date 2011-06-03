@@ -83,7 +83,7 @@ static gchar *  password_provider_keyfile_get              (TrackerPasswordProvi
 static gboolean password_provider_keyfile_forget           (TrackerPasswordProvider         *provider,
                                                             const gchar                     *service,
                                                             GError                         **error);
-static void     load_password_file                         (TrackerPasswordProviderKeyfile  *kf,
+static gboolean load_password_file                         (TrackerPasswordProviderKeyfile  *kf,
                                                             GError                         **error);
 static gboolean save_password_file                         (TrackerPasswordProviderKeyfile  *kf,
                                                             GError                         **error);
@@ -131,20 +131,13 @@ password_provider_keyfile_constructed (GObject *object)
 {
 	TrackerPasswordProviderKeyfile *kf;
 	TrackerPasswordProviderKeyfilePrivate *priv;
-	GError *error = NULL;
 
 	kf = TRACKER_PASSWORD_PROVIDER_KEYFILE (object);
 	priv = TRACKER_PASSWORD_PROVIDER_KEYFILE_GET_PRIVATE (kf);
 
 	priv->password_file = g_key_file_new ();
 
-	load_password_file (kf, &error);
-
-	if (error) {
-		g_critical ("Could not load GKeyFile password file, %s",
-		            error->message);
-		g_error_free (error);
-	}
+	load_password_file (kf, NULL);
 }
 
 static void
@@ -343,17 +336,18 @@ config_dir_ensure_exists_and_return (GError **error)
 	return directory;
 }
 
-static void
+static gboolean
 load_password_file (TrackerPasswordProviderKeyfile  *kf,
                     GError                         **error)
 {
 	TrackerPasswordProviderKeyfilePrivate *priv;
+	GError *inner_error = NULL;
 	gchar *filename;
 	gchar *directory;
 
 	directory = config_dir_ensure_exists_and_return (error);
 	if (!directory) {
-		return;
+		return FALSE;
 	}
 
 	filename = g_build_filename (directory, KEYFILE_FILENAME, NULL);
@@ -364,9 +358,21 @@ load_password_file (TrackerPasswordProviderKeyfile  *kf,
 	g_key_file_load_from_file (priv->password_file,
 	                           filename,
 	                           G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
-	                           error);
+	                           &inner_error);
+
+	if (inner_error) {
+		g_critical ("Could not load GKeyFile password file '%s', %s",
+		            filename,
+		            inner_error->message);
+		g_propagate_error (error, inner_error);
+		g_free (filename);
+
+		return FALSE;
+	}
 
 	g_free (filename);
+
+	return TRUE;
 }
 
 static gboolean
