@@ -100,6 +100,12 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 #define DEFAULT_READY_POOL_LIMIT 1
 #define DEFAULT_N_REQUESTS_POOL_LIMIT 10
 
+/* Put tasks processing at a lower priority so other events
+ * (timeouts, monitor events, etc...) are guaranteed to be
+ * dispatched promptly.
+ */
+#define TRACKER_TASK_PRIORITY G_PRIORITY_DEFAULT_IDLE + 10
+
 /**
  * SECTION:tracker-miner-fs
  * @short_description: Abstract base class for filesystem miners
@@ -2844,9 +2850,9 @@ _tracker_idle_add (TrackerMinerFS *fs,
 	interval = MAX_TIMEOUT_INTERVAL * fs->priv->throttle;
 
 	if (interval == 0) {
-		return g_idle_add (func, user_data);
+		return g_idle_add_full (TRACKER_TASK_PRIORITY, func, user_data, NULL);
 	} else {
-		return g_timeout_add (interval, func, user_data);
+		return g_timeout_add_full (TRACKER_TASK_PRIORITY, interval, func, user_data, NULL);
 	}
 }
 
