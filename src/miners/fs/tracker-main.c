@@ -761,7 +761,6 @@ main (gint argc, gchar *argv[])
 	if (!miner_applications) {
 		g_critical ("Couldn't create new Applications miner: '%s'",
 		            error ? error->message : "unknown error");
-		g_object_unref (miner_files_index);
 		g_object_unref (miner_files);
 		g_object_unref (config);
 		tracker_log_shutdown ();
@@ -771,6 +770,7 @@ main (gint argc, gchar *argv[])
 	/* Create new TrackerMinerFilesIndex object */
 	miner_files_index = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
 	if (!miner_files_index) {
+		g_object_unref (miner_applications);
 		g_object_unref (miner_files);
 		g_object_unref (config);
 		tracker_log_shutdown ();
