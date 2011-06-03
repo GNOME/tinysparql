@@ -483,7 +483,7 @@ handle_method_call_cancel_tasks (TrackerController     *controller,
                                  GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
-	const gchar **uris;
+	gchar **uris;
 	gint i;
 
 #ifdef THREAD_ENABLE_TRACE
