@@ -247,6 +247,8 @@ static void        miner_files_in_removable_media_remove_by_date  (TrackerMinerF
 static void        miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
                                                                    const gchar       *mount_path,
                                                                    const gchar       *uuid);
+static void        extractor_cancel_tasks                         (GDBusConnection   *connection,
+                                                                   GFile             *prefix);
 
 static GInitableIface* miner_files_initable_parent_iface;
 
@@ -1149,6 +1151,9 @@ mount_point_removed_cb (TrackerStorage *storage,
 	g_debug ("Mount point removed for URN '%s'", urn);
 
 	mount_point_file = g_file_new_for_path (mount_point);
+
+	/* Notify extractor about cancellation of all tasks under the mount point */
+	extractor_cancel_tasks (miner->private->connection, mount_point_file);
 
 	/* Set mount point status in tracker-store */
 	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
@@ -2382,6 +2387,29 @@ extractor_get_embedded_metadata (ProcessFileData *data,
 
 	g_signal_connect (data->cancellable, "cancelled",
 	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
+}
+
+static void
+extractor_cancel_tasks (GDBusConnection *connection,
+                        GFile           *prefix)
+{
+	GDBusMessage *message;
+	gchar *uris[2];
+
+	uris[0] = g_file_get_uri (prefix);
+	uris[1] = NULL;
+
+	message = g_dbus_message_new_method_call (DBUS_SERVICE_EXTRACT,
+	                                          DBUS_PATH_EXTRACT,
+	                                          DBUS_INTERFACE_EXTRACT,
+	                                          "CancelTasks");
+
+	g_dbus_message_set_body (message, g_variant_new ("(^as)", uris));
+	g_dbus_connection_send_message (connection, message,
+	                                G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+	                                NULL, NULL);
+
+	g_free (uris[0]);
 }
 
 static void
