@@ -33,6 +33,8 @@
 #warning Stayalive traces enabled
 #endif /* STAYALIVE_ENABLE_TRACE */
 
+#define THREAD_ENABLE_TRACE
+
 #ifdef THREAD_ENABLE_TRACE
 #warning Controller thread traces enabled
 #endif /* THREAD_ENABLE_TRACE */
@@ -97,6 +99,9 @@ static const gchar *introspection_xml =
 	"      <arg type='s' name='uri' direction='in' />"
 	"      <arg type='s' name='mime' direction='in' />"
 	"      <arg type='h' name='fd' direction='in' />"
+	"    </method>"
+	"    <method name='CancelTasks'>"
+	"      <arg type='as' name='uri' direction='in' />"
 	"    </method>"
 	"  </interface>"
 	"</node>";
@@ -258,17 +263,13 @@ metadata_data_free (GetMetadataData *data)
 }
 
 static void
-mount_point_removed_cb (TrackerStorage *storage,
-                        const gchar    *uuid,
-                        const gchar    *mount_point,
-                        gpointer        user_data)
+cancel_tasks_in_file (TrackerController *controller,
+		      GFile             *file)
 {
 	TrackerControllerPrivate *priv;
-	GFile *mount_file;
 	GList *elem;
 
-	priv = TRACKER_CONTROLLER (user_data)->priv;
-	mount_file = g_file_new_for_path (mount_point);
+	priv = controller->priv;
 
 	for (elem = priv->ongoing_tasks; elem; elem = elem->next) {
 		GetMetadataData *data;
@@ -277,27 +278,39 @@ mount_point_removed_cb (TrackerStorage *storage,
 		data = elem->data;
 		task_file = g_file_new_for_uri (data->uri);
 
-		if (g_file_has_prefix (task_file, mount_file)) {
+		if (g_file_equal (task_file, file) ||
+		    g_file_has_prefix (task_file, file)) {
 			/* Mount path contains one of the files being processed */
 			if (!elem->next) {
 				/* The last element in the list is
 				 * the one currently being processed,
 				 * so exit abruptly.
 				 */
-				g_message ("Mount point '%s' being removed contains "
-				           "current file under inspection ('%s'), quitting",
-				           mount_point, data->uri);
+				g_message ("Cancelled task ('%s') is currently being processed, quitting",
+				           data->uri);
 				g_main_loop_quit (priv->main_loop);
 			} else {
-				g_message ("Mount point '%s' being removed affects "
-				           "file waiting for inspection ('%s'), cancelling it",
-				           mount_point, data->uri);
+				g_message ("Cancelling not yet processed task ('%s')",
+				           data->uri);
 				g_cancellable_cancel (data->cancellable);
 			}
 		}
 
 		g_object_unref (task_file);
 	}
+}
+
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+                        const gchar    *uuid,
+                        const gchar    *mount_point,
+                        gpointer        user_data)
+{
+	GFile *mount_file;
+
+	mount_file = g_file_new_for_path (mount_point);
+	cancel_tasks_in_file (TRACKER_CONTROLLER (user_data), mount_file);
+	g_object_unref (mount_file);
 }
 
 static gboolean
@@ -462,6 +475,38 @@ handle_method_call_get_metadata (TrackerController     *controller,
 	tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
 	                      get_metadata_cb, data);
 	priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
+}
+
+static void
+handle_method_call_cancel_tasks (TrackerController     *controller,
+                                 GDBusMethodInvocation *invocation,
+                                 GVariant              *parameters)
+{
+	TrackerDBusRequest *request;
+	const gchar **uris;
+	gint i;
+
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Controller) --> Got Tasks cancellation request",
+		 g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
+
+
+	g_variant_get (parameters, "(^as)", &uris);
+
+	request = tracker_dbus_request_begin (NULL, "%s (%s, ...)", __FUNCTION__, uris[0]);
+
+	for (i = 0; uris[i] != NULL; i++) {
+		GFile *file;
+
+		file = g_file_new_for_uri (uris[i]);
+		cancel_tasks_in_file (controller, file);
+		g_object_unref (file);
+	}
+
+	g_strfreev (uris);
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation, NULL);
 }
 
 static void
@@ -653,6 +698,8 @@ handle_method_call (GDBusConnection       *connection,
 		handle_method_call_get_metadata_fast (controller, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "GetMetadata") == 0) {
 		handle_method_call_get_metadata (controller, invocation, parameters);
+	} else if (g_strcmp0 (method_name, "CancelTasks") == 0) {
+		handle_method_call_cancel_tasks (controller, invocation, parameters);
 	} else {
 		g_warning ("Unknown method '%s' called", method_name);
 	}
