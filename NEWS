@@ -1,3 +1,36 @@
+NEW in 0.10.16 - 2011-06-03
+===========================
+
+The changes are:
+
+  * Fixes GB#650804, tarball doesn't contain tracker-search-bar.1
+  * Fixes NB#258488, Don't (re)instantiate tracker-extract after recent pre-unmount signals causing potential unmount failures
+  * Fixes MB#18159, tracker can't index real media
+  * libtracker-data: Fixed memory leak in tracker_class_reset_super_classes()
+  * libtracker-miner: Honor auto_start parameter in tracker_miner_manager_new_full()
+  * libtracker-miner: Fixed test case for GKeyFile password provider which was failing
+  * libtracker-miner: Lower TrackerMinerFS idle priorities so timeouts, monitors, etc are handled with more priority
+  * tracker-miner-fs: Do not spam log on recursive monitors removal
+  * tracker-miner-fs: Create bus names before touching sensitive files to avoid race conditions
+  * tracker-miner-fs: Make sure we unref applications and files_index miners on start up failure
+  * tracker-extract: Added "CancelTask" method to be called from tracker-miner-fs
+  * tracker-control: Fixed memory leak when getting pause details
+  * tracker-control: Don't auto-start miners for pausing/resuming/listing/pause details
+  * tracker-control: Use full API to get miner manager and report errors
+  * tracker-control: Free GError if getting TrackerMinerManager fails
+  * functional-tests: Support cases with AND without Upstart
+
+Translations:
+
+  * Updated ca: Gil Forcada
+  * Updated el: Georgios Stefanakis, Kostas Papadimas
+  * Updated eo: Kristjan SCHMIDT
+
+Notes:
+
+  None
+
+
 NEW in 0.10.15 - 2011-05-26
 ===========================
 
