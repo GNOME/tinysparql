@@ -19,6 +19,7 @@
 
 public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	static int use_count;
+	bool initialized;
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
 		DBManager.lock ();
@@ -36,6 +37,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			}
 
 			use_count++;
+			initialized = true;
 		} catch (Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		} finally {
@@ -44,6 +46,11 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	}
 
 	~Connection () {
+		if (!initialized) {
+			// use_count did not get increased if initialization failed
+			return;
+		}
+
 		// Clean up connection
 		DBManager.lock ();
 
