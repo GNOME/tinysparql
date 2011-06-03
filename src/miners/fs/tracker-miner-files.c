@@ -228,9 +228,6 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
                                                          GCancellable         *cancellable);
 static void        miner_files_finished                 (TrackerMinerFS       *fs);
 
-static void        extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
-                                                           ProcessFileData *data);
-
 static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          gdouble         seconds_elapsed,
                                                          guint           total_directories_found,
@@ -1942,10 +1939,6 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 static void
 process_file_data_free (ProcessFileData *data)
 {
-	g_signal_handlers_disconnect_by_func (data->cancellable,
-	                                      extractor_get_embedded_metadata_cancel,
-	                                      data);
-
 	g_object_unref (data->miner);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
@@ -2047,24 +2040,6 @@ extractor_get_embedded_metadata_cb (const gchar *preupdate,
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 	process_file_data_free (data);
-}
-
-static void
-extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
-                                        ProcessFileData *data)
-{
-	GError *error;
-
-	error = g_error_new_literal (miner_files_error_quark, 0,
-	                             "Embedded metadata extraction was cancelled");
-
-	tracker_sparql_builder_graph_close (data->sparql);
-	tracker_sparql_builder_insert_close (data->sparql);
-
-	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
-
-	process_file_data_free (data);
-	g_error_free (error);
 }
 
 static SendAndSpliceData *
@@ -2296,9 +2271,8 @@ get_metadata_fast_cb (void     *buffer,
 	}
 
 	if (G_UNLIKELY (error)) {
-		if (error->code != G_IO_ERROR_CANCELLED) {
-			(* data->callback) (NULL, NULL, NULL, error, process_data);
-		}
+		(* data->callback) (NULL, NULL, NULL, error, process_data);
+
 		if (free_error) {
 			g_error_free (error);
 		}
@@ -2377,9 +2351,6 @@ extractor_get_embedded_metadata (ProcessFileData *data,
 	                         data->cancellable,
 	                         extractor_get_embedded_metadata_cb,
 	                         data);
-
-	g_signal_connect (data->cancellable, "cancelled",
-	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
 }
 
 static void
