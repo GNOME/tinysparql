@@ -43,7 +43,7 @@ man_MANS = \
 # Make sure even disabled manpages get distributed
 EXTRA_DIST = \
 	$(common) \
-	$(tmrss) \
-	$(tsb) \
-	$(tn) \
-	$(tp)
+	tracker-miner-rss.1 \
+	tracker-search-bar.1 \
+	tracker-preferences.1 \
+	tracker-needle.1
