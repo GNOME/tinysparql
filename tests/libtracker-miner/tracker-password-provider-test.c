@@ -88,25 +88,48 @@ test_password_provider_getting (void)
 	g_assert_cmpint (success, ==, TRUE);
 }
 
+static gboolean
+test_log_failure_cb (const gchar    *log_domain,
+                     GLogLevelFlags  log_level,
+                     const gchar    *message,
+                     gpointer        user_data)
+{
+	/* Don't abort, we expect failure */
+	return FALSE;
+}
+
 int 
 main (int argc, char **argv)
 {
+	const gchar *current_dir;
+	gint retval;
+
 	g_type_init ();
 
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_message ("Testing password provider");
+	/* Set test environment up */
+	current_dir = g_get_current_dir ();
+	g_setenv ("XDG_CONFIG_HOME", current_dir, TRUE);
 
 	g_test_add_func ("/libtracker-miner/tracker-password-provider/setting",
 	                 test_password_provider_setting);
 	g_test_add_func ("/libtracker-miner/tracker-password-provider/getting",
 	                 test_password_provider_getting);
 
+	g_test_log_set_fatal_handler (test_log_failure_cb, NULL);
 	provider = tracker_password_provider_get ();
+	g_print ("Not aborting here because we expect no filename to exist yet\n");
 	g_assert (provider);
 
 	/* g_object_unref (provider); */
 
-	return g_test_run ();
+	retval = g_test_run ();
+
+        /* clean up */
+        g_print ("Removing temporary data\n");
+        g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
+
+        return retval;
 }
