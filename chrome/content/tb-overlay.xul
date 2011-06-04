@@ -5,6 +5,8 @@
   <script src="namespace.js"/>
   <script src="bindings.js"/>
   <script src="queue.js"/>
+  <script src="email-address-parser.js"/>
+  <script src="trackerstore.js"/>
   <script src="mailstore.js"/>
   <script src="plugin.js"/>
 

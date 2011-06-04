@@ -3,6 +3,7 @@ org.bustany.TrackerBird.MailStore = {
 	// Init barrier
 	__initialized: true,
 
+	_trackerStore: org.bustany.TrackerBird.TrackerStore,
 
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
@@ -51,11 +52,11 @@ org.bustany.TrackerBird.MailStore = {
 
 		var store = this;
 		this._folderQueue = new org.bustany.TrackerBird.Queue(function(folder) { store.walkFolder(folder); }, 100 /* ms */),
-		this._messageQueue = new org.bustany.TrackerBird.Queue(function(msg) { store.indexMessage(msg); }, 100 /* ms */),
+		this._messageQueue = new org.bustany.TrackerBird.Queue(function(item) { store.indexMessage(item); }, 100 /* ms */),
 
 		this.listAllFolders();
 
-		return 1;
+		return true;
 	},
 
 	listAllFolders: function() {
@@ -89,11 +90,15 @@ org.bustany.TrackerBird.MailStore = {
 		while (enumerator.hasMoreElements()) {
 			var msg = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
 
-			dump("Message " + folder.getUriForMsg(msg) + "\n");
+			this._messageQueue.add({folder: folder, msg: msg});
 		}
 
 		// Close database
 		db = null;
+	},
+
+	indexMessage: function(item) {
+		this._trackerStore.storeMessage(item.folder, item.msg);
 	},
 
 	shutdown: function() {

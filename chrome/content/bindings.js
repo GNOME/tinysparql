@@ -1,12 +1,12 @@
-if (!org.bustany.TrackerFox.TrackerSparql || !org.bustany.TrackerFox.TrackerSparql.__initialized)
-org.bustany.TrackerFox.TrackerSparql = {
+if (!org.bustany.TrackerBird.TrackerSparql || !org.bustany.TrackerBird.TrackerSparql.__initialized)
+org.bustany.TrackerBird.TrackerSparql = {
 	__initialized: true,
 
 	_trackerSparqlPath: "libtracker-sparql-0.10.so",
 	_lib: null,
 
 	init: function () {
-		var tracker = org.bustany.TrackerFox.TrackerSparql;
+		var tracker = org.bustany.TrackerBird.TrackerSparql;
 
 		// Safeguard just in case a fool would call that twice
 		if (tracker._lib) {
@@ -21,7 +21,6 @@ org.bustany.TrackerFox.TrackerSparql = {
 			dump ("Could not load " + tracker._trackerSparqlPath +" !\n");
 			return false;
 		}
-
 
 		// GLib types
 		tracker.Cancellable = new ctypes.StructType ("GCancellable");
@@ -109,7 +108,7 @@ org.bustany.TrackerFox.TrackerSparql = {
 	},
 
 	shutdown: function () {
-		var tracker = org.bustany.TrackerFox.TrackerSparql;
+		var tracker = org.bustany.TrackerBird.TrackerSparql;
 
 		if (this._connection) {
 			tracker.object_unref(this._connection);

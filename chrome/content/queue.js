@@ -9,7 +9,6 @@ org.bustany.TrackerBird.Queue = function(callback, delay) {
 }
 
 org.bustany.TrackerBird.Queue.prototype.add = function(item) {
-	dump("Added " + item + "\n");
 	this._items.push(item);
 	this.process();
 }
@@ -22,8 +21,6 @@ org.bustany.TrackerBird.Queue.prototype.process = function() {
 	if (this._items.length == 0) {
 		return;
 	}
-
-	dump("Processing...\n");
 
 	this._active = true;
 
