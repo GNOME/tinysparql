@@ -1,8 +1,4 @@
 <!ENTITY prefwindow.title "TrackerBird preferences">
 <!ENTITY pane1.title "TrackerBird preferences">
-<!ENTITY checkboolpref.label "A Boolean Preference">
-<!ENTITY checkboolpref.accesskey "B">
-<!ENTITY intpref.label "An Integer Preference">
-<!ENTITY intpref.accesskey "I">
-<!ENTITY stringpref.label "A String Preference">
-<!ENTITY stringpref.accesskey "S">
+<!ENTITY indexDelay.label "Throttle (ms to wait between each message)">
+<!ENTITY indexDelay.accesskey "T">

@@ -4,12 +4,8 @@
 <prefwindow id="trackerbird-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
   <prefpane id="pane1" label="&pane1.title;">
 	<preferences>
-	  <preference id="boolpref1" name="extensions.trackerbird.boolpref" type="bool"/>
-	  <preference id="intpref1" name="extensions.trackerbird.intpref" type="int"/>
-	  <preference id="stringpref1" name="extensions.trackerbird.stringpref" type="string"/> <!-- note that this is only an ASCII string - use unichar for unicode strings -->
+	  <preference id="indexDelay" name="extensions.trackerbird.intpref" type="int"/>
 	</preferences>
-	<checkbox id="checkboolpref" preference="boolpref1" label="&checkboolpref.label;" accesskey="&checkboolpref.accesskey;"/>
-	<label accesskey="&intpref.accesskey;" control="textintpref">&intpref.label;</label><textbox id="textintpref" preference="intpref1"/>
-	<label accesskey="&stringpref.accesskey;" control="textstringpref">&stringpref.label;</label><textbox id="textstringpref" preference="stringpref1"/>
+	<label accesskey="&indexDelay.accesskey;" control="textIndexDelay">&indexDelay.label;</label><textbox id="textIndexDelay" type="number" preference="indexDelay"/>
   </prefpane>
 </prefwindow>

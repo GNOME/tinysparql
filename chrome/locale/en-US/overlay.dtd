@@ -1,8 +1,0 @@
-<!ENTITY trackerbird.label "Your localized menuitem">
-<!ENTITY trackerbirdContext.label "Your Menuitem">
-<!ENTITY trackerbirdContext.accesskey "Y">
-<!ENTITY trackerbirdToolbarButton.label "Your Toolbar Button">
-<!ENTITY trackerbirdToolbarButton.tooltip "This is your toolbar button!">
-<!ENTITY trackerbirdSidebar.label "Your Sidebar">
-<!ENTITY trackerbirdToolbar.name  "example">
-<!ENTITY trackerbirdToolbar.label "This is an example toolbar. You can hide it under View &gt; toolbars &gt; &trackerbirdToolbar.name;">

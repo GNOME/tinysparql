@@ -42,6 +42,8 @@ org.bustany.TrackerBird.MailStore = {
 	_folderQueue: null,
 	_messageQueue: null,
 
+	_prefs: null,
+
 	init: function() {
 		// To get notifications
 		var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].
@@ -50,9 +52,12 @@ org.bustany.TrackerBird.MailStore = {
 		mailSession.AddFolderListener(this._folderListener,
 		                              Components.interfaces.nsIFolderListener.all);
 
+		this._prefs = Components.classes["@mozilla.org/preferences-service;1"]
+		              .getService(Components.interfaces.nsIPrefService).getBranch("extensions.trackerbird.");
+
 		var store = this;
-		this._folderQueue = new org.bustany.TrackerBird.Queue(function(folder) { store.walkFolder(folder); }, 100 /* ms */),
-		this._messageQueue = new org.bustany.TrackerBird.Queue(function(item) { store.indexMessage(item); }, 100 /* ms */),
+		this._folderQueue = new org.bustany.TrackerBird.Queue(function(folder) { store.walkFolder(folder); }, this._prefs.getIntPref("indexDelay")),
+		this._messageQueue = new org.bustany.TrackerBird.Queue(function(item) { store.indexMessage(item); }, this._prefs.getIntPref("indexDelay")),
 
 		this.listAllFolders();
 
