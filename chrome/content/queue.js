@@ -1,0 +1,34 @@
+org.bustany.TrackerBird.Queue = function(callback, delay) {
+	this._callback = callback;
+	this._delay = 100;
+	this._items = [];
+	this._active = false;
+
+	var queue = this;
+	this._timerEvent = { notify: function(timer) { queue._active = false; queue.process(); } };
+}
+
+org.bustany.TrackerBird.Queue.prototype.add = function(item) {
+	dump("Added " + item + "\n");
+	this._items.push(item);
+	this.process();
+}
+
+org.bustany.TrackerBird.Queue.prototype.process = function() {
+	if (this._active) {
+		return;
+	}
+
+	if (this._items.length == 0) {
+		return;
+	}
+
+	dump("Processing...\n");
+
+	this._active = true;
+
+	this._callback(this._items.shift());
+
+	var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+	timer.initWithCallback(this._timerEvent, this._delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+}
