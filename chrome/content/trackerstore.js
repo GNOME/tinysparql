@@ -3,15 +3,22 @@ org.bustany.TrackerBird.TrackerStore = {
 	// Init barrier
 	__initialized: true,
 
+	_graph: "urn:uuid:0aa84c52-396d-4c37-bc6c-8342699f810c",
+
 	_addressParser: org.bustany.TrackerBird.EmailAddressParser,
 	_tracker: org.bustany.TrackerBird.TrackerSparql,
+
+	_knownEmailAddresses: {},
 
 	storeMessage: function(folder, header) {
 		var uri = folder.getUriForMsg(header);
 		var fromEmailAddress;
 		var toEmailAddresses = [];
 
+		var query = "";
+
 		fromEmailAddress = this._addressParser.parse(header.mime2DecodedAuthor);
+		query += this.insertEmailAddress(fromEmailAddress);
 
 		// FIXME: this is not bullet-proof, but will do for now
 		var unparsedRecipients = header.mime2DecodedRecipients.split(">,");
@@ -20,12 +27,16 @@ org.bustany.TrackerBird.TrackerStore = {
 
 			if (parsedAddress) {
 				toEmailAddresses.push(parsedAddress);
+				query += this.insertEmailAddress(parsedAddress);
 			}
 		}
 
-		var query = this.baseQuery(uri, header)
-		          + this.contactQuery("nmo:from", fromEmailAddress)
-		          + this.contactsQuery("nmo:to", toEmailAddresses);
+
+		query += "INSERT { GRAPH <" + this._graph + "> {"
+		       + this.baseQuery(uri, header)
+		       + this.contactQuery("nmo:from", fromEmailAddress)
+		       + this.contactsQuery("nmo:to", toEmailAddresses)
+			   + "}}";
 
 		if ((header.flags & Components.interfaces.nsMsgMessageFlags.Offline)
 		 || (header.folder instanceof Components.interfaces.nsIMsgLocalMailFolder)) {
@@ -84,5 +95,18 @@ org.bustany.TrackerBird.TrackerStore = {
 
 	escapeString: function(str) {
 		return this._tracker.escape_string(str).readString();
+	},
+
+	insertEmailAddress: function(address) {
+		if (this._knownEmailAddresses[address.address]) {
+			return "";
+		}
+
+		var query = "INSERT { GRAPH <" + this._graph + "> {"
+		          + "<" + address.address + "> a nco:EmailAddress"
+		          + "; nco:emailAddress \"" + address.address + "\"}}\n";
+
+		this._knownEmailAddresses[address.address] = true;
+		return query;
 	}
 }
