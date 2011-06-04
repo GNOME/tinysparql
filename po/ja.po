@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.10\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-07 15:25+0900\n"
-"PO-Revision-Date: 2011-05-07 15:25+0900\n"
+"POT-Creation-Date: 2011-06-04 12:41+0900\n"
+"PO-Revision-Date: 2011-06-04 12:25+0900\n"
 "Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
 "Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
 "Language: ja\n"
@@ -201,7 +201,7 @@ msgstr ""
 msgid "Cookie not recognized to resume paused miner"
 msgstr "一時停止中の収集デーモンを再開するためのクッキーが不明です"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1248
+#: ../src/libtracker-miner/tracker-miner-object.c:1250
 msgid "Data store is not available"
 msgstr "データ・ストアは利用できません"
 
@@ -213,7 +213,7 @@ msgstr "検索できるようデータを Tracker に送信します"
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2398
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "処理中..."
@@ -246,7 +246,7 @@ msgstr ""
 msgid "File to extract metadata for"
 msgstr "ファイルを指定してメタデータを展開する"
 
-#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:95
 #: ../src/tracker-control/tracker-control-general.c:97
 #: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
@@ -289,7 +289,7 @@ msgstr "MODULE"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:115
-#: ../src/miners/fs/tracker-main.c:97
+#: ../src/miners/fs/tracker-main.c:98
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -312,7 +312,7 @@ msgstr ""
 "--force-internal-extractors と --force-module オプションは一緒に指定できませ"
 "ん"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:80 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -320,111 +320,111 @@ msgstr ""
 "詳細な出力にする (0 = エラーのみ、1 = 最小限の情報、2 = 詳細な情報、3 = デ"
 "バッグ情報、デフォルトは 0)"
 
-#: ../src/miners/fs/tracker-main.c:84
+#: ../src/miners/fs/tracker-main.c:85
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr ""
 "起動後のスリープ時間 (単位は秒) を 0〜1000 の値で指定する (デフォルトは 15)"
 
-#: ../src/miners/fs/tracker-main.c:89
+#: ../src/miners/fs/tracker-main.c:90
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr "対象となる全ての場所のインデックスを生成して終了する"
 
-#: ../src/miners/fs/tracker-main.c:93
+#: ../src/miners/fs/tracker-main.c:94
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "FILE が設定内容に基づいて収集するのに適したものかどうかをチェックする"
 
-#: ../src/miners/fs/tracker-main.c:444
+#: ../src/miners/fs/tracker-main.c:454
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "現在、'%s' というデータ・オブジェクトは存在しています"
 
-#: ../src/miners/fs/tracker-main.c:445
+#: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "現在、'%s' というデータ・オブジェクトは存在していません"
 
-#: ../src/miners/fs/tracker-main.c:460
+#: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "このフォルダは収集に適したものです (設定にあるルールに基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:461
+#: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
 "このフォルダは収集に適したものではありません (設定にあるルールに基づいていま"
 "せん)"
 
-#: ../src/miners/fs/tracker-main.c:481
+#: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr ""
 "このフォルダは収集に適したものです (設定にある情報の内容に基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:482
+#: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
 "このフォルダは収集に適していません (設定にある情報の内容に基づいていません)"
 
-#: ../src/miners/fs/tracker-main.c:529
+#: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "このフォルダは監視に適したものです (設定に基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:530
+#: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "このフォルダは監視に適していません (設定に基づいていません)"
 
-#: ../src/miners/fs/tracker-main.c:534
+#: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
 msgstr "このファイルは監視に適したものです (設定に基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:535
+#: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "このファイルは監視に適していません (設定に基づいていません)"
 
-#: ../src/miners/fs/tracker-main.c:539
+#: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "このファイルまたはフォルダは監視に適したものです (設定に基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:540
+#: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "このファイルまたはフォルダは監視に適していません (設定に基づいていません)"
 
-#: ../src/miners/fs/tracker-main.c:555
+#: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
 msgstr "このファイルは収集に適したものです (設定にあるルールに基づいています)"
 
-#: ../src/miners/fs/tracker-main.c:556
+#: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "このファイルは収集に適していません(設定にあるルールに基づいていません)"
 
-#: ../src/miners/fs/tracker-main.c:565
+#: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
 msgstr "インデックスの生成"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
 msgstr "はい"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "No"
 msgstr "いいえ"
 
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
 msgstr "メタデータの収集"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:686
+#: ../src/miners/fs/tracker-main.c:696
 msgid "- start the tracker indexer"
 msgstr "- Tracker 用のインデックス生成デーモン"
 
-#: ../src/miners/fs/tracker-miner-files.c:1328
+#: ../src/miners/fs/tracker-miner-files.c:1333
 msgid "Low battery"
 msgstr "バッテリーが少なくなっています"
 
-#: ../src/miners/fs/tracker-miner-files.c:1451
+#: ../src/miners/fs/tracker-miner-files.c:1456
 msgid "Low disk space"
 msgstr "ディスクの空き容量が少なくなっています"
 
@@ -1063,23 +1063,28 @@ msgstr "収集デーモンを起動する前に1秒間待機しています..."
 msgid "Starting miners…"
 msgstr "収集デーモンの起動中..."
 
-#: ../src/tracker-control/tracker-control-general.c:572
+#: ../src/tracker-control/tracker-control-general.c:560
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "収集デーモンを起動できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-general.c:582
 msgid "perhaps a disabled plugin?"
 msgstr "プラグインが無効になっているかも？"
 
-#: ../src/tracker-control/tracker-control-general.c:594
+#: ../src/tracker-control/tracker-control-general.c:604
 msgid "Backing up database"
 msgstr "データベースのバックアップ中"
 
-#: ../src/tracker-control/tracker-control-general.c:666
+#: ../src/tracker-control/tracker-control-general.c:676
 msgid "Restoring database from backup"
 msgstr "データベースのリストア中"
 
-#: ../src/tracker-control/tracker-control-general.c:739
+#: ../src/tracker-control/tracker-control-general.c:749
 msgid "General options"
 msgstr "全般のオプション"
 
-#: ../src/tracker-control/tracker-control-general.c:740
+#: ../src/tracker-control/tracker-control-general.c:750
 msgid "Show general options"
 msgstr "全般のオプションを表示する"
 
@@ -1135,113 +1140,141 @@ msgstr "インストール済の全ての収集デーモンを一覧表示する
 msgid "List pause reasons"
 msgstr "停止の理由を一覧表示する"
 
-#: ../src/tracker-control/tracker-control-miners.c:101
+#: ../src/tracker-control/tracker-control-miners.c:104
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+"収集デーモンを一時停止できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:111
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "'%s' を '%s' という理由で一時停止中です"
 
-#: ../src/tracker-control/tracker-control-miners.c:108
+#: ../src/tracker-control/tracker-control-miners.c:118
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "収集デーモンを一時停止できませんでした: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:113
+#: ../src/tracker-control/tracker-control-miners.c:123
 #, c-format
 msgid "Cookie is %d"
 msgstr "クッキーは %d です"
 
-#: ../src/tracker-control/tracker-control-miners.c:129
+#: ../src/tracker-control/tracker-control-miners.c:142
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr "収集デーモンを再開できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:149
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "'%s' (クッキーは %d) を再開中です"
 
-#: ../src/tracker-control/tracker-control-miners.c:136
+#: ../src/tracker-control/tracker-control-miners.c:156
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "収集デーモンを再開できませんでした: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:140
+#: ../src/tracker-control/tracker-control-miners.c:160
 #: ../src/tracker-utils/tracker-import.c:142
 #: ../src/tracker-utils/tracker-sparql.c:571
 msgid "Done"
 msgstr "完了"
 
-#: ../src/tracker-control/tracker-control-miners.c:157
+#: ../src/tracker-control/tracker-control-miners.c:176
+#, c-format
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+"MIME 型のインデックスを生成できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:186
 msgid "Could not reindex mimetypes"
 msgstr "MIME 型のインデックスを生成できませんでした"
 
-#: ../src/tracker-control/tracker-control-miners.c:163
+#: ../src/tracker-control/tracker-control-miners.c:192
 msgid "Reindexing mime types was successful"
 msgstr "MIME 型のインデックスを再生成しました"
 
-#: ../src/tracker-control/tracker-control-miners.c:183
+#: ../src/tracker-control/tracker-control-miners.c:208
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr ""
+"インデックスを (再) 生成できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:221
 msgid "Could not (re)index file"
 msgstr "インデックスを再生成できませんでした"
 
-#: ../src/tracker-control/tracker-control-miners.c:189
+#: ../src/tracker-control/tracker-control-miners.c:227
 msgid "(Re)indexing file was successful"
 msgstr "インデックスの再生成が完了しました"
 
-#: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:289
+#: ../src/tracker-control/tracker-control-miners.c:245
 #, c-format
-msgid "Could not contact the miner manager"
-msgstr "収集デーモンのマネージャに接続できませんでした"
+msgid "Could not list miners, manager could not be created, %s"
+msgstr ""
+"リストの収集デーモンを起動できません (マネージャを生成できませんでした): %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:217
+#: ../src/tracker-control/tracker-control-miners.c:259
 #, c-format
 msgid "Found %d miners installed"
 msgstr "%d個の収集デーモンがインストール済です"
 
-#: ../src/tracker-control/tracker-control-miners.c:237
+#: ../src/tracker-control/tracker-control-miners.c:279
 #, c-format
 msgid "Found %d miners running"
 msgstr "%d個の収集デーモンが起動中です"
 
-#: ../src/tracker-control/tracker-control-miners.c:268
+#: ../src/tracker-control/tracker-control-miners.c:310
 #: ../src/tracker-control/tracker-control-status.c:137
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "収集デーモンから状態を取得できませんでした: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:296
+#: ../src/tracker-control/tracker-control-miners.c:333
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr "詳細のポーズを取得できません (マネージャを生成できませんでした): %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:343
 msgid "No miners are running"
 msgstr "収集デーモンは起動されていません"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:524
+#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-status.c:527
 msgid "Miners"
 msgstr "収集デーモン"
 
-#: ../src/tracker-control/tracker-control-miners.c:340
+#: ../src/tracker-control/tracker-control-miners.c:388
 msgid "Application"
 msgstr "アプリケーション"
 
-#: ../src/tracker-control/tracker-control-miners.c:342
+#: ../src/tracker-control/tracker-control-miners.c:390
 msgid "Reason"
 msgstr "理由"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:399
 msgid "No miners are paused"
 msgstr "一時停止した収集デーモンはありません"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:423
 msgid "You can not use miner pause and resume switches together"
 msgstr "一時停止と再開のオプションを一緒に指定することはできません"
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:429
 msgid "You must provide the miner for pause or resume commands"
 msgstr "一時停止または再開する収集デーモンを指定して下さい"
 
-#: ../src/tracker-control/tracker-control-miners.c:387
+#: ../src/tracker-control/tracker-control-miners.c:435
 msgid "You must provide a pause or resume command for the miner"
 msgstr "収集デーモンに対して一時停止または再開のオプションを指定して下さい"
 
-#: ../src/tracker-control/tracker-control-miners.c:431
+#: ../src/tracker-control/tracker-control-miners.c:479
 msgid "Miner options"
 msgstr "収集デーモンのオプション"
 
-#: ../src/tracker-control/tracker-control-miners.c:432
+#: ../src/tracker-control/tracker-control-miners.c:480
 msgid "Show miner options"
 msgstr "収集デーモンのオプションを表示する"
 
@@ -1292,7 +1325,7 @@ msgstr "収集および保存デーモンに共通な状態を一覧表示する
 
 #. Work out lengths for output spacing
 #: ../src/tracker-control/tracker-control-status.c:191
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:511
 msgid "PAUSED"
 msgstr "PAUSED"
 
@@ -1304,16 +1337,22 @@ msgstr "プラグインが実行されていないか無効になっています
 msgid "Common statuses include"
 msgstr "共通な状態"
 
+#: ../src/tracker-control/tracker-control-status.c:500
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr ""
+"収集デーモンから状態を取得できません (マネージャを生成できませんでした): %s"
+
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:518
+#: ../src/tracker-control/tracker-control-status.c:521
 msgid "Store"
 msgstr "データ格納デーモン"
 
-#: ../src/tracker-control/tracker-control-status.c:631
+#: ../src/tracker-control/tracker-control-status.c:634
 msgid "Status options"
 msgstr "ステータスのオプション"
 
-#: ../src/tracker-control/tracker-control-status.c:632
+#: ../src/tracker-control/tracker-control-status.c:635
 msgid "Show status options"
 msgstr "ステータスのオプションを表示する"
 
