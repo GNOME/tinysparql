@@ -18,12 +18,6 @@ org.bustany.TrackerBird.TrackerSparql = {
 		tracker._lib = ctypes.open (tracker._trackerSparqlPath);
 
 		if (!tracker._lib) {
-			// Try with 0.8
-			this._trackerSparqlPath = "libtracker-sparql-0.8.so";
-			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
-		}
-
-		if (!tracker._lib) {
 			dump ("Could not load " + tracker._trackerSparqlPath +" !\n");
 			return false;
 		}
