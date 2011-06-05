@@ -26,6 +26,8 @@ org.bustany.TrackerBird.EmailAddressParser = {
 			       };
 		}
 
+		dump("Could not parse email address " + str + "\n");
+
 		return null;
 	}
 }

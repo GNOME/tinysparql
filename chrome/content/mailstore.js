@@ -4,6 +4,7 @@ org.bustany.TrackerBird.MailStore = {
 	__initialized: true,
 
 	_trackerStore: org.bustany.TrackerBird.TrackerStore,
+	_persistentStore: org.bustany.TrackerBird.PersistentStore,
 
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
@@ -39,8 +40,9 @@ org.bustany.TrackerBird.MailStore = {
 		}
 	},
 
-	_folderQueue: null,
-	_messageQueue: null,
+	_queue: null,
+	_walkFolderCallback: null,
+	_indexMessageCallback: null,
 
 	_prefs: null,
 
@@ -56,8 +58,9 @@ org.bustany.TrackerBird.MailStore = {
 		              .getService(Components.interfaces.nsIPrefService).getBranch("extensions.trackerbird.");
 
 		var store = this;
-		this._folderQueue = new org.bustany.TrackerBird.Queue(function(folder) { store.walkFolder(folder); }, this._prefs.getIntPref("indexDelay")),
-		this._messageQueue = new org.bustany.TrackerBird.Queue(function(item) { store.indexMessage(item); }, this._prefs.getIntPref("indexDelay")),
+		this._queue = new org.bustany.TrackerBird.Queue(this._prefs.getIntPref("indexDelay")),
+		this._walkFolderCallback = function(item) { store.walkFolder(item); }
+		this._indexMessageCallback = function(item) { store.indexMessage(item); }
 
 		this.listAllFolders();
 
@@ -81,7 +84,11 @@ org.bustany.TrackerBird.MailStore = {
 			for (var j = 0; j < folders.Count(); j++) {
 				var folder = folders.GetElementAt(j).QueryInterface(Components.interfaces.nsIMsgFolder);
 
-				this._folderQueue.add(folder);
+				var store = this;
+				this._queue.add({
+				                 callback: this._walkFolderCallback,
+				                 data: folder
+				                });
 			}
 		}
 	},
@@ -91,11 +98,27 @@ org.bustany.TrackerBird.MailStore = {
 
 		var db = folder.msgDatabase;
 		var enumerator = db.EnumerateMessages();
+		var knownUris = this._persistentStore.getUrisForFolder(folder);
+
+		var uriCache = {};
+
+		for (var i in knownUris) {
+			uriCache[knownUris[i]] = true;
+		}
+
+		knownUris = null;
 
 		while (enumerator.hasMoreElements()) {
 			var msg = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
 
-			this._messageQueue.add({folder: folder, msg: msg});
+			if (uriCache[folder.getUriForMsg(msg)]) {
+				continue;
+			}
+
+			this._queue.add({
+			                 callback: this._indexMessageCallback,
+			                 data: {folder: folder, msg: msg}
+			                });
 		}
 
 		// Close database
@@ -103,7 +126,11 @@ org.bustany.TrackerBird.MailStore = {
 	},
 
 	indexMessage: function(item) {
-		this._trackerStore.storeMessage(item.folder, item.msg);
+		if (this._trackerStore.storeMessage(item.folder, item.msg)) {
+			this._persistentStore.rememberMessage(item.folder, item.msg);
+		}
+
+		document.getElementById("trackerbird-status-panel").label = this._queue.size() + " items remaining";
 	},
 
 	shutdown: function() {

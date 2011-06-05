@@ -3,12 +3,27 @@ org.bustany.TrackerBird.Plugin = {
 	// Init barrier
 	__initialized: true,
 
+	_trackerConnection: null,
 	_mailstore: org.bustany.TrackerBird.MailStore,
+	_persistentstore: org.bustany.TrackerBird.PersistentStore,
+	_trackerstore: org.bustany.TrackerBird.TrackerStore,
 
 	onLoad: function() {
 		dump("Initialiazing TrackerBird...\n");
 
 		if (!this.initTracker()) {
+			return;
+		}
+
+		if (!this._persistentstore.init()) {
+			dump("Could not initialize Persistent store\n");
+			_persistentstore = null;
+			return;
+		}
+
+		if (!this._trackerstore.init(this._trackerConnection)) {
+			dump("Could not initialize Tracker store\n");
+			_trackerstore = null;
 			return;
 		}
 
@@ -21,6 +36,10 @@ org.bustany.TrackerBird.Plugin = {
 
 	onUnload: function() {
 		dump("Shutting down TrackerBird...\n");
+
+		if (this._persistentstore) {
+			this._persistentstore.shutdown();
+		}
 
 		if (this._mailstore) {
 			this._mailstore.shutdown();
@@ -36,7 +55,7 @@ org.bustany.TrackerBird.Plugin = {
 		}
 
         var error = new tracker.Error.ptr;
-        this._connection = tracker.connection_open (null, error.address());
+        this._trackerConnection = tracker.connection_open (null, error.address());
 
         if (!error.isNull ()) {
             dump ("Could not initialize Tracker: " + error.contents.message.readString() + "\n");

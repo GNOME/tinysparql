@@ -1,5 +1,4 @@
-org.bustany.TrackerBird.Queue = function(callback, delay) {
-	this._callback = callback;
+org.bustany.TrackerBird.Queue = function(delay) {
 	this._delay = 100;
 	this._items = [];
 	this._active = false;
@@ -24,8 +23,14 @@ org.bustany.TrackerBird.Queue.prototype.process = function() {
 
 	this._active = true;
 
-	this._callback(this._items.shift());
+	var item = this._items.shift();
+
+	item.callback(item.data);
 
 	var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
 	timer.initWithCallback(this._timerEvent, this._delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+}
+
+org.bustany.TrackerBird.Queue.prototype.size = function() {
+	return this._items.length;
 }

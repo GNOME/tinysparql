@@ -6,9 +6,16 @@ org.bustany.TrackerBird.TrackerStore = {
 	_graph: "urn:uuid:0aa84c52-396d-4c37-bc6c-8342699f810c",
 
 	_addressParser: org.bustany.TrackerBird.EmailAddressParser,
+
 	_tracker: org.bustany.TrackerBird.TrackerSparql,
+	_connection: null,
 
 	_knownEmailAddresses: {},
+
+	init: function(connection) {
+		this._connection = connection;
+		return true;
+	},
 
 	storeMessage: function(folder, header) {
 		var uri = folder.getUriForMsg(header);
@@ -18,7 +25,9 @@ org.bustany.TrackerBird.TrackerStore = {
 		var query = "";
 
 		fromEmailAddress = this._addressParser.parse(header.mime2DecodedAuthor);
-		query += this.insertEmailAddress(fromEmailAddress);
+		if (fromEmailAddress) {
+			query += this.insertEmailAddress(fromEmailAddress);
+		}
 
 		// FIXME: this is not bullet-proof, but will do for now
 		var unparsedRecipients = header.mime2DecodedRecipients.split(">,");
@@ -43,7 +52,22 @@ org.bustany.TrackerBird.TrackerStore = {
 			 // We can access mail body
 		}
 
-		dump(query+"\n");
+		var error = new this._tracker.Error.ptr;
+		this._tracker.connection_update(this._connection,
+		                                query,
+		                                100, /* batch */
+		                                null,
+		                                error.address());
+
+		if (!error.isNull()) {
+			dump("Cannot save message to Tracker: " + error.contents.message.readString() + "\n");
+			dump("Query was\n" + query + "\n");
+			this._tracker.error_free(error);
+			return false;
+		}
+
+		dump("Inserted message " + uri + "\n");
+		return true;
 	},
 
 	baseQuery: function(uri, hdr) {
@@ -71,7 +95,7 @@ org.bustany.TrackerBird.TrackerStore = {
 		var nameSparql = "";
 
 		if (address.name != "") {
-			nameSparql = "; nco:fullname: \""
+			nameSparql = "; nco:fullname \""
 			           + this.escapeString(address.name)
 			           + "\" ";
 		}

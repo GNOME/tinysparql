@@ -6,6 +6,7 @@
   <script src="bindings.js"/>
   <script src="queue.js"/>
   <script src="email-address-parser.js"/>
+  <script src="persistent-store.js"/>
   <script src="trackerstore.js"/>
   <script src="mailstore.js"/>
   <script src="plugin.js"/>
@@ -13,5 +14,9 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="trackerbird-strings" src="chrome://trackerbird/locale/overlay.properties"/>
   </stringbundleset>
+
+  <statusbar id="status-bar">
+    <statusbarpanel id="trackerbird-status-panel" label="&idle;"/>
+  </statusbar>
 
 </overlay>
