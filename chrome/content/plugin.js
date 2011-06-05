@@ -7,27 +7,37 @@ org.bustany.TrackerBird.Plugin = {
 	_mailstore: org.bustany.TrackerBird.MailStore,
 	_persistentstore: org.bustany.TrackerBird.PersistentStore,
 	_trackerstore: org.bustany.TrackerBird.TrackerStore,
+	_ui: org.bustany.TrackerBird.Ui,
 
 	onLoad: function() {
 		dump("Initialiazing TrackerBird...\n");
 
+		if (!this._ui.init()) {
+			dump("Could not initialize Ui\n");
+			return;
+		}
+
 		if (!this.initTracker()) {
+			this._ui.showMessage("Cannot initialize Tracker");
 			return;
 		}
 
 		if (!this._persistentstore.init()) {
+			this._ui.showMessage("Cannot initialize persistent storage");
 			dump("Could not initialize Persistent store\n");
 			_persistentstore = null;
 			return;
 		}
 
 		if (!this._trackerstore.init(this._trackerConnection)) {
+			this._ui.showMessage("Cannot connect to Tracker");
 			dump("Could not initialize Tracker store\n");
 			_trackerstore = null;
 			return;
 		}
 
 		if (!this._mailstore.init()) {
+			this._ui.showMessage("Cannot initialize mail store");
 			dump("Could not initialize mail store\n");
 			_mailstore = null;
 			return;

@@ -5,6 +5,7 @@ org.bustany.TrackerBird.MailStore = {
 
 	_trackerStore: org.bustany.TrackerBird.TrackerStore,
 	_persistentStore: org.bustany.TrackerBird.PersistentStore,
+	_ui: org.bustany.TrackerBird.Ui,
 
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
@@ -130,7 +131,7 @@ org.bustany.TrackerBird.MailStore = {
 			this._persistentStore.rememberMessage(item.folder, item.msg);
 		}
 
-		document.getElementById("trackerbird-status-panel").label = this._queue.size() + " items remaining";
+		this._ui.showMessage(this._queue.size() + " items remaining");
 	},
 
 	shutdown: function() {

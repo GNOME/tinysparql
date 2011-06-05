@@ -6,6 +6,7 @@
   <script src="bindings.js"/>
   <script src="queue.js"/>
   <script src="email-address-parser.js"/>
+  <script src="ui.js"/>
   <script src="persistent-store.js"/>
   <script src="trackerstore.js"/>
   <script src="mailstore.js"/>
