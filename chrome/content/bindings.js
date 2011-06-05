@@ -15,11 +15,14 @@ org.bustany.TrackerBird.TrackerSparql = {
 
 		Components.utils.import ("resource://gre/modules/ctypes.jsm");
 
-		tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+		try {
+			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+		} catch (e) {
+			dump ("Could not load " + tracker._trackerSparqlPath +": " + e + "\n");
+			return false;
+		}
 
 		if (!tracker._lib) {
-			dump ("Could not load " + tracker._trackerSparqlPath +" !\n");
-			return false;
 		}
 
 		// GLib types
