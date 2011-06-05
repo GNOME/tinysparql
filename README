@@ -1,0 +1,5 @@
+A simple Thunderbird extension to export mails to Tracker. Currently only mail
+headers are exported, not mail body.
+
+=== How to build a .xpi file ===
+Just run: git archive --format=zip HEAD > trackerbird.xpi
