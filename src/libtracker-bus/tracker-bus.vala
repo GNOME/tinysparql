@@ -57,17 +57,37 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	Statistics statistics_object;
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
-		// FIXME: Ideally we would just get these as and when we need them
+	}
+
+	void ensure_resources_object () throws IOError, DBusError {
+		if (resources_object != null) {
+			return;
+		}
+
 		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                            TRACKER_DBUS_SERVICE,
 		                                            TRACKER_DBUS_OBJECT_RESOURCES,
 		                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		resources_object.set_default_timeout (int.MAX);
+	}
+
+	void ensure_steroids_object () throws IOError, DBusError {
+		if (steroids_object != null) {
+			return;
+		}
+
 		steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                           TRACKER_DBUS_SERVICE,
 		                                           TRACKER_DBUS_OBJECT_STEROIDS,
 		                                           DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		steroids_object.set_default_timeout (int.MAX);
+	}
+
+	void ensure_statistics_object () throws IOError, DBusError {
+		if (statistics_object != null) {
+			return;
+		}
+
 		statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                             TRACKER_DBUS_SERVICE,
 		                                             TRACKER_DBUS_OBJECT_STATISTICS,
@@ -99,6 +119,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_steroids_object ();
+
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
@@ -145,6 +167,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_steroids_object ();
+
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
@@ -180,6 +204,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_steroids_object ();
+
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
@@ -244,6 +270,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_steroids_object ();
+
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
@@ -275,6 +303,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_resources_object ();
+
 		resources_object.load (file.get_uri (), cancellable);
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
@@ -282,6 +312,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_resources_object ();
+
 		yield resources_object.load_async (file.get_uri (), cancellable);
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
@@ -290,6 +322,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_statistics_object ();
+
 		string[,] results = statistics_object.Get (cancellable);
 		Sparql.ValueType[] types = new Sparql.ValueType[2];
 		string[] var_names = new string[2];
@@ -307,6 +341,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		ensure_statistics_object ();
+
 		string[,] results = yield statistics_object.Get_async (cancellable);
 		Sparql.ValueType[] types = new Sparql.ValueType[2];
 		string[] var_names = new string[2];
