@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-05-05 09:22+0000\n"
-"PO-Revision-Date: 2011-05-06 10:31+0200\n"
+"POT-Creation-Date: 2011-06-02 16:46+0000\n"
+"PO-Revision-Date: 2011-06-06 12:16+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -493,7 +493,7 @@ msgstr "Meter los datos en Tracker para poder solicitarlos."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2398
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Procesando…"
@@ -526,7 +526,7 @@ msgstr ""
 msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
-#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:95
 #: ../src/tracker-control/tracker-control-general.c:97
 #: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
@@ -567,7 +567,7 @@ msgstr "MÓDULO"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:115
-#: ../src/miners/fs/tracker-main.c:97
+#: ../src/miners/fs/tracker-main.c:98
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -590,7 +590,7 @@ msgstr ""
 "Las opciones «--force-internal-extractors» y «--force-module» no se pueden "
 "usar a la vez"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:80 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -598,103 +598,103 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/miners/fs/tracker-main.c:84
+#: ../src/miners/fs/tracker-main.c:85
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Tiempo de reposo inicial en segundos, 0->1000 (predeterminado=15)"
 
-#: ../src/miners/fs/tracker-main.c:89
+#: ../src/miners/fs/tracker-main.c:90
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
 "Se ejecuta hasta que todas las ubicaciones configuradas se indexan, y sale"
 
-#: ../src/miners/fs/tracker-main.c:93
+#: ../src/miners/fs/tracker-main.c:94
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Comprueba si el ARCHIVO es elegible para ser escrutado según la configuración"
 
-#: ../src/miners/fs/tracker-main.c:444
+#: ../src/miners/fs/tracker-main.c:454
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
-#: ../src/miners/fs/tracker-main.c:445
+#: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "El objeto de datos «%s» no existe"
 
-#: ../src/miners/fs/tracker-main.c:460
+#: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "El directorio es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:461
+#: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "El directorio NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:481
+#: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "El directorio es elegible para ser escrutado (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:482
+#: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "El directorio NO es elegible para ser escrutado (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:529
+#: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "El directorio es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:530
+#: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El directorio NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:534
+#: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
 msgstr "El archivo es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:535
+#: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "El archivo NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:539
+#: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:540
+#: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio NO es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:555
+#: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
 msgstr "El archivo es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:556
+#: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "El archivo NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:565
+#: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
 msgstr "Se indexará"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "No"
 msgstr "No"
 
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
 msgstr "Se monitorizará"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:686
+#: ../src/miners/fs/tracker-main.c:696
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -750,7 +750,6 @@ msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
 #: ../src/miners/rss/tracker-main.c:141
-#| msgid "Could not read file"
 msgid "Could not add feed"
 msgstr "No se pudo añadir el proveedor"
 
@@ -1358,23 +1357,28 @@ msgstr "Esperando un segundo antes de iniciar los mineros…"
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:576
+#: ../src/tracker-control/tracker-control-general.c:561
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "No se pudieron iniciar los mineros, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-general.c:586
 msgid "perhaps a disabled plugin?"
 msgstr "¿quizá es un complemento desactivado?"
 
-#: ../src/tracker-control/tracker-control-general.c:598
+#: ../src/tracker-control/tracker-control-general.c:608
 msgid "Backing up database"
 msgstr "Respaldando base de datos"
 
-#: ../src/tracker-control/tracker-control-general.c:670
+#: ../src/tracker-control/tracker-control-general.c:680
 msgid "Restoring database from backup"
 msgstr "Restaurando base de datos desde el respaldo"
 
-#: ../src/tracker-control/tracker-control-general.c:743
+#: ../src/tracker-control/tracker-control-general.c:753
 msgid "General options"
 msgstr "Opciones generales"
 
-#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:754
 msgid "Show general options"
 msgstr "Mostrar las opciones generales"
 
@@ -1430,107 +1434,137 @@ msgstr "Listar todos los mineros instalados"
 msgid "List pause reasons"
 msgstr "Listar los motivos de pausa"
 
-#: ../src/tracker-control/tracker-control-miners.c:101
+#: ../src/tracker-control/tracker-control-miners.c:104
+#, c-format
+#| msgid "Could not pause miner: %s"
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr "No se pudo pausar el minero, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:111
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Intentando pausar el minero «%s» con la razón «%s»"
 
-#: ../src/tracker-control/tracker-control-miners.c:108
+#: ../src/tracker-control/tracker-control-miners.c:118
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "No se pudo pausar el minero: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:113
+#: ../src/tracker-control/tracker-control-miners.c:123
 #, c-format
 msgid "Cookie is %d"
 msgstr "La «cookie» es la %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:129
+#: ../src/tracker-control/tracker-control-miners.c:142
+#, c-format
+#| msgid "Could not resume miner: %s"
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr "No se pudo reanudar el minero, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:149
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Intentando resumir el minero %s con la «cookie» %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:136
+#: ../src/tracker-control/tracker-control-miners.c:156
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "No se pudo resumir el minero: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:140
+#: ../src/tracker-control/tracker-control-miners.c:160
 #: ../src/tracker-utils/tracker-import.c:142
 #: ../src/tracker-utils/tracker-sparql.c:571
 msgid "Done"
 msgstr "Hecho"
 
-#: ../src/tracker-control/tracker-control-miners.c:157
+#: ../src/tracker-control/tracker-control-miners.c:176
+#, c-format
+#| msgid "Could not reindex mimetypes"
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+"No se pudieron reindexar los tipos MIME, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:186
 msgid "Could not reindex mimetypes"
 msgstr "No se pudieron reindexar los tipos MIME"
 
-#: ../src/tracker-control/tracker-control-miners.c:163
+#: ../src/tracker-control/tracker-control-miners.c:192
 msgid "Reindexing mime types was successful"
 msgstr "Reindexado de los tipos MIME correctamente"
 
-#: ../src/tracker-control/tracker-control-miners.c:183
+#: ../src/tracker-control/tracker-control-miners.c:208
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr "No se pudo (re)indexar el archivo, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:221
 msgid "Could not (re)index file"
 msgstr "No se pudo (re)indexar el archivo"
 
-#: ../src/tracker-control/tracker-control-miners.c:189
+#: ../src/tracker-control/tracker-control-miners.c:227
 msgid "(Re)indexing file was successful"
 msgstr "(Re)indexado del archivo correctamente"
 
-#: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:264
+#: ../src/tracker-control/tracker-control-miners.c:245
 #, c-format
-msgid "Could not contact the miner manager"
-msgstr "No se contactar con el gestor del minero"
+msgid "Could not list miners, manager could not be created, %s"
+msgstr "No se pudieron listar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:217
+#: ../src/tracker-control/tracker-control-miners.c:259
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Se encontraron %d mineros instalados"
 
-#: ../src/tracker-control/tracker-control-miners.c:237
+#: ../src/tracker-control/tracker-control-miners.c:279
 #, c-format
 msgid "Found %d miners running"
 msgstr "Se encontraron %d mineros en ejecución"
 
-#: ../src/tracker-control/tracker-control-miners.c:271
+#: ../src/tracker-control/tracker-control-miners.c:308
+#, c-format
+#| msgid "Could not get paused details from miner: %s"
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+"No se pudieron obtener los detalles de pausa, no se pudo crear el gestor, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:318
 msgid "No miners are running"
 msgstr "No hay ningún minero en ejecución"
 
-#: ../src/tracker-control/tracker-control-miners.c:304
-#: ../src/tracker-control/tracker-control-status.c:550
+#: ../src/tracker-control/tracker-control-miners.c:352
+#: ../src/tracker-control/tracker-control-status.c:553
 msgid "Miners"
 msgstr "Mineros"
 
-#: ../src/tracker-control/tracker-control-miners.c:311
+#: ../src/tracker-control/tracker-control-miners.c:359
 msgid "Application"
 msgstr "Aplicación"
 
-#: ../src/tracker-control/tracker-control-miners.c:313
+#: ../src/tracker-control/tracker-control-miners.c:361
 msgid "Reason"
 msgstr "Razón"
 
-#: ../src/tracker-control/tracker-control-miners.c:322
+#: ../src/tracker-control/tracker-control-miners.c:370
 msgid "No miners are paused"
 msgstr "No hay ningún minero pausado"
 
-#: ../src/tracker-control/tracker-control-miners.c:346
+#: ../src/tracker-control/tracker-control-miners.c:394
 msgid "You can not use miner pause and resume switches together"
 msgstr "No puede usar un minero pausado y resumir los cambios a la vez"
 
-#: ../src/tracker-control/tracker-control-miners.c:352
+#: ../src/tracker-control/tracker-control-miners.c:400
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
 
-#: ../src/tracker-control/tracker-control-miners.c:358
+#: ../src/tracker-control/tracker-control-miners.c:406
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Debe proporcionar una pausa o resumir el comando para el minero"
 
-#: ../src/tracker-control/tracker-control-miners.c:402
+#: ../src/tracker-control/tracker-control-miners.c:450
 msgid "Miner options"
 msgstr "Opciones del minero"
 
-#: ../src/tracker-control/tracker-control-miners.c:403
+#: ../src/tracker-control/tracker-control-miners.c:451
 msgid "Show miner options"
 msgstr "Mostrar las opciones del minero"
 
@@ -1596,7 +1630,7 @@ msgstr "tiempo restante desconocido"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-control/tracker-control-status.c:213
-#: ../src/tracker-control/tracker-control-status.c:534
+#: ../src/tracker-control/tracker-control-status.c:537
 msgid "PAUSED"
 msgstr "PAUSADO"
 
@@ -1608,16 +1642,22 @@ msgstr "No está en ejecución o es un complemento desactivado"
 msgid "Common statuses include"
 msgstr "Los estados comunes incluyen"
 
+#: ../src/tracker-control/tracker-control-status.c:526
+#, c-format
+#| msgid "Could not get status from miner: %s"
+msgid "Could not get status, manager could not be created, %s"
+msgstr "No se pudo obtener el estado, no se pudo crear el gestor, %s"
+
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:544
+#: ../src/tracker-control/tracker-control-status.c:547
 msgid "Store"
 msgstr "Almacenar"
 
-#: ../src/tracker-control/tracker-control-status.c:665
+#: ../src/tracker-control/tracker-control-status.c:668
 msgid "Status options"
 msgstr "Opciones de estado"
 
-#: ../src/tracker-control/tracker-control-status.c:666
+#: ../src/tracker-control/tracker-control-status.c:669
 msgid "Show status options"
 msgstr "Mostrar las opciones de estado"
 
@@ -2295,6 +2335,9 @@ msgstr "Falló al iniciar el administrador de datos"
 msgid "Empty result set"
 msgstr "Conjunto de resultados vacío"
 
+#~ msgid "Could not contact the miner manager"
+#~ msgstr "No se contactar con el gestor del minero"
+
 #~ msgid "Unknown"
 #~ msgstr "Desconocido"
 
@@ -2929,9 +2972,6 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Could not get progress from miner: %s"
 #~ msgstr "No se pudo obtener el progreso del minero: %s"
-
-#~ msgid "Could not get paused details from miner: %s"
-#~ msgstr "No se pudieron obtener los detalles de pausa para el minero: %s"
 
 #~ msgid "<b>Directories</b>"
 #~ msgstr "<b>Directorios</b>"
