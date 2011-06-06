@@ -71,8 +71,7 @@ class Tracker.Sparql.Backend : Connection {
 		base.dispose ();
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null || direct != null) {
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
@@ -81,8 +80,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null || direct != null) {
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
@@ -91,58 +89,76 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		return bus.update_blank (sparql, priority, cancellable);
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		bus.load (file, cancellable);
 	}
 
-	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
+		}
 		yield bus.load_async (file, cancellable);
 	}
 
-	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s()", Log.METHOD);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
+		}
 		return bus.statistics (cancellable);
 	}
 
-	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
-	requires (bus != null) {
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		debug ("%s()", Log.METHOD);
+		if (bus == null) {
+			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
+		}
 		return yield bus.statistics_async (cancellable);
 	}
 
