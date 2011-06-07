@@ -40,8 +40,8 @@ class Tracker.Sparql.Backend : Connection {
 
 			debug ("Service is ready");
 
-			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			load_plugins (direct_only);
+			debug ("Constructing connection");
+			load_plugins ();
 			debug ("Backend is ready");
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -163,7 +163,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	// Plugin loading functions
-	private bool load_plugins (bool direct_only) throws GLib.Error {
+	private bool load_plugins () throws GLib.Error {
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
 		Backend backend = Backend.AUTO;
 
@@ -180,16 +180,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 
 		if (backend == Backend.AUTO) {
-			if (direct_only && backend == Backend.AUTO) {
-				backend = Backend.DIRECT;
-				debug ("Using backend = 'DIRECT'");
-			} else {
-				debug ("Using backend = 'AUTO'");
-			}
-		}
-
-		if (direct_only && backend == Backend.BUS) {
-			debug ("Backend set in environment contradicts requested connection type, using environment to override");
+			debug ("Using backend = 'AUTO'");
 		}
 
 		Tracker.Sparql.Connection connection;
@@ -222,12 +213,11 @@ class Tracker.Sparql.Backend : Connection {
 		return connection != null;
 	}
 
-	static bool direct_only;
 	static weak Connection? singleton;
 	static bool log_initialized;
 	static StaticMutex door;
 
-	static new Connection get (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+	static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		door.lock ();
 
 		try {
@@ -236,8 +226,6 @@ class Tracker.Sparql.Backend : Connection {
 
 			if (result == null) {
 				log_init ();
-
-				direct_only = is_direct_only;
 
 				result = new Tracker.Sparql.Backend ();
 
@@ -248,17 +236,16 @@ class Tracker.Sparql.Backend : Connection {
 				singleton = result;
 			}
 
-			assert (direct_only == is_direct_only);
 			return result;
 		} finally {
 			door.unlock ();
 		}
 	}
 
-	public static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+	public static new Connection get_internal (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		if (MainContext.get_thread_default () == null) {
 			// ok to initialize without extra thread
-			return get (is_direct_only, cancellable);
+			return get (cancellable);
 		}
 
 		// run with separate main context to be able to wait for async method
@@ -268,7 +255,7 @@ class Tracker.Sparql.Backend : Connection {
 
 		context.push_thread_default ();
 
-		get_internal_async.begin (is_direct_only, cancellable, (obj, res) => {
+		get_internal_async.begin (cancellable, (obj, res) => {
 			async_result = res;
 			loop.quit ();
 		});
@@ -280,7 +267,7 @@ class Tracker.Sparql.Backend : Connection {
 		return get_internal_async.end (async_result);
 	}
 
-	public async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+	public async static new Connection get_internal_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		// fast path: avoid extra thread if connection is already available
 		if (door.trylock ()) {
 			// assign to owned variable to ensure it doesn't get freed between unlock and return
@@ -289,7 +276,6 @@ class Tracker.Sparql.Backend : Connection {
 			door.unlock ();
 
 			if (result != null) {
-				assert (direct_only == is_direct_only);
 				return result;
 			}
 		}
@@ -304,7 +290,7 @@ class Tracker.Sparql.Backend : Connection {
 
 		g_io_scheduler_push_job (job => {
 			try {
-				result = get (is_direct_only, cancellable);
+				result = get (cancellable);
 			} catch (IOError e_io) {
 				io_error = e_io;
 			} catch (Sparql.Error e_spql) {
@@ -390,17 +376,17 @@ class Tracker.Sparql.Backend : Connection {
 }
 
 public async static Tracker.Sparql.Connection tracker_sparql_connection_get_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return yield Tracker.Sparql.Backend.get_internal_async (false, cancellable);
+	return yield Tracker.Sparql.Backend.get_internal_async (cancellable);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_get (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return Tracker.Sparql.Backend.get_internal (false, cancellable);
+	return Tracker.Sparql.Backend.get_internal (cancellable);
 }
 
 public async static Tracker.Sparql.Connection tracker_sparql_connection_get_direct_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return yield Tracker.Sparql.Backend.get_internal_async (true, cancellable);
+	return yield Tracker.Sparql.Backend.get_internal_async (cancellable);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return Tracker.Sparql.Backend.get_internal (true, cancellable);
+	return Tracker.Sparql.Backend.get_internal (cancellable);
 }
