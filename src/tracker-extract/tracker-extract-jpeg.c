@@ -74,7 +74,10 @@ typedef struct {
 	const gchar *city;
 	const gchar *state;
 	const gchar *address;
-	const gchar *country; 
+	const gchar *country;
+        const gchar *gps_altitude;
+        const gchar *gps_latitude;
+        const gchar *gps_longitude;
 } MergeData;
 
 struct tej_error_mgr {
@@ -246,6 +249,10 @@ tracker_extract_get_metadata (const gchar          *uri,
 	md.state = tracker_coalesce_strip (2, xd->state, id->state);
 	md.address = tracker_coalesce_strip (2, xd->address, id->sublocation);
 	md.country = tracker_coalesce_strip (2, xd->country, id->country_name);
+        /* FIXME We are not handling the altitude ref here for xmp */
+	md.gps_altitude = tracker_coalesce_strip (2, xd->gps_altitude, ed->gps_altitude);
+	md.gps_latitude = tracker_coalesce_strip (2, xd->gps_latitude, ed->gps_latitude);
+	md.gps_longitude = tracker_coalesce_strip (2, xd->gps_longitude, ed->gps_longitude);
 	md.creator = tracker_coalesce_strip (3, xd->creator, id->byline, id->credit);
 	md.comment = tracker_coalesce_strip (2, comment, ed->user_comment);
 	md.make = tracker_coalesce_strip (2, xd->make, ed->make);
@@ -543,52 +550,70 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, md.comment);
 	}
 
-	if (md.city || md.state || md.address || md.country) {
-		gchar *addruri;
+	if (md.address || md.state || md.country || md.city ||
+	    md.gps_altitude || md.gps_latitude || md.gps_longitude) {
 
 		tracker_sparql_builder_predicate (metadata, "slo:location");
 
-		tracker_sparql_builder_object_blank_open (metadata); /* GeoLocation */
+		tracker_sparql_builder_object_blank_open (metadata); /* GeoPoint */
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "slo:GeoLocation");
 
-		addruri = tracker_sparql_get_uuid_urn ();
+		if (md.address || md.state || md.country || md.city) {
+	                gchar *addruri;
 
-		tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-		tracker_sparql_builder_object_iri (metadata, addruri);
+		        addruri = tracker_sparql_get_uuid_urn ();
+
+		        tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
+	                tracker_sparql_builder_object_iri (metadata, addruri);
+
+		        tracker_sparql_builder_insert_open (preupdate, NULL);
+		        tracker_sparql_builder_subject_iri (preupdate, addruri);
+
+		        g_free (addruri);
+
+		        tracker_sparql_builder_predicate (preupdate, "a");
+		        tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
+
+			if (md.address) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
+			        tracker_sparql_builder_object_unvalidated (preupdate, md.address);
+			}
+
+			if (md.state) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:region");
+				tracker_sparql_builder_object_unvalidated (preupdate, md.state);
+			}
+
+			if (md.city) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:locality");
+				tracker_sparql_builder_object_unvalidated (preupdate, md.city);
+			}
+
+			if (md.country) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:country");
+				tracker_sparql_builder_object_unvalidated (preupdate, md.country);
+			}
+
+			tracker_sparql_builder_insert_close (preupdate);
+		}
+
+		if (md.gps_altitude) {
+		        tracker_sparql_builder_predicate (metadata, "slo:altitude");
+			tracker_sparql_builder_object_unvalidated (metadata, md.gps_altitude);
+		}
+
+		if (md.gps_latitude) {
+		        tracker_sparql_builder_predicate (metadata, "slo:latitude");
+			tracker_sparql_builder_object_unvalidated (metadata, md.gps_latitude);
+		}
+
+		if (md.gps_longitude) {
+		        tracker_sparql_builder_predicate (metadata, "slo:longitude");
+			tracker_sparql_builder_object_unvalidated (metadata, md.gps_longitude);
+		}
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
-
-		tracker_sparql_builder_insert_open (preupdate, NULL);
-		tracker_sparql_builder_subject_iri (preupdate, addruri);
-
-		g_free (addruri);
-
-		tracker_sparql_builder_predicate (preupdate, "a");
-		tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
-
-		if (md.address) {
-			tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
-			tracker_sparql_builder_object_unvalidated (preupdate, md.address);
-		}
-
-		if (md.state) {
-			tracker_sparql_builder_predicate (preupdate, "nco:region");
-			tracker_sparql_builder_object_unvalidated (preupdate, md.state);
-		}
-
-		if (md.city) {
-			tracker_sparql_builder_predicate (preupdate, "nco:locality");
-			tracker_sparql_builder_object_unvalidated (preupdate, md.city);
-		}
-
-		if (md.country) {
-			tracker_sparql_builder_predicate (preupdate, "nco:country");
-			tracker_sparql_builder_object_unvalidated (preupdate, md.country);
-		}
-
-		tracker_sparql_builder_insert_close (preupdate);
-
 	}
 
 	if (cinfo.density_unit != 0 || ed->x_resolution) {

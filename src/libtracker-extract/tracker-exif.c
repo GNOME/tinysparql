@@ -278,6 +278,71 @@ get_white_balance (ExifData *exif,
 	return NULL;
 }
 
+static gchar *
+get_gps_coordinate (ExifData *exif,
+		    ExifTag   tag,
+		    ExifTag   reftag)
+{
+	ExifEntry *entry = exif_data_get_entry (exif, tag);
+	ExifEntry *refentry = exif_data_get_entry (exif, reftag);
+
+	if (entry && refentry) {
+		ExifByteOrder order;
+		ExifRational c1,c2,c3;
+		gfloat f;
+		gchar ref;
+
+		order = exif_data_get_byte_order (exif);
+		c1 = exif_get_rational (entry->data, order);
+		c2 = exif_get_rational (entry->data+8, order);
+		c3 = exif_get_rational (entry->data+16, order);
+		ref = exif_get_short (refentry->data, order);
+		
+		f = (double)c1.numerator/c1.denominator+
+		  (double)c2.numerator/(c2.denominator*60)+
+		  (double)c3.numerator/(c3.denominator*60*60);
+
+		if (ref == 'S' || ref == 'W') {
+		      f = -1 * f;
+		}
+		return g_strdup_printf ("%f", f);
+	}
+
+	return NULL;
+}
+
+static gchar *
+get_gps_altitude (ExifData *exif,
+		  ExifTag   tag,
+		  ExifTag   reftag)
+{
+	ExifEntry *entry = exif_data_get_entry (exif, tag);
+	ExifEntry *refentry = exif_data_get_entry (exif, reftag);
+
+	if (entry) {
+		ExifByteOrder order;
+		ExifRational c;
+		gfloat f;
+		gboolean ref;
+
+		order = exif_data_get_byte_order (exif);
+		c = exif_get_rational (entry->data, order);
+		f = (double)c.numerator/c.denominator;
+
+		/* Strictly speaking it is invalid not to have this
+		   but.. let's try to cope here */
+		if (refentry) {
+		        ref = exif_get_short (refentry->data, order);
+		
+			if (ref == 1) {
+			        f = -1 * f;
+			}
+		}
+		return g_strdup_printf ("%f", f);
+	}
+
+	return NULL;
+}
 
 static gint
 get_int (ExifData *exif,
@@ -401,6 +466,13 @@ parse_exif (const unsigned char *buffer,
 	if (!data->y_resolution)
 		data->y_resolution = get_value (exif, EXIF_TAG_Y_RESOLUTION);
 
+	if(!data->gps_altitude)
+	        data->gps_altitude = get_gps_altitude (exif, EXIF_TAG_GPS_ALTITUDE, EXIF_TAG_GPS_ALTITUDE_REF);
+	if(!data->gps_latitude)
+       	        data->gps_latitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LATITUDE, EXIF_TAG_GPS_LATITUDE_REF);
+	if(!data->gps_longitude)
+	        data->gps_longitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LONGITUDE, EXIF_TAG_GPS_LONGITUDE_REF);
+
 	exif_data_free (exif);
 #endif /* HAVE_LIBEXIF */
 
@@ -515,6 +587,9 @@ tracker_exif_free (TrackerExifData *data)
 	g_free (data->software);
 	g_free (data->x_resolution);
 	g_free (data->y_resolution);
+	g_free (data->gps_altitude);
+	g_free (data->gps_latitude);
+	g_free (data->gps_longitude);
 
 	g_free (data);
 }
