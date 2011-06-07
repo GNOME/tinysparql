@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-05-05 09:22+0000\n"
-"PO-Revision-Date: 2011-05-06 07:51+0200\n"
+"POT-Creation-Date: 2011-06-02 16:46+0000\n"
+"PO-Revision-Date: 2011-06-07 11:43+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -495,7 +495,7 @@ msgstr "Vkládá data do vyhledávače Tracker, aby se na ně bylo možno dotazo
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2398
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Zpracovává se…"
@@ -528,7 +528,7 @@ msgstr ""
 msgid "File to extract metadata for"
 msgstr "Soubor, pro který se mají rozbalit metadata"
 
-#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:94
+#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:95
 #: ../src/tracker-control/tracker-control-general.c:97
 #: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:58
@@ -570,7 +570,7 @@ msgstr "MODUL"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:115
-#: ../src/miners/fs/tracker-main.c:97
+#: ../src/miners/fs/tracker-main.c:98
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -593,7 +593,7 @@ msgstr ""
 "Přepínače  --force-internal-extractors a --force-module nelze použít "
 "dohromady"
 
-#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:80 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -601,97 +601,97 @@ msgstr ""
 "Evidování, 0 = pouze chyby, 1 = minimální, 2 = podrobné a 3 = ladění "
 "(výchozí je 0)"
 
-#: ../src/miners/fs/tracker-main.c:84
+#: ../src/miners/fs/tracker-main.c:85
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Počáteční doba uspání v sekundách, 0->1000 (výchozí je 15)"
 
-#: ../src/miners/fs/tracker-main.c:89
+#: ../src/miners/fs/tracker-main.c:90
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
 "Běžet, dokud nejsou oindexována všechna nastavená umístění, a po té skončit"
 
-#: ../src/miners/fs/tracker-main.c:93
+#: ../src/miners/fs/tracker-main.c:94
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Kontrola, zda je SOUBOR způsobilý k dolování dat podle nastavení"
 
-#: ../src/miners/fs/tracker-main.c:444
+#: ../src/miners/fs/tracker-main.c:454
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Datový objekt „%s“ v současnosti existuje"
 
-#: ../src/miners/fs/tracker-main.c:445
+#: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Datový objekt „%s“ v současnosti neexistuje"
 
-#: ../src/miners/fs/tracker-main.c:460
+#: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Složka je způsobilá k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:461
+#: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Složka NENÍ způsobilá k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:481
+#: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Složka je způsobilá k dolování dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:482
+#: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Složka NENÍ způsobilá k dolování dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:529
+#: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:530
+#: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:534
+#: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Soubor je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:535
+#: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Soubor NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:539
+#: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:540
+#: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:555
+#: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Soubor je způsobilý k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:556
+#: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Soubor NENÍ způsobilý k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:565
+#: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
 msgstr "Byl by indexován"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
 msgstr "Ano"
 
-#: ../src/miners/fs/tracker-main.c:566 ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "No"
 msgstr "Ne"
 
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
 msgstr "Byl by sledován"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:686
+#: ../src/miners/fs/tracker-main.c:696
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
@@ -747,7 +747,6 @@ msgid "No error given"
 msgstr "Není uvedena žádná chyba"
 
 #: ../src/miners/rss/tracker-main.c:141
-#| msgid "Could not read file"
 msgid "Could not add feed"
 msgstr "Nelze přidat kanál"
 
@@ -1354,23 +1353,28 @@ msgstr "Chvilku se čeká, než se spustí démoni na dolování dat…"
 msgid "Starting miners…"
 msgstr "Spouští se démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:576
+#: ../src/tracker-control/tracker-control-general.c:561
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "Nelze spustit démony na dolování dat, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-general.c:586
 msgid "perhaps a disabled plugin?"
 msgstr "není vypnutý zásuvný modul?"
 
-#: ../src/tracker-control/tracker-control-general.c:598
+#: ../src/tracker-control/tracker-control-general.c:608
 msgid "Backing up database"
 msgstr "Zálohuje se databáze"
 
-#: ../src/tracker-control/tracker-control-general.c:670
+#: ../src/tracker-control/tracker-control-general.c:680
 msgid "Restoring database from backup"
 msgstr "Obnovuje se databáze ze zálohy"
 
-#: ../src/tracker-control/tracker-control-general.c:743
+#: ../src/tracker-control/tracker-control-general.c:753
 msgid "General options"
 msgstr "Obecné přepínače"
 
-#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:754
 msgid "Show general options"
 msgstr "Zobrazí obecné přepínače"
 
@@ -1426,111 +1430,141 @@ msgstr "Vypsat seznam všech nainstalovaných démonů na dolování dat"
 msgid "List pause reasons"
 msgstr "Vypsat důvody pozastavení"
 
-#: ../src/tracker-control/tracker-control-miners.c:101
+#: ../src/tracker-control/tracker-control-miners.c:104
+#, c-format
+#| msgid "Could not pause miner: %s"
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+"Nelze pozastavit démona na dolování dat, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:111
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Zkouší se pozastavit démona na dolování dat „%s“ z důvodu „%s“"
 
-#: ../src/tracker-control/tracker-control-miners.c:108
+#: ../src/tracker-control/tracker-control-miners.c:118
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "Nelze pozastavit démona na dolování dat: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:113
+#: ../src/tracker-control/tracker-control-miners.c:123
 #, c-format
 msgid "Cookie is %d"
 msgstr "Cookie je %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:129
+#: ../src/tracker-control/tracker-control-miners.c:142
+#, c-format
+#| msgid "Could not resume miner: %s"
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr ""
+"Nelze obnovit běh démona na dolování dat, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:149
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Zkouší se obnovit běh démona na dolování dat %s s cookie %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:136
+#: ../src/tracker-control/tracker-control-miners.c:156
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "Nelze obnovit běh démona na dolování dat: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:140
+#: ../src/tracker-control/tracker-control-miners.c:160
 #: ../src/tracker-utils/tracker-import.c:142
 #: ../src/tracker-utils/tracker-sparql.c:571
 msgid "Done"
 msgstr "Dokončeno"
 
-#: ../src/tracker-control/tracker-control-miners.c:157
+#: ../src/tracker-control/tracker-control-miners.c:176
+#, c-format
+#| msgid "Could not reindex mimetypes"
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr "Nelze přeindexovat typy MIME, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:186
 msgid "Could not reindex mimetypes"
 msgstr "Nelze přeindexovat typy MIME"
 
-#: ../src/tracker-control/tracker-control-miners.c:163
+#: ../src/tracker-control/tracker-control-miners.c:192
 msgid "Reindexing mime types was successful"
 msgstr "Přeindexování typů MIME bylo úspěšné"
 
-#: ../src/tracker-control/tracker-control-miners.c:183
+#: ../src/tracker-control/tracker-control-miners.c:208
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr "Nelze (pře)indexovat soubor, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:221
 msgid "Could not (re)index file"
 msgstr "Nelze (pře)indexovat soubor"
 
-#: ../src/tracker-control/tracker-control-miners.c:189
+#: ../src/tracker-control/tracker-control-miners.c:227
 msgid "(Re)indexing file was successful"
 msgstr "(Pře)indexování souboru bylo úspěšné"
 
-#: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:264
+#: ../src/tracker-control/tracker-control-miners.c:245
 #, c-format
-msgid "Could not contact the miner manager"
-msgstr "Nelze kontaktovat démona na dolování dat"
+msgid "Could not list miners, manager could not be created, %s"
+msgstr "Nelze vypsat démony na dolování dat, nemohl být vytvořen správce, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:217
+#: ../src/tracker-control/tracker-control-miners.c:259
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Nalezeno %d nainstalovaných démonů na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:237
+#: ../src/tracker-control/tracker-control-miners.c:279
 #, c-format
 msgid "Found %d miners running"
 msgstr "Nalezeno %d běžících démonů na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:271
+#: ../src/tracker-control/tracker-control-miners.c:308
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+"Nelze získat podrobnosti o pozastavení, nemohl být vytvořen správce, %s"
+
+#: ../src/tracker-control/tracker-control-miners.c:318
 msgid "No miners are running"
 msgstr "Neběží žádný démon na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:304
-#: ../src/tracker-control/tracker-control-status.c:550
+#: ../src/tracker-control/tracker-control-miners.c:352
+#: ../src/tracker-control/tracker-control-status.c:553
 msgid "Miners"
 msgstr "Démoni na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:311
+#: ../src/tracker-control/tracker-control-miners.c:359
 msgid "Application"
 msgstr "Aplikace"
 
-#: ../src/tracker-control/tracker-control-miners.c:313
+#: ../src/tracker-control/tracker-control-miners.c:361
 msgid "Reason"
 msgstr "Důvod"
 
-#: ../src/tracker-control/tracker-control-miners.c:322
+#: ../src/tracker-control/tracker-control-miners.c:370
 msgid "No miners are paused"
 msgstr "Není pozastavený žádný démon na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:346
+#: ../src/tracker-control/tracker-control-miners.c:394
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Nemůžete naráz uvést přepínač pro pozastavení i obnovení běhu démona na "
 "dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:352
+#: ../src/tracker-control/tracker-control-miners.c:400
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Pro příkaz pozastavení nebo obnovení běhu musíte uvést démona na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:358
+#: ../src/tracker-control/tracker-control-miners.c:406
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Musíte zadat příkaz pozastavení nebo pokračování pro démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:402
+#: ../src/tracker-control/tracker-control-miners.c:450
 msgid "Miner options"
 msgstr "Přepínače démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:403
+#: ../src/tracker-control/tracker-control-miners.c:451
 msgid "Show miner options"
 msgstr "Zobrazí přepínače démonů na získávání dat"
 
@@ -1587,7 +1621,6 @@ msgstr "Nelze získat udaje o stavu od démona na dolování dat: %s"
 #. Translators: %s is a time string
 #: ../src/tracker-control/tracker-control-status.c:197
 #, c-format
-#| msgid "remaining"
 msgid "%s remaining"
 msgstr "zbývá %s"
 
@@ -1597,7 +1630,7 @@ msgstr "neznámý zbývající čas"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-control/tracker-control-status.c:213
-#: ../src/tracker-control/tracker-control-status.c:534
+#: ../src/tracker-control/tracker-control-status.c:537
 msgid "PAUSED"
 msgstr "POZASTAVENO"
 
@@ -1609,16 +1642,22 @@ msgstr "Neběží nebo je vypnutý zásuvný modul"
 msgid "Common statuses include"
 msgstr "Běžné stavy zahrnují"
 
+#: ../src/tracker-control/tracker-control-status.c:526
+#, c-format
+#| msgid "Could not get status from miner: %s"
+msgid "Could not get status, manager could not be created, %s"
+msgstr "Nelze získat udaje o stavu, nemohl být vytvořen správce, %s"
+
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:544
+#: ../src/tracker-control/tracker-control-status.c:547
 msgid "Store"
 msgstr "Úložište"
 
-#: ../src/tracker-control/tracker-control-status.c:665
+#: ../src/tracker-control/tracker-control-status.c:668
 msgid "Status options"
 msgstr "Přepínače stavu"
 
-#: ../src/tracker-control/tracker-control-status.c:666
+#: ../src/tracker-control/tracker-control-status.c:669
 msgid "Show status options"
 msgstr "Zobrazí přepínače stavu"
 
@@ -2293,6 +2332,9 @@ msgstr "Selhala inicializace správce dat"
 #: ../utils/tracker-sql/tracker-sql.c:204
 msgid "Empty result set"
 msgstr "Prázdná sada výsledků"
+
+#~ msgid "Could not contact the miner manager"
+#~ msgstr "Nelze kontaktovat démona na dolování dat"
 
 #~ msgid "Unknown"
 #~ msgstr "Neznámý"
