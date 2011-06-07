@@ -52,10 +52,12 @@ typedef struct {
 	gchar *software;
 	gchar *x_resolution;
 	gchar *y_resolution;
-        gchar *gps_altitude;
-        gchar *gps_latitude;
-        gchar *gps_longitude;
 	gint resolution_unit;
+
+	/* ABI barrier (don't change things above this) */
+	gchar *gps_altitude;
+	gchar *gps_latitude;
+	gchar *gps_longitude;
 } TrackerExifData;
 
 TrackerExifData * tracker_exif_new   (const guchar *buffer,
