@@ -267,7 +267,7 @@ get_white_balance (ExifData *exif,
 		order = exif_data_get_byte_order (exif);
 		white_balance = exif_get_short (entry->data, order);
 
-                if (white_balance == 0)
+		if (white_balance == 0)
 			return g_strdup ("nmm:white-balance-auto");
 
 		/* Found in the field: sunny, fluorescent, incandescent, cloudy.
@@ -467,11 +467,11 @@ parse_exif (const unsigned char *buffer,
 		data->y_resolution = get_value (exif, EXIF_TAG_Y_RESOLUTION);
 
 	if(!data->gps_altitude)
-	        data->gps_altitude = get_gps_altitude (exif, EXIF_TAG_GPS_ALTITUDE, EXIF_TAG_GPS_ALTITUDE_REF);
+		data->gps_altitude = get_gps_altitude (exif, EXIF_TAG_GPS_ALTITUDE, EXIF_TAG_GPS_ALTITUDE_REF);
 	if(!data->gps_latitude)
-       	        data->gps_latitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LATITUDE, EXIF_TAG_GPS_LATITUDE_REF);
+		data->gps_latitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LATITUDE, EXIF_TAG_GPS_LATITUDE_REF);
 	if(!data->gps_longitude)
-	        data->gps_longitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LONGITUDE, EXIF_TAG_GPS_LONGITUDE_REF);
+		data->gps_longitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LONGITUDE, EXIF_TAG_GPS_LONGITUDE_REF);
 
 	exif_data_free (exif);
 #endif /* HAVE_LIBEXIF */
