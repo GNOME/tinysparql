@@ -29,9 +29,6 @@ org.bustany.TrackerBird.TrackerSparql = {
 			return false;
 		}
 
-		if (!tracker._lib) {
-		}
-
 		// GLib types
 		tracker.Cancellable = new ctypes.StructType ("GCancellable");
 		tracker.Error = new ctypes.StructType ("GError", [
