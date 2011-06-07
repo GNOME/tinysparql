@@ -362,13 +362,13 @@ iterate_simple (const gchar    *uri,
 		} else if (!data->copyright && g_ascii_strcasecmp (name, "Copyright") == 0) {
 			data->copyright = g_strdup (value);
 		} else if (!data->gps_altitude && g_ascii_strcasecmp (name, "GPSAltitude") == 0) {
-		        data->gps_altitude = div_str_dup (value);
+			data->gps_altitude = div_str_dup (value);
 		} else if (!data->gps_altitude_ref && g_ascii_strcasecmp (name, "GPSAltitudeRef") == 0) {
-		        data->gps_altitude_ref = g_strdup (value);
-	        } else if (!data->gps_latitude && g_ascii_strcasecmp (name, "GPSLatitude") == 0) {
-		        data->gps_latitude = gps_coordinate_dup (value);
-	        } else if (!data->gps_longitude && g_ascii_strcasecmp (name, "GPSLongitude") == 0) {
-		        data->gps_longitude = gps_coordinate_dup (value);
+			data->gps_altitude_ref = g_strdup (value);
+		} else if (!data->gps_latitude && g_ascii_strcasecmp (name, "GPSLatitude") == 0) {
+			data->gps_latitude = gps_coordinate_dup (value);
+		} else if (!data->gps_longitude && g_ascii_strcasecmp (name, "GPSLongitude") == 0) {
+			data->gps_longitude = gps_coordinate_dup (value);
 		}
 		/* PDF*/
 	} else if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
@@ -948,57 +948,58 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object (metadata, "slo:GeoLocation");
 
 		if (data->address || data->state || data->country || data->city) {
-	                gchar *addruri;
+			gchar *addruri;
 
-		        addruri = tracker_sparql_get_uuid_urn ();
+			addruri = tracker_sparql_get_uuid_urn ();
 
-		        tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-	                tracker_sparql_builder_object_iri (metadata, addruri);
+			tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
+			tracker_sparql_builder_object_iri (metadata, addruri);
 
-		        tracker_sparql_builder_insert_open (preupdate, NULL);
-		        tracker_sparql_builder_subject_iri (preupdate, addruri);
+			tracker_sparql_builder_insert_open (preupdate, NULL);
+			tracker_sparql_builder_subject_iri (preupdate, addruri);
 
-		        g_free (addruri);
+			g_free (addruri);
 
-		        tracker_sparql_builder_predicate (preupdate, "a");
-		        tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
 
 			if (data->address) {
-			        tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
-			        tracker_sparql_builder_object_unvalidated (preupdate, data->address);
+				tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
+				tracker_sparql_builder_object_unvalidated (preupdate, data->address);
 			}
 
 			if (data->state) {
-			        tracker_sparql_builder_predicate (preupdate, "nco:region");
+				tracker_sparql_builder_predicate (preupdate, "nco:region");
 				tracker_sparql_builder_object_unvalidated (preupdate, data->state);
 			}
 
 			if (data->city) {
-			        tracker_sparql_builder_predicate (preupdate, "nco:locality");
+				tracker_sparql_builder_predicate (preupdate, "nco:locality");
 				tracker_sparql_builder_object_unvalidated (preupdate, data->city);
 			}
 
 			if (data->country) {
-			        tracker_sparql_builder_predicate (preupdate, "nco:country");
+				tracker_sparql_builder_predicate (preupdate, "nco:country");
 				tracker_sparql_builder_object_unvalidated (preupdate, data->country);
 			}
 
 			tracker_sparql_builder_insert_close (preupdate);
 		}
 
+		/* FIXME We are not handling the altitude ref here */
+
 		if (data->gps_altitude) {
-		        /* FIXME We are not handling the altitude ref here */
-		        tracker_sparql_builder_predicate (metadata, "slo:altitude");
-		        tracker_sparql_builder_object_unvalidated (metadata, data->gps_altitude);
+			tracker_sparql_builder_predicate (metadata, "slo:altitude");
+			tracker_sparql_builder_object_unvalidated (metadata, data->gps_altitude);
 		}
 
 		if (data->gps_latitude) {
-		        tracker_sparql_builder_predicate (metadata, "slo:latitude");
+			tracker_sparql_builder_predicate (metadata, "slo:latitude");
 			tracker_sparql_builder_object_unvalidated (metadata, data->gps_latitude);
 		}
 
 		if (data->gps_longitude) {
-		        tracker_sparql_builder_predicate (metadata, "slo:longitude");
+			tracker_sparql_builder_predicate (metadata, "slo:longitude");
 			tracker_sparql_builder_object_unvalidated (metadata, data->gps_longitude);
 		}
 
