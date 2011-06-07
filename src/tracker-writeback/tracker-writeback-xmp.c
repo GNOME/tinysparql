@@ -398,6 +398,9 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		                         "nco:region (?addr) "
 		                         "nco:streetAddress (?addr) "
 		                         "nco:country (?addr) "
+		                         "slo:altitude (?loc) "
+		                         "slo:longitude (?loc) "
+		                         "slo:latitude (?loc) "
 		                         "WHERE { <%s> slo:location ?loc . "
 		                                 "?loc slo:postalAddress ?addr . }",
 		                         urn);
@@ -407,11 +410,17 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		if (!error) {
 			if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 				const gchar *city, *subl, *country, *state;
+				const gchar *altitude, *longitude, *latitude;
 
 				city = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 				state = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 				subl = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 				country = tracker_sparql_cursor_get_string (cursor, 3, NULL);
+
+				altitude = tracker_sparql_cursor_get_string (cursor, 4, NULL);
+				longitude = tracker_sparql_cursor_get_string (cursor, 5, NULL);
+				latitude = tracker_sparql_cursor_get_string (cursor, 6, NULL);
+
 
 				/* TODO: A lot of these location fields are pretty vague and ambigious.
 				 * We should go through them one by one and ensure that all of them are
@@ -449,6 +458,21 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 					xmp_set_property (xmp, NS_IPTC4XMP, "PrimaryLocationName", country, 0);
 					xmp_delete_property (xmp, NS_IPTC4XMP, "CountryName");
 					xmp_set_property (xmp, NS_IPTC4XMP, "CountryName", country, 0);
+				}
+
+				if (!tracker_is_blank_string (altitude)) {
+					xmp_delete_property (xmp, NS_EXIF, "GPSAltitude");
+					xmp_set_property (xmp, NS_EXIF, "GPSAltitude", altitude, 0);
+				}
+
+				if (!tracker_is_blank_string (longitude)) {
+					xmp_delete_property (xmp, NS_EXIF, "GPSLongitude");
+					xmp_set_property (xmp, NS_EXIF, "GPSLongitude", longitude, 0);
+				}
+
+				if (!tracker_is_blank_string (latitude)) {
+					xmp_delete_property (xmp, NS_EXIF, "GPSLatitude");
+					xmp_set_property (xmp, NS_EXIF, "GPSLatitude", latitude, 0);
 				}
 			}
 		}
