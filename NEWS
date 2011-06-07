@@ -1,3 +1,59 @@
+NEW in 0.11.0 - 2011-06-07
+==========================
+
+The changes are:
+
+  * Require: GSettings (not optional)
+  * Require: GObject Introspection 0.9.5 (not optional)
+  * Require: GTK+ 3.0 was 2.18.0 (for UI components only)
+  * Require: Poppler-GLib 0.16.0 was Poppler 0.12.2 (old API was no longer supported)
+  * Require: Evolution, EDS, Camel 2.32.0 was 2.91.90 (API changes)
+  * Require: rest 0.7 was 0.6 (for Flickr distro library updates)
+  * Require: GStreamer 0.10.31 was 0.10.12 (for GstDateTime)
+  * Removed: libtracker-client (was deprecated in 0.8)
+  * Removed: GConf (replaced by GSettings)
+  * Support: MeeGoTouch (for application extraction)
+  * libtracker-sparql: Remove deprecated drop_graph API
+  * tracker-extract: Completely relicensed all modules and the extractor to LGPL from GPL
+  * tracker-extract: Use two threads now for extraction, a controller and worker thread
+  * tracker-extract: Refactored the module management so modules can state mimes supported flexibly
+  * tracker-extract: Support extra string for WHERE patterns when calling modules
+  * tracker-extract: Much improvement to the logging
+  * tracker-extract: Added EPub extractor module
+  * tracker-control: Report remaining estimated time for each miner's progress
+
+Translations:
+
+  * Updated ca: Gil Forcada
+  * Updated cs: Marek Černocký
+  * Updated da: Joe Hansen
+  * Updated de: Mario Blättermann, Markus Schley
+  * Updated el: Georgios Stefanakis, Kostas Papadimas
+  * Updated eo: Kristjan SCHMIDT
+  * Updated es: Daniel Mustieles
+  * Updated fr: Claude Paroz
+  * Updated hu: Gabor Kelemen
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Gabriel F. Vilar
+  * Updated sl: Andrej Žnidaršič
+  * Updated sv: Daniel Nylander
+  * Updated zh_CN: Yinghua Wang
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  Existing configurations should have migration paths to new GSettings
+  based format.
+
+  Of all the requirement changes listed above, the only GSettings and
+  GObject Introspection are absolutely required to build Tracker, the
+  others are optional depending on components being built. These are
+  also only when building from git, not a distributed tarball (which
+  should have the m4 macros packaged).
+
+
 NEW in 0.10.0 - 2011-02-17
 ==========================
 
