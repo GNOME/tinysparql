@@ -163,7 +163,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	// Plugin loading functions
-	private bool load_plugins () throws GLib.Error {
+	private void load_plugins () throws GLib.Error {
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
 		Backend backend = Backend.AUTO;
 
@@ -183,8 +183,6 @@ class Tracker.Sparql.Backend : Connection {
 			debug ("Using backend = 'AUTO'");
 		}
 
-		Tracker.Sparql.Connection connection;
-
 		switch (backend) {
 		case backend.AUTO:
 			try {
@@ -194,23 +192,19 @@ class Tracker.Sparql.Backend : Connection {
 			}
 
 			bus = new Tracker.Bus.Connection ();
-
-			connection = bus;
 			break;
 
 		case backend.DIRECT:
-			connection = direct = new Tracker.Direct.Connection ();
+			direct = new Tracker.Direct.Connection ();
 			break;
 
 		case backend.BUS:
-			connection = bus = new Tracker.Bus.Connection ();
+			bus = new Tracker.Bus.Connection ();
 			break;
 
 		default:
 			assert_not_reached ();
 		}
-
-		return connection != null;
 	}
 
 	static weak Connection? singleton;
