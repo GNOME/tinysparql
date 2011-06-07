@@ -117,6 +117,43 @@ fix_white_balance (const gchar *wb)
 	}
 }
 
+static gchar *
+gps_coordinate_dup (const gchar *coordinates)
+{
+  static GRegex *reg = NULL;
+  GMatchInfo *info = NULL;
+
+  if (!reg) {
+    reg = g_regex_new ("([0-9]+),([0-9]+.[0-9]+)([A-Z])", 0, 0, NULL);
+  }
+
+  if (g_regex_match (reg, coordinates, 0, &info)) {
+    gchar *deg,*min,*ref;
+    gdouble r,d,m;
+
+    deg = g_match_info_fetch (info, 1);
+    min = g_match_info_fetch (info, 2);
+    ref = g_match_info_fetch (info, 3);
+
+    d = atof (deg);
+    m = atof (min);
+    
+    r = d + m/60;
+
+    if ( (ref[0] == 'S') || (ref[0] == 'W')) {
+      r = r * -1;
+    }
+
+    g_free (deg);
+    g_free (min);
+    g_free (ref);
+
+    return g_strdup_printf ("%f", r);
+  } else {
+    return NULL;
+  }
+}
+
 /* We have an array, now recursively iterate over it's children.  Set
  * 'append' to true so that all values of the array are added under
  * one entry.
@@ -249,7 +286,7 @@ fix_orientation (const gchar *orientation)
 	if (orientation && g_ascii_strcasecmp (orientation, "top - left") == 0) {
 		return "nfo:orientation-top";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "top - right") == 0) {
-			return  "nfo:orientation-top-mirror";
+		return  "nfo:orientation-top-mirror";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "bottom - right") == 0) {
 		return "nfo:orientation-bottom-mirror";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "bottom - left") == 0) {
@@ -324,6 +361,14 @@ iterate_simple (const gchar    *uri,
 			data->white_balance = g_strdup (fix_white_balance (value));
 		} else if (!data->copyright && g_ascii_strcasecmp (name, "Copyright") == 0) {
 			data->copyright = g_strdup (value);
+		} else if (!data->gps_altitude && g_ascii_strcasecmp (name, "GPSAltitude") == 0) {
+		        data->gps_altitude = div_str_dup (value);
+		} else if (!data->gps_altitude_ref && g_ascii_strcasecmp (name, "GPSAltitudeRef") == 0) {
+		        data->gps_altitude_ref = g_strdup (value);
+	        } else if (!data->gps_latitude && g_ascii_strcasecmp (name, "GPSLatitude") == 0) {
+		        data->gps_latitude = gps_coordinate_dup (value);
+	        } else if (!data->gps_longitude && g_ascii_strcasecmp (name, "GPSLongitude") == 0) {
+		        data->gps_longitude = gps_coordinate_dup (value);
 		}
 		/* PDF*/
 	} else if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
@@ -637,6 +682,10 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data->country);
 	g_free (data->state);
 	g_free (data->city);
+	g_free (data->gps_altitude);
+	g_free (data->gps_altitude_ref);
+	g_free (data->gps_latitude);
+	g_free (data->gps_longitude);
 
 	g_free (data);
 }
@@ -889,8 +938,8 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
-	if (data->address || data->country || data->city) {
-		gchar *addruri;
+	if (data->address || data->state || data->country || data->city ||
+	    data->gps_altitude || data->gps_latitude || data->gps_longitude) {
 
 		tracker_sparql_builder_predicate (metadata, "slo:location");
 
@@ -898,43 +947,62 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "slo:GeoLocation");
 
-		addruri = tracker_sparql_get_uuid_urn ();
+		if (data->address || data->state || data->country || data->city) {
+	                gchar *addruri;
 
-		tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-		tracker_sparql_builder_object_iri (metadata, addruri);
+		        addruri = tracker_sparql_get_uuid_urn ();
+
+		        tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
+	                tracker_sparql_builder_object_iri (metadata, addruri);
+
+		        tracker_sparql_builder_insert_open (preupdate, NULL);
+		        tracker_sparql_builder_subject_iri (preupdate, addruri);
+
+		        g_free (addruri);
+
+		        tracker_sparql_builder_predicate (preupdate, "a");
+		        tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
+
+			if (data->address) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
+			        tracker_sparql_builder_object_unvalidated (preupdate, data->address);
+			}
+
+			if (data->state) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:region");
+				tracker_sparql_builder_object_unvalidated (preupdate, data->state);
+			}
+
+			if (data->city) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:locality");
+				tracker_sparql_builder_object_unvalidated (preupdate, data->city);
+			}
+
+			if (data->country) {
+			        tracker_sparql_builder_predicate (preupdate, "nco:country");
+				tracker_sparql_builder_object_unvalidated (preupdate, data->country);
+			}
+
+			tracker_sparql_builder_insert_close (preupdate);
+		}
+
+		if (data->gps_altitude) {
+		        /* FIXME We are not handling the altitude ref here */
+		        tracker_sparql_builder_predicate (metadata, "slo:altitude");
+		        tracker_sparql_builder_object_unvalidated (metadata, data->gps_altitude);
+		}
+
+		if (data->gps_latitude) {
+		        tracker_sparql_builder_predicate (metadata, "slo:latitude");
+			tracker_sparql_builder_object_unvalidated (metadata, data->gps_latitude);
+		}
+
+		if (data->gps_longitude) {
+		        tracker_sparql_builder_predicate (metadata, "slo:longitude");
+			tracker_sparql_builder_object_unvalidated (metadata, data->gps_longitude);
+		}
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
-
-		tracker_sparql_builder_insert_open (preupdate, NULL);
-		tracker_sparql_builder_subject_iri (preupdate, addruri);
-
-		g_free (addruri);
-
-		tracker_sparql_builder_predicate (preupdate, "a");
-		tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
-
-		if (data->address) {
-			tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
-			tracker_sparql_builder_object_unvalidated (preupdate, data->address);
-		}
-
-		if (data->state) {
-			tracker_sparql_builder_predicate (preupdate, "nco:region");
-			tracker_sparql_builder_object_unvalidated (preupdate, data->state);
-		}
-
-		if (data->city) {
-			tracker_sparql_builder_predicate (preupdate, "nco:locality");
-			tracker_sparql_builder_object_unvalidated (preupdate, data->city);
-		}
-
-		if (data->country) {
-			tracker_sparql_builder_predicate (preupdate, "nco:country");
-			tracker_sparql_builder_object_unvalidated (preupdate, data->country);
-		}
-
-		tracker_sparql_builder_insert_close (preupdate);
-
 	}
 
 	if (where != NULL) {

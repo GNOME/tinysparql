@@ -52,6 +52,9 @@ typedef struct {
 	gchar *software;
 	gchar *x_resolution;
 	gchar *y_resolution;
+        gchar *gps_altitude;
+        gchar *gps_latitude;
+        gchar *gps_longitude;
 	gint resolution_unit;
 } TrackerExifData;
 

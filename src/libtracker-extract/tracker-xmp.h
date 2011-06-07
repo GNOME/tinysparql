@@ -73,6 +73,11 @@ typedef struct {
 	gchar *white_balance;
 	gchar *copyright;
 
+        gchar *gps_altitude;
+        gchar *gps_altitude_ref;
+        gchar *gps_latitude;
+        gchar *gps_longitude;
+
 	/* TODO NS_XAP*/
 	gchar *rating;
 
