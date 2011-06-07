@@ -3,9 +3,14 @@ org.bustany.TrackerBird.PersistentStore = {
 	// Init barrier
 	__initialized: true,
 
+	_schemaVersion: 1,
+
 	_db: null,
 	_rememberMessageStatement: null,
 	_fetchUrisStatement: null,
+	_insertMetaStatement: null,
+	_updateMetaStatement: null,
+	_selectMetaStatement: null,
 
 	_transactionPending: false,
 	_nInsertsPending: 0,
@@ -28,9 +33,22 @@ org.bustany.TrackerBird.PersistentStore = {
 		}
 
 		this._db.executeSimpleSQL("CREATE TABLE IF NOT EXISTS knownMessages (folderUri VARCHAR(255), msgUri VARCHAR(255) NOT NULL UNIQUE);");
-
+		this._db.executeSimpleSQL("CREATE TABLE IF NOT EXISTS meta (key VARCHAR(255) NOT NULL UNIQUE, value VARCHAR(255));");
 		this._rememberMessageStatement = this._db.createStatement("INSERT INTO knownMessages VALUES (:folderUri, :msgUri)");
 		this._fetchUrisStatement = this._db.createStatement("SELECT msgUri FROM knownMessages WHERE folderUri = :folderUri");
+		this._insertMetaStatement = this._db.createStatement("INSERT OR IGNORE INTO meta VALUES (:key, :value)");
+		this._updateMetaStatement = this._db.createStatement("INSERT OR REPLACE INTO meta VALUES (:key, :value)");
+		this._selectMetaStatement = this._db.createStatement("SELECT value FROM meta WHERE key = :key");
+
+		this.insertDefaultSettings();
+
+		var currentSchemaVersion = this.getSetting("version");
+		if (!currentSchemaVersion || (currentSchemaVersion < this._schemaVersion)) {
+			dump("Schema changed, reseting index\n");
+			this._db.executeSimpleSQL("DELETE FROM knownMessages;");
+			this.insertSetting("version", this._schemaVersion, true);
+		}
+
 
 		return true;
 	},
@@ -91,5 +109,48 @@ org.bustany.TrackerBird.PersistentStore = {
 
 		this._db.commitTransaction();
 		this._transactionPending = false;
+	},
+
+	insertDefaultSettings: function() {
+		this.startTransaction();
+
+		// We perform "SILENT" inserts, ie don't replace any existing value
+		var stmt = this._insertMetaStatement;
+
+		// Schema version
+		this.insertSetting("version", this._schemaVersion, false);
+
+		this.endTransaction();
+	},
+
+	insertSetting: function(key, value, replace) {
+		var stmt = (replace ? this._updateMetaStatement : this._insertMetaStatement);
+
+		stmt.params.key = key;
+		stmt.params.value = value;
+
+		try {
+			stmt.execute();
+		} catch (e) {
+			dump("Couldn't save setting " + key + ": " + e + "\n");
+		}
+	},
+
+	getSetting: function(key) {
+		var stmt = this._selectMetaStatement;
+		stmt.params.key = key;
+
+		try {
+			if (!stmt.step()) {
+				return null;
+			}
+
+			var value = stmt.row.value;
+			stmt.reset();
+			return value;
+		} catch (e) {
+			dump("Could not get setting " + key + ": " + e + "\n");
+			return null;
+		}
 	}
 }
