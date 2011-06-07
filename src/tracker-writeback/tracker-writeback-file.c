@@ -59,6 +59,27 @@ file_unlock_cb (gpointer user_data)
 	return FALSE;
 }
 
+static GFile *
+get_tmp_file (GFile *file)
+{
+	GFile *tmp_file, *parent;
+	gchar *tmp_name, *name;
+
+	/* Create a temporary, hidden file
+	 * within the same directory */
+	parent = g_file_get_parent (file);
+	name = g_file_get_basename (file);
+
+	tmp_name = g_strdup_printf ("._tracker_%s", name);
+	tmp_file = g_file_get_child (parent, tmp_name);
+
+	g_object_unref (parent);
+	g_free (tmp_name);
+	g_free (name);
+
+	return tmp_file;
+}
+
 static gboolean
 tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
                                         GPtrArray               *values,
@@ -66,7 +87,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 {
 	TrackerWritebackFileClass *writeback_file_class;
 	gboolean retval;
-	GFile *file;
+	GFile *file, *tmp_file;
 	GFileInfo *file_info;
 	const gchar *urls[2] = { NULL, NULL };
 	GStrv row;
@@ -98,9 +119,16 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	                               NULL, NULL);
 
 	if (!file_info) {
-		if (file) {
-			g_object_unref (file);
-		}
+		g_object_unref (file);
+		return FALSE;
+	}
+
+	/* Copy to a temporary file so we can perform an atomic write on move */
+	tmp_file = get_tmp_file (file);
+	if (!g_file_copy (file, tmp_file, 0,
+			  NULL, NULL, NULL, NULL)) {
+		g_object_unref (file);
+		g_object_unref (tmp_file);
 		return FALSE;
 	}
 
@@ -158,7 +186,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		 */
 
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-		                                                       file, values, connection);
+		                                                       tmp_file, values, connection);
 
 		/*
 		 * This timeout value was 3s before, which could have been in
@@ -178,6 +206,12 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		g_timeout_add_seconds (1, file_unlock_cb, g_object_ref (file));
 	}
 
+	/* Move back the modified file to the original location */
+	g_file_move (tmp_file, file,
+		     G_FILE_COPY_OVERWRITE,
+		     NULL, NULL, NULL, NULL);
+
+	g_object_unref (tmp_file);
 	g_object_unref (file);
 
 	return retval;
