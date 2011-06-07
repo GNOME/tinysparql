@@ -156,6 +156,7 @@ slo:location a rdf:Property ;
 	rdfs:comment "This can be subclassed to add semantics" ;
 	rdfs:domain nie:InformationElement ;
 	tracker:indexed true ;
+	nrl:maxCardinality 1 ;
 	rdfs:range slo:GeoLocation .
 
 # Comment for rethinking, this used to be subclass of bounding box..
