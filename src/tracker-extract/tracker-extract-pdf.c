@@ -508,70 +508,70 @@ tracker_extract_get_metadata (const gchar          *uri,
 		if (xd->address || xd->state || xd->country || xd->city ||
 		    xd->gps_altitude || xd->gps_latitude || xd-> gps_longitude) {
 
-		        tracker_sparql_builder_predicate (metadata, "slo:location");
+			tracker_sparql_builder_predicate (metadata, "slo:location");
 
 			tracker_sparql_builder_object_blank_open (metadata); /* GeoLocation */
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "slo:GeoLocation");
 			
 			if (xd->address || xd->state || xd->country || xd->city)  {
-			        gchar *addruri;
+				gchar *addruri;
 				addruri = tracker_sparql_get_uuid_urn ();
-				
+
 				tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
 				tracker_sparql_builder_object_iri (metadata, addruri);			
-				
+
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, addruri);
-				
+
 				g_free (addruri);
-				
+
 				tracker_sparql_builder_predicate (preupdate, "a");
 				tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
-				
+
 				if (xd->address) {
 				        tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
 				        tracker_sparql_builder_object_unvalidated (preupdate, xd->address);
 				}
-				
+
 				if (xd->state) {
 				        tracker_sparql_builder_predicate (preupdate, "nco:region");
 				        tracker_sparql_builder_object_unvalidated (preupdate, xd->state);
 				}
-				
+
 				if (xd->city) {
 				        tracker_sparql_builder_predicate (preupdate, "nco:locality");
 				        tracker_sparql_builder_object_unvalidated (preupdate, xd->city);
 				}
-				
+
 				if (xd->country) {
 				        tracker_sparql_builder_predicate (preupdate, "nco:country");
 				        tracker_sparql_builder_object_unvalidated (preupdate, xd->country);
 				}
-				
+
 				tracker_sparql_builder_insert_close (preupdate);
 			}
-			
+
 			if (xd->gps_altitude) {
-			        tracker_sparql_builder_predicate (metadata, "slo:altitude");
-			        tracker_sparql_builder_object_unvalidated (metadata, xd->gps_altitude);
+				tracker_sparql_builder_predicate (metadata, "slo:altitude");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->gps_altitude);
 			}
-			
+
 			if (xd->gps_latitude) {
-			        tracker_sparql_builder_predicate (metadata, "slo:latitude");
-			        tracker_sparql_builder_object_unvalidated (metadata, xd->gps_latitude);
+				tracker_sparql_builder_predicate (metadata, "slo:latitude");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->gps_latitude);
 			}
-			
+
 			if (xd->gps_longitude) {
-			        tracker_sparql_builder_predicate (metadata, "slo:longitude");
-			        tracker_sparql_builder_object_unvalidated (metadata, xd->gps_longitude);
+				tracker_sparql_builder_predicate (metadata, "slo:longitude");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->gps_longitude);
 			}
-			
+
 			tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
 		}
 		tracker_xmp_free (xd);
 	} else {
-	        /* So if we are here we have NO XMP data and we just
+		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.
 		 */
 		write_pdf_data (pd, metadata, keywords);
