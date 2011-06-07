@@ -72,7 +72,7 @@ org.bustany.TrackerBird.TrackerStore = {
 	},
 
 	baseQuery: function(uri, hdr) {
-		var query = "<" + uri + "> a nmo:Email, nmo:MailboxDataObject";
+		var query = "<" + uri + "> a nmo:Email, nmo:MailboxDataObject"
 		          + "; nie:url \"" + uri + "\" ";
 
 		if (hdr.mime2DecodedSubject != "") {
