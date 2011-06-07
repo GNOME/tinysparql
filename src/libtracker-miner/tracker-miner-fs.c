@@ -1241,11 +1241,13 @@ item_query_exists_cb (GObject      *object,
 static gboolean
 item_query_exists (TrackerMinerFS  *miner,
                    GFile           *file,
+                   gboolean         use_graph,
                    gchar          **iri,
                    gchar          **mime)
 {
 	gboolean   result;
 	gchar     *sparql, *uri;
+	GString *str;
 	ItemQueryExistsData data = { 0 };
 
 	data.get_mime = (mime != NULL);
@@ -1253,10 +1255,20 @@ item_query_exists (TrackerMinerFS  *miner,
 	uri = g_file_get_uri (file);
 
 	if (data.get_mime) {
-		sparql = g_strdup_printf ("SELECT ?s nie:mimeType(?s) WHERE { ?s nie:url \"%s\" }", uri);
+		str = g_string_new ("SELECT ?s nie:mimeType(?s) WHERE { ");
 	} else {
-		sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url \"%s\" }", uri);
+		str = g_string_new ("SELECT ?s WHERE { ");
 	}
+
+	if (use_graph) {
+		g_string_append_printf (str, "GRAPH <" TRACKER_MINER_FS_GRAPH_URN "> { ?s nie:url \"%s\" } ", uri);
+	} else {
+		g_string_append_printf (str, "?s nie:url \"%s\"", uri);
+	}
+
+	g_string_append_c (str, '}');
+
+	sparql = g_string_free (str, FALSE);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.uri = uri;
@@ -1425,7 +1437,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 		if (file_is_crawl_directory (fs, file)) {
 			gchar *query_iri;
 
-			if (item_query_exists (fs, file, &query_iri, NULL)) {
+			if (item_query_exists (fs, file, FALSE, &query_iri, NULL)) {
 				g_hash_table_insert (data.values,
 				                     g_object_ref (file), query_iri);
 				cache_size++;
@@ -1520,7 +1532,7 @@ iri_cache_lookup (TrackerMinerFS *fs,
 		return NULL;
 
 	/* Independent direct IRI query */
-	if (item_query_exists (fs, file, &query_iri, NULL)) {
+	if (item_query_exists (fs, file, FALSE, &query_iri, NULL)) {
 		/* Replace! as we may already have an item in the cache with
 		 * NULL value! */
 		g_hash_table_replace (fs->priv->iri_cache,
@@ -1801,6 +1813,7 @@ item_add_or_update (TrackerMinerFS *fs,
 
 			if (!item_query_exists (fs,
 			                        parent,
+						FALSE,
 			                        &fs->priv->current_iri_cache_parent_urn,
 			                        NULL)) {
 				fs->priv->current_iri_cache_parent_urn = NULL;
@@ -1860,7 +1873,7 @@ item_remove (TrackerMinerFS *fs,
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
 
-	if (!item_query_exists (fs, file, NULL, &mime)) {
+	if (!item_query_exists (fs, file, FALSE, NULL, &mime)) {
 		g_debug ("  File does not exist anyway (uri '%s')", uri);
 		g_free (uri);
 		g_free (mime);
@@ -2130,7 +2143,7 @@ item_move (TrackerMinerFS *fs,
 	                               NULL, NULL);
 
 	/* Get 'source' ID */
-	source_exists = item_query_exists (fs, source_file, &source_iri, NULL);
+	source_exists = item_query_exists (fs, source_file, FALSE, &source_iri, NULL);
 
 	if (!file_info) {
 		gboolean retval;
@@ -2211,7 +2224,7 @@ item_move (TrackerMinerFS *fs,
 	new_parent = g_file_get_parent (file);
 
 	if (new_parent &&
-	    item_query_exists (fs, new_parent, &new_parent_iri, NULL)) {
+	    item_query_exists (fs, new_parent, FALSE, &new_parent_iri, NULL)) {
 		g_string_append_printf (sparql,
 		                        "INSERT INTO <%s> {"
 		                        "  <%s> nfo:fileName \"%s\" ; "
@@ -2474,20 +2487,28 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		/* Note:
 		 * We won't be considering an IgnoreNextUpdate request if
-		 * the event being processed is a CREATED event. This is a fast
-		 * and dirty solution for the situation where tracker-writeback
-		 * sends an IgnoreNextUpdate event and miner-fs had never indexed
-		 * the file before.
+		 * the event being processed is a CREATED event and the
+		 * file was still unknown to tracker.
 		 */
 		if (check_ignore_next_update (fs, queue_file)) {
 			gchar *uri;
 
-			/* Just remove the IgnoreNextUpdate request */
 			uri = g_file_get_uri (queue_file);
-			g_debug ("Skipping the IgnoreNextUpdate request on CREATED event for '%s'",
-			         uri);
-			g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
-			g_free (uri);
+
+			if (item_query_exists (fs, queue_file, TRUE, NULL, NULL)) {
+				g_debug ("CREATED event ignored on file '%s' as it already existed, "
+				         " processing as IgnoreNextUpdate...",
+				         uri);
+				g_free (uri);
+
+				return QUEUE_IGNORE_NEXT_UPDATE;
+			} else {
+				/* Just remove the IgnoreNextUpdate request */
+				g_debug ("Skipping the IgnoreNextUpdate request on CREATED event for '%s', file is actually new",
+				         uri);
+				g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
+				g_free (uri);
+			}
 		}
 
 		/* If the same item OR its first parent is currently being processed,
@@ -2804,7 +2825,7 @@ item_queue_handlers_cb (gpointer user_data)
 
 			/* Avoid adding items that already exist, when processing
 			 * a CREATED task (as those generated when crawling) */
-			if (!item_query_exists (fs, file, NULL, NULL)) {
+			if (!item_query_exists (fs, file, FALSE, NULL, NULL)) {
 				keep_processing = item_add_or_update (fs, file);
 				break;
 			}
@@ -3574,7 +3595,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		uri = g_file_get_uri (file);
 		other_uri = g_file_get_uri (other_file);
 
-		source_stored = item_query_exists (fs, file, NULL, NULL);
+		source_stored = item_query_exists (fs, file, FALSE, NULL, NULL);
 		should_process_other = should_check_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
@@ -4694,7 +4715,7 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 
 	/* We don't really need to check the return value here, just
 	 * looking at the output iri is enough. */
-	item_query_exists (fs, file, &iri, NULL);
+	item_query_exists (fs, file, FALSE, &iri, NULL);
 
 	return iri;
 }
