@@ -120,38 +120,38 @@ fix_white_balance (const gchar *wb)
 static gchar *
 gps_coordinate_dup (const gchar *coordinates)
 {
-  static GRegex *reg = NULL;
-  GMatchInfo *info = NULL;
+	static GRegex *reg = NULL;
+	GMatchInfo *info = NULL;
 
-  if (!reg) {
-    reg = g_regex_new ("([0-9]+),([0-9]+.[0-9]+)([A-Z])", 0, 0, NULL);
-  }
+	if (!reg) {
+		reg = g_regex_new ("([0-9]+),([0-9]+.[0-9]+)([A-Z])", 0, 0, NULL);
+	}
 
-  if (g_regex_match (reg, coordinates, 0, &info)) {
-    gchar *deg,*min,*ref;
-    gdouble r,d,m;
+	if (g_regex_match (reg, coordinates, 0, &info)) {
+		gchar *deg,*min,*ref;
+		gdouble r,d,m;
 
-    deg = g_match_info_fetch (info, 1);
-    min = g_match_info_fetch (info, 2);
-    ref = g_match_info_fetch (info, 3);
+		deg = g_match_info_fetch (info, 1);
+		min = g_match_info_fetch (info, 2);
+		ref = g_match_info_fetch (info, 3);
 
-    d = atof (deg);
-    m = atof (min);
-    
-    r = d + m/60;
+		d = atof (deg);
+		m = atof (min);
 
-    if ( (ref[0] == 'S') || (ref[0] == 'W')) {
-      r = r * -1;
-    }
+		r = d + m/60;
 
-    g_free (deg);
-    g_free (min);
-    g_free (ref);
+		if ( (ref[0] == 'S') || (ref[0] == 'W')) {
+			r = r * -1;
+		}
 
-    return g_strdup_printf ("%f", r);
-  } else {
-    return NULL;
-  }
+		g_free (deg);
+		g_free (min);
+		g_free (ref);
+
+		return g_strdup_printf ("%f", r);
+	} else {
+		return NULL;
+	}
 }
 
 /* We have an array, now recursively iterate over it's children.  Set
