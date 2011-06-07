@@ -17,7 +17,7 @@ org.bustany.TrackerBird.TrackerStore = {
 		return true;
 	},
 
-	storeMessage: function(folder, header) {
+	storeMessage: function(folder, header, contents) {
 		var uri = folder.getUriForMsg(header);
 		var fromEmailAddress;
 		var toEmailAddresses = [];
@@ -45,6 +45,7 @@ org.bustany.TrackerBird.TrackerStore = {
 		       + this.baseQuery(uri, header)
 		       + this.contactQuery("nmo:from", fromEmailAddress)
 		       + this.contactsQuery("nmo:to", toEmailAddresses)
+		       + this.contentsQuery(contents)
 			   + "}}";
 
 		if ((header.flags & Components.interfaces.nsMsgMessageFlags.Offline)
@@ -115,6 +116,16 @@ org.bustany.TrackerBird.TrackerStore = {
 		}
 
 		return query;
+	},
+
+	contentsQuery: function(contents) {
+		if (contents == null) {
+			return "";
+		}
+
+		return "; nie:plainTextContent \""
+		     + this.escapeString(contents)
+		     + "\" ";
 	},
 
 	escapeString: function(str) {

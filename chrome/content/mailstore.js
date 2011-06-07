@@ -127,11 +127,46 @@ org.bustany.TrackerBird.MailStore = {
 	},
 
 	indexMessage: function(item) {
-		if (this._trackerStore.storeMessage(item.folder, item.msg)) {
+		var msgContents = this.getMessageContents(item.folder, item.msg);
+		if (this._trackerStore.storeMessage(item.folder, item.msg, msgContents)) {
 			this._persistentStore.rememberMessage(item.folder, item.msg);
 		}
 
 		this._ui.showMessage(this._queue.size() + " items remaining");
+	},
+
+	getMessageContents: function(folder, header) {
+		var contents = "";
+
+		var messenger = Components.classes["@mozilla.org/messenger;1"].
+		                createInstance(Components.interfaces.nsIMessenger);
+		var uri = folder.getUriForMsg(header);
+		var msgService = messenger.messageServiceFromURI(uri);
+		var msgStream = Components.classes["@mozilla.org/network/sync-stream-listener;1"].
+		                createInstance();
+		var consumer = msgStream.QueryInterface(Components.interfaces.nsIInputStream);
+		var scriptInput = Components.classes["@mozilla.org/scriptableinputstream;1"].
+		                  createInstance();
+		var scriptInputStream = scriptInput.
+		                        QueryInterface(Components.interfaces.nsIScriptableInputStream);
+		scriptInputStream.init(msgStream);
+
+		try {
+			msgService.streamMessage(uri, msgStream, null, null, true, null);
+		} catch (e) {
+			dump("Could not get contents of message " + uri + "\n");
+			return null;
+		}
+
+		scriptInputStream.available();
+		while (scriptInputStream.available()) {
+			contents += scriptInputStream.read(1024);
+		}
+
+		// Basic html removing
+		contents = contents.replace(/<[^>]+?>/g, "");
+
+		return contents;
 	},
 
 	shutdown: function() {
