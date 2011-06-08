@@ -81,7 +81,7 @@ org.bustany.TrackerBird.TrackerStore = {
 				   + "\" ";
 		}
 
-		query += "; nmo:sentDate \""
+		query += "; nmo:receivedDate \""
 		       + new Date(hdr.dateInSeconds).toISOString()
 			   + "\" ";
 
