@@ -18,15 +18,14 @@ org.bustany.TrackerBird.TrackerSparql = {
 		try {
 			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
 		} catch (e) {
-		}
+			tracker._trackerSparqlPath = "libtracker-sparql-0.11.so";
 
-		tracker._trackerSparqlPath = "libtracker-sparql-0.11.so";
-
-		try {
-			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
-		} catch (e) {
-			dump ("Could not load libtracker-sparql 0.10 or 0.11: " + e + "\n");
-			return false;
+			try {
+				tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+			} catch (e) {
+				dump ("Could not load libtracker-sparql 0.10 or 0.11: " + e + "\n");
+				return false;
+			}
 		}
 
 		// GLib types
