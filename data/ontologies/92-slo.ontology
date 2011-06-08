@@ -10,7 +10,7 @@
 
 slo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "slo" ;
-	nao:lastModified "2011-03-28T19:32:00Z" .
+	nao:lastModified "2011-06-08T12:09:00Z" .
 	
 slo:LandmarkCategory a rdfs:Class ;
 	rdfs:label "Landmark category";
