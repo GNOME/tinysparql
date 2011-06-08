@@ -152,7 +152,7 @@ public class Tracker.Query {
 		// BOOKMARKS
 		"WHERE {
 		  ?urn a nfo:Bookmark ;
-		       nie:url ?tooltip .
+               nfo:bookmarks ?bookmark .
 		  %s
 		}"
 	};
