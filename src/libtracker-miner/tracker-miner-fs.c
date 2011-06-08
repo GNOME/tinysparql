@@ -1720,8 +1720,13 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 		if (!attribute_update_only) {
 			gchar *full_sparql;
 
-			/* update, delete all statements inserted by miner
-			 * except for rdf:type statements as they could cause implicit deletion of user data */
+			/* Update, delete all statements inserted by miner except:
+			 *  - rdf:type statements as they could cause implicit deletion of user data
+			 *  - nie:contentCreated so it persists across updates
+			 *
+			 * Additionally, delete also nie:url as it might have been set by 3rd parties,
+			 * and it's used to know whether a file is known to tracker or not.
+			 */
 			full_sparql = g_strdup_printf ("DELETE {"
 			                               "  GRAPH <%s> {"
 			                               "    <%s> ?p ?o"
@@ -1733,11 +1738,15 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
 			                               "  } "
 			                               "} "
+						       "DELETE {"
+						       "  <%s> nie:url ?o"
+						       "} WHERE {"
+						       "  <%s> nie:url ?o"
+						       "}"
 			                               "%s",
-			                               TRACKER_MINER_FS_GRAPH_URN,
-			                               ctxt->urn,
-			                               TRACKER_MINER_FS_GRAPH_URN,
-			                               ctxt->urn,
+			                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
+			                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
+						       ctxt->urn, ctxt->urn,
 			                               tracker_sparql_builder_get_result (ctxt->builder));
 
 			/* Note that set_sparql_string() takes ownership of the passed string */
