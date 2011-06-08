@@ -15,13 +15,18 @@ org.bustany.TrackerFox.TrackerSparql = {
 
 		Components.utils.import ("resource://gre/modules/ctypes.jsm");
 
-		tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+		try {
+			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+		} catch (e) {
+			tracker._trackerSparqlPath = "libtracker-sparql-0.11.so";
 
-		if (!tracker._lib) {
-			dump ("Could not load " + tracker._trackerSparqlPath +" !\n");
-			return false;
+			try {
+				tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+			} catch (e) {
+				dump("Could not load libtracker-sparql 0.10 or 0.11\n");
+				return false;
+			}
 		}
-
 
 		// GLib types
 		tracker.Cancellable = new ctypes.StructType ("GCancellable");
