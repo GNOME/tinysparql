@@ -94,43 +94,45 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			cancellable.set_error_if_cancelled ();
 
-			for (i = op.offset; i < op.offset + 100; i++) {
-				ResultNode *result;
-				TreeIter iter;
-				TreePath path;
-				bool b = false;
-				int j;
+			if (cursor != null) {
+				for (i = op.offset; i < op.offset + 100; i++) {
+					ResultNode *result;
+					TreeIter iter;
+					TreePath path;
+					bool b = false;
+					int j;
 
-				try {
-					b = yield cursor.next_async (cancellable);
-				} catch (GLib.Error ge) {
-					warning ("Could not fetch row: %s\n", ge.message);
-				}
-
-				if (!b) {
-					break;
-				}
-
-				result = &op.node.results[i];
-
-				for (j = 0; j < n_columns; j++) {
-					if (j == n_columns - 1) {
-						// FIXME: Set markup for tooltip column in a nicer way
-						result.values[j] = Markup.escape_text (cursor.get_string (j));
-					} else {
-						result.values[j] = cursor.get_string (j);
+					try {
+						b = yield cursor.next_async (cancellable);
+					} catch (GLib.Error ge) {
+						warning ("Could not fetch row: %s\n", ge.message);
 					}
+
+					if (!b) {
+						break;
+					}
+
+					result = &op.node.results[i];
+
+					for (j = 0; j < n_columns; j++) {
+						if (j == n_columns - 1) {
+							// FIXME: Set markup for tooltip column in a nicer way
+							result.values[j] = Markup.escape_text (cursor.get_string (j));
+						} else {
+							result.values[j] = cursor.get_string (j);
+						}
+					}
+
+					// Emit row-changed
+					iter = TreeIter ();
+					iter.stamp = this.timestamp;
+					iter.user_data = op.node;
+					iter.user_data2 = result;
+					iter.user_data3 = i.to_pointer ();
+
+					path = this.get_path (iter);
+					row_changed (path, iter);
 				}
-
-				// Emit row-changed
-				iter = TreeIter ();
-				iter.stamp = this.timestamp;
-				iter.user_data = op.node;
-				iter.user_data2 = result;
-				iter.user_data3 = i.to_pointer ();
-
-				path = this.get_path (iter);
-				row_changed (path, iter);
 			}
 
 			running_operations.remove (op);
