@@ -131,6 +131,9 @@ public class Tracker.Stats : Dialog {
 				case "nmo:Email":
 					key_used = ngettext ("Email", "Emails", int.parse (val));
 					break;
+				case "nfo:Bookmark":
+					key_used = ngettext ("Bookmark", "Bookmarks", int.parse (val));
+					break;
 				
 				default:
 					continue;
