@@ -20,7 +20,7 @@ org.bustany.TrackerBird.TrackerSparql = {
 		} catch (e) {
 		}
 
-		_trackerSparqlPath = "libtracker-sparql-0.11.so";
+		tracker._trackerSparqlPath = "libtracker-sparql-0.11.so";
 
 		try {
 			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
