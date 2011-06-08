@@ -272,13 +272,17 @@ org.bustany.TrackerFox.Bookmarks = {
 
 			var iri = "<urn:trackerfox:bookmark:" + bookmark.itemId + ">";
 
-			var query = "INSERT { " + iri + " a nfo:Bookmark, nie:DataObject; " +
+			var query = "INSERT { _:rdo a nfo:RemoteDataObject; " +
+			            "nie:url \"" + bookmark.uri + "\" }" +
+			            "WHERE {FILTER(!EXISTS {?r nie:url \"" + bookmark.uri + "\"})}" +
+			            "\n" +
+			            "INSERT { " + iri + " a nfo:Bookmark, nie:DataObject; " +
 			            "nie:dataSource <" + this._dataSourceUrn + ">; " +
 			            "nie:usageCounter " + bookmark.accessCount + "; " +
 			            "nie:contentCreated \"" + this.PRTimeToDate (bookmark.dateAdded).toISOString () + "\"; " +
 			            "nao:identifier \"" + bookmark.itemId + "\"; " +
 			            "nie:contentLastModified \"" + this.PRTimeToDate (bookmark.lastModified).toISOString () + "\"; " +
-			            "nie:url \"" + bookmark.uri + "\"";
+			            "nfo:bookmarks ?rdo";
 			if (bookmark.time != 0) {
 				query += "; nie:contentAccessed \"" + this.PRTimeToDate (bookmark.time).toISOString () + "\"";
 			}
@@ -287,7 +291,7 @@ org.bustany.TrackerFox.Bookmarks = {
 				query += "; nie:title \"" + tracker.escape_string (bookmark.title).readString () + "\"";
 			}
 
-			query += "}\n\n";
+			query += "} WHERE {?rdo nie:url \"" + bookmark.uri + "\"}\n\n";
 
 			globalQuery += query;
 		}
