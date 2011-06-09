@@ -1683,9 +1683,16 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 
 		} else {
 			fs->priv->total_files_notified_error++;
-			g_message ("Could not process '%s': %s",
-			            uri,
-			            error->message ? error->message : "No error given");
+			g_message ("Could not process '%s': %s", uri, error->message);
+
+			if (error->code == G_IO_ERROR_CANCELLED) {
+				/* Cancelled is cancelled, just move along in this case */
+				tracker_processing_pool_remove_task (fs->private->processing_pool, task);
+				tracker_processing_task_free (task);
+
+				item_queue_handlers_set_up (fs);
+				return;
+			}
 		}
 	}
 
