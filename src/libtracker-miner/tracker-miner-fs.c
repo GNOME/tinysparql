@@ -1687,7 +1687,7 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 
 			if (error->code == G_IO_ERROR_CANCELLED) {
 				/* Cancelled is cancelled, just move along in this case */
-				tracker_processing_pool_remove_task (fs->private->processing_pool, task);
+				tracker_processing_pool_remove_task (fs->priv->processing_pool, task);
 				tracker_processing_task_free (task);
 
 				item_queue_handlers_set_up (fs);
