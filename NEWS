@@ -1,3 +1,28 @@
+NEW in 0.10.17 - 2011-06-09
+===========================
+
+The changes are:
+
+  * Fixes: NB#258488, Don't (re)instantiate tracker-extract after recent pre-unmount signals causing potential unmount failures
+  * Fixes: NB#262992, Race condition when cancelling extraction leads to double free
+  * Fixes: NB#262953, real media audio files are listed in video application
+  * libtracker-bus: Use lazy initialization for D-Bus proxy objects
+  * libtracker-sparql: Use GError instead of critical warnings
+  * libtracker-miner: Avoid possible race condition when cancelling extraction
+  * tracker-miner-fs: Do not insert minimal sparql on cancellation
+  * tracker-extract: REAL media could be audio only (don't assume it's video)
+  * tracker-needle: Add support for bookmarks in the results and stats dialog (Adrien Bustany's FireFox4 addon was used to test this)
+
+Translations:
+
+  * Updated es: Daniel Mustieles
+  * Updated ja: Takeshi AIHANA
+
+Notes:
+
+  None
+
+
 NEW in 0.10.16 - 2011-06-03
 ===========================
 
