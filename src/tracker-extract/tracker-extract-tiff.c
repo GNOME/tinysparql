@@ -546,7 +546,7 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (md.gps_direction) {
-		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_predicate (metadata, "nfo:heading");
 		tracker_sparql_builder_object_unvalidated (metadata, md.gps_direction);
 	}
 

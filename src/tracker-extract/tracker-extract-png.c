@@ -488,7 +488,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	if (xd->gps_direction) {
-		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_predicate (metadata, "nfo:heading");
 		tracker_sparql_builder_object_unvalidated (metadata, xd->gps_direction);
 	}
 
