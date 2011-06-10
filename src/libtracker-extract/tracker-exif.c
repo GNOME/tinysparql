@@ -280,8 +280,8 @@ get_white_balance (ExifData *exif,
 
 static gchar *
 get_gps_coordinate (ExifData *exif,
-		    ExifTag   tag,
-		    ExifTag   reftag)
+                    ExifTag   tag,
+                    ExifTag   reftag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 	ExifEntry *refentry = exif_data_get_entry (exif, reftag);
@@ -299,12 +299,13 @@ get_gps_coordinate (ExifData *exif,
 		ref = exif_get_short (refentry->data, order);
 		
 		f = (double)c1.numerator/c1.denominator+
-		  (double)c2.numerator/(c2.denominator*60)+
-		  (double)c3.numerator/(c3.denominator*60*60);
+		    (double)c2.numerator/(c2.denominator*60)+
+		    (double)c3.numerator/(c3.denominator*60*60);
 
 		if (ref == 'S' || ref == 'W') {
-		      f = -1 * f;
+			f = -1 * f;
 		}
+
 		return g_strdup_printf ("%f", f);
 	}
 
@@ -313,8 +314,8 @@ get_gps_coordinate (ExifData *exif,
 
 static gchar *
 get_gps_altitude (ExifData *exif,
-		  ExifTag   tag,
-		  ExifTag   reftag)
+                  ExifTag   tag,
+                  ExifTag   reftag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 	ExifEntry *refentry = exif_data_get_entry (exif, reftag);
@@ -323,7 +324,6 @@ get_gps_altitude (ExifData *exif,
 		ExifByteOrder order;
 		ExifRational c;
 		gfloat f;
-		gboolean ref;
 
 		order = exif_data_get_byte_order (exif);
 		c = exif_get_rational (entry->data, order);
@@ -332,10 +332,10 @@ get_gps_altitude (ExifData *exif,
 		/* Strictly speaking it is invalid not to have this
 		   but.. let's try to cope here */
 		if (refentry) {
-		        ref = exif_get_short (refentry->data, order);
-		
+			ExifShort ref;
+			ref = exif_get_short (refentry->data, order);
 			if (ref == 1) {
-			        f = -1 * f;
+				f = -1 * f;
 			}
 		}
 		return g_strdup_printf ("%f", f);
