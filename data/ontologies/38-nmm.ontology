@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2011-06-10T01:12:08Z" .
+	nao:lastModified "2011-06-10T16:59:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -431,13 +431,6 @@ nmm:isColorCorrected a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:boolean .
-
-nmm:direction a rdf:Property ;
-	rdfs:comment "The direction the image is taken (angle wrt map/true north) in degrees (0-359.9)" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmm:Photo ;
-	tracker:writeback true ;
-	rdfs:range xsd:double .
 
 # Radio (IE part)
 nmm:RadioStation a rdfs:Class ;

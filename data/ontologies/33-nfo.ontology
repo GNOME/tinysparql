@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-03-24T10:11:00Z" .
+	nao:lastModified "2011-06-10T17:00:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -345,6 +345,7 @@ nfo:heading a rdf:Property ;
 	rdfs:label "Heading" ;
 	rdfs:comment "Specifies the direction of travelling while capturing image/video. The range of values from 0.00 to 359.99 (where 0 is due North, 90 is East, 180 South and 270 is West)";
 	nrl:maxCardinality 1;
+	tracker:writeback true ;
 	rdfs:domain nfo:Visual ;
 	rdfs:range xsd:double .
 

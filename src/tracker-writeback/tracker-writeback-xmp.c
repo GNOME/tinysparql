@@ -387,7 +387,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		}
 #endif /* SET_TYPICAL_CAMERA_FIELDS */
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "direction") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "heading") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "GPSImgDirection");
 			xmp_set_property (xmp, NS_EXIF, "GPSImgDirection", row[3], 0);
 		}
