@@ -88,6 +88,7 @@ typedef struct {
 	gchar *gps_altitude_ref;
 	gchar *gps_latitude;
 	gchar *gps_longitude;
+	gchar *gps_direction;
 
 } TrackerXmpData;
 

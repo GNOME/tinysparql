@@ -56,6 +56,7 @@ typedef struct {
 	const gchar *state;
 	const gchar *address;
 	const gchar *country;
+	const gchar *gps_direction;
 } MergeData;
 
 typedef struct {
@@ -484,6 +485,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		}
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
+	}
+
+	if (xd->gps_direction) {
+		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_object_unvalidated (metadata, xd->gps_direction);
 	}
 
 	if (ed->x_resolution) {

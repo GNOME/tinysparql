@@ -78,6 +78,7 @@ typedef struct {
 	const gchar *gps_altitude;
 	const gchar *gps_latitude;
 	const gchar *gps_longitude;
+	const gchar *gps_direction;
 } MergeData;
 
 static void extract_jpeg (const gchar          *filename,
@@ -260,6 +261,7 @@ extract_jpeg (const gchar          *uri,
 	md.gps_altitude = tracker_coalesce_strip (2, xd->gps_altitude, ed->gps_altitude);
 	md.gps_latitude = tracker_coalesce_strip (2, xd->gps_latitude, ed->gps_latitude);
 	md.gps_longitude = tracker_coalesce_strip (2, xd->gps_longitude, ed->gps_longitude);
+	md.gps_direction = tracker_coalesce_strip (2, xd->gps_direction, ed->gps_direction);
 	md.creator = tracker_coalesce_strip (3, xd->creator, id->byline, id->credit);
 	md.comment = tracker_coalesce_strip (2, comment, ed->user_comment);
 	md.make = tracker_coalesce_strip (2, xd->make, ed->make);
@@ -625,6 +627,11 @@ extract_jpeg (const gchar          *uri,
 		}
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
+	}
+
+	if (md.gps_direction) {
+		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_object_unvalidated (metadata, md.gps_direction);
 	}
 
 	if (cinfo.density_unit != 0 || ed->x_resolution) {

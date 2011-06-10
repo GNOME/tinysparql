@@ -473,6 +473,9 @@ parse_exif (const unsigned char *buffer,
 	if(!data->gps_longitude)
 		data->gps_longitude = get_gps_coordinate (exif, EXIF_TAG_GPS_LONGITUDE, EXIF_TAG_GPS_LONGITUDE_REF);
 
+	if(!data->gps_direction)
+		data->gps_direction = get_value (exif, EXIF_TAG_GPS_IMG_DIRECTION);	
+
 	exif_data_free (exif);
 #endif /* HAVE_LIBEXIF */
 
@@ -590,6 +593,7 @@ tracker_exif_free (TrackerExifData *data)
 	g_free (data->gps_altitude);
 	g_free (data->gps_latitude);
 	g_free (data->gps_longitude);
+	g_free (data->gps_direction);
 
 	g_free (data);
 }
