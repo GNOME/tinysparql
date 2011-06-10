@@ -1031,7 +1031,8 @@ id3v2_strlen (const gchar  encoding,
 static gchar *
 id3v24_text_to_utf8 (const gchar  encoding,
                      const gchar *text,
-                     gssize       len)
+                     gssize       len,
+                     id3tag      *info)
 {
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
@@ -1047,7 +1048,7 @@ id3v24_text_to_utf8 (const gchar  encoding,
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "Windows-1252",
+		                            info->encoding ? info->encoding : "Windows-1252",
 		                            NULL, NULL, NULL);
 	case 0x01 :
 		return convert_to_encoding (text,
@@ -1072,7 +1073,7 @@ id3v24_text_to_utf8 (const gchar  encoding,
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "Windows-1252",
+		                            info->encoding ? info->encoding : "Windows-1252",
 		                            NULL, NULL, NULL);
 	}
 }
@@ -1080,7 +1081,8 @@ id3v24_text_to_utf8 (const gchar  encoding,
 static gchar *
 id3v2_text_to_utf8 (const gchar  encoding,
                     const gchar *text,
-                    gssize       len)
+                    gssize       len,
+                    id3tag      *info)
 {
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
@@ -1096,7 +1098,7 @@ id3v2_text_to_utf8 (const gchar  encoding,
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "Windows-1252",
+		                            info->encoding ? info->encoding : "Windows-1252",
 		                            NULL, NULL, NULL);
 	case 0x01 :
 		/* return g_convert (text, */
@@ -1114,7 +1116,7 @@ id3v2_text_to_utf8 (const gchar  encoding,
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "Windows-1252",
+		                            info->encoding ? info->encoding : "Windows-1252",
 		                            NULL, NULL, NULL);
 	}
 }
@@ -1232,7 +1234,7 @@ get_id3v24_tags (id3v24frame           frame,
 		offset        = 4 + text_desc_len + id3v2_nul_size (text_encode);
 		text          = &data[pos + offset]; /* <full text string according to encoding> */
 
-		word = id3v24_text_to_utf8 (text_encode, text, csize - offset);
+		word = id3v24_text_to_utf8 (text_encode, text, csize - offset, info);
 
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
@@ -1248,7 +1250,7 @@ get_id3v24_tags (id3v24frame           frame,
 		gchar *word;
 
 		/* text frames */
-		word = id3v24_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+		word = id3v24_text_to_utf8 (data[pos], &data[pos + 1], csize - 1, info);
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
 		}
@@ -1418,7 +1420,7 @@ get_id3v23_tags (id3v24frame           frame,
 		offset        = 4 + text_desc_len + id3v2_nul_size (text_encode);
 		text          = &data[pos + offset]; /* <full text string according to encoding> */
 
-		word = id3v2_text_to_utf8 (text_encode, text, csize - offset);
+		word = id3v2_text_to_utf8 (text_encode, text, csize - offset, info);
 
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
@@ -1435,7 +1437,7 @@ get_id3v23_tags (id3v24frame           frame,
 		gchar *word;
 
 		/* text frames */
-		word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+		word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1, info);
 
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
@@ -1581,7 +1583,7 @@ get_id3v20_tags (id3v2frame            frame,
 		/* text frames */
 		gchar *word;
 
-		word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+		word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1, info);
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
 		}
