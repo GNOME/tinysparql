@@ -433,7 +433,7 @@ nmm:isColorCorrected a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmm:direction ;
-	rdfs:comment "The direction the image is taken (angle wrt true north)" ;
+	rdfs:comment "The direction the image is taken (angle wrt map/true north) in degrees (0-359.9)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	tracker:writeback true ;
