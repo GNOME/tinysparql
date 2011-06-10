@@ -60,9 +60,9 @@ typedef struct {
 	const gchar *state;
 	const gchar *address;
 	const gchar *country;
-        const gchar *gps_altitude;
-        const gchar *gps_latitude;
-        const gchar *gps_longitude;
+	const gchar *gps_altitude;
+	const gchar *gps_latitude;
+	const gchar *gps_longitude;
 	const gchar *gps_direction;
 } MergeData;
 
