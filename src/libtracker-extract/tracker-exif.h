@@ -58,6 +58,7 @@ typedef struct {
 	gchar *gps_altitude;
 	gchar *gps_latitude;
 	gchar *gps_longitude;
+	gchar *gps_direction;
 } TrackerExifData;
 
 TrackerExifData * tracker_exif_new   (const guchar *buffer,

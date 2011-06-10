@@ -487,6 +487,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
 	}
 
+	if (xd->gps_direction) {
+		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_object_unvalidated (metadata, xd->gps_direction);
+	}
+
 	if (gd.width) {
 		tracker_sparql_builder_predicate (metadata, "nfo:width");
 		tracker_sparql_builder_object_unvalidated (metadata, gd.width);

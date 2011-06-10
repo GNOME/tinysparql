@@ -369,6 +369,8 @@ iterate_simple (const gchar    *uri,
 			data->gps_latitude = gps_coordinate_dup (value);
 		} else if (!data->gps_longitude && g_ascii_strcasecmp (name, "GPSLongitude") == 0) {
 			data->gps_longitude = gps_coordinate_dup (value);
+		} else if (!data->gps_direction && g_ascii_strcasecmp (name, "GPSImgDirection") == 0) {
+			data->gps_direction = div_str_dup (value);
 		}
 		/* PDF*/
 	} else if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
@@ -686,6 +688,7 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data->gps_altitude_ref);
 	g_free (data->gps_latitude);
 	g_free (data->gps_longitude);
+	g_free (data->gps_direction);
 
 	g_free (data);
 }
@@ -1000,6 +1003,11 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		}
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
+	}
+
+	if (data->gps_direction) {
+		tracker_sparql_builder_predicate (metadata, "nmm:direction");
+		tracker_sparql_builder_object_unvalidated (metadata, data->gps_direction);
 	}
 
 	return TRUE;
