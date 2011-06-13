@@ -172,7 +172,7 @@ miner_print_state (TrackerMinerManager *manager,
 
 	if (!is_running) {
 		progress_str = g_strdup_printf ("✗   ");
-	} else if (progress > 0.0 && progress < 1.0) {
+	} else if (progress >= 0.0 && progress < 1.0) {
 		progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
 	} else {
 		progress_str = g_strdup_printf ("✓   ");
