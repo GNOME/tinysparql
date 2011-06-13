@@ -235,8 +235,8 @@ store_print_state (const gchar *status,
 
 			status_split = g_strsplit (status, "-", 2);
 			if (status_split[0] && status_split[1]) {
-				operation = status_split[0];
-				operation_status = status_split[1];
+				operation = g_strstrip (status_split[0]);
+				operation_status = g_strstrip (status_split[1]);
 				/* Free the array, not the contents */
 				g_free (status_split);
 			} else {
@@ -245,27 +245,35 @@ store_print_state (const gchar *status,
 			}
 		}
 
-		if (progress > 0.0 && progress < 1.0) {
-			progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
+		if (progress >= 0.0 && progress < 1.0) {
+			progress_str = g_strdup_printf ("%3u%%", (guint)(progress * 100));
 		} else {
 			progress_str = g_strdup_printf ("✓   ");
 		}
 
-		g_print ("%s  %s  %-*.*s    %s %s\n",
+		g_print ("%s  %s  %-*.*s    - %s %s%s%s\n",
 		         time_str,
 		         progress_str ? progress_str : "    ",
 		         longest_miner_name_length + paused_length,
 		         longest_miner_name_length + paused_length,
-		         (operation ? _(operation) : _(status)),
-		         operation_status ? "-" : "",
-		         operation_status ? _(operation_status) : "");
+		         "Store",
+		         /*(operation ? _(operation) : _(status)),*/
+		         /*operation ? "-" : "",*/
+		         operation ? _(operation) : _(status),
+		         operation_status ? "(" : "",
+		         operation_status ? operation_status : "",
+		         operation_status ? ")" : "");
 
 		g_free (progress_str);
 		g_free (operation);
 		g_free (operation_status);
 	} else {
-		g_print ("%s        %s\n",
+		g_print ("%s  %s %-*.*s    - %s\n",
 		         time_str,
+		         "✗    ", /* Progress */
+		         longest_miner_name_length + paused_length,
+		         longest_miner_name_length + paused_length,
+		         "Store",
 		         _("Unavailable"));
 	}
 }
