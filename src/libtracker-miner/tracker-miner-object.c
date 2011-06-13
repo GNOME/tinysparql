@@ -37,7 +37,7 @@
  * The 0.49 value is used for rounding correctness, because ceil()
  * rounds up if the number is > 0.0.
  */
-#define PROGRESS_ROUNDED(x) (ceil (((x) * 100) - 0.49) / 100)
+#define PROGRESS_ROUNDED(x) ((x) < 0.01 ? 0.00 : (ceil (((x) * 100) - 0.49) / 100))
 
 #define TRACKER_SERVICE "org.freedesktop.Tracker1"
 
