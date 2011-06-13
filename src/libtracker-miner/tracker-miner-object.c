@@ -41,6 +41,13 @@
 
 #define TRACKER_SERVICE "org.freedesktop.Tracker1"
 
+#ifdef MINER_STATUS_ENABLE_TRACE
+#warning Miner status traces are enabled
+#define trace(message, ...) g_debug (message, ##__VA_ARGS__)
+#else
+#define trace(...)
+#endif /* MINER_STATUS_ENABLE_TRACE */
+
 /**
  * SECTION:tracker-miner
  * @short_description: Abstract base class for data miners
@@ -111,6 +118,7 @@ struct _TrackerMinerPrivate {
 	guint registration_id;
 	gchar *full_name;
 	gchar *full_path;
+	guint update_id;
 };
 
 typedef struct {
@@ -474,6 +482,7 @@ static void
 tracker_miner_init (TrackerMiner *miner)
 {
 	TrackerMinerPrivate *priv;
+
 	miner->priv = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
 	priv->pauses = g_hash_table_new_full (g_direct_hash,
@@ -482,9 +491,13 @@ tracker_miner_init (TrackerMiner *miner)
 	                                      pause_data_destroy);
 }
 
-static void
-miner_update_progress (TrackerMiner *miner)
+static gboolean
+miner_update_progress_cb (gpointer data)
 {
+	TrackerMiner *miner = data;
+
+	trace ("(Miner:'%s') UPDATE PROGRESS SIGNAL", miner->priv->name);
+
 	g_signal_emit (miner, signals[PROGRESS], 0,
 	               miner->priv->status,
 	               miner->priv->progress);
@@ -500,6 +513,10 @@ miner_update_progress (TrackerMiner *miner)
 		                                              miner->priv->progress),
 		                               NULL);
 	}
+
+	miner->priv->update_id = 0;
+
+	return FALSE;
 }
 
 static void
@@ -510,6 +527,15 @@ miner_set_property (GObject      *object,
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
 
+	/* Quite often, we see status of 100% and still have
+	 * status messages saying Processing... which is not
+	 * true. So we use an idle timeout to help that situation.
+	 * Additionally we can't force both properties are correct
+	 * with the GObject API, so we have to do some checks our
+	 * selves. The g_object_bind_property() API also isn't
+	 * sufficient here.
+	 */
+
 	switch (prop_id) {
 	case PROP_NAME:
 		g_free (miner->priv->name);
@@ -519,6 +545,11 @@ miner_set_property (GObject      *object,
 		const gchar *new_status;
 
 		new_status = g_value_get_string (value);
+
+		trace ("(Miner:'%s') Set property:'status' to '%s'",
+		       miner->priv->name,
+		       new_status);
+
 		if (miner->priv->status && new_status &&
 		    strcmp (miner->priv->status, new_status) == 0) {
 			/* Same, do nothing */
@@ -527,13 +558,39 @@ miner_set_property (GObject      *object,
 
 		g_free (miner->priv->status);
 		miner->priv->status = g_strdup (new_status);
-		miner_update_progress (miner);
+
+		/* Check progress matches special statuses */
+		if (new_status != NULL) {
+			if (g_ascii_strcasecmp (new_status, "Initializing") == 0 &&
+			    miner->priv->progress != 0.0) {
+				trace ("(Miner:'%s') Set progress to 0.0 from status:'Initializing'",
+				       miner->priv->name);
+				miner->priv->progress = 0.0;
+			} else if (g_ascii_strcasecmp (new_status, "Idle") == 0 &&
+			           miner->priv->progress != 1.0) {
+				trace ("(Miner:'%s') Set progress to 1.0 from status:'Idle'",
+				       miner->priv->name);
+				miner->priv->progress = 1.0;
+			}
+		}
+
+		if (miner->priv->update_id == 0) {
+			miner->priv->update_id = g_idle_add_full (G_PRIORITY_HIGH_IDLE,
+			                                          miner_update_progress_cb,
+			                                          miner,
+			                                          NULL);
+		}
+
 		break;
 	}
 	case PROP_PROGRESS: {
 		gdouble new_progress;
 
 		new_progress = PROGRESS_ROUNDED (g_value_get_double (value));
+		trace ("(Miner:'%s') Set property:'progress' to '%2.2f' (%2.2f before rounded)",
+		         miner->priv->name,
+		         new_progress,
+		         g_value_get_double (value));
 
 		/* NOTE: We don't round the current progress before
 		 * comparison because we use the rounded value when
@@ -547,7 +604,33 @@ miner_set_property (GObject      *object,
 		}
 
 		miner->priv->progress = new_progress;
-		miner_update_progress (miner);
+
+		/* Check status matches special progress values */
+		if (new_progress == 0.0) {
+			if (miner->priv->status == NULL ||
+			    g_ascii_strcasecmp (miner->priv->status, "Initializing") != 0) {
+				trace ("(Miner:'%s') Set status:'Initializing' from progress:0.0",
+				       miner->priv->name);
+				g_free (miner->priv->status);
+				miner->priv->status = g_strdup ("Initializing");
+			}
+		} else if (new_progress == 1.0) {
+			if (miner->priv->status == NULL ||
+			    g_ascii_strcasecmp (miner->priv->status, "Idle") != 0) {
+				trace ("(Miner:'%s') Set status:'Idle' from progress:1.0",
+				       miner->priv->name);
+				g_free (miner->priv->status);
+				miner->priv->status = g_strdup ("Idle");
+			}
+		}
+
+		if (miner->priv->update_id == 0) {
+			miner->priv->update_id = g_idle_add_full (G_PRIORITY_HIGH_IDLE,
+			                                          miner_update_progress_cb,
+			                                          miner,
+			                                          NULL);
+		}
+
 		break;
 	}
 	default:
@@ -951,6 +1034,10 @@ static void
 miner_finalize (GObject *object)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
+
+	if (miner->priv->update_id != 0) {
+		g_source_remove (miner->priv->update_id);
+	}
 
 	if (miner->priv->watch_name_id != 0) {
 		g_bus_unwatch_name (miner->priv->watch_name_id);
