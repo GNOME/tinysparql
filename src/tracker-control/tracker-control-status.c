@@ -178,7 +178,7 @@ miner_print_state (TrackerMinerManager *manager,
 		gchar *progress_str = NULL;
 		gchar *remaining_time_str = NULL;
 
-		if (progress > 0.0 && progress < 1.0) {
+		if (progress >= 0.0 && progress < 1.0) {
 			progress_str = g_strdup_printf ("%3u%%", (guint)(progress * 100));
 		}
 
