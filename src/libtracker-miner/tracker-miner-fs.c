@@ -2755,17 +2755,20 @@ item_queue_handlers_cb (gpointer user_data)
 			                                                 items_processed,
 			                                                 items_remaining);
 
+			/* CLAMP progress so it doesn't go back below
+			 * 2% (which we use for crawling)
+			 */
 			if (g_strcmp0 (status, "Processing…") != 0) {
 				/* Don't spam this */
 				tracker_info ("Processing…");
 				g_object_set (fs,
 				              "status", "Processing…",
-				              "progress", progress_now,
+				              "progress", CLAMP (progress_now, 0.02, 1.00),
 				              "remaining-time", remaining_time,
 				              NULL);
 			} else {
 				g_object_set (fs,
-				              "progress", progress_now,
+				              "progress", CLAMP (progress_now, 0.02, 1.00),
 				              "remaining-time", remaining_time,
 				              NULL);
 			}
@@ -2776,7 +2779,6 @@ item_queue_handlers_cb (gpointer user_data)
 		if (++info_last >= 5 &&
 		    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
 			gchar *str1, *str2;
-
 
 			info_last = 0;
 			progress_last = progress_now;
@@ -2914,11 +2916,15 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	if (!fs->priv->is_crawling) {
 		gchar *status;
+		gdouble progress;
 
-		g_object_get (fs, "status", &status, NULL);
+		g_object_get (fs,
+		              "progress", &progress,
+		              "status", &status,
+		              NULL);
 
-		if (g_strcmp0 (status, "Processing…") != 0) {
-			/* Don't spam this */
+		/* Don't spam this */
+		if (progress > 0.01 && g_strcmp0 (status, "Processing…") != 0) {
 			tracker_info ("Processing…");
 			g_object_set (fs, "status", "Processing…", NULL);
 		}
