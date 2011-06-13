@@ -203,7 +203,19 @@ class ExtractorHelper ():
         grouped_lines = []
         current_line = ""
         anon_node_open = False
-        for l in embedded.split ("\n\t"):
+
+        pieces = embedded.split ("\n} } WHERE { {\n")
+        if len (pieces) == 1:
+            main = pieces [0]
+            tags = []
+        elif len (pieces) == 2:
+            main = pieces [0]
+            tags = pieces [1]
+        else:
+            print "Warning: something fishy splitting", embedded
+ 
+        
+        for l in main.split ("\n\t"):
             if "[" in l:
                 current_line = current_line + l
                 anon_node_open = True
@@ -226,6 +238,10 @@ class ExtractorHelper ():
                 final_lines = self.__handle_multivalues (l.strip ())
                 grouped_lines = grouped_lines + final_lines
 
+        if len (tags) > 0:
+            grouped_lines += self.__handle_tags (tags)
+
+
         return map (self.__clean_value, grouped_lines)
 
     def __handle_multivalues (self, line):
@@ -234,6 +250,8 @@ class ExtractorHelper ():
         a nfo:Image, nmm:Photo ;
            -> a nfo:Image ;
            -> a nmm:Photo ;
+
+        IGNORE hasTag
         """
         hasEscapedComma = re.compile ("\".+,.+\"")
 
@@ -244,6 +262,8 @@ class ExtractorHelper ():
                 results.append ("%s %s" % (prop, value.strip ()))
             return results
         else:
+            if "nao:hasTag" in line:
+                return []
             return [line]
         
 
@@ -264,19 +284,8 @@ class ExtractorHelper ():
 
         """
         
-        # hasTag case
-        if line.startswith ("nao:hasTag"):
-            getlabel = re.compile ("nao:prefLabel\ \"([\w\ -]+)\"")
-            match = getlabel.search (line)
-            if (match):
-                line = 'nao:hasTag:prefLabel "%s" ;' % (match.group(1))
-                return [line]
-            else:
-                print "Whats wrong on line", line, "?"
-                return [line]
-
         # location case
-        elif line.startswith ("slo:location"):
+        if line.startswith ("slo:location"):
             results = []
 
             # Can have country AND/OR city
@@ -324,6 +333,22 @@ class ExtractorHelper ():
             else:
                 print " *** Something special in this line '%s'" % (entry)
         return results
+
+
+    def __handle_tags (self, sparql):
+        results = []
+        gettag = re.compile ('a nao:Tag\ ;\ nao:prefLabel "([\w:-]+)"')
+        for l in sparql.split ("\n"):
+            if len (l) < 1:
+                continue
+            tag_match = gettag.search (l)
+            if (tag_match):
+                results.append ("nao:hasTag:prefLabel %s ;" % tag_match.group (1))
+            else:
+                print " *** Something special in this tag line '%s'" % (l)
+            
+        return results
+
 
     def __clean_value (self, value):
         """
