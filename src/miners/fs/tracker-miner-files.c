@@ -1149,12 +1149,12 @@ mount_point_removed_cb (TrackerStorage *storage,
 	/* Notify extractor about cancellation of all tasks under the mount point */
 	extractor_cancel_tasks (miner->private->connection, mount_point_file);
 
-	/* Set mount point status in tracker-store */
-	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
-
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
 	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (miner), mount_point_file);
+
+	/* Set mount point status in tracker-store */
+	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
 
 	g_free (urn);
 	g_object_unref (mount_point_file);
