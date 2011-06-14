@@ -288,7 +288,7 @@ cancel_tasks_in_file (TrackerController *controller,
 				 */
 				g_message ("Cancelled task ('%s') is currently being processed, quitting",
 				           data->uri);
-				g_main_loop_quit (priv->main_loop);
+				_exit (0);
 			} else {
 				g_message ("Cancelling not yet processed task ('%s')",
 				           data->uri);
