@@ -346,8 +346,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                 g_param_spec_string ("status",
 	                                                      "Status",
 	                                                      "Translatable string with status description",
-	                                                      NULL,
-	                                                      G_PARAM_READWRITE));
+	                                                      "Idle",
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_PROGRESS,
 	                                 g_param_spec_double ("progress",
