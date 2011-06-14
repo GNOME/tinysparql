@@ -1165,6 +1165,12 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	/* Get URIs as paths may not be in UTF-8 */
 	file_uri = g_file_get_uri (file);
 
+	/* Don't have anything to do with .xsession-errors */
+	if (g_str_has_suffix (file_uri, ".xsession-errors")) {
+		g_free (file_uri);
+		return;
+	}
+
 	if (!other_file) {
 		other_file_uri = NULL;
 		g_debug ("Received monitor event:%d (%s) for file:'%s'",
