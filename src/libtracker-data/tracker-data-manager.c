@@ -3760,6 +3760,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		GPtrArray *seen_classes;
 		GPtrArray *seen_properties;
 		GError *n_error = NULL;
+		gboolean transaction_started = FALSE;
 
 		seen_classes = g_ptr_array_new ();
 		seen_properties = g_ptr_array_new ();
@@ -3785,12 +3786,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		/* check ontology against database */
-
-		tracker_data_begin_ontology_transaction (&internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
-		}
 
 		/* Get a map of tracker:Ontology v. nao:lastModified so that we can test
 		 * for all the ontology files in ontologies_dir whether the last-modified
@@ -3868,6 +3863,16 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				 * modified in the latest version of the file, deal with changes. */
 				if (val != last_mod) {
 					g_debug ("Ontology file '%s' needs update", ontology_path);
+
+					if (!transaction_started) {
+						tracker_data_begin_ontology_transaction (&internal_error);
+						if (internal_error) {
+							g_propagate_error (error, internal_error);
+							return FALSE;
+						}
+						transaction_started = TRUE;
+					}
+
 					if (max_id == 0) {
 						/* In case of first-time, this wont start at zero */
 						max_id = get_new_service_id (iface);
@@ -3890,6 +3895,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_data_ontology_free_seen (seen_properties);
 						tracker_data_ontology_import_finished ();
 
+						/* as we're processing an ontology change,
+						   transaction is guaranteed to be started */
 						tracker_data_commit_transaction (&internal_error);
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
@@ -3934,6 +3941,16 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				GError *ontology_error = NULL;
 
 				g_debug ("Ontology file '%s' got added", ontology_path);
+
+				if (!transaction_started) {
+					tracker_data_begin_ontology_transaction (&internal_error);
+					if (internal_error) {
+						g_propagate_error (error, internal_error);
+						return FALSE;
+					}
+					transaction_started = TRUE;
+				}
+
 				if (max_id == 0) {
 					/* In case of first-time, this wont start at zero */
 					max_id = get_new_service_id (iface);
@@ -3956,6 +3973,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_data_ontology_free_seen (seen_properties);
 					tracker_data_ontology_import_finished ();
 
+					/* as we're processing an ontology change,
+					   transaction is guaranteed to be started */
 					tracker_data_commit_transaction (&internal_error);
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
@@ -4049,6 +4068,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_data_ontology_free_seen (seen_properties);
 				tracker_data_ontology_import_finished ();
 
+				/* as we're processing an ontology change,
+				   transaction is guaranteed to be started */
 				tracker_data_commit_transaction (&internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
@@ -4105,10 +4126,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished ();
 
-		tracker_data_commit_transaction (&internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
+		if (transaction_started) {
+			tracker_data_commit_transaction (&internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
 		}
 
 		g_hash_table_unref (ontos_table);
