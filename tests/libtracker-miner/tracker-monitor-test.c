@@ -975,11 +975,11 @@ test_monitor_file_event_blacklisting_created_moved (TrackerMonitorTestFixture *f
 	/* Get events in the dest file */
 	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
 
-	/* Fail if we didn't get the CREATED signal */
-	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
+	/* Fail if we didn't get the UPDATED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), >, 0);
 
 	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
-	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
