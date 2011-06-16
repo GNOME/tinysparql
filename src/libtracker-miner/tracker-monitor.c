@@ -995,18 +995,30 @@ monitor_event_file_moved (TrackerMonitor *monitor,
 	 * */
 	if (previous_update_event_data) {
 		if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
-			/* (a) CREATED(A) + MOVED(A->B)  = CREATED (B)
+			/* (a) CREATED(A) + MOVED(A->B)  = UPDATED (B)
 			 *
 			 * Oh, oh, oh, we got a previous created event
 			 * waiting in the event cache... so we remove it, and we
-			 * convert the MOVE event into a CREATED(other_file) */
+			 * convert the MOVE event into a UPDATED(other_file),
+			 *
+			 * It is UPDATED instead of CREATED because the destination
+			 * file could probably exist, and mistakenly reporting
+			 * a CREATED event there can trick the monitor event
+			 * compression (for example, if we get a DELETED right after,
+			 * both CREATED/DELETED events turn into NOOP, so a no
+			 * longer existing file didn't trigger a DELETED.
+			 *
+			 * Instead, it is safer to just issue UPDATED, this event
+			 * wouldn't get compressed, and CREATED==UPDATED to the
+			 * miners' eyes.
+			 */
 			g_hash_table_remove (monitor->priv->pre_update, src_file);
 			g_hash_table_replace (monitor->priv->pre_update,
 			                      g_object_ref (dst_file),
 			                      event_data_new (dst_file,
 			                                      NULL,
 			                                      FALSE,
-			                                      G_FILE_MONITOR_EVENT_CREATED));
+			                                      G_FILE_MONITOR_EVENT_CHANGED));
 
 			/* Do not notify the moved event now */
 			return;
