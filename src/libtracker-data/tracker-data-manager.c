@@ -3519,6 +3519,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	                              busy_operation,
 	                              &internal_error)) {
 
+		if (!reloading) {
+			tracker_locale_shutdown ();
+		}
+
 		g_propagate_error (error, internal_error);
 
 		return FALSE;
@@ -3555,6 +3559,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			                      TRACKER_DB_JOURNAL_ERROR,
 			                      TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 				g_propagate_error (error, internal_error);
+
+				if (!reloading) {
+					tracker_locale_shutdown ();
+				}
+
 				return FALSE;
 			} else {
 				g_clear_error (&internal_error);
@@ -3589,6 +3598,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					              TRACKER_DB_JOURNAL_ERROR,
 					              TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 					g_propagate_error (error, internal_error);
+
+					if (!reloading) {
+						tracker_locale_shutdown ();
+					}
+
 					return FALSE;
 				} else {
 					g_clear_error (&internal_error);
@@ -3614,6 +3628,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
+
+				if (!reloading) {
+					tracker_locale_shutdown ();
+				}
 
 				return FALSE;
 			}
@@ -3671,6 +3689,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_data_begin_ontology_transaction (&internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
+
 			return FALSE;
 		}
 
@@ -3682,6 +3705,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
+
 			return FALSE;
 		}
 
@@ -3698,6 +3726,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				                              &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
+
+					if (!reloading) {
+						tracker_locale_shutdown ();
+					}
+
 					return FALSE;
 				}
 			}
@@ -3724,6 +3757,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_data_commit_transaction (&internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
+
 			return FALSE;
 		}
 
@@ -3743,6 +3781,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
+
+				if (!reloading) {
+					tracker_locale_shutdown ();
+				}
 
 				return FALSE;
 			}
@@ -3940,6 +3982,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 							g_hash_table_unref (uri_id_map);
 						}
 						initialized = TRUE;
+
+						/* This also does tracker_locale_shutdown */
 						tracker_data_manager_shutdown ();
 
 						return tracker_data_manager_init (flags,
@@ -4004,6 +4048,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_data_commit_transaction (&internal_error);
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
+
+						if (!reloading) {
+							tracker_locale_shutdown ();
+						}
+
 						return FALSE;
 					}
 
@@ -4019,6 +4068,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						g_hash_table_unref (uri_id_map);
 					}
 					initialized = TRUE;
+
+					/* This also does tracker_locale_shutdown */
 					tracker_data_manager_shutdown ();
 
 					return tracker_data_manager_init (flags,
@@ -4100,6 +4151,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_data_commit_transaction (&internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
+
+					if (!reloading) {
+						tracker_locale_shutdown ();
+					}
+
 					return FALSE;
 				}
 
@@ -4115,6 +4171,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					g_hash_table_unref (uri_id_map);
 				}
 				initialized = TRUE;
+
+				/* This also does tracker_locale_shutdown */
 				tracker_data_manager_shutdown ();
 
 				return tracker_data_manager_init (flags,
@@ -4133,6 +4191,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (ontology_error) {
 				g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
 				g_propagate_error (error, ontology_error);
+
+				if (!reloading) {
+					tracker_locale_shutdown ();
+				}
+
 				return FALSE;
 			}
 
@@ -4158,6 +4221,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_data_commit_transaction (&internal_error);
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
+				if (!reloading) {
+					tracker_locale_shutdown ();
+				}
+
 				return FALSE;
 			}
 		}
@@ -4199,6 +4266,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
+
 			return FALSE;
 		}
 
@@ -4210,6 +4282,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
 
 			return FALSE;
 		}
@@ -4234,6 +4310,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
+
+			if (!reloading) {
+				tracker_locale_shutdown ();
+			}
+
 			return FALSE;
 		}
 
