@@ -1,3 +1,36 @@
+NEW in 0.10.18 - 2011-06-16
+===========================
+
+The changes are:
+
+  * Fixes: GB#652433, Progress signal gives faulty value just before finishing
+  * Fixes: NB#266579, tracker_sparql_connection_get starts emitting GLIB CRITICALS when called again after failure
+  * Fixes: NB#251032, Corrupted thumbnails are displayed for few minutes when multiple images are deleted
+  * Fixes: NB#263203, tracker-store fails to start when out of disk space
+  * Fixes: NB#261635, Tracker doesn't use MeegoTouch's libicu for collation when we HAVE_MEEGOTOUCH
+  * functional-tests: Parse tags correctly from tracker-extract output
+  * libtracker-miner: Make sure status property is set to 'Idle' on construct
+  * libtracker-miner: Avoid handling or logging anything about .xsession-errors to avoid recursive issues
+  * libtracker-miner: Fixed inconsistent status signals where progress and status are set together
+  * libtracker-miner: Only use 2% or higher as progress for 'Processing...'
+  * libtracker-extract: Support extraction of EXIF/XMP GPS information for images
+  * tracker-extract: Use _exit() not g_main_loop_quit() on pre-unmount signals to promptly respond
+  * tracker-extract, tracker-writeback, libtracker-extract: Use nfo:heading instead of nmm:direction
+  * tracker-miner-fs: Unset nie:url to set our own on file updates
+  * tracker-miner-fs: Do not ignore IgnoreNextUpdate for CREATED events on old files
+  * tracker-writeback: Always clear existing XMP fields before updating metadata
+  * tracker-writeback: Guarantee file updates atomically
+  * tracker-control: Don't use ✓ for any progress other than 100%
+
+Translations:
+
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.10.17 - 2011-06-09
 ===========================
 
