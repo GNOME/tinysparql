@@ -3508,12 +3508,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	                              busy_user_data,
 	                              busy_operation,
 	                              &internal_error)) {
+		g_propagate_error (error, internal_error);
 
+		tracker_ontologies_shutdown ();
 		if (!reloading) {
 			tracker_locale_shutdown ();
 		}
-
-		g_propagate_error (error, internal_error);
+		tracker_data_update_shutdown ();
 
 		return FALSE;
 	}
@@ -3549,9 +3550,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			                      TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 				g_propagate_error (error, internal_error);
 
+				tracker_db_manager_shutdown ();
+				tracker_ontologies_shutdown ();
 				if (!reloading) {
 					tracker_locale_shutdown ();
 				}
+				tracker_data_update_shutdown ();
 
 				return FALSE;
 			} else {
@@ -3586,9 +3590,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					              TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 					g_propagate_error (error, internal_error);
 
+					tracker_db_manager_shutdown ();
+					tracker_ontologies_shutdown ();
 					if (!reloading) {
 						tracker_locale_shutdown ();
 					}
+					tracker_data_update_shutdown ();
 
 					return FALSE;
 				} else {
@@ -3615,9 +3622,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 
+				tracker_db_manager_shutdown ();
+				tracker_ontologies_shutdown ();
 				if (!reloading) {
 					tracker_locale_shutdown ();
 				}
+				tracker_data_update_shutdown ();
 
 				return FALSE;
 			}
@@ -3675,9 +3685,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
@@ -3691,9 +3705,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
@@ -3712,9 +3730,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
+					tracker_db_journal_shutdown (NULL);
+					tracker_db_manager_shutdown ();
+					tracker_ontologies_shutdown ();
 					if (!reloading) {
 						tracker_locale_shutdown ();
 					}
+					tracker_data_update_shutdown ();
 
 					return FALSE;
 				}
@@ -3743,9 +3765,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
@@ -3765,9 +3791,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 
+				tracker_db_manager_shutdown ();
+				tracker_ontologies_shutdown ();
 				if (!reloading) {
 					tracker_locale_shutdown ();
 				}
+				tracker_data_update_shutdown ();
 
 				return FALSE;
 			}
@@ -3910,6 +3939,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_data_begin_ontology_transaction (&internal_error);
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
+
+							tracker_db_journal_shutdown (NULL);
+							tracker_db_manager_shutdown ();
+							tracker_ontologies_shutdown ();
+							if (!reloading) {
+								tracker_locale_shutdown ();
+							}
+							tracker_data_update_shutdown ();
+
 							return FALSE;
 						}
 						transaction_started = TRUE;
@@ -3942,6 +3980,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_data_commit_transaction (&internal_error);
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
+
+							tracker_db_journal_shutdown (NULL);
+							tracker_db_manager_shutdown ();
+							tracker_ontologies_shutdown ();
+							if (!reloading) {
+								tracker_locale_shutdown ();
+							}
+							tracker_data_update_shutdown ();
+
 							return FALSE;
 						}
 
@@ -3990,6 +4037,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_data_begin_ontology_transaction (&internal_error);
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
+
+						tracker_db_journal_shutdown (NULL);
+						tracker_db_manager_shutdown ();
+						tracker_ontologies_shutdown ();
+						if (!reloading) {
+							tracker_locale_shutdown ();
+						}
+						tracker_data_update_shutdown ();
+
 						return FALSE;
 					}
 					transaction_started = TRUE;
@@ -4023,9 +4079,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
 
+						tracker_db_journal_shutdown (NULL);
+						tracker_db_manager_shutdown ();
+						tracker_ontologies_shutdown ();
 						if (!reloading) {
 							tracker_locale_shutdown ();
 						}
+						tracker_data_update_shutdown ();
 
 						return FALSE;
 					}
@@ -4125,9 +4185,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
+					tracker_db_journal_shutdown (NULL);
+					tracker_db_manager_shutdown ();
+					tracker_ontologies_shutdown ();
 					if (!reloading) {
 						tracker_locale_shutdown ();
 					}
+					tracker_data_update_shutdown ();
 
 					return FALSE;
 				}
@@ -4164,9 +4228,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
 				g_propagate_error (error, ontology_error);
 
+				tracker_db_journal_shutdown (NULL);
+				tracker_db_manager_shutdown ();
+				tracker_ontologies_shutdown ();
 				if (!reloading) {
 					tracker_locale_shutdown ();
 				}
+				tracker_data_update_shutdown ();
 
 				return FALSE;
 			}
@@ -4193,9 +4261,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_data_commit_transaction (&internal_error);
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
+
+				tracker_db_journal_shutdown (NULL);
+				tracker_db_manager_shutdown ();
+				tracker_ontologies_shutdown ();
 				if (!reloading) {
 					tracker_locale_shutdown ();
 				}
+				tracker_data_update_shutdown ();
 
 				return FALSE;
 			}
@@ -4238,9 +4311,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
@@ -4254,9 +4331,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
@@ -4282,9 +4363,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+			tracker_db_journal_shutdown (NULL);
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
