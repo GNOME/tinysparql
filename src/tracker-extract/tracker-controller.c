@@ -319,20 +319,9 @@ cancel_tasks_in_file (TrackerController *controller,
 
 		if (g_file_equal (task_file, file) ||
 		    g_file_has_prefix (task_file, file)) {
-			/* Mount path contains one of the files being processed */
-			if (!elem->next) {
-				/* The last element in the list is
-				 * the one currently being processed,
-				 * so exit abruptly.
-				 */
-				g_message ("Cancelled task ('%s') is currently being processed, quitting",
-				           data->uri);
-				_exit (0);
-			} else {
-				g_message ("Cancelling not yet processed task ('%s')",
-				           data->uri);
-				g_cancellable_cancel (data->cancellable);
-			}
+			/* Mount path contains some file being processed */
+			g_message ("Cancelling task ('%s')", data->uri);
+			g_cancellable_cancel (data->cancellable);
 		}
 
 		g_object_unref (task_file);
