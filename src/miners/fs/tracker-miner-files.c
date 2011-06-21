@@ -2038,6 +2038,8 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (miner), data->file, NULL);
 	process_file_data_free (data);
 
+	priv->failed_extraction_queue = g_list_remove (priv->failed_extraction_queue, data);
+
 	/* Get on to the next failed extraction, or resume miner */
 	extractor_process_failsafe (miner);
 }
@@ -2058,7 +2060,6 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 		gchar *uri;
 
 		data = priv->failed_extraction_queue->data;
-		priv->failed_extraction_queue = g_list_remove (priv->failed_extraction_queue, data);
 
 		uri = g_file_get_uri (data->file);
 		g_message ("Performing failsafe extraction on '%s'", uri);
