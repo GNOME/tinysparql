@@ -423,7 +423,7 @@ tracker_extract_client_get_metadata_finish (GFile         *file,
  * Returns: (transfer none): the clauses to be inserted
  *          before update.
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_extract_info_get_preupdate (TrackerExtractInfo *info)
 {
 	return info->preupdate;
@@ -438,7 +438,7 @@ tracker_extract_info_get_preupdate (TrackerExtractInfo *info)
  * Returns: (transfer none): Sparql to be inserted into
  *          the file update.
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_extract_info_get_update (TrackerExtractInfo *info)
 {
 	return info->update;
@@ -452,7 +452,7 @@ tracker_extract_info_get_update (TrackerExtractInfo *info)
  *
  * Returns: (transfer none): the where clause.
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_extract_info_get_where_clause (TrackerExtractInfo *info)
 {
 	return info->where;

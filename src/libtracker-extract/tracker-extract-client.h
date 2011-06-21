@@ -42,9 +42,9 @@ TrackerExtractInfo * tracker_extract_client_get_metadata_finish (GFile          
 
 void                 tracker_extract_client_cancel_for_prefix   (GFile               *uri);
 
-G_CONST_RETURN gchar * tracker_extract_info_get_preupdate    (TrackerExtractInfo *info);
-G_CONST_RETURN gchar * tracker_extract_info_get_update       (TrackerExtractInfo *info);
-G_CONST_RETURN gchar * tracker_extract_info_get_where_clause (TrackerExtractInfo *info);
+const gchar * tracker_extract_info_get_preupdate    (TrackerExtractInfo *info);
+const gchar * tracker_extract_info_get_update       (TrackerExtractInfo *info);
+const gchar * tracker_extract_info_get_where_clause (TrackerExtractInfo *info);
 
 G_END_DECLS
 
