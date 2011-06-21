@@ -338,6 +338,21 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	g_object_unref (message);
 }
 
+/**
+ * tracker_extract_client_get_metadata:
+ * @file: a #GFile
+ * @mime_type: mimetype of @file
+ * @cancellable: (allow-none): cancellable for the async operation, or %NULL
+ * @callback: (scope async): callback to call when the request is satisfied.
+ * @user_data: (closure): data for the callback function
+ *
+ * Asynchronously requests metadata for @file, this request is sent to the
+ * tracker-extract daemon.
+ *
+ * When the request is finished, @callback will be executed. You can then
+ * call tracker_extract_client_get_metadata_finish() to get the result of
+ * the operation.
+ **/
 void
 tracker_extract_client_get_metadata (GFile               *file,
                                      const gchar         *mime_type,
@@ -372,6 +387,16 @@ tracker_extract_client_get_metadata (GFile               *file,
 	get_metadata_fast_async (connection, uri, mime_type, cancellable, res);
 }
 
+/**
+ * tracker_extract_client_get_metadata_finish:
+ * @file: a #GFile
+ * @res: a #GAsyncResult
+ * @error: return location for error, or %NULL to ignore.
+ *
+ * Finishes an asynchronous metadata request.
+ *
+ * Returns: (transfer full): the #TrackerExtractInfo holding the result.
+ **/
 TrackerExtractInfo *
 tracker_extract_client_get_metadata_finish (GFile         *file,
                                             GAsyncResult  *res,
@@ -388,24 +413,57 @@ tracker_extract_client_get_metadata_finish (GFile         *file,
 	return g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 }
 
+/**
+ * tracker_extract_info_get_preupdate:
+ * @info: a #TrackerExtractInfo
+ *
+ * returns the sparql clauses to be inserted before
+ * the sparql insert/update for the file.
+ *
+ * Returns: (transfer none): the clauses to be inserted
+ *          before update.
+ **/
 G_CONST_RETURN gchar *
 tracker_extract_info_get_preupdate (TrackerExtractInfo *info)
 {
 	return info->preupdate;
 }
 
+/**
+ * tracker_extract_info_get_update:
+ * @info: a #TrackerExtractInfo
+ *
+ * Sparql holding metadata for the file.
+ *
+ * Returns: (transfer none): Sparql to be inserted into
+ *          the file update.
+ **/
 G_CONST_RETURN gchar *
 tracker_extract_info_get_update (TrackerExtractInfo *info)
 {
 	return info->update;
 }
 
+/**
+ * tracker_extract_info_get_where_clause:
+ * @info: 
+ *
+ * Where clause for the file update.
+ *
+ * Returns: (transfer none): the where clause.
+ **/
 G_CONST_RETURN gchar *
 tracker_extract_info_get_where_clause (TrackerExtractInfo *info)
 {
 	return info->where;
 }
 
+/**
+ * tracker_extract_client_cancel_for_prefix:
+ * @prefix: a #GFile
+ *
+ * Cancels any ongoing extraction task for (or within) @prefix.
+ **/
 void
 tracker_extract_client_cancel_for_prefix (GFile *prefix)
 {

@@ -44,3 +44,14 @@ tracker_exif_new
 tracker_exif_free
 tracker_exif_read
 </SECTION>
+
+<SECTION>
+<FILE>tracker-extract-client</FILE>
+TrackerExtractInfo
+tracker_extract_client_get_metadata
+tracker_extract_client_get_metadata_finish
+tracker_extract_info_get_preupdate
+tracker_extract_info_get_update
+tracker_extract_info_get_where_clause
+tracker_extract_client_cancel_for_prefix
+</SECTION>
