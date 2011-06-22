@@ -713,11 +713,6 @@ main (gint argc, gchar *argv[])
 
 	initialize_signal_handler ();
 
-	/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
-	if (!tracker_env_check_xdg_dirs ()) {
-		return EXIT_FAILURE;
-	}
-
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
 
@@ -738,6 +733,11 @@ main (gint argc, gchar *argv[])
 	g_free (log_filename);
 
 	sanity_check_option_values (config);
+
+	/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
+	if (!tracker_env_check_xdg_dirs ()) {
+		return EXIT_FAILURE;
+	}
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
