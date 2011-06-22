@@ -183,7 +183,6 @@ initialize_priority (void)
 	 * successful call so we have to check value of errno too.
 	 * Stupid...
 	 */
-	g_message ("Setting process priority");
 
 	if (nice (19) == -1) {
 		const gchar *str = g_strerror (errno);
