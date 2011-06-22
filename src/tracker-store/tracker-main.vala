@@ -187,11 +187,6 @@ License which can be viewed at:
 
 		initialize_signal_handler ();
 
-		/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
-		if (!Tracker.env_check_xdg_dirs ()) {
-			return 1;
-		}
-
 		/* This makes sure we don't steal all the system's resources */
 		initialize_priority ();
 
@@ -218,6 +213,11 @@ License which can be viewed at:
 		print ("Starting log:\n  File:'%s'\n", log_filename);
 
 		sanity_check_option_values (config);
+
+		/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
+		if (!Tracker.env_check_xdg_dirs ()) {
+			return 1;
+		}
 
 		DBManagerFlags flags = DBManagerFlags.REMOVE_CACHE;
 
