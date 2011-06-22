@@ -194,18 +194,9 @@ License which can be viewed at:
 		var config = new Tracker.Config ();
 		var db_config = new Tracker.DBConfig ();
 
-		ulong config_verbosity_id = config.notify["verbosity"].connect (config_verbosity_changed_cb);
-
 		/* Daemon command line arguments */
 		if (verbosity > -1) {
 			config.verbosity = verbosity;
-		} else {
-			/* Make sure we enable/disable the dbus client lookup */
-			config_verbosity_changed_cb (config, null);
-		}
-
-		if (!Tracker.DBus.init ()) {
-			return 1;
 		}
 
 		/* Initialize other subsystems */
@@ -218,6 +209,14 @@ License which can be viewed at:
 		if (!Tracker.env_check_xdg_dirs ()) {
 			return 1;
 		}
+
+		if (!Tracker.DBus.init ()) {
+			return 1;
+		}
+
+		/* Make sure we enable/disable the dbus client lookup */
+		config_verbosity_changed_cb (config, null);
+		ulong config_verbosity_id = config.notify["verbosity"].connect (config_verbosity_changed_cb);
 
 		DBManagerFlags flags = DBManagerFlags.REMOVE_CACHE;
 
