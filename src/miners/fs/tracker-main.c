@@ -184,7 +184,8 @@ initialize_priority (void)
 	 * Stupid...
 	 */
 
-	if (nice (19) == -1) {
+	errno = 0;
+	if (nice (19) == -1 && errno != 0) {
 		const gchar *str = g_strerror (errno);
 
 		g_message ("Couldn't set nice value to 19, %s",
