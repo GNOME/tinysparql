@@ -39,6 +39,7 @@ libtracker_data_la_SOURCES =                           \
 	tracker-db-interface-sqlite.c                  \
 	tracker-db-manager.c                           \
 	tracker-db-journal.c                           \
+	tracker-db-backup.c                            \
 	tracker-namespace.c                            \
 	tracker-ontology.c                             \
 	tracker-ontologies.c                           \
@@ -71,6 +72,7 @@ noinst_HEADERS =                                       \
 	tracker-db-interface-sqlite.h                  \
 	tracker-db-manager.h                           \
 	tracker-db-journal.h                           \
+	tracker-db-backup.h                            \
 	tracker-namespace.h                            \
 	tracker-ontology.h                             \
 	tracker-ontologies.h                           \
