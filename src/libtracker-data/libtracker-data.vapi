@@ -57,10 +57,17 @@ namespace Tracker {
 		NONE
 	}
 
+	[CCode (has_target = false, cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
+	public delegate void DBWalCallback (int n_pages);
+
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
 		public abstract DBStatement create_statement (DBStatementCacheType cache_type, ...) throws DBInterfaceError;
+		[PrintfFormat]
+		public void execute_query (...) throws DBInterfaceError;
+		[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
+		public void sqlite_wal_hook (DBWalCallback callback);
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
