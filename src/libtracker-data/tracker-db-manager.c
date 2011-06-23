@@ -267,6 +267,10 @@ db_set_params (TrackerDBInterface   *iface,
 			g_object_unref (stmt);
 		}
 
+		/* increase WAL autocheckpoint threshold from the default of 1000 pages
+		   to 10000 pages to improve update performance */
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA wal_autocheckpoint = 10000");
+
 		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 			g_message ("  Setting page size to %d", page_size);
 			tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
