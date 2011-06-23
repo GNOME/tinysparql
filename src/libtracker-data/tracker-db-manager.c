@@ -153,7 +153,7 @@ static void                db_remove_locale_file                    (void);
 
 static gboolean              initialized;
 static gboolean              locations_initialized;
-static gchar                *sql_dir;
+static gchar                *sql_dir = NULL;
 static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *sys_tmp_dir = NULL;
@@ -880,6 +880,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
 
+	g_free (sql_dir);
 	env_path = g_getenv ("TRACKER_DB_SQL_DIR");
 
 	if (G_UNLIKELY (!env_path)) {
@@ -1252,6 +1253,7 @@ tracker_db_manager_shutdown (void)
 	g_free (sys_tmp_dir);
 	sys_tmp_dir = NULL;
 	g_free (sql_dir);
+	sql_dir = NULL;
 
 	if (global_iface) {
 		/* libtracker-direct */
