@@ -31,6 +31,7 @@
 #include "tracker-data-manager.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-journal.h"
+#include "tracker-db-backup.h"
 
 typedef struct {
 	GFile *destination, *journal;
@@ -39,6 +40,8 @@ typedef struct {
 	GDestroyNotify destroy;
 	GError *error;
 } BackupSaveInfo;
+
+#ifndef DISABLE_JOURNAL
 
 typedef struct {
 	GPid pid;
@@ -51,11 +54,7 @@ typedef struct {
 	GString *lines;
 } ProcessContext;
 
-GQuark
-tracker_data_backup_error_quark (void)
-{
-	return g_quark_from_static_string (TRACKER_DATA_BACKUP_ERROR_DOMAIN);
-}
+#endif /* DISABLE_JOURNAL */
 
 static void
 free_backup_save_info (BackupSaveInfo *info)
@@ -76,6 +75,15 @@ free_backup_save_info (BackupSaveInfo *info)
 
 	g_free (info);
 }
+
+
+GQuark
+tracker_data_backup_error_quark (void)
+{
+	return g_quark_from_static_string (TRACKER_DATA_BACKUP_ERROR_DOMAIN);
+}
+
+#ifndef DISABLE_JOURNAL
 
 static void
 on_journal_copied (BackupSaveInfo *info, GError *error)
@@ -209,6 +217,25 @@ process_context_child_watch_cb (GPid     pid,
 
 	process_context_destroy (context, error);
 }
+#endif /* DISABLE_JOURNAL */
+
+
+
+#ifdef DISABLE_JOURNAL
+static void
+on_backup_finished (GError *error,
+                    gpointer user_data)
+{
+	BackupSaveInfo *info = user_data;
+
+	if (info->callback) {
+		info->callback (error, info->user_data);
+	}
+
+	free_backup_save_info (info);
+}
+
+#endif /* DISABLE_JOURNAL */
 
 /* delete all regular files from the directory */
 static void
@@ -385,6 +412,7 @@ tracker_data_backup_save (GFile *destination,
                           gpointer user_data,
                           GDestroyNotify destroy)
 {
+#ifndef DISABLE_JOURNAL
 	BackupSaveInfo *info;
 	ProcessContext *context;
 	gchar **argv;
@@ -480,6 +508,20 @@ tracker_data_backup_save (GFile *destination,
 	         pid, argv[0], argv[1], argv[2]);
 
 	g_strfreev (argv);
+#else
+	BackupSaveInfo *info;
+
+	info = g_new0 (BackupSaveInfo, 1);
+	info->destination = g_object_ref (destination);
+	info->callback = callback;
+	info->user_data = user_data;
+	info->destroy = destroy;
+
+	tracker_db_backup_save (destination,
+	                        on_backup_finished, 
+	                        info,
+	                        NULL);
+#endif /* DISABLE_JOURNAL */
 }
 
 void
@@ -493,19 +535,26 @@ tracker_data_backup_restore (GFile                *journal,
 	GError *internal_error = NULL;
 
 	info = g_new0 (BackupSaveInfo, 1);
+#ifndef DISABLE_JOURNAL
 	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
+#else
+	info->destination = g_file_new_for_path (tracker_db_manager_get_file (TRACKER_DB_METADATA));
+#endif /* DISABLE_JOURNAL */
+
 	info->journal = g_object_ref (journal);
 
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags;
+		guint select_cache_size, update_cache_size;
 		gboolean is_first;
+#ifndef DISABLE_JOURNAL
+		GError *n_error = NULL;
 		GFile *parent = g_file_get_parent (info->destination);
 		gchar *tmp_stdout = NULL;
 		gchar *tmp_stderr = NULL;
 		gchar **argv;
 		gint exit_status;
-		guint select_cache_size, update_cache_size;
-		GError *n_error = NULL;
+#endif /* DISABLE_JOURNAL */
 
 		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 
@@ -513,6 +562,7 @@ tracker_data_backup_restore (GFile                *journal,
 
 		move_to_temp ();
 
+#ifndef DISABLE_JOURNAL
 		argv = g_new0 (char*, 6);
 
 		argv[0] = g_strdup ("tar");
@@ -549,8 +599,16 @@ tracker_data_backup_restore (GFile                *journal,
 		g_free (tmp_stderr);
 		g_free (tmp_stdout);
 		g_strfreev (argv);
+#else
+		g_file_copy (info->journal, info->destination,
+		             G_FILE_COPY_OVERWRITE, 
+		             NULL, NULL, NULL,
+		             &info->error);
+#endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_init_locations ();
+
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_init (NULL, FALSE, &n_error);
 
 		if (n_error) {
@@ -563,6 +621,7 @@ tracker_data_backup_restore (GFile                *journal,
 			}
 			n_error = NULL;
 		}
+#endif /* DISABLE_JOURNAL */
 
 		if (info->error) {
 			restore_from_temp ();
@@ -570,6 +629,7 @@ tracker_data_backup_restore (GFile                *journal,
 			remove_temp ();
 		}
 
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_shutdown (&n_error);
 
 		if (n_error) {
@@ -577,6 +637,7 @@ tracker_data_backup_restore (GFile                *journal,
 			           n_error->message ? n_error->message : "No error given");
 			g_error_free (n_error);
 		}
+#endif /* DISABLE_JOURNAL */
 
 		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
 		                           select_cache_size, update_cache_size,
