@@ -1747,6 +1747,7 @@ get_ontology_from_path (const gchar *ontology_path)
 	return ret;
 }
 
+/* Unused in case of DISABLE_JOURNAL */
 static void
 load_ontology_ids_from_journal (GHashTable **uri_id_map_out,
                                 gint        *max_id)
@@ -2394,9 +2395,11 @@ insert_uri_in_resource_table (TrackerDBInterface  *iface,
 		return;
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
 		tracker_db_journal_append_resource (id, uri);
 	}
+#endif /* DISABLE_JOURNAL */
 
 	g_object_unref (stmt);
 
@@ -3534,6 +3537,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
+#ifndef DISABLE_JOURNAL
 	if (journal_check && is_first_time_index) {
 		/* Call may fail without notice (it's handled) */
 		if (tracker_db_journal_reader_init (NULL, &internal_error)) {
@@ -3554,6 +3558,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 
 	env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
 
@@ -3566,6 +3571,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		ontologies_dir = g_strdup (env_path);
 	}
 
+	/* Runtime false in case of DISABLE_JOURNAL */
 	if (read_journal) {
 		in_journal_replay = TRUE;
 
@@ -3597,6 +3603,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	if (is_first_time_index && !read_only) {
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
+#ifndef DISABLE_JOURNAL
 		if (!read_journal) {
 			/* Truncate journal as it does not even contain a single valid transaction
 			 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
@@ -3608,6 +3615,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				return FALSE;
 			}
 		}
+#endif /* DISABLE_JOURNAL */
 
 		/* load ontology from files into memory (max_id starts at zero: first-time) */
 
@@ -3726,6 +3734,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		check_ontology = FALSE;
 	} else {
 		if (!read_only) {
+
+#ifndef DISABLE_JOURNAL
 			tracker_db_journal_init (NULL, FALSE, &internal_error);
 
 			if (internal_error) {
@@ -3733,6 +3743,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				return FALSE;
 			}
+#endif /* DISABLE_JOURNAL */
 
 			/* Load ontology from database into memory */
 			db_get_static_data (iface, &internal_error);
@@ -4151,6 +4162,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_list_free (ontos);
 	}
 
+	/* Runtime false in case of DISABLE_JOURNAL */
 	if (read_journal) {
 		/* Report OPERATION - STATUS */
 		busy_status = g_strdup_printf ("%s - %s",
@@ -4241,10 +4253,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 void
 tracker_data_manager_shutdown (void)
 {
+#ifndef DISABLE_JOURNAL
 	GError *error = NULL;
+#endif /* DISABLE_JOURNAL */
 
 	g_return_if_fail (initialized == TRUE);
 
+#ifndef DISABLE_JOURNAL
 	/* Make sure we shutdown all other modules we depend on */
 	tracker_db_journal_shutdown (&error);
 
@@ -4254,6 +4269,7 @@ tracker_data_manager_shutdown (void)
 		           error->message ? error->message : "No error given");
 		g_error_free (error);
 	}
+#endif /* DISABLE_JOURNAL */
 
 	tracker_db_manager_shutdown ();
 	tracker_ontologies_shutdown ();
