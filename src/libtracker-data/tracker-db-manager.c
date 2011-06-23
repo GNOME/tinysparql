@@ -266,6 +266,9 @@ db_set_params (TrackerDBInterface   *iface,
 			g_object_unref (stmt);
 		}
 
+		/* disable autocheckpoint */
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA wal_autocheckpoint = 0");
+
 		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 			g_message ("  Setting page size to %d", page_size);
 			tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);

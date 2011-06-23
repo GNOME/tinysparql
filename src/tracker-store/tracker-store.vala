@@ -30,6 +30,7 @@ public class Tracker.Store {
 	static bool update_running;
 	static ThreadPool<Task> update_pool;
 	static ThreadPool<Task> query_pool;
+	static ThreadPool<bool> checkpoint_pool;
 	static GenericArray<Task> running_tasks;
 	static int max_task_time;
 	static bool active;
@@ -212,24 +213,29 @@ public class Tracker.Store {
 				var cursor = Tracker.Data.query_sparql_cursor (query_task.query);
 
 				query_task.in_thread (cursor);
-			} else if (task.type == TaskType.UPDATE) {
-				var update_task = (UpdateTask) task;
+			} else {
+				var iface = DBManager.get_db_interface ();
+				iface.sqlite_wal_hook (wal_hook);
 
-				Tracker.Data.update_sparql (update_task.query);
-			} else if (task.type == TaskType.UPDATE_BLANK) {
-				var update_task = (UpdateTask) task;
+				if (task.type == TaskType.UPDATE) {
+					var update_task = (UpdateTask) task;
 
-				update_task.blank_nodes = Tracker.Data.update_sparql_blank (update_task.query);
-			} else if (task.type == TaskType.TURTLE) {
-				var turtle_task = (TurtleTask) task;
+					Tracker.Data.update_sparql (update_task.query);
+				} else if (task.type == TaskType.UPDATE_BLANK) {
+					var update_task = (UpdateTask) task;
 
-				var file = File.new_for_path (turtle_task.path);
+					update_task.blank_nodes = Tracker.Data.update_sparql_blank (update_task.query);
+				} else if (task.type == TaskType.TURTLE) {
+					var turtle_task = (TurtleTask) task;
 
-				Tracker.Events.freeze ();
-				try {
-					Tracker.Data.load_turtle_file (file);
-				} finally {
-					Tracker.Events.reset_pending ();
+					var file = File.new_for_path (turtle_task.path);
+
+					Tracker.Events.freeze ();
+					try {
+						Tracker.Data.load_turtle_file (file);
+					} finally {
+						Tracker.Events.reset_pending ();
+					}
 				}
 			}
 		} catch (Error e) {
@@ -240,6 +246,48 @@ public class Tracker.Store {
 			task_finish_cb (task);
 			return false;
 		});
+	}
+
+	static void wal_checkpoint () {
+		try {
+			debug ("Checkpointing database...");
+			var iface = DBManager.get_db_interface ();
+			iface.execute_query ("PRAGMA wal_checkpoint");
+			debug ("Checkpointing complete...");
+		} catch (Error e) {
+			warning (e.message);
+		}
+	}
+
+	static int checkpointing;
+
+	static void wal_hook (int n_pages) {
+		// run in update thread
+
+		debug ("WAL: %d pages", n_pages);
+
+		if (n_pages >= 10000) {
+			// do immediate checkpointing (blocking updates)
+			// to prevent excessive wal file growth
+			wal_checkpoint ();
+		} else if (n_pages >= 1000) {
+			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
+				// initiate asynchronous checkpointing (not blocking updates)
+				try {
+					checkpoint_pool.push (true);
+				} catch (Error e) {
+					warning (e.message);
+					AtomicInt.set (ref checkpointing, 0);
+				}
+			}
+		}
+	}
+
+	static void checkpoint_dispatch_cb (bool task) {
+		// run in checkpoint thread
+
+		wal_checkpoint ();
+		AtomicInt.set (ref checkpointing, 0);
 	}
 
 	public static void init () {
@@ -260,6 +308,7 @@ public class Tracker.Store {
 		try {
 			update_pool = new ThreadPool<Task> (pool_dispatch_cb, 1, true);
 			query_pool = new ThreadPool<Task> (pool_dispatch_cb, MAX_CONCURRENT_QUERIES, true);
+			checkpoint_pool = new ThreadPool<bool> (checkpoint_dispatch_cb, 1, true);
 		} catch (Error e) {
 			warning (e.message);
 		}
@@ -274,6 +323,7 @@ public class Tracker.Store {
 	public static void shutdown () {
 		query_pool = null;
 		update_pool = null;
+		checkpoint_pool = null;
 
 		for (int i = 0; i < Priority.N_PRIORITIES; i++) {
 			query_queues[i] = null;
@@ -422,6 +472,16 @@ public class Tracker.Store {
 			active_callback = pause.callback;
 			yield;
 			active_callback = null;
+		}
+
+		if (AtomicInt.get (ref checkpointing) != 0) {
+			// this will wait for checkpointing to finish
+			checkpoint_pool = null;
+			try {
+				checkpoint_pool = new ThreadPool<bool> (checkpoint_dispatch_cb, 1, true);
+			} catch (Error e) {
+				warning (e.message);
+			}
 		}
 
 		if (active) {
