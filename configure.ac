@@ -607,6 +607,20 @@ if test "x$enable_maemo" = "xyes" ; then
 fi
 
 ####################################################################
+# Check if we should disable the journal
+####################################################################
+
+AC_ARG_ENABLE(journal,
+              AS_HELP_STRING([--enable-journal],
+                             [enable journal [[default=yes]]]),
+             [enable_journal="$enableval"],
+             [enable_journal=yes])
+
+if test "x$enable_journal" = "xno" ; then
+   AC_DEFINE(DISABLE_JOURNAL, 1, [Define if we disable the journal])
+fi
+
+####################################################################
 # Check for SQLite
 ####################################################################
 
