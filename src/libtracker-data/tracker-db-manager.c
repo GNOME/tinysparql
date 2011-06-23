@@ -392,6 +392,7 @@ db_interface_create (TrackerDB db,
 static void
 db_manager_remove_journal (void)
 {
+#ifndef DISABLE_JOURNAL
 	gchar *path;
 	gchar *directory, *rotate_to = NULL;
 	gsize chunk_size;
@@ -460,6 +461,7 @@ db_manager_remove_journal (void)
 		g_message ("%s", g_strerror (errno));
 	}
 	g_free (path);
+#endif /* DISABLE_JOURNAL */
 }
 
 static void
@@ -788,6 +790,9 @@ tracker_db_manager_init_locations (void)
 	                                  "data",
 	                                  NULL);
 
+	/* For DISABLE_JOURNAL case we should use g_get_user_data_dir here. For now
+	 * keeping this as-is */
+
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
 	                             NULL);
@@ -1028,12 +1033,15 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not do shutdown check for read-only mode (direct access) */
-		gboolean must_recreate;
+		gboolean must_recreate = FALSE;
+#ifndef DISABLE_JOURNAL
 		gchar *journal_filename;
+#endif /* DISABLE_JOURNAL */
 
 		/* Load databases */
 		g_message ("Loading databases files...");
 
+#ifndef DISABLE_JOURNAL
 		journal_filename = g_build_filename (g_get_user_data_dir (),
 		                                     "tracker",
 		                                     "data",
@@ -1044,6 +1052,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 		                                                        NULL);
 
 		g_free (journal_filename);
+#endif /* DISABLE_JOURNAL */
 
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
@@ -1053,7 +1062,9 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
 				struct stat st;
 				TrackerDBStatement *stmt;
+#ifndef DISABLE_JOURNAL
 				gchar *busy_status;
+#endif /* DISABLE_JOURNAL */
 
 				if (g_stat (dbs[i].abs_filename, &st) == 0) {
 					size = st.st_size;
@@ -1090,6 +1101,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 				loaded = TRUE;
 
+#ifndef DISABLE_JOURNAL
 				/* Report OPERATION - STATUS */
 				busy_status = g_strdup_printf ("%s - %s",
 				                               busy_operation,
@@ -1132,6 +1144,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 						g_object_unref (cursor);
 					}
 				}
+#endif /* DISABLE_JOURNAL */
 
 				/* ensure that database has been initialized by an earlier tracker-store start
 				   by checking whether Resource table exists */
@@ -1155,8 +1168,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		if (must_recreate) {
-
-			g_message ("Database severely damaged. We will recreate it and replay the journal if available.");
+			g_message ("Database severely damaged. We will recreate it"
+#ifndef DISABLE_JOURNAL
+			           " and replay the journal if available.");
+#else
+			           ".");
+#endif /* DISABLE_JOURNAL */
 
 			perform_recreate (first_time, &internal_error);
 			if (internal_error) {

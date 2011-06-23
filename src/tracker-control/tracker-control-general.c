@@ -442,12 +442,12 @@ tracker_control_general_run (void)
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
+#ifndef DISABLE_JOURNAL
 		gchar *rotate_to;
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
 		gint chunk_size_mb;
-
-		db_config = tracker_db_config_new ();
+#endif /* DISABLE_JOURNAL */
 
 		/* Set log handler for library messages */
 		log_handler_id = g_log_set_handler (NULL,
@@ -456,6 +456,9 @@ tracker_control_general_run (void)
 		                                    NULL);
 
 		g_log_set_default_handler (log_handler, NULL);
+
+#ifndef DISABLE_JOURNAL
+		db_config = tracker_db_config_new ();
 
 		chunk_size_mb = tracker_db_config_get_journal_chunk_size (db_config);
 		chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
@@ -467,6 +470,8 @@ tracker_control_general_run (void)
 
 		g_free (rotate_to);
 		g_object_unref (db_config);
+
+#endif /* DISABLE_JOURNAL */
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
@@ -485,12 +490,15 @@ tracker_control_general_run (void)
 
 			return EXIT_FAILURE;
 		}
-
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_init (NULL, FALSE, NULL);
+#endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_remove_all (hard_reset);
 		tracker_db_manager_shutdown ();
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);

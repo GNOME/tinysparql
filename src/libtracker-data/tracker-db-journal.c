@@ -43,6 +43,8 @@
 
 #include "tracker-db-journal.h"
 
+#ifndef DISABLE_JOURNAL
+
 #define MIN_BLOCK_SIZE    1024
 
 /*
@@ -1096,7 +1098,6 @@ tracker_db_journal_append_resource (gint         s_id,
 
 	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
-
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		ret = db_journal_writer_append_resource (&ontology_writer, s_id, uri);
 	} else {
@@ -2081,6 +2082,10 @@ tracker_db_journal_rotate (GError **error)
 	GError *n_error = NULL;
 	gboolean ret;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (max == 0) {
 		gchar *directory;
 		GDir *journal_dir;
@@ -2170,3 +2175,13 @@ tracker_db_journal_rotate (GError **error)
 	return ret;
 }
 #endif /* GLib check */
+
+#else /* DISABLE_JOURNAL */
+void
+tracker_db_journal_set_rotating (gboolean     do_rotating,
+                                 gsize        chunk_size,
+                                 const gchar *rotate_to)
+{
+	/* intentionally left blank, used for internal API compatibility */
+}
+#endif /* DISABLE_JOURNAL */

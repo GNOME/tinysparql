@@ -657,9 +657,11 @@ ensure_resource_id (const gchar *uri,
 			g_error_free (error);
 		}
 
+#ifndef DISABLE_JOURNAL
 		if (!in_journal_replay) {
 			tracker_db_journal_append_resource (id, uri);
 		}
+#endif /* DISABLE_JOURNAL */
 
 		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
 	}
@@ -2140,6 +2142,7 @@ tracker_data_delete_statement (const gchar  *graph,
 		if (class != NULL) {
 			has_persistent = TRUE;
 
+#ifndef DISABLE_JOURNAL
 			if (!in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
 				       (graph != NULL ? query_resource_id (graph) : 0),
@@ -2147,6 +2150,8 @@ tracker_data_delete_statement (const gchar  *graph,
 				       tracker_data_query_resource_id (predicate),
 				       tracker_class_get_id (class));
 			}
+#endif /* DISABLE_JOURNAL */
+
 			cache_delete_resource_type (class, graph, 0);
 		} else {
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
@@ -2167,37 +2172,42 @@ tracker_data_delete_statement (const gchar  *graph,
 			if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 
-					pred_id = tracker_property_get_id (field);
 					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+					pred_id = tracker_property_get_id (field);
 					object_id = query_resource_id (object);
 					tried = TRUE;
 
+#ifndef DISABLE_JOURNAL
 					tracker_db_journal_append_delete_statement_id (graph_id,
 					                                               resource_buffer->id,
 					                                               pred_id,
 					                                               object_id);
+#endif /* DISABLE_JOURNAL */
 				} else {
 					pred_id = tracker_property_get_id (field);
 					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 					object_id = 0;
 					tried = TRUE;
 
+#ifndef DISABLE_JOURNAL
 					if (!tracker_property_get_force_journal (field) &&
 					    g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
 						/* do not journal this statement extracted from filesystem */
 						TrackerProperty *damaged;
 
 						damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+
 						tracker_db_journal_append_insert_statement (graph_id,
-										            resource_buffer->id,
-										            tracker_property_get_id (damaged),
-										            "true");
+						                                            resource_buffer->id,
+						                                            tracker_property_get_id (damaged),
+						                                            "true");
 					} else {
 						tracker_db_journal_append_delete_statement (graph_id,
 						                                            resource_buffer->id,
 						                                            pred_id,
 						                                            object);
 					}
+#endif /* DISABLE_JOURNAL */
 				}
 			}
 		} else {
@@ -2459,6 +2469,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		}
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		tracker_db_journal_append_insert_statement_id (
 			(graph != NULL ? query_resource_id (graph) : 0),
@@ -2466,6 +2477,8 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			final_prop_id,
 			object_id);
 	}
+#endif /* DISABLE_JOURNAL */
+
 }
 
 void
@@ -2538,6 +2551,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 		}
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		if (!tried) {
 			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
@@ -2560,6 +2574,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 				                                    object);
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 }
 
 static void
@@ -2752,6 +2767,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		}
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		tracker_db_journal_append_update_statement_id (
 			(graph != NULL ? query_resource_id (graph) : 0),
@@ -2759,6 +2775,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 			final_prop_id,
 			object_id);
 	}
+#endif /* DISABLE_JOURNAL */
 }
 
 static void
@@ -2873,6 +2890,7 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		}
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		if (!tried) {
 			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
@@ -2895,6 +2913,7 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 			                                            object);
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 }
 
 void
@@ -2960,6 +2979,7 @@ tracker_data_begin_transaction (GError **error)
 
 	tracker_db_interface_start_transaction (iface);
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
 		if (in_ontology_transaction) {
 			GError *n_error = NULL;
@@ -2976,6 +2996,7 @@ tracker_data_begin_transaction (GError **error)
 			tracker_db_journal_start_transaction (resource_time);
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -3023,6 +3044,7 @@ tracker_data_commit_transaction (GError **error)
 		return;
 	}
 
+#ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
 		if (has_persistent || in_ontology_transaction) {
 			tracker_db_journal_commit_db_transaction (&actual_error);
@@ -3039,6 +3061,7 @@ tracker_data_commit_transaction (GError **error)
 			/* Don't return, remainder of the function cleans things up */
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 
 	get_transaction_modseq ();
 	if (has_persistent && !in_ontology_transaction) {
@@ -3107,7 +3130,10 @@ tracker_data_rollback_transaction (void)
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
+	/* Runtime false in case of DISABLE_JOURNAL */
 	if (!in_journal_replay) {
+
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_rollback_transaction (&ignorable);
 
 		if (ignorable) {
@@ -3117,6 +3143,8 @@ tracker_data_rollback_transaction (void)
 			           ignorable->message ? ignorable->message : "No error given");
 			g_error_free (ignorable);
 		}
+#endif /* DISABLE_JOURNAL */
+
 
 		if (rollback_callbacks) {
 			guint n;
@@ -3197,6 +3225,8 @@ tracker_data_sync (void)
 {
 	tracker_db_journal_fsync ();
 }
+
+#ifndef DISABLE_JOURNAL
 
 void
 tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
@@ -3502,3 +3532,16 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		tracker_db_journal_reader_shutdown ();
 	}
 }
+
+#else
+
+void
+tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
+                             gpointer              busy_user_data,
+                             const gchar          *busy_status,
+                             GError              **error)
+{
+	g_critical ("Not good. We disabled the journal and yet replaying it got called");
+}
+
+#endif /* DISABLE_JOURNAL */
