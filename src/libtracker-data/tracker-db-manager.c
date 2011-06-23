@@ -234,7 +234,7 @@ db_set_params (TrackerDBInterface   *iface,
 		GError *internal_error = NULL;
 		TrackerDBStatement *stmt;
 
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
