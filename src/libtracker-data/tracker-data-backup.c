@@ -608,6 +608,16 @@ tracker_data_backup_restore (GFile                *journal,
 
 		tracker_db_manager_init_locations ();
 
+		/* Re-set the DB version file, so that its mtime changes. The mtime of this
+		 * file will change only when the whole DB is recreated (after a hard reset
+		 * or after a backup restoration). */
+		tracker_db_manager_create_version_file ();
+
+		/* Given we're radically changing the database, we
+		 * force a full mtime check against all known files in
+		 * the database for complete synchronisation. */
+		tracker_db_manager_set_need_mtime_check (TRUE);
+
 #ifndef DISABLE_JOURNAL
 		tracker_db_journal_init (NULL, FALSE, &n_error);
 
@@ -621,7 +631,6 @@ tracker_data_backup_restore (GFile                *journal,
 			}
 			n_error = NULL;
 		}
-#endif /* DISABLE_JOURNAL */
 
 		if (info->error) {
 			restore_from_temp ();
@@ -629,7 +638,6 @@ tracker_data_backup_restore (GFile                *journal,
 			remove_temp ();
 		}
 
-#ifndef DISABLE_JOURNAL
 		tracker_db_journal_shutdown (&n_error);
 
 		if (n_error) {
@@ -639,23 +647,26 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
+		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup", &internal_error);
 
+#ifdef DISABLE_JOURNAL
+		if (internal_error) {
+			restore_from_temp ();
+
+			tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
+			                           select_cache_size, update_cache_size,
+			                           busy_callback, busy_user_data,
+			                           "Restoring backup", &internal_error);
+		} else {
+			remove_temp ();
+		}
+#endif /* DISABLE_JOURNAL */
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-		} else {
-			/* Re-set the DB version file, so that its mtime changes. The mtime of this
-			 * file will change only when the whole DB is recreated (after a hard reset
-			 * or after a backup restoration). */
-			tracker_db_manager_create_version_file ();
-
-			/* Given we're radically changing the database, we
-			 * force a full mtime check against all known files in
-			 * the database for complete synchronisation. */
-			tracker_db_manager_set_need_mtime_check (TRUE);
 		}
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,

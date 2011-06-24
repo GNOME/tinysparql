@@ -835,6 +835,7 @@ perform_recreate (gboolean *first_time, GError **error)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
                          gboolean               *first_time,
+                         gboolean                restoring_backup,
                          gboolean                shared_cache,
                          guint                   select_cache_size,
                          guint                   update_cache_size,
@@ -1062,7 +1063,14 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				 * are only one byte in size even initually. */
 
 				if (size <= 1) {
-					must_recreate = TRUE;
+					if (!restoring_backup) {
+						must_recreate = TRUE;
+					} else {
+						g_set_error (&internal_error,
+						             TRACKER_DB_INTERFACE_ERROR,
+						             TRACKER_DB_OPEN_ERROR,
+						             "Corrupt db file");
+					}
 					continue;
 				}
 
@@ -1071,8 +1079,10 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					/* If this already doesn't succeed, then surely the file is
 					 * corrupt. No need to check for integrity anymore. */
-					g_clear_error (&internal_error);
-					must_recreate = TRUE;
+					if (!restoring_backup) {
+						g_clear_error (&internal_error);
+						must_recreate = TRUE;
+					}
 					continue;
 				}
 
@@ -1129,9 +1139,13 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				                                              &internal_error,
 				                                              "SELECT 1 FROM Resource");
 				if (internal_error != NULL) {
-					must_recreate = TRUE;
-					g_error_free (internal_error);
-					internal_error = NULL;
+					if (!restoring_backup) {
+						must_recreate = TRUE;
+						g_error_free (internal_error);
+						internal_error = NULL;
+					} else {
+						continue;
+					}
 				} else {
 					g_object_unref (stmt);
 				}
@@ -1150,8 +1164,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				return FALSE;
 			}
 			loaded = FALSE;
+		} else {
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
 		}
-
 	}
 
 	if (!loaded) {
@@ -1185,14 +1203,17 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	}
 
 	if (internal_error) {
-		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-			perform_recreate (first_time, &internal_error);
-			if (!internal_error) {
+		if ((!restoring_backup) && (flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+			GError *new_error = NULL;
+
+			perform_recreate (first_time, &new_error);
+			if (!new_error) {
 				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
 				                                                        TRACKER_DB_METADATA);
-			}
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
+			} else {
+				/* Most serious error is the recreate one here */
+				g_clear_error (&internal_error);
+				g_propagate_error (error, new_error);
 				initialized = FALSE;
 				return FALSE;
 			}
