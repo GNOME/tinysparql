@@ -154,6 +154,7 @@ test_backup_and_restore_helper (gboolean journal)
 	g_unlink (meta_db);
 	g_free (meta_db);
 
+#ifndef DISABLE_JOURNAL
 	if (!journal) {
 		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
 		g_unlink (meta_db);
@@ -163,12 +164,15 @@ test_backup_and_restore_helper (gboolean journal)
 		g_unlink (meta_db);
 		g_free (meta_db);
 	}
+#endif /* DISABLE_JOURNAL */
 
 	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
 	g_unlink (meta_db);
 	g_free (meta_db);
 
+#ifndef DISABLE_JOURNAL
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+#endif /* DISABLE_JOURNAL */
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           (const gchar **) test_schemas,

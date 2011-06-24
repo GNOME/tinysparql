@@ -600,6 +600,9 @@ tracker_data_backup_restore (GFile                *journal,
 		g_free (tmp_stdout);
 		g_strfreev (argv);
 #else
+		/* Turn off force-reindex here, no journal to replay so it wouldn't work */
+		flags &= ~TRACKER_DB_MANAGER_FORCE_REINDEX;
+
 		g_file_copy (info->journal, info->destination,
 		             G_FILE_COPY_OVERWRITE, 
 		             NULL, NULL, NULL,
