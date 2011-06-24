@@ -80,6 +80,7 @@ BINDIR = os.path.normpath (expandvars (RAW_BINDIR))
                             
 haveMaemo = ("@HAVE_MAEMO_TRUE@" == "")
 haveUpstart = ("@HAVE_UPSTART_TRUE@" == "")
+disableJournal = ("@DISABLE_JOURNAL_TRUE@" == "")
 
 TEST_TMP_DIR = os.path.join (os.environ["HOME"], ".tracker-tests")
         
