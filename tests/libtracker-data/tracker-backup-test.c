@@ -112,7 +112,8 @@ test_backup_and_restore_helper (gboolean journal)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           (const gchar **) test_schemas,
-	                           NULL, FALSE, 100, 100, NULL, NULL, NULL, &error);
+	                           NULL, FALSE, FALSE,
+	                           100, 100, NULL, NULL, NULL, &error);
 
 	g_assert_no_error (error);
 
@@ -175,7 +176,8 @@ test_backup_and_restore_helper (gboolean journal)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           (const gchar **) test_schemas,
-	                           NULL, FALSE, 100, 100, NULL, NULL, NULL, &error);
+	                           NULL, FALSE, FALSE,
+	                           100, 100, NULL, NULL, NULL, &error);
 
 	g_assert_no_error (error);
 

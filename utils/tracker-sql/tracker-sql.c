@@ -134,6 +134,7 @@ main (int argc, char **argv)
 		                                NULL,
 		                                &first_time,
 		                                FALSE,
+		                                FALSE,
 		                                100,
 		                                100,
 		                                NULL,

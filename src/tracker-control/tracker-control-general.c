@@ -476,6 +476,7 @@ tracker_control_general_run (void)
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
 		                              NULL,
 		                              FALSE,
+		                              FALSE,
 		                              100,
 		                              100,
 		                              NULL,

@@ -242,7 +242,8 @@ test_sparql_query (gconstpointer test_data)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           test_schemas,
-	                           NULL, FALSE, 100, 100, NULL, NULL, NULL, &error);
+	                           NULL, FALSE, FALSE,
+	                           100, 100, NULL, NULL, NULL, &error);
 
 	g_assert_no_error (error);
 

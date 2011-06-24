@@ -278,6 +278,7 @@ License which can be viewed at:
 			                           null,
 			                           out is_first_time_index,
 			                           true,
+			                           false,
 			                           select_cache_size,
 			                           update_cache_size,
 			                           busy_callback,

@@ -33,7 +33,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 					select_cache_size = int.parse (env_cache_size);
 				}
 
-				Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
+				Data.Manager.init (DBManagerFlags.READONLY, null, null, false, false, select_cache_size, 0, null, null);
 			}
 
 			use_count++;
