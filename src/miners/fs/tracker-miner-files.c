@@ -104,6 +104,8 @@ struct TrackerMinerFilesPrivate {
 	guint failed_extraction_pause_cookie;
 	GList *extraction_queue;
 	GList *failed_extraction_queue;
+
+	gboolean failsafe_extraction;
 };
 
 enum {
@@ -2036,9 +2038,9 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 	 * again, so we get the essential data in the store.
 	 */
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (miner), data->file, NULL);
-	process_file_data_free (data);
 
 	priv->failed_extraction_queue = g_list_remove (priv->failed_extraction_queue, data);
+	process_file_data_free (data);
 
 	/* Get on to the next failed extraction, or resume miner */
 	extractor_process_failsafe (miner);
@@ -2080,7 +2082,31 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 
 			priv->failed_extraction_pause_cookie = 0;
 		}
+
+		priv->failsafe_extraction = FALSE;
 	}
+}
+
+static void
+extractor_check_process_failsafe (TrackerMinerFiles *miner)
+{
+	TrackerMinerFilesPrivate *priv;
+
+	priv = miner->private;
+
+	if (priv->failsafe_extraction) {
+		/* already on failsafe extraction */
+		return;
+	}
+
+	if (priv->extraction_queue ||
+	    !priv->failed_extraction_queue) {
+		/* No reasons (yet) to start failsafe extraction */
+		return;
+	}
+
+	priv->failsafe_extraction = TRUE;
+	extractor_process_failsafe (miner);
 }
 
 static void
@@ -2109,7 +2135,6 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 			uri = g_file_get_uri (data->file);
 			g_warning ("  Got extraction DBus error on '%s': %s", uri, error->message);
 
-			/* Pause the miner until we've finished failsafe extraction retry */
 			if (priv->failed_extraction_pause_cookie != 0) {
 				priv->failed_extraction_pause_cookie =
 					tracker_miner_pause (TRACKER_MINER (data->miner),
@@ -2143,10 +2168,7 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 	/* Wait until there are no pending extraction requests
 	 * before starting failsafe extraction process.
 	 */
-	if (!priv->extraction_queue &&
-	    priv->failed_extraction_queue) {
-		extractor_process_failsafe (miner);
-	}
+	extractor_check_process_failsafe (miner);
 }
 
 static void
@@ -2170,7 +2192,7 @@ process_file_cb (GObject      *object,
 	file = G_FILE (object);
 	sparql = data->sparql;
 	file_info = g_file_query_info_finish (file, result, &error);
-	priv = data->miner->private;
+	priv = TRACKER_MINER_FILES (data->miner)->private;
 
 	if (error) {
 		/* Something bad happened, notify about the error */
@@ -2244,8 +2266,6 @@ process_file_cb (GObject      *object,
 	miner_files_add_to_datasource (data->miner, file, sparql);
 
 	if (tracker_extract_module_manager_mimetype_is_handled (mime_type)) {
-		priv->extraction_queue = g_list_prepend (priv->extraction_queue, data);
-
 		/* Next step, if handled by the extractor, get embedded metadata */
 		tracker_extract_client_get_metadata (data->file,
 		                                     mime_type,
@@ -2257,6 +2277,9 @@ process_file_cb (GObject      *object,
 		g_debug ("Avoiding embedded metadata request for uri '%s'", uri);
 		sparql_builder_finish (data, NULL, NULL, NULL);
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
+
+		priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
+		extractor_check_process_failsafe (data->miner);
 	}
 
 	g_object_unref (file_info);
@@ -2269,6 +2292,7 @@ miner_files_process_file (TrackerMinerFS       *fs,
                           TrackerSparqlBuilder *sparql,
                           GCancellable         *cancellable)
 {
+	TrackerMinerFilesPrivate *priv;
 	ProcessFileData *data;
 	const gchar *attrs;
 
@@ -2277,6 +2301,9 @@ miner_files_process_file (TrackerMinerFS       *fs,
 	data->cancellable = g_object_ref (cancellable);
 	data->sparql = g_object_ref (sparql);
 	data->file = g_object_ref (file);
+
+	priv = TRACKER_MINER_FILES (fs)->private;
+	priv->extraction_queue = g_list_prepend (priv->extraction_queue, data);
 
 	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
 		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
