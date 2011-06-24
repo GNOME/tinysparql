@@ -315,6 +315,7 @@ public class Tracker.Needle {
 		taglist = new Tracker.TagList ();
 		taglist.hide ();
 		view.pack_end (taglist, false, true, 0);
+		taglist.selection_changed.connect (taglist_selection_changed);
 
 		view_categories.set_active (true);
 	}
@@ -327,6 +328,15 @@ public class Tracker.Needle {
 		}
 
 		return false;
+	}
+
+	private void taglist_selection_changed (GenericArray<string> new_tags) {
+		if (new_tags != null && new_tags.length > 0)
+			debug ("Tags selected changed, first:'%s', ...", new_tags[0]);
+		else
+			debug ("Tags selected changed, none selected");
+
+		search_run ();
 	}
 
 	private void search_changed (Editable editable) {
@@ -457,6 +467,13 @@ public class Tracker.Needle {
 		}
 
 		if (store != null) {
+			// Set tags first
+			if (show_tags.active) {
+				store.search_tags = taglist.tags;
+			} else {
+				store.search_tags = null;
+			}
+
 			store.search_term = search.get_text ();
 		}
 
@@ -600,6 +617,9 @@ public class Tracker.Needle {
 			debug ("Hiding tags");
 			taglist.hide ();
 		}
+
+		// Re-run search to filter with or without tags
+		search_run ();
 	}
 
 	private void show_stats_clicked () {

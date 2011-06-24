@@ -26,8 +26,14 @@ public class Tracker.TagList : ScrolledWindow {
 	private int offset;
 	private int limit;
 
+	public GenericArray<string> tags { get; private set; }
+
+	public signal void selection_changed (GenericArray<string> new_tags); 
+
 	public TagList () {
 		limit = 100;
+
+		tags = new GenericArray<string> ();
 
 		// Set scrolling
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
@@ -47,7 +53,7 @@ public class Tracker.TagList : ScrolledWindow {
 		Gtk.CellRenderer renderer;
 
 		col = new Gtk.TreeViewColumn ();
-		col.set_title (_("Tags"));
+		col.set_title (_("Filter by tags"));
 		col.set_resizable (true);
 		col.set_expand (true);
 		col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
@@ -61,7 +67,7 @@ public class Tracker.TagList : ScrolledWindow {
 
 		renderer = new CellRendererText ();
 		col.pack_start (renderer, true);
-		col.set_cell_data_func (renderer, text_renderer_func);
+		col.set_cell_data_func (renderer, model_text_renderer_func);
 
 		renderer = new CellRendererText ();
 		renderer.xpad = 5;
@@ -69,6 +75,9 @@ public class Tracker.TagList : ScrolledWindow {
 		col.pack_end (renderer, false);
 		col.add_attribute (renderer, "text", 3);
 		treeview.append_column (col);
+
+		var selection = treeview.get_selection ();
+		selection.changed.connect (model_selection_changed);
 
 		add (treeview);
 		base.show_all ();
@@ -81,13 +90,13 @@ public class Tracker.TagList : ScrolledWindow {
 			return;
 		}
 
-		get_tags.begin ();
+		query_get_tags.begin ();
 	}
 
-	private void text_renderer_func (CellLayout   cell_layout,
-	                                 CellRenderer cell,
-	                                 TreeModel    tree_model,
-	                                 TreeIter     iter) {
+	private void model_text_renderer_func (CellLayout   cell_layout,
+	                                       CellRenderer cell,
+	                                       TreeModel    tree_model,
+	                                       TreeIter     iter) {
 		string text, subtext;
 		string markup = null;
 
@@ -104,7 +113,20 @@ public class Tracker.TagList : ScrolledWindow {
 		cell.set ("markup", markup);
 	}
 
-	private async void get_tags () {
+	private void model_selection_foreach (TreeModel model, TreePath path, TreeIter iter) {
+		weak string tag;
+		model.get (iter, 1, out tag);
+		tags.add (tag);
+	}
+
+	private void model_selection_changed (TreeSelection selection) {
+		tags = new GenericArray<string> ();
+
+		selection.selected_foreach (model_selection_foreach);
+		selection_changed (tags);
+	}
+
+	private async void query_get_tags () {
 		string query = @"
 		               SELECT 
 		                 ?tag 
