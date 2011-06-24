@@ -297,7 +297,14 @@ get_gps_coordinate (ExifData *exif,
 		c2 = exif_get_rational (entry->data+8, order);
 		c3 = exif_get_rational (entry->data+16, order);
 		ref = exif_get_short (refentry->data, order);
-		
+
+		/* Avoid ridiculous values */
+		if (c1.denominator == 0 ||
+		    c2.denominator == 0 ||
+		    c3.denominator == 0) {
+			return NULL;
+		}
+
 		f = (double)c1.numerator/c1.denominator+
 		    (double)c2.numerator/(c2.denominator*60)+
 		    (double)c3.numerator/(c3.denominator*60*60);
@@ -327,6 +334,12 @@ get_gps_altitude (ExifData *exif,
 
 		order = exif_data_get_byte_order (exif);
 		c = exif_get_rational (entry->data, order);
+
+		/* Avoid ridiculous values */
+		if (c.denominator == 0) {
+			return NULL;
+		}
+
 		f = (double)c.numerator/c.denominator;
 
 		/* Strictly speaking it is invalid not to have this
