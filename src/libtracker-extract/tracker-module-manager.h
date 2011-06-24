@@ -38,6 +38,8 @@ typedef enum {
 	TRACKER_MODULE_MULTI_THREAD
 } TrackerModuleThreadAwareness;
 
+typedef struct _TrackerMimetypeInfo TrackerMimetypeInfo;
+
 typedef gboolean (* TrackerExtractInitFunc)     (TrackerModuleThreadAwareness  *thread_awareness_ret,
                                                  GError                       **error);
 typedef void     (* TrackerExtractShutdownFunc) (void);
@@ -54,7 +56,17 @@ GModule * tracker_extract_module_manager_get_for_mimetype    (const gchar       
                                                               TrackerExtractInitFunc       *init_func,
                                                               TrackerExtractShutdownFunc   *shutdown_func,
                                                               TrackerExtractMetadataFunc   *extract_func);
+
 gboolean  tracker_extract_module_manager_mimetype_is_handled (const gchar                *mimetype);
+
+
+TrackerMimetypeInfo * tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype);
+
+GModule * tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
+                                            TrackerExtractMetadataFunc   *extract_func,
+                                            TrackerModuleThreadAwareness *thread_awareness);
+gboolean  tracker_mimetype_info_iter_next  (TrackerMimetypeInfo          *info);
+void      tracker_mimetype_info_free       (TrackerMimetypeInfo          *info);
 
 G_END_DECLS
 

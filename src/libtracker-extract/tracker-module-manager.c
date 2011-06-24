@@ -38,12 +38,20 @@ typedef struct {
 	TrackerExtractMetadataFunc extract_func;
 	TrackerExtractInitFunc init_func;
 	TrackerExtractShutdownFunc shutdown_func;
+	guint initialized : 1;
 } ModuleInfo;
 
 static GHashTable *modules = NULL;
 static GHashTable *mimetype_map = NULL;
 static gboolean initialized = FALSE;
 static GArray *rules = NULL;
+
+struct _TrackerMimetypeInfo {
+	const GList *rules;
+	const GList *cur;
+
+	ModuleInfo *cur_module_info;
+};
 
 static gboolean
 load_extractor_rule (GKeyFile  *key_file,
@@ -165,9 +173,10 @@ tracker_extract_module_manager_init (void)
 	return TRUE;
 }
 
-static RuleInfo *
-lookup_rule (const gchar *mimetype)
+static GList *
+lookup_rules (const gchar *mimetype)
 {
+	GList *mimetype_rules = NULL;
 	RuleInfo *info;
 	gchar *reversed;
 	gint len, i;
@@ -176,11 +185,11 @@ lookup_rule (const gchar *mimetype)
 		return NULL;
 	}
 
-	if (!mimetype_map) {
-		info = g_hash_table_lookup (mimetype_map, mimetype);
+	if (mimetype_map) {
+		mimetype_rules = g_hash_table_lookup (mimetype_map, mimetype);
 
-		if (info) {
-			return info;
+		if (mimetype_rules) {
+			return mimetype_rules;
 		}
 	}
 
@@ -197,49 +206,26 @@ lookup_rule (const gchar *mimetype)
 		for (l = info->patterns; l; l = l->next) {
 			if (g_pattern_match (l->data, len, mimetype, reversed)) {
 				/* Match, store for future queries and return */
-				g_hash_table_insert (mimetype_map, g_strdup (mimetype), info);
-				g_free (reversed);
-				return info;
+				mimetype_rules = g_list_prepend (mimetype_rules, info);
 			}
 		}
 	}
 
+	if (mimetype_rules) {
+		mimetype_rules = g_list_reverse (mimetype_rules);
+		g_hash_table_insert (mimetype_map, g_strdup (mimetype), mimetype_rules);
+	}
+
 	g_free (reversed);
 
-	return NULL;
+	return mimetype_rules;
 }
 
-GModule *
-tracker_extract_module_manager_get_for_mimetype (const gchar                  *mimetype,
-                                                 TrackerExtractInitFunc       *init_func,
-                                                 TrackerExtractShutdownFunc   *shutdown_func,
-                                                 TrackerExtractMetadataFunc   *extract_func)
+static ModuleInfo *
+load_module (RuleInfo *info,
+	     gboolean  initialize)
 {
 	ModuleInfo *module_info = NULL;
-	RuleInfo *info;
-
-	if (init_func) {
-		*init_func = NULL;
-	}
-
-	if (shutdown_func) {
-		*shutdown_func = NULL;
-	}
-
-	if (extract_func) {
-		*extract_func = NULL;
-	}
-
-	if (!initialized &&
-	    !tracker_extract_module_manager_init ()) {
-		return NULL;
-	}
-
-	info = lookup_rule (mimetype);
-
-	if (!info) {
-		return NULL;
-	}
 
 	if (modules) {
 		module_info = g_hash_table_lookup (modules, info->module_path);
@@ -284,6 +270,70 @@ tracker_extract_module_manager_get_for_mimetype (const gchar                  *m
 		g_hash_table_insert (modules, (gpointer) info->module_path, module_info);
 	}
 
+	if (module_info && initialize &&
+	    !module_info->initialized) {
+		if (module_info->init_func) {
+			GError *error = NULL;
+
+			if (!(module_info->init_func) (&module_info->thread_awareness, &error)) {
+				g_critical ("Could not initialize module %s: %s",
+					    g_module_name (module_info->module),
+					    (error) ? error->message : "No error given");
+
+				if (error) {
+					g_error_free (error);
+				}
+
+				return NULL;
+			}
+		} else {
+			module_info->thread_awareness = TRACKER_MODULE_MAIN_THREAD;
+		}
+
+		module_info->initialized = TRUE;
+	}
+
+	return module_info;
+}
+
+GModule *
+tracker_extract_module_manager_get_for_mimetype (const gchar                  *mimetype,
+                                                 TrackerExtractInitFunc       *init_func,
+                                                 TrackerExtractShutdownFunc   *shutdown_func,
+                                                 TrackerExtractMetadataFunc   *extract_func)
+{
+	ModuleInfo *module_info = NULL;
+	GList *mimetype_rules;
+
+	if (init_func) {
+		*init_func = NULL;
+	}
+
+	if (shutdown_func) {
+		*shutdown_func = NULL;
+	}
+
+	if (extract_func) {
+		*extract_func = NULL;
+	}
+
+	if (!initialized &&
+	    !tracker_extract_module_manager_init ()) {
+		return NULL;
+	}
+
+	mimetype_rules = lookup_rules (mimetype);
+
+	if (!mimetype_rules) {
+		return NULL;
+	}
+
+	module_info = load_module (mimetype_rules->data, FALSE);
+
+	if (!module_info) {
+		return NULL;
+	}
+
 	if (extract_func) {
 		*extract_func = module_info->extract_func;
 	}
@@ -302,14 +352,142 @@ tracker_extract_module_manager_get_for_mimetype (const gchar                  *m
 gboolean
 tracker_extract_module_manager_mimetype_is_handled (const gchar *mimetype)
 {
-	RuleInfo *info;
+	GList *mimetype_rules;
 
 	if (!initialized &&
 	    !tracker_extract_module_manager_init ()) {
 		return FALSE;
 	}
 
-	info = lookup_rule (mimetype);
+	mimetype_rules = lookup_rules (mimetype);
 
-	return info != NULL;
+	return mimetype_rules != NULL;
+}
+
+static gboolean
+initialize_first_module (TrackerMimetypeInfo *info)
+{
+	ModuleInfo *module_info = NULL;
+
+	/* Actually iterates through the list loaded + initialized module */
+	while (info->cur && !module_info) {
+		module_info = load_module (info->cur->data, TRUE);
+
+		if (!module_info) {
+			info->cur = info->cur->next;
+		}
+	}
+
+	info->cur_module_info = module_info;
+	return (info->cur_module_info != NULL);
+}
+
+/**
+ * tracker_extract_module_manager_get_mimetype_handlers:
+ * @mimetype: a mimetype string
+ *
+ * Returns a #TrackerMimetypeInfo struct containing information about
+ * the modules that handle @mimetype, or %NULL if no modules handle
+ * @mimetype.
+ *
+ * The modules are ordered from most to least specific, and the
+ * returned #TrackerMimetypeInfo already points to the first
+ * module.
+ *
+ * Returns: (transfer full): (free-function: tracker_mimetype_info_free):
+ *          (allow-none): A #TrackerMimetypeInfo holding the information
+ *          about the different modules handling @mimetype, or %NULL if
+ *          no modules handle @mimetype.
+ **/
+TrackerMimetypeInfo *
+tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
+{
+	TrackerMimetypeInfo *info;
+	GList *mimetype_rules;
+
+	g_return_val_if_fail (mimetype != NULL, NULL);
+
+	mimetype_rules = lookup_rules (mimetype);
+
+	g_print ("EING: %p\n", mimetype_rules);
+
+	if (!mimetype_rules) {
+		return NULL;
+	}
+
+	info = g_slice_new0 (TrackerMimetypeInfo);
+	info->rules = mimetype_rules;
+	info->cur = info->rules;
+
+	if (!initialize_first_module (info)) {
+		g_print ("NOOOO\n");
+		tracker_mimetype_info_free (info);
+		info = NULL;
+	}
+
+	return info;
+}
+
+/**
+ * tracker_mimetype_info_get_module:
+ * @info: a #TrackerMimetypeInfo
+ * @extract_func: (out): (allow-none): return value for the extraction function
+ * @thread_awareness: (out): (allow-none): thread awareness of the extractor module
+ *
+ * Returns the #GModule that @info is currently pointing to, if @extract_func is
+ * not %NULL, it will be filled in with the pointer to the metadata extraction
+ * function. If @thread_awareness is not %NULL, it will be filled in with the
+ * module thread awareness description.
+ *
+ * Returns: The %GModule currently pointed to by @info.
+ **/
+GModule *
+tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
+                                  TrackerExtractMetadataFunc   *extract_func,
+                                  TrackerModuleThreadAwareness *thread_awareness)
+{
+	g_return_val_if_fail (info != NULL, NULL);
+
+	if (!info->cur_module_info) {
+		return NULL;
+	}
+
+	if (extract_func) {
+		*extract_func = info->cur_module_info->extract_func;
+	}
+
+	if (thread_awareness) {
+		*thread_awareness = info->cur_module_info->thread_awareness;
+	}
+
+	return info->cur_module_info->module;
+}
+
+/**
+ * tracker_mimetype_info_iter_next:
+ * @info: a #TrackerMimetypeInfo
+ *
+ * Iterates to the next module handling the mimetype.
+ *
+ * Returns: %TRUE if there is a next module.
+ **/
+gboolean
+tracker_mimetype_info_iter_next (TrackerMimetypeInfo *info)
+{
+	g_return_val_if_fail (info != NULL, FALSE);
+
+	if (info->cur->next) {
+		info->cur = info->cur->next;
+		return initialize_first_module (info);
+	}
+
+	return FALSE;
+}
+
+void
+tracker_mimetype_info_free (TrackerMimetypeInfo *info)
+{
+	g_return_if_fail (info != NULL);
+
+	g_slice_free (TrackerMimetypeInfo, info);
 }
