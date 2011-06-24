@@ -625,6 +625,8 @@ AC_ARG_ENABLE(journal,
              [enable_journal="$enableval"],
              [enable_journal=yes])
 
+AM_CONDITIONAL(DISABLE_JOURNAL, test "x$enable_journal" = "xno")
+
 if test "x$enable_journal" = "xno" ; then
    AC_DEFINE(DISABLE_JOURNAL, 1, [Define if we disable the journal])
 fi

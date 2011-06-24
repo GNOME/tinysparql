@@ -28,6 +28,7 @@ on the files. Note that these tests are highly platform dependant.
 import sys
 import unittest2 as ut
 from unittest2.compatibility import wraps
+import configuration as cfg
 
 def expectedFailureBug(bugnumber):
     """
@@ -44,5 +45,24 @@ def expectedFailureBug(bugnumber):
             except Exception:
                 raise ut.case._ExpectedFailure(sys.exc_info())
             raise Exception ("Unexpected success. This should fail because of bug " +str(bugnumber))
+        return wrapper
+    return decorator
+
+def expectedFailureJournal():
+    """
+    Decorator to handle tests that are expected to fail when journal is disabled.
+    """
+    def decorator (func):
+        # no wrapping if journal is enabled, test is expected to pass
+        if not cfg.disableJournal:
+            return func
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                func(*args, **kwargs)
+            except Exception:
+                raise ut.case._ExpectedFailure(sys.exc_info())
+            raise Exception ("Unexpected success. This should fail because journal is disabled")
         return wrapper
     return decorator
