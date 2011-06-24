@@ -87,6 +87,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			query = new Tracker.Query ();
 			query.criteria = _search_term;
+			query.tags = search_tags;
 			query.limit = 100;
 			query.offset = op.offset;
 
@@ -207,6 +208,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			Tracker.Query query = new Tracker.Query ();
 			query.criteria = _search_term;
+			query.tags = search_tags;
 
 			count = yield query.get_count_async (query_data.type, query_data.match, cancellable);
 			cancellable.set_error_if_cancelled ();
@@ -328,6 +330,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			}
 		}
 	}
+
+	public GenericArray<string> search_tags { get; set; }
 
 	public bool active {
 		get;
