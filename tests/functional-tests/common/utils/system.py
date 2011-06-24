@@ -388,11 +388,12 @@ class TrackerSystemAbstraction:
         f.close ()
 
     def tracker_store_corrupt_dbs (self):
-        db_path = os.path.join (TEST_ENV_DIRS ['XDG_CACHE_HOME'], "tracker", "meta.db")
-        f = open (db_path, "w")
-        for i in range (0, 100):
-            f.write ("Some stupid content... hohohoho, not a sqlite file anymore!\n")
-        f.close ()
+        for filename in ["meta.db", "meta.db-wal"]:
+            db_path = os.path.join (TEST_ENV_DIRS ['XDG_CACHE_HOME'], "tracker", filename)
+            f = open (db_path, "w")
+            for i in range (0, 100):
+                f.write ("Some stupid content... hohohoho, not a sqlite file anymore!\n")
+            f.close ()
 
     def tracker_store_remove_journal (self):
         db_location = os.path.join (TEST_ENV_DIRS ['XDG_DATA_HOME'], "tracker", "data")
