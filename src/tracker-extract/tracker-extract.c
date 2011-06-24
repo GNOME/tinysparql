@@ -89,9 +89,6 @@ typedef struct {
 	 */
 	GMutex *task_mutex;
 
-	/* module -> thread awareness enum for initialized modules */
-	GHashTable *modules;
-
 	/* Thread pool for multi-threaded extractors */
 	GThreadPool *thread_pool;
 
@@ -113,8 +110,12 @@ typedef struct {
 	GAsyncResult *res;
 	gchar *file;
 	gchar *mimetype;
-	TrackerExtractMetadataFunc func;
-	GModule *module;
+
+	TrackerMimetypeInfo *mimetype_handlers;
+
+	/* to be fed from mimetype_handlers */
+	TrackerExtractMetadataFunc cur_func;
+	GModule *cur_module;
 
 	guint signal_id;
 	guint success : 1;
@@ -123,6 +124,7 @@ typedef struct {
 static void tracker_extract_finalize (GObject *object);
 static void report_statistics        (GObject *object);
 static gboolean get_metadata         (TrackerExtractTask *task);
+static gboolean dispatch_task_cb     (TrackerExtractTask *task);
 
 
 G_DEFINE_TYPE(TrackerExtract, tracker_extract, G_TYPE_OBJECT)
@@ -157,7 +159,6 @@ tracker_extract_init (TrackerExtract *object)
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->statistics_data = g_hash_table_new_full (NULL, NULL, NULL,
 						       (GDestroyNotify) statistics_data_free);
-	priv->modules = g_hash_table_new (NULL, NULL);
 	priv->single_thread_extractors = g_hash_table_new (NULL, NULL);
 	priv->thread_pool = g_thread_pool_new ((GFunc) get_metadata,
 	                                       NULL, 10, TRUE, NULL);
@@ -174,7 +175,6 @@ tracker_extract_finalize (GObject *object)
 
 	/* FIXME: Shutdown modules? */
 
-	g_hash_table_destroy (priv->modules);
 	g_hash_table_destroy (priv->single_thread_extractors);
 	g_thread_pool_free (priv->thread_pool, TRUE, FALSE);
 
@@ -276,12 +276,12 @@ notify_task_finish (TrackerExtractTask *task,
 	g_mutex_lock (priv->task_mutex);
 
 	stats_data = g_hash_table_lookup (priv->statistics_data,
-					  task->module);
+					  task->cur_module);
 
 	if (!stats_data) {
 		stats_data = g_slice_new0 (StatisticsData);
 		g_hash_table_insert (priv->statistics_data,
-				     task->module,
+				     task->cur_module,
 				     stats_data);
 	}
 
@@ -360,10 +360,10 @@ get_file_metadata (TrackerExtractTask     *task,
 	 * data we need from the extractors.
 	 */
 	if (mime_used) {
-		if (task->func) {
-			g_debug ("  Using %s...", g_module_name (task->module));
+		if (task->cur_func) {
+			g_debug ("  Using %s...", g_module_name (task->cur_module));
 
-			(task->func) (task->file, mime_used, preupdate, statements, where);
+			(task->cur_func) (task->file, mime_used, preupdate, statements, where);
 
 			items = tracker_sparql_builder_get_length (statements);
 
@@ -387,7 +387,7 @@ get_file_metadata (TrackerExtractTask     *task,
 		g_debug ("No extractor or failed");
 	}
 
-	return TRUE;
+	return (items > 0);
 }
 
 static void
@@ -528,16 +528,17 @@ get_metadata (TrackerExtractTask *task)
 		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res,
 		                                           info,
 		                                           (GDestroyNotify) tracker_extract_info_free);
-	} else {
-		g_simple_async_result_set_error ((GSimpleAsyncResult *) task->res,
-		                                 TRACKER_DBUS_ERROR, 0,
-		                                 "Could not get any metadata for uri:'%s' and mime:'%s'",
-		                                 task->file, task->mimetype);
-		tracker_extract_info_free (info);
-	}
 
-	g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
-	extract_task_free (task);
+		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
+		extract_task_free (task);
+	} else {
+		tracker_extract_info_free (info);
+
+		/* Reinject the task into the main thread
+		 * queue, so the next module kicks in.
+		 */
+		g_idle_add ((GSourceFunc) dispatch_task_cb, task);
+	}
 
 	return FALSE;
 }
@@ -562,11 +563,9 @@ static gboolean
 dispatch_task_cb (TrackerExtractTask *task)
 {
 	TrackerModuleThreadAwareness thread_awareness;
-	TrackerExtractInitFunc init_func;
 	TrackerExtractPrivate *priv;
 	GError *error = NULL;
 	GModule *module;
-	gpointer value;
 
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p (Main) <-- File:'%s' - Dispatching\n",
@@ -574,37 +573,53 @@ dispatch_task_cb (TrackerExtractTask *task)
 	         task->file);
 #endif /* THREAD_ENABLE_TRACE */
 
+	priv = TRACKER_EXTRACT_GET_PRIVATE (task->extract);
+
 	if (!task->mimetype) {
-		g_warning ("Discarding task with no mimetype for '%s'", task->file);
+		error = g_error_new (TRACKER_DBUS_ERROR, 0,
+				     "No mimetype for '%s'",
+				     task->file);
+	} else {
+		if (!task->mimetype_handlers) {
+			/* First iteration for task, get the mimetype handlers */
+			task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
+
+			if (!task->mimetype_handlers) {
+				error = g_error_new (TRACKER_DBUS_ERROR, 0,
+						     "No mimetype extractor handlers for uri:'%s' and mime:'%s'",
+						     task->file, task->mimetype);
+			}
+		} else {
+			/* Any further iteration, should happen rarely if
+			 * most specific handlers know nothing about the file
+			 */
+			g_message ("Trying next extractor for '%s'", task->file);
+
+			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {
+				g_message ("  There's no next extractor");
+
+				error = g_error_new (TRACKER_DBUS_ERROR, 0,
+						     "Could not get any metadata for uri:'%s' and mime:'%s'",
+						     task->file, task->mimetype);
+			}
+		}
+	}
+
+	if (error) {
+		g_simple_async_result_set_from_error ((GSimpleAsyncResult *) task->res, error);
+		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
+		extract_task_free (task);
+		g_error_free (error);
+
 		return FALSE;
 	}
 
-	priv = TRACKER_EXTRACT_GET_PRIVATE (task->extract);
-	task->module = module = tracker_extract_module_manager_get_for_mimetype (task->mimetype, &init_func, NULL, &task->func);
+	task->cur_module = module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, &thread_awareness);
 
-	if (!module || !task->func) {
+	if (!module || !task->cur_func) {
 		g_warning ("Discarding task with no module '%s'", task->file);
 		priv->unhandled_count++;
 		return FALSE;
-	}
-
-	if (g_hash_table_lookup_extended (priv->modules, module, NULL, &value)) {
-		thread_awareness = GPOINTER_TO_UINT (value);
-	} else {
-		/* Module not initialized */
-		if (init_func) {
-			if (! (init_func) (&thread_awareness, &error)) {
-				g_warning ("Could not initialize module '%s': %s", g_module_name (module),
-				           (error) ? error->message : "No error given");
-				thread_awareness = TRACKER_MODULE_NONE;
-				g_clear_error (&error);
-			}
-		} else {
-			/* Backwards compatibility for modules without init() */
-			thread_awareness = TRACKER_MODULE_MAIN_THREAD;
-		}
-
-		g_hash_table_insert (priv->modules, module, GUINT_TO_POINTER (thread_awareness));
 	}
 
 	g_mutex_lock (priv->task_mutex);
@@ -735,7 +750,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		return;
 	}
 
-	task->module = tracker_extract_module_manager_get_for_mimetype (task->mimetype, &init_func, NULL, &task->func);
+	task->cur_module = tracker_extract_module_manager_get_for_mimetype (task->mimetype, &init_func, NULL, &task->cur_func);
 
 	if (init_func) {
 		TrackerModuleThreadAwareness ignore;
