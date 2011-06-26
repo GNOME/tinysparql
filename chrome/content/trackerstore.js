@@ -17,7 +17,8 @@ org.bustany.TrackerBird.TrackerStore = {
 		return true;
 	},
 
-	storeMessage: function(folder, header, contents) {
+	storeMessage: function(header, contents) {
+		var folder = header.folder
 		var uri = folder.getUriForMsg(header);
 		var fromEmailAddress;
 		var toEmailAddresses = [];

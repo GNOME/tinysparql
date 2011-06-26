@@ -61,7 +61,7 @@ org.bustany.TrackerBird.MailStore = {
 		var store = this;
 		this._queue = new org.bustany.TrackerBird.Queue(this._prefs.getIntPref("indexDelay")),
 		this._walkFolderCallback = function(item) { store.walkFolder(item); }
-		this._indexMessageCallback = function(item) { store.indexMessage(item); }
+		this._indexMessageCallback = function(msg) { store.indexMessage(msg); }
 
 		this.listAllFolders();
 
@@ -118,7 +118,7 @@ org.bustany.TrackerBird.MailStore = {
 
 			this._queue.add({
 			                 callback: this._indexMessageCallback,
-			                 data: {folder: folder, msg: msg}
+			                 data: msg
 			                });
 		}
 
@@ -126,16 +126,17 @@ org.bustany.TrackerBird.MailStore = {
 		db = null;
 	},
 
-	indexMessage: function(item) {
-		var msgContents = this.getMessageContents(item.folder, item.msg);
-		if (this._trackerStore.storeMessage(item.folder, item.msg, msgContents)) {
-			this._persistentStore.rememberMessage(item.folder, item.msg);
+	indexMessage: function(msg) {
+		var msgContents = this.getMessageContents(msg);
+		if (this._trackerStore.storeMessage(msg, msgContents)) {
+			this._persistentStore.rememberMessage(msg);
 		}
 
 		this._ui.showMessage(this._queue.size() + " items remaining");
 	},
 
-	getMessageContents: function(folder, header) {
+	getMessageContents: function(header) {
+		var folder = header.folder;
 		var contents = "";
 
 		var messenger = Components.classes["@mozilla.org/messenger;1"].

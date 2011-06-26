@@ -59,7 +59,8 @@ org.bustany.TrackerBird.PersistentStore = {
 		this._db.close();
 	},
 
-	rememberMessage: function(folder, msg) {
+	rememberMessage: function(msg) {
+		var folder = msg.folder;
 		var stmt = this._rememberMessageStatement;
 		var uri = folder.getUriForMsg(msg);
 
