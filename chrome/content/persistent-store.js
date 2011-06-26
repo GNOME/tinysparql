@@ -7,6 +7,7 @@ org.bustany.TrackerBird.PersistentStore = {
 
 	_db: null,
 	_rememberMessageStatement: null,
+	_forgetMessageStatement: null,
 	_fetchUrisStatement: null,
 	_insertMetaStatement: null,
 	_updateMetaStatement: null,
@@ -35,6 +36,7 @@ org.bustany.TrackerBird.PersistentStore = {
 		this._db.executeSimpleSQL("CREATE TABLE IF NOT EXISTS knownMessages (folderUri VARCHAR(255), msgUri VARCHAR(255) NOT NULL UNIQUE);");
 		this._db.executeSimpleSQL("CREATE TABLE IF NOT EXISTS meta (key VARCHAR(255) NOT NULL UNIQUE, value VARCHAR(255));");
 		this._rememberMessageStatement = this._db.createStatement("INSERT INTO knownMessages VALUES (:folderUri, :msgUri)");
+		this._forgetMessageStatement = this._db.createStatement("DELETE FROM knownMessages WHERE msgUri = :msgUri");
 		this._fetchUrisStatement = this._db.createStatement("SELECT msgUri FROM knownMessages WHERE folderUri = :folderUri");
 		this._insertMetaStatement = this._db.createStatement("INSERT OR IGNORE INTO meta VALUES (:key, :value)");
 		this._updateMetaStatement = this._db.createStatement("INSERT OR REPLACE INTO meta VALUES (:key, :value)");
@@ -56,6 +58,11 @@ org.bustany.TrackerBird.PersistentStore = {
 	shutdown: function() {
 		this.endTransaction();
 		this._rememberMessageStatement.finalize();
+		this._forgetMessageStatement.finalize();
+		this._fetchUrisStatement.finalize();
+		this._insertMetaStatement.finalize();
+		this._updateMetaStatement.finalize();
+		this._selectMetaStatement.finalize();
 		this._db.close();
 	},
 
@@ -64,10 +71,25 @@ org.bustany.TrackerBird.PersistentStore = {
 		var stmt = this._rememberMessageStatement;
 		var uri = folder.getUriForMsg(msg);
 
-		this.startTransaction();
-
 		stmt.params.folderUri = folder.folderURL;
 		stmt.params.msgUri = uri;
+
+		this.runUpdate(stmt);
+	},
+
+	forgetMessage: function(msg) {
+		var folder = msg.folder;
+		var stmt = this._forgetMessageStatement;
+		var uri = folder.getUriForMsg(msg);
+
+		stmt.params.msgUri = uri;
+
+		this.runUpdate(stmt);
+	},
+
+	runUpdate: function(stmt) {
+		this.startTransaction();
+
 		// execute() also calls reset() on the statement
 		stmt.execute();
 		this._nInsertsPending ++;

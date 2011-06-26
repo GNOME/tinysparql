@@ -10,10 +10,24 @@ org.bustany.TrackerBird.MailStore = {
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
 			dump("Item added\n");
+			var store = org.bustany.TrackerBird.MailStore;
+			var hdr = item.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+
+			store._queue.addImmediate({
+			                           callback: store._indexMessageCallback,
+			                           data: hdr
+			                          });
 		},
 
 		OnItemRemoved: function(parentItem, item) {
 			dump("Item removed\n");
+			var store = org.bustany.TrackerBird.MailStore;
+			var hdr = item.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+
+			store._queue.addImmediate({
+			                           callback: store._removeMessageCallback,
+			                           data: hdr
+			                          });
 		},
 
 		OnItemPropertyChanged: function(item, property, oldValue, newValue) {
@@ -44,6 +58,7 @@ org.bustany.TrackerBird.MailStore = {
 	_queue: null,
 	_walkFolderCallback: null,
 	_indexMessageCallback: null,
+	_removeMessageCallback: null,
 
 	_prefs: null,
 
@@ -62,6 +77,7 @@ org.bustany.TrackerBird.MailStore = {
 		this._queue = new org.bustany.TrackerBird.Queue(this._prefs.getIntPref("indexDelay")),
 		this._walkFolderCallback = function(item) { store.walkFolder(item); }
 		this._indexMessageCallback = function(msg) { store.indexMessage(msg); }
+		this._removeMessageCallback = function(msg) { store.removeMessage(msg); }
 
 		this.listAllFolders();
 
@@ -133,6 +149,11 @@ org.bustany.TrackerBird.MailStore = {
 		}
 
 		this._ui.showMessage(this._queue.size() + " items remaining");
+	},
+
+	removeMessage: function(msg) {
+		this._trackerStore.deleteMessage(msg);
+		this._persistentStore.forgetMessage(msg);
 	},
 
 	getMessageContents: function(header) {

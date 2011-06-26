@@ -54,21 +54,47 @@ org.bustany.TrackerBird.TrackerStore = {
 			 // We can access mail body
 		}
 
+		if (!this.runTrackerUpdate(query,
+		                           100 /* batch */,
+		                           "Cannot save message in Tracker")) {
+			return false;
+		}
+
+		dump("Inserted message " + uri + "\n");
+		return true;
+	},
+
+	deleteMessage: function(header) {
+		var folder = header.folder
+		var uri = folder.getUriForMsg(header);
+
+		var query = "DELETE {<" + uri +"> a rdfs:Resource}";
+
+		if (!this.runTrackerUpdate(query,
+		                           100 /* batch */,
+		                           "Cannot delete message from Tracker")) {
+			return false;
+		}
+
+		dump("Deleted message " + uri + "\n");
+		return true;
+	},
+
+	runTrackerUpdate: function(query, priority, errorPrefix) {
 		var error = new this._tracker.Error.ptr;
 		this._tracker.connection_update(this._connection,
 		                                query,
-		                                100, /* batch */
+		                                priority, /* batch */
 		                                null,
 		                                error.address());
 
 		if (!error.isNull()) {
-			dump("Cannot save message to Tracker: " + error.contents.message.readString() + "\n");
+			dump(errorPrefix + ": " + error.contents.message.readString() + "\n");
 			dump("Query was\n" + query + "\n");
 			this._tracker.error_free(error);
 			return false;
 		}
 
-		dump("Inserted message " + uri + "\n");
 		return true;
 	},
 
