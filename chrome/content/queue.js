@@ -12,6 +12,11 @@ org.bustany.TrackerBird.Queue.prototype.add = function(item) {
 	this.process();
 }
 
+org.bustany.TrackerBird.Queue.prototype.addImmediate = function(item) {
+	this._items.unshift(item);
+	this.process();
+}
+
 org.bustany.TrackerBird.Queue.prototype.process = function() {
 	if (this._active) {
 		return;
