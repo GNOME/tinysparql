@@ -2040,26 +2040,27 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 }
 
 static void
-db_get_static_data (TrackerDBInterface *iface)
+db_get_static_data (TrackerDBInterface  *iface,
+                    GError             **error)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor = NULL;
 	TrackerClass **classes;
 	guint n_classes, i;
-	GError *error = NULL;
+	GError *internal_error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &internal_error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Ontology\".ID), "
 	                                              "\"nao:lastModified\" "
 	                                              "FROM \"tracker:Ontology\"");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerOntology *ontology;
 			const gchar     *uri;
 			time_t           last_mod;
@@ -2081,23 +2082,23 @@ db_get_static_data (TrackerDBInterface *iface)
 		cursor = NULL;
 	}
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_clear_error (&error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &internal_error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Namespace\".ID), "
 	                                              "\"tracker:prefix\" "
 	                                              "FROM \"tracker:Namespace\"");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerNamespace *namespace;
 			const gchar      *uri, *prefix;
 
@@ -2119,24 +2120,24 @@ db_get_static_data (TrackerDBInterface *iface)
 		cursor = NULL;
 	}
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_clear_error (&error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &internal_error,
 	                                              "SELECT \"rdfs:Class\".ID, "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID), "
 	                                              "\"tracker:notify\" "
 	                                              "FROM \"rdfs:Class\" ORDER BY ID");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerClass *class;
 			const gchar  *uri;
 			gint          id;
@@ -2179,12 +2180,12 @@ db_get_static_data (TrackerDBInterface *iface)
 		cursor = NULL;
 	}
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_clear_error (&error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &internal_error,
 	                                              "SELECT \"rdf:Property\".ID, (SELECT Uri FROM Resource WHERE ID = \"rdf:Property\".ID), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:domain\"), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:range\"), "
@@ -2202,12 +2203,12 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
@@ -2356,9 +2357,9 @@ db_get_static_data (TrackerDBInterface *iface)
 		class_add_domain_indexes_from_db (iface, classes[i]);
 	}
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
 	}
 }
 
@@ -3731,8 +3732,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 
 			/* Load ontology from database into memory */
-			db_get_static_data (iface);
+			db_get_static_data (iface, &internal_error);
 			check_ontology = TRUE;
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
 
 			/* Skipped in the read-only case as it can't work with direct access and
 			   it reduces initialization time */
