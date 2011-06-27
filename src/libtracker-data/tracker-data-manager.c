@@ -3424,7 +3424,8 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 }
 
 static void
-write_ontologies_gvdb (GError **error)
+write_ontologies_gvdb (gboolean   overwrite,
+                       GError   **error)
 {
 	gchar *filename;
 
@@ -3433,7 +3434,9 @@ write_ontologies_gvdb (GError **error)
 	                             "ontologies.gvdb",
 	                             NULL);
 
-	tracker_ontologies_write_gvdb (filename, error);
+	if (overwrite || !g_file_test (filename, G_FILE_TEST_EXISTS)) {
+		tracker_ontologies_write_gvdb (filename, error);
+	}
 
 	g_free (filename);
 }
@@ -3777,7 +3780,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-		write_ontologies_gvdb (NULL);
+		write_ontologies_gvdb (TRUE /* overwrite */, NULL);
 
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);
@@ -3810,6 +3813,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_propagate_error (error, internal_error);
 				return FALSE;
 			}
+
+			write_ontologies_gvdb (FALSE /* overwrite */, NULL);
 
 			/* Skipped in the read-only case as it can't work with direct access and
 			   it reduces initialization time */
@@ -4254,7 +4259,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
 
-			write_ontologies_gvdb (NULL);
+			write_ontologies_gvdb (TRUE /* overwrite */, NULL);
 		}
 
 		tracker_data_ontology_free_seen (seen_classes);
