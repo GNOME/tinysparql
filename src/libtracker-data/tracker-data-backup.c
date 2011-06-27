@@ -19,6 +19,7 @@
  */
 #include "config.h"
 
+#include <errno.h>
 #include <string.h>
 
 #include <glib.h>
@@ -209,6 +210,175 @@ process_context_child_watch_cb (GPid     pid,
 	process_context_destroy (context, error);
 }
 
+/* delete all regular files from the directory */
+static void
+dir_remove_files (const gchar *path)
+{
+	GDir *dir;
+	const gchar *name;
+
+	dir = g_dir_open (path, 0, NULL);
+	if (dir == NULL) {
+		return;
+	}
+
+	while ((name = g_dir_read_name (dir)) != NULL) {
+		gchar *filename;
+
+		filename = g_build_filename (path, name, NULL);
+
+		if (g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
+			g_debug ("Removing '%s'", filename);
+			if (g_unlink (filename) == -1) {
+				g_warning ("Unable to remove '%s': %s", filename, g_strerror (errno));
+			}
+		}
+
+		g_free (filename);
+	}
+
+	g_dir_close (dir);
+}
+
+/* move all regular files from the source directory to the destination directory */
+static void
+dir_move_files (const gchar *src_path, const gchar *dest_path)
+{
+	GDir *src_dir;
+	const gchar *src_name;
+
+	src_dir = g_dir_open (src_path, 0, NULL);
+	if (src_dir == NULL) {
+		return;
+	}
+
+	while ((src_name = g_dir_read_name (src_dir)) != NULL) {
+		gchar *src_filename, *dest_filename;
+
+		src_filename = g_build_filename (src_path, src_name, NULL);
+
+		if (g_file_test (src_filename, G_FILE_TEST_IS_REGULAR)) {
+			dest_filename = g_build_filename (dest_path, src_name, NULL);
+
+			g_debug ("Renaming '%s' to '%s'", src_filename, dest_filename);
+			if (g_rename (src_filename, dest_filename) == -1) {
+				g_warning ("Unable to rename '%s' to '%s': %s", src_filename, dest_filename, g_strerror (errno));
+			}
+
+			g_free (dest_filename);
+		}
+
+		g_free (src_filename);
+	}
+
+	g_dir_close (src_dir);
+}
+
+static void
+dir_move_to_temp (const gchar *path)
+{
+	gchar *temp_dir;
+
+	temp_dir = g_build_filename (path, "tmp", NULL);
+	g_mkdir (temp_dir, 0777);
+
+	/* ensure that no obsolete temporary files are around */
+	dir_remove_files (temp_dir);
+	dir_move_files (path, temp_dir);
+
+	g_free (temp_dir);
+}
+
+static void
+dir_move_from_temp (const gchar *path)
+{
+	gchar *temp_dir;
+
+	temp_dir = g_build_filename (path, "tmp", NULL);
+
+	/* ensure that no obsolete files are around */
+	dir_remove_files (path);
+	dir_move_files (temp_dir, path);
+
+	g_rmdir (temp_dir);
+
+	g_free (temp_dir);
+}
+
+static void
+move_to_temp (void)
+{
+	gchar *data_dir, *cache_dir;
+
+	g_message ("Moving all database files to temporary location");
+
+	data_dir = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             "data",
+	                             NULL);
+
+	cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                              "tracker",
+	                              NULL);
+
+	dir_move_to_temp (data_dir);
+	dir_move_to_temp (cache_dir);
+
+	g_free (cache_dir);
+	g_free (data_dir);
+}
+
+static void
+remove_temp (void)
+{
+	gchar *tmp_data_dir, *tmp_cache_dir;
+
+	g_message ("Removing all database files from temporary location");
+
+	tmp_data_dir = g_build_filename (g_get_user_data_dir (),
+	                                 "tracker",
+	                                 "data",
+	                                 "tmp",
+	                                 NULL);
+
+	tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                                  "tracker",
+	                                  "tmp",
+	                                  NULL);
+
+	dir_remove_files (tmp_data_dir);
+	dir_remove_files (tmp_cache_dir);
+
+	g_rmdir (tmp_data_dir);
+	g_rmdir (tmp_cache_dir);
+
+	g_free (tmp_cache_dir);
+	g_free (tmp_data_dir);
+}
+
+static void
+restore_from_temp (void)
+{
+	gchar *data_dir, *cache_dir;
+
+	g_message ("Restoring all database files from temporary location");
+
+	data_dir = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             "data",
+	                             NULL);
+
+	cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                              "tracker",
+	                              NULL);
+
+	dir_move_from_temp (data_dir);
+	dir_move_from_temp (cache_dir);
+
+	g_free (cache_dir);
+	g_free (data_dir);
+}
+
 void
 tracker_data_backup_save (GFile *destination,
                           TrackerDataBackupFinished callback,
@@ -339,8 +509,9 @@ tracker_data_backup_restore (GFile                *journal,
 
 		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 
-		tracker_db_manager_move_to_temp ();
 		tracker_data_manager_shutdown ();
+
+		move_to_temp ();
 
 		argv = g_new0 (char*, 6);
 
@@ -394,9 +565,9 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 
 		if (info->error) {
-			tracker_db_manager_restore_from_temp ();
+			restore_from_temp ();
 		} else {
-			tracker_db_manager_remove_temp ();
+			remove_temp ();
 		}
 
 		tracker_db_journal_shutdown (&n_error);
