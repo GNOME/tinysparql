@@ -608,7 +608,9 @@ db_get_locale (void)
 			g_critical ("  Could not get content of file '%s'", filename);
 		}
 	} else {
-		g_critical ("  Could not find database locale file:'%s'", filename);
+		/* expected when restoring from backup, always recreate indices */
+		g_message ("  Could not find database locale file:'%s'", filename);
+		return g_strdup ("unknown");
 	}
 
 	g_free (filename);
