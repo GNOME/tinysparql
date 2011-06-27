@@ -90,7 +90,7 @@ check_content_in_db (gint expected_instances, gint expected_relations)
 static void
 test_backup_and_restore_helper (gboolean journal)
 {
-	gchar  *data_prefix, *data_filename, *backup_filename, *db_location, *meta_db;
+	gchar  *data_prefix, *data_filename, *backup_location, *backup_filename, *db_location, *meta_db;
 	GError *error = NULL;
 	GFile  *backup_file;
 	gchar *test_schemas[5] = { NULL, NULL, NULL, NULL, NULL };
@@ -130,11 +130,12 @@ test_backup_and_restore_helper (gboolean journal)
 	/* Check everything is correct */
 	check_content_in_db (3, 1);
 
-	backup_filename = g_build_path (G_DIR_SEPARATOR_S, 
-	                                db_location, "tracker.dump",
-	                                NULL);
+	backup_location = g_build_filename (db_location, "backup", NULL);
+	g_mkdir (backup_location, 0777);
+	backup_filename = g_build_filename (backup_location, "tracker.dump", NULL);
 	backup_file = g_file_new_for_path (backup_filename);
 	g_free (backup_filename);
+	g_free (backup_location);
 	tracker_data_backup_save (backup_file,
 	                          backup_finished_cb,
 	                          NULL,
