@@ -320,8 +320,7 @@ public class Tracker.Needle {
 		view_categories.set_active (true);
 	}
 
-	private bool window_key_press_event (Gtk.Widget   widget,
-	                                     Gdk.EventKey event) {
+	private bool window_key_press_event (Gtk.Widget widget, Gdk.EventKey event) {
 		// Add Ctrl+W close window semantics
 		if (Gdk.ModifierType.CONTROL_MASK in event.state && Gdk.keyval_name (event.keyval) == "w") {
 			widget.destroy();
@@ -561,61 +560,14 @@ public class Tracker.Needle {
 		}
 	}
 
-	private void launch_selected (TreeModel model, TreePath path, int col) {
-		TreeIter iter;
-		model.get_iter (out iter, path);
-
-		weak string uri;
-		model.get (iter, col, out uri);
-
-		if (uri == null) {
-			return;
-		}
-
-		debug ("Selected uri:'%s'", uri);
-
-		// Bit of a hack for now if there is no URI scheme, we assume that
-		// the uri is actually a command line to launch.
-		if (uri.index_of ("://") < 1) {
-			var command = uri.split (" ");
-			debug ("Attempting to spawn_async() '%s'", command[0]);
-
-			Pid child_pid;
-			string[] argv = new string[1];
-			argv[0] = command[0];
-
-			try {
-				Process.spawn_async ("/usr/bin",
-				                     argv,
-				                     null, // environment
-				                     SpawnFlags.SEARCH_PATH,
-				                     null, // child_setup
-				                     out child_pid);
-			} catch (Error e) {
-				warning ("Could not launch '%s', %d->%s", command[0], e.code, GLib.strerror (e.code));
-				return;
-			}
-
-			debug ("Launched application with PID:%d", child_pid);
-			return;
-		}
-
-		try {
-			debug ("Attempting to launch application for uri:'%s'", uri);
-			AppInfo.launch_default_for_uri (uri, null);
-		} catch (GLib.Error e) {
-			warning ("Could not launch application: " + e.message);
-		}
-	}
-
 	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
 		var model = view.get_model ();
-		launch_selected (model, path, 1);
+		tracker_model_launch_selected (model, path, 1);
 	}
 
 	private void icon_item_selected (IconView view, TreePath path) {
 		var model = view.get_model ();
-		launch_selected (model, path, 1);
+		tracker_model_launch_selected (model, path, 1);
 	}
 
 	private void show_tags_clicked () {
