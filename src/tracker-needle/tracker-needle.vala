@@ -331,10 +331,11 @@ public class Tracker.Needle {
 	}
 
 	private void taglist_selection_changed (GenericArray<string> new_tags) {
-		if (new_tags != null && new_tags.length > 0)
+		if (new_tags != null && new_tags.length > 0) {
 			debug ("Tags selected changed, first:'%s', ...", new_tags[0]);
-		else
+		} else {
 			debug ("Tags selected changed, none selected");
+		}
 
 		search_run ();
 	}
@@ -418,15 +419,17 @@ public class Tracker.Needle {
 		string criteria = str.strip ();
 		ResultStore store = null;
 
-		if (criteria.length < 3) {
-			// Allow empty search criteria for finding all
-			if (!view_icons.active || !find_in_all.active) {
-				search_finished (store);
-				return false;
+		if (!show_tags.active) {
+			if (criteria.length < 3) {
+				// Allow empty search criteria for finding all
+				if (!view_icons.active || !find_in_all.active) {
+					search_finished (store);
+					return false;
+				}
 			}
-		}
 
-		search_history_find_or_insert (criteria, true);
+			search_history_find_or_insert (criteria, true);
+		}
 
 		// Show correct window
 		sw_noresults.hide ();
@@ -470,6 +473,12 @@ public class Tracker.Needle {
 			// Set tags first
 			if (show_tags.active) {
 				store.search_tags = taglist.tags;
+
+				// Don't search if no tags are selected
+				if (store.search_tags.length < 1) {
+					search_finished (store);
+					return false;
+				}
 			} else {
 				store.search_tags = null;
 			}
@@ -613,9 +622,11 @@ public class Tracker.Needle {
 		if (show_tags.active) {
 			debug ("Showing tags");
 			taglist.show ();
+			search_entry.sensitive = false;
 		} else {
 			debug ("Hiding tags");
 			taglist.hide ();
+			search_entry.sensitive = true;
 		}
 
 		// Re-run search to filter with or without tags

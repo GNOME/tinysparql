@@ -244,10 +244,11 @@ public class Tracker.Query {
 				match_type = Match.TAGS_ONLY;
 			}
 		}
-
+		debug ("match_type:%d", match_type);
 		if (match_type != Match.NONE &&
-	            match_type != Match.TAGS_ONLY &&
-                    (criteria == null || criteria.length < 1)) {
+		    match_type != Match.TAGS_ONLY &&
+		    match_type != Match.TAGS_ONLY_INDIRECT &&
+		    (criteria == null || criteria.length < 1)) {
 			warning ("Criteria was NULL or an empty string no query performed");
 			return 0;
 		}
@@ -300,8 +301,9 @@ public class Tracker.Query {
 		}
 
 		if (match_type != Match.NONE &&
-	            match_type != Match.TAGS_ONLY &&
-                    (criteria == null || criteria.length < 1)) {
+		    match_type != Match.TAGS_ONLY &&
+		    match_type != Match.TAGS_ONLY_INDIRECT &&
+		    (criteria == null || criteria.length < 1)) {
 			warning ("Criteria was NULL or an empty string no query performed");
 			return null;
 		}
