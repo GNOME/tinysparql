@@ -647,52 +647,6 @@ tracker_path_has_write_access_or_was_created (const gchar *path)
 }
 
 gboolean
-tracker_env_check_xdg_dirs (void)
-{
-	const gchar *user_data_dir;
-	gchar       *new_dir;
-	gboolean     success;
-
-	g_message ("Checking XDG_DATA_HOME is writable and exists");
-
-	/* NOTE: We don't use g_get_user_data_dir() here because as
-	 * soon as we do, it sets the result and doesn't re-fetch the
-	 * XDG_DATA_HOME environment variable which we set below.
-	 */
-	user_data_dir = g_getenv ("XDG_DATA_HOME");
-
-	/* Check the default XDG_DATA_HOME location */
-	g_message ("  XDG_DATA_HOME is '%s'", user_data_dir);
-
-	if (user_data_dir && tracker_path_has_write_access_or_was_created (user_data_dir)) {
-		return TRUE;
-	}
-
-	user_data_dir = g_getenv ("HOME");
-
-	if (!user_data_dir || !tracker_path_has_write_access_or_was_created (user_data_dir)) {
-		user_data_dir = g_get_home_dir ();
-	}
-
-	/* Change environment, this is actually what we have on Ubuntu. */
-	new_dir = g_build_path (G_DIR_SEPARATOR_S, user_data_dir, ".local", "share", NULL);
-
-	/* Check the new XDG_DATA_HOME location */
-	success = g_setenv ("XDG_DATA_HOME", new_dir, TRUE);
-
-	if (success) {
-		g_message ("  XDG_DATA_HOME set to '%s'", new_dir);
-		success = tracker_path_has_write_access_or_was_created (new_dir);
-	} else {
-		g_message ("  XDG_DATA_HOME could not be set");
-	}
-
-	g_free (new_dir);
-
-	return success;
-}
-
-gboolean
 tracker_file_lock (GFile *file)
 {
 	gint fd, retval;

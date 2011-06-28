@@ -205,11 +205,6 @@ License which can be viewed at:
 
 		sanity_check_option_values (config);
 
-		/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
-		if (!Tracker.env_check_xdg_dirs ()) {
-			return 1;
-		}
-
 		if (!Tracker.DBus.init ()) {
 			return 1;
 		}

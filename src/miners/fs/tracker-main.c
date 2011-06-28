@@ -734,11 +734,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	/* Check XDG spec locations XDG_DATA_HOME _MUST_ be writable. */
-	if (!tracker_env_check_xdg_dirs ()) {
-		return EXIT_FAILURE;
-	}
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	g_message ("Checking if we're running as a daemon:");

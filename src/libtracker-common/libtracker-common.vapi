@@ -76,8 +76,6 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
-	public bool env_check_xdg_dirs ();
-	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
 	public void ioprio_init ();
 
 	[CCode (cname = "g_message", cheader_filename = "glib.h")]

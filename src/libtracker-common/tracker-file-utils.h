@@ -65,9 +65,6 @@ gboolean tracker_file_system_has_enough_space               (const gchar  *path,
 guint64  tracker_file_system_get_remaining_space            (const gchar  *path);
 gdouble  tracker_file_system_get_remaining_space_percentage (const gchar  *path);
 
-/* Environment path utils */
-gboolean tracker_env_check_xdg_dirs (void);
-
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */
