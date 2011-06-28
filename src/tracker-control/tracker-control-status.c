@@ -142,6 +142,12 @@ miner_get_details (TrackerMinerManager  *manager,
 	                                 pause_applications,
 	                                 pause_reasons);
 
+	if (!(*pause_applications) || !(*pause_reasons)) {
+		/* unable to get pause details,
+		   already logged by tracker_miner_manager_is_paused */
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
