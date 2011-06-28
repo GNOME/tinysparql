@@ -3223,7 +3223,9 @@ tracker_data_load_turtle_file (GFile   *file,
 void
 tracker_data_sync (void)
 {
+#ifndef DISABLE_JOURNAL
 	tracker_db_journal_fsync ();
+#endif
 }
 
 #ifndef DISABLE_JOURNAL
