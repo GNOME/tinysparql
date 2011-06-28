@@ -616,6 +616,14 @@ AC_ARG_ENABLE(journal,
              [enable_journal="$enableval"],
              [enable_journal=yes])
 
+if test "x$enable_journal" != "xno" ; then
+   have_tracker_journal="yes"
+else
+   have_tracker_journal="no  (disabled)"
+fi
+
+AM_CONDITIONAL(DISABLE_JOURNAL, test "x$enable_journal" = "xno")
+
 if test "x$enable_journal" = "xno" ; then
    AC_DEFINE(DISABLE_JOURNAL, 1, [Define if we disable the journal])
 fi
@@ -2169,6 +2177,7 @@ Build Configuration:
 
 Applications:
 
+	Build with Journal support:             $have_tracker_journal
 	Build with SQLite FTS support:          $have_tracker_fts
 
 	Build tracker-preferences:              $have_tracker_preferences
