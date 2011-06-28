@@ -32,10 +32,6 @@
 #include <libtracker-data/tracker-db-manager.h>
 #include <libtracker-data/tracker-db-interface-sqlite.h>
 
-#if HAVE_TRACKER_FTS
-#include <libtracker-fts/tracker-fts.h>
-#endif /* HAVE_TRACKER_FTS */
-
 #include "tracker-db-backup.h"
 
 #define TRACKER_DB_BACKUP_META_FILENAME_T	"meta-backup.db.tmp"
@@ -239,98 +235,3 @@ tracker_db_backup_save (GFile                   *destination,
 	                 on_backup_temp_finished);
 }
 
-#if HAVE_TRACKER_FTS
-
-void
-tracker_db_backup_sync_fts (void)
-{/*
-	TrackerProperty   **properties;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerDBCursor    *cursor;
-	TrackerClass       *prop_class;
-	gchar              *query;
-	guint               n_props = 0, i;
-	TrackerProperty    *property;
-	GError             *error = NULL;
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	query = tracker_fts_get_drop_fts_table_query ();
-	tracker_db_interface_execute_query (iface, NULL, "%s", query);
-	g_free (query);
-
-	query = tracker_fts_get_create_fts_table_query ();
-	tracker_db_interface_execute_query (iface, NULL, "%s", query);
-	g_free (query);
-
-	properties = tracker_ontologies_get_properties (&n_props);
-
-	for (i = 0; i < n_props; i++) {
-
-		property = properties[i];
-
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_STRING &&
-		    tracker_property_get_fulltext_indexed (property)) {
-
-			prop_class  = tracker_property_get_domain (property);
-
-			if (tracker_property_get_multiple_values (property)) {
-				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s_%s\"",
-				                         tracker_property_get_name (property),
-				                         tracker_class_get_name (prop_class),
-				                         tracker_property_get_name (property));
-			} else {
-				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s\" WHERE \"%s\" IS NOT NULL", 
-				                         tracker_property_get_name (property),
-				                         tracker_class_get_name (prop_class),
-				                         tracker_property_get_name (property));
-			}
-
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-			                                              &error,
-			                                              "%s", query);
-			g_free (query);
-
-			if (error) {
-				g_critical ("%s\n", error->message);
-				g_clear_error (&error);
-				goto fail;
-			}
-
-			cursor = tracker_db_statement_start_cursor (stmt, &error);
-			g_object_unref (stmt);
-
-			if (cursor) {
-				while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-					guint32 id;
-					const gchar *text;
-					glong strl;
-
-					id = tracker_db_cursor_get_int (cursor, 0);
-					text = tracker_db_cursor_get_string (cursor, 1, &strl);
-
-					tracker_db_interface_sqlite_fts_update_init (iface, id);
-
-					tracker_db_interface_sqlite_fts_update_text (iface,
-					                                             id,
-					                                             0,
-					                                             text,
-					                                             FALSE);
-				}
-				g_object_unref (cursor);
-			} else {
-				g_critical ("%s\n", error->message);
-				* tracker_db_interface_sqlite_fts_update_rollback (iface); *
-				g_clear_error (&error);
-				goto fail;
-			}
-		}
-	}
-
-fail:
-
-	tracker_db_interface_sqlite_fts_update_commit (iface);*/
-}
-
-#endif /* HAVE_TRACKER_FTS */

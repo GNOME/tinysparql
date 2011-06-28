@@ -44,10 +44,6 @@ void      tracker_db_backup_save        (GFile                   *destination,
                                          gpointer                 user_data,
                                          GDestroyNotify           destroy);
 
-#if HAVE_TRACKER_FTS
-void      tracker_db_backup_sync_fts    (void);
-#endif
-
 G_END_DECLS
 
 #endif /* __TRACKER_DB_BACKUP_H__ */
