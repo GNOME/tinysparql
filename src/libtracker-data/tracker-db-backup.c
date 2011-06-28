@@ -37,16 +37,11 @@
 #define TRACKER_DB_BACKUP_META_FILENAME_T	"meta-backup.db.tmp"
 
 typedef struct {
+	GFile *destination;
 	TrackerDBBackupFinished callback;
-	GDestroyNotify destroy;
 	gpointer user_data;
+	GDestroyNotify destroy;
 	GError *error;
-	sqlite3_stmt *stmt;
-	sqlite3 *db, *backup_temp;
-	sqlite3_backup *backup_db;
-	gchar *backup_fname;
-	int result;
-	GFile *destination, *temp;
 } BackupInfo;
 
 GQuark
@@ -76,106 +71,100 @@ backup_info_free (gpointer user_data)
 		g_object_unref (info->destination);
 	}
 
-	if (info->temp) {
-		g_object_unref (info->temp);
-	}
-
 	if (info->destroy) {
 		info->destroy (info->user_data);
 	}
 
 	g_clear_error (&info->error);
 
-	if (info->stmt) {
-		sqlite3_finalize (info->stmt);
-	}
-
-	if (info->backup_db) {
-		sqlite3_backup_finish (info->backup_db);
-		info->backup_db = NULL;
-	}
-
-	if (info->backup_temp) {
-		sqlite3_close (info->backup_temp);
-	}
-
-	if (info->db) {
-		sqlite3_close (info->db);
-	}
-
-	if (info->backup_fname) {
-		g_free (info->backup_fname);
-	}
-
 	g_free (info);
 }
 
-
 static gboolean
-backup_file_step (gpointer user_data)
-{
-	BackupInfo *info = user_data;
-	guint cnt = 0;
-	gboolean cont = TRUE;
-
-	while (cont && info->result == SQLITE_OK) {
-
-		info->result = sqlite3_backup_step (info->backup_db, 5);
-
-		switch (info->result) {
-			case SQLITE_OK:
-			break;
-
-			case SQLITE_ERROR:
-			default:
-			cont = FALSE;
-			break;
-		}
-
-		if (cnt > 100) {
-			break;
-		}
-
-		cnt++;
-	}
-
-	return cont;
-}
-
-static void
-on_backup_temp_finished (gpointer user_data)
+backup_job (GIOSchedulerJob *job,
+            GCancellable    *cancellable,
+            gpointer         user_data)
 {
 	BackupInfo *info = user_data;
 
-	if (info->backup_db) {
-		sqlite3_backup_finish (info->backup_db);
-		info->backup_db = NULL;
+	const gchar *src_path;
+	GFile *parent_file, *temp_file;
+	gchar *temp_path;
+
+	sqlite3 *src_db = NULL;
+	sqlite3 *temp_db = NULL;
+	sqlite3_backup *backup = NULL;
+
+	src_path = tracker_db_manager_get_file (TRACKER_DB_METADATA);
+	parent_file = g_file_get_parent (info->destination);
+	temp_file = g_file_get_child (parent_file, TRACKER_DB_BACKUP_META_FILENAME_T);
+	g_file_delete (temp_file, NULL, NULL);
+	temp_path = g_file_get_path (temp_file);
+
+	if (sqlite3_open_v2 (src_path, &src_db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
+		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+		             "Could not open sqlite3 database:'%s'", src_path);
 	}
 
-	if (info->db) {
-		sqlite3_close (info->db);
-		info->db = NULL;
-	}
-
-
-	if (!info->error && info->result != SQLITE_DONE) {
-		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, 
-		             TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-		             "%s", sqlite3_errmsg (info->backup_temp));
+	if (!info->error && sqlite3_open (temp_path, &temp_db) != SQLITE_OK) {
+		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+		             "Could not open sqlite3 database:'%s'", temp_path);
 	}
 
 	if (!info->error) {
-		g_file_move (info->temp, info->destination,
+		backup = sqlite3_backup_init (temp_db, "main", src_db, "main");
+
+		if (!backup) {
+			g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+				     "Unable to initialize sqlite3 backup from '%s' to '%s'", src_path, temp_path);
+		}
+	}
+
+	if (!info->error && sqlite3_backup_step (backup, -1) != SQLITE_DONE) {
+		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+		             "Unable to complete sqlite3 backup");
+	}
+
+	if (backup) {
+		if (sqlite3_backup_finish (backup) != SQLITE_OK) {
+			if (info->error) {
+				/* sqlite3_backup_finish can provide more detailed error message */
+				g_clear_error (&info->error);
+			}
+			g_set_error (&info->error,
+			             TRACKER_DB_BACKUP_ERROR,
+			             TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+				     "Unable to finish sqlite3 backup: %s",
+				     sqlite3_errmsg (temp_db));
+		}
+		backup = NULL;
+	}
+
+	if (temp_db) {
+		sqlite3_close (temp_db);
+		temp_db = NULL;
+	}
+
+	if (src_db) {
+		sqlite3_close (src_db);
+		src_db = NULL;
+	}
+
+	if (!info->error) {
+		g_file_move (temp_file, info->destination,
 		             G_FILE_COPY_OVERWRITE,
 		             NULL, NULL, NULL,
 		             &info->error);
 	}
 
-	perform_callback (info);
+	g_free (temp_path);
+	g_object_unref (temp_file);
+	g_object_unref (parent_file);
 
-	backup_info_free (info);
+	g_idle_add_full (G_PRIORITY_DEFAULT, perform_callback, info,
+	                 backup_info_free);
 
-	return;
+	return FALSE;
 }
 
 void
@@ -184,54 +173,14 @@ tracker_db_backup_save (GFile                   *destination,
                         gpointer                 user_data,
                         GDestroyNotify           destroy)
 {
-	const gchar *db_file = tracker_db_manager_get_file (TRACKER_DB_METADATA);
 	BackupInfo *info = g_new0 (BackupInfo, 1);
-	GFile *parent;
+
+	info->destination = g_object_ref (destination);
 
 	info->callback = callback;
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	parent = g_file_get_parent (destination);
-	info->temp = g_file_get_child (parent, TRACKER_DB_BACKUP_META_FILENAME_T);
-	info->destination = g_object_ref (destination);
-	info->backup_fname = g_file_get_path (info->temp);
-	g_object_unref (parent);
-
-	if (sqlite3_open_v2 (db_file, &info->db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
-		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-		             "Could not open sqlite3 database:'%s'", db_file);
-
-		g_idle_add_full (G_PRIORITY_DEFAULT, perform_callback, info, 
-		                 backup_info_free);
-
-		return;
-	}
-
-	if (sqlite3_open (info->backup_fname, &info->backup_temp) != SQLITE_OK) {
-		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-		             "Could not open sqlite3 database:'%s'", info->backup_fname);
-
-		g_idle_add_full (G_PRIORITY_DEFAULT, perform_callback, info, 
-		                 backup_info_free);
-
-		return;
-	}
-
-	info->backup_db = sqlite3_backup_init (info->backup_temp, "main", 
-	                                       info->db, "main");
-
-	if (!info->backup_db) {
-		g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-		             "Unknown error creating backup db: '%s'", info->backup_fname);
-
-		g_idle_add_full (G_PRIORITY_DEFAULT, perform_callback, info, 
-		                 backup_info_free);
-
-		return;
-	}
-
-	g_idle_add_full (G_PRIORITY_DEFAULT, backup_file_step, info, 
-	                 on_backup_temp_finished);
+	g_io_scheduler_push_job (backup_job, info, NULL, 0, NULL);
 }
 
