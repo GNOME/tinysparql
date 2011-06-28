@@ -248,7 +248,7 @@ public class Tracker.Store {
 		});
 	}
 
-	static void wal_checkpoint () {
+	public static void wal_checkpoint () {
 		try {
 			debug ("Checkpointing database...");
 			var iface = DBManager.get_db_interface ();

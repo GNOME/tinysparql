@@ -164,6 +164,9 @@ public class Tracker.Resources : Object {
 	public void sync (BusName sender) {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
 
+		// wal checkpoint implies sync
+		Tracker.Store.wal_checkpoint ();
+		// sync journal if available
 		Data.sync ();
 
 		request.end ();
