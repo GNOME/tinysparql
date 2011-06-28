@@ -190,7 +190,6 @@ main (int argc, char **argv)
 
 	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
-	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
 	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
 	g_setenv ("TRACKER_FTS_STOP_WORDS", "0", TRUE);
 
