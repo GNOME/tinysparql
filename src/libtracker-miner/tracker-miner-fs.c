@@ -170,7 +170,7 @@ struct _TrackerMinerFSPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
 
-	GQueue         *crawled_directories;
+	TrackerPriorityQueue *crawled_directories;
 
 	/* File queues for indexer */
 	GQueue         *items_created;
@@ -669,7 +669,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv = object->priv;
 
-	priv->crawled_directories = g_queue_new ();
+	priv->crawled_directories = tracker_priority_queue_new ();
 	priv->items_created = g_queue_new ();
 	priv->items_updated = g_queue_new ();
 	priv->items_deleted = g_queue_new ();
@@ -787,8 +787,10 @@ fs_finalize (GObject *object)
 		g_list_free (priv->config_directories);
 	}
 
-	g_queue_foreach (priv->crawled_directories, (GFunc) crawled_directory_data_free, NULL);
-	g_queue_free (priv->crawled_directories);
+	tracker_priority_queue_foreach (priv->crawled_directories,
+	                                (GFunc) crawled_directory_data_free,
+	                                NULL);
+	tracker_priority_queue_unref (priv->crawled_directories);
 
 	/* Cancel every pending task */
 	tracker_processing_pool_foreach (priv->processing_pool,
@@ -2338,7 +2340,8 @@ fill_in_items_created_queue (TrackerMinerFS *fs)
 	GFile *file;
 	GNode *node;
 
-	dir_data = g_queue_peek_head (fs->priv->crawled_directories);
+	dir_data = tracker_priority_queue_peek (fs->priv->crawled_directories,
+	                                        NULL);
 
 	if (g_queue_is_empty (dir_data->nodes)) {
 		/* Special case, append the root directory for the tree */
@@ -2404,7 +2407,8 @@ fill_in_items_created_queue (TrackerMinerFS *fs)
 
 	if (g_queue_is_empty (dir_data->nodes)) {
 		/* There's no more data to process, move on to the next one */
-		g_queue_pop_head (fs->priv->crawled_directories);
+		tracker_priority_queue_pop (fs->priv->crawled_directories,
+		                            NULL);
 		crawled_directory_data_free (dir_data);
 	}
 }
@@ -2480,7 +2484,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	}
 
 	if (g_queue_is_empty (fs->priv->items_created) &&
-	    !g_queue_is_empty (fs->priv->crawled_directories)) {
+	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories)) {
 
 		trace_eq ("Created items queue empty, but still crawling (%d tasks in WAIT state)",
 		          tracker_processing_pool_get_wait_task_count (fs->priv->processing_pool));
@@ -2502,7 +2506,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			 * or no data is left to process.
 			 */
 			while (g_queue_is_empty (fs->priv->items_created) &&
-			       !g_queue_is_empty (fs->priv->crawled_directories)) {
+			       !tracker_priority_queue_is_empty (fs->priv->crawled_directories)) {
 				fill_in_items_created_queue (fs);
 			}
 		}
@@ -2664,9 +2668,9 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_to_process += g_queue_get_length (fs->priv->items_updated);
 	items_to_process += g_queue_get_length (fs->priv->items_moved);
 
-	g_queue_foreach (fs->priv->crawled_directories,
-	                 (GFunc) get_tree_progress_foreach,
-	                 &items_to_process);
+	tracker_priority_queue_foreach (fs->priv->crawled_directories,
+	                                (GFunc) get_tree_progress_foreach,
+	                                &items_to_process);
 
 	items_total += fs->priv->total_directories_found;
 	items_total += fs->priv->total_files_found;
@@ -3898,6 +3902,18 @@ crawled_directory_data_free (CrawledDirectoryData *data)
 	g_slice_free (CrawledDirectoryData, data);
 }
 
+static gboolean
+crawled_directory_contains_file (CrawledDirectoryData *data,
+                                 GFile                *file)
+{
+	if (g_file_equal (file, data->tree->data) ||
+	    g_file_has_prefix (file, data->tree->data)) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 crawler_directory_crawled_cb (TrackerCrawler *crawler,
                               GFile          *directory,
@@ -3922,7 +3938,9 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	 * further data is left there.
 	 */
 	dir_data = crawled_directory_data_new (tree);
-	g_queue_push_tail (fs->priv->crawled_directories, dir_data);
+	tracker_priority_queue_add (fs->priv->crawled_directories,
+	                            dir_data,
+	                            TRACKER_QUEUE_PRIORITY_DEFAULT);
 
 	/* Update stats */
 	fs->priv->directories_found += directories_found;
@@ -4336,21 +4354,10 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		}
 	}
 
-	dirs = fs->priv->crawled_directories->head;
-
-	while (dirs) {
-		CrawledDirectoryData *data = dirs->data;
-		GList *link = dirs;
-
-		dirs = dirs->next;
-
-		if (g_file_equal (file, data->tree->data) ||
-		    g_file_has_prefix (file, data->tree->data)) {
-			crawled_directory_data_free (data);
-			g_queue_delete_link (priv->crawled_directories, link);
-			return_val = TRUE;
-		}
-	}
+	tracker_priority_queue_foreach_remove (fs->priv->crawled_directories,
+	                                       (GEqualFunc) crawled_directory_contains_file,
+	                                       file,
+	                                       (GDestroyNotify) crawled_directory_data_free);
 
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
