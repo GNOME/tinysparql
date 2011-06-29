@@ -32,6 +32,7 @@
 #include "tracker-utils.h"
 #include "tracker-thumbnailer.h"
 #include "tracker-miner-fs-processing-pool.h"
+#include "tracker-priority-queue.h"
 
 /* If defined will print the tree from GNode while running */
 #ifdef CRAWLED_TREE_ENABLE_TRACE
@@ -188,7 +189,7 @@ struct _TrackerMinerFSPrivate {
 
 	GList          *config_directories;
 
-	GList          *directories;
+	TrackerPriorityQueue *directories;
 	DirectoryData  *current_directory;
 
 	GTimer         *timer;
@@ -674,6 +675,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->items_deleted = g_queue_new ();
 	priv->items_moved = g_queue_new ();
 
+	priv->directories = tracker_priority_queue_new ();
+
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	priv->queue_status_timeout_id = g_timeout_add_seconds (EVENT_QUEUE_STATUS_TIMEOUT_SECS,
 	                                                       miner_fs_queues_status_trace_timeout_cb,
@@ -774,10 +777,10 @@ fs_finalize (GObject *object)
 	if (priv->current_mtime_cache_parent)
 		g_object_unref (priv->current_mtime_cache_parent);
 
-	if (priv->directories) {
-		g_list_foreach (priv->directories, (GFunc) directory_data_unref, NULL);
-		g_list_free (priv->directories);
-	}
+	tracker_priority_queue_foreach (priv->directories,
+	                                (GFunc) directory_data_unref,
+	                                NULL);
+	tracker_priority_queue_unref (priv->directories);
 
 	if (priv->config_directories) {
 		g_list_foreach (priv->config_directories, (GFunc) directory_data_unref, NULL);
@@ -1359,6 +1362,20 @@ file_is_crawl_directory (TrackerMinerFS *fs,
 	return FALSE;
 }
 
+static gboolean
+directory_contains_file (DirectoryData *dir_data,
+                         GFile         *file)
+{
+
+	if (g_file_equal (file, dir_data->file) ||
+	    (dir_data->recurse &&
+	     g_file_has_prefix (file, dir_data->file))) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static DirectoryData *
 find_config_directory (TrackerMinerFS *fs,
                        GFile          *file)
@@ -1373,8 +1390,7 @@ find_config_directory (TrackerMinerFS *fs,
 		data = dirs->data;
 		dirs = dirs->next;
 
-		if (g_file_equal (data->file, file) ||
-		    (data->recurse && (g_file_has_prefix (file, data->file)))) {
+		if (directory_contains_file (data, file)) {
 			return data;
 		}
 	}
@@ -3970,7 +3986,7 @@ crawl_directories_cb (gpointer user_data)
 		return FALSE;
 	}
 
-	if (!fs->priv->directories) {
+	if (tracker_priority_queue_is_empty (fs->priv->directories)) {
 		if (fs->priv->current_iri_cache_parent) {
 			/* Unset parent folder so caches are regenerated */
 			g_object_unref (fs->priv->current_iri_cache_parent);
@@ -3995,9 +4011,8 @@ crawl_directories_cb (gpointer user_data)
 		fs->priv->timer = g_timer_new ();
 	}
 
-	fs->priv->current_directory = fs->priv->directories->data;
-	fs->priv->directories = g_list_remove (fs->priv->directories,
-	                                          fs->priv->current_directory);
+	fs->priv->current_directory = tracker_priority_queue_pop (fs->priv->directories,
+	                                                          NULL);
 
 	path = g_file_get_path (fs->priv->current_directory->file);
 	path_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
@@ -4114,20 +4129,25 @@ should_recurse_for_directory (TrackerMinerFS *fs,
 	return recurse;
 }
 
+static gboolean
+directory_equals_or_contains (gconstpointer a,
+                              gconstpointer b)
+{
+	DirectoryData *dda = (DirectoryData *) a;
+	DirectoryData *ddb = (DirectoryData *) b;
 
-/* Returns 0 if 'a' and 'b' point to the same diretory, OR if
+	return directory_contains_file (dda, ddb->file);
+}
+
+
+/* Returns 0 if 'a' and 'b' point to the same directory, OR if
  *  'b' is contained inside directory 'a' and 'a' is recursively
  *  indexed. */
 static gint
 directory_compare_cb (gconstpointer a,
                       gconstpointer b)
 {
-	DirectoryData *dda = (DirectoryData *) a;
-	DirectoryData *ddb = (DirectoryData *) b;
-
-	return (g_file_equal (dda->file, ddb->file) ||
-	        (dda->recurse &&
-	         g_file_has_prefix (ddb->file, dda->file))) ? 0 : -1;
+	return directory_equals_or_contains (a, b) ? 0 : -1;
 }
 
 
@@ -4146,12 +4166,13 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	data = directory_data_new (file, recurse);
 
 	/* Only add if not already there */
-	if (!g_list_find_custom (fs->priv->directories,
-	                         data,
-	                         directory_compare_cb)) {
-		fs->priv->directories =
-			g_list_append (fs->priv->directories,
-			               directory_data_ref (data));
+	if (tracker_priority_queue_find (fs->priv->directories,
+	                                 NULL,
+	                                 directory_equals_or_contains,
+	                                 data) == NULL) {
+		tracker_priority_queue_add (fs->priv->directories,
+		                            directory_data_ref (data),
+		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
 
 		crawl_directories_start (fs);
 	}
@@ -4191,12 +4212,13 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 	}
 
 	/* If not already in the list to process, add it */
-	if (!g_list_find_custom (fs->priv->directories,
-	                         dir_data,
-	                         directory_compare_cb)) {
-		fs->priv->directories =
-			g_list_append (fs->priv->directories,
-			               directory_data_ref (dir_data));
+	if (tracker_priority_queue_find (fs->priv->directories,
+	                                 NULL,
+	                                 directory_equals_or_contains,
+	                                 dir_data) == NULL) {
+		tracker_priority_queue_add (fs->priv->directories,
+		                            directory_data_ref (dir_data),
+		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
 
 		crawl_directories_start (fs);
 	}
@@ -4295,22 +4317,10 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		}
 	}
 
-	dirs = fs->priv->directories;
-
-	while (dirs) {
-		DirectoryData *data = dirs->data;
-		GList *link = dirs;
-
-		dirs = dirs->next;
-
-		if (g_file_equal (file, data->file) ||
-		    g_file_has_prefix (file, data->file)) {
-			directory_data_unref (data);
-			fs->priv->directories = g_list_delete_link (fs->priv->directories, link);
-			return_val = TRUE;
-		}
-	}
-
+	tracker_priority_queue_foreach_remove (fs->priv->directories,
+	                                       (GEqualFunc) directory_contains_file,
+	                                       file,
+	                                       (GDestroyNotify) directory_data_unref);
 	dirs = fs->priv->config_directories;
 
 	while (dirs) {
@@ -4800,10 +4810,14 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 
 	g_message ("Forcing re-check on all index directories");
 
-	directories = g_list_copy (fs->priv->config_directories);
-	g_list_foreach (directories, (GFunc) directory_data_ref, NULL);
+	directories = fs->priv->config_directories;
 
-	fs->priv->directories = g_list_concat (fs->priv->directories, directories);
+	while (directories) {
+		tracker_priority_queue_add (fs->priv->directories,
+		                            directory_data_ref (directories->data),
+		                            TRACKER_QUEUE_PRIORITY_LOW);
+		directories = directories->next;
+	}
 
 	crawl_directories_start (fs);
 }
