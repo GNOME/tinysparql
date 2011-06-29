@@ -986,10 +986,7 @@ miner_resumed (TrackerMiner *miner)
 	/* Only set up queue handler if we have items waiting to be
 	 * processed.
 	 */
-	if (g_queue_get_length (fs->priv->items_deleted) > 0 ||
-	    g_queue_get_length (fs->priv->items_created) > 0 ||
-	    g_queue_get_length (fs->priv->items_updated) > 0 ||
-	    g_queue_get_length (fs->priv->items_moved) > 0) {
+	if (tracker_miner_fs_has_items_to_process (fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 }
