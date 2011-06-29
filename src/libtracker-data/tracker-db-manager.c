@@ -613,7 +613,7 @@ db_get_locale (void)
 	} else {
 		/* expected when restoring from backup, always recreate indices */
 		g_message ("  Could not find database locale file:'%s'", filename);
-		return g_strdup ("unknown");
+		locale = g_strdup ("unknown");
 	}
 
 	g_free (filename);
