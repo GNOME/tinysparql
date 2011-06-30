@@ -1,3 +1,23 @@
+NEW in 0.10.19 - 2011-06-30
+===========================
+
+The changes are:
+
+  * Fixes: NB#268105, Disabled full journaling to improve user data privacy
+  * libtracker-data: Make sure we don't leak sql_dir on multiple _init() calls
+  * libtracker-extract: Avoid division by 0 for GPS coordinates in EXIF tags
+  * tracker-store: Improve logging to avoid spamming syslog on startup
+  * tracker-miner-fs: Improve logging to avoid spamming syslog on startup
+
+Translations:
+
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  None
+
+
 NEW in 0.10.18 - 2011-06-16
 ===========================
 
