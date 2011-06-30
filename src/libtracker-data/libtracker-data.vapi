@@ -57,10 +57,17 @@ namespace Tracker {
 		NONE
 	}
 
+	[CCode (has_target = false, cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
+	public delegate void DBWalCallback (int n_pages);
+
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
 		public abstract DBStatement create_statement (DBStatementCacheType cache_type, ...) throws DBInterfaceError;
+		[PrintfFormat]
+		public void execute_query (...) throws DBInterfaceError;
+		[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
+		public void sqlite_wal_hook (DBWalCallback callback);
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
@@ -219,7 +226,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
 	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
+		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
 	}
 

@@ -24,7 +24,7 @@ from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper
 from common.utils import configuration as cfg
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
-from common.utils.expectedFailure import expectedFailureBug as expectedFailureBug
+from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
 import unittest2 as ut
 
 
@@ -253,6 +253,7 @@ class JournalReplayTest (CommonTrackerStoreTest):
         """
         Force journal replaying and check that the DB is correct aftewards
         """
+	@expectedFailureJournal()
  	def test_journal_01 (self) :
             """
             Journal replaying when the DB is corrupted
@@ -288,6 +289,7 @@ class JournalReplayTest (CommonTrackerStoreTest):
 
             self.tracker.update ("DELETE { <test://journal-replay/01> a rdfs:Resource. }")
 
+	@expectedFailureJournal()
 	def test_journal_02 (self) :
             """
             Journal replaying when the DB disappears

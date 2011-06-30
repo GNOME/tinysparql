@@ -447,6 +447,10 @@ db_journal_init_file (JournalWriter  *jwriter,
 	int flags;
 	int mode;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	jwriter->cur_block_len = 0;
 	jwriter->cur_pos = 0;
 	jwriter->cur_entry_amount = 0;
@@ -522,6 +526,10 @@ db_journal_writer_init (JournalWriter  *jwriter,
 	GError *n_error = NULL;
 	gboolean ret;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	directory = g_path_get_dirname (filename);
 	if (g_strcmp0 (directory, ".")) {
 		mode = S_IRWXU | S_IRWXG | S_IRWXO;
@@ -562,6 +570,10 @@ tracker_db_journal_init (const gchar  *filename,
 	gchar *filename_free = NULL;
 	GError *n_error = NULL;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (writer.journal == 0, FALSE);
 
 	if (filename == NULL) {
@@ -593,6 +605,10 @@ db_journal_ontology_init (GError **error)
 	gboolean ret;
 	gchar *filename;
 	GError *n_error = NULL;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	g_return_val_if_fail (ontology_writer.journal == 0, FALSE);
 
@@ -643,6 +659,10 @@ tracker_db_journal_shutdown (GError **error)
 	GError *n_error = NULL;
 	gboolean ret;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	ret = db_journal_writer_shutdown (&writer, &n_error);
 
 	if (n_error) {
@@ -663,6 +683,10 @@ tracker_db_journal_get_size (void)
 const gchar *
 tracker_db_journal_get_filename (void)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	/* Journal doesn't have to be open to get the filename, for example when
 	 * the file didn't exist and it was attempted opened in only read mode. */
 	return (const gchar*) writer.journal_filename;
@@ -708,6 +732,10 @@ db_journal_writer_start_transaction (JournalWriter    *jwriter,
 gboolean
 tracker_db_journal_start_transaction (time_t time)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	return db_journal_writer_start_transaction (&writer, time,
 	                                            TRANSACTION_FORMAT_DATA);
 }
@@ -717,6 +745,10 @@ tracker_db_journal_start_ontology_transaction (time_t   time,
                                                GError **error)
 {
 	GError *n_error = NULL;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	if (!db_journal_ontology_init (&n_error)) {
 
@@ -779,6 +811,10 @@ tracker_db_journal_append_delete_statement (gint         g_id,
                                             gint         p_id,
                                             const gchar *object)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -833,6 +869,10 @@ tracker_db_journal_append_delete_statement_id (gint g_id,
                                                gint p_id,
                                                gint o_id)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -889,6 +929,10 @@ tracker_db_journal_append_insert_statement (gint         g_id,
                                             gint         p_id,
                                             const gchar *object)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -943,6 +987,10 @@ tracker_db_journal_append_insert_statement_id (gint g_id,
                                                gint p_id,
                                                gint o_id)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -999,6 +1047,10 @@ tracker_db_journal_append_update_statement (gint         g_id,
                                             gint         p_id,
                                             const gchar *object)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -1053,6 +1105,10 @@ tracker_db_journal_append_update_statement_id (gint g_id,
                                                gint p_id,
                                                gint o_id)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		return TRUE;
 	}
@@ -1094,8 +1150,11 @@ tracker_db_journal_append_resource (gint         s_id,
 {
 	gboolean ret;
 
-	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
+	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
 		ret = db_journal_writer_append_resource (&ontology_writer, s_id, uri);
@@ -1110,6 +1169,10 @@ gboolean
 tracker_db_journal_rollback_transaction (GError **error)
 {
 	GError *n_error = NULL;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
 	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
@@ -1133,6 +1196,10 @@ tracker_db_journal_rollback_transaction (GError **error)
 gboolean
 tracker_db_journal_truncate (gsize new_size)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	return (ftruncate (writer.journal, new_size) != -1);
@@ -1192,6 +1259,10 @@ tracker_db_journal_commit_db_transaction (GError **error)
 	gboolean ret;
 	GError *n_error = NULL;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
@@ -1222,6 +1293,10 @@ tracker_db_journal_commit_db_transaction (GError **error)
 gboolean
 tracker_db_journal_fsync (void)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	return fsync (writer.journal) == 0;
@@ -1408,6 +1483,10 @@ tracker_db_journal_reader_init (const gchar  *filename,
 	gboolean ret;
 	GError *n_error = NULL;
 
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	ret = db_journal_reader_init (&reader, TRUE, filename, &n_error);
 
 	if (n_error) {
@@ -1424,6 +1503,10 @@ tracker_db_journal_reader_ontology_init (const gchar  *filename,
 	gchar *filename_used;
 	gboolean result;
 	GError *n_error = NULL;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	/* Used mostly for testing */
 	if (G_UNLIKELY (filename)) {
@@ -1450,6 +1533,10 @@ tracker_db_journal_reader_ontology_init (const gchar  *filename,
 gsize
 tracker_db_journal_reader_get_size_of_correct (void)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (reader.file != NULL, FALSE);
 
 	return (gsize) (reader.last_success - reader.start);
@@ -1541,6 +1628,10 @@ db_journal_reader_shutdown (JournalReader *jreader)
 gboolean
 tracker_db_journal_reader_shutdown (void)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	return db_journal_reader_shutdown (&reader);
 }
 
@@ -1853,6 +1944,10 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 gboolean
 tracker_db_journal_reader_next (GError **error)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	return db_journal_reader_next (&reader, TRUE, error);
 }
 
@@ -1864,6 +1959,10 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 	gboolean success = FALSE;
 	JournalReader jreader = { 0 };
 	GError *n_error = NULL;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	if (db_journal_reader_init (&jreader, FALSE, filename, &n_error)) {
 
@@ -1903,6 +2002,10 @@ gboolean
 tracker_db_journal_reader_get_resource (gint         *id,
                                         const gchar **uri)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_RESOURCE, FALSE);
 
@@ -1918,6 +2021,10 @@ tracker_db_journal_reader_get_statement (gint         *g_id,
                                          gint         *p_id,
                                          const gchar **object)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
 	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT ||
@@ -1940,6 +2047,10 @@ tracker_db_journal_reader_get_statement_id (gint *g_id,
                                             gint *p_id,
                                             gint *o_id)
 {
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
+
 	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
 	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID ||
@@ -1962,6 +2073,10 @@ tracker_db_journal_reader_get_progress (void)
 	gdouble chunk = 0, total = 0, ret = 0;
 	guint current_file;
 	static guint total_chunks = 0;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	current_file = reader.current_file == 0 ? total_chunks -1 : reader.current_file -1;
 
@@ -2080,6 +2195,10 @@ tracker_db_journal_rotate (GError **error)
 	static gint max = 0;
 	GError *n_error = NULL;
 	gboolean ret;
+
+#ifdef DISABLE_JOURNAL
+	g_critical ("Journal is disabled, yet a journal function got called");
+#endif
 
 	if (max == 0) {
 		gchar *directory;

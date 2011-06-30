@@ -17,11 +17,15 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <config.h>
+
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-crc32.h>
 
 #include <libtracker-data/tracker-db-journal.h>
+
+#ifndef DISABLE_JOURNAL
 
 static void
 test_init_and_shutdown (void)
@@ -353,6 +357,8 @@ test_read_functions (void)
 	g_free (path);
 }
 
+#endif /* DISABLE_JOURNAL */
+
 int
 main (int argc, char **argv) 
 {
@@ -363,12 +369,15 @@ main (int argc, char **argv)
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
+#ifndef DISABLE_JOURNAL
+	/* None of these tests make sense in case of disabled journal */
 	g_test_add_func ("/libtracker-db/tracker-db-journal/init-and-shutdown",
 	                 test_init_and_shutdown);
 	g_test_add_func ("/libtracker-db/tracker-db-journal/write-functions",
 	                 test_write_functions);
 	g_test_add_func ("/libtracker-db/tracker-db-journal/read-functions",
 	                 test_read_functions);
+#endif /* DISABLE_JOURNAL */
 
 	result = g_test_run ();
 

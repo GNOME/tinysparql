@@ -32,7 +32,7 @@ import unittest2 as ut
 from common.utils.system import TrackerSystemAbstraction as TrackerSystemAbstraction
 from common.utils.system import UnableToBootException as UnableToBootException
 from common.utils.helpers import StoreHelper as StoreHelper
-from common.utils.expectedFailure import expectedFailureBug
+from common.utils.expectedFailure import expectedFailureBug, expectedFailureJournal
 
 
 RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range"
@@ -175,6 +175,7 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
     Change the range of a property from string to date. There shouldn't be any data loss.
     """
 
+    @expectedFailureJournal()
     def test_property_range_string_to_date (self):
         self.template_test_ontology_change ()
 
@@ -203,6 +204,7 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
     Change the range of a property from date to string. There shouldn't be any data loss.
     """
 
+    @expectedFailureJournal()
     def test_property_range_date_to_string (self):
         self.template_test_ontology_change ()
 
@@ -276,6 +278,7 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
     Change cardinality of a property from 1 to N. There shouldn't be any data loss
     """
 
+    @expectedFailureJournal()
     def test_property_cardinality_1_to_n (self):
         self.template_test_ontology_change ()
 
@@ -307,6 +310,7 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
     Change the cardinality of a property for N to 1.
     """
 
+    @expectedFailureJournal()
     def test_property_cardinality_n_to_1 (self):
         self.template_test_ontology_change ()
 
@@ -689,6 +693,7 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
     """
     Remove the superclass relation between two classes
     """
+    @expectedFailureJournal()
     def test_superclass_removal (self):
         self.template_test_ontology_change ()
         
@@ -730,6 +735,7 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
     """
     Add a superclass to a class with no superclass previously
     """
+    @expectedFailureJournal()
     def test_superclass_addition (self):
         self.template_test_ontology_change ()
         
@@ -772,6 +778,7 @@ class PropertyPromotionTest (OntologyChangeTestTemplate):
     """
     Move a property to the superclass
     """
+    @expectedFailureJournal()
     def test_property_promotion (self):
         self.template_test_ontology_change ()
         
@@ -806,6 +813,7 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
     """
     Move a property to the subclass
     """
+    @expectedFailureJournal()
     def test_property_relegation (self):
         self.template_test_ontology_change ()
         

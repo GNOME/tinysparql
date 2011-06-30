@@ -19,6 +19,7 @@
  */
 #include "config.h"
 
+#include <errno.h>
 #include <string.h>
 
 #include <glib.h>
@@ -30,6 +31,7 @@
 #include "tracker-data-manager.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-journal.h"
+#include "tracker-db-backup.h"
 
 typedef struct {
 	GFile *destination, *journal;
@@ -38,6 +40,8 @@ typedef struct {
 	GDestroyNotify destroy;
 	GError *error;
 } BackupSaveInfo;
+
+#ifndef DISABLE_JOURNAL
 
 typedef struct {
 	GPid pid;
@@ -50,11 +54,7 @@ typedef struct {
 	GString *lines;
 } ProcessContext;
 
-GQuark
-tracker_data_backup_error_quark (void)
-{
-	return g_quark_from_static_string (TRACKER_DATA_BACKUP_ERROR_DOMAIN);
-}
+#endif /* DISABLE_JOURNAL */
 
 static void
 free_backup_save_info (BackupSaveInfo *info)
@@ -75,6 +75,15 @@ free_backup_save_info (BackupSaveInfo *info)
 
 	g_free (info);
 }
+
+
+GQuark
+tracker_data_backup_error_quark (void)
+{
+	return g_quark_from_static_string (TRACKER_DATA_BACKUP_ERROR_DOMAIN);
+}
+
+#ifndef DISABLE_JOURNAL
 
 static void
 on_journal_copied (BackupSaveInfo *info, GError *error)
@@ -208,6 +217,194 @@ process_context_child_watch_cb (GPid     pid,
 
 	process_context_destroy (context, error);
 }
+#endif /* DISABLE_JOURNAL */
+
+
+
+#ifdef DISABLE_JOURNAL
+static void
+on_backup_finished (GError *error,
+                    gpointer user_data)
+{
+	BackupSaveInfo *info = user_data;
+
+	if (info->callback) {
+		info->callback (error, info->user_data);
+	}
+
+	free_backup_save_info (info);
+}
+
+#endif /* DISABLE_JOURNAL */
+
+/* delete all regular files from the directory */
+static void
+dir_remove_files (const gchar *path)
+{
+	GDir *dir;
+	const gchar *name;
+
+	dir = g_dir_open (path, 0, NULL);
+	if (dir == NULL) {
+		return;
+	}
+
+	while ((name = g_dir_read_name (dir)) != NULL) {
+		gchar *filename;
+
+		filename = g_build_filename (path, name, NULL);
+
+		if (g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
+			g_debug ("Removing '%s'", filename);
+			if (g_unlink (filename) == -1) {
+				g_warning ("Unable to remove '%s': %s", filename, g_strerror (errno));
+			}
+		}
+
+		g_free (filename);
+	}
+
+	g_dir_close (dir);
+}
+
+/* move all regular files from the source directory to the destination directory */
+static void
+dir_move_files (const gchar *src_path, const gchar *dest_path)
+{
+	GDir *src_dir;
+	const gchar *src_name;
+
+	src_dir = g_dir_open (src_path, 0, NULL);
+	if (src_dir == NULL) {
+		return;
+	}
+
+	while ((src_name = g_dir_read_name (src_dir)) != NULL) {
+		gchar *src_filename, *dest_filename;
+
+		src_filename = g_build_filename (src_path, src_name, NULL);
+
+		if (g_file_test (src_filename, G_FILE_TEST_IS_REGULAR)) {
+			dest_filename = g_build_filename (dest_path, src_name, NULL);
+
+			g_debug ("Renaming '%s' to '%s'", src_filename, dest_filename);
+			if (g_rename (src_filename, dest_filename) == -1) {
+				g_warning ("Unable to rename '%s' to '%s': %s", src_filename, dest_filename, g_strerror (errno));
+			}
+
+			g_free (dest_filename);
+		}
+
+		g_free (src_filename);
+	}
+
+	g_dir_close (src_dir);
+}
+
+static void
+dir_move_to_temp (const gchar *path)
+{
+	gchar *temp_dir;
+
+	temp_dir = g_build_filename (path, "tmp", NULL);
+	g_mkdir (temp_dir, 0777);
+
+	/* ensure that no obsolete temporary files are around */
+	dir_remove_files (temp_dir);
+	dir_move_files (path, temp_dir);
+
+	g_free (temp_dir);
+}
+
+static void
+dir_move_from_temp (const gchar *path)
+{
+	gchar *temp_dir;
+
+	temp_dir = g_build_filename (path, "tmp", NULL);
+
+	/* ensure that no obsolete files are around */
+	dir_remove_files (path);
+	dir_move_files (temp_dir, path);
+
+	g_rmdir (temp_dir);
+
+	g_free (temp_dir);
+}
+
+static void
+move_to_temp (void)
+{
+	gchar *data_dir, *cache_dir;
+
+	g_message ("Moving all database files to temporary location");
+
+	data_dir = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             "data",
+	                             NULL);
+
+	cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                              "tracker",
+	                              NULL);
+
+	dir_move_to_temp (data_dir);
+	dir_move_to_temp (cache_dir);
+
+	g_free (cache_dir);
+	g_free (data_dir);
+}
+
+static void
+remove_temp (void)
+{
+	gchar *tmp_data_dir, *tmp_cache_dir;
+
+	g_message ("Removing all database files from temporary location");
+
+	tmp_data_dir = g_build_filename (g_get_user_data_dir (),
+	                                 "tracker",
+	                                 "data",
+	                                 "tmp",
+	                                 NULL);
+
+	tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                                  "tracker",
+	                                  "tmp",
+	                                  NULL);
+
+	dir_remove_files (tmp_data_dir);
+	dir_remove_files (tmp_cache_dir);
+
+	g_rmdir (tmp_data_dir);
+	g_rmdir (tmp_cache_dir);
+
+	g_free (tmp_cache_dir);
+	g_free (tmp_data_dir);
+}
+
+static void
+restore_from_temp (void)
+{
+	gchar *data_dir, *cache_dir;
+
+	g_message ("Restoring all database files from temporary location");
+
+	data_dir = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             "data",
+	                             NULL);
+
+	cache_dir = g_build_filename (g_get_user_cache_dir (),
+	                              "tracker",
+	                              NULL);
+
+	dir_move_from_temp (data_dir);
+	dir_move_from_temp (cache_dir);
+
+	g_free (cache_dir);
+	g_free (data_dir);
+}
 
 void
 tracker_data_backup_save (GFile *destination,
@@ -215,6 +412,7 @@ tracker_data_backup_save (GFile *destination,
                           gpointer user_data,
                           GDestroyNotify destroy)
 {
+#ifndef DISABLE_JOURNAL
 	BackupSaveInfo *info;
 	ProcessContext *context;
 	gchar **argv;
@@ -310,6 +508,20 @@ tracker_data_backup_save (GFile *destination,
 	         pid, argv[0], argv[1], argv[2]);
 
 	g_strfreev (argv);
+#else
+	BackupSaveInfo *info;
+
+	info = g_new0 (BackupSaveInfo, 1);
+	info->destination = g_object_ref (destination);
+	info->callback = callback;
+	info->user_data = user_data;
+	info->destroy = destroy;
+
+	tracker_db_backup_save (destination,
+	                        on_backup_finished, 
+	                        info,
+	                        NULL);
+#endif /* DISABLE_JOURNAL */
 }
 
 void
@@ -323,25 +535,34 @@ tracker_data_backup_restore (GFile                *journal,
 	GError *internal_error = NULL;
 
 	info = g_new0 (BackupSaveInfo, 1);
+#ifndef DISABLE_JOURNAL
 	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
+#else
+	info->destination = g_file_new_for_path (tracker_db_manager_get_file (TRACKER_DB_METADATA));
+#endif /* DISABLE_JOURNAL */
+
 	info->journal = g_object_ref (journal);
 
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags;
+		guint select_cache_size, update_cache_size;
 		gboolean is_first;
+#ifndef DISABLE_JOURNAL
+		GError *n_error = NULL;
 		GFile *parent = g_file_get_parent (info->destination);
 		gchar *tmp_stdout = NULL;
 		gchar *tmp_stderr = NULL;
 		gchar **argv;
 		gint exit_status;
-		guint select_cache_size, update_cache_size;
-		GError *n_error = NULL;
+#endif /* DISABLE_JOURNAL */
 
 		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 
-		tracker_db_manager_move_to_temp ();
 		tracker_data_manager_shutdown ();
 
+		move_to_temp ();
+
+#ifndef DISABLE_JOURNAL
 		argv = g_new0 (char*, 6);
 
 		argv[0] = g_strdup ("tar");
@@ -378,8 +599,29 @@ tracker_data_backup_restore (GFile                *journal,
 		g_free (tmp_stderr);
 		g_free (tmp_stdout);
 		g_strfreev (argv);
+#else
+		/* Turn off force-reindex here, no journal to replay so it wouldn't work */
+		flags &= ~TRACKER_DB_MANAGER_FORCE_REINDEX;
+
+		g_file_copy (info->journal, info->destination,
+		             G_FILE_COPY_OVERWRITE, 
+		             NULL, NULL, NULL,
+		             &info->error);
+#endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_init_locations ();
+
+		/* Re-set the DB version file, so that its mtime changes. The mtime of this
+		 * file will change only when the whole DB is recreated (after a hard reset
+		 * or after a backup restoration). */
+		tracker_db_manager_create_version_file ();
+
+		/* Given we're radically changing the database, we
+		 * force a full mtime check against all known files in
+		 * the database for complete synchronisation. */
+		tracker_db_manager_set_need_mtime_check (TRUE);
+
+#ifndef DISABLE_JOURNAL
 		tracker_db_journal_init (NULL, FALSE, &n_error);
 
 		if (n_error) {
@@ -394,9 +636,9 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 
 		if (info->error) {
-			tracker_db_manager_restore_from_temp ();
+			restore_from_temp ();
 		} else {
-			tracker_db_manager_remove_temp ();
+			remove_temp ();
 		}
 
 		tracker_db_journal_shutdown (&n_error);
@@ -406,24 +648,28 @@ tracker_data_backup_restore (GFile                *journal,
 			           n_error->message ? n_error->message : "No error given");
 			g_error_free (n_error);
 		}
+#endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
+		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup", &internal_error);
 
+#ifdef DISABLE_JOURNAL
+		if (internal_error) {
+			restore_from_temp ();
+
+			tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
+			                           select_cache_size, update_cache_size,
+			                           busy_callback, busy_user_data,
+			                           "Restoring backup", &internal_error);
+		} else {
+			remove_temp ();
+		}
+#endif /* DISABLE_JOURNAL */
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-		} else {
-			/* Re-set the DB version file, so that its mtime changes. The mtime of this
-			 * file will change only when the whole DB is recreated (after a hard reset
-			 * or after a backup restoration). */
-			tracker_db_manager_create_version_file ();
-
-			/* Given we're radically changing the database, we
-			 * force a full mtime check against all known files in
-			 * the database for complete synchronisation. */
-			tracker_db_manager_set_need_mtime_check (TRUE);
 		}
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,

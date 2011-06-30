@@ -49,6 +49,7 @@ test_blank (void)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           FALSE,
 	                           100,
 	                           100,
 	                           NULL,

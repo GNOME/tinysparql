@@ -1024,6 +1024,23 @@ tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 	}
 }
 
+static gint
+wal_hook (gpointer     user_data,
+          sqlite3     *db,
+          const gchar *db_name,
+          gint         n_pages)
+{
+	((TrackerDBWalCallback) user_data) (n_pages);
+
+	return SQLITE_OK;
+}
+
+void
+tracker_db_interface_sqlite_wal_hook (TrackerDBInterface   *interface,
+                                      TrackerDBWalCallback  callback)
+{
+	sqlite3_wal_hook (interface->db, wal_hook, callback);
+}
 
 
 static void

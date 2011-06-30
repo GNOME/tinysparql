@@ -233,7 +233,11 @@ db_set_params (TrackerDBInterface   *iface,
 		GError *internal_error = NULL;
 		TrackerDBStatement *stmt;
 
+#ifdef DISABLE_JOURNAL
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
+#else
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
+#endif /* DISABLE_JOURNAL */
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
@@ -265,6 +269,9 @@ db_set_params (TrackerDBInterface   *iface,
 		if (stmt) {
 			g_object_unref (stmt);
 		}
+
+		/* disable autocheckpoint */
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA wal_autocheckpoint = 0");
 
 		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 			g_message ("  Setting page size to %d", page_size);
@@ -385,6 +392,7 @@ db_interface_create (TrackerDB db,
 static void
 db_manager_remove_journal (void)
 {
+#ifndef DISABLE_JOURNAL
 	gchar *path;
 	gchar *directory, *rotate_to = NULL;
 	gsize chunk_size;
@@ -453,6 +461,7 @@ db_manager_remove_journal (void)
 		g_message ("%s", g_strerror (errno));
 	}
 	g_free (path);
+#endif /* DISABLE_JOURNAL */
 }
 
 static void
@@ -605,7 +614,9 @@ db_get_locale (void)
 			g_critical ("  Could not get content of file '%s'", filename);
 		}
 	} else {
-		g_critical ("  Could not find database locale file:'%s'", filename);
+		/* expected when restoring from backup, always recreate indices */
+		g_message ("  Could not find database locale file:'%s'", filename);
+		locale = g_strdup ("unknown");
 	}
 
 	g_free (filename);
@@ -779,6 +790,9 @@ tracker_db_manager_init_locations (void)
 	                                  "data",
 	                                  NULL);
 
+	/* For DISABLE_JOURNAL case we should use g_get_user_data_dir here. For now
+	 * keeping this as-is */
+
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
 	                             NULL);
@@ -826,6 +840,7 @@ perform_recreate (gboolean *first_time, GError **error)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
                          gboolean               *first_time,
+                         gboolean                restoring_backup,
                          gboolean                shared_cache,
                          guint                   select_cache_size,
                          guint                   update_cache_size,
@@ -1018,12 +1033,15 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not do shutdown check for read-only mode (direct access) */
-		gboolean must_recreate;
+		gboolean must_recreate = FALSE;
+#ifndef DISABLE_JOURNAL
 		gchar *journal_filename;
+#endif /* DISABLE_JOURNAL */
 
 		/* Load databases */
 		g_message ("Loading databases files...");
 
+#ifndef DISABLE_JOURNAL
 		journal_filename = g_build_filename (g_get_user_data_dir (),
 		                                     "tracker",
 		                                     "data",
@@ -1034,6 +1052,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 		                                                        NULL);
 
 		g_free (journal_filename);
+#endif /* DISABLE_JOURNAL */
 
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
@@ -1043,7 +1062,9 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
 				struct stat st;
 				TrackerDBStatement *stmt;
+#ifndef DISABLE_JOURNAL
 				gchar *busy_status;
+#endif /* DISABLE_JOURNAL */
 
 				if (g_stat (dbs[i].abs_filename, &st) == 0) {
 					size = st.st_size;
@@ -1053,7 +1074,14 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				 * are only one byte in size even initually. */
 
 				if (size <= 1) {
-					must_recreate = TRUE;
+					if (!restoring_backup) {
+						must_recreate = TRUE;
+					} else {
+						g_set_error (&internal_error,
+						             TRACKER_DB_INTERFACE_ERROR,
+						             TRACKER_DB_OPEN_ERROR,
+						             "Corrupt db file");
+					}
 					continue;
 				}
 
@@ -1062,8 +1090,10 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					/* If this already doesn't succeed, then surely the file is
 					 * corrupt. No need to check for integrity anymore. */
-					g_clear_error (&internal_error);
-					must_recreate = TRUE;
+					if (!restoring_backup) {
+						g_clear_error (&internal_error);
+						must_recreate = TRUE;
+					}
 					continue;
 				}
 
@@ -1071,6 +1101,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 				loaded = TRUE;
 
+#ifndef DISABLE_JOURNAL
 				/* Report OPERATION - STATUS */
 				busy_status = g_strdup_printf ("%s - %s",
 				                               busy_operation,
@@ -1113,6 +1144,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 						g_object_unref (cursor);
 					}
 				}
+#endif /* DISABLE_JOURNAL */
 
 				/* ensure that database has been initialized by an earlier tracker-store start
 				   by checking whether Resource table exists */
@@ -1120,9 +1152,13 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				                                              &internal_error,
 				                                              "SELECT 1 FROM Resource");
 				if (internal_error != NULL) {
-					must_recreate = TRUE;
-					g_error_free (internal_error);
-					internal_error = NULL;
+					if (!restoring_backup) {
+						must_recreate = TRUE;
+						g_error_free (internal_error);
+						internal_error = NULL;
+					} else {
+						continue;
+					}
 				} else {
 					g_object_unref (stmt);
 				}
@@ -1132,8 +1168,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		if (must_recreate) {
-
-			g_message ("Database severely damaged. We will recreate it and replay the journal if available.");
+			g_message ("Database severely damaged. We will recreate it"
+#ifndef DISABLE_JOURNAL
+			           " and replay the journal if available.");
+#else
+			           ".");
+#endif /* DISABLE_JOURNAL */
 
 			perform_recreate (first_time, &internal_error);
 			if (internal_error) {
@@ -1141,8 +1181,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				return FALSE;
 			}
 			loaded = FALSE;
+		} else {
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
 		}
-
 	}
 
 	if (!loaded) {
@@ -1176,14 +1220,17 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	}
 
 	if (internal_error) {
-		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-			perform_recreate (first_time, &internal_error);
-			if (!internal_error) {
+		if ((!restoring_backup) && (flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+			GError *new_error = NULL;
+
+			perform_recreate (first_time, &new_error);
+			if (!new_error) {
 				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
 				                                                        TRACKER_DB_METADATA);
-			}
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
+			} else {
+				/* Most serious error is the recreate one here */
+				g_clear_error (&internal_error);
+				g_propagate_error (error, new_error);
 				initialized = FALSE;
 				return FALSE;
 			}
@@ -1280,256 +1327,6 @@ tracker_db_manager_remove_all (gboolean rm_journal)
 	g_return_if_fail (initialized != FALSE);
 
 	db_manager_remove_all (rm_journal);
-}
-
-
-void
-tracker_db_manager_move_to_temp (void)
-{
-	guint i;
-	gchar *cpath, *filename;
-	gchar *fullpath;
-	gchar *directory, *rotate_to = NULL;
-	const gchar *dirs[3] = { NULL, NULL, NULL };
-	gsize chunk_size = 0;
-	gboolean do_rotate = FALSE;
-
-	g_return_if_fail (initialized != FALSE);
-
-	g_message ("Moving all database files");
-
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
-		g_message ("  Renaming database:'%s' -> '%s'",
-		           dbs[i].abs_filename, filename);
-		if (g_rename (dbs[i].abs_filename, filename) == -1) {
-			g_critical ("%s", g_strerror (errno));
-		}
-		g_free (filename);
-	}
-
-	cpath = g_strdup (tracker_db_journal_get_filename ());
-
-	directory = g_path_get_dirname (cpath);
-
-	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-
-	dirs[0] = directory;
-	dirs[1] = do_rotate ? rotate_to : NULL;
-
-	for (i = 0; dirs[i] != NULL; i++) {
-		GDir *journal_dir;
-		const gchar *f_name;
-
-		journal_dir = g_dir_open (dirs[i], 0, NULL);
-		f_name = g_dir_read_name (journal_dir);
-
-		while (f_name) {
-			if (f_name) {
-				if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
-					f_name = g_dir_read_name (journal_dir);
-					continue;
-				}
-			}
-
-			fullpath = g_build_filename (dirs[i], f_name, NULL);
-			filename = g_strdup_printf ("%s.tmp", fullpath);
-			if (g_rename (fullpath, filename) == -1) {
-				g_critical ("%s", g_strerror (errno));
-			}
-			g_free (filename);
-			g_free (fullpath);
-			f_name = g_dir_read_name (journal_dir);
-		}
-
-		g_dir_close (journal_dir);
-	}
-
-	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	filename = g_strdup_printf ("%s.tmp", fullpath);
-	if (g_rename (fullpath, filename) == -1) {
-		g_critical ("%s", g_strerror (errno));
-	}
-	g_free (filename);
-	g_free (fullpath);
-
-	g_free (rotate_to);
-	g_free (directory);
-
-	filename = g_strdup_printf ("%s.tmp", cpath);
-	g_message ("  Renaming journal:'%s' -> '%s'",
-	           cpath, filename);
-	if (g_rename (cpath, filename) == -1) {
-		g_critical ("%s", g_strerror (errno));
-	}
-	g_free (cpath);
-	g_free (filename);
-}
-
-
-void
-tracker_db_manager_restore_from_temp (void)
-{
-	guint i;
-	gchar *cpath, *filename;
-	gchar *fullpath;
-	gchar *directory, *rotate_to = NULL;
-	const gchar *dirs[3] = { NULL, NULL, NULL };
-	gsize chunk_size = 0;
-	gboolean do_rotate = FALSE;
-
-	g_return_if_fail (locations_initialized != FALSE);
-
-	g_message ("Moving all database files");
-
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
-		g_message ("  Renaming database:'%s' -> '%s'",
-		           dbs[i].abs_filename, filename);
-		if (g_rename (dbs[i].abs_filename, filename) == -1) {
-			g_critical ("%s", g_strerror (errno));
-		}
-		g_free (filename);
-	}
-
-	cpath = g_strdup (tracker_db_journal_get_filename ());
-	filename = g_strdup_printf ("%s.tmp", cpath);
-	g_message ("  Renaming journal:'%s' -> '%s'",
-	           filename, cpath);
-	if (g_rename (filename, cpath) == -1) {
-		g_critical ("%s", g_strerror (errno));
-	}
-	g_free (filename);
-
-	directory = g_path_get_dirname (cpath);
-	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-
-	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	filename = g_strdup_printf ("%s.tmp", fullpath);
-	if (g_rename (filename, fullpath) == -1) {
-		g_critical ("%s", g_strerror (errno));
-	}
-	g_free (filename);
-	g_free (fullpath);
-
-	dirs[0] = directory;
-	dirs[1] = do_rotate ? rotate_to : NULL;
-
-	for (i = 0; dirs[i] != NULL; i++) {
-		GDir *journal_dir;
-		const gchar *f_name;
-
-		journal_dir = g_dir_open (dirs[i], 0, NULL);
-		f_name = g_dir_read_name (journal_dir);
-
-		while (f_name) {
-			gchar *ptr;
-
-			if (f_name) {
-				if (!g_str_has_suffix (f_name, ".tmp")) {
-					f_name = g_dir_read_name (journal_dir);
-					continue;
-				}
-			}
-
-			fullpath = g_build_filename (dirs[i], f_name, NULL);
-			filename = g_strdup (fullpath);
-			ptr = strstr (filename, ".tmp");
-			if (ptr) {
-				*ptr = '\0';
-				if (g_rename (fullpath, filename) == -1) {
-					g_critical ("%s", g_strerror (errno));
-				}
-			}
-			g_free (filename);
-			g_free (fullpath);
-			f_name = g_dir_read_name (journal_dir);
-		}
-		g_dir_close (journal_dir);
-	}
-
-	g_free (rotate_to);
-	g_free (directory);
-	g_free (cpath);
-}
-
-void
-tracker_db_manager_remove_temp (void)
-{
-	guint i;
-	gchar *cpath, *filename;
-	gchar *directory, *rotate_to = NULL;
-	gsize chunk_size = 0;
-	gboolean do_rotate = FALSE;
-	const gchar *dirs[3] = { NULL, NULL, NULL };
-
-	g_return_if_fail (locations_initialized != FALSE);
-
-	g_message ("Removing all temp database files");
-
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
-		g_message ("  Removing temp database:'%s'",
-		           filename);
-		if (g_unlink (filename) == -1) {
-			g_message ("%s", g_strerror (errno));
-		}
-		g_free (filename);
-	}
-
-	cpath = g_strdup (tracker_db_journal_get_filename ());
-	filename = g_strdup_printf ("%s.tmp", cpath);
-	g_message ("  Removing temp journal:'%s'",
-	           filename);
-	if (g_unlink (filename) == -1) {
-		g_message ("%s", g_strerror (errno));
-	}
-	g_free (filename);
-
-	directory = g_path_get_dirname (cpath);
-	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-	g_free (cpath);
-
-	cpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	filename = g_strdup_printf ("%s.tmp", cpath);
-	if (g_unlink (filename) == -1) {
-		g_message ("%s", g_strerror (errno));
-	}
-	g_free (filename);
-	g_free (cpath);
-
-	dirs[0] = directory;
-	dirs[1] = do_rotate ? rotate_to : NULL;
-
-	for (i = 0; dirs[i] != NULL; i++) {
-		GDir *journal_dir;
-		const gchar *f_name;
-
-		journal_dir = g_dir_open (dirs[i], 0, NULL);
-		f_name = g_dir_read_name (journal_dir);
-
-		while (f_name) {
-			if (f_name) {
-				if (!g_str_has_suffix (f_name, ".tmp")) {
-					f_name = g_dir_read_name (journal_dir);
-					continue;
-				}
-			}
-
-			filename = g_build_filename (dirs[i], f_name, NULL);
-			if (g_unlink (filename) == -1) {
-				g_message ("%s", g_strerror (errno));
-			}
-			g_free (filename);
-
-			f_name = g_dir_read_name (journal_dir);
-		}
-
-		g_dir_close (journal_dir);
-	}
-
-	g_free (rotate_to);
-	g_free (directory);
 }
 
 void
