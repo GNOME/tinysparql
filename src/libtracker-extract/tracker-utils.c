@@ -1015,6 +1015,12 @@ tracker_keywords_parse (GPtrArray   *store,
 		if (p_dup[len-1] == ' ')
 			p_dup[len-1] = '\0';
 
+		/* ignore keywords containing invalid UTF-8 */
+		if (!g_utf8_validate (p_dup, -1, NULL)) {
+			g_free (p_do);
+			continue;
+		}
+
 		for (i = 0; i < store->len; i++) {
 			const gchar *earlier = g_ptr_array_index (store, i);
 			if (g_strcmp0 (earlier, p_dup) == 0) {
