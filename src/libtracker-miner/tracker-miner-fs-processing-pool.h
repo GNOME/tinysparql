@@ -43,7 +43,8 @@ typedef void  (* TrackerProcessingPoolTaskFinishedCallback) (TrackerProcessingTa
 /* Processing Task API */
 
 TrackerProcessingTask *tracker_processing_task_new               (GFile                 *file);
-void                   tracker_processing_task_free              (TrackerProcessingTask *task);
+TrackerProcessingTask *tracker_processing_task_ref               (TrackerProcessingTask *task);
+void                   tracker_processing_task_unref             (TrackerProcessingTask *task);
 GFile                 *tracker_processing_task_get_file          (TrackerProcessingTask *task);
 gpointer               tracker_processing_task_get_context       (TrackerProcessingTask *task);
 void                   tracker_processing_task_set_context       (TrackerProcessingTask *task,

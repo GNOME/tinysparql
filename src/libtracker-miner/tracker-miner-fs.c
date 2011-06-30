@@ -1168,6 +1168,7 @@ processing_pool_task_finished_cb (TrackerProcessingTask *task,
 		}
 	}
 
+	tracker_processing_task_unref (task);
 	item_queue_handlers_set_up (fs);
 }
 
@@ -1645,7 +1646,7 @@ do_process_file (TrackerMinerFS        *fs,
 			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
 		} else {
 			tracker_processing_pool_remove_task (priv->processing_pool, task);
-			tracker_processing_task_free (task);
+			tracker_processing_task_unref (task);
 		}
 	}
 
@@ -1700,7 +1701,7 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			if (error->code == G_IO_ERROR_CANCELLED) {
 				/* Cancelled is cancelled, just move along in this case */
 				tracker_processing_pool_remove_task (fs->priv->processing_pool, task);
-				tracker_processing_task_free (task);
+				tracker_processing_task_unref (task);
 
 				item_queue_handlers_set_up (fs);
 				return;
