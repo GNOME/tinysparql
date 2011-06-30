@@ -46,7 +46,7 @@ void     tracker_priority_queue_foreach (TrackerPriorityQueue *queue,
                                          GFunc                 func,
                                          gpointer              user_data);
 
-void     tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
+gboolean tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
                                                 GEqualFunc            compare_func,
                                                 gpointer              compare_user_data,
                                                 GDestroyNotify        destroy_notify);
@@ -54,7 +54,7 @@ void     tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 gpointer tracker_priority_queue_find           (TrackerPriorityQueue *queue,
                                                 gint                 *priority_out,
                                                 GEqualFunc            compare_func,
-                                                gpointer              user_data);
+                                                gpointer              data);
 
 gpointer tracker_priority_queue_peek    (TrackerPriorityQueue *queue,
                                          gint                 *priority_out);
