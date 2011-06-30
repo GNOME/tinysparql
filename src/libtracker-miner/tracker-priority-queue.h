@@ -38,6 +38,8 @@ void                  tracker_priority_queue_unref (TrackerPriorityQueue *queue)
 
 gboolean tracker_priority_queue_is_empty           (TrackerPriorityQueue *queue);
 
+guint    tracker_priority_queue_get_length         (TrackerPriorityQueue *queue);
+
 void     tracker_priority_queue_add     (TrackerPriorityQueue *queue,
                                          gpointer              data,
                                          gint                  priority);

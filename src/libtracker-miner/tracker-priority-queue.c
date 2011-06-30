@@ -241,6 +241,14 @@ tracker_priority_queue_is_empty (TrackerPriorityQueue *queue)
 	return g_queue_is_empty (&queue->queue);
 }
 
+guint
+tracker_priority_queue_get_length (TrackerPriorityQueue *queue)
+{
+	g_return_val_if_fail (queue != NULL, 0);
+
+	return g_queue_get_length (&queue->queue);
+}
+
 void
 tracker_priority_queue_add (TrackerPriorityQueue *queue,
                             gpointer              data,
