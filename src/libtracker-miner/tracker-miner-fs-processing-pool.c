@@ -175,6 +175,8 @@ struct _TrackerProcessingTask {
 	TrackerProcessingPoolTaskFinishedCallback finished_handler;
 	gpointer finished_user_data;
 
+	gint ref_count;
+
 #ifdef PROCESSING_POOL_ENABLE_TRACE
 	/* File URI, useful for logs */
 	gchar *file_uri;
@@ -229,6 +231,7 @@ tracker_processing_task_new (GFile *file)
 	task = g_slice_new0 (TrackerProcessingTask);
 	task->file = g_object_ref (file);
 	task->status = TRACKER_PROCESSING_TASK_STATUS_NO_POOL;
+	task->ref_count = 1;
 
 #ifdef PROCESSING_POOL_ENABLE_TRACE
 	task->file_uri = g_file_get_uri (task->file);
@@ -251,10 +254,20 @@ tracker_processing_task_data_unset (TrackerProcessingTask *task)
 	task->content = CONTENT_NONE;
 }
 
+TrackerProcessingTask *
+tracker_processing_task_ref (TrackerProcessingTask *task)
+{
+	g_atomic_int_inc (&task->ref_count);
+	return task;
+}
+
 void
-tracker_processing_task_free (TrackerProcessingTask *task)
+tracker_processing_task_unref (TrackerProcessingTask *task)
 {
 	if (!task)
+		return;
+
+	if (!g_atomic_int_dec_and_test (&task->ref_count))
 		return;
 
 #ifdef PROCESSING_POOL_ENABLE_TRACE
@@ -386,19 +399,6 @@ pool_status_trace_timeout_cb (gpointer data)
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 static void
-pool_queue_free_foreach (gpointer data,
-                         gpointer user_data)
-{
-	GPtrArray *sparql_buffer = user_data;
-
-	/* If found in the SPARQL buffer, remove it (will call task_free itself) */
-	if (!g_ptr_array_remove (sparql_buffer, data)) {
-		/* If not removed from the array, free it ourselves */
-		tracker_processing_task_free (data);
-	}
-}
-
-static void
 update_array_data_free (UpdateArrayData *update_data)
 {
 	if (!update_data)
@@ -445,8 +445,8 @@ tracker_processing_pool_free (TrackerProcessingPool *pool)
 	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		g_queue_foreach (pool->tasks[i],
-		                 pool_queue_free_foreach,
-		                 pool->sparql_buffer);
+		                 (GFunc) tracker_processing_task_unref,
+		                 NULL);
 		g_queue_free (pool->tasks[i]);
 	}
 
@@ -816,6 +816,9 @@ bulk_operation_merge_new (const gchar *bulk_operation)
 static void
 bulk_operation_merge_free (BulkOperationMerge *operation)
 {
+	g_list_foreach (operation->tasks,
+	                (GFunc) tracker_processing_task_unref,
+	                NULL);
 	g_list_free (operation->tasks);
 	g_free (operation->sparql);
 	g_slice_free (BulkOperationMerge, operation);
@@ -960,7 +963,8 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool,
 				pos = - bulk_ops->len;
 			}
 
-			bulk->tasks = g_list_prepend (bulk->tasks, task);
+			bulk->tasks = g_list_prepend (bulk->tasks,
+			                              tracker_processing_task_ref (task));
 		}
 
 		g_array_append_val (error_map, pos);
@@ -1039,7 +1043,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	/* Start buffer if not already done */
 	if (!pool->sparql_buffer) {
 		pool->sparql_buffer =
-			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_processing_task_free);
+			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_processing_task_unref);
 		pool->sparql_buffer_start_time = time (NULL);
 	}
 
@@ -1055,7 +1059,8 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	       pool->sparql_buffer);
 
 	/* Add task to array */
-	g_ptr_array_add (pool->sparql_buffer, task);
+	g_ptr_array_add (pool->sparql_buffer,
+	                 tracker_processing_task_ref (task));
 
 	/* Flush buffer if:
 	 *  - Last item has no parent

@@ -1171,6 +1171,7 @@ processing_pool_task_finished_cb (TrackerProcessingTask *task,
 		}
 	}
 
+	tracker_processing_task_unref (task);
 	item_queue_handlers_set_up (fs);
 }
 
@@ -1648,7 +1649,7 @@ do_process_file (TrackerMinerFS        *fs,
 			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
 		} else {
 			tracker_processing_pool_remove_task (priv->processing_pool, task);
-			tracker_processing_task_free (task);
+			tracker_processing_task_unref (task);
 		}
 	}
 
