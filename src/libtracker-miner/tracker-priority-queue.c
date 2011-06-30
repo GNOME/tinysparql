@@ -161,7 +161,7 @@ tracker_priority_queue_foreach (TrackerPriorityQueue *queue,
 	g_queue_foreach (&queue->queue, func, user_data);
 }
 
-void
+gboolean
 tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
                                        GEqualFunc            compare_func,
                                        gpointer              compare_user_data,
@@ -169,15 +169,16 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 {
 	PrioritySegment *segment;
 	gint n_segment = 0;
+	gboolean updated = FALSE;
 	GList *list;
 
-	g_return_if_fail (queue != NULL);
-	g_return_if_fail (compare_func != NULL);
+	g_return_val_if_fail (queue != NULL, FALSE);
+	g_return_val_if_fail (compare_func != NULL, FALSE);
 
 	list = queue->queue.head;
 
 	if (!list) {
-		return;
+		return FALSE;
 	}
 
 	segment = &g_array_index (queue->segments, PrioritySegment, n_segment);
@@ -214,6 +215,7 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 			}
 
 			g_queue_delete_link (&queue->queue, elem);
+			updated = TRUE;
 		} else {
 			if (list != NULL &&
 			    elem == segment->last_elem) {
@@ -227,6 +229,8 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 			}
 		}
 	}
+
+	return updated;
 }
 
 gboolean
