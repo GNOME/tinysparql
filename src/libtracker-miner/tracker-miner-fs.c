@@ -358,7 +358,8 @@ static void           crawled_directory_data_free         (CrawledDirectoryData 
 static gboolean       should_recurse_for_directory            (TrackerMinerFS *fs,
                                                                GFile          *file);
 static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-                                                               GFile          *file);
+                                                               GFile          *file,
+                                                               gint            priority);
 static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
                                                             GFile          *file);
 
@@ -2172,7 +2173,8 @@ item_move (TrackerMinerFS *fs,
 		if (file_type == G_FILE_TYPE_DIRECTORY &&
 		    should_recurse_for_directory (fs, file)) {
 			/* We're dealing with a recursive directory */
-			tracker_miner_fs_directory_add_internal (fs, file);
+			tracker_miner_fs_directory_add_internal (fs, file,
+			                                         G_PRIORITY_DEFAULT);
 			retval = TRUE;
 		} else {
 			retval = item_add_or_update (fs, file);
@@ -3429,7 +3431,8 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	if (should_process) {
 		if (is_directory &&
 		    should_recurse_for_directory (fs, file)) {
-			tracker_miner_fs_directory_add_internal (fs, file);
+			tracker_miner_fs_directory_add_internal (fs, file,
+			                                         G_PRIORITY_DEFAULT);
 		} else {
 			trace_eq_push_tail ("CREATED", file, "On monitor event");
 			tracker_priority_queue_add (fs->priv->items_created,
@@ -3594,7 +3597,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				         "(move monitor event, source unknown)",
 				         uri);
 				/* If the source is not monitored, we need to crawl it. */
-				tracker_miner_fs_directory_add_internal (fs, other_file);
+				tracker_miner_fs_directory_add_internal (fs, other_file,
+				                                         G_PRIORITY_DEFAULT);
 				g_free (uri);
 			}
 		}
@@ -3641,7 +3645,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 
 					item_queue_handlers_set_up (fs);
 				} else {
-					tracker_miner_fs_directory_add_internal (fs, other_file);
+					tracker_miner_fs_directory_add_internal (fs, other_file,
+					                                         G_PRIORITY_DEFAULT);
 				}
 			}
 			/* Else, do nothing else */
@@ -4173,7 +4178,8 @@ directory_compare_cb (gconstpointer a,
  */
 static void
 tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-                                         GFile          *file)
+                                         GFile          *file,
+                                         gint            priority)
 {
 	DirectoryData *data;
 	gboolean recurse;
@@ -4188,7 +4194,7 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	                                 data) == NULL) {
 		tracker_priority_queue_add (fs->priv->directories,
 		                            directory_data_ref (data),
-		                            G_PRIORITY_DEFAULT);
+		                            priority);
 
 		crawl_directories_start (fs);
 	}
@@ -4526,7 +4532,7 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
 			return;
 		}
 
-		tracker_miner_fs_directory_add_internal (fs, file);
+		tracker_miner_fs_directory_add_internal (fs, file, G_PRIORITY_DEFAULT);
 	}
 
 	g_free (path);
