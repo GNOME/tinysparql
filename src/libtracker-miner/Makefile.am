@@ -36,6 +36,8 @@ crawler_sources = 				       \
 private_sources = 				       \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
+	tracker-task-pool.h                            \
+	tracker-task-pool.c                            \
 	tracker-miner-fs-processing-pool.h             \
 	tracker-miner-fs-processing-pool.c             \
 	tracker-storage.c                              \
