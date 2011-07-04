@@ -24,11 +24,6 @@
 
 G_BEGIN_DECLS
 
-/* Some defines for priorities */
-#define TRACKER_QUEUE_PRIORITY_HIGH    -100
-#define TRACKER_QUEUE_PRIORITY_DEFAULT 0
-#define TRACKER_QUEUE_PRIORITY_LOW     100
-
 typedef struct _TrackerPriorityQueue TrackerPriorityQueue;
 
 TrackerPriorityQueue *tracker_priority_queue_new   (void);
