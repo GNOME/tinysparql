@@ -2991,7 +2991,7 @@ remove_unexisting_file_cb (gpointer key,
 		trace_eq_push_tail ("DELETED", file, "No longer exists");
 		tracker_priority_queue_add (fs->priv->items_deleted,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_LOW);
+		                            G_PRIORITY_LOW);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -3296,7 +3296,7 @@ should_process_file (TrackerMinerFS *fs,
 			trace_eq_push_tail ("DELETED", file, "No longer to be indexed");
 			tracker_priority_queue_add (fs->priv->items_deleted,
 			                            g_object_ref (file),
-			                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+			                            G_PRIORITY_DEFAULT);
 		}
 		return FALSE;
 	}
@@ -3408,7 +3408,7 @@ check_item_queues (TrackerMinerFS *fs,
 			         "for source file, merging both events together");
 			tracker_priority_queue_add (fs->priv->items_created,
 			                            g_object_ref (other_file),
-			                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+			                            G_PRIORITY_DEFAULT);
 
 			return FALSE;
 		}
@@ -3463,7 +3463,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			trace_eq_push_tail ("CREATED", file, "On monitor event");
 			tracker_priority_queue_add (fs->priv->items_created,
 			                            g_object_ref (file),
-			                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+			                            G_PRIORITY_DEFAULT);
 
 			item_queue_handlers_set_up (fs);
 		}
@@ -3497,7 +3497,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 		trace_eq_push_tail ("UPDATED", file, "On monitor event");
 		tracker_priority_queue_add (fs->priv->items_updated,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -3536,7 +3536,7 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 		trace_eq_push_tail ("UPDATED", file, "On monitor event (attributes)");
 		tracker_priority_queue_add (fs->priv->items_updated,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -3569,7 +3569,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		trace_eq_push_tail ("DELETED", file, "On monitor event");
 		tracker_priority_queue_add (fs->priv->items_deleted,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -3666,7 +3666,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
 					tracker_priority_queue_add (fs->priv->items_created,
 					                            g_object_ref (other_file),
-					                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+					                            G_PRIORITY_DEFAULT);
 
 					item_queue_handlers_set_up (fs);
 				} else {
@@ -3686,7 +3686,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				trace_eq_push_tail ("DELETED", file, "On move monitor event");
 				tracker_priority_queue_add (fs->priv->items_deleted,
 				                            g_object_ref (file),
-				                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+				                            G_PRIORITY_DEFAULT);
 				item_queue_handlers_set_up (fs);
 			}
 		} else {
@@ -3702,7 +3702,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				trace_eq_push_tail_2 ("MOVED", file, other_file, "On monitor event");
 				tracker_priority_queue_add (fs->priv->items_moved,
 				                            item_moved_data_new (other_file, file),
-				                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+				                            G_PRIORITY_DEFAULT);
 				item_queue_handlers_set_up (fs);
 			}
 		}
@@ -3752,7 +3752,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 			trace_eq_push_tail ("DELETED", file, "while crawling directory");
 			tracker_priority_queue_add (fs->priv->items_deleted,
 			                            g_object_ref (file),
-			                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+			                            G_PRIORITY_DEFAULT);
 		}
 	} else {
 		gboolean should_change_index;
@@ -3835,7 +3835,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 			trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
 			tracker_priority_queue_add (fs->priv->items_created,
 			                            g_object_ref (parent),
-			                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+			                            G_PRIORITY_DEFAULT);
 			item_queue_handlers_set_up (fs);
 
 			/* As we already added here, specify that it shouldn't be added
@@ -3964,7 +3964,7 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	dir_data = crawled_directory_data_new (tree);
 	tracker_priority_queue_add (fs->priv->crawled_directories,
 	                            dir_data,
-	                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+	                            G_PRIORITY_DEFAULT);
 
 	/* Update stats */
 	fs->priv->directories_found += directories_found;
@@ -4214,7 +4214,7 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	                                 data) == NULL) {
 		tracker_priority_queue_add (fs->priv->directories,
 		                            directory_data_ref (data),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		crawl_directories_start (fs);
 	}
@@ -4260,7 +4260,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 	                                 dir_data) == NULL) {
 		tracker_priority_queue_add (fs->priv->directories,
 		                            directory_data_ref (dir_data),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		crawl_directories_start (fs);
 	}
@@ -4412,7 +4412,7 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 		trace_eq_push_tail ("DELETED", file, "on remove full");
 		tracker_priority_queue_add (fs->priv->items_deleted,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 		item_queue_handlers_set_up (fs);
 
 		return TRUE;
@@ -4457,7 +4457,7 @@ check_file_parents (TrackerMinerFS *fs,
 		trace_eq_push_tail ("UPDATED", p->data, "checking file parents");
 		tracker_priority_queue_add (fs->priv->items_updated,
 		                            p->data,
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 	}
 
 	g_list_free (parents);
@@ -4506,7 +4506,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 		trace_eq_push_tail ("UPDATED", file, "Requested by application");
 		tracker_priority_queue_add (fs->priv->items_updated,
 		                            g_object_ref (file),
-		                            TRACKER_QUEUE_PRIORITY_DEFAULT);
+		                            G_PRIORITY_DEFAULT);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -4834,7 +4834,7 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 	while (directories) {
 		tracker_priority_queue_add (fs->priv->directories,
 		                            directory_data_ref (directories->data),
-		                            TRACKER_QUEUE_PRIORITY_LOW);
+		                            G_PRIORITY_LOW);
 		directories = directories->next;
 	}
 
