@@ -4472,21 +4472,24 @@ check_file_parents (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_check_file:
+ * tracker_miner_fs_check_file_with_priority:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
+ * @priority: the priority of the check task
  * @check_parents: whether to check parents and eligibility or not
  *
- * Tells the filesystem miner to check and index a file,
- * this file must be part of the usual crawling directories
- * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ * Tells the filesystem miner to check and index a file at
+ * a given priority, this file must be part of the usual
+ * crawling directories of #TrackerMinerFS. See
+ * tracker_miner_fs_directory_add().
  *
  * Since: 0.10
  **/
 void
-tracker_miner_fs_check_file (TrackerMinerFS *fs,
-                             GFile          *file,
-                             gboolean        check_parents)
+tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
+                                           GFile          *file,
+                                           gint            priority,
+                                           gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
 	gchar *path;
@@ -4512,7 +4515,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 		trace_eq_push_tail ("UPDATED", file, "Requested by application");
 		tracker_priority_queue_add (fs->priv->items_updated,
 		                            g_object_ref (file),
-		                            G_PRIORITY_DEFAULT);
+		                            priority);
 
 		item_queue_handlers_set_up (fs);
 	}
@@ -4521,21 +4524,45 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_check_directory:
+ * tracker_miner_fs_check_file:
  * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to check
+ * @file: #GFile for the file to check
  * @check_parents: whether to check parents and eligibility or not
  *
- * Tells the filesystem miner to check and index a directory,
+ * Tells the filesystem miner to check and index a file,
  * this file must be part of the usual crawling directories
  * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
  *
  * Since: 0.10
  **/
 void
-tracker_miner_fs_check_directory (TrackerMinerFS *fs,
-                                  GFile          *file,
-                                  gboolean        check_parents)
+tracker_miner_fs_check_file (TrackerMinerFS *fs,
+                             GFile          *file,
+                             gboolean        check_parents)
+{
+	tracker_miner_fs_check_file_with_priority (fs, file,
+	                                           G_PRIORITY_DEFAULT,
+	                                           check_parents);
+}
+
+/**
+ * tracker_miner_fs_check_directory_with_priority:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to check
+ * @priority: the priority of the check task
+ * @check_parents: whether to check parents and eligibility or not
+ *
+ * Tells the filesystem miner to check and index a directory at
+ * a given priority, this file must be part of the usual crawling
+ * directories of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ *
+ * Since: 0.10
+ **/
+void
+tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
+                                                GFile          *file,
+                                                gint            priority,
+                                                gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
 	gchar *path;
@@ -4558,10 +4585,32 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
 			return;
 		}
 
-		tracker_miner_fs_directory_add_internal (fs, file, G_PRIORITY_DEFAULT);
+		tracker_miner_fs_directory_add_internal (fs, file, priority);
 	}
 
 	g_free (path);
+}
+
+/**
+ * tracker_miner_fs_check_directory:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to check
+ * @check_parents: whether to check parents and eligibility or not
+ *
+ * Tells the filesystem miner to check and index a directory,
+ * this file must be part of the usual crawling directories
+ * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ *
+ * Since: 0.10
+ **/
+void
+tracker_miner_fs_check_directory (TrackerMinerFS *fs,
+                                  GFile          *file,
+                                  gboolean        check_parents)
+{
+	tracker_miner_fs_check_directory_with_priority (fs, file,
+	                                                G_PRIORITY_DEFAULT,
+	                                                check_parents);
 }
 
 /**
