@@ -241,22 +241,21 @@ get_memory_total (void)
 		            error ? error->message : "no error given");
 		g_clear_error (&error);
 	} else {
-		gchar *start, *end, *p;
+		const gchar *start;
+		gchar *p, *end;
 
 		start = "MemTotal:";
-		end = "kB";
 
 		p = strstr (contents, start);
 		if (p) {
 			p += strlen (start);
-			end = strstr (p, end);
+			end = strstr (p, "kB");
 
 			if (end) {
 				*end = '\0';
 				total = 1024 * atol (p);
 			}
 		}
-
 		g_free (contents);
 	}
 
