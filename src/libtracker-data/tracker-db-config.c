@@ -184,6 +184,7 @@ tracker_db_config_save (TrackerDBConfig *config)
 	return TRUE;
 }
 
+
 gint
 tracker_db_config_get_journal_chunk_size (TrackerDBConfig *config)
 {
@@ -195,7 +196,7 @@ tracker_db_config_get_journal_chunk_size (TrackerDBConfig *config)
 gchar *
 tracker_db_config_get_journal_rotate_destination (TrackerDBConfig *config)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), DEFAULT_JOURNAL_ROTATE_DESTINATION);
+	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), g_strdup (DEFAULT_JOURNAL_ROTATE_DESTINATION));
 
 	return g_settings_get_string (G_SETTINGS (config), "journal-rotate-destination");
 }
