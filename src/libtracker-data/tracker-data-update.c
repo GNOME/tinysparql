@@ -2490,8 +2490,11 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
-	gboolean         change, tried = FALSE;
+	gboolean         change;
 	gint             graph_id = 0, pred_id = 0;
+#ifndef DISABLE_JOURNAL
+	gboolean         tried = FALSE;
+#endif
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2537,7 +2540,9 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 
 		graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+#ifndef DISABLE_JOURNAL
 		tried = TRUE;
+#endif
 
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -2787,9 +2792,12 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 {
 	GError *actual_error = NULL;
 	TrackerProperty *property;
-	gboolean change, tried = FALSE;
+	gboolean change;
 	gint graph_id = 0, pred_id = 0;
 	gboolean multiple_values;
+#ifndef DISABLE_JOURNAL
+	gboolean tried = FALSE;
+#endif
 #if HAVE_TRACKER_FTS
 	GError *new_error = NULL;
 #endif /* HAVE_TRACKER_FTS */
@@ -2857,7 +2865,9 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 	if (((!multiple_values && delete_callbacks) || insert_callbacks) && change) {
 		graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+#ifndef DISABLE_JOURNAL
 		tried = TRUE;
+#endif
 	}
 
 	if ((!multiple_values && delete_callbacks) && change) {
