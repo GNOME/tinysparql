@@ -533,7 +533,8 @@ settings_get_dir_mapping (GVariant *value,
 		} else if (strcmp (l->data, "&VIDEOS") == 0) {
 			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
 		} else {
-			freeme = path_to_use = tracker_path_evaluate_name (l->data);
+			path_to_use = tracker_path_evaluate_name (l->data);
+			freeme = (gchar *) path_to_use;
 		}
 
 		if (path_to_use) {
