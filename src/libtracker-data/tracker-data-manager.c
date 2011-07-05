@@ -74,8 +74,10 @@
 
 static gchar    *ontologies_dir;
 static gboolean  initialized;
-static gboolean  in_journal_replay;
 static gboolean  reloading = FALSE;
+#ifndef DISABLE_JOURNAL
+static gboolean  in_journal_replay;
+#endif
 
 typedef struct {
 	const gchar *from;
@@ -3475,7 +3477,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            GError                **error)
 {
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index, read_journal, check_ontology;
+	gboolean is_first_time_index, check_ontology;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -3486,6 +3488,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	GHashTable *uri_id_map = NULL;
 	gchar *busy_status;
 	GError *internal_error = NULL;
+#ifndef DISABLE_JOURNAL
+	gboolean read_journal;
+#endif
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
@@ -3507,7 +3512,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_locale_init ();
 	}
 
+#ifndef DISABLE_JOURNAL
 	read_journal = FALSE;
+#endif
 
 	if (!tracker_db_manager_init (flags,
 	                              &is_first_time_index,
