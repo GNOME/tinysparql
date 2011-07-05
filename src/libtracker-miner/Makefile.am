@@ -40,6 +40,8 @@ private_sources = 				       \
 	tracker-task-pool.c                            \
 	tracker-miner-fs-processing-pool.h             \
 	tracker-miner-fs-processing-pool.c             \
+	tracker-sparql-buffer.h                        \
+	tracker-sparql-buffer.c                        \
 	tracker-storage.c                              \
 	tracker-storage.h                              
 
