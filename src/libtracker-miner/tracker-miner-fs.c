@@ -2709,6 +2709,18 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	*file = NULL;
 	*source_file = NULL;
 
+	if (fs->priv->is_crawling ||
+	    fs->priv->crawl_directories_id != 0 ||
+	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
+	    !tracker_priority_queue_is_empty (fs->priv->directories) ||
+	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
+	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+		/* There are still pending items to crawl,
+		 * or extract pool limit is reached
+		 */
+		return QUEUE_WAIT;
+	}
+
 	return QUEUE_NONE;
 }
 
@@ -2886,19 +2898,21 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Handle queues */
 	switch (queue) {
 	case QUEUE_NONE:
-		/* Print stats and signal finished */
 		if (!fs->priv->is_crawling &&
-		    tracker_task_pool_get_size (fs->priv->task_pool) == 0 &&
-		    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0) {
-			process_stop (fs);
+		    tracker_task_pool_get_size (fs->priv->task_pool) == 0) {
+			if (tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0) {
+				/* Print stats and signal finished */
+				process_stop (fs);
+
+				tracker_thumbnailer_send ();
+				tracker_albumart_check_cleanup (tracker_miner_get_connection (TRACKER_MINER (fs)));
+			} else {
+				/* Flush any possible pending update here */
+				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
+				                             "Queue handlers NONE");
+			}
 		}
 
-		/* Flush any possible pending update here */
-		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
-		                             "Queue handlers NONE");
-
-		tracker_thumbnailer_send ();
-		tracker_albumart_check_cleanup (tracker_miner_get_connection (TRACKER_MINER (fs)));
 		/* No more files left to process */
 		keep_processing = FALSE;
 		break;
@@ -5042,7 +5056,8 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
-	if (!tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
+	if (!tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
+	    !tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_created) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_updated) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_moved)) {
