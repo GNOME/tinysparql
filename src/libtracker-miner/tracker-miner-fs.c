@@ -1607,6 +1607,45 @@ iri_cache_invalidate (TrackerMinerFS *fs,
 	g_hash_table_remove (fs->priv->iri_cache, file);
 }
 
+static void
+iri_cache_check_update (TrackerMinerFS *fs,
+			GFile          *file)
+{
+	GFile *parent;
+
+	parent = g_file_get_parent (file);
+
+	if (parent) {
+		if (!fs->priv->current_iri_cache_parent ||
+		    !g_file_equal (parent, fs->priv->current_iri_cache_parent)) {
+			/* Cache the URN for the new current parent, processing
+			 * order guarantees that all contents for a folder are
+			 * inspected together, and that the parent folder info
+			 * is already in tracker-store. So this should only
+			 * happen on folder switch.
+			 */
+			if (fs->priv->current_iri_cache_parent)
+				g_object_unref (fs->priv->current_iri_cache_parent);
+
+			g_free (fs->priv->current_iri_cache_parent_urn);
+
+			fs->priv->current_iri_cache_parent = g_object_ref (parent);
+
+			if (!item_query_exists (fs,
+			                        parent,
+						FALSE,
+			                        &fs->priv->current_iri_cache_parent_urn,
+			                        NULL)) {
+				fs->priv->current_iri_cache_parent_urn = NULL;
+			}
+
+			ensure_iri_cache (fs, file);
+		}
+
+		g_object_unref (parent);
+	}
+}
+
 static UpdateProcessingTaskContext *
 update_processing_task_context_new (TrackerMiner         *miner,
                                     const gchar          *urn,
@@ -1862,9 +1901,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	GCancellable *cancellable;
 	gboolean retval;
 	TrackerTask *task;
-	GFile *parent;
 	const gchar *urn;
-	const gchar *parent_urn = NULL;
 	UpdateProcessingTaskContext *ctxt;
 
 	priv = fs->priv;
@@ -1873,39 +1910,6 @@ item_add_or_update (TrackerMinerFS *fs,
 	cancellable = g_cancellable_new ();
 	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
-
-	parent = g_file_get_parent (file);
-
-	if (parent) {
-		if (!fs->priv->current_iri_cache_parent ||
-		    !g_file_equal (parent, fs->priv->current_iri_cache_parent)) {
-			/* Cache the URN for the new current parent, processing
-			 * order guarantees that all contents for a folder are
-			 * inspected together, and that the parent folder info
-			 * is already in tracker-store. So this should only
-			 * happen on folder switch.
-			 */
-			if (fs->priv->current_iri_cache_parent)
-				g_object_unref (fs->priv->current_iri_cache_parent);
-
-			g_free (fs->priv->current_iri_cache_parent_urn);
-
-			fs->priv->current_iri_cache_parent = g_object_ref (parent);
-
-			if (!item_query_exists (fs,
-			                        parent,
-						FALSE,
-			                        &fs->priv->current_iri_cache_parent_urn,
-			                        NULL)) {
-				fs->priv->current_iri_cache_parent_urn = NULL;
-			}
-
-			ensure_iri_cache (fs, file);
-		}
-
-		parent_urn = fs->priv->current_iri_cache_parent_urn;
-		g_object_unref (parent);
-	}
 
 	/* Force a direct URN query if not found in the cache. This is to handle
 	 * situations where an application inserted items in the store after we
@@ -1916,7 +1920,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * the file metadata and such) */
 	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
 	                                           urn,
-	                                           parent_urn,
+	                                           fs->priv->current_iri_cache_parent_urn,
 	                                           cancellable,
 	                                           sparql);
 	task = tracker_task_new (file, ctxt,
@@ -2753,6 +2757,7 @@ item_queue_handlers_cb (gpointer user_data)
 	TrackerMinerFS *fs;
 	GFile *file = NULL;
 	GFile *source_file = NULL;
+	GFile *parent;
 	QueueState queue;
 	GTimeVal time_now;
 	static GTimeVal time_last = { 0 };
@@ -2904,20 +2909,49 @@ item_queue_handlers_cb (gpointer user_data)
 			                    fs->priv->quark_check_existence,
 			                    GINT_TO_POINTER (FALSE));
 
-			/* Avoid adding items that already exist, when processing
-			 * a CREATED task (as those generated when crawling) */
-			if (!item_query_exists (fs, file, FALSE, NULL, NULL)) {
-				keep_processing = item_add_or_update (fs, file);
+			if (item_query_exists (fs, file, FALSE, NULL, NULL)) {
+				/* If already in store, skip processing the CREATED task */
+				keep_processing = TRUE;
 				break;
 			}
-
-			/* If already in store, skip processing the CREATED task */
-			keep_processing = TRUE;
-			break;
 		}
 		/* Else, fall down and treat as QUEUE_UPDATED */
 	case QUEUE_UPDATED:
-		keep_processing = item_add_or_update (fs, file);
+		parent = g_file_get_parent (file);
+		iri_cache_check_update (fs, file);
+
+		if (!parent ||
+		    fs->priv->current_iri_cache_parent_urn ||
+		    file_is_crawl_directory (fs, file)) {
+			keep_processing = item_add_or_update (fs, file);
+		} else {
+			TrackerPriorityQueue *item_queue;
+
+			/* Parent isn't indexed yet, reinsert the task into the queue,
+			 * but forcily prepended by its parent so its indexing is
+			 * ensured, tasks are inserted at a high priority so they
+			 * are processed promptly anyway.
+			 */
+			tracker_priority_queue_add (fs->priv->items_created,
+						    g_object_ref (parent),
+						    G_PRIORITY_HIGH);
+
+			if (queue == QUEUE_CREATED) {
+				item_queue = fs->priv->items_created;
+			} else {
+				item_queue = fs->priv->items_updated;
+			}
+
+			tracker_priority_queue_add (item_queue,
+						    g_object_ref (file),
+						    G_PRIORITY_HIGH);
+			keep_processing = TRUE;
+		}
+
+		if (parent) {
+			g_object_unref (parent);
+		}
+
 		break;
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
