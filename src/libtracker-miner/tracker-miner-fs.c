@@ -1460,12 +1460,20 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating children cache for URI '%s'", uri);
 
-	query = g_strdup_printf ("SELECT ?url ?u { "
-	                         "  ?u nfo:belongsToContainer ?p ; "
-	                         "     nie:url ?url . "
-	                         "  ?p nie:url \"%s\" "
-	                         "}",
-	                         uri);
+	if (fs->priv->current_iri_cache_parent_urn) {
+		query = g_strdup_printf ("SELECT ?url ?u { "
+					 "  ?u nfo:belongsToContainer <%s> ; "
+					 "     nie:url ?url "
+					 "}",
+					 fs->priv->current_iri_cache_parent_urn);
+	} else {
+		query = g_strdup_printf ("SELECT ?url ?u { "
+					 "  ?u nfo:belongsToContainer ?p ; "
+					 "     nie:url ?url . "
+					 "  ?p nie:url \"%s\" "
+					 "}",
+					 uri);
+	}
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->priv->iri_cache);
