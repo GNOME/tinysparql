@@ -3110,7 +3110,8 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	 * Before querying the store, check if the parent directory is scheduled to
 	 * be added, and if so, leave the mtime cache empty.
 	 */
-	if (tracker_priority_queue_find (fs->priv->items_created, NULL,
+	if (fs->priv->been_crawled &&
+	    tracker_priority_queue_find (fs->priv->items_created, NULL,
 	                                 (GEqualFunc) g_file_equal,
 	                                 parent) != NULL) {
 		uri = g_file_get_uri (file);
