@@ -56,7 +56,7 @@ typedef struct {
 	GError *error;
 } SendAndSpliceData;
 
-static TrackerExtractInfo *
+TrackerExtractInfo *
 tracker_extract_info_new (const gchar *preupdate,
                           const gchar *update,
                           const gchar *where)
@@ -71,7 +71,7 @@ tracker_extract_info_new (const gchar *preupdate,
 	return info;
 }
 
-static void
+void
 tracker_extract_info_free (TrackerExtractInfo *info)
 {
 	g_free (info->preupdate);

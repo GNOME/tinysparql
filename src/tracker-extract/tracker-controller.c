@@ -442,18 +442,18 @@ get_metadata_cb (GObject      *object,
 	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
 	if (info) {
-		if (tracker_sparql_builder_get_length (info->statements) > 0) {
-			const gchar *preupdate_str = NULL;
+		const gchar *preupdate, *statements, *where;
 
-			if (tracker_sparql_builder_get_length (info->preupdate) > 0) {
-				preupdate_str = tracker_sparql_builder_get_result (info->preupdate);
-			}
+		preupdate = tracker_extract_info_get_preupdate (info);
+		statements = tracker_extract_info_get_update (info);
+		where = tracker_extract_info_get_where_clause (info);
 
+		if (statements && *statements) {
 			g_dbus_method_invocation_return_value (data->invocation,
 			                                       g_variant_new ("(sss)",
-			                                                      preupdate_str ? preupdate_str : "",
-			                                                      tracker_sparql_builder_get_result (info->statements),
-			                                                      info->where ? info->where : ""));
+			                                                      preupdate ? preupdate : "",
+			                                                      statements,
+			                                                      where ? where : ""));
 		} else {
 			g_dbus_method_invocation_return_value (data->invocation,
 			                                       g_variant_new ("(sss)", "", "", ""));
@@ -550,6 +550,7 @@ get_metadata_fast_cb (GObject      *object,
 		GOutputStream *unix_output_stream;
 		GOutputStream *buffered_output_stream;
 		GDataOutputStream *data_output_stream;
+		const gchar *preupdate, *statements, *where;
 		GError *error = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
@@ -564,15 +565,13 @@ get_metadata_fast_cb (GObject      *object,
 		g_data_output_stream_set_byte_order (G_DATA_OUTPUT_STREAM (data_output_stream),
 		                                     G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-		if (tracker_sparql_builder_get_length (info->statements) > 0) {
-			const gchar *preupdate_str = NULL;
+		preupdate = tracker_extract_info_get_preupdate (info);
+		statements = tracker_extract_info_get_update (info);
+		where = tracker_extract_info_get_where_clause (info);
 
-			if (tracker_sparql_builder_get_length (info->preupdate) > 0) {
-				preupdate_str = tracker_sparql_builder_get_result (info->preupdate);
-			}
-
+		if (statements && *statements) {
 			g_data_output_stream_put_string (data_output_stream,
-			                                 preupdate_str ? preupdate_str : "",
+			                                 preupdate ? preupdate : "",
 			                                 NULL,
 			                                 &error);
 
@@ -585,7 +584,7 @@ get_metadata_fast_cb (GObject      *object,
 
 			if (!error) {
 				g_data_output_stream_put_string (data_output_stream,
-				                                 tracker_sparql_builder_get_result (info->statements),
+				                                 statements,
 				                                 NULL,
 				                                 &error);
 			}
@@ -597,9 +596,9 @@ get_metadata_fast_cb (GObject      *object,
 				                               &error);
 			}
 
-			if (!error && info->where) {
+			if (!error && where) {
 				g_data_output_stream_put_string (data_output_stream,
-				                                 info->where,
+				                                 where,
 				                                 NULL,
 				                                 &error);
 			}

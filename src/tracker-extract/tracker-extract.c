@@ -390,21 +390,6 @@ get_file_metadata (TrackerExtractTask     *task,
 	return (items > 0);
 }
 
-static void
-tracker_extract_info_free (TrackerExtractInfo *info)
-{
-	if (info->statements) {
-		g_object_unref (info->statements);
-	}
-
-	if (info->preupdate) {
-		g_object_unref (info->preupdate);
-	}
-
-	g_free (info->where);
-	g_slice_free (TrackerExtractInfo, info);
-}
-
 /* This function is called on the thread calling g_cancellable_cancel() */
 static void
 task_cancellable_cancelled_cb (GCancellable       *cancellable,
@@ -501,6 +486,10 @@ static gboolean
 get_metadata (TrackerExtractTask *task)
 {
 	TrackerExtractInfo *info;
+	TrackerSparqlBuilder *preupdate, *statements;
+	gchar *where = NULL;
+
+	preupdate = statements = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p --> File:'%s' - Extracted",
@@ -519,12 +508,11 @@ get_metadata (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-	info = g_slice_new (TrackerExtractInfo);
+	if (get_file_metadata (task, &preupdate, &statements, &where)) {
+		info = tracker_extract_info_new ((preupdate) ? tracker_sparql_builder_get_result (preupdate) : NULL,
+		                                 (statements) ? tracker_sparql_builder_get_result (statements) : NULL,
+		                                 where);
 
-	if (get_file_metadata (task,
-	                       &info->preupdate,
-	                       &info->statements,
-	                       &info->where)) {
 		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res,
 		                                           info,
 		                                           (GDestroyNotify) tracker_extract_info_free);
@@ -532,7 +520,15 @@ get_metadata (TrackerExtractTask *task)
 		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
 	} else {
-		tracker_extract_info_free (info);
+		if (preupdate) {
+			g_object_unref (preupdate);
+		}
+
+		if (statements) {
+			g_object_unref (statements);
+		}
+
+		g_free (where);
 
 		/* Reinject the task into the main thread
 		 * queue, so the next module kicks in.
