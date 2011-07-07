@@ -125,6 +125,8 @@ void                  tracker_miner_fs_check_directory_with_priority (TrackerMin
 void                  tracker_miner_fs_check_file           (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              gboolean        check_parents);
+void                  tracker_miner_fs_writeback_file       (TrackerMinerFS *fs,
+                                                             GFile          *file);
 void                  tracker_miner_fs_check_directory      (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              gboolean        check_parents);
