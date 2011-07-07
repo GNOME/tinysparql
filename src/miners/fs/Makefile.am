@@ -39,7 +39,13 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-miner-files.c                          \
 	tracker-miner-files.h                          \
 	tracker-miner-files-index.c                    \
-	tracker-miner-files-index.h
+	tracker-miner-files-index.h                    \
+	tracker-writeback-listener.c                   \
+	tracker-writeback-listener.h                   \
+	tracker-writeback-dispatcher.c                 \
+	tracker-writeback-dispatcher.h                 \
+	tracker-writeback.c                            \
+	tracker-writeback.h
 
 tracker_miner_fs_LDADD =                               \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
