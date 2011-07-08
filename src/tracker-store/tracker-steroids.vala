@@ -162,6 +162,7 @@ public class Tracker.Steroids : Object {
 
 			int query_count = data_input_stream.read_int32 ();
 
+			var combined_query = new StringBuilder ();
 			string[] query_array = new string[query_count];
 
 			int i;
@@ -175,6 +176,8 @@ public class Tracker.Steroids : Object {
 
 				data_input_stream.read_all (((uint8[]) query_array[i])[0:query_size], out bytes_read);
 
+				request.debug ("query: %s", query_array[i]);
+				combined_query.append (query_array[i]);
 			}
 
 			data_input_stream = null;
@@ -182,6 +185,25 @@ public class Tracker.Steroids : Object {
 
 			var builder = new VariantBuilder ((VariantType) "as");
 
+			// first try combined query for best possible performance
+			try {
+				yield Tracker.Store.sparql_update (combined_query.str, Tracker.Store.Priority.LOW, sender);
+
+				// combined query was successful
+				for (i = 0; i < query_count; i++) {
+					builder.add ("s", "");
+					builder.add ("s", "");
+				}
+
+				request.end ();
+
+				return builder.end ();
+			} catch {
+				// combined query was not successful
+				combined_query = null;
+			}
+
+			// combined query was not successful, try queries one by one
 			for (i = 0; i < query_count; i++) {
 				request.debug ("query: %s", query_array[i]);
 
