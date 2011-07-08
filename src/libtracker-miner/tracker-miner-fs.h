@@ -73,6 +73,7 @@ struct _TrackerMinerFS {
  * @finished: Called when all processing has been performed.
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
+ * @writeback_file: Called when a file must be written back
  *
  * Prototype for the abstract class, @check_file, @check_directory,
  * @check_directory_contents, @process_file and @monitor_directory
@@ -104,6 +105,9 @@ typedef struct {
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);
+	gboolean (* writeback_file)           (TrackerMinerFS       *fs,
+	                                       GFile                *file,
+	                                       GPtrArray            *results);
 } TrackerMinerFSClass;
 
 GType                 tracker_miner_fs_get_type             (void) G_GNUC_CONST;
@@ -126,7 +130,8 @@ void                  tracker_miner_fs_check_file           (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              gboolean        check_parents);
 void                  tracker_miner_fs_writeback_file       (TrackerMinerFS *fs,
-                                                             GFile          *file);
+                                                             GFile          *file,
+                                                             GPtrArray      *results);
 void                  tracker_miner_fs_check_directory      (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              gboolean        check_parents);

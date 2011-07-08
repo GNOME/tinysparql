@@ -126,8 +126,8 @@ typedef struct {
 } ItemMovedData;
 
 typedef struct {
-	GFile *file;
-	/* TODO */
+	GFile     *file;
+	GPtrArray *results;
 } ItemWritebackData;
 
 typedef struct {
@@ -278,6 +278,7 @@ enum {
 	PROCESS_FILE_ATTRIBUTES,
 	IGNORE_NEXT_UPDATE_FILE,
 	FINISHED,
+	WRITEBACK_FILE,
 	LAST_SIGNAL
 };
 
@@ -669,6 +670,31 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_UINT,
 		              G_TYPE_UINT,
 		              G_TYPE_UINT);
+
+	/**
+	 * TrackerMinerFS::writeback-file:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 * @results: a set of results prepared by the preparation query
+	 *
+	 * The ::writeback-file signal is emitted whenever a file must be written
+	 * back
+	 *
+	 * Returns: %TRUE on success, %FALSE otherwise
+	 *
+	 * Since: 0.10.20
+	 **/
+	signals[WRITEBACK_FILE] =
+		g_signal_new ("writeback-file",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, writeback_file),
+		              NULL,
+		              NULL,
+		              tracker_marshal_BOOLEAN__OBJECT_BOXED,
+		              G_TYPE_BOOLEAN, 2,
+		              G_TYPE_FILE,
+		              G_TYPE_PTR_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 }
@@ -1180,13 +1206,14 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static ItemWritebackData *
-item_writeback_data_new (GFile *file)
+item_writeback_data_new (GFile     *file,
+                         GPtrArray *results)
 {
 	ItemWritebackData *data;
 
-	/* TODO */
 	data = g_slice_new (ItemWritebackData);
 	data->file = g_object_ref (file);
+	data->results = g_ptr_array_ref (results);
 
 	return data;
 }
@@ -1195,6 +1222,7 @@ static void
 item_writeback_data_free (ItemWritebackData *data)
 {
 	g_object_unref (data->file);
+	g_ptr_array_unref (data->results);
 	g_slice_free (ItemWritebackData, data);
 }
 
@@ -2758,14 +2786,13 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
 					    &priority);
 	if (wdata) {
-		*file = g_object_ref (data->file);
-
-		*file = queue_file;
+		*file = g_object_ref (wdata->file);
 		*source_file = NULL;
 
-		trace_eq_pop_head ("WRITEBACK", queue_file);
+		trace_eq_pop_head ("WRITEBACK", wdata->file);
 
-		/* TODO */
+		g_signal_emit (fs, signals[WRITEBACK_FILE], 0,
+		               wdata->file, wdata->results);
 
 		item_writeback_data_free (wdata);
 
@@ -4706,6 +4733,7 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
  * tracker_miner_fs_writeback_file:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
+ @ @results: A array of results from the preparation query
  *
  * Tells the filesystem miner to writeback a file.
  *
@@ -4713,7 +4741,8 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
  **/
 void
 tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
-                                 GFile          *file)
+                                 GFile          *file,
+                                 GPtrArray      *results)
 {
 	gchar *path;
 	ItemWritebackData *data;
@@ -4726,10 +4755,10 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 	g_debug ("%s (WRITEBACK) (requested by application)",
 	         path);
 
-	trace_eq_push_tail ("UPDATED", file, "Requested by application");
+	trace_eq_push_tail ("WRITEBACK", file, "Requested by application");
 
-	data = item_writeback_data_new (file);
-	g_queue_push_tail (fs->priv->items_updated,
+	data = item_writeback_data_new (file, results);
+	g_queue_push_tail (fs->priv->items_writeback,
 	                   data);
 
 	item_queue_handlers_set_up (fs);
