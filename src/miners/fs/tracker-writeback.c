@@ -23,6 +23,7 @@
 
 #include "tracker-writeback.h"
 #include "tracker-writeback-listener.h"
+#include "tracker-writeback-dispatcher.h"
 
 /* Listener listens for the Writeback signal coming from the store, it performs
  * a few queries to get a set of changed values, and pushes the writeback task
@@ -31,8 +32,7 @@ static TrackerWritebackListener *listener = NULL;
 
 /* That task in miner-fs's queue callsback to the dispatcher. The dispatcher
  * calls the external tracker-writeback process which does the actual write */
-
-// static void TrackerWritebackDispatcher *dispatcher = NULL;
+static TrackerWritebackDispatcher *dispatcher = NULL;
 
 void
 tracker_writeback_init (TrackerMinerFiles  *miner_files,
@@ -42,9 +42,9 @@ tracker_writeback_init (TrackerMinerFiles  *miner_files,
 
 	listener = tracker_writeback_listener_new (miner_files, &internal_error);
 
-//	if (!internal_error) {
-//		distpatcher = tracker_writeback_listener_new (miner_files, &internal_error);
-//	}
+	if (!internal_error) {
+		dispatcher = tracker_writeback_dispatcher_new (miner_files, &internal_error);
+	}
 
 	if (internal_error) {
 		if (listener) {
@@ -63,8 +63,8 @@ tracker_writeback_shutdown (void)
 		listener = NULL;
 	}
 
-//	if (dispatcher) {
-//		g_object_unref (dispatcher);
-//		dispatcher = NULL;
-//	}
+	if (dispatcher) {
+		g_object_unref (dispatcher);
+		dispatcher = NULL;
+	}
 }

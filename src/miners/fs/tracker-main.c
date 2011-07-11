@@ -49,6 +49,7 @@
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
 #include "tracker-miner-files-index.h"
+#include "tracker-writeback.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -628,7 +629,7 @@ store_is_available (void)
 
 static gboolean
 miner_needs_check (TrackerMiner *miner,
-		   gboolean      store_available)
+                   gboolean      store_available)
 {
 	/* Reasons to not mark ourselves as cleanly shutdown include:
 	 *
@@ -751,12 +752,24 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_writeback_init (TRACKER_MINER_FILES (miner_files), &error);
+
+	if (error) {
+		g_critical ("Couldn't create writeback handling: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (config);
+		g_object_unref (miner_files);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
 	/* Create miner for applications */
 	miner_applications = tracker_miner_applications_new (&error);
 	if (!miner_applications) {
 		g_critical ("Couldn't create new Applications miner: '%s'",
 		            error ? error->message : "unknown error");
 		g_object_unref (miner_files);
+		tracker_writeback_shutdown ();
 		g_object_unref (config);
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
@@ -767,6 +780,7 @@ main (gint argc, gchar *argv[])
 	if (!miner_files_index) {
 		g_object_unref (miner_applications);
 		g_object_unref (miner_files);
+		tracker_writeback_shutdown ();
 		g_object_unref (config);
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
@@ -855,6 +869,7 @@ main (gint argc, gchar *argv[])
 	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);
 
+	tracker_writeback_shutdown ();
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");
