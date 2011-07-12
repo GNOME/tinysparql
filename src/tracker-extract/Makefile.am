@@ -120,6 +120,10 @@ modules_LTLIBRARIES += libextract-gstreamer.la
 rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-generic.rule
 endif
 
+# Gstreamer with DLNA support?
+if HAVE_GUPNP_DLNA
+rules_DATA += 91-gstreamer-generic-dlna.rule
+endif
 
 if HAVE_GSTREAMER_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
