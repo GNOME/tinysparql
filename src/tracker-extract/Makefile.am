@@ -38,10 +38,8 @@ rules_in_files = \
 	15-gstreamer-guess.rule.in \
 	15-playlist.rule.in \
 	15-real-media.rule.in \
-	16-upnp-guess.rule.in \
 	90-gstreamer-generic.rule.in \
 	90-text-generic.rule.in \
-	91-upnp-generic.rule.in \
 	92-xine-generic.rule.in \
 	93-mplayer-generic.rule.in \
 	93-totem-generic.rule.in
@@ -122,10 +120,6 @@ modules_LTLIBRARIES += libextract-gstreamer.la
 rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-generic.rule
 endif
 
-if HAVE_GUPNP_DLNA
-modules_LTLIBRARIES += libextract-gupnp-dlna.la
-rules_DATA += 16-upnp-guess.rule 91-upnp-generic.rule
-endif
 
 if HAVE_GSTREAMER_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
@@ -330,6 +324,11 @@ libextract_gstreamer_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(GSTREAMER_LIBS)
+if HAVE_GUPNP_DLNA
+libextract_gstreamer_la_CFLAGS += $(GUPNP_DLNA_CFLAGS)
+libextract_gstreamer_la_LIBADD += $(GUPNP_DLNA_LIBS)
+endif
+
 
 # GStreamer helix
 libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c
@@ -342,19 +341,6 @@ libextract_gstreamer_helix_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(GSTREAMER_LIBS)
-
-# GUPnP DLNA
-libextract_gupnp_dlna_la_SOURCES = tracker-extract-gupnp-dlna.c
-libextract_gupnp_dlna_la_CFLAGS = \
-	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
-	$(GSTREAMER_CFLAGS) \
-	$(GUPNP_DLNA_CFLAGS)
-libextract_gupnp_dlna_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gupnp_dlna_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(GUPNP_DLNA_LIBS)
 
 # Xine
 libextract_xine_la_SOURCES = tracker-extract-libxine.c
