@@ -140,6 +140,7 @@ static TrackerExtractData data[] = {
 	{ "video/3gpp", extract_gstreamer_guess },
 	{ "video/mp4", extract_gstreamer_guess },
 	{ "video/x-ms-asf", extract_gstreamer_guess },
+	{ "dlna/*", extract_gstreamer_guess },
 	/* Added to fix broken Real media detection, see MeeGo bug #18159 */
 	{ "application/vnd.rn-realmedia", extract_gstreamer_guess },
 	{ NULL, NULL }
