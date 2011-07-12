@@ -65,10 +65,6 @@ if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
 endif
 
-if HAVE_GUPNP_DLNA
-modules_LTLIBRARIES += libextract-gupnp-dlna.la
-endif
-
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 endif
@@ -250,19 +246,10 @@ libextract_gstreamer_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(GSTREAMER_LIBS)
-
-# GUPnP DLNA
-libextract_gupnp_dlna_la_SOURCES = tracker-extract-gupnp-dlna.c
-libextract_gupnp_dlna_la_CFLAGS = \
-	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
-	$(GSTREAMER_CFLAGS) \
-	$(GUPNP_DLNA_CFLAGS)
-libextract_gupnp_dlna_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gupnp_dlna_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(GUPNP_DLNA_LIBS)
+if HAVE_GUPNP_DLNA
+libextract_gstreamer_la_CFLAGS += $(GUPNP_DLNA_CFLAGS)
+libextract_gstreamer_la_LIBADD += $(GUPNP_DLNA_LIBS)
+endif
 
 # Xine
 libextract_xine_la_SOURCES = tracker-extract-libxine.c
