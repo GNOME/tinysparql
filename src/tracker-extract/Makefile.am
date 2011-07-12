@@ -69,7 +69,7 @@ if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 endif
 
-if USING_EXTERNAL_VIDEO_PLAYER
+if USING_EXTERNAL_GENERIC_MEDIA_PLAYER
 modules_LTLIBRARIES +=	libextract-mplayer.la \
 			libextract-totem.la
 endif
