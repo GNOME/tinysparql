@@ -209,6 +209,8 @@ GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
+GSTREAMER_REQUIRED=0.10.31
+GUPNP_DLNA_REQUIRED=0.5
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -1555,7 +1557,7 @@ AC_ARG_ENABLE(video-extractor,
               [enable_video_extractor=auto])
 
 PKG_CHECK_MODULES(GUPNP_DLNA,
-                  [gupnp-dlna-1.0 >= 0.5],
+                  [gupnp-dlna-1.0 >= $GUPNP_DLNA_REQUIRED],
                   [have_gupnp_dlna=yes],
                   [have_gupnp_dlna=no])
 
@@ -1563,7 +1565,8 @@ AC_SUBST(GUPNP_DLNA_CFLAGS)
 AC_SUBST(GUPNP_DLNA_LIBS)
 
 PKG_CHECK_MODULES(GSTREAMER,
-                  [gstreamer-0.10 >= 0.10.31 gstreamer-tag-0.10 >= 0.10.31],
+                  [gstreamer-0.10 >= $GSTREAMER_REQUIRED
+                   gstreamer-tag-0.10 >= $GSTREAMER_REQUIRED],
                   [have_libgstreamer=yes],
                   [have_libgstreamer=no])
 
@@ -1579,12 +1582,13 @@ AC_SUBST(XINE_CFLAGS)
 AC_SUBST(XINE_LIBS)
 
 if test "x$enable_video_extractor" = "xauto"; then
-   if test "$have_gupnp_dlna" = "yes"; then
-      have_video_handler_app="GUPnP-DLNA"
+   if test "$have_libgstreamer" = "yes"; then
       have_video_handler="yes"
-   elif test "$have_libgstreamer" = "yes"; then
-      have_video_handler_app="GStreamer"
-      have_video_handler="yes"
+      if test "$have_gupnp_dlna" = "yes"; then
+         have_video_handler_app="GStreamer-GUPnP-DLNA"
+      else
+         have_video_handler_app="GStreamer"
+      fi
    elif test "$have_libxine" = "yes"; then
       have_video_handler_app="Xine"
       have_video_handler="yes"
@@ -1594,17 +1598,21 @@ if test "x$enable_video_extractor" = "xauto"; then
    fi
 elif test "x$enable_video_extractor" = "xgupnp-dlna"; then
    if test "$have_gupnp_dlna" = "yes"; then
-      have_video_handler_app="GUPnP-DLNA"
-      have_video_handler="yes"
+      if test "$have_libgstreamer" = "yes"; then
+         have_video_handler_app="GStreamer-GUPnP-DLNA"
+         have_video_handler="yes"
+      else
+         AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
+      fi
    else
-      AC_MSG_ERROR([Couldn't find GUPnP-DLNA])
+      AC_MSG_ERROR([Couldn't find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
    fi
 elif test "x$enable_video_extractor" = "xgstreamer"; then
    if test "$have_libgstreamer" = "yes"; then
       have_video_handler_app="GStreamer"
       have_video_handler="yes"
    else
-      AC_MSG_ERROR([Couldn't find Gstreamer])
+      AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
    fi
 elif test "x$enable_video_extractor" = "xxine"; then
    if test "$have_libxine" = "yes"; then
@@ -1618,10 +1626,11 @@ else
    have_video_handler_app="An external video player will be called"
 fi
 
-if test "$have_video_handler_app" = "GUPnP-DLNA"; then
+if test "$have_video_handler_app" = "GStreamer-GUPnP-DLNA"; then
    AC_DEFINE(HAVE_GUPNP_DLNA, [], [Define if we have GUPnP-DLNA])
+   AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GUPNP_DLNA, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, false)
+   AM_CONDITIONAL(HAVE_GSTREAMER, true)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
    AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
 elif test "$have_video_handler_app" = "GStreamer"; then
