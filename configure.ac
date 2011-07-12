@@ -1427,20 +1427,6 @@ fi
 
 AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
 
-####################################################################
-# Check for tracker-extract: tagreadbin for gstreamer extraction
-####################################################################
-
-AC_ARG_ENABLE(gstreamer-tagreadbin,
-             AS_HELP_STRING([--enable-gstreamer-tagreadbin],
-                            [enable tagreadbin in gstreamer [[default=no]]]),
-                            [enable_tagreadbin=yes],
-                            [enable_tagreadbin=no])
-
-if test "x$enable_tagreadbin" != "xno"; then
-  AC_DEFINE(TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN, 1, [Use tagreadbin in gstreamer extraction])
-fi
-
 ##################################################################
 # Check for tracker-extract: libxml2 for XML/HTML extractor
 ##################################################################
@@ -1585,7 +1571,7 @@ if test "x$enable_video_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
       have_video_handler="yes"
       if test "$have_gupnp_dlna" = "yes"; then
-         have_video_handler_app="GStreamer-GUPnP-DLNA"
+         have_video_handler_app="GStreamer GUPnP-DLNA"
       else
          have_video_handler_app="GStreamer"
       fi
@@ -1599,7 +1585,7 @@ if test "x$enable_video_extractor" = "xauto"; then
 elif test "x$enable_video_extractor" = "xgupnp-dlna"; then
    if test "$have_gupnp_dlna" = "yes"; then
       if test "$have_libgstreamer" = "yes"; then
-         have_video_handler_app="GStreamer-GUPnP-DLNA"
+         have_video_handler_app="GStreamer GUPnP-DLNA"
          have_video_handler="yes"
       else
          AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
@@ -1626,7 +1612,7 @@ else
    have_video_handler_app="An external video player will be called"
 fi
 
-if test "$have_video_handler_app" = "GStreamer-GUPnP-DLNA"; then
+if test "$have_video_handler_app" = "GStreamer GUPnP-DLNA"; then
    AC_DEFINE(HAVE_GUPNP_DLNA, [], [Define if we have GUPnP-DLNA])
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GUPNP_DLNA, true)
@@ -1652,6 +1638,44 @@ else
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi
+
+####################################################################
+# Check for tracker-extract: tagreadbin/decodebin2/discoverer
+#  for gstreamer extractor
+####################################################################
+
+AC_ARG_WITH([gstreamer-backend],
+            AS_HELP_STRING([--with-gstreamer-backend],
+                           [enables one of the (discoverer, decodebin2, tagreadbin) GStreamer backends [[default=discoverer]]]),,
+              [with_gstreamer_backend=discoverer])
+
+gstreamer_backend="N/A"
+case "x$with_gstreamer_backend" in
+     "xdecodebin2")
+        if test "$have_video_handler_app" = "GStreamer GUPnP-DLNA"; then
+           AC_MSG_ERROR([Cannot use decodebin2 backend in GStreamer when requesting GUPnP-DLNA support])
+        elif test "$have_video_handler_app" = "GStreamer"; then
+           gstreamer_backend="Decodebin2"
+           AC_DEFINE(GSTREAMER_BACKEND_DECODEBIN2, [], [Define that GStreamer Decodebin2 should be used])
+        fi
+     ;;
+     "xtagreadbin")
+        if test "$have_video_handler_app" = "GStreamer GUPnP-DLNA"; then
+           AC_MSG_ERROR([Cannot use tagreadbin backend in GStreamer when requesting GUPnP-DLNA support])
+        elif test "$have_video_handler_app" = "GStreamer"; then
+           gstreamer_backend="Tagreadbin"
+           AC_DEFINE(GSTREAMER_BACKEND_TAGREADBIN, [], [Define that GStreamer Tagreadbin should be used])
+        fi
+     ;;
+     "xdiscoverer")
+        if test "$have_video_handler_app" = "GStreamer GUPnP-DLNA" || test "$have_video_handler_app" = "GStreamer"; then
+           gstreamer_backend="Discoverer"
+           AC_DEFINE(GSTREAMER_BACKEND_DISCOVERER, [], [Define that GStreamer Discoverer should be used])
+        fi
+     ;;
+     # Invalid option value
+     *) AC_MSG_ERROR([Wrong value for --with-gstreamer-backend: $with_gstreamer_backend]) ;;
+esac
 
 ####################################################################
 # Check for tracker-extract: support .ps.gz files
@@ -2210,7 +2234,7 @@ Metadata Extractors:
 	Support MS & Open Office:               $have_libgsf
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
-	Support video formats:                  $have_video_handler ($have_video_handler_app) (tagreadbin: $enable_tagreadbin)
+	Support video formats:                  $have_video_handler ($have_video_handler_app) (backend: $gstreamer_backend)
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
