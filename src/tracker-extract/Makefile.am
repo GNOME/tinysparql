@@ -135,7 +135,7 @@ modules_LTLIBRARIES += libextract-xine.la
 rules_DATA += 92-xine-generic.rule
 endif
 
-if USING_EXTERNAL_VIDEO_PLAYER
+if USING_EXTERNAL_GENERIC_MEDIA_PLAYER
 modules_LTLIBRARIES +=	libextract-mplayer.la \
 			libextract-totem.la
 rules_DATA += 93-mplayer-generic.rule 93-totem-generic.rule
