@@ -2152,20 +2152,20 @@ AC_CONFIG_FILES([
 	tests/functional-tests/test-configurations/miner-basic-ops/Makefile
 	tests/functional-tests/test-configurations/writeback/Makefile
 	tests/functional-tests/test-configurations/applications/Makefile
-        tests/functional-tests/test-ontologies/Makefile
-        tests/functional-tests/test-ontologies/basic/Makefile
-        tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
-        tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
-        tests/functional-tests/test-ontologies/cardinality/Makefile
-        tests/functional-tests/test-ontologies/notify/Makefile
-        tests/functional-tests/test-ontologies/indexed/Makefile
-        tests/functional-tests/test-ontologies/add-class/Makefile
-        tests/functional-tests/test-ontologies/add-prop/Makefile
-        tests/functional-tests/test-ontologies/add-domainIndex/Makefile
-        tests/functional-tests/test-ontologies/superclass-remove/Makefile
-        tests/functional-tests/test-ontologies/property-promotion/Makefile
-        tests/functional-tests/test-ontologies/basic-future/Makefile
-        tests/functional-tests/test-apps-data/Makefile
+	tests/functional-tests/test-ontologies/Makefile
+	tests/functional-tests/test-ontologies/basic/Makefile
+	tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
+	tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
+	tests/functional-tests/test-ontologies/cardinality/Makefile
+	tests/functional-tests/test-ontologies/notify/Makefile
+	tests/functional-tests/test-ontologies/indexed/Makefile
+	tests/functional-tests/test-ontologies/add-class/Makefile
+	tests/functional-tests/test-ontologies/add-prop/Makefile
+	tests/functional-tests/test-ontologies/add-domainIndex/Makefile
+	tests/functional-tests/test-ontologies/superclass-remove/Makefile
+	tests/functional-tests/test-ontologies/property-promotion/Makefile
+	tests/functional-tests/test-ontologies/basic-future/Makefile
+	tests/functional-tests/test-apps-data/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-steroids/Makefile
@@ -2175,8 +2175,8 @@ AC_CONFIG_FILES([
 	utils/lyrics/Makefile
 	utils/playlists/Makefile
 	utils/services/Makefile
-        utils/data-generators/Makefile
-        utils/data-generators/cc/Makefile
+	utils/data-generators/Makefile
+	utils/data-generators/cc/Makefile
 	utils/mtp/Makefile
 	utils/tracker-sql/Makefile
 	utils/tracker-resdump/Makefile
@@ -2258,5 +2258,5 @@ Frameworks / Options:
 
 	Support Maemo                           $enable_maemo
 	Support libmeegotouch                   $have_meegotouch
-        Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
+	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 "
