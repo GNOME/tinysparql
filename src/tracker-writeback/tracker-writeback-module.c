@@ -23,10 +23,15 @@
 
 #include "tracker-writeback-module.h"
 
+static TrackerMinerManager *manager = NULL;
+
 static gboolean writeback_module_load   (GTypeModule *module);
 static void     writeback_module_unload (GTypeModule *module);
 
 G_DEFINE_TYPE (TrackerWritebackModule, tracker_writeback_module, G_TYPE_TYPE_MODULE)
+
+G_DEFINE_ABSTRACT_TYPE (TrackerWriteback, tracker_writeback, G_TYPE_OBJECT)
+
 
 static void
 tracker_writeback_module_class_init (TrackerWritebackModuleClass *klass)
@@ -161,4 +166,39 @@ const gchar * const *
 tracker_writeback_module_get_rdf_types (TrackerWritebackModule *module)
 {
 	return (module->get_rdf_types) ();
+}
+
+static void
+tracker_writeback_class_init (TrackerWritebackClass *klass)
+{
+}
+
+static void
+tracker_writeback_init (TrackerWriteback *writeback)
+{
+}
+
+gboolean
+tracker_writeback_update_metadata (TrackerWriteback        *writeback,
+                                   GPtrArray               *values,
+                                   TrackerSparqlConnection *connection)
+{
+	g_return_val_if_fail (TRACKER_IS_WRITEBACK (writeback), FALSE);
+	g_return_val_if_fail (values != NULL, FALSE);
+
+	if (TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata) {
+		return TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata (writeback, values, connection);
+	}
+
+	return FALSE;
+}
+
+TrackerMinerManager*
+tracker_writeback_get_miner_manager (void)
+{
+	if (!manager) {
+		manager = tracker_miner_manager_new ();
+	}
+
+	return manager;
 }

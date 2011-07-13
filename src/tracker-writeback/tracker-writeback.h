@@ -1,64 +1,56 @@
 /*
- * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_WRITEBACK_WRITEBACK_H__
-#define __TRACKER_WRITEBACK_WRITEBACK_H__
+#ifndef __TRACKER_CONTROLLER_H__
+#define __TRACKER_CONTROLLER_H__
 
-#include <glib-object.h>
+#include <gio/gio.h>
 
-#include <libtracker-miner/tracker-miner.h>
-#include <libtracker-sparql/tracker-sparql.h>
+/* Not needed, but for now this keeps #include API backward compatible */
+#include "tracker-writeback-module.h"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_WRITEBACK         (tracker_writeback_get_type())
-#define TRACKER_WRITEBACK(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_WRITEBACK, TrackerWriteback))
-#define TRACKER_WRITEBACK_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_WRITEBACK, TrackerWritebackClass))
-#define TRACKER_IS_WRITEBACK(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_WRITEBACK))
-#define TRACKER_IS_WRITEBACK_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_WRITEBACK))
-#define TRACKER_WRITEBACK_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_WRITEBACK, TrackerWritebackClass))
+#define TRACKER_TYPE_CONTROLLER         (tracker_controller_get_type ())
+#define TRACKER_CONTROLLER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONTROLLER, TrackerController))
+#define TRACKER_CONTROLLER_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_CONTROLLER, TrackerControllerClass))
+#define TRACKER_IS_CONTROLLER(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CONTROLLER))
+#define TRACKER_IS_CONTROLLER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c), TRACKER_TYPE_CONTROLLER))
+#define TRACKER_CONTROLLER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONTROLLER, TrackerControllerClass))
 
-typedef struct TrackerWriteback TrackerWriteback;
-typedef struct TrackerWritebackClass TrackerWritebackClass;
+typedef struct TrackerController TrackerController;
+typedef struct TrackerControllerClass TrackerControllerClass;
 
-struct TrackerWriteback {
+struct TrackerController {
 	GObject parent_instance;
+	gpointer priv;
 };
 
-struct TrackerWritebackClass {
+struct TrackerControllerClass {
 	GObjectClass parent_class;
-
-	gboolean (* update_metadata) (TrackerWriteback        *writeback,
-	                              GPtrArray               *values,
-	                              TrackerSparqlConnection *connection);
 };
 
-GType                tracker_writeback_get_type          (void) G_GNUC_CONST;
-gboolean             tracker_writeback_update_metadata   (TrackerWriteback        *writeback,
-                                                          GPtrArray               *values,
-                                                          TrackerSparqlConnection *connection);
-TrackerMinerManager* tracker_writeback_get_miner_manager (void);
+GType               tracker_controller_get_type (void) G_GNUC_CONST;
 
-/* Entry functions to be defined by modules */
-TrackerWriteback *   writeback_module_create             (GTypeModule             *module);
-const gchar * const *writeback_module_get_rdf_types      (void);
+TrackerController * tracker_controller_new   (guint               shutdown_timeout,
+                                              GError            **error);
 
 G_END_DECLS
 
-#endif /* __TRACKER_WRITEBACK_WRITEBACK_H__ */
+#endif /* __TRACKER_CONTROLLER_H__ */
