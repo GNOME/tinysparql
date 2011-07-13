@@ -29,6 +29,15 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#if defined(GSTREAMER_BACKEND_DISCOVERER)
+#define GST_USE_UNSTABLE_API
+#include <gst/pbutils/pbutils.h>
+#endif
+
+#ifdef HAVE_GUPNP_DLNA
+#include <libgupnp-dlna/gupnp-dlna-discoverer.h>
+#endif
+
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
@@ -36,6 +45,13 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
+
+/* Ensure we have a valid backend enabled */
+#if !defined(GSTREAMER_BACKEND_TAGREADBIN) && \
+	!defined(GSTREAMER_BACKEND_DECODEBIN2) && \
+    !defined(GSTREAMER_BACKEND_DISCOVERER)
+#error Not a valid GStreamer backend defined
+#endif
 
 /* We wait this long (seconds) for NULL state before freeing */
 #define TRACKER_EXTRACT_GUARD_TIMEOUT 3
@@ -85,7 +101,8 @@ typedef enum {
 typedef struct {
 	ExtractMime     mime;
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) ||	  \
+	defined(GSTREAMER_BACKEND_DECODEBIN2)
 	/* Common pipeline elements */
 	GstElement     *pipeline;
 	GstBus         *bus;
@@ -95,16 +112,33 @@ typedef struct {
 	/* Decodebin elements and properties*/
 	GstElement     *bin;
 	GList          *fsinks;
-	gint64          duration;
 #endif
 
-	gint            video_height;
-	gint            video_width;
-	gint            video_fps_n;
-	gint            video_fps_d;
+#if defined(GSTREAMER_BACKEND_DISCOVERER)
+	gboolean        has_image;
+	gboolean        has_audio;
+	gboolean        has_video;
+	GList          *streams;
+
+#if !defined(HAVE_GUPNP_DLNA)
+	GstDiscoverer        *discoverer;
+#else
+	GUPnPDLNADiscoverer  *discoverer;
+	GUPnPDLNAInformation *dlna_info;
+	const gchar          *dlna_profile;
+#endif
+#endif
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
+	defined(GSTREAMER_BACKEND_DECODEBIN2)
+	gint64          duration;
 	gint            audio_channels;
 	gint            audio_samplerate;
-	gint            aspect_ratio;
+	gint            height;
+	gint            width;
+	gfloat          aspect_ratio;
+	gfloat          video_fps;
+#endif
 
 	/* Tags and data */
 	GstTagList     *tagcache;
@@ -141,6 +175,10 @@ static void tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
 static void decodebin2_extract_stream_metadata (MetadataExtractor    *extractor,
                                                 const gchar          *uri,
                                                 TrackerSparqlBuilder *metadata);
+#elif defined(GSTREAMER_BACKEND_DISCOVERER)
+static void discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
+                                                const gchar          *uri,
+                                                TrackerSparqlBuilder *metadata);
 #endif
 
 static TrackerExtractData data[] = {
@@ -152,7 +190,9 @@ static TrackerExtractData data[] = {
 	{ "video/3gpp", extract_gstreamer_guess },
 	{ "video/mp4", extract_gstreamer_guess },
 	{ "video/x-ms-asf", extract_gstreamer_guess },
+#ifdef HAVE_GUPNP_DLNA
 	{ "dlna/*", extract_gstreamer_guess },
+#endif /* HAVE_GUPNP_DLNA */
 	/* Added to fix broken Real media detection, see MeeGo bug #18159 */
 	{ "application/vnd.rn-realmedia", extract_gstreamer_guess },
 	{ NULL, NULL }
@@ -208,7 +248,7 @@ add_double_gst_tag (TrackerSparqlBuilder  *metadata,
                     const gchar           *tag)
 {
 	gboolean ret;
-	gdouble          n;
+	gdouble n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
@@ -421,8 +461,10 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *album_disc_uri = NULL;
 		gchar *s;
 
+		/* Try to guess content type */
 		if (extractor->mime == EXTRACT_MIME_GUESS) {
-			gchar *video_codec = NULL, *audio_codec = NULL;
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)
+			char *video_codec = NULL, *audio_codec = NULL;
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_AUDIO_CODEC, &audio_codec);
@@ -440,6 +482,18 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			g_free (video_codec);
 			g_free (audio_codec);
+#else /* DISCOVERER... */
+			if (extractor->has_video) {
+				extractor->mime = EXTRACT_MIME_VIDEO;
+			} else if (extractor->has_audio) {
+				extractor->mime = EXTRACT_MIME_AUDIO;
+			} else if (extractor->has_image) {
+				extractor->mime = EXTRACT_MIME_IMAGE;
+			} else {
+				/* default to video */
+				extractor->mime = EXTRACT_MIME_VIDEO;
+			}
+#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)  */
 		}
 
 		/* General */
@@ -676,11 +730,6 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (model);
 		g_free (manuf);
 
-		if (extractor->is_content_encrypted) {
-			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
-			tracker_sparql_builder_object_boolean (metadata, TRUE);
-		}
-
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, uri, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
@@ -768,25 +817,218 @@ extract_metadata (MetadataExtractor      *extractor,
 	}
 
 	/* If content was encrypted, set it. */
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)
 	if (extractor->is_content_encrypted) {
 		tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
 		tracker_sparql_builder_object_boolean (metadata, TRUE);
 	}
+#else
+#warning TODO: handle encrypted content with the Discoverer API
+#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2) */
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
 	tagreadbin_extract_stream_metadata (extractor, uri, metadata);
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
 	decodebin2_extract_stream_metadata (extractor, uri, metadata);
-#elif defined(GSTREAMER_BACKEND_DISCOVERER)
-	#warning TODO
-#else
-#error Not a valid GStreamer backend defined
+#else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+	discoverer_extract_stream_metadata (extractor, uri, metadata);
 #endif
 
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
 		get_embedded_album_art (extractor);
 	}
 }
+
+/* ----------------------- Discoverer specific implementation --------------- */
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER)
+
+static void
+discoverer_shutdown (MetadataExtractor *extractor)
+{
+	if (extractor->streams)
+		gst_discoverer_stream_info_list_free (extractor->streams);
+	if (extractor->discoverer)
+		g_object_unref (extractor->discoverer);
+#ifdef HAVE_GUPNP_DLNA
+	if (extractor->dlna_info)
+		g_object_unref (extractor->dlna_info);
+#endif
+}
+
+static gboolean
+discoverer_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
+{
+	GstDiscovererInfo *info;
+	GError *error = NULL;
+	GList *l;
+
+	extractor->duration = -1;
+	extractor->audio_channels = -1;
+	extractor->audio_samplerate = -1;
+	extractor->height = -1;
+	extractor->width = -1;
+	extractor->video_fps = -1.0;
+	extractor->aspect_ratio = -1.0;
+
+	extractor->has_image = FALSE;
+	extractor->has_video = FALSE;
+	extractor->has_audio = FALSE;
+
+#ifdef HAVE_GUPNP_DLNA
+	extractor->discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
+
+	/* Uri is const, the API should be const, but it isn't and it
+	 * calls gst_discoverer_discover_uri()
+	 */
+	extractor->dlna_info = gupnp_dlna_discoverer_discover_uri_sync (extractor->discoverer,
+	                                                                uri,
+	                                                                &error);
+	if (error) {
+		g_warning ("Call to gupnp_dlna_discoverer_discover_uri_sync() failed: %s",
+		           error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	if (!extractor->dlna_info) {
+		g_warning ("No DLNA info discovered, bailing out");
+		return TRUE;
+	}
+
+	/* Get DLNA profile */
+	extractor->dlna_profile = gupnp_dlna_information_get_name (extractor->dlna_info);
+
+	info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (extractor->dlna_info);
+#else
+	extractor->discoverer = gst_discoverer_new (5 * GST_SECOND, &error);
+	if (!extractor->discoverer) {
+		g_warning ("Couldn't create discoverer: %s",
+		           error ? error->message : "unknown error");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	info = gst_discoverer_discover_uri (extractor->discoverer,
+	                                    uri,
+	                                    &error);
+	if (error) {
+		g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
+		           error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+#endif
+
+	if (!info) {
+		g_warning ("Nothing discovered, bailing out");
+		return TRUE;
+	}
+
+	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
+
+	/* Get list of Streams to iterate */
+	extractor->streams = gst_discoverer_info_get_stream_list (info);
+	for (l = extractor->streams; l; l = g_list_next (l)) {
+		GstDiscovererStreamInfo *stream = l->data;
+		GstTagList *tmp;
+
+		if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_AUDIO_INFO)) {
+			GstDiscovererAudioInfo *audio = (GstDiscovererAudioInfo*)stream;
+
+			extractor->has_audio = TRUE;
+			extractor->audio_samplerate = gst_discoverer_audio_info_get_sample_rate (audio);
+			extractor->audio_channels = gst_discoverer_audio_info_get_channels (audio);
+		} else if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_VIDEO_INFO)) {
+			GstDiscovererVideoInfo *video = (GstDiscovererVideoInfo*)stream;
+
+			if (gst_discoverer_video_info_is_image (video)) {
+				extractor->has_image = TRUE;
+			} else {
+				extractor->has_video = TRUE;
+				extractor->video_fps = (gfloat)(gst_discoverer_video_info_get_framerate_num (video) /
+				                                gst_discoverer_video_info_get_framerate_denom (video));
+				extractor->width = gst_discoverer_video_info_get_width (video);
+				extractor->height = gst_discoverer_video_info_get_height (video);
+				extractor->aspect_ratio = (gfloat)(gst_discoverer_video_info_get_par_num (video) /
+				                                   gst_discoverer_video_info_get_par_denom (video));
+			}
+		} else {
+			/* Unknown type - do nothing */
+		}
+
+		/* Overwrite list of tags */
+		tmp = gst_tag_list_merge (extractor->tagcache,
+		                          gst_discoverer_stream_info_get_tags (stream),
+		                          GST_TAG_MERGE_APPEND);
+		if (extractor->tagcache)
+			gst_tag_list_free (extractor->tagcache);
+		extractor->tagcache = tmp;
+	}
+
+	return TRUE;
+}
+
+static void
+discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
+                                    const gchar          *uri,
+                                    TrackerSparqlBuilder *metadata)
+{
+	if (extractor->mime == EXTRACT_MIME_AUDIO ||
+		extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->audio_channels >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:channels");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_channels);
+		}
+
+		if (extractor->audio_samplerate >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_samplerate);
+		}
+
+		if (extractor->duration >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:duration");
+			tracker_sparql_builder_object_int64 (metadata, extractor->duration);
+		}
+	}
+
+	if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->video_fps >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:frameRate");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->video_fps);
+		}
+	}
+
+	if (extractor->mime == EXTRACT_MIME_IMAGE ||
+		extractor->mime == EXTRACT_MIME_SVG ||
+	    extractor->mime == EXTRACT_MIME_VIDEO) {
+
+		if (extractor->width) {
+			tracker_sparql_builder_predicate (metadata, "nfo:width");
+			tracker_sparql_builder_object_int64 (metadata, extractor->width);
+		}
+
+		if (extractor->height >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:height");
+			tracker_sparql_builder_object_int64 (metadata, extractor->height);
+		}
+
+		if (extractor->aspect_ratio >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:aspectRatio");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->aspect_ratio);
+		}
+	}
+
+#if defined(HAVE_GUPNP_DLNA)
+	if (extractor->dlna_profile) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
+	}
+#endif
+}
+
+#endif /* defined(GSTREAMER_BACKEND_DISCOVERER) */
 
 /* --------------- Common Tagreadbin and Decodebin2 implementation ---------- */
 
@@ -815,7 +1057,6 @@ pipeline_shutdown (MetadataExtractor *extractor)
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
 	gst_object_unref (extractor->bus);
-
 	gst_object_unref (GST_OBJECT (extractor->pipeline));
 }
 
@@ -975,24 +1216,23 @@ decodebin2_extract_stream_metadata (MetadataExtractor    *extractor,
 		}
 	} else {
 		if (extractor->aspect_ratio >= 0) {
-			add_uint_info (metadata, uri, "nfo:aspectRatio", extractor->aspect_ratio);
+			add_uint_info (metadata, uri, "nfo:aspectRatio", (uint)extractor->aspect_ratio);
 		}
 	}
 
-	if (extractor->video_height >= 0) {
-		add_uint_info (metadata, uri, "nfo:height", extractor->video_height);
+	if (extractor->height >= 0) {
+		add_uint_info (metadata, uri, "nfo:height", extractor->height);
 	}
 
-	if (extractor->video_width >= 0) {
-		add_uint_info (metadata, uri, "nfo:width", extractor->video_width);
+	if (extractor->width >= 0) {
+		add_uint_info (metadata, uri, "nfo:width", extractor->width);
 	}
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
+		if (extractor->video_fps >= 0) {
 			add_uint_info (metadata,
 			               uri, "nfo:frameRate",
-			               ((extractor->video_fps_n + extractor->video_fps_d / 2) /
-			                extractor->video_fps_d));
+			               extractor->video_fps);
 		}
 	}
 }
@@ -1074,31 +1314,55 @@ decodebin2_add_stream_tag (void *obj, void *data)
 
 		if (s) {
 			if (g_strrstr (gst_structure_get_name (s), "audio")) {
-				if ( ( (extractor->audio_channels != -1) &&
-				       (extractor->audio_samplerate != -1) ) ||
-				     !( (gst_structure_get_int (s,
-				                                "channels",
-				                                &extractor->audio_channels) ) &&
-				        (gst_structure_get_int (s,
-				                                "rate",
-				                                &extractor->audio_samplerate)) ) ) {
+				if ((extractor->audio_channels != -1) &&
+				    (extractor->audio_samplerate != -1))
 					return;
-				}
-			} else if (g_strrstr (gst_structure_get_name (s), "video")) {
-				if ( ( (extractor->video_fps_n != -1) &&
-				       (extractor->video_fps_d != -1) &&
-				       (extractor->video_width != -1) &&
-				       (extractor->video_height != -1) ) ||
-				     !( (gst_structure_get_fraction (s,
-				                                     "framerate",
-				                                     &extractor->video_fps_n,
-				                                     &extractor->video_fps_d) ) &&
-				        (gst_structure_get_int (s, "width", &extractor->video_width)) &&
-				        (gst_structure_get_int (s, "height", &extractor->video_height)) &&
-				        (gst_structure_get_int (s, "pixel-aspect-ratio", &extractor->aspect_ratio)))) {
-					return;
-				}
+
+				if (extractor->audio_channels == -1)
+					gst_structure_get_int (s, "channels", &extractor->audio_channels);
+
+				if (extractor->audio_samplerate == -1)
+					gst_structure_get_int (s, "rate", &extractor->audio_samplerate);
+				return;
 			}
+
+			if (g_strrstr (gst_structure_get_name (s), "video")) {
+				if ((extractor->video_fps != -1) &&
+				    (extractor->width != -1) &&
+				    (extractor->height != -1) &&
+				    (extractor->aspect_ratio != -1)){
+					return;
+				}
+
+				if (extractor->video_fps == -1) {
+					gint video_fps_n;
+					gint video_fps_d;
+
+					if (gst_structure_get_fraction (s,
+					                                "framerate",
+					                                &video_fps_n,
+					                                &video_fps_d)) {
+						extractor->video_fps = (video_fps_n + video_fps_d / 2) / video_fps_d;
+					}
+				}
+
+				if (extractor->width == -1)
+					gst_structure_get_int (s, "width", &extractor->width);
+
+				if (extractor->height == -1)
+					gst_structure_get_int (s, "height", &extractor->height);
+
+				if (extractor->aspect_ratio == -1) {
+					gint aspect_ratio;
+
+					gst_structure_get_int (s, "pixel-aspect-ratio", &aspect_ratio);
+					extractor->aspect_ratio = aspect_ratio;
+				}
+
+				return;
+			}
+
+			/* TODO: Add aspect-ratio, width and height in case of images */
 		}
 	}
 }
@@ -1160,14 +1424,26 @@ decodebin2_create_pipeline (MetadataExtractor *extractor,
 	return pipeline;
 }
 
+static void
+decodebin2_shutdown (MetadataExtractor *extractor)
+{
+	pipeline_shutdown (extractor);
+}
+
 static gboolean
-decodebin2_setup_and_run (MetadataExtractor *extractor,
-                          const gchar       *uri)
+decodebin2_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
 {
 	extractor->bus = NULL;
 	extractor->bin = NULL;
 	extractor->fsinks = NULL;
 	extractor->duration = -1;
+	extractor->audio_channels = -1;
+	extractor->audio_samplerate = -1;
+	extractor->height -1;
+	extractor->width = -1;
+	extractor->video_fps = -1;
+	extractor->aspect_ratio = -1;
 
 	extractor->pipeline = decodebin2_create_pipeline (extractor, uri);
 	if (!extractor->pipeline) {
@@ -1203,7 +1479,6 @@ decodebin2_setup_and_run (MetadataExtractor *extractor,
 }
 
 #endif /* defined(GSTREAMER_BACKEND_DECODEBIN2) */
-
 
 /* ----------------------- Tagreadbin specific implementation --------------- */
 
@@ -1315,9 +1590,15 @@ tagreadbin_create_pipeline (MetadataExtractor *extractor,
 	return pipeline;
 }
 
+static void
+tagreadbin_shutdown (MetadataExtractor *extractor)
+{
+	pipeline_shutdown (extractor);
+}
+
 static gboolean
-tagreadbin_setup_and_run (MetadataExtractor *extractor,
-                          const gchar       *uri)
+tagreadbin_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
 {
 	extractor->bus = NULL;
 
@@ -1360,34 +1641,24 @@ tracker_extract_gstreamer (const gchar          *uri,
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
 
-	/* These must be moved to main() */
-	g_type_init ();
-
 	gst_init (NULL, NULL);
 
 	extractor               = g_slice_new0 (MetadataExtractor);
 	extractor->mime         = type;
-
 	extractor->tagcache     = NULL;
-
 	extractor->album_art_data = NULL;
 	extractor->album_art_size = 0;
 	extractor->album_art_mime = NULL;
 
-	extractor->video_fps_n = extractor->video_fps_d = -1;
-	extractor->video_height = extractor->video_width = -1;
-	extractor->audio_channels = -1;
-	extractor->aspect_ratio = -1;
-	extractor->audio_samplerate = -1;
-
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	if (!tagreadbin_setup_and_run (extractor, uri))
+	if (!tagreadbin_init_and_run (extractor, uri))
 		return;
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-	if (!decodebin2_setup_and_run (extractor, uri))
+	if (!decodebin2_init_and_run (extractor, uri))
 		return;
 #else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
-	#warning TODO
+	if (!discoverer_init_and_run (extractor, uri))
+		return;
 #endif
 
 	album = NULL;
@@ -1411,8 +1682,12 @@ tracker_extract_gstreamer (const gchar          *uri,
 		gst_tag_list_free (extractor->tagcache);
 	}
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)
-	pipeline_shutdown (extractor);
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+	tagreadbin_shutdown (extractor);
+#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
+	decodebin2_shutdown (extractor);
+#else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+	discoverer_shutdown (extractor);
 #endif
 
 	g_slice_free (MetadataExtractor, extractor);
