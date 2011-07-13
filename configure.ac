@@ -1629,6 +1629,17 @@ else
            AC_DEFINE(GSTREAMER_BACKEND_TAGREADBIN, [], [Define that GStreamer Tagreadbin should be used])
         ;;
         "xdiscoverer")
+           PKG_CHECK_MODULES(GSTREAMER_PBUTILS,
+                             [gstreamer-pbutils-0.10 >= $GSTREAMER_REQUIRED],
+                             [have_gstreamer_pbutils=yes],
+                             [have_gstreamer_pbutils=no])
+           AC_SUBST(GSTREAMER_PBUTILS_CFLAGS)
+           AC_SUBST(GSTREAMER_PBUTILS_LIBS)
+
+           if test "x$have_gstreamer_pbutils" != "xyes"; then
+              AC_MSG_ERROR([Couldn't find GStreamer pbutils])
+           fi
+
            gstreamer_backend="Discoverer"
            AC_DEFINE(GSTREAMER_BACKEND_DISCOVERER, [], [Define that GStreamer Discoverer should be used])
         ;;
@@ -1652,7 +1663,8 @@ else
    esac
 fi
 
-AM_CONDITIONAL(HAVE_GUPNP_DLNA, test "x$gstreamer_backend" = "xGUPnP-DLNA")
+AM_CONDITIONAL(HAVE_GUPNP_DLNA,        test "x$gstreamer_backend" = "xGUPnP-DLNA")
+AM_CONDITIONAL(HAVE_GSTREAMER_PBUTILS, test "x$gstreamer_backend" = "xDiscoverer")
 
 ####################################################################
 # Check for tracker-extract: support .ps.gz files

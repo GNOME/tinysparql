@@ -246,9 +246,17 @@ libextract_gstreamer_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(GSTREAMER_LIBS)
+
+# GStreamer with GUPnP-DLNA backend?
 if HAVE_GUPNP_DLNA
 libextract_gstreamer_la_CFLAGS += $(GUPNP_DLNA_CFLAGS)
 libextract_gstreamer_la_LIBADD += $(GUPNP_DLNA_LIBS)
+endif
+
+# GStreamer with Discoverer backend?
+if HAVE_GSTREAMER_PBUTILS
+libextract_gstreamer_la_CFLAGS += $(GSTREAMER_PBUTILS_CFLAGS)
+libextract_gstreamer_la_LIBADD += $(GSTREAMER_PBUTILS_LIBS)
 endif
 
 # Xine
