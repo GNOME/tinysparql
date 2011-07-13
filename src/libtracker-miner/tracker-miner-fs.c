@@ -128,6 +128,7 @@ typedef struct {
 typedef struct {
 	GFile     *file;
 	GPtrArray *results;
+	GStrv      rdf_types;
 } ItemWritebackData;
 
 typedef struct {
@@ -691,9 +692,11 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, writeback_file),
 		              NULL,
 		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT_BOXED,
-		              G_TYPE_BOOLEAN, 2,
+		              tracker_marshal_VOID__OBJECT_BOXED_BOXED,
+		              G_TYPE_NONE,
+		              3,
 		              G_TYPE_FILE,
+		              G_TYPE_STRV,
 		              G_TYPE_PTR_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
@@ -1207,13 +1210,16 @@ item_moved_data_free (ItemMovedData *data)
 
 static ItemWritebackData *
 item_writeback_data_new (GFile     *file,
+                         GStrv      rdf_types,
                          GPtrArray *results)
 {
 	ItemWritebackData *data;
 
 	data = g_slice_new (ItemWritebackData);
+
 	data->file = g_object_ref (file);
 	data->results = g_ptr_array_ref (results);
+	data->rdf_types = g_strdupv (rdf_types);
 
 	return data;
 }
@@ -1223,6 +1229,7 @@ item_writeback_data_free (ItemWritebackData *data)
 {
 	g_object_unref (data->file);
 	g_ptr_array_unref (data->results);
+	g_strfreev (data->rdf_types);
 	g_slice_free (ItemWritebackData, data);
 }
 
@@ -2586,7 +2593,26 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	GFile *queue_file;
 	gint priority;
 
-	/* Deleted items first */
+	/* Writeback items first */
+	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
+					    &priority);
+	if (wdata) {
+		*file = g_object_ref (wdata->file);
+		*source_file = NULL;
+
+		trace_eq_pop_head ("WRITEBACK", wdata->file);
+
+		g_signal_emit (fs, signals[WRITEBACK_FILE], 0,
+		               wdata->file,
+		               wdata->rdf_types,
+		               wdata->results);
+
+		item_writeback_data_free (wdata);
+
+		return QUEUE_WRITEBACK;
+	}
+
+	/* Deleted items second */
 	queue_file = tracker_priority_queue_pop (fs->priv->items_deleted,
 	                                         &priority);
 	if (queue_file) {
@@ -2781,22 +2807,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		*priority_out = priority;
 		item_moved_data_free (data);
 		return QUEUE_MOVED;
-	}
-
-	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
-					    &priority);
-	if (wdata) {
-		*file = g_object_ref (wdata->file);
-		*source_file = NULL;
-
-		trace_eq_pop_head ("WRITEBACK", wdata->file);
-
-		g_signal_emit (fs, signals[WRITEBACK_FILE], 0,
-		               wdata->file, wdata->results);
-
-		item_writeback_data_free (wdata);
-
-		return QUEUE_WRITEBACK;
 	}
 
 	*file = NULL;
@@ -4733,7 +4743,8 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
  * tracker_miner_fs_writeback_file:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
- @ @results: A array of results from the preparation query
+ * @rdf_types: A #GStrv with rdf types
+ * @results: A array of results from the preparation query
  *
  * Tells the filesystem miner to writeback a file.
  *
@@ -4742,6 +4753,7 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
 void
 tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
                                  GFile          *file,
+                                 GStrv           rdf_types,
                                  GPtrArray      *results)
 {
 	gchar *path;
@@ -4757,13 +4769,35 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 
 	trace_eq_push_tail ("WRITEBACK", file, "Requested by application");
 
-	data = item_writeback_data_new (file, results);
+	data = item_writeback_data_new (file, rdf_types, results);
 	g_queue_push_tail (fs->priv->items_writeback,
 	                   data);
 
 	item_queue_handlers_set_up (fs);
 
 	g_free (path);
+}
+
+/**
+ * tracker_miner_fs_writeback_notify:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ * @error: a #GError with the error that happened during processing, or %NULL.
+ *
+ * Notifies @fs that all writing back on @file has been finished, if any error
+ * happened during file data processing, it should be passed in @error, else
+ * that parameter will contain %NULL to reflect success.
+ *
+ * Since: 0.10.20
+ **/
+void
+tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
+                                   GFile          *file,
+                                   const GError   *error)
+{
+#warning todo here
+
+	/* TODO */
 }
 
 /**
