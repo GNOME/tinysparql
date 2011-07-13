@@ -409,8 +409,6 @@ tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
 
 	mimetype_rules = lookup_rules (mimetype);
 
-	g_print ("EING: %p\n", mimetype_rules);
-
 	if (!mimetype_rules) {
 		return NULL;
 	}
@@ -420,7 +418,6 @@ tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
 	info->cur = info->rules;
 
 	if (!initialize_first_module (info)) {
-		g_print ("NOOOO\n");
 		tracker_mimetype_info_free (info);
 		info = NULL;
 	}
