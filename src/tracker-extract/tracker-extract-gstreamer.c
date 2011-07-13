@@ -21,6 +21,14 @@
 
 #include "config.h"
 
+/* Ensure we have a valid backend enabled */
+#if !defined(GSTREAMER_BACKEND_TAGREADBIN) && \
+	!defined(GSTREAMER_BACKEND_DECODEBIN2) && \
+    !defined(GSTREAMER_BACKEND_DISCOVERER) && \
+    !defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+#error Not a valid GStreamer backend defined
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,12 +37,13 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#if defined(GSTREAMER_BACKEND_DISCOVERER)
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 #define GST_USE_UNSTABLE_API
 #include <gst/pbutils/pbutils.h>
 #endif
 
-#ifdef HAVE_GUPNP_DLNA
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 #include <libgupnp-dlna/gupnp-dlna-discoverer.h>
 #endif
 
@@ -45,13 +54,6 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
-
-/* Ensure we have a valid backend enabled */
-#if !defined(GSTREAMER_BACKEND_TAGREADBIN) && \
-	!defined(GSTREAMER_BACKEND_DECODEBIN2) && \
-    !defined(GSTREAMER_BACKEND_DISCOVERER)
-#error Not a valid GStreamer backend defined
-#endif
 
 /* We wait this long (seconds) for NULL state before freeing */
 #define TRACKER_EXTRACT_GUARD_TIMEOUT 3
@@ -100,37 +102,44 @@ typedef enum {
 
 typedef struct {
 	ExtractMime     mime;
+	GstTagList     *tagcache;
+	gboolean        is_content_encrypted;
+	unsigned char  *album_art_data;
+	guint           album_art_size;
+	const gchar    *album_art_mime;
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN) ||	  \
 	defined(GSTREAMER_BACKEND_DECODEBIN2)
-	/* Common pipeline elements */
 	GstElement     *pipeline;
 	GstBus         *bus;
 #endif
 
 #if defined(GSTREAMER_BACKEND_DECODEBIN2)
-	/* Decodebin elements and properties*/
 	GstElement     *bin;
 	GList          *fsinks;
 #endif
 
-#if defined(GSTREAMER_BACKEND_DISCOVERER)
+#if defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	gboolean        has_image;
 	gboolean        has_audio;
 	gboolean        has_video;
 	GList          *streams;
+#endif
 
-#if !defined(HAVE_GUPNP_DLNA)
-	GstDiscoverer        *discoverer;
-#else
+#if defined(GSTREAMER_BACKEND_DISCOVERER)
+	GstDiscoverer  *discoverer;
+#endif
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	GUPnPDLNADiscoverer  *discoverer;
 	GUPnPDLNAInformation *dlna_info;
 	const gchar          *dlna_profile;
 #endif
-#endif
 
 #if defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
-	defined(GSTREAMER_BACKEND_DECODEBIN2)
+	defined(GSTREAMER_BACKEND_DECODEBIN2) ||      \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	gint64          duration;
 	gint            audio_channels;
 	gint            audio_samplerate;
@@ -139,16 +148,6 @@ typedef struct {
 	gfloat          aspect_ratio;
 	gfloat          video_fps;
 #endif
-
-	/* Tags and data */
-	GstTagList     *tagcache;
-
-	gboolean        is_content_encrypted;
-
-	unsigned char  *album_art_data;
-	guint           album_art_size;
-	const gchar    *album_art_mime;
-
 } MetadataExtractor;
 
 static void extract_gstreamer_audio (const gchar          *uri,
@@ -175,7 +174,8 @@ static void tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
 static void decodebin2_extract_stream_metadata (MetadataExtractor    *extractor,
                                                 const gchar          *uri,
                                                 TrackerSparqlBuilder *metadata);
-#elif defined(GSTREAMER_BACKEND_DISCOVERER)
+#elif defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 static void discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
                                                 const gchar          *uri,
                                                 TrackerSparqlBuilder *metadata);
@@ -482,7 +482,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			g_free (video_codec);
 			g_free (audio_codec);
-#else /* DISCOVERER... */
+#else /* DISCOVERER/GUPNP-DLNA... */
 			if (extractor->has_video) {
 				extractor->mime = EXTRACT_MIME_VIDEO;
 			} else if (extractor->has_audio) {
@@ -493,7 +493,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				/* default to video */
 				extractor->mime = EXTRACT_MIME_VIDEO;
 			}
-#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)  */
+#endif
 		}
 
 		/* General */
@@ -823,14 +823,14 @@ extract_metadata (MetadataExtractor      *extractor,
 		tracker_sparql_builder_object_boolean (metadata, TRUE);
 	}
 #else
-#warning TODO: handle encrypted content with the Discoverer API
-#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2) */
+#warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends
+#endif
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
 	tagreadbin_extract_stream_metadata (extractor, uri, metadata);
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
 	decodebin2_extract_stream_metadata (extractor, uri, metadata);
-#else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+#else /* DISCOVERER/GUPnP-DLNA */
 	discoverer_extract_stream_metadata (extractor, uri, metadata);
 #endif
 
@@ -839,9 +839,10 @@ extract_metadata (MetadataExtractor      *extractor,
 	}
 }
 
-/* ----------------------- Discoverer specific implementation --------------- */
+/* ----------------------- Discoverer/GUPnP-DLNA specific implementation --------------- */
 
-#if defined(GSTREAMER_BACKEND_DISCOVERER)
+#if defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 
 static void
 discoverer_shutdown (MetadataExtractor *extractor)
@@ -850,7 +851,7 @@ discoverer_shutdown (MetadataExtractor *extractor)
 		gst_discoverer_stream_info_list_free (extractor->streams);
 	if (extractor->discoverer)
 		g_object_unref (extractor->discoverer);
-#ifdef HAVE_GUPNP_DLNA
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	if (extractor->dlna_info)
 		g_object_unref (extractor->dlna_info);
 #endif
@@ -876,7 +877,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	extractor->has_video = FALSE;
 	extractor->has_audio = FALSE;
 
-#ifdef HAVE_GUPNP_DLNA
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	extractor->discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
 
 	/* Uri is const, the API should be const, but it isn't and it
@@ -901,7 +902,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	extractor->dlna_profile = gupnp_dlna_information_get_name (extractor->dlna_info);
 
 	info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (extractor->dlna_info);
-#else
+#else /* DISCOVERER */
 	extractor->discoverer = gst_discoverer_new (5 * GST_SECOND, &error);
 	if (!extractor->discoverer) {
 		g_warning ("Couldn't create discoverer: %s",
@@ -1020,7 +1021,7 @@ discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
 		}
 	}
 
-#if defined(HAVE_GUPNP_DLNA)
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	if (extractor->dlna_profile) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
@@ -1028,7 +1029,7 @@ discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
 #endif
 }
 
-#endif /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+#endif /* defined(GSTREAMER_BACKEND_DISCOVERER) || defined(GSTREAMER_BACKEND_GUPNP_DLNA) */
 
 /* --------------- Common Tagreadbin and Decodebin2 implementation ---------- */
 
@@ -1656,7 +1657,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
 	if (!decodebin2_init_and_run (extractor, uri))
 		return;
-#else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+#else /* DISCOVERER/GUPnP-DLNA */
 	if (!discoverer_init_and_run (extractor, uri))
 		return;
 #endif
@@ -1686,7 +1687,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	tagreadbin_shutdown (extractor);
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
 	decodebin2_shutdown (extractor);
-#else /* defined(GSTREAMER_BACKEND_DISCOVERER) */
+#else /* DISCOVERER/GUPnP-DLNA */
 	discoverer_shutdown (extractor);
 #endif
 

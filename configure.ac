@@ -1539,16 +1539,8 @@ AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
 
 AC_ARG_ENABLE(generic-media-extractor,
               AS_HELP_STRING([--enable-generic-media-extractor=ARG],
-                             [enables one of the (gupnp-dlna, gstreamer, xine, external, auto) generic media extractor backends [[default=auto]]]),,
+                             [enables one of the (gstreamer, xine, external, auto) generic media extractor backends [[default=auto]]]),,
               [enable_generic_media_extractor=auto])
-
-PKG_CHECK_MODULES(GUPNP_DLNA,
-                  [gupnp-dlna-1.0 >= $GUPNP_DLNA_REQUIRED],
-                  [have_gupnp_dlna=yes],
-                  [have_gupnp_dlna=no])
-
-AC_SUBST(GUPNP_DLNA_CFLAGS)
-AC_SUBST(GUPNP_DLNA_LIBS)
 
 PKG_CHECK_MODULES(GSTREAMER,
                   [gstreamer-0.10 >= $GSTREAMER_REQUIRED
@@ -1570,28 +1562,13 @@ AC_SUBST(XINE_LIBS)
 if test "x$enable_generic_media_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
       have_generic_media_handler="yes"
-      if test "$have_gupnp_dlna" = "yes"; then
-         have_generic_media_handler_app="GStreamer GUPnP-DLNA"
-      else
-         have_generic_media_handler_app="GStreamer"
-      fi
+      have_generic_media_handler_app="GStreamer"
    elif test "$have_libxine" = "yes"; then
       have_generic_media_handler_app="Xine"
       have_generic_media_handler="yes"
    else
       have_generic_media_handler="?"
       have_generic_media_handler_app="An external generic_media player will be called"
-   fi
-elif test "x$enable_generic_media_extractor" = "xgupnp-dlna"; then
-   if test "$have_gupnp_dlna" = "yes"; then
-      if test "$have_libgstreamer" = "yes"; then
-         have_generic_media_handler_app="GStreamer GUPnP-DLNA"
-         have_generic_media_handler="yes"
-      else
-         AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
-      fi
-   else
-      AC_MSG_ERROR([Couldn't find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
    fi
 elif test "x$enable_generic_media_extractor" = "xgstreamer"; then
    if test "$have_libgstreamer" = "yes"; then
@@ -1612,70 +1589,70 @@ else
    have_generic_media_handler_app="An external generic media player will be called"
 fi
 
-if test "$have_generic_media_handler_app" = "GStreamer GUPnP-DLNA"; then
-   AC_DEFINE(HAVE_GUPNP_DLNA, [], [Define if we have GUPnP-DLNA])
-   AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, true)
-   AM_CONDITIONAL(HAVE_LIBXINE, false)
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
-elif test "$have_generic_media_handler_app" = "GStreamer"; then
+if test "$have_generic_media_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 elif test "$have_generic_media_handler_app" = "Xine"; then
    AC_DEFINE(HAVE_LIBXINE, [], [Define if we have Libxine])
    AM_CONDITIONAL(HAVE_LIBXINE, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 else
    AC_DEFINE(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, [], [Define that Tracker will try to use external generic media players])
    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi
 
-####################################################################
-# Check for tracker-extract: tagreadbin/decodebin2/discoverer
-#  for gstreamer extractor
-####################################################################
+###########################################################################
+# Check for gstreamer backend: tagreadbin/decodebin2/discoverer/gupnp-dlna
+###########################################################################
 
 AC_ARG_WITH([gstreamer-backend],
             AS_HELP_STRING([--with-gstreamer-backend],
-                           [enables one of the (discoverer, decodebin2, tagreadbin) GStreamer backends [[default=discoverer]]]),,
+                           [enables one of the (gupnp-dlna, discoverer, decodebin2, tagreadbin) GStreamer backends [[default=discoverer]]]),,
               [with_gstreamer_backend=discoverer])
 
-gstreamer_backend="N/A"
-case "x$with_gstreamer_backend" in
-     "xdecodebin2")
-        if test "$have_generic_media_handler_app" = "GStreamer GUPnP-DLNA"; then
-           AC_MSG_ERROR([Cannot use decodebin2 backend in GStreamer when requesting GUPnP-DLNA support])
-        elif test "$have_generic_media_handler_app" = "GStreamer"; then
+if test "$have_generic_media_handler_app" != "GStreamer"; then
+   AC_MSG_WARN([No need to specify a GStreamer backend if not using GStreamer])
+   gstreamer_backend="N/A"
+else
+   case "x$with_gstreamer_backend" in
+        "xdecodebin2")
            gstreamer_backend="Decodebin2"
            AC_DEFINE(GSTREAMER_BACKEND_DECODEBIN2, [], [Define that GStreamer Decodebin2 should be used])
-        fi
-     ;;
-     "xtagreadbin")
-        if test "$have_generic_media_handler_app" = "GStreamer GUPnP-DLNA"; then
-           AC_MSG_ERROR([Cannot use tagreadbin backend in GStreamer when requesting GUPnP-DLNA support])
-        elif test "$have_generic_media_handler_app" = "GStreamer"; then
+        ;;
+        "xtagreadbin")
            gstreamer_backend="Tagreadbin"
            AC_DEFINE(GSTREAMER_BACKEND_TAGREADBIN, [], [Define that GStreamer Tagreadbin should be used])
-        fi
-     ;;
-     "xdiscoverer")
-        if test "$have_generic_media_handler_app" = "GStreamer GUPnP-DLNA" || test "$have_generic_media_handler_app" = "GStreamer"; then
+        ;;
+        "xdiscoverer")
            gstreamer_backend="Discoverer"
            AC_DEFINE(GSTREAMER_BACKEND_DISCOVERER, [], [Define that GStreamer Discoverer should be used])
-        fi
-     ;;
-     # Invalid option value
-     *) AC_MSG_ERROR([Wrong value for --with-gstreamer-backend: $with_gstreamer_backend]) ;;
-esac
+        ;;
+        "xgupnp-dlna")
+           PKG_CHECK_MODULES(GUPNP_DLNA,
+                             [gupnp-dlna-1.0 >= $GUPNP_DLNA_REQUIRED],
+                             [have_gupnp_dlna=yes],
+                             [have_gupnp_dlna=no])
+           AC_SUBST(GUPNP_DLNA_CFLAGS)
+           AC_SUBST(GUPNP_DLNA_LIBS)
+
+           if test "x$have_gupnp_dlna" = "xyes"; then
+              gstreamer_backend="GUPnP-DLNA"
+              AC_DEFINE(GSTREAMER_BACKEND_GUPNP_DLNA, [], [Define that GUPnP-DLNA should be used])
+           else
+              AC_MSG_ERROR([Couldn't find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
+           fi
+        ;;
+        # Invalid option value
+        *) AC_MSG_ERROR([Wrong value for --with-gstreamer-backend: $with_gstreamer_backend]) ;;
+   esac
+fi
+
+AM_CONDITIONAL(HAVE_GUPNP_DLNA, test "x$gstreamer_backend" = "xGUPnP-DLNA")
 
 ####################################################################
 # Check for tracker-extract: support .ps.gz files
