@@ -362,7 +362,12 @@ class Tracker.Sparql.Pattern : Object {
 					sql.append (", ");
 				}
 				expression.translate_expression (sql);
-			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.CLOSE_BRACE && current () != SparqlTokenType.CLOSE_PARENS && current () != SparqlTokenType.EOF);
+			} while (current () != SparqlTokenType.HAVING && current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.CLOSE_BRACE && current () != SparqlTokenType.CLOSE_PARENS && current () != SparqlTokenType.EOF);
+
+			if (accept (SparqlTokenType.HAVING)) {
+				sql.append (" HAVING ");
+				expression.translate_constraint (sql);
+			}
 		}
 
 		if (accept (SparqlTokenType.ORDER)) {
