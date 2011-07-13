@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-06-08 13:39+0000\n"
-"PO-Revision-Date: 2011-06-09 16:14+0100\n"
+"POT-Creation-Date: 2011-07-10 13:14+0000\n"
+"PO-Revision-Date: 2011-07-11 11:41+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -67,20 +67,49 @@ msgid "RSS/ATOM Feeds"
 msgstr "Viri RSS/ATOM"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.DB.xml.in.h:1
 msgid "Location of journal pieces"
 msgstr "Mesto delčkov dnevnika"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.DB.xml.in.h:2
 msgid "Maximum size of journal"
 msgstr "Največja velikost dnevnika"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+#: ../data/gschemas/org.freedesktop.Tracker.DB.xml.in.h:3
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
 msgstr "Velikost dnevnika pri vrtenju v MB. Uporabite -1 za onemogočitev vrtenja."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr "Kam naj bo shranjen delček dnevnika, ko doseže največjo velikost."
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size. If empty, the location used is $HOME/.local/share/tracker/data/."
+msgstr "Kam naj bo shranjen delček dnevnika, ko doseže največjo velikost. V primeru da je ta možnost prazna, bo uporabljeno mesto $HOME/.local/share/tracker/data/."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Podroben izpis dnevnikov"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Podroben izpis dnevnikov."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
+msgid "Max bytes to extract"
+msgstr "Največje število bajtov za razširjanje"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr "Največje število bajtov UTF-8 za razširitev."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Enable stemmer"
@@ -137,28 +166,6 @@ msgstr "Besede z manj znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
 msgid "Words with more characters than this length will be ignored by the indexer."
 msgstr "Besede z več znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
-msgid "Log verbosity"
-msgstr "Podroben izpis dnevnikov"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
-msgid "Log verbosity."
-msgstr "Podroben izpis dnevnikov."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
-msgid "Max bytes to extract"
-msgstr "Največje število bajtov za razširjanje"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
-msgid "Maximum number of UTF-8 bytes to extract."
-msgstr "Največje število bajtov UTF-8 za razširitev."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
 msgid "Avoid any directory containing a file blacklisted here"
@@ -420,15 +427,15 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:812
+#: ../src/libtracker-miner/tracker-miner-object.c:895
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:898
+#: ../src/libtracker-miner/tracker-miner-object.c:981
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1303
+#: ../src/libtracker-miner/tracker-miner-object.c:1390
 msgid "Data store is not available"
 msgstr "Shramba podatkov ni na voljo"
 
@@ -1234,40 +1241,40 @@ msgstr "Opravila %d ni mogoče uničiti"
 msgid "Killed process %d"
 msgstr "Opravilo %d je bilo uničeno"
 
-#: ../src/tracker-control/tracker-control-general.c:535
+#: ../src/tracker-control/tracker-control-general.c:544
 msgid "Removing configuration files…"
 msgstr "Odstranjevanje namestitvenih datotek ..."
 
-#: ../src/tracker-control/tracker-control-general.c:549
+#: ../src/tracker-control/tracker-control-general.c:558
 msgid "Waiting one second before starting miners…"
 msgstr "Čakanje eno sekundo pred začetkom podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control-general.c:555
+#: ../src/tracker-control/tracker-control-general.c:564
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control-general.c:561
+#: ../src/tracker-control/tracker-control-general.c:570
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Podatkovnih kopalnikov ni mogoče začeti, upravljalnika ni bilo mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:586
+#: ../src/tracker-control/tracker-control-general.c:595
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker-control/tracker-control-general.c:608
+#: ../src/tracker-control/tracker-control-general.c:617
 msgid "Backing up database"
 msgstr "Ustvarjanje varnostne kopije podatkovne zbirke"
 
-#: ../src/tracker-control/tracker-control-general.c:680
+#: ../src/tracker-control/tracker-control-general.c:689
 msgid "Restoring database from backup"
 msgstr "Obnavljanje podatkovne zbirke iz varnostne kopije"
 
-#: ../src/tracker-control/tracker-control-general.c:753
+#: ../src/tracker-control/tracker-control-general.c:762
 msgid "General options"
 msgstr "Splošne možnosti"
 
-#: ../src/tracker-control/tracker-control-general.c:754
+#: ../src/tracker-control/tracker-control-general.c:763
 msgid "Show general options"
 msgstr "Pokaži splošne možnosti"
 
@@ -1407,7 +1414,7 @@ msgid "No miners are running"
 msgstr "Ni zagnanih podatkovnih kopalnikov"
 
 #: ../src/tracker-control/tracker-control-miners.c:352
-#: ../src/tracker-control/tracker-control-status.c:553
+#: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Podatkovni kopalniki"
 
@@ -1444,7 +1451,7 @@ msgid "Show miner options"
 msgstr "Pokaži možnosti kopalnika"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:292
+#: ../src/tracker-control/tracker-control-status.c:306
 msgid "Unavailable"
 msgstr "Ni na voljo"
 
@@ -1494,44 +1501,44 @@ msgid "Could not get status from miner: %s"
 msgstr "Ni mogoče dobiti stanja podatkovnega kopalnika: %s"
 
 #. Translators: %s is a time string
-#: ../src/tracker-control/tracker-control-status.c:197
+#: ../src/tracker-control/tracker-control-status.c:203
 #, c-format
 msgid "%s remaining"
 msgstr "%s preostalo"
 
-#: ../src/tracker-control/tracker-control-status.c:200
+#: ../src/tracker-control/tracker-control-status.c:206
 msgid "unknown time left"
 msgstr "neznan preostali čas"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:213
-#: ../src/tracker-control/tracker-control-status.c:537
+#: ../src/tracker-control/tracker-control-status.c:219
+#: ../src/tracker-control/tracker-control-status.c:551
 msgid "PAUSED"
 msgstr "V PREMORU"
 
-#: ../src/tracker-control/tracker-control-status.c:230
+#: ../src/tracker-control/tracker-control-status.c:236
 msgid "Not running or is a disabled plugin"
 msgstr "Ne teče ali pa je onemogočen vstavek"
 
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:522
 msgid "Common statuses include"
 msgstr "Pogosta stanja vključujejo"
 
-#: ../src/tracker-control/tracker-control-status.c:526
+#: ../src/tracker-control/tracker-control-status.c:540
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "Ni mogoče dobiti stanja, upravljalnika ni mogoče ustvariti, %s"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:547
+#: ../src/tracker-control/tracker-control-status.c:561
 msgid "Store"
 msgstr "Shrani"
 
-#: ../src/tracker-control/tracker-control-status.c:668
+#: ../src/tracker-control/tracker-control-status.c:682
 msgid "Status options"
 msgstr "Možnosti stanja"
 
-#: ../src/tracker-control/tracker-control-status.c:669
+#: ../src/tracker-control/tracker-control-status.c:683
 msgid "Show status options"
 msgstr "Pokaži možnosti stanja"
 
@@ -1596,7 +1603,7 @@ msgstr "Za URI ni razpoložljivih metapodakov"
 #: ../src/tracker-utils/tracker-info.c:462
 #: ../src/tracker-utils/tracker-search.c:1261
 #: ../src/tracker-utils/tracker-sparql.c:613
-#: ../utils/tracker-sql/tracker-sql.c:170
+#: ../utils/tracker-sql/tracker-sql.c:171
 msgid "Results"
 msgstr "Rezultati"
 
@@ -1983,8 +1990,8 @@ msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
 
 #: ../src/tracker-utils/tracker-sparql.c:606
-#: ../utils/tracker-sql/tracker-sql.c:163
-#: ../utils/tracker-sql/tracker-sql.c:196
+#: ../utils/tracker-sql/tracker-sql.c:164
+#: ../utils/tracker-sql/tracker-sql.c:197
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
 
@@ -2160,11 +2167,11 @@ msgstr "Shranjene poizvedbe"
 msgid "- Query or update using SQL"
 msgstr "- Poizvedba ali posodobitev s SQL"
 
-#: ../utils/tracker-sql/tracker-sql.c:144
+#: ../utils/tracker-sql/tracker-sql.c:145
 msgid "Failed to initialize data manager"
 msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 
-#: ../utils/tracker-sql/tracker-sql.c:204
+#: ../utils/tracker-sql/tracker-sql.c:205
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
 
