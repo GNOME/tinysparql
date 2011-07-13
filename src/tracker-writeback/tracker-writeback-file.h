@@ -22,7 +22,7 @@
 
 #include <gio/gio.h>
 
-#include "tracker-writeback.h"
+#include "tracker-writeback-module.h"
 
 G_BEGIN_DECLS
 

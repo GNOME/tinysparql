@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+<busconfig>
+    <policy context="default">
+      <deny send_interface="org.freedesktop.Tracker1.Indexer"/>
+      <allow send_destination="org.freedesktop.Tracker1"/>
+    </policy>
+</busconfig>
+-->
+
 <node name="/">
   <interface name="org.freedesktop.Tracker1.Writeback">
-    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_writeback_dbus"/>
-
+    <method name="GetPid">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="i" name="value" direction="out" />
+    </method>
+    <method name='PerformWriteback'>"
+      <arg type='s' name='uri' direction='in' />"
+      <arg type='as' name='rdf_types' direction='in' />"
+      <arg type='aas' name='results' direction='in' />"
+    </method>"
+    <method name='CancelTasks'>"
+      <arg type='as' name='uri' direction='in' />"
+    </method>"
   </interface>
 </node>
