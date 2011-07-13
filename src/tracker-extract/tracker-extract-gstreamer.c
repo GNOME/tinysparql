@@ -170,15 +170,10 @@ static void extract_gstreamer_guess (const gchar          *uri,
 static void tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
                                                 const gchar          *uri,
                                                 TrackerSparqlBuilder *metadata);
-#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-static void decodebin2_extract_stream_metadata (MetadataExtractor    *extractor,
-                                                const gchar          *uri,
-                                                TrackerSparqlBuilder *metadata);
-#elif defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
-	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-static void discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
-                                                const gchar          *uri,
-                                                TrackerSparqlBuilder *metadata);
+#else /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
+static void common_extract_stream_metadata (MetadataExtractor    *extractor,
+                                            const gchar          *uri,
+                                            TrackerSparqlBuilder *metadata);
 #endif
 
 static TrackerExtractData data[] = {
@@ -463,7 +458,8 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		/* Try to guess content type */
 		if (extractor->mime == EXTRACT_MIME_GUESS) {
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || defined(GSTREAMER_BACKEND_DECODEBIN2)
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) ||	  \
+	defined(GSTREAMER_BACKEND_DECODEBIN2)
 			char *video_codec = NULL, *audio_codec = NULL;
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
@@ -828,16 +824,79 @@ extract_metadata (MetadataExtractor      *extractor,
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
 	tagreadbin_extract_stream_metadata (extractor, uri, metadata);
-#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-	decodebin2_extract_stream_metadata (extractor, uri, metadata);
-#else /* DISCOVERER/GUPnP-DLNA */
-	discoverer_extract_stream_metadata (extractor, uri, metadata);
+#else /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
+	common_extract_stream_metadata (extractor, uri, metadata);
 #endif
 
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
 		get_embedded_album_art (extractor);
 	}
 }
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER) ||	  \
+	defined(GSTREAMER_BACKEND_DECODEBIN2) ||      \
+	defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+static void
+common_extract_stream_metadata (MetadataExtractor    *extractor,
+                                const gchar          *uri,
+                                TrackerSparqlBuilder *metadata)
+{
+	if (extractor->mime == EXTRACT_MIME_AUDIO ||
+		extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->audio_channels >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:channels");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_channels);
+		}
+
+		if (extractor->audio_samplerate >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_samplerate);
+		}
+
+		if (extractor->duration >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:duration");
+			tracker_sparql_builder_object_int64 (metadata, extractor->duration);
+		}
+	}
+
+	if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->video_fps >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:frameRate");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->video_fps);
+		}
+	}
+
+	if (extractor->mime == EXTRACT_MIME_IMAGE ||
+		extractor->mime == EXTRACT_MIME_SVG ||
+	    extractor->mime == EXTRACT_MIME_VIDEO) {
+
+		if (extractor->width) {
+			tracker_sparql_builder_predicate (metadata, "nfo:width");
+			tracker_sparql_builder_object_int64 (metadata, extractor->width);
+		}
+
+		if (extractor->height >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:height");
+			tracker_sparql_builder_object_int64 (metadata, extractor->height);
+		}
+
+		if (extractor->aspect_ratio >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:aspectRatio");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->aspect_ratio);
+		}
+	}
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	if (extractor->dlna_profile) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
+	} else {
+		g_debug ("No DLNA profile for file '%s'", uri);
+	}
+#endif
+}
+
+#endif
 
 /* ----------------------- Discoverer/GUPnP-DLNA specific implementation --------------- */
 
@@ -969,64 +1028,6 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	}
 
 	return TRUE;
-}
-
-static void
-discoverer_extract_stream_metadata (MetadataExtractor    *extractor,
-                                    const gchar          *uri,
-                                    TrackerSparqlBuilder *metadata)
-{
-	if (extractor->mime == EXTRACT_MIME_AUDIO ||
-		extractor->mime == EXTRACT_MIME_VIDEO) {
-		if (extractor->audio_channels >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:channels");
-			tracker_sparql_builder_object_int64 (metadata, extractor->audio_channels);
-		}
-
-		if (extractor->audio_samplerate >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
-			tracker_sparql_builder_object_int64 (metadata, extractor->audio_samplerate);
-		}
-
-		if (extractor->duration >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:duration");
-			tracker_sparql_builder_object_int64 (metadata, extractor->duration);
-		}
-	}
-
-	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		if (extractor->video_fps >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:frameRate");
-			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->video_fps);
-		}
-	}
-
-	if (extractor->mime == EXTRACT_MIME_IMAGE ||
-		extractor->mime == EXTRACT_MIME_SVG ||
-	    extractor->mime == EXTRACT_MIME_VIDEO) {
-
-		if (extractor->width) {
-			tracker_sparql_builder_predicate (metadata, "nfo:width");
-			tracker_sparql_builder_object_int64 (metadata, extractor->width);
-		}
-
-		if (extractor->height >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:height");
-			tracker_sparql_builder_object_int64 (metadata, extractor->height);
-		}
-
-		if (extractor->aspect_ratio >= 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:aspectRatio");
-			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->aspect_ratio);
-		}
-	}
-
-#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-	if (extractor->dlna_profile) {
-		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
-		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
-	}
-#endif
 }
 
 #endif /* defined(GSTREAMER_BACKEND_DISCOVERER) || defined(GSTREAMER_BACKEND_GUPNP_DLNA) */
@@ -1195,47 +1196,6 @@ add_uint_info (TrackerSparqlBuilder *metadata,
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
-}
-
-static void
-decodebin2_extract_stream_metadata (MetadataExtractor    *extractor,
-                                    const gchar          *uri,
-                                    TrackerSparqlBuilder *metadata)
-{
-	if (extractor->mime != EXTRACT_MIME_IMAGE &&
-	    extractor->mime != EXTRACT_MIME_SVG) {
-		if (extractor->audio_channels >= 0) {
-			add_uint_info (metadata, uri, "nfo:channels", extractor->audio_channels);
-		}
-
-		if (extractor->audio_samplerate >= 0) {
-			add_uint_info (metadata, uri, "nfo:sampleRate", extractor->audio_samplerate);
-		}
-
-		if (extractor->duration >= 0) {
-			add_int64_info (metadata, uri, "nfo:duration", extractor->duration);
-		}
-	} else {
-		if (extractor->aspect_ratio >= 0) {
-			add_uint_info (metadata, uri, "nfo:aspectRatio", (uint)extractor->aspect_ratio);
-		}
-	}
-
-	if (extractor->height >= 0) {
-		add_uint_info (metadata, uri, "nfo:height", extractor->height);
-	}
-
-	if (extractor->width >= 0) {
-		add_uint_info (metadata, uri, "nfo:width", extractor->width);
-	}
-
-	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		if (extractor->video_fps >= 0) {
-			add_uint_info (metadata,
-			               uri, "nfo:frameRate",
-			               extractor->video_fps);
-		}
-	}
 }
 
 static void
