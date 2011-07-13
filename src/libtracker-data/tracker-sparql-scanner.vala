@@ -264,6 +264,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'f':
 				if (matches (begin, "FILTER")) return SparqlTokenType.FILTER;
 				break;
+			case 'H':
+			case 'h':
+				if (matches (begin, "HAVING")) return SparqlTokenType.HAVING;
+				break;
 			case 'I':
 			case 'i':
 				if (matches (begin, "INSERT")) return SparqlTokenType.INSERT;
@@ -880,6 +884,7 @@ public enum Tracker.SparqlTokenType {
 	GRAPH,
 	GROUP,
 	GROUP_CONCAT,
+	HAVING,
 	IF,
 	INSERT,
 	INTEGER,
@@ -974,6 +979,7 @@ public enum Tracker.SparqlTokenType {
 		case GRAPH: return "`GRAPH'";
 		case GROUP: return "`GROUP'";
 		case GROUP_CONCAT: return "`GROUP_CONCAT'";
+		case HAVING: return "`HAVING'";
 		case IF: return "`IF'";
 		case INSERT: return "`INSERT'";
 		case INTEGER: return "`INTEGER'";
