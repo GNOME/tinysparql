@@ -2146,6 +2146,8 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 			priv->failed_extraction_queue = g_list_prepend (priv->failed_extraction_queue, data);
 			g_free (uri);
 		} else {
+			sparql_builder_finish (data, NULL, NULL, NULL);
+
 			/* Something bad happened, notify about the error */
 			tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 			process_file_data_free (data);
