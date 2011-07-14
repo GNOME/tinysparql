@@ -4841,7 +4841,7 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
  *
  * Since: 0.8
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_miner_fs_get_urn (TrackerMinerFS *fs,
                           GFile          *file)
 {
@@ -4932,7 +4932,7 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
  *
  * Since: 0.8
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
                                  GFile          *file)
 {

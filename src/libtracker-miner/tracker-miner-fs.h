@@ -134,9 +134,9 @@ void                  tracker_miner_fs_file_notify          (TrackerMinerFS *fs,
 void                  tracker_miner_fs_set_throttle         (TrackerMinerFS *fs,
                                                              gdouble         throttle);
 gdouble               tracker_miner_fs_get_throttle         (TrackerMinerFS *fs);
-G_CONST_RETURN gchar *tracker_miner_fs_get_urn              (TrackerMinerFS *fs,
+const gchar          *tracker_miner_fs_get_urn              (TrackerMinerFS *fs,
                                                              GFile          *file);
-G_CONST_RETURN gchar *tracker_miner_fs_get_parent_urn       (TrackerMinerFS *fs,
+const gchar          *tracker_miner_fs_get_parent_urn       (TrackerMinerFS *fs,
                                                              GFile          *file);
 gchar                *tracker_miner_fs_query_urn            (TrackerMinerFS *fs,
                                                              GFile          *file);
