@@ -1,3 +1,22 @@
+NEW in 0.10.20 - 2011-07-14
+===========================
+
+The changes are:
+
+  * Fixes: NB#269766, libtracker-miner: Make TrackerProcessingTask refcounted
+  * Fixes: NB#259942, Use guessed ID3v1 8-bit encoding also for ID3v2
+  * Fixes: NB#266579, libtracker-data: Shutdown locale in error case
+  * Fixes: NB#269931, libtracker-extract: Ignore keywords with invalid UTF-8
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  None
+
+
 NEW in 0.10.19 - 2011-06-30
 ===========================
 
