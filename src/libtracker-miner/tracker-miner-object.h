@@ -105,8 +105,8 @@ gboolean                 tracker_miner_resume              (TrackerMiner        
 
 TrackerSparqlConnection *tracker_miner_get_connection      (TrackerMiner         *miner);
 GDBusConnection         *tracker_miner_get_dbus_connection (TrackerMiner         *miner);
-G_CONST_RETURN gchar    *tracker_miner_get_dbus_full_name  (TrackerMiner         *miner);
-G_CONST_RETURN gchar    *tracker_miner_get_dbus_full_path  (TrackerMiner         *miner);
+const gchar             *tracker_miner_get_dbus_full_name  (TrackerMiner         *miner);
+const gchar             *tracker_miner_get_dbus_full_path  (TrackerMiner         *miner);
 
 G_END_DECLS
 

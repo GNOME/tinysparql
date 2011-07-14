@@ -1043,7 +1043,7 @@ tracker_miner_get_dbus_connection (TrackerMiner *miner)
  *
  * Since: 0.10
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_miner_get_dbus_full_name (TrackerMiner *miner)
 {
 	return miner->priv->full_name;
@@ -1059,7 +1059,7 @@ tracker_miner_get_dbus_full_name (TrackerMiner *miner)
  *
  * Since: 0.10
  **/
-G_CONST_RETURN gchar *
+const gchar *
 tracker_miner_get_dbus_full_path (TrackerMiner *miner)
 {
 	return miner->priv->full_path;
