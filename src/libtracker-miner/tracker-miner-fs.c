@@ -1891,6 +1891,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            sparql_task,
+	                            ctxt->priority,
 	                            sparql_buffer_task_finished_cb,
 	                            fs);
 
@@ -1999,6 +2000,7 @@ item_remove (TrackerMinerFS *fs,
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,
+	                            G_PRIORITY_DEFAULT,
 	                            sparql_buffer_task_finished_cb,
 	                            fs);
 
@@ -2017,6 +2019,7 @@ item_remove (TrackerMinerFS *fs,
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,
+	                            G_PRIORITY_DEFAULT,
 	                            sparql_buffer_task_finished_cb,
 	                            fs);
 
@@ -2364,6 +2367,7 @@ item_move (TrackerMinerFS *fs,
 	                                                               FALSE));
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,
+	                            G_PRIORITY_DEFAULT,
 	                            sparql_buffer_task_finished_cb,
 	                            fs);
 
