@@ -74,8 +74,10 @@
 
 static gchar    *ontologies_dir;
 static gboolean  initialized;
-static gboolean  in_journal_replay;
 static gboolean  reloading = FALSE;
+#ifndef DISABLE_JOURNAL
+static gboolean  in_journal_replay;
+#endif
 
 typedef struct {
 	const gchar *from;
@@ -1747,7 +1749,7 @@ get_ontology_from_path (const gchar *ontology_path)
 	return ret;
 }
 
-/* Unused in case of DISABLE_JOURNAL */
+#ifndef DISABLE_JOURNAL
 static void
 load_ontology_ids_from_journal (GHashTable **uri_id_map_out,
                                 gint        *max_id)
@@ -1775,6 +1777,7 @@ load_ontology_ids_from_journal (GHashTable **uri_id_map_out,
 
 	*uri_id_map_out = uri_id_map;
 }
+#endif /* DISABLE_JOURNAL */
 
 static void
 tracker_data_ontology_process_statement (const gchar *graph,
@@ -3474,7 +3477,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            GError                **error)
 {
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index, read_journal, check_ontology;
+	gboolean is_first_time_index, check_ontology;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -3485,6 +3488,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	GHashTable *uri_id_map = NULL;
 	gchar *busy_status;
 	GError *internal_error = NULL;
+#ifndef DISABLE_JOURNAL
+	gboolean read_journal;
+#endif
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
@@ -3506,7 +3512,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_locale_init ();
 	}
 
+#ifndef DISABLE_JOURNAL
 	read_journal = FALSE;
+#endif
 
 	if (!tracker_db_manager_init (flags,
 	                              &is_first_time_index,
@@ -3587,7 +3595,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		ontologies_dir = g_strdup (env_path);
 	}
 
-	/* Runtime false in case of DISABLE_JOURNAL */
+#ifndef DISABLE_JOURNAL
 	if (read_journal) {
 		in_journal_replay = TRUE;
 
@@ -3623,6 +3631,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			read_journal = FALSE;
 		}
 	}
+#endif /* DISABLE_JOURNAL */
 
 	if (is_first_time_index && !read_only) {
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
@@ -3700,7 +3709,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 			tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
@@ -3720,7 +3731,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 			tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
@@ -3745,7 +3758,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 					tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
 					if (!reloading) {
@@ -3780,7 +3795,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 			tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
@@ -3965,7 +3982,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 							tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 							tracker_db_manager_shutdown ();
 							tracker_ontologies_shutdown ();
 							if (!reloading) {
@@ -4006,7 +4025,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 							tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 							tracker_db_manager_shutdown ();
 							tracker_ontologies_shutdown ();
 							if (!reloading) {
@@ -4064,7 +4085,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 						tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 						tracker_db_manager_shutdown ();
 						tracker_ontologies_shutdown ();
 						if (!reloading) {
@@ -4105,7 +4128,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 						tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 						tracker_db_manager_shutdown ();
 						tracker_ontologies_shutdown ();
 						if (!reloading) {
@@ -4212,7 +4237,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 					tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
 					if (!reloading) {
@@ -4256,7 +4283,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
 				g_propagate_error (error, ontology_error);
 
+#ifndef DISABLE_JOURNAL
 				tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
 				if (!reloading) {
@@ -4290,7 +4319,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 				tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
 				if (!reloading) {
@@ -4308,7 +4339,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_list_free (ontos);
 	}
 
-	/* Runtime false in case of DISABLE_JOURNAL */
+#ifndef DISABLE_JOURNAL
 	if (read_journal) {
 		/* Report OPERATION - STATUS */
 		busy_status = g_strdup_printf ("%s - %s",
@@ -4373,6 +4404,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		g_hash_table_unref (uri_id_map);
 	}
+#endif /* DISABLE_JOURNAL */
 
 	/* If locale changed, re-create indexes */
 	if (!read_only && tracker_db_manager_locale_changed ()) {
@@ -4392,7 +4424,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
+#ifndef DISABLE_JOURNAL
 			tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
