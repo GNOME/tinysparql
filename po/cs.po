@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-07-10 12:35+0000\n"
-"PO-Revision-Date: 2011-07-10 15:11+0200\n"
+"POT-Creation-Date: 2011-07-13 14:14+0000\n"
+"PO-Revision-Date: 2011-07-14 10:54+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -85,7 +85,6 @@ msgid "Where to store a journal chunk when it hits the max size."
 msgstr "Kam odložit blok žurnálu, když dosáhne maximální velikost."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.xml.in.h:4
-#| msgid "Where to store a journal chunk when it hits the max size."
 msgid ""
 "Where to store a journal chunk when it hits the max size. If empty, the "
 "location used is $HOME/.local/share/tracker/data/."
@@ -707,13 +706,17 @@ msgstr "Byl by sledován"
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1333
+#: ../src/miners/fs/tracker-miner-files.c:1307
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1456
+#: ../src/miners/fs/tracker-miner-files.c:1430
 msgid "Low disk space"
 msgstr "Málo místa na disku"
+
+#: ../src/miners/fs/tracker-miner-files.c:2141
+msgid "Extractor error, performing failsafe embedded metadata extraction"
+msgstr "Chyba rozbalování, provádí se zotavení rozbalování vložených metadat"
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
@@ -2341,4 +2344,3 @@ msgstr "Selhala inicializace správce dat"
 #: ../utils/tracker-sql/tracker-sql.c:205
 msgid "Empty result set"
 msgstr "Prázdná sada výsledků"
-
