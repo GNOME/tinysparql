@@ -4599,7 +4599,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
                              gboolean        check_parents)
 {
 	tracker_miner_fs_check_file_with_priority (fs, file,
-	                                           G_PRIORITY_DEFAULT,
+	                                           G_PRIORITY_HIGH,
 	                                           check_parents);
 }
 
