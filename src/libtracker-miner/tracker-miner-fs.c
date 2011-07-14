@@ -135,6 +135,7 @@ typedef struct {
 	GFile *file;
 	gchar *urn;
 	gchar *parent_urn;
+	gint priority;
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
 	TrackerMiner *miner;
@@ -1657,6 +1658,7 @@ iri_cache_check_update (TrackerMinerFS *fs,
 
 static UpdateProcessingTaskContext *
 update_processing_task_context_new (TrackerMiner         *miner,
+                                    gint                  priority,
                                     const gchar          *urn,
                                     const gchar          *parent_urn,
                                     GCancellable         *cancellable,
@@ -1668,6 +1670,7 @@ update_processing_task_context_new (TrackerMiner         *miner,
 	ctxt->miner = miner;
 	ctxt->urn = g_strdup (urn);
 	ctxt->parent_urn = g_strdup (parent_urn);
+	ctxt->priority = priority;
 
 	if (cancellable) {
 		ctxt->cancellable = g_object_ref (cancellable);
@@ -1849,7 +1852,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
-                    GFile          *file)
+                    GFile          *file,
+                    gint            priority)
 {
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
@@ -1874,6 +1878,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
 	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
+	                                           priority,
 	                                           urn,
 	                                           fs->priv->current_iri_cache_parent_urn,
 	                                           cancellable,
@@ -2208,7 +2213,7 @@ item_move (TrackerMinerFS *fs,
 			                                         G_PRIORITY_DEFAULT);
 			retval = TRUE;
 		} else {
-			retval = item_add_or_update (fs, file);
+			retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT);
 		}
 
 		g_free (source_uri);
@@ -2454,7 +2459,8 @@ should_wait (TrackerMinerFS *fs,
 static QueueState
 item_queue_get_next_file (TrackerMinerFS  *fs,
                           GFile          **file,
-                          GFile          **source_file)
+                          GFile          **source_file,
+                          gint            *priority_out)
 {
 	ItemMovedData *data;
 	GFile *queue_file;
@@ -2487,6 +2493,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		}
 
 		*file = queue_file;
+		*priority_out = priority;
 		return QUEUE_DELETED;
 	}
 
@@ -2567,6 +2574,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		}
 
 		*file = queue_file;
+		*priority_out = priority;
 		return QUEUE_CREATED;
 	}
 
@@ -2603,6 +2611,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			                            queue_file, priority);
 			return QUEUE_WAIT;
 		}
+
+		*priority_out = priority;
 
 		return QUEUE_UPDATED;
 	}
@@ -2648,6 +2658,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		*file = g_object_ref (data->file);
 		*source_file = g_object_ref (data->source_file);
+		*priority_out = priority;
 		item_moved_data_free (data);
 		return QUEUE_MOVED;
 	}
@@ -2728,9 +2739,10 @@ item_queue_handlers_cb (gpointer user_data)
 	GTimeVal time_now;
 	static GTimeVal time_last = { 0 };
 	gboolean keep_processing = TRUE;
+	gint priority = 0;
 
 	fs = user_data;
-	queue = item_queue_get_next_file (fs, &file, &source_file);
+	queue = item_queue_get_next_file (fs, &file, &source_file, &priority);
 
 	if (queue == QUEUE_WAIT) {
 		/* Items are still being processed, and there is pending
@@ -2899,7 +2911,7 @@ item_queue_handlers_cb (gpointer user_data)
 		if (!parent ||
 		    fs->priv->current_iri_cache_parent_urn ||
 		    file_is_crawl_directory (fs, file)) {
-			keep_processing = item_add_or_update (fs, file);
+			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
 			TrackerPriorityQueue *item_queue;
 
