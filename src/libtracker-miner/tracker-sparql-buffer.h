@@ -65,6 +65,7 @@ gboolean             tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 
 void                 tracker_sparql_buffer_push  (TrackerSparqlBuffer *buffer,
                                                   TrackerTask         *task,
+                                                  gint                 priority,
                                                   GAsyncReadyCallback  cb,
                                                   gpointer             user_data);
 

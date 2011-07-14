@@ -26,6 +26,7 @@
 typedef struct _TrackerSparqlBufferPrivate TrackerSparqlBufferPrivate;
 typedef struct _SparqlTaskData SparqlTaskData;
 typedef struct _UpdateArrayData UpdateArrayData;
+typedef struct _UpdateData UpdateData;
 typedef struct _BulkOperationMerge BulkOperationMerge;
 
 enum {
@@ -62,6 +63,11 @@ struct _SparqlTaskData
 	} data;
 
 	GSimpleAsyncResult *result;
+};
+
+struct _UpdateData {
+	TrackerSparqlBuffer *buffer;
+	TrackerTask *task;
 };
 
 struct _UpdateArrayData {
@@ -544,9 +550,30 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 	return TRUE;
 }
 
+static void
+tracker_sparql_buffer_update_cb (GObject      *object,
+                                 GAsyncResult *result,
+                                 gpointer      user_data)
+{
+	UpdateData *update_data = user_data;
+	GError *error = NULL;
+
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                         result, &error);
+	if (error) {
+		g_critical ("Error in prioritized update: %s\n", error->message);
+		g_error_free (error);
+	}
+
+	tracker_task_pool_remove (TRACKER_TASK_POOL (update_data->buffer),
+	                          update_data->task);
+	g_slice_free (UpdateData, update_data);
+}
+
 void
 tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
                             TrackerTask         *task,
+                            gint                 priority,
                             GAsyncReadyCallback  cb,
                             gpointer             user_data)
 {
@@ -558,27 +585,52 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 
 	priv = buffer->priv;
 
-	if (tracker_task_pool_get_size (TRACKER_TASK_POOL (buffer)) == 0) {
-		reset_flush_timeout (buffer);
-	}
-
-	tracker_task_pool_add (TRACKER_TASK_POOL (buffer), task);
-
-	if (!priv->tasks) {
-		priv->tasks = g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_task_unref);
-	}
-
-	g_ptr_array_add (priv->tasks, task);
-
 	data = tracker_task_get_data (task);
 	data->result = g_simple_async_result_new (G_OBJECT (buffer),
 	                                          cb, user_data, NULL);
 
-	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (buffer))) {
-		tracker_sparql_buffer_flush (buffer, "SPARQL buffer limit reached");
-	} else if (priv->tasks->len > tracker_task_pool_get_limit (TRACKER_TASK_POOL (buffer)) / 2) {
-		/* We've filled half of the buffer, flush it as we receive more tasks */
-		tracker_sparql_buffer_flush (buffer, "SPARQL buffer half-full");
+	if (priority <= G_PRIORITY_HIGH &&
+	    data->type != TASK_TYPE_BULK) {
+		UpdateData *update_data;
+		const gchar *sparql = NULL;
+
+		/* High priority task */
+		update_data = g_slice_new0 (UpdateData);
+		update_data->buffer = buffer;
+		update_data->task = task;
+
+		if (data->type == TASK_TYPE_SPARQL_STR) {
+			sparql = data->data.str;
+		} else if (data->type == TASK_TYPE_SPARQL) {
+			sparql = tracker_sparql_builder_get_result (data->data.builder);
+		}
+
+		tracker_task_pool_add (TRACKER_TASK_POOL (buffer), task);
+		tracker_sparql_connection_update_async (priv->connection,
+		                                        sparql,
+		                                        G_PRIORITY_HIGH,
+		                                        NULL,
+		                                        tracker_sparql_buffer_update_cb,
+		                                        update_data);
+	} else {
+		if (tracker_task_pool_get_size (TRACKER_TASK_POOL (buffer)) == 0) {
+			reset_flush_timeout (buffer);
+		}
+
+		tracker_task_pool_add (TRACKER_TASK_POOL (buffer), task);
+
+		if (!priv->tasks) {
+			priv->tasks = g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_task_unref);
+		}
+
+		g_ptr_array_add (priv->tasks, task);
+
+		if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (buffer))) {
+			tracker_sparql_buffer_flush (buffer, "SPARQL buffer limit reached");
+		} else if (priv->tasks->len > tracker_task_pool_get_limit (TRACKER_TASK_POOL (buffer)) / 2) {
+			/* We've filled half of the buffer, flush it as we receive more tasks */
+			tracker_sparql_buffer_flush (buffer, "SPARQL buffer half-full");
+		}
 	}
 }
 
