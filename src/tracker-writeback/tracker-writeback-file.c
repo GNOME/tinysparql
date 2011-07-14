@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-writeback-file.h"
@@ -63,19 +65,20 @@ static GFile *
 get_tmp_file (GFile *file)
 {
 	GFile *tmp_file, *parent;
-	gchar *tmp_name, *name;
+	gchar *tmp_name, *dir;
 
 	/* Create a temporary, hidden file
 	 * within the same directory */
 	parent = g_file_get_parent (file);
-	name = g_file_get_basename (file);
+	dir = g_file_get_path (parent);
 
-	tmp_name = g_strdup_printf ("._tracker_%s", name);
-	tmp_file = g_file_get_child (parent, tmp_name);
-
+	tmp_name = tempnam (dir, "._trk");
 	g_object_unref (parent);
+
+	tmp_file = g_file_new_for_path (tmp_name);
+
 	g_free (tmp_name);
-	g_free (name);
+	g_free (dir);
 
 	return tmp_file;
 }
