@@ -70,6 +70,7 @@ GSList *       tracker_config_get_ignored_directories_with_content (TrackerConfi
 GSList *       tracker_config_get_ignored_files                    (TrackerConfig *config);
 gint           tracker_config_get_crawling_interval                (TrackerConfig *config);
 gint           tracker_config_get_removable_days_threshold         (TrackerConfig *config);
+gboolean       tracker_config_get_enable_writeback                 (TrackerConfig *config);
 
 void           tracker_config_set_verbosity                        (TrackerConfig *config,
                                                                     gint           value);
@@ -105,6 +106,8 @@ void           tracker_config_set_crawling_interval                (TrackerConfi
                                                                     gint           interval);
 void           tracker_config_set_removable_days_threshold         (TrackerConfig *config,
                                                                     gint           value);
+void           tracker_config_set_enable_writeback                 (TrackerConfig *config,
+                                                                    gboolean       value);
 
 /*
  * Convenience functions:

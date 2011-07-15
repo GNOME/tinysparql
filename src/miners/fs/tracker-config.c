@@ -38,6 +38,7 @@
 #define GROUP_MONITORS                           "Monitors"
 #define GROUP_INDEXING                           "Indexing"
 #define GROUP_CRAWLING                           "Crawling"
+#define GROUP_WRITEBACK                          "Writeback"
 
 /* Default values */
 #define DEFAULT_VERBOSITY                        0
@@ -51,6 +52,7 @@
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
 #define DEFAULT_CRAWLING_INTERVAL                -1       /* 0->365 / -1 / -2 */
 #define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
+#define DEFAULT_ENABLE_WRITEBACK                 TRUE
 
 typedef struct {
 	/* General */
@@ -76,6 +78,9 @@ typedef struct {
 	GSList   *ignored_files;
 	gint	  crawling_interval;
 	gint      removable_days_threshold;
+
+	/* Writeback */
+	gboolean  enable_writeback;
 
 	/* Convenience data */
 	GSList   *ignored_directory_patterns;
@@ -132,7 +137,11 @@ enum {
 	PROP_IGNORED_DIRECTORIES_WITH_CONTENT,
 	PROP_IGNORED_FILES,
 	PROP_CRAWLING_INTERVAL,
-	PROP_REMOVABLE_DAYS_THRESHOLD
+	PROP_REMOVABLE_DAYS_THRESHOLD,
+
+	/* Monit */
+	PROP_ENABLE_WRITEBACK
+
 };
 
 static ObjectToKeyFile conversions[] = {
@@ -154,7 +163,8 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_POINTER, "ignored-directories-with-content", GROUP_INDEXING, "IgnoredDirectoriesWithContent" },
 	{ G_TYPE_POINTER, "ignored-files",                    GROUP_INDEXING, "IgnoredFiles"              },
 	{ G_TYPE_INT,	  "crawling-interval",                GROUP_INDEXING, "CrawlingInterval"          },
-	{ G_TYPE_INT,	  "removable-days-threshold",         GROUP_INDEXING, "RemovableDaysThreshold"    }
+	{ G_TYPE_INT,	  "removable-days-threshold",         GROUP_INDEXING, "RemovableDaysThreshold"    },
+	{ G_TYPE_BOOLEAN, "enable-writeback",                 GROUP_WRITEBACK, "EnableWriteback"          },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -317,6 +327,15 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   DEFAULT_REMOVABLE_DAYS_THRESHOLD,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
+	/* Writeback */
+	g_object_class_install_property (object_class,
+	                                 PROP_ENABLE_WRITEBACK,
+	                                 g_param_spec_boolean ("enable-writeback",
+	                                                       "Enable Writeback",
+	                                                       "Set to false to disable writeback",
+	                                                       DEFAULT_ENABLE_WRITEBACK,
+	                                                       G_PARAM_READWRITE));
+
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -401,6 +420,12 @@ config_set_property (GObject      *object,
 		tracker_config_set_removable_days_threshold (TRACKER_CONFIG (object),
 		                                             g_value_get_int (value));
 		break;
+
+	/* Writeback */
+	case PROP_ENABLE_WRITEBACK:
+		tracker_config_set_enable_writeback (TRACKER_CONFIG (object),
+		                                     g_value_get_boolean (value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -470,6 +495,11 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_REMOVABLE_DAYS_THRESHOLD:
 		g_value_set_int (value, priv->removable_days_threshold);
+		break;
+
+	/* Writeback */
+	case PROP_ENABLE_WRITEBACK:
+		g_value_set_boolean (value, priv->enable_writeback);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -1092,6 +1122,18 @@ tracker_config_get_enable_monitors (TrackerConfig *config)
 	return priv->enable_monitors;
 }
 
+gboolean
+tracker_config_get_enable_writeback (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_WRITEBACK);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->enable_writeback;
+}
+
 gint
 tracker_config_get_throttle (TrackerConfig *config)
 {
@@ -1320,6 +1362,20 @@ tracker_config_set_enable_monitors (TrackerConfig *config,
 
 	priv->enable_monitors = value;
 	g_object_notify (G_OBJECT (config), "enable-monitors");
+}
+
+void
+tracker_config_set_enable_writeback (TrackerConfig *config,
+                                     gboolean       value)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->enable_writeback = value;
+	g_object_notify (G_OBJECT (config), "enable-writeback");
 }
 
 void
