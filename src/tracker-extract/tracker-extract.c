@@ -45,32 +45,6 @@
 #warning Main thread traces enabled
 #endif /* THREAD_ENABLE_TRACE */
 
-#define MAX_EXTRACT_TIME 10
-
-#define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
-                               "interface \"%s\" doesn't exist, expected \"%s\""
-
-static const gchar introspection_xml[] =
-  "<node>"
-  "  <interface name='org.freedesktop.Tracker1.Extract'>"
-  "    <method name='GetPid'>"
-  "      <arg type='i' name='value' direction='out' />"
-  "    </method>"
-  "    <method name='GetMetadata'>"
-  "      <arg type='s' name='uri' direction='in' />"
-  "      <arg type='s' name='mime' direction='in' />"
-  "      <arg type='s' name='preupdate' direction='out' />"
-  "      <arg type='s' name='embedded' direction='out' />"
-  "      <arg type='s' name='where' direction='out' />"
-  "    </method>"
-  "    <method name='GetMetadataFast'>"
-  "      <arg type='s' name='uri' direction='in' />"
-  "      <arg type='s' name='mime' direction='in' />"
-  "      <arg type='h' name='fd' direction='in' />"
-  "    </method>"
-  "  </interface>"
-  "</node>";
-
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 extern gboolean debug;
@@ -158,7 +132,7 @@ tracker_extract_init (TrackerExtract *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->statistics_data = g_hash_table_new_full (NULL, NULL, NULL,
-						       (GDestroyNotify) statistics_data_free);
+	                                               (GDestroyNotify) statistics_data_free);
 	priv->single_thread_extractors = g_hash_table_new (NULL, NULL);
 	priv->thread_pool = g_thread_pool_new ((GFunc) get_metadata,
 	                                       NULL, 10, TRUE, NULL);
@@ -276,13 +250,13 @@ notify_task_finish (TrackerExtractTask *task,
 	g_mutex_lock (priv->task_mutex);
 
 	stats_data = g_hash_table_lookup (priv->statistics_data,
-					  task->cur_module);
+	                                  task->cur_module);
 
 	if (!stats_data) {
 		stats_data = g_slice_new0 (StatisticsData);
 		g_hash_table_insert (priv->statistics_data,
-				     task->cur_module,
-				     stats_data);
+		                     task->cur_module,
+		                     stats_data);
 	}
 
 	stats_data->extracted_count++;
@@ -462,8 +436,7 @@ extract_task_new (TrackerExtract *extract,
 static void
 extract_task_free (TrackerExtractTask *task)
 {
-	if (task->cancellable &&
-	    task->signal_id != 0) {
+	if (task->cancellable && task->signal_id != 0) {
 		g_cancellable_disconnect (task->cancellable, task->signal_id);
 	}
 
@@ -573,8 +546,8 @@ dispatch_task_cb (TrackerExtractTask *task)
 
 	if (!task->mimetype) {
 		error = g_error_new (TRACKER_DBUS_ERROR, 0,
-				     "No mimetype for '%s'",
-				     task->file);
+		                     "No mimetype for '%s'",
+		                     task->file);
 	} else {
 		if (!task->mimetype_handlers) {
 			/* First iteration for task, get the mimetype handlers */
@@ -582,8 +555,8 @@ dispatch_task_cb (TrackerExtractTask *task)
 
 			if (!task->mimetype_handlers) {
 				error = g_error_new (TRACKER_DBUS_ERROR, 0,
-						     "No mimetype extractor handlers for uri:'%s' and mime:'%s'",
-						     task->file, task->mimetype);
+				                     "No mimetype extractor handlers for uri:'%s' and mime:'%s'",
+				                     task->file, task->mimetype);
 			}
 		} else {
 			/* Any further iteration, should happen rarely if
@@ -595,8 +568,8 @@ dispatch_task_cb (TrackerExtractTask *task)
 				g_message ("  There's no next extractor");
 
 				error = g_error_new (TRACKER_DBUS_ERROR, 0,
-						     "Could not get any metadata for uri:'%s' and mime:'%s'",
-						     task->file, task->mimetype);
+				                     "Could not get any metadata for uri:'%s' and mime:'%s'",
+				                     task->file, task->mimetype);
 			}
 		}
 	}

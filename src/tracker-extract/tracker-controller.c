@@ -234,8 +234,8 @@ tracker_controller_class_init (TrackerControllerClass *klass)
 
 static GSource *
 controller_timeout_source_new (guint       interval,
-			       GSourceFunc func,
-			       gpointer    user_data)
+                               GSourceFunc func,
+                               gpointer    user_data)
 {
 	GMainContext *context;
 	GSource *source;
@@ -256,7 +256,7 @@ watchdog_timeout_cb (gpointer user_data)
 	TrackerControllerPrivate *priv = data->controller->priv;
 
 	g_critical ("Extraction task for '%s' went rogue and took more than %d seconds. Forcing exit.",
-		    data->uri, WATCHDOG_TIMEOUT);
+	            data->uri, WATCHDOG_TIMEOUT);
 
 	g_main_loop_quit (priv->main_loop);
 
@@ -281,8 +281,8 @@ metadata_data_new (TrackerController     *controller,
 	data->request = request;
 
 	data->watchdog_source = controller_timeout_source_new (WATCHDOG_TIMEOUT,
-							       watchdog_timeout_cb,
-							       data);
+	                                                       watchdog_timeout_cb,
+	                                                       data);
 	return data;
 }
 
@@ -377,8 +377,8 @@ reset_shutdown_timeout (TrackerController *controller)
 	}
 
 	priv->shutdown_source = controller_timeout_source_new (priv->shutdown_timeout,
-							       reset_shutdown_timeout_cb,
-							       controller);
+	                                                       reset_shutdown_timeout_cb,
+	                                                       controller);
 }
 
 static void
