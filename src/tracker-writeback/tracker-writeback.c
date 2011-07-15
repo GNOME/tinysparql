@@ -69,6 +69,8 @@ typedef struct {
 	TrackerDBusRequest *request;
 	gchar *subject;
 	GPtrArray *results;
+	TrackerSparqlConnection *connection;
+	TrackerWriteback *writeback;
 } WritebackData;
 
 #define TRACKER_WRITEBACK_SERVICE   "org.freedesktop.Tracker1.Writeback"
@@ -201,20 +203,24 @@ tracker_controller_class_init (TrackerControllerClass *klass)
 }
 
 static WritebackData *
-writeback_data_new (TrackerController     *controller,
-                    const gchar           *subject,
-                    GPtrArray             *results,
-                    GDBusMethodInvocation *invocation,
-                    TrackerDBusRequest    *request)
+writeback_data_new (TrackerController       *controller,
+                    TrackerWriteback        *writeback,
+                    TrackerSparqlConnection *connection,
+                    const gchar             *subject,
+                    GPtrArray               *results,
+                    GDBusMethodInvocation   *invocation,
+                    TrackerDBusRequest      *request)
 {
 	WritebackData *data;
 
 	data = g_slice_new (WritebackData);
 	data->cancellable = g_cancellable_new ();
-	data->controller = controller;
+	data->controller = g_object_ref (controller);
 	data->subject = g_strdup (subject);
 	data->results = g_ptr_array_ref (results);
 	data->invocation = invocation;
+	data->connection = g_object_ref (connection);
+	data->writeback = g_object_ref (writeback);
 	data->request = request;
 
 	return data;
@@ -227,6 +233,8 @@ writeback_data_free (WritebackData *data)
 	 * the g_dbus_method_invocation_return_* methods
 	 */
 	g_free (data->subject);
+	g_object_unref (data->connection);
+	g_object_unref (data->writeback);
 	g_ptr_array_unref (data->results);
 	g_object_unref (data->cancellable);
 	g_slice_free (WritebackData, data);
@@ -357,10 +365,8 @@ handle_method_call_get_pid (TrackerController     *controller,
 	                                       g_variant_new ("(i)", (gint) value));
 }
 
-static void
-perform_writeback_cb (GObject      *object,
-                      GAsyncResult *res,
-                      gpointer      user_data)
+static gboolean
+perform_writeback_cb (gpointer user_data)
 {
 	TrackerControllerPrivate *priv;
 	WritebackData *data;
@@ -368,28 +374,11 @@ perform_writeback_cb (GObject      *object,
 	data = user_data;
 	priv = data->controller->priv;
 	priv->ongoing_tasks = g_list_remove (priv->ongoing_tasks, data);
-//	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
-
-//	if (info) {
-	if (TRUE) {
-		g_dbus_method_invocation_return_value (data->invocation, NULL);
-
-		tracker_dbus_request_end (data->request, NULL);
-	} else {
-		GError *error = NULL;
-
-#ifdef THREAD_ENABLE_TRACE
-		g_debug ("Thread:%p (Controller) --> Got error back",
-		         g_thread_self ());
-#endif /* THREAD_ENABLE_TRACE */
-
-		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), &error);
-		tracker_dbus_request_end (data->request, error);
-		g_dbus_method_invocation_return_gerror (data->invocation, error);
-		g_error_free (error);
-	}
-
+	g_dbus_method_invocation_return_value (data->invocation, NULL);
+	tracker_dbus_request_end (data->request, NULL);
 	writeback_data_free (data);
+
+	return FALSE;
 }
 
 static gboolean
@@ -411,13 +400,26 @@ sparql_rdf_types_match (const gchar * const *module_types,
 	return FALSE;
 }
 
+static gboolean
+io_writeback_job (GIOSchedulerJob *job,
+                  GCancellable    *cancellable,
+                  gpointer         user_data)
+{
+	WritebackData *data = user_data;
+
+	tracker_writeback_update_metadata (data->writeback, data->results, data->connection);
+
+	g_idle_add (perform_writeback_cb, data);
+
+	return FALSE;
+}
+
 static void
 handle_method_call_perform_writeback (TrackerController     *controller,
                                       GDBusMethodInvocation *invocation,
                                       GVariant              *parameters)
 {
 	TrackerControllerPrivate *priv;
-	WritebackData *data;
 	TrackerDBusRequest *request;
 	const gchar *subject;
 	GPtrArray *results = NULL;
@@ -445,6 +447,9 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		GArray *row_array = g_array_new (TRUE, TRUE, sizeof (gchar *));
 		gchar *cell = NULL;
 
+		/* TODO: If it's a file, row_array[0] is the url of the file, this can be
+		 * used for the on-unmount cancelling (see also tracker-writeback-file.c:157) */
+
 		while (g_variant_iter_loop (iter3, "&s", &cell)) {
 			g_array_append_val (row_array, cell);
 		}
@@ -461,8 +466,6 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 
 	g_hash_table_iter_init (&iter, priv->modules);
 
-	data = writeback_data_new (controller, subject, results, invocation, request);
-
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerWritebackModule *module;
 		const gchar * const *module_types;
@@ -471,6 +474,7 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		module_types = tracker_writeback_module_get_rdf_types (module);
 
 		if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
+			WritebackData *data;
 			TrackerWriteback *writeback;
 
 			g_message ("  Updating metadata for subject:'%s' using module:'%s'",
@@ -478,18 +482,20 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 			           module->name);
 
 			writeback = tracker_writeback_module_create (module);
+			data = writeback_data_new (controller,
+			                           writeback,
+			                           priv->connection,
+			                           subject,
+			                           results,
+			                           invocation,
+			                           request);
 
-#warning todo here
-			// todo: make this really async using ie. g_io_scheduler_push_job
-			tracker_writeback_update_metadata (writeback, results, priv->connection);
+			g_io_scheduler_push_job (io_writeback_job, data, NULL, 0,
+			                         data->cancellable);
+
 			g_object_unref (writeback);
 		}
 	}
-
-	priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
-
-	// todo: make this really async
-	perform_writeback_cb (NULL, NULL, data);
 
 	g_free (rdf_types);
 }
