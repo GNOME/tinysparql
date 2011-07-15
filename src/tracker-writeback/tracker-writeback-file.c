@@ -156,6 +156,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 
 		urls[0] = row[0];
 
+#warning Remove this after the queues are properly integrated and this isnt needed anymore
+
 		tracker_miner_manager_ignore_next_update (tracker_writeback_get_miner_manager (),
 		                                          "org.freedesktop.Tracker1.Miner.Files",
 		                                          urls);
@@ -211,8 +213,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 
 	/* Move back the modified file to the original location */
 	g_file_move (tmp_file, file,
-		     G_FILE_COPY_OVERWRITE,
-		     NULL, NULL, NULL, NULL);
+	             G_FILE_COPY_OVERWRITE,
+	             NULL, NULL, NULL, NULL);
 
 	g_object_unref (tmp_file);
 	g_object_unref (file);
