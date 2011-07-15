@@ -82,12 +82,12 @@ static const gchar *introspection_xml =
 	"      <arg type='i' name='value' direction='out' />"
 	"    </method>"
 	"    <method name='PerformWriteback'>"
-	"      <arg type='s' name='uri' direction='in' />"
+	"      <arg type='s' name='subject' direction='in' />"
 	"      <arg type='as' name='rdf_types' direction='in' />"
 	"      <arg type='aas' name='results' direction='in' />"
 	"    </method>"
 	"    <method name='CancelTasks'>"
-	"      <arg type='as' name='uri' direction='in' />"
+	"      <arg type='as' name='subjects' direction='in' />"
 	"    </method>"
 	"  </interface>"
 	"</node>";
@@ -233,46 +233,23 @@ writeback_data_free (WritebackData *data)
 }
 
 static void
-cancel_tasks_in_file (TrackerController *controller,
-                      GFile             *file)
+cancel_tasks_in_subject (TrackerController *controller,
+                         const gchar *subject)
 {
-/*
 	TrackerControllerPrivate *priv;
 	GList *elem;
 
 	priv = controller->priv;
 
 	for (elem = priv->ongoing_tasks; elem; elem = elem->next) {
-		GetMetadataData *data;
-		GFile *task_file;
+		WritebackData *data = elem->data;
 
-		data = elem->data;
-
-#warning todo here
-		// todo: the GFile holds the nie:url, not the subject, so this wont work
-
-		task_file = g_file_new_for_uri (data->subject);
-
-		if (g_file_equal (task_file, file) ||
-		    g_file_has_prefix (task_file, file)) {
-			/ Mount path contains one of the files being processed /
-			if (!elem->next) {
-				* The last element in the list is
-				 * the one currently being processed,
-				 * so exit abruptly.
-				 *
-				g_message ("Cancelled task ('%s') is currently being processed, quitting",
-				           data->uri);
-				_exit (0);
-			} else {
-				g_message ("Cancelling not yet processed task ('%s')",
-				           data->uri);
-				g_cancellable_cancel (data->cancellable);
-			}
+		if (g_strcmp0 (subject, data->subject) == 0) {
+			g_message ("Cancelling not yet processed task ('%s')",
+			           data->subject);
+			g_cancellable_cancel (data->cancellable);
 		}
-
-		g_object_unref (task_file);
-	} */
+	}
 }
 
 static void
@@ -284,7 +261,8 @@ mount_point_removed_cb (TrackerStorage *storage,
 	GFile *mount_file;
 
 	mount_file = g_file_new_for_path (mount_point);
-	cancel_tasks_in_file (TRACKER_CONTROLLER (user_data), mount_file);
+	/* TODO - deal with unmount vs. writeback */
+	/* cancel_tasks_in_file (TRACKER_CONTROLLER (user_data), mount_file); */
 	g_object_unref (mount_file);
 }
 
@@ -522,7 +500,7 @@ handle_method_call_cancel_tasks (TrackerController     *controller,
                                  GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
-	gchar **uris;
+	gchar **subjects;
 	gint i;
 
 #ifdef THREAD_ENABLE_TRACE
@@ -531,19 +509,15 @@ handle_method_call_cancel_tasks (TrackerController     *controller,
 #endif /* THREAD_ENABLE_TRACE */
 
 
-	g_variant_get (parameters, "(^as)", &uris);
+	g_variant_get (parameters, "(^as)", &subjects);
 
-	request = tracker_dbus_request_begin (NULL, "%s (%s, ...)", __FUNCTION__, uris[0]);
+	request = tracker_dbus_request_begin (NULL, "%s (%s, ...)", __FUNCTION__, subjects[0]);
 
-	for (i = 0; uris[i] != NULL; i++) {
-		GFile *file;
-
-		file = g_file_new_for_uri (uris[i]);
-		cancel_tasks_in_file (controller, file);
-		g_object_unref (file);
+	for (i = 0; subjects[i] != NULL; i++) {
+		cancel_tasks_in_subject (controller, subjects[i]);
 	}
 
-	g_strfreev (uris);
+	g_strfreev (subjects);
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation, NULL);
 }
