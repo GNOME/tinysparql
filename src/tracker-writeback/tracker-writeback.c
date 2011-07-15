@@ -425,7 +425,10 @@ io_writeback_job (GIOSchedulerJob *job,
 {
 	WritebackData *data = user_data;
 
-	tracker_writeback_update_metadata (data->writeback, data->results, data->connection);
+	tracker_writeback_update_metadata (data->writeback,
+	                                   data->results,
+	                                   data->connection,
+	                                   data->cancellable);
 
 	g_idle_add (perform_writeback_cb, data);
 

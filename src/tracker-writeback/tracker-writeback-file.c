@@ -27,7 +27,8 @@
 
 static gboolean tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
                                                         GPtrArray               *values,
-                                                        TrackerSparqlConnection *connection);
+                                                        TrackerSparqlConnection *connection,
+                                                        GCancellable            *cancellable);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWritebackFile, tracker_writeback_file, TRACKER_TYPE_WRITEBACK)
 
@@ -86,7 +87,8 @@ get_tmp_file (GFile *file)
 static gboolean
 tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
                                         GPtrArray               *values,
-                                        TrackerSparqlConnection *connection)
+                                        TrackerSparqlConnection *connection,
+                                        GCancellable            *cancellable)
 {
 	TrackerWritebackFileClass *writeback_file_class;
 	gboolean retval;
@@ -191,7 +193,10 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		 */
 
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-		                                                       tmp_file, values, connection);
+		                                                       tmp_file,
+		                                                       values,
+		                                                       connection,
+		                                                       cancellable);
 
 		/*
 		 * This timeout value was 3s before, which could have been in

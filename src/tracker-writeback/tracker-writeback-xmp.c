@@ -52,7 +52,8 @@ static GType                tracker_writeback_xmp_get_type     (void) G_GNUC_CON
 static gboolean             writeback_xmp_update_file_metadata (TrackerWritebackFile     *writeback_file,
                                                                 GFile                    *file,
                                                                 GPtrArray                *values,
-                                                                TrackerSparqlConnection  *connection);
+                                                                TrackerSparqlConnection  *connection,
+                                                                GCancellable            *cancellable);
 static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile     *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
@@ -108,7 +109,8 @@ static gboolean
 writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
                                     GFile                   *file,
                                     GPtrArray               *values,
-                                    TrackerSparqlConnection *connection)
+                                    TrackerSparqlConnection *connection,
+                                    GCancellable            *cancellable)
 {
 	gchar *path;
 	guint n;
