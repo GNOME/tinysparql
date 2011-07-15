@@ -30,6 +30,7 @@
 G_BEGIN_DECLS
 
 void tracker_writeback_init     (TrackerMinerFiles  *miner_files,
+                                 TrackerConfig      *config,
                                  GError            **error);
 void tracker_writeback_shutdown (void);
 

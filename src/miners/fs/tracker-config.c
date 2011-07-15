@@ -44,6 +44,7 @@
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
 #define DEFAULT_CRAWLING_INTERVAL                -1       /* 0->365 / -1 / -2 */
 #define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
+#define DEFAULT_ENABLE_WRITEBACK                 TRUE
 
 typedef struct {
 	GSList   *index_recursive_directories;
@@ -95,26 +96,31 @@ enum {
 	PROP_IGNORED_DIRECTORIES_WITH_CONTENT,
 	PROP_IGNORED_FILES,
 	PROP_CRAWLING_INTERVAL,
-	PROP_REMOVABLE_DAYS_THRESHOLD
+	PROP_REMOVABLE_DAYS_THRESHOLD,
+
+	/* Monit */
+	PROP_ENABLE_WRITEBACK
+
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM,    "General",  "Verbosity",                     "verbosity"                        },
-	{ G_TYPE_INT,     "General",  "InitialSleep",                  "initial-sleep"                    },
-	{ G_TYPE_BOOLEAN, "Monitors", "EnableMonitors",                "enable-monitors"                  },
-	{ G_TYPE_INT,     "Indexing", "Throttle",                      "throttle"                         },
-	{ G_TYPE_BOOLEAN, "Indexing", "IndexOnBattery",                "index-on-battery"                 },
-	{ G_TYPE_BOOLEAN, "Indexing", "IndexOnBatteryFirstTime",       "index-on-battery-first-time"      },
-	{ G_TYPE_BOOLEAN, "Indexing", "IndexRemovableMedia",           "index-removable-devices"          },
-	{ G_TYPE_BOOLEAN, "Indexing", "IndexOpticalDiscs",             "index-optical-discs"              },
-	{ G_TYPE_INT,     "Indexing", "LowDiskSpaceLimit",             "low-disk-space-limit"             },
-	{ G_TYPE_POINTER, "Indexing", "IndexRecursiveDirectories",     "index-recursive-directories"      },
-	{ G_TYPE_POINTER, "Indexing", "IndexSingleDirectories",        "index-single-directories"         },
-	{ G_TYPE_POINTER, "Indexing", "IgnoredDirectories",            "ignored-directories"              },
-	{ G_TYPE_POINTER, "Indexing", "IgnoredDirectoriesWithContent", "ignored-directories-with-content" },
-	{ G_TYPE_POINTER, "Indexing", "IgnoredFiles",                  "ignored-files"                    },
-	{ G_TYPE_INT,     "Indexing", "CrawlingInterval",              "crawling-interval"                },
-	{ G_TYPE_INT,     "Indexing", "RemovableDaysThreshold",        "removable-days-threshold"         },
+	{ G_TYPE_ENUM,    "General",   "Verbosity",                     "verbosity"                        },
+	{ G_TYPE_INT,     "General",   "InitialSleep",                  "initial-sleep"                    },
+	{ G_TYPE_BOOLEAN, "Monitors",  "EnableMonitors",                "enable-monitors"                  },
+	{ G_TYPE_INT,     "Indexing",  "Throttle",                      "throttle"                         },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBattery",                "index-on-battery"                 },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBatteryFirstTime",       "index-on-battery-first-time"      },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexRemovableMedia",           "index-removable-devices"          },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOpticalDiscs",             "index-optical-discs"              },
+	{ G_TYPE_INT,     "Indexing",  "LowDiskSpaceLimit",             "low-disk-space-limit"             },
+	{ G_TYPE_POINTER, "Indexing",  "IndexRecursiveDirectories",     "index-recursive-directories"      },
+	{ G_TYPE_POINTER, "Indexing",  "IndexSingleDirectories",        "index-single-directories"         },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectories",            "ignored-directories"              },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectoriesWithContent", "ignored-directories-with-content" },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredFiles",                  "ignored-files"                    },
+	{ G_TYPE_INT,     "Indexing",  "CrawlingInterval",              "crawling-interval"                },
+	{ G_TYPE_INT,     "Indexing",  "RemovableDaysThreshold",        "removable-days-threshold"         },
+	{ G_TYPE_BOOLEAN, "Writeback", "EnableWriteback",               "enable-writeback"                 },
 	{ 0 }
 };
 
@@ -274,6 +280,15 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   DEFAULT_REMOVABLE_DAYS_THRESHOLD,
 	                                                   G_PARAM_READWRITE));
 
+	/* Writeback */
+	g_object_class_install_property (object_class,
+	                                 PROP_ENABLE_MONITORS,
+	                                 g_param_spec_boolean ("enable-writeback",
+	                                                       "Enable Writeback",
+	                                                       "Set to false to disable writeback",
+	                                                       DEFAULT_ENABLE_WRITEBACK,
+	                                                       G_PARAM_READWRITE));
+
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -359,6 +374,12 @@ config_set_property (GObject      *object,
 		tracker_config_set_removable_days_threshold (TRACKER_CONFIG (object),
 		                                             g_value_get_int (value));
 		break;
+
+	/* Writeback */
+	case PROP_ENABLE_WRITEBACK:
+		tracker_config_set_enable_writeback (TRACKER_CONFIG (object),
+		                                     g_value_get_boolean (value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -426,6 +447,11 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_REMOVABLE_DAYS_THRESHOLD:
 		g_value_set_int (value, tracker_config_get_removable_days_threshold (config));
+		break;
+
+	/* Writeback */
+	case PROP_ENABLE_WRITEBACK:
+		g_value_set_boolean (value, tracker_config_get_enable_writeback (config));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -824,6 +850,14 @@ tracker_config_get_enable_monitors (TrackerConfig *config)
 	return g_settings_get_boolean (G_SETTINGS (config), "enable-monitors");
 }
 
+gboolean
+tracker_config_get_enable_writeback (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_WRITEBACK);
+
+	return g_settings_get_boolean (G_SETTINGS (config), "enable-writeback");
+}
+
 gint
 tracker_config_get_throttle (TrackerConfig *config)
 {
@@ -1001,6 +1035,16 @@ tracker_config_set_enable_monitors (TrackerConfig *config,
 
 	g_settings_set_boolean (G_SETTINGS (config), "enable-monitors", value);
 	g_object_notify (G_OBJECT (config), "enable-monitors");
+}
+
+void
+tracker_config_set_enable_writeback (TrackerConfig *config,
+                                     gboolean       value)
+{
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	g_settings_set_boolean (G_SETTINGS (config), "enable-writeback", value);
+	g_object_notify (G_OBJECT (config), "enable-writeback");
 }
 
 void
