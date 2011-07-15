@@ -41,8 +41,11 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
+
 static gboolean      version;
 static gint          verbosity = -1;
+static gboolean      disable_shutdown;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -53,6 +56,12 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
 	     "1 = minimal, 2 = detailed and 3 = debug (default=0)"),
+	  NULL },
+	/* Debug run is used to avoid that the mainloop exits, so that
+	 * as a developer you can be relax when running the tool in gdb */
+	{ "disable-shutdown", 'd', 0,
+	  G_OPTION_ARG_NONE, &disable_shutdown,
+	  N_("Disable shutting down after 30 seconds of inactivity"),
 	  NULL },
 	{ NULL }
 };
@@ -76,6 +85,7 @@ main (int   argc,
 	GMainLoop *loop;
 	GError *error = NULL;
 	gchar *log_filename;
+	guint shutdown_timeout;
 
 	g_thread_init (NULL);
 
@@ -116,10 +126,13 @@ main (int   argc,
 
 	sanity_check_option_values (config);
 
-#warning todo here
+	if (disable_shutdown) {
+		shutdown_timeout = 0;
+	} else {
+		shutdown_timeout = QUIT_TIMEOUT;
+	}
 
-	// get correct value from config here
-	controller = tracker_controller_new (9999, &error);
+	controller = tracker_controller_new (shutdown_timeout, &error);
 
 	if (error) {
 		g_critical ("Error creating controller: %s", error->message);
