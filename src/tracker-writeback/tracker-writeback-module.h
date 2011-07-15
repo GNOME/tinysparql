@@ -52,7 +52,8 @@ struct TrackerWritebackClass {
 
 	gboolean (* update_metadata) (TrackerWriteback        *writeback,
 	                              GPtrArray               *values,
-	                              TrackerSparqlConnection *connection);
+	                              TrackerSparqlConnection *connection,
+	                              GCancellable            *cancellable);
 };
 
 struct TrackerWritebackModule {
@@ -73,7 +74,8 @@ struct TrackerWritebackModuleClass {
 GType                   tracker_writeback_get_type          (void) G_GNUC_CONST;
 gboolean                tracker_writeback_update_metadata   (TrackerWriteback        *writeback,
                                                              GPtrArray               *values,
-                                                             TrackerSparqlConnection *connection);
+                                                             TrackerSparqlConnection *connection,
+                                                             GCancellable            *cancellable);
 TrackerMinerManager*    tracker_writeback_get_miner_manager (void);
 
 /* Entry functions to be defined by modules */

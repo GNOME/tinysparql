@@ -45,7 +45,8 @@ static GType                tracker_writeback_taglib_get_type         (void) G_G
 static gboolean             writeback_taglib_update_file_metadata     (TrackerWritebackFile    *wbf,
                                                                        GFile                   *file,
                                                                        GPtrArray               *values,
-                                                                       TrackerSparqlConnection *connection);
+                                                                       TrackerSparqlConnection *connection,
+                                                                       GCancellable            *cancellable);
 static const gchar * const *writeback_taglib_content_types            (TrackerWritebackFile    *wbf);
 static gchar*               writeback_taglib_get_artist_name          (TrackerSparqlConnection *connection,
                                                                        const gchar             *urn);
@@ -132,7 +133,8 @@ static gboolean
 writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
                                        GFile                    *file,
                                        GPtrArray                *values,
-                                       TrackerSparqlConnection  *connection)
+                                       TrackerSparqlConnection  *connection,
+                                       GCancellable            *cancellable)
 {
 	gboolean ret;
 	gchar *path;

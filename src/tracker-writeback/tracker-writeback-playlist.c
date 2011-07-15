@@ -50,7 +50,8 @@ static GType                tracker_writeback_playlist_get_type     (void) G_GNU
 static gboolean             writeback_playlist_update_file_metadata (TrackerWritebackFile     *wbf,
                                                                      GFile                    *file,
                                                                      GPtrArray                *values,
-                                                                     TrackerSparqlConnection  *connection);
+                                                                     TrackerSparqlConnection  *connection,
+                                                                     GCancellable            *cancellable);
 static const gchar * const *writeback_playlist_content_types        (TrackerWritebackFile     *wbf);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackPlaylist, tracker_writeback_playlist, TRACKER_TYPE_WRITEBACK_FILE);
@@ -204,7 +205,8 @@ static gboolean
 writeback_playlist_update_file_metadata (TrackerWritebackFile     *writeback_file,
                                          GFile                    *file,
                                          GPtrArray                *values,
-                                         TrackerSparqlConnection  *connection)
+                                         TrackerSparqlConnection  *connection,
+                                         GCancellable            *cancellable)
 {
 	guint n;
 
