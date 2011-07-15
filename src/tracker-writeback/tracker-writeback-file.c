@@ -22,6 +22,8 @@
 #include <stdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <gio/gunixoutputstream.h>
+#include <fcntl.h> /* O_WRONLY */
 
 #include "tracker-writeback-file.h"
 
@@ -63,23 +65,69 @@ file_unlock_cb (gpointer user_data)
 }
 
 static GFile *
-get_tmp_file (GFile *file)
+create_temporary_file (GFile     *file,
+                       GFileInfo *file_info)
 {
+	GInputStream *input_stream;
+	GOutputStream *output_stream;
 	GFile *tmp_file, *parent;
-	gchar *tmp_name, *dir;
+	gchar *dir, *name, *tmp_path;
+	guint32 mode;
+	gint fd;
+	GError *error = NULL;
 
-	/* Create a temporary, hidden file
-	 * within the same directory */
+	if (!g_file_is_native (file)) {
+		return NULL;
+	}
+
+	/* Create input stream */
+	input_stream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
+
+	if (error) {
+		g_critical ("Could not read the file: %s", error->message);
+		g_error_free (error);
+		return NULL;
+	}
+
+	/* Create output stream in a tmp file */
 	parent = g_file_get_parent (file);
 	dir = g_file_get_path (parent);
-
-	tmp_name = tempnam (dir, "._trk");
 	g_object_unref (parent);
 
-	tmp_file = g_file_new_for_path (tmp_name);
-
-	g_free (tmp_name);
+	name = g_file_get_basename (file);
+	tmp_path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S ".tracker-XXXXXX.%s",
+	                            dir, name);
 	g_free (dir);
+	g_free (name);
+
+	mode = g_file_info_get_attribute_uint32 (file_info,
+	                                         G_FILE_ATTRIBUTE_UNIX_MODE);
+	fd = g_mkstemp_full (tmp_path, O_WRONLY, mode);
+
+	output_stream = g_unix_output_stream_new (fd, TRUE);
+
+	/* Splice the original file into the tmp file */
+	g_output_stream_splice (output_stream,
+	                        input_stream,
+	                        G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                        G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                        NULL, &error);
+
+	g_object_unref (output_stream);
+	g_object_unref (input_stream);
+
+	tmp_file = g_file_new_for_path (tmp_path);
+	g_free (tmp_path);
+
+	if (error) {
+		g_critical ("Could not copy file: %s\n", error->message);
+		g_error_free (error);
+
+		g_file_delete (tmp_file, NULL, NULL);
+		g_object_unref (tmp_file);
+
+		return NULL;
+	}
 
 	return tmp_file;
 }
@@ -119,6 +167,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	file = g_file_new_for_uri (row[0]);
 
 	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_UNIX_MODE ","
 	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
@@ -129,11 +178,10 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	}
 
 	/* Copy to a temporary file so we can perform an atomic write on move */
-	tmp_file = get_tmp_file (file);
-	if (!g_file_copy (file, tmp_file, 0,
-			  NULL, NULL, NULL, NULL)) {
+	tmp_file = create_temporary_file (file, file_info);
+
+	if (!tmp_file) {
 		g_object_unref (file);
-		g_object_unref (tmp_file);
 		return FALSE;
 	}
 
