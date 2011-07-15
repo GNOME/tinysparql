@@ -241,8 +241,9 @@ writeback_data_free (WritebackData *data)
 }
 
 static void
-cancel_tasks_in_subject (TrackerController *controller,
-                         const gchar *subject)
+cancel_tasks (TrackerController *controller,
+              const gchar       *subject,
+              GFile             *file)
 {
 	TrackerControllerPrivate *priv;
 	GList *elem;
@@ -257,6 +258,24 @@ cancel_tasks_in_subject (TrackerController *controller,
 			           data->subject);
 			g_cancellable_cancel (data->cancellable);
 		}
+
+		if (file) {
+			guint i;
+			for (i = 0; i < data->results->len; i++) {
+				GStrv row = g_ptr_array_index (data->results, i);
+				if (row[0] != NULL) {
+					GFile *task_file;
+					task_file = g_file_new_for_uri (row[0]);
+					if (g_file_equal (task_file, file) ||
+					    g_file_has_prefix (task_file, file)) {
+						/* Mount path contains some file being processed */
+						g_message ("Cancelling task ('%s')", row[0]);
+						g_cancellable_cancel (data->cancellable);
+					}
+					g_object_unref (task_file);
+				}
+			}
+		}
 	}
 }
 
@@ -269,8 +288,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 	GFile *mount_file;
 
 	mount_file = g_file_new_for_path (mount_point);
-	/* TODO - deal with unmount vs. writeback */
-	/* cancel_tasks_in_file (TRACKER_CONTROLLER (user_data), mount_file); */
+	cancel_tasks (TRACKER_CONTROLLER (user_data), NULL, mount_file);
 	g_object_unref (mount_file);
 }
 
@@ -447,9 +465,6 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		GArray *row_array = g_array_new (TRUE, TRUE, sizeof (gchar *));
 		gchar *cell = NULL;
 
-		/* TODO: If it's a file, row_array[0] is the url of the file, this can be
-		 * used for the on-unmount cancelling (see also tracker-writeback-file.c:157) */
-
 		while (g_variant_iter_loop (iter3, "&s", &cell)) {
 			g_array_append_val (row_array, cell);
 		}
@@ -520,7 +535,7 @@ handle_method_call_cancel_tasks (TrackerController     *controller,
 	request = tracker_dbus_request_begin (NULL, "%s (%s, ...)", __FUNCTION__, subjects[0]);
 
 	for (i = 0; subjects[i] != NULL; i++) {
-		cancel_tasks_in_subject (controller, subjects[i]);
+		cancel_tasks (controller, subjects[i], NULL);
 	}
 
 	g_strfreev (subjects);
