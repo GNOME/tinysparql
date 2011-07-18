@@ -35,7 +35,7 @@ typedef struct {
 	GPtrArray *results;
 	GStrv rdf_types;
 	TrackerWritebackDispatcher *self; /* weak */
-	guint retry_timeout;
+	guint retry_timeout, retries;
 } WritebackFileData;
 
 typedef struct {
@@ -279,18 +279,15 @@ writeback_file_finished  (GObject      *source_object,
 	g_dbus_connection_call_finish (G_DBUS_CONNECTION (source_object),
 	                               res, &error);
 
-	if (error && error->code == G_DBUS_ERROR_NO_REPLY) {
+	if (error && error->code == G_DBUS_ERROR_NO_REPLY && data->retries < 5) {
 		/* This happens in case of exit() of the tracker-writeback binary, which
 		 * happens on unmount of the FS event, for example */
-
-		/* TODO: Ideally it doesn't retry for ever: if the tracker-writeback
-		 * binary crashes then the signature or the error-code is the same. This
-		 * would right now result in endless retrying */
 
 		g_debug ("Retry WRITEBACK after unmount");
 		tracker_miner_fs_writeback_notify (data->fs, data->file, NULL);
 
 		data->retry_timeout = g_timeout_add_seconds (5, retry_idle, data);
+		data->retries++;
 
 	} else {
 		tracker_miner_fs_writeback_notify (data->fs, data->file, error);
@@ -343,6 +340,7 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 
 	g_variant_builder_close (&builder);
 
+	data->retries = 0;
 	data->retry_timeout = 0;
 	data->self = self;
 	g_object_weak_ref (G_OBJECT (data->self), self_weak_notify, data);
