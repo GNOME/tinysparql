@@ -34,6 +34,8 @@ typedef struct {
 	TrackerMinerFS *fs;
 	GPtrArray *results;
 	GStrv rdf_types;
+	TrackerWritebackDispatcher *self; /* weak */
+	guint retry_timeout;
 } WritebackFileData;
 
 typedef struct {
@@ -62,12 +64,13 @@ static void     writeback_dispatcher_finalize        (GObject              *obje
 static gboolean writeback_dispatcher_initable_init   (GInitable            *initable,
                                                       GCancellable         *cancellable,
                                                       GError              **error);
-static void writeback_dispatcher_writeback_file      (TrackerMinerFS       *fs,
+static void     writeback_dispatcher_writeback_file  (TrackerMinerFS       *fs,
                                                       GFile                *file,
                                                       GStrv                 rdf_types,
                                                       GPtrArray            *results,
                                                       gpointer              user_data);
-
+static void     self_weak_notify                     (gpointer              data,
+                                                      GObject              *where_the_object_was);
 
 static void
 writeback_dispatcher_initable_iface_init (GInitableIface *iface)
@@ -225,6 +228,47 @@ tracker_writeback_dispatcher_new (TrackerMinerFiles  *miner_files,
 }
 
 static void
+writeback_file_data_free (WritebackFileData *data)
+{
+	if (data->self) {
+		g_object_weak_unref (G_OBJECT (data->self), self_weak_notify, data);
+	}
+	g_object_unref (data->fs);
+	g_object_unref (data->file);
+	g_strfreev (data->rdf_types);
+	g_ptr_array_unref (data->results);
+	g_free (data);
+}
+
+static void
+self_weak_notify (gpointer data, GObject *where_the_object_was)
+{
+	WritebackFileData *udata = data;
+	/* Shut down while retrying writeback */
+	g_debug ("Shutdown while retrying WRITEBACK after unmount, not retrying anymore");
+	if (udata->retry_timeout != 0) {
+		g_source_remove (udata->retry_timeout);
+	}
+	udata->self = NULL;
+	writeback_file_data_free (udata);
+}
+
+static gboolean
+retry_idle (gpointer user_data)
+{
+	WritebackFileData *data = user_data;
+
+	tracker_miner_fs_writeback_file (data->fs,
+	                                 data->file,
+	                                 data->rdf_types,
+	                                 data->results);
+
+	writeback_file_data_free (data);
+
+	return FALSE;
+}
+
+static void
 writeback_file_finished  (GObject      *source_object,
                           GAsyncResult *res,
                           gpointer      user_data)
@@ -235,16 +279,23 @@ writeback_file_finished  (GObject      *source_object,
 	g_dbus_connection_call_finish (G_DBUS_CONNECTION (source_object),
 	                               res, &error);
 
-	tracker_miner_fs_writeback_notify (data->fs, data->file,
-	                                   data->rdf_types,
-	                                   data->results,
-	                                   error);
+	if (error && error->code == G_DBUS_ERROR_NO_REPLY) {
+		/* This happens in case of exit() of the tracker-writeback binary, which
+		 * happens on unmount of the FS event, for example */
 
-	g_object_unref (data->fs);
-	g_object_unref (data->file);
-	g_strfreev (data->rdf_types);
-	g_ptr_array_unref (data->results);
-	g_free (data);
+		/* TODO: Ideally it doesn't retry for ever: if the tracker-writeback
+		 * binary crashes then the signature or the error-code is the same. This
+		 * would right now result in endless retrying */
+
+		g_debug ("Retry WRITEBACK after unmount");
+		tracker_miner_fs_writeback_notify (data->fs, data->file, NULL);
+
+		data->retry_timeout = g_timeout_add_seconds (5, retry_idle, data);
+
+	} else {
+		tracker_miner_fs_writeback_notify (data->fs, data->file, error);
+		writeback_file_data_free (data);
+	}
 }
 
 static void
@@ -292,6 +343,9 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 
 	g_variant_builder_close (&builder);
 
+	data->retry_timeout = 0;
+	data->self = self;
+	g_object_weak_ref (G_OBJECT (data->self), self_weak_notify, data);
 	data->fs = g_object_ref (fs);
 	data->file = g_object_ref (file);
 	data->results = g_ptr_array_ref (results);
