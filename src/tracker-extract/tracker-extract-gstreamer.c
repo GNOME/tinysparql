@@ -1344,7 +1344,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);
 	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
 	           strcmp (mimetype, "video/mp4") == 0 ||
-	           strcmp (mimetype, "video/x-ms-asf") == 0) {
+	           strcmp (mimetype, "video/x-ms-asf") == 0 ||
+	           strcmp (mimetype, "application/vnd.rn-realmedia") == 0) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
 	} else if (g_str_has_prefix (mimetype, "audio/")) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
