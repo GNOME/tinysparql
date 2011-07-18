@@ -257,7 +257,7 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (self);
 
 	uri = g_file_get_uri (file);
-	g_print ("Writeback: %s with:\n", uri);
+	g_debug ("Writeback: %s", uri);
 
 	g_variant_builder_init (&builder, G_VARIANT_TYPE ("(sasaas)"));
 
@@ -276,17 +276,9 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 		guint y;
 
 		g_variant_builder_open (&builder, G_VARIANT_TYPE ("as"));
-
-		g_print ("\t");
 		for (y = 0; row[y] != NULL; y++) {
 			g_variant_builder_add (&builder, "s", row[y]);
-
-			if (y != 0) {
-				g_print (",");
-			}
-			g_print ("%d=%s", y, row[y]);
 		}
-		g_print ("\n");
 
 		g_variant_builder_close (&builder);
 	}
