@@ -136,6 +136,8 @@ void                  tracker_miner_fs_writeback_file       (TrackerMinerFS *fs,
                                                              GPtrArray      *results);
 void                  tracker_miner_fs_writeback_notify     (TrackerMinerFS *fs,
                                                              GFile          *file,
+                                                             GStrv           rdf_types,
+                                                             GPtrArray      *results,
                                                              const GError   *error);
 void                  tracker_miner_fs_check_directory      (TrackerMinerFS *fs,
                                                              GFile          *file,

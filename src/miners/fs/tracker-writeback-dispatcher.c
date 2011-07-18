@@ -32,6 +32,8 @@
 typedef struct {
 	GFile *file;
 	TrackerMinerFS *fs;
+	GPtrArray *results;
+	GStrv rdf_types;
 } WritebackFileData;
 
 typedef struct {
@@ -233,10 +235,15 @@ writeback_file_finished  (GObject      *source_object,
 	g_dbus_connection_call_finish (G_DBUS_CONNECTION (source_object),
 	                               res, &error);
 
-	tracker_miner_fs_writeback_notify (data->fs, data->file, error);
+	tracker_miner_fs_writeback_notify (data->fs, data->file,
+	                                   data->rdf_types,
+	                                   data->results,
+	                                   error);
 
 	g_object_unref (data->fs);
 	g_object_unref (data->file);
+	g_strfreev (data->rdf_types);
+	g_ptr_array_unref (data->results);
 	g_free (data);
 }
 
@@ -287,6 +294,8 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 
 	data->fs = g_object_ref (fs);
 	data->file = g_object_ref (file);
+	data->results = g_ptr_array_ref (results);
+	data->rdf_types = g_strdupv (rdf_types);
 
 	g_dbus_connection_call (priv->d_connection,
 	                        TRACKER_WRITEBACK_SERVICE,
