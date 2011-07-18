@@ -4738,8 +4738,6 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
  * tracker_miner_fs_writeback_notify:
  * @fs: a #TrackerMinerFS
  * @file: a #GFile
- * @rdf_types: a #GStrv
- * @resutls: a #GPtrArray
  * @error: a #GError with the error that happened during processing, or %NULL.
  *
  * Notifies @fs that all writing back on @file has been finished, if any error
@@ -4751,35 +4749,8 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 void
 tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
                                    GFile          *file,
-                                   GStrv           rdf_types,
-                                   GPtrArray      *results,
                                    const GError   *error)
 {
-	if (error && error->code == G_DBUS_ERROR_NO_REPLY) {
-		ItemWritebackData *data;
-		gchar *path;
-
-		/* This happens in case of exit() of the tracker-writeback binary, which
-		 * happens on unmount of the FS event, for example */
-
-		/* TODO: ideally the queue adds a wait time before it retries of a few
-		 * seconds. And also, ideally it doesn't retry for ever: if the
-		 * tracker-writeback binary crashes then the signature or the error-code
-		 * is the same. This would right now result in endless retrying */
-
-		path = g_file_get_path (file);
-
-		g_debug ("%s (WRITEBACK) (retry after unmount event)", path);
-		trace_eq_push_tail ("WRITEBACK", file, "Retry after unmount event");
-
-		data = item_writeback_data_new (file, rdf_types, results);
-
-		g_queue_push_tail (fs->priv->items_writeback, data);
-
-		item_queue_handlers_set_up (fs);
-
-		g_free (path);
-	}
 }
 
 /**
