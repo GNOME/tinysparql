@@ -4805,6 +4805,11 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 		/* This happens in case of exit() of the tracker-writeback binary, which
 		 * happens on unmount of the FS event, for example */
 
+		/* TODO: ideally the queue adds a wait time before it retries of a few
+		 * seconds. And also, ideally it doesn't retry for ever: if the
+		 * tracker-writeback binary crashes then the signature or the error-code
+		 * is the same. This would right now result in endless retrying */
+
 		path = g_file_get_path (file);
 
 		g_debug ("%s (WRITEBACK) (retry after unmount event)", path);
