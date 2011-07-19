@@ -61,6 +61,11 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 	data = (PlaylistMetadata *)user_data;
 	data->track_counter++;
 
+	if (data->track_counter > 1000) {
+		/* limit playlists to 1000 entries for query performance reasons */
+		return;
+	}
+
 	if (data->track_counter == 1) {
 		/* first track, predicate needed */
 		tracker_sparql_builder_predicate (data->metadata, "nfo:hasMediaFileListEntry");
