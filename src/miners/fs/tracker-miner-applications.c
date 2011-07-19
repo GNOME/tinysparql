@@ -890,6 +890,5 @@ tracker_miner_applications_new (GError **error)
 	                       "name", "Applications",
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,
-	                       "processing-pool-requests-limit", 10,
 	                       NULL);
 }
