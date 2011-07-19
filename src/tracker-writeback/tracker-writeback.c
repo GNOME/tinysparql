@@ -37,6 +37,18 @@
 #endif /* THREAD_ENABLE_TRACE */
 
 typedef struct {
+	TrackerController *controller;
+	GCancellable *cancellable;
+	GDBusMethodInvocation *invocation;
+	TrackerDBusRequest *request;
+	gchar *subject;
+	GPtrArray *results;
+	TrackerSparqlConnection *connection;
+	TrackerWriteback *writeback;
+	guint cancel_id;
+} WritebackData;
+
+typedef struct {
 	GMainContext *context;
 	GMainLoop *main_loop;
 
@@ -53,25 +65,15 @@ typedef struct {
 	GSource *shutdown_source;
 
 	GCond *initialization_cond;
-	GMutex *initialization_mutex;
+	GMutex *initialization_mutex, *mutex;
 	GError *initialization_error;
 
 	guint initialized : 1;
 
 	GHashTable *modules;
 	TrackerSparqlConnection *connection;
+	WritebackData *current;
 } TrackerControllerPrivate;
-
-typedef struct {
-	TrackerController *controller;
-	GCancellable *cancellable;
-	GDBusMethodInvocation *invocation;
-	TrackerDBusRequest *request;
-	gchar *subject;
-	GPtrArray *results;
-	TrackerSparqlConnection *connection;
-	TrackerWriteback *writeback;
-} WritebackData;
 
 #define TRACKER_WRITEBACK_SERVICE   "org.freedesktop.Tracker1.Writeback"
 #define TRACKER_WRITEBACK_PATH      "/org/freedesktop/Tracker1/Writeback"
@@ -148,6 +150,7 @@ tracker_controller_finalize (GObject *object)
 
 	g_cond_free (priv->initialization_cond);
 	g_mutex_free (priv->initialization_mutex);
+	g_mutex_free (priv->mutex);
 
 	G_OBJECT_CLASS (tracker_controller_parent_class)->finalize (object);
 }
@@ -202,6 +205,27 @@ tracker_controller_class_init (TrackerControllerClass *klass)
 	g_type_class_add_private (object_class, sizeof (TrackerControllerPrivate));
 }
 
+static void
+task_cancellable_cancelled_cb (GCancellable  *cancellable,
+                               WritebackData *data)
+{
+	TrackerControllerPrivate *priv;
+
+	priv = data->controller->priv;
+
+	g_mutex_lock (priv->mutex);
+
+	if (priv->current == data) {
+		g_message ("Cancelled writeback task for '%s' was currently being "
+		           "processed, _exit()ing immediately",
+		           data->subject);
+		_exit (0);
+	}
+
+	g_mutex_unlock (priv->mutex);
+}
+
+
 static WritebackData *
 writeback_data_new (TrackerController       *controller,
                     TrackerWriteback        *writeback,
@@ -223,6 +247,10 @@ writeback_data_new (TrackerController       *controller,
 	data->writeback = g_object_ref (writeback);
 	data->request = request;
 
+	data->cancel_id = g_cancellable_connect (data->cancellable,
+	                                         G_CALLBACK (task_cancellable_cancelled_cb),
+	                                         data, NULL);
+
 	return data;
 }
 
@@ -232,6 +260,7 @@ writeback_data_free (WritebackData *data)
 	/* We rely on data->invocation being freed through
 	 * the g_dbus_method_invocation_return_* methods
 	 */
+	g_cancellable_disconnect (data->cancellable, data->cancel_id);
 	g_free (data->subject);
 	g_object_unref (data->connection);
 	g_object_unref (data->writeback);
@@ -357,6 +386,7 @@ tracker_controller_init (TrackerController *controller)
 
 	priv->initialization_cond = g_cond_new ();
 	priv->initialization_mutex = g_mutex_new ();
+	priv->mutex = g_mutex_new ();
 }
 
 static void
@@ -394,6 +424,11 @@ perform_writeback_cb (gpointer user_data)
 	priv->ongoing_tasks = g_list_remove (priv->ongoing_tasks, data);
 	g_dbus_method_invocation_return_value (data->invocation, NULL);
 	tracker_dbus_request_end (data->request, NULL);
+
+	g_mutex_lock (priv->mutex);
+	priv->current = NULL;
+	g_mutex_unlock (priv->mutex);
+
 	writeback_data_free (data);
 
 	return FALSE;
@@ -424,6 +459,11 @@ io_writeback_job (GIOSchedulerJob *job,
                   gpointer         user_data)
 {
 	WritebackData *data = user_data;
+	TrackerControllerPrivate *priv = data->controller->priv;
+
+	g_mutex_lock (priv->mutex);
+	priv->current = data;
+	g_mutex_unlock (priv->mutex);
 
 	tracker_writeback_update_metadata (data->writeback,
 	                                   data->results,
