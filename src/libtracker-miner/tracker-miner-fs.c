@@ -3558,6 +3558,23 @@ check_item_queues (TrackerMinerFS *fs,
 		return TRUE;
 	}
 
+	if (queue != QUEUE_WRITEBACK) {
+		TrackerTask *task;
+
+		if (other_file) {
+			task = tracker_task_pool_find (fs->priv->task_pool, other_file);
+		} else {
+			task = tracker_task_pool_find (fs->priv->task_pool, file);
+		}
+
+		if (task && !tracker_task_get_data (task)) {
+			/* There is a writeback task for
+			 * this file, so avoid any updates
+			 */
+			return FALSE;
+		}
+	}
+
 	switch (queue) {
 	case QUEUE_CREATED:
 		/* Created items aren't likely to have
