@@ -105,7 +105,7 @@ typedef struct {
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);
-	void     (* writeback_file)           (TrackerMinerFS       *fs,
+	gboolean (* writeback_file)           (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       GStrv                 rdf_types,
 	                                       GPtrArray            *results);

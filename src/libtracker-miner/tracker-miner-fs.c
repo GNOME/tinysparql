@@ -692,8 +692,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, writeback_file),
 		              NULL,
 		              NULL,
-		              tracker_marshal_VOID__OBJECT_BOXED_BOXED,
-		              G_TYPE_NONE,
+		              tracker_marshal_BOOLEAN__OBJECT_BOXED_BOXED,
+		              G_TYPE_BOOLEAN,
 		              3,
 		              G_TYPE_FILE,
 		              G_TYPE_STRV,
@@ -2597,19 +2597,23 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
 					    &priority);
 	if (wdata) {
+		gboolean processing;
+
 		*file = g_object_ref (wdata->file);
 		*source_file = NULL;
+		*priority_out = priority;
 
 		trace_eq_pop_head ("WRITEBACK", wdata->file);
 
 		g_signal_emit (fs, signals[WRITEBACK_FILE], 0,
 		               wdata->file,
 		               wdata->rdf_types,
-		               wdata->results);
+		               wdata->results,
+			       &processing);
 
 		item_writeback_data_free (wdata);
 
-		return QUEUE_WRITEBACK;
+		return (processing) ? QUEUE_WRITEBACK : QUEUE_NONE;
 	}
 
 	/* Deleted items second */
@@ -3083,9 +3087,16 @@ item_queue_handlers_cb (gpointer user_data)
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
 		break;
-	case QUEUE_WRITEBACK:
-		/* All work is already done at an earlier stage */
+	case QUEUE_WRITEBACK: {
+		TrackerTask *task;
+
+		/* The signal was emitted at an earlier stage,
+		 * so here we just add the task to the task pool
+		 */
+		task = tracker_task_new (file, NULL, NULL);
+		tracker_task_pool_add (fs->priv->task_pool, task);
 		keep_processing = TRUE;
+	}
 		break;
 	default:
 		g_assert_not_reached ();
@@ -4499,6 +4510,11 @@ task_pool_cancel_foreach (gpointer data,
 	UpdateProcessingTaskContext *ctxt;
 
 	ctxt = tracker_task_get_data (task);
+
+	if (!ctxt) {
+		return;
+	}
+
 	task_file = tracker_task_get_file (task);
 
 	if (ctxt &&
@@ -4794,6 +4810,31 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
                                    GFile          *file,
                                    const GError   *error)
 {
+	TrackerTask *task;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	fs->priv->total_files_notified++;
+
+	task = tracker_task_pool_find (fs->priv->task_pool, file);
+
+	if (!task) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_critical ("%s has notified that file '%s' has been written back, "
+		            "but that file was not in the task pool. "
+		            "This is an implementation error, please ensure that "
+		            "tracker_miner_fs_writeback_notify() is called on the same "
+		            "GFile that is passed in ::writeback-file, and that this"
+		            "signal didn't return FALSE for it",
+		            G_OBJECT_TYPE_NAME (fs), uri);
+		g_free (uri);
+	} else {
+		tracker_task_pool_remove (fs->priv->task_pool, task);
+		tracker_task_unref (task);
+	}
 }
 
 /**
