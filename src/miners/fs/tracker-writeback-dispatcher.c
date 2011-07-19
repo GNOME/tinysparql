@@ -64,7 +64,7 @@ static void     writeback_dispatcher_finalize        (GObject              *obje
 static gboolean writeback_dispatcher_initable_init   (GInitable            *initable,
                                                       GCancellable         *cancellable,
                                                       GError              **error);
-static void     writeback_dispatcher_writeback_file  (TrackerMinerFS       *fs,
+static gboolean writeback_dispatcher_writeback_file  (TrackerMinerFS       *fs,
                                                       GFile                *file,
                                                       GStrv                 rdf_types,
                                                       GPtrArray            *results,
@@ -295,7 +295,7 @@ writeback_file_finished  (GObject      *source_object,
 	}
 }
 
-static void
+static gboolean
 writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
                                      GFile          *file,
                                      GStrv           rdf_types,
@@ -363,4 +363,6 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 	                        data);
 
 	g_free (uri);
+
+	return TRUE;
 }
