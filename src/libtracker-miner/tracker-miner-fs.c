@@ -3727,6 +3727,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	 * the destination file.
 	 */
 	if (remove_writeback_task (fs, file)) {
+		item_queue_handlers_set_up (fs);
 		return;
 	}
 
