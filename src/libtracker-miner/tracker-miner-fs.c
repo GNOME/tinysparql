@@ -3958,12 +3958,14 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				/* Source file was not stored, check dest file as new */
 				if (!is_directory ||
 				    !should_recurse_for_directory (fs, other_file)) {
-					trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
-					tracker_priority_queue_add (fs->priv->items_created,
-					                            g_object_ref (other_file),
-					                            G_PRIORITY_DEFAULT);
+					if (check_item_queues (fs, QUEUE_CREATED, other_file, NULL)) {
+						trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
+						tracker_priority_queue_add (fs->priv->items_created,
+									    g_object_ref (other_file),
+									    G_PRIORITY_DEFAULT);
 
-					item_queue_handlers_set_up (fs);
+						item_queue_handlers_set_up (fs);
+					}
 				} else {
 					tracker_miner_fs_directory_add_internal (fs, other_file,
 					                                         G_PRIORITY_DEFAULT);
