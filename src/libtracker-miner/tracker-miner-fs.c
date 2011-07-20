@@ -3735,6 +3735,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	 * the destination file.
 	 */
 	if (remove_writeback_task (fs, file)) {
+		item_queue_handlers_set_up (fs);
 		return;
 	}
 
