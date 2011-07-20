@@ -145,7 +145,6 @@ typedef struct {
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
 	TrackerMiner *miner;
-	gboolean is_writeback;
 } UpdateProcessingTaskContext;
 
 typedef struct {
@@ -3493,6 +3492,23 @@ compare_writeback_files (gconstpointer a,
 	return g_file_equal (data->file, file);
 }
 
+static gboolean
+remove_writeback_task (TrackerMinerFS *fs,
+		       GFile          *file)
+{
+	TrackerTask *task;
+
+	task = tracker_task_pool_find (fs->priv->task_pool, file);
+
+	if (task && tracker_task_get_data (task) == NULL) {
+		tracker_task_pool_remove (fs->priv->task_pool, task);
+		tracker_task_unref (task);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /* Checks previous created/updated/deleted/moved/writeback queues for
  * monitor events. Returns TRUE if the item should still
  * be added to the queue.
@@ -3685,6 +3701,16 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	gchar *uri;
 
 	fs = user_data;
+
+	/* Writeback tasks would receive an updated after move,
+	 * consequence of the data being written back in the
+	 * copy, and its monitor events being propagated to
+	 * the destination file.
+	 */
+	if (remove_writeback_task (fs, file)) {
+		return;
+	}
+
 	should_process = should_check_file (fs, file, is_directory);
 
 	uri = g_file_get_uri (file);
@@ -3809,21 +3835,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
                        gpointer        user_data)
 {
 	TrackerMinerFS *fs;
-	TrackerTask *task;
 
 	fs = user_data;
-
-	task = tracker_task_pool_find (fs->priv->task_pool, other_file);
-
-	/* When data is NULL, it's a writeback task, all others have a non-null
-	 * data segment. Whent he file-move happens, we can finally stop the
-	 * for-writeback ignoring of the file */
-
-	if (task && tracker_task_get_data (task) == NULL) {
-		tracker_task_pool_remove (fs->priv->task_pool, task);
-		tracker_task_unref (task);
-		return;
-	}
 
 	if (!is_source_monitored) {
 		if (is_directory) {
@@ -4819,10 +4832,22 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 		            "signal didn't return FALSE for it",
 		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
+	} else if (error) {
+		g_warning ("Writeback operation failed: %s", error->message);
+
+		/* We don't expect any further monitor
+		 * events on the original file.
+		 */
+		tracker_task_pool_remove (fs->priv->task_pool, task);
+		tracker_task_unref (task);
 	}
 
-	/* Check monitor_item_moved_cb  for the remainder of this notify */
-
+	/* Check monitor_item_updated_cb() for the remainder of this notify,
+	 * as the last event happening on the written back file would be an
+	 * UPDATED event caused by the changes on the cloned file, followed
+	 * by a MOVE onto the original file, so the delayed update happens
+	 * on the destination file.
+	 */
 }
 
 /**
