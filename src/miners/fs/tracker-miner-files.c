@@ -2282,6 +2282,7 @@ process_file_cb (GObject      *object,
 
 		priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
 		extractor_check_process_failsafe (data->miner);
+		process_file_data_free (data);
 	}
 
 	g_object_unref (file_info);
