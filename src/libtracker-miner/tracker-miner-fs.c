@@ -145,6 +145,7 @@ typedef struct {
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
 	TrackerMiner *miner;
+	gboolean is_writeback;
 } UpdateProcessingTaskContext;
 
 typedef struct {
@@ -3808,8 +3809,21 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
                        gpointer        user_data)
 {
 	TrackerMinerFS *fs;
+	TrackerTask *task;
 
 	fs = user_data;
+
+	task = tracker_task_pool_find (fs->priv->task_pool, other_file);
+
+	/* When data is NULL, it's a writeback task, all others have a non-null
+	 * data segment. Whent he file-move happens, we can finally stop the
+	 * for-writeback ignoring of the file */
+
+	if (task && tracker_task_get_data (task) == NULL) {
+		tracker_task_pool_remove (fs->priv->task_pool, task);
+		tracker_task_unref (task);
+		return;
+	}
 
 	if (!is_source_monitored) {
 		if (is_directory) {
@@ -4805,10 +4819,10 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 		            "signal didn't return FALSE for it",
 		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
-	} else {
-		tracker_task_pool_remove (fs->priv->task_pool, task);
-		tracker_task_unref (task);
 	}
+
+	/* Check monitor_item_moved_cb  for the remainder of this notify */
+
 }
 
 /**
