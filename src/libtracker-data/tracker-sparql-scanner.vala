@@ -318,6 +318,10 @@ public class Tracker.SparqlScanner : Object {
 			break;
 		case 8:
 			switch (begin[0]) {
+			case 'C':
+			case 'c':
+				if (matches (begin, "COALESCE")) return SparqlTokenType.COALESCE;
+				break;
 			case 'D':
 			case 'd':
 				switch (begin[1]) {
@@ -860,6 +864,7 @@ public enum Tracker.SparqlTokenType {
 	CLOSE_BRACE,
 	CLOSE_BRACKET,
 	CLOSE_PARENS,
+	COALESCE,
 	COLON,
 	COMMA,
 	CONSTRUCT,
@@ -958,6 +963,7 @@ public enum Tracker.SparqlTokenType {
 		case CLOSE_BRACE: return "`}'";
 		case CLOSE_BRACKET: return "`]'";
 		case CLOSE_PARENS: return "`)'";
+		case COALESCE: return "`COALESCE'";
 		case COLON: return "`:'";
 		case COMMA: return "`,'";
 		case CONSTRUCT: return "`CONSTRUCT'";
