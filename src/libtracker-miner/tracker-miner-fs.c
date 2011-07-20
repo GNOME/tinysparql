@@ -211,6 +211,9 @@ struct _TrackerMinerFSPrivate {
 	/* Extraction tasks */
 	TrackerTaskPool *task_pool;
 
+	/* Writeback tasks */
+	TrackerTaskPool *writeback_pool;
+
 	/* Sparql insertion tasks */
 	TrackerSparqlBuffer *sparql_buffer;
 	guint sparql_buffer_limit;
@@ -731,6 +734,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create processing pools */
 	priv->task_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
+	priv->writeback_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -863,6 +867,8 @@ fs_finalize (GObject *object)
 	                           task_pool_cancel_foreach,
 	                           NULL);
 	g_object_unref (priv->task_pool);
+
+	g_object_unref (priv->writeback_pool);
 
 	if (priv->sparql_buffer) {
 		g_object_unref (priv->sparql_buffer);
@@ -2506,6 +2512,7 @@ should_wait (TrackerMinerFS *fs,
 
 	/* Is the item already being processed? */
 	if (tracker_task_pool_find (fs->priv->task_pool, file) ||
+	    tracker_task_pool_find (fs->priv->writeback_pool, file) ||
 	    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), file)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
@@ -2557,9 +2564,20 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		               wdata->results,
 			       &processing);
 
-		item_writeback_data_free (wdata);
+		if (processing) {
+			TrackerTask *task;
+			gboolean *notified;
 
-		return (processing) ? QUEUE_WRITEBACK : QUEUE_NONE;
+			notified = g_new0 (gboolean, 1);
+			task = tracker_task_new (wdata->file, notified,
+						 (GDestroyNotify) g_free);
+			tracker_task_pool_add (fs->priv->writeback_pool, task);
+
+			item_writeback_data_free (wdata);
+			return QUEUE_WRITEBACK;
+		} else {
+			item_writeback_data_free (wdata);
+		}
 	}
 
 	/* Deleted items second */
@@ -3041,16 +3059,9 @@ item_queue_handlers_cb (gpointer user_data)
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
 		break;
-	case QUEUE_WRITEBACK: {
-		TrackerTask *task;
-
-		/* The signal was emitted at an earlier stage,
-		 * so here we just add the task to the task pool
-		 */
-		task = tracker_task_new (file, NULL, NULL);
-		tracker_task_pool_add (fs->priv->task_pool, task);
+	case QUEUE_WRITEBACK:
+		/* Nothing to do here */
 		keep_processing = TRUE;
-	}
 		break;
 	default:
 		g_assert_not_reached ();
@@ -3099,8 +3110,9 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	/* Already sent max number of tasks to tracker-extract? */
-	if (tracker_task_pool_limit_reached (fs->priv->task_pool)) {
+	/* Already sent max number of tasks to tracker-extract/writeback? */
+	if (tracker_task_pool_limit_reached (fs->priv->task_pool) ||
+	    tracker_task_pool_limit_reached (fs->priv->writeback_pool)) {
 		return;
 	}
 
@@ -3497,11 +3509,18 @@ remove_writeback_task (TrackerMinerFS *fs,
 		       GFile          *file)
 {
 	TrackerTask *task;
+	gboolean *notified;
 
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
+	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
 
-	if (task && tracker_task_get_data (task) == NULL) {
-		tracker_task_pool_remove (fs->priv->task_pool, task);
+	if (!task) {
+		return FALSE;
+	}
+
+	notified = tracker_task_get_data (task);
+
+	if (notified && *notified) {
+		tracker_task_pool_remove (fs->priv->writeback_pool, task);
 		tracker_task_unref (task);
 		return TRUE;
 	}
@@ -3533,12 +3552,12 @@ check_item_queues (TrackerMinerFS *fs,
 		TrackerTask *task;
 
 		if (other_file) {
-			task = tracker_task_pool_find (fs->priv->task_pool, other_file);
+			task = tracker_task_pool_find (fs->priv->writeback_pool, other_file);
 		} else {
-			task = tracker_task_pool_find (fs->priv->task_pool, file);
+			task = tracker_task_pool_find (fs->priv->writeback_pool, file);
 		}
 
-		if (task && !tracker_task_get_data (task)) {
+		if (task) {
 			/* There is a writeback task for
 			 * this file, so avoid any updates
 			 */
@@ -4511,11 +4530,6 @@ task_pool_cancel_foreach (gpointer data,
 	UpdateProcessingTaskContext *ctxt;
 
 	ctxt = tracker_task_get_data (task);
-
-	if (!ctxt) {
-		return;
-	}
-
 	task_file = tracker_task_get_file (task);
 
 	if (ctxt &&
@@ -4818,7 +4832,7 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 
 	fs->priv->total_files_notified++;
 
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
+	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
 
 	if (!task) {
 		gchar *uri;
@@ -4838,8 +4852,18 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 		/* We don't expect any further monitor
 		 * events on the original file.
 		 */
-		tracker_task_pool_remove (fs->priv->task_pool, task);
+		tracker_task_pool_remove (fs->priv->writeback_pool, task);
 		tracker_task_unref (task);
+
+		item_queue_handlers_set_up (fs);
+	} else {
+		gboolean *notified;
+
+		notified = tracker_task_get_data (task);
+
+		if (notified) {
+			*notified = TRUE;
+		}
 	}
 
 	/* Check monitor_item_updated_cb() for the remainder of this notify,
