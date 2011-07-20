@@ -5105,56 +5105,62 @@ miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 
 static void
-miner_fs_trace_queue_with_files (TrackerMinerFS *fs,
-                                 const gchar    *queue_name,
-                                 GQueue         *queue)
+miner_fs_trace_queue_with_files_foreach (gpointer file,
+                                         gpointer fs)
 {
-	GList *li;
+	gchar *uri;
 
-	trace_eq ("(%s) Queue '%s' has %u elements:",
-	          G_OBJECT_TYPE_NAME (fs),
-	          queue_name,
-	          queue->length);
-
-	for (li = queue->head; li; li = g_list_next (li)) {
-		gchar *uri;
-
-		uri = g_file_get_uri (li->data);
-		trace_eq ("(%s)     Queue '%s' has '%s'",
-		          G_OBJECT_TYPE_NAME (fs),
-		          queue_name,
-		          uri);
-		g_free (uri);
-	}
+	uri = g_file_get_uri (G_FILE (file));
+	trace_eq ("(%s)     '%s'",
+	          G_OBJECT_TYPE_NAME (G_OBJECT (fs)),
+	          uri);
+	g_free (uri);
 }
 
 static void
-miner_fs_trace_queue_with_data (TrackerMinerFS *fs,
-                                const gchar    *queue_name,
-                                GQueue         *queue)
+miner_fs_trace_queue_with_files (TrackerMinerFS       *fs,
+                                 const gchar          *queue_name,
+                                 TrackerPriorityQueue *queue)
 {
-	GList *li;
-
 	trace_eq ("(%s) Queue '%s' has %u elements:",
 	          G_OBJECT_TYPE_NAME (fs),
 	          queue_name,
-	          queue->length);
+	          tracker_priority_queue_get_length (queue));
+	tracker_priority_queue_foreach (queue,
+	                                miner_fs_trace_queue_with_files_foreach,
+	                                fs);
+}
 
-	for (li = queue->head; li; li = g_list_next (li)) {
-		ItemMovedData *data = li->data;
-		gchar *source_uri;
-		gchar *dest_uri;
+static void
+miner_fs_trace_queue_with_data_foreach (gpointer moved_data,
+                                        gpointer fs)
+{
+	ItemMovedData *data = moved_data;
+	gchar *source_uri;
+	gchar *dest_uri;
 
-		source_uri = g_file_get_uri (data->source_file);
-		dest_uri = g_file_get_uri (data->file);
-		trace_eq ("(%s)     Queue '%s' has '%s->%s'",
-		          G_OBJECT_TYPE_NAME (fs),
-		          queue_name,
-		          source_uri,
-		          dest_uri);
-		g_free (source_uri);
-		g_free (dest_uri);
-	}
+	source_uri = g_file_get_uri (data->source_file);
+	dest_uri = g_file_get_uri (data->file);
+	trace_eq ("(%s)     '%s->%s'",
+	          G_OBJECT_TYPE_NAME (G_OBJECT (fs)),
+	          source_uri,
+	          dest_uri);
+	g_free (source_uri);
+	g_free (dest_uri);
+}
+
+static void
+miner_fs_trace_queue_with_data (TrackerMinerFS       *fs,
+                                const gchar          *queue_name,
+                                TrackerPriorityQueue *queue)
+{
+	trace_eq ("(%s) Queue '%s' has %u elements:",
+	          G_OBJECT_TYPE_NAME (fs),
+	          queue_name,
+	          tracker_priority_queue_get_length (queue));
+	tracker_priority_queue_foreach (queue,
+	                                miner_fs_trace_queue_with_data_foreach,
+	                                fs);
 }
 
 static gboolean
