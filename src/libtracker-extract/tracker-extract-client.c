@@ -288,6 +288,7 @@ get_metadata_fast_cb (void     *buffer,
 	}
 
 	g_simple_async_result_complete_in_idle (res);
+	g_object_unref (res);
 }
 
 static void
@@ -385,6 +386,7 @@ tracker_extract_client_get_metadata (GFile               *file,
 	g_simple_async_result_set_handle_cancellation (res, TRUE);
 
 	get_metadata_fast_async (connection, uri, mime_type, cancellable, res);
+	g_free (uri);
 }
 
 /**
