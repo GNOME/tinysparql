@@ -259,9 +259,6 @@ tracker_priority_queue_add (TrackerPriorityQueue *queue,
 	g_return_if_fail (queue != NULL);
 	g_return_if_fail (data != NULL);
 
-	/* clamp on G_PRIORITY_HIGH, to avoid much greediness */
-	priority = MAX (priority, G_PRIORITY_HIGH);
-
 	node = priority_segment_alloc_node (queue, priority);
 	g_assert (node != NULL);
 
