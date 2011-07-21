@@ -3539,9 +3539,9 @@ moved_files_equal (gconstpointer a,
 	return g_file_equal (data->file, file);
 }
 
-static gint
-compare_writeback_files (gconstpointer a,
-                         gconstpointer b)
+static gboolean
+writeback_files_equal (gconstpointer a,
+                       gconstpointer b)
 {
 	const ItemWritebackData *data = a;
 	GFile *file = G_FILE (b);
@@ -3630,7 +3630,7 @@ check_item_queues (TrackerMinerFS *fs,
 	case QUEUE_WRITEBACK:
 		/* No consecutive writebacks for the same file */
 		if (tracker_priority_queue_find (fs->priv->items_writeback, NULL,
-		                                 (GEqualFunc) compare_writeback_files, file)) {
+		                                 writeback_files_equal, file)) {
 			g_debug ("  Found previous unhandled WRITEBACK event");
 			return FALSE;
 		}
