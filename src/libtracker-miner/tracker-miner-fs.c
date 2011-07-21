@@ -2964,15 +2964,11 @@ item_queue_handlers_cb (gpointer user_data)
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
 			TrackerPriorityQueue *item_queue;
+			gchar *uri;
 
-			/* Parent isn't indexed yet, reinsert the task into the queue,
-			 * but forcily prepended by its parent so its indexing is
-			 * ensured, tasks are inserted at a high priority so they
-			 * are processed promptly anyway.
-			 */
-			tracker_priority_queue_add (fs->priv->items_created,
-						    g_object_ref (parent),
-						    G_PRIORITY_HIGH);
+			uri = g_file_get_uri (parent);
+			g_message ("Parent '%s' not indexed yet", uri);
+			g_free (uri);
 
 			if (queue == QUEUE_CREATED) {
 				item_queue = fs->priv->items_created;
@@ -2980,9 +2976,18 @@ item_queue_handlers_cb (gpointer user_data)
 				item_queue = fs->priv->items_updated;
 			}
 
+			/* Parent isn't indexed yet, reinsert the task into the queue,
+			 * but forcily prepended by its parent so its indexing is
+			 * ensured, tasks are inserted at a higher priority so they
+			 * are processed promptly anyway.
+			 */
+			tracker_priority_queue_add (item_queue,
+						    g_object_ref (parent),
+						    priority - 1);
+
 			tracker_priority_queue_add (item_queue,
 						    g_object_ref (file),
-						    G_PRIORITY_HIGH);
+						    priority);
 			keep_processing = TRUE;
 		}
 
