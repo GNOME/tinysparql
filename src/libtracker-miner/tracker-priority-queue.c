@@ -84,16 +84,16 @@ priority_segment_alloc_node (TrackerPriorityQueue *queue,
 	r = queue->segments->len - 1;
 
 	while (queue->segments->len > 0 && !found) {
-		c = r + l / 2;
+		c = (r + l) / 2;
 		segment = &g_array_index (queue->segments, PrioritySegment, c);
 
 		if (segment->priority == priority) {
 			found = TRUE;
 			break;
 		} else if (segment->priority > priority) {
-			l = c + 1;
-		} else if (segment->priority < priority) {
 			r = c - 1;
+		} else if (segment->priority < priority) {
+			l = c + 1;
 		}
 
 		if (l > r) {
