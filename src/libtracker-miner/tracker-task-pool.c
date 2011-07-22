@@ -265,7 +265,7 @@ tracker_task_pool_foreach (TrackerTaskPool *pool,
 	priv = pool->priv;
 	g_hash_table_iter_init (&iter, priv->tasks);
 
-	while (g_hash_table_iter_next (&iter, (gpointer *) &task, NULL)) {
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &task)) {
 		(func) (task, user_data);
 	}
 }
