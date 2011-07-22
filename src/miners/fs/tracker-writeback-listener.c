@@ -36,6 +36,12 @@ typedef struct {
 	guint d_signal;
 } TrackerWritebackListenerPrivate;
 
+typedef struct {
+	TrackerWritebackListener *self;
+	gint subject_id;
+	GStrv rdf_types;
+} QueryData;
+
 enum {
 	PROP_0,
 	PROP_FILES_MINER
@@ -114,7 +120,6 @@ writeback_listener_set_property (GObject      *object,
 		break;
 	}
 }
-
 
 static void
 writeback_listener_get_property (GObject    *object,
@@ -222,12 +227,6 @@ tracker_writeback_listener_new (TrackerMinerFiles  *miner_files,
 
 	return (TrackerWritebackListener *) miner;
 }
-
-typedef struct {
-	TrackerWritebackListener *self;
-	gint subject_id;
-	GStrv rdf_types;
-} QueryData;
 
 static QueryData*
 query_data_new (TrackerWritebackListener *self,
