@@ -15,13 +15,13 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="i" name="value" direction="out" />
     </method>
-    <method name='PerformWriteback'>"
-      <arg type='s' name='uri' direction='in' />"
-      <arg type='as' name='rdf_types' direction='in' />"
-      <arg type='aas' name='results' direction='in' />"
+    <method name="PerformWriteback">
+      <arg type="s" name="uri" direction="in" />
+      <arg type="as" name="rdf_types" direction="in" />
+      <arg type="aas" name="results" direction="in" />
     </method>"
-    <method name='CancelTasks'>"
-      <arg type='as' name='uri' direction='in' />"
-    </method>"
+    <method name="CancelTasks">
+      <arg type="as" name="uri" direction="in" />
+    </method>
   </interface>
 </node>
