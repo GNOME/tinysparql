@@ -74,6 +74,12 @@ Boston, MA  02110-1301, USA.
       <default>true</default>
     </key>
 
+    <key name="enable-writeback" type="b">
+      <_summary>Enable writeback</_summary>
+      <_description>Set to false to completely disable any file writeback</_description>
+      <default>true</default>
+    </key>
+
     <key name="index-removable-devices" type="b">
       <_summary>Index removable devices</_summary>
       <_description>Set to true to enable indexing mounted directories for removable devices.</_description>
