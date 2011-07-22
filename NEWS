@@ -1,3 +1,22 @@
+NEW in 0.10.21 - 2011-07-22
+===========================
+
+The changes are:
+
+  * Fixes: GB#654407, libtracker-data: Implement get_property() for n-columns
+  * Fixes: GB#654653, libtracker-miner: don't use G_CONST_RETURN
+  * Fixes: NB#259780, libtracker-miner: make tracker_miner_fs_check_file() use high priority
+  * tracker-miner-fs: Add priority queues to achieve more prompt indexing on demand
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.20 - 2011-07-14
 ===========================
 
