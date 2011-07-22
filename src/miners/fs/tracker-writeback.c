@@ -62,12 +62,27 @@ initialize_all (TrackerMinerFiles  *miner_files,
 }
 
 static void
+shutdown_writeback (void)
+{
+	if (listener) {
+		g_object_unref (listener);
+		listener = NULL;
+	}
+
+	if (dispatcher) {
+		g_object_unref (dispatcher);
+		dispatcher = NULL;
+	}
+	enabled = FALSE;
+}
+
+static void
 enable_writeback_cb (GObject    *object,
                      GParamSpec *pspec,
                      gpointer    user_data)
 {
 	if (enabled && !tracker_config_get_enable_monitors (gconfig)) {
-		tracker_writeback_shutdown ();
+		shutdown_writeback ();
 	}
 
 	if (!enabled && tracker_config_get_enable_monitors (gconfig)) {
@@ -107,15 +122,7 @@ tracker_writeback_init (TrackerMinerFiles  *miner_files,
 void
 tracker_writeback_shutdown (void)
 {
-	if (listener) {
-		g_object_unref (listener);
-		listener = NULL;
-	}
-
-	if (dispatcher) {
-		g_object_unref (dispatcher);
-		dispatcher = NULL;
-	}
+	shutdown_writeback ();
 
 	if (gconfig) {
 		if (gsig) {
@@ -127,5 +134,4 @@ tracker_writeback_shutdown (void)
 	if (gminer_files) {
 		g_object_unref (gminer_files);
 	}
-	enabled = FALSE;
 }
