@@ -167,7 +167,6 @@ writeback_dispatcher_finalize (GObject *object)
 	}
 }
 
-
 static void
 tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *object)
 {
@@ -233,6 +232,7 @@ writeback_file_data_free (WritebackFileData *data)
 	if (data->self) {
 		g_object_weak_unref (G_OBJECT (data->self), self_weak_notify, data);
 	}
+
 	g_object_unref (data->fs);
 	g_object_unref (data->file);
 	g_strfreev (data->rdf_types);
@@ -244,11 +244,14 @@ static void
 self_weak_notify (gpointer data, GObject *where_the_object_was)
 {
 	WritebackFileData *udata = data;
+
 	/* Shut down while retrying writeback */
 	g_debug ("Shutdown while retrying WRITEBACK after unmount, not retrying anymore");
+
 	if (udata->retry_timeout != 0) {
 		g_source_remove (udata->retry_timeout);
 	}
+
 	udata->self = NULL;
 	writeback_file_data_free (udata);
 }
