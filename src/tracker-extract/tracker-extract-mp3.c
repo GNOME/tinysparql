@@ -1016,8 +1016,16 @@ id3v2_strlen (const gchar  encoding,
 	switch (encoding) {
 	case 0x01:
 	case 0x02:
+		
 		/* UTF-16, string terminated by two NUL bytes */
-		pos = memmem (text, len, "\0\0", 2);
+		pos = memmem (text, len, "\0\0\0", 3);
+
+		if (pos == NULL) {
+			pos = memmem (text, len, "\0\0", 2);
+		} else {
+			pos++;
+		}
+
 		if (pos != NULL) {
 			return pos - text;
 		} else {
