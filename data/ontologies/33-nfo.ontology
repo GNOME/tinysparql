@@ -985,24 +985,28 @@ nfo:RegionOfInterest a rdfs:Class;
 nfo:regionOfInterestX a rdf:Property;
         rdfs:label "Region of interest X";
         rdfs:comment "Coordinate X where the region starts. It is normalized (values between 0 and 1) to the width of the picture. Starting in the upper left corner.";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range xsd:double.
 
 nfo:regionOfInterestY a rdf:Property;
         rdfs:label "Region of interest Y";
         rdfs:comment "Coordinate y where the region starts. It is normalized (values between 0 and 1) to the height of the picture. Starting in the upper left corner.";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range xsd:double.
 
 nfo:regionOfInterestWidth a rdf:Property;
         rdfs:label "Region of interest width";
         rdfs:comment "Width of the region. It is normalized (values between 0 and 1) to the total width of the picture.";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range xsd:double.
 
 nfo:regionOfInterestHeight a rdf:Property;
         rdfs:label "Region of interest height";
         rdfs:comment "Height of the region. It is normalized (values between 0 and 1) to the total height of the picture.";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range xsd:double.
 
@@ -1020,6 +1024,7 @@ nfo:roi-content-undefined a nfo:RegionOfInterestContent .
 nfo:regionOfInterestType a rdf:Property;
         rdfs:label "Region of interest type";
         rdfs:comment "The content of a region can be one of the predefined types in the spec";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range nfo:RegionOfInterestContent .
 
@@ -1032,5 +1037,6 @@ nfo:hasRegionOfInterest a rdf:Property;
 nfo:roiRefersTo a rdf:Property;
         rdfs:label "Region of interest refers to" ;
         rdfs:comment "Link to an item that is represented in the region. The 'type' of the region can give a clue of what exact content is linked in this property";
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:RegionOfInterest ;
         rdfs:range nie:InformationElement.
