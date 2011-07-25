@@ -28,6 +28,8 @@
 
 #ifdef HAVE_EXEMPI
 
+#define NS_XMP_REGIONS "http://www.metadataworkinggroup.com/schemas/regions/"
+
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
@@ -306,6 +308,26 @@ fix_orientation (const gchar *orientation)
 	return  "nfo:orientation-top";
 }
 
+static const gchar *
+fix_region_type (const gchar *region_type)
+{
+        if (region_type == NULL) {
+                return "nfo:region-content-undefined";
+        }
+
+        if (g_ascii_strcasecmp (region_type, "Face")) {
+                return "nfo:roi-content-face"; 
+        } else if (g_ascii_strcasecmp (region_type, "Pet")) {
+                return "nfo:roi-content-pet";
+        } else if (g_ascii_strcasecmp (region_type, "Focus")) {
+                return "nfo:roi-content-focus";
+        } else if (g_ascii_strcasecmp (region_type, "BarCode")) {
+                return "nfo:roi-content-barcode";
+        }
+
+        return "nfo:roi-content-undefined";
+}
+
 /* We have a simple element. Add any data we know about to the
  * hash table.
  */
@@ -317,12 +339,16 @@ iterate_simple (const gchar    *uri,
                 const gchar    *value,
                 gboolean        append)
 {
-	gchar *name;
-	const gchar *index_;
+	gchar            *name;
+	const gchar      *index_;
+        gchar            *propname;
+        TrackerXmpRegion *current_region;
 
 	name = g_strdup (strchr (path, ':') + 1);
-	index_ = strrchr (name, '[');
 
+        /* For 'dc:subject[1]' the name will be 'subject'.
+           This rule doesn't work for RegionLists  */
+	index_ = strrchr (name, '[');
 	if (index_) {
 		name[index_ - name] = '\0';
 	}
@@ -479,10 +505,62 @@ iterate_simple (const gchar    *uri,
 		if (!data->rating && g_ascii_strcasecmp (name, "Rating") == 0) {
 			data->rating = g_strdup (value);
 		}
-	}
+	} else if (g_ascii_strcasecmp (schema, NS_XMP_REGIONS) == 0) {
+                /*
+                 *  FIXME: Is wrong to assume the namespace is mwg-rs, stArea and stDim
+                 */
+                if (g_str_has_prefix (path, "mwg-rs:Regions/mwg-rs:RegionList")) {
+                        current_region = g_list_nth_data (data->regions, 0);
 
+                        propname = g_strdup (strrchr (path, '/') + 1);
 
+                        if (!current_region->title && g_ascii_strcasecmp (propname, "mwg-rs:Name") == 0) {
+                                current_region->title = g_strdup (value);
+                        } else if (!current_region->description 
+                                   && g_ascii_strcasecmp (propname, "mwg-rs:Description") == 0) {
+                                current_region->description = g_strdup (value);
+                        } else if (!current_region->x && g_ascii_strcasecmp (propname, "stArea:x") == 0) {
+                                current_region->x = g_strdup (value);
+                        } else if (!current_region->y && g_ascii_strcasecmp (propname, "stArea:y") == 0) {
+                                current_region->y = g_strdup (value);
+                        } else if (!current_region->width && g_ascii_strcasecmp (propname, "stArea:w") == 0) {
+                                current_region->width = g_strdup (value);
+                        } else if (!current_region->height && g_ascii_strcasecmp (propname, "stArea:h") == 0) {
+                                current_region->height = g_strdup (value);
+
+                                /* Spec not clear about units 
+                                   } else if (!current_region->unit 
+                                              && g_ascii_strcasecmp (propname, "stArea:unit") == 0) {
+                                   current_region->unit = g_strdup (value);
+                                */
+
+                        } else if (!current_region->type && g_ascii_strcasecmp (propname, "mwg-rs:Type") == 0) {
+                                current_region->type = g_strdup (value);
+                        } else if (g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
+                                current_region->link_class = g_strdup (propname);
+                                current_region->link_uri = g_strdup (value);
+                        } else {
+                                g_debug ("(unhandled)  prop: %s (%s)\n", path, value);
+                        }
+                }
+        }
 	g_free (name);
+}
+
+static void
+iterate_complex_element (TrackerXmpData *data, const gchar *schema, const gchar *path) 
+{
+        TrackerXmpRegion *region;
+
+        /* When we go into an Area, we put a region on the stack 
+         *  further statements will put values in that region. 
+         *
+         *  FIXME: Is wrong to assume the namespace is mwg-rs
+         */
+        if (g_str_has_suffix (path, "mwg-rs:Area")) {
+                region = g_new0 (TrackerXmpRegion, 1);
+                data->regions = g_list_prepend (data->regions, region);
+        }
 }
 
 /* Iterate over the XMP, dispatching to the appropriate element type
@@ -504,7 +582,6 @@ iterate (XmpPtr          xmp,
 		const gchar *schema = xmp_string_cstr (the_schema);
 		const gchar *path = xmp_string_cstr (the_path);
 		const gchar *value = xmp_string_cstr (the_prop);
-
 		if (XMP_IS_PROP_SIMPLE (opt)) {
 			if (!tracker_is_empty_string (path)) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
@@ -520,9 +597,17 @@ iterate (XmpPtr          xmp,
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			} else {
 				iterate_array (xmp, uri, data, schema, path);
-				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
+                                /* Some dc: elements are handled as arrays by exempi. 
+                                   In those cases, to avoid duplicated values, is easier
+                                   to skip the subtree 
+                                */
+                                if (g_str_has_prefix (path, "dc:")) {
+                                        xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
+                                }
 			}
-		}
+		} else {
+                        iterate_complex_element (data, schema, path);
+                }
 	}
 
 	xmp_string_free (the_prop);
@@ -601,6 +686,23 @@ tracker_xmp_read (const gchar    *buffer,
 }
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
+
+static void
+xmp_region_free (gpointer data) 
+{
+        TrackerXmpRegion *region = (TrackerXmpRegion *)data;
+        
+        g_free (region->title);
+        g_free (region->description);
+        g_free (region->type);
+        g_free (region->x);
+        g_free (region->y);
+        g_free (region->width);
+        g_free (region->height);
+        g_free (region->link_class);
+        g_free (region->link_uri);
+}
+
 
 /**
  * tracker_xmp_new:
@@ -695,6 +797,7 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data->gps_longitude);
 	g_free (data->gps_direction);
 
+        g_list_free_full (data->regions, xmp_region_free);
 	g_free (data);
 }
 
@@ -724,7 +827,9 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                    const gchar          *uri,
                    TrackerXmpData       *data)
 {
-	GPtrArray *keywords;
+	GPtrArray        *keywords;
+        GList            *iter;
+        TrackerXmpRegion *region;
 	guint i;
 
 	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
@@ -1042,6 +1147,76 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nfo:heading");
 		tracker_sparql_builder_object_unvalidated (metadata, data->gps_direction);
 	}
+
+
+        for (iter = data->regions; iter != NULL; iter = iter->next) {
+                gchar *reguuid;
+                reguuid = tracker_sparql_get_uuid_urn ();
+                region = (TrackerXmpRegion *)iter->data;
+
+                tracker_sparql_builder_predicate (metadata, "nfo:hasRegionOfInterest");
+                tracker_sparql_builder_object_iri (metadata, reguuid);
+
+                tracker_sparql_builder_insert_open (preupdate, NULL);
+                tracker_sparql_builder_subject_iri (preupdate, reguuid);
+
+                tracker_sparql_builder_predicate (preupdate, "a");
+                tracker_sparql_builder_object (preupdate, "nfo:RegionOfInterest");
+
+                if (region->title) {
+                        tracker_sparql_builder_predicate (preupdate, "nie:title");
+                        tracker_sparql_builder_object_string (preupdate, region->title);
+                }
+
+                if (region->description) {
+                        tracker_sparql_builder_predicate (preupdate, "nie:description");
+                        tracker_sparql_builder_object_string (preupdate, region->description);
+                }
+
+                if (region->type) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestType");
+                        tracker_sparql_builder_object (preupdate, fix_region_type (region->type));
+                }
+
+                if (region->x) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestX");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->x);
+                }
+
+                if (region->y) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestY");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->y);
+                }
+
+                if (region->width) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestWidth");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->width);
+                }
+
+                if (region->height) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestHeight");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->height);
+                }
+
+
+                tracker_sparql_builder_insert_close (preupdate);
+
+                if (region->link_uri && region->link_class) {
+                        tracker_sparql_builder_insert_open (preupdate, NULL);
+                        tracker_sparql_builder_subject_iri (preupdate, reguuid);
+                        tracker_sparql_builder_predicate (preupdate, "nfo:roiRefersTo");
+                        tracker_sparql_builder_object_iri (preupdate, region->link_uri);
+                        tracker_sparql_builder_insert_close (preupdate);
+
+                        tracker_sparql_builder_where_open (preupdate);
+                        tracker_sparql_builder_subject_iri (preupdate, region->link_uri);
+                        tracker_sparql_builder_predicate (preupdate, "a");
+                        tracker_sparql_builder_object (preupdate, region->link_class);
+                        tracker_sparql_builder_where_close (preupdate);
+                }
+
+                g_free (reguuid);
+        }
 
 	return TRUE;
 }
