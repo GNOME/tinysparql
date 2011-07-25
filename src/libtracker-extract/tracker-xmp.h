@@ -90,7 +90,20 @@ typedef struct {
 	gchar *gps_longitude;
 	gchar *gps_direction;
 
+        GList *regions; /* List of TrackerXmpRegion */
 } TrackerXmpData;
+
+typedef struct {
+        gchar *title;
+        gchar *description;
+        gchar *type;
+        gchar *x;
+        gchar *y;
+        gchar *width;
+        gchar *height;
+        gchar *link_class;
+        gchar *link_uri;
+} TrackerXmpRegion;
 
 TrackerXmpData * tracker_xmp_new   (const gchar          *buffer,
                                     gsize                 len,
