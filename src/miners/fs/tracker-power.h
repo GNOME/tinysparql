@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_POWER_H__
-#define __LIBTRACKER_COMMON_POWER_H__
+#ifndef __TRACKER_MINER_FS_POWER_H__
+#define __TRACKER_MINER_FS_POWER_H__
 
 #include <glib-object.h>
 
@@ -55,4 +55,4 @@ gboolean      tracker_power_get_on_low_battery     (TrackerPower *power);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_POWER_H__ */
+#endif /* __TRACKER_MINER_FS_POWER_H__ */

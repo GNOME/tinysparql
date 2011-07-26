@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_WRITEBACK_H__
-#define __TRACKER_WRITEBACK_H__
+#ifndef __TRACKER_MINER_FS_WRITEBACK_H__
+#define __TRACKER_MINER_FS_WRITEBACK_H__
 
 #include <libtracker-miner/tracker-miner.h>
 
@@ -35,4 +35,4 @@ void tracker_writeback_shutdown (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_WRITEBACK_H__ */
+#endif /* __TRACKER_MINER_FS_WRITEBACK_H__ */
