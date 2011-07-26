@@ -159,14 +159,6 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		return FALSE;
 	}
 
-	/* Copy to a temporary file so we can perform an atomic write on move */
-	tmp_file = create_temporary_file (file, file_info);
-
-	if (!tmp_file) {
-		g_object_unref (file);
-		return FALSE;
-	}
-
 	mime_type = g_file_info_get_content_type (file_info);
 	content_types = (writeback_file_class->content_types) (TRACKER_WRITEBACK_FILE (writeback));
 
@@ -181,13 +173,25 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 
 	g_object_unref (file_info);
 
-	if (retval) {
-		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-		                                                       tmp_file,
-		                                                       values,
-		                                                       connection,
-		                                                       cancellable);
+	if (!retval) {
+		/* module does not support writeback for this file */
+		g_object_unref (file);
+		return FALSE;
 	}
+
+	/* Copy to a temporary file so we can perform an atomic write on move */
+	tmp_file = create_temporary_file (file, file_info);
+
+	if (!tmp_file) {
+		g_object_unref (file);
+		return FALSE;
+	}
+
+	retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
+	                                                       tmp_file,
+	                                                       values,
+	                                                       connection,
+	                                                       cancellable);
 
 	/* Move back the modified file to the original location */
 	g_file_move (tmp_file, file,
