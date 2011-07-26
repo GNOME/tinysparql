@@ -129,6 +129,8 @@ typedef struct {
 	GFile     *file;
 	GPtrArray *results;
 	GStrv      rdf_types;
+	GCancellable *cancellable;
+	guint notified : 1;
 } ItemWritebackData;
 
 typedef struct {
@@ -680,7 +682,9 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * TrackerMinerFS::writeback-file:
 	 * @miner_fs: the #TrackerMinerFS
 	 * @file: a #GFile
+	 * @rdf_types: the set of RDF types
 	 * @results: a set of results prepared by the preparation query
+	 * @cancellable: a #GCancellable
 	 *
 	 * The ::writeback-file signal is emitted whenever a file must be written
 	 * back
@@ -696,12 +700,13 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, writeback_file),
 		              NULL,
 		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT_BOXED_BOXED,
+		              tracker_marshal_BOOLEAN__OBJECT_BOXED_BOXED_OBJECT,
 		              G_TYPE_BOOLEAN,
-		              3,
+		              4,
 		              G_TYPE_FILE,
 		              G_TYPE_STRV,
-		              G_TYPE_PTR_ARRAY);
+		              G_TYPE_PTR_ARRAY,
+		              G_TYPE_CANCELLABLE);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 }
@@ -1227,6 +1232,8 @@ item_writeback_data_new (GFile     *file,
 	data->file = g_object_ref (file);
 	data->results = g_ptr_array_ref (results);
 	data->rdf_types = g_strdupv (rdf_types);
+	data->cancellable = g_cancellable_new ();
+	data->notified = FALSE;
 
 	return data;
 }
@@ -1237,6 +1244,7 @@ item_writeback_data_free (ItemWritebackData *data)
 	g_object_unref (data->file);
 	g_ptr_array_unref (data->results);
 	g_strfreev (data->rdf_types);
+	g_object_unref (data->cancellable);
 	g_slice_free (ItemWritebackData, data);
 }
 
@@ -2617,18 +2625,16 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		               wdata->file,
 		               wdata->rdf_types,
 		               wdata->results,
+		               wdata->cancellable,
 		               &processing);
 
 		if (processing) {
 			TrackerTask *task;
-			gboolean *notified;
 
-			notified = g_new0 (gboolean, 1);
-			task = tracker_task_new (wdata->file, notified,
-			                         (GDestroyNotify) g_free);
+			task = tracker_task_new (wdata->file, wdata,
+			                         (GDestroyNotify) item_writeback_data_free);
 			tracker_task_pool_add (fs->priv->writeback_pool, task);
 
-			item_writeback_data_free (wdata);
 			return QUEUE_WRITEBACK;
 		} else {
 			item_writeback_data_free (wdata);
@@ -3556,7 +3562,7 @@ remove_writeback_task (TrackerMinerFS *fs,
 		       GFile          *file)
 {
 	TrackerTask *task;
-	gboolean *notified;
+	ItemWritebackData *data;
 
 	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
 
@@ -3564,9 +3570,9 @@ remove_writeback_task (TrackerMinerFS *fs,
 		return FALSE;
 	}
 
-	notified = tracker_task_get_data (task);
+	data = tracker_task_get_data (task);
 
-	if (notified && *notified) {
+	if (data->notified) {
 		tracker_task_pool_remove (fs->priv->writeback_pool, task);
 		tracker_task_unref (task);
 		return TRUE;
@@ -4904,13 +4910,10 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 
 		item_queue_handlers_set_up (fs);
 	} else {
-		gboolean *notified;
+		ItemWritebackData *data;
 
-		notified = tracker_task_get_data (task);
-
-		if (notified) {
-			*notified = TRUE;
-		}
+		data = tracker_task_get_data (task);
+		data->notified = TRUE;
 	}
 
 	/* Check monitor_item_updated_cb() for the remainder of this notify,
