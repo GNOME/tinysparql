@@ -20,8 +20,9 @@
 #ifndef __TRACKER_EXTRACT_CONTROLLER_H__
 #define __TRACKER_EXTRACT_CONTROLLER_H__
 
-#include "tracker-extract.h"
 #include <gio/gio.h>
+
+#include "tracker-extract.h"
 
 G_BEGIN_DECLS
 
