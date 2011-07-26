@@ -30,7 +30,8 @@ common = \
 	tracker-stats.1 \
 	tracker-store.1 \
 	tracker-store.cfg.5 \
-	tracker-tag.1
+	tracker-tag.1 \
+	tracker-writeback.1
 
 # Install only common and enabled manpages
 man_MANS = \
