@@ -3581,6 +3581,24 @@ remove_writeback_task (TrackerMinerFS *fs,
 	return FALSE;
 }
 
+static void
+cancel_writeback_task (TrackerMinerFS *fs,
+		       GFile          *file)
+{
+	TrackerTask *task;
+
+	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
+
+	if (task) {
+		ItemWritebackData *data;
+
+		data = tracker_task_get_data (task);
+		g_cancellable_cancel (data->cancellable);
+		tracker_task_pool_remove (fs->priv->writeback_pool, task);
+		tracker_task_unref (task);
+	}
+}
+
 /* Checks previous created/updated/deleted/moved/writeback queues for
  * monitor events. Returns TRUE if the item should still
  * be added to the queue.
@@ -3601,7 +3619,7 @@ check_item_queues (TrackerMinerFS *fs,
 		return TRUE;
 	}
 
-	if (queue != QUEUE_WRITEBACK) {
+	if (queue == QUEUE_UPDATED) {
 		TrackerTask *task;
 
 		if (other_file) {
@@ -3644,6 +3662,11 @@ check_item_queues (TrackerMinerFS *fs,
 
 		return TRUE;
 	case QUEUE_DELETED:
+		if (tracker_task_pool_find (fs->priv->writeback_pool, file)) {
+			/* Cancel writeback operations on a deleted file */
+			cancel_writeback_task (fs, file);
+		}
+
 		/* Remove all previous updates */
 		if (tracker_priority_queue_foreach_remove (fs->priv->items_updated,
 		                                           (GEqualFunc) g_file_equal,
@@ -3665,6 +3688,13 @@ check_item_queues (TrackerMinerFS *fs,
 
 		return TRUE;
 	case QUEUE_MOVED:
+		if (tracker_task_pool_find (fs->priv->writeback_pool, file)) {
+			/* If the origin file is also being written back,
+			 * cancel it as this is an external operation.
+			 */
+			cancel_writeback_task (fs, file);
+		}
+
 		/* Kill any events on other_file (The dest one), since it will be rewritten anyway */
 		if (tracker_priority_queue_foreach_remove (fs->priv->items_created,
 		                                           (GEqualFunc) g_file_equal,
