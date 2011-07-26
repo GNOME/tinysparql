@@ -27,6 +27,7 @@
       <arg type="i" name="cookie" direction="in" />
     </method>
 
+    <!-- Deprecated since 0.11 -->
     <method name="IgnoreNextUpdate">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="as" name="urls" direction="in" />

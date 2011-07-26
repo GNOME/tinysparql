@@ -1245,6 +1245,7 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
  * Returns: %TRUE on success, otherwise %FALSE.
  *
  * Since: 0.8
+ * Deprecated since 0.11
  **/
 gboolean
 tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
