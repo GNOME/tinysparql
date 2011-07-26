@@ -98,7 +98,7 @@ enum {
 	PROP_CRAWLING_INTERVAL,
 	PROP_REMOVABLE_DAYS_THRESHOLD,
 
-	/* Monit */
+	/* Writeback */
 	PROP_ENABLE_WRITEBACK
 
 };
@@ -282,7 +282,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 
 	/* Writeback */
 	g_object_class_install_property (object_class,
-	                                 PROP_ENABLE_MONITORS,
+	                                 PROP_ENABLE_WRITEBACK,
 	                                 g_param_spec_boolean ("enable-writeback",
 	                                                       "Enable Writeback",
 	                                                       "Set to false to disable writeback",
