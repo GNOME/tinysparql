@@ -67,7 +67,7 @@ struct _TrackerMinerFS {
  * @process_file: Called when the metadata associated to a file is
  * requested.
  * @ignore_next_update_file: Called after a writeback event happens on
- * a file.
+ * a file (deprecated).
  * @monitor_directory: Called to check whether a directory should be
  * modified.
  * @finished: Called when all processing has been performed.
