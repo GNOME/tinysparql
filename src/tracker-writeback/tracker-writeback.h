@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_CONTROLLER_H__
-#define __TRACKER_CONTROLLER_H__
+#ifndef __TRACKER_WRITEBACK_CONTROLLER_H__
+#define __TRACKER_WRITEBACK_CONTROLLER_H__
 
 #include <gio/gio.h>
 
@@ -48,9 +48,9 @@ struct TrackerControllerClass {
 
 GType               tracker_controller_get_type (void) G_GNUC_CONST;
 
-TrackerController * tracker_controller_new   (guint               shutdown_timeout,
-                                              GError            **error);
+TrackerController * tracker_controller_new      (guint    shutdown_timeout,
+                                                 GError **error);
 
 G_END_DECLS
 
-#endif /* __TRACKER_CONTROLLER_H__ */
+#endif /* __TRACKER_WRITEBACK_CONTROLLER_H__ */
