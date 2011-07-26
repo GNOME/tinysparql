@@ -306,7 +306,7 @@ writeback_file_finished  (GObject      *source_object,
 
 static void
 writeback_cancel_remote_operation (GCancellable      *cancellable,
-				   WritebackFileData *data)
+                                   WritebackFileData *data)
 {
 	TrackerWritebackDispatcherPrivate *priv;
 	GDBusMessage *message;

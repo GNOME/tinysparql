@@ -3583,7 +3583,7 @@ remove_writeback_task (TrackerMinerFS *fs,
 
 static void
 cancel_writeback_task (TrackerMinerFS *fs,
-		       GFile          *file)
+                       GFile          *file)
 {
 	TrackerTask *task;
 
@@ -4626,7 +4626,7 @@ task_pool_cancel_foreach (gpointer data,
 
 static void
 writeback_pool_cancel_foreach (gpointer data,
-			       gpointer user_data)
+                               gpointer user_data)
 {
 	GFile *task_file, *file;
 	TrackerTask *task;
