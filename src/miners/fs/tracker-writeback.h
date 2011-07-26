@@ -20,7 +20,6 @@
 #ifndef __TRACKER_WRITEBACK_H__
 #define __TRACKER_WRITEBACK_H__
 
-
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-config.h"
