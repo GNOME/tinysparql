@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_CONTROLLER_H__
-#define __TRACKER_CONTROLLER_H__
+#ifndef __TRACKER_EXTRACT_CONTROLLER_H__
+#define __TRACKER_EXTRACT_CONTROLLER_H__
 
 #include "tracker-extract.h"
 #include <gio/gio.h>
@@ -46,12 +46,12 @@ struct TrackerControllerClass {
 
 GType               tracker_controller_get_type (void) G_GNUC_CONST;
 
-TrackerController * tracker_controller_new   (TrackerExtract     *extractor,
-                                              guint               shutdown_timeout,
-                                              GError            **error);
-gboolean            tracker_controller_start (TrackerController  *controller,
-                                              GError            **error);
+TrackerController * tracker_controller_new      (TrackerExtract     *extractor,
+                                                 guint               shutdown_timeout,
+                                                 GError            **error);
+gboolean            tracker_controller_start    (TrackerController  *controller,
+                                                 GError            **error);
 
 G_END_DECLS
 
-#endif /* __TRACKER_CONTROLLER_H__ */
+#endif /* __TRACKER_EXTRACT_CONTROLLER_H__ */
