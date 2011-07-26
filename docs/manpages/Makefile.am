@@ -15,7 +15,8 @@ common = \
 	tracker-sparql.1 \
 	tracker-stats.1 \
 	tracker-store.1 \
-	tracker-tag.1
+	tracker-tag.1 \
+	tracker-writeback.1
 
 # Require only common and enabled manpages
 man_MANS = $(common)

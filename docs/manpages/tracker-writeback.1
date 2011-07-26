@@ -1,0 +1,46 @@
+.TH tracker-writeback 1 "July 2011" GNU "User Commands"
+
+.SH NAME
+tracker-writeback \- Used to write metadata set in Tracker back to
+physical files.
+
+.SH SYNOPSIS
+\fBtracker-writeback\fR [\fIOPTION\fR...]
+
+.SH DESCRIPTION
+.B tracker-writeback
+is not supposed to be run by the user since it is started by
+its .desktop file when the user logs in. It can also be started
+manually of course for debugging purposes. You can not run more than
+one instance of this at the same time.
+
+.B tracker-writeback
+writes metadata from the Tracker database back into files only.
+Currently support is limited to XMP metadata (which covers PNG, JPEG,
+TIFF, MP4 and 3GPP formats), play lists (which covers MPEGURL, SCPLS
+and IRIVER formats) and taglib supported mime types (which covers MP3,
+MP4, OGG, WAV, FLAC and some Windows media formats).
+
+Data is only written back if write-back is enabled. This is configured
+in tracker-miner-fs.cfg, See the man page for tracker-miner-fs.cfg for
+more details.
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-V, \-\-version
+Returns the version of this binary.
+.TP
+.B \-v, \-\-verbosity={0|1|2|3}
+Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
+.TP
+.B \-d, \-\-disable-shutdown
+Disable shutting down after 30 seconds of inactivity.
+
+.SH SEE ALSO
+.BR tracker-store (1),
+.BR tracker-miner-fs (1).
+.BR tracker-miner-fs.cfg (5).
+.BR tracker-extract (1).
