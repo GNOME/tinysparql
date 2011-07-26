@@ -17,13 +17,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_SPARQL_BUFFER_H__
-#define __TRACKER_SPARQL_BUFFER_H__
+#ifndef __LIBTRACKER_MINER_SPARQL_BUFFER_H__
+#define __LIBTRACKER_MINER_SPARQL_BUFFER_H__
 
-#include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
+
 #include <libtracker-sparql/tracker-sparql.h>
+
 #include "tracker-task-pool.h"
 
 G_BEGIN_DECLS
@@ -81,4 +82,4 @@ TrackerTask *        tracker_sparql_task_new_bulk            (GFile             
 
 G_END_DECLS
 
-#endif /* __TRACKER_METADATA_EXTRACT_POOL_H__ */
+#endif /* __LIBTRACKER_MINER_SPARQL_BUFFER_H__ */

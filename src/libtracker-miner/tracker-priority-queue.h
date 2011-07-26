@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_PRIORITY_QUEUE_H__
-#define __TRACKER_PRIORITY_QUEUE_H__
+#ifndef __LIBTRACKER_MINER_PRIORITY_QUEUE_H__
+#define __LIBTRACKER_MINER_PRIORITY_QUEUE_H__
 
 #include <glib.h>
 
@@ -61,4 +61,4 @@ gpointer tracker_priority_queue_pop     (TrackerPriorityQueue *queue,
 
 G_END_DECLS
 
-#endif /* __TRACKER_PRIORITY_QUEUE_H__ */
+#endif /* __LIBTRACKER_TRACKER_PRIORITY_QUEUE_H__ */

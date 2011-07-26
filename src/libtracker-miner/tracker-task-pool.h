@@ -17,10 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_TASK_POOL_H__
-#define __TRACKER_TASK_POOL_H__
+#ifndef __LIBTRACKER_MINER_TASK_POOL_H__
+#define __LIBTRACKER_MINER_TASK_POOL_H__
 
-#include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
 
@@ -86,7 +85,6 @@ void          tracker_task_unref       (TrackerTask    *task);
 gpointer      tracker_task_get_data    (TrackerTask    *task);
 
 
-
 G_END_DECLS
 
-#endif /* __TRACKER_TASK_POOL_H__ */
+#endif /* __LIBTRACKER_MINER_TASK_POOL_H__ */
