@@ -139,7 +139,7 @@ enum {
 	PROP_CRAWLING_INTERVAL,
 	PROP_REMOVABLE_DAYS_THRESHOLD,
 
-	/* Monit */
+	/* Writeback */
 	PROP_ENABLE_WRITEBACK
 
 };

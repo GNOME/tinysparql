@@ -2603,7 +2603,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 	/* Writeback items first */
 	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
-					    &priority);
+	                                    &priority);
 	if (wdata) {
 		gboolean processing;
 
@@ -2617,7 +2617,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		               wdata->file,
 		               wdata->rdf_types,
 		               wdata->results,
-			       &processing);
+		               &processing);
 
 		if (processing) {
 			TrackerTask *task;
@@ -2625,7 +2625,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			notified = g_new0 (gboolean, 1);
 			task = tracker_task_new (wdata->file, notified,
-						 (GDestroyNotify) g_free);
+			                         (GDestroyNotify) g_free);
 			tracker_task_pool_add (fs->priv->writeback_pool, task);
 
 			item_writeback_data_free (wdata);
