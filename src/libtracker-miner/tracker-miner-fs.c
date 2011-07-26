@@ -635,7 +635,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *          %FALSE on failure
 	 *
 	 * Since: 0.8
-	 * Deprecated since: 0.11
+	 * Deprecated since: 0.12
 	 **/
 	signals[IGNORE_NEXT_UPDATE_FILE] =
 		g_signal_new ("ignore-next-update-file",
