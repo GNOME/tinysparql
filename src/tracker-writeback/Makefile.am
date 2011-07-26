@@ -65,9 +65,7 @@ tracker_writeback_LDADD = \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
-	$(TRACKER_WRITEBACK_LIBS) \
-	$(LIBTRACKER_MINER_LIBS)
-
+	$(TRACKER_WRITEBACK_LIBS)
 
 marshal_sources = \
 	tracker-marshal.h \
