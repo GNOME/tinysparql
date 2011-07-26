@@ -4624,6 +4624,27 @@ task_pool_cancel_foreach (gpointer data,
 	}
 }
 
+static void
+writeback_pool_cancel_foreach (gpointer data,
+			       gpointer user_data)
+{
+	GFile *task_file, *file;
+	TrackerTask *task;
+
+	task = data;
+	file = user_data;
+	task_file = tracker_task_get_file (task);
+
+	if (!file ||
+	    g_file_equal (task_file, file) ||
+	    g_file_has_prefix (task_file, file)) {
+		ItemWritebackData *task_data;
+
+		task_data = tracker_task_get_data (task);
+		g_cancellable_cancel (task_data->cancellable);
+	}
+}
+
 /**
  * tracker_miner_fs_directory_remove:
  * @fs: a #TrackerMinerFS
@@ -4658,6 +4679,12 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	                           file);
 
 	g_debug ("  Cancelled processing pool tasks at %f\n", g_timer_elapsed (timer, NULL));
+
+	tracker_task_pool_foreach (priv->writeback_pool,
+	                           writeback_pool_cancel_foreach,
+	                           file);
+	g_debug ("  Cancelled writeback pool tasks at %f\n",
+	         g_timer_elapsed (timer, NULL));
 
 	if (fs->priv->current_directory) {
 		GFile *current_file;
