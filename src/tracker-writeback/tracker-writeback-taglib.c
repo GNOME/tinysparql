@@ -20,9 +20,11 @@
 
 #include "config.h"
 
-#include <glib-object.h>
-#include <taglib/tag_c.h>
 #include <stdlib.h>
+
+#include <taglib/tag_c.h>
+
+#include <glib-object.h>
 
 #include <libtracker-common/tracker-ontologies.h>
 

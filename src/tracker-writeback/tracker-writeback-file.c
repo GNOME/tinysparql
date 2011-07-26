@@ -20,10 +20,11 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <fcntl.h> /* O_WRONLY */
+
+#include <gio/gunixoutputstream.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <gio/gunixoutputstream.h>
-#include <fcntl.h> /* O_WRONLY */
 
 #include "tracker-writeback-file.h"
 
