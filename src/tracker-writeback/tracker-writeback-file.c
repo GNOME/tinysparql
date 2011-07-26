@@ -61,6 +61,12 @@ create_temporary_file (GFile     *file,
 	GError *error = NULL;
 
 	if (!g_file_is_native (file)) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_warning ("Could not create temporary file, file is not native: '%s'", uri);
+		g_free (uri);
+
 		return NULL;
 	}
 
@@ -68,7 +74,7 @@ create_temporary_file (GFile     *file,
 	input_stream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
 
 	if (error) {
-		g_critical ("Could not read the file: %s", error->message);
+		g_critical ("Could not create temporary file, %s", error->message);
 		g_error_free (error);
 		return NULL;
 	}
@@ -104,7 +110,7 @@ create_temporary_file (GFile     *file,
 	g_free (tmp_path);
 
 	if (error) {
-		g_critical ("Could not copy file: %s\n", error->message);
+		g_critical ("Could not copy temporary file, %s", error->message);
 		g_error_free (error);
 
 		g_file_delete (tmp_file, NULL, NULL);
