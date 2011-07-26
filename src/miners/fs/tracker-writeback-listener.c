@@ -308,8 +308,14 @@ sparql_query_cb (GObject      *object,
 			g_message ("  No files qualify for updates");
 		}
 
-		g_object_unref (file);
-		g_ptr_array_unref (results);
+		if (file) {
+			g_object_unref (file);
+		}
+
+		if (results) {
+			g_ptr_array_unref (results);
+		}
+
 		g_object_unref (cursor);
 	} else {
 		g_message ("  No files qualify for updates (%s)", error->message);
