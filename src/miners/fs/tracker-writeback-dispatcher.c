@@ -252,7 +252,7 @@ self_weak_notify (gpointer data, GObject *where_the_object_was)
 	WritebackFileData *udata = data;
 
 	/* Shut down while retrying writeback */
-	g_debug ("Shutdown while retrying WRITEBACK after unmount, not retrying anymore");
+	g_debug ("Shutdown occurred while retrying write-back (after unmount), not retrying anymore");
 
 	if (udata->retry_timeout != 0) {
 		g_source_remove (udata->retry_timeout);
@@ -292,7 +292,7 @@ writeback_file_finished  (GObject      *source_object,
 		/* This happens in case of exit() of the tracker-writeback binary, which
 		 * happens on unmount of the FS event, for example */
 
-		g_debug ("Retry WRITEBACK after unmount");
+		g_debug ("Retrying write-back after unmount (timeout in 5 seconds)");
 		tracker_miner_fs_writeback_notify (data->fs, data->file, NULL);
 
 		data->retry_timeout = g_timeout_add_seconds (5, retry_idle, data);
@@ -347,7 +347,7 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (self);
 
 	uri = g_file_get_uri (file);
-	g_debug ("Writeback: %s", uri);
+	g_debug ("Performing write-back for '%s'", uri);
 
 	g_variant_builder_init (&builder, G_VARIANT_TYPE ("(sasaas)"));
 

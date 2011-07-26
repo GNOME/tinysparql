@@ -4862,7 +4862,7 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 
 	path = g_file_get_path (file);
 
-	g_debug ("%s (WRITEBACK) (requested by application)", path);
+	g_debug ("Performing write-back:'%s' (requested by application)", path);
 
 	trace_eq_push_tail ("WRITEBACK", file, "Requested by application");
 
