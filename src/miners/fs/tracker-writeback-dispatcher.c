@@ -35,7 +35,10 @@ typedef struct {
 	GPtrArray *results;
 	GStrv rdf_types;
 	TrackerWritebackDispatcher *self; /* weak */
-	guint retry_timeout, retries;
+	GCancellable *cancellable;
+	guint cancel_id;
+	guint retry_timeout;
+	guint retries;
 } WritebackFileData;
 
 typedef struct {
@@ -68,6 +71,7 @@ static gboolean writeback_dispatcher_writeback_file  (TrackerMinerFS       *fs,
                                                       GFile                *file,
                                                       GStrv                 rdf_types,
                                                       GPtrArray            *results,
+                                                      GCancellable         *cancellable,
                                                       gpointer              user_data);
 static void     self_weak_notify                     (gpointer              data,
                                                       GObject              *where_the_object_was);
@@ -237,6 +241,8 @@ writeback_file_data_free (WritebackFileData *data)
 	g_object_unref (data->file);
 	g_strfreev (data->rdf_types);
 	g_ptr_array_unref (data->results);
+	g_cancellable_disconnect (data->cancellable, data->cancel_id);
+	g_object_unref (data->cancellable);
 	g_free (data);
 }
 
@@ -298,11 +304,37 @@ writeback_file_finished  (GObject      *source_object,
 	}
 }
 
+static void
+writeback_cancel_remote_operation (GCancellable      *cancellable,
+				   WritebackFileData *data)
+{
+	TrackerWritebackDispatcherPrivate *priv;
+	GDBusMessage *message;
+        gchar *uris[2];
+
+	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->self);
+
+	uris[0] = g_file_get_uri (data->file);
+	uris[1] = NULL;
+
+	message = g_dbus_message_new_method_call (TRACKER_WRITEBACK_SERVICE,
+	                                          TRACKER_WRITEBACK_PATH,
+	                                          TRACKER_WRITEBACK_INTERFACE,
+	                                          "CancelTasks");
+
+	g_dbus_message_set_body (message, g_variant_new ("(^as)", uris));
+	g_dbus_connection_send_message (priv->d_connection, message,
+	                                G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+	                                NULL, NULL);
+	g_free (uris[0]);
+}
+
 static gboolean
 writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
                                      GFile          *file,
                                      GStrv           rdf_types,
                                      GPtrArray      *results,
+                                     GCancellable   *cancellable,
                                      gpointer        user_data)
 {
 	TrackerWritebackDispatcher *self = user_data;
@@ -351,6 +383,10 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 	data->file = g_object_ref (file);
 	data->results = g_ptr_array_ref (results);
 	data->rdf_types = g_strdupv (rdf_types);
+	data->cancellable = g_object_ref (cancellable);
+	data->cancel_id = g_cancellable_connect (data->cancellable,
+	                                         G_CALLBACK (writeback_cancel_remote_operation),
+	                                         data, NULL);
 
 	g_dbus_connection_call (priv->d_connection,
 	                        TRACKER_WRITEBACK_SERVICE,
@@ -361,7 +397,7 @@ writeback_dispatcher_writeback_file (TrackerMinerFS *fs,
 	                        NULL,
 	                        G_DBUS_CALL_FLAGS_NONE,
 	                        -1,
-	                        NULL,
+	                        cancellable,
 	                        (GAsyncReadyCallback) writeback_file_finished,
 	                        data);
 
