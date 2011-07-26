@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FILES_INDEX_H__
-#define __TRACKER_MINER_FILES_INDEX_H__
+#ifndef __TRACKER_MINER_FS_FILES_INDEX_H__
+#define __TRACKER_MINER_FS_FILES_INDEX_H__
 
 #include <glib-object.h>
 
@@ -49,4 +49,4 @@ TrackerMinerFilesIndex *tracker_miner_files_index_new      (TrackerMinerFiles *m
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FILES_INDEX_H__ */
+#endif /* __TRACKER_MINER_FS_FILES_INDEX_H__ */
