@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE prefwindow SYSTEM "chrome://trackerbird/locale/options.dtd">
+<prefwindow id="trackerbird-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
+  <prefpane id="pane1" label="&pane1.title;">
+	<preferences>
+	  <preference id="indexDelay" name="extensions.trackerbird.intpref" type="int"/>
+	</preferences>
+	<label accesskey="&indexDelay.accesskey;" control="textIndexDelay">&indexDelay.label;</label><textbox id="textIndexDelay" type="number" preference="indexDelay"/>
+  </prefpane>
+</prefwindow>
