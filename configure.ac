@@ -393,6 +393,21 @@ else
 
 fi
 
+# Check requirements for tracker-miner-thunderbird
+TRACKER_MINER_THUNDERBIRD_REQUIRED=5.0
+have_tracker_miner_thunderbird="no "
+
+AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
+if test -n $THUNDERBIRD; then
+   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3`
+
+   # This is a crappy way to do it, we should improve this.
+   if test "$thunderbird_version" = "$TRACKER_MINER_THUNDERBIRD_REQUIRED" ; then
+      AC_SUBST(THUNDERBIRD)
+      have_tracker_miner_thunderbird=yes
+   fi
+fi
+
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             libgrss-0    >= $LIBGRSS_REQUIRED"
@@ -1177,6 +1192,51 @@ TRACKER_MINER_EVOLUTION_INSTALL_DIR=$tracker_miner_evolution_install_dir
 AC_SUBST(TRACKER_MINER_EVOLUTION_INSTALL_DIR)
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_EVOLUTION, test "x$have_tracker_miner_evolution" = "xyes")
+
+####################################################################
+# Check for tracker-miner-thunderbird
+####################################################################
+
+tracker_miner_thunderbird_install_dir="/dev/null"
+
+AC_ARG_ENABLE([miner_thunderbird],
+              AS_HELP_STRING([--enable-miner-thunderbird],
+                             [enable Thunderbird email data miner [[default=auto]]]),,
+              [enable_miner_thunderbird=auto])
+
+enable_tracker_miner_thunderbird=$enable_miner_thunderbird
+
+if test "x$enable_tracker_miner_thunderbird" = "xyes"; then
+   if test "x$have_tracker_miner_thunderbird" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Thunderbird ($TRACKER_MINER_THUNDERBIRD_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_thunderbird" = "xno"; then
+      have_tracker_miner_thunderbird="no  (disabled)"
+   fi
+fi
+
+if test "x$have_tracker_miner_thunderbird" = "xyes"; then
+
+   AC_ARG_WITH([thunderbird_plugin_dir],
+               AS_HELP_STRING([--with-thunderbird-plugin-dir],
+                              [path to Thunderbird plugin directory]))
+   if test "x$with_thunderbird_plugin_dir" = "x" ; then
+      # This is a symlinked to $prefix/share/xul-ext
+      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird/extensions"
+   else
+      tracker_miner_thunderbird_install_dir="$with_tracker_miner_thunderbird_install_dir"
+   fi
+
+   if test -z $tracker_miner_thunderbird_install_dir; then
+      AC_MSG_ERROR([Couldn't find thunderbird plugin dir, consider using --with-thunderbird-plugin-dir.])
+   fi
+fi
+
+TRACKER_MINER_THUNDERBIRD_INSTALL_DIR=$tracker_miner_thunderbird_install_dir
+AC_SUBST(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_THUNDERBIRD, test "x$have_tracker_miner_thunderbird" = "xyes")
 
 ####################################################################
 # Check for nautilus extension
@@ -2072,6 +2132,8 @@ AC_CONFIG_FILES([
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile
+	src/plugins/thunderbird/Makefile
+	src/plugins/thunderbird/install.rdf
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
@@ -2208,6 +2270,7 @@ Data Miners:
 	Applications:                           yes (MeeGo support: $have_meegotouch)
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
+        Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
 	Flickr:                                 $have_tracker_miner_flickr
 
 Plugins:

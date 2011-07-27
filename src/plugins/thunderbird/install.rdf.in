@@ -4,7 +4,7 @@
 	<em:id>trackerbird@bustany.org</em:id>
 	<em:type>2</em:type>
 	<em:name>TrackerBird</em:name>
-	<em:version>0.1</em:version>
+	<em:version>@VERSION@</em:version>
 	<em:creator>Adrien Bustany</em:creator>
 	<em:contributor></em:contributor>
 	<em:description>Index your Thunderbird emails with Tracker</em:description>

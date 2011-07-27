@@ -6,6 +6,10 @@ if HAVE_TRACKER_MINER_EVOLUTION
 SUBDIRS += evolution
 endif
 
+if HAVE_TRACKER_MINER_THUNDERBIRD
+SUBDIRS += thunderbird
+endif
+
 if HAVE_TRACKER_NAUTILUS_EXTENSION
 SUBDIRS += nautilus
 endif
