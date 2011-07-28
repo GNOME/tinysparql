@@ -407,6 +407,20 @@ if test -n $THUNDERBIRD; then
    AC_SUBST(THUNDERBIRD)
 fi
 
+# Check requirements for tracker-miner-firefox
+TRACKER_MINER_FIREFOX_REQUIRED=4.0
+have_tracker_miner_firefox="no "
+
+AC_PATH_PROG(FIREFOX, firefox, firefox)
+if test -n $FIREFOX; then
+   firefox_version=`$FIREFOX --version | cut -d" " -f3`
+
+   AX_COMPARE_VERSION([$firefox_version], ge, [$TRACKER_MINER_FIREFOX_REQUIRED],
+                      have_tracker_miner_firefox="yes",
+                      have_tracker_miner_firefox="no ")
+   AC_SUBST(FIREFOX)
+fi
+
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             libgrss-0    >= $LIBGRSS_REQUIRED"
@@ -1236,6 +1250,51 @@ TRACKER_MINER_THUNDERBIRD_INSTALL_DIR=$tracker_miner_thunderbird_install_dir
 AC_SUBST(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_THUNDERBIRD, test "x$have_tracker_miner_thunderbird" = "xyes")
+
+####################################################################
+# Check for tracker-miner-firefox
+####################################################################
+
+tracker_miner_firefox_install_dir="/dev/null"
+
+AC_ARG_ENABLE([miner_firefox],
+              AS_HELP_STRING([--enable-miner-firefox],
+                             [enable Firefox email data miner [[default=auto]]]),,
+              [enable_miner_firefox=auto])
+
+enable_tracker_miner_firefox=$enable_miner_firefox
+
+if test "x$enable_tracker_miner_firefox" = "xyes"; then
+   if test "x$have_tracker_miner_firefox" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Firefox ($TRACKER_MINER_FIREFOX_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_firefox" = "xno"; then
+      have_tracker_miner_firefox="no  (disabled)"
+   fi
+fi
+
+if test "x$have_tracker_miner_firefox" = "xyes"; then
+
+   AC_ARG_WITH([firefox_plugin_dir],
+               AS_HELP_STRING([--with-firefox-plugin-dir],
+                              [path to Firefox plugin directory]))
+   if test "x$with_firefox_plugin_dir" = "x" ; then
+      # This is a symlinked to $prefix/share/xul-ext
+      tracker_miner_firefox_install_dir="${prefix}/lib/firefox-5.0/extensions"
+   else
+      tracker_miner_firefox_install_dir="$with_tracker_miner_firefox_install_dir"
+   fi
+
+   if test -z $tracker_miner_firefox_install_dir; then
+      AC_MSG_ERROR([Couldn't find firefox plugin dir, consider using --with-firefox-plugin-dir.])
+   fi
+fi
+
+TRACKER_MINER_FIREFOX_INSTALL_DIR=$tracker_miner_firefox_install_dir
+AC_SUBST(TRACKER_MINER_FIREFOX_INSTALL_DIR)
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_FIREFOX, test "x$have_tracker_miner_firefox" = "xyes")
 
 ####################################################################
 # Check for nautilus extension
@@ -2140,6 +2199,17 @@ AC_CONFIG_FILES([
         src/plugins/thunderbird/chrome/skin/Makefile
         src/plugins/thunderbird/defaults/Makefile
         src/plugins/thunderbird/defaults/preferences/Makefile
+	src/plugins/firefox/Makefile
+	src/plugins/firefox/install.rdf
+        src/plugins/firefox/chrome/Makefile
+        src/plugins/firefox/chrome/content/Makefile
+        src/plugins/firefox/chrome/locale/Makefile
+        src/plugins/firefox/chrome/locale/en-US/Makefile
+        src/plugins/firefox/chrome/locale/es-ES/Makefile
+        src/plugins/firefox/chrome/locale/fr-FR/Makefile
+        src/plugins/firefox/chrome/skin/Makefile
+        src/plugins/firefox/defaults/Makefile
+        src/plugins/firefox/defaults/preferences/Makefile
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
@@ -2277,6 +2347,7 @@ Data Miners:
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
         Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
+        FireFox:                                $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
 	Flickr:                                 $have_tracker_miner_flickr
 
 Plugins:

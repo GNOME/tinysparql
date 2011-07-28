@@ -4,7 +4,7 @@
     <em:id>trackerfox@bustany.org</em:id>
     <em:type>2</em:type>
     <em:name>TrackerFox</em:name>
-    <em:version>0.1</em:version>
+    <em:version>@VERSION@</em:version>
     <em:creator>Adrien Bustany</em:creator>
     <em:contributor></em:contributor>
     <em:description>Makes your bookmarks searchable from Tracker</em:description>
