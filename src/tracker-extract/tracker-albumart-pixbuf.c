@@ -67,8 +67,9 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
                                  const gchar         *buffer_mime,
                                  const gchar         *target)
 {
-	if (g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
-	    g_strcmp0 (buffer_mime, "JPG") == 0) {
+	if ((g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
+	    g_strcmp0 (buffer_mime, "JPG") == 0) &&
+	    (buffer && len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)) {
 
 		g_debug ("Saving album art using raw data as uri:'%s'",
 		         target);
