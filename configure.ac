@@ -399,7 +399,7 @@ have_tracker_miner_thunderbird="no "
 
 AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
 if test -n $THUNDERBIRD; then
-   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3`
+   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3 | head -c3`
 
    # This is a crappy way to do it, we should improve this.
    if test "$thunderbird_version" = "$TRACKER_MINER_THUNDERBIRD_REQUIRED" ; then
