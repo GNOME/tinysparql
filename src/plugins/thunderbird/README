@@ -1,0 +1,14 @@
+A simple Thunderbird extension to export mails to Tracker.
+
+=== How to build a .xpi file ===
+From the src/plugins/thunderbird folder, run
+git archive --format zip HEAD > tracker-thunderbird.xpi
+
+=== How to test the extension without installing it ===
+This method makes development much easier, since it avoids the hassle of
+rebuilding the XPI everytime a change is made in the code:
+In your Thunderbird profile directory, locate the extensions folder. In that
+folder, create a file named trackerbird@bustany.org. In that file, put the full
+path to the thunderbird plugin source folder, for example
+/home/foobar/Projects/tracker/src/plugins/thunderbird/
+Note the trailing slash, it MUST be included for this method to work.

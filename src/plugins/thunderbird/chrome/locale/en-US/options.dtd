@@ -1,0 +1,4 @@
+<!ENTITY prefwindow.title "TrackerBird preferences">
+<!ENTITY pane1.title "TrackerBird preferences">
+<!ENTITY indexDelay.label "Throttle (ms to wait between each message)">
+<!ENTITY indexDelay.accesskey "T">
