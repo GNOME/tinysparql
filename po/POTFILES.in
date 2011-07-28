@@ -7,7 +7,6 @@ data/miners/tracker-miner-files.desktop.in.in
 data/miners/tracker-miner-flickr.desktop.in.in
 data/miners/tracker-miner-rss.desktop.in.in
 data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in
-data/gschemas/org.freedesktop.Tracker.DB.xml.in
 data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in
@@ -59,6 +58,5 @@ src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
 src/tracker-utils/tracker-tag.c
 src/tracker-writeback/tracker-main.c
-src/tracker-writeback/tracker-writeback-consumer.c
 [type: gettext/glade]utils/gtk-sparql/gtk-sparql.ui
 utils/tracker-sql/tracker-sql.c
