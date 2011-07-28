@@ -399,13 +399,12 @@ have_tracker_miner_thunderbird="no "
 
 AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
 if test -n $THUNDERBIRD; then
-   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3 | head -c3`
+   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3`
 
-   # This is a crappy way to do it, we should improve this.
-   if test "$thunderbird_version" = "$TRACKER_MINER_THUNDERBIRD_REQUIRED" ; then
-      AC_SUBST(THUNDERBIRD)
-      have_tracker_miner_thunderbird=yes
-   fi
+   AX_COMPARE_VERSION([$thunderbird_version], ge, [$TRACKER_MINER_THUNDERBIRD_REQUIRED],
+                      have_tracker_miner_thunderbird="yes",
+                      have_tracker_miner_thunderbird="no ")
+   AC_SUBST(THUNDERBIRD)
 fi
 
 # Check requirements for tracker-miner-rss
