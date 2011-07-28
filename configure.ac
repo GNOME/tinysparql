@@ -1223,7 +1223,7 @@ if test "x$have_tracker_miner_thunderbird" = "xyes"; then
                               [path to Thunderbird plugin directory]))
    if test "x$with_thunderbird_plugin_dir" = "x" ; then
       # This is a symlinked to $prefix/share/xul-ext
-      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird/extensions"
+      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird-5.0/extensions"
    else
       tracker_miner_thunderbird_install_dir="$with_tracker_miner_thunderbird_install_dir"
    fi
@@ -2134,6 +2134,13 @@ AC_CONFIG_FILES([
 	src/plugins/evolution/Makefile
 	src/plugins/thunderbird/Makefile
 	src/plugins/thunderbird/install.rdf
+        src/plugins/thunderbird/chrome/Makefile
+        src/plugins/thunderbird/chrome/content/Makefile
+        src/plugins/thunderbird/chrome/locale/Makefile
+        src/plugins/thunderbird/chrome/locale/en-US/Makefile
+        src/plugins/thunderbird/chrome/skin/Makefile
+        src/plugins/thunderbird/defaults/Makefile
+        src/plugins/thunderbird/defaults/preferences/Makefile
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
