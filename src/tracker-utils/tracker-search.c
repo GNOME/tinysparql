@@ -60,6 +60,7 @@ static gboolean contacts;
 static gboolean feeds;
 static gboolean software;
 static gboolean software_categories;
+static gboolean bookmarks;
 static gboolean print_version;
 
 static GOptionEntry entries[] = {
@@ -133,6 +134,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "feeds", 0, 0, G_OPTION_ARG_NONE, &feeds,
 	  N_("Search for feeds (--all has no effect on this)"),
+	  NULL
+	},
+	{ "bookmarks", 'b', 0, G_OPTION_ARG_NONE, &bookmarks,
+	  N_("Search for bookmarks (--all has no effect on this)"),
 	  NULL
 	},
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
@@ -845,6 +850,88 @@ get_music_albums (TrackerSparqlConnection *connection,
 }
 
 static gboolean
+get_bookmarks (TrackerSparqlConnection *connection,
+               GStrv                    search_terms,
+               gint                     search_offset,
+               gint                     search_limit,
+               gboolean                 use_or_operator)
+{
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+	gchar *fts;
+	gchar *query;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT nie:title(?urn) nie:url(?bookmark) "
+		                         "WHERE {"
+		                         "  ?urn a nfo:Bookmark ;"
+		                         "       nfo:bookmarks ?bookmark ."
+		                         "  ?urn fts:match \"%s\" . "
+		                         "} "
+		                         "ORDER BY ASC(nie:title(?urn)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         fts,
+		                         search_offset,
+		                         search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT nie:title(?urn) nie:url(?bookmark) "
+		                         "WHERE {"
+		                         "  ?urn a nfo:Bookmark ;"
+		                         "       nfo:bookmarks ?bookmark ."
+		                         "} "
+		                         "ORDER BY ASC(nie:title(?urn)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         search_offset,
+		                         search_limit);
+	}
+
+	g_free (fts);
+
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+	g_free (query);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+		            _("Could not get search results"),
+		            error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (!cursor) {
+		g_print ("%s\n",
+		         _("No bookmarks were found"));
+	} else {
+		gint count = 0;
+
+		g_print ("%s:\n", _("Bookmarks"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			g_print ("  %s (%s)\n",
+			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+			count++;
+		}
+
+		g_print ("\n");
+
+		if (count >= search_limit) {
+			show_limit_warning ();
+		}
+
+		g_object_unref (cursor);
+	}
+
+	return TRUE;
+}
+
+static gboolean
 get_feeds (TrackerSparqlConnection *connection,
            GStrv                    search_terms,
            gint                     search_offset,
@@ -1352,6 +1439,7 @@ main (int argc, char **argv)
 	}
 
 	if (!music_albums && !music_artists && !music_files &&
+	    !bookmarks &&
 	    !feeds &&
 	    !software &&
 	    !software_categories &&
@@ -1560,6 +1648,15 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_software_categories (connection, terms, offset, limit, or_operator);
+		g_object_unref (connection);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (bookmarks) {
+		gboolean success;
+
+		success = get_bookmarks (connection, terms, offset, limit, or_operator);
 		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
