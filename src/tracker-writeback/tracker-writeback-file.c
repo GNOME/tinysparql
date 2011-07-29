@@ -200,10 +200,15 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	                                                       connection,
 	                                                       cancellable);
 
-	/* Move back the modified file to the original location */
-	g_file_move (tmp_file, file,
-	             G_FILE_COPY_OVERWRITE,
-	             NULL, NULL, NULL, NULL);
+	if (!retval) {
+		/* Delete the temporary file and preserve original */
+		g_file_delete (tmp_file, NULL, NULL);
+	} else {
+		/* Move back the modified file to the original location */
+		g_file_move (tmp_file, file,
+			     G_FILE_COPY_OVERWRITE,
+			     NULL, NULL, NULL, NULL);
+	}
 
 	g_object_unref (tmp_file);
 	g_object_unref (file);
