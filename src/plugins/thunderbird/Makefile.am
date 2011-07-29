@@ -8,6 +8,8 @@ extension_DATA = \
 	chrome.manifest \
 	README
 
+EXTRA_DIST = $(extension_DATA)
+
 install-data-hook:
 	mkdir -p "$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)"
 	$(LN_S) "$(extensiondir)" "$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)/trackerbird@bustany.org"

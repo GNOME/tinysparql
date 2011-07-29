@@ -8,3 +8,5 @@ extension_DATA = \
 	ff-overlay.xul \
 	namespace.js \
 	plugin.js
+
+EXTRA_DIST = $(extension_DATA)

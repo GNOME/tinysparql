@@ -14,3 +14,5 @@ extension_DATA = \
 	persistent-store.js \
 	ui.js \
 	trackerstore.js
+
+EXTRA_DIST = $(extension_DATA)

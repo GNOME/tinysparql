@@ -5,3 +5,5 @@ extension_DATA = \
 	about.dtd \
 	overlay.dtd \
 	overlay.properties
+
+EXTRA_DIST = $(extension_DATA)
