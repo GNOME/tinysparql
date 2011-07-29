@@ -26,6 +26,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
+#include "tracker-indexing-tree.h"
 
 G_BEGIN_DECLS
 
@@ -51,6 +52,10 @@ struct TrackerMonitorClass {
 
 GType           tracker_monitor_get_type             (void);
 TrackerMonitor *tracker_monitor_new                  (void);
+
+TrackerIndexingTree * tracker_monitor_get_indexing_tree (TrackerMonitor *monitor);
+void                  tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
+							 TrackerIndexingTree *tree);
 
 gboolean        tracker_monitor_get_enabled          (TrackerMonitor *monitor);
 void            tracker_monitor_set_enabled          (TrackerMonitor *monitor,

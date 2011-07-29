@@ -81,6 +81,8 @@ struct TrackerMonitorPrivate {
 	GHashTable    *pre_update;
 	GHashTable    *pre_delete;
 	guint          event_pairs_timeout_id;
+
+	TrackerIndexingTree *tree;
 };
 
 typedef struct {
@@ -688,10 +690,6 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		break;
 
 	case G_FILE_MONITOR_EVENT_MOVED:
-		g_debug ("Emitting ITEM_MOVED for (%s) '%s'->'%s'",
-		         event_data->is_directory ? "DIRECTORY" : "FILE",
-		         event_data->file_uri,
-		         event_data->other_file_uri);
 		/* Note that in any case we should be moving the monitors
 		 * here to the new place, as the new place may be ignored.
 		 * We should leave this to the upper layers. But one thing
@@ -700,12 +698,43 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			monitor_cancel_recursively (monitor,
 			                            event_data->file);
 		}
-		g_signal_emit (monitor,
-		               signals[ITEM_MOVED], 0,
-		               event_data->file,
-		               event_data->other_file,
-		               event_data->is_directory,
-		               TRUE);
+
+		if (monitor->priv->tree &&
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+							      event_data->file)) {
+			g_debug ("Emitting ITEM_UPDATED for %s (%s) from "
+				 "a move event, source is not indexable",
+				 event_data->other_file_uri,
+				 event_data->is_directory ? "DIRECTORY" : "FILE");
+			g_signal_emit (monitor,
+				       signals[ITEM_UPDATED], 0,
+				       event_data->other_file,
+				       event_data->is_directory);
+		} else if (monitor->priv->tree &&
+			   !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+								     event_data->other_file)) {
+			g_debug ("Emitting ITEM_DELETED for %s (%s) from "
+				 "a move event, destination is not indexable",
+				 event_data->file_uri,
+				 event_data->is_directory ? "DIRECTORY" : "FILE");
+			g_signal_emit (monitor,
+				       signals[ITEM_DELETED], 0,
+				       event_data->file,
+				       event_data->is_directory);
+		} else  {
+			g_debug ("Emitting ITEM_MOVED for (%s) '%s'->'%s'",
+				 event_data->is_directory ? "DIRECTORY" : "FILE",
+				 event_data->file_uri,
+				 event_data->other_file_uri);
+
+			g_signal_emit (monitor,
+				       signals[ITEM_MOVED], 0,
+				       event_data->file,
+				       event_data->other_file,
+				       event_data->is_directory,
+				       TRUE);
+		}
+
 		break;
 
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
@@ -1177,13 +1206,15 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	/* Get URIs as paths may not be in UTF-8 */
 	file_uri = g_file_get_uri (file);
 
-	/* Don't have anything to do with .xsession-errors */
-	if (g_str_has_suffix (file_uri, ".xsession-errors")) {
-		g_free (file_uri);
-		return;
-	}
-
 	if (!other_file) {
+		/* Avoid non-indexable-files */
+		if (monitor->priv->tree &&
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+							      file)) {
+			g_free (file_uri);
+			return;
+		}
+
 		other_file_uri = NULL;
 		g_debug ("Received monitor event:%d (%s) for file:'%s'",
 		         event_type,
@@ -1191,6 +1222,16 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		         file_uri);
 		is_directory = check_is_directory (monitor, file);
 	} else {
+		/* Avoid doing anything of both
+		 * file/other_file are non-indexable
+		 */
+		if (monitor->priv->tree &&
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree, file) &&
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree, other_file)) {
+			g_free (file_uri);
+			return;
+		}
+
 		other_file_uri = g_file_get_uri (other_file);
 		g_debug ("Received monitor event:%d (%s) for files '%s'->'%s'",
 		         event_type,
@@ -1343,6 +1384,31 @@ tracker_monitor_get_enabled (TrackerMonitor *monitor)
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 
 	return monitor->priv->enabled;
+}
+
+TrackerIndexingTree *
+tracker_monitor_get_indexing_tree (TrackerMonitor *monitor)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), NULL);
+
+	return monitor->priv->tree;
+}
+
+void
+tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
+				   TrackerIndexingTree *tree)
+{
+	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
+	g_return_if_fail (!tree || TRACKER_IS_INDEXING_TREE (tree));
+
+	if (monitor->priv->tree) {
+		g_object_unref (monitor->priv->tree);
+		monitor->priv->tree = NULL;
+	}
+
+	if (tree) {
+		monitor->priv->tree = g_object_ref (tree);
+	}
 }
 
 void
