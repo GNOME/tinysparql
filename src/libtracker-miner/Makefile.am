@@ -67,6 +67,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(password_provider_sources)                   \
 	$(crawler_sources)			       \
 	$(miner_sources)			       \
+	tracker-indexing-tree.c                        \
+	tracker-indexing-tree.h                        \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
 	tracker-thumbnailer.c                          \
@@ -77,6 +79,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 libtracker_minerinclude_HEADERS =                      \
 	tracker-albumart.h                             \
 	tracker-crawler.h                              \
+	tracker-indexing-tree.h                        \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
 	tracker-miner-object.h                         \
@@ -94,7 +97,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
