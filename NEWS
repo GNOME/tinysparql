@@ -3,6 +3,80 @@ NEW in 0.11.0 - 2011-06-07
 
 The changes are:
 
+  * New Feature: Firefox >= 4.0 support
+  * New Feature: Thunderbird >= 5.0 support
+  * New Feature: Add --disable-journal configure option, previously it didn't exist
+  * Fixes: GB#654653, miner: don't use G_CONST_RETURN
+  * Fixes: GB#654407, sqlite: implement get_property() for n-columns
+  * Fixes: GB#652433, Progress signal gives faulty value just before finishing
+  * Fixes: NB#271389, Extraction of album art fails for a particular .mp3 file
+  * Fixes: NB#254896, tracker-miner-fs should resume pause if pausing clients crash
+  * Fixes: NB#274498, Adding tag to song causes update quad flood
+  * Fixes: NB#274181, Attached file's album art is not extracted right
+  * Fixes: NB#271747, [TASK] Support xsd:date
+  * Fixes: NB#273120, After disconnecting from USB mass storage mode apps takes a long time to display content
+  * Fixes: NB#269986, Poor performnace with different music files
+  * Fixes: NB#270774, [TASK] Improve UpdateArray performance
+  * Fixes: NB#259942, Corrupted symbols for Cyrillic mp3 tags
+  * Fixes: NB#269766, Make TrackerProcessingTask refcounted to avoid double free
+  * Fixes: NB#269931, Some particular JPG files are never indexed by Tracker
+  * Fixes: NB#268105, [TASK] Disabled full journaling to improve user data privacy
+  * Fixes: NB#269359, tracker-control got crashed at tracker_control_status_run   when the file system is full
+  * Fixes: NB#266579, tracker_sparql_connection_get starts emitting GLIB CRITICALS when called again after failure
+  * Fixes: NB#251032, Corrupted thumbnails are displayed for few minutes when multiple images are deleted
+  * Fixes: NB#263203, tracker-store fails to start when out of disk space
+  * Fixes: NB#261635, Improve pinyin sorting
+  * Ontology: Set tracker:writeback true for nfo:Heading
+  * SPARQL: Add support for HAVING
+  * SPARQL: Add support for COALESCE
+  * libtracker-data: Fix leak in db_get_locale
+  * libtracker-data: Do not print critical if db-locale.txt does not exist
+  * libtracker-data: Switch to manual SQLite WAL checkpointing in a separate thread
+  * libtracker-data: Make sure we don't leak sql_dir on multiple _init() calls
+  * libtracker-miner: translate monitor events CREATE(a)+MOVE(a->b)=UPDATE(b)
+  * libtracker-miner: Make sure status is set to 'Idle' on object construction
+  * libtracker-miner: Fix inconsistent status with progress signals
+  * libtracker-miner: Fix -0.00 progress being reported
+  * libtracker-miner: Make sure "Processing..." is 2% or higher in progress
+  * libtracker-extract: Use nfo:heading instead of nmm:direction
+  * libtracker-extract: Support extraction of EXIF/XMP GPS information for images
+  * libtracker-extract: Ignore keywords containing invalid UTF-8
+  * libtracker-extract: Do not use G_CONST_RETURN
+  * tracker-store: Check XDG directories after initializing log to reduce start up stdout spam
+  * tracker-store: Improve UpdateArray performance
+  * tracker-extract: MP3: Use guessed ID3v1 8-bit encoding also for ID3v2
+  * tracker-extract: Playlist: Limit playlists to 1000 entries
+  * tracker-extract: handle RealMedia files with the GStreamer extractor
+  * tracker-writeback: Refactor writeback so miner-fs performs more of the operation itself
+  * tracker-writeback: Deprecate IgnoreNextUpdate API
+  * tracker-writeback: Support longitude, latitude and altitude information to XMP files
+  * tracker-writeback: Always clear existing XMP fields before updating metadata
+  * tracker-miner-fs: Check XDG directories after initializing log to reduce start up stdout spam
+  * tracker-control: Added --pause-for-process for potentially crash worthy processes
+  * tracker-control: Fix crash when unable to get miner pause details
+  * tracker-search: Support bookmarks with -b or --bookmarks
+  * tracker-preferences: Fix apply button
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated nb: Kjartan Maraas
+  * Updated pt_BR: Gabriel Speckhahn
+  * Updated sl: Andrej Žnidaršič
+  * Updated sv: Daniel Nylander
+  * Updated zh_CN: Yinghua Wang
+
+Notes:
+
+  None
+
+
+NEW in 0.11.0 - 2011-06-07
+==========================
+
+The changes are:
+
   * Require: GSettings (not optional)
   * Require: GObject Introspection 0.9.5 (not optional)
   * Require: GTK+ 3.0 was 2.18.0 (for UI components only)
