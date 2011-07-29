@@ -182,7 +182,6 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		/* module does not support writeback for this file */
 		g_object_unref (file_info);
 		g_object_unref (file);
-		g_object_unref (file_info);
 
 		return FALSE;
 	}
@@ -194,7 +193,6 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 
 	if (!tmp_file) {
 		g_object_unref (file);
-		g_object_unref (file_info);
 
 		return FALSE;
 	}
@@ -211,7 +209,6 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	             NULL, NULL, NULL, NULL);
 
 	g_object_unref (tmp_file);
-	g_object_unref (file_info);
 	g_object_unref (file);
 
 	return retval;
