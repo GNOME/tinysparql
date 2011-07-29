@@ -27,6 +27,7 @@ coverage
 depcomp
 gtk-doc.make
 install-sh
+install.rdf
 intltool-extract.in
 intltool-merge.in
 intltool-update.in
