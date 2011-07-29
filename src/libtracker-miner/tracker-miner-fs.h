@@ -30,6 +30,7 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-object.h"
+#include "tracker-indexing-tree.h"
 
 #include "tracker-miner-common.h"
 
@@ -167,6 +168,8 @@ void                  tracker_miner_fs_add_directory_without_parent (TrackerMine
                                                                      GFile          *file);
 void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
+
+TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
 
 G_END_DECLS
 
