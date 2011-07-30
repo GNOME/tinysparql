@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-07-10 13:14+0000\n"
-"PO-Revision-Date: 2011-07-11 11:41+0100\n"
+"POT-Creation-Date: 2011-07-23 13:23+0000\n"
+"PO-Revision-Date: 2011-07-23 18:34+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -637,13 +637,17 @@ msgstr "Bi bilo nadzirano"
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1333
+#: ../src/miners/fs/tracker-miner-files.c:1307
 msgid "Low battery"
 msgstr "Nizka napetost baterije"
 
-#: ../src/miners/fs/tracker-miner-files.c:1456
+#: ../src/miners/fs/tracker-miner-files.c:1430
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
+
+#: ../src/miners/fs/tracker-miner-files.c:2141
+msgid "Extractor error, performing failsafe embedded metadata extraction"
+msgstr "Napaka razširjevalnika. Izvajanje pred napakami varne izvleke metapodatkov"
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
@@ -2177,59 +2181,41 @@ msgstr "Prazen niz rezultatov"
 
 #~ msgid "Could not contact the miner manager"
 #~ msgstr "Ni mogoče stopiti v stik z upravljalnikom kopalnikov"
-
 #~ msgid "Unknown"
 #~ msgstr "Neznano"
-
 #~ msgid "No Subject"
 #~ msgstr "Ni naslova"
-
 #~ msgid "To"
 #~ msgstr "Za"
-
 #~ msgid "Display results by files found in a grid view"
 #~ msgstr "Prikaže rezultate po datotekah najdene v pogledu mreže"
-
 #~ msgid "No options specified"
 #~ msgstr "Ni določenih možnosti"
-
 #~ msgid "Include details with state updates (only applies to --follow)"
 #~ msgstr "Vključi podrobnosti s posodobitvami stanja (velja samo za --follow)"
-
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Tracker ikona stanja"
-
 #~ msgid "Tracker Status Notification Application"
 #~ msgstr "Tracker program obvestil stanja"
-
 #~ msgid "<b>Notification area</b>"
 #~ msgstr "<b>Obvestilno področje</b>"
-
 #~ msgid "Al_ways display icon"
 #~ msgstr "_Vedno prikaži ikono"
-
 #~ msgid "_Never display icon"
 #~ msgstr "_Nikoli ne prikaži ikone"
-
 #~ msgid "_Only display when indexing content"
 #~ msgstr "Prikaži _le med pripravo kazala"
-
 #~ msgid "Desktop search tool using Tracker"
 #~ msgstr "Namizno iskalno orodje z uporabo Trackerja"
-
 #~ msgid "Search Bar"
 #~ msgstr "Iskalna vrstica"
-
 #~ msgid "- Miner status and control notification area icon"
 #~ msgstr ""
 #~ "- Stanje podatkovnega kopalnika in nadzor ikone obvestilnega področja"
-
 #~ msgid "Miner is not running"
 #~ msgstr "Podatkovni kopalnik ni zagnan"
-
 #~ msgid "Paused by user"
 #~ msgstr "Uporabnik je naredil premor"
-
 #~ msgid ""
 #~ "Tracker is free software; you can redistribute it and/or modify it under "
 #~ "the terms of the GNU General Public License as published by the Free "
@@ -2240,7 +2226,6 @@ msgstr "Prazen niz rezultatov"
 #~ "spreminjate pod pogoji Splošnega dovoljenja GNU (GNU General "
 #~ "PublicLicense), kot ga je objavila ustanova Free Software Foundation; "
 #~ "bodisi različice 2 ali (po vaši izbiri) katerekoli poznejše različice."
-
 #~ msgid ""
 #~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
 #~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
@@ -2251,7 +2236,6 @@ msgstr "Prazen niz rezultatov"
 #~ "JAMSTVA; tudi brez posredne zagotovitve CENOVNE VREDNOSTI ali PRIMERNOSTI "
 #~ "ZA DOLOČEN NAMEN.  Za podrobnosti glejte besedilo GNU General Public "
 #~ "License."
-
 #~ msgid ""
 #~ "You should have received a copy of the GNU General Public License along "
 #~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
@@ -2261,10 +2245,8 @@ msgstr "Prazen niz rezultatov"
 #~ "dovoljenja GNU (GNU General Public License); v primeru da ga niste, "
 #~ "pišite na Free Software Foundation, Inc., 51 Franklin Street, Fifth "
 #~ "Floor, Boston, MA 02110-130159 USA"
-
 #~ msgid "A notification icon application to monitor data miners for Tracker"
 #~ msgstr "Obvestilna ikona programa za nadzor podatkovnih kopalnikov"
-
 #~ msgid "translator-credits"
 #~ msgstr ""
 #~ "Matic Žgur <mr.zgur@gmail.com>\n"
@@ -2272,118 +2254,86 @@ msgstr "Prazen niz rezultatov"
 #~ "Tilen Travnik <tilen.travnik@guest.arnes.si>\n"
 #~ "Matej Urbančič <mateju@svn.gnome.org>\n"
 #~ "Andrej Žnidaršič <andrej.znidarsic@gmail.com>"
-
 #~ msgid "_Search"
 #~ msgstr "I_skanje"
-
 #~ msgid "_Pause All Indexing"
 #~ msgstr "Naredi _premor vseh priprav kazala"
-
 #~ msgid "_Preferences"
 #~ msgstr "_Možnosti"
-
 #~ msgid "Control and monitor the Tracker search and indexing service"
 #~ msgstr "Nadzor in opazovanje storitve iskanja in priprave kazal Tracker"
-
 #~ msgid "Tracker Applet"
 #~ msgstr "Tracker aplet"
-
 #~ msgid "List pause reasons and applications for a miner"
 #~ msgstr "Izpis vzrokov premora in programov podatkovnega kopalnika"
-
 #~ msgid "- Monitor and control status"
 #~ msgstr "- Opazovanje in nadzor stanja"
-
 #~ msgid "Needle"
 #~ msgstr "Igla"
-
 #~ msgid "All Files"
 #~ msgstr "Vse datoteke"
-
 #~ msgid "Clear the search text"
 #~ msgstr "Počisti iskano besedilo"
-
 #~ msgid "Name:"
 #~ msgstr "Ime:"
-
 #~ msgid "Folder:"
 #~ msgstr "Mapa:"
-
 #~ msgid "Type:"
 #~ msgstr "Vrsta:"
-
 #~ msgid "Modified:"
 #~ msgstr "Spremenjeno:"
-
 #~ msgid "Height:"
 #~ msgstr "Višina:"
-
 #~ msgid "Width:"
 #~ msgstr "Širina:"
-
 #~ msgid "Title:"
 #~ msgstr "Naslov:"
-
 #~ msgid "Artist:"
 #~ msgstr "Izvajalec:"
-
 #~ msgid "Album:"
 #~ msgstr "Album:"
-
 #~ msgid "Duration:"
 #~ msgstr "Trajanje:"
-
 #~ msgid "From:"
 #~ msgstr "Od:"
-
 #~ msgid "Received:"
 #~ msgstr "Prejeto:"
-
 #~ msgid "Author:"
 #~ msgstr "Avtor:"
-
 #~ msgid "Page count:"
 #~ msgstr "Število strani:"
-
 #~ msgid "Description:"
 #~ msgstr "Opis:"
-
 #~ msgid "Tracker Search Tool"
 #~ msgstr "Iskalno orodje Tracker"
-
 #~ msgid ""
 #~ "Failed to load UI\n"
 #~ "%s"
 #~ msgstr ""
 #~ "Nalaganje uporabniškega vmesnika je spodletelo\n"
 #~ "%s"
-
 #~ msgid ""
 #~ "Could not launch \"%s\"\n"
 #~ "Error: %s\n"
 #~ msgstr ""
 #~ "Ni mogoče zagnati \"%s\"\n"
 #~ "Napaka: %s\n"
-
 #~ msgid ""
 #~ "Could not get application info for %s\n"
 #~ "Error: %s\n"
 #~ msgstr ""
 #~ "Ni mogoče dobiti podatkov o programu za %s\n"
 #~ "Napaka: %s\n"
-
 #~ msgid ""
 #~ "Could not lauch %s\n"
 #~ "Error: %s\n"
 #~ msgstr ""
 #~ "Ni mogoče zagnati %s\n"
 #~ "Napaka: %s\n"
-
 #~ msgid "Journal replay"
 #~ msgstr "Ponovno predvajanje dnevnika"
-
 #~ msgid "Forces the insertion of FILE into the store"
 #~ msgstr "Prisili vstavitev DATOTEKE v shrambo"
-
 #~ msgid "Could not establish a D-Bus connection to Tracker"
 #~ msgstr "D-Bus povezave s Trackerjem ni mogoče vzpostaviti"
+
