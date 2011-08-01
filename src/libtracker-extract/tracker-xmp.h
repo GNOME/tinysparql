@@ -105,14 +105,19 @@ typedef struct {
         gchar *link_uri;
 } TrackerXmpRegion;
 
-TrackerXmpData * tracker_xmp_new   (const gchar          *buffer,
-                                    gsize                 len,
-                                    const gchar          *uri);
-void             tracker_xmp_free  (TrackerXmpData       *data);
-gboolean         tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
-                                    TrackerSparqlBuilder *metadata,
-                                    const gchar          *uri,
-                                    TrackerXmpData       *data);
+TrackerXmpData *tracker_xmp_new           (const gchar          *buffer,
+                                           gsize                 len,
+                                           const gchar          *uri);
+void            tracker_xmp_free          (TrackerXmpData       *data);
+gboolean        tracker_xmp_apply         (TrackerSparqlBuilder *preupdate,
+                                           TrackerSparqlBuilder *metadata,
+                                           const gchar          *uri,
+                                           TrackerXmpData       *data);
+void            tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
+                                           TrackerSparqlBuilder *metadata,
+                                           GString              *where,
+                                           const gchar          *uri,
+                                           TrackerXmpData       *data);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
