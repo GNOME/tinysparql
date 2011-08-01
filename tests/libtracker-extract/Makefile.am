@@ -30,4 +30,4 @@ tracker_test_utils_SOURCES = tracker-test-utils.c
 
 tracker_test_xmp_SOURCES = tracker-test-xmp.c
 
-EXTRA_DIST = encoding-detect.bin areas.xmp areas-with-contacts.xmp
+EXTRA_DIST = encoding-detect.bin areas.xmp areas-with-contacts.xmp areas-ns.xmp

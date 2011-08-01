@@ -1,0 +1,32 @@
+<!-- Same XMP with areas but using a different namespace prefix -->
+<x:xmpmeta
+      xmlns:x="adobe:ns:meta/"
+      xmlns:exif="http://ns.adobe.com/exif/1.0/"
+      xmlns:my-dym="http://ns.adobe.com/xap/1.0/sType/Dimensions#"
+      xmlns:my-area="http://ns.adobe.com/xap/1.0/sType/Area#"
+      xmlns:my-ns="http://www.metadataworkinggroup.com/schemas/regions/">
+     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <rdf:Description rdf:about="">
+       <my-ns:Regions rdf:parseType="Resource">
+         <my-ns:AppliedToDimensions my-dym:w="4288" my-dym:h="2848" my-dym:unit="pixel"/>
+         <my-ns:RegionList>
+             <rdf:Bag>
+                  <rdf:li rdf:parseType="Resource">
+                      <my-ns:Area my-area:x="0.5" my-area:y="0.5" my-area:w="0.06"
+                                   my-area:h="0.09" my-area:unit="normalized"/>
+                      <my-ns:Type>Face</my-ns:Type>
+                      <my-ns:Name>Average Joe</my-ns:Name>
+                  </rdf:li>
+                  <rdf:li rdf:parseType="Resource">
+                      <my-ns:Area my-area:x="0.51" my-area:y="0.51" my-area:w="0.01"
+                                   my-area:h="0.09" my-area:unit="normalized"/>
+                      <my-ns:Type>Pet</my-ns:Type>
+                      <my-ns:Name>Fidoz</my-ns:Name>
+                      <my-ns:Description>Fido looks happy!</my-ns:Description>
+                  </rdf:li>
+              </rdf:Bag>
+          </my-ns:RegionList>
+        </my-ns:Regions>
+        </rdf:Description>
+     </rdf:RDF>
+</x:xmpmeta>
