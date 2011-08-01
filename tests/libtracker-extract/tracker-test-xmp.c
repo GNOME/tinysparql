@@ -349,7 +349,8 @@ debug_print_sparql (TrackerXmpData *data)
 {
         /* To print the sparql */
         TrackerSparqlBuilder *metadata, *preupdate;
-        GString              *where;
+        GString *where;
+        const gchar *graph = NULL;
 
 	metadata = tracker_sparql_builder_new_update ();
 	preupdate = tracker_sparql_builder_new_update ();
@@ -358,7 +359,7 @@ debug_print_sparql (TrackerXmpData *data)
 	tracker_sparql_builder_insert_open (metadata, NULL);
         tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-        tracker_xmp_apply (preupdate, metadata, where, "urn:uuid:test", data);
+        tracker_xmp_apply (preupdate, metadata, graph, where, "urn:uuid:test", data);
 
 	tracker_sparql_builder_insert_close (metadata);
 
@@ -406,7 +407,9 @@ test_xmp_regions (void)
         g_assert_cmpstr (region->type, ==, "Face");
         g_assert_cmpstr (region->title, ==, "John Doe");
 
-        //debug_print_sparql (data);
+        if (0) {
+	        debug_print_sparql (data);
+        }
         
         tracker_xmp_free (data);
 }

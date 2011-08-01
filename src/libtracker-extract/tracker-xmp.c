@@ -839,8 +839,6 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                    TrackerXmpData       *data)
 {
 	GPtrArray        *keywords;
-        GList            *iter;
-        TrackerXmpRegion *region;
 	guint i;
 
 	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
@@ -1160,6 +1158,27 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 	}
 
 
+        if (data->regions) {
+                tracker_xmp_apply_regions (preupdate, metadata, where, uri, data);
+        }
+
+	return TRUE;
+}
+
+void 
+tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
+                           TrackerSparqlBuilder *metadata,
+                           GString              *where,
+                           const gchar          *uri,
+                           TrackerXmpData       *data)
+{
+        GList            *iter;
+        TrackerXmpRegion *region;
+
+        if (!data->regions) {
+                return;
+        }
+        
         for (iter = data->regions; iter != NULL; iter = iter->next) {
                 gchar *reguuid;
                 reguuid = tracker_sparql_get_uuid_urn ();
@@ -1229,5 +1248,4 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                 g_free (reguuid);
         }
 
-	return TRUE;
 }
