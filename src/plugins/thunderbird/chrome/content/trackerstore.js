@@ -156,7 +156,11 @@ org.bustany.TrackerBird.TrackerStore = {
 	},
 
 	escapeString: function(str) {
-		return this._tracker.escape_string(str).readString();
+		var cstr = this._tracker.escape_string(str);
+		var escaped = cstr.readString();
+		this._tracker.free(cstr);
+
+		return escaped;
 	},
 
 	insertEmailAddress: function(address) {

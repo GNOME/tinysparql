@@ -41,6 +41,13 @@ org.bustany.TrackerBird.TrackerSparql = {
 		tracker.Cursor = ctypes.StructType ("TrackerSparqlCursor");
 
 		// GLib methods
+		tracker.free = tracker._lib.declare (
+			"g_free",
+			ctypes.default_abi,
+			ctypes.void_t,
+			ctypes.void_t.ptr
+		);
+
 		tracker.object_unref = tracker._lib.declare (
 			"g_object_unref",
 			ctypes.default_abi,
