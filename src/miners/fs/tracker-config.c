@@ -52,7 +52,7 @@
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
 #define DEFAULT_CRAWLING_INTERVAL                -1       /* 0->365 / -1 / -2 */
 #define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
-#define DEFAULT_ENABLE_WRITEBACK                 TRUE
+#define DEFAULT_ENABLE_WRITEBACK                 FALSE
 
 typedef struct {
 	/* General */
