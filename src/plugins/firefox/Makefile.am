@@ -12,8 +12,8 @@ extension_DATA = \
 EXTRA_DIST = $(extension_DATA)
 
 install-data-hook:
-	mkdir -p "$(TRACKER_MINER_FIREFOX_INSTALL_DIR)"
-	$(LN_S) "$(extensiondir)" "$(TRACKER_MINER_FIREFOX_INSTALL_DIR)/trackerfox@bustany.org"
+	mkdir -p "$(DESTDIR)$(TRACKER_MINER_FIREFOX_INSTALL_DIR)"
+	$(LN_S) "$(extensiondir)" "$(DESTDIR)$(TRACKER_MINER_FIREFOX_INSTALL_DIR)/trackerfox@bustany.org"
 
 uninstall-hook:
-	$(RM) "$(TRACKER_MINER_FIREFOX_INSTALL_DIR)/trackerfox@bustany.org"
+	$(RM) "$(DESTDIR)$(TRACKER_MINER_FIREFOX_INSTALL_DIR)/trackerfox@bustany.org"

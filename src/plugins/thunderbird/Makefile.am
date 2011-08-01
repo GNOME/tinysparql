@@ -11,8 +11,8 @@ extension_DATA = \
 EXTRA_DIST = $(extension_DATA)
 
 install-data-hook:
-	mkdir -p "$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)"
-	$(LN_S) "$(extensiondir)" "$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)/trackerbird@bustany.org"
+	mkdir -p "$(DESTDIR)$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)"
+	$(LN_S) "$(extensiondir)" "$(DESTDIR)$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)/trackerbird@bustany.org"
 
 uninstall-hook:
-	$(RM) "$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)/trackerbird@bustany.org"
+	$(RM) "$(DESTDIR)$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)/trackerbird@bustany.org"
