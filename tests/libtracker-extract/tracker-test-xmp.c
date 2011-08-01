@@ -350,16 +350,13 @@ debug_print_sparql (TrackerXmpData *data)
         /* To print the sparql */
         TrackerSparqlBuilder *metadata, *preupdate;
         GString              *where;
-        /* Print the sparql */
+
 	metadata = tracker_sparql_builder_new_update ();
 	preupdate = tracker_sparql_builder_new_update ();
 	where = g_string_new ("");
 
 	tracker_sparql_builder_insert_open (metadata, NULL);
         tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
-
-        /* To add few more metadata */
-        //data->title = g_strdup ("test");
 
         tracker_xmp_apply (preupdate, metadata, where, "urn:uuid:test", data);
 
@@ -409,7 +406,7 @@ test_xmp_regions (void)
         g_assert_cmpstr (region->type, ==, "Face");
         g_assert_cmpstr (region->title, ==, "John Doe");
 
-        debug_print_sparql (data);
+        //debug_print_sparql (data);
         
         tracker_xmp_free (data);
 }
@@ -452,8 +449,49 @@ test_xmp_regions_quill (void)
         g_assert_cmpstr (region->link_class, ==, "nco:PersonContact");
         g_assert_cmpstr (region->link_uri, ==, "urn:uuid:1");
 
-        debug_print_sparql (data);
+        //debug_print_sparql (data);
 
+        tracker_xmp_free (data);
+}
+
+static void
+test_xmp_regions_ns_prefix (void)
+{
+        TrackerXmpData       *data;
+        TrackerXmpRegion     *region;
+
+        GFile            *f;
+        gchar            *contents;
+        gsize             size;
+
+        f = g_file_new_for_path ("./areas-ns.xmp");
+        g_assert(g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
+        g_object_unref (f);
+
+        data = tracker_xmp_new (contents, size, "test://file");
+
+        g_assert_cmpint (2, ==, g_list_length (data->regions));
+        
+        /* Regions are stacked while parsing.*/
+        region = g_list_nth_data (data->regions, 0);
+        g_assert_cmpstr (region->x, ==, "0.51");
+        g_assert_cmpstr (region->y, ==, "0.51");
+        g_assert_cmpstr (region->width, ==, "0.01");
+        g_assert_cmpstr (region->height, ==, "0.09");
+        g_assert_cmpstr (region->type, ==, "Pet");
+        g_assert_cmpstr (region->title, ==, "Fidoz");
+        g_assert_cmpstr (region->description, ==, "Fido looks happy!");
+
+        region = g_list_nth_data (data->regions, 1);
+        g_assert_cmpstr (region->x, ==, "0.5");
+        g_assert_cmpstr (region->y, ==, "0.5");
+        g_assert_cmpstr (region->width, ==, "0.06");
+        g_assert_cmpstr (region->height, ==, "0.09");
+        g_assert_cmpstr (region->type, ==, "Face");
+        g_assert_cmpstr (region->title, ==, "Average Joe");
+
+        //debug_print_sparql (data);
+        
         tracker_xmp_free (data);
 }
 
@@ -473,7 +511,7 @@ main (int    argc,
 
 	g_test_add_func ("/libtracker-extract/tracker-xmp/parsing_xmp",
 	                 test_parsing_xmp);
-/*
+
 	g_test_add_func ("/libtracker-extract/tracker-xmp/metering-mode",
 	                 test_xmp_metering_mode);
 
@@ -482,12 +520,15 @@ main (int    argc,
 
 	g_test_add_func ("/libtracker-extract/tracker-xmp/sparql_translation",
 	                 test_xmp_apply);
-*/
+
         g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions",
                          test_xmp_regions);
 
         g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions_2",
                          test_xmp_regions_quill);
+
+        g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions_ns_prefix",
+                         test_xmp_regions_ns_prefix);
 #endif
 	g_test_add_func ("/libtracker-extract/tracker-xmp/sparql_translation_location",
 	                 test_xmp_apply_location);
