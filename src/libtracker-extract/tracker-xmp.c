@@ -29,6 +29,8 @@
 #ifdef HAVE_EXEMPI
 
 #define NS_XMP_REGIONS "http://www.metadataworkinggroup.com/schemas/regions/"
+#define NS_ST_DIM "http://ns.adobe.com/xap/1.0/sType/Dimensions#"
+#define NS_ST_AREA "http://ns.adobe.com/xap/1.0/sType/Area#"
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
@@ -506,9 +508,6 @@ iterate_simple (const gchar    *uri,
 			data->rating = g_strdup (value);
 		}
 	} else if (g_ascii_strcasecmp (schema, NS_XMP_REGIONS) == 0) {
-                /*
-                 *  FIXME: Is wrong to assume the namespace is mwg-rs, stArea and stDim
-                 */
                 if (g_str_has_prefix (path, "mwg-rs:Regions/mwg-rs:RegionList")) {
                         current_region = g_list_nth_data (data->regions, 0);
 
@@ -532,6 +531,8 @@ iterate_simple (const gchar    *uri,
                                    } else if (!current_region->unit 
                                               && g_ascii_strcasecmp (propname, "stArea:unit") == 0) {
                                    current_region->unit = g_strdup (value);
+
+                                   we consider it always comes normalized
                                 */
 
                         } else if (!current_region->type && g_ascii_strcasecmp (propname, "mwg-rs:Type") == 0) {
@@ -539,9 +540,7 @@ iterate_simple (const gchar    *uri,
                         } else if (g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
                                 current_region->link_class = g_strdup (propname);
                                 current_region->link_uri = g_strdup (value);
-                        } else {
-                                g_debug ("(unhandled)  prop: %s (%s)\n", path, value);
-                        }
+                        } 
                 }
         }
 	g_free (name);
@@ -554,8 +553,6 @@ iterate_complex_element (TrackerXmpData *data, const gchar *schema, const gchar 
 
         /* When we go into an Area, we put a region on the stack 
          *  further statements will put values in that region. 
-         *
-         *  FIXME: Is wrong to assume the namespace is mwg-rs
          */
         if (g_str_has_suffix (path, "mwg-rs:Area")) {
                 region = g_new0 (TrackerXmpRegion, 1);
@@ -576,6 +573,7 @@ iterate (XmpPtr          xmp,
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
 	XmpStringPtr the_prop = xmp_string_new ();
+
 	uint32_t opt;
 
 	while (xmp_iterator_next (iter, the_schema, the_path, the_prop, &opt)) {
@@ -601,7 +599,7 @@ iterate (XmpPtr          xmp,
                                    In those cases, to avoid duplicated values, is easier
                                    to skip the subtree 
                                 */
-                                if (g_str_has_prefix (path, "dc:")) {
+                                if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
                                         xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
                                 }
 			}
@@ -613,6 +611,15 @@ iterate (XmpPtr          xmp,
 	xmp_string_free (the_prop);
 	xmp_string_free (the_path);
 	xmp_string_free (the_schema);
+}
+
+
+static void
+register_namespace (const gchar *ns_uri, const gchar *suggested_prefix)
+{
+        if (!xmp_namespace_prefix (ns_uri, NULL)) {
+                xmp_register_namespace (ns_uri, suggested_prefix, NULL);
+        }     
 }
 
 #endif /* HAVE_EXEMPI */
@@ -632,6 +639,10 @@ parse_xmp (const gchar    *buffer,
 #ifdef HAVE_EXEMPI
 
 	xmp_init ();
+        
+        register_namespace (NS_XMP_REGIONS, "mwg-rs");
+        register_namespace (NS_ST_DIM, "stDim");
+        register_namespace (NS_ST_AREA, "stArea");
 
 	xmp = xmp_new_empty ();
 	xmp_parse (xmp, buffer, len);
