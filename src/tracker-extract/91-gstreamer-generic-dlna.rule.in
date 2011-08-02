@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-gstreamer.so
+MimeTypes=dlna/*;
+

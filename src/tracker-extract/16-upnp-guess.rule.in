@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=@modulesdir@/libextract-gupnp-dlna.so
-MimeTypes=video/3gpp;video/mp4;video/x-ms-asf;
-

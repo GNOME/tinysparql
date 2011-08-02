@@ -211,6 +211,8 @@ GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
+GSTREAMER_REQUIRED=0.10.31
+GUPNP_DLNA_REQUIRED=0.5
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -1521,20 +1523,6 @@ fi
 
 AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
 
-####################################################################
-# Check for tracker-extract: tagreadbin for gstreamer extraction
-####################################################################
-
-AC_ARG_ENABLE(gstreamer-tagreadbin,
-             AS_HELP_STRING([--enable-gstreamer-tagreadbin],
-                            [enable tagreadbin in gstreamer [[default=no]]]),
-                            [enable_tagreadbin=yes],
-                            [enable_tagreadbin=no])
-
-if test "x$enable_tagreadbin" != "xno"; then
-  AC_DEFINE(TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN, 1, [Use tagreadbin in gstreamer extraction])
-fi
-
 ##################################################################
 # Check for tracker-extract: libxml2 for XML/HTML extractor
 ##################################################################
@@ -1645,21 +1633,14 @@ AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
 # Check for tracker-extract: gstreamer/xine/totem/mplayer/etc
 ####################################################################
 
-AC_ARG_ENABLE(video-extractor,
-              AS_HELP_STRING([--enable-video-extractor=ARG],
-                             [enables one of the (gupnp-dlna, gstreamer, xine, external, auto) video extractor backends [[default=auto]]]),,
-              [enable_video_extractor=auto])
-
-PKG_CHECK_MODULES(GUPNP_DLNA,
-                  [gupnp-dlna-1.0 >= 0.5],
-                  [have_gupnp_dlna=yes],
-                  [have_gupnp_dlna=no])
-
-AC_SUBST(GUPNP_DLNA_CFLAGS)
-AC_SUBST(GUPNP_DLNA_LIBS)
+AC_ARG_ENABLE(generic-media-extractor,
+              AS_HELP_STRING([--enable-generic-media-extractor=ARG],
+                             [enables one of the (gstreamer, xine, external, auto) generic media extractor backends [[default=auto]]]),,
+              [enable_generic_media_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
-                  [gstreamer-0.10 >= 0.10.31 gstreamer-tag-0.10 >= 0.10.31],
+                  [gstreamer-0.10 >= $GSTREAMER_REQUIRED
+                   gstreamer-tag-0.10 >= $GSTREAMER_REQUIRED],
                   [have_libgstreamer=yes],
                   [have_libgstreamer=no])
 
@@ -1674,71 +1655,112 @@ PKG_CHECK_MODULES(XINE,
 AC_SUBST(XINE_CFLAGS)
 AC_SUBST(XINE_LIBS)
 
-if test "x$enable_video_extractor" = "xauto"; then
-   if test "$have_gupnp_dlna" = "yes"; then
-      have_video_handler_app="GUPnP-DLNA"
-      have_video_handler="yes"
-   elif test "$have_libgstreamer" = "yes"; then
-      have_video_handler_app="GStreamer"
-      have_video_handler="yes"
-   elif test "$have_libxine" = "yes"; then
-      have_video_handler_app="Xine"
-      have_video_handler="yes"
-   else
-      have_video_handler="?"
-      have_video_handler_app="An external video player will be called"
-   fi
-elif test "x$enable_video_extractor" = "xgupnp-dlna"; then
-   if test "$have_gupnp_dlna" = "yes"; then
-      have_video_handler_app="GUPnP-DLNA"
-      have_video_handler="yes"
-   else
-      AC_MSG_ERROR([Couldn't find GUPnP-DLNA])
-   fi
-elif test "x$enable_video_extractor" = "xgstreamer"; then
+if test "x$enable_generic_media_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
-      have_video_handler_app="GStreamer"
-      have_video_handler="yes"
+      have_generic_media_handler="yes"
+      have_generic_media_handler_app="GStreamer"
+   elif test "$have_libxine" = "yes"; then
+      have_generic_media_handler_app="Xine"
+      have_generic_media_handler="yes"
    else
-      AC_MSG_ERROR([Couldn't find Gstreamer])
+      have_generic_media_handler="?"
+      have_generic_media_handler_app="An external generic_media player will be called"
    fi
-elif test "x$enable_video_extractor" = "xxine"; then
+elif test "x$enable_generic_media_extractor" = "xgstreamer"; then
+   if test "$have_libgstreamer" = "yes"; then
+      have_generic_media_handler_app="GStreamer"
+      have_generic_media_handler="yes"
+   else
+      AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
+   fi
+elif test "x$enable_generic_media_extractor" = "xxine"; then
    if test "$have_libxine" = "yes"; then
-      have_video_handler_app="Xine"
-      have_video_handler="yes"
+      have_generic_media_handler_app="Xine"
+      have_generic_media_handler="yes"
    else
       AC_MSG_ERROR([Couldn't find libxine])
    fi
 else
-   have_video_handler="?"
-   have_video_handler_app="An external video player will be called"
+   have_generic_media_handler="?"
+   have_generic_media_handler_app="An external generic media player will be called"
 fi
 
-if test "$have_video_handler_app" = "GUPnP-DLNA"; then
-   AC_DEFINE(HAVE_GUPNP_DLNA, [], [Define if we have GUPnP-DLNA])
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, false)
-   AM_CONDITIONAL(HAVE_LIBXINE, false)
-   AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
-elif test "$have_video_handler_app" = "GStreamer"; then
+if test "$have_generic_media_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
-   AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
-elif test "$have_video_handler_app" = "Xine"; then
+   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
+elif test "$have_generic_media_handler_app" = "Xine"; then
    AC_DEFINE(HAVE_LIBXINE, [], [Define if we have Libxine])
    AM_CONDITIONAL(HAVE_LIBXINE, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
-   AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
+   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 else
-   AC_DEFINE(USING_EXTERNAL_VIDEO_PLAYER, [], [Define that Tracker will try to use external video players])
-   AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, true)
-   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
+   AC_DEFINE(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, [], [Define that Tracker will try to use external generic media players])
+   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, true)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi
+
+###########################################################################
+# Check for gstreamer backend: tagreadbin/decodebin2/discoverer/gupnp-dlna
+###########################################################################
+
+AC_ARG_WITH([gstreamer-backend],
+            AS_HELP_STRING([--with-gstreamer-backend],
+                           [enables one of the (gupnp-dlna, discoverer, decodebin2, tagreadbin) GStreamer backends [[default=discoverer]]]),,
+              [with_gstreamer_backend=discoverer])
+
+if test "$have_generic_media_handler_app" != "GStreamer"; then
+   AC_MSG_WARN([No need to specify a GStreamer backend if not using GStreamer])
+   gstreamer_backend="N/A"
+else
+   case "x$with_gstreamer_backend" in
+        "xdecodebin2")
+           gstreamer_backend="Decodebin2"
+           AC_DEFINE(GSTREAMER_BACKEND_DECODEBIN2, [], [Define that GStreamer Decodebin2 should be used])
+        ;;
+        "xtagreadbin")
+           gstreamer_backend="Tagreadbin"
+           AC_DEFINE(GSTREAMER_BACKEND_TAGREADBIN, [], [Define that GStreamer Tagreadbin should be used])
+        ;;
+        "xdiscoverer")
+           PKG_CHECK_MODULES(GSTREAMER_PBUTILS,
+                             [gstreamer-pbutils-0.10 >= $GSTREAMER_REQUIRED],
+                             [have_gstreamer_pbutils=yes],
+                             [have_gstreamer_pbutils=no])
+           AC_SUBST(GSTREAMER_PBUTILS_CFLAGS)
+           AC_SUBST(GSTREAMER_PBUTILS_LIBS)
+
+           if test "x$have_gstreamer_pbutils" != "xyes"; then
+              AC_MSG_ERROR([Couldn't find GStreamer pbutils])
+           fi
+
+           gstreamer_backend="Discoverer"
+           AC_DEFINE(GSTREAMER_BACKEND_DISCOVERER, [], [Define that GStreamer Discoverer should be used])
+        ;;
+        "xgupnp-dlna")
+           PKG_CHECK_MODULES(GUPNP_DLNA,
+                             [gupnp-dlna-1.0 >= $GUPNP_DLNA_REQUIRED],
+                             [have_gupnp_dlna=yes],
+                             [have_gupnp_dlna=no])
+           AC_SUBST(GUPNP_DLNA_CFLAGS)
+           AC_SUBST(GUPNP_DLNA_LIBS)
+
+           if test "x$have_gupnp_dlna" = "xyes"; then
+              gstreamer_backend="GUPnP-DLNA"
+              AC_DEFINE(GSTREAMER_BACKEND_GUPNP_DLNA, [], [Define that GUPnP-DLNA should be used])
+           else
+              AC_MSG_ERROR([Couldn't find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
+           fi
+        ;;
+        # Invalid option value
+        *) AC_MSG_ERROR([Wrong value for --with-gstreamer-backend: $with_gstreamer_backend]) ;;
+   esac
+fi
+
+AM_CONDITIONAL(HAVE_GUPNP_DLNA,        test "x$gstreamer_backend" = "xGUPnP-DLNA")
+AM_CONDITIONAL(HAVE_GSTREAMER_PBUTILS, test "x$gstreamer_backend" = "xDiscoverer")
 
 ##################################################################
 # Check for tracker-extract: helixbin for gstreamer
@@ -2254,20 +2276,20 @@ AC_CONFIG_FILES([
 	tests/functional-tests/test-extraction-data/video/Makefile
 	tests/functional-tests/test-extraction-data/playlists/Makefile
 	tests/functional-tests/test-writeback-data/Makefile
-        tests/functional-tests/test-ontologies/Makefile
-        tests/functional-tests/test-ontologies/basic/Makefile
-        tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
-        tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
-        tests/functional-tests/test-ontologies/cardinality/Makefile
-        tests/functional-tests/test-ontologies/notify/Makefile
-        tests/functional-tests/test-ontologies/indexed/Makefile
-        tests/functional-tests/test-ontologies/add-class/Makefile
-        tests/functional-tests/test-ontologies/add-prop/Makefile
-        tests/functional-tests/test-ontologies/add-domainIndex/Makefile
-        tests/functional-tests/test-ontologies/superclass-remove/Makefile
-        tests/functional-tests/test-ontologies/property-promotion/Makefile
-        tests/functional-tests/test-ontologies/basic-future/Makefile
-        tests/functional-tests/test-apps-data/Makefile
+	tests/functional-tests/test-ontologies/Makefile
+	tests/functional-tests/test-ontologies/basic/Makefile
+	tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
+	tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
+	tests/functional-tests/test-ontologies/cardinality/Makefile
+	tests/functional-tests/test-ontologies/notify/Makefile
+	tests/functional-tests/test-ontologies/indexed/Makefile
+	tests/functional-tests/test-ontologies/add-class/Makefile
+	tests/functional-tests/test-ontologies/add-prop/Makefile
+	tests/functional-tests/test-ontologies/add-domainIndex/Makefile
+	tests/functional-tests/test-ontologies/superclass-remove/Makefile
+	tests/functional-tests/test-ontologies/property-promotion/Makefile
+	tests/functional-tests/test-ontologies/basic-future/Makefile
+	tests/functional-tests/test-apps-data/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-steroids/Makefile
@@ -2277,8 +2299,8 @@ AC_CONFIG_FILES([
 	utils/lyrics/Makefile
 	utils/playlists/Makefile
 	utils/services/Makefile
-        utils/data-generators/Makefile
-        utils/data-generators/cc/Makefile
+	utils/data-generators/Makefile
+	utils/data-generators/cc/Makefile
 	utils/mtp/Makefile
 	utils/tracker-sql/Makefile
 	utils/tracker-resdump/Makefile
@@ -2336,7 +2358,7 @@ Metadata Extractors:
 	Support MS & Open Office:               $have_libgsf
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
-	Support video formats:                  $have_video_handler ($have_video_handler_app) (tagreadbin: $enable_tagreadbin)
+	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
 	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
@@ -2363,5 +2385,5 @@ Frameworks / Options:
 
 	Support Maemo                           $enable_maemo
 	Support libmeegotouch                   $have_meegotouch
-        Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
+	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 "

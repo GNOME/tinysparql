@@ -21,6 +21,14 @@
 
 #include "config.h"
 
+/* Ensure we have a valid backend enabled */
+#if !defined(GSTREAMER_BACKEND_TAGREADBIN) && \
+    !defined(GSTREAMER_BACKEND_DECODEBIN2) && \
+    !defined(GSTREAMER_BACKEND_DISCOVERER) && \
+    !defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+#error Not a valid GStreamer backend defined
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,8 +37,19 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+#define GST_USE_UNSTABLE_API
+#include <gst/pbutils/pbutils.h>
+#endif
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+#include <libgupnp-dlna/gupnp-dlna-discoverer.h>
+#endif
+
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
+
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
@@ -81,7 +100,6 @@
 #define GST_TAG_DEVICE_MAKE "device-make"
 #endif
 
-
 typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
@@ -91,64 +109,64 @@ typedef enum {
 } ExtractMime;
 
 typedef struct {
-	/* Common pipeline elements */
-	GstElement     *pipeline;
-
-	GstBus         *bus;
-
 	ExtractMime     mime;
-
-
-	/* Decodebin elements and properties*/
-	GstElement     *bin;
-	GList          *fsinks;
-
-	gint64          duration;
-	gint            video_height;
-	gint            video_width;
-	gint            video_fps_n;
-	gint            video_fps_d;
-	gint            audio_channels;
-	gint            audio_samplerate;
-	gint            aspect_ratio;
-
-	/* Tags and data */
 	GstTagList     *tagcache;
-
 	gboolean        is_content_encrypted;
-
 	unsigned char  *album_art_data;
 	guint           album_art_size;
 	const gchar    *album_art_mime;
 
-} MetadataExtractor;
-
-/* Not using define directly since we might want to make this dynamic */
-#ifdef TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN
-const gboolean use_tagreadbin = TRUE;
-#else
-const gboolean use_tagreadbin = FALSE;
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2)
+	GstElement     *pipeline;
+	GstBus         *bus;
 #endif
 
-static void
-add_int64_info (TrackerSparqlBuilder *metadata,
-                const gchar          *uri,
-                const gchar          *key,
-                gint64                info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
+#if defined(GSTREAMER_BACKEND_DECODEBIN2)
+	GstElement     *bin;
+	GList          *fsinks;
+#endif
 
-static void
-add_uint_info (TrackerSparqlBuilder *metadata,
-               const gchar          *uri,
-               const gchar          *key,
-               guint                 info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	gboolean        has_image;
+	gboolean        has_audio;
+	gboolean        has_video;
+	GList          *streams;
+#endif
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER)
+	GstDiscoverer  *discoverer;
+#endif
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	GUPnPDLNADiscoverer  *discoverer;
+	GUPnPDLNAInformation *dlna_info;
+	const gchar          *dlna_profile;
+#endif
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	gint64          duration;
+	gint            audio_channels;
+	gint            audio_samplerate;
+	gint            height;
+	gint            width;
+	gfloat          aspect_ratio;
+	gfloat          video_fps;
+#endif
+} MetadataExtractor;
+
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+static void tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
+                                                const gchar          *uri,
+                                                TrackerSparqlBuilder *metadata);
+#else  /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
+static void common_extract_stream_metadata (MetadataExtractor    *extractor,
+                                            const gchar          *uri,
+                                            TrackerSparqlBuilder *metadata);
+#endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 static void
 add_string_gst_tag (TrackerSparqlBuilder *metadata,
@@ -157,8 +175,8 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
                     GstTagList           *tag_list,
                     const gchar          *tag)
 {
-	gchar    *s;
-	gboolean  ret;
+	gchar *s;
+	gboolean ret;
 
 	s = NULL;
 	ret = gst_tag_list_get_string (tag_list, tag, &s);
@@ -181,27 +199,9 @@ add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
                   const gchar           *tag)
 {
 	gboolean ret;
-	guint    n;
+	guint n;
 
 	ret = gst_tag_list_get_uint (tag_list, tag, &n);
-
-	if (ret) {
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, n);
-	}
-}
-
-static void
-add_int_gst_tag (TrackerSparqlBuilder  *metadata,
-                 const gchar           *uri,
-                 const gchar           *key,
-                 GstTagList            *tag_list,
-                 const gchar           *tag)
-{
-	gboolean ret;
-	gint     n;
-
-	ret = gst_tag_list_get_int (tag_list, tag, &n);
 
 	if (ret) {
 		tracker_sparql_builder_predicate (metadata, key);
@@ -217,37 +217,13 @@ add_double_gst_tag (TrackerSparqlBuilder  *metadata,
                     const gchar           *tag)
 {
 	gboolean ret;
-	gdouble          n;
+	gdouble n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
 	if (ret) {
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_int64 (metadata, (gint64) n);
-	}
-}
-
-static void
-add_fraction_gst_tag (TrackerSparqlBuilder  *metadata,
-                      const gchar           *uri,
-                      const gchar           *key,
-                      GstTagList            *tag_list,
-                      const gchar           *tag)
-{
-	gboolean ret;
-	GValue   n = {0,};
-	gfloat   f;
-
-	ret = gst_tag_list_copy_value (&n, tag_list, tag);
-
-	if (ret) {
-		f = (gfloat)gst_value_get_fraction_numerator (&n)/
-		gst_value_get_fraction_denominator (&n);
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_double (metadata, (gdouble) f);
-
-		g_value_unset (&n);
 	}
 }
 
@@ -307,28 +283,6 @@ add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
 }
 
 static void
-add_time_gst_tag (TrackerSparqlBuilder   *metadata,
-                  const gchar *uri,
-                  const gchar *key,
-                  GstTagList  *tag_list,
-                  const gchar *tag)
-{
-	gboolean ret;
-	guint64          n;
-
-	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
-
-	if (ret) {
-		gint64 duration;
-
-		duration = (n + (GST_SECOND / 2)) / GST_SECOND;
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, duration);
-	}
-}
-
-static void
 add_keywords_gst_tag (TrackerSparqlBuilder *metadata,
                       GstTagList           *tag_list)
 {
@@ -355,10 +309,10 @@ add_keywords_gst_tag (TrackerSparqlBuilder *metadata,
 }
 
 static gboolean
-get_embedded_album_art(MetadataExtractor *extractor)
+get_embedded_album_art (MetadataExtractor *extractor)
 {
 	const GValue *value;
-	guint         lindex;
+	guint lindex;
 
 	lindex = 0;
 
@@ -366,10 +320,10 @@ get_embedded_album_art(MetadataExtractor *extractor)
 		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, lindex);
 
 		if (value) {
-			GstBuffer    *buffer;
-			GstCaps      *caps;
+			GstBuffer *buffer;
+			GstCaps *caps;
 			GstStructure *caps_struct;
-			gint          type;
+			gint type;
 
 			buffer = gst_value_get_buffer (value);
 			caps   = gst_buffer_get_caps (buffer);
@@ -398,7 +352,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 	value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_PREVIEW_IMAGE, lindex);
 
 	if (value) {
-		GstBuffer    *buffer;
+		GstBuffer *buffer;
 		GstStructure *caps_struct;
 
 		buffer = gst_value_get_buffer (value);
@@ -413,71 +367,6 @@ get_embedded_album_art(MetadataExtractor *extractor)
 	}
 
 	return FALSE;
-}
-
-static void
-extract_stream_metadata_tagreadbin (MetadataExtractor     *extractor,
-                                    const gchar           *uri,
-                                    TrackerSparqlBuilder  *metadata)
-{
-	if (extractor->mime != EXTRACT_MIME_IMAGE && extractor->mime != EXTRACT_MIME_SVG) {
-		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
-		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
-		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
-	}
-
-	if (extractor->mime == EXTRACT_MIME_IMAGE || extractor->mime == EXTRACT_MIME_SVG || extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
-	}
-
-	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
-	add_int_gst_tag (metadata, uri, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
-
-	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, uri, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
-	}
-}
-
-static void
-extract_stream_metadata_decodebin (MetadataExtractor *extractor,
-                                   const gchar       *uri,
-                                   TrackerSparqlBuilder         *metadata)
-{
-	if (extractor->mime != EXTRACT_MIME_IMAGE && extractor->mime != EXTRACT_MIME_SVG) {
-
-		if (extractor->audio_channels >= 0) {
-			add_uint_info (metadata, uri, "nfo:channels", extractor->audio_channels);
-		}
-
-		if (extractor->audio_samplerate >= 0) {
-			add_uint_info (metadata, uri, "nfo:sampleRate", extractor->audio_samplerate);
-		}
-
-		if (extractor->duration >= 0) {
-			add_int64_info (metadata, uri, "nfo:duration", extractor->duration);
-		}
-	} else {
-		if (extractor->aspect_ratio >= 0) {
-			add_uint_info (metadata, uri, "nfo:aspectRatio", extractor->aspect_ratio);
-		}
-	}
-
-	if (extractor->video_height >= 0) {
-		add_uint_info (metadata, uri, "nfo:height", extractor->video_height);
-	}
-
-	if (extractor->video_width >= 0) {
-		add_uint_info (metadata, uri, "nfo:width", extractor->video_width);
-	}
-
-	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
-			add_uint_info (metadata,
-			               uri, "nfo:frameRate",
-			               ((extractor->video_fps_n + extractor->video_fps_d / 2) /
-			                extractor->video_fps_d));
-		}
-	}
 }
 
 static void
@@ -505,8 +394,11 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *album_disc_uri = NULL;
 		gchar *s;
 
+		/* Try to guess content type */
 		if (extractor->mime == EXTRACT_MIME_GUESS) {
-			gchar *video_codec = NULL, *audio_codec = NULL;
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2)
+			char *video_codec = NULL, *audio_codec = NULL;
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_AUDIO_CODEC, &audio_codec);
@@ -524,6 +416,18 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			g_free (video_codec);
 			g_free (audio_codec);
+#else  /* DISCOVERER/GUPNP-DLNA... */
+			if (extractor->has_video) {
+				extractor->mime = EXTRACT_MIME_VIDEO;
+			} else if (extractor->has_audio) {
+				extractor->mime = EXTRACT_MIME_AUDIO;
+			} else if (extractor->has_image) {
+				extractor->mime = EXTRACT_MIME_IMAGE;
+			} else {
+				/* default to video */
+				extractor->mime = EXTRACT_MIME_VIDEO;
+			}
+#endif /* DISCOVERER/GUPNP-DLNA... */
 		}
 
 		/* General */
@@ -810,11 +714,6 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (model);
 		g_free (manuf);
 
-		if (extractor->is_content_encrypted) {
-			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
-			tracker_sparql_builder_object_boolean (metadata, TRUE);
-		}
-
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, uri, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
@@ -902,135 +801,237 @@ extract_metadata (MetadataExtractor      *extractor,
 	}
 
 	/* If content was encrypted, set it. */
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2)
 	if (extractor->is_content_encrypted) {
 		tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
 		tracker_sparql_builder_object_boolean (metadata, TRUE);
 	}
+#else
+#warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends
+#endif
 
-	if (use_tagreadbin) {
-		extract_stream_metadata_tagreadbin (extractor, uri, metadata);
-	} else {
-		extract_stream_metadata_decodebin (extractor, uri, metadata);
-	}
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+	tagreadbin_extract_stream_metadata (extractor, uri, metadata);
+#else  /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
+	common_extract_stream_metadata (extractor, uri, metadata);
+#endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
 		get_embedded_album_art (extractor);
 	}
 }
 
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 static void
-unlink_fsink (void *obj, void *data_)
+common_extract_stream_metadata (MetadataExtractor    *extractor,
+                                const gchar          *uri,
+                                TrackerSparqlBuilder *metadata)
 {
-	MetadataExtractor *extractor = (MetadataExtractor *)data_;
-	GstElement        *fsink     = (GstElement *) obj;
+	if (extractor->mime == EXTRACT_MIME_AUDIO ||
+	    extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->audio_channels >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:channels");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_channels);
+		}
 
-	gst_element_unlink (extractor->bin, fsink);
-	gst_bin_remove (GST_BIN (extractor->pipeline), fsink);
-	gst_element_set_state (fsink, GST_STATE_NULL);
-}
+		if (extractor->audio_samplerate >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
+			tracker_sparql_builder_object_int64 (metadata, extractor->audio_samplerate);
+		}
 
-static void
-dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data_)
-{
-	MetadataExtractor *extractor = (MetadataExtractor *)data_;
-	GstElement        *fsink;
-	GstPad            *fsinkpad;
-	GValue             val = {0, };
-
-	fsink = gst_element_factory_make ("fakesink", NULL);
-
-	/* We increase the preroll buffer so we get duration (one frame not enough)*/
-	g_value_init (&val, G_TYPE_INT);
-	g_value_set_int (&val, 51);
-	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
-	g_value_unset (&val);
-
-	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
-	gst_element_set_state (fsink, GST_STATE_PAUSED);
-
-	gst_bin_add (GST_BIN (extractor->pipeline), fsink);
-	fsinkpad = gst_element_get_static_pad (fsink, "sink");
-	gst_pad_link (pad, fsinkpad);
-	gst_object_unref (fsinkpad);
-}
-
-static guint64
-get_media_duration (MetadataExtractor *extractor)
-{
-	gint64    duration;
-	GstFormat fmt;
-
-	g_return_val_if_fail (extractor, -1);
-	g_return_val_if_fail (extractor->pipeline, -1);
-
-	fmt = GST_FORMAT_TIME;
-
-	duration = -1;
-
-	if (gst_element_query_duration (extractor->pipeline,
-	                                &fmt,
-	                                &duration) &&
-	    duration >= 0) {
-		return duration / GST_SECOND;
-	} else {
-		return -1;
-	}
-}
-
-static void
-add_stream_tag (void *obj, void *data_)
-{
-	MetadataExtractor *extractor = (MetadataExtractor *)data_;
-	GstElement        *fsink     = (GstElement *) obj;
-
-	GstStructure      *s         = NULL;
-	GstCaps                   *caps      = NULL;
-
-	if ((caps = GST_PAD_CAPS (fsink))) {
-		s = gst_caps_get_structure (caps, 0);
-
-		if (s) {
-			if (g_strrstr (gst_structure_get_name (s), "audio")) {
-				if ( ( (extractor->audio_channels != -1) &&
-				       (extractor->audio_samplerate != -1) ) ||
-				     !( (gst_structure_get_int (s,
-				                                "channels",
-				                                &extractor->audio_channels) ) &&
-				        (gst_structure_get_int (s,
-				                                "rate",
-				                                &extractor->audio_samplerate)) ) ) {
-					return;
-				}
-			} else if (g_strrstr (gst_structure_get_name (s), "video")) {
-				if ( ( (extractor->video_fps_n != -1) &&
-				       (extractor->video_fps_d != -1) &&
-				       (extractor->video_width != -1) &&
-				       (extractor->video_height != -1) ) ||
-				     !( (gst_structure_get_fraction (s,
-				                                     "framerate",
-				                                     &extractor->video_fps_n,
-				                                     &extractor->video_fps_d) ) &&
-				        (gst_structure_get_int (s, "width", &extractor->video_width)) &&
-				        (gst_structure_get_int (s, "height", &extractor->video_height)) &&
-				        (gst_structure_get_int (s, "pixel-aspect-ratio", &extractor->aspect_ratio)))) {
-					return;
-				}
-			}
+		if (extractor->duration >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:duration");
+			tracker_sparql_builder_object_int64 (metadata, extractor->duration);
 		}
 	}
+
+	if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		if (extractor->video_fps >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:frameRate");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->video_fps);
+		}
+	}
+
+	if (extractor->mime == EXTRACT_MIME_IMAGE ||
+	    extractor->mime == EXTRACT_MIME_SVG ||
+	    extractor->mime == EXTRACT_MIME_VIDEO) {
+
+		if (extractor->width) {
+			tracker_sparql_builder_predicate (metadata, "nfo:width");
+			tracker_sparql_builder_object_int64 (metadata, extractor->width);
+		}
+
+		if (extractor->height >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:height");
+			tracker_sparql_builder_object_int64 (metadata, extractor->height);
+		}
+
+		if (extractor->aspect_ratio >= 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:aspectRatio");
+			tracker_sparql_builder_object_double (metadata, (gdouble)extractor->aspect_ratio);
+		}
+	}
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	if (extractor->dlna_profile) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
+	} else {
+		g_debug ("No DLNA profile for file '%s'", uri);
+	}
+#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 }
 
-static void
-add_stream_tags (MetadataExtractor *extractor)
-{
-	extractor->duration = get_media_duration (extractor);
-	g_list_foreach (extractor->fsinks, add_stream_tag, extractor);
-}
+#endif
+
+/* ----------------------- Discoverer/GUPnP-DLNA specific implementation --------------- */
+
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 
 static void
-add_tags (GstTagList *new_tags, MetadataExtractor *extractor)
+discoverer_shutdown (MetadataExtractor *extractor)
 {
-	GstTagList   *result;
+	if (extractor->streams)
+		gst_discoverer_stream_info_list_free (extractor->streams);
+	if (extractor->discoverer)
+		g_object_unref (extractor->discoverer);
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	if (extractor->dlna_info)
+		g_object_unref (extractor->dlna_info);
+#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
+}
+
+static gboolean
+discoverer_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
+{
+	GstDiscovererInfo *info;
+	GError *error = NULL;
+	GList *l;
+
+	extractor->duration = -1;
+	extractor->audio_channels = -1;
+	extractor->audio_samplerate = -1;
+	extractor->height = -1;
+	extractor->width = -1;
+	extractor->video_fps = -1.0;
+	extractor->aspect_ratio = -1.0;
+
+	extractor->has_image = FALSE;
+	extractor->has_video = FALSE;
+	extractor->has_audio = FALSE;
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	extractor->discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
+
+	/* Uri is const, the API should be const, but it isn't and it
+	 * calls gst_discoverer_discover_uri()
+	 */
+	extractor->dlna_info = gupnp_dlna_discoverer_discover_uri_sync (extractor->discoverer,
+	                                                                uri,
+	                                                                &error);
+	if (error) {
+		g_warning ("Call to gupnp_dlna_discoverer_discover_uri_sync() failed: %s",
+		           error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	if (!extractor->dlna_info) {
+		g_warning ("No DLNA info discovered, bailing out");
+		return TRUE;
+	}
+
+	/* Get DLNA profile */
+	extractor->dlna_profile = gupnp_dlna_information_get_name (extractor->dlna_info);
+
+	info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (extractor->dlna_info);
+#else  /* GSTREAMER_BACKEND_GUPNP_DLNA */
+	extractor->discoverer = gst_discoverer_new (5 * GST_SECOND, &error);
+	if (!extractor->discoverer) {
+		g_warning ("Couldn't create discoverer: %s",
+		           error ? error->message : "unknown error");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	info = gst_discoverer_discover_uri (extractor->discoverer,
+	                                    uri,
+	                                    &error);
+	if (error) {
+		g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
+		           error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
+
+	if (!info) {
+		g_warning ("Nothing discovered, bailing out");
+		return TRUE;
+	}
+
+	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
+
+	/* Get list of Streams to iterate */
+	extractor->streams = gst_discoverer_info_get_stream_list (info);
+	for (l = extractor->streams; l; l = g_list_next (l)) {
+		GstDiscovererStreamInfo *stream = l->data;
+		GstTagList *tmp;
+
+		if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_AUDIO_INFO)) {
+			GstDiscovererAudioInfo *audio = (GstDiscovererAudioInfo*)stream;
+
+			extractor->has_audio = TRUE;
+			extractor->audio_samplerate = gst_discoverer_audio_info_get_sample_rate (audio);
+			extractor->audio_channels = gst_discoverer_audio_info_get_channels (audio);
+		} else if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_VIDEO_INFO)) {
+			GstDiscovererVideoInfo *video = (GstDiscovererVideoInfo*)stream;
+
+			if (gst_discoverer_video_info_is_image (video)) {
+				extractor->has_image = TRUE;
+			} else {
+				extractor->has_video = TRUE;
+				extractor->video_fps = (gfloat)(gst_discoverer_video_info_get_framerate_num (video) /
+				                                gst_discoverer_video_info_get_framerate_denom (video));
+				extractor->width = gst_discoverer_video_info_get_width (video);
+				extractor->height = gst_discoverer_video_info_get_height (video);
+				extractor->aspect_ratio = (gfloat)(gst_discoverer_video_info_get_par_num (video) /
+				                                   gst_discoverer_video_info_get_par_denom (video));
+			}
+		} else {
+			/* Unknown type - do nothing */
+		}
+
+		/* Overwrite list of tags */
+		tmp = gst_tag_list_merge (extractor->tagcache,
+		                          gst_discoverer_stream_info_get_tags (stream),
+		                          GST_TAG_MERGE_APPEND);
+		if (extractor->tagcache)
+			gst_tag_list_free (extractor->tagcache);
+		extractor->tagcache = tmp;
+	}
+
+	return TRUE;
+}
+
+#endif /* defined(GSTREAMER_BACKEND_DISCOVERER) || \
+          defined(GSTREAMER_BACKEND_GUPNP_DLNA) */
+
+/* --------------- Common Tagreadbin and Decodebin2 implementation ---------- */
+
+#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
+    defined(GSTREAMER_BACKEND_DECODEBIN2)
+
+static void
+add_tags (GstTagList        *new_tags,
+          MetadataExtractor *extractor)
+{
+	GstTagList *result;
 
 	result = gst_tag_list_merge (extractor->tagcache,
 	                             new_tags,
@@ -1043,16 +1044,24 @@ add_tags (GstTagList *new_tags, MetadataExtractor *extractor)
 	extractor->tagcache = result;
 }
 
+static void
+pipeline_shutdown (MetadataExtractor *extractor)
+{
+	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
+	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
+	gst_object_unref (extractor->bus);
+	gst_object_unref (GST_OBJECT (extractor->pipeline));
+}
 
 static gboolean
-poll_for_ready (MetadataExtractor *extractor,
-                GstState           state,
-                gboolean           ready_with_state,
-                gboolean           ready_with_eos)
+pipeline_poll_for_ready (MetadataExtractor *extractor,
+                         GstState           state,
+                         gboolean           ready_with_state,
+                         gboolean           ready_with_eos)
 {
-	gint64              timeout   = 5 * GST_SECOND;
-	GstBus             *bus       = extractor->bus;
-	GstTagList         *new_tags;
+	gint64 timeout = 5 * GST_SECOND;
+	GstBus *bus = extractor->bus;
+	GstTagList *new_tags;
 
 	gst_element_set_state (extractor->pipeline, state);
 
@@ -1086,7 +1095,7 @@ poll_for_ready (MetadataExtractor *extractor,
 		}
 		case GST_MESSAGE_ERROR: {
 			GError *lerror = NULL;
-			gchar  *error_debug_message;
+			gchar *error_debug_message;
 
 			gst_message_parse_error (message, &lerror, &error_debug_message);
 
@@ -1111,7 +1120,7 @@ poll_for_ready (MetadataExtractor *extractor,
 					break;
 				}
 			}
-#endif
+#endif /* GST_CHECK_VERSION (0,10,20) */
 
 			g_warning ("Error in GStreamer: '%s' (%s)",
 			           lerror ? lerror->message : "Unknown error",
@@ -1154,14 +1163,177 @@ poll_for_ready (MetadataExtractor *extractor,
 	return FALSE;
 }
 
+#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || \
+          defined(GSTREAMER_BACKEND_DECODEBIN2) */
+
+/* ----------------------- Decodebin2 specific implementation --------------- */
+
+#if defined(GSTREAMER_BACKEND_DECODEBIN2)
+
+static void
+add_int64_info (TrackerSparqlBuilder *metadata,
+                const gchar          *uri,
+                const gchar          *key,
+                gint64                info)
+{
+	tracker_sparql_builder_predicate (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
+}
+
+static void
+add_uint_info (TrackerSparqlBuilder *metadata,
+               const gchar          *uri,
+               const gchar          *key,
+               guint                 info)
+{
+	tracker_sparql_builder_predicate (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
+}
+
+static void
+decodebin2_unlink_fsink (void *obj,
+                         void *data)
+{
+	MetadataExtractor *extractor = (MetadataExtractor *) data;
+	GstElement *fsink = (GstElement *) obj;
+
+	gst_element_unlink (extractor->bin, fsink);
+	gst_bin_remove (GST_BIN (extractor->pipeline), fsink);
+	gst_element_set_state (fsink, GST_STATE_NULL);
+}
+
+static void
+decodebin2_dpad_cb (GstElement *e,
+                    GstPad     *pad,
+                    gboolean    cont,
+                    gpointer    data)
+{
+	MetadataExtractor *extractor = (MetadataExtractor *)data;
+	GstElement *fsink;
+	GstPad *fsinkpad;
+	GValue val = { 0, };
+
+	fsink = gst_element_factory_make ("fakesink", NULL);
+
+	/* We increase the preroll buffer so we get duration (one frame not enough)*/
+	g_value_init (&val, G_TYPE_INT);
+	g_value_set_int (&val, 51);
+	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
+	g_value_unset (&val);
+
+	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
+	gst_element_set_state (fsink, GST_STATE_PAUSED);
+
+	gst_bin_add (GST_BIN (extractor->pipeline), fsink);
+	fsinkpad = gst_element_get_static_pad (fsink, "sink");
+	gst_pad_link (pad, fsinkpad);
+	gst_object_unref (fsinkpad);
+}
+
+static guint64
+decodebin2_get_media_duration (MetadataExtractor *extractor)
+{
+	gint64 duration;
+	GstFormat fmt;
+
+	g_return_val_if_fail (extractor, -1);
+	g_return_val_if_fail (extractor->pipeline, -1);
+
+	fmt = GST_FORMAT_TIME;
+
+	duration = -1;
+
+	if (gst_element_query_duration (extractor->pipeline,
+	                                &fmt,
+	                                &duration) &&
+	    duration >= 0) {
+		return duration / GST_SECOND;
+	} else {
+		return -1;
+	}
+}
+
+static void
+decodebin2_add_stream_tag (void *obj, void *data)
+{
+	MetadataExtractor *extractor = (MetadataExtractor *) data;
+	GstElement *fsink = (GstElement *) obj;
+
+	GstStructure *s = NULL;
+	GstCaps *caps = NULL;
+
+	if ((caps = GST_PAD_CAPS (fsink))) {
+		s = gst_caps_get_structure (caps, 0);
+
+		if (s) {
+			if (g_strrstr (gst_structure_get_name (s), "audio")) {
+				if ((extractor->audio_channels != -1) &&
+				    (extractor->audio_samplerate != -1))
+					return;
+
+				if (extractor->audio_channels == -1)
+					gst_structure_get_int (s, "channels", &extractor->audio_channels);
+
+				if (extractor->audio_samplerate == -1)
+					gst_structure_get_int (s, "rate", &extractor->audio_samplerate);
+				return;
+			}
+
+			if (g_strrstr (gst_structure_get_name (s), "video")) {
+				if ((extractor->video_fps != -1) &&
+				    (extractor->width != -1) &&
+				    (extractor->height != -1) &&
+				    (extractor->aspect_ratio != -1)){
+					return;
+				}
+
+				if (extractor->video_fps == -1) {
+					gint video_fps_n;
+					gint video_fps_d;
+
+					if (gst_structure_get_fraction (s,
+					                                "framerate",
+					                                &video_fps_n,
+					                                &video_fps_d)) {
+						extractor->video_fps = (video_fps_n + video_fps_d / 2) / video_fps_d;
+					}
+				}
+
+				if (extractor->width == -1)
+					gst_structure_get_int (s, "width", &extractor->width);
+
+				if (extractor->height == -1)
+					gst_structure_get_int (s, "height", &extractor->height);
+
+				if (extractor->aspect_ratio == -1) {
+					gint aspect_ratio;
+
+					gst_structure_get_int (s, "pixel-aspect-ratio", &aspect_ratio);
+					extractor->aspect_ratio = aspect_ratio;
+				}
+
+				return;
+			}
+
+			/* TODO: Add aspect-ratio, width and height in case of images */
+		}
+	}
+}
+
+static void
+decodebin2_add_stream_tags (MetadataExtractor *extractor)
+{
+	extractor->duration = decodebin2_get_media_duration (extractor);
+	g_list_foreach (extractor->fsinks, decodebin2_add_stream_tag, extractor);
+}
+
 static GstElement *
-create_decodebin_pipeline (MetadataExtractor *extractor,
-                           const gchar *uri)
+decodebin2_create_pipeline (MetadataExtractor *extractor,
+                            const gchar       *uri)
 {
 	GstElement *pipeline = NULL;
-
-	GstElement *filesrc  = NULL;
-	GstElement *bin      = NULL;
+	GstElement *filesrc = NULL;
+	GstElement *bin = NULL;
 
 	pipeline = gst_element_factory_make ("pipeline", NULL);
 	if (!pipeline) {
@@ -1186,7 +1358,7 @@ create_decodebin_pipeline (MetadataExtractor *extractor,
 
 	g_signal_connect (G_OBJECT (bin),
 	                  "new-decoded-pad",
-	                  G_CALLBACK (dbin_dpad_cb),
+	                  G_CALLBACK (decodebin2_dpad_cb),
 	                  extractor);
 
 	gst_bin_add (GST_BIN (pipeline), filesrc);
@@ -1205,9 +1377,159 @@ create_decodebin_pipeline (MetadataExtractor *extractor,
 	return pipeline;
 }
 
+static void
+decodebin2_shutdown (MetadataExtractor *extractor)
+{
+	pipeline_shutdown (extractor);
+}
+
+static gboolean
+decodebin2_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
+{
+	extractor->bus = NULL;
+	extractor->bin = NULL;
+	extractor->fsinks = NULL;
+	extractor->duration = -1;
+	extractor->audio_channels = -1;
+	extractor->audio_samplerate = -1;
+	extractor->height = -1;
+	extractor->width = -1;
+	extractor->video_fps = -1;
+	extractor->aspect_ratio = -1;
+
+	extractor->pipeline = decodebin2_create_pipeline (extractor, uri);
+	if (!extractor->pipeline) {
+		g_warning ("No valid pipeline for uri %s", uri);
+
+		g_list_free (extractor->fsinks);
+		g_slice_free (MetadataExtractor, extractor);
+		return FALSE;
+	}
+
+	/* Get bus */
+	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
+
+	/* Run! */
+	if (!pipeline_poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
+		g_warning ("Error running decodebin");
+		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
+		gst_object_unref (GST_OBJECT (extractor->pipeline));
+		gst_object_unref (extractor->bus);
+		g_slice_free (MetadataExtractor, extractor);
+		return FALSE;
+	}
+
+	decodebin2_add_stream_tags (extractor);
+
+	gst_element_set_state (extractor->pipeline, GST_STATE_READY);
+	gst_element_get_state (extractor->pipeline, NULL, NULL, 5 * GST_SECOND);
+	g_list_foreach (extractor->fsinks, decodebin2_unlink_fsink, extractor);
+	g_list_free (extractor->fsinks);
+	extractor->fsinks = NULL;
+
+	return TRUE;
+}
+
+#endif /* GSTREAMER_BACKEND_DECODEBIN2 */
+
+/* ----------------------- Tagreadbin specific implementation --------------- */
+
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+
+static void
+add_int_gst_tag (TrackerSparqlBuilder  *metadata,
+                 const gchar           *uri,
+                 const gchar           *key,
+                 GstTagList            *tag_list,
+                 const gchar           *tag)
+{
+	gboolean ret;
+	gint n;
+
+	ret = gst_tag_list_get_int (tag_list, tag, &n);
+
+	if (ret) {
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, n);
+	}
+}
+
+static void
+add_fraction_gst_tag (TrackerSparqlBuilder  *metadata,
+                      const gchar           *uri,
+                      const gchar           *key,
+                      GstTagList            *tag_list,
+                      const gchar           *tag)
+{
+	gboolean ret;
+	GValue n = {0,};
+	gfloat f;
+
+	ret = gst_tag_list_copy_value (&n, tag_list, tag);
+
+	if (ret) {
+		f = (gfloat)gst_value_get_fraction_numerator (&n)/
+		gst_value_get_fraction_denominator (&n);
+
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_double (metadata, (gdouble) f);
+
+		g_value_unset (&n);
+	}
+}
+
+static void
+add_time_gst_tag (TrackerSparqlBuilder *metadata,
+                  const gchar          *uri,
+                  const gchar          *key,
+                  GstTagList           *tag_list,
+                  const gchar          *tag)
+{
+	gboolean ret;
+	guint64 n;
+
+	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
+
+	if (ret) {
+		gint64 duration;
+
+		duration = (n + (GST_SECOND / 2)) / GST_SECOND;
+
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, duration);
+	}
+}
+
+static void
+tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
+                                    const gchar          *uri,
+                                    TrackerSparqlBuilder *metadata)
+{
+	if (extractor->mime != EXTRACT_MIME_IMAGE &&
+	    extractor->mime != EXTRACT_MIME_SVG) {
+		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
+		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
+		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
+	}
+
+	if (extractor->mime == EXTRACT_MIME_IMAGE ||
+	    extractor->mime == EXTRACT_MIME_SVG ||
+	    extractor->mime == EXTRACT_MIME_VIDEO) {
+		add_fraction_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
+	}
+
+	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
+	add_int_gst_tag (metadata, uri, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
+
+	if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		add_fraction_gst_tag (metadata, uri, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
+	}
+}
+
 static GstElement *
-create_tagreadbin_pipeline (MetadataExtractor *extractor,
-                            const gchar *uri)
+tagreadbin_create_pipeline (MetadataExtractor *extractor,
+                            const gchar       *uri)
 {
 	GstElement *pipeline = NULL;
 
@@ -1221,12 +1543,50 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor,
 	return pipeline;
 }
 
+static void
+tagreadbin_shutdown (MetadataExtractor *extractor)
+{
+	pipeline_shutdown (extractor);
+}
+
+static gboolean
+tagreadbin_init_and_run (MetadataExtractor *extractor,
+                         const gchar       *uri)
+{
+	extractor->bus = NULL;
+
+	/* Create pipeline */
+	extractor->pipeline = tagreadbin_create_pipeline (extractor, uri);
+	if (!extractor->pipeline) {
+		g_warning ("No valid pipeline for uri %s", uri);
+
+		g_slice_free (MetadataExtractor, extractor);
+		return FALSE;
+	}
+
+	/* Get bus */
+	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
+
+	/* Run */
+	if (!pipeline_poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
+		g_warning ("Error running tagreadbin");
+		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
+		gst_object_unref (GST_OBJECT (extractor->pipeline));
+		gst_object_unref (extractor->bus);
+		g_slice_free (MetadataExtractor, extractor);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+#endif /* GSTREAMER_BACKEND_TAGREADBIN */
 
 static void
-tracker_extract_gstreamer (const gchar *uri,
-                           TrackerSparqlBuilder  *preupdate,
-                           TrackerSparqlBuilder  *metadata,
-                           ExtractMime  type)
+tracker_extract_gstreamer (const gchar          *uri,
+                           TrackerSparqlBuilder *preupdate,
+                           TrackerSparqlBuilder *metadata,
+                           ExtractMime           type)
 {
 	MetadataExtractor *extractor;
 	gchar *artist, *album, *scount;
@@ -1234,75 +1594,25 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
 
-	/* These must be moved to main() */
-	g_type_init ();
-
 	gst_init (NULL, NULL);
 
-	extractor               = g_slice_new0 (MetadataExtractor);
-
-	extractor->pipeline     = NULL;
-	extractor->bus          = NULL;
-	extractor->mime         = type;
-
-	extractor->tagcache     = NULL;
-
+	extractor = g_slice_new0 (MetadataExtractor);
+	extractor->mime = type;
+	extractor->tagcache = NULL;
 	extractor->album_art_data = NULL;
 	extractor->album_art_size = 0;
 	extractor->album_art_mime = NULL;
 
-	extractor->bin          = NULL;
-	extractor->fsinks       = NULL;
-
-	extractor->duration = -1;
-	extractor->video_fps_n = extractor->video_fps_d = -1;
-	extractor->video_height = extractor->video_width = -1;
-	extractor->audio_channels = -1;
-	extractor->aspect_ratio = -1;
-	extractor->audio_samplerate = -1;
-
-	if (use_tagreadbin) {
-		extractor->pipeline = create_tagreadbin_pipeline (extractor, uri);
-	} else {
-		extractor->pipeline = create_decodebin_pipeline (extractor, uri);
-	}
-
-	if (!extractor->pipeline) {
-		g_warning ("No valid pipeline for uri %s", uri);
-
-		g_list_free (extractor->fsinks);
-		g_slice_free (MetadataExtractor, extractor);
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+	if (!tagreadbin_init_and_run (extractor, uri))
 		return;
-	}
-
-	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
-
-	if (use_tagreadbin) {
-		if (!poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
-			g_warning ("Error running tagreadbin");
-			gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-			gst_object_unref (GST_OBJECT (extractor->pipeline));
-			gst_object_unref (extractor->bus);
-			g_slice_free (MetadataExtractor, extractor);
-			return;
-		}
-	} else {
-		if (!poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
-			g_warning ("Error running decodebin");
-			gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-			gst_object_unref (GST_OBJECT (extractor->pipeline));
-			gst_object_unref (extractor->bus);
-			g_slice_free (MetadataExtractor, extractor);
-			return;
-		}
-
-		add_stream_tags (extractor);
-		gst_element_set_state (extractor->pipeline, GST_STATE_READY);
-		gst_element_get_state (extractor->pipeline, NULL, NULL, 5 * GST_SECOND);
-		g_list_foreach (extractor->fsinks, unlink_fsink, extractor);
-		g_list_free (extractor->fsinks);
-		extractor->fsinks = NULL;
-	}
+#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
+	if (!decodebin2_init_and_run (extractor, uri))
+		return;
+#else /* DISCOVERER/GUPnP-DLNA */
+	if (!discoverer_init_and_run (extractor, uri))
+		return;
+#endif
 
 	album = NULL;
 	scount = NULL;
@@ -1321,25 +1631,34 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_free (album);
 	g_free (artist);
 
-	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
-	gst_object_unref (extractor->bus);
-
 	if (extractor->tagcache) {
 		gst_tag_list_free (extractor->tagcache);
 	}
 
-	gst_object_unref (GST_OBJECT (extractor->pipeline));
+#if defined(GSTREAMER_BACKEND_TAGREADBIN)
+	tagreadbin_shutdown (extractor);
+#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
+	decodebin2_shutdown (extractor);
+#else /* DISCOVERER/GUPnP-DLNA */
+	discoverer_shutdown (extractor);
+#endif
+
 	g_slice_free (MetadataExtractor, extractor);
 }
 
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
-			      const gchar          *mimetype,
-			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata,
-			      GString              *where)
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	if (g_str_has_prefix (mimetype, "dlna/")) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
+	} else
+#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
+
 	if (strcmp (mimetype, "image/svg+xml") == 0) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);
 	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
