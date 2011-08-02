@@ -617,7 +617,7 @@ tracker_miner_manager_new_full (gboolean   auto_start,
  * Returns a list of references for all active miners. Active miners
  * are miners which are running within a process.
  *
- * Returns: (transfer full): a #GSList which must be freed with g_slist_free() and all
+ * Returns: (transfer full) (element-type utf8): a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
  *
@@ -795,7 +795,7 @@ initialize_miners_data (TrackerMinerManager *manager)
  * miners are miners which may or may not be running in a process at
  * the current time.
  *
- * Returns: (transfer full): a #GSList which must be freed with g_slist_free() and all
+ * Returns: (transfer full) (element-type utf8): a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
  *
@@ -824,7 +824,7 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
  * @manager: a #TrackerMinerManager.
  * @miner: miner reference
  * @reason: reason to pause
- * @cookie: return location for the pause cookie ID
+ * @cookie: (out) (allow-none): return location for the pause cookie ID
  *
  * Asks @miner to pause. a miner could be paused by
  * several reasons, and its activity won't be resumed
@@ -896,7 +896,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  * @manager: a #TrackerMinerManager.
  * @miner: miner reference
  * @reason: reason to pause
- * @cookie: return location for the pause cookie ID
+ * @cookie: (out) (allow-none): return location for the pause cookie ID
  *
  * This function operates exactly the same way as
  * tracker_miner_manager_pause() with the exception that if the calling
