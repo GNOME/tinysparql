@@ -704,7 +704,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	gchar *where;
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
-	TrackerExtractInitFunc init_func;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->disable_summary_on_finalize = TRUE;
@@ -719,38 +718,43 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		return;
 	}
 
-	task->cur_module = tracker_extract_module_manager_get_for_mimetype (task->mimetype, &init_func, NULL, &task->cur_func);
+	task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
+	task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
 
-	if (init_func) {
-		TrackerModuleThreadAwareness ignore;
+	while (task->cur_module && task->cur_func) {
+		if (get_file_metadata (task, &preupdate, &statements, &where)) {
+			const gchar *preupdate_str, *statements_str;
 
-		/* Initialize module for this single run */
-		(init_func) (&ignore, NULL);
-	}
+			preupdate_str = statements_str = NULL;
 
-	if (get_file_metadata (task, &preupdate, &statements, &where)) {
-		const gchar *preupdate_str, *statements_str;
+			if (tracker_sparql_builder_get_length (statements) > 0) {
+				statements_str = tracker_sparql_builder_get_result (statements);
+			}
 
-		preupdate_str = statements_str = NULL;
+			if (tracker_sparql_builder_get_length (preupdate) > 0) {
+				preupdate_str = tracker_sparql_builder_get_result (preupdate);
+			}
 
-		if (tracker_sparql_builder_get_length (statements) > 0) {
-			statements_str = tracker_sparql_builder_get_result (statements);
+			g_print ("SPARQL pre-update:\n%s\n",
+			         preupdate_str ? preupdate_str : "");
+			g_print ("SPARQL item:\n%s\n",
+			         statements_str ? statements_str : "");
+			g_print ("SPARQL where clause:\n%s\n",
+			         where ? where : "");
+
+			g_object_unref (statements);
+			g_object_unref (preupdate);
+			g_free (where);
+			break;
+		} else {
+			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {
+				break;
+			}
+
+			task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers,
+			                                                     &task->cur_func,
+			                                                     NULL);
 		}
-
-		if (tracker_sparql_builder_get_length (preupdate) > 0) {
-			preupdate_str = tracker_sparql_builder_get_result (preupdate);
-		}
-
-		g_print ("SPARQL pre-update:\n%s\n",
-		         preupdate_str ? preupdate_str : "");
-		g_print ("SPARQL item:\n%s\n",
-		         statements_str ? statements_str : "");
-		g_print ("SPARQL where clause:\n%s\n",
-		         where ? where : "");
-
-		g_object_unref (statements);
-		g_object_unref (preupdate);
-		g_free (where);
 	}
 
 	extract_task_free (task);
