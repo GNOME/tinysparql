@@ -620,9 +620,9 @@ tracker_miner_manager_new_full (gboolean   auto_start,
  * Returns a list of references for all active miners. Active miners
  * are miners which are running within a process.
  *
- * Returns: (transfer full) (element-type utf8): a #GSList which must be freed with g_slist_free() and all
- * contained data with g_free(). Otherwise %NULL is returned if there
- * are no miners.
+ * Returns: (transfer full) (element-type utf8): a #GSList which must
+ * be freed with g_slist_free() and all contained data with g_free().
+ * Otherwise %NULL is returned if there are no miners.
  *
  * Since: 0.8
  **/
@@ -798,9 +798,9 @@ initialize_miners_data (TrackerMinerManager *manager)
  * miners are miners which may or may not be running in a process at
  * the current time.
  *
- * Returns: (transfer full) (element-type utf8): a #GSList which must be freed with g_slist_free() and all
- * contained data with g_free(). Otherwise %NULL is returned if there
- * are no miners.
+ * Returns: (transfer full) (element-type utf8): a #GSList which must
+ * be freed with g_slist_free() and all contained data with g_free().
+ * Otherwise %NULL is returned if there are no miners.
  *
  * Since: 0.8
  **/
@@ -1190,8 +1190,10 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
  * tracker_miner_manager_is_paused:
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
- * @applications: (out callee-allocates) (allow-none) (transfer full): return location for application names.
- * @reasons: (out callee-allocates) (allow-none) (transfer full): return location for pause reasons.
+ * @applications: (out callee-allocates) (allow-none) (transfer full):
+ * return location for application names.
+ * @reasons: (out callee-allocates) (allow-none) (transfer full):
+ * return location for pause reasons.
  *
  * This function either returns %FALSE if the miner is not paused,
  * or returns %TRUE and fills in @applications and @reasons with
