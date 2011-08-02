@@ -75,6 +75,8 @@ typedef struct {
 	gboolean force_internal_extractors;
 	gboolean disable_summary_on_finalize;
 
+	gchar *force_module;
+
 	gint unhandled_count;
 } TrackerExtractPrivate;
 
@@ -229,6 +231,7 @@ tracker_extract_new (gboolean     disable_shutdown,
 
 	priv->disable_shutdown = disable_shutdown;
 	priv->force_internal_extractors = force_internal_extractors;
+	priv->force_module = g_strdup (force_module);
 
 	return object;
 }
@@ -695,6 +698,46 @@ tracker_extract_file (TrackerExtract      *extract,
 	}
 }
 
+static gboolean
+filter_module (TrackerExtract *extract,
+               GModule        *module)
+{
+	TrackerExtractPrivate *priv;
+	gchar *module_basename, *filter_name;
+	gboolean filter;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
+
+	if (!priv->force_module) {
+		return FALSE;
+	}
+
+	/* Module name is the full path to it */
+	module_basename = g_path_get_basename (g_module_name (module));
+
+	if (g_str_has_prefix (priv->force_module, "lib") &&
+	    g_str_has_suffix (priv->force_module, "." G_MODULE_SUFFIX)) {
+		filter_name = g_strdup (priv->force_module);
+	} else {
+		filter_name = g_strdup_printf ("libextract-%s.so",
+		                               priv->force_module);
+	}
+
+	g_print ("Comparing %s -> %s\n", module_basename, filter_name);
+
+	filter = strcmp (module_basename, filter_name) != 0;
+
+	if (filter) {
+		g_debug ("Module '%s' has been filtered due to --force-module",
+		         g_module_name (module));
+	}
+
+	g_free (module_basename);
+	g_free (filter_name);
+
+	return filter;
+}
+
 void
 tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *uri,
@@ -722,7 +765,8 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
 
 	while (task->cur_module && task->cur_func) {
-		if (get_file_metadata (task, &preupdate, &statements, &where)) {
+		if (!filter_module (object, task->cur_module) &&
+		    get_file_metadata (task, &preupdate, &statements, &where)) {
 			const gchar *preupdate_str, *statements_str;
 
 			preupdate_str = statements_str = NULL;
