@@ -56,7 +56,7 @@ struct _TrackerIndexingTreePrivate
 
 static NodeData *
 node_data_new (GFile *file,
-	       guint  flags)
+               guint  flags)
 {
 	NodeData *data;
 
@@ -77,7 +77,7 @@ node_data_free (NodeData *data)
 
 static PatternData *
 pattern_data_new (const gchar *glob_string,
-		  guint        type)
+                  guint        type)
 {
 	PatternData *data;
 
@@ -108,11 +108,11 @@ tracker_indexing_tree_finalize (GObject *object)
 	g_list_free (priv->filter_patterns);
 
 	g_node_traverse (priv->config_tree,
-			 G_IN_ORDER,
-			 G_TRAVERSE_ALL,
-			 -1,
-			 (GNodeTraverseFunc) node_data_free,
-			 NULL);
+	                 G_IN_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 (GNodeTraverseFunc) node_data_free,
+	                 NULL);
 	g_node_destroy (priv->config_tree);
 
 	G_OBJECT_CLASS (tracker_indexing_tree_parent_class)->finalize (object);
@@ -126,7 +126,7 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	object_class->finalize = tracker_indexing_tree_finalize;
 
 	g_type_class_add_private (object_class,
-				  sizeof (TrackerIndexingTreePrivate));
+	                          sizeof (TrackerIndexingTreePrivate));
 }
 
 static void
@@ -137,8 +137,8 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 	GFile *root;
 
 	priv = tree->priv = G_TYPE_INSTANCE_GET_PRIVATE (tree,
-							 TRACKER_TYPE_INDEXING_TREE,
-							 TrackerIndexingTreePrivate);
+	                                                 TRACKER_TYPE_INDEXING_TREE,
+	                                                 TrackerIndexingTreePrivate);
 	/* Add a shallow root node */
 	root = g_file_new_for_uri ("file:///");
 	data = node_data_new (root, 0);
@@ -237,7 +237,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 
 	priv = tree->priv;
 	node = find_directory_node (priv->config_tree, directory,
-				    (GEqualFunc) g_file_equal);
+	                            (GEqualFunc) g_file_equal);
 
 	if (node) {
 		/* Node already existed */
@@ -304,7 +304,7 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 
 	/* Move children to parent */
 	g_node_children_foreach (node, G_TRAVERSE_ALL,
-				 check_reparent_node, parent);
+	                         check_reparent_node, parent);
 
 	node_data_free (node->data);
 	g_node_destroy (node);
@@ -321,7 +321,7 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 void
 tracker_indexing_tree_add_filter (TrackerIndexingTree *tree,
                                   TrackerFilterType    filter,
-				  const gchar         *glob_string)
+                                  const gchar         *glob_string)
 {
 	TrackerIndexingTreePrivate *priv;
 	PatternData *data;
@@ -344,7 +344,7 @@ tracker_indexing_tree_add_filter (TrackerIndexingTree *tree,
  **/
 void
 tracker_indexing_tree_clear_filters (TrackerIndexingTree *tree,
-				     TrackerFilterType    type)
+                                     TrackerFilterType    type)
 {
 	TrackerIndexingTreePrivate *priv;
 	GList *filters;
@@ -363,7 +363,7 @@ tracker_indexing_tree_clear_filters (TrackerIndexingTree *tree,
 		if (data->type == type) {
 			pattern_data_free (data);
 			priv->filter_patterns = g_list_remove (priv->filter_patterns,
-							       cur);
+			                                       cur);
 		}
 	}
 }
@@ -380,8 +380,8 @@ tracker_indexing_tree_clear_filters (TrackerIndexingTree *tree,
  **/
 gboolean
 tracker_indexing_tree_file_matches_filter (TrackerIndexingTree *tree,
-					   TrackerFilterType    type,
-					   GFile               *file)
+                                           TrackerFilterType    type,
+                                           GFile               *file)
 {
 	TrackerIndexingTreePrivate *priv;
 	GList *filters;
@@ -430,7 +430,7 @@ parent_or_equals (GFile *file1,
  **/
 gboolean
 tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
-					 GFile               *file)
+                                         GFile               *file)
 {
 	TrackerIndexingTreePrivate *priv;
 	TrackerFilterType filter;
@@ -444,8 +444,8 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 	priv = tree->priv;
 
 	file_type = g_file_query_file_type (file,
-					    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-					    NULL);
+	                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                    NULL);
 
 	filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
 		TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
@@ -484,9 +484,9 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
  **/
 gboolean
 tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree  *tree,
-					   GFile                *parent,
-					   GFile               **children,
-					   gint                  n_children)
+                                           GFile                *parent,
+                                           GFile               **children,
+                                           gint                  n_children)
 {
 	gint i = 0;
 
@@ -497,8 +497,8 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree  *tree,
 	while (i < n_children &&
 	       children[i] != NULL) {
 		if (tracker_indexing_tree_file_matches_filter (tree,
-							       TRACKER_FILTER_PARENT_DIRECTORY,
-							       children[i])) {
+		                                               TRACKER_FILTER_PARENT_DIRECTORY,
+		                                               children[i])) {
 			return FALSE;
 		}
 	}

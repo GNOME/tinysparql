@@ -57,26 +57,26 @@ GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
 TrackerIndexingTree * tracker_indexing_tree_new      (void);
 
 void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tree,
-						      GFile                 *directory,
-						      TrackerDirectoryFlags  flags);
+                                                      GFile                 *directory,
+                                                      TrackerDirectoryFlags  flags);
 void      tracker_indexing_tree_remove               (TrackerIndexingTree   *tree,
-						      GFile                 *directory);
+                                                      GFile                 *directory);
 
 void      tracker_indexing_tree_add_filter           (TrackerIndexingTree  *tree,
-						      TrackerFilterType     type,
-						      const gchar          *glob_string);
+                                                      TrackerFilterType     type,
+                                                      const gchar          *glob_string);
 void      tracker_indexing_tree_clear_filters        (TrackerIndexingTree  *tree,
-						      TrackerFilterType     type);
+                                                      TrackerFilterType     type);
 gboolean  tracker_indexing_tree_file_matches_filter  (TrackerIndexingTree  *tree,
-						      TrackerFilterType     type,
-						      GFile                *file);
+                                                      TrackerFilterType     type,
+                                                      GFile                *file);
 
 gboolean  tracker_indexing_tree_file_is_indexable    (TrackerIndexingTree  *tree,
-						      GFile                *file);
+                                                      GFile                *file);
 gboolean  tracker_indexing_tree_parent_is_indexable  (TrackerIndexingTree  *tree,
-						      GFile                *parent,
-						      GFile               **children,
-						      gint                  n_children);
+                                                      GFile                *parent,
+                                                      GFile               **children,
+                                                      gint                  n_children);
 
 GFile *   tracker_indexing_tree_get_effective_parent (TrackerIndexingTree   *tree,
                                                       GFile                 *file,

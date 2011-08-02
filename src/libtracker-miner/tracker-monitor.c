@@ -701,38 +701,38 @@ emit_signal_for_event (TrackerMonitor *monitor,
 
 		if (monitor->priv->tree &&
 		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-							      event_data->file)) {
+		                                              event_data->file)) {
 			g_debug ("Emitting ITEM_UPDATED for %s (%s) from "
-				 "a move event, source is not indexable",
-				 event_data->other_file_uri,
-				 event_data->is_directory ? "DIRECTORY" : "FILE");
+			         "a move event, source is not indexable",
+			         event_data->other_file_uri,
+			         event_data->is_directory ? "DIRECTORY" : "FILE");
 			g_signal_emit (monitor,
-				       signals[ITEM_UPDATED], 0,
-				       event_data->other_file,
-				       event_data->is_directory);
+			               signals[ITEM_UPDATED], 0,
+			               event_data->other_file,
+			               event_data->is_directory);
 		} else if (monitor->priv->tree &&
-			   !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-								     event_data->other_file)) {
+		           !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+		                                                     event_data->other_file)) {
 			g_debug ("Emitting ITEM_DELETED for %s (%s) from "
-				 "a move event, destination is not indexable",
-				 event_data->file_uri,
-				 event_data->is_directory ? "DIRECTORY" : "FILE");
+			         "a move event, destination is not indexable",
+			         event_data->file_uri,
+			         event_data->is_directory ? "DIRECTORY" : "FILE");
 			g_signal_emit (monitor,
-				       signals[ITEM_DELETED], 0,
-				       event_data->file,
-				       event_data->is_directory);
+			               signals[ITEM_DELETED], 0,
+			               event_data->file,
+			               event_data->is_directory);
 		} else  {
 			g_debug ("Emitting ITEM_MOVED for (%s) '%s'->'%s'",
-				 event_data->is_directory ? "DIRECTORY" : "FILE",
-				 event_data->file_uri,
-				 event_data->other_file_uri);
+			         event_data->is_directory ? "DIRECTORY" : "FILE",
+			         event_data->file_uri,
+			         event_data->other_file_uri);
 
 			g_signal_emit (monitor,
-				       signals[ITEM_MOVED], 0,
-				       event_data->file,
-				       event_data->other_file,
-				       event_data->is_directory,
-				       TRUE);
+			               signals[ITEM_MOVED], 0,
+			               event_data->file,
+			               event_data->other_file,
+			               event_data->is_directory,
+			               TRUE);
 		}
 
 		break;
@@ -1210,7 +1210,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		/* Avoid non-indexable-files */
 		if (monitor->priv->tree &&
 		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-							      file)) {
+		                                              file)) {
 			g_free (file_uri);
 			return;
 		}
@@ -1396,7 +1396,7 @@ tracker_monitor_get_indexing_tree (TrackerMonitor *monitor)
 
 void
 tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
-				   TrackerIndexingTree *tree)
+                                   TrackerIndexingTree *tree)
 {
 	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
 	g_return_if_fail (!tree || TRACKER_IS_INDEXING_TREE (tree));
@@ -1566,7 +1566,7 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 
 	uri = g_file_get_uri (file);
 	g_debug ("Removed all monitors recursively for path:'%s', total monitors:%d",
-		 uri, g_hash_table_size (monitor->priv->monitors));
+	         uri, g_hash_table_size (monitor->priv->monitors));
 	g_free (uri);
 
 	if (items_removed > 0) {
