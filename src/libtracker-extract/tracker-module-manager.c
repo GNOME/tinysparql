@@ -131,7 +131,7 @@ tracker_extract_module_manager_init (void)
 		files = g_list_insert_sorted (files, (gpointer) name, (GCompareFunc) g_strcmp0);
 	}
 
-	g_message ("Loading extractor rules...");
+	g_message ("Loading extractor rules... (%s)", extractors_dir);
 
 	for (l = files; l; l = l->next) {
 		GKeyFile *key_file;
@@ -154,6 +154,8 @@ tracker_extract_module_manager_init (void)
 			g_clear_error (&error);
 			continue;
 		}
+
+		g_debug ("  Loaded rule '%s'", name);
 
 		g_key_file_free (key_file);
 		g_free (path);
