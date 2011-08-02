@@ -322,7 +322,8 @@ add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
 		}
 
 		if (ret) {
-			g_date_strftime (buf, sizeof (buf), "%Y-%m-%dT%H:%M:%S%z", date);
+			/* GDate does not carry time zone information, assume UTC */
+			g_date_strftime (buf, sizeof (buf), "%Y-%m-%dT%H:%M:%SZ", date);
 		}
 	}
 
