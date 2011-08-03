@@ -243,6 +243,17 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 		/* Node already existed */
 		data = node->data;
 		data->shallow = FALSE;
+
+		/* Overwrite flags if they are different */
+		if (data->flags != flags) {
+			gchar *uri;
+
+			uri = g_file_get_uri (directory);
+			g_warning ("Overwriting flags for directory '%s'", uri);
+			g_free (uri);
+
+			data->flags = flags;
+		}
 		return;
 	}
 
