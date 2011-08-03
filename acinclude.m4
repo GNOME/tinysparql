@@ -1,4 +1,10 @@
 dnl #########################################################################
+AC_DEFUN([AX_DOTS_TO_UNDERSCORES], [
+  $1[]_UNDERSCORES=`echo "$$1" | sed -e 's/\./_/g'`
+  AC_SUBST($1[]_UNDERSCORES)
+]) dnl AX_DOTS_TO_UNDERSCORES
+
+dnl #########################################################################
 AC_DEFUN([AX_COMPARE_VERSION], [
   # Used to indicate true or false condition
   ax_compare_version=false
