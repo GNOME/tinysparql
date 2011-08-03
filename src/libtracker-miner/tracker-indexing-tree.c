@@ -432,20 +432,24 @@ parent_or_equals (GFile *file1,
  * tracker_indexing_tree_file_is_indexable:
  * @tree: a #TrackerIndexingTree
  * @file: a #GFile
+ * @file_type: a #GFileType
  *
  * returns %TRUE if @file should be indexed according to the
  * parameters given through tracker_indexing_tree_add() and
- * tracker_indexing_tree_add_filter()
+ * tracker_indexing_tree_add_filter().
+ *
+ * If @file_type is #G_FILE_TYPE_UNKNOWN, file type will be queried to the
+ * file system.
  *
  * Returns: %TRUE if @file should be indexed.
  **/
 gboolean
 tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
-                                         GFile               *file)
+                                         GFile               *file,
+                                         GFileType            file_type)
 {
 	TrackerIndexingTreePrivate *priv;
 	TrackerFilterType filter;
-	GFileType file_type;
 	NodeData *data;
 	GNode *parent;
 
@@ -454,9 +458,10 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 
 	priv = tree->priv;
 
-	file_type = g_file_query_file_type (file,
-	                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                                    NULL);
+	if (file_type == G_FILE_TYPE_UNKNOWN)
+		file_type = g_file_query_file_type (file,
+		                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+		                                    NULL);
 
 	filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
 		TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
@@ -501,7 +506,9 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree  *tree,
 {
 	gint i = 0;
 
-	if (!tracker_indexing_tree_file_is_indexable (tree, parent)) {
+	if (!tracker_indexing_tree_file_is_indexable (tree,
+	                                              parent,
+	                                              G_FILE_TYPE_DIRECTORY)) {
 		return FALSE;
 	}
 

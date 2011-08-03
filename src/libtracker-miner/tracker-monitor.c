@@ -699,9 +699,13 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			                            event_data->file);
 		}
 
+		/* Try to avoid firing up events for ignored files */
 		if (monitor->priv->tree &&
 		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-		                                              event_data->file)) {
+		                                              event_data->file,
+		                                              (event_data->is_directory ?
+		                                               G_FILE_TYPE_DIRECTORY :
+		                                               G_FILE_TYPE_REGULAR))) {
 			g_debug ("Emitting ITEM_UPDATED for %s (%s) from "
 			         "a move event, source is not indexable",
 			         event_data->other_file_uri,
@@ -712,7 +716,10 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			               event_data->is_directory);
 		} else if (monitor->priv->tree &&
 		           !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-		                                                     event_data->other_file)) {
+		                                                     event_data->other_file,
+		                                                     (event_data->is_directory ?
+		                                                      G_FILE_TYPE_DIRECTORY :
+		                                                      G_FILE_TYPE_REGULAR))) {
 			g_debug ("Emitting ITEM_DELETED for %s (%s) from "
 			         "a move event, destination is not indexable",
 			         event_data->file_uri,
@@ -726,7 +733,6 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			         event_data->is_directory ? "DIRECTORY" : "FILE",
 			         event_data->file_uri,
 			         event_data->other_file_uri);
-
 			g_signal_emit (monitor,
 			               signals[ITEM_MOVED], 0,
 			               event_data->file,
@@ -1207,27 +1213,45 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	file_uri = g_file_get_uri (file);
 
 	if (!other_file) {
+		is_directory = check_is_directory (monitor, file);
+
 		/* Avoid non-indexable-files */
 		if (monitor->priv->tree &&
 		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
-		                                              file)) {
+		                                              file,
+		                                              (is_directory ?
+		                                               G_FILE_TYPE_DIRECTORY :
+		                                               G_FILE_TYPE_REGULAR))) {
 			g_free (file_uri);
 			return;
 		}
 
 		other_file_uri = NULL;
-		g_debug ("Received monitor event:%d (%s) for file:'%s'",
+		g_debug ("Received monitor event:%d (%s) for %s:'%s'",
 		         event_type,
 		         monitor_event_to_string (event_type),
+		         is_directory ? "directory" : "file",
 		         file_uri);
-		is_directory = check_is_directory (monitor, file);
 	} else {
+		/* If we have other_file, it means an item was moved from file to other_file;
+		 * so, it makes sense to check if the other_file is directory instead of
+		 * the origin file, as this one will not exist any more */
+		is_directory = check_is_directory (monitor, other_file);
+
 		/* Avoid doing anything of both
 		 * file/other_file are non-indexable
 		 */
 		if (monitor->priv->tree &&
-		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree, file) &&
-		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree, other_file)) {
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+		                                              file,
+		                                              (is_directory ?
+		                                               G_FILE_TYPE_DIRECTORY :
+		                                               G_FILE_TYPE_REGULAR)) &&
+		    !tracker_indexing_tree_file_is_indexable (monitor->priv->tree,
+		                                              other_file,
+		                                              (is_directory ?
+		                                               G_FILE_TYPE_DIRECTORY :
+		                                               G_FILE_TYPE_REGULAR))) {
 			g_free (file_uri);
 			return;
 		}
@@ -1238,11 +1262,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		         monitor_event_to_string (event_type),
 		         file_uri,
 		         other_file_uri);
-
-		/* If we have other_file, it means an item was moved from file to other_file;
-		 * so, it makes sense to check if the other_file is directory instead of
-		 * the origin file, as this one will not exist any more */
-		is_directory = check_is_directory (monitor, other_file);
 	}
 
 #ifdef PAUSE_ON_IO
