@@ -395,30 +395,33 @@ extract_task_new (TrackerExtract *extract,
                   const gchar    *uri,
                   const gchar    *mimetype,
                   GCancellable   *cancellable,
-                  GAsyncResult   *res)
+                  GAsyncResult   *res,
+                  GError        **error)
 {
 	TrackerExtractTask *task;
 
-	if (!mimetype) {
+	if (!mimetype || !*mimetype) {
 		GFile *file;
 		GFileInfo *info;
+		GError *internal_error = NULL;
 
 		file = g_file_new_for_uri (uri);
 		info = g_file_query_info (file,
 		                          G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 		                          G_FILE_QUERY_INFO_NONE,
-		                          NULL, NULL);
+		                          NULL,
+		                          &internal_error);
 
-		if (info) {
-			mimetype = g_strdup (g_file_info_get_content_type (info));
-			g_debug ("Guessing mime type as '%s'", mimetype);
-			g_object_unref (info);
-		} else {
-			g_warning ("Could not get mimetype for '%s'", uri);
+		g_object_unref (file);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
 			return NULL;
 		}
 
-		g_object_unref (file);
+		mimetype = g_strdup (g_file_info_get_content_type (info));
+		g_debug ("Guessing mime type as '%s'", mimetype);
+		g_object_unref (info);
 	}
 
 	task = g_slice_new0 (TrackerExtractTask);
@@ -675,6 +678,7 @@ tracker_extract_file (TrackerExtract      *extract,
                       gpointer             user_data)
 {
 	GSimpleAsyncResult *res;
+	GError *error = NULL;
 	TrackerExtractTask *task;
 
 	g_return_if_fail (TRACKER_IS_EXTRACT (extract));
@@ -689,14 +693,19 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	res = g_simple_async_result_new (G_OBJECT (extract), cb, user_data, NULL);
 
-	task = extract_task_new (extract, file, mimetype, cancellable, G_ASYNC_RESULT (res));
+	task = extract_task_new (extract, file, mimetype, cancellable, G_ASYNC_RESULT (res), &error);
 
-	if (task) {
+	if (error) {
+		g_warning ("Could not get mimetype, %s", error->message);
+		g_simple_async_result_set_from_error (res, error);
+		g_simple_async_result_complete_in_idle (res);
+		g_error_free (error);
+	} else {
 		g_idle_add ((GSourceFunc) dispatch_task_cb, task);
-
-		/* task takes a ref */
-		g_object_unref (res);
 	}
+
+	/* Task takes a ref and if this fails, we want to unref anyway */
+	g_object_unref (res);
 }
 
 static gboolean
@@ -748,6 +757,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *mime)
 {
 	TrackerSparqlBuilder *statements, *preupdate;
+	GError *error = NULL;
 	gchar *where;
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
@@ -758,9 +768,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	task = extract_task_new (object, uri, mime, NULL, NULL);
+	task = extract_task_new (object, uri, mime, NULL, NULL, &error);
 
-	if (!task) {
+	if (error) {
+		g_printerr ("Extraction failed, %s\n", error->message);
+		g_error_free (error);
+
 		return;
 	}
 
