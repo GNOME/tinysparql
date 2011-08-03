@@ -75,6 +75,12 @@ node_data_free (NodeData *data)
 	g_slice_free (NodeData, data);
 }
 
+static void
+node_free (GNode *node)
+{
+	node_data_free (node->data);
+}
+
 static PatternData *
 pattern_data_new (const gchar *glob_string,
                   guint        type)
@@ -108,10 +114,10 @@ tracker_indexing_tree_finalize (GObject *object)
 	g_list_free (priv->filter_patterns);
 
 	g_node_traverse (priv->config_tree,
-	                 G_IN_ORDER,
+	                 G_POST_ORDER,
 	                 G_TRAVERSE_ALL,
 	                 -1,
-	                 (GNodeTraverseFunc) node_data_free,
+	                 (GNodeTraverseFunc) node_free,
 	                 NULL);
 	g_node_destroy (priv->config_tree);
 
