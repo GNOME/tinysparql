@@ -1765,33 +1765,6 @@ fi
 AM_CONDITIONAL(HAVE_GUPNP_DLNA,        test "x$gstreamer_backend" = "xGUPnP-DLNA")
 AM_CONDITIONAL(HAVE_GSTREAMER_PBUTILS, test "x$gstreamer_backend" = "xDiscoverer")
 
-##################################################################
-# Check for tracker-extract: helixbin for gstreamer
-##################################################################
-
-AC_ARG_ENABLE(gstreamer-helix,
-              AS_HELP_STRING([--enable-gstreamer-helix],
-                             [enable GStreamer helix extractor for Real Media [[default=no]]]),,
-              [enable_gstreamer_helix=no])
-
-if test "x$enable_gstreamer_helix" != "xno"; then
-   if test "x$have_libgstreamer" = "xyes"; then
-      have_gstreamer_helix="yes"
-   else
-      have_gstreamer_helix="no"
-   fi
-else
-   have_gstreamer_helix="no  (disabled)"
-fi
-
-if test "x$enable_gstreamer_helix" = "xyes"; then
-   if test "x$have_gstreamer_helix" != "xyes"; then
-      AC_MSG_ERROR([GStreamer is not available or disabled but GStreamer Helix Bin requested])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_GSTREAMER_HELIX, test "x$have_gstreamer_helix" = "xyes")
-
 ####################################################################
 # Check for tracker-extract: support .ps.gz files
 ####################################################################
@@ -2354,7 +2327,6 @@ Metadata Extractors:
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
 	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
-	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
