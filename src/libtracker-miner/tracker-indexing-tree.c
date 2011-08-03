@@ -518,9 +518,11 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 
 	data = parent->data;
 
-	if (!data->shallow &&
-	    (data->flags & TRACKER_DIRECTORY_FLAG_RECURSE ||
-	     g_file_has_parent (file, data->file))) {
+	if (!data->shallow                               &&
+	    data->flags & TRACKER_DIRECTORY_FLAG_MONITOR &&
+	    (g_file_equal (file, data->file)             ||   /* Exact path being monitored */
+	     g_file_has_parent (file, data->file)        ||   /* Direct parent being monitored */
+	     data->flags & TRACKER_DIRECTORY_FLAG_RECURSE)) { /* Parent not direct, but recursively monitored */
 		return TRUE;
 	}
 
