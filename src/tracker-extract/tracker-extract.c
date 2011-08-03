@@ -411,6 +411,7 @@ extract_task_new (TrackerExtract *extract,
 
 		if (info) {
 			mimetype = g_strdup (g_file_info_get_content_type (info));
+			g_debug ("Guessing mime type as '%s'", mimetype);
 			g_object_unref (info);
 		} else {
 			g_warning ("Could not get mimetype for '%s'", uri);
@@ -723,13 +724,16 @@ filter_module (TrackerExtract *extract,
 		                               priv->force_module);
 	}
 
-	g_print ("Comparing %s -> %s\n", module_basename, filter_name);
-
 	filter = strcmp (module_basename, filter_name) != 0;
 
 	if (filter) {
-		g_debug ("Module '%s' has been filtered due to --force-module",
-		         g_module_name (module));
+		g_debug ("Module filtered out '%s' (due to --force-module='%s')",
+		         module_basename,
+		         filter_name);
+	} else {
+		g_debug ("Module used '%s' (due to --force-module='%s')",
+		         module_basename,
+		         filter_name);
 	}
 
 	g_free (module_basename);
@@ -747,13 +751,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	gchar *where;
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
+	gboolean no_modules = TRUE;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->disable_summary_on_finalize = TRUE;
 
 	g_return_if_fail (uri != NULL);
-
-	g_message ("Extracting...");
 
 	task = extract_task_new (object, uri, mime, NULL, NULL);
 
@@ -769,6 +772,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		    get_file_metadata (task, &preupdate, &statements, &where)) {
 			const gchar *preupdate_str, *statements_str;
 
+			no_modules = FALSE;
 			preupdate_str = statements_str = NULL;
 
 			if (tracker_sparql_builder_get_length (statements) > 0) {
@@ -779,11 +783,13 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 				preupdate_str = tracker_sparql_builder_get_result (preupdate);
 			}
 
-			g_print ("SPARQL pre-update:\n%s\n",
+			g_print ("\n");
+
+			g_print ("SPARQL pre-update:\n--\n%s--\n\n",
 			         preupdate_str ? preupdate_str : "");
-			g_print ("SPARQL item:\n%s\n",
+			g_print ("SPARQL item:\n--\n%s--\n\n",
 			         statements_str ? statements_str : "");
-			g_print ("SPARQL where clause:\n%s\n",
+			g_print ("SPARQL where clause:\n--\n%s--\n\n",
 			         where ? where : "");
 
 			g_object_unref (statements);
@@ -799,6 +805,10 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			                                                     &task->cur_func,
 			                                                     NULL);
 		}
+	}
+
+	if (no_modules) {
+		g_print ("No modules found to handle metadata extraction\n\n");
 	}
 
 	extract_task_free (task);
