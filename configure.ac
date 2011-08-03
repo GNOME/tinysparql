@@ -20,7 +20,7 @@ m4_define([tracker_binary_age],
 m4_define([tracker_version],
           [tracker_major_version.tracker_minor_version.tracker_micro_version])
 # This is the X.Y used in -llibtracker-FOO-X.Y
-m4_define([tracker_api_version], [0.11])
+m4_define([tracker_api_version], [0.12])
 
 # libtool version related macros
 m4_define([tracker_lt_release], [tracker_major_version.tracker_minor_version])
@@ -64,6 +64,9 @@ TRACKER_BINARY_AGE=tracker_binary_age
 TRACKER_VERSION=tracker_version
 TRACKER_API_VERSION=tracker_api_version
 TRACKER_BINARY_VERSION=tracker_binary_version
+
+dnl Note: this creates TRACKER_API_VERSION_UNDERSCORES and AC_SUBST's it
+AX_DOTS_TO_UNDERSCORES(TRACKER_API_VERSION, tracker_api_version)
 
 AC_SUBST(TRACKER_MAJOR_VERSION)
 AC_SUBST(TRACKER_MINOR_VERSION)
