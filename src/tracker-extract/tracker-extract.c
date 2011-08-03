@@ -463,6 +463,49 @@ extract_task_free (TrackerExtractTask *task)
 }
 
 static gboolean
+filter_module (TrackerExtract *extract,
+               GModule        *module)
+{
+	TrackerExtractPrivate *priv;
+	gchar *module_basename, *filter_name;
+	gboolean filter;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
+
+	if (!priv->force_module) {
+		return FALSE;
+	}
+
+	/* Module name is the full path to it */
+	module_basename = g_path_get_basename (g_module_name (module));
+
+	if (g_str_has_prefix (priv->force_module, "lib") &&
+	    g_str_has_suffix (priv->force_module, "." G_MODULE_SUFFIX)) {
+		filter_name = g_strdup (priv->force_module);
+	} else {
+		filter_name = g_strdup_printf ("libextract-%s.so",
+		                               priv->force_module);
+	}
+
+	filter = strcmp (module_basename, filter_name) != 0;
+
+	if (filter) {
+		g_debug ("Module filtered out '%s' (due to --force-module='%s')",
+		         module_basename,
+		         filter_name);
+	} else {
+		g_debug ("Module used '%s' (due to --force-module='%s')",
+		         module_basename,
+		         filter_name);
+	}
+
+	g_free (module_basename);
+	g_free (filter_name);
+
+	return filter;
+}
+
+static gboolean
 get_metadata (TrackerExtractTask *task)
 {
 	TrackerExtractInfo *info;
@@ -488,7 +531,8 @@ get_metadata (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-	if (get_file_metadata (task, &preupdate, &statements, &where)) {
+	if (!filter_module (task->extract, task->cur_module) &&
+	    get_file_metadata (task, &preupdate, &statements, &where)) {
 		info = tracker_extract_info_new ((preupdate) ? tracker_sparql_builder_get_result (preupdate) : NULL,
 		                                 (statements) ? tracker_sparql_builder_get_result (statements) : NULL,
 		                                 where);
@@ -706,49 +750,6 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	/* Task takes a ref and if this fails, we want to unref anyway */
 	g_object_unref (res);
-}
-
-static gboolean
-filter_module (TrackerExtract *extract,
-               GModule        *module)
-{
-	TrackerExtractPrivate *priv;
-	gchar *module_basename, *filter_name;
-	gboolean filter;
-
-	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
-
-	if (!priv->force_module) {
-		return FALSE;
-	}
-
-	/* Module name is the full path to it */
-	module_basename = g_path_get_basename (g_module_name (module));
-
-	if (g_str_has_prefix (priv->force_module, "lib") &&
-	    g_str_has_suffix (priv->force_module, "." G_MODULE_SUFFIX)) {
-		filter_name = g_strdup (priv->force_module);
-	} else {
-		filter_name = g_strdup_printf ("libextract-%s.so",
-		                               priv->force_module);
-	}
-
-	filter = strcmp (module_basename, filter_name) != 0;
-
-	if (filter) {
-		g_debug ("Module filtered out '%s' (due to --force-module='%s')",
-		         module_basename,
-		         filter_name);
-	} else {
-		g_debug ("Module used '%s' (due to --force-module='%s')",
-		         module_basename,
-		         filter_name);
-	}
-
-	g_free (module_basename);
-	g_free (filter_name);
-
-	return filter;
 }
 
 void
