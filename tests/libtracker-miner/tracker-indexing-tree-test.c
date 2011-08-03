@@ -23,75 +23,141 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <tracker-indexing-tree.h>
+#include <libtracker-miner/tracker-indexing-tree.h>
 
-static void
-test_indexing_tree_recursive (void)
-{
+/*
+ * Test directory structure:
+ *  - Directory A
+ *     -- Directory AA
+ *         --- Directory AAA
+ *              ---- Directory AAAA
+ *              ---- Directory AAAB
+ *         --- Directory AAB
+ *     -- Directory AB
+ *         --- Directory ABA
+ *         --- Directory ABB
+ */
+typedef enum {
+	TEST_DIRECTORY_A = 0,
+	TEST_DIRECTORY_AA,
+	TEST_DIRECTORY_AAA,
+	TEST_DIRECTORY_AAAA,
+	TEST_DIRECTORY_AAAB,
+	TEST_DIRECTORY_AAB,
+	TEST_DIRECTORY_AB,
+	TEST_DIRECTORY_ABA,
+	TEST_DIRECTORY_ABB,
+	TEST_DIRECTORY_LAST
+} TestDirectory;
+
+/* Fixture struct */
+typedef struct {
+	/* Array with all existing test directories */
+	GFile *test_dir[TEST_DIRECTORY_LAST];
+	/* The tree to test */
 	TrackerIndexingTree *tree;
-	GFile *recursive;
-	GFile *aux;
+} TestCommonContext;
 
-	tree = tracker_indexing_tree_new ();
+#define ASSERT_INDEXABLE(fixture, id)	  \
+	g_assert (tracker_indexing_tree_file_is_indexable (fixture->tree, \
+	                                                   fixture->test_dir[id], \
+	                                                   G_FILE_TYPE_DIRECTORY) == TRUE)
+#define ASSERT_NOT_INDEXABLE(fixture, id)	  \
+	g_assert (tracker_indexing_tree_file_is_indexable (fixture->tree, \
+	                                                   fixture->test_dir[id], \
+	                                                   G_FILE_TYPE_DIRECTORY) == FALSE)
 
-	recursive = g_file_new_for_path ("/home/user/Music");
-	tracker_indexing_tree_add (tree,
-	                           recursive,
-	                           (TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE));
+#define test_add(path,fun)	  \
+	g_test_add (path, \
+	            TestCommonContext, \
+	            NULL, \
+	            test_common_context_setup, \
+	            fun, \
+	            test_common_context_teardown)
 
-	aux = g_file_new_for_path ("/home/user/Music/Album");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_DIRECTORY) == TRUE);
-	g_object_unref (aux);
+void
+test_common_context_setup (TestCommonContext *fixture,
+                           gconstpointer      data)
+{
+	guint i;
+	static const gchar *test_directories_subpaths [TEST_DIRECTORY_LAST] = {
+		"/A",
+		"/A/A",
+		"/A/A/A",
+		"/A/A/A/A",
+		"/A/A/A/B",
+		"/A/A/B",
+		"/A/B/",
+		"/A/B/A",
+		"/A/B/B"
+	};
 
-	aux = g_file_new_for_path ("/home/user/Music/File.mp3");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_REGULAR) == TRUE);
-	g_object_unref (aux);
+	/* Initialize aux directories */
+	for (i = 0; i < TEST_DIRECTORY_LAST; i++)
+		fixture->test_dir[i] = g_file_new_for_path (test_directories_subpaths[i]);
 
-	aux = g_file_new_for_path ("/home/user/Music/Album/Artist");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_DIRECTORY) == TRUE);
-	g_object_unref (aux);
-
-	aux = g_file_new_for_path ("/home/user/Music/Artist/File.mp3");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_REGULAR) == TRUE);
-	g_object_unref (aux);
-
-
-	g_object_unref (aux);
-	g_object_unref (tree);
+	fixture->tree = tracker_indexing_tree_new ();
 }
 
-static void
-test_indexing_tree_non_recursive (void)
+void
+test_common_context_teardown (TestCommonContext *fixture,
+                              gconstpointer      data)
 {
-	TrackerIndexingTree *tree;
-	GFile *recursive;
-	GFile *aux;
+	gint i;
 
-	tree = tracker_indexing_tree_new ();
+	/* Deinit aux directories, from last to first */
+	for (i = TEST_DIRECTORY_LAST-1; i >= 0; i--) {
+		if (fixture->test_dir[i])
+			g_object_unref (fixture->test_dir[i]);
+	}
 
-	recursive = g_file_new_for_path ("/home/user/Music");
-	tracker_indexing_tree_add (tree,
-	                           recursive,
-	                           (TRACKER_DIRECTORY_FLAG_MONITOR);
+	if (fixture->tree)
+		g_object_unref (fixture->tree);
+}
 
-	aux = g_file_new_for_path ("/home/user/Music/Album");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_DIRECTORY) == TRUE);
-	g_object_unref (aux);
+/* If A is ignored,
+ *  -A, AA, AB, AAA, AAB, ABA and ABB are not indexable
+ */
+static void
+test_indexing_tree_001 (TestCommonContext *fixture,
+                        gconstpointer      data)
+{
+	tracker_indexing_tree_add (fixture->tree,
+	                           fixture->test_dir[TEST_DIRECTORY_A],
+	                           TRACKER_DIRECTORY_FLAG_IGNORE);
 
-	aux = g_file_new_for_path ("/home/user/Music/File.mp3");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_REGULAR) == TRUE);
-	g_object_unref (aux);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAAA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAAB);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAB);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AB);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_ABA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_ABA);
+}
 
-	aux = g_file_new_for_path ("/home/user/Music/Album/Artist");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_DIRECTORY) == FALSE);
-	g_object_unref (aux);
+/* If A is monitored (NOT recursively):
+ *  -A, AA, AB are indexable
+ *  -AAA, AAB, ABA and ABB are not indexable
+ */
+static void
+test_indexing_tree_002 (TestCommonContext *fixture,
+                        gconstpointer      data)
+{
+	tracker_indexing_tree_add (fixture->tree,
+	                           fixture->test_dir[TEST_DIRECTORY_A],
+	                           TRACKER_DIRECTORY_FLAG_MONITOR);
 
-	aux = g_file_new_for_path ("/home/user/Music/Artist/File.mp3");
-	g_assert (tracker_indexing_tree_file_is_indexable (tree, aux, G_FILE_TYPE_REGULAR) == FALSE);
-	g_object_unref (aux);
-
-	g_object_unref (aux);
-	g_object_unref (tree);
+	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
+	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAAA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAAB);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AAB);
+	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AB);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_ABA);
+	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_ABA);
 }
 
 gint
@@ -104,10 +170,8 @@ main (gint    argc,
 
 	g_test_message ("Testing indexing tree");
 
-	g_test_add_func ("/libtracker-miner/tracker-indexing-tree/recursive",
-	                 test_indexing_tree_recursive);
-	g_test_add_func ("/libtracker-miner/tracker-indexing-tree/non-recursive",
-	                 test_indexing_tree_non_recursive);
+	test_add ("/libtracker-miner/indexing-tree/001", test_indexing_tree_001);
+	test_add ("/libtracker-miner/indexing-tree/002", test_indexing_tree_002);
 
 	return g_test_run ();
 }

@@ -23,7 +23,8 @@ TEST_PROGS +=                                          \
 	tracker-thumbnailer-test                       \
 	tracker-monitor-test			       \
 	tracker-priority-queue-test		       \
-	tracker-task-pool-test
+	tracker-task-pool-test			       \
+	tracker-indexing-tree-test
 
 AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \
@@ -101,6 +102,9 @@ tracker_priority_queue_test_SOURCES = 		       \
 
 tracker_task_pool_test_SOURCES = 		       \
 	tracker-task-pool-test.c
+
+tracker_indexing_tree_test_SOURCES = \
+	tracker-indexing-tree-test.c
 
 noinst_HEADERS =                                       \
 	$(libtracker_miner_marshal_headers)            \
