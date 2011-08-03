@@ -2130,14 +2130,6 @@ if test "x$enable_guarantee_metadata" != "xno"; then
   AC_DEFINE(GUARANTEE_METADATA, 1, [Guarantee existence of certain metadata])
 fi
 
-##################################################################
-# Check for tracker-extract: enable mockup extractor module?
-##################################################################
-
-have_mockup="no  (disabled)"
-
-AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
-
 ####################################################################
 # Check if we should use initctl or sysvinit
 ####################################################################
