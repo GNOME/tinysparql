@@ -161,6 +161,35 @@ tracker_indexing_tree_new (void)
 	return g_object_new (TRACKER_TYPE_INDEXING_TREE, NULL);
 }
 
+#ifdef PRINT_INDEXING_TREE
+static gboolean
+print_node_foreach (GNode    *node,
+                    gpointer  user_data)
+{
+	NodeData *node_data = node->data;
+	gchar *uri;
+
+	uri = g_file_get_uri (node_data->file);
+	g_debug ("%*s %s", g_node_depth (node), "-", uri);
+	g_free (uri);
+
+	return FALSE;
+}
+
+static void
+print_tree (GNode *node)
+{
+	g_debug ("Printing modified tree...");
+	g_node_traverse (node,
+	                 G_PRE_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 print_node_foreach,
+	                 NULL);
+}
+
+#endif /* PRINT_INDEXING_TREE */
+
 static gboolean
 find_node_foreach (GNode    *node,
                    gpointer  user_data)
@@ -272,6 +301,11 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 
 	/* Add the new node underneath the parent */
 	g_node_append (parent, node);
+
+#ifdef PRINT_INDEXING_TREE
+	/* Print tree */
+	print_tree (priv->config_tree);
+#endif /* PRINT_INDEXING_TREE */
 }
 
 /**
