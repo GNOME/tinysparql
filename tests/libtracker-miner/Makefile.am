@@ -25,23 +25,23 @@ TEST_PROGS +=                                          \
 	tracker-priority-queue-test		       \
 	tracker-task-pool-test
 
-AM_CPPFLAGS =                                          \
-	$(BUILD_CFLAGS)                                \
-	-DTEST                                         \
-	-DLIBEXEC_PATH=\""$(libexecdir)"\"             \
+AM_CPPFLAGS = \
+	$(BUILD_CFLAGS) \
+	-DTEST \
+	-DLIBEXEC_PATH=\""$(libexecdir)"\" \
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\" \
 	-DTEST_MINERS_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/mock-miners"\" \
-	-I$(top_srcdir)/src                            \
-	-I$(top_builddir)/src                          \
-	-I$(top_srcdir)/tests/common                   \
+	-I$(top_srcdir)/src \
+	-I$(top_builddir)/src \
+	-I$(top_srcdir)/tests/common \
 	$(LIBTRACKER_MINER_CFLAGS)
 
-LDADD =                                                \
+LDADD = \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-private.la \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(BUILD_LIBS)                                  \
+	$(BUILD_LIBS) \
 	$(LIBTRACKER_MINER_LIBS)
 
 libtracker_miner_tests_la_VALAFLAGS =                  \
@@ -63,29 +63,28 @@ libtracker_miner_tests_la_LIBADD = 		       \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)
 
-
-tracker_crawler_test_SOURCES =                         \
+tracker_crawler_test_SOURCES = \
 	tracker-crawler-test.c
 
-tracker_miner_manager_test_SOURCES =                   \
-	tracker-miner-manager-test.c                   \
-	miners-mock.c                                  \
+tracker_miner_manager_test_SOURCES = \
+	tracker-miner-manager-test.c \
+	miners-mock.c \
 	empty-gobject.c
 
-tracker_miner_manager_test_LDADD =                     \
-	libtracker-miner-tests.la                      \
+tracker_miner_manager_test_LDADD = \
+	libtracker-miner-tests.la \
 	$(LDADD)
 
-tracker_password_provider_test_SOURCES =               \
+tracker_password_provider_test_SOURCES = \
 	tracker-password-provider-test.c
 
-tracker_password_provider_test_LDADD =                 \
-	libtracker-miner-tests.la                      \
+tracker_password_provider_test_LDADD = \
+	libtracker-miner-tests.la \
 	$(LDADD)
 
-tracker_thumbnailer_test_SOURCES =                     \
-	tracker-thumbnailer-test.c                     \
-	thumbnailer-mock.c                             \
+tracker_thumbnailer_test_SOURCES = \
+	tracker-thumbnailer-test.c \
+	thumbnailer-mock.c \
 	empty-gobject.c
 
 tracker_monitor_test_SOURCES =                         \
@@ -111,14 +110,14 @@ noinst_HEADERS =                                       \
 	miners-mock.h                                  \
 	empty-gobject.h
 
-BUILT_SOURCES =                                        \
+BUILT_SOURCES = \
 	libtracker_miner_tests_la_vala.stamp
 
-EXTRA_DIST =                                           \
-	data/empty-dir/.hidden                         \
-	data/file1                                     \
-	data/dir/empty-dir/.hidden                     \
-	data/dir/file1                                 \
-	data/dir/file2                                 \
-	mock-miners/mock-miner-1.desktop               \
+EXTRA_DIST = \
+	data/empty-dir/.hidden \
+	data/file1 \
+	data/dir/empty-dir/.hidden \
+	data/dir/file1 \
+	data/dir/file2 \
+	mock-miners/mock-miner-1.desktop \
 	mock-miners/mock-miner-2.desktop
