@@ -271,7 +271,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 	                         check_reparent_node, node);
 
 	/* Add the new node underneath the parent */
-	g_node_append_data (parent, directory);
+	g_node_append (parent, node);
 }
 
 /**
