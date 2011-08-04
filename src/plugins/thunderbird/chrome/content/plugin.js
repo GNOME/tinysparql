@@ -22,28 +22,7 @@ org.bustany.TrackerBird.Plugin = {
 			return;
 		}
 
-		if (!this._persistentstore.init()) {
-			this._ui.showMessage("Cannot initialize persistent storage");
-			dump("Could not initialize Persistent store\n");
-			_persistentstore = null;
-			return;
-		}
-
-		if (!this._trackerstore.init(this._trackerConnection)) {
-			this._ui.showMessage("Cannot connect to Tracker");
-			dump("Could not initialize Tracker store\n");
-			_trackerstore = null;
-			return;
-		}
-
-		if (!this._mailstore.init()) {
-			this._ui.showMessage("Cannot initialize mail store");
-			dump("Could not initialize mail store\n");
-			_mailstore = null;
-			return;
-		}
-
-		this._mailstore.listAllFolders();
+		// Rest of the init is done in onTrackerReady
 	},
 
 	onUnload: function() {
@@ -66,16 +45,56 @@ org.bustany.TrackerBird.Plugin = {
 			return false;
 		}
 
+		var plugin = this;
+		var callback_closure = function(source_object, result, user_data) {
+			plugin.onTrackerReady(source_object, result, user_data);
+		}
+
+		tracker.connection_open_async(null,
+		                              tracker.AsyncReadyCallback.ptr(callback_closure),
+		                              null);
+
+		return true;
+	},
+
+	onTrackerReady: function(source_object, result, user_data) {
+		var tracker = org.bustany.TrackerBird.TrackerSparql;
+
         var error = new tracker.Error.ptr;
-        this._trackerConnection = tracker.connection_open (null, error.address());
+        this._trackerConnection = tracker.connection_open_finish (result, error.address());
 
         if (!error.isNull ()) {
             dump ("Could not initialize Tracker: " + error.contents.message.readString() + "\n");
+			this._ui.showMessage("Cannot connect to Tracker");
             tracker.error_free(error);
-            return false;
+			return;
         }
 
-		return true;
+		// Tracker is ready, proceed with the rest of the init
+
+		this._ui.showMessage("Initializing...");
+
+		if (!this._persistentstore.init()) {
+			this._ui.showMessage("Cannot initialize persistent storage");
+			dump("Could not initialize Persistent store\n");
+			_persistentstore = null;
+			return;
+		}
+
+		if (!this._trackerstore.init(this._trackerConnection)) {
+			dump("Could not initialize Tracker store\n");
+			_trackerstore = null;
+			return;
+		}
+
+		if (!this._mailstore.init()) {
+			this._ui.showMessage("Cannot initialize mail store");
+			dump("Could not initialize mail store\n");
+			_mailstore = null;
+			return;
+		}
+
+		this._mailstore.listAllFolders();
 	}
 }
 
