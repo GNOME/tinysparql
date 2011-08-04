@@ -63,7 +63,7 @@ namespace Tracker {
 		public signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public class MinerManager {
+	public class MinerManager : GLib.Object, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public MinerManager ();
 		public unowned GLib.SList get_available ();
