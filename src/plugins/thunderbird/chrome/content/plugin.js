@@ -42,6 +42,8 @@ org.bustany.TrackerBird.Plugin = {
 			_mailstore = null;
 			return;
 		}
+
+		this._mailstore.listAllFolders();
 	},
 
 	onUnload: function() {

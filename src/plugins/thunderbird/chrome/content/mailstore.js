@@ -79,8 +79,6 @@ org.bustany.TrackerBird.MailStore = {
 		this._indexMessageCallback = function(msg) { store.indexMessage(msg); }
 		this._removeMessageCallback = function(msg) { store.removeMessage(msg); }
 
-		this.listAllFolders();
-
 		return true;
 	},
 
