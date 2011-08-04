@@ -51,14 +51,14 @@ org.bustany.TrackerBird.TrackerSparql = {
 			"g_free",
 			ctypes.default_abi,
 			ctypes.void_t,
-			ctypes.void_t.ptr
+			ctypes.voidptr_t
 		);
 
 		tracker.object_unref = tracker._lib.declare (
 			"g_object_unref",
 			ctypes.default_abi,
 			ctypes.void_t,
-			ctypes.void_t.ptr // Binding GObject* as a void* since we don't have GObject binding...
+			tracker.Object.ptr
 		);
 
 		tracker.error_free = tracker._lib.declare (
