@@ -21,14 +21,7 @@ org.bustany.TrackerFox.Plugin={
 			return;
 		}
 
-		this._bookmarks = org.bustany.TrackerFox.Bookmarks;
-
-		if (!this._bookmarks.init (this._connection)) {
-			dump ("Couldn't initialize bookmarks service!\n");
-			return;
-		}
-
-		this._bookmarks.syncBookmarks();
+		// The rest of the init is done in onTrackerReady()
 	},
 
 	onUnload: function () {
@@ -47,16 +40,40 @@ org.bustany.TrackerFox.Plugin={
 			return false;
 		}
 
+		var plugin = this;
+		var callback_closure = function(source_object, result, user_data) {
+			plugin.onTrackerReady(source_object, result, user_data);
+		}
+
+		tracker.connection_open_async(null,
+		                              tracker.AsyncReadyCallback.ptr(callback_closure),
+		                              null);
+
+		return true;
+	},
+
+	onTrackerReady: function(source_object, result, user_data) {
+		var tracker = this._tracker;
+
 		var error = new tracker.Error.ptr;
-		this._connection = tracker.connection_open (null, error.address());
+		this._connection = tracker.connection_open_finish (result, error.address());
 
 		if (!error.isNull ()) {
 			dump ("Could not initialize Tracker: " + error.contents.message.readString() + "\n");
 			tracker.error_free(error);
-			return false;
+			return;
 		}
 
-		return true;
+		// Tracker is OK, let's continue with the initialization
+
+		this._bookmarks = org.bustany.TrackerFox.Bookmarks;
+
+		if (!this._bookmarks.init (this._connection)) {
+			dump ("Couldn't initialize bookmarks service!\n");
+			return;
+		}
+
+		this._bookmarks.syncBookmarks();
 	}
 };
 
