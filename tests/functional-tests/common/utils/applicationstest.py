@@ -25,7 +25,7 @@ import shutil
 import os
 import time
 
-APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_TMP_DIR, "test-applications-monitored")
+APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_MONITORED_TMP_DIR, "test-applications-monitored")
 
 CONF_OPTIONS = [
     (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [APPLICATIONS_TMP_DIR]),

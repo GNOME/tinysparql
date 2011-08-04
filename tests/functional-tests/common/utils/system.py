@@ -15,8 +15,6 @@ from dconf import DConfClient
 
 import helpers
 
-# Don't use /tmp (not enough space there)
-
 # Add this after fixing the backup/restore and ontology changes tests
 #"G_DEBUG" : "fatal_criticals",
 

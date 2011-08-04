@@ -31,7 +31,7 @@ import shutil
 import locale
 
 import unittest2 as ut
-from common.utils.minertest import CommonTrackerMinerTest, BASEDIR, uri, path, DEFAULT_TEXT
+from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path, DEFAULT_TEXT
 from common.utils import configuration as cfg
 
 class CommonMinerFTS (CommonTrackerMinerTest):
