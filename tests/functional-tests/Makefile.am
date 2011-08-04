@@ -82,28 +82,14 @@ ttl/gen-test-data.stamp:
 	cd ttl && $(MAKE) $(AM_MAKEFLAGS)
 
 functional-test: ${standard_tests}
-	@if test -h /targets/links/scratchbox.config ; then \
-		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-		ENV_COMMAND_WRAPPER=meego-run ;	\
-	else \
-		ENV_COMMAND_WRAPPER="" ; \
-	fi ; \
-	for testfile in ${standard_tests} ; do \
-	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$testfile ; \
-	  test ! -x $$testfile  || $$ENV_COMMAND_WRAPPER ./$$testfile > /dev/null; \
-	 done
+	for test in ${standard_tests} ; do \
+		./test-runner.sh python ./$$test; \
+	done
 
 functional-test-slow: ${slow_tests}
-	@if test -h /targets/links/scratchbox.config ; then \
-		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-		ENV_COMMAND_WRAPPER=meego-run ; \
-	else \
-		ENV_COMMAND_WRAPPER="" ; \
-	fi ; \
 	@for test in ${slow_tests} ; do \
-	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$test ; \
-	  test ! -x $$test  || $$ENV_COMMAND_WRAPPER ./$$test > /dev/null; \
-	 done
+		./test-runner.sh python ./$$test; \
+	done
 
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
