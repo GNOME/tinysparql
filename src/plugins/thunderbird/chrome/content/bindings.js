@@ -29,12 +29,18 @@ org.bustany.TrackerBird.TrackerSparql = {
 		}
 
 		// GLib types
+		tracker.Object = new ctypes.StructType ("GObject");
 		tracker.Cancellable = new ctypes.StructType ("GCancellable");
 		tracker.Error = new ctypes.StructType ("GError", [
 			{domain  : ctypes.uint32_t},
 			{code    : ctypes.int32_t},
 			{message : ctypes.char.ptr}
 		]);
+		tracker.AsyncResult = new ctypes.StructType ("GAsyncResult");
+		tracker.AsyncReadyCallback = new ctypes.FunctionType(
+			ctypes.default_abi,
+			ctypes.void_t,
+			[ tracker.Object.ptr, tracker.AsyncResult.ptr, ctypes.voidptr_t ]);
 
 		// TrackerSparql types
 		tracker.Connection = ctypes.StructType ("TrackerSparqlConnection");
@@ -70,6 +76,21 @@ org.bustany.TrackerBird.TrackerSparql = {
 			tracker.Cancellable.ptr,
 			tracker.Error.ptr.ptr
 		);
+
+		tracker.connection_open_async = tracker._lib.declare (
+			"tracker_sparql_connection_get_async",
+			ctypes.default_abi,
+			ctypes.void_t,
+			tracker.Cancellable.ptr,
+			tracker.AsyncReadyCallback.ptr,
+			ctypes.voidptr_t);
+
+		tracker.connection_open_finish = tracker._lib.declare (
+			"tracker_sparql_connection_get_finish",
+			ctypes.default_abi,
+			tracker.Connection.ptr,
+			tracker.AsyncResult.ptr,
+			tracker.Error.ptr.ptr);
 
 		tracker.connection_query = tracker._lib.declare (
 			"tracker_sparql_connection_query",
