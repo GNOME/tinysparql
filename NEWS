@@ -1,3 +1,40 @@
+NEW in 0.10.22 - 2011-08-05
+===========================
+
+The changes are:
+
+  * Fixes: GB#655987, VAPI file lacks annotation for MinerManager
+  * Fixes: GB#655789, Some TrackerMinerManager methods lack introspection annotations
+  * Fixes: GB#655880, Firefox extension: not compatible with Firefox 6
+  * Fixes: NB#269986, Poor performnace with different music files
+  * Fixes: NB#270774, Improve UpdateArray performance
+  * Fixes: NB#271747, Support xsd:date
+  * Fixes: NB#271389, Extraction of album art fails for a particular .mp3 file
+  * Fixes: NB#254896, tracker-miner-fs should resume pause if pausing clients crash
+  * Fixes: NB#274181, Attached file's album art is not extracted right
+  * Fixes: NB#274498, Adding tag to song causes update quad flood
+  * Fixes: NB#273120, After disconnecting from USB mass storage mode apps takes a long time to display content
+  * SPARQL: Add support for HAVING
+  * SPARQL: Add support for COALESCE
+  * libtracker-data: Add support for xsd:date
+  * libtracker-miner: Added APIs for pausing miners during process life time
+  * tracker-extract: Support DLNA profiles for JPEG, PNG and MP3 modules
+  * tracker-extract-playlist: Limit playlists to 1000 entries
+  * tracker-extract-gstreamer: Assume UTC for dates
+  * tracker-writeback: Refactor writeback so miner-fs performs more of the operation itself
+  * tracker-writeback: Deprecate IgnoreNextUpdate API
+  * tracker-control: Added --pause-for-process for potentially crash worthy processes
+  * tracker-preferences: Fix apply button
+
+Translations:
+
+  * Updated pt_BR: Gabriel Speckhahn
+
+Notes:
+
+  None
+
+
 NEW in 0.10.21 - 2011-07-22
 ===========================
 
