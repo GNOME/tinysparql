@@ -125,11 +125,6 @@ if HAVE_GUPNP_DLNA
 rules_DATA += 91-gstreamer-generic-dlna.rule
 endif
 
-if HAVE_GSTREAMER_HELIX
-modules_LTLIBRARIES += libextract-gstreamer-helix.la
-rules_DATA += 15-real-media.rule
-endif
-
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 rules_DATA += 92-xine-generic.rule
@@ -340,18 +335,6 @@ if HAVE_GSTREAMER_PBUTILS
 libextract_gstreamer_la_CFLAGS += $(GSTREAMER_PBUTILS_CFLAGS)
 libextract_gstreamer_la_LIBADD += $(GSTREAMER_PBUTILS_LIBS)
 endif
-
-# GStreamer helix
-libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c
-libextract_gstreamer_helix_la_CFLAGS = \
-	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
-	$(GSTREAMER_CFLAGS)
-libextract_gstreamer_helix_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gstreamer_helix_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(GSTREAMER_LIBS)
 
 # Xine
 libextract_xine_la_SOURCES = tracker-extract-libxine.c
