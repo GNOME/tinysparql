@@ -1627,33 +1627,6 @@ else
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi
 
-##################################################################
-# Check for tracker-extract: helixbin for gstreamer
-##################################################################
-
-AC_ARG_ENABLE(gstreamer-helix,
-              AS_HELP_STRING([--enable-gstreamer-helix],
-                             [enable GStreamer helix extractor for Real Media [[default=no]]]),,
-              [enable_gstreamer_helix=no])
-
-if test "x$enable_gstreamer_helix" != "xno"; then
-   if test "x$have_libgstreamer" = "xyes"; then
-      have_gstreamer_helix="yes"
-   else
-      have_gstreamer_helix="no"
-   fi
-else
-   have_gstreamer_helix="no  (disabled)"
-fi
-
-if test "x$enable_gstreamer_helix" = "xyes"; then
-   if test "x$have_gstreamer_helix" != "xyes"; then
-      AC_MSG_ERROR([GStreamer is not available or disabled but GStreamer Helix Bin requested])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_GSTREAMER_HELIX, test "x$have_gstreamer_helix" = "xyes")
-
 ####################################################################
 # Check for tracker-extract: support .ps.gz files
 ####################################################################
@@ -2212,7 +2185,6 @@ Metadata Extractors:
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
 	Support video formats:                  $have_video_handler ($have_video_handler_app) (tagreadbin: $enable_tagreadbin)
-	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
