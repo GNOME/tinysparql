@@ -110,8 +110,8 @@ public class Tracker.Needle {
 		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
-		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
 		                            "nmo:messageSubject(?urn)",
+		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
 		                            "nmo:receivedDate(?urn)",
 		                            "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
 		categories_model.add_query (Tracker.Query.Type.FOLDERS,
