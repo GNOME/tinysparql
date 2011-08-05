@@ -117,7 +117,12 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 					for (j = 0; j < n_columns; j++) {
 						if (j == n_columns - 1) {
 							// FIXME: Set markup for tooltip column in a nicer way
-							result.values[j] = Markup.escape_text (cursor.get_string (j));
+							string s = cursor.get_string (j);
+
+							if (s != null)
+								result.values[j] = Markup.escape_text (s);
+							else
+								result.values[j] = null;
 						} else {
 							result.values[j] = cursor.get_string (j);
 						}
