@@ -2299,6 +2299,7 @@ delete_all_objects (const gchar  *graph,
 				object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 				tried = TRUE;
 
+				/* This influences old_values, which is a reference, not a copy */
 				change = delete_metadata_decomposed (field, NULL, object_id, error);
 
 #ifndef DISABLE_JOURNAL
@@ -2316,6 +2317,7 @@ delete_all_objects (const gchar  *graph,
 				object_id = 0;
 				tried = TRUE;
 
+				/* This influences old_values, which is a reference, not a copy */
 				change = delete_metadata_decomposed (field, object, 0, error);
 
 #ifndef DISABLE_JOURNAL
