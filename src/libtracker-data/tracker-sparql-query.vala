@@ -755,14 +755,16 @@ public class Tracker.Sparql.Query : Object {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
+			bool is_null; // ignored
+
 			if (accept (SparqlTokenType.GRAPH)) {
 				var old_graph = current_graph;
-				current_graph = parse_construct_var_or_term (var_value_map);
+				current_graph = parse_construct_var_or_term (var_value_map, out is_null);
 
 				expect (SparqlTokenType.OPEN_BRACE);
 
 				while (current () != SparqlTokenType.CLOSE_BRACE) {
-					current_subject = parse_construct_var_or_term (var_value_map);
+					current_subject = parse_construct_var_or_term (var_value_map, out is_null);
 					parse_construct_property_list_not_empty (var_value_map);
 					if (!accept (SparqlTokenType.DOT)) {
 						// no triples following
@@ -776,7 +778,7 @@ public class Tracker.Sparql.Query : Object {
 
 				accept (SparqlTokenType.DOT);
 			} else {
-				current_subject = parse_construct_var_or_term (var_value_map);
+				current_subject = parse_construct_var_or_term (var_value_map, out is_null);
 				parse_construct_property_list_not_empty (var_value_map);
 				if (!accept (SparqlTokenType.DOT) && current () != SparqlTokenType.GRAPH) {
 					// neither GRAPH nor triples following
@@ -790,8 +792,9 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string? parse_construct_var_or_term (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	string? parse_construct_var_or_term (HashTable<string,string> var_value_map, out bool is_null) throws Sparql.Error, DateError {
 		string result = "";
+		is_null = false;
 		if (current () == SparqlTokenType.VAR) {
 			next ();
 			result = var_value_map.lookup (get_last_string ().substring (1));
@@ -825,6 +828,10 @@ public class Tracker.Sparql.Query : Object {
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
 			result = get_last_string ();
+		} else if (current () == SparqlTokenType.NULL) {
+			next ();
+			result = "null";
+			is_null = true;
 		} else if (current () == SparqlTokenType.DECIMAL) {
 			next ();
 			result = get_last_string ();
@@ -920,7 +927,8 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	void parse_construct_object (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
-		string object = parse_construct_var_or_term (var_value_map);
+		bool is_null = false;
+		string object = parse_construct_var_or_term (var_value_map, out is_null);
 		if (current_subject == null || current_predicate == null || object == null) {
 			// the SPARQL specification says that triples containing unbound variables
 			// should be excluded from the output RDF graph of CONSTRUCT
@@ -929,12 +937,18 @@ public class Tracker.Sparql.Query : Object {
 		try {
 			if (update_statements) {
 				// update triple in database
-				Data.update_statement (current_graph, current_subject, current_predicate, object);
+				Data.update_statement (current_graph, current_subject, current_predicate, is_null ? null : object);
 			} else if (delete_statements) {
 				// delete triple from database
+				if (is_null) {
+					throw get_error ("'null' not supported in this mode");
+				}
 				Data.delete_statement (current_graph, current_subject, current_predicate, object);
 			} else {
 				// insert triple into database
+				if (is_null) {
+					throw get_error ("'null' not supported in this mode");
+				}
 				Data.insert_statement (current_graph, current_subject, current_predicate, object);
 			}
 		} catch (Sparql.Error e) {

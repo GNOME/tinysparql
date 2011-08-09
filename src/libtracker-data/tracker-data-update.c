@@ -2729,7 +2729,6 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
@@ -2935,7 +2934,6 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
@@ -3068,15 +3066,18 @@ tracker_data_update_statement (const gchar            *graph,
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property != NULL) {
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			tracker_data_update_statement_with_uri (graph, subject, predicate, object, error);
+		if (object == NULL) {
+			delete_all_objects (graph, subject, predicate, error);
 		} else {
-			tracker_data_update_statement_with_string (graph, subject, predicate, object, error);
+			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+				tracker_data_update_statement_with_uri (graph, subject, predicate, object, error);
+			} else {
+				tracker_data_update_statement_with_string (graph, subject, predicate, object, error);
+			}
 		}
 	} else {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
