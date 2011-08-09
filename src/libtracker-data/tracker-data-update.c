@@ -2247,6 +2247,131 @@ tracker_data_delete_statement (const gchar  *graph,
 	}
 }
 
+
+static void
+delete_all_objects (const gchar  *graph,
+                    const gchar  *subject,
+                    const gchar  *predicate,
+                    GError      **error)
+{
+	gint subject_id = 0;
+	gboolean change = FALSE;
+	guint i;
+	GError *new_error = NULL;
+	TrackerProperty *field;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (in_transaction);
+
+	subject_id = query_resource_id (subject);
+
+	if (subject_id == 0) {
+		/* subject not in database */
+		return;
+	}
+
+	resource_buffer_switch (graph, 0, subject, subject_id);
+
+	field = tracker_ontologies_get_property_by_uri (predicate);
+	if (field != NULL) {
+		GValueArray *old_values;
+
+		if (!tracker_property_get_transient (field)) {
+			has_persistent = TRUE;
+		}
+
+		old_values = get_old_property_values (field, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return;
+		}
+
+		for (i = 0; i < old_values->n_values; i++) {
+			gint pred_id = 0, graph_id = 0;
+			gboolean tried = FALSE;
+			const gchar *object = NULL;
+			gint object_id = 0;
+
+			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+
+				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+				pred_id = tracker_property_get_id (field);
+				object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, i));
+				tried = TRUE;
+
+				change = delete_metadata_decomposed (field, NULL, object_id, error);
+
+#ifndef DISABLE_JOURNAL
+				if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
+					tracker_db_journal_append_delete_statement_id (graph_id,
+					                                               resource_buffer->id,
+					                                               pred_id,
+					                                               object_id);
+				}
+#endif /* DISABLE_JOURNAL */
+			} else {
+				object = g_value_get_string (g_value_array_get_nth (old_values, i));
+				pred_id = tracker_property_get_id (field);
+				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+				object_id = 0;
+				tried = TRUE;
+
+				change = delete_metadata_decomposed (field, object, 0, error);
+
+#ifndef DISABLE_JOURNAL
+				if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
+					if (!tracker_property_get_force_journal (field) &&
+						g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+						/* do not journal this statement extracted from filesystem */
+						TrackerProperty *damaged;
+
+						damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+
+						tracker_db_journal_append_insert_statement (graph_id,
+						                                            resource_buffer->id,
+						                                            tracker_property_get_id (damaged),
+						                                            "true");
+					} else {
+						tracker_db_journal_append_delete_statement (graph_id,
+						                                            resource_buffer->id,
+						                                            pred_id,
+						                                            object);
+					}
+				}
+#endif /* DISABLE_JOURNAL */
+
+				if (!tried) {
+					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+					if (field == NULL) {
+						pred_id = tracker_data_query_resource_id (predicate);
+					} else {
+						pred_id = tracker_property_get_id (field);
+					}
+				}
+
+				if (delete_callbacks && change) {
+					guint n;
+					for (n = 0; n < delete_callbacks->len; n++) {
+						TrackerStatementDelegate *delegate;
+
+						delegate = g_ptr_array_index (delete_callbacks, n);
+						delegate->callback (graph_id, graph, subject_id, subject,
+						                    pred_id, object_id,
+						                    object,
+						                    resource_buffer->types,
+						                    delegate->user_data);
+					}
+				}
+			}
+		}
+	} else {
+		/* I wonder why in case of error the delete_callbacks are still executed */
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+	}
+}
+
 static gboolean
 tracker_data_insert_statement_common (const gchar            *graph,
                                       const gchar            *subject,
