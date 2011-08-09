@@ -2256,7 +2256,6 @@ delete_all_objects (const gchar  *graph,
 {
 	gint subject_id = 0;
 	gboolean change = FALSE;
-	guint i;
 	GError *new_error = NULL;
 	TrackerProperty *field;
 
@@ -2287,7 +2286,7 @@ delete_all_objects (const gchar  *graph,
 			return;
 		}
 
-		for (i = 0; i < old_values->n_values; i++) {
+		while (old_values->n_values > 0) {
 			gint pred_id = 0, graph_id = 0;
 			gboolean tried = FALSE;
 			const gchar *object = NULL;
@@ -2297,7 +2296,7 @@ delete_all_objects (const gchar  *graph,
 
 				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 				pred_id = tracker_property_get_id (field);
-				object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, i));
+				object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 				tried = TRUE;
 
 				change = delete_metadata_decomposed (field, NULL, object_id, error);
@@ -2311,7 +2310,7 @@ delete_all_objects (const gchar  *graph,
 				}
 #endif /* DISABLE_JOURNAL */
 			} else {
-				object = g_value_get_string (g_value_array_get_nth (old_values, i));
+				object = g_value_get_string (g_value_array_get_nth (old_values, 0));
 				pred_id = tracker_property_get_id (field);
 				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 				object_id = 0;
