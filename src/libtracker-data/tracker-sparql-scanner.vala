@@ -169,6 +169,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'l':
 				if (matches (begin, "LANG")) return SparqlTokenType.LANG;
 				break;
+			case 'N':
+			case 'n':
+				if (matches (begin, "NULL")) return SparqlTokenType.NULL;
+				break;
 			case 'T':
 			case 't':
 				if (matches (begin, "TRUE")) return SparqlTokenType.TRUE;
@@ -907,6 +911,7 @@ public enum Tracker.SparqlTokenType {
 	MINUS,
 	NAMED,
 	NOT,
+	NULL, /* Non-standard in SPARQL spec */
 	OFFSET,
 	OP_AND,
 	OP_EQ,
