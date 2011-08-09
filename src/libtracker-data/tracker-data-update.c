@@ -3071,6 +3071,13 @@ tracker_data_update_statement (const gchar            *graph,
 	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property != NULL) {
 		if (object == NULL) {
+			
+			if (property == tracker_ontologies_get_rdf_type ()) {
+				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED,
+				             "Using 'null' with '%s' is not supported", predicate);
+				return;
+			}
+
 			delete_all_objects (graph, subject, predicate, error);
 		} else {
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {

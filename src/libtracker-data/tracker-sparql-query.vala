@@ -755,16 +755,25 @@ public class Tracker.Sparql.Query : Object {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
-			bool is_null; // ignored
+			bool is_null = false;
 
 			if (accept (SparqlTokenType.GRAPH)) {
 				var old_graph = current_graph;
 				current_graph = parse_construct_var_or_term (var_value_map, out is_null);
 
+				if (is_null) {
+					throw get_error ("'null' not supported for graph");
+				}
+
 				expect (SparqlTokenType.OPEN_BRACE);
 
 				while (current () != SparqlTokenType.CLOSE_BRACE) {
 					current_subject = parse_construct_var_or_term (var_value_map, out is_null);
+
+					if (is_null) {
+						throw get_error ("'null' not supported for subject");
+					}
+
 					parse_construct_property_list_not_empty (var_value_map);
 					if (!accept (SparqlTokenType.DOT)) {
 						// no triples following
@@ -779,6 +788,11 @@ public class Tracker.Sparql.Query : Object {
 				accept (SparqlTokenType.DOT);
 			} else {
 				current_subject = parse_construct_var_or_term (var_value_map, out is_null);
+
+				if (is_null) {
+					throw get_error ("'null' not supported for subject");
+				}
+
 				parse_construct_property_list_not_empty (var_value_map);
 				if (!accept (SparqlTokenType.DOT) && current () != SparqlTokenType.GRAPH) {
 					// neither GRAPH nor triples following
