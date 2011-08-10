@@ -18,7 +18,6 @@
 # Boston, MA  02110-1301, USA.
 #
 from common.utils.writebacktest import CommonTrackerWritebackTest as CommonTrackerWritebackTest
-from common.utils.helpers import StoreHelper, ExtractorHelper
 import unittest2 as ut
 from common.utils.expectedFailure import expectedFailureBug
 import time
@@ -28,8 +27,8 @@ REASONABLE_TIMEOUT = 5 # Seconds we wait for tracker-writeback to do the work
 class WritebackKeepDateTest (CommonTrackerWritebackTest):
 
     def setUp (self):
-        self.tracker = StoreHelper ()
-        self.extractor = ExtractorHelper ()
+        self.tracker = self.system.store
+        self.extractor = self.system.extractor
         self.favorite = self.__prepare_favorite_tag ()
 
     def __prepare_favorite_tag (self):

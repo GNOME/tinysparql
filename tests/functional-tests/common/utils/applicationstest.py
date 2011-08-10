@@ -19,7 +19,6 @@
 #
 from common.utils import configuration as cfg
 from common.utils.system import TrackerSystemAbstraction
-from common.utils.helpers import StoreHelper
 import unittest2 as ut
 
 import shutil
@@ -109,8 +108,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
         self.system.tracker_all_testing_start (CONF_OPTIONS)
 
         # Returns when ready
-        self.tracker = StoreHelper ()
-        self.tracker.wait ()
+        self.tracker = self.system.store
 
         print "Ready to go!"
 

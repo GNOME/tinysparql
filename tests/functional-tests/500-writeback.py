@@ -24,7 +24,6 @@ on the files. Note that these tests are highly platform dependant.
 import os, dbus
 import time
 
-from common.utils.helpers import StoreHelper, ExtractorHelper
 from common.utils.writebacktest import CommonTrackerWritebackTest as CommonTrackerWritebackTest
 import unittest2 as ut
 from common.utils.expectedFailure import expectedFailureBug
@@ -37,12 +36,8 @@ class WritebackBasicDataTest (CommonTrackerWritebackTest):
     that the new values are actually in the file
     """
     def setUp (self):
-        self.tracker = StoreHelper ()
-        self.extractor = ExtractorHelper ()
-
-    def tearDown (self):
-        # Give it more time between tests to avoid random failures?
-        pass
+        self.tracker = self.system.store
+        self.extractor = self.system.extractor
 
     def __clean_property (self, property_name, fileuri, expectFailure=True):
         """

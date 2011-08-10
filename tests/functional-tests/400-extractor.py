@@ -95,6 +95,10 @@ class ExtractionTestCase (ut.TestCase):
 
     def setUp (self):
         self.extractor = ExtractorHelper ()
+        self.extractor.start ()
+
+    def tearDown (self):
+        self.extractor.stop ()
 
     def expected_failure_test_extraction (self):
         try:

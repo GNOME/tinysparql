@@ -75,14 +75,12 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
 
             self.system.tracker_store_stop_brutally ()
             self.system.tracker_store_start ()
-            # Reconnect dbus
-            self.tracker.connect ()
             try:
                 results = self.tracker.count_instances ("nmo:Email")
             except:
                 print "Timeout, probably replaying journal or something (wait 20 sec.)"
                 time.sleep (20)
-                results = self.count_instances ()
+                results = self.tracker.count_instances ()
 
             # Every iteration we are adding new instances in the store!
             self.assertEquals (results, NUMBER_OF_INSTANCES * (i+1))

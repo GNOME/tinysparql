@@ -86,8 +86,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
 
 
         self.system.tracker_store_testing_start (ontodir=basic_ontologies)
-        self.tracker = StoreHelper ()
-        self.tracker.wait () #Safe guard. Returns when the store is ready
+        self.tracker = self.system.store
 
         self.insert_data ()
 
