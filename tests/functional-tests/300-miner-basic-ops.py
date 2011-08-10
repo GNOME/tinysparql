@@ -30,6 +30,7 @@ import shutil
 import time
 
 import unittest2 as ut
+from common.utils.helpers import log
 from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path
 
 class MinerCrawlTest (CommonTrackerMinerTest):
@@ -120,7 +121,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         self.assertIn ( uri ("test-monitored/file0.txt"), unpacked_result)
 
         # Clean the new file so the test directory is as before
-        print "Remove and wait"
+        log ("Remove and wait")
         os.remove (dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 

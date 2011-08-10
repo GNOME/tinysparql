@@ -19,6 +19,7 @@
 #
 from common.utils import configuration as cfg
 from common.utils.system import TrackerSystemAbstraction
+from common.utils.helpers import log
 import unittest2 as ut
 
 import shutil
@@ -68,7 +69,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
         """
         @rate: bytes per 100ms
         """
-        print "Copying slowly\n '%s' to\n '%s'" % (src, fdest.name)
+        log ("Copying slowly\n '%s' to\n '%s'" % (src, fdest.name))
         fsrc = open (src, 'rb')
         buffer_ = fsrc.read (rate)
         while (buffer_ != ""):
@@ -110,7 +111,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
         # Returns when ready
         self.tracker = self.system.store
 
-        print "Ready to go!"
+        log ("Ready to go!")
 
     @classmethod
     def tearDown (self):

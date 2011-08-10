@@ -31,6 +31,7 @@ import shutil
 import locale
 
 import unittest2 as ut
+from common.utils.helpers import log
 from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path, DEFAULT_TEXT
 from common.utils import configuration as cfg
 
@@ -59,7 +60,7 @@ class CommonMinerFTS (CommonTrackerMinerTest):
         """
         Return list of URIs with the word in them
         """
-        print word
+        log ("Search for: %s" % word)
         results = self.tracker.query ("""
                 SELECT ?url WHERE {
                   ?u a nfo:TextDocument ;
@@ -295,7 +296,7 @@ class MinerFTSStopwordsTest (CommonMinerFTS):
         self.set_text (TEXT)
         results = self.search_word ("automobile")
         self.assertEquals (len (results), 1)
-        print stopwords
+        log ("Stopwords: %s" % stopwords)
         for i in range (0, len (stopwords)):
             results = self.search_word (stopwords[i])
             self.assertEquals (len (results), 0)

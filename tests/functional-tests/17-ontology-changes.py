@@ -188,7 +188,6 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
                              % (self.instance))
 
     def validate_status (self):
-        print "validating"
         # Query the ontology itself
         result = self.tracker.query ("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
         self.assertEquals (result[0][0], XSD_DATETIME)

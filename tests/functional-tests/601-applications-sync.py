@@ -34,6 +34,7 @@ import fcntl
 from common.utils import configuration as cfg
 import unittest2 as ut
 from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest
+from common.utils.helpers import log
 
 MINER_FS_IDLE_TIMEOUT = 5
 
@@ -53,7 +54,7 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_music ())
         dest_fileuri = "file://" + dest_filepath
 
-        print "Synchronizing audio file in '%s'..." % (dest_filepath)
+        log ("Synchronizing audio file in '%s'..." % (dest_filepath))
 
         # Insert new resource in the store
         insert = """
@@ -94,7 +95,7 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
-        print "Remove and wait"
+        log ("Remove and wait")
         os.remove (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)

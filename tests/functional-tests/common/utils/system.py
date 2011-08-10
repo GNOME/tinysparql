@@ -45,10 +45,10 @@ class TrackerSystemAbstraction:
 
         assert not gsettings or type(gsettings) is list 
 
-        print "[Conf] Setting test environment..."
+        helpers.log ("[Conf] Setting test environment...")
 
         for var, directory in TEST_ENV_DIRS.iteritems ():
-            print "export %s=%s" %(var, directory)
+            helpers.log ("export %s=%s" %(var, directory))
             self.__recreate_directory (directory)
             os.environ [var] = directory
 
@@ -56,11 +56,11 @@ class TrackerSystemAbstraction:
             self.__recreate_directory (directory)
 
         if ontodir:
-            print "export %s=%s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
+            helpers.log ("export %s=%s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir))
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
 
         for var, value in TEST_ENV_VARS.iteritems ():
-            print "export %s=%s" %(var, value)
+            helpers.log ("export %s=%s" %(var, value))
             os.environ [var] = value
 
         # Previous loop should have set DCONF_PROFILE to the test location
@@ -70,7 +70,7 @@ class TrackerSystemAbstraction:
             for (schema, key, value) in gsettings:
                 self.dconf.write (schema, key, value)
 
-        print "[Conf] environment ready"
+        helpers.log ("[Conf] environment ready")
 
     def unset_up_environment (self):
         """
@@ -111,7 +111,7 @@ class TrackerSystemAbstraction:
     def tracker_store_restart_with_new_ontologies (self, ontodir):
         self.store.stop ()
         if ontodir:
-            print "[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
+            helpers.log ("[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir))
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
         try:
             self.store.start ()

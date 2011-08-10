@@ -36,6 +36,10 @@ class NoMetadataException (Exception):
 
 REASONABLE_TIMEOUT = 30
 
+def log (message):
+    if options.is_verbose ():
+        print (message)
+
 class Helper:
     """
     Abstract helper for Tracker processes. Launches the process manually
@@ -72,12 +76,16 @@ class Helper:
                         "PROCESS_PATH",
                         os.path.join (cfg.EXEC_PREFIX, self.PROCESS_NAME))
 
-        FNULL = open ('/dev/null', 'w')
-
         if options.is_manual_start ():
             print ("Start %s manually" % self.PROCESS_NAME)
         else:
-            return subprocess.Popen ([path], stdout=FNULL, stderr=FNULL)
+            kws = {}
+
+            if not options.is_verbose ():
+                FNULL = open ('/dev/null', 'w')
+                kws = { 'stdout': FNULL, 'stderr': FNULL }
+
+            return subprocess.Popen ([path], **kws)
 
     def _stop_process (self):
         if options.is_manual_start ():
@@ -92,13 +100,13 @@ class Helper:
     def _name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == self.BUS_NAME:
             if old_owner == '' and new_owner != '':
-                print ("[%s] appeared in the bus" % self.PROCESS_NAME)
+                log ("[%s] appeared in the bus" % self.PROCESS_NAME)
                 self.available = True
             elif old_owner != ''  and new_owner == '':
-                print ("[%s] disappeared from the bus" % self.PROCESS_NAME)
+                log ("[%s] disappeared from the bus" % self.PROCESS_NAME)
                 self.available = False
             else:
-                print ("[%s] name change %s -> %s" % (self.PROCESS_NAME, old_owner, new_owner))
+                log ("[%s] name change %s -> %s" % (self.PROCESS_NAME, old_owner, new_owner))
 
             self.loop.quit ()
 
@@ -111,7 +119,7 @@ class Helper:
         raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
 
     def _timeout_on_idle_cb (self):
-        print ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
+        log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
         self.loop.quit ()
         return False
 
@@ -147,7 +155,7 @@ class Helper:
             self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
             self.loop.run ()
 
-        print ("[%s] stop." % self.PROCESS_NAME)
+        log ("[%s] stop." % self.PROCESS_NAME)
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match (self.name_owner_match)
 
@@ -157,7 +165,7 @@ class Helper:
         # Name owner changed callback should take us out from this loop
         self.loop.run ()
 
-        print ("[%s] killed." % self.PROCESS_NAME)
+        log ("[%s] killed." % self.PROCESS_NAME)
         self.bus._clean_up_signal_match (self.name_owner_match)
 
 
@@ -192,9 +200,9 @@ class StoreHelper (Helper):
                                               cfg.TRACKER_STATUS_OBJ_PATH)
         self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
 
-        print ("[%s] booting..." % self.PROCESS_NAME)
+        log ("[%s] booting..." % self.PROCESS_NAME)
         self.status_iface.Wait ()
-        print ("[%s] ready." % self.PROCESS_NAME)
+        log ("[%s] ready." % self.PROCESS_NAME)
 
 
     def query (self, query, timeout=5000):
@@ -297,17 +305,22 @@ class MinerFsHelper (Helper):
     def _stop_process (self):
         if options.is_manual_start ():
             if self.available:
-                print ("Kill %s manually" % self.PROCESS_NAME)
+                log ("Kill %s manually" % self.PROCESS_NAME)
                 self.loop.run ()
         else:
             control_binary = os.path.join (cfg.BINDIR, "tracker-control")
-            FNULL = open('/dev/null', 'w')
-            subprocess.call ([control_binary, "--kill=miners"], stdout=FNULL)
+
+            kws = {}
+
+            if not options.is_verbose ():
+                FNULL = open ('/dev/null', 'w')
+                kws = { 'stdout': FNULL }
+
+            subprocess.call ([control_binary, "--kill=miners"], **kws)
+
         return False
 
     def _minerfs_status_cb (self, status, progress, remaining_time):
-        print ("[%s] status is now %s" % (self.PROCESS_NAME, status.encode ("utf-8")))
-
         if (status == "Idle"):
             self.loop.quit ()
 

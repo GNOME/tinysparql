@@ -22,6 +22,7 @@ import shutil
 import unittest2 as ut
 import os
 from common.utils import configuration as cfg
+from common.utils.helpers import log
 import time
 
 TEST_FILE_JPEG = "writeback-test-1.jpeg"
@@ -68,7 +69,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
 
         for testfile in [TEST_FILE_JPEG, TEST_FILE_PNG,TEST_FILE_TIFF]:
             origin = os.path.join (datadir, testfile)
-            print "Copying", origin, WRITEBACK_TMP_DIR
+            log ("Copying %s -> %s" % (origin, WRITEBACK_TMP_DIR))
             shutil.copy (origin, WRITEBACK_TMP_DIR)
             time.sleep (2)
 
@@ -82,7 +83,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
 
         self.system.tracker_writeback_testing_start (CONF_OPTIONS)
         # Returns when ready
-        print "Ready to go!"
+        log ("Ready to go!")
         
     @classmethod
     def tearDownClass (self):
