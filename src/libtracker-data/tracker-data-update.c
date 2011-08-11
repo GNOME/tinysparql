@@ -3079,7 +3079,20 @@ tracker_data_update_statement (const gchar            *graph,
 				return;
 			}
 
+			/* Flush upfront to make a null,x,null,y,z work: When x is set then
+			 * if a null comes, we need to be flushed */
+
+			tracker_data_update_buffer_flush (&new_error);
+			if (new_error) {
+				g_propagate_error (error, new_error);
+				return;
+			}
+
 			delete_all_objects (graph, subject, predicate, error);
+
+			/* Flush at the end to make null, x work. When x arrives the null
+			 * (delete all values of the multivalue) must be flushed */
+
 			tracker_data_update_buffer_flush (&new_error);
 			if (new_error) {
 				g_propagate_error (error, new_error);
