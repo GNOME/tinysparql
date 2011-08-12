@@ -310,15 +310,13 @@ add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
 
 		gst_date_time_unref (date_time);
 	} else if (gst_tag_list_get_date (tag_list, tag_date, &date)) {
-		gboolean ret;
+		gboolean ret = FALSE;
 
 		if (date && g_date_valid (date)) {
 			if (date->julian)
 				ret = g_date_valid_julian (date->julian_days);
 			if (date->dmy)
 				ret = g_date_valid_dmy (date->day, date->month, date->year);
-		} else {
-			ret = FALSE;
 		}
 
 		if (ret) {
