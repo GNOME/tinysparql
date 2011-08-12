@@ -1157,26 +1157,6 @@ pipeline_poll_for_ready (MetadataExtractor *extractor,
 #if defined(GSTREAMER_BACKEND_DECODEBIN2)
 
 static void
-add_int64_info (TrackerSparqlBuilder *metadata,
-                const gchar          *uri,
-                const gchar          *key,
-                gint64                info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
-
-static void
-add_uint_info (TrackerSparqlBuilder *metadata,
-               const gchar          *uri,
-               const gchar          *key,
-               guint                 info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
-
-static void
 decodebin2_unlink_fsink (void *obj,
                          void *data)
 {
