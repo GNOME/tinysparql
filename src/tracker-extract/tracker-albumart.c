@@ -225,17 +225,34 @@ albumart_heuristic (const gchar *artist,
 					if (file) {
 						GFile *found_file;
 						gchar *found;
+						GFileInputStream *stream;
 
 						found = g_build_filename (dirname, name, NULL);
-						g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
 
 						found_file = g_file_new_for_path (found);
-						g_free (found);
+						stream = g_file_read (found_file, NULL, NULL);
 
-						retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
+						if (stream) {
+							guchar buffer[4];
+							gsize total;
+							if (g_input_stream_read_all (G_INPUT_STREAM (stream), buffer, 3, &total, NULL, NULL)) {
+								if (total == 3 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) {
+									g_object_unref (stream);
+									g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
+									retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
+									g_clear_error (&error);
+								} else {
+									g_object_unref (stream);
+									g_debug ("Album art found in same directory but not a real JPEG file (trying to convert):'%s'", found);
+									retval = tracker_albumart_file_to_jpeg (found, target);
+								}
+							} else {
+								g_object_unref (stream);
+							}
+						}
+
 						g_object_unref (found_file);
-
-						g_clear_error (&error);
+						g_free (found);
 					}
 				} else if (g_str_has_suffix (name_strdown, "png")) {
 					gchar *found;
