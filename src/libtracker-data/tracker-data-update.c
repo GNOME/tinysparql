@@ -2288,16 +2288,14 @@ delete_all_objects (const gchar  *graph,
 
 		while (old_values->n_values > 0) {
 			gint pred_id = 0, graph_id = 0;
-			gboolean tried = FALSE;
 			const gchar *object = NULL;
 			gint object_id = 0;
 
-			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			pred_id = tracker_property_get_id (field);
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 
-				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
-				pred_id = tracker_property_get_id (field);
+			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
-				tried = TRUE;
 
 				/* This influences old_values, which is a reference, not a copy */
 				change = delete_metadata_decomposed (field, NULL, object_id, error);
@@ -2312,10 +2310,7 @@ delete_all_objects (const gchar  *graph,
 #endif /* DISABLE_JOURNAL */
 			} else {
 				object = g_value_get_string (g_value_array_get_nth (old_values, 0));
-				pred_id = tracker_property_get_id (field);
-				graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 				object_id = 0;
-				tried = TRUE;
 
 				/* This influences old_values, which is a reference, not a copy */
 				change = delete_metadata_decomposed (field, object, 0, error);
@@ -2342,15 +2337,6 @@ delete_all_objects (const gchar  *graph,
 				}
 #endif /* DISABLE_JOURNAL */
 
-				if (!tried) {
-					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
-					if (field == NULL) {
-						pred_id = tracker_data_query_resource_id (predicate);
-					} else {
-						pred_id = tracker_property_get_id (field);
-					}
-				}
-
 				if (delete_callbacks && change) {
 					guint n;
 					for (n = 0; n < delete_callbacks->len; n++) {
@@ -2367,7 +2353,6 @@ delete_all_objects (const gchar  *graph,
 			}
 		}
 	} else {
-		/* I wonder why in case of error the delete_callbacks are still executed */
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
 	}
