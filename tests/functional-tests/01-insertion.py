@@ -571,7 +571,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 self.tracker.update("""INSERT { <test://instance-ds1> a nie:DataSource  }""")
                 self.tracker.update("""INSERT { <test://instance-ds2> a nie:DataSource  }""")
                 self.tracker.update("""INSERT { <test://instance-ds3> a nie:DataSource  }""")
-                self.tracker.update("""INSERT { <subject> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }""")
+                self.tracker.update("""INSERT { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }""")
 
                 # null upfront, reset of list, rewrite of new list
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2> }""")
