@@ -575,7 +575,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
                 # null upfront, reset of list, rewrite of new list
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2> }""")
-                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")			
+                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
                 self.assertEquals (len (result), 2)
                 self.assertEquals (len (result[0]), 1)
                 self.assertEquals (len (result[1]), 1)
@@ -584,7 +584,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
                 # null upfront, reset of list, rewrite of new list, second test
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }""")
-                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")			
+                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
                 self.assertEquals (len (result), 3)
                 self.assertEquals (len (result[0]), 1)
                 self.assertEquals (len (result[1]), 1)
@@ -595,7 +595,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
                 # null in the middle, rewrite of new list
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }""")
-                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")			
+                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
                 self.assertEquals (len (result), 2)
                 self.assertEquals (len (result[0]), 1)
                 self.assertEquals (len (result[1]), 1)
@@ -604,22 +604,22 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 				
                 # null at the end
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3>, null }""")
-                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")			
+                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
                 self.assertEquals (len (result), 0)
 	
                 # Multiple nulls
                 self.tracker.update("""INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }""")
-                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")			
+                result = self.tracker.query ("""SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
                 self.assertEquals (len (result), 2)
                 self.assertEquals (len (result[0]), 1)
                 self.assertEquals (len (result[1]), 1)
                 self.assertEquals (result[0][0], "test://instance-ds2")
                 self.assertEquals (result[1][0], "test://instance-ds3")
 	
-                self.tracker.update ("""DELETE { <test://instance-null> a rdfs:Resource. }""")				
-                self.tracker.update ("""DELETE { <test://instance-ds1> a rdfs:Resource. }""")				
-                self.tracker.update ("""DELETE { <test://instance-ds2> a rdfs:Resource. }""")				
-                self.tracker.update ("""DELETE { <test://instance-ds3> a rdfs:Resource. }""")				
+                self.tracker.update ("""DELETE { <test://instance-null> a rdfs:Resource. }""")
+                self.tracker.update ("""DELETE { <test://instance-ds1> a rdfs:Resource. }""")
+                self.tracker.update ("""DELETE { <test://instance-ds2> a rdfs:Resource. }""")
+                self.tracker.update ("""DELETE { <test://instance-ds3> a rdfs:Resource. }""")
 
 class TrackerStoreDeleteTests (CommonTrackerStoreTest):
         """
