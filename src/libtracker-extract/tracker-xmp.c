@@ -283,21 +283,23 @@ iterate_simple_qual (XmpPtr          xmp,
 static const gchar *
 fix_orientation (const gchar *orientation)
 {
-	if (orientation && g_ascii_strcasecmp (orientation, "top - left") == 0) {
+	g_debug ("Checking orientation");
+
+	if (orientation && g_ascii_strcasecmp (orientation, "1") == 0) {
 		return "nfo:orientation-top";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "top - right") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "2") == 0) {
 		return  "nfo:orientation-top-mirror";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "bottom - right") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "3") == 0) {
 		return "nfo:orientation-bottom-mirror";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "bottom - left") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "4") == 0) {
 		return  "nfo:orientation-bottom";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "left - top") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "5") == 0) {
 		return  "nfo:orientation-left-mirror";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "right - top") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "6") == 0) {
 		return  "nfo:orientation-right";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "right - bottom") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "7") == 0) {
 		return "nfo:orientation-right-mirror";
-	} else if (orientation && g_ascii_strcasecmp (orientation, "left - bottom") == 0) {
+	} else if (orientation && g_ascii_strcasecmp (orientation, "8") == 0) {
 		return  "nfo:orientation-left";
 	}
 
@@ -340,8 +342,6 @@ iterate_simple (const gchar    *uri,
 			data->make = g_strdup (value);
 		} else if (!data->model && g_ascii_strcasecmp (name, "Model") == 0) {
 			data->model = g_strdup (value);
-		} else if (!data->orientation && g_ascii_strcasecmp (name, "Orientation") == 0) {
-			data->orientation = g_strdup (fix_orientation (value));
 		} else if (!data->flash && g_ascii_strcasecmp (name, "Flash") == 0) {
 			data->flash = g_strdup (fix_flash (value));
 		} else if (!data->metering_mode && g_ascii_strcasecmp (name, "MeteringMode") == 0) {
@@ -371,6 +371,11 @@ iterate_simple (const gchar    *uri,
 			data->gps_longitude = gps_coordinate_dup (value);
 		} else if (!data->gps_direction && g_ascii_strcasecmp (name, "GPSImgDirection") == 0) {
 			data->gps_direction = div_str_dup (value);
+		}
+		/* TIFF */
+	} else if (g_ascii_strcasecmp (schema, NS_TIFF) == 0) {
+		if (!data->orientation && g_ascii_strcasecmp (name, "Orientation") == 0) {
+			data->orientation = g_strdup (fix_orientation (value));
 		}
 		/* PDF*/
 	} else if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
