@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2011-02-03T13:00:00Z" .
+	nao:lastModified "2011-08-16T11:00:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -484,6 +484,7 @@ nmo:deliveryStatus a rdf:Property ;
 nmo:delivery-status-sent a nmo:DeliveryStatus .
 nmo:delivery-status-delivered a nmo:DeliveryStatus .
 nmo:delivery-status-temporarily-failed a nmo:DeliveryStatus .
+nmo:delivery-status-temporarily-failed-offline a nmo:DeliveryStatus .
 nmo:delivery-status-permanently-failed a nmo:DeliveryStatus .
 
 
