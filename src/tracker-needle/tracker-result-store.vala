@@ -61,7 +61,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		set;
 	}
 
-	private Operation * find_operation (GenericArray<Operation> array, CategoryNode *node, int offset) {
+	private Operation? find_operation (GenericArray<Operation> array, CategoryNode node, int offset) {
 		Operation op;
 		int i;
 
@@ -436,7 +436,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		return n_columns + n_extra_columns;
 	}
 
+#if VALA_0_14
+	public Gtk.TreePath? get_path (Gtk.TreeIter iter) {
+#else
 	public Gtk.TreePath get_path (Gtk.TreeIter iter) {
+#endif
 		TreePath path = new TreePath ();
 		CategoryNode cat;
 		int i;
