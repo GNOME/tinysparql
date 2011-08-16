@@ -31,6 +31,8 @@ APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_TMP_DIR, "test-applications-monito
 CONF_OPTIONS = [
     (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [APPLICATIONS_TMP_DIR]),
     (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
+    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
+    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false")
     ]
 
 # Copy rate, 10KBps (1024b/100ms)

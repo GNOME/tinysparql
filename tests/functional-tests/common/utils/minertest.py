@@ -39,6 +39,8 @@ DEFAULT_TEXT = "Some stupid content, to have a test file"
 CONF_OPTIONS = [
     (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [os.path.join (BASEDIR, "test-monitored")]),
     (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
+    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
+    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false"),
     (cfg.DCONF_MINER_SCHEMA, "throttle", 5)
     ]
 

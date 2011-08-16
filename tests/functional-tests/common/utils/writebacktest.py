@@ -33,6 +33,8 @@ TEST_FILE_PNG = "writeback-test-4.png"
 CONF_OPTIONS = [
     (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [BASEDIR]),
     (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
+    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
+    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false")
     ]
 
 def uri (filename):
