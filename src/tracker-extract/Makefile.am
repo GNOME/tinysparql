@@ -37,7 +37,6 @@ rules_in_files = \
 	11-msoffice-xml.rule.in \
 	15-gstreamer-guess.rule.in \
 	15-playlist.rule.in \
-	15-real-media.rule.in \
 	90-gstreamer-generic.rule.in \
 	90-text-generic.rule.in \
 	92-xine-generic.rule.in \

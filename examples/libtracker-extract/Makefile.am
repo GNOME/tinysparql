@@ -30,6 +30,6 @@ rules_in_files = 01-mockup.rule.in
 noinstdir = $(datadir)/tracker/extract-rules
 noinst_DATA = 01-mockup.rule
 
-CLEANFILES = $(rules_DATA)
+CLEANFILES = $(noinst_DATA)
 
 EXTRA_DIST = $(rules_in_files)
