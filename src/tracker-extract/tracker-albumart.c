@@ -67,6 +67,26 @@ albumart_queue_cb (GObject      *source_object,
                    gpointer      user_data);
 
 
+static gchar *
+checksum_for_data (GChecksumType  checksum_type,
+                   const guchar  *data,
+                   gsize          length)
+{
+	GChecksum *checksum;
+	gchar *retval;
+
+	checksum = g_checksum_new (checksum_type);
+	if (!checksum) {
+		return NULL;
+	}
+
+	g_checksum_update (checksum, data, length);
+	retval = g_strdup (g_checksum_get_string (checksum));
+	g_checksum_free (checksum);
+
+	return retval;
+}
+
 static gboolean
 albumart_heuristic (const gchar *artist,
                     const gchar *album,
@@ -319,7 +339,51 @@ albumart_set (const unsigned char *buffer,
 
 	tracker_albumart_get_path (artist, album, "album", NULL, &local_path, NULL);
 
-	retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+	if (artist == NULL || g_strcmp0 (artist, " ") == 0) {
+		retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+	} else {
+		gchar *album_path;
+
+		tracker_albumart_get_path (" ", album, "album", NULL, &album_path, NULL);
+
+		if (!g_file_test (album_path, G_FILE_TEST_EXISTS)) {
+			retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, album_path);
+
+			if (retval && symlink(album_path, local_path) != 0) {
+				perror ("symlink() error");
+				retval = FALSE;
+			} else {
+				retval = TRUE;
+			}
+		} else {
+			gchar *contents = NULL;
+			gsize len2 = 0;
+
+			if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
+				gchar *sum1, *sum2;
+
+				sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
+				sum2 = checksum_for_data (G_CHECKSUM_MD5, contents, len2);
+
+				if (g_strcmp0 (sum1, sum2) == 0) {
+					if (symlink (album_path, local_path) != 0) {
+						perror ("symlink() error");
+						retval = FALSE;
+					} else {
+						retval = TRUE;
+					}
+				} else {
+					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+				}
+
+				g_free (sum1);
+				g_free (sum2);
+				g_free (contents);
+			}
+
+			g_free (album_path);
+		}
+	}
 
 	g_free (local_path);
 
