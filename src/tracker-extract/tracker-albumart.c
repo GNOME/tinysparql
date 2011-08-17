@@ -478,6 +478,9 @@ albumart_set (const unsigned char *buffer,
 		if (!g_file_test (album_path, G_FILE_TEST_EXISTS)) {
 			retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, album_path);
 
+			/* If album-space-md5.jpg doesn't exist, make one and make a symlink
+			 * to album-md5-md5.jpg */
+			
 			if (retval && symlink(album_path, local_path) != 0) {
 				perror ("symlink() error");
 				retval = FALSE;
@@ -494,6 +497,9 @@ albumart_set (const unsigned char *buffer,
 				sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
 				sum2 = checksum_for_data (G_CHECKSUM_MD5, contents, len2);
 
+				/* If album-space-md5.jpg is the same as buffer, make a symlink
+				 * to album-md5-md5.jpg */
+				
 				if (g_strcmp0 (sum1, sum2) == 0) {
 					if (symlink (album_path, local_path) != 0) {
 						perror ("symlink() error");
@@ -502,6 +508,8 @@ albumart_set (const unsigned char *buffer,
 						retval = TRUE;
 					}
 				} else {
+					/* If album-space-md5.jpg isn't the same as buffer, make a
+				 	 * new album-md5-md5.jpg */
 					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
 				}
 
