@@ -1,4 +1,57 @@
-NEW in 0.11.0 - 2011-06-07
+NEW in 0.11.2 - 2011-08-16
+==========================
+
+The changes are:
+
+  * Build: Bump tracker_api_version to 0.12 but keep major/miner as 0.11 (for so names)
+  * Build: New --with-gstreamer-backend=[tagreadbin,decodebin2,discoverer] switches
+  * Require: gstreamer-pbutils when using discoverer backend
+  * Removed: Helix extractor for Real Media (it's covered by the GStreamer extractor)
+  * Fixes: GB#655987, VAPI file lacks annotation for MinerManager
+  * Fixes: GB#655789, Some TrackerMinerManager methods lack introspection annotations
+  * Fixes: GB#655701, Fix build system for firefox/thunderbird plugins to work for packaging
+  * Fixes: GB#654441, Rename --enable-video-extractor to --enable-generic-media-extractor
+  * Fixes: NB#247468, Ontology missing for message delivery status when sending while remote contact is offline
+  * functional-tests: Disable optical and removable indexing for tests
+  * libtracker-extract: Don't install examples/ rules mock up
+  * libtracker-extract: Added some debugging to know what rules files are loaded
+  * tracker-extract: Make sure we check filtered modules for dbus calls too
+  * tracker-extract: Improve checks for mimetype guessing (didn't check empty strings)
+  * tracker-extract: Improve debugging for filtered modules and mime guessing
+  * tracker-extract: Fix --force-module for commandline extraction
+  * tracker-extract: Make JPEG module handle DLNA profiles
+  * tracker-extract: Make PNG module handle DLNA profiles
+  * tracker-extract: Make MP3 module handle DLNA profiles
+  * tracker-extract: Let gstreamer extractor handle 'dlna/*' mimetypes
+  * tracker-extract-gstreamer: Compiler warning fixes and code refactoring
+  * tracker-extract-gstreamer: Assume UTC for dates
+  * tracker-miner-fs: Disable writeback by default (was enabled accidentally)
+  * tracker-miner-flickr: Remove deprecated Encoding key in desktop file
+  * tracker-needle: Avoid g_markup_escape_text() critical with NULL
+  * tracker-needle: Show email subject as primary information not sender
+  * tracker-needle: Fix build with Vala master
+  * thunderbird: Add desktop file so needle opens email on activation
+  * thunderbird: Use asynchronous connection opening to avoid blocking the UI
+  * thunderbird: Don't break on consecutive make installs, use -f with ln
+  * firefox: Use asynchronous connection opening to avoid blocking the UI
+  * firefox: Raise compatibility level to 5.0.*
+  * firefox: Don't break on consecutive make installs, use -f with ln
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated es: Daniel Mustieles
+  * Updated ru: Yuri Myasoedov
+  * Updated sl: Andrej Žnidaršič
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  None
+
+
+NEW in 0.11.1 - 2011-08-01
 ==========================
 
 The changes are:
