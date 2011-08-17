@@ -121,6 +121,8 @@ convert_from_other_format (const gchar *found,
 				} else {
 					retval = TRUE;
 				}
+
+				g_unlink (target_temp);
 			} else {
 				/* If album-space-md5.jpg isn't the same as found,
 			 	 * make a new album-md5-md5.jpg (found -> target) */
