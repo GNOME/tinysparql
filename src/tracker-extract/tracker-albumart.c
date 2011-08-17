@@ -92,7 +92,67 @@ convert_from_other_format (const gchar *found,
                            const gchar *target,
                            const gchar *album_path)
 {
-	return FALSE;
+	gboolean retval;
+	gchar *buffer;
+	gsize len;
+	gchar *target_temp;
+
+	target_temp = g_strdup_printf ("%s-tmp", target);
+
+	retval = tracker_albumart_file_to_jpeg (found, target_temp);
+
+	if (retval && g_file_get_contents (target_temp, &buffer, &len, NULL)) {
+		gchar *contents = NULL;
+		gsize len2 = 0;
+
+		if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
+			gchar *sum1, *sum2;
+								
+			sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
+			sum2 = checksum_for_data (G_CHECKSUM_MD5, contents, len2);
+
+			if (g_strcmp0 (sum1, sum2) == 0) {
+				/* If album-space-md5.jpg is the same as found,
+			 	 * make a symlink */
+							
+				if (symlink (album_path, target) != 0) {
+					perror ("symlink() error");
+					retval = FALSE;
+				} else {
+					retval = TRUE;
+				}
+			} else {
+				/* If album-space-md5.jpg isn't the same as found,
+			 	 * make a new album-md5-md5.jpg (found -> target) */
+										
+				g_rename (target_temp, album_path);
+			}
+
+			g_free (contents);
+		} else {
+			/* If there's not yet a album-space-md5.jpg, make one,
+		 	 * and symlink album-md5-md5.jpg to it */
+									
+			g_rename (target_temp, album_path);
+						
+			if (symlink (album_path, target) != 0) {
+				perror ("symlink() error");
+				retval = FALSE;
+			} else {
+				retval = TRUE;
+			}
+
+		}
+
+		g_free (buffer);
+	} else if (retval) {
+		/* Can't read the file that it was converted to, strange ... */
+		g_unlink (target_temp);
+	}
+
+	g_free (target_temp);
+
+	return retval;
 }
 
 static gboolean
