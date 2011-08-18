@@ -1,3 +1,28 @@
+NEW in 0.10.23 - 2011-08-18
+===========================
+
+The changes are:
+
+  * Fixes: NB#247468, Ontology missing for message delivery status when sending while remote contact is offline
+  * Fixes: NB#259325, Tracker doesn't validate album art image files.
+  * Fixes: NB#270977, Add convenient way to delete single-valued properties using IoR
+  * Fixes: NB#256958, Desktop files saved under user XDG directories are not found
+  * tracker-extract-gstreamer: Compiler warning fixes and code refactoring
+  * tracker-needle: Avoid g_markup_escape_text() critical with NULL
+  * tracker-needle: Show email subject as primary information not sender
+  * tracker-needle: Fix build with Vala master
+
+Translations:
+
+  * Updated de: Christian Kirbach
+  * Updated ru: Yuri Myasoedov
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  None
+
+
 NEW in 0.10.22 - 2011-08-05
 ===========================
 
