@@ -135,6 +135,7 @@ typedef struct {
 	GUPnPDLNADiscoverer  *discoverer;
 	GUPnPDLNAInformation *dlna_info;
 	const gchar          *dlna_profile;
+	const gchar          *dlna_mime;
 #endif
 
 #if defined(GSTREAMER_BACKEND_DISCOVERER) || \
@@ -894,6 +895,13 @@ common_extract_stream_metadata (MetadataExtractor    *extractor,
 	} else {
 		g_debug ("No DLNA profile for file '%s'", uri);
 	}
+
+	if (extractor->dlna_mime) {
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
+		tracker_sparql_builder_object_string (metadata, extractor->dlna_mime);
+	} else {
+		g_debug ("No DLNA mime for file '%s'", uri);
+	}
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 }
 
@@ -970,6 +978,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 
 	/* Get DLNA profile */
 	extractor->dlna_profile = gupnp_dlna_information_get_name (extractor->dlna_info);
+	extractor->dlna_mime = gupnp_dlna_information_get_mime (extractor->dlna_info);
 
 	info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (extractor->dlna_info);
 #else  /* GSTREAMER_BACKEND_GUPNP_DLNA */

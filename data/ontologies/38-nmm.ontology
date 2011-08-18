@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2011-06-10T16:59:00Z" .
+	nao:lastModified "2011-08-19T13:05:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -526,6 +526,13 @@ nmm:alternativeMedia a rdf:Property ;
 nmm:dlnaProfile a rdf:Property ;
 	rdfs:label "DLNA profile" ;
 	rdfs:comment "DLNA profile of the content, like MP3, MPEG_TS_HD_US, LPCM etc" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
+nmm:dlnaMime a rdf:Property ;
+	rdfs:label "DLNA mimetype" ;
+	rdfs:comment "Mimetypes as defined for DLNA (occasional differences compared to xdg-mime)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string .
