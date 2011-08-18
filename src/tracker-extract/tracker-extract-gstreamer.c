@@ -88,10 +88,6 @@
 #define GST_TAG_FRAMERATE "framerate"
 #endif
 
-#ifndef GST_TAG_DEVICE_MAKE
-#define GST_TAG_DEVICE_MAKE "device-make"
-#endif
-
 typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
@@ -407,7 +403,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **scount)
 {
 	const gchar *temp;
-	gchar *make = NULL, *model = NULL, *manuf = NULL;
+	gchar *model = NULL, *manuf = NULL;
 	gchar *composer = NULL, *albumname = NULL, *genre = NULL;
 	gboolean needs_audio = FALSE;
 
@@ -658,14 +654,13 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MODEL, &model);
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MAKE, &make);
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MANUFACTURER, &manuf);
 
-		if (make || model || manuf) {
+		if (model || manuf) {
 			gchar *equip_uri;
 
 			equip_uri = tracker_sparql_escape_uri_printf ("urn:equipment:%s:%s:",
-			                                              manuf ? manuf : make ? make : "",
+			                                              manuf ? manuf : "",
 			                                              model ? model : "");
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
@@ -673,9 +668,9 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_predicate (preupdate, "a");
 			tracker_sparql_builder_object (preupdate, "nfo:Equipment");
 
-			if (make || manuf) {
+			if (manuf) {
 				tracker_sparql_builder_predicate (preupdate, "nfo:manufacturer");
-				tracker_sparql_builder_object_unvalidated (preupdate, manuf ? manuf : make);
+				tracker_sparql_builder_object_unvalidated (preupdate, manuf);
 			}
 			if (model) {
 				tracker_sparql_builder_predicate (preupdate, "nfo:model");
@@ -688,7 +683,6 @@ extract_metadata (MetadataExtractor      *extractor,
 			g_free (equip_uri);
 		}
 
-		g_free (make);
 		g_free (model);
 		g_free (manuf);
 
