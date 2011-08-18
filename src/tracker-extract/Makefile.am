@@ -313,16 +313,21 @@ libextract_pdf_la_LIBADD = \
 	$(POPPLER_LIBS)
 
 # GStreamer
-libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c
+libextract_gstreamer_la_SOURCES = \
+	tracker-extract-gstreamer.c \
+	tracker-cue-sheet.h \
+	tracker-cue-sheet.c
 libextract_gstreamer_la_CFLAGS = \
 	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
-	$(GSTREAMER_CFLAGS)
+	$(GSTREAMER_CFLAGS) \
+	$(LIBCUE_CFLAGS)
 libextract_gstreamer_la_LDFLAGS = $(module_flags)
 libextract_gstreamer_la_LIBADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(GSTREAMER_LIBS)
+	$(GSTREAMER_LIBS) \
+	$(LIBCUE_LIBS)
 
 # GStreamer with GUPnP-DLNA backend?
 if HAVE_GUPNP_DLNA

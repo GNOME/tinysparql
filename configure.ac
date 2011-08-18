@@ -2032,6 +2032,39 @@ fi
 AM_CONDITIONAL(HAVE_LIBFLAC, test "x$have_libflac" = "xyes")
 
 ####################################################################
+# Check for tracker-extract-gstreamer: libcue
+####################################################################
+
+AC_ARG_ENABLE(libcue,
+              AS_HELP_STRING([--enable-libcue],
+                             [enable external cuesheet parsing  [[default=auto]]]),,
+              [enable_libcue=auto])
+
+if test "x$enable_libcue" != "xno" ; then
+   PKG_CHECK_MODULES(LIBCUE,
+                     [libcue],
+                     [have_libcue=yes],
+                     [have_libcue=no])
+
+   AC_SUBST(LIBCUE_CFLAGS)
+   AC_SUBST(LIBCUE_LIBS)
+
+   if test "x$have_libcue" = "xyes"; then
+      AC_DEFINE(HAVE_LIBCUE, [], [Define if we have libcue])
+   fi
+else
+   have_libcue="no  (disabled)"
+fi
+
+if test "x$enable_libcue" = "xyes"; then
+   if test "x$have_libcue" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libcue.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBCUE, test "x$have_libcue" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2308,6 +2341,7 @@ Metadata Extractors:
 	Support embedded / sidecar XMP:         $have_exempi
 	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
 	Support MP3 album art:                  $selected_for_albumart
+	Support cue sheet parsing:              $have_libcue
 	Support playlists (w/ Totem):           $have_playlist
 
 Data Miners:
