@@ -106,14 +106,44 @@ miner_applications_initable_iface_init (GInitableIface *iface)
 	iface->init = miner_applications_initable_init;
 }
 
+static void
+miner_applications_basedir_add (TrackerMinerFS *fs,
+                                const gchar    *basedir)
+{
+	GFile *file;
+	gchar *path;
+
+	/* Add $dir/applications */
+	path = g_build_filename (basedir, "applications", NULL);
+	file = g_file_new_for_path (path);
+	g_message ("  Adding:'%s'", path);
+	tracker_miner_fs_directory_add (fs, file, TRUE);
+	g_object_unref (file);
+	g_free (path);
+
+	/* Add $dir/desktop-directories */
+	path = g_build_filename (basedir, "desktop-directories", NULL);
+	file = g_file_new_for_path (path);
+	g_message ("  Adding:'%s'", path);
+	tracker_miner_fs_directory_add (fs, file, TRUE);
+	g_object_unref (file);
+	g_free (path);
+}
+
 static gboolean
 miner_applications_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
                                   GError       **error)
 {
 	TrackerMinerFS *fs;
-	GFile *file;
 	GError *inner_error = NULL;
+#ifdef HAVE_MEEGOTOUCH
+	GFile *file;
+	const gchar *path;
+#endif /* HAVE_MEEGOTOUCH */
+	const gchar * const *xdg_dirs;
+	const gchar *user_data_dir;
+	gint i;
 
 	fs = TRACKER_MINER_FS (initable);
 
@@ -123,22 +153,36 @@ miner_applications_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	file = g_file_new_for_path ("/usr/share/applications/");
-	tracker_miner_fs_directory_add (fs, file, TRUE);
-	g_object_unref (file);
+	g_message ("Setting up applications to iterate from XDG system directories");
 
-	file = g_file_new_for_path ("/usr/share/desktop-directories/");
-	tracker_miner_fs_directory_add (fs, file, TRUE);
-	g_object_unref (file);
+	/* Add all XDG system and local dirs */
+	xdg_dirs = g_get_system_data_dirs ();
+
+	for (i = 0; xdg_dirs[i]; i++) {
+		miner_applications_basedir_add (fs, xdg_dirs[i]);
+	}
+
+	g_message ("Setting up applications to iterate from XDG user directories");
+
+	user_data_dir = g_get_user_data_dir ();
+	if (user_data_dir) {
+		miner_applications_basedir_add (fs, user_data_dir);
+	}
 
 #ifdef HAVE_MEEGOTOUCH
-	file = g_file_new_for_path ("/usr/lib/duicontrolpanel/");
+	/* NOTE: We don't use miner_applications_basedir_add() for
+	 * this location because it is unique to MeeGoTouch.
+	 */
+	path = "/usr/lib/duicontrolpanel/";
+
+	g_message ("Setting up applications to iterate from MeegoTouch directories");
+	g_message ("  Adding:'%s'", path);
+
+	file = g_file_new_for_path (path);
 	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 	tracker_miner_applications_meego_init ();
 #endif /* HAVE_MEEGOTOUCH */
-
-	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
 
 	return TRUE;
 }
