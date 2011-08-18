@@ -110,14 +110,14 @@ convert_from_other_format (const gchar *found,
 
 		if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
 			gchar *sum1, *sum2;
-								
+
 			sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
 			sum2 = checksum_for_data (G_CHECKSUM_MD5, contents, len2);
 
 			if (g_strcmp0 (sum1, sum2) == 0) {
 				/* If album-space-md5.jpg is the same as found,
-			 	 * make a symlink */
-							
+				 * make a symlink */
+
 				if (symlink (album_path, target) != 0) {
 					perror ("symlink() error");
 					retval = FALSE;
@@ -128,18 +128,18 @@ convert_from_other_format (const gchar *found,
 				g_unlink (target_temp);
 			} else {
 				/* If album-space-md5.jpg isn't the same as found,
-			 	 * make a new album-md5-md5.jpg (found -> target) */
-										
+				 * make a new album-md5-md5.jpg (found -> target) */
+
 				g_rename (target_temp, album_path);
 			}
 
 			g_free (contents);
 		} else {
 			/* If there's not yet a album-space-md5.jpg, make one,
-		 	 * and symlink album-md5-md5.jpg to it */
-									
+			 * and symlink album-md5-md5.jpg to it */
+
 			g_rename (target_temp, album_path);
-						
+
 			if (symlink (album_path, target) != 0) {
 				perror ("symlink() error");
 				retval = FALSE;
@@ -303,7 +303,7 @@ albumart_heuristic (const gchar *artist,
 				gchar *found;
 
 				found = g_build_filename (dirname, name, NULL);
-					
+
 				if (g_str_has_suffix (name_strdown, "jpeg") ||
 				    g_str_has_suffix (name_strdown, "jpg")) {
 
@@ -345,7 +345,7 @@ albumart_heuristic (const gchar *artist,
 								retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &error);
 								g_clear_error (&error);
 								g_object_unref (found_file);
-								g_object_unref (target_file);								
+								g_object_unref (target_file);
 							} else if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
 								gchar *sum1, *sum2;
 
@@ -355,7 +355,7 @@ albumart_heuristic (const gchar *artist,
 								if (g_strcmp0 (sum1, sum2) == 0) {
 									/* If album-space-md5.jpg is the same as found,
 									 * make a symlink */
-									
+
 									if (symlink (album_path, target) != 0) {
 										perror ("symlink() error");
 										retval = FALSE;
@@ -385,7 +385,7 @@ albumart_heuristic (const gchar *artist,
 
 								/* If there's not yet a album-space-md5.jpg, make one,
 								 * and symlink album-md5-md5.jpg to it */
-								
+
 								file = g_file_new_for_path (album_path);
 								found_file = g_file_new_for_path (found);
 								retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
@@ -401,7 +401,7 @@ albumart_heuristic (const gchar *artist,
 									g_clear_error (&error);
 									retval = FALSE;
 								}
-									
+
 								g_object_unref (found_file);
 								g_object_unref (file);
 							}
@@ -496,7 +496,7 @@ albumart_set (const unsigned char *buffer,
 
 			/* If album-space-md5.jpg doesn't exist, make one and make a symlink
 			 * to album-md5-md5.jpg */
-			
+
 			if (retval && symlink(album_path, local_path) != 0) {
 				perror ("symlink() error");
 				retval = FALSE;
@@ -515,7 +515,7 @@ albumart_set (const unsigned char *buffer,
 
 				/* If album-space-md5.jpg is the same as buffer, make a symlink
 				 * to album-md5-md5.jpg */
-				
+
 				if (g_strcmp0 (sum1, sum2) == 0) {
 					if (symlink (album_path, local_path) != 0) {
 						perror ("symlink() error");
@@ -525,7 +525,7 @@ albumart_set (const unsigned char *buffer,
 					}
 				} else {
 					/* If album-space-md5.jpg isn't the same as buffer, make a
-				 	 * new album-md5-md5.jpg */
+					 * new album-md5-md5.jpg */
 					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
 				}
 
