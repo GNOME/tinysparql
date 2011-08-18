@@ -90,7 +90,8 @@ checksum_for_data (GChecksumType  checksum_type,
 static gboolean
 convert_from_other_format (const gchar *found,
                            const gchar *target,
-                           const gchar *album_path)
+                           const gchar *album_path,
+                           const gchar *artist)
 {
 	gboolean retval;
 	gchar *buffer;
@@ -101,7 +102,9 @@ convert_from_other_format (const gchar *found,
 
 	retval = tracker_albumart_file_to_jpeg (found, target_temp);
 
-	if (retval && g_file_get_contents (target_temp, &buffer, &len, NULL)) {
+	if (retval && (artist == NULL || g_strcmp0 (artist, " "))) {
+		g_rename (target_temp, album_path);
+	} else if (retval && g_file_get_contents (target_temp, &buffer, &len, NULL)) {
 		gchar *contents = NULL;
 		gsize len2 = 0;
 
@@ -333,7 +336,17 @@ albumart_heuristic (const gchar *artist,
 
 							g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
 
-							if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
+							if (artist == NULL || g_strcmp0 (artist, " ") == 0) {
+								GFile *found_file;
+								GFile *target_file;
+
+								target_file = g_file_new_for_path (target);
+								found_file = g_file_new_for_path (found);
+								retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &error);
+								g_clear_error (&error);
+								g_object_unref (found_file);
+								g_object_unref (target_file);								
+							} else if (g_file_get_contents (album_path, &contents, &len2, NULL)) {
 								gchar *sum1, *sum2;
 
 								sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
@@ -394,7 +407,7 @@ albumart_heuristic (const gchar *artist,
 							}
 						} else {
 							g_debug ("Album art found in same directory but not a real JPEG file (trying to convert):'%s'", found);
-							retval = convert_from_other_format (found, target, album_path);
+							retval = convert_from_other_format (found, target, album_path, artist);
 						}
 						g_free (buffer);
 					} else {
@@ -421,7 +434,7 @@ albumart_heuristic (const gchar *artist,
 					}
 
 					g_debug ("Album art (PNG) found in same directory being used:'%s'", found);
-					retval = convert_from_other_format (found, target, album_path);
+					retval = convert_from_other_format (found, target, album_path, artist);
 				}
 
 				g_free (found);
