@@ -412,6 +412,7 @@ albumart_heuristic (const gchar *artist,
 						g_free (buffer);
 					} else {
 						/* Can't read contents of the cover.jpg file ... */
+						retval = FALSE;
 					}
 				} else if (g_str_has_suffix (name_strdown, "png")) {
 
