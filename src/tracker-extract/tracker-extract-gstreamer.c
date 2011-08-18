@@ -69,14 +69,6 @@
 #define GST_TAG_FRAMERATE "framerate"
 #endif
 
-#ifndef GST_TAG_DEVICE_MODEL
-#define GST_TAG_DEVICE_MODEL "device-model"
-#endif
-
-#ifndef GST_TAG_DEVICE_MANUFACTURER
-#define GST_TAG_DEVICE_MANUFACTURER "device-manufacturer"
-#endif
-
 #ifndef GST_TAG_DEVICE_MAKE
 #define GST_TAG_DEVICE_MAKE "device-make"
 #endif
