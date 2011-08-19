@@ -700,9 +700,13 @@ extract_gupnp_dlna (const gchar          *uri,
 
 	gst_init (NULL, NULL);
 
+	extractor.content = CONTENT_NONE;
+
 	extractor.has_image = FALSE;
 	extractor.has_video = FALSE;
 	extractor.has_audio = FALSE;
+
+	extractor.dnla_profile = NULL;
 
 	extractor.tags = NULL;
 
@@ -710,11 +714,9 @@ extract_gupnp_dlna (const gchar          *uri,
 	extractor.height = 0;
 	extractor.frame_rate = 0;
 	extractor.aspect_ratio = 0;
-
 	extractor.sample_rate = 0;
 	extractor.bitrate = 0;
 	extractor.channels = 0;
-
 	extractor.duration = 0;
 
 	extractor.is_content_encrypted = FALSE;
