@@ -173,7 +173,7 @@ convert_from_other_format (const gchar *found,
 
 	retval = tracker_albumart_file_to_jpeg (found, target_temp);
 
-	if (retval && (artist == NULL || g_strcmp0 (artist, " "))) {
+	if (retval && (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
 		g_rename (target_temp, album_path);
 	} else if (retval && file_get_checksum_if_exists (G_CHECKSUM_MD5, target_temp, &sum1, FALSE, NULL)) {
 		gchar *sum2 = NULL;
@@ -191,7 +191,7 @@ convert_from_other_format (const gchar *found,
 				}
 
 				g_unlink (target_temp);
-				g_free (sum2);
+
 			} else {
 
 				/* If album-space-md5.jpg isn't the same as found,
