@@ -400,14 +400,12 @@ extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *file_url,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *metadata,
-                  gchar                 **artist,
-                  gchar                 **album,
-                  gchar                 **scount,
+                  gchar                 **album_artist,
+                  gchar                 **album_title,
                   const gchar            *graph)
 {
-	const gchar *temp;
 	gchar *model = NULL, *manuf = NULL;
-	gchar *composer = NULL, *albumname = NULL, *genre = NULL;
+	gchar *album_title_local = NULL, *genre = NULL;
 
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (metadata != NULL);
@@ -416,6 +414,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *artist_uri = NULL;
 		gchar *performer_uri = NULL;
 		gchar *composer_uri = NULL;
+		gchar *album_artist_uri = NULL;
 		gchar *album_uri = NULL;
 		gchar *album_disc_uri = NULL;
 		gchar *s;
@@ -458,35 +457,21 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		/* General */
 		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
-			gchar *performer = NULL, *artist_local = NULL;
+			const gchar *performer = NULL;
+			gchar *performer_temp = NULL;
+			gchar *artist_temp = NULL;
+			gchar *composer = NULL;
+			gchar *album_artist_local = NULL;
 
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_local);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer_temp);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_temp);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &composer);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM_ARTIST, &album_artist_local);
 
-			if (artist_local) {
-				artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist_local);
+			performer = tracker_coalesce_strip (2, performer_temp, artist_temp);
 
-				tracker_sparql_builder_insert_open (preupdate, NULL);
-				if (graph) {
-					tracker_sparql_builder_graph_open (preupdate, graph);
-				}
-
-				tracker_sparql_builder_subject_iri (preupdate, artist_uri);
-				tracker_sparql_builder_predicate (preupdate, "a");
-				tracker_sparql_builder_object (preupdate, "nmm:Artist");
-				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (preupdate, artist_local);
-
-				if (graph) {
-					tracker_sparql_builder_graph_close (preupdate);
-				}
-				tracker_sparql_builder_insert_close (preupdate);
-			}
-
-			temp = tracker_coalesce_strip (2, performer, artist_local);
-
-			if (temp) {
-				performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", temp);
+			if (performer != NULL) {
+				performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", performer);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				if (graph) {
@@ -497,23 +482,17 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (preupdate, "a");
 				tracker_sparql_builder_object (preupdate, "nmm:Artist");
 				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (preupdate, temp);
+				tracker_sparql_builder_object_unvalidated (preupdate, performer);
 
 				if (graph) {
 					tracker_sparql_builder_graph_close (preupdate);
 				}
 				tracker_sparql_builder_insert_close (preupdate);
-
-				*artist = g_strdup (temp);
 			}
 
-			g_free (performer);
-			g_free (artist_local);
-
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &composer);
-
-			if (composer) {
+			if (composer != NULL) {
 				composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", composer);
+
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				if (graph) {
 					tracker_sparql_builder_graph_open (preupdate, graph);
@@ -529,22 +508,51 @@ extract_metadata (MetadataExtractor      *extractor,
 					tracker_sparql_builder_graph_close (preupdate);
 				}
 				tracker_sparql_builder_insert_close (preupdate);
-				g_free (composer);
 			}
 
+			if (album_artist_local != NULL) {
+				album_artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", album_artist_local);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+				if (graph) {
+					tracker_sparql_builder_graph_open (preupdate, graph);
+				}
+
+				tracker_sparql_builder_subject_iri (preupdate, album_artist_uri);
+				tracker_sparql_builder_predicate (preupdate, "a");
+				tracker_sparql_builder_object (preupdate, "nmm:Artist");
+				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (preupdate, album_artist_local);
+
+				if (graph) {
+					tracker_sparql_builder_graph_close (preupdate);
+				}
+				tracker_sparql_builder_insert_close (preupdate);
+
+				*album_artist = g_strdup (album_artist_local);
+			} else if (performer != NULL) {
+				album_artist_uri = g_strdup (performer_uri);
+
+				*album_artist = g_strdup (performer);
+			}
+
+			g_free (performer_temp);
+			g_free (artist_temp);
+			g_free (composer);
+			g_free (album_artist_local);
 		}
 
 		/* Audio */
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &albumname);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &album_title_local);
 		}
 
-		if (albumname) {
+		if (album_title_local) {
 			gboolean has_it;
 			guint count;
 
-			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", albumname);
+			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title_local);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
 			if (graph) {
@@ -558,11 +566,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			 * tracker_sparql_builder_predicate (preupdate, "nie:title");
 			 */
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
-			tracker_sparql_builder_object_unvalidated (preupdate, albumname);
+			tracker_sparql_builder_object_unvalidated (preupdate, album_title_local);
 
-			if (artist_uri) {
+			if (album_artist_uri) {
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
-				tracker_sparql_builder_object_iri (preupdate, artist_uri);
+				tracker_sparql_builder_object_iri (preupdate, album_artist_uri);
 			}
 
 			if (graph) {
@@ -606,7 +614,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			                                &count);
 
 			album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-			                                                   albumname,
+			                                                   album_title_local,
 			                                                   has_it ? count : 1);
 
 			tracker_sparql_builder_delete_open (preupdate, NULL);
@@ -652,8 +660,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			replace_double_gst_tag (preupdate, album_uri, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN, graph);
 			replace_double_gst_tag (preupdate, album_uri, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK, graph);
 
-			*album = albumname;
-
+			*album_title = album_title_local;
 		}
 
 		tracker_sparql_builder_predicate (metadata, "a");
@@ -758,13 +765,6 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
-			guint count;
-
-			/* Audio */
-			if (gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count)) {
-				*scount = g_strdup_printf ("%d", count);
-			}
-
 			add_uint_gst_tag   (metadata, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
 
 			add_double_gst_tag (metadata, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
@@ -795,7 +795,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (composer_uri);
 		g_free (album_uri);
 		g_free (album_disc_uri);
-		g_free (artist_uri);
+		g_free (album_artist_uri);
 
 		add_string_gst_tag (metadata, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
@@ -1598,7 +1598,7 @@ tracker_extract_gstreamer (const gchar          *uri,
                            const gchar          *graph)
 {
 	MetadataExtractor *extractor;
-	gchar *artist, *album, *scount;
+	gchar *album_artist, *album_title;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -1623,22 +1623,20 @@ tracker_extract_gstreamer (const gchar          *uri,
 		return;
 #endif
 
-	album = NULL;
-	scount = NULL;
-	artist = NULL;
+	album_artist = NULL;
+	album_title = NULL;
 
-	extract_metadata (extractor, uri, preupdate, metadata, &artist, &album, &scount, graph);
+	extract_metadata (extractor, uri, preupdate, metadata, &album_artist, &album_title, graph);
 
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
 	                          extractor->album_art_mime,
-	                          artist,
-	                          album,
+	                          album_artist,
+	                          album_title,
 	                          uri);
 
-	g_free (scount);
-	g_free (album);
-	g_free (artist);
+	g_free (album_artist);
+	g_free (album_title);
 
 	gst_tag_list_free (extractor->tagcache);
 
