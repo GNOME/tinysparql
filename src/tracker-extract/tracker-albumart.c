@@ -567,32 +567,65 @@ albumart_set (const unsigned char *buffer,
 			}
 		} else {
 			gchar *sum2 = NULL;
-
+			
 			if (file_get_checksum_if_exists (G_CHECKSUM_MD5, album_path, &sum2, FALSE, NULL)) {
-				gchar *sum1;
+				if ( !(g_strcmp0 (mime, "image/jpeg") == 0 || g_strcmp0 (mime, "JPG") == 0) ||
+			       ( !(len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) )) {
+					gchar *sum1 = NULL;
+					gchar *temp = g_strdup_printf ("%s-tmp", album_path);
 
-				sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
+					/* If buffer isn't a JPEG */
 
-				/* If album-space-md5.jpg is the same as buffer, make a symlink
-				 * to album-md5-md5.jpg */
+					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, temp);
 
-				if (g_strcmp0 (sum1, sum2) == 0) {
-					if (symlink (album_path, local_path) != 0) {
-						perror ("symlink() error");
-						retval = FALSE;
+					if (retval && file_get_checksum_if_exists (G_CHECKSUM_MD5, temp, &sum1, FALSE, NULL)) {
+						if (g_strcmp0 (sum1, sum2) == 0) {
+
+							/* If album-space-md5.jpg is the same as buffer, make a symlink
+							 * to album-md5-md5.jpg */
+
+							g_unlink (temp);
+							if (symlink (album_path, local_path) != 0) {
+								perror ("symlink() error");
+								retval = FALSE;
+							} else {
+								retval = TRUE;
+							}
+						} else {
+							/* If album-space-md5.jpg isn't the same as buffer, make a
+							 * new album-md5-md5.jpg */
+							g_rename (temp, local_path);
+						}
+						g_free (sum1);
 					} else {
-						retval = TRUE;
+						/* Can't read temp file ... */
+						g_unlink (temp);
 					}
-				} else {
-					/* If album-space-md5.jpg isn't the same as buffer, make a
-					 * new album-md5-md5.jpg */
-					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
-				}
 
-				g_free (sum1);
+					g_free (temp);
+				} else {
+					gchar *sum1 = NULL;
+
+					sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
+					/* If album-space-md5.jpg is the same as buffer, make a symlink
+				 	 * to album-md5-md5.jpg */
+
+					if (g_strcmp0 (sum1, sum2) == 0) {
+						if (symlink (album_path, local_path) != 0) {
+							perror ("symlink() error");
+							retval = FALSE;
+						} else {
+							retval = TRUE;
+						}
+					} else {
+						/* If album-space-md5.jpg isn't the same as buffer, make a
+						 * new album-md5-md5.jpg */
+						retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+					}
+					g_free (sum1);
+				}
 				g_free (sum2);
 			}
-
 			g_free (album_path);
 		}
 	}
