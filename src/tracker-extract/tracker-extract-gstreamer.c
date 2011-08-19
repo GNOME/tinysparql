@@ -786,16 +786,15 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	if (!gst_tag_list_is_empty (extractor->tagcache)) {
-		gchar *performer_uri = NULL;
-		gchar *composer_uri = NULL;
-		gchar *album_artist_uri = NULL;
-		gchar *album_uri = NULL;
-		gchar *album_disc_uri = NULL;
+	if (extractor->mime == EXTRACT_MIME_GUESS && extractor->tagcache)
+		extractor_guess_content_type (extractor);
 
-		if (extractor->mime == EXTRACT_MIME_GUESS)
-			extractor_guess_content_type (extractor);
-
+	if (extractor->mime == EXTRACT_MIME_GUESS) {
+		g_warning ("Cannot guess real stream type if no tags were read! "
+		           "Defaulting to Video.");
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nmm:Video");
+	} else {
 		tracker_sparql_builder_predicate (metadata, "a");
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
@@ -812,6 +811,14 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
 			}
 		}
+	}
+
+	if (!gst_tag_list_is_empty (extractor->tagcache)) {
+		gchar *performer_uri = NULL;
+		gchar *composer_uri = NULL;
+		gchar *album_artist_uri = NULL;
+		gchar *album_uri = NULL;
+		gchar *album_disc_uri = NULL;
 
 		extractor_apply_general_metadata (extractor,
 		                                  file_url,
@@ -852,28 +859,6 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (album_uri);
 		g_free (album_disc_uri);
 		g_free (album_artist_uri);
-	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
-		g_warning ("Cannot guess real stream type if no tags were read! "
-		           "Defaulting to Video.");
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nmm:Video");
-	} else {
-		tracker_sparql_builder_predicate (metadata, "a");
-
-		if (extractor->mime == EXTRACT_MIME_AUDIO) {
-			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
-			tracker_sparql_builder_object (metadata, "nfo:Audio");
-		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
-			tracker_sparql_builder_object (metadata, "nmm:Video");
-		} else {
-			tracker_sparql_builder_object (metadata, "nfo:Image");
-
-			if (extractor->mime != EXTRACT_MIME_SVG) {
-				tracker_sparql_builder_object (metadata, "nmm:Photo");
-			} else {
-				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
-			}
-		}
 	}
 
 	/* If content was encrypted, set it. */
