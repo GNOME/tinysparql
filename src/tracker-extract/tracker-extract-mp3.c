@@ -2146,6 +2146,21 @@ extract_mp3 (const gchar          *uri,
 
 	g_free (id3v1_buffer);
 
+	if (md.id3v1.encoding != NULL) {
+		gchar *locale;
+
+		locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+		if (!g_str_has_prefix (locale, "ru") &&
+		    !g_str_has_prefix (locale, "uk")) {
+			/* use guessed encoding for ID3v2 tags only in selected locales
+			   where broken ID3v2 is widespread */
+			g_free (md.id3v1.encoding);
+			md.id3v1.encoding = NULL;
+		}
+		g_free (locale);
+		locale = NULL;
+	}
+
 	/* Get other embedded tags */
 	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
