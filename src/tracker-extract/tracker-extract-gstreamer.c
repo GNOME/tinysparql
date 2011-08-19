@@ -414,7 +414,6 @@ extract_metadata (MetadataExtractor      *extractor,
 	const gchar *temp;
 	gchar *model = NULL, *manuf = NULL;
 	gchar *composer = NULL, *albumname = NULL, *genre = NULL;
-	gboolean needs_audio = FALSE;
 
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (metadata != NULL);
@@ -551,8 +550,6 @@ extract_metadata (MetadataExtractor      *extractor,
 			gboolean has_it;
 			guint count;
 
-			needs_audio = TRUE;
-
 			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", albumname);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
@@ -665,19 +662,14 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		}
 
-		if (extractor->mime == EXTRACT_MIME_AUDIO)
-			needs_audio = TRUE;
-
 		tracker_sparql_builder_predicate (metadata, "a");
 
-		if (needs_audio) {
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
-		}
-
-		if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
-		} else if (!needs_audio) {
+		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
 			if (extractor->mime != EXTRACT_MIME_SVG) {
@@ -765,7 +757,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			add_keywords_gst_tag (metadata, extractor->tagcache);
 		}
 
-		if (needs_audio) {
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			guint count;
 
 			/* Audio */
@@ -812,19 +804,14 @@ extract_metadata (MetadataExtractor      *extractor,
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nmm:Video");
 	} else {
-		if (extractor->mime == EXTRACT_MIME_AUDIO)
-			needs_audio = TRUE;
-
 		tracker_sparql_builder_predicate (metadata, "a");
 
-		if (needs_audio) {
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
-		}
-
-		if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
-		} else if (!needs_audio) {
+		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
 			if (extractor->mime != EXTRACT_MIME_SVG) {
