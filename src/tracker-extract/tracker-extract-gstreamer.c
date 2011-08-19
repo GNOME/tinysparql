@@ -853,14 +853,14 @@ common_extract_stream_metadata (MetadataExtractor    *extractor,
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
 	} else {
-		g_debug ("No DLNA profile for file '%s'", uri);
+		g_debug ("No DLNA profile found");
 	}
 
 	if (extractor->dlna_mime) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
 		tracker_sparql_builder_object_string (metadata, extractor->dlna_mime);
 	} else {
-		g_debug ("No DLNA mime for file '%s'", uri);
+		g_debug ("No DLNA mime found");
 	}
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 }
