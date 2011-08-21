@@ -102,6 +102,7 @@ file_get_checksum_if_exists (GChecksumType   checksum_type,
 	checksum = g_checksum_new (checksum_type);
 
 	if (!checksum) {
+		g_object_unref (file);
 		return FALSE;
 	}
 
