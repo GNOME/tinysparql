@@ -1753,7 +1753,8 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
 	if (new_error) {
-		g_propagate_error (error, new_error);
+		/* no need to error out if statement does not exist for any reason */
+		g_clear_error (&new_error);
 		return FALSE;
 	}
 
