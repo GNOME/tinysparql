@@ -29,7 +29,8 @@
 "      xmlns:x=\'adobe:ns:meta/\'" \
 "      xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" \
 "      xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"" \
-"      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">" \
+"      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\"" \
+"      xmlns:tiff=\"http://ns.adobe.com/tiff/1.0/\">" \
 "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
 "        <rdf:Description rdf:about=\"\">"\
 "         <dc:format>application/pdf</dc:format>" \
@@ -53,7 +54,6 @@
 "         <exif:Artist>Artist in exif</exif:Artist>" \
 "         <exif:Make>Make in exif</exif:Make>" \
 "         <exif:Model>Model in exif</exif:Model>" \
-"         <exif:Orientation>top - left</exif:Orientation>" \
 "         <exif:Flash>0</exif:Flash>" \
 "         <exif:MeteringMode>3</exif:MeteringMode>" \
 "         <exif:ExposureTime>1000</exif:ExposureTime>" \
@@ -62,6 +62,7 @@
 "         <exif:ISOSpeedRatings>400</exif:ISOSpeedRatings>" \
 "         <exif:WhiteBalance>1</exif:WhiteBalance>" \
 "         <exif:Copyright>Copyright in exif</exif:Copyright>" \
+"         <tiff:Orientation>1</tiff:Orientation>" \
 "         <xmp:CreateDate>2002-08-15T17:10:04Z</xmp:CreateDate>"\
 "        </rdf:Description> " \
 "     </rdf:RDF> " \
@@ -80,10 +81,10 @@
 #define ORIENTATION_XMP \
 "   <x:xmpmeta   "                            \
 "      xmlns:x=\'adobe:ns:meta/\'"                              \
-"      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">"           \
+"      xmlns:tiff=\"http://ns.adobe.com/tiff/1.0/\">"           \
 "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
 "        <rdf:Description rdf:about=\"\">"                      \
-"         <exif:Orientation>%s</exif:Orientation>"              \
+"         <tiff:Orientation>%s</tiff:Orientation>"              \
 "        </rdf:Description>"                                    \
 "     </rdf:RDF></x:xmpmeta> "
 
@@ -104,13 +105,13 @@ static ExifNepomuk METERING_MODES [] = {
 };
 
 static ExifNepomuk ORIENTATIONS [] = {
-	{"top - right", "nfo:orientation-top-mirror"},
-	{"bottom - right", "nfo:orientation-bottom-mirror"},
-	{"bottom - left", "nfo:orientation-bottom"},
-	{"left - top", "nfo:orientation-left-mirror"},
-	{"right - top", "nfo:orientation-right"},
-	{"right - bottom", "nfo:orientation-right-mirror"},
-	{"left - bottom", "nfo:orientation-left"},
+	{"2", "nfo:orientation-top-mirror"},
+	{"3", "nfo:orientation-bottom-mirror"},
+	{"4", "nfo:orientation-bottom"},
+	{"5", "nfo:orientation-left-mirror"},
+	{"6", "nfo:orientation-right"},
+	{"7", "nfo:orientation-right-mirror"},
+	{"8", "nfo:orientation-left"},
 	{"invalid value", "nfo:orientation-top"}
 };
 
