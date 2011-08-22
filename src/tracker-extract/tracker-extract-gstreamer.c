@@ -159,7 +159,6 @@ static void common_extract_stream_metadata (MetadataExtractor    *extractor,
 
 static void
 add_string_gst_tag (TrackerSparqlBuilder *metadata,
-                    const gchar          *uri,
                     const gchar          *key,
                     GstTagList           *tag_list,
                     const gchar          *tag)
@@ -182,7 +181,6 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
 
 static void
 add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
-                  const gchar           *uri,
                   const gchar           *key,
                   GstTagList            *tag_list,
                   const gchar           *tag)
@@ -200,7 +198,6 @@ add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
 
 static void
 add_double_gst_tag (TrackerSparqlBuilder  *metadata,
-                    const gchar           *uri,
                     const gchar           *key,
                     GstTagList            *tag_list,
                     const gchar           *tag)
@@ -217,12 +214,12 @@ add_double_gst_tag (TrackerSparqlBuilder  *metadata,
 }
 
 static void
-add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
-                       const gchar           *uri,
-                       const gchar           *key,
-                       GstTagList            *tag_list,
-                       const gchar           *tag_date_time,
-                       const gchar           *tag_date)
+add_date_time_gst_tag_with_mtime_fallback (TrackerSparqlBuilder  *metadata,
+                                           const gchar           *uri,
+                                           const gchar           *key,
+                                           GstTagList            *tag_list,
+                                           const gchar           *tag_date_time,
+                                           const gchar           *tag_date)
 {
 	GstDateTime *date_time;
 	GDate *date;
@@ -264,10 +261,7 @@ add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
 		g_date_free (date);
 	}
 
-	tracker_guarantee_date_from_file_mtime (metadata,
-	                                        key,
-	                                        buf,
-	                                        uri);
+	tracker_guarantee_date_from_file_mtime (metadata, key, buf, uri);
 }
 
 static void
@@ -403,7 +397,7 @@ get_embedded_album_art (MetadataExtractor *extractor)
 
 static void
 extract_metadata (MetadataExtractor      *extractor,
-                  const gchar            *uri,
+                  const gchar            *file_url,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *metadata,
                   gchar                 **artist,
@@ -691,14 +685,20 @@ extract_metadata (MetadataExtractor      *extractor,
 		tracker_guarantee_title_from_file (metadata,
 		                                   "nie:title",
 		                                   s,
-		                                   uri);
+		                                   file_url);
 		g_free (s);
 
-		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
-		add_string_gst_tag (metadata, uri, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
-		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
-		add_date_time_gst_tag (metadata, uri, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE_TIME, GST_TAG_DATE);
-		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
+		add_string_gst_tag (metadata, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
+		add_string_gst_tag (metadata, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
+		add_string_gst_tag (metadata, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
+		add_string_gst_tag (metadata, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
+
+		add_date_time_gst_tag_with_mtime_fallback (metadata,
+		                                           file_url,
+		                                           "nie:contentCreated",
+		                                           extractor->tagcache,
+		                                           GST_TAG_DATE_TIME,
+		                                           GST_TAG_DATE);
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MODEL, &model);
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MANUFACTURER, &manuf);
@@ -742,7 +742,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (manuf);
 
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
-			add_string_gst_tag (metadata, uri, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
+			add_string_gst_tag (metadata, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:leadActor");
@@ -765,10 +765,10 @@ extract_metadata (MetadataExtractor      *extractor,
 				*scount = g_strdup_printf ("%d", count);
 			}
 
-			add_uint_gst_tag   (metadata, uri, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
+			add_uint_gst_tag   (metadata, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
 
-			add_double_gst_tag (metadata, uri, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
-			add_double_gst_tag (metadata, uri, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
+			add_double_gst_tag (metadata, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
+			add_double_gst_tag (metadata, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
 
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:performer");
@@ -797,7 +797,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (album_disc_uri);
 		g_free (artist_uri);
 
-		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+		add_string_gst_tag (metadata, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
 		g_warning ("Cannot guess real stream type if no tags were read! "
 		           "Defaulting to Video.");
@@ -834,9 +834,9 @@ extract_metadata (MetadataExtractor      *extractor,
 #endif
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	tagreadbin_extract_stream_metadata (extractor, uri, metadata);
+	tagreadbin_extract_stream_metadata (extractor, file_url, metadata);
 #else  /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
-	common_extract_stream_metadata (extractor, uri, metadata);
+	common_extract_stream_metadata (extractor, file_url, metadata);
 #endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
@@ -1512,27 +1512,26 @@ add_time_gst_tag (TrackerSparqlBuilder *metadata,
 
 static void
 tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
-                                    const gchar          *uri,
                                     TrackerSparqlBuilder *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE &&
 	    extractor->mime != EXTRACT_MIME_SVG) {
-		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
-		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
-		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
+		add_int_gst_tag (metadata, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
+		add_int_gst_tag (metadata, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
+		add_time_gst_tag (metadata, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
 	}
 
 	if (extractor->mime == EXTRACT_MIME_IMAGE ||
 	    extractor->mime == EXTRACT_MIME_SVG ||
 	    extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
+		add_fraction_gst_tag (metadata, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
 	}
 
-	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
-	add_int_gst_tag (metadata, uri, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
+	add_int_gst_tag (metadata, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
+	add_int_gst_tag (metadata, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, uri, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
+		add_fraction_gst_tag (metadata, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
 	}
 }
 
