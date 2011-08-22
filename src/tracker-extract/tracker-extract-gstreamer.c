@@ -472,6 +472,7 @@ extractor_guess_content_type (MetadataExtractor *extractor)
 
 static void
 extractor_apply_general_metadata (MetadataExtractor     *extractor,
+                                  GstTagList            *tag_list,
                                   const gchar           *file_url,
                                   TrackerSparqlBuilder  *preupdate,
                                   TrackerSparqlBuilder  *metadata,
@@ -486,9 +487,9 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	gchar *genre = NULL;
 	gchar *title = NULL;
 
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer_temp);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_temp);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &composer);
+	gst_tag_list_get_string (tag_list, GST_TAG_PERFORMER, &performer_temp);
+	gst_tag_list_get_string (tag_list, GST_TAG_ARTIST, &artist_temp);
+	gst_tag_list_get_string (tag_list, GST_TAG_COMPOSER, &composer);
 
 	performer = tracker_coalesce_strip (2, performer_temp, artist_temp);
 
@@ -500,8 +501,8 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 		add_artist (extractor, preupdate, graph, composer, p_composer_uri);
 	}
 
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &genre);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_TITLE, &title);
+	gst_tag_list_get_string (tag_list, GST_TAG_GENRE, &genre);
+	gst_tag_list_get_string (tag_list, GST_TAG_TITLE, &title);
 
 	if (genre && g_strcmp0 (genre, "Unknown") != 0) {
 		tracker_sparql_builder_predicate (metadata, "nfo:genre");
@@ -510,12 +511,12 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 
 	tracker_guarantee_title_from_file (metadata, "nie:title", title, file_url);
 
-	add_date_time_gst_tag_with_mtime_fallback (metadata, file_url, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE_TIME, GST_TAG_DATE);
+	add_date_time_gst_tag_with_mtime_fallback (metadata, file_url, "nie:contentCreated", tag_list, GST_TAG_DATE_TIME, GST_TAG_DATE);
 
-	add_string_gst_tag (metadata, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
-	add_string_gst_tag (metadata, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
-	add_string_gst_tag (metadata, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
-	add_string_gst_tag (metadata, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
+	add_string_gst_tag (metadata, "nie:copyright", tag_list, GST_TAG_COPYRIGHT);
+	add_string_gst_tag (metadata, "nie:license", tag_list, GST_TAG_LICENSE);
+	add_string_gst_tag (metadata, "dc:coverage", tag_list, GST_TAG_LOCATION);
+	add_string_gst_tag (metadata, "nie:comment", tag_list, GST_TAG_COMMENT);
 
 	g_free (performer_temp);
 	g_free (artist_temp);
@@ -526,6 +527,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 
 static void
 extractor_apply_album_metadata (MetadataExtractor     *extractor,
+                                GstTagList            *tag_list,
                                 TrackerSparqlBuilder  *preupdate,
                                 const gchar           *graph,
                                 gchar                **p_album_artist_uri,
@@ -541,13 +543,13 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 	gboolean has_it;
 	guint count;
 
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &album_title);
+	gst_tag_list_get_string (tag_list, GST_TAG_ALBUM, &album_title);
 
 	if (!album_title)
 		return;
 
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM_ARTIST, &album_artist_temp);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &track_artist_temp);
+	gst_tag_list_get_string (tag_list, GST_TAG_ALBUM_ARTIST, &album_artist_temp);
+	gst_tag_list_get_string (tag_list, GST_TAG_ARTIST, &track_artist_temp);
 
 	album_artist = g_strdup (tracker_coalesce_strip (2, album_artist_temp, track_artist_temp));
 
@@ -580,9 +582,7 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 	}
 	tracker_sparql_builder_insert_close (preupdate);
 
-	has_it = gst_tag_list_get_uint (extractor->tagcache,
-	                                GST_TAG_TRACK_COUNT,
-	                                &count);
+	has_it = gst_tag_list_get_uint (tag_list, GST_TAG_TRACK_COUNT, &count);
 
 	if (has_it) {
 		tracker_sparql_builder_delete_open (preupdate, NULL);
@@ -611,9 +611,7 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 		tracker_sparql_builder_insert_close (preupdate);
 	}
 
-	has_it = gst_tag_list_get_uint (extractor->tagcache,
-	                                GST_TAG_ALBUM_VOLUME_NUMBER,
-	                                &count);
+	has_it = gst_tag_list_get_uint (tag_list, GST_TAG_ALBUM_VOLUME_NUMBER, &count);
 
 	*p_album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
 	                                                      album_title,
@@ -671,6 +669,7 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 
 static void
 extractor_apply_device_metadata (MetadataExtractor    *extractor,
+                                 GstTagList           *tag_list,
                                  TrackerSparqlBuilder *preupdate,
                                  TrackerSparqlBuilder *metadata,
                                  const gchar          *graph)
@@ -678,8 +677,8 @@ extractor_apply_device_metadata (MetadataExtractor    *extractor,
 	gchar *equip_uri;
 	gchar *model = NULL, *manuf = NULL;
 
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MODEL, &model);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MANUFACTURER, &manuf);
+	gst_tag_list_get_string (tag_list, GST_TAG_DEVICE_MODEL, &model);
+	gst_tag_list_get_string (tag_list, GST_TAG_DEVICE_MANUFACTURER, &manuf);
 
 	if (model == NULL && manuf == NULL)
 		return;
@@ -721,16 +720,17 @@ extractor_apply_device_metadata (MetadataExtractor    *extractor,
 
 static void
 extractor_apply_audio_metadata (MetadataExtractor     *extractor,
+                                GstTagList            *tag_list,
                                 TrackerSparqlBuilder  *metadata,
                                 const gchar           *performer_uri,
                                 const gchar           *composer_uri,
                                 const gchar           *album_uri,
                                 const gchar           *album_disc_uri)
 {
-	add_uint_gst_tag   (metadata, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-	add_string_gst_tag (metadata, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
-	add_double_gst_tag (metadata, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
-	add_double_gst_tag (metadata, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
+	add_uint_gst_tag   (metadata, "nmm:trackNumber", tag_list, GST_TAG_TRACK_NUMBER);
+	add_string_gst_tag (metadata, "nfo:codec", tag_list, GST_TAG_AUDIO_CODEC);
+	add_double_gst_tag (metadata, "nfo:gain", tag_list, GST_TAG_TRACK_GAIN);
+	add_double_gst_tag (metadata, "nfo:peakGain", tag_list, GST_TAG_TRACK_PEAK);
 
 	if (performer_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:performer");
@@ -755,11 +755,12 @@ extractor_apply_audio_metadata (MetadataExtractor     *extractor,
 
 static void
 extractor_apply_video_metadata (MetadataExtractor    *extractor,
+                                GstTagList           *tag_list,
                                 TrackerSparqlBuilder *metadata,
                                 const gchar          *performer_uri,
                                 const gchar          *composer_uri)
 {
-	add_string_gst_tag (metadata, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
+	add_string_gst_tag (metadata, "dc:source", tag_list, GST_TAG_CLASSIFICATION);
 
 	if (performer_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:leadActor");
@@ -771,7 +772,7 @@ extractor_apply_video_metadata (MetadataExtractor    *extractor,
 		tracker_sparql_builder_object_iri (metadata, composer_uri);
 	}
 
-	add_keywords_gst_tag (metadata, extractor->tagcache);
+	add_keywords_gst_tag (metadata, tag_list);
 }
 
 static void
@@ -821,6 +822,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *album_disc_uri = NULL;
 
 		extractor_apply_general_metadata (extractor,
+		                                  extractor->tagcache,
 		                                  file_url,
 		                                  preupdate,
 		                                  metadata,
@@ -828,16 +830,22 @@ extract_metadata (MetadataExtractor      *extractor,
 		                                  &performer_uri,
 		                                  &composer_uri);
 
-		extractor_apply_device_metadata (extractor, preupdate, metadata, graph);
+		extractor_apply_device_metadata (extractor,
+		                                 extractor->tagcache,
+		                                 preupdate,
+		                                 metadata,
+		                                 graph);
 
 		if (extractor->mime == EXTRACT_MIME_VIDEO)
 			extractor_apply_video_metadata (extractor,
+			                                extractor->tagcache,
 			                                metadata,
 			                                performer_uri,
 			                                composer_uri);
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			extractor_apply_album_metadata (extractor,
+			                                extractor->tagcache,
 			                                preupdate,
 			                                graph,
 			                                &album_artist_uri,
@@ -847,6 +855,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			                                album_title);
 
 			extractor_apply_audio_metadata (extractor,
+			                                extractor->tagcache,
 			                                metadata,
 			                                performer_uri,
 			                                composer_uri,
