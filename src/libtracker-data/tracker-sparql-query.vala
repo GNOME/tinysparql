@@ -688,24 +688,31 @@ public class Tracker.Sparql.Query : Object {
 		this.delete_statements = delete_statements;
 		this.update_statements = update_statements;
 
-		// iterate over all solutions
+		var solutions = new GenericArray<HashTable<string,string>> ();
+
 		while (cursor.next ()) {
-			// blank nodes in construct templates are per solution
-
-			uuid_generate (base_uuid);
-			blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-
 			// get values of all variables to be bound
 			var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 			int var_idx = 0;
 			foreach (var variable in context.var_set.get_keys ()) {
 				var_value_map.insert (variable.name, cursor.get_string (var_idx++));
 			}
+			solutions.add (var_value_map);
+		}
+
+		cursor = null;
+
+		// iterate over all solutions
+		for (int i = 0; i < solutions.length; i++) {
+			// blank nodes in construct templates are per solution
+
+			uuid_generate (base_uuid);
+			blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 
 			set_location (template_location);
 
 			// iterate over each triple in the template
-			parse_construct_triples_block (var_value_map);
+			parse_construct_triples_block (solutions[i]);
 
 			if (blank && update_blank_nodes != null) {
 				update_blank_nodes.add_value (blank_nodes);
