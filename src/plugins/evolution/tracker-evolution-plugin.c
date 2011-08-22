@@ -571,13 +571,18 @@ process_fields (TrackerSparqlBuilder *sparql,
 	}
 }
 
-static gchar*
-convert_url_to_whatever (CamelURL    *a_url,
-                         const gchar *path,
-                         const gchar *uid)
+static gchar *
+message_uri_build (CamelFolder *folder,
+                   const gchar *uid)
 {
-	CamelURL *url;
-	gchar *uri, *qry, *ppath = g_strdup_printf ("/%s", path);
+	CamelURL *a_url, url;
+	const gchar *path;
+	gchar *uri, *qry, *ppath;
+
+	a_url = CAMEL_SERVICE (camel_folder_get_parent_store (folder))->url;
+	path = camel_folder_get_full_name (folder);
+
+	ppath = g_strdup_printf ("/%s", path);
 
 	/* This converts a CamelURL plus path and uid components to a Evolution
 	 * compatible URL. Evolution has its own strange URL format, so .. ok */
@@ -618,7 +623,6 @@ on_folder_summary_changed (CamelFolder           *folder,
 	OnSummaryChangedInfo *info = user_data;
 	CamelFolderSummary *summary;
 	GPtrArray *merged;
-	CamelURL *a_url;
 	gboolean did_work;
 	guint i;
 
@@ -626,8 +630,6 @@ on_folder_summary_changed (CamelFolder           *folder,
 		return;
 
 	summary = folder->summary;
-
-	a_url = CAMEL_SERVICE (camel_folder_get_parent_store (folder))->url;
 
 	merged = g_ptr_array_new ();
 	did_work = FALSE;
@@ -698,7 +700,7 @@ on_folder_summary_changed (CamelFolder           *folder,
 			/* This is not a path but a URI, don't use the
 			 * OS's directory separator here */
 
-			uri = convert_url_to_whatever (a_url, camel_folder_get_full_name (folder), uid);
+			uri = message_uri_build (folder, uid);
 
 			sparql = tracker_sparql_builder_new_update ();
 
@@ -821,7 +823,7 @@ on_folder_summary_changed (CamelFolder           *folder,
 
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
-			uri = convert_url_to_whatever (a_url, camel_folder_get_full_name (folder), (char*) changes->uid_removed->pdata[i]);
+			uri = message_uri_build (folder, (char*) changes->uid_removed->pdata[i]);
 
 			g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource }\n ", uri, uri);
 			g_free (uri);
@@ -870,7 +872,6 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
                                   GCancellable          *cancel)
 {
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
-	CamelURL *a_url;
 	CamelDB *cdb_r;
 	gboolean did_work;
 
@@ -879,7 +880,6 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 	}
 
 	cdb_r = camel_db_clone (store->cdb_r, NULL);
-	a_url = CAMEL_SERVICE (store)->url;
 	did_work = FALSE;
 
 	while (iter) {
@@ -997,7 +997,7 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 
 					folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
 
-					uri = convert_url_to_whatever (a_url, iter->full_name, uid);
+					uri = message_uri_build (folder, uid);
 
 					if (!sparql) {
 						sparql = tracker_sparql_builder_new_update ();
@@ -1147,15 +1147,13 @@ introduce_store_deal_with_deleted (TrackerMinerEvolution *self,
                                    char                  *account_uri,
                                    gpointer               user_data)
 {
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	ClientRegistry *info = user_data;
 	gboolean more = TRUE;
 	gchar *query;
 	sqlite3_stmt *stmt = NULL;
 	CamelDB *cdb_r;
 	guint i, ret;
-	CamelURL *a_url;
-
-	a_url = CAMEL_SERVICE (store)->url;
 
 	query = sqlite3_mprintf ("SELECT uid, mailbox "
 	                         "FROM Deletes "
@@ -1176,6 +1174,7 @@ introduce_store_deal_with_deleted (TrackerMinerEvolution *self,
 		more = FALSE;
 
 		while (ret == SQLITE_OK || ret == SQLITE_BUSY || ret == SQLITE_ROW) {
+			CamelFolder *folder;
 			const gchar *uid;
 			const gchar *mailbox;
 
@@ -1194,11 +1193,14 @@ introduce_store_deal_with_deleted (TrackerMinerEvolution *self,
 			uid     = (const gchar *) sqlite3_column_text (stmt, 0);
 			mailbox = (const gchar *) sqlite3_column_text (stmt, 1);
 
+			folder = g_hash_table_lookup (priv->cached_folders, mailbox);
+
+
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
 
 			g_ptr_array_add (subjects_a,
-			                 convert_url_to_whatever (a_url, mailbox, uid));
+			                 message_uri_build (folder, uid));
 
 			if (count > 100) {
 				more = TRUE;
