@@ -147,13 +147,16 @@ file_get_checksum_if_exists (GChecksumType   checksum_type,
 			*md5 = g_strdup (g_checksum_get_string (checksum));
 		}
 
-		g_object_unref (stream);
 	} else {
 		/* File doesn't exist or isn't readable */
 		retval = FALSE;
 	}
 
 end:
+
+	if (stream) {
+		g_object_unref (stream);
+	}
 	g_checksum_free (checksum);
 	g_object_unref (file);
 
