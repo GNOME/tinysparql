@@ -46,6 +46,10 @@
 #include <mail/em-utils.h>
 #include <mail/mail-ops.h>
 
+#ifdef EVOLUTION_SHELL_3_2
+#include <mail/e-mail.h>
+#endif
+
 #ifdef EVOLUTION_SHELL_2_91
 #include <mail/e-mail-session.h>
 #else
@@ -575,6 +579,15 @@ static gchar *
 message_uri_build (CamelFolder *folder,
                    const gchar *uid)
 {
+#ifdef EVOLUTION_SHELL_3_2
+	gchar *uri, *folder_uri;
+
+	folder_uri = e_mail_folder_uri_from_folder (folder);
+	uri = g_strdup_printf ("%s#%s", folder_uri, uid);
+	g_free (folder_uri);
+
+	return uri;
+#else
 	CamelURL *a_url, url;
 	const gchar *path;
 	gchar *uri, *qry, *ppath;
@@ -607,6 +620,7 @@ message_uri_build (CamelFolder *folder,
 	camel_url_free (url);
 
 	return uri;
+#endif
 }
 
 /* When new messages arrive to- or got deleted from the summary, called in
@@ -776,7 +790,11 @@ on_folder_summary_changed (CamelFolder           *folder,
 			g_debug ("Tracker plugin setting progress to '%2.2f' and status to 'Updating an E-mail'",
 			         (gdouble) i / merged->len);
 
+#ifdef EVOLUTION_SHELL_3_2
+			folder_name = camel_folder_get_display_name (folder);
+#else
 			folder_name = camel_folder_get_name (folder);
+#endif
 
 			if (folder_name && *folder_name) {
 				str = g_strdup_printf ("Updating E-mails for %s",
@@ -897,7 +915,11 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 		                         iter->full_name,
 		                         info->last_checkout);
 
+#ifdef EVOLUTION_SHELL_3_2
+		status = g_strdup_printf ("Processing folder %s", iter->display_name);
+#else
 		status = g_strdup_printf ("Processing folder %s", iter->name);
+#endif
 		g_object_set (self,  "progress", 0.01, "status", status, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
@@ -1278,9 +1300,13 @@ get_last_deleted_time (TrackerMinerEvolution *self)
 			}
 
 			if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+#ifdef EVOLUTION_SHELL_3_2
+			                                                        account->uid))) {
+#else
 			                                                        uri,
 			                                                        CAMEL_PROVIDER_STORE,
 			                                                        NULL))) {
+#endif
 				continue;
 			}
 
@@ -1314,11 +1340,20 @@ get_last_deleted_time (TrackerMinerEvolution *self)
 	return smallest;
 }
 
+#ifdef EVOLUTION_SHELL_3_2
+static void
+register_on_get_folder (GObject      *source_object,
+                        GAsyncResult *res,
+                        gpointer      user_data)
+{
+	CamelFolder *folder = camel_store_get_folder_finish (CAMEL_STORE (source_object), res, NULL);
+#else
 static void
 register_on_get_folder (gchar       *uri,
                         CamelFolder *folder,
                         gpointer     user_data)
 {
+#endif
 	GetFolderInfo *info = user_data;
 	gchar *account_uri = info->account_uri;
 	CamelFolderInfo *iter = info->iter;
@@ -1393,6 +1428,15 @@ register_walk_folders_in_folder (TrackerMinerEvolution *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
+#ifdef EVOLUTION_SHELL_3_2
+		camel_store_get_folder (store,
+		                        iter->full_name,
+		                        0,
+		                        0,
+		                        NULL,
+		                        register_on_get_folder,
+		                        info);
+#else
 		mail_get_folder (
 #ifdef EVOLUTION_SHELL_2_91
 		                 session,
@@ -1402,6 +1446,7 @@ register_walk_folders_in_folder (TrackerMinerEvolution *self,
 		                 register_on_get_folder,
 		                 info,
 		                 mail_msg_unordered_push);
+#endif
 
 		if (iter->child) {
 			register_walk_folders_in_folder (self, iter->child,
@@ -1413,11 +1458,20 @@ register_walk_folders_in_folder (TrackerMinerEvolution *self,
 	}
 }
 
+#ifdef EVOLUTION_SHELL_3_2
+static void
+unregister_on_get_folder (GObject      *source_object,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+	CamelFolder *folder = camel_store_get_folder_finish (CAMEL_STORE (source_object), res, NULL);
+#else
 static void
 unregister_on_get_folder (gchar       *uri,
                           CamelFolder *folder,
                           gpointer     user_data)
 {
+#endif
 	GetFolderInfo *info = user_data;
 	CamelFolderInfo *titer = info->iter;
 	TrackerMinerEvolution *self = info->self;
@@ -1471,6 +1525,15 @@ unregister_walk_folders_in_folder (TrackerMinerEvolution *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
+#ifdef EVOLUTION_SHELL_3_2
+		camel_store_get_folder (store,
+		                        titer->full_name,
+		                        0,
+		                        0,
+		                        NULL,
+		                        unregister_on_get_folder,
+		                        info);
+#else
 		mail_get_folder (
 #ifdef EVOLUTION_SHELL_2_91
 		                 session,
@@ -1480,6 +1543,7 @@ unregister_walk_folders_in_folder (TrackerMinerEvolution *self,
 		                 unregister_on_get_folder,
 		                 info,
 		                 mail_msg_unordered_push);
+#endif
 
 		if (titer->child) {
 			unregister_walk_folders_in_folder (self, titer->child,
@@ -1571,11 +1635,21 @@ try_again (gpointer user_data)
 	return TRUE;
 }
 
+#ifdef EVOLUTION_SHELL_3_2
+static void
+on_got_folderinfo_introduce (GObject      *source_object,
+                             GAsyncResult *res,
+                             gpointer      data)
+{
+	CamelStore *store = CAMEL_STORE (source_object);
+	CamelFolderInfo *iter = camel_store_get_folder_info_finish (store, res, NULL);
+#else
 static gboolean
 on_got_folderinfo_introduce (CamelStore      *store,
                              CamelFolderInfo *iter,
                              void            *data)
 {
+#endif
 	TryAgainInfo *info = g_new0 (TryAgainInfo, 1);
 
 	/* Ownership of these is transfered in try_again */
@@ -1612,7 +1686,11 @@ on_got_folderinfo_introduce (CamelStore      *store,
 		g_free (info);
 	}
 
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_free_folder_info (store, iter);
+#else
 	return TRUE;
+#endif
 }
 
 static void
@@ -1636,9 +1714,13 @@ introduce_account_to (TrackerMinerEvolution *self,
 		return;
 
 	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+#ifdef EVOLUTION_SHELL_3_2
+	                                                        account->uid))) {
+#else
 	                                                        uri,
 	                                                        CAMEL_PROVIDER_STORE,
 	                                                        NULL))) {
+#endif
 		return;
 	}
 
@@ -1657,7 +1739,19 @@ introduce_account_to (TrackerMinerEvolution *self,
 	intro_info->info = client_registry_info_copy (info);
 	intro_info->account_uri = account_uri; /* is freed in on_got above */
 
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_get_folder_info (store,
+	                             NULL,
+	                             CAMEL_STORE_FOLDER_INFO_FAST |
+	                             CAMEL_STORE_FOLDER_INFO_RECURSIVE |
+	                             CAMEL_STORE_FOLDER_INFO_SUBSCRIBED,
+	                             G_PRIORITY_DEFAULT,
+	                             NULL,
+	                             on_got_folderinfo_introduce,
+	                             intro_info);
+#else
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_introduce, intro_info);
+#endif
 
 	g_object_unref (store);
 
@@ -1858,11 +1952,21 @@ store_registry_free (StoreRegistry *registry)
 }
 
 
+#ifdef EVOLUTION_SHELL_3_2
+static void
+on_got_folderinfo_register (GObject      *source_object,
+                            GAsyncResult *res,
+                            gpointer      data)
+{
+	CamelStore *store = CAMEL_STORE (source_object);
+	CamelFolderInfo *iter = camel_store_get_folder_info_finish (store, res, NULL);
+#else
 static gboolean
 on_got_folderinfo_register (CamelStore      *store,
                             CamelFolderInfo *iter,
                             void            *data)
 {
+#endif
 	RegisterInfo *reg_info = data;
 	TrackerMinerEvolution *self = reg_info->self;
 	TrackerMinerEvolutionPrivate *priv;
@@ -1919,7 +2023,11 @@ on_got_folderinfo_register (CamelStore      *store,
 
 	walk_count--;
 
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_free_folder_info (store, iter);
+#else
 	return TRUE;
+#endif
 }
 
 static void
@@ -1944,9 +2052,13 @@ register_account (TrackerMinerEvolution *self,
 	}
 
 	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+#ifdef EVOLUTION_SHELL_3_2
+	                                                        account->uid))) {
+#else
 	                                                        uri,
 	                                                        CAMEL_PROVIDER_STORE,
 	                                                        NULL))) {
+#endif
 		return;
 	}
 
@@ -1959,16 +2071,38 @@ register_account (TrackerMinerEvolution *self,
 	walk_count++;
 
 	/* Get the account's folder-info and register it asynchronously */
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_get_folder_info (store,
+	                             NULL,
+	                             CAMEL_STORE_FOLDER_INFO_FAST |
+	                             CAMEL_STORE_FOLDER_INFO_RECURSIVE |
+	                             CAMEL_STORE_FOLDER_INFO_SUBSCRIBED,
+	                             G_PRIORITY_DEFAULT,
+	                             NULL,
+	                             on_got_folderinfo_register,
+	                             reg_info);
+#else
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_register, reg_info);
+#endif
 
 	g_object_unref (store);
 }
 
+#ifdef EVOLUTION_SHELL_3_2
+static void
+on_got_folderinfo_unregister (GObject      *source_object,
+                              GAsyncResult *res,
+                              gpointer      data)
+{
+	CamelStore *store = CAMEL_STORE (source_object);
+	CamelFolderInfo *titer = camel_store_get_folder_info_finish (store, res, NULL);
+#else
 static gboolean
 on_got_folderinfo_unregister (CamelStore      *store,
                               CamelFolderInfo *titer,
                               void            *data)
 {
+#endif
 	RegisterInfo *reg_info = data;
 	TrackerMinerEvolution *self = reg_info->self;
 	TrackerMinerEvolutionPrivate *priv;
@@ -1992,7 +2126,11 @@ on_got_folderinfo_unregister (CamelStore      *store,
 	g_free (reg_info->uri);
 	g_free (reg_info);
 
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_free_folder_info (store, titer);
+#else
 	return TRUE;
+#endif
 }
 
 static void
@@ -2012,9 +2150,13 @@ unregister_account (TrackerMinerEvolution *self,
 		return;
 
 	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+#ifdef EVOLUTION_SHELL_3_2
+	                                                        account->uid))) {
+#else
 	                                                        uri,
 	                                                        CAMEL_PROVIDER_STORE,
 	                                                        NULL))) {
+#endif
 		return;
 	}
 
@@ -2025,7 +2167,19 @@ unregister_account (TrackerMinerEvolution *self,
 	reg_info->account = NULL;
 
 	/* Get the account's folder-info and unregister asynchronously */
+#ifdef EVOLUTION_SHELL_3_2
+	camel_store_get_folder_info (store,
+	                             NULL,
+	                             CAMEL_STORE_FOLDER_INFO_FAST |
+	                             CAMEL_STORE_FOLDER_INFO_RECURSIVE |
+	                             CAMEL_STORE_FOLDER_INFO_SUBSCRIBED,
+	                             G_PRIORITY_DEFAULT,
+	                             NULL,
+	                             on_got_folderinfo_unregister,
+	                             reg_info);
+#else
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_unregister, reg_info);
+#endif
 
 	g_object_unref (store);
 }

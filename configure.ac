@@ -369,7 +369,7 @@ TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 
 # Check requirements for tracker-miner-evolution
 TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                  evolution-shell-3.0
+                                  evolution-shell-3.0       >= 3.1
                                   evolution-plugin-3.0
                                   evolution-data-server-1.2 >= $EDS_REQUIRED
                                   camel-1.2                 >= $CAMEL_REQUIRED"
@@ -381,14 +381,12 @@ PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
 if test "x$have_tracker_miner_evolution" = "xyes"; then
    evolution_plugin_name="evolution-plugin-3.0"
 
+   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
    AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
 else
-   evolution_plugin_name="evolution-plugin"
-
-
    TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                     evolution-shell           >= $EVO_SHELL_REQUIRED
-                                     evolution-plugin          >= $EVO_REQUIRED
+                                     evolution-shell-3.0
+                                     evolution-plugin-3.0
                                      evolution-data-server-1.2 >= $EDS_REQUIRED
                                      camel-1.2                 >= $CAMEL_REQUIRED"
 
@@ -396,6 +394,25 @@ else
                      [have_tracker_miner_evolution=yes],
                      [have_tracker_miner_evolution=no])
 
+   if test "x$have_tracker_miner_evolution" = "xyes"; then
+      evolution_plugin_name="evolution-plugin-3.0"
+
+      AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
+   else
+      evolution_plugin_name="evolution-plugin"
+
+
+      TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                        evolution-shell           >= $EVO_SHELL_REQUIRED
+                                        evolution-plugin          >= $EVO_REQUIRED
+                                        evolution-data-server-1.2 >= $EDS_REQUIRED
+                                        camel-1.2                 >= $CAMEL_REQUIRED"
+
+      PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
+                        [have_tracker_miner_evolution=yes],
+                        [have_tracker_miner_evolution=no])
+
+   fi
 fi
 
 # Check requirements for tracker-miner-thunderbird
