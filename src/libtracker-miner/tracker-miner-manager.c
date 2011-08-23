@@ -601,11 +601,8 @@ tracker_miner_manager_new_full (gboolean   auto_start,
 	                          &inner_error,
 	                          "auto-start", auto_start,
 	                          NULL);
-	if (!manager) {
-		g_critical ("Couldn't create new TrackerMinerManager: '%s'",
-		            inner_error ? inner_error->message : "unknown error");
-		g_clear_error (&inner_error);
-	}
+	if (inner_error)
+		g_propagate_error (error, inner_error);
 
 	return manager;
 }
