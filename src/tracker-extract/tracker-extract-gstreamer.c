@@ -418,7 +418,7 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	if (extractor->tagcache) {
+	if (!gst_tag_list_is_empty (extractor->tagcache)) {
 		gchar *artist_uri = NULL;
 		gchar *performer_uri = NULL;
 		gchar *composer_uri = NULL;
@@ -1061,13 +1061,9 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 			/* Unknown type - do nothing */
 		}
 
-		/* Overwrite list of tags */
-		tmp = gst_tag_list_merge (extractor->tagcache,
-		                          gst_discoverer_stream_info_get_tags (stream),
-		                          GST_TAG_MERGE_APPEND);
-		if (extractor->tagcache)
-			gst_tag_list_free (extractor->tagcache);
-		extractor->tagcache = tmp;
+		gst_tag_list_insert (extractor->tagcache,
+		                     gst_discoverer_stream_info_get_tags (stream),
+		                     GST_TAG_MERGE_APPEND);
 	}
 
 	return TRUE;
@@ -1080,23 +1076,6 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
     defined(GSTREAMER_BACKEND_DECODEBIN2)
-
-static void
-add_tags (GstTagList        *new_tags,
-          MetadataExtractor *extractor)
-{
-	GstTagList *result;
-
-	result = gst_tag_list_merge (extractor->tagcache,
-	                             new_tags,
-	                             GST_TAG_MERGE_KEEP);
-
-	if (extractor->tagcache) {
-		gst_tag_list_free (extractor->tagcache);
-	}
-
-	extractor->tagcache = result;
-}
 
 static void
 pipeline_shutdown (MetadataExtractor *extractor)
@@ -1196,7 +1175,7 @@ pipeline_poll_for_ready (MetadataExtractor *extractor,
 		}
 		case GST_MESSAGE_TAG: {
 			gst_message_parse_tag (message, &new_tags);
-			add_tags (new_tags, extractor);
+			gst_tag_list_insert (extractor->tagcache, new_tags, GST_TAG_MERGE_KEEP);
 			gst_tag_list_free (new_tags);
 			break;
 		}
@@ -1629,7 +1608,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
-	extractor->tagcache = NULL;
+	extractor->tagcache = gst_tag_list_new ();
 	extractor->album_art_data = NULL;
 	extractor->album_art_size = 0;
 	extractor->album_art_mime = NULL;
@@ -1662,9 +1641,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	g_free (album);
 	g_free (artist);
 
-	if (extractor->tagcache) {
-		gst_tag_list_free (extractor->tagcache);
-	}
+	gst_tag_list_free (extractor->tagcache);
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
 	tagreadbin_shutdown (extractor);
