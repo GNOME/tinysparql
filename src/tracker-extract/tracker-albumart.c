@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <utime.h>
 #include <time.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <glib/gprintf.h>
@@ -102,6 +103,7 @@ file_get_checksum_if_exists (GChecksumType   checksum_type,
 	checksum = g_checksum_new (checksum_type);
 
 	if (!checksum) {
+		g_debug ("Can't create checksum engine");
 		g_object_unref (file);
 		return FALSE;
 	}
@@ -148,6 +150,7 @@ file_get_checksum_if_exists (GChecksumType   checksum_type,
 		}
 
 	} else {
+		g_debug ("%s isn't readable while calculating MD5 checksum", path);
 		/* File doesn't exist or isn't readable */
 		retval = FALSE;
 	}
@@ -178,7 +181,9 @@ convert_from_other_format (const gchar *found,
 	retval = tracker_albumart_file_to_jpeg (found, target_temp);
 
 	if (retval && (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
-		g_rename (target_temp, album_path);
+		if (g_rename (target_temp, album_path) == -1) {
+			g_debug ("rename(%s, %s) error: %s", target_temp, album_path, g_strerror (errno));
+		}
 	} else if (retval && file_get_checksum_if_exists (G_CHECKSUM_MD5, target_temp, &sum1, FALSE, NULL)) {
 		gchar *sum2 = NULL;
 		if (file_get_checksum_if_exists (G_CHECKSUM_MD5, album_path, &sum2, FALSE, NULL)) {
@@ -188,7 +193,7 @@ convert_from_other_format (const gchar *found,
 				 * make a symlink */
 
 				if (symlink (album_path, target) != 0) {
-					perror ("symlink() error");
+					g_debug ("symlink(%s, %s) error: %s", album_path, target, g_strerror (errno));
 					retval = FALSE;
 				} else {
 					retval = TRUE;
@@ -201,7 +206,9 @@ convert_from_other_format (const gchar *found,
 				/* If album-space-md5.jpg isn't the same as found,
 				 * make a new album-md5-md5.jpg (found -> target) */
 
-				g_rename (target_temp, album_path);
+				if (g_rename (target_temp, album_path) == -1) {
+					g_debug ("rename(%s, %s) error: %s", target_temp, album_path, g_strerror (errno));
+				}
 			}
 			g_free (sum2);
 		} else {
@@ -212,7 +219,7 @@ convert_from_other_format (const gchar *found,
 			g_rename (target_temp, album_path);
 
 			if (symlink (album_path, target) != 0) {
-				perror ("symlink() error");
+				g_debug ("symlink(%s,%s) error: %s", album_path, target, g_strerror (errno));
 				retval = FALSE;
 			} else {
 				retval = TRUE;
@@ -222,6 +229,7 @@ convert_from_other_format (const gchar *found,
 
 		g_free (sum1);
 	} else if (retval) {
+		g_debug ("Can't read %s while calculating checksum", target_temp);
 		/* Can't read the file that it was converted to, strange ... */
 		g_unlink (target_temp);
 	}
@@ -403,13 +411,17 @@ albumart_heuristic (const gchar *artist,
 					if (artist == NULL || g_strcmp0 (artist, " ") == 0) {
 						GFile *found_file;
 						GFile *target_file;
+						GError *err = NULL;
 
 						g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
 
 						target_file = g_file_new_for_path (target);
 						found_file = g_file_new_for_path (found);
-						retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &error);
-						g_clear_error (&error);
+						retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &err);
+						if (err) {
+							g_debug ("%s", err->message);
+							g_clear_error (&err);
+						}
 						g_object_unref (found_file);
 						g_object_unref (target_file);
 					} else if (file_get_checksum_if_exists (G_CHECKSUM_MD5, found, &sum1, TRUE, &is_jpeg)) {
@@ -424,7 +436,7 @@ albumart_heuristic (const gchar *artist,
 									 * make a symlink */
 
 									if (symlink (album_path, target) != 0) {
-										perror ("symlink() error");
+										g_debug ("symlink(%s, %s) error: %s", album_path, target, g_strerror (errno));
 										retval = FALSE;
 									} else {
 										retval = TRUE;
@@ -432,38 +444,43 @@ albumart_heuristic (const gchar *artist,
 								} else {
 									GFile *found_file;
 									GFile *target_file;
+									GError *err = NULL;
 
 									/* If album-space-md5.jpg isn't the same as found,
 									 * make a new album-md5-md5.jpg (found -> target) */
 
 									target_file = g_file_new_for_path (target);
 									found_file = g_file_new_for_path (found);
-									retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &error);
-									g_clear_error (&error);
+									retval = g_file_copy (found_file, target_file, 0, NULL, NULL, NULL, &err);
+									if (err) {
+										g_debug ("%s", err->message);
+										g_clear_error (&err);
+									}
 									g_object_unref (found_file);
 									g_object_unref (target_file);
 								}
-
 								g_free (sum2);
 							} else {
 								GFile *found_file;
+								GError *err = NULL;
 
 								/* If there's not yet a album-space-md5.jpg, make one,
 								 * and symlink album-md5-md5.jpg to it */
 
 								file = g_file_new_for_path (album_path);
 								found_file = g_file_new_for_path (found);
-								retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
+								retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &err);
 
-								if (error == NULL) {
+								if (err == NULL) {
 									if (symlink (album_path, target) != 0) {
-										perror ("symlink() error");
+										g_debug ("symlink(%s, %s) error: %s", album_path, target, g_strerror (errno));
 										retval = FALSE;
 									} else {
 										retval = TRUE;
 									}
 								} else {
-									g_clear_error (&error);
+									g_debug ("%s", err->message);
+									g_clear_error (&err);
 									retval = FALSE;
 								}
 
@@ -471,7 +488,7 @@ albumart_heuristic (const gchar *artist,
 								g_object_unref (file);
 							}
 						} else {
-							g_debug ("Album art found in same directory but not a real JPEG file (trying to convert):'%s'", found);
+							g_debug ("Album art found in same directory but not a real JPEG file (trying to convert): '%s'", found);
 							retval = convert_from_other_format (found, target, album_path, artist);
 						}
 
@@ -564,7 +581,7 @@ albumart_set (const unsigned char *buffer,
 			 * to album-md5-md5.jpg */
 
 			if (retval && symlink (album_path, local_path) != 0) {
-				perror ("symlink() error");
+				g_debug ("symlink(%s, %s) error: %s", album_path, local_path, g_strerror (errno));
 				retval = FALSE;
 			} else {
 				retval = TRUE;
@@ -590,7 +607,7 @@ albumart_set (const unsigned char *buffer,
 
 							g_unlink (temp);
 							if (symlink (album_path, local_path) != 0) {
-								perror ("symlink() error");
+								g_debug ("symlink(%s, %s) error: %s", album_path, local_path, g_strerror (errno));
 								retval = FALSE;
 							} else {
 								retval = TRUE;
@@ -598,7 +615,9 @@ albumart_set (const unsigned char *buffer,
 						} else {
 							/* If album-space-md5.jpg isn't the same as buffer, make a
 							 * new album-md5-md5.jpg */
-							g_rename (temp, local_path);
+							if (g_rename (temp, local_path) == -1) {
+								g_debug ("rename(%s, %s) error: %s", temp, local_path, g_strerror (errno));
+							}
 						}
 						g_free (sum1);
 					} else {
@@ -616,7 +635,7 @@ albumart_set (const unsigned char *buffer,
 
 					if (g_strcmp0 (sum1, sum2) == 0) {
 						if (symlink (album_path, local_path) != 0) {
-							perror ("symlink() error");
+							g_debug ("symlink(%s, %s) error: %s", album_path, local_path, g_strerror (errno));
 							retval = FALSE;
 						} else {
 							retval = TRUE;
