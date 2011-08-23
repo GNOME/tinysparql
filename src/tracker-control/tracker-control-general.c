@@ -51,6 +51,8 @@ static TermOption terminate_option = TERM_NONE;
 static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
+static gchar *set_log_verbosity;
+static gboolean get_log_verbosity;
 static gboolean start;
 static gchar *backup;
 static gchar *restore;
@@ -62,6 +64,8 @@ static gchar *restore;
 	 hard_reset || \
 	 soft_reset || \
 	 remove_config || \
+	 get_log_verbosity || \
+	 set_log_verbosity || \
 	 start || \
 	 backup || \
 	 restore)
@@ -88,6 +92,12 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
+	  NULL },
+	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
+	  N_("Sets the logging verbosity to LEVEL ('debug', 'details', 'minimal', 'errors') for all processes"),
+	  N_("LEVEL") },
+	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
+	  N_("Show logging values in terms of log verbosity for each process"),
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
@@ -211,6 +221,215 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	g_main_loop_quit (user_data);
 }
 
+typedef struct {
+	gchar *name;
+	GSettings *settings;
+	gboolean is_miner;
+} ComponentGSettings;
+
+inline static const gchar *
+verbosity_to_string (TrackerVerbosity verbosity)
+{
+        GType type;
+        GEnumClass *enum_class;
+        GEnumValue *enum_value;
+
+        type = tracker_verbosity_get_type ();
+        enum_class = G_ENUM_CLASS (g_type_class_peek (type));
+        enum_value = g_enum_get_value (enum_class, verbosity);
+
+        if (!enum_value) {
+                return "unknown";
+        }
+
+        return enum_value->value_nick;
+}
+
+inline static void
+tracker_gsettings_print_verbosity (GSList   *all,
+                                   gint      longest,
+                                   gboolean  miners)
+{
+	GSList *l;
+
+	for (l = all; l; l = l->next) {
+		ComponentGSettings *c;
+		TrackerVerbosity v;
+
+		c = l->data;
+
+		if (c->is_miner == miners) {
+			continue;
+		}
+
+		v = g_settings_get_enum (c->settings, "verbosity");
+
+		g_print ("  %-*.*s: %s\n",
+		         longest,
+		         longest,
+		         c->name,
+		         verbosity_to_string (v));
+	}
+}
+
+static GSList *
+tracker_gsettings_get_all (gint *longest_name_length)
+{
+	typedef struct {
+		const gchar *schema;
+		const gchar *path;
+	} SchemaWithPath;
+
+	TrackerMinerManager *manager;
+	GError *error = NULL;
+	GSettings *settings;
+	GSList *all = NULL;
+	GSList *l;
+	GSList *miners_available;
+	GSList *valid_schemas = NULL;
+	const gchar * const *schema;
+	gint len = 0;
+	SchemaWithPath components[] = {
+		{ "Store", "store" },
+		{ "Extract", "extract" },
+		{ "Writeback", "writeback" },
+		{ 0 }
+	};
+	SchemaWithPath *swp;
+
+	/* Don't auto-start the miners here */
+	manager = tracker_miner_manager_new_full (FALSE, &error);
+	if (!manager) {
+		g_printerr (_("Could not get log verbosity, manager could not be created, %s"),
+		            error ? error->message : "unknown error");
+		g_printerr ("\n");
+		g_clear_error (&error);
+		return NULL;
+	}
+
+	miners_available = tracker_miner_manager_get_available (manager);
+
+	/* First iterate to get max width for nice formatting */
+	for (l = miners_available; l; l = l->next) {
+		const gchar *name;
+
+		name = tracker_miner_manager_get_display_name (manager, l->data);
+	}
+
+	/* Get valid schemas so we don't try to load invalid ones */
+	for (schema = g_settings_list_schemas (); schema && *schema; schema++) {
+		if (!g_str_has_prefix (*schema, "org.freedesktop.Tracker.")) {
+			continue;
+		}
+
+		valid_schemas = g_slist_prepend (valid_schemas, g_strdup (*schema));
+	}
+
+	/* Store / General */
+	for (swp = components; swp && swp->schema; swp++) {
+		gchar *schema;
+		gchar *path;
+
+		schema = g_strdup_printf ("org.freedesktop.Tracker.%s", swp->schema);
+		path = g_strdup_printf ("/org/freedesktop/tracker/%s/", swp->path);
+
+		/* If miner doesn't have a schema, no point in getting config */
+		if (!tracker_string_in_gslist (schema, valid_schemas)) {
+			g_free (path);
+			g_free (schema);
+			continue;
+		}
+
+		len = MAX (len, strlen (swp->schema));
+
+		settings = g_settings_new_with_path (schema, path);
+		if (settings) {
+			ComponentGSettings *c = g_slice_new (ComponentGSettings);
+
+			c->name = g_strdup (swp->schema);
+			c->settings = settings;
+			c->is_miner = FALSE;
+
+			all = g_slist_prepend (all, c);
+		}
+	}
+
+	/* Miners */
+	for (l = miners_available; l; l = l->next) {
+		const gchar *name;
+		gchar *schema;
+		gchar *name_lowercase;
+		gchar *path;
+		gchar *miner;
+
+		miner = l->data;
+		if (!miner) {
+			continue;
+		}
+
+		name = g_utf8_strrchr (miner, -1, '.');
+		if (!name) {
+			continue;
+		}
+
+		name++;
+		name_lowercase = g_utf8_strdown (name, -1);
+
+		schema = g_strdup_printf ("org.freedesktop.Tracker.Miner.%s", name);
+		path = g_strdup_printf ("/org/freedesktop/tracker/miner/%s/", name_lowercase);
+		g_free (name_lowercase);
+
+		/* If miner doesn't have a schema, no point in getting config */
+		if (!tracker_string_in_gslist (schema, valid_schemas)) {
+			g_free (path);
+			g_free (schema);
+			continue;
+		}
+
+		settings = g_settings_new_with_path (schema, path);
+		g_free (path);
+		g_free (schema);
+
+		if (settings) {
+			ComponentGSettings *c = g_slice_new (ComponentGSettings);
+
+			c->name = g_strdup (name);
+			c->settings = settings;
+			c->is_miner = TRUE;
+
+			all = g_slist_prepend (all, c);
+			len = MAX (len, strlen (name));
+		}
+	}
+
+	g_slist_foreach (valid_schemas, (GFunc) g_free, NULL);
+	g_slist_free (valid_schemas);
+	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
+	g_slist_free (miners_available);
+	g_object_unref (manager);
+
+	if (longest_name_length) {
+		*longest_name_length = len;
+	}
+
+	return g_slist_reverse (all);
+}
+
+static void
+tracker_gsettings_free (GSList *all)
+{
+	GSList *l;
+
+	/* Clean up */
+	for (l = all; l; l = l->next) {
+		ComponentGSettings *c = l->data;
+
+		g_free (c->name);
+		g_object_unref (c->settings);
+		g_slice_free (ComponentGSettings, c);
+	}
+}
+
 static gboolean
 term_option_arg_func (const gchar  *option_value,
                       const gchar  *value,
@@ -298,7 +517,8 @@ tracker_control_general_run (void)
 	GError *error = NULL;
 	GSList *pids;
 	GSList *l;
-	gchar  *str;
+	gchar *str;
+	gpointer verbosity_type_enum_class_pointer = NULL;
 
 	/* Constraints */
 
@@ -320,9 +540,31 @@ tracker_control_general_run (void)
 		return EXIT_FAILURE;
 	}
 
+	if (get_log_verbosity && set_log_verbosity) {
+		g_printerr ("%s\n",
+		            _("You can not use the --get-logging and --set-logging arguments together"));
+		return EXIT_FAILURE;
+	}
+
 	if (hard_reset || soft_reset) {
 		/* Imply --kill */
 		kill_option = TERM_ALL;
+	}
+
+	if (get_log_verbosity || set_log_verbosity) {
+		GType etype;
+
+		/* Since we don't reference this enum anywhere, we do
+		 * it here to make sure it exists when we call
+		 * g_type_class_peek(). This wouldn't be necessary if
+		 * it was a param in a GObject for example.
+		 *
+		 * This does mean that we are leaking by 1 reference
+		 * here and should clean it up, but it doesn't grow so
+		 * this is acceptable.
+		 */
+		etype = tracker_verbosity_get_type ();
+		verbosity_type_enum_class_pointer = g_type_class_ref (etype);
 	}
 
 	/* Unless we are stopping processes or listing processes,
@@ -548,6 +790,43 @@ tracker_control_general_run (void)
 
 		g_main_loop_run (main_loop);
 		g_object_unref (crawler);
+	}
+
+	/* Deal with logging changes AFTER the config may have been
+	 * reset, this way users can actually use --remove-config with
+	 * the --set-logging switch.
+	 */
+	if (get_log_verbosity) {
+		GSList *all;
+		gint longest = 0;
+
+		all = tracker_gsettings_get_all (&longest);
+
+		if (!all) {
+			return EXIT_FAILURE;
+		}
+
+		g_print ("%s:\n", _("Components"));
+		tracker_gsettings_print_verbosity (all, longest, TRUE);
+		g_print ("\n");
+
+		/* Miners */
+		g_print ("%s (%s):\n",
+		         _("Miners"),
+		         _("Only those with config listed"));
+		tracker_gsettings_print_verbosity (all, longest, FALSE);
+		g_print ("\n");
+
+		tracker_gsettings_free (all);
+	}
+
+	if (set_log_verbosity) {
+		g_printerr ("FIXME: Implement");
+		return EXIT_FAILURE;
+	}
+
+	if (verbosity_type_enum_class_pointer) {
+		g_type_class_unref (verbosity_type_enum_class_pointer);
 	}
 
 	if (start) {
