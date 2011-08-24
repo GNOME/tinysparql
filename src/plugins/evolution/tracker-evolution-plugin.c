@@ -588,7 +588,7 @@ message_uri_build (CamelFolder *folder,
 
 	return uri;
 #else
-	CamelURL *a_url, url;
+	CamelURL *a_url, *url;
 	const gchar *path;
 	gchar *uri, *qry, *ppath;
 
