@@ -213,7 +213,7 @@ class ExtractionTestCase (ut.TestCase):
                                                           section))
 
 
-if __name__ == "__main__":
+def run_all ():
     ##
     # Traverse the TEST_DATA_PATH directory looking for .description files
     # Add a new TestCase to the suite per .description file and run the suite.
@@ -237,3 +237,26 @@ if __name__ == "__main__":
     result = ut.TextTestRunner (verbosity=1).run (extractionTestSuite)
     sys.exit(not result.wasSuccessful())
 
+def run_one (filename):
+    ##
+    # Run just one .description file
+    ##
+    description = os.path.join (os.getcwd (), filename) 
+
+    extractionTestSuite = ut.TestSuite ()
+    tc = ExtractionTestCase(descfile=description)
+    extractionTestSuite.addTest(tc)
+
+    result = ut.TextTestRunner (verbosity=2).run (extractionTestSuite)
+    sys.exit(not result.wasSuccessful())
+
+
+if __name__ == "__main__":
+    if (len (sys.argv) == 1):
+        run_all ()
+    else:
+        if os.path.exists (sys.argv[1]) and sys.argv[1].endswith (".expected"):
+            run_one (sys.argv[1])
+        else:
+            print "Usage: %s [FILE.expected]" % (sys.argv[1])
+        
