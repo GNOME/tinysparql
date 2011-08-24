@@ -262,5 +262,5 @@ if __name__ == "__main__":
         if os.path.exists (sys.argv[1]) and sys.argv[1].endswith (".expected"):
             run_one (sys.argv[1])
         else:
-            print "Usage: %s [FILE.expected]" % (sys.argv[1])
+            print "Usage: %s [FILE.expected]" % (sys.argv[0])
         
