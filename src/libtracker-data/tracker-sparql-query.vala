@@ -169,10 +169,21 @@ namespace Tracker.Sparql {
 	}
 
 	class Solution {
-		public HashTable<string,string> hash;
+		public HashTable<string,int> hash;
+		public GenericArray<string> values;
+		public int solution_index;
+
+		public Solution () {
+			this.hash = new HashTable<string,int> (str_hash, str_equal);
+			this.values = new GenericArray<string> ();
+		}
 
 		public string? lookup (string variable_name) {
-			return hash.lookup (variable_name);
+			int variable_index;
+			if (!hash.lookup_extended (variable_name, null, out variable_index)) {
+				return null;
+			}
+			return values[solution_index * hash.size () + variable_index];
 		}
 	}
 }
@@ -666,23 +677,25 @@ public class Tracker.Sparql.Query : Object {
 
 		var after_where = get_location ();
 
+		var solution = new Solution ();
+
 		// build SQL
 		sql.append ("SELECT ");
-		bool first = true;
+		int var_idx = 0;
 		foreach (var variable in context.var_set.get_keys ()) {
-			if (!first) {
+			if (var_idx > 0) {
 				sql.append (", ");
-			} else {
-				first = false;
 			}
 
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
 			}
 			Expression.append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
+
+			solution.hash.insert (variable.name, var_idx++);
 		}
 
-		if (first) {
+		if (var_idx == 0) {
 			sql.append ("1");
 		}
 
@@ -696,24 +709,19 @@ public class Tracker.Sparql.Query : Object {
 		this.delete_statements = delete_statements;
 		this.update_statements = update_statements;
 
-		var solutions = new GenericArray<HashTable<string,string>> ();
-
+		int n_solutions = 0;
 		while (cursor.next ()) {
 			// get values of all variables to be bound
-			var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-			int var_idx = 0;
-			foreach (var variable in context.var_set.get_keys ()) {
-				var_value_map.insert (variable.name, cursor.get_string (var_idx++));
+			for (var_idx = 0; var_idx < solution.hash.size (); var_idx++) {
+				solution.values.add (cursor.get_string (var_idx));
 			}
-			solutions.add (var_value_map);
+			n_solutions++;
 		}
 
 		cursor = null;
 
-		var solution = new Solution ();
-
 		// iterate over all solutions
-		for (int i = 0; i < solutions.length; i++) {
+		for (int i = 0; i < n_solutions; i++) {
 			// blank nodes in construct templates are per solution
 
 			uuid_generate (base_uuid);
@@ -721,7 +729,7 @@ public class Tracker.Sparql.Query : Object {
 
 			set_location (template_location);
 
-			solution.hash = solutions[i];
+			solution.solution_index = i;
 
 			// iterate over each triple in the template
 			parse_construct_triples_block (solution);
