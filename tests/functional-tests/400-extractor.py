@@ -23,7 +23,7 @@ metadata is extracted. Load dynamically the test information from a data
 directory (containing xxx.expected files)
 """
 from common.utils import configuration as cfg
-from common.utils.helpers import ExtractorHelper
+from common.utils.helpers import ExtractorHelper, NoMetadataException
 import unittest2 as ut
 import os
 import types
@@ -118,9 +118,13 @@ class ExtractionTestCase (ut.TestCase):
         except Exception, e:
             self.fail ("%s in %s"
                        % (e, abs_description))
-        result = self.extractor.get_metadata ("file://" + self.file_to_extract, "")
 
-        self.__assert_extraction_ok (result)
+        try:
+            result = self.extractor.get_metadata ("file://" + self.file_to_extract, "")
+
+            self.__assert_extraction_ok (result)
+        except NoMetadataException, e:
+            self.fail ("Probably a missing gstreamer plugin (or crash in the extractor?)")
 
 
     def assertDictHasKey (self, d, key, msg=None):
