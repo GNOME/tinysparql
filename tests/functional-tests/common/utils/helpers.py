@@ -26,6 +26,9 @@ from dbus.mainloop.glib import DBusGMainLoop
 import configuration as cfg
 import re
 
+class NoMetadataException (Exception):
+    pass
+
 class StoreHelper:
     """
     Wrapper for the Store API
@@ -178,15 +181,18 @@ class ExtractorHelper ():
          }
         """
         metadata = {}
-        preupdate, embedded = self.extractor.GetMetadata (filename, mime)
-        for attribute_value in self.__process_lines (embedded):
-            att, value = attribute_value.split (" ", 1)
-            if metadata.has_key (att):
-                metadata [att].append (value)
-            else:
-                metadata [att] = [value]
+        try:
+            preupdate, embedded = self.extractor.GetMetadata (filename, mime)
+            for attribute_value in self.__process_lines (embedded):
+                att, value = attribute_value.split (" ", 1)
+                if metadata.has_key (att):
+                    metadata [att].append (value)
+                else:
+                    metadata [att] = [value]
 
-        return metadata
+            return metadata
+        except dbus.DBusException, e:
+            raise NoMetadataException ()
             
     def __process_lines (self, embedded):
         """
@@ -243,6 +249,20 @@ class ExtractorHelper ():
 
 
         return map (self.__clean_value, grouped_lines)
+
+    def __process_where_part (self, where):
+        gettags = re.compile ("(\?\w+)\ a\ nao:Tag\ ;\ nao:prefLabel\ \"([\w\ -]+)\"")
+        tags = {}
+        for l in where.split ("\n"):
+            if len (l) == 0:
+                continue
+            match = gettags.search (l)
+            if (match):
+                tags [match.group(1)] = match.group (2)
+            else:
+                print "This line is not a tag:", l
+
+        return tags
 
     def __handle_multivalues (self, line):
         """

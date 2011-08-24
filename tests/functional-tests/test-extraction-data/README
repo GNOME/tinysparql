@@ -43,7 +43,10 @@ The Metadata section contains pairs of property=values with few special rules:
    It handles a couple of special cases, relevant for testing:
    E.G.
 
-         nao:hasTag [a nao:Tag; nao:prefLabel "XXX"]      -> nao_hasTag_prefLabel=XXX
+         slo:location [a slo:GeoLocation; slo:PostalAddress "XXX"]      -> slo_location_postalAddress=XXX
+
+   Note 24/08/2011: Tags are translated as "nao_Tag=value, value, value" instead of 
+                    the old "nao_Tag_preflabel=value, value, value"
 
 5. There is (so far only) one constant defined to use in the values:
 
