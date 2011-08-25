@@ -274,10 +274,6 @@ class JournalReplayTest (CommonTrackerStoreTest):
             self.system.tracker_store_stop_brutally ()
             self.system.tracker_store_corrupt_dbs ()
             self.system.tracker_store_start ()
-            ## Start it twice... the first time it detects the broken DB and aborts
-            #self.system.tracker_store_start ()
-
-            self.tracker.connect ()
 
             emails_now = self.tracker.count_instances ("nmo:Email")
             ie_now = self.tracker.count_instances ("nie:InformationElement")
@@ -310,8 +306,6 @@ class JournalReplayTest (CommonTrackerStoreTest):
             self.system.tracker_store_stop_brutally ()
             self.system.tracker_store_prepare_journal_replay ()
             self.system.tracker_store_start ()
-
-            self.tracker.connect ()
 
             emails_now = self.tracker.count_instances ("nmo:Email")
             ie_now = self.tracker.count_instances ("nie:InformationElement")

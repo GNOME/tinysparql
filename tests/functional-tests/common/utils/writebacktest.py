@@ -22,23 +22,24 @@ import shutil
 import unittest2 as ut
 import os
 from common.utils import configuration as cfg
+from common.utils.helpers import log
 import time
-
-BASEDIR = os.path.join (os.environ['HOME'], "test-writeback-monitored")
 
 TEST_FILE_JPEG = "writeback-test-1.jpeg"
 TEST_FILE_TIFF = "writeback-test-2.tif"
 TEST_FILE_PNG = "writeback-test-4.png"
 
+WRITEBACK_TMP_DIR = os.path.join (cfg.TEST_MONITORED_TMP_DIR, "writeback")
+
 CONF_OPTIONS = [
-    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [BASEDIR]),
+    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [WRITEBACK_TMP_DIR]),
     (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
     (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
     (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false")
     ]
 
 def uri (filename):
-    return "file://" + os.path.join (BASEDIR, filename)
+    return "file://" + os.path.join (WRITEBACK_TMP_DIR, filename)
 
 class CommonTrackerWritebackTest (ut.TestCase):
     """
@@ -53,7 +54,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
         #
         
         for d in ["test-writeback-monitored"]:
-            directory = os.path.join (BASEDIR, d)
+            directory = os.path.join (WRITEBACK_TMP_DIR, d)
             if (os.path.exists (directory)):
                 shutil.rmtree (directory)
             os.makedirs (directory)
@@ -68,8 +69,8 @@ class CommonTrackerWritebackTest (ut.TestCase):
 
         for testfile in [TEST_FILE_JPEG, TEST_FILE_PNG,TEST_FILE_TIFF]:
             origin = os.path.join (datadir, testfile)
-            print "Copying", origin, BASEDIR
-            shutil.copy (origin, BASEDIR)
+            log ("Copying %s -> %s" % (origin, WRITEBACK_TMP_DIR))
+            shutil.copy (origin, WRITEBACK_TMP_DIR)
             time.sleep (2)
 
     
@@ -82,7 +83,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
 
         self.system.tracker_writeback_testing_start (CONF_OPTIONS)
         # Returns when ready
-        print "Ready to go!"
+        log ("Ready to go!")
         
     @classmethod
     def tearDownClass (self):

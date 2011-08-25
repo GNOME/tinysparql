@@ -18,7 +18,7 @@
 # Boston, MA  02110-1301, USA.
 #
 from common.utils.writebacktest import CommonTrackerWritebackTest as CommonTrackerWritebackTest
-from common.utils.helpers import StoreHelper, ExtractorHelper
+from common.utils.helpers import log
 import unittest2 as ut
 from common.utils.expectedFailure import expectedFailureBug
 import time
@@ -28,8 +28,8 @@ REASONABLE_TIMEOUT = 5 # Seconds we wait for tracker-writeback to do the work
 class WritebackKeepDateTest (CommonTrackerWritebackTest):
 
     def setUp (self):
-        self.tracker = StoreHelper ()
-        self.extractor = ExtractorHelper ()
+        self.tracker = self.system.store
+        self.extractor = self.system.extractor
         self.favorite = self.__prepare_favorite_tag ()
 
     def __prepare_favorite_tag (self):
@@ -60,7 +60,7 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
         results = self.tracker.query (query_images)
         self.assertEquals (len (results), 3, results)
 
-        print "Waiting 2 seconds to ensure there is a noticiable difference in the timestamp"
+        log ("Waiting 2 seconds to ensure there is a noticiable difference in the timestamp")
         time.sleep (2)
     
         # This triggers the writeback
@@ -72,7 +72,7 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
          }
         """ % (self.get_test_filename_jpeg ())
         self.tracker.update (mark_as_favorite)
-        print "Setting favorite in <%s>" % (self.get_test_filename_jpeg ())
+        log ("Setting favorite in <%s>" % (self.get_test_filename_jpeg ()))
         time.sleep (REASONABLE_TIMEOUT)
 
         # Check the value is written in the file

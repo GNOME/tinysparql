@@ -18,18 +18,158 @@
 # 02110-1301, USA.
 #
 import dbus
+import glib
 import gobject
 import commands
 import os
 import signal
+import subprocess
+import time
 from dbus.mainloop.glib import DBusGMainLoop
-import configuration as cfg
 import re
+
+import configuration as cfg
+import options
 
 class NoMetadataException (Exception):
     pass
 
-class StoreHelper:
+REASONABLE_TIMEOUT = 30
+
+def log (message):
+    if options.is_verbose ():
+        print (message)
+
+class Helper:
+    """
+    Abstract helper for Tracker processes. Launches the process manually
+    and waits for it to appear on the session bus.
+
+    The helper will fail if the process is already running. Use
+    test-runner.sh to ensure the processes run inside a separate DBus
+    session bus.
+    """
+
+    BUS_NAME = None
+    PROCESS_NAME = None
+
+    def __init__ (self):
+        self.loop = None
+        self.bus = None
+        self.bus_admin = None
+
+    def _get_bus (self):
+        if self.bus is not None:
+            return
+
+        self.loop = gobject.MainLoop ()
+
+        dbus_loop = DBusGMainLoop (set_as_default=True)
+        self.bus = dbus.SessionBus (dbus_loop)
+
+        obj = self.bus.get_object ("org.freedesktop.DBus",
+                                   "/org/freedesktop/DBus")
+        self.bus_admin = dbus.Interface (obj, dbus_interface = "org.freedesktop.DBus")
+
+    def _start_process (self):
+        path = getattr (self,
+                        "PROCESS_PATH",
+                        os.path.join (cfg.EXEC_PREFIX, self.PROCESS_NAME))
+
+        if options.is_manual_start ():
+            print ("Start %s manually" % self.PROCESS_NAME)
+        else:
+            kws = {}
+
+            if not options.is_verbose ():
+                FNULL = open ('/dev/null', 'w')
+                kws = { 'stdout': FNULL, 'stderr': FNULL }
+
+            return subprocess.Popen ([path], **kws)
+
+    def _stop_process (self):
+        if options.is_manual_start ():
+            if self.available:
+                print ("Kill %s manually" % self.PROCESS_NAME)
+                self.loop.run ()
+        else:
+            self.process.terminate ()
+            self.process.wait ()
+        return False
+
+    def _name_owner_changed_cb (self, name, old_owner, new_owner):
+        if name == self.BUS_NAME:
+            if old_owner == '' and new_owner != '':
+                log ("[%s] appeared in the bus" % self.PROCESS_NAME)
+                self.available = True
+            elif old_owner != ''  and new_owner == '':
+                log ("[%s] disappeared from the bus" % self.PROCESS_NAME)
+                self.available = False
+            else:
+                log ("[%s] name change %s -> %s" % (self.PROCESS_NAME, old_owner, new_owner))
+
+            self.loop.quit ()
+
+    def _process_watch_cb (self):
+        status = self.process.poll ()
+
+        if status is None:
+            return True
+
+        raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
+
+    def _timeout_on_idle_cb (self):
+        log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
+        self.loop.quit ()
+        return False
+
+
+    def start (self):
+        """
+        Start an instance of process and wait for it to appear on the bus.
+        """
+
+        self._get_bus ()
+
+        if (self.bus_admin.NameHasOwner (self.BUS_NAME)):
+            raise Exception ("Unable to start test instance of %s: already running" % self.PROCESS_NAME)
+
+        self.name_owner_match = self.bus.add_signal_receiver (self._name_owner_changed_cb,
+                                                              signal_name="NameOwnerChanged",
+                                                              path="/org/freedesktop/DBus",
+                                                              dbus_interface="org.freedesktop.DBus")
+
+        self.process = self._start_process ()
+
+        # Run the loop until the bus name appears, or the process dies.
+        self.process_watch_timeout = glib.timeout_add (200, self._process_watch_cb)
+
+        self.loop.run ()
+
+        glib.source_remove (self.process_watch_timeout)
+
+    def stop (self):
+        if self.available:
+            # It should step out of this loop when the miner disappear from the bus
+            glib.idle_add (self._stop_process)
+            self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+            self.loop.run ()
+
+        log ("[%s] stop." % self.PROCESS_NAME)
+        # Disconnect the signals of the next start we get duplicated messages
+        self.bus._clean_up_signal_match (self.name_owner_match)
+
+    def kill (self):
+        self.process.kill ()
+
+        # Name owner changed callback should take us out from this loop
+        self.loop.run ()
+
+        log ("[%s] killed." % self.PROCESS_NAME)
+        self.bus._clean_up_signal_match (self.name_owner_match)
+
+
+class StoreHelper (Helper):
     """
     Wrapper for the Store API
 
@@ -37,44 +177,60 @@ class StoreHelper:
     (some tests kill the daemon and make the connection useless)
     """
 
-    def __init__ (self):
-        self.connect ()
-        
-    def connect (self):
-        dbus_loop = DBusGMainLoop(set_as_default=True)
-        bus = dbus.SessionBus (mainloop=dbus_loop)
-        tracker = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_OBJ_PATH)
+    PROCESS_NAME = "tracker-store"
+    BUS_NAME = cfg.TRACKER_BUSNAME
+
+    def start (self):
+        Helper.start (self)
+
+        tracker = self.bus.get_object (cfg.TRACKER_BUSNAME,
+                                       cfg.TRACKER_OBJ_PATH)
+
         self.resources = dbus.Interface (tracker,
                                          dbus_interface=cfg.RESOURCES_IFACE)
-        tracker_backup = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_BACKUP_OBJ_PATH)
+
+        tracker_backup = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_BACKUP_OBJ_PATH)
         self.backup_iface = dbus.Interface (tracker_backup, dbus_interface=cfg.BACKUP_IFACE)
 
-        tracker_stats = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATS_OBJ_PATH)
+        tracker_stats = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATS_OBJ_PATH)
+
         self.stats_iface = dbus.Interface (tracker_stats, dbus_interface=cfg.STATS_IFACE)
 
-        tracker_status = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH)
+        tracker_status = self.bus.get_object (cfg.TRACKER_BUSNAME,
+                                              cfg.TRACKER_STATUS_OBJ_PATH)
         self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
+
+        log ("[%s] booting..." % self.PROCESS_NAME)
+        self.status_iface.Wait ()
+        log ("[%s] ready." % self.PROCESS_NAME)
+
 
     def query (self, query, timeout=5000):
         try:
             return self.resources.SparqlQuery (query, timeout=timeout)
-        except dbus.DBusException:
-            self.connect ()
-            return self.resources.SparqlQuery (query, timeout=timeout)
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.resources.SparqlQuery (query, timeout=timeout)
+            raise (e)
 
     def update (self, update_sparql, timeout=5000):
         try:
             return self.resources.SparqlUpdate (update_sparql, timeout=timeout)
-        except dbus.DBusException:
-            self.connect ()
-            return self.resources.SparqlUpdate (update_sparql, timeout=timeout)
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.resources.SparqlUpdate (update_sparql, timeout=timeout)
+            raise (e)
 
     def batch_update (self, update_sparql):
         try:
             return self.resources.BatchSparqlUpdate (update_sparql)
-        except dbus.DBusException:
-            self.connect ()
-            return self.resources.BatchSparqlUpdate (update_sparql)
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.resources.BatchSparqlUpdate (update_sparql)
+            raise (e)
 
     def batch_commit (self):
         return self.resources.BatchCommit ()
@@ -82,30 +238,29 @@ class StoreHelper:
     def backup (self, backup_file):
         try:
             self.backup_iface.Save (backup_file)
-        except dbus.DBusException:
-            self.connect ()
-            self.backup_iface.Save (backup_file)
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.backup_iface.Save (backup_file)
+            raise (e)
             
     def restore (self, backup_file):
         try:
             return self.backup_iface.Restore (backup_file)
-        except dbus.DBusException:
-            self.connect ()
-            return self.backup_iface.Restore (backup_file)
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.backup_iface.Restore (backup_file)
+            raise (e)
 
     def get_stats (self):
         try:
             return self.stats_iface.Get ()
-        except dbus.DBusException:
-            self.connect ()
-            return self.stats_iface.Get ()
-
-    def wait (self):
-        try:
-            return self.status_iface.Wait ()
-        except dbus.DBusException:
-            self.connect ()
-            return self.status_iface.Wait ()
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                return self.stats_iface.Get ()
+            raise (e)
 
 
     def get_tracker_iface (self):
@@ -139,38 +294,94 @@ class StoreHelper:
             return False
         else:
             raise Exception ("Something fishy is going on")
-            
-        
 
-        
-class MinerHelper ():
 
-    def __init__ (self):
-        self.connect ()
+class MinerFsHelper (Helper):
 
-    def connect (self):
-        dbus_loop = DBusGMainLoop(set_as_default=True)
-        bus = dbus.SessionBus (mainloop=dbus_loop)
-        minerfs = bus.get_object (cfg.MINERFS_BUSNAME, cfg.MINERFS_OBJ_PATH)
-        self.miner_fs = dbus.Interface (minerfs,
-                                        dbus_interface=cfg.MINER_IFACE)
-        
+    PROCESS_NAME = 'tracker-miner-fs'
+    PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, "tracker-miner-fs")
+    BUS_NAME = cfg.MINERFS_BUSNAME
+
+    def _stop_process (self):
+        if options.is_manual_start ():
+            if self.available:
+                log ("Kill %s manually" % self.PROCESS_NAME)
+                self.loop.run ()
+        else:
+            control_binary = os.path.join (cfg.BINDIR, "tracker-control")
+
+            kws = {}
+
+            if not options.is_verbose ():
+                FNULL = open ('/dev/null', 'w')
+                kws = { 'stdout': FNULL }
+
+            subprocess.call ([control_binary, "--kill=miners"], **kws)
+
+        return False
+
+    def _minerfs_status_cb (self, status, progress, remaining_time):
+        if (status == "Idle"):
+            self.loop.quit ()
+
+    def start (self):
+        Helper.start (self)
+
+        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
+                                                          signal_name="Progress",
+                                                          path=cfg.MINERFS_OBJ_PATH,
+                                                          dbus_interface=cfg.MINER_IFACE)
+
+        # It should step out of this loop after progress changes to "Idle"
+        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+        self.loop.run ()
+        glib.source_remove (self.timeout_id)
+
+        bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
+                                          cfg.MINERFS_OBJ_PATH)
+        self.miner_fs = dbus.Interface (bus_object,
+                                        dbus_interface = cfg.MINER_IFACE)
+
+    def stop (self):
+        Helper.stop (self)
+
+        self.bus._clean_up_signal_match (self.status_match)
+
     def ignore (self, filelist):
         self.miner_fs.IgnoreNextUpdate (filelist)
 
-        
-class ExtractorHelper ():
+    def wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
+        """
+        Block until the miner has finished crawling and its status becomes "Idle"
+        """
 
-    def __init__ (self):
-        self.connect ()
-    
-    def connect (self):
-        dbus_loop = DBusGMainLoop(set_as_default=True)
-        bus = dbus.SessionBus (mainloop=dbus_loop)
-        tracker = bus.get_object (cfg.TRACKER_EXTRACT_BUSNAME, cfg.TRACKER_EXTRACT_OBJ_PATH)
-        self.extractor = dbus.Interface (tracker,
+        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
+                                                          signal_name="Progress",
+                                                          path=cfg.MINERFS_OBJ_PATH,
+                                                          dbus_interface=cfg.MINER_IFACE)
+        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+
+        self.loop.run ()
+
+        glib.source_remove (self.timeout_id)
+        self.bus._clean_up_signal_match (self.status_match)
+
+
+class ExtractorHelper (Helper):
+
+    PROCESS_NAME = 'tracker-extract'
+    BUS_NAME = cfg.TRACKER_EXTRACT_BUSNAME
+
+    def start (self):
+        Helper.start (self)
+
+        bus_object = self.bus.get_object (cfg.TRACKER_EXTRACT_BUSNAME,
+                                          cfg.TRACKER_EXTRACT_OBJ_PATH)
+        self.extractor = dbus.Interface (bus_object,
                                          dbus_interface=cfg.TRACKER_EXTRACT_IFACE)
 
+        # FIXME: interface does not appear straight away
+        time.sleep (0.2)
 
     def get_metadata (self, filename, mime):
         """
@@ -269,10 +480,7 @@ class ExtractorHelper ():
             return results
         else:
             return [line]
-        
-
-        
-            
+       
     def __handle_anon_nodes (self, line):
         """
         Traslates anonymous nodes in 'flat' properties:
@@ -363,4 +571,10 @@ class ExtractorHelper ():
         clean = clean.replace ("\"", "")
             
         return clean.strip ()
-        
+
+
+class WritebackHelper (Helper):
+
+    PROCESS_NAME = 'tracker-writeback'
+    PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, 'tracker-writeback')
+    BUS_NAME = cfg.WRITEBACK_BUSNAME

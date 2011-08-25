@@ -37,8 +37,7 @@ class CommonTrackerStoreTest (ut.TestCase):
             #print "Starting the daemon in test mode"
             self.system = TrackerSystemAbstraction ()
             self.system.tracker_store_testing_start ()
-            self.tracker = StoreHelper ()
-            self.tracker.wait () #Safe guard. Returns when the store is ready
+            self.tracker = self.system.store
 
         @classmethod
         def tearDownClass (self):

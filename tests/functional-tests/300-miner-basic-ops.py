@@ -30,7 +30,8 @@ import shutil
 import time
 
 import unittest2 as ut
-from common.utils.minertest import CommonTrackerMinerTest, BASEDIR, uri, path
+from common.utils.helpers import log
+from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, uri, path
 
 class MinerCrawlTest (CommonTrackerMinerTest):
     """
@@ -105,8 +106,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         Copy an file from unmonitored directory to monitored directory
         and verify if data base is updated accordingly
         """
-        source = os.path.join (BASEDIR, "test-no-monitored", "file0.txt")
-        dest = os.path.join (BASEDIR, "test-monitored", "file0.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-no-monitored", "file0.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-monitored", "file0.txt")
         shutil.copyfile (source, dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -120,7 +121,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         self.assertIn ( uri ("test-monitored/file0.txt"), unpacked_result)
 
         # Clean the new file so the test directory is as before
-        print "Remove and wait"
+        log ("Remove and wait")
         os.remove (dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -131,8 +132,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
 
         # Copy from monitored to unmonitored
-        source = os.path.join (BASEDIR, "test-monitored", "file1.txt")
-        dest = os.path.join (BASEDIR, "test-no-monitored", "file1.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-monitored", "file1.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-no-monitored", "file1.txt")
         shutil.copyfile (source, dest)
 
         time.sleep (1)
@@ -151,8 +152,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Copy a file between monitored directories
         """
-        source = os.path.join (BASEDIR, "test-monitored", "file1.txt")
-        dest = os.path.join (BASEDIR, "test-monitored", "dir1", "dir2", "file-test04.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-monitored", "file1.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "dir2", "file-test04.txt")
         shutil.copyfile (source, dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -174,8 +175,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Move a file from unmonitored to monitored directory
         """
-        source = os.path.join (BASEDIR, "test-no-monitored", "file0.txt")
-        dest = os.path.join (BASEDIR, "test-monitored", "dir1", "file-test05.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-no-monitored", "file0.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file-test05.txt")
         shutil.move (source, dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -200,8 +201,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Move a file from monitored to unmonitored directory
         """
-        source = os.path.join (BASEDIR, "test-monitored", "dir1", "file2.txt")
-        dest = os.path.join (BASEDIR, "test-no-monitored", "file2.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-no-monitored", "file2.txt")
         shutil.move (source, dest)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -221,10 +222,10 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Move a file between monitored directories
         """
-        source = os.path.join (BASEDIR, "test-monitored", "dir1", "file2.txt")
-        dest = os.path.join (BASEDIR, "test-monitored", "file2.txt")
+        source = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
+        dest = os.path.join (MINER_TMP_DIR, "test-monitored", "file2.txt")
 
-        source_dir_urn = self.__get_file_urn (os.path.join (BASEDIR, "test-monitored", "dir1"))
+        source_dir_urn = self.__get_file_urn (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1"))
         parent_before = self.__get_parent_urn (source)
         self.assertEquals (source_dir_urn, parent_before)
 
@@ -233,7 +234,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
 
         # Checking fix for NB#214413: After a move operation, nfo:belongsToContainer
         # should be changed to the new one
-        dest_dir_urn = self.__get_file_urn (os.path.join (BASEDIR, "test-monitored"))
+        dest_dir_urn = self.__get_file_urn (os.path.join (MINER_TMP_DIR, "test-monitored"))
         parent_after = self.__get_parent_urn (dest)
         self.assertNotEquals (parent_before, parent_after)
         self.assertEquals (dest_dir_urn, parent_after)
@@ -259,7 +260,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Delete one of the files
         """
-        victim = os.path.join (BASEDIR, "test-monitored", "dir1", "file2.txt")
+        victim = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
         os.remove (victim)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -279,7 +280,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Delete a directory
         """
-        victim = os.path.join (BASEDIR, "test-monitored", "dir1")
+        victim = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1")
         shutil.rmtree (victim)
         self.system.tracker_miner_fs_wait_for_idle ()
 
@@ -290,13 +291,13 @@ class MinerCrawlTest (CommonTrackerMinerTest):
 
         # Restore the dirs
         #  Wait after each operation to be sure of the results
-        os.makedirs (os.path.join (BASEDIR, "test-monitored", "dir1"))
+        os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1"))
         self.system.tracker_miner_fs_wait_for_idle ()
-        os.makedirs (os.path.join (BASEDIR, "test-monitored", "dir1", "dir2"))
+        os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "dir2"))
         self.system.tracker_miner_fs_wait_for_idle ()
         for f in ["test-monitored/dir1/file2.txt",
                   "test-monitored/dir1/dir2/file3.txt"]:
-            filename = os.path.join (BASEDIR, f)
+            filename = os.path.join (MINER_TMP_DIR, f)
             writer = open (filename, "w")
             writer.write ("Don't panic, everything is fine")
             writer.close ()

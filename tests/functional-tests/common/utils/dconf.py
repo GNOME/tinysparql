@@ -1,5 +1,6 @@
 import subprocess
 import os
+from helpers import log
 
 class DConfClient:
     """
@@ -24,7 +25,7 @@ class DConfClient:
         # XDG_CONFIG_HOME is useless
         dconf_db = os.path.join (os.environ ["HOME"], ".config", "dconf", profile)
         if os.path.exists (dconf_db):
-            print "[Conf] Removing dconf-profile:", dconf_db
+            log ("[Conf] Removing dconf-profile: " + dconf_db)
             os.remove (dconf_db)
 
 

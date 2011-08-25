@@ -86,8 +86,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
 
 
         self.system.tracker_store_testing_start (ontodir=basic_ontologies)
-        self.tracker = StoreHelper ()
-        self.tracker.wait () #Safe guard. Returns when the store is ready
+        self.tracker = self.system.store
 
         self.insert_data ()
 
@@ -189,7 +188,6 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
                              % (self.instance))
 
     def validate_status (self):
-        print "validating"
         # Query the ontology itself
         result = self.tracker.query ("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
         self.assertEquals (result[0][0], XSD_DATETIME)
