@@ -7,5 +7,6 @@ if test -h /targets/links/scratchbox.config ; then
 
     meego-run $@
 else
+    echo "Running $@"
     $@
 fi ;
