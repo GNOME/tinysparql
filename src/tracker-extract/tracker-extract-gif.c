@@ -73,7 +73,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
                GString              *where,
                GifFileType          *gifFile,
-               const gchar          *uri)
+               const gchar          *uri,
+               const gchar          *graph)
 {
 	GifRecordType RecordType;
 	int frameheight;
@@ -349,11 +350,26 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		var = g_strdup_printf ("tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
+		tracker_sparql_builder_append (preupdate, "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+		tracker_sparql_builder_append (preupdate, "\"");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
+		tracker_sparql_builder_append (preupdate, " }\n");
 		tracker_sparql_builder_append (preupdate,
-		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
+		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
 		tracker_sparql_builder_append (preupdate,
@@ -521,11 +537,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	goffset size;
 	GifFileType *gifFile = NULL;
 	GString *where;
+	const gchar *graph;
 	gchar *filename, *uri;
 	GFile *file;
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
@@ -550,7 +568,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	where = g_string_new ("");
 	uri = g_file_get_uri (file);
 
-	read_metadata (preupdate, metadata, where, gifFile, uri);
+	read_metadata (preupdate, metadata, where, gifFile, uri, graph);
 	tracker_extract_info_set_where_clause (info,
 	                                       g_string_free (where, FALSE));
 
