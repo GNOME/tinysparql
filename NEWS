@@ -1,3 +1,28 @@
+NEW in 0.10.24 - 2011-08-25
+===========================
+
+The changes are:
+
+  * Fixes: GB#655898, functional-test enhancements
+  * Fixes: GB#657161, tracker_miner_manager_new_full does not propagate the error
+  * Fixes: GB#654824, tracker 0.10.20 adn 0.11.0 does not build with evolution 3.1.3
+  * Fixes: NB#242979, DELETE remove resources before evaluating the WHERE part
+  * Fixes: NB#278806, Files with XMP keywords trigger writeback when being inserted in tracker-store
+  * Fixes: NB#277799, XMP orientation is incorrectly calculated
+  * Fixes: NB#278171, Some songs with Finnish title shown incorrectly
+  * Fixes: NB#275719, Media-art created for every song in collection albums
+  * tracker-extract-gstreamer: Remove redundant tag definitions
+
+Translations:
+
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  None
+
+
 NEW in 0.10.23 - 2011-08-18
 ===========================
 
