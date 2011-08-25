@@ -294,6 +294,7 @@ static void
 get_metadata_fast_async (GDBusConnection    *connection,
                          GFile              *file,
                          const gchar        *mime_type,
+                         const gchar        *graph,
                          GCancellable       *cancellable,
                          GSimpleAsyncResult *res)
 {
@@ -319,9 +320,10 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	uri = g_file_get_uri (file);
 
 	g_dbus_message_set_body (message,
-	                         g_variant_new ("(ssh)",
+	                         g_variant_new ("(sssh)",
 	                                        uri,
 	                                        mime_type,
+	                                        graph,
 	                                        g_unix_fd_list_append (fd_list,
 	                                                               pipefd[1],
 	                                                               NULL)));
@@ -333,7 +335,7 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	g_object_unref (fd_list);
 	g_free (uri);
 
-	info = tracker_extract_info_new (file, mime_type, NULL);
+	info = tracker_extract_info_new (file, mime_type, graph);
 	data = metadata_call_data_new (info, res);
 
 	dbus_send_and_splice_async (connection,
@@ -350,6 +352,7 @@ get_metadata_fast_async (GDBusConnection    *connection,
  * tracker_extract_client_get_metadata:
  * @file: a #GFile
  * @mime_type: mimetype of @file
+ * @graph: graph that should be used for the generated insert clauses, or %NULL
  * @cancellable: (allow-none): cancellable for the async operation, or %NULL
  * @callback: (scope async): callback to call when the request is satisfied.
  * @user_data: (closure): data for the callback function
@@ -364,6 +367,7 @@ get_metadata_fast_async (GDBusConnection    *connection,
 void
 tracker_extract_client_get_metadata (GFile               *file,
                                      const gchar         *mime_type,
+                                     const gchar         *graph,
                                      GCancellable        *cancellable,
                                      GAsyncReadyCallback  callback,
                                      gpointer             user_data)
@@ -389,7 +393,8 @@ tracker_extract_client_get_metadata (GFile               *file,
 	res = g_simple_async_result_new (G_OBJECT (file), callback, user_data, NULL);
 	g_simple_async_result_set_handle_cancellation (res, TRUE);
 
-	get_metadata_fast_async (connection, file, mime_type, cancellable, res);
+	get_metadata_fast_async (connection, file, mime_type, graph,
+	                         cancellable, res);
 	g_object_unref (res);
 }
 

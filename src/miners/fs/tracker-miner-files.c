@@ -2077,6 +2077,7 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 
 		tracker_extract_client_get_metadata (data->file,
 						     data->mime_type,
+		                                     TRACKER_MINER_FS_GRAPH_URN,
 						     data->cancellable,
 						     extractor_get_failsafe_metadata_cb,
 						     data);
@@ -2283,6 +2284,7 @@ process_file_cb (GObject      *object,
 		/* Next step, if handled by the extractor, get embedded metadata */
 		tracker_extract_client_get_metadata (data->file,
 		                                     mime_type,
+		                                     TRACKER_MINER_FS_GRAPH_URN,
 		                                     data->cancellable,
 		                                     extractor_get_embedded_metadata_cb,
 		                                     data);

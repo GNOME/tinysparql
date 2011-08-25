@@ -93,6 +93,7 @@ static const gchar *introspection_xml =
 	"    <method name='GetMetadata'>"
 	"      <arg type='s' name='uri' direction='in' />"
 	"      <arg type='s' name='mime' direction='in' />"
+	"      <arg type='s' name='graph' direction='in' />"
 	"      <arg type='s' name='preupdate' direction='out' />"
 	"      <arg type='s' name='embedded' direction='out' />"
 	"      <arg type='s' name='where' direction='out' />"
@@ -100,6 +101,7 @@ static const gchar *introspection_xml =
 	"    <method name='GetMetadataFast'>"
 	"      <arg type='s' name='uri' direction='in' />"
 	"      <arg type='s' name='mime' direction='in' />"
+	"      <arg type='s' name='graph' direction='in' />"
 	"      <arg type='h' name='fd' direction='in' />"
 	"    </method>"
 	"    <method name='CancelTasks'>"
@@ -489,10 +491,10 @@ handle_method_call_get_metadata (TrackerController     *controller,
 	TrackerControllerPrivate *priv;
 	GetMetadataData *data;
 	TrackerDBusRequest *request;
-	const gchar *uri, *mime;
+	const gchar *uri, *mime, *graph;
 
 	priv = controller->priv;
-	g_variant_get (parameters, "(&s&s)", &uri, &mime);
+	g_variant_get (parameters, "(&s&s&s)", &uri, &mime, &graph);
 
 	reset_shutdown_timeout (controller);
 	request = tracker_dbus_request_begin (NULL, "%s (%s, %s)", __FUNCTION__, uri, mime);
@@ -665,14 +667,15 @@ handle_method_call_get_metadata_fast (TrackerController     *controller,
 	if (g_dbus_connection_get_capabilities (connection) & G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING) {
 		TrackerControllerPrivate *priv;
 		GetMetadataData *data;
-		const gchar *uri, *mime;
+		const gchar *uri, *mime, *graph;
 		gint index_fd, fd;
 		GUnixFDList *fd_list;
 		GError *error = NULL;
 
 		priv = controller->priv;
 
-		g_variant_get (parameters, "(&s&sh)", &uri, &mime, &index_fd);
+		g_variant_get (parameters, "(&s&s&sh)",
+		               &uri, &mime, &graph, &index_fd);
 
 		request = tracker_dbus_request_begin (NULL,
 		                                      "%s (uri:'%s', mime:'%s', index_fd:%d)",

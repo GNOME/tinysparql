@@ -31,6 +31,7 @@ G_BEGIN_DECLS
 
 void                 tracker_extract_client_get_metadata        (GFile               *file,
                                                                  const gchar         *mime_type,
+                                                                 const gchar         *graph,
                                                                  GCancellable        *cancellable,
                                                                  GAsyncReadyCallback  callback,
                                                                  gpointer             user_data);
