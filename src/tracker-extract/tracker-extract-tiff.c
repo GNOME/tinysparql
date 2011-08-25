@@ -259,6 +259,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	guint i;
 	GFile *file;
 	TrackerSparqlBuilder *metadata, *preupdate;
+	const gchar *graph;
 	GString *where;
 
 #ifdef HAVE_LIBIPTCDATA
@@ -276,6 +277,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	if ((image = TIFFOpen (filename, "r")) == NULL){
 		g_warning ("Could not open image:'%s'\n", filename);
@@ -577,11 +579,26 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		var = g_strdup_printf ("tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
+		tracker_sparql_builder_append (preupdate, "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+		tracker_sparql_builder_append (preupdate, "\"");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
+		tracker_sparql_builder_append (preupdate, " }\n");
 		tracker_sparql_builder_append (preupdate,
-		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
+		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
 		tracker_sparql_builder_append (preupdate,
