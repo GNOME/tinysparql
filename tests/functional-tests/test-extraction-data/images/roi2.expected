@@ -1,0 +1,13 @@
+[TestFile]
+Filename=roi2.png
+Bugzilla=
+Comment=PNG with regions of interest in the XMP
+ExpectedFailure=
+
+[Metadata]
+a=nfo:Image
+a=nmm:Photo
+nie_title=roi2
+nfo_hasRegionOfInterest=@URNUUID@
+nfo_width=128
+nfo_height=128
