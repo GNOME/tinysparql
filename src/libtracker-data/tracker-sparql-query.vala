@@ -167,6 +167,25 @@ namespace Tracker.Sparql {
 			base.subquery (query, parent_context);
 		}
 	}
+
+	class Solution {
+		public HashTable<string,int> hash;
+		public GenericArray<string> values;
+		public int solution_index;
+
+		public Solution () {
+			this.hash = new HashTable<string,int> (str_hash, str_equal);
+			this.values = new GenericArray<string> ();
+		}
+
+		public string? lookup (string variable_name) {
+			int variable_index;
+			if (!hash.lookup_extended (variable_name, null, out variable_index)) {
+				return null;
+			}
+			return values[solution_index * hash.size () + variable_index];
+		}
+	}
 }
 
 public class Tracker.Sparql.Query : Object {
@@ -658,23 +677,25 @@ public class Tracker.Sparql.Query : Object {
 
 		var after_where = get_location ();
 
+		var solution = new Solution ();
+
 		// build SQL
 		sql.append ("SELECT ");
-		bool first = true;
+		int var_idx = 0;
 		foreach (var variable in context.var_set.get_keys ()) {
-			if (!first) {
+			if (var_idx > 0) {
 				sql.append (", ");
-			} else {
-				first = false;
 			}
 
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
 			}
 			Expression.append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
+
+			solution.hash.insert (variable.name, var_idx++);
 		}
 
-		if (first) {
+		if (var_idx == 0) {
 			sql.append ("1");
 		}
 
@@ -688,24 +709,30 @@ public class Tracker.Sparql.Query : Object {
 		this.delete_statements = delete_statements;
 		this.update_statements = update_statements;
 
-		// iterate over all solutions
+		int n_solutions = 0;
 		while (cursor.next ()) {
+			// get values of all variables to be bound
+			for (var_idx = 0; var_idx < solution.hash.size (); var_idx++) {
+				solution.values.add (cursor.get_string (var_idx));
+			}
+			n_solutions++;
+		}
+
+		cursor = null;
+
+		// iterate over all solutions
+		for (int i = 0; i < n_solutions; i++) {
 			// blank nodes in construct templates are per solution
 
 			uuid_generate (base_uuid);
 			blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 
-			// get values of all variables to be bound
-			var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-			int var_idx = 0;
-			foreach (var variable in context.var_set.get_keys ()) {
-				var_value_map.insert (variable.name, cursor.get_string (var_idx++));
-			}
-
 			set_location (template_location);
 
+			solution.solution_index = i;
+
 			// iterate over each triple in the template
-			parse_construct_triples_block (var_value_map);
+			parse_construct_triples_block (solution);
 
 			if (blank && update_blank_nodes != null) {
 				update_blank_nodes.add_value (blank_nodes);
@@ -713,6 +740,8 @@ public class Tracker.Sparql.Query : Object {
 
 			Data.update_buffer_might_flush ();
 		}
+
+		solution = null;
 
 		if (!data) {
 			// reset location to the end of the update
@@ -751,7 +780,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_triples_block (Solution var_value_map) throws Sparql.Error, DateError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
@@ -806,7 +835,7 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string? parse_construct_var_or_term (HashTable<string,string> var_value_map, out bool is_null) throws Sparql.Error, DateError {
+	string? parse_construct_var_or_term (Solution var_value_map, out bool is_null) throws Sparql.Error, DateError {
 		string result = "";
 		is_null = false;
 		if (current () == SparqlTokenType.VAR) {
@@ -893,7 +922,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_property_list_not_empty (Solution var_value_map) throws Sparql.Error, DateError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -930,7 +959,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object_list (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_object_list (Solution var_value_map) throws Sparql.Error, DateError {
 		while (true) {
 			parse_construct_object (var_value_map);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -940,7 +969,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_object (Solution var_value_map) throws Sparql.Error, DateError {
 		bool is_null = false;
 		string object = parse_construct_var_or_term (var_value_map, out is_null);
 		if (current_subject == null || current_predicate == null || object == null) {
