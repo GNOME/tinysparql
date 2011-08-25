@@ -2,6 +2,13 @@
 #
 # Test runner script for Tracker's functional tests
 
+SCRIPT=$1
+if test "$SCRIPT" = "python" ; then SCRIPT=$2 ; fi
+if ! test -x $SCRIPT ; then
+    echo "(Skipping $@ - not executable)"
+    exit
+fi
+
 DBUS_SESSION_BUS_PID=
 
 export TEMP_DIR=`mktemp --tmpdir -d tracker-test-XXXX`
