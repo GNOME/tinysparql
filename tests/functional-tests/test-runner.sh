@@ -2,6 +2,13 @@
 #
 # Test runner script for Tracker's functional tests
 
+SCRIPT=$1
+if test "$SCRIPT" = "python" ; then SCRIPT=$2 ; fi
+if ! test -x $SCRIPT ; then
+    echo "(Skipping $@ - not executable)"
+    exit
+fi
+
 DBUS_SESSION_BUS_PID=
 
 if test -h /targets/links/scratchbox.config ; then
