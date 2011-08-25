@@ -155,7 +155,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	goffset size;
 	gchar *filename, *uri;
 	gchar *comment = NULL;
-	const gchar *dlna_profile;
+	const gchar *dlna_profile, *graph;
 	GPtrArray *keywords;
 	gboolean success = TRUE;
 	GString *where;
@@ -163,6 +163,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
@@ -431,11 +432,26 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		var = g_strdup_printf ("tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
+		tracker_sparql_builder_append (preupdate, "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+		tracker_sparql_builder_append (preupdate, "\"");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
+		tracker_sparql_builder_append (preupdate, " }\n");
 		tracker_sparql_builder_append (preupdate,
-		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
+		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
 		tracker_sparql_builder_append (preupdate,
