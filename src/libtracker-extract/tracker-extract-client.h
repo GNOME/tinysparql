@@ -25,10 +25,9 @@
 #endif
 
 #include <gio/gio.h>
+#include "tracker-extract-info.h"
 
 G_BEGIN_DECLS
-
-typedef struct TrackerExtractInfo TrackerExtractInfo;
 
 void                 tracker_extract_client_get_metadata        (GFile               *file,
                                                                  const gchar         *mime_type,
@@ -41,16 +40,6 @@ TrackerExtractInfo * tracker_extract_client_get_metadata_finish (GFile          
                                                                  GError             **error);
 
 void                 tracker_extract_client_cancel_for_prefix   (GFile               *uri);
-
-TrackerExtractInfo * tracker_extract_info_new  (const gchar *preupdate,
-                                                const gchar *statements,
-                                                const gchar *where_clause);
-void                 tracker_extract_info_free (TrackerExtractInfo *info);
-
-
-const gchar * tracker_extract_info_get_preupdate    (TrackerExtractInfo *info);
-const gchar * tracker_extract_info_get_update       (TrackerExtractInfo *info);
-const gchar * tracker_extract_info_get_where_clause (TrackerExtractInfo *info);
 
 G_END_DECLS
 

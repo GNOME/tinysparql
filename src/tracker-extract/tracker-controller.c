@@ -441,9 +441,14 @@ get_metadata_cb (GObject      *object,
 
 	if (info) {
 		const gchar *preupdate, *statements, *where;
+		TrackerSparqlBuilder *builder;
 
-		preupdate = tracker_extract_info_get_preupdate (info);
-		statements = tracker_extract_info_get_update (info);
+		builder = tracker_extract_info_get_preupdate_builder (info);
+		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_metadata_builder (info);
+		statements = tracker_sparql_builder_get_result (builder);
+
 		where = tracker_extract_info_get_where_clause (info);
 
 		if (statements && *statements) {
@@ -549,6 +554,7 @@ get_metadata_fast_cb (GObject      *object,
 		GOutputStream *buffered_output_stream;
 		GDataOutputStream *data_output_stream;
 		const gchar *preupdate, *statements, *where;
+		TrackerSparqlBuilder *builder;
 		GError *error = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
@@ -563,8 +569,12 @@ get_metadata_fast_cb (GObject      *object,
 		g_data_output_stream_set_byte_order (G_DATA_OUTPUT_STREAM (data_output_stream),
 		                                     G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-		preupdate = tracker_extract_info_get_preupdate (info);
-		statements = tracker_extract_info_get_update (info);
+		builder = tracker_extract_info_get_preupdate_builder (info);
+		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_metadata_builder (info);
+		statements = tracker_sparql_builder_get_result (builder);
+
 		where = tracker_extract_info_get_where_clause (info);
 
 		if (statements && *statements) {

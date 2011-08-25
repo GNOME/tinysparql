@@ -28,6 +28,7 @@
 #include "tracker-encoding.h"
 #include "tracker-exif.h"
 #include "tracker-extract-client.h"
+#include "tracker-extract-info.h"
 #include "tracker-module-manager.h"
 #include "tracker-guarantee.h"
 #include "tracker-iptc.h"

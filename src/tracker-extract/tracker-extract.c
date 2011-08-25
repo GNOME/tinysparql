@@ -274,13 +274,13 @@ notify_task_finish (TrackerExtractTask *task,
 }
 
 static gboolean
-get_file_metadata (TrackerExtractTask     *task,
-                   TrackerSparqlBuilder  **preupdate_out,
-                   TrackerSparqlBuilder  **statements_out,
-                   gchar                 **where_out)
+get_file_metadata (TrackerExtractTask  *task,
+                   TrackerExtractInfo **info_out)
 {
+	TrackerExtractInfo *info;
 	TrackerSparqlBuilder *statements, *preupdate;
 	GString *where;
+	GFile *file;
 	gchar *mime_used = NULL;
 #ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
@@ -289,13 +289,14 @@ get_file_metadata (TrackerExtractTask     *task,
 
 	g_debug ("Extracting...");
 
-	*preupdate_out = NULL;
-	*statements_out = NULL;
-	*where_out = NULL;
+	*info_out = NULL;
 
-	/* Create sparql builders to send back */
-	preupdate = tracker_sparql_builder_new_update ();
-	statements = tracker_sparql_builder_new_embedded_insert ();
+	file = g_file_new_for_uri (task->file);
+	info = tracker_extract_info_new (file, task->mimetype, NULL);
+	g_object_unref (file);
+
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	statements = tracker_extract_info_get_metadata_builder (info);
 	where = g_string_new ("");
 
 #ifdef HAVE_LIBSTREAMANALYZER
@@ -308,9 +309,10 @@ get_file_metadata (TrackerExtractTask     *task,
 			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
 
-			*preupdate_out = preupdate;
-			*statements_out = statements;
-			*where_out = g_string_free (where, FALSE);
+			tracker_extract_info_set_where_clause (info,
+			                                       g_string_free (where, FALSE));
+			*info_out = info;
+
 			return TRUE;
 		}
 	} else {
@@ -356,9 +358,9 @@ get_file_metadata (TrackerExtractTask     *task,
 		g_free (mime_used);
 	}
 
-	*preupdate_out = preupdate;
-	*statements_out = statements;
-	*where_out = g_string_free (where, FALSE);
+	tracker_extract_info_set_where_clause (info,
+	                                       g_string_free (where, FALSE));
+	*info_out = info;
 
 	if (items == 0) {
 		g_debug ("No extractor or failed");
@@ -532,14 +534,10 @@ get_metadata (TrackerExtractTask *task)
 	}
 
 	if (!filter_module (task->extract, task->cur_module) &&
-	    get_file_metadata (task, &preupdate, &statements, &where)) {
-		info = tracker_extract_info_new ((preupdate) ? tracker_sparql_builder_get_result (preupdate) : NULL,
-		                                 (statements) ? tracker_sparql_builder_get_result (statements) : NULL,
-		                                 where);
-
+	    get_file_metadata (task, &info)) {
 		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res,
 		                                           info,
-		                                           (GDestroyNotify) tracker_extract_info_free);
+		                                           (GDestroyNotify) tracker_extract_info_unref);
 
 		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
@@ -757,11 +755,10 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *uri,
                                          const gchar    *mime)
 {
-	TrackerSparqlBuilder *statements, *preupdate;
 	GError *error = NULL;
-	gchar *where;
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
+	TrackerExtractInfo *info;
 	gboolean no_modules = TRUE;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
@@ -783,19 +780,26 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	while (task->cur_module && task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
-		    get_file_metadata (task, &preupdate, &statements, &where)) {
-			const gchar *preupdate_str, *statements_str;
+		    get_file_metadata (task, &info)) {
+			const gchar *preupdate_str, *statements_str, *where;
+			TrackerSparqlBuilder *builder;
 
 			no_modules = FALSE;
 			preupdate_str = statements_str = NULL;
 
-			if (tracker_sparql_builder_get_length (statements) > 0) {
-				statements_str = tracker_sparql_builder_get_result (statements);
+			builder = tracker_extract_info_get_metadata_builder (info);
+
+			if (tracker_sparql_builder_get_length (builder) > 0) {
+				statements_str = tracker_sparql_builder_get_result (builder);
 			}
 
-			if (tracker_sparql_builder_get_length (preupdate) > 0) {
-				preupdate_str = tracker_sparql_builder_get_result (preupdate);
+			builder = tracker_extract_info_get_preupdate_builder (info);
+
+			if (tracker_sparql_builder_get_length (builder) > 0) {
+				preupdate_str = tracker_sparql_builder_get_result (builder);
 			}
+
+			where = tracker_extract_info_get_where_clause (info);
 
 			g_print ("\n");
 
@@ -806,9 +810,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			g_print ("SPARQL where clause:\n--\n%s--\n\n",
 			         where ? where : "");
 
-			g_object_unref (statements);
-			g_object_unref (preupdate);
-			g_free (where);
+			tracker_extract_info_unref (info);
 			break;
 		} else {
 			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {

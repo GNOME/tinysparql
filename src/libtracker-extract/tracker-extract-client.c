@@ -33,12 +33,6 @@
 
 static GDBusConnection *connection = NULL;
 
-struct TrackerExtractInfo {
-	gchar *preupdate;
-	gchar *update;
-	gchar *where;
-};
-
 typedef void (* SendAndSpliceCallback) (void     *buffer,
                                         gssize    buffer_size,
                                         GError   *error, /* Don't free */
@@ -50,36 +44,16 @@ typedef struct {
 	GOutputStream *output_stream;
 	SendAndSpliceCallback callback;
 	GCancellable *cancellable;
-	GSimpleAsyncResult *res;
+	gpointer data;
 	gboolean splice_finished;
 	gboolean dbus_finished;
 	GError *error;
 } SendAndSpliceData;
 
-TrackerExtractInfo *
-tracker_extract_info_new (const gchar *preupdate,
-                          const gchar *update,
-                          const gchar *where)
-{
+typedef struct {
 	TrackerExtractInfo *info;
-
-	info = g_slice_new0 (TrackerExtractInfo);
-	info->preupdate = g_strdup (preupdate);
-	info->update = g_strdup (update);
-	info->where = g_strdup (where);
-
-	return info;
-}
-
-void
-tracker_extract_info_free (TrackerExtractInfo *info)
-{
-	g_free (info->preupdate);
-	g_free (info->update);
-	g_free (info->where);
-
-	g_slice_free (TrackerExtractInfo, info);
-}
+	GSimpleAsyncResult *res;
+} MetadataCallData;
 
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream          *unix_input_stream,
@@ -87,7 +61,7 @@ send_and_splice_data_new (GInputStream          *unix_input_stream,
                           GOutputStream         *output_stream,
                           GCancellable          *cancellable,
                           SendAndSpliceCallback  callback,
-                          GSimpleAsyncResult    *res)
+                          gpointer               user_data)
 {
 	SendAndSpliceData *data;
 
@@ -101,7 +75,7 @@ send_and_splice_data_new (GInputStream          *unix_input_stream,
 	}
 
 	data->callback = callback;
-	data->res = g_object_ref (res);
+	data->data = user_data;
 
 	return data;
 }
@@ -121,11 +95,28 @@ send_and_splice_data_free (SendAndSpliceData *data)
 		g_error_free (data->error);
 	}
 
-	if (data->res) {
-		g_object_unref (data->res);
-	}
-
 	g_slice_free (SendAndSpliceData, data);
+}
+
+static MetadataCallData *
+metadata_call_data_new (TrackerExtractInfo *info,
+                        GSimpleAsyncResult *res)
+{
+	MetadataCallData *data;
+
+	data = g_slice_new (MetadataCallData);
+	data->res = g_object_ref (res);
+	data->info = tracker_extract_info_ref (info);
+
+	return data;
+}
+
+static void
+metadata_call_data_free (MetadataCallData *data)
+{
+	tracker_extract_info_unref (data->info);
+	g_object_unref (data->res);
+	g_slice_free (MetadataCallData, data);
 }
 
 static void
@@ -135,9 +126,9 @@ dbus_send_and_splice_async_finish (SendAndSpliceData *data)
 		(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 		                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 		                    NULL,
-		                    data->res);
+		                    data->data);
 	} else {
-		(* data->callback) (NULL, -1, data->error, data->res);
+		(* data->callback) (NULL, -1, data->error, data->data);
 	}
 
 	send_and_splice_data_free (data);
@@ -209,7 +200,7 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
                             int                    fd,
                             GCancellable          *cancellable,
                             SendAndSpliceCallback  callback,
-                            GSimpleAsyncResult    *res)
+                            gpointer               user_data)
 {
 	SendAndSpliceData *data;
 	GInputStream *unix_input_stream;
@@ -226,7 +217,7 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
 	                                 output_stream,
 	                                 cancellable,
 	                                 callback,
-	                                 res);
+	                                 user_data);
 
 	g_dbus_connection_send_message_with_reply (connection,
 	                                           message,
@@ -253,15 +244,15 @@ get_metadata_fast_cb (void     *buffer,
                       GError   *error,
                       gpointer  user_data)
 {
-	GSimpleAsyncResult *res;
+	MetadataCallData *data;
 
-	res = user_data;
+	data = user_data;
 
 	if (G_UNLIKELY (error)) {
-		g_simple_async_result_set_from_error (res, error);
+		g_simple_async_result_set_from_error (data->res, error);
 	} else {
 		const gchar *preupdate, *sparql, *where, *end;
-		TrackerExtractInfo *info;
+		TrackerSparqlBuilder *builder;
 		gsize len;
 
 		preupdate = sparql = where = NULL;
@@ -282,25 +273,36 @@ get_metadata_fast_cb (void     *buffer,
 			}
 		}
 
-		info = tracker_extract_info_new (preupdate, sparql, where);
-		g_simple_async_result_set_op_res_gpointer (res, info,
-		                                           (GDestroyNotify) tracker_extract_info_free);
+		tracker_extract_info_set_where_clause (data->info, where);
+
+		builder = tracker_extract_info_get_preupdate_builder (data->info);
+		tracker_sparql_builder_prepend (builder, preupdate);
+
+		builder = tracker_extract_info_get_metadata_builder (data->info);
+		tracker_sparql_builder_prepend (builder, sparql);
+
+		g_simple_async_result_set_op_res_gpointer (data->res,
+		                                           tracker_extract_info_ref (data->info),
+		                                           (GDestroyNotify) tracker_extract_info_unref);
 	}
 
-	g_simple_async_result_complete_in_idle (res);
-	g_object_unref (res);
+	g_simple_async_result_complete_in_idle (data->res);
+	metadata_call_data_free (data);
 }
 
 static void
 get_metadata_fast_async (GDBusConnection    *connection,
-                         const gchar        *uri,
+                         GFile              *file,
                          const gchar        *mime_type,
                          GCancellable       *cancellable,
                          GSimpleAsyncResult *res)
 {
+	MetadataCallData *data;
+	TrackerExtractInfo *info;
 	GDBusMessage *message;
 	GUnixFDList *fd_list;
 	int pipefd[2];
+	gchar *uri;
 
 	if (pipe (pipefd) < 0) {
 		g_critical ("Coudln't open pipe");
@@ -314,6 +316,7 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	                                          "GetMetadataFast");
 
 	fd_list = g_unix_fd_list_new ();
+	uri = g_file_get_uri (file);
 
 	g_dbus_message_set_body (message,
 	                         g_variant_new ("(ssh)",
@@ -327,16 +330,20 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	/* We need to close the fd as g_unix_fd_list_append duplicates the fd */
 
 	close (pipefd[1]);
-
 	g_object_unref (fd_list);
+	g_free (uri);
+
+	info = tracker_extract_info_new (file, mime_type, NULL);
+	data = metadata_call_data_new (info, res);
 
 	dbus_send_and_splice_async (connection,
 	                            message,
 	                            pipefd[0],
 	                            cancellable,
 	                            get_metadata_fast_cb,
-	                            res);
+	                            data);
 	g_object_unref (message);
+	tracker_extract_info_unref (info);
 }
 
 /**
@@ -363,7 +370,6 @@ tracker_extract_client_get_metadata (GFile               *file,
 {
 	GSimpleAsyncResult *res;
 	GError *error = NULL;
-	gchar *uri;
 
 	g_return_if_fail (G_IS_FILE (file));
 	g_return_if_fail (mime_type != NULL);
@@ -380,13 +386,11 @@ tracker_extract_client_get_metadata (GFile               *file,
 		}
 	}
 
-	uri = g_file_get_uri (file);
-
 	res = g_simple_async_result_new (G_OBJECT (file), callback, user_data, NULL);
 	g_simple_async_result_set_handle_cancellation (res, TRUE);
 
-	get_metadata_fast_async (connection, uri, mime_type, cancellable, res);
-	g_free (uri);
+	get_metadata_fast_async (connection, file, mime_type, cancellable, res);
+	g_object_unref (res);
 }
 
 /**
@@ -413,51 +417,6 @@ tracker_extract_client_get_metadata_finish (GFile         *file,
 	}
 
 	return g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
-}
-
-/**
- * tracker_extract_info_get_preupdate:
- * @info: a #TrackerExtractInfo
- *
- * returns the sparql clauses to be inserted before
- * the sparql insert/update for the file.
- *
- * Returns: (transfer none): the clauses to be inserted
- *          before update.
- **/
-const gchar *
-tracker_extract_info_get_preupdate (TrackerExtractInfo *info)
-{
-	return info->preupdate;
-}
-
-/**
- * tracker_extract_info_get_update:
- * @info: a #TrackerExtractInfo
- *
- * Sparql holding metadata for the file.
- *
- * Returns: (transfer none): Sparql to be inserted into
- *          the file update.
- **/
-const gchar *
-tracker_extract_info_get_update (TrackerExtractInfo *info)
-{
-	return info->update;
-}
-
-/**
- * tracker_extract_info_get_where_clause:
- * @info: 
- *
- * Where clause for the file update.
- *
- * Returns: (transfer none): the where clause.
- **/
-const gchar *
-tracker_extract_info_get_where_clause (TrackerExtractInfo *info)
-{
-	return info->where;
 }
 
 /**
