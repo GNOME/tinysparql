@@ -86,6 +86,7 @@ typedef struct {
 	GAsyncResult *res;
 	gchar *file;
 	gchar *mimetype;
+	gchar *graph;
 
 	TrackerMimetypeInfo *mimetype_handlers;
 
@@ -290,7 +291,7 @@ get_file_metadata (TrackerExtractTask  *task,
 	*info_out = NULL;
 
 	file = g_file_new_for_uri (task->file);
-	info = tracker_extract_info_new (file, task->mimetype, NULL);
+	info = tracker_extract_info_new (file, task->mimetype, task->graph);
 	g_object_unref (file);
 
 #ifdef HAVE_LIBSTREAMANALYZER
@@ -391,6 +392,7 @@ static TrackerExtractTask *
 extract_task_new (TrackerExtract *extract,
                   const gchar    *uri,
                   const gchar    *mimetype,
+                  const gchar    *graph,
                   GCancellable   *cancellable,
                   GAsyncResult   *res,
                   GError        **error)
@@ -426,6 +428,7 @@ extract_task_new (TrackerExtract *extract,
 	task->res = (res) ? g_object_ref (res) : NULL;
 	task->file = g_strdup (uri);
 	task->mimetype = g_strdup (mimetype);
+	task->graph = g_strdup (graph);
 	task->extract = extract;
 
 	if (task->cancellable) {
@@ -710,6 +713,7 @@ void
 tracker_extract_file (TrackerExtract      *extract,
                       const gchar         *file,
                       const gchar         *mimetype,
+                      const gchar         *graph,
                       GCancellable        *cancellable,
                       GAsyncReadyCallback  cb,
                       gpointer             user_data)
@@ -730,7 +734,8 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	res = g_simple_async_result_new (G_OBJECT (extract), cb, user_data, NULL);
 
-	task = extract_task_new (extract, file, mimetype, cancellable, G_ASYNC_RESULT (res), &error);
+	task = extract_task_new (extract, file, mimetype, graph,
+	                         cancellable, G_ASYNC_RESULT (res), &error);
 
 	if (error) {
 		g_warning ("Could not get mimetype, %s", error->message);
@@ -761,7 +766,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	task = extract_task_new (object, uri, mime, NULL, NULL, &error);
+	task = extract_task_new (object, uri, mime, NULL, NULL, NULL, &error);
 
 	if (error) {
 		g_printerr ("Extraction failed, %s\n", error->message);

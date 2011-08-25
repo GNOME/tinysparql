@@ -500,7 +500,8 @@ handle_method_call_get_metadata (TrackerController     *controller,
 	request = tracker_dbus_request_begin (NULL, "%s (%s, %s)", __FUNCTION__, uri, mime);
 
 	data = metadata_data_new (controller, uri, mime, invocation, request);
-	tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
+	tracker_extract_file (priv->extractor, uri, mime, graph,
+	                      data->cancellable,
 	                      get_metadata_cb, data);
 	priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 }
@@ -691,7 +692,8 @@ handle_method_call_get_metadata_fast (TrackerController     *controller,
 			data = metadata_data_new (controller, uri, mime, invocation, request);
 			data->fd = fd;
 
-			tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
+			tracker_extract_file (priv->extractor, uri, mime, graph,
+			                      data->cancellable,
 			                      get_metadata_fast_cb, data);
 			priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 		} else {
