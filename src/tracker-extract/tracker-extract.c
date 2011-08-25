@@ -278,8 +278,6 @@ get_file_metadata (TrackerExtractTask  *task,
                    TrackerExtractInfo **info_out)
 {
 	TrackerExtractInfo *info;
-	TrackerSparqlBuilder *statements, *preupdate;
-	GString *where;
 	GFile *file;
 	gchar *mime_used = NULL;
 #ifdef HAVE_LIBSTREAMANALYZER
@@ -295,15 +293,11 @@ get_file_metadata (TrackerExtractTask  *task,
 	info = tracker_extract_info_new (file, task->mimetype, NULL);
 	g_object_unref (file);
 
-	preupdate = tracker_extract_info_get_preupdate_builder (info);
-	statements = tracker_extract_info_get_metadata_builder (info);
-	where = g_string_new ("");
-
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
 		g_debug ("  Using libstreamanalyzer...");
 
-		tracker_topanalyzer_extract (uri, statements, &content_type);
+		tracker_topanalyzer_extract (task->file, statements, &content_type);
 
 		if (tracker_sparql_builder_get_length (statements) > 0) {
 			g_free (content_type);
@@ -340,10 +334,13 @@ get_file_metadata (TrackerExtractTask  *task,
 	 */
 	if (mime_used) {
 		if (task->cur_func) {
+			TrackerSparqlBuilder *statements;
+
 			g_debug ("  Using %s...", g_module_name (task->cur_module));
 
-			(task->cur_func) (task->file, mime_used, preupdate, statements, where);
+			(task->cur_func) (info);
 
+			statements = tracker_extract_info_get_metadata_builder (info);
 			items = tracker_sparql_builder_get_length (statements);
 
 			if (items > 0) {
@@ -358,8 +355,6 @@ get_file_metadata (TrackerExtractTask  *task,
 		g_free (mime_used);
 	}
 
-	tracker_extract_info_set_where_clause (info,
-	                                       g_string_free (where, FALSE));
 	*info_out = info;
 
 	if (items == 0) {

@@ -2060,13 +2060,9 @@ parse_id3v2 (const gchar          *data,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	gchar *filename;
+	gchar *filename, *uri;
 	int fd;
 	void *buffer;
 	void *id3v1_buffer;
@@ -2074,8 +2070,14 @@ tracker_extract_get_metadata (const gchar          *uri,
 	goffset  buffer_size;
 	goffset audio_offset;
 	MP3Data md = { 0 };
+	TrackerSparqlBuilder *metadata, *preupdate;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 
 	size = tracker_file_get_size (filename);
 
@@ -2152,6 +2154,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	}
 
 	/* Get other embedded tags */
+	uri = g_file_get_uri (file);
 	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
 	md.title = tracker_coalesce_strip (4, md.id3v24.title2,
@@ -2475,6 +2478,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 #endif
 
 	g_free (filename);
+	g_free (uri);
 
 	return TRUE;
 }

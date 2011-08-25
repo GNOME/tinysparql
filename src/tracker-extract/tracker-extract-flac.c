@@ -151,21 +151,23 @@ add_tuple (TrackerSparqlBuilder *metadata,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-			      const gchar          *mimetype,
-			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata,
-			      GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	FLAC__Metadata_SimpleIterator *iter;
 	FLAC__StreamMetadata *stream = NULL, *vorbis, *picture;
 	FLAC__bool success;
 	FlacData fd = { 0 };
-	gchar *filename, *artist_uri = NULL, *album_uri = NULL;
+	TrackerSparqlBuilder *preupdate, *metadata;
+	gchar *filename, *uri, *artist_uri = NULL, *album_uri = NULL;
 	const gchar *creator;
+	GFile *file;
 	goffset size;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 
 	size = tracker_file_get_size (filename);
 
@@ -182,6 +184,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 		FLAC__metadata_simple_iterator_delete (iter);
 		return FALSE;
 	}
+
+	uri = g_file_get_uri (file);
 
 	do {
 		switch (FLAC__metadata_simple_iterator_get_block_type (iter)) {
@@ -430,6 +434,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	g_free (fd.organisation);
 	g_free (fd.location);
 	g_free (fd.publisher);
+	g_free (uri);
 
 	return TRUE;
 }

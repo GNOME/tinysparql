@@ -56,19 +56,21 @@ metadata_write_foreach (gpointer key,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	gchar *argv[3];
 	gchar *totem;
 	gboolean has_video = FALSE;
 	GHashTable *tmp_metadata;
+	TrackerSparqlBuilder *metadata, *preupdate;
+	GFile *file;
+
+	file = tracker_extract_info_get_file (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	argv[0] = g_strdup ("totem-video-indexer");
-	argv[1] = g_filename_from_uri (uri, NULL, NULL);
+	argv[1] = g_file_get_path (file);
 	argv[2] = NULL;
 
 	tmp_metadata = g_hash_table_new_full (g_str_hash,

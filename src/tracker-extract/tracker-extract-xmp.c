@@ -120,24 +120,29 @@ find_orig_uri (const gchar *xmp_filename)
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata, *preupdate;
 	TrackerXmpData *xd = NULL;
 	GError *error = NULL;
-	gchar *filename;
+	gchar *filename, *uri;
 	gchar *contents;
 	gsize length;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
+	uri = g_file_get_uri (file);
+
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	if (g_file_get_contents (filename, &contents, &length, &error)) {
 		gchar *original_uri;
+		GString *where;
 
 		original_uri = find_orig_uri (filename);
+		where = g_string_new ("");
 
 		/* If no orig file is found for the sidekick, we use the sidekick to
 		 * describe itself instead, falling back to uri 
@@ -148,16 +153,21 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 		if (xd) {
 			tracker_xmp_apply (preupdate, metadata, where, uri, xd);
+			tracker_extract_info_set_where_clause (info,
+			                                       g_string_free (where, FALSE));
 		}
 
 		g_free (original_uri);
 		tracker_xmp_free (xd);
 		g_free (contents);
 		g_free (filename);
+		g_free (uri);
 
 		return TRUE;
 	}
 
 	g_free (filename);
+	g_free (uri);
+
 	return FALSE;
 }

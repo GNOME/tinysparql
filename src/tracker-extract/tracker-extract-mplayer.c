@@ -69,7 +69,6 @@ static const gchar *info_tags[][2] = {
 typedef struct {
 	TrackerSparqlBuilder *preupdate;
 	TrackerSparqlBuilder *metadata;
-	const gchar *uri;
 } ForeachCopyInfo;
 
 static void
@@ -101,14 +100,16 @@ copy_hash_table_entry (gpointer key,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata, *preupdate;
+	GFile *file;
 	gchar *argv[10];
 	gchar *mplayer;
+
+	file = tracker_extract_info_get_file (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
 
 	argv[0] = g_strdup ("mplayer");
 	argv[1] = g_strdup ("-identify");
@@ -118,7 +119,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	argv[5] = g_strdup ("null");
 	argv[6] = g_strdup ("-ao");
 	argv[7] = g_strdup ("null");
-	argv[8] = g_filename_from_uri (uri, NULL, NULL);
+	argv[8] = g_file_get_path (file);
 	argv[9] = NULL;
 
 	if (tracker_spawn (argv, 10, &mplayer, NULL, NULL)) {
@@ -248,7 +249,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 
 			if (tmp_metadata_video) {
-				ForeachCopyInfo info = { preupdate, metadata, uri };
+				ForeachCopyInfo info = { preupdate, metadata };
 				g_hash_table_foreach (tmp_metadata_video,
 				                      copy_hash_table_entry,
 				                      &info);
@@ -267,7 +268,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
 
 			if (tmp_metadata_audio) {
-				ForeachCopyInfo info = { preupdate, metadata, uri };
+				ForeachCopyInfo info = { preupdate, metadata };
 				g_hash_table_foreach (tmp_metadata_audio,
 				                      copy_hash_table_entry,
 				                      &info);

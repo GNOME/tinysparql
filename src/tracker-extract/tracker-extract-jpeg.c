@@ -140,29 +140,32 @@ guess_dlna_profile (gint          width,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct tej_error_mgr tejerr;
 	struct jpeg_marker_struct *marker;
+	TrackerSparqlBuilder *preupdate, *metadata;
 	TrackerXmpData *xd = NULL;
 	TrackerExifData *ed = NULL;
 	TrackerIptcData *id = NULL;
 	MergeData md = { 0 };
+	GFile *file;
 	FILE *f;
 	goffset size;
-	gchar *filename;
+	gchar *filename, *uri;
 	gchar *comment = NULL;
 	const gchar *dlna_profile;
 	GPtrArray *keywords;
 	gboolean success = TRUE;
+	GString *where;
 	guint i;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 
 	size = tracker_file_get_size (filename);
 
@@ -177,6 +180,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 	if (!f) {
 		return FALSE;
 	}
+
+	uri = g_file_get_uri (file);
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Image");
@@ -416,6 +421,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_keywords_parse (keywords, id->keywords);
 	}
 
+	where = g_string_new ("");
+
 	for (i = 0; i < keywords->len; i++) {
 		gchar *p, *escaped, *var;
 
@@ -445,6 +452,9 @@ tracker_extract_get_metadata (const gchar          *uri,
 		g_free (p);
 	}
 	g_ptr_array_free (keywords, TRUE);
+
+	tracker_extract_info_set_where_clause (info,
+	                                       g_string_free (where, FALSE));
 
 	if (md.make || md.model) {
 		gchar *equip_uri;
@@ -722,6 +732,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 fail:
 	tracker_file_close (f, FALSE);
+	g_free (uri);
 
 	return success;
 }

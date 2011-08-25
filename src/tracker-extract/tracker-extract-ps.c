@@ -279,12 +279,20 @@ extract_ps_gz (const gchar          *uri,
 #endif /* USING_UNZIPPSFILES */
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *preupdate, *metadata;
+	const gchar *mimetype;
+	GFile *file;
+	gchar *uri;
+
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	mimetype = tracker_extract_info_get_mimetype (info);
+
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
+
 #ifdef USING_UNZIPPSFILES
 	if (strcmp (mimetype, "application/x-gzpostscript") == 0) {
 		extract_ps_gz (uri, preupdate, metadata);
@@ -293,6 +301,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 	{
 		extract_ps (uri, preupdate, metadata);
 	}
+
+	g_free (uri);
 
 	return TRUE;
 }

@@ -38,7 +38,6 @@ typedef enum {
 typedef struct {
 	TrackerSparqlBuilder *metadata;
 	tag_type current;
-	const gchar *uri;
 	guint in_body : 1;
 	GString *title;
 	GString *plain_text;
@@ -231,12 +230,10 @@ parser_characters (void          *data,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata;
+	GFile *file;
 	TrackerConfig *config;
 	htmlDocPtr doc;
 	parser_data pd;
@@ -276,20 +273,22 @@ tracker_extract_get_metadata (const gchar          *uri,
 		NULL  /* xmlStructuredErrorFunc */
 	};
 
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	file = tracker_extract_info_get_file (info);
+
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:HtmlDocument");
 
 	pd.metadata = metadata;
 	pd.current = -1;
 	pd.in_body = FALSE;
-	pd.uri = uri;
 	pd.plain_text = g_string_new (NULL);
 	pd.title = g_string_new (NULL);
 
 	config = tracker_main_get_config ();
 	pd.n_bytes_remaining = tracker_config_get_max_bytes (config);
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	filename = g_file_get_path (file);
 	doc = htmlSAXParseFile (filename, NULL, &handler, &pd);
 	g_free (filename);
 

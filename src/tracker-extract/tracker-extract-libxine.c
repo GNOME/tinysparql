@@ -29,11 +29,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	xine_t            *xine_base;
 	xine_audio_port_t *audio_port;
@@ -56,7 +52,12 @@ tracker_extract_get_metadata (const gchar          *uri,
 	const char        *genre;
 	const char        *track;
 
-	g_return_if_fail (uri && metadata);
+	TrackerSparqlBuilder *metadata, *preupdate;
+	GFile             *file;
+
+	file = tracker_extract_info_get_file (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
 
 	xine_base = xine_new ();
 
@@ -83,7 +84,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 		return FALSE;
 	}
 
-	mrl = g_filename_from_uri (uri, NULL, NULL);
+	mrl = g_file_get_path (file);
 
 	if (!xine_open (stream, mrl)) {
 		g_free (mrl);

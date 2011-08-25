@@ -352,22 +352,26 @@ extract_opf (const gchar          *uri,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mime_used,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	gchar *opf_path;
+	gchar *opf_path, *uri;
+	GFile *file;
+
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
 
 	opf_path = extract_opf_path (uri);
 
 	if (!opf_path) {
+		g_free (uri);
 		return FALSE;
 	}
 
-	extract_opf (uri, opf_path, preupdate, metadata);
+	extract_opf (uri, opf_path,
+	             tracker_extract_info_get_preupdate_builder (info),
+	             tracker_extract_info_get_metadata_builder (info));
 	g_free (opf_path);
+	g_free (uri);
 
 	return TRUE;
 }

@@ -515,17 +515,20 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *preupdate, *metadata;
 	goffset size;
 	GifFileType *gifFile = NULL;
-	gchar *filename;
+	GString *where;
+	gchar *filename, *uri;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 	size = tracker_file_get_size (filename);
 
 	if (size < 64) {
@@ -544,7 +547,14 @@ tracker_extract_get_metadata (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
+	where = g_string_new ("");
+	uri = g_file_get_uri (file);
+
 	read_metadata (preupdate, metadata, where, gifFile, uri);
+	tracker_extract_info_set_where_clause (info,
+	                                       g_string_free (where, FALSE));
+
+	g_free (uri);
 
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 		PrintGifError ();

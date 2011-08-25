@@ -1631,23 +1631,29 @@ extract_summary (TrackerSparqlBuilder *metadata,
  * @param metadata where to store extracted data to
  */
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mime_used,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata;
 	TrackerConfig *config;
 	GsfInfile *infile = NULL;
-	gchar *content = NULL;
+	gchar *content = NULL, *uri;
 	gboolean is_encrypted = FALSE;
+	const gchar *mime_used;
 	gsize max_bytes;
+	GFile *file;
 
 	gsf_init ();
+
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	mime_used = tracker_extract_info_get_mimetype (info);
+
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
 
 	infile = open_uri (uri);
 	if (!infile) {
 		gsf_shutdown ();
+		g_free (uri);
 		return FALSE;
 	}
 
@@ -1689,6 +1695,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	}
 
 	g_object_unref (infile);
+	g_free (uri);
 	gsf_shutdown ();
 
 	return TRUE;

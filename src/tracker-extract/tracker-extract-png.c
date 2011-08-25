@@ -576,11 +576,7 @@ guess_dlna_profile (gint          depth,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	goffset size;
 	FILE *f;
@@ -593,10 +589,17 @@ tracker_extract_get_metadata (const gchar          *uri,
 	gint bit_depth, color_type;
 	gint interlace_type, compression_type, filter_type;
 	const gchar *dlna_profile;
-	gchar *filename;
+	TrackerSparqlBuilder *preupdate, *metadata;
+	gchar *filename, *uri;
+	GString *where;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 	size = tracker_file_get_size (filename);
+
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	if (size < 64) {
 		return FALSE;
@@ -679,7 +682,13 @@ tracker_extract_get_metadata (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
+	uri = g_file_get_uri (file);
+	where = g_string_new ("");
+
 	read_metadata (preupdate, metadata, where, png_ptr, info_ptr, end_ptr, uri);
+	tracker_extract_info_set_where_clause (info,
+	                                       g_string_free (where, FALSE));
+	g_free (uri);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:width");
 	tracker_sparql_builder_object_int64 (metadata, width);

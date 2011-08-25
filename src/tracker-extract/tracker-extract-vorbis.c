@@ -86,12 +86,9 @@ ogg_get_comment (vorbis_comment *vc,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const char           *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *preupdate, *metadata;
 	VorbisData vd = { 0 };
 	MergeData md = { 0 };
 	FILE *f;
@@ -101,10 +98,15 @@ tracker_extract_get_metadata (const char           *uri,
 	vorbis_info *vi;
 	unsigned int bitrate;
 	gint time;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 	f = tracker_file_open (filename, "r", FALSE);
 	g_free (filename);
+
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	if (!f) {
 		return FALSE;

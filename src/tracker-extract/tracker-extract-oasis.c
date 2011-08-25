@@ -157,15 +157,15 @@ extract_oasis_content (const gchar          *uri,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mime_used,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 {
+	TrackerSparqlBuilder *metadata;
 	TrackerConfig *config;
 	ODTMetadataParseInfo info;
 	ODTFileType file_type;
+	GFile *file;
+	gchar *uri;
+	const gchar *mime_used;
 	GMarkupParseContext *context;
 	GMarkupParser parser = {
 		xml_start_element_handler_metadata,
@@ -178,6 +178,12 @@ tracker_extract_get_metadata (const gchar          *uri,
 	if (G_UNLIKELY (maximum_size_error_quark == 0)) {
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
 	}
+
+	metadata = tracker_extract_info_get_metadata_builder (extract_info);
+	mime_used = tracker_extract_info_get_mimetype (extract_info);
+
+	file = tracker_extract_info_get_file (extract_info);
+	uri = g_file_get_uri (file);
 
 	/* Setup conf */
 	config = tracker_main_get_config ();
@@ -219,6 +225,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 	                       tracker_config_get_max_bytes (config),
 	                       file_type,
 	                       metadata);
+
+	g_free (uri);
 
 	return TRUE;
 }

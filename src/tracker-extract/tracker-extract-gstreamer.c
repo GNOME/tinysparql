@@ -1628,12 +1628,20 @@ tracker_extract_gstreamer (const gchar          *uri,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata, *preupdate;
+	const gchar *mimetype;
+	GFile *file;
+	gchar *uri;
+
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	mimetype = tracker_extract_info_get_mimetype (info);
+
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
+
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	if (g_str_has_prefix (mimetype, "dlna/")) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
@@ -1654,8 +1662,10 @@ tracker_extract_get_metadata (const gchar          *uri,
 	} else if (g_str_has_prefix (mimetype, "image/")) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE);
 	} else {
+		g_free (uri);
 		return FALSE;
 	}
 
+	g_free (uri);
 	return TRUE;
 }

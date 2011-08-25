@@ -28,6 +28,7 @@
 #include <gmodule.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
+#include "tracker-extract-info.h"
 
 G_BEGIN_DECLS
 
@@ -44,11 +45,7 @@ typedef gboolean (* TrackerExtractInitFunc)     (TrackerModuleThreadAwareness  *
                                                  GError                       **error);
 typedef void     (* TrackerExtractShutdownFunc) (void);
 
-typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
-                                                 const gchar          *mime_type,
-                                                 TrackerSparqlBuilder *preupdate,
-                                                 TrackerSparqlBuilder *metadata,
-                                                 GString              *where);
+typedef gboolean (* TrackerExtractMetadataFunc) (TrackerExtractInfo *info);
 
 
 gboolean  tracker_extract_module_manager_init                (void) G_GNUC_CONST;
