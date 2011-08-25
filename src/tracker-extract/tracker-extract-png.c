@@ -86,7 +86,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
                png_structp           png_ptr,
                png_infop             info_ptr,
                png_infop             end_ptr,
-               const gchar          *uri)
+               const gchar          *uri,
+               const gchar          *graph)
 {
 	MergeData md = { 0 };
 	PngData pd = { 0 };
@@ -506,11 +507,26 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		var = g_strdup_printf ("tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
+		tracker_sparql_builder_append (preupdate, "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+		tracker_sparql_builder_append (preupdate, "\"");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
+		tracker_sparql_builder_append (preupdate, " }\n");
 		tracker_sparql_builder_append (preupdate,
-		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
+		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
 		tracker_sparql_builder_append (preupdate,
@@ -588,7 +604,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	png_uint_32 width, height;
 	gint bit_depth, color_type;
 	gint interlace_type, compression_type, filter_type;
-	const gchar *dlna_profile;
+	const gchar *dlna_profile, *graph;
 	TrackerSparqlBuilder *preupdate, *metadata;
 	gchar *filename, *uri;
 	GString *where;
@@ -600,6 +616,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	if (size < 64) {
 		return FALSE;
@@ -685,7 +702,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	uri = g_file_get_uri (file);
 	where = g_string_new ("");
 
-	read_metadata (preupdate, metadata, where, png_ptr, info_ptr, end_ptr, uri);
+	read_metadata (preupdate, metadata, where, png_ptr, info_ptr, end_ptr, uri, graph);
 	tracker_extract_info_set_where_clause (info,
 	                                       g_string_free (where, FALSE));
 	g_free (uri);
