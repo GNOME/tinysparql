@@ -234,7 +234,6 @@ get_value_from_config (const gchar *key_in)
 	                                     &error);
 
 	if (error) {
-		g_variant_unref (reply);
 		g_critical ("%s", error->message);
 		g_clear_error (&error);
 
