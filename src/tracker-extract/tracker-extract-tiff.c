@@ -479,6 +479,10 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, xd->license);
 	}
 
+        if (xd->regions) {
+                tracker_xmp_apply_regions (preupdate, metadata, where, uri, xd);
+        }
+
 	if (md.address || md.state || md.country || md.city ||
 	    md.gps_altitude || md.gps_latitude || md.gps_longitude) {
 
