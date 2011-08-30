@@ -207,6 +207,17 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public abstract void rewind ();
 
 	/**
+	 * tracker_sparql_cursor_close:
+	 * @self: a #TrackerSparqlCursor
+	 *
+	 * Closes the iterator, making it invalid.
+	 *
+	 * Since: 0.12
+	 */
+	public virtual void close () {
+	}
+
+	/**
 	 * tracker_sparql_cursor_get_integer:
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)

@@ -1560,13 +1560,16 @@ tracker_db_statement_sqlite_new (TrackerDBInterface *db_interface,
 }
 
 static void
-tracker_db_cursor_finalize (GObject *object)
+tracker_db_cursor_close (TrackerDBCursor *cursor)
 {
-	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
-	int i;
 
-	cursor = TRACKER_DB_CURSOR (object);
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	if (cursor->ref_stmt == NULL) {
+		/* already closed */
+		return;
+	}
 
 	/* As soon as we finalize the cursor, check if we need a collator reset
 	 * and notify the iface about the removed cursor */
@@ -1576,13 +1579,6 @@ tracker_db_cursor_finalize (GObject *object)
 		tracker_db_interface_sqlite_reset_collator (iface);
 	}
 
-	g_free (cursor->types);
-
-	for (i = 0; i < cursor->n_variable_names; i++) {
-		g_free (cursor->variable_names[i]);
-	}
-	g_free (cursor->variable_names);
-
 	if (cursor->threadsafe) {
 		tracker_db_manager_lock ();
 	}
@@ -1590,10 +1586,29 @@ tracker_db_cursor_finalize (GObject *object)
 	cursor->ref_stmt->stmt_is_sunk = FALSE;
 	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
 	g_object_unref (cursor->ref_stmt);
+	cursor->ref_stmt = NULL;
 
 	if (cursor->threadsafe) {
 		tracker_db_manager_unlock ();
 	}
+}
+
+static void
+tracker_db_cursor_finalize (GObject *object)
+{
+	TrackerDBCursor *cursor;
+	int i;
+
+	cursor = TRACKER_DB_CURSOR (object);
+
+	tracker_db_cursor_close (cursor);
+
+	g_free (cursor->types);
+
+	for (i = 0; i < cursor->n_variable_names; i++) {
+		g_free (cursor->variable_names[i]);
+	}
+	g_free (cursor->variable_names);
 
 	G_OBJECT_CLASS (tracker_db_cursor_parent_class)->finalize (object);
 }
@@ -1674,6 +1689,7 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_db_cursor_iter_next_async;
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
+	sparql_cursor_class->close = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_close;
 
 	sparql_cursor_class->get_integer = (gint64 (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_int;
 	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_double;
