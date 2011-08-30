@@ -130,13 +130,9 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 	g_free (path);
 }
 
-static gboolean
-miner_applications_initable_init (GInitable     *initable,
-                                  GCancellable  *cancellable,
-                                  GError       **error)
+static void
+miner_applications_add_directories (TrackerMinerFS *fs)
 {
-	TrackerMinerFS *fs;
-	GError *inner_error = NULL;
 #ifdef HAVE_MEEGOTOUCH
 	GFile *file;
 	const gchar *path;
@@ -144,14 +140,6 @@ miner_applications_initable_init (GInitable     *initable,
 	const gchar * const *xdg_dirs;
 	const gchar *user_data_dir;
 	gint i;
-
-	fs = TRACKER_MINER_FS (initable);
-
-	/* Chain up parent's initable callback before calling child's one */
-	if (!miner_applications_initable_parent_iface->init (initable, cancellable, &inner_error)) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
 
 	g_message ("Setting up applications to iterate from XDG system directories");
 
@@ -181,8 +169,50 @@ miner_applications_initable_init (GInitable     *initable,
 	file = g_file_new_for_path (path);
 	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
+#endif /* HAVE_MEEGOTOUCH */
+}
+
+static void
+tracker_locale_notify_cb (TrackerLocaleID id,
+                          gpointer        user_data)
+{
+	TrackerMiner *miner = user_data;
+
+	if (tracker_miner_applications_detect_locale_changed (miner)) {
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner), TRUE);
+
+		miner_applications_add_directories (TRACKER_MINER_FS (miner));
+	}
+}
+
+static gboolean
+miner_applications_initable_init (GInitable     *initable,
+                                  GCancellable  *cancellable,
+                                  GError       **error)
+{
+	TrackerMinerFS *fs;
+	TrackerMinerApplications *app;
+	GError *inner_error = NULL;
+
+	fs = TRACKER_MINER_FS (initable);
+	app = TRACKER_MINER_APPLICATIONS (initable);
+
+	/* Chain up parent's initable callback before calling child's one */
+	if (!miner_applications_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	miner_applications_add_directories (fs);
+
+#ifdef HAVE_MEEGOTOUCH
 	tracker_miner_applications_meego_init ();
 #endif /* HAVE_MEEGOTOUCH */
+
+	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
+	                                                         tracker_locale_notify_cb,
+	                                                         app,
+	                                                         NULL);
 
 	return TRUE;
 }
@@ -190,6 +220,12 @@ miner_applications_initable_init (GInitable     *initable,
 static void
 miner_applications_finalize (GObject *object)
 {
+	TrackerMinerApplications *app;
+
+	app = TRACKER_MINER_APPLICATIONS (object);
+
+	tracker_locale_notify_remove (app->locale_notification_id);
+
 #ifdef HAVE_MEEGOTOUCH
 	tracker_miner_applications_meego_shutdown ();
 #endif /* HAVE_MEEGOTOUCH */

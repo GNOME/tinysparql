@@ -36,6 +36,7 @@ typedef struct _TrackerMinerApplicationsClass TrackerMinerApplicationsClass;
 
 struct _TrackerMinerApplications {
 	TrackerMinerFS parent_instance;
+	gpointer locale_notification_id;
 };
 
 struct _TrackerMinerApplicationsClass {
