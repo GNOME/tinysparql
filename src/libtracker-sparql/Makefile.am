@@ -92,5 +92,5 @@ typelib_DATA = $(gir_DATA:.gir=.typelib)
 # We don't clean the gir/typelib data for *Vala* generated g-ir files.
 # However, we do for *C* generated g-ir files due to Vala not being
 # required when building from a tarball.
-EXTRA_DIST += $(gir_DATA) $(typelib_DATA)
+DISTCLEANFILES = $(gir_DATA) $(typelib_DATA)
 endif
