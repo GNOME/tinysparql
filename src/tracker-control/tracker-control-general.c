@@ -94,7 +94,7 @@ static GOptionEntry entries[] = {
 	  N_("Remove all configuration files so they are re-generated on next start"),
 	  NULL },
 	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
-	  N_("Sets the logging verbosity to LEVEL ('debug', 'details', 'minimal', 'errors') for all processes"),
+	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
 	  N_("LEVEL") },
 	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
 	  N_("Show logging values in terms of log verbosity for each process"),
@@ -270,6 +270,26 @@ tracker_gsettings_print_verbosity (GSList   *all,
 		         c->name,
 		         verbosity_to_string (v));
 	}
+}
+
+static gboolean
+tracker_gsettings_set_all (GSList           *all,
+                           TrackerVerbosity  verbosity)
+{
+	GSList *l;
+	gboolean success = TRUE;
+
+	for (l = all; l && success; l = l->next) {
+		ComponentGSettings *c = l->data;
+
+		if (!c) {
+			continue;
+		}
+
+		success &= g_settings_set_enum (c->settings, "verbosity", verbosity);
+	}
+
+	return success;
 }
 
 static GSList *
@@ -519,6 +539,7 @@ tracker_control_general_run (void)
 	GSList *l;
 	gchar *str;
 	gpointer verbosity_type_enum_class_pointer = NULL;
+	TrackerVerbosity set_log_verbosity_value = TRACKER_VERBOSITY_ERRORS;
 
 	/* Constraints */
 
@@ -544,6 +565,22 @@ tracker_control_general_run (void)
 		g_printerr ("%s\n",
 		            _("You can not use the --get-logging and --set-logging arguments together"));
 		return EXIT_FAILURE;
+	}
+
+	if (set_log_verbosity) {
+		if (g_ascii_strcasecmp (set_log_verbosity, "debug") == 0) {
+			set_log_verbosity_value = TRACKER_VERBOSITY_DEBUG;
+		} else if (g_ascii_strcasecmp (set_log_verbosity, "detailed") == 0) {
+			set_log_verbosity_value = TRACKER_VERBOSITY_DETAILED;
+		} else if (g_ascii_strcasecmp (set_log_verbosity, "minimal") == 0) {
+			set_log_verbosity_value = TRACKER_VERBOSITY_MINIMAL;
+		} else if (g_ascii_strcasecmp (set_log_verbosity, "errors") == 0) {
+			set_log_verbosity_value = TRACKER_VERBOSITY_ERRORS;
+		} else {
+			g_printerr ("%s\n",
+			            _("Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"));
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (hard_reset || soft_reset) {
@@ -821,8 +858,45 @@ tracker_control_general_run (void)
 	}
 
 	if (set_log_verbosity) {
-		g_printerr ("FIXME: Implement");
-		return EXIT_FAILURE;
+		GSList *all;
+		gchar *str;
+		gint longest = 0;
+
+		all = tracker_gsettings_get_all (&longest);
+
+		if (!all) {
+			return EXIT_FAILURE;
+		}
+
+		str = g_strdup_printf (_("Setting log verbosity for all components to '%s'…"), set_log_verbosity);
+		g_print ("%s\n", str);
+		g_print ("\n");
+		g_free (str);
+
+		tracker_gsettings_set_all (all, set_log_verbosity_value);
+		tracker_gsettings_free (all);
+
+		/* We free to make sure we get new settings and that
+		 * they're saved properly.
+		 */
+		all = tracker_gsettings_get_all (&longest);
+
+		if (!all) {
+			return EXIT_FAILURE;
+		}
+
+		g_print ("%s:\n", _("Components"));
+		tracker_gsettings_print_verbosity (all, longest, TRUE);
+		g_print ("\n");
+
+		/* Miners */
+		g_print ("%s (%s):\n",
+		         _("Miners"),
+		         _("Only those with config listed"));
+		tracker_gsettings_print_verbosity (all, longest, FALSE);
+		g_print ("\n");
+
+		tracker_gsettings_free (all);
 	}
 
 	if (verbosity_type_enum_class_pointer) {
