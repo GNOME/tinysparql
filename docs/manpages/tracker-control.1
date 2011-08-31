@@ -81,6 +81,15 @@ listed are files which were found and successfully removed.
 Restarting the respective processes re-creates the default
 configuration files.
 .TP
+.B \-\-get-log-verbosity
+This displays the log verbosity for ALL components using GSettings for
+this configuration. For possible values, see
+.B \-\-set-log-verbosity.
+.TP
+.B \-\-set-log-verbosity=[debug|detailed|minimal|errors]
+This sets the log verbosity for ALL components using GSettings using
+this configuration option ('verbosity').
+.TP
 .B \-s, \-\-start
 Starts all miners. This indirectly starts tracker-store too because it
 is needed for miners to operate properly.
