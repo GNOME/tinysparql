@@ -512,20 +512,27 @@ process_desktop_file (ProcessApplicationData  *data,
 	} else if (name && g_ascii_strcasecmp (type, "Link") == 0) {
 		gchar *url = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "URL", NULL);
 
-		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+		if (url) {
+			uri = g_file_get_uri (data->file);
+			tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
-		tracker_sparql_builder_subject_iri (sparql, uri);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nfo:Bookmark");
+			tracker_sparql_builder_subject_iri (sparql, uri);
+			tracker_sparql_builder_predicate (sparql, "a");
+			tracker_sparql_builder_object (sparql, "nfo:Bookmark");
 
-		tracker_sparql_builder_predicate (sparql, "nfo:bookmarks");
-		tracker_sparql_builder_object_iri (sparql, url);
+			tracker_sparql_builder_predicate (sparql, "nfo:bookmarks");
+			tracker_sparql_builder_object_iri (sparql, url);
 
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
+			tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+			tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
-		is_software = FALSE;
+			is_software = FALSE;
+
+			g_free (url);
+		} else {
+			g_warning ("Invalid desktop file: '%s'", uri);
+			g_warning ("  Type 'Link' requires a URL");
+		}
 #ifdef HAVE_MEEGOTOUCH
 	} else if (name && g_ascii_strcasecmp (type, "ControlPanelApplet") == 0) {
 		/* Special case control panel applets */
