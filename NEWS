@@ -1,3 +1,24 @@
+NEW in 0.10.25 - 2011-09-01
+===========================
+
+The changes are:
+
+  * Fixes: GB#657354, libtracker-sparql should not ship gir/typelib files in the tarball
+  * Fixes: NB#256958, Desktop files saved under user XDG directories are not found
+  * Fixes: NB#279789, tracker-miner-fs aborts when failing to load ontology cache
+  * Fixes: NB#276858, Application names are not translated to Chinese on locale changes
+  * Fixes: NB#276830, Don't crash on g_variant_unref() with uninitialised memory in get_value_from_config() for locale config
+  * tracker-miner-fs: Handle desktop files of type=Link as nfo:Bookmark
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.24 - 2011-08-25
 ===========================
 
