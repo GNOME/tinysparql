@@ -3857,8 +3857,16 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			check_ontology = FALSE;
 
 			if (gvdb_error) {
-				g_error ("Error loading ontology cache: %s",
-				         gvdb_error->message);
+				g_critical ("Error loading ontology cache: %s",
+				            gvdb_error->message);
+				g_clear_error (&gvdb_error);
+
+				/* fall back to loading ontology from database into memory */
+				db_get_static_data (iface, &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					return FALSE;
+				}
 			}
 		}
 
