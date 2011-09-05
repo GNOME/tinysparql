@@ -29,15 +29,15 @@
 #include "tracker-main.h"
 #include "tracker-read.h"
 
-#define  TRY_LOCALE_TO_UTF8_CONVERSION 0
+#define TRY_LOCALE_TO_UTF8_CONVERSION 0
 
 static gchar *
 get_file_content (GFile *file,
                   gsize  n_bytes)
 {
-	GFileInputStream  *stream;
-	GError     *error = NULL;
-	gchar      *text, *uri;
+	GFileInputStream *stream;
+	GError *error = NULL;
+	gchar *text, *uri;
 
 	/* If no content requested, return */
 	if (n_bytes == 0) {
