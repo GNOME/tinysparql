@@ -295,6 +295,10 @@ get_file_metadata (TrackerExtractTask  *task,
 	g_object_unref (file);
 
 #ifdef HAVE_LIBSTREAMANALYZER
+	/* FIXME: This entire section is completely broken,
+	 * it doesn't even build these days. It should be removed or fixed.
+	 * -mr (05/09/11)
+	 */
 	if (!priv->force_internal_extractors) {
 		g_debug ("  Using libstreamanalyzer...");
 
@@ -304,8 +308,6 @@ get_file_metadata (TrackerExtractTask  *task,
 			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
 
-			tracker_extract_info_set_where_clause (info,
-			                                       g_string_free (where, FALSE));
 			*info_out = info;
 
 			return TRUE;
