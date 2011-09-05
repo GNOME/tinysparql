@@ -12,15 +12,16 @@
 # Mario Blättermann <mariobl@freenet.de>, 2009-2011.
 # Wolfgang Stöggl <c72578@yahoo.de>, 2011.
 # Christian Kirbach  <Christian.Kirbach@googlemail.com>, 2009, 2010, 2011.
+# Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-08-04 17:21+0000\n"
-"PO-Revision-Date: 2011-08-05 11:27+0100\n"
-"Last-Translator: Mario Blättermann <mariobl@freenet.de>\n"
+"POT-Creation-Date: 2011-09-01 09:04+0000\n"
+"PO-Revision-Date: 2011-09-01 09:51+0100\n"
+"Last-Translator: Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -513,7 +514,7 @@ msgstr "Daten an Tracker senden, um sie für Abfragen verfügbar zu machen."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2398
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2554
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Verarbeitung läuft …"
@@ -547,8 +548,8 @@ msgid "File to extract metadata for"
 msgstr "Datei zur Ermittlung der Metadaten"
 
 #: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:96
-#: ../src/tracker-control/tracker-control-general.c:97
-#: ../src/tracker-control/tracker-control-general.c:100
+#: ../src/tracker-control/tracker-control-general.c:107
+#: ../src/tracker-control/tracker-control-general.c:110
 #: ../src/tracker-control/tracker-control-miners.c:60
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -1269,11 +1270,11 @@ msgstr ""
 msgid "Unrecognized options"
 msgstr "Nicht berücksichtigte Optionen"
 
-#: ../src/tracker-control/tracker-control-general.c:76
+#: ../src/tracker-control/tracker-control-general.c:80
 msgid "List all Tracker processes"
 msgstr "Alle Tracker-Prozesse auflisten"
 
-#: ../src/tracker-control/tracker-control-general.c:78
+#: ../src/tracker-control/tracker-control-general.c:82
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1282,12 +1283,12 @@ msgstr ""
 "»store«, »miners« oder »all« kann verwendet werden, kein Parameter wird mit "
 "»all« gleichgesetzt."
 
-#: ../src/tracker-control/tracker-control-general.c:79
-#: ../src/tracker-control/tracker-control-general.c:82
+#: ../src/tracker-control/tracker-control-general.c:83
+#: ../src/tracker-control/tracker-control-general.c:86
 msgid "APPS"
 msgstr "APPS"
 
-#: ../src/tracker-control/tracker-control-general.c:81
+#: ../src/tracker-control/tracker-control-general.c:85
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1296,53 +1297,76 @@ msgstr ""
 "»store«, »miners« oder »all« kann verwendet werden, kein Parameter wird mit "
 "»all« gleichgesetzt."
 
-#: ../src/tracker-control/tracker-control-general.c:84
+#: ../src/tracker-control/tracker-control-general.c:88
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Alle Tracker-Prozesse abwürgen und alle Datenbanken löschen"
 
-#: ../src/tracker-control/tracker-control-general.c:87
+#: ../src/tracker-control/tracker-control-general.c:91
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Das Gleiche wie »--hard-reset«, wobei jedoch Sicherungen und Journal nach "
 "einem Neustart wiederhergestellt werden"
 
-#: ../src/tracker-control/tracker-control-general.c:90
+#: ../src/tracker-control/tracker-control-general.c:94
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Alle Konfigurationsdateien entfernen, so dass sie beim nächsten Start neu "
 "erstellt werden"
 
-#: ../src/tracker-control/tracker-control-general.c:93
+#: ../src/tracker-control/tracker-control-general.c:97
+msgid ""
+"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+"'errors') for all processes"
+msgstr ""
+"Stellt die Ausführlichkeit des Protokolls auf STUFE (»debug«, »detailed«, "
+"»minimal«, »errors«) für alle Prozesse"
+
+#: ../src/tracker-control/tracker-control-general.c:98
+msgid "LEVEL"
+msgstr "STUFE"
+
+#: ../src/tracker-control/tracker-control-general.c:100
+msgid "Show logging values in terms of log verbosity for each process"
+msgstr "Protokollwerte anhand der Ausführlichkeit für jeden Prozess anzeigen"
+
+#: ../src/tracker-control/tracker-control-general.c:103
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
 "Startet die Indizierung (wodurch indirekt auch tracker-store gestartet wird)"
 
-#: ../src/tracker-control/tracker-control-general.c:96
+#: ../src/tracker-control/tracker-control-general.c:106
 msgid "Backup databases to the file provided"
 msgstr "Datenbanken in die angegebene Datei sichern"
 
-#: ../src/tracker-control/tracker-control-general.c:99
+#: ../src/tracker-control/tracker-control-general.c:109
 msgid "Restore databases from the file provided"
 msgstr "Datenbanken aus der angegebenen Datei wiederherstellen"
 
-#: ../src/tracker-control/tracker-control-general.c:121
+#: ../src/tracker-control/tracker-control-general.c:131
 msgid "Could not open /proc"
 msgstr "/proc konnte nicht geöffnet werden"
 
-#: ../src/tracker-control/tracker-control-general.c:122
-#: ../src/tracker-control/tracker-control-general.c:353
-#: ../src/tracker-control/tracker-control-general.c:393
-#: ../src/tracker-control/tracker-control-general.c:414
+#: ../src/tracker-control/tracker-control-general.c:132
+#: ../src/tracker-control/tracker-control-general.c:632
+#: ../src/tracker-control/tracker-control-general.c:672
+#: ../src/tracker-control/tracker-control-general.c:693
 msgid "no error given"
 msgstr "kein Fehler angegeben"
 
-#: ../src/tracker-control/tracker-control-general.c:307
+#: ../src/tracker-control/tracker-control-general.c:323
+#, c-format
+msgid "Could not get log verbosity, manager could not be created, %s"
+msgstr ""
+"Die Ausführlichkeit des Protokolls konnte nicht ermittelt werden, die "
+"Verwaltung konnte nicht erstellt werden, %s"
+
+#: ../src/tracker-control/tracker-control-general.c:548
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr ""
 "Sie können die Argumente »--kill« und »--terminate« nicht gemeinsam verwenden"
 
-#: ../src/tracker-control/tracker-control-general.c:313
+#: ../src/tracker-control/tracker-control-general.c:554
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -1350,78 +1374,113 @@ msgstr ""
 "Sie können »--terminate« nicht zusammen mit »--hard-reset« oder »--soft-reset« "
 "verwenden, »--kill« ist enthalten"
 
-#: ../src/tracker-control/tracker-control-general.c:319
+#: ../src/tracker-control/tracker-control-general.c:560
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 "Sie können die Argumente »--hard-reset« und »--soft-reset« nicht gemeinsam "
 "verwenden"
 
-#: ../src/tracker-control/tracker-control-general.c:350
+#: ../src/tracker-control/tracker-control-general.c:566
+msgid "You can not use the --get-logging and --set-logging arguments together"
+msgstr ""
+"Sie können die Argumente »--get-logging« und »--set-logging« nicht gemeinsam "
+"verwenden"
+
+#: ../src/tracker-control/tracker-control-general.c:581
+msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgstr ""
+"Ungültige Ausführlichkeit des Protokolls, versuchen Sie »debug«, »detailed«, "
+"»minimal« oder »errors«"
+
+#: ../src/tracker-control/tracker-control-general.c:629
 #, c-format
 msgid "Could not open '%s'"
 msgstr "»%s« konnte nicht geöffnet werden"
 
-#: ../src/tracker-control/tracker-control-general.c:375
+#: ../src/tracker-control/tracker-control-general.c:654
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Prozesskennung %d für »%s« gefunden"
 
-#: ../src/tracker-control/tracker-control-general.c:390
+#: ../src/tracker-control/tracker-control-general.c:669
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Prozess %d konnte nicht beendet werden"
 
-#: ../src/tracker-control/tracker-control-general.c:396
+#: ../src/tracker-control/tracker-control-general.c:675
 #, c-format
 msgid "Terminated process %d"
 msgstr "Prozess %d wurde beendet"
 
-#: ../src/tracker-control/tracker-control-general.c:411
+#: ../src/tracker-control/tracker-control-general.c:690
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Prozess %d konnte nicht getötet werden"
 
-#: ../src/tracker-control/tracker-control-general.c:417
+#: ../src/tracker-control/tracker-control-general.c:696
 #, c-format
 msgid "Killed process %d"
 msgstr "Prozess %d wurde getötet"
 
-#: ../src/tracker-control/tracker-control-general.c:544
+#: ../src/tracker-control/tracker-control-general.c:823
 msgid "Removing configuration files…"
 msgstr "Konfigurationsdateien werden entfernt …"
 
-#: ../src/tracker-control/tracker-control-general.c:558
+#: ../src/tracker-control/tracker-control-general.c:846
+#: ../src/tracker-control/tracker-control-general.c:888
+msgid "Components"
+msgstr "Komponenten"
+
+#: ../src/tracker-control/tracker-control-general.c:852
+#: ../src/tracker-control/tracker-control-general.c:894
+#: ../src/tracker-control/tracker-control-miners.c:371
+#: ../src/tracker-control/tracker-control-status.c:567
+msgid "Miners"
+msgstr "Indizierer"
+
+#: ../src/tracker-control/tracker-control-general.c:853
+#: ../src/tracker-control/tracker-control-general.c:895
+msgid "Only those with config listed"
+msgstr "Nur jene, die in der Konfiguration aufgelistet sind"
+
+#: ../src/tracker-control/tracker-control-general.c:871
+#, c-format
+msgid "Setting log verbosity for all components to '%s'…"
+msgstr ""
+"Ausführlichkeit des Protokolls wird für alle Komponenten auf »%s« gestellt …"
+
+#: ../src/tracker-control/tracker-control-general.c:911
 msgid "Waiting one second before starting miners…"
 msgstr "Eine Sekunde wird gewartet, bevor Indizierer gestartet werden …"
 
-#: ../src/tracker-control/tracker-control-general.c:564
+#: ../src/tracker-control/tracker-control-general.c:917
 msgid "Starting miners…"
 msgstr "Indizierung wird gestartet …"
 
-#: ../src/tracker-control/tracker-control-general.c:570
+#: ../src/tracker-control/tracker-control-general.c:923
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr ""
 "Indizierung konnte nicht gestartet werden, die Verwaltung konnte nicht "
 "erstellt werden, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:595
+#: ../src/tracker-control/tracker-control-general.c:948
 msgid "perhaps a disabled plugin?"
 msgstr "Plugin könnte deaktiviert sein?"
 
-#: ../src/tracker-control/tracker-control-general.c:617
+#: ../src/tracker-control/tracker-control-general.c:970
 msgid "Backing up database"
 msgstr "Datenbank wird gesichert"
 
-#: ../src/tracker-control/tracker-control-general.c:689
+#: ../src/tracker-control/tracker-control-general.c:1042
 msgid "Restoring database from backup"
 msgstr "Datenbank wird aus Sicherung wiederhergestellt"
 
-#: ../src/tracker-control/tracker-control-general.c:762
+#: ../src/tracker-control/tracker-control-general.c:1115
 msgid "General options"
 msgstr "Allgemeine Optionen"
 
-#: ../src/tracker-control/tracker-control-general.c:763
+#: ../src/tracker-control/tracker-control-general.c:1116
 msgid "Show general options"
 msgstr "Allgemeine Optionen anzeigen"
 
@@ -1595,11 +1654,6 @@ msgstr ""
 #: ../src/tracker-control/tracker-control-miners.c:337
 msgid "No miners are running"
 msgstr "Es laufen derzeit keine Indizierer"
-
-#: ../src/tracker-control/tracker-control-miners.c:371
-#: ../src/tracker-control/tracker-control-status.c:567
-msgid "Miners"
-msgstr "Indizierer"
 
 #: ../src/tracker-control/tracker-control-miners.c:378
 msgid "Application"
