@@ -139,10 +139,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if (g_file_get_contents (filename, &contents, &length, &error)) {
 		gchar *original_uri;
-		GString *where;
 
 		original_uri = find_orig_uri (filename);
-		where = g_string_new ("");
 
 		/* If no orig file is found for the sidekick, we use the sidekick to
 		 * describe itself instead, falling back to uri 
@@ -152,6 +150,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                      original_uri ? original_uri : uri);
 
 		if (xd) {
+			GString *where;
+
+			where = g_string_new ("");
 			tracker_xmp_apply (preupdate, metadata, where, uri, xd);
 			tracker_extract_info_set_where_clause (info,
 			                                       g_string_free (where, FALSE));
