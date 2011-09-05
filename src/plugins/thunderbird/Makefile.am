@@ -14,13 +14,13 @@ mimefix_DATA = trackerbird-launcher.desktop
 EXTRA_DIST = $(extension_DATA) $(mimefix_DATA)
 
 update-desktop-database:
-        @-if test -z "$(DESTDIR)"; then \
-                echo "Updating .desktop database."; \
-                update-desktop-database; \
-        else \
-                echo "*** .desktop database not updated.  After (un)install, run this:"; \
-                echo "***   update-desktop-database"; \
-        fi
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating .desktop database."; \
+		update-desktop-database; \
+	else \
+		echo "*** .desktop database not updated.  After (un)install, run this:"; \
+		echo "***   update-desktop-database"; \
+	fi
 
 install-data-hook: update-desktop-database
 	$(MKDIR_P) "$(DESTDIR)$(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)"
