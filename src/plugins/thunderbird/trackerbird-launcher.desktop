@@ -2,5 +2,5 @@
 Name=Trackerbird Launcher
 Type=Application
 Exec=thunderbird -mail %u
-MimeType=x-scheme-handler/imap-message
+MimeType=x-scheme-handler/imap-message;
 NoDisplay=true
