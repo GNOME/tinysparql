@@ -940,6 +940,16 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	extractor->discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
 
+#if defined(GST_TYPE_DISCOVERER_FLAGS)
+	/* Tell the discoverer to use *only* Tagreadbin backend.
+	 *  See https://bugzilla.gnome.org/show_bug.cgi?id=656345
+	 */
+	g_debug ("Using Tagreadbin backend in the GUPnP-DLNA discoverer...");
+	g_object_set (extractor->discoverer,
+	              "flags", GST_DISCOVERER_FLAGS_EXTRACT_TAGS,
+	              NULL);
+#endif
+
 	/* Uri is const, the API should be const, but it isn't and it
 	 * calls gst_discoverer_discover_uri()
 	 */
@@ -970,6 +980,16 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 		g_clear_error (&error);
 		return FALSE;
 	}
+
+#if defined(GST_TYPE_DISCOVERER_FLAGS)
+	/* Tell the discoverer to use *only* Tagreadbin backend.
+	 *  See https://bugzilla.gnome.org/show_bug.cgi?id=656345
+	 */
+	g_debug ("Using Tagreadbin backend in the GStreamer discoverer...");
+	g_object_set (extractor->discoverer,
+	              "flags", GST_DISCOVERER_FLAGS_EXTRACT_TAGS,
+	              NULL);
+#endif
 
 	info = gst_discoverer_discover_uri (extractor->discoverer,
 	                                    uri,
