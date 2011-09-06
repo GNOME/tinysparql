@@ -64,10 +64,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	GHashTable *tmp_metadata;
 	TrackerSparqlBuilder *metadata, *preupdate;
 	GFile *file;
+	const gchar *graph;
 
 	file = tracker_extract_info_get_file (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	argv[0] = g_strdup ("totem-video-indexer");
 	argv[1] = g_file_get_path (file);
@@ -112,6 +114,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if (artist) {
 			tracker_sparql_builder_insert_open (preupdate, NULL);
+			if (graph) {
+				tracker_sparql_builder_graph_open (preupdate, graph);
+			}
 
 			tracker_sparql_builder_subject_iri (preupdate, artist_uri);
 			tracker_sparql_builder_predicate (preupdate, "a");
@@ -126,6 +131,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
 			tracker_sparql_builder_object_unvalidated (preupdate, artist);
 
+			if (graph) {
+				tracker_sparql_builder_graph_close (preupdate);
+			}
 			tracker_sparql_builder_insert_close (preupdate);
 		}
 
