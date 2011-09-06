@@ -170,9 +170,6 @@ tracker_log_init (gint    this_verbosity,
 	                             NULL);
 	g_free (basename);
 
-	/* hide previous log */
-	g_unlink (filename);
-
 	/* Open file */
 	fd = g_fopen (filename, "a");
 	if (!fd) {
