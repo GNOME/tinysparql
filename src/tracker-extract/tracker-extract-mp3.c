@@ -2345,31 +2345,14 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if (md.track_count > 0) {
 			tracker_sparql_builder_delete_open (preupdate, NULL);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
-
 			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
 			tracker_sparql_builder_delete_close (preupdate);
-
 			tracker_sparql_builder_where_open (preupdate);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
-
 			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
 			tracker_sparql_builder_where_close (preupdate);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
@@ -2468,59 +2451,25 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                                                   md.set_number > 0 ? md.set_number : 1);
 
 		tracker_sparql_builder_delete_open (preupdate, NULL);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
-
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
 		tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
 		tracker_sparql_builder_delete_close (preupdate);
-
 		tracker_sparql_builder_where_open (preupdate);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
-
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
 		tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
 		tracker_sparql_builder_where_close (preupdate);
 
 		tracker_sparql_builder_delete_open (preupdate, NULL);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
-
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
 		tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
 		tracker_sparql_builder_delete_close (preupdate);
-
 		tracker_sparql_builder_where_open (preupdate);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
-
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
 		tracker_sparql_builder_object_variable (preupdate, "unknown");
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
 		tracker_sparql_builder_where_close (preupdate);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
