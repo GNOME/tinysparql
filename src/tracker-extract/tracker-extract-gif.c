@@ -73,7 +73,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
                GString              *where,
                GifFileType          *gifFile,
-               const gchar          *uri)
+               const gchar          *uri,
+               const gchar          *graph)
 {
 	GifRecordType RecordType;
 	int frameheight;
@@ -208,11 +209,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", xd->creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, xd->creator);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
@@ -243,6 +252,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		                                              xd->model ? xd->model : "");
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, equip_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nfo:Equipment");
@@ -255,7 +268,12 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			tracker_sparql_builder_predicate (preupdate, "nfo:model");
 			tracker_sparql_builder_object_unvalidated (preupdate, xd->model);
 		}
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
+
 		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
 		tracker_sparql_builder_object_iri (metadata, equip_uri);
 		g_free (equip_uri);
@@ -270,11 +288,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.artist);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
@@ -349,11 +375,26 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		var = g_strdup_printf ("tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
+		tracker_sparql_builder_append (preupdate, "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+		tracker_sparql_builder_append (preupdate, "\"");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
+		tracker_sparql_builder_append (preupdate, " }\n");
 		tracker_sparql_builder_append (preupdate,
-		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
+		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
 		tracker_sparql_builder_append (preupdate,
@@ -375,11 +416,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", xd->publisher);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, xd->publisher);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
@@ -436,9 +485,13 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			addruri = tracker_sparql_get_uuid_urn ();
 
 			tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-			tracker_sparql_builder_object_iri (metadata, addruri);			
+			tracker_sparql_builder_object_iri (metadata, addruri);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
+			if (graph) {
+				tracker_sparql_builder_graph_open (preupdate, graph);
+			}
+
 			tracker_sparql_builder_subject_iri (preupdate, addruri);
 
 			g_free (addruri);
@@ -466,6 +519,9 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 				tracker_sparql_builder_object_unvalidated (preupdate, xd->country);
 			}
 
+			if (graph) {
+				tracker_sparql_builder_graph_close (preupdate);
+			}
 			tracker_sparql_builder_insert_close (preupdate);
 		}
 
@@ -515,17 +571,22 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *preupdate, *metadata;
 	goffset size;
 	GifFileType *gifFile = NULL;
-	gchar *filename;
+	GString *where;
+	const gchar *graph;
+	gchar *filename, *uri;
+	GFile *file;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	graph = tracker_extract_info_get_graph (info);
+
+	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
 	size = tracker_file_get_size (filename);
 
 	if (size < 64) {
@@ -544,7 +605,14 @@ tracker_extract_get_metadata (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
-	read_metadata (preupdate, metadata, where, gifFile, uri);
+	where = g_string_new ("");
+	uri = g_file_get_uri (file);
+
+	read_metadata (preupdate, metadata, where, gifFile, uri, graph);
+	tracker_extract_info_set_where_clause (info,
+	                                       g_string_free (where, FALSE));
+
+	g_free (uri);
 
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 		PrintGifError ();

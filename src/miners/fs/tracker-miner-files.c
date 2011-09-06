@@ -2027,10 +2027,16 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 		g_error_free (error);
 		g_free (uri);
 	} else {
+		TrackerSparqlBuilder *builder;
+
 		g_debug ("  Extraction succeeded the second time");
 
-		preupdate = tracker_extract_info_get_preupdate (info);
-		sparql = tracker_extract_info_get_update (info);
+		builder = tracker_extract_info_get_preupdate_builder (info);
+		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_metadata_builder (info);
+		sparql = tracker_sparql_builder_get_result (builder);
+
 		where = tracker_extract_info_get_where_clause (info);
 	}
 
@@ -2071,6 +2077,7 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 
 		tracker_extract_client_get_metadata (data->file,
 						     data->mime_type,
+		                                     TRACKER_MINER_FS_GRAPH_URN,
 						     data->cancellable,
 						     extractor_get_failsafe_metadata_cb,
 						     data);
@@ -2119,7 +2126,8 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 	TrackerMinerFilesPrivate *priv;
 	TrackerMinerFiles *miner;
 	ProcessFileData *data = user_data;
-	const gchar *preupdate, *sparql, *where;
+	TrackerSparqlBuilder *preupdate, *sparql;
+	const gchar *where;
 	TrackerExtractInfo *info;
 	GError *error = NULL;
 
@@ -2157,11 +2165,14 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 
 		g_error_free (error);
 	} else {
-		preupdate = tracker_extract_info_get_preupdate (info);
-		sparql = tracker_extract_info_get_update (info);
+		preupdate = tracker_extract_info_get_preupdate_builder (info);
+		sparql = tracker_extract_info_get_metadata_builder (info);
 		where = tracker_extract_info_get_where_clause (info);
 
-		sparql_builder_finish (data, preupdate, sparql, where);
+		sparql_builder_finish (data,
+		                       tracker_sparql_builder_get_result (preupdate),
+		                       tracker_sparql_builder_get_result (sparql),
+		                       where);
 
 		/* Notify about the success */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
@@ -2273,6 +2284,7 @@ process_file_cb (GObject      *object,
 		/* Next step, if handled by the extractor, get embedded metadata */
 		tracker_extract_client_get_metadata (data->file,
 		                                     mime_type,
+		                                     TRACKER_MINER_FS_GRAPH_URN,
 		                                     data->cancellable,
 		                                     extractor_get_embedded_metadata_cb,
 		                                     data);

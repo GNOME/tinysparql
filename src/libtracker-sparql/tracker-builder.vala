@@ -105,7 +105,9 @@ public class Tracker.Sparql.Builder : Object {
 	 */
 	public string result {
 		get {
-			warn_if_fail (states.length == 1);
+			warn_if_fail (states.length == 1 ||
+			              (states[0] == State.EMBEDDED_INSERT &&
+			               states.length == 3));
 			return str.str;
 		}
 	}

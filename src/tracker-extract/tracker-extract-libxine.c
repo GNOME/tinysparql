@@ -29,34 +29,33 @@
 #include <libtracker-extract/tracker-extract.h>
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	xine_t            *xine_base;
+	xine_t *xine_base;
 	xine_audio_port_t *audio_port;
 	xine_video_port_t *video_port;
-	xine_stream_t     *stream;
-	char              *mrl;
+	xine_stream_t *stream;
+	char *mrl;
+	gboolean has_audio;
+	gboolean has_video;
+	int pos_stream;
+	int pos_time;
+	int length_time;
+	const char *comment;
+	const char *title;
+	const char *author;
+	const char *album;
+	gchar *year;
+	const char *genre;
+	const char *track;
+	const gchar *graph;
+	TrackerSparqlBuilder *metadata, *preupdate;
+	GFile  *file;
 
-	gboolean          has_audio;
-	gboolean          has_video;
-
-	int               pos_stream;
-	int               pos_time;
-	int               length_time;
-
-	const char        *comment;
-	const char        *title;
-	const char        *author;
-	const char        *album;
-	gchar             *year;
-	const char        *genre;
-	const char        *track;
-
-	g_return_if_fail (uri && metadata);
+	file = tracker_extract_info_get_file (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	graph = tracker_extract_info_get_graph (info);
 
 	xine_base = xine_new ();
 
@@ -83,7 +82,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 		return FALSE;
 	}
 
-	mrl = g_filename_from_uri (uri, NULL, NULL);
+	mrl = g_file_get_path (file);
 
 	if (!xine_open (stream, mrl)) {
 		g_free (mrl);
@@ -104,11 +103,17 @@ tracker_extract_get_metadata (const gchar          *uri,
 		gchar *canonical_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", author);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
 
 		tracker_sparql_builder_subject_iri (preupdate, canonical_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nmm:Artist");
 
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		g_free (canonical_uri);
@@ -119,6 +124,9 @@ tracker_extract_get_metadata (const gchar          *uri,
 		gchar *canonical_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
 
 		tracker_sparql_builder_subject_iri (preupdate, canonical_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
@@ -129,6 +137,9 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, album);
 
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		g_free (canonical_uri);

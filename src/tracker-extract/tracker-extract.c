@@ -86,6 +86,7 @@ typedef struct {
 	GAsyncResult *res;
 	gchar *file;
 	gchar *mimetype;
+	gchar *graph;
 
 	TrackerMimetypeInfo *mimetype_handlers;
 
@@ -274,13 +275,11 @@ notify_task_finish (TrackerExtractTask *task,
 }
 
 static gboolean
-get_file_metadata (TrackerExtractTask     *task,
-                   TrackerSparqlBuilder  **preupdate_out,
-                   TrackerSparqlBuilder  **statements_out,
-                   gchar                 **where_out)
+get_file_metadata (TrackerExtractTask  *task,
+                   TrackerExtractInfo **info_out)
 {
-	TrackerSparqlBuilder *statements, *preupdate;
-	GString *where;
+	TrackerExtractInfo *info;
+	GFile *file;
 	gchar *mime_used = NULL;
 #ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
@@ -289,28 +288,28 @@ get_file_metadata (TrackerExtractTask     *task,
 
 	g_debug ("Extracting...");
 
-	*preupdate_out = NULL;
-	*statements_out = NULL;
-	*where_out = NULL;
+	*info_out = NULL;
 
-	/* Create sparql builders to send back */
-	preupdate = tracker_sparql_builder_new_update ();
-	statements = tracker_sparql_builder_new_embedded_insert ();
-	where = g_string_new ("");
+	file = g_file_new_for_uri (task->file);
+	info = tracker_extract_info_new (file, task->mimetype, task->graph);
+	g_object_unref (file);
 
 #ifdef HAVE_LIBSTREAMANALYZER
+	/* FIXME: This entire section is completely broken,
+	 * it doesn't even build these days. It should be removed or fixed.
+	 * -mr (05/09/11)
+	 */
 	if (!priv->force_internal_extractors) {
 		g_debug ("  Using libstreamanalyzer...");
 
-		tracker_topanalyzer_extract (uri, statements, &content_type);
+		tracker_topanalyzer_extract (task->file, statements, &content_type);
 
 		if (tracker_sparql_builder_get_length (statements) > 0) {
 			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
 
-			*preupdate_out = preupdate;
-			*statements_out = statements;
-			*where_out = g_string_free (where, FALSE);
+			*info_out = info;
+
 			return TRUE;
 		}
 	} else {
@@ -338,10 +337,13 @@ get_file_metadata (TrackerExtractTask     *task,
 	 */
 	if (mime_used) {
 		if (task->cur_func) {
+			TrackerSparqlBuilder *statements;
+
 			g_debug ("  Using %s...", g_module_name (task->cur_module));
 
-			(task->cur_func) (task->file, mime_used, preupdate, statements, where);
+			(task->cur_func) (info);
 
+			statements = tracker_extract_info_get_metadata_builder (info);
 			items = tracker_sparql_builder_get_length (statements);
 
 			if (items > 0) {
@@ -356,9 +358,7 @@ get_file_metadata (TrackerExtractTask     *task,
 		g_free (mime_used);
 	}
 
-	*preupdate_out = preupdate;
-	*statements_out = statements;
-	*where_out = g_string_free (where, FALSE);
+	*info_out = info;
 
 	if (items == 0) {
 		g_debug ("No extractor or failed");
@@ -394,6 +394,7 @@ static TrackerExtractTask *
 extract_task_new (TrackerExtract *extract,
                   const gchar    *uri,
                   const gchar    *mimetype,
+                  const gchar    *graph,
                   GCancellable   *cancellable,
                   GAsyncResult   *res,
                   GError        **error)
@@ -429,6 +430,7 @@ extract_task_new (TrackerExtract *extract,
 	task->res = (res) ? g_object_ref (res) : NULL;
 	task->file = g_strdup (uri);
 	task->mimetype = g_strdup (mimetype);
+	task->graph = g_strdup (graph);
 	task->extract = extract;
 
 	if (task->cancellable) {
@@ -532,14 +534,10 @@ get_metadata (TrackerExtractTask *task)
 	}
 
 	if (!filter_module (task->extract, task->cur_module) &&
-	    get_file_metadata (task, &preupdate, &statements, &where)) {
-		info = tracker_extract_info_new ((preupdate) ? tracker_sparql_builder_get_result (preupdate) : NULL,
-		                                 (statements) ? tracker_sparql_builder_get_result (statements) : NULL,
-		                                 where);
-
+	    get_file_metadata (task, &info)) {
 		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res,
 		                                           info,
-		                                           (GDestroyNotify) tracker_extract_info_free);
+		                                           (GDestroyNotify) tracker_extract_info_unref);
 
 		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
@@ -717,6 +715,7 @@ void
 tracker_extract_file (TrackerExtract      *extract,
                       const gchar         *file,
                       const gchar         *mimetype,
+                      const gchar         *graph,
                       GCancellable        *cancellable,
                       GAsyncReadyCallback  cb,
                       gpointer             user_data)
@@ -737,7 +736,8 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	res = g_simple_async_result_new (G_OBJECT (extract), cb, user_data, NULL);
 
-	task = extract_task_new (extract, file, mimetype, cancellable, G_ASYNC_RESULT (res), &error);
+	task = extract_task_new (extract, file, mimetype, graph,
+	                         cancellable, G_ASYNC_RESULT (res), &error);
 
 	if (error) {
 		g_warning ("Could not get mimetype, %s", error->message);
@@ -757,11 +757,10 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *uri,
                                          const gchar    *mime)
 {
-	TrackerSparqlBuilder *statements, *preupdate;
 	GError *error = NULL;
-	gchar *where;
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
+	TrackerExtractInfo *info;
 	gboolean no_modules = TRUE;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
@@ -769,7 +768,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	task = extract_task_new (object, uri, mime, NULL, NULL, &error);
+	task = extract_task_new (object, uri, mime, NULL, NULL, NULL, &error);
 
 	if (error) {
 		g_printerr ("Extraction failed, %s\n", error->message);
@@ -783,19 +782,26 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	while (task->cur_module && task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
-		    get_file_metadata (task, &preupdate, &statements, &where)) {
-			const gchar *preupdate_str, *statements_str;
+		    get_file_metadata (task, &info)) {
+			const gchar *preupdate_str, *statements_str, *where;
+			TrackerSparqlBuilder *builder;
 
 			no_modules = FALSE;
 			preupdate_str = statements_str = NULL;
 
-			if (tracker_sparql_builder_get_length (statements) > 0) {
-				statements_str = tracker_sparql_builder_get_result (statements);
+			builder = tracker_extract_info_get_metadata_builder (info);
+
+			if (tracker_sparql_builder_get_length (builder) > 0) {
+				statements_str = tracker_sparql_builder_get_result (builder);
 			}
 
-			if (tracker_sparql_builder_get_length (preupdate) > 0) {
-				preupdate_str = tracker_sparql_builder_get_result (preupdate);
+			builder = tracker_extract_info_get_preupdate_builder (info);
+
+			if (tracker_sparql_builder_get_length (builder) > 0) {
+				preupdate_str = tracker_sparql_builder_get_result (builder);
 			}
+
+			where = tracker_extract_info_get_where_clause (info);
 
 			g_print ("\n");
 
@@ -806,9 +812,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			g_print ("SPARQL where clause:\n--\n%s--\n\n",
 			         where ? where : "");
 
-			g_object_unref (statements);
-			g_object_unref (preupdate);
-			g_free (where);
+			tracker_extract_info_unref (info);
 			break;
 		} else {
 			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {

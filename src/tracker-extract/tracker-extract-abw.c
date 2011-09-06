@@ -162,19 +162,21 @@ static GMarkupParser parser = {
 };
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *preupdate, *metadata;
 	GMappedFile *file;
 	gchar *filename, *contents;
 	GError *error = NULL;
 	gboolean retval = FALSE;
+	GFile *f;
 	gsize len;
 
-	filename = g_filename_from_uri (uri, NULL, &error);
+	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	metadata = tracker_extract_info_get_metadata_builder (info);
+
+	f = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (f);
 
 	if (error) {
 		g_warning ("Could not get filename: %s\n", error->message);

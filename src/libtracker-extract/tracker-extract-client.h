@@ -17,21 +17,21 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_EXTRACT_CLIENT_H__
-#define __TRACKER_EXTRACT_CLIENT_H__
+#ifndef __LIBTRACKER_EXTRACT_CLIENT_H__
+#define __LIBTRACKER_EXTRACT_CLIENT_H__
 
 #if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
 #include <gio/gio.h>
+#include "tracker-extract-info.h"
 
 G_BEGIN_DECLS
 
-typedef struct TrackerExtractInfo TrackerExtractInfo;
-
 void                 tracker_extract_client_get_metadata        (GFile               *file,
                                                                  const gchar         *mime_type,
+                                                                 const gchar         *graph,
                                                                  GCancellable        *cancellable,
                                                                  GAsyncReadyCallback  callback,
                                                                  gpointer             user_data);
@@ -42,16 +42,6 @@ TrackerExtractInfo * tracker_extract_client_get_metadata_finish (GFile          
 
 void                 tracker_extract_client_cancel_for_prefix   (GFile               *uri);
 
-TrackerExtractInfo * tracker_extract_info_new  (const gchar *preupdate,
-                                                const gchar *statements,
-                                                const gchar *where_clause);
-void                 tracker_extract_info_free (TrackerExtractInfo *info);
-
-
-const gchar * tracker_extract_info_get_preupdate    (TrackerExtractInfo *info);
-const gchar * tracker_extract_info_get_update       (TrackerExtractInfo *info);
-const gchar * tracker_extract_info_get_where_clause (TrackerExtractInfo *info);
-
 G_END_DECLS
 
-#endif /* __TRACKER_EXTRACT_CLIENT_H__ */
+#endif /* __LIBTRACKER_EXTRACT_CLIENT_H__ */

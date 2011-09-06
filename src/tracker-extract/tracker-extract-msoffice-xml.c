@@ -753,21 +753,24 @@ extract_content (MsOfficeXMLParserInfo *info)
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 {
 	MsOfficeXMLParserInfo info = { 0 };
 	MsOfficeXMLFileType file_type;
+	TrackerSparqlBuilder *metadata;
 	TrackerConfig *config;
 	GMarkupParseContext *context = NULL;
 	GError *error = NULL;
+	GFile *file;
+	gchar *uri;
 
 	if (G_UNLIKELY (maximum_size_error_quark == 0)) {
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
 	}
+
+	metadata = tracker_extract_info_get_metadata_builder (extract_info);
+	file = tracker_extract_info_get_file (extract_info);
+	uri = g_file_get_uri (file);
 
 	/* Get current Content Type */
 	file_type = msoffice_xml_get_file_type (uri);
@@ -834,6 +837,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 	g_timer_destroy (info.timer);
 	g_markup_parse_context_free (context);
+	g_free (uri);
 
 	return TRUE;
 }

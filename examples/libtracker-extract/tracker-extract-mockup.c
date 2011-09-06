@@ -27,11 +27,7 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-			      const gchar          *mimetype,
-			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata,
-			      GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info_)
 {
 	/* NOTE: This function has to exist, tracker-extract checks
 	 * the symbole table for this function and if it doesn't
@@ -73,10 +69,13 @@ tracker_extract_get_metadata (const gchar          *uri,
 	gint track_number;
 	gint track_count;
 	guint32 duration;
+	TrackerSparqlBuilder *metadata, *preupdate;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	metadata = tracker_extract_info_get_metadata_builder (info_);
+	preupdate = tracker_extract_info_get_preupdate_builder (info_);
 
-	file = g_file_new_for_path (filename);
+	file = tracker_extract_info_get_file (info_);
+	filename = g_file_get_path (file);
 	info = g_file_query_info (file,
 	                          G_FILE_ATTRIBUTE_STANDARD_SIZE,
 	                          G_FILE_QUERY_INFO_NONE,

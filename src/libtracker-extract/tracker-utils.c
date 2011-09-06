@@ -134,7 +134,7 @@ tracker_coalesce_strip (gint n_values,
  *
  * Since: 0.8
  *
- * Deprecated: 1.0: Use tracker_coalesce_strip() instead.
+ * Deprecated: 0.10: Use tracker_coalesce_strip() instead.
  *
  **/
 gchar *
@@ -236,7 +236,7 @@ tracker_merge_const (const gchar *delimiter,
  *
  * Since: 0.8
  *
- * Deprecated: 1.0: Use tracker_merge_const() instead.
+ * Deprecated: 0.10: Use tracker_merge_const() instead.
  **/
 gchar *
 tracker_merge (const gchar *delimiter,
@@ -305,7 +305,7 @@ tracker_merge (const gchar *delimiter,
  *
  * Since: 0.8
  *
- * Deprecated: 1.0: Use tracker_text_validate_utf8() instead.
+ * Deprecated: 0.10: Use tracker_text_validate_utf8() instead.
  **/
 gchar *
 tracker_text_normalize (const gchar *text,

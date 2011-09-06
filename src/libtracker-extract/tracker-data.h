@@ -26,6 +26,7 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include "tracker-module-manager.h"
+#include "tracker-extract-info.h"
 
 G_BEGIN_DECLS
 
@@ -139,11 +140,7 @@ gboolean tracker_extract_module_shutdown (void);
  *
  * Since: 0.12
  */
-gboolean tracker_extract_get_metadata (const gchar          *uri,
-                                       const gchar          *mimetype,
-                                       TrackerSparqlBuilder *preupdate,
-                                       TrackerSparqlBuilder *metadata,
-                                       GString              *where);
+gboolean tracker_extract_get_metadata (TrackerExtractInfo *info);
 
 G_END_DECLS
 

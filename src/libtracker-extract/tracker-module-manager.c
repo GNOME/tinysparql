@@ -400,6 +400,8 @@ initialize_first_module (TrackerMimetypeInfo *info)
  *          (allow-none): A #TrackerMimetypeInfo holding the information
  *          about the different modules handling @mimetype, or %NULL if
  *          no modules handle @mimetype.
+ *
+ * Since: 0.12
  **/
 TrackerMimetypeInfo *
 tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
@@ -439,6 +441,8 @@ tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
  * module thread awareness description.
  *
  * Returns: The %GModule currently pointed to by @info.
+ *
+ * Since: 0.12
  **/
 GModule *
 tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
@@ -469,6 +473,8 @@ tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
  * Iterates to the next module handling the mimetype.
  *
  * Returns: %TRUE if there is a next module.
+ *
+ * Since: 0.12
  **/
 gboolean
 tracker_mimetype_info_iter_next (TrackerMimetypeInfo *info)

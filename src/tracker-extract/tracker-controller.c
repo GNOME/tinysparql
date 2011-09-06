@@ -93,6 +93,7 @@ static const gchar *introspection_xml =
 	"    <method name='GetMetadata'>"
 	"      <arg type='s' name='uri' direction='in' />"
 	"      <arg type='s' name='mime' direction='in' />"
+	"      <arg type='s' name='graph' direction='in' />"
 	"      <arg type='s' name='preupdate' direction='out' />"
 	"      <arg type='s' name='embedded' direction='out' />"
 	"      <arg type='s' name='where' direction='out' />"
@@ -100,6 +101,7 @@ static const gchar *introspection_xml =
 	"    <method name='GetMetadataFast'>"
 	"      <arg type='s' name='uri' direction='in' />"
 	"      <arg type='s' name='mime' direction='in' />"
+	"      <arg type='s' name='graph' direction='in' />"
 	"      <arg type='h' name='fd' direction='in' />"
 	"    </method>"
 	"    <method name='CancelTasks'>"
@@ -441,9 +443,14 @@ get_metadata_cb (GObject      *object,
 
 	if (info) {
 		const gchar *preupdate, *statements, *where;
+		TrackerSparqlBuilder *builder;
 
-		preupdate = tracker_extract_info_get_preupdate (info);
-		statements = tracker_extract_info_get_update (info);
+		builder = tracker_extract_info_get_preupdate_builder (info);
+		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_metadata_builder (info);
+		statements = tracker_sparql_builder_get_result (builder);
+
 		where = tracker_extract_info_get_where_clause (info);
 
 		if (statements && *statements) {
@@ -484,16 +491,17 @@ handle_method_call_get_metadata (TrackerController     *controller,
 	TrackerControllerPrivate *priv;
 	GetMetadataData *data;
 	TrackerDBusRequest *request;
-	const gchar *uri, *mime;
+	const gchar *uri, *mime, *graph;
 
 	priv = controller->priv;
-	g_variant_get (parameters, "(&s&s)", &uri, &mime);
+	g_variant_get (parameters, "(&s&s&s)", &uri, &mime, &graph);
 
 	reset_shutdown_timeout (controller);
 	request = tracker_dbus_request_begin (NULL, "%s (%s, %s)", __FUNCTION__, uri, mime);
 
 	data = metadata_data_new (controller, uri, mime, invocation, request);
-	tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
+	tracker_extract_file (priv->extractor, uri, mime, graph,
+	                      data->cancellable,
 	                      get_metadata_cb, data);
 	priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 }
@@ -549,6 +557,7 @@ get_metadata_fast_cb (GObject      *object,
 		GOutputStream *buffered_output_stream;
 		GDataOutputStream *data_output_stream;
 		const gchar *preupdate, *statements, *where;
+		TrackerSparqlBuilder *builder;
 		GError *error = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
@@ -563,8 +572,12 @@ get_metadata_fast_cb (GObject      *object,
 		g_data_output_stream_set_byte_order (G_DATA_OUTPUT_STREAM (data_output_stream),
 		                                     G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-		preupdate = tracker_extract_info_get_preupdate (info);
-		statements = tracker_extract_info_get_update (info);
+		builder = tracker_extract_info_get_preupdate_builder (info);
+		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_metadata_builder (info);
+		statements = tracker_sparql_builder_get_result (builder);
+
 		where = tracker_extract_info_get_where_clause (info);
 
 		if (statements && *statements) {
@@ -655,14 +668,15 @@ handle_method_call_get_metadata_fast (TrackerController     *controller,
 	if (g_dbus_connection_get_capabilities (connection) & G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING) {
 		TrackerControllerPrivate *priv;
 		GetMetadataData *data;
-		const gchar *uri, *mime;
+		const gchar *uri, *mime, *graph;
 		gint index_fd, fd;
 		GUnixFDList *fd_list;
 		GError *error = NULL;
 
 		priv = controller->priv;
 
-		g_variant_get (parameters, "(&s&sh)", &uri, &mime, &index_fd);
+		g_variant_get (parameters, "(&s&s&sh)",
+		               &uri, &mime, &graph, &index_fd);
 
 		request = tracker_dbus_request_begin (NULL,
 		                                      "%s (uri:'%s', mime:'%s', index_fd:%d)",
@@ -678,7 +692,8 @@ handle_method_call_get_metadata_fast (TrackerController     *controller,
 			data = metadata_data_new (controller, uri, mime, invocation, request);
 			data->fd = fd;
 
-			tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
+			tracker_extract_file (priv->extractor, uri, mime, graph,
+			                      data->cancellable,
 			                      get_metadata_fast_cb, data);
 			priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 		} else {

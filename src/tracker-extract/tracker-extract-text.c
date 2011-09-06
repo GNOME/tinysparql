@@ -29,31 +29,31 @@
 #include "tracker-main.h"
 #include "tracker-read.h"
 
-#define  TRY_LOCALE_TO_UTF8_CONVERSION 0
+#define TRY_LOCALE_TO_UTF8_CONVERSION 0
 
 static gchar *
-get_file_content (const gchar  *uri,
-                  gsize         n_bytes)
+get_file_content (GFile *file,
+                  gsize  n_bytes)
 {
-	GFile *file;
-	GFileInputStream  *stream;
-	GError     *error = NULL;
-	gchar      *text;
+	GFileInputStream *stream;
+	GError *error = NULL;
+	gchar *text, *uri;
 
 	/* If no content requested, return */
 	if (n_bytes == 0) {
 		return NULL;
 	}
 
+	uri = g_file_get_uri (file);
+
 	/* Get filename from URI */
-	file = g_file_new_for_uri (uri);
 	stream = g_file_read (file, NULL, &error);
 	if (error) {
 		g_message ("Could not read file '%s': %s",
 		           uri,
 		           error->message);
 		g_error_free (error);
-		g_object_unref (file);
+		g_free (uri);
 
 		return NULL;
 	}
@@ -67,7 +67,7 @@ get_file_content (const gchar  *uri,
 	                                      TRY_LOCALE_TO_UTF8_CONVERSION);
 
 	g_object_unref (stream);
-	g_object_unref (file);
+	g_free (uri);
 
 	return text;
 }
@@ -81,18 +81,16 @@ tracker_extract_module_init (TrackerModuleThreadAwareness  *thread_awareness_ret
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata;
 	TrackerConfig *config;
 	gchar *content;
 
 	config = tracker_main_get_config ();
+	metadata = tracker_extract_info_get_metadata_builder (info);
 
-	content = get_file_content (uri,
+	content = get_file_content (tracker_extract_info_get_file (info),
 	                            tracker_config_get_max_bytes (config));
 
 	tracker_sparql_builder_predicate (metadata, "a");

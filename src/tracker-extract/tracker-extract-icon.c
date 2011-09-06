@@ -125,14 +125,17 @@ find_max_width_and_height (const gchar *uri,
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
+	TrackerSparqlBuilder *metadata;
 	guint max_width;
 	guint max_height;
+	GFile *file;
+	gchar *uri;
+
+	metadata = tracker_extract_info_get_metadata_builder (info);
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
 
 	/* The Windows Icon file format may contain the same icon with different
 	 * sizes inside, so there's no clear way of setting single width and
@@ -151,6 +154,8 @@ tracker_extract_get_metadata (const gchar          *uri,
 			tracker_sparql_builder_object_int64 (metadata, (gint64) max_height);
 		}
 	}
+
+	g_free (uri);
 
 	return TRUE;
 }

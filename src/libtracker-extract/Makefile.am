@@ -19,6 +19,8 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
 	tracker-exif.h                                 \
 	tracker-extract-client.c                       \
 	tracker-extract-client.h                       \
+	tracker-extract-info.c                         \
+	tracker-extract-info.h                         \
 	tracker-guarantee.c                            \
 	tracker-guarantee.h                            \
 	tracker-iptc.c                                 \
@@ -36,6 +38,7 @@ libtracker_extractinclude_HEADERS =                    \
 	tracker-encoding.h                             \
 	tracker-exif.h                                 \
 	tracker-extract-client.h                       \
+	tracker-extract-info.h                         \
 	tracker-extract.h                              \
 	tracker-guarantee.h                            \
 	tracker-iptc.h                                 \

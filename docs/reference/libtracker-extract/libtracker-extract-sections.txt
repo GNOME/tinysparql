@@ -47,11 +47,22 @@ tracker_exif_read
 
 <SECTION>
 <FILE>tracker-extract-client</FILE>
-TrackerExtractInfo
 tracker_extract_client_get_metadata
 tracker_extract_client_get_metadata_finish
-tracker_extract_info_get_preupdate
-tracker_extract_info_get_update
-tracker_extract_info_get_where_clause
 tracker_extract_client_cancel_for_prefix
+</SECTION>
+
+<SECTION>
+<FILE>tracker-extract-info</FILE>
+TrackerExtractInfo
+tracker_extract_info_new
+tracker_extract_info_ref
+tracker_extract_info_unref
+tracker_extract_info_get_preupdate_builder
+tracker_extract_info_get_metadata_builder
+tracker_extract_info_get_where_clause
+tracker_extract_info_set_where_clause
+tracker_extract_info_get_file
+tracker_extract_info_get_mimetype
+tracker_extract_info_get_graph
 </SECTION>

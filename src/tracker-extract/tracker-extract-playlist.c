@@ -49,16 +49,18 @@ typedef struct {
 	guint32 track_counter;
 	gint64 total_time;
 	TrackerSparqlBuilder *metadata;
-	const gchar *uri;
 } PlaylistMetadata;
 
 static void
-entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadata, gpointer user_data)
+entry_parsed (TotemPlParser *parser,
+              const gchar   *to_uri,
+              GHashTable    *to_metadata,
+              gpointer       user_data)
 {
 	gchar *duration;
 	PlaylistMetadata *data;
 
-	data = (PlaylistMetadata *)user_data;
+	data = (PlaylistMetadata *) user_data;
 	data->track_counter++;
 
 	if (data->track_counter > 1000) {
@@ -91,6 +93,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 	if (duration != NULL) {
 		gint64 secs = totem_pl_parser_parse_duration (duration, FALSE);
+
 		if (secs > 0) {
 			data->total_time += secs;
 		}
@@ -98,17 +101,18 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 }
 
 G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mimetype,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TotemPlParser       *pl;
+	TotemPlParser *pl;
 	TotemPlParserResult  result;
-	PlaylistMetadata     data = { 0, 0, metadata, uri };
+	TrackerSparqlBuilder *metadata = tracker_extract_info_get_metadata_builder (info);
+	PlaylistMetadata data = { 0, 0, metadata };
+	GFile *file;
+	gchar *uri;
 
 	pl = totem_pl_parser_new ();
+	file = tracker_extract_info_get_file (info);
+	uri = g_file_get_uri (file);
 
 	g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
 
@@ -144,6 +148,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	}
 
 	g_object_unref (pl);
+	g_free (uri);
 
 	return TRUE;
 }
