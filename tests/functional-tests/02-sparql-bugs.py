@@ -221,8 +221,40 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 # If we are here, everything is fine. 
                 self.assertIsNotNone (results)
                                    
+        @expectedFailureBug ("NB#281201")
+        def test_05_NB281201_insert_replace_and_superproperties (self):
+                """
+                Bug 281201 - INSERT OR REPLACE does not delete previous values for superproperties
+                """
+                content = """INSERT { <test:resource:nb281201> a nie:InformationElement; 
+                                               nie:contentLastModified '2011-09-27T11:11:11Z'. }"""
+                self.tracker.update (content)
 
+                query = """SELECT ?contentLM ?nieIEDate ?dcDate { 
+                              <test:resource:nb281201> dc:date ?dcDate ;
+                                                 nie:informationElementDate ?nieIEDate ;
+                                                 nie:contentLastModified ?contentLM .
+                           }"""
+                result = self.tracker.query (query)
+                # Only one row of results, and the 3 colums have the same value
+                self.assertEquals (len (result), 1)
+                self.assertEquals (result[0][0], result[0][1])
+                self.assertEquals (result[0][1], result[0][2])
+
+                problematic = """INSERT OR REPLACE {
+                                   <test:resource:nb281201> nie:contentLastModified '2012-10-28T12:12:12'
+                                 }"""
                 
+                self.tracker.update (problematic)
+
+                result = self.tracker.query (query)
+                # Only one row of results, and the 3 colums have the same value
+                self.assertEquals (len (result), 1)
+                self.assertEquals (result[0][0], result[0][1])
+                self.assertEquals (result[0][1], result[0][2])
+                
+
+
 
 if __name__ == "__main__":
 	ut.main()
