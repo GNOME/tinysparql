@@ -810,9 +810,10 @@ set_up_mount_point (TrackerMinerFiles *miner,
                                                 "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
                                                 removable_device_urn, removable_device_urn);
                 }
-		g_string_append_printf (queries,
-		                        "INSERT { GRAPH <%s> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> OPTIONAL { ?do tracker:available ?available } FILTER (!bound(?available)) } ",
-		                        removable_device_urn, removable_device_urn);
+
+                g_string_append_printf (queries,
+                                        "INSERT { GRAPH <%s> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> } ",
+                                        removable_device_urn, removable_device_urn);
 	} else {
 		gchar *now;
 
@@ -838,8 +839,9 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> ; tracker:available true } ",
+		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
 		                        removable_device_urn);
+
 		g_free (now);
 	}
 
