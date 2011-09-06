@@ -709,6 +709,8 @@ tracker_xmp_free (TrackerXmpData *data)
  *
  * This function applies all data in @data to @metadata.
  *
+ * The @graph parameter was added in 0.12.
+ *
  * Returns: %TRUE if the @data was applied to @metadata successfully,
  * otherwise %FALSE is returned.
  *
