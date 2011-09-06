@@ -198,16 +198,21 @@ div_str_dup (const gchar *value)
 {
 	gchar *ret;
 	gchar *ptr = strchr (value, '/');
+
 	if (ptr) {
 		gchar *cpy = g_strdup (value);
 		gint a, b;
+
 		cpy [ptr - value] = '\0';
 		a = atoi (cpy);
 		b = atoi (cpy + (ptr - value) + 1);
-		if (b != 0)
+
+		if (b != 0) {
 			ret = g_strdup_printf ("%G", ((gdouble)((gdouble) a / (gdouble) b)));
-		else
+		} else {
 			ret = NULL;
+		}
+
 		g_free (cpy);
 	} else {
 		ret = g_strdup (value);
@@ -318,7 +323,7 @@ fix_region_type (const gchar *region_type)
         }
 
         if (g_ascii_strcasecmp (region_type, "Face")) {
-                return "nfo:roi-content-face"; 
+                return "nfo:roi-content-face";
         } else if (g_ascii_strcasecmp (region_type, "Pet")) {
                 return "nfo:roi-content-pet";
         } else if (g_ascii_strcasecmp (region_type, "Focus")) {
@@ -341,18 +346,18 @@ iterate_simple (const gchar    *uri,
                 const gchar    *value,
                 gboolean        append)
 {
-	gchar            *name;
-	const gchar      *index_;
-        gchar            *propname;
-        TrackerXmpRegion *current_region;
+	gchar *name;
+	const gchar *p;
+	gchar *propname;
 
 	name = g_strdup (strchr (path, ':') + 1);
 
         /* For 'dc:subject[1]' the name will be 'subject'.
-           This rule doesn't work for RegionLists  */
-	index_ = strrchr (name, '[');
-	if (index_) {
-		name[index_ - name] = '\0';
+         * This rule doesn't work for RegionLists
+         */
+	p = strrchr (name, '[');
+	if (p) {
+		name[p - name] = '\0';
 	}
 
 	/* Exif basic scheme */
@@ -509,14 +514,16 @@ iterate_simple (const gchar    *uri,
 		}
 	} else if (g_ascii_strcasecmp (schema, NS_XMP_REGIONS) == 0) {
                 if (g_str_has_prefix (path, "mwg-rs:Regions/mwg-rs:RegionList")) {
-                        current_region = g_list_nth_data (data->regions, 0);
+	                TrackerXmpRegion *current_region;
+
+	                /* We always prepend the regions for each new one created. */
+                        current_region = g_slist_nth_data (data->regions, 0);
 
                         propname = g_strdup (strrchr (path, '/') + 1);
 
                         if (!current_region->title && g_ascii_strcasecmp (propname, "mwg-rs:Name") == 0) {
                                 current_region->title = g_strdup (value);
-                        } else if (!current_region->description 
-                                   && g_ascii_strcasecmp (propname, "mwg-rs:Description") == 0) {
+                        } else if (!current_region->description && g_ascii_strcasecmp (propname, "mwg-rs:Description") == 0) {
                                 current_region->description = g_strdup (value);
                         } else if (!current_region->x && g_ascii_strcasecmp (propname, "stArea:x") == 0) {
                                 current_region->x = g_strdup (value);
@@ -527,36 +534,38 @@ iterate_simple (const gchar    *uri,
                         } else if (!current_region->height && g_ascii_strcasecmp (propname, "stArea:h") == 0) {
                                 current_region->height = g_strdup (value);
 
-                                /* Spec not clear about units 
-                                   } else if (!current_region->unit 
-                                              && g_ascii_strcasecmp (propname, "stArea:unit") == 0) {
-                                   current_region->unit = g_strdup (value);
-
-                                   we consider it always comes normalized
+                                /* Spec not clear about units
+                                 *  } else if (!current_region->unit
+                                 *             && g_ascii_strcasecmp (propname, "stArea:unit") == 0) {
+                                 *      current_region->unit = g_strdup (value);
+                                 *
+                                 *  we consider it always comes normalized
                                 */
-
                         } else if (!current_region->type && g_ascii_strcasecmp (propname, "mwg-rs:Type") == 0) {
                                 current_region->type = g_strdup (value);
                         } else if (g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
                                 current_region->link_class = g_strdup (propname);
                                 current_region->link_uri = g_strdup (value);
-                        } 
+                        }
                 }
         }
+
 	g_free (name);
 }
 
 static void
-iterate_complex_element (TrackerXmpData *data, const gchar *schema, const gchar *path) 
+iterate_complex_element (TrackerXmpData *data,
+                         const gchar    *schema,
+                         const gchar    *path)
 {
         TrackerXmpRegion *region;
 
-        /* When we go into an Area, we put a region on the stack 
-         *  further statements will put values in that region. 
+        /* When we go into an Area, we put a region on the stack
+         * further statements will put values in that region.
          */
         if (g_str_has_suffix (path, "mwg-rs:Area")) {
                 region = g_new0 (TrackerXmpRegion, 1);
-                data->regions = g_list_prepend (data->regions, region);
+                data->regions = g_slist_prepend (data->regions, region);
         }
 }
 
@@ -580,6 +589,7 @@ iterate (XmpPtr          xmp,
 		const gchar *schema = xmp_string_cstr (the_schema);
 		const gchar *path = xmp_string_cstr (the_path);
 		const gchar *value = xmp_string_cstr (the_prop);
+
 		if (XMP_IS_PROP_SIMPLE (opt)) {
 			if (!tracker_is_empty_string (path)) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
@@ -588,24 +598,24 @@ iterate (XmpPtr          xmp,
 					iterate_simple (uri, data, schema, path, value, append);
 				}
 			}
-		}
-		else if (XMP_IS_PROP_ARRAY (opt)) {
+		} else if (XMP_IS_PROP_ARRAY (opt)) {
 			if (XMP_IS_ARRAY_ALTTEXT (opt)) {
 				iterate_alt_text (xmp, uri, data, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			} else {
 				iterate_array (xmp, uri, data, schema, path);
-                                /* Some dc: elements are handled as arrays by exempi. 
-                                   In those cases, to avoid duplicated values, is easier
-                                   to skip the subtree 
-                                */
+
+                                /* Some dc: elements are handled as arrays by exempi.
+                                 * In those cases, to avoid duplicated values, is easier
+                                 * to skip the subtree.
+                                 */
                                 if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
                                         xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
                                 }
 			}
 		} else {
-                        iterate_complex_element (data, schema, path);
-                }
+			iterate_complex_element (data, schema, path);
+		}
 	}
 
 	xmp_string_free (the_prop);
@@ -613,13 +623,13 @@ iterate (XmpPtr          xmp,
 	xmp_string_free (the_schema);
 }
 
-
 static void
-register_namespace (const gchar *ns_uri, const gchar *suggested_prefix)
+register_namespace (const gchar *ns_uri,
+                    const gchar *suggested_prefix)
 {
         if (!xmp_namespace_prefix (ns_uri, NULL)) {
                 xmp_register_namespace (ns_uri, suggested_prefix, NULL);
-        }     
+        }
 }
 
 #endif /* HAVE_EXEMPI */
@@ -639,7 +649,7 @@ parse_xmp (const gchar    *buffer,
 #ifdef HAVE_EXEMPI
 
 	xmp_init ();
-        
+
         register_namespace (NS_XMP_REGIONS, "mwg-rs");
         register_namespace (NS_ST_DIM, "stDim");
         register_namespace (NS_ST_AREA, "stArea");
@@ -699,10 +709,10 @@ tracker_xmp_read (const gchar    *buffer,
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
 static void
-xmp_region_free (gpointer data) 
+xmp_region_free (gpointer data)
 {
-        TrackerXmpRegion *region = (TrackerXmpRegion *)data;
-        
+        TrackerXmpRegion *region = (TrackerXmpRegion *) data;
+
         g_free (region->title);
         g_free (region->description);
         g_free (region->type);
@@ -808,7 +818,7 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data->gps_longitude);
 	g_free (data->gps_direction);
 
-        g_list_free_full (data->regions, xmp_region_free);
+        g_slist_free_full (data->regions, xmp_region_free);
 	g_free (data);
 }
 
@@ -838,9 +848,10 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                    const gchar          *uri,
                    TrackerXmpData       *data)
 {
-	GPtrArray        *keywords;
+	GPtrArray *keywords;
 	guint i;
 
+	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
 	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
@@ -1165,24 +1176,30 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 	return TRUE;
 }
 
-void 
+gboolean
 tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata,
                            GString              *where,
                            const gchar          *uri,
                            TrackerXmpData       *data)
 {
-        GList            *iter;
+        GSList *iter;
         TrackerXmpRegion *region;
 
+	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
+	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+	g_return_val_if_fail (data != NULL, FALSE);
+
         if (!data->regions) {
-                return;
+                return FALSE;
         }
-        
+
         for (iter = data->regions; iter != NULL; iter = iter->next) {
                 gchar *reguuid;
+
                 reguuid = tracker_sparql_get_uuid_urn ();
-                region = (TrackerXmpRegion *)iter->data;
+                region = (TrackerXmpRegion *) iter->data;
 
                 tracker_sparql_builder_predicate (metadata, "nfo:hasRegionOfInterest");
                 tracker_sparql_builder_object_iri (metadata, reguuid);
@@ -1248,4 +1265,5 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                 g_free (reguuid);
         }
 
+        return TRUE;
 }

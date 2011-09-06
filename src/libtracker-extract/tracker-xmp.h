@@ -90,7 +90,8 @@ typedef struct {
 	gchar *gps_longitude;
 	gchar *gps_direction;
 
-        GList *regions; /* List of TrackerXmpRegion */
+	/* List of TrackerXmpRegion */
+        GSList *regions;
 } TrackerXmpData;
 
 typedef struct {
@@ -115,7 +116,7 @@ gboolean        tracker_xmp_apply         (TrackerSparqlBuilder *preupdate,
                                            GString              *where,
                                            const gchar          *uri,
                                            TrackerXmpData       *data);
-void            tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
+gboolean        tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                                            TrackerSparqlBuilder *metadata,
                                            GString              *where,
                                            const gchar          *uri,
