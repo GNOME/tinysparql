@@ -235,6 +235,10 @@ struct _TrackerMinerFSPrivate {
 	/* Files to check if no longer exist */
 	GHashTable     *check_removed;
 
+	/* Config directories where we should force mtime checking, regardless of
+	 * the global mtime check configuration. */
+	GList          *forced_mtime_check_directories;
+
 	/* Status */
 	guint           been_started : 1;     /* TRUE if miner has been started */
 	guint           been_crawled : 1;     /* TRUE if initial crawling has been
@@ -390,6 +394,11 @@ static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 static void           task_pool_cancel_foreach                (gpointer        data,
                                                                gpointer        user_data);
 
+static gboolean       miner_fs_is_forced_mtime_checking_directory      (TrackerMinerFS *fs,
+                                                                        GFile          *directory);
+static gboolean       miner_fs_should_check_mtime                      (TrackerMinerFS *fs,
+                                                                        GFile          *file,
+                                                                        gboolean        is_directory);
 
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -862,6 +871,11 @@ fs_finalize (GObject *object)
 	if (priv->config_directories) {
 		g_list_foreach (priv->config_directories, (GFunc) directory_data_unref, NULL);
 		g_list_free (priv->config_directories);
+	}
+
+	if (priv->forced_mtime_check_directories) {
+		g_list_foreach (priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
+		g_list_free (priv->forced_mtime_check_directories);
 	}
 
 	tracker_priority_queue_foreach (priv->crawled_directories,
@@ -4055,7 +4069,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	TrackerMinerFS *fs = user_data;
 
 	if (!fs->priv->been_crawled &&
-	    (!fs->priv->mtime_checking ||
+	    (!miner_fs_should_check_mtime (fs, file, FALSE) ||
 	     !fs->priv->initial_crawling)) {
 		return FALSE;
 	}
@@ -4093,7 +4107,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 		gboolean should_change_index;
 
 		if (!fs->priv->been_crawled &&
-		    (!fs->priv->mtime_checking ||
+		    (!miner_fs_should_check_mtime (fs, file, TRUE) ||
 		     !fs->priv->initial_crawling)) {
 			should_change_index = FALSE;
 		} else {
@@ -4157,7 +4171,8 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 		 * -First crawl has already been done OR
 		 * -mtime_checking is TRUE.
 		 */
-		if (fs->priv->been_crawled || fs->priv->mtime_checking) {
+		if (fs->priv->been_crawled ||
+		    miner_fs_should_check_mtime (fs, parent, TRUE)) {
 			/* Set quark to identify item found during crawling */
 			g_object_set_qdata (G_OBJECT (parent),
 			                    fs->priv->quark_directory_found_crawling,
@@ -5397,6 +5412,62 @@ tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
 	return fs->priv->mtime_checking;
+}
+
+static gboolean
+miner_fs_is_forced_mtime_checking_directory (TrackerMinerFS *fs,
+                                             GFile          *directory)
+{
+	GList *l;
+
+	/* Ensure we don't add the same one more than once */
+	for (l = fs->priv->forced_mtime_check_directories; l; l = g_list_next (l)) {
+		if (g_file_equal (directory, G_FILE (l->data)) ||
+		    g_file_has_prefix (directory, G_FILE (l->data)))
+			return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean
+miner_fs_should_check_mtime (TrackerMinerFS *fs,
+                             GFile          *file,
+                             gboolean        is_directory)
+{
+	if (fs->priv->mtime_checking)
+		return TRUE;
+
+	if (is_directory)
+		return miner_fs_is_forced_mtime_checking_directory (fs, file);
+
+	return FALSE;
+}
+
+/**
+ * tracker_miner_fs_force_mtime_checking:
+ * @fs: a #TrackerMinerFS
+ *
+ * Tells @fs to force mtime checking (regardless of the global mtime check
+ * configuration) on the given @directory.
+ *
+ * Since: 0.12
+ **/
+void
+tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
+                                       GFile          *directory)
+{
+	gchar *uri;
+
+	if (miner_fs_is_forced_mtime_checking_directory (fs, directory))
+		return;
+
+	uri = g_file_get_uri (directory);
+	g_debug ("Will force mtime checks under directory '%s'", uri);
+	g_free (uri);
+
+	fs->priv->forced_mtime_check_directories =
+		g_list_prepend (fs->priv->forced_mtime_check_directories,
+		                g_object_ref (directory));
 }
 
 void
