@@ -1159,7 +1159,7 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 	}
 
         if (data->regions) {
-                tracker_xmp_apply_regions (preupdate, metadata, where, uri, data);
+	        tracker_xmp_apply_regions (preupdate, metadata, graph, where, uri, data);
         }
 
 	return TRUE;
@@ -1168,12 +1168,12 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 gboolean
 tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata,
+                           const gchar          *graph,
                            GString              *where,
                            const gchar          *uri,
                            TrackerXmpData       *data)
 {
         GSList *iter;
-        TrackerXmpRegion *region;
 
         g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
         g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
@@ -1185,19 +1185,20 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
         }
 
         for (iter = data->regions; iter != NULL; iter = iter->next) {
-                gchar *reguuid;
+	        TrackerXmpRegion *region;
+	        gchar *uuid;
 
-                reguuid = tracker_sparql_get_uuid_urn ();
                 region = (TrackerXmpRegion *) iter->data;
+                uuid = tracker_sparql_get_uuid_urn ();
 
-                tracker_sparql_builder_predicate (metadata, "nfo:hasRegionOfInterest");
-                tracker_sparql_builder_object_iri (metadata, reguuid);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
 
-                tracker_sparql_builder_insert_open (preupdate, NULL);
-                tracker_sparql_builder_subject_iri (preupdate, reguuid);
-
-                tracker_sparql_builder_predicate (preupdate, "a");
-                tracker_sparql_builder_object (preupdate, "nfo:RegionOfInterest");
+		tracker_sparql_builder_subject_iri (preupdate, uuid);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nfo:RegionOfInterest");
 
                 if (region->title) {
                         tracker_sparql_builder_predicate (preupdate, "nie:title");
@@ -1234,12 +1235,9 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                         tracker_sparql_builder_object_unvalidated (preupdate, region->height);
                 }
 
-
-                tracker_sparql_builder_insert_close (preupdate);
-
                 if (region->link_uri && region->link_class) {
                         tracker_sparql_builder_insert_open (preupdate, NULL);
-                        tracker_sparql_builder_subject_iri (preupdate, reguuid);
+                        tracker_sparql_builder_subject_variable (preupdate, "region");
                         tracker_sparql_builder_predicate (preupdate, "nfo:roiRefersTo");
                         tracker_sparql_builder_object_iri (preupdate, region->link_uri);
                         tracker_sparql_builder_insert_close (preupdate);
@@ -1251,7 +1249,16 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                         tracker_sparql_builder_where_close (preupdate);
                 }
 
-                g_free (reguuid);
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
+		tracker_sparql_builder_insert_close (preupdate);
+
+                /* Handle non-preupdate metadata */
+                tracker_sparql_builder_predicate (metadata, "nfo:hasRegionOfInterest");
+                tracker_sparql_builder_object_iri (metadata, uuid);
+
+                g_free (uuid);
         }
 
         return TRUE;

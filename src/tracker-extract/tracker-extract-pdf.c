@@ -577,7 +577,7 @@ extract_pdf (const gchar          *uri,
 		}
 
                 if (xd->regions) {
-                        tracker_xmp_apply_regions (preupdate, metadata, where, uri, xd);
+	                tracker_xmp_apply_regions (preupdate, metadata, graph, NULL, uri, xd);
                 }
 
 		tracker_xmp_free (xd);
