@@ -552,6 +552,8 @@ iterate_simple (const gchar    *uri,
                                 current_region->link_class = g_strdup (propname);
                                 current_region->link_uri = g_strdup (value);
                         }
+
+                        g_free (propname);
                 }
         }
 
