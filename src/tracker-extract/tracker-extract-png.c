@@ -230,11 +230,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.creator);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
@@ -270,6 +278,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		                                              md.model ? md.model : "");
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, equip_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nfo:Equipment");
@@ -282,7 +294,12 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			tracker_sparql_builder_predicate (preupdate, "nfo:model");
 			tracker_sparql_builder_object_unvalidated (preupdate, md.model);
 		}
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
+
 		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
 		tracker_sparql_builder_object_iri (metadata, equip_uri);
 		g_free (equip_uri);
@@ -292,11 +309,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.artist);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
@@ -366,11 +391,19 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", xd->publisher);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (preupdate, xd->publisher);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
@@ -427,9 +460,13 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			addruri = tracker_sparql_get_uuid_urn ();
 
 			tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-			tracker_sparql_builder_object_iri (metadata, addruri);			
+			tracker_sparql_builder_object_iri (metadata, addruri);
 			
 			tracker_sparql_builder_insert_open (preupdate, NULL);
+			if (graph) {
+				tracker_sparql_builder_graph_open (preupdate, graph);
+			}
+
 			tracker_sparql_builder_subject_iri (preupdate, addruri);
 
 			g_free (addruri);
@@ -457,6 +494,9 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			  tracker_sparql_builder_object_unvalidated (preupdate, xd->country);
 			}
 
+			if (graph) {
+				tracker_sparql_builder_graph_close (preupdate);
+			}
 			tracker_sparql_builder_insert_close (preupdate);
 		}
 
@@ -556,7 +596,7 @@ guess_dlna_profile (gint          depth,
                     const gchar **dlna_profile,
                     const gchar **dlna_mimetype)
 {
-	gchar *profile = NULL;
+	const gchar *profile = NULL;
 
 	if (dlna_profile) {
 		*dlna_profile = NULL;
