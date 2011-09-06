@@ -421,6 +421,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			                                              xd->model ? xd->model : "");
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
+			if (graph) {
+				tracker_sparql_builder_graph_open (preupdate, graph);
+			}
+
 			tracker_sparql_builder_subject_iri (preupdate, equip_uri);
 			tracker_sparql_builder_predicate (preupdate, "a");
 			tracker_sparql_builder_object (preupdate, "nfo:Equipment");
@@ -434,7 +438,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 				tracker_sparql_builder_predicate (preupdate, "nfo:model");
 				tracker_sparql_builder_object_unvalidated (preupdate, xd->model);
 			}
+
+			if (graph) {
+				tracker_sparql_builder_graph_close (preupdate);
+			}
 			tracker_sparql_builder_insert_close (preupdate);
+
 			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
 			tracker_sparql_builder_object_iri (metadata, equip_uri);
 			g_free (equip_uri);
@@ -534,6 +543,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 				tracker_sparql_builder_object_iri (metadata, addruri);			
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
+				if (graph) {
+					tracker_sparql_builder_graph_open (preupdate, graph);
+				}
+
 				tracker_sparql_builder_subject_iri (preupdate, addruri);
 
 				g_free (addruri);
@@ -561,6 +574,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 				        tracker_sparql_builder_object_unvalidated (preupdate, xd->country);
 				}
 
+				if (graph) {
+					tracker_sparql_builder_graph_close (preupdate);
+				}
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
