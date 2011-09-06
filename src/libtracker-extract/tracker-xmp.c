@@ -350,11 +350,16 @@ iterate_simple (const gchar    *uri,
 	const gchar *p;
 	gchar *propname;
 
-	name = g_strdup (strchr (path, ':') + 1);
+	p = strchr (path, ':');
+	if (!p) {
+		return;
+	}
 
-        /* For 'dc:subject[1]' the name will be 'subject'.
-         * This rule doesn't work for RegionLists
-         */
+	name = g_strdup (p + 1);
+
+	/* For 'dc:subject[1]' the name will be 'subject'.
+	 * This rule doesn't work for RegionLists
+	 */
 	p = strrchr (name, '[');
 	if (p) {
 		name[p - name] = '\0';
