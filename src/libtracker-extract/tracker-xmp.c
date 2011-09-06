@@ -700,7 +700,10 @@ tracker_xmp_free (TrackerXmpData *data)
 
 /**
  * tracker_xmp_apply:
+ * @preupdate: the preupdate object to apply XMP data to.
  * @metadata: the metadata object to apply XMP data to.
+ * @graph: the graph to apply XMP data to
+ * @where: the where object
  * @uri: the URI this is related to.
  * @data: the data to push into @metadata.
  *
@@ -714,6 +717,7 @@ tracker_xmp_free (TrackerXmpData *data)
 gboolean
 tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                    TrackerSparqlBuilder *metadata,
+                   const gchar          *graph,
                    GString              *where,
                    const gchar          *uri,
                    TrackerXmpData       *data)
@@ -748,8 +752,21 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 
 		/* ensure tag with specified label exists */
 		tracker_sparql_builder_append (preupdate,
-		                               "INSERT { _:tag a nao:Tag ; nao:prefLabel \"");
+		                               "INSERT { ");
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, "GRAPH <");
+			tracker_sparql_builder_append (preupdate, graph);
+			tracker_sparql_builder_append (preupdate, "> { ");
+		}
+
+		tracker_sparql_builder_append (preupdate,"_:tag a nao:Tag ; nao:prefLabel \"");
 		tracker_sparql_builder_append (preupdate, escaped);
+
+		if (graph) {
+			tracker_sparql_builder_append (preupdate, " } ");
+		}
+
 		tracker_sparql_builder_append (preupdate,
 		                               "\" }\nWHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
@@ -829,6 +846,10 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		                                              data->model ? data->model : "");
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
 		tracker_sparql_builder_subject_iri (preupdate, equip_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nfo:Equipment");
@@ -841,7 +862,12 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 			tracker_sparql_builder_predicate (preupdate, "nfo:model");
 			tracker_sparql_builder_object_unvalidated (preupdate, data->model);
 		}
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
 		tracker_sparql_builder_insert_close (preupdate);
+
 		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
 		tracker_sparql_builder_object_iri (metadata, equip_uri);
 		g_free (equip_uri);

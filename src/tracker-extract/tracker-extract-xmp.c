@@ -129,11 +129,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	gchar *contents;
 	gsize length;
 	GFile *file;
+	const gchar *graph;
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
 	uri = g_file_get_uri (file);
 
+	graph = tracker_extract_info_get_graph (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
 
@@ -153,7 +155,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			GString *where;
 
 			where = g_string_new ("");
-			tracker_xmp_apply (preupdate, metadata, where, uri, xd);
+			tracker_xmp_apply (preupdate, metadata, graph, where, uri, xd);
 			tracker_extract_info_set_where_clause (info,
 			                                       g_string_free (where, FALSE));
 		}
