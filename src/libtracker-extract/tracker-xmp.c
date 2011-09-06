@@ -1175,13 +1175,13 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
         GSList *iter;
         TrackerXmpRegion *region;
 
-	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
-	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
-	g_return_val_if_fail (uri != NULL, FALSE);
-	g_return_val_if_fail (data != NULL, FALSE);
+        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
+        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
+        g_return_val_if_fail (uri != NULL, FALSE);
+        g_return_val_if_fail (data != NULL, FALSE);
 
         if (!data->regions) {
-                return FALSE;
+                return TRUE;
         }
 
         for (iter = data->regions; iter != NULL; iter = iter->next) {
