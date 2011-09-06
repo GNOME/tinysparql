@@ -569,7 +569,7 @@ iterate_complex_element (TrackerXmpData *data,
          * further statements will put values in that region.
          */
         if (g_str_has_suffix (path, "mwg-rs:Area")) {
-                region = g_new0 (TrackerXmpRegion, 1);
+                region = g_slice_new0 (TrackerXmpRegion);
                 data->regions = g_slist_prepend (data->regions, region);
         }
 }
@@ -727,6 +727,8 @@ xmp_region_free (gpointer data)
         g_free (region->height);
         g_free (region->link_class);
         g_free (region->link_uri);
+
+        g_slice_free (TrackerXmpRegion, region);
 }
 
 
