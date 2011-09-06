@@ -387,10 +387,10 @@ test_xmp_regions (void)
 
         data = tracker_xmp_new (contents, size, "test://file");
 
-        g_assert_cmpint (2, ==, g_list_length (data->regions));
+        g_assert_cmpint (2, ==, g_slist_length (data->regions));
         
         /* Regions are stacked while parsing.*/
-        region = g_list_nth_data (data->regions, 0);
+        region = g_slist_nth_data (data->regions, 0);
         g_assert_cmpstr (region->x, ==, "0.51");
         g_assert_cmpstr (region->y, ==, "0.51");
         g_assert_cmpstr (region->width, ==, "0.01");
@@ -399,7 +399,7 @@ test_xmp_regions (void)
         g_assert_cmpstr (region->title, ==, "Fido");
         g_assert_cmpstr (region->description, ==, "Fido looks happy!");
 
-        region = g_list_nth_data (data->regions, 1);
+        region = g_slist_nth_data (data->regions, 1);
         g_assert_cmpstr (region->x, ==, "0.5");
         g_assert_cmpstr (region->y, ==, "0.5");
         g_assert_cmpstr (region->width, ==, "0.06");
@@ -430,9 +430,9 @@ test_xmp_regions_quill (void)
 
         data = tracker_xmp_new (contents, size, "test://file");
 
-        g_assert_cmpint (2, ==, g_list_length (data->regions));
+        g_assert_cmpint (2, ==, g_slist_length (data->regions));
 
-        region = g_list_nth_data (data->regions, 0);
+        region = g_slist_nth_data (data->regions, 0);
         g_assert_cmpstr (region->x, ==, "0.4");
         g_assert_cmpstr (region->y, ==, "0.3");
         g_assert_cmpstr (region->width, ==, "0.17");
@@ -442,7 +442,7 @@ test_xmp_regions_quill (void)
         g_assert_cmpstr (region->link_class, ==, "nco:PersonContact");
         g_assert_cmpstr (region->link_uri, ==, "urn:uuid:2");
 
-        region = g_list_nth_data (data->regions, 1);
+        region = g_slist_nth_data (data->regions, 1);
         g_assert_cmpstr (region->x, ==, "0.3");
         g_assert_cmpstr (region->y, ==, "0.4");
         g_assert_cmpstr (region->width, ==, "0.15");
@@ -473,10 +473,10 @@ test_xmp_regions_ns_prefix (void)
 
         data = tracker_xmp_new (contents, size, "test://file");
 
-        g_assert_cmpint (2, ==, g_list_length (data->regions));
+        g_assert_cmpint (2, ==, g_slist_length (data->regions));
         
         /* Regions are stacked while parsing.*/
-        region = g_list_nth_data (data->regions, 0);
+        region = g_slist_nth_data (data->regions, 0);
         g_assert_cmpstr (region->x, ==, "0.51");
         g_assert_cmpstr (region->y, ==, "0.51");
         g_assert_cmpstr (region->width, ==, "0.01");
@@ -485,7 +485,7 @@ test_xmp_regions_ns_prefix (void)
         g_assert_cmpstr (region->title, ==, "Fidoz");
         g_assert_cmpstr (region->description, ==, "Fido looks happy!");
 
-        region = g_list_nth_data (data->regions, 1);
+        region = g_slist_nth_data (data->regions, 1);
         g_assert_cmpstr (region->x, ==, "0.5");
         g_assert_cmpstr (region->y, ==, "0.5");
         g_assert_cmpstr (region->width, ==, "0.06");
