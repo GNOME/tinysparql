@@ -363,6 +363,8 @@ get_metadata_fast_async (GDBusConnection    *connection,
  * When the request is finished, @callback will be executed. You can then
  * call tracker_extract_client_get_metadata_finish() to get the result of
  * the operation.
+ *
+ * Since: 0.12
  **/
 void
 tracker_extract_client_get_metadata (GFile               *file,
@@ -407,6 +409,8 @@ tracker_extract_client_get_metadata (GFile               *file,
  * Finishes an asynchronous metadata request.
  *
  * Returns: (transfer full): the #TrackerExtractInfo holding the result.
+ *
+ * Since: 0.12
  **/
 TrackerExtractInfo *
 tracker_extract_client_get_metadata_finish (GFile         *file,
@@ -429,6 +433,8 @@ tracker_extract_client_get_metadata_finish (GFile         *file,
  * @prefix: a #GFile
  *
  * Cancels any ongoing extraction task for (or within) @prefix.
+ *
+ * Since: 0.12
  **/
 void
 tracker_extract_client_cancel_for_prefix (GFile *prefix)

@@ -46,6 +46,8 @@ G_DEFINE_BOXED_TYPE (TrackerExtractInfo, tracker_extract_info,
  * Returns a newly created #TrackerExtractInfo
  *
  * Returns: (transfer full): (boxed): A newly allocated #TrackerExtractInfo
+ *
+ * Since: 0.12
  **/
 TrackerExtractInfo *
 tracker_extract_info_new (GFile       *file,
@@ -76,6 +78,8 @@ tracker_extract_info_new (GFile       *file,
  * Increases the reference count of @info
  *
  * Returns: A new reference to @info
+ *
+ * Since: 0.12
  **/
 TrackerExtractInfo *
 tracker_extract_info_ref (TrackerExtractInfo *info)
@@ -93,6 +97,8 @@ tracker_extract_info_ref (TrackerExtractInfo *info)
  *
  * Decreases the reference count of @info, freeing all its associated resources.
  * if it reaches 0.
+ *
+ * Since: 0.12
  **/
 void
 tracker_extract_info_unref (TrackerExtractInfo *info)
@@ -120,6 +126,8 @@ tracker_extract_info_unref (TrackerExtractInfo *info)
  * by the metadata extraction represented by @info
  *
  * Returns: (transfer none): The file being inspected
+ *
+ * Since: 0.12
  **/
 GFile *
 tracker_extract_info_get_file (TrackerExtractInfo *info)
@@ -138,6 +146,8 @@ tracker_extract_info_get_file (TrackerExtractInfo *info)
  *
  * Returns: (transfer none): the mimetype being used
  *          for extraction.
+ *
+ * Since: 0.12
  **/
 const gchar *
 tracker_extract_info_get_mimetype (TrackerExtractInfo *info)
@@ -156,6 +166,8 @@ tracker_extract_info_get_mimetype (TrackerExtractInfo *info)
  *
  * Returns: (transfer none): The SPARQL graph the extract
  *          operation belongs to.
+ *
+ * Since: 0.12
  **/
 const gchar *
 tracker_extract_info_get_graph (TrackerExtractInfo *info)
@@ -175,6 +187,8 @@ tracker_extract_info_get_graph (TrackerExtractInfo *info)
  * and so on.
  *
  * Returns: (transfer none): miscellaneous metadata
+ *
+ * Since: 0.12
  **/
 TrackerSparqlBuilder *
 tracker_extract_info_get_preupdate_builder (TrackerExtractInfo *info)
@@ -192,6 +206,8 @@ tracker_extract_info_get_preupdate_builder (TrackerExtractInfo *info)
  * file metadata.
  *
  * Returns: (transfer none): the file metadata
+ *
+ * Since: 0.12
  **/
 TrackerSparqlBuilder *
 tracker_extract_info_get_metadata_builder (TrackerExtractInfo *info)
@@ -209,6 +225,8 @@ tracker_extract_info_get_metadata_builder (TrackerExtractInfo *info)
  * other metadata contained in @info.
  *
  * Returns: (transfer none): The where clause
+ *
+ * Since: 0.12
  **/
 const gchar *
 tracker_extract_info_get_where_clause (TrackerExtractInfo *info)
@@ -224,6 +242,8 @@ tracker_extract_info_get_where_clause (TrackerExtractInfo *info)
  * @where: Where clause for the file update.
  *
  * Sets the where clause for the returned metadata.
+ *
+ * Since: 0.12
  **/
 void
 tracker_extract_info_set_where_clause (TrackerExtractInfo *info,
