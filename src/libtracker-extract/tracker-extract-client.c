@@ -468,4 +468,5 @@ tracker_extract_client_cancel_for_prefix (GFile *prefix)
 	                                NULL, NULL);
 
 	g_free (uris[0]);
+	g_object_unref (message);
 }
