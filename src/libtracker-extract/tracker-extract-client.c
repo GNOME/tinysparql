@@ -442,6 +442,18 @@ tracker_extract_client_cancel_for_prefix (GFile *prefix)
 	GDBusMessage *message;
 	gchar *uris[2];
 
+	if (G_UNLIKELY (!connection)) {
+		GError *error = NULL;
+
+		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		if (error) {
+			g_warning ("Couldn't get session bus, cannot cancel extractor tasks: '%s'",
+			           error->message);
+			g_error_free (error);
+			return;
+		}
+	}
+
 	uris[0] = g_file_get_uri (prefix);
 	uris[1] = NULL;
 
