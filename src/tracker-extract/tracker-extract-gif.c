@@ -351,7 +351,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
         if (xd->regions) {
-                tracker_xmp_apply_regions (preupdate, metadata, uri, xd);
+                tracker_xmp_apply_regions (preupdate, metadata, NULL, xd);
         }
 
 	for (i = 0; i < keywords->len; i++) {
