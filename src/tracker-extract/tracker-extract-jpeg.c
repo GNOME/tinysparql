@@ -419,7 +419,7 @@ extract_jpeg (const gchar          *uri,
 	}
 
         if (xd->regions) {
-	        tracker_xmp_apply_regions (preupdate, metadata, graph, where, uri, xd);
+	        tracker_xmp_apply_regions (preupdate, metadata, NULL, xd);
         }
 
 	if (id->keywords) {

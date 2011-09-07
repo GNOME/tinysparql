@@ -480,7 +480,7 @@ extract_tiff (const gchar          *uri,
 	}
 
         if (xd->regions) {
-	        tracker_xmp_apply_regions (preupdate, metadata, graph, NULL, uri, xd);
+	        tracker_xmp_apply_regions (preupdate, metadata, NULL, xd);
         }
 
 	if (md.address || md.state || md.country || md.city ||
