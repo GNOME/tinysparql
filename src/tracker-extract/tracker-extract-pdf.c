@@ -657,8 +657,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 	g_ptr_array_free (keywords, TRUE);
 
-	tracker_extract_info_set_where_clause (info,
-	                                       g_string_free (where, FALSE));
+	tracker_extract_info_set_where_clause (info, where->str);
+	g_string_free (where, TRUE);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
 	tracker_sparql_builder_object_int64 (metadata, poppler_document_get_n_pages (document));

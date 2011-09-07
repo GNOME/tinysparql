@@ -156,8 +156,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 			where = g_string_new ("");
 			tracker_xmp_apply (preupdate, metadata, graph, where, uri, xd);
-			tracker_extract_info_set_where_clause (info,
-			                                       g_string_free (where, FALSE));
+			tracker_extract_info_set_where_clause (info, where->str);
+			g_string_free (where, TRUE);
 		}
 
 		g_free (original_uri);

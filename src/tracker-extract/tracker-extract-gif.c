@@ -613,8 +613,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	uri = g_file_get_uri (file);
 
 	read_metadata (preupdate, metadata, where, gifFile, uri, graph);
-	tracker_extract_info_set_where_clause (info,
-	                                       g_string_free (where, FALSE));
+	tracker_extract_info_set_where_clause (info, where->str);
+	g_string_free (where, TRUE);
 
 	g_free (uri);
 
