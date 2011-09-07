@@ -28,6 +28,10 @@
 
 #ifdef HAVE_EXEMPI
 
+#define NS_XMP_REGIONS "http://www.metadataworkinggroup.com/schemas/regions/"
+#define NS_ST_DIM "http://ns.adobe.com/xap/1.0/sType/Dimensions#"
+#define NS_ST_AREA "http://ns.adobe.com/xap/1.0/sType/Area#"
+
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
@@ -194,16 +198,21 @@ div_str_dup (const gchar *value)
 {
 	gchar *ret;
 	gchar *ptr = strchr (value, '/');
+
 	if (ptr) {
 		gchar *cpy = g_strdup (value);
 		gint a, b;
+
 		cpy [ptr - value] = '\0';
 		a = atoi (cpy);
 		b = atoi (cpy + (ptr - value) + 1);
-		if (b != 0)
+
+		if (b != 0) {
 			ret = g_strdup_printf ("%G", ((gdouble)((gdouble) a / (gdouble) b)));
-		else
+		} else {
 			ret = NULL;
+		}
+
 		g_free (cpy);
 	} else {
 		ret = g_strdup (value);
@@ -306,6 +315,26 @@ fix_orientation (const gchar *orientation)
 	return  "nfo:orientation-top";
 }
 
+static const gchar *
+fix_region_type (const gchar *region_type)
+{
+        if (region_type == NULL) {
+                return "nfo:region-content-undefined";
+        }
+
+        if (g_ascii_strcasecmp (region_type, "Face")) {
+                return "nfo:roi-content-face";
+        } else if (g_ascii_strcasecmp (region_type, "Pet")) {
+                return "nfo:roi-content-pet";
+        } else if (g_ascii_strcasecmp (region_type, "Focus")) {
+                return "nfo:roi-content-focus";
+        } else if (g_ascii_strcasecmp (region_type, "BarCode")) {
+                return "nfo:roi-content-barcode";
+        }
+
+        return "nfo:roi-content-undefined";
+}
+
 /* We have a simple element. Add any data we know about to the
  * hash table.
  */
@@ -318,13 +347,22 @@ iterate_simple (const gchar    *uri,
                 gboolean        append)
 {
 	gchar *name;
-	const gchar *index_;
+	const gchar *p;
+	gchar *propname;
 
-	name = g_strdup (strchr (path, ':') + 1);
-	index_ = strrchr (name, '[');
+	p = strchr (path, ':');
+	if (!p) {
+		return;
+	}
 
-	if (index_) {
-		name[index_ - name] = '\0';
+	name = g_strdup (p + 1);
+
+	/* For 'dc:subject[1]' the name will be 'subject'.
+	 * This rule doesn't work for RegionLists
+	 */
+	p = strrchr (name, '[');
+	if (p) {
+		name[p - name] = '\0';
 	}
 
 	/* Exif basic scheme */
@@ -479,10 +517,63 @@ iterate_simple (const gchar    *uri,
 		if (!data->rating && g_ascii_strcasecmp (name, "Rating") == 0) {
 			data->rating = g_strdup (value);
 		}
-	}
+	} else if (g_ascii_strcasecmp (schema, NS_XMP_REGIONS) == 0) {
+                if (g_str_has_prefix (path, "mwg-rs:Regions/mwg-rs:RegionList")) {
+	                TrackerXmpRegion *current_region;
 
+	                /* We always prepend the regions for each new one created. */
+                        current_region = g_slist_nth_data (data->regions, 0);
+
+                        propname = g_strdup (strrchr (path, '/') + 1);
+
+                        if (!current_region->title && g_ascii_strcasecmp (propname, "mwg-rs:Name") == 0) {
+                                current_region->title = g_strdup (value);
+                        } else if (!current_region->description && g_ascii_strcasecmp (propname, "mwg-rs:Description") == 0) {
+                                current_region->description = g_strdup (value);
+                        } else if (!current_region->x && g_ascii_strcasecmp (propname, "stArea:x") == 0) {
+                                current_region->x = g_strdup (value);
+                        } else if (!current_region->y && g_ascii_strcasecmp (propname, "stArea:y") == 0) {
+                                current_region->y = g_strdup (value);
+                        } else if (!current_region->width && g_ascii_strcasecmp (propname, "stArea:w") == 0) {
+                                current_region->width = g_strdup (value);
+                        } else if (!current_region->height && g_ascii_strcasecmp (propname, "stArea:h") == 0) {
+                                current_region->height = g_strdup (value);
+
+                                /* Spec not clear about units
+                                 *  } else if (!current_region->unit
+                                 *             && g_ascii_strcasecmp (propname, "stArea:unit") == 0) {
+                                 *      current_region->unit = g_strdup (value);
+                                 *
+                                 *  we consider it always comes normalized
+                                */
+                        } else if (!current_region->type && g_ascii_strcasecmp (propname, "mwg-rs:Type") == 0) {
+                                current_region->type = g_strdup (value);
+                        } else if (g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
+                                current_region->link_class = g_strdup (propname);
+                                current_region->link_uri = g_strdup (value);
+                        }
+
+                        g_free (propname);
+                }
+        }
 
 	g_free (name);
+}
+
+static void
+iterate_complex_element (TrackerXmpData *data,
+                         const gchar    *schema,
+                         const gchar    *path)
+{
+        TrackerXmpRegion *region;
+
+        /* When we go into an Area, we put a region on the stack
+         * further statements will put values in that region.
+         */
+        if (g_str_has_suffix (path, "mwg-rs:Area")) {
+                region = g_slice_new0 (TrackerXmpRegion);
+                data->regions = g_slist_prepend (data->regions, region);
+        }
 }
 
 /* Iterate over the XMP, dispatching to the appropriate element type
@@ -498,6 +589,7 @@ iterate (XmpPtr          xmp,
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
 	XmpStringPtr the_prop = xmp_string_new ();
+
 	uint32_t opt;
 
 	while (xmp_iterator_next (iter, the_schema, the_path, the_prop, &opt)) {
@@ -513,21 +605,38 @@ iterate (XmpPtr          xmp,
 					iterate_simple (uri, data, schema, path, value, append);
 				}
 			}
-		}
-		else if (XMP_IS_PROP_ARRAY (opt)) {
+		} else if (XMP_IS_PROP_ARRAY (opt)) {
 			if (XMP_IS_ARRAY_ALTTEXT (opt)) {
 				iterate_alt_text (xmp, uri, data, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			} else {
 				iterate_array (xmp, uri, data, schema, path);
-				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
+
+                                /* Some dc: elements are handled as arrays by exempi.
+                                 * In those cases, to avoid duplicated values, is easier
+                                 * to skip the subtree.
+                                 */
+                                if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
+                                        xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
+                                }
 			}
+		} else {
+			iterate_complex_element (data, schema, path);
 		}
 	}
 
 	xmp_string_free (the_prop);
 	xmp_string_free (the_path);
 	xmp_string_free (the_schema);
+}
+
+static void
+register_namespace (const gchar *ns_uri,
+                    const gchar *suggested_prefix)
+{
+        if (!xmp_namespace_prefix (ns_uri, NULL)) {
+                xmp_register_namespace (ns_uri, suggested_prefix, NULL);
+        }
 }
 
 #endif /* HAVE_EXEMPI */
@@ -547,6 +656,10 @@ parse_xmp (const gchar    *buffer,
 #ifdef HAVE_EXEMPI
 
 	xmp_init ();
+
+        register_namespace (NS_XMP_REGIONS, "mwg-rs");
+        register_namespace (NS_ST_DIM, "stDim");
+        register_namespace (NS_ST_AREA, "stArea");
 
 	xmp = xmp_new_empty ();
 	xmp_parse (xmp, buffer, len);
@@ -601,6 +714,25 @@ tracker_xmp_read (const gchar    *buffer,
 }
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
+
+static void
+xmp_region_free (gpointer data)
+{
+        TrackerXmpRegion *region = (TrackerXmpRegion *) data;
+
+        g_free (region->title);
+        g_free (region->description);
+        g_free (region->type);
+        g_free (region->x);
+        g_free (region->y);
+        g_free (region->width);
+        g_free (region->height);
+        g_free (region->link_class);
+        g_free (region->link_uri);
+
+        g_slice_free (TrackerXmpRegion, region);
+}
+
 
 /**
  * tracker_xmp_new:
@@ -695,6 +827,7 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data->gps_longitude);
 	g_free (data->gps_direction);
 
+        g_slist_free_full (data->regions, xmp_region_free);
 	g_free (data);
 }
 
@@ -702,14 +835,17 @@ tracker_xmp_free (TrackerXmpData *data)
  * tracker_xmp_apply:
  * @preupdate: the preupdate object to apply XMP data to.
  * @metadata: the metadata object to apply XMP data to.
- * @graph: the graph to apply XMP data to
- * @where: the where object
+ * @graph: the graph to apply XMP data to.
+ * @where: the where object.
  * @uri: the URI this is related to.
  * @data: the data to push into @metadata.
  *
  * This function applies all data in @data to @metadata.
  *
  * The @graph parameter was added in 0.12.
+ *
+ * This function also calls tracker_xmp_apply_regions(), so there is
+ * no need to call both functions.
  *
  * Returns: %TRUE if the @data was applied to @metadata successfully,
  * otherwise %FALSE is returned.
@@ -727,6 +863,7 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 	GPtrArray *keywords;
 	guint i;
 
+	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
 	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
@@ -1043,5 +1180,129 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, data->gps_direction);
 	}
 
+
+        if (data->regions) {
+	        tracker_xmp_apply_regions (preupdate, metadata, graph, data);
+        }
+
 	return TRUE;
+}
+
+/**
+ * tracker_xmp_apply_regions:
+ * @preupdate: the preupdate object to apply XMP data to.
+ * @metadata: the metadata object to apply XMP data to.
+ * @graph: the graph to apply XMP data to.
+ * @data: the data to push into @preupdate and @metadata.
+ *
+ * This function applies all regional @data to @preupdate and
+ * @metadata. Regional data exists for image formats like JPEG, PNG,
+ * etc. where parts of the image refer to areas of interest. This can
+ * be people's faces, places to focus, barcodes, etc. The regional
+ * data describes the title, height, width, X, Y and can occur
+ * multiple times in a given file.
+ *
+ * This data usually is standardized between image formats and that's
+ * what makes this function different to tracker_xmp_apply() which is
+ * useful for XMP files only.
+ *
+ * Returns: %TRUE if the @data was applied to @preupdate and @metadata
+ * successfully, otherwise %FALSE is returned.
+ *
+ * Since: 0.12
+ **/
+gboolean
+tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
+                           TrackerSparqlBuilder *metadata,
+                           const gchar          *graph,
+                           TrackerXmpData       *data)
+{
+        GSList *iter;
+
+        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
+        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
+        g_return_val_if_fail (data != NULL, FALSE);
+
+        if (!data->regions) {
+                return TRUE;
+        }
+
+        for (iter = data->regions; iter != NULL; iter = iter->next) {
+	        TrackerXmpRegion *region;
+	        gchar *uuid;
+
+                region = (TrackerXmpRegion *) iter->data;
+                uuid = tracker_sparql_get_uuid_urn ();
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
+		tracker_sparql_builder_subject_iri (preupdate, uuid);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nfo:RegionOfInterest");
+
+                if (region->title) {
+                        tracker_sparql_builder_predicate (preupdate, "nie:title");
+                        tracker_sparql_builder_object_string (preupdate, region->title);
+                }
+
+                if (region->description) {
+                        tracker_sparql_builder_predicate (preupdate, "nie:description");
+                        tracker_sparql_builder_object_string (preupdate, region->description);
+                }
+
+                if (region->type) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestType");
+                        tracker_sparql_builder_object (preupdate, fix_region_type (region->type));
+                }
+
+                if (region->x) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestX");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->x);
+                }
+
+                if (region->y) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestY");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->y);
+                }
+
+                if (region->width) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestWidth");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->width);
+                }
+
+                if (region->height) {
+                        tracker_sparql_builder_predicate (preupdate, "nfo:regionOfInterestHeight");
+                        tracker_sparql_builder_object_unvalidated (preupdate, region->height);
+                }
+
+                if (region->link_uri && region->link_class) {
+                        tracker_sparql_builder_insert_open (preupdate, NULL);
+                        tracker_sparql_builder_subject_variable (preupdate, "region");
+                        tracker_sparql_builder_predicate (preupdate, "nfo:roiRefersTo");
+                        tracker_sparql_builder_object_iri (preupdate, region->link_uri);
+                        tracker_sparql_builder_insert_close (preupdate);
+
+                        tracker_sparql_builder_where_open (preupdate);
+                        tracker_sparql_builder_subject_iri (preupdate, region->link_uri);
+                        tracker_sparql_builder_predicate (preupdate, "a");
+                        tracker_sparql_builder_object (preupdate, region->link_class);
+                        tracker_sparql_builder_where_close (preupdate);
+                }
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
+		tracker_sparql_builder_insert_close (preupdate);
+
+                /* Handle non-preupdate metadata */
+                tracker_sparql_builder_predicate (metadata, "nfo:hasRegionOfInterest");
+                tracker_sparql_builder_object_iri (metadata, uuid);
+
+                g_free (uuid);
+        }
+
+        return TRUE;
 }

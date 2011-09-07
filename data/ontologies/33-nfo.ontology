@@ -975,3 +975,68 @@ nfo:lastPlayedPosition a rdf:Property ;
         nrl:maxCardinality 1 ;
         rdfs:domain nfo:Media ;
         rdfs:range xsd:integer .
+
+# Regions on images. These class and props need to be submitted to NEPOMUK
+nfo:RegionOfInterest a rdfs:Class;
+        rdfs:label "Region of Interest";
+        rdfs:comment "Area on an image with relevant content. Following the spec in http://www.metadataworkinggroup.org";
+        rdfs:subClassOf nie:InformationElement.
+
+nfo:regionOfInterestX a rdf:Property;
+        rdfs:label "Region of interest X";
+        rdfs:comment "Coordinate X where the region starts. It is normalized (values between 0 and 1) to the width of the picture. Starting in the upper left corner.";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range xsd:double.
+
+nfo:regionOfInterestY a rdf:Property;
+        rdfs:label "Region of interest Y";
+        rdfs:comment "Coordinate y where the region starts. It is normalized (values between 0 and 1) to the height of the picture. Starting in the upper left corner.";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range xsd:double.
+
+nfo:regionOfInterestWidth a rdf:Property;
+        rdfs:label "Region of interest width";
+        rdfs:comment "Width of the region. It is normalized (values between 0 and 1) to the total width of the picture.";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range xsd:double.
+
+nfo:regionOfInterestHeight a rdf:Property;
+        rdfs:label "Region of interest height";
+        rdfs:comment "Height of the region. It is normalized (values between 0 and 1) to the total height of the picture.";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range xsd:double.
+
+nfo:RegionOfInterestContent a rdfs:Class;
+        rdfs:label "Region of interest type";
+        rdfs:comment "Content in the area. There is a predefined set of contents in the spec: http://www.metadataworkinggroup.org";
+        rdfs:subClassOf nie:InformationElement.
+
+nfo:roi-content-face a nfo:RegionOfInterestContent .
+nfo:roi-content-pet a nfo:RegionOfInterestContent .
+nfo:roi-content-focus a nfo:RegionOfInterestContent .
+nfo:roi-content-barcode a nfo:RegionOfInterestContent .
+nfo:roi-content-undefined a nfo:RegionOfInterestContent .
+
+nfo:regionOfInterestType a rdf:Property;
+        rdfs:label "Region of interest type";
+        rdfs:comment "The content of a region can be one of the predefined types in the spec";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range nfo:RegionOfInterestContent .
+
+nfo:hasRegionOfInterest a rdf:Property;
+        rdfs:label "Has region or interest";
+        rdfs:comment "Link an element with a defined region";
+        rdfs:domain nfo:Image ;
+        rdfs:range nfo:RegionOfInterest.
+
+nfo:roiRefersTo a rdf:Property;
+        rdfs:label "Region of interest refers to" ;
+        rdfs:comment "Link to an item that is represented in the region. The 'type' of the region can give a clue of what exact content is linked in this property";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:RegionOfInterest ;
+        rdfs:range nie:InformationElement.

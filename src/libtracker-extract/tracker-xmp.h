@@ -90,18 +90,36 @@ typedef struct {
 	gchar *gps_longitude;
 	gchar *gps_direction;
 
+	/* List of TrackerXmpRegion */
+        GSList *regions;
 } TrackerXmpData;
 
-TrackerXmpData * tracker_xmp_new   (const gchar          *buffer,
-                                    gsize                 len,
-                                    const gchar          *uri);
-void             tracker_xmp_free  (TrackerXmpData       *data);
-gboolean         tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
-                                    TrackerSparqlBuilder *metadata,
-                                    const gchar          *graph,
-                                    GString              *where,
-                                    const gchar          *uri,
-                                    TrackerXmpData       *data);
+typedef struct {
+        gchar *title;
+        gchar *description;
+        gchar *type;
+        gchar *x;
+        gchar *y;
+        gchar *width;
+        gchar *height;
+        gchar *link_class;
+        gchar *link_uri;
+} TrackerXmpRegion;
+
+TrackerXmpData *tracker_xmp_new           (const gchar          *buffer,
+                                           gsize                 len,
+                                           const gchar          *uri);
+void            tracker_xmp_free          (TrackerXmpData       *data);
+gboolean        tracker_xmp_apply         (TrackerSparqlBuilder *preupdate,
+                                           TrackerSparqlBuilder *metadata,
+                                           const gchar          *graph,
+                                           GString              *where,
+                                           const gchar          *uri,
+                                           TrackerXmpData       *data);
+gboolean        tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
+                                           TrackerSparqlBuilder *metadata,
+                                           const gchar          *graph,
+                                           TrackerXmpData       *data);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 

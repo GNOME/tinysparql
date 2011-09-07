@@ -1,0 +1,31 @@
+<x:xmpmeta
+      xmlns:x="adobe:ns:meta/"
+      xmlns:exif="http://ns.adobe.com/exif/1.0/"
+      xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#"
+      xmlns:stArea="http://ns.adobe.com/xap/1.0/sType/Area#"
+      xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/">
+     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <rdf:Description rdf:about="">
+       <mwg-rs:Regions rdf:parseType="Resource">
+         <mwg-rs:AppliedToDimensions stDim:w="4288" stDim:h="2848" stDim:unit="pixel"/>
+         <mwg-rs:RegionList>
+             <rdf:Bag>
+                  <rdf:li rdf:parseType="Resource">
+                      <mwg-rs:Area stArea:x="0.5" stArea:y="0.5" stArea:w="0.06"
+                                   stArea:h="0.09" stArea:unit="normalized"/>
+                      <mwg-rs:Type>Face</mwg-rs:Type>
+                      <mwg-rs:Name>John Doe</mwg-rs:Name>
+                  </rdf:li>
+                  <rdf:li rdf:parseType="Resource">
+                      <mwg-rs:Area stArea:x="0.51" stArea:y="0.51" stArea:w="0.01"
+                                   stArea:h="0.09" stArea:unit="normalized"/>
+                      <mwg-rs:Type>Pet</mwg-rs:Type>
+                      <mwg-rs:Name>Fido</mwg-rs:Name>
+                      <mwg-rs:Description>Fido looks happy!</mwg-rs:Description>
+                  </rdf:li>
+              </rdf:Bag>
+          </mwg-rs:RegionList>
+        </mwg-rs:Regions>
+        </rdf:Description>
+     </rdf:RDF>
+</x:xmpmeta>

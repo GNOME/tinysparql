@@ -152,6 +152,10 @@ tracker_extract_finalize (GObject *object)
 
 	/* FIXME: Shutdown modules? */
 
+	if (priv->task_mutex) {
+		g_mutex_free (priv->task_mutex);
+	}
+
 	g_hash_table_destroy (priv->single_thread_extractors);
 	g_thread_pool_free (priv->thread_pool, TRUE, FALSE);
 
@@ -400,6 +404,7 @@ extract_task_new (TrackerExtract *extract,
                   GError        **error)
 {
 	TrackerExtractTask *task;
+	gchar *mimetype_used;
 
 	if (!mimetype || !*mimetype) {
 		GFile *file;
@@ -420,16 +425,18 @@ extract_task_new (TrackerExtract *extract,
 			return NULL;
 		}
 
-		mimetype = g_strdup (g_file_info_get_content_type (info));
+		mimetype_used = g_strdup (g_file_info_get_content_type (info));
 		g_debug ("Guessing mime type as '%s'", mimetype);
 		g_object_unref (info);
+	} else {
+		mimetype_used = g_strdup (mimetype);
 	}
 
 	task = g_slice_new0 (TrackerExtractTask);
 	task->cancellable = (cancellable) ? g_object_ref (cancellable) : NULL;
 	task->res = (res) ? g_object_ref (res) : NULL;
 	task->file = g_strdup (uri);
-	task->mimetype = g_strdup (mimetype);
+	task->mimetype = mimetype_used;
 	task->graph = g_strdup (graph);
 	task->extract = extract;
 
@@ -459,8 +466,14 @@ extract_task_free (TrackerExtractTask *task)
 		g_object_unref (task->cancellable);
 	}
 
-	g_free (task->file);
+	if (task->mimetype_handlers) {
+		tracker_mimetype_info_free (task->mimetype_handlers);
+	}
+
+	g_free (task->graph);
 	g_free (task->mimetype);
+	g_free (task->file);
+
 	g_slice_free (TrackerExtractTask, task);
 }
 

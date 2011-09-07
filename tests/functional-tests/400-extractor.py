@@ -142,6 +142,9 @@ class ExtractionTestCase (ut.TestCase):
         import uuid
 
         try:
+            if (supposed_uuid.startswith ("<") and supposed_uuid.endswith (">")):
+                supposed_uuid = supposed_uuid[1:-1]
+
             uuid.UUID (supposed_uuid)
         except ValueError:
             standardMsg = "'%s' is not a valid UUID" % (supposed_uuid)

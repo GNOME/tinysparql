@@ -597,6 +597,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 			tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
 		}
+
+                if (xd->regions) {
+	                tracker_xmp_apply_regions (preupdate, metadata, graph, xd);
+                }
+
 		tracker_xmp_free (xd);
 	} else {
 		/* So if we are here we have NO XMP data and we just
