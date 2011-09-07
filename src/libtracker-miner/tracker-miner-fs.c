@@ -1211,6 +1211,14 @@ process_stop (TrackerMinerFS *fs)
 	fs->priv->total_files_found = 0;
 	fs->priv->total_files_ignored = 0;
 
+	/* Once we have done first crawling, we can safely clear forced mtime check
+	 * directories */
+	if (fs->priv->forced_mtime_check_directories) {
+		g_list_foreach (fs->priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
+		g_list_free (fs->priv->forced_mtime_check_directories);
+		fs->priv->forced_mtime_check_directories = NULL;
+	}
+
 	fs->priv->been_crawled = TRUE;
 }
 
