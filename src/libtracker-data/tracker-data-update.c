@@ -175,6 +175,8 @@ static void         cache_insert_value      (const gchar      *table_name,
                                              gboolean          date_time);
 static GValueArray *get_old_property_values (TrackerProperty  *property,
                                              GError          **error);
+static gchar*      gvalue_to_string         (TrackerPropertyType  type,
+                                             GValue           *gvalue);
 
 void
 tracker_data_add_commit_statement_callback (TrackerCommitCallback    callback,
@@ -1526,6 +1528,45 @@ string_to_gvalue (const gchar         *value,
 	}
 }
 
+static gchar*
+gvalue_to_string (TrackerPropertyType  type,
+                  GValue              *gvalue)
+{
+	gchar *retval = NULL;
+	gint64 datet;
+
+	switch (type) {
+	case TRACKER_PROPERTY_TYPE_STRING:
+		retval = g_value_dup_string (gvalue);
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+		retval = g_strdup_printf ("%" G_GINT64_FORMAT, g_value_get_int64 (gvalue));
+		break;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		retval = g_value_get_int64 (gvalue) == 0 ? g_strdup ("false") : g_strdup ("true");
+		break;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		retval = g_strdup_printf ("%f", g_value_get_double (gvalue));
+		break;
+	case TRACKER_PROPERTY_TYPE_DATE:
+		datet = g_value_get_int64 (gvalue);
+		retval = tracker_date_to_string (datet);
+		/* it's a date-only, cut off the time */
+		retval[10] = '\0';
+		break;
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		datet = tracker_date_time_get_time (gvalue);
+		retval = tracker_date_to_string (datet);
+		break;
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+	default:
+		g_warn_if_reached ();
+		break;
+	}
+
+	return retval;
+}
+
 static gboolean
 resource_in_domain_index_class (TrackerClass *domain_index_class)
 {
@@ -2289,7 +2330,6 @@ delete_all_objects (const gchar  *graph,
 
 		while (old_values->n_values > 0) {
 			gint pred_id = 0, graph_id = 0;
-			const gchar *object = NULL;
 			gint object_id = 0;
 
 			pred_id = tracker_property_get_id (field);
@@ -2310,11 +2350,19 @@ delete_all_objects (const gchar  *graph,
 				}
 #endif /* DISABLE_JOURNAL */
 			} else {
-				object = g_value_get_string (g_value_array_get_nth (old_values, 0));
+				gchar *object_str = NULL;
+
 				object_id = 0;
+				object_str = gvalue_to_string (tracker_property_get_data_type (field),
+				                               g_value_array_get_nth (old_values, 0));
 
 				/* This influences old_values, which is a reference, not a copy */
-				change = delete_metadata_decomposed (field, object, 0, error);
+				change = delete_metadata_decomposed (field, object_str, 0, &new_error);
+
+				if (new_error) {
+					g_propagate_error (error, new_error);
+					return;
+				}
 
 #ifndef DISABLE_JOURNAL
 				if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
@@ -2333,9 +2381,10 @@ delete_all_objects (const gchar  *graph,
 						tracker_db_journal_append_delete_statement (graph_id,
 						                                            resource_buffer->id,
 						                                            pred_id,
-						                                            object);
+						                                            object_str);
 					}
 				}
+
 #endif /* DISABLE_JOURNAL */
 
 				if (delete_callbacks && change) {
@@ -2346,11 +2395,13 @@ delete_all_objects (const gchar  *graph,
 						delegate = g_ptr_array_index (delete_callbacks, n);
 						delegate->callback (graph_id, graph, subject_id, subject,
 						                    pred_id, object_id,
-						                    object,
+						                    object_str,
 						                    resource_buffer->types,
 						                    delegate->user_data);
 					}
 				}
+
+				g_free (object_str);
 			}
 		}
 	} else {
