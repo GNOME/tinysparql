@@ -835,14 +835,17 @@ tracker_xmp_free (TrackerXmpData *data)
  * tracker_xmp_apply:
  * @preupdate: the preupdate object to apply XMP data to.
  * @metadata: the metadata object to apply XMP data to.
- * @graph: the graph to apply XMP data to
- * @where: the where object
+ * @graph: the graph to apply XMP data to.
+ * @where: the where object.
  * @uri: the URI this is related to.
  * @data: the data to push into @metadata.
  *
  * This function applies all data in @data to @metadata.
  *
  * The @graph parameter was added in 0.12.
+ *
+ * This function also calls tracker_xmp_apply_regions(), so there is
+ * no need to call both functions.
  *
  * Returns: %TRUE if the @data was applied to @metadata successfully,
  * otherwise %FALSE is returned.
@@ -1179,25 +1182,45 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 
 
         if (data->regions) {
-	        tracker_xmp_apply_regions (preupdate, metadata, graph, where, uri, data);
+	        tracker_xmp_apply_regions (preupdate, metadata, graph, data);
         }
 
 	return TRUE;
 }
 
+/**
+ * tracker_xmp_apply_regions:
+ * @preupdate: the preupdate object to apply XMP data to.
+ * @metadata: the metadata object to apply XMP data to.
+ * @graph: the graph to apply XMP data to.
+ * @data: the data to push into @preupdate and @metadata.
+ *
+ * This function applies all regional @data to @preupdate and
+ * @metadata. Regional data exists for image formats like JPEG, PNG,
+ * etc. where parts of the image refer to areas of interest. This can
+ * be people's faces, places to focus, barcodes, etc. The regional
+ * data describes the title, height, width, X, Y and can occur
+ * multiple times in a given file.
+ *
+ * This data usually is standardized between image formats and that's
+ * what makes this function different to tracker_xmp_apply() which is
+ * useful for XMP files only.
+ *
+ * Returns: %TRUE if the @data was applied to @preupdate and @metadata
+ * successfully, otherwise %FALSE is returned.
+ *
+ * Since: 0.12
+ **/
 gboolean
 tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata,
                            const gchar          *graph,
-                           GString              *where,
-                           const gchar          *uri,
                            TrackerXmpData       *data)
 {
         GSList *iter;
 
         g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
-        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (preupdate), FALSE);
-        g_return_val_if_fail (uri != NULL, FALSE);
+        g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
         g_return_val_if_fail (data != NULL, FALSE);
 
         if (!data->regions) {

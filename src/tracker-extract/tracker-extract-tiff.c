@@ -487,7 +487,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
         if (xd->regions) {
-	        tracker_xmp_apply_regions (preupdate, metadata, graph, NULL, uri, xd);
+	        tracker_xmp_apply_regions (preupdate, metadata, graph, xd);
         }
 
 	if (md.address || md.state || md.country || md.city ||
