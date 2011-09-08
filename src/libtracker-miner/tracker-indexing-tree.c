@@ -581,6 +581,8 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 {
 	TrackerIndexingTreePrivate *priv;
 	TrackerFilterType filter;
+	TrackerDirectoryFlags config_flags;
+	GFile *config_file;
 	NodeData *data;
 	GNode *parent;
 
@@ -601,23 +603,28 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 		return FALSE;
 	}
 
-	parent = find_directory_node (priv->config_tree, file,
-	                              (GEqualFunc) parent_or_equals);
-	if (!parent) {
+	config_file = tracker_indexing_tree_get_root (tree,file, &config_flags);
+	if (!config_file) {
+		/* Not under an added dir */
 		return FALSE;
 	}
 
-	data = parent->data;
+	if (g_file_equal (file, config_file)) {
+		return TRUE;
+	} else {
+		if ((config_flags & TRACKER_DIRECTORY_FLAG_RECURSE) == 0 &&
+		    !g_file_has_parent (file, config_file)) {
+			/* Non direct child in a non-recursive dir, ignore */
+			return FALSE;
+		}
 
-	if (!data->shallow                               &&
-	    data->flags & TRACKER_DIRECTORY_FLAG_MONITOR &&
-	    (g_file_equal (file, data->file)             ||   /* Exact path being monitored */
-	     g_file_has_parent (file, data->file)        ||   /* Direct parent being monitored */
-	     data->flags & TRACKER_DIRECTORY_FLAG_RECURSE)) { /* Parent not direct, but recursively monitored */
+		if (tracker_indexing_tree_get_filter_hidden (tree) &&
+		    tracker_file_is_hidden (file)) {
+			return FALSE;
+		}
+
 		return TRUE;
 	}
-
-	return FALSE;
 }
 
 /**
