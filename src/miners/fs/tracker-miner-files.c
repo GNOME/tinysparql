@@ -217,6 +217,8 @@ static void        miner_files_add_removable_or_optical_directory (TrackerMinerF
 
 static void        extractor_process_failsafe                     (TrackerMinerFiles *miner);
 
+static void        miner_files_update_filters                     (TrackerMinerFiles *files);
+
 
 static GInitableIface* miner_files_initable_parent_iface;
 
@@ -311,6 +313,7 @@ miner_files_initable_init (GInitable     *initable,
 {
 	TrackerMinerFiles *mf;
 	TrackerMinerFS *fs;
+	TrackerIndexingTree *indexing_tree;
 	GError *inner_error = NULL;
 	GSList *mounts = NULL;
 	GSList *dirs;
@@ -318,6 +321,10 @@ miner_files_initable_init (GInitable     *initable,
 
 	mf = TRACKER_MINER_FILES (initable);
 	fs = TRACKER_MINER_FS (initable);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+	tracker_indexing_tree_set_filter_hidden (indexing_tree, TRUE);
+
+	miner_files_update_filters (mf);
 
 	/* Chain up parent's initable callback before calling child's one */
 	if (!miner_files_initable_parent_iface->init (initable, cancellable, &inner_error)) {
@@ -1506,6 +1513,45 @@ low_disk_space_limit_cb (GObject    *gobject,
 }
 
 static void
+indexing_tree_update_filter (TrackerIndexingTree *indexing_tree,
+			     TrackerFilterType    filter,
+			     GSList              *new_elems)
+{
+	tracker_indexing_tree_clear_filters (indexing_tree, filter);
+
+	while (new_elems) {
+		tracker_indexing_tree_add_filter (indexing_tree, filter,
+						  new_elems->data);
+		new_elems = new_elems->next;
+	}
+}
+
+static void
+miner_files_update_filters (TrackerMinerFiles *files)
+{
+	TrackerIndexingTree *indexing_tree;
+	GSList *list;
+
+	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (files));
+
+	/* Ignored files */
+	list = tracker_config_get_ignored_files (files->private->config);
+	indexing_tree_update_filter (indexing_tree, TRACKER_FILTER_FILE, list);
+
+	/* Ignored directories */
+	list = tracker_config_get_ignored_directories (files->private->config);
+	indexing_tree_update_filter (indexing_tree,
+				     TRACKER_FILTER_DIRECTORY,
+				     list);
+
+	/* Directories with content */
+	list = tracker_config_get_ignored_directories_with_content (files->private->config);
+	indexing_tree_update_filter (indexing_tree,
+				     TRACKER_FILTER_PARENT_DIRECTORY,
+				     list);
+}
+
+static void
 update_directories_from_new_config (TrackerMinerFS *mf,
                                     GSList         *new_dirs,
                                     GSList         *old_dirs,
@@ -1619,6 +1665,8 @@ static gboolean
 miner_files_force_recheck_idle (gpointer user_data)
 {
 	TrackerMinerFiles *miner_files = user_data;
+
+	miner_files_update_filters (miner_files);
 
 	/* Recheck all directories for compliance with the new config */
 	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
