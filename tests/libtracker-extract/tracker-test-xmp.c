@@ -374,19 +374,19 @@ debug_print_sparql (TrackerXmpData *data)
 static void
 test_xmp_regions (void)
 {
-	TrackerXmpData       *data;
-	TrackerXmpRegion     *region;
+	TrackerXmpData *data;
+	TrackerXmpRegion *region;
 
-	GFile            *f;
-	gchar            *contents;
-	gsize             size;
+	GFile *f;
+	gchar *contents;
+	gsize  size;
+	gchar *filepath;
 
-
-
-
-	f = g_file_new_for_path ("./areas.xmp");
-	g_assert(g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
+	filepath = g_build_filename (TOP_SRCDIR, "tests", "libtracker-extract", "areas.xmp", NULL);
+	f = g_file_new_for_path (filepath);
+	g_assert (g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
 	g_object_unref (f);
+	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
 
@@ -420,16 +420,19 @@ test_xmp_regions (void)
 static void
 test_xmp_regions_quill (void)
 {
-	TrackerXmpData   *data;
+	TrackerXmpData *data;
 	TrackerXmpRegion *region;
 
-	GFile            *f;
-	gchar            *contents;
-	gsize             size;
+	GFile *f;
+	gchar *contents;
+	gsize  size;
+	gchar *filepath;
 
-	f = g_file_new_for_path ("./areas-with-contacts.xmp");
-	g_assert(g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
+	filepath = g_build_filename (TOP_SRCDIR, "tests", "libtracker-extract", "areas-with-contacts.xmp", NULL);
+	f = g_file_new_for_path (filepath);
+	g_assert (g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
 	g_object_unref (f);
+	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
 
@@ -463,16 +466,19 @@ test_xmp_regions_quill (void)
 static void
 test_xmp_regions_ns_prefix (void)
 {
-	TrackerXmpData       *data;
-	TrackerXmpRegion     *region;
+	TrackerXmpData *data;
+	TrackerXmpRegion *region;
 
-	GFile            *f;
-	gchar            *contents;
-	gsize             size;
+	GFile *f;
+	gchar *contents;
+	gsize  size;
+	gchar *filepath;
 
-	f = g_file_new_for_path ("./areas-ns.xmp");
+	filepath = g_build_filename (TOP_SRCDIR, "tests", "libtracker-extract", "areas-ns.xmp", NULL);
+	f = g_file_new_for_path (filepath);
 	g_assert(g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
 	g_object_unref (f);
+	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
 
