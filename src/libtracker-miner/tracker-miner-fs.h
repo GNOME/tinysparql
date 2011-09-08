@@ -165,6 +165,8 @@ gboolean              tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 
 void                  tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
                                                                      GFile          *file);
+void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
+                                                             GFile          *directory);
 
 G_END_DECLS
 
