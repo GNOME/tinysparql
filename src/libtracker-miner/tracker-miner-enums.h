@@ -38,6 +38,11 @@ typedef enum {
 	TRACKER_FILTER_PARENT_DIRECTORY
 } TrackerFilterType;
 
+typedef enum {
+	TRACKER_FILTER_POLICY_DENY,
+	TRACKER_FILTER_POLICY_ACCEPT
+} TrackerFilterPolicy;
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_ENUMS_H__ */

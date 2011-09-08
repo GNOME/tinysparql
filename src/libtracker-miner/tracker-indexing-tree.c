@@ -53,6 +53,7 @@ struct _TrackerIndexingTreePrivate
 {
 	GNode *config_tree;
 	GList *filter_patterns;
+	TrackerFilterPolicy policies[TRACKER_FILTER_PARENT_DIRECTORY + 1];
 
 	guint filter_hidden : 1;
 };
@@ -226,6 +227,7 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 	TrackerIndexingTreePrivate *priv;
 	NodeData *data;
 	GFile *root;
+	gint i;
 
 	priv = tree->priv = G_TYPE_INSTANCE_GET_PRIVATE (tree,
 	                                                 TRACKER_TYPE_INDEXING_TREE,
@@ -237,6 +239,10 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 
 	priv->config_tree = g_node_new (data);
 	g_object_unref (root);
+
+	for (i = TRACKER_FILTER_FILE; i <= TRACKER_FILTER_PARENT_DIRECTORY; i++) {
+		priv->policies[i] = TRACKER_FILTER_POLICY_ACCEPT;
+	}
 }
 
 /**
@@ -559,6 +565,32 @@ parent_or_equals (GFile *file1,
 	        g_file_has_prefix (file1, file2));
 }
 
+static gboolean
+indexing_tree_file_is_filtered (TrackerIndexingTree *tree,
+				TrackerFilterType    filter,
+				GFile               *file)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	priv = tree->priv;
+
+	if (tracker_indexing_tree_file_matches_filter (tree, filter, file)) {
+		if (priv->policies[filter] == TRACKER_FILTER_POLICY_ACCEPT) {
+			/* Filter blocks otherwise accepted
+			 * (by the default policy) file
+			 */
+			return TRUE;
+		}
+	} else {
+		if (priv->policies[filter] == TRACKER_FILTER_POLICY_DENY) {
+			/* No match, and the default policy denies it */
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /**
  * tracker_indexing_tree_file_is_indexable:
  * @tree: a #TrackerIndexingTree
@@ -599,7 +631,7 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 	filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
 		TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
 
-	if (tracker_indexing_tree_file_matches_filter (tree, filter, file)) {
+	if (indexing_tree_file_is_filtered (tree, filter, file)) {
 		return FALSE;
 	}
 
@@ -650,9 +682,9 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree *tree,
 	}
 
 	while (children) {
-		if (tracker_indexing_tree_file_matches_filter (tree,
-		                                               TRACKER_FILTER_PARENT_DIRECTORY,
-		                                               children->data)) {
+		if (indexing_tree_file_is_filtered (tree,
+						    TRACKER_FILTER_PARENT_DIRECTORY,
+						    children->data)) {
 			return FALSE;
 		}
 
@@ -685,6 +717,36 @@ tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
 	priv->filter_hidden = filter_hidden;
 
 	g_object_notify (G_OBJECT (tree), "filter-hidden");
+}
+
+void
+tracker_indexing_tree_set_default_policy (TrackerIndexingTree *tree,
+					  TrackerFilterType    filter,
+					  TrackerFilterPolicy  policy)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_INDEXING_TREE (tree));
+	g_return_if_fail (filter >= TRACKER_FILTER_FILE && filter <= TRACKER_FILTER_PARENT_DIRECTORY);
+
+	priv = tree->priv;
+	priv->policies[filter] = policy;
+}
+
+TrackerFilterPolicy
+tracker_indexing_tree_get_default_policy (TrackerIndexingTree *tree,
+					  TrackerFilterType    filter)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree),
+			      TRACKER_FILTER_POLICY_DENY);
+	g_return_val_if_fail (filter >= TRACKER_FILTER_FILE &&
+			      filter <= TRACKER_FILTER_PARENT_DIRECTORY,
+			      TRACKER_FILTER_POLICY_DENY);
+
+	priv = tree->priv;
+	return priv->policies[filter];
 }
 
 /**
