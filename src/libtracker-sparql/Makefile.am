@@ -81,7 +81,7 @@ EXTRA_DIST =                                           \
 
 if HAVE_INTROSPECTION
 Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
-	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so -o $@ $^
+	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so.0 -o $@ $^
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
