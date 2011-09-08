@@ -314,6 +314,7 @@ miner_files_initable_init (GInitable     *initable,
 	TrackerMinerFiles *mf;
 	TrackerMinerFS *fs;
 	TrackerIndexingTree *indexing_tree;
+	TrackerDirectoryFlags flags;
 	GError *inner_error = NULL;
 	GSList *mounts = NULL;
 	GSList *dirs;
@@ -431,7 +432,13 @@ miner_files_initable_init (GInitable     *initable,
 		                    mf->private->quark_directory_config_root,
 		                    GINT_TO_POINTER (TRUE));
 
-		tracker_miner_fs_directory_add (fs, file, FALSE);
+		if (tracker_config_get_enable_monitors (mf->private->config)) {
+			flags = TRACKER_DIRECTORY_FLAG_MONITOR;
+		} else {
+			flags = TRACKER_DIRECTORY_FLAG_NONE;
+		}
+
+		tracker_indexing_tree_add (indexing_tree, file, flags);
 		g_object_unref (file);
 	}
 
@@ -479,7 +486,13 @@ miner_files_initable_init (GInitable     *initable,
 		                    mf->private->quark_directory_config_root,
 		                    GINT_TO_POINTER (TRUE));
 
-		tracker_miner_fs_directory_add (fs, file, TRUE);
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+
+		if (tracker_config_get_enable_monitors (mf->private->config)) {
+			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+		}
+
+		tracker_indexing_tree_add (indexing_tree, file, flags);
 		g_object_unref (file);
 	}
 
@@ -1182,10 +1195,13 @@ mount_point_added_cb (TrackerStorage *storage,
 	} else if (optical && !priv->index_optical_discs) {
 		g_message ("  Not crawling, optical devices discs disabled in config");
 	} else if (!removable && !optical) {
+		TrackerIndexingTree *indexing_tree;
+		TrackerDirectoryFlags flags;
 		GFile *mount_point_file;
 		GSList *l;
 
 		mount_point_file = g_file_new_for_path (mount_point);
+		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
 
 		/* Check if one of the recursively indexed locations is in
 		 *   the mounted path, or if the mounted path is inside
@@ -1196,6 +1212,11 @@ mount_point_added_cb (TrackerStorage *storage,
 			GFile *config_file;
 
 			config_file = g_file_new_for_path (l->data);
+			flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+
+			if (tracker_config_get_enable_monitors (miner->private->config)) {
+				flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+			}
 
 			if (g_file_equal (config_file, mount_point_file) ||
 			    g_file_has_prefix (config_file, mount_point_file)) {
@@ -1203,18 +1224,18 @@ mount_point_added_cb (TrackerStorage *storage,
 				 *  then add the config path to re-check */
 				g_message ("  Re-check of configured path '%s' needed (recursively)",
 				           (gchar *) l->data);
-				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-				                                config_file,
-				                                TRUE);
+				tracker_indexing_tree_add (indexing_tree,
+							   config_file,
+							   flags);
 			} else if (g_file_has_prefix (mount_point_file, config_file)) {
 				/* If the mount path is contained inside the config path,
 				 *  then add the mount path to re-check */
 				g_message ("  Re-check of path '%s' needed (inside configured path '%s')",
 				           mount_point,
 				           (gchar *) l->data);
-				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-				                                mount_point_file,
-				                                TRUE);
+				tracker_indexing_tree_add (indexing_tree,
+							   config_file,
+							   flags);
 			}
 			g_object_unref (config_file);
 		}
@@ -1226,14 +1247,20 @@ mount_point_added_cb (TrackerStorage *storage,
 		     l = g_slist_next (l)) {
 			GFile *config_file;
 
+			if (tracker_config_get_enable_monitors (miner->private->config)) {
+				flags = TRACKER_DIRECTORY_FLAG_MONITOR;
+			} else {
+				flags = TRACKER_DIRECTORY_FLAG_NONE;
+			}
+
 			config_file = g_file_new_for_path (l->data);
 			if (g_file_equal (config_file, mount_point_file) ||
 			    g_file_has_prefix (config_file, mount_point_file)) {
 				g_message ("  Re-check of configured path '%s' needed (non-recursively)",
 				           (gchar *) l->data);
-				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-				                                config_file,
-				                                FALSE);
+				tracker_indexing_tree_add (indexing_tree,
+							   config_file,
+							   flags);
 			}
 			g_object_unref (config_file);
 		}
@@ -1558,9 +1585,12 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                                     gboolean        recurse)
 {
 	TrackerMinerFilesPrivate *priv;
+	TrackerDirectoryFlags flags = 0;
+	TrackerIndexingTree *indexing_tree;
 	GSList *sl;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (mf);
 
 	g_message ("Updating %s directories changed from configuration",
 	           recurse ? "recursive" : "single");
@@ -1584,6 +1614,14 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 		}
 	}
 
+	if (recurse) {
+		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
+	}
+
+	if (tracker_config_get_enable_monitors (priv->config)) {
+		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
 	/* Second add directories which are new */
 	for (sl = new_dirs; sl; sl = sl->next) {
 		const gchar *path;
@@ -1601,7 +1639,7 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 			                    priv->quark_directory_config_root,
 			                    GINT_TO_POINTER (TRUE));
 
-			tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
+			tracker_indexing_tree_add (indexing_tree, file, flags);
 			g_object_unref (file);
 		}
 	}
@@ -2939,6 +2977,8 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
                                                 const gchar       *mount_path,
                                                 const gchar       *uuid)
 {
+	TrackerIndexingTree *indexing_tree;
+	TrackerDirectoryFlags flags;
 	GFile *mount_point_file;
 
 	mount_point_file = g_file_new_for_path (mount_path);
@@ -2955,6 +2995,13 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 		}
 	}
 
+	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
+	flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+
+	if (tracker_config_get_enable_monitors (mf->private->config)) {
+		flags = TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
 	g_object_set_qdata_full (G_OBJECT (mount_point_file),
 	                         mf->private->quark_mount_point_uuid,
 	                         g_strdup (uuid),
@@ -2964,8 +3011,8 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 	                    GINT_TO_POINTER (TRUE));
 
 	g_message ("  Adding removable/optical: '%s'", mount_path);
-	tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf),
-	                                mount_point_file,
-	                                TRUE);
+	tracker_indexing_tree_add (indexing_tree,
+				   mount_point_file,
+				   flags);
 	g_object_unref (mount_point_file);
 }
