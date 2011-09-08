@@ -226,9 +226,24 @@ miner_applications_initable_init (GInitable     *initable,
 	TrackerMinerFS *fs;
 	TrackerMinerApplications *app;
 	GError *inner_error = NULL;
+	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
 	app = TRACKER_MINER_APPLICATIONS (initable);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+
+	/* Set up files filter, deny every file, but
+	 * those with a .desktop/directory extension
+	 */
+	tracker_indexing_tree_set_default_policy (indexing_tree,
+						  TRACKER_FILTER_FILE,
+						  TRACKER_FILTER_POLICY_DENY);
+	tracker_indexing_tree_add_filter (indexing_tree,
+					  TRACKER_FILTER_FILE,
+					  "*.desktop");
+	tracker_indexing_tree_add_filter (indexing_tree,
+					  TRACKER_FILTER_FILE,
+					  "*.directory");
 
 	/* Chain up parent's initable callback before calling child's one */
 	if (!miner_applications_initable_parent_iface->init (initable, cancellable, &inner_error)) {
