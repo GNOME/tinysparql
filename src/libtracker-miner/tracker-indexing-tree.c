@@ -54,6 +54,14 @@ struct _TrackerIndexingTreePrivate
 	GList *filter_patterns;
 };
 
+enum {
+	DIRECTORY_ADDED,
+	DIRECTORY_REMOVED,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 static NodeData *
 node_data_new (GFile *file,
                guint  flags)
@@ -130,6 +138,25 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_indexing_tree_finalize;
+
+	signals[DIRECTORY_ADDED] =
+		g_signal_new ("directory-added",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
+					       directory_added),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE, 1, G_TYPE_FILE);
+	signals[DIRECTORY_REMOVED] =
+		g_signal_new ("directory-removed",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
+					       directory_removed),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE, 1, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerIndexingTreePrivate));
@@ -308,6 +335,8 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 	/* Add the new node underneath the parent */
 	g_node_append (parent, node);
 
+	g_signal_emit (tree, signals[DIRECTORY_ADDED], 0, directory);
+
 #ifdef PRINT_INDEXING_TREE
 	/* Print tree */
 	print_tree (priv->config_tree);
@@ -356,6 +385,8 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 	/* Move children to parent */
 	g_node_children_foreach (node, G_TRAVERSE_ALL,
 	                         check_reparent_node, parent);
+
+	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, directory);
 
 	node_data_free (node->data);
 	g_node_destroy (node);

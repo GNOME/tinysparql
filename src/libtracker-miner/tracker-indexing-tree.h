@@ -50,6 +50,11 @@ struct _TrackerIndexingTree
 struct _TrackerIndexingTreeClass
 {
 	GObjectClass parent_class;
+
+	void (* directory_added)   (TrackerIndexingTree *indexing_tree,
+				    GFile               *directory);
+	void (* directory_removed) (TrackerIndexingTree *indexing_tree,
+				    GFile               *directory);
 };
 
 GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
