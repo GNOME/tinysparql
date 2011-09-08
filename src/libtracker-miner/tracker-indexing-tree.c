@@ -479,6 +479,8 @@ tracker_indexing_tree_file_matches_filter (TrackerIndexingTree *tree,
 	while (filters) {
 		PatternData *data = filters->data;
 
+		filters = filters->next;
+
 		if (data->type == type &&
 		    g_pattern_match_string (data->pattern, basename)) {
 			g_free (basename);
