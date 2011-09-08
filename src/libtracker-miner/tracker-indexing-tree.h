@@ -81,8 +81,7 @@ gboolean  tracker_indexing_tree_file_is_indexable    (TrackerIndexingTree  *tree
                                                       GFileType             file_type);
 gboolean  tracker_indexing_tree_parent_is_indexable  (TrackerIndexingTree  *tree,
                                                       GFile                *parent,
-                                                      GFile               **children,
-                                                      gint                  n_children);
+                                                      GList                *children);
 
 GFile *   tracker_indexing_tree_get_effective_parent (TrackerIndexingTree   *tree,
                                                       GFile                 *file,

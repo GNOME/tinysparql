@@ -572,26 +572,24 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
  * Returns: %TRUE if @parent should be indexed.
  **/
 gboolean
-tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree  *tree,
-                                           GFile                *parent,
-                                           GFile               **children,
-                                           gint                  n_children)
+tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree *tree,
+                                           GFile               *parent,
+                                           GList               *children)
 {
-	gint i = 0;
-
 	if (!tracker_indexing_tree_file_is_indexable (tree,
 	                                              parent,
 	                                              G_FILE_TYPE_DIRECTORY)) {
 		return FALSE;
 	}
 
-	while (i < n_children &&
-	       children[i] != NULL) {
+	while (children) {
 		if (tracker_indexing_tree_file_matches_filter (tree,
 		                                               TRACKER_FILTER_PARENT_DIRECTORY,
-		                                               children[i])) {
+		                                               children->data)) {
 			return FALSE;
 		}
+
+		children = children->next;
 	}
 
 	return TRUE;
