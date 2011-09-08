@@ -87,7 +87,7 @@ gboolean  tracker_indexing_tree_get_filter_hidden    (TrackerIndexingTree  *tree
 void      tracker_indexing_tree_set_filter_hidden    (TrackerIndexingTree  *tree,
 						      gboolean              filter_hidden);
 
-GFile *   tracker_indexing_tree_get_effective_parent (TrackerIndexingTree   *tree,
+GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tree,
                                                       GFile                 *file,
                                                       TrackerDirectoryFlags *directory_flags);
 

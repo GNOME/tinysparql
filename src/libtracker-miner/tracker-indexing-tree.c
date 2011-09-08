@@ -681,7 +681,7 @@ tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
 }
 
 /**
- * tracker_indexing_tree_get_effective_parent:
+ * tracker_indexing_tree_get_root:
  * @tree: a #TrackerIndexingtree
  * @file: a #GFile
  * @directory_flags: (out): return location for the applying #TrackerDirectoryFlags
@@ -695,9 +695,9 @@ tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
  * Returns: (transfer none): the effective parent in @tree, or %NULL
  **/
 GFile *
-tracker_indexing_tree_get_effective_parent (TrackerIndexingTree   *tree,
-                                            GFile                 *file,
-                                            TrackerDirectoryFlags *directory_flags)
+tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
+				GFile                 *file,
+				TrackerDirectoryFlags *directory_flags)
 {
 	TrackerIndexingTreePrivate *priv;
 	NodeData *data;
@@ -716,7 +716,9 @@ tracker_indexing_tree_get_effective_parent (TrackerIndexingTree   *tree,
 	data = parent->data;
 
 	if (!data->shallow &&
-	    g_file_has_prefix (file, data->file)) {
+	    (file == data->file ||
+	     g_file_equal (file, data->file) ||
+	     g_file_has_prefix (file, data->file))) {
 		if (directory_flags) {
 			*directory_flags = data->flags;
 		}
