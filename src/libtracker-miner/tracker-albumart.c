@@ -74,7 +74,7 @@ on_query_finished (GObject      *source_object,
 	                               (GDestroyNotify) NULL);
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		gchar *target = NULL;
+		gchar *target = NULL, *album_path = NULL;
 		const gchar *album, *artist;
 
 		album = tracker_sparql_cursor_get_string (cursor, 0, NULL);
@@ -87,6 +87,15 @@ on_query_finished (GObject      *source_object,
 		                           &target, NULL);
 
 		g_hash_table_replace (table, target, target);
+
+		/* Also add the file to which the symlinks are made */
+		tracker_albumart_get_path (" ",
+		                           album,
+		                           "album", NULL,
+		                           &album_path, NULL);
+
+
+		g_hash_table_replace (table, album_path, album_path);
 	}
 
 	/* Perhaps we should have an internal list of albumart files that we made,
