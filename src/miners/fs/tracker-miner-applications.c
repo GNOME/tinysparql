@@ -110,14 +110,22 @@ static void
 miner_applications_basedir_add (TrackerMinerFS *fs,
                                 const gchar    *basedir)
 {
+	TrackerIndexingTree *indexing_tree;
 	GFile *file;
 	gchar *path;
+
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	/* Add $dir/applications */
 	path = g_build_filename (basedir, "applications", NULL);
 	file = g_file_new_for_path (path);
 	g_message ("  Adding:'%s'", path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 	g_free (path);
 
@@ -125,7 +133,11 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 	path = g_build_filename (basedir, "desktop-directories", NULL);
 	file = g_file_new_for_path (path);
 	g_message ("  Adding:'%s'", path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 	g_free (path);
 }
@@ -134,6 +146,7 @@ static void
 miner_applications_add_directories (TrackerMinerFS *fs)
 {
 #ifdef HAVE_MEEGOTOUCH
+	TrackerIndexingTree *indexing_tree;
 	GFile *file;
 	const gchar *path;
 #endif /* HAVE_MEEGOTOUCH */
@@ -162,12 +175,17 @@ miner_applications_add_directories (TrackerMinerFS *fs)
 	 * this location because it is unique to MeeGoTouch.
 	 */
 	path = "/usr/lib/duicontrolpanel/";
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	g_message ("Setting up applications to iterate from MeegoTouch directories");
 	g_message ("  Adding:'%s'", path);
 
 	file = g_file_new_for_path (path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 #endif /* HAVE_MEEGOTOUCH */
 }
