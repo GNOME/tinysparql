@@ -1,3 +1,38 @@
+NEW in 0.10.26 - 2011-09-08
+===========================
+
+The changes are:
+
+  * Build: New --with-gstreamer-backend=[tagreadbin,decodebin2,discoverer,gupnp-dlna] switches
+  * Require: gstreamer-pbutils when using discoverer backend
+  * Fixes: GB#654441, Rename --enable-video-extractor to --enable-generic-media-extractor
+  * Fixes: NB#281183, Album art images are missing
+  * Fixes: NB#277052, Tracker doesn't cope with inconsistent mount point states between reboots
+  * Fixes: NB#281201, INSERT OR REPLACE does not delete previous values for superproperties
+  * Fixes: NB#281540, INSERT OR REPLACE's null on datetime and date fields isn't working
+  * Fixes: NB#271437, Support regions of interest for Face Recognition in images
+  * Fixes: NB#272441, Updating tracker:available on (un)mounting is way too slow, improve query performance
+  * Fixes: NB#246131, DLNA mime-types needed
+  * libtracker-common: Do not delete old log
+  * libtracker-data: Do not delete database and do not exit on corruption
+  * libtracker-data: Remove useless calls before exit on database corruption
+  * tracker-extract-gstreamer: If possible, use Tagreadbin backend in the Discoverer
+  * tracker-extract-gstreamer: Integrate GUPnP-DLNA extractor within the GStreamer one
+  * tracker-extract-gstreamer: Don't compile both tagreadbin and decodebin2
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated en_GB: Bruce Cowan
+  * Updated gl: Fran Dieguez
+
+Notes:
+
+  The new RoI (Region of Interest) ontology may cause tracker to
+  update its database schemas on first start for anyone with existing
+  databases.
+
+
 NEW in 0.10.25 - 2011-09-01
 ===========================
 
