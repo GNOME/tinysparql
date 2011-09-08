@@ -19,6 +19,7 @@
  * Author: Carlos Garnacho  <carlos@lanedo.com>
  */
 
+#include <libtracker-common/tracker-file-utils.h>
 #include "tracker-indexing-tree.h"
 
 G_DEFINE_TYPE (TrackerIndexingTree, tracker_indexing_tree, G_TYPE_OBJECT)
@@ -52,6 +53,13 @@ struct _TrackerIndexingTreePrivate
 {
 	GNode *config_tree;
 	GList *filter_patterns;
+
+	guint filter_hidden : 1;
+};
+
+enum {
+	PROP_0,
+	PROP_FILTER_HIDDEN
 };
 
 enum {
@@ -110,6 +118,47 @@ pattern_data_free (PatternData *data)
 }
 
 static void
+tracker_indexing_tree_get_property (GObject    *object,
+				    guint       prop_id,
+				    GValue     *value,
+				    GParamSpec *pspec)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	priv = TRACKER_INDEXING_TREE (object)->priv;
+
+	switch (prop_id) {
+	case PROP_FILTER_HIDDEN:
+		g_value_set_boolean (value, priv->filter_hidden);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+tracker_indexing_tree_set_property (GObject      *object,
+				    guint         prop_id,
+				    const GValue *value,
+				    GParamSpec   *pspec)
+{
+	TrackerIndexingTree *tree;
+
+	tree = TRACKER_INDEXING_TREE (object);
+
+	switch (prop_id) {
+	case PROP_FILTER_HIDDEN:
+		tracker_indexing_tree_set_filter_hidden (tree,
+							 g_value_get_boolean (value));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
 tracker_indexing_tree_finalize (GObject *object)
 {
 	TrackerIndexingTreePrivate *priv;
@@ -138,7 +187,16 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_indexing_tree_finalize;
+	object_class->set_property = tracker_indexing_tree_set_property;
+	object_class->get_property = tracker_indexing_tree_get_property;
 
+	g_object_class_install_property (object_class,
+	                                 PROP_FILTER_HIDDEN,
+	                                 g_param_spec_boolean ("filter-hidden",
+							       "Filter hidden",
+							       "Whether hidden resources are filtered",
+							       FALSE,
+							       G_PARAM_READWRITE));
 	signals[DIRECTORY_ADDED] =
 		g_signal_new ("directory-added",
 		              G_OBJECT_CLASS_TYPE (object_class),
@@ -595,6 +653,31 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree *tree,
 	}
 
 	return TRUE;
+}
+
+gboolean
+tracker_indexing_tree_get_filter_hidden (TrackerIndexingTree *tree)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
+
+	priv = tree->priv;
+	return priv->filter_hidden;
+}
+
+void
+tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
+					 gboolean             filter_hidden)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_INDEXING_TREE (tree));
+
+	priv = tree->priv;
+	priv->filter_hidden = filter_hidden;
+
+	g_object_notify (G_OBJECT (tree), "filter-hidden");
 }
 
 /**
