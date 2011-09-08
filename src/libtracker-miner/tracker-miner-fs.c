@@ -726,6 +726,31 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 }
 
 static void
+indexing_tree_directory_added_cb (TrackerIndexingTree *tree,
+				  GFile               *directory,
+				  gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	TrackerDirectoryFlags dir_flags;
+	gboolean recurse;
+
+	tracker_indexing_tree_get_root (tree, directory, &dir_flags);
+	recurse = (dir_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
+
+	tracker_miner_fs_directory_add (fs, directory, recurse);
+}
+
+static void
+indexing_tree_directory_removed_cb (TrackerIndexingTree *tree,
+				    GFile               *directory,
+				    gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	tracker_miner_fs_directory_remove (fs, directory);
+}
+
+static void
 tracker_miner_fs_init (TrackerMinerFS *object)
 {
 	TrackerMinerFSPrivate *priv;
@@ -764,6 +789,12 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create the indexing tree */
 	priv->indexing_tree = tracker_indexing_tree_new ();
+	g_signal_connect (priv->indexing_tree, "directory-added",
+			  G_CALLBACK (indexing_tree_directory_added_cb),
+			  object);
+	g_signal_connect (priv->indexing_tree, "directory-removed",
+			  G_CALLBACK (indexing_tree_directory_removed_cb),
+			  object);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -3523,15 +3554,11 @@ should_check_file (TrackerMinerFS *fs,
                    GFile          *file,
                    gboolean        is_dir)
 {
-	gboolean should_check;
+	GFileType file_type;
 
-	if (is_dir) {
-		g_signal_emit (fs, signals[CHECK_DIRECTORY], 0, file, &should_check);
-	} else {
-		g_signal_emit (fs, signals[CHECK_FILE], 0, file, &should_check);
-	}
-
-	return should_check;
+	file_type = (is_dir) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+	return tracker_indexing_tree_file_is_indexable (fs->priv->indexing_tree,
+	                                                file, file_type);
 }
 
 static gboolean
@@ -4155,10 +4182,15 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	gboolean add_monitor = FALSE;
 	gboolean process;
 
-	g_signal_emit (fs, signals[CHECK_DIRECTORY_CONTENTS], 0, parent, children, &process);
-
+	process = tracker_indexing_tree_parent_is_indexable (fs->priv->indexing_tree,
+	                                                     parent, children);
 	if (process) {
-		g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, parent, &add_monitor);
+		TrackerDirectoryFlags parent_flags;
+
+		tracker_indexing_tree_get_root (fs->priv->indexing_tree,
+						parent, &parent_flags);
+
+		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
 
 		/* If the directory crawled doesn't have ANY file, we need to
 		 * force a mtime cache reload using the given directory as input
@@ -4512,24 +4544,12 @@ static gboolean
 should_recurse_for_directory (TrackerMinerFS *fs,
                               GFile          *file)
 {
-	gboolean recurse = FALSE;
-	GList *dirs;
+	TrackerDirectoryFlags flags;
 
-	for (dirs = fs->priv->config_directories; dirs; dirs = dirs->next) {
-		DirectoryData *data;
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree,
+					file, &flags);
 
-		data = dirs->data;
-
-		if (data->recurse &&
-		    (g_file_equal (file, data->file) ||
-		     g_file_has_prefix (file, data->file))) {
-			/* File is inside a recursive dir */
-			recurse = TRUE;
-			break;
-		}
-	}
-
-	return recurse;
+	return (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 }
 
 static gboolean
