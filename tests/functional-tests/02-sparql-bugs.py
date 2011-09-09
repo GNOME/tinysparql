@@ -221,7 +221,6 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 # If we are here, everything is fine. 
                 self.assertIsNotNone (results)
                                    
-        @expectedFailureBug ("NB#281201")
         def test_05_NB281201_insert_replace_and_superproperties (self):
                 """
                 Bug 281201 - INSERT OR REPLACE does not delete previous values for superproperties
