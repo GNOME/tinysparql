@@ -315,26 +315,6 @@ fix_orientation (const gchar *orientation)
 	return  "nfo:orientation-top";
 }
 
-static const gchar *
-fix_region_type (const gchar *region_type)
-{
-        if (region_type == NULL) {
-                return "nfo:region-content-undefined";
-        }
-
-        if (g_ascii_strcasecmp (region_type, "Face")) {
-                return "nfo:roi-content-face";
-        } else if (g_ascii_strcasecmp (region_type, "Pet")) {
-                return "nfo:roi-content-pet";
-        } else if (g_ascii_strcasecmp (region_type, "Focus")) {
-                return "nfo:roi-content-focus";
-        } else if (g_ascii_strcasecmp (region_type, "BarCode")) {
-                return "nfo:roi-content-barcode";
-        }
-
-        return "nfo:roi-content-undefined";
-}
-
 /* We have a simple element. Add any data we know about to the
  * hash table.
  */
@@ -830,6 +810,28 @@ tracker_xmp_free (TrackerXmpData *data)
         g_slist_free_full (data->regions, xmp_region_free);
 	g_free (data);
 }
+
+
+static const gchar *
+fix_region_type (const gchar *region_type)
+{
+        if (region_type == NULL) {
+                return "nfo:region-content-undefined";
+        }
+
+        if (g_ascii_strcasecmp (region_type, "Face")) {
+                return "nfo:roi-content-face";
+        } else if (g_ascii_strcasecmp (region_type, "Pet")) {
+                return "nfo:roi-content-pet";
+        } else if (g_ascii_strcasecmp (region_type, "Focus")) {
+                return "nfo:roi-content-focus";
+        } else if (g_ascii_strcasecmp (region_type, "BarCode")) {
+                return "nfo:roi-content-barcode";
+        }
+
+        return "nfo:roi-content-undefined";
+}
+
 
 /**
  * tracker_xmp_apply:
