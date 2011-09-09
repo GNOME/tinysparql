@@ -23,6 +23,7 @@ coverage-report: coverage
 		tracker-turtle-reader.c                \
 		tracker-turtle-writer.c                \
 		libtracker-bus/tracker-array-cursor.c  \
+		libtracker-bus/tracker-bus-fd-cursor.c \
 		libtracker-bus/tracker-bus.c           \
 		libtracker-direct/tracker-direct.c     \
 		libtracker-miner/tracker-storage.c     \
@@ -37,11 +38,10 @@ coverage-report: coverage
 		libtracker-sparql/tracker-cursor.c     \
 		libtracker-sparql/tracker-plugin-loader.c \
 		libtracker-sparql/tracker-utils.c      \
+		libtracker-sparql-backend/tracker-backend.c \
 		tracker-control/tracker-miner-files-index-client.h \
 		"*.vapi"                               \
-		"*-glue.h"                             \
-		"tracker-marshal.*"                    \
-		"inotify-*.*"
+		"tracker-marshal.*"
 	rm -rf $(top_builddir)/coverage
 	$(mkdir_p) $(top_builddir)/coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
