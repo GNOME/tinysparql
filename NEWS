@@ -1,3 +1,73 @@
+NEW in 0.12.0 - 2011-09-09
+==========================
+
+The changes are:
+
+  * Require: gstreamer-pbutils when using discoverer backend
+  * Require: GSettings (not optional)
+  * Require: GObject Introspection 0.9.5 (not optional from git, optional from tarball)
+  * Require: GLib 2.28 was 2.26 (for modern APIs like g_slist_free_full())
+  * Require: GTK+ 3.0 was 2.18.0 (for UI components only)
+  * Require: Poppler-GLib 0.16.0 was Poppler 0.12.2 (old API was no longer supported)
+  * Require: Evolution, EDS, Camel 2.32.0 was 2.91.90 (API changes)
+  * Require: rest 0.7 was 0.6 (for Flickr distro library updates)
+  * Require: GStreamer 0.10.31 was 0.10.12 (for GstDateTime)
+  * Removed: Helix extractor for Real Media (it's covered by the GStreamer extractor)
+  * Removed: libtracker-client (was deprecated in 0.10)
+  * New Feature: Firefox >= 4.0 support
+  * New Feature: Thunderbird >= 5.0 support
+  * New Feature: Add --disable-journal configure option, previously it didn't exist
+  * New Feature: Support MeeGoTouch (for application extraction)
+  * New Feature: SPARQL: Add support for HAVING
+  * New Feature: SPARQL: Add support for COALESCE
+  * New Feature: SPARQL: Add support for INSERT OR REPLACE
+  * New Feature: Region of interest support in image formats (for example tagging people in images)
+  * libtracker-common: Do not delete old log files when starting components
+  * libtracker-data: Switch to manual SQLite WAL checkpointing in a separate thread
+  * libtracker-sparql: Remove deprecated drop_graph API
+  * tracker-miner-fs: Improve query performance for updating tracker:available on mounting
+  * tracker-miner-fs: Handle desktop files of Type=Link
+  * tracker-miner-fs: Support local (in $HOME) XDG directories for desktop files
+  * tracker-extract: Completely relicensed all modules and the extractor to LGPL from GPL
+  * tracker-extract: Use two threads now for extraction, a controller and worker thread
+  * tracker-extract: Refactored the module management so modules can state mimes supported flexibly
+  * tracker-extract: Support extra string for WHERE and GRAPH patterns when calling modules
+  * tracker-extract: Added EPub extractor module
+  * tracker-writeback: Refactor writeback so miner-fs performs more of the operation itself
+  * tracker-writeback: Deprecate IgnoreNextUpdate API
+  * tracker-writeback: Support longitude, latitude and altitude information to XMP files
+  * tracker-control: Report remaining estimated time for each miner's progress
+  * tracker-control: Added --set-log-verbsosity to change component log verbosity
+  * tracker-control: Added --pause-for-process for potentially crash worthy processes
+  * tracker-search: Support bookmarks with -b or --bookmarks
+
+GNOME bugs fixed (44):
+
+https://bugzilla.gnome.org/buglist.cgi?quicksearch=658588,658232,657354,655898,657161,654824,656838,655987,655789,655701,654653,654441,654407,652433,633105,397205,520670,642288,633108,632876,646834,647548,642883,644997,646365,646374,645380,611471,645934,645963,645675,642012,645000,645052,645375,644998,642868,622288,642774,643739,636375,643140,642581,643090
+
+Nokia bugs fixed (81):
+
+https://projects.maemo.org/bugzilla/buglist.cgi?quicksearch=281201,277052,281183,281540,271437,272441,279789,256958,276858,276830,242979,278806,277799,278171,246131,247468,259325,271389,254896,274498,274181,271747,273120,269986,270774,259942,269766,269931,268105,269359,266579,251032,263203,261635,258488,258459,254855,259000,252898,244556,254154,248873,253807,249338,250959,250455,249787,249028,244787,240681,238770,245998,244267,241302,245589,245373,213419,244536,242253,229461,237582,240272,241659,241833,235445,241206,240168,240582,237176,238447,238547,237150,236387,233828,232574,235118,229713,232981,231631,230255,228760
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  Existing configurations should have migration paths to new GSettings
+  based format.
+
+  Of all the requirement changes listed above, the only GSettings and
+  GObject Introspection are absolutely required to build Tracker, the
+  others are optional depending on components being built. These are
+  also only when building from git, not a distributed tarball (which
+  should have the m4 macros packaged).
+
+
 NEW in 0.11.2 - 2011-08-16
 ==========================
 
