@@ -3,9 +3,16 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=                                          \
-	tracker-encoding                               \
 	tracker-test-utils                             \
 	tracker-test-xmp
+
+if HAVE_ENCA
+TEST_PROGS += tracker-encoding
+else 
+  if HAVE_MEEGOTOUCH
+    TEST_PROGS += tracker-encoding
+  endif
+endif
 
 AM_CPPFLAGS =                                          \
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"             \
