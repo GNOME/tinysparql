@@ -494,15 +494,6 @@ PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUI
                   [have_tracker_nautilus_extension=yes],
                   [have_tracker_nautilus_extension=no])
 
-# General VALAFLAGS/CFLAGS/LIBS
-BUILD_VALAFLAGS="-g --target-glib=2.26"
-BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
-BUILD_LIBS="${GCOV_LIBS}"
-
-AC_SUBST(BUILD_VALAFLAGS)
-AC_SUBST(BUILD_CFLAGS)
-AC_SUBST(BUILD_LIBS)
-
 # Check we have Vala valac command we need
 AC_PATH_PROG(VALAC, valac, valac)
 if test -z $VALAC; then
@@ -546,6 +537,18 @@ fi
 AC_SUBST(GCOV_VALAFLAGS)
 AC_SUBST(GCOV_CFLAGS)
 AC_SUBST(GCOV_LIBS)
+
+####################################################################
+# General VALAFLAGS/CFLAGS/LIBS
+####################################################################
+BUILD_VALAFLAGS="-g --target-glib=2.26"
+BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
+BUILD_LIBS="${GCOV_LIBS}"
+
+AC_SUBST(BUILD_VALAFLAGS)
+AC_SUBST(BUILD_CFLAGS)
+AC_SUBST(BUILD_LIBS)
+
 
 ####################################################################
 # Check for functional-test include/exclude
