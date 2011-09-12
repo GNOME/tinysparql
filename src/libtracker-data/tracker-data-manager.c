@@ -120,8 +120,10 @@ handle_unsupported_ontology_change (const gchar  *ontology_path,
                                     const gchar  *attempted_new,
                                     GError      **error)
 {
+#ifndef DISABLE_JOURNAL
 	/* force reindex on restart */
 	tracker_db_manager_remove_version_file ();
+#endif /* DISABLE_JOURNAL */
 
 	g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
 	             TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
@@ -3838,7 +3840,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			/* Load ontology from database into memory */
 			db_get_static_data (iface, &internal_error);
-			check_ontology = TRUE;
+			check_ontology = (flags & TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY) == 0;
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
@@ -4049,7 +4051,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						/* This also does tracker_locale_shutdown */
 						tracker_data_manager_shutdown ();
 
-						return tracker_data_manager_init (flags,
+						return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 						                                  test_schemas,
 						                                  first_time,
 						                                  journal_check,
@@ -4139,7 +4141,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					/* This also does tracker_locale_shutdown */
 					tracker_data_manager_shutdown ();
 
-					return tracker_data_manager_init (flags,
+					return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 					                                  test_schemas,
 					                                  first_time,
 					                                  journal_check,
@@ -4235,7 +4237,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				/* This also does tracker_locale_shutdown */
 				tracker_data_manager_shutdown ();
 
-				return tracker_data_manager_init (flags,
+				return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 				                                  test_schemas,
 				                                  first_time,
 				                                  journal_check,
