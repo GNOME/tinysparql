@@ -26,7 +26,6 @@ G_BEGIN_DECLS
 
 inline gboolean tracker_is_empty_string                         (const char  *str);
 gchar **        tracker_glist_to_string_list_for_nautilus_files (GList       *list);
-GList *         tracker_glist_copy_with_nautilus_files          (GList       *list);
 gchar *         tracker_tags_get_filter_string                  (GStrv        files,
                                                                  const gchar *tag);
 gchar *         tracker_tags_escape_sparql_string               (const gchar *str);
