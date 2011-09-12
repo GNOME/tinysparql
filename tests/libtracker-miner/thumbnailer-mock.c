@@ -19,9 +19,7 @@
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
-#if 0
-#include <dbus/dbus-glib.h>
-#endif
+
 #include "empty-gobject.h"
 #include "thumbnailer-mock.h"
 
