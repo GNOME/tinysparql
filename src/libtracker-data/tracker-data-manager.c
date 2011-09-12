@@ -4019,7 +4019,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					                              uri_id_map,
 					                              &ontology_error);
 
-					if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
+					if (g_error_matches (ontology_error,
+					                     TRACKER_DATA_ONTOLOGY_ERROR,
+					                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
 						g_debug ("\nUnsupported ontology change, replaying journal\n");
 						g_error_free (ontology_error);
 
@@ -4122,7 +4124,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				                              uri_id_map,
 				                              &ontology_error);
 
-				if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
+				if (g_error_matches (ontology_error,
+				                     TRACKER_DATA_ONTOLOGY_ERROR,
+				                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
 					g_debug ("\nUnsupported ontology change, replaying journal\n");
 					g_error_free (ontology_error);
 
@@ -4231,7 +4235,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 			}
 
-			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
+			if (g_error_matches (ontology_error,
+			                     TRACKER_DATA_ONTOLOGY_ERROR,
+			                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
 				g_debug ("\nUnsupported ontology change, replaying journal\n");
 				g_error_free (ontology_error);
 
