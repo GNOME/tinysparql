@@ -43,9 +43,9 @@ struct _TrackerTagsViewClass {
 	GtkVBoxClass parent;
 };
 
-GType      tracker_tags_view_get_type      (void);
-void       tracker_tags_view_register_type (GTypeModule *module);
-GtkWidget *tracker_tags_view_new           (GList       *files);
+GType      tracker_tags_view_get_type       (void);
+GtkWidget *tracker_tags_view_new            (GList       *files);
+void       tracker_tags_view_register_types (GTypeModule *module);
 
 G_END_DECLS
 

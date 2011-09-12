@@ -52,14 +52,12 @@ struct _TrackerTagsExtensionClass {
 typedef void (*MenuDataFreeFunc)(gpointer data);
 
 typedef struct {
-	gpointer data;
-	gboolean data_is_files;
+	GList *data;
 	GtkWidget *widget;
 } MenuData;
 
 static void  tracker_tags_extension_menu_provider_iface_init          (NautilusMenuProviderIface         *iface);
 static void  tracker_tags_extension_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface);
-static GType tracker_tags_extension_get_type                          (void);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_TYPE_OBJECT, 0,
                                 G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_MENU_PROVIDER,
@@ -68,16 +66,14 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_
                                                        tracker_tags_extension_property_page_provider_iface_init));
 
 static MenuData *
-menu_data_new (gpointer   data,
-               gboolean   data_is_files,
+menu_data_new (GList     *files,
                GtkWidget *window)
 {
 	MenuData *md;
 
 	md = g_slice_new (MenuData);
 
-	md->data = data;
-	md->data_is_files = data_is_files;
+	md->data = nautilus_file_info_list_copy (files);
 	md->widget = window;
 
 	return md;
@@ -86,9 +82,8 @@ menu_data_new (gpointer   data,
 static void
 menu_data_free (MenuData *md)
 {
-	if (md->data_is_files) {
-		g_list_foreach (md->data, (GFunc) g_object_unref, NULL);
-		g_list_free (md->data);
+	if (md->data) {
+		nautilus_file_info_list_free (md->data);
 	}
 
 	g_slice_free (MenuData, md);
@@ -139,43 +134,12 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 	vbox = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
 	gtk_box_set_spacing (GTK_BOX (vbox), 2);
 
-	/* For the background we have no files */
-	if (md->data_is_files) {
-		view = tracker_tags_view_new (files);
-	} else {
-		view = tracker_tags_view_new (NULL);
-	}
+	view = tracker_tags_view_new (files);
+	gtk_widget_show (view);
 
 	gtk_box_pack_start (GTK_BOX (vbox), view, TRUE, TRUE, 0);
 
 	gtk_widget_show_all (dialog);
-}
-
-static GList *
-extension_get_background_items (NautilusMenuProvider *provider,
-                                GtkWidget            *window,
-                                NautilusFileInfo     *current_folder)
-{
-	GList *menu_items = NULL;
-	NautilusMenuItem *menu_item;
-
-	if (current_folder == NULL) {
-		return NULL;
-	}
-
-	menu_item = nautilus_menu_item_new ("tracker-tags-new",
-	                                    N_("Tags..."),
-	                                    N_("Tag one or more files"),
-	                                    NULL);
-	menu_items = g_list_append (menu_items, menu_item);
-
-	g_signal_connect_data (menu_item, "activate",
-	                       G_CALLBACK (menu_tags_activate_cb),
-	                       menu_data_new (provider, FALSE, window),
-	                       menu_data_destroy,
-	                       G_CONNECT_AFTER);
-
-	return menu_items;
 }
 
 static GList *
@@ -194,15 +158,15 @@ extension_get_file_items (NautilusMenuProvider *provider,
 	                                    N_("Tags..."),
 	                                    N_("Tag one or more files"),
 	                                    NULL);
-	menu_items = g_list_append (menu_items, menu_item);
-
 	g_signal_connect_data (menu_item, "activate",
 	                       G_CALLBACK (menu_tags_activate_cb),
-	                       menu_data_new (tracker_glist_copy_with_nautilus_files (files), TRUE, window),
+	                       menu_data_new (files, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
 
-	return menu_items;
+	menu_items = g_list_prepend (menu_items, menu_item);
+
+	return g_list_reverse (menu_items);
 }
 
 static GList *
@@ -220,6 +184,7 @@ extension_get_pages (NautilusPropertyPageProvider *provider,
 
 	label = gtk_label_new (_("Tags"));
 	view = tracker_tags_view_new (files);
+	gtk_widget_show (view);
 	property_page = nautilus_property_page_new ("tracker-tags", label, view);
 	property_pages = g_list_prepend (property_pages, property_page);
 
@@ -230,10 +195,6 @@ static void
 tracker_tags_extension_menu_provider_iface_init (NautilusMenuProviderIface *iface)
 {
 	iface->get_file_items = extension_get_file_items;
-
-	if (0) {
-		iface->get_background_items = extension_get_background_items;
-	}
 }
 
 static void
@@ -260,13 +221,15 @@ tracker_tags_extension_init (TrackerTagsExtension *self)
 void
 nautilus_module_initialize (GTypeModule *module)
 {
+	g_debug ("Initializing tracker-tags extension\n");
 	tracker_tags_extension_register_type (module);
-	tracker_tags_view_register_type (module);
+	tracker_tags_view_register_types (module);
 }
 
 void
 nautilus_module_shutdown (void)
 {
+	g_debug ("Shutting down tracker-tags extension\n");
 }
 
 void
