@@ -23,6 +23,8 @@
 
 #include <libnautilus-extension/nautilus-file-info.h>
 
+#include <libtracker-sparql/tracker-sparql.h>
+
 #include "tracker-tags-utils.h"
 
 /* Copied from src/libtracker-common/tracker-utils.c */
@@ -101,40 +103,13 @@ tracker_tags_get_filter_string (GStrv        files,
 gchar *
 tracker_tags_escape_sparql_string (const gchar *str)
 {
-	GString *sparql;
+	gchar *escaped, *retval;
 
-	sparql = g_string_new ("");
-	g_string_append_c (sparql, '"');
+	escaped = tracker_sparql_escape_string (str);
+	retval = g_strdup_printf ("\"%s\"", escaped);
+	g_free (escaped);
 
-	while (*str != '\0') {
-		gsize len = strcspn (str, "\t\n\r\"\\");
-		g_string_append_len (sparql, str, len);
-		str += len;
-		switch (*str) {
-		case '\t':
-			g_string_append (sparql, "\\t");
-			break;
-		case '\n':
-			g_string_append (sparql, "\\n");
-			break;
-		case '\r':
-			g_string_append (sparql, "\\r");
-			break;
-		case '"':
-			g_string_append (sparql, "\\\"");
-			break;
-		case '\\':
-			g_string_append (sparql, "\\\\");
-			break;
-		default:
-			continue;
-		}
-		str++;
-	}
-
-	g_string_append_c (sparql, '"');
-
-	return g_string_free (sparql, FALSE);
+	return retval;
 }
 
 gchar *
