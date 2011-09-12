@@ -4031,22 +4031,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 						/* as we're processing an ontology change,
 						   transaction is guaranteed to be started */
-						tracker_data_commit_transaction (&internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-							tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-							tracker_db_manager_shutdown ();
-							tracker_ontologies_shutdown ();
-							if (!reloading) {
-								tracker_locale_shutdown ();
-							}
-							tracker_data_update_shutdown ();
-
-							return FALSE;
-						}
+						tracker_data_rollback_transaction ();
 
 						if (ontos_table) {
 							g_hash_table_unref (ontos_table);
@@ -4136,22 +4121,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					/* as we're processing an ontology change,
 					   transaction is guaranteed to be started */
-					tracker_data_commit_transaction (&internal_error);
-					if (internal_error) {
-						g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-						tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-						tracker_db_manager_shutdown ();
-						tracker_ontologies_shutdown ();
-						if (!reloading) {
-							tracker_locale_shutdown ();
-						}
-						tracker_data_update_shutdown ();
-
-						return FALSE;
-					}
+					tracker_data_rollback_transaction ();
 
 					if (ontos_table) {
 						g_hash_table_unref (ontos_table);
@@ -4247,22 +4217,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				/* as we're processing an ontology change,
 				   transaction is guaranteed to be started */
-				tracker_data_commit_transaction (&internal_error);
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-					tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-					tracker_db_manager_shutdown ();
-					tracker_ontologies_shutdown ();
-					if (!reloading) {
-						tracker_locale_shutdown ();
-					}
-					tracker_data_update_shutdown ();
-
-					return FALSE;
-				}
+				tracker_data_rollback_transaction ();
 
 				if (ontos_table) {
 					g_hash_table_unref (ontos_table);
