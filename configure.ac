@@ -506,11 +506,7 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
                   [have_tracker_search_bar=no])
 
 # Check requirements for Nautilus extension
-TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                                     gio-unix-2.0   >= $GLIB_REQUIRED
-                                     gthread-2.0    >= $GLIB_REQUIRED
-                                     gtk+-3.0       >= $GTK_REQUIRED
-                                     libnautilus-extension"
+TRACKER_NAUTILUS_EXTENSION_REQUIRED="libnautilus-extension"
 
 PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
                   [have_tracker_nautilus_extension=yes],
