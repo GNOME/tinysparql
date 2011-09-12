@@ -23,6 +23,8 @@
 
 #include <libnautilus-extension/nautilus-file-info.h>
 
+#include <libtracker-sparql/tracker-sparql.h>
+
 #include "tracker-tags-utils.h"
 
 /* Copied from src/libtracker-common/tracker-utils.c */
@@ -53,25 +55,6 @@ tracker_glist_to_string_list_for_nautilus_files (GList *list)
 	strv[i] = NULL;
 
 	return strv;
-}
-
-GList *
-tracker_glist_copy_with_nautilus_files (GList *list)
-{
-	GList *l;
-	GList *new_list;
-
-	if (!list) {
-		return NULL;
-	}
-
-	new_list = NULL;
-
-	for (l = list; l; l = l->next) {
-		new_list = g_list_prepend (new_list, g_object_ref (l->data));
-	}
-
-	return g_list_reverse (new_list);
 }
 
 /* Copied from src/tracker-utils/tracker-tags.c */
@@ -120,40 +103,13 @@ tracker_tags_get_filter_string (GStrv        files,
 gchar *
 tracker_tags_escape_sparql_string (const gchar *str)
 {
-	GString *sparql;
+	gchar *escaped, *retval;
 
-	sparql = g_string_new ("");
-	g_string_append_c (sparql, '"');
+	escaped = tracker_sparql_escape_string (str);
+	retval = g_strdup_printf ("\"%s\"", escaped);
+	g_free (escaped);
 
-	while (*str != '\0') {
-		gsize len = strcspn (str, "\t\n\r\"\\");
-		g_string_append_len (sparql, str, len);
-		str += len;
-		switch (*str) {
-		case '\t':
-			g_string_append (sparql, "\\t");
-			break;
-		case '\n':
-			g_string_append (sparql, "\\n");
-			break;
-		case '\r':
-			g_string_append (sparql, "\\r");
-			break;
-		case '"':
-			g_string_append (sparql, "\\\"");
-			break;
-		case '\\':
-			g_string_append (sparql, "\\\\");
-			break;
-		default:
-			continue;
-		}
-		str++;
-	}
-
-	g_string_append_c (sparql, '"');
-
-	return g_string_free (sparql, FALSE);
+	return retval;
 }
 
 gchar *
