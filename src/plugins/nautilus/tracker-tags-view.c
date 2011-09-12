@@ -81,69 +81,80 @@ enum {
 	SELECTION_TRUE
 };
 
-static void tracker_tags_view_finalize (GObject         *object);
-static void tags_view_create_ui        (TrackerTagsView *tv);
-static void tag_data_free              (TagData         *td);
+static void tracker_tags_view_finalize      (GObject         *object);
+static void tracker_tags_view_register_type (GTypeModule     *module);
+static void tags_view_create_ui             (TrackerTagsView *tv);
+static void tag_data_free                   (TagData         *td);
 
-G_DEFINE_TYPE (TrackerTagsView, tracker_tags_view, GTK_TYPE_VBOX);
+G_DEFINE_DYNAMIC_TYPE (TrackerTagsView, tracker_tags_view, GTK_TYPE_VBOX)
 
 static void
 tracker_tags_view_class_init (TrackerTagsViewClass *klass)
 {
-	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	gobject_class->finalize = tracker_tags_view_finalize;
-	g_type_class_add_private (gobject_class, sizeof (TrackerTagsViewPrivate));
+	object_class->finalize = tracker_tags_view_finalize;
 
-	tracker_tags_view_parent_class = g_type_class_peek_parent (klass);
+	g_type_class_add_private (klass, sizeof (TrackerTagsViewPrivate));
+}
+
+static void
+tracker_tags_view_class_finalize (TrackerTagsViewClass *klass)
+{
 }
 
 static void
 tracker_tags_view_init (TrackerTagsView *tv)
 {
+	TrackerTagsViewPrivate *private;
 	GError *error = NULL;
 
-	tv->private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
-	tv->private->cancellable = g_cancellable_new ();
-	tv->private->connection = tracker_sparql_connection_get (tv->private->cancellable,
-	                                                         &error);
-	if (!tv->private->connection) {
+	private->cancellable = g_cancellable_new ();
+	private->connection = tracker_sparql_connection_get (private->cancellable,
+	                                                     &error);
+	if (!private->connection) {
 		g_critical ("Couldn't get a proper SPARQL connection: '%s'",
 		            error ? error->message : "unknown error");
 		g_clear_error (&error);
 	}
 
-	tv->private->files = NULL;
+	private->files = NULL;
 
-	tv->private->store = gtk_list_store_new (N_COLUMNS,
-	                                         G_TYPE_INT,      /* Selection type */
-	                                         G_TYPE_STRING,   /* Tag ID */
-	                                         G_TYPE_STRING,   /* Tag Name */
-	                                         G_TYPE_STRING,   /* Tag Count String */
-	                                         G_TYPE_INT);     /* Tag Count */
+	private->store = gtk_list_store_new (N_COLUMNS,
+	                                     G_TYPE_INT,      /* Selection type */
+	                                     G_TYPE_STRING,   /* Tag ID */
+	                                     G_TYPE_STRING,   /* Tag Name */
+	                                     G_TYPE_STRING,   /* Tag Count String */
+	                                     G_TYPE_INT);     /* Tag Count */
 }
 
 static void
 tracker_tags_view_finalize (GObject *object)
 {
-	TrackerTagsView *tv = TRACKER_TAGS_VIEW (object);
+	TrackerTagsViewPrivate *private = TRACKER_TAGS_VIEW_GET_PRIVATE (object);
 
-	if (tv->private->cancellable) {
-		g_cancellable_cancel (tv->private->cancellable);
-		g_object_unref (tv->private->cancellable);
+	if (private->cancellable) {
+		g_cancellable_cancel (private->cancellable);
+		g_object_unref (private->cancellable);
+		private->cancellable = NULL;
 	}
 
-	if (tv->private->connection) {
-		g_object_unref (tv->private->connection);
+	if (private->connection) {
+		g_object_unref (private->connection);
+		private->connection = NULL;
 	}
 
-	g_list_foreach (tv->private->files, (GFunc) g_object_unref, NULL);
-	g_list_free (tv->private->files);
+	if (private->files) {
+		nautilus_file_info_list_free (private->files);
+		private->files = NULL;
+	}
 
-	if (tv->private->tag_data_requests) {
-		g_list_foreach (tv->private->tag_data_requests, (GFunc) tag_data_free, NULL);
-		g_list_free (tv->private->tag_data_requests);
+	if (private->tag_data_requests) {
+		g_list_foreach (private->tag_data_requests, (GFunc) tag_data_free, NULL);
+		g_list_free (private->tag_data_requests);
+		private->tag_data_requests = NULL;
 	}
 
 	G_OBJECT_CLASS (tracker_tags_view_parent_class)->finalize (object);
@@ -161,8 +172,7 @@ tag_data_new (const gchar     *tag_id,
 
 	td = g_slice_new (TagData);
 
-	g_debug ("Creating tag data");
-
+	g_print ("Creating tag data\n");
 
 	td->tv = tv;
 	td->cancellable = g_cancellable_new ();
@@ -276,7 +286,8 @@ tag_view_model_find_tag (TrackerTagsView *tv,
                          const gchar     *tag,
                          GtkTreeIter     *iter)
 {
-	GtkTreeView  *view;
+	TrackerTagsViewPrivate *private;
+	GtkTreeView *view;
 	GtkTreeModel *model;
 	FindTag data;
 
@@ -288,7 +299,9 @@ tag_view_model_find_tag (TrackerTagsView *tv,
 	data.tag = tag;
 	data.found = FALSE;
 
-	view = GTK_TREE_VIEW (tv->private->view);
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	view = GTK_TREE_VIEW (private->view);
 	model = gtk_tree_view_get_model (view);
 
 	gtk_tree_model_foreach (model,
@@ -308,10 +321,14 @@ tags_view_tag_removed_cb (GObject      *source_object,
                           GAsyncResult *res,
                           gpointer      user_data)
 {
-	TagData *td = user_data;
+	TagData *td;
+	TrackerTagsViewPrivate *private;
 	GError *error = NULL;
 
-	g_debug ("Update callback\n");
+	g_print ("Update callback\n");
+
+	td = user_data;
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (td->tv);
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source_object),
 	                                         res,
@@ -321,13 +338,12 @@ tags_view_tag_removed_cb (GObject      *source_object,
 		show_error_dialog (error);
 		g_error_free (error);
 	} else {
-		g_debug ("Tag removed\n");
+		g_print ("Tag removed\n");
 
-		gtk_list_store_remove (td->tv->private->store, td->iter);
+		gtk_list_store_remove (private->store, td->iter);
 	}
 
-	td->tv->private->tag_data_requests =
-		g_list_remove (td->tv->private->tag_data_requests, td);
+	private->tag_data_requests = g_list_remove (private->tag_data_requests, td);
 	tag_data_free (td);
 }
 
@@ -336,13 +352,17 @@ tags_view_query_files_for_tag_id_cb (GObject      *source_object,
                                      GAsyncResult *res,
                                      gpointer      user_data)
 {
+	TagData *td;
+	TrackerTagsViewPrivate *private;
 	TrackerSparqlCursor *cursor;
-	TagData *td = user_data;
-	TrackerTagsView *tv = td->tv;
-	GtkTreeIter *iter = td->iter;
+	GtkTreeIter *iter;
 	GError *error = NULL;
 	gchar *str;
 	guint files_selected, files_with_tag, has_tag_in_selection;
+
+	td = user_data;
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (td->tv);
+	iter = td->iter;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
 	                                                 res,
@@ -352,8 +372,7 @@ tags_view_query_files_for_tag_id_cb (GObject      *source_object,
 		show_error_dialog (error);
 		g_error_free (error);
 
-		tv->private->tag_data_requests =
-			g_list_remove (tv->private->tag_data_requests, td);
+		private->tag_data_requests = g_list_remove (private->tag_data_requests, td);
 		tag_data_free (td);
 
 		if (cursor) {
@@ -365,18 +384,18 @@ tags_view_query_files_for_tag_id_cb (GObject      *source_object,
 
 	has_tag_in_selection = 0;
 	files_with_tag = 0;
-	files_selected = g_list_length (tv->private->files);
+	files_selected = g_list_length (private->files);
 
 	/* FIXME: make this async */
 	while (tracker_sparql_cursor_next (cursor,
-	                                   tv->private->cancellable,
+	                                   private->cancellable,
 	                                   &error)) {
 		GList *l;
 		gboolean equal;
 
 		files_with_tag++;
 
-		for (l = tv->private->files, equal = FALSE; l && !equal; l = l->next) {
+		for (l = private->files, equal = FALSE; l && !equal; l = l->next) {
 			gchar *uri;
 			const gchar *str;
 
@@ -405,41 +424,43 @@ tags_view_query_files_for_tag_id_cb (GObject      *source_object,
 		return;
 	}
 
-	g_debug ("Querying files with tag, in selection:%d, in total:%d, selected:%d\n",
+	g_print ("Querying files with tag, in selection:%d, in total:%d, selected:%d\n",
 	         has_tag_in_selection, files_with_tag, files_selected);
 
 	if (has_tag_in_selection == 0) {
-		gtk_list_store_set (tv->private->store, iter,
+		gtk_list_store_set (private->store, iter,
 		                    COL_SELECTION, SELECTION_FALSE,
 		                    -1);
 	} else if (files_selected != has_tag_in_selection) {
-		gtk_list_store_set (tv->private->store, iter,
+		gtk_list_store_set (private->store, iter,
 		                    COL_SELECTION, SELECTION_INCONSISTENT,
 		                    -1);
 	} else {
-		gtk_list_store_set (tv->private->store, iter,
+		gtk_list_store_set (private->store, iter,
 		                    COL_SELECTION, SELECTION_TRUE,
 		                    -1);
 	}
 
 	str = g_strdup_printf ("%d", files_with_tag);
-	gtk_list_store_set (tv->private->store, iter,
+	gtk_list_store_set (private->store, iter,
 	                    COL_TAG_COUNT, str,
 	                    COL_TAG_COUNT_VALUE, files_with_tag,
 	                    -1);
 	g_free (str);
 
-	tv->private->tag_data_requests =
-		g_list_remove (tv->private->tag_data_requests, td);
+	private->tag_data_requests = g_list_remove (private->tag_data_requests, td);
 	tag_data_free (td);
 }
 
 static void
 tags_view_query_files_for_tag_id (TagData *td)
 {
+	TrackerTagsViewPrivate *private;
 	gchar *query;
 
-	if (!td->tv->private->connection) {
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (td->tv);
+
+	if (!private->connection) {
 		g_warning ("Can't query files for tag id '%s', "
 		           "no SPARQL connection available",
 		           td->tag_id);
@@ -453,7 +474,7 @@ tags_view_query_files_for_tag_id (TagData *td)
 	                         "  nao:hasTag <%s> . "
 	                         "}", td->tag_id);
 
-	tracker_sparql_connection_query_async (td->tv->private->connection,
+	tracker_sparql_connection_query_async (private->connection,
 	                                       query,
 	                                       td->cancellable,
 	                                       tags_view_query_files_for_tag_id_cb,
@@ -466,17 +487,21 @@ tags_view_add_tags_cb (GObject      *source_object,
                        GAsyncResult *res,
                        gpointer      user_data)
 {
+	TrackerTagsView *tv;
+	TrackerTagsViewPrivate *private;
 	TrackerSparqlCursor *cursor;
-	TrackerTagsView *tv = user_data;
 	GError *error = NULL;
 
-	g_debug ("Clearing tags in store\n");
+	g_print ("Clearing tags in store\n");
+
+	tv = user_data;
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
 	                                                 res,
 	                                                 &error);
 
-	gtk_list_store_clear (tv->private->store);
+	gtk_list_store_clear (private->store);
 
 	if (error) {
 		show_error_dialog (error);
@@ -486,10 +511,10 @@ tags_view_add_tags_cb (GObject      *source_object,
 			g_object_unref (cursor);
 		}
 	} else {
-		g_debug ("Adding all tags...\n");
+		g_print ("Adding all tags...\n");
 
 		/* FIXME: make async */
-		while (tracker_sparql_cursor_next (cursor, tv->private->cancellable, NULL)) {
+		while (tracker_sparql_cursor_next (cursor, private->cancellable, NULL)) {
 			TagData *td;
 			GtkTreeIter iter;
 			const gchar *id, *label;
@@ -497,18 +522,18 @@ tags_view_add_tags_cb (GObject      *source_object,
 			id = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			label = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 
-			g_debug ("Adding tag id:'%s' with label:'%s' to store\n", id, label);
+			g_print ("Adding tag id:'%s' with label:'%s' to store\n", id, label);
 
-			gtk_list_store_append (tv->private->store, &iter);
-			gtk_list_store_set (tv->private->store, &iter,
+			gtk_list_store_append (private->store, &iter);
+			gtk_list_store_set (private->store, &iter,
 			                    COL_TAG_ID, id,
 			                    COL_TAG_NAME, label,
 			                    COL_SELECTION, SELECTION_FALSE,
 			                    -1);
 
 			td = tag_data_new (id, &iter, FALSE, TRUE, 1, tv);
-			tv->private->tag_data_requests =
-				g_list_prepend (tv->private->tag_data_requests, td);
+			private->tag_data_requests =
+				g_list_prepend (private->tag_data_requests, td);
 
 			tags_view_query_files_for_tag_id (td);
 		}
@@ -531,9 +556,12 @@ tags_view_model_update_cb (GObject      *source_object,
 {
 	TagData *td = user_data;
 	TrackerTagsView *tv = td->tv;
+	TrackerTagsViewPrivate *private;
 	GError *error = NULL;
 
-	g_debug ("Update callback\n");
+	g_print ("Update callback\n");
+
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source_object),
 	                                         res,
@@ -545,17 +573,17 @@ tags_view_model_update_cb (GObject      *source_object,
 	} else {
 		const gchar *tag;
 
-		tag = gtk_entry_get_text (GTK_ENTRY (tv->private->entry));
+		tag = gtk_entry_get_text (GTK_ENTRY (private->entry));
 
 		if (!td->update) {
 			GtkTreeIter iter;
 			gchar *str;
 
-			g_debug ("Setting tag selection state to ON (new)\n");
+			g_print ("Setting tag selection state to ON (new)\n");
 
 			str = g_strdup_printf ("%d", td->items);
-			gtk_list_store_append (tv->private->store, &iter);
-			gtk_list_store_set (tv->private->store, &iter,
+			gtk_list_store_append (private->store, &iter);
+			gtk_list_store_set (private->store, &iter,
 			                    COL_TAG_ID, td->tag_id,
 			                    COL_TAG_NAME, tag,
 			                    COL_TAG_COUNT, str,
@@ -566,39 +594,39 @@ tags_view_model_update_cb (GObject      *source_object,
 		} else if (td->selected) {
 			TagData *td_copy;
 
-			g_debug ("Setting tag selection state to ON\n");
+			g_print ("Setting tag selection state to ON\n");
 
-			gtk_list_store_set (tv->private->store, td->iter,
+			gtk_list_store_set (private->store, td->iter,
 			                    COL_SELECTION, SELECTION_TRUE,
 			                    -1);
 
 			td_copy = tag_data_copy (td);
-			tv->private->tag_data_requests =
-				g_list_prepend (tv->private->tag_data_requests, td_copy);
+			private->tag_data_requests =
+				g_list_prepend (private->tag_data_requests, td_copy);
 
 			tags_view_query_files_for_tag_id (td_copy);
 		} else {
 			TagData *td_copy;
 
-			g_debug ("Setting tag selection state to FALSE\n");
+			g_print ("Setting tag selection state to FALSE\n");
 
-			gtk_list_store_set (tv->private->store, td->iter,
+			gtk_list_store_set (private->store, td->iter,
 			                    COL_SELECTION, SELECTION_FALSE,
 			                    -1);
 
 			td_copy = tag_data_copy (td);
-			tv->private->tag_data_requests =
-				g_list_prepend (tv->private->tag_data_requests, td_copy);
+			private->tag_data_requests =
+				g_list_prepend (private->tag_data_requests, td_copy);
 
 			tags_view_query_files_for_tag_id (td_copy);
 		}
 	}
 
-	gtk_entry_set_text (GTK_ENTRY (tv->private->entry), "");
-	gtk_widget_set_sensitive (tv->private->entry, TRUE);
+	gtk_entry_set_text (GTK_ENTRY (private->entry), "");
+	gtk_widget_set_sensitive (private->entry, TRUE);
 
-	tv->private->tag_data_requests =
-		g_list_remove (tv->private->tag_data_requests, td);
+	private->tag_data_requests =
+		g_list_remove (private->tag_data_requests, td);
 	tag_data_free (td);
 }
 
@@ -606,20 +634,23 @@ static void
 tags_view_add_tag (TrackerTagsView *tv,
                    const gchar     *tag)
 {
+	TrackerTagsViewPrivate *private;
 	TagData *td;
 	GString *query;
 	gint files;
 
-	if (!tv->private->connection) {
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	if (!private->connection) {
 		g_warning ("Can't add tag '%s', "
 		           "no SPARQL connection available",
 		           tag);
 		return;
 	}
 
-	gtk_widget_set_sensitive (tv->private->entry, FALSE);
+	gtk_widget_set_sensitive (private->entry, FALSE);
 
-	files = g_list_length (tv->private->files);
+	files = g_list_length (private->files);
 
 	if (files > 0) {
 		GStrv files;
@@ -629,7 +660,7 @@ tags_view_add_tag (TrackerTagsView *tv,
 
 		query = g_string_new ("");
 
-		files = tracker_glist_to_string_list_for_nautilus_files (tv->private->files);
+		files = tracker_glist_to_string_list_for_nautilus_files (private->files);
 		filter = tracker_tags_get_filter_string (files, NULL);
 		tag_escaped = tracker_tags_escape_sparql_string (tag);
 
@@ -679,10 +710,10 @@ tags_view_add_tag (TrackerTagsView *tv,
 	}
 
 	td = tag_data_new (NULL, NULL, FALSE, TRUE, files, tv);
-	tv->private->tag_data_requests =
-		g_list_prepend (tv->private->tag_data_requests, td);
+	private->tag_data_requests =
+		g_list_prepend (private->tag_data_requests, td);
 
-	tracker_sparql_connection_update_async (tv->private->connection,
+	tracker_sparql_connection_update_async (private->connection,
 	                                        query->str,
 	                                        G_PRIORITY_DEFAULT,
 	                                        td->cancellable,
@@ -715,6 +746,7 @@ static void
 tags_view_model_toggle_row (TrackerTagsView *tv,
                             GtkTreePath     *path)
 {
+	TrackerTagsViewPrivate *private;
 	TagData *td;
 	GStrv files;
 	GtkTreeIter iter;
@@ -723,7 +755,9 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 	gchar *id, *tag, *tag_escaped;
 	gint selection;
 
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (tv->private->view));
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (private->view));
 
 	if (gtk_tree_model_get_iter (model, &iter, path) == FALSE) {
 		return;
@@ -740,7 +774,7 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 	tag_escaped = tracker_tags_escape_sparql_string (tag);
 	g_free (tag);
 
-	files = tracker_glist_to_string_list_for_nautilus_files (tv->private->files);
+	files = tracker_glist_to_string_list_for_nautilus_files (private->files);
 	filter = tracker_tags_get_filter_string (files, NULL);
 	g_strfreev (files);
 
@@ -773,8 +807,8 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 		 * remove tag if not.
 		 */
 		td = tag_data_new (id, &iter, FALSE, TRUE, 1, tv);
-		tv->private->tag_data_requests =
-			g_list_prepend (tv->private->tag_data_requests, td);
+		private->tag_data_requests =
+			g_list_prepend (private->tag_data_requests, td);
 
 		tags_view_query_files_for_tag_id (td);
 	}
@@ -782,9 +816,9 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 	g_free (filter);
 	g_free (tag_escaped);
 
-	gtk_widget_set_sensitive (tv->private->entry, FALSE);
+	gtk_widget_set_sensitive (private->entry, FALSE);
 
-	if (!tv->private->connection) {
+	if (!private->connection) {
 		g_warning ("Can't update tags, "
 		           "no SPARQL connection available");
 		g_free (id);
@@ -792,13 +826,13 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 		return;
 	}
 
-	g_debug ("Running query:'%s'\n", query);
+	g_print ("Running query:'%s'\n", query);
 
 	td = tag_data_new (id, &iter, TRUE, selection, 1, tv);
-	tv->private->tag_data_requests =
-		g_list_prepend (tv->private->tag_data_requests, td);
+	private->tag_data_requests =
+		g_list_prepend (private->tag_data_requests, td);
 
-	tracker_sparql_connection_update_async (tv->private->connection,
+	tracker_sparql_connection_update_async (private->connection,
 	                                        query,
 	                                        G_PRIORITY_DEFAULT,
 	                                        td->cancellable,
@@ -834,15 +868,18 @@ static void
 tags_view_entry_changed_cb (GtkEditable     *editable,
                             TrackerTagsView *tv)
 {
+	TrackerTagsViewPrivate *private;
 	GtkTreeIter iter;
 	const gchar *tag;
 
-	tag = gtk_entry_get_text (GTK_ENTRY (tv->private->entry));
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	tag = gtk_entry_get_text (GTK_ENTRY (private->entry));
 
 	if (tag_view_model_find_tag (tv, tag, &iter)) {
-		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_add), FALSE);
+		gtk_widget_set_sensitive (GTK_WIDGET (private->button_add), FALSE);
 	} else {
-		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_add),
+		gtk_widget_set_sensitive (GTK_WIDGET (private->button_add),
 		                          !tracker_is_empty_string (tag));
 	}
 }
@@ -851,17 +888,25 @@ static void
 tags_view_entry_activate_cb (GtkEditable     *editable,
                              TrackerTagsView *tv)
 {
-	gtk_widget_activate (tv->private->button_add);
+	TrackerTagsViewPrivate *private;
+
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	gtk_widget_activate (private->button_add);
 }
 
 static void
 tags_view_add_clicked_cb (GtkButton *button,
                           gpointer   user_data)
 {
-	TrackerTagsView *tv = user_data;
+	TrackerTagsView *tv;
+	TrackerTagsViewPrivate *private;
 	const gchar *tag;
 
-	tag = gtk_entry_get_text (GTK_ENTRY (tv->private->entry));
+	tv = user_data;
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	tag = gtk_entry_get_text (GTK_ENTRY (private->entry));
 	tags_view_add_tag (tv, tag);
 }
 
@@ -869,10 +914,13 @@ static void
 tags_view_remove_tag (TrackerTagsView *tv,
                       TagData         *td)
 {
+	TrackerTagsViewPrivate *private;
 	TagData *td_copy;
 	gchar *query;
 
-	if (!tv->private->connection) {
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	if (!private->connection) {
 		g_warning ("Can't remove tag '%s', "
 		           "no SPARQL connection available",
 		           td->tag_id);
@@ -885,10 +933,10 @@ tags_view_remove_tag (TrackerTagsView *tv,
 	                         td->tag_id);
 
 	td_copy = tag_data_copy (td);
-	tv->private->tag_data_requests =
-		g_list_prepend (tv->private->tag_data_requests, td_copy);
+	private->tag_data_requests =
+		g_list_prepend (private->tag_data_requests, td_copy);
 
-	tracker_sparql_connection_update_async (tv->private->connection,
+	tracker_sparql_connection_update_async (private->connection,
 	                                        query,
 	                                        G_PRIORITY_DEFAULT,
 	                                        td_copy->cancellable,
@@ -901,26 +949,30 @@ static void
 tags_view_remove_clicked_cb (GtkButton *button,
                              gpointer   user_data)
 {
-	TrackerTagsView *tv = user_data;
+	TrackerTagsView *tv;
+	TrackerTagsViewPrivate *private;
 	TagData *td;
 	GtkTreeIter iter;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	gchar *id;
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (tv->private->view));
+	tv = user_data;
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (private->view));
 
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (GTK_TREE_MODEL (tv->private->store), &iter, COL_TAG_ID, &id, -1);
+		gtk_tree_model_get (GTK_TREE_MODEL (private->store), &iter, COL_TAG_ID, &id, -1);
 
 		td = tag_data_new (id, &iter, FALSE, TRUE, 1, tv);
-		tv->private->tag_data_requests =
-			g_list_prepend (tv->private->tag_data_requests, td);
+		private->tag_data_requests =
+			g_list_prepend (private->tag_data_requests, td);
 
 		tags_view_remove_tag (tv, td);
 
-		tv->private->tag_data_requests =
-			g_list_remove (tv->private->tag_data_requests, td);
+		private->tag_data_requests =
+			g_list_remove (private->tag_data_requests, td);
 		tag_data_free (td);
 	}
 }
@@ -929,20 +981,23 @@ static void
 tags_view_model_row_selected_cb (GtkTreeSelection *selection,
                                  gpointer         user_data)
 {
-	TrackerTagsView *tv = user_data;
+	TrackerTagsViewPrivate *private;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (user_data);
+
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_remove), TRUE);
+		gtk_widget_set_sensitive (GTK_WIDGET (private->button_remove), TRUE);
 	} else {
-		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_remove), FALSE);
+		gtk_widget_set_sensitive (GTK_WIDGET (private->button_remove), FALSE);
 	}
 }
 
 static void
 tags_view_create_ui (TrackerTagsView *tv)
 {
+	TrackerTagsViewPrivate *private;
 	GtkCellRenderer *cell_renderer;
 	GtkTreeSelection *selection;
 	GtkTreeViewColumn *column;
@@ -954,6 +1009,8 @@ tags_view_create_ui (TrackerTagsView *tv)
 	GtkWidget *view;
 	gchar *str;
 
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+
 	gtk_container_set_border_width (GTK_CONTAINER (tv), 6);
 	gtk_box_set_homogeneous (GTK_BOX (tv), FALSE);
 	gtk_box_set_spacing (GTK_BOX (tv), 6);
@@ -962,8 +1019,8 @@ tags_view_create_ui (TrackerTagsView *tv)
 	str = g_strdup_printf (dngettext (NULL,
 	                                  "_Set the tags you want to associate with the %d selected item:",
 	                                  "_Set the tags you want to associate with the %d selected items:",
-	                                  g_list_length (tv->private->files)),
-	                       g_list_length (tv->private->files));
+	                                  g_list_length (private->files)),
+	                       g_list_length (private->files));
 
 	label = gtk_label_new_with_mnemonic (str);
 	g_free (str);
@@ -998,7 +1055,7 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_add_clicked_cb),
 	                  tv);
 
-	tv->private->button_add = button;
+	private->button_add = button;
 
 	button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
 	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, TRUE, 0);
@@ -1009,7 +1066,7 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_remove_clicked_cb),
 	                  tv);
 
-	tv->private->button_remove = button;
+	private->button_remove = button;
 
 	/* List */
 	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -1066,7 +1123,7 @@ tags_view_create_ui (TrackerTagsView *tv)
 	/* List settings */
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (view), FALSE);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (view),
-	                         GTK_TREE_MODEL (tv->private->store));
+	                         GTK_TREE_MODEL (private->store));
 
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
@@ -1079,14 +1136,14 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_model_row_selected_cb),
 	                  tv);
 
-	if (tv->private->connection) {
-		tracker_sparql_connection_query_async (tv->private->connection,
+	if (private->connection) {
+		tracker_sparql_connection_query_async (private->connection,
 		                                       "SELECT ?urn ?label "
 		                                       "WHERE {"
 		                                       "  ?urn a nao:Tag ;"
 		                                       "  nao:prefLabel ?label . "
 		                                       "} ORDER BY ?label",
-		                                       tv->private->cancellable,
+		                                       private->cancellable,
 		                                       tags_view_add_tags_cb,
 		                                       tv);
 	} else {
@@ -1098,25 +1155,29 @@ tags_view_create_ui (TrackerTagsView *tv)
 	gtk_widget_grab_focus (entry);
 
 	/* Save vars */
-	tv->private->entry = entry;
-	tv->private->view = view;
+	private->entry = entry;
+	private->view = view;
 }
 
 void
-tracker_tags_view_register_type (GTypeModule *module)
+tracker_tags_view_register_types (GTypeModule *module)
 {
-	tracker_tags_view_get_type ();
+	tracker_tags_view_register_type (module);
 }
 
 GtkWidget *
 tracker_tags_view_new (GList *files)
 {
 	TrackerTagsView *tv;
+	TrackerTagsViewPrivate *private;
 
 	g_return_val_if_fail (files != NULL, NULL);
 
+	g_print ("New TrackerTagsView with %d files\n", g_list_length (files));
 	tv = g_object_new (TRACKER_TYPE_TAGS_VIEW, NULL);
-	tv->private->files = tracker_glist_copy_with_nautilus_files (files);
+
+	private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
+	private->files = nautilus_file_info_list_copy (files);
 
 	tags_view_create_ui (tv);
 
