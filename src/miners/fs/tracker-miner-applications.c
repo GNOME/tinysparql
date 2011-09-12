@@ -811,10 +811,22 @@ process_file_cb (GObject      *object,
 
 	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
 		process_directory (data, file_info, &error);
-	} else if (data->key_file) {
-		process_desktop_file (data, file_info, &error);
 	} else {
-		error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+		data->key_file = get_desktop_key_file (file, &data->type, &error);
+		if (!data->key_file) {
+			gchar *uri;
+
+			uri = g_file_get_uri (file);
+			g_warning ("Couldn't properly parse desktop file '%s': '%s'",
+			           uri,
+			           error ? error->message : "unknown error");
+			g_free (uri);
+			g_clear_error (&error);
+
+			error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+		} else {
+			process_desktop_file (data, file_info, &error);
+		}
 	}
 
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
@@ -836,19 +848,13 @@ miner_applications_process_file (TrackerMinerFS       *fs,
                                  GCancellable         *cancellable)
 {
 	ProcessApplicationData *data;
-	GKeyFile *key_file;
 	const gchar *attrs;
-	gchar *type;
-
-	key_file = get_desktop_key_file (file, &type, NULL);
 
 	data = g_slice_new0 (ProcessApplicationData);
 	data->miner = g_object_ref (fs);
 	data->sparql = g_object_ref (sparql);
 	data->file = g_object_ref (file);
 	data->cancellable = g_object_ref (cancellable);
-	data->key_file = key_file;
-	data->type = type;
 
 	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
 		G_FILE_ATTRIBUTE_STANDARD_TYPE;
