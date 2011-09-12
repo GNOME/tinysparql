@@ -17,16 +17,14 @@
  * 02110-1301, USA.
  */
 
+#include <string.h>
+
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
-#if 0
-#include <dbus/dbus-glib.h>
-#endif
+
 #include "empty-gobject.h"
 #include "miners-mock.h"
 #include "tracker-miner-mock.h"
-
-#include <string.h>
 
 GHashTable *miners = NULL;
 

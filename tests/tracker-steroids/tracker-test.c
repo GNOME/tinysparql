@@ -68,16 +68,6 @@ insert_test_data ()
 	g_free (longName);
 }
 
-static void
-set_force_dbus_glib (gboolean force)
-{
-	if (force) {
-		g_setenv ("TRACKER_BUS_BACKEND", "dbus-glib", TRUE);
-	} else {
-		g_unsetenv ("TRACKER_BUS_BACKEND");
-	}
-}
-
 /*
  * I comment that part out because I don't know how anonymous node hashing
  * works, but if we know two SparqlUpdate calls are going to return the same
@@ -160,12 +150,10 @@ query_and_compare_results (const char *query)
 	TrackerSparqlCursor *cursor_fd;
 	GError *error = NULL;
 
-	set_force_dbus_glib (TRUE);
 	cursor_glib = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	g_assert_no_error (error);
 
-	set_force_dbus_glib (FALSE);
 	cursor_fd = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	g_assert_no_error (error);
@@ -469,9 +457,7 @@ async_query_cb (GObject      *source_object,
 	g_assert_no_error (error);
 	g_assert (cursor_fd != NULL);
 
-	set_force_dbus_glib (TRUE);
 	cursor_glib = tracker_sparql_connection_query (connection, data->query, NULL, &error);
-	set_force_dbus_glib (FALSE);
 
 	g_assert_no_error (error);
 	g_assert (cursor_glib != NULL);
