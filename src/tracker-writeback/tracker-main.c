@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include <dbus/dbus-glib.h>
-
 #include <glib/gi18n.h>
 
 #include <libtracker-common/tracker-log.h>

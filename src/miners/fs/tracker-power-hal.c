@@ -26,8 +26,6 @@
 
 #include <libhal.h>
 
-#include <dbus/dbus-glib-lowlevel.h>
-
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-marshal.h>
