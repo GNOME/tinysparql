@@ -4024,7 +4024,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					if (g_error_matches (ontology_error,
 					                     TRACKER_DATA_ONTOLOGY_ERROR,
 					                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-						g_debug ("\nUnsupported ontology change, replaying journal\n");
+						g_warning ("%s", ontology_error->message);
 						g_error_free (ontology_error);
 
 						tracker_data_ontology_free_seen (seen_classes);
@@ -4114,7 +4114,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (g_error_matches (ontology_error,
 				                     TRACKER_DATA_ONTOLOGY_ERROR,
 				                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-					g_debug ("\nUnsupported ontology change, replaying journal\n");
+					g_warning ("%s", ontology_error->message);
 					g_error_free (ontology_error);
 
 					tracker_data_ontology_free_seen (seen_classes);
@@ -4210,7 +4210,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (g_error_matches (ontology_error,
 			                     TRACKER_DATA_ONTOLOGY_ERROR,
 			                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-				g_debug ("\nUnsupported ontology change, replaying journal\n");
+				g_warning ("%s", ontology_error->message);
 				g_error_free (ontology_error);
 
 				tracker_data_ontology_free_seen (seen_classes);
