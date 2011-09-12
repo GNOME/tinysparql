@@ -39,6 +39,7 @@ rules_in_files = \
 	15-playlist.rule.in \
 	90-gstreamer-generic.rule.in \
 	90-text-generic.rule.in \
+	91-gstreamer-generic-dlna.rule.in \
 	92-xine-generic.rule.in \
 	93-mplayer-generic.rule.in \
 	93-totem-generic.rule.in
