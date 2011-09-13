@@ -5466,7 +5466,8 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
-	if (!tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
+	if (fs->priv->is_crawling ||
+	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_created) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_updated) ||

@@ -633,7 +633,7 @@ miner_needs_check (TrackerMiner *miner,
 {
 	/* Reasons to not mark ourselves as cleanly shutdown include:
 	 *
-	 * 1. Still have files to process in our queues.
+	 * 1. Still crawling or with files to process in our queues.
 	 * 2. We crash (out of our control usually anyway).
 	 * 3. At least one of the miners is PAUSED, we have
 	 *    to exclude the situations where the miner is
