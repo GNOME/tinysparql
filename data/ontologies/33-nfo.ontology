@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-09-20T17:00:00Z" .
+	nao:lastModified "2011-09-29T11:00:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -975,6 +975,15 @@ nfo:lastPlayedPosition a rdf:Property ;
         nrl:maxCardinality 1 ;
         rdfs:domain nfo:Media ;
         rdfs:range xsd:integer .
+
+# Bug upstream: http://sourceforge.net/apps/trac/oscaf/ticket/123
+nfo:containerStartTime a rdf:Property;
+        rdfs:label "Time offset within media container (seconds)" ;
+        rdfs:comment "Specifies the start offset of this resource within a larger file, such as a single song within a recording of a radio broadcast or a CD rip.";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nfo:Media ;
+        rdfs:range xsd:double.
+
 
 # Regions on images. These class and props need to be submitted to NEPOMUK
 nfo:RegionOfInterest a rdfs:Class;
