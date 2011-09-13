@@ -147,6 +147,8 @@ void                tracker_property_set_force_journal       (TrackerProperty   
                                                               gboolean              value);
 void                tracker_property_add_super_property      (TrackerProperty      *property,
                                                               TrackerProperty      *value);
+void                tracker_property_del_super_property      (TrackerProperty      *property,
+                                                              TrackerProperty      *value);
 TrackerProperty   **tracker_property_get_last_super_properties
                                                              (TrackerProperty      *property);
 void                tracker_property_reset_super_properties  (TrackerProperty      *property);

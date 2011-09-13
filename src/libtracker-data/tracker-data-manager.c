@@ -1393,6 +1393,7 @@ check_for_deleted_super_properties (TrackerProperty  *property,
                                     GError          **error)
 {
 	TrackerProperty **last_super_properties;
+	GList *to_remove = NULL;
 
 	last_super_properties = tracker_property_get_last_super_properties (property);
 
@@ -1418,17 +1419,39 @@ check_for_deleted_super_properties (TrackerProperty  *property,
 		}
 
 		if (!found) {
-			const gchar *ontology_path = "Unknown";
-			const gchar *subject = tracker_property_get_uri (property);
-
-			handle_unsupported_ontology_change (ontology_path,
-			                                    subject,
-			                                    "rdfs:subPropertyOf", "-", "-",
-			                                    error);
-			return;
+			to_remove = g_list_prepend (to_remove, last_super_property);
 		}
 
 		last_super_properties++;
+	}
+
+	if (to_remove) {
+		GList *copy = to_remove;
+
+		while (copy) {
+			GError *n_error = NULL;
+			TrackerProperty *prop_to_remove = copy->data;
+			const gchar *object = tracker_property_get_uri (prop_to_remove);
+			const gchar *subject = tracker_property_get_uri (property);
+
+			tracker_property_del_super_property (property, prop_to_remove);
+
+			tracker_data_delete_statement (NULL, subject,
+			                               RDFS_PREFIX "subPropertyOf",
+			                               object, &n_error);
+
+			if (!n_error) {
+				tracker_data_update_buffer_flush (&n_error);
+			}
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
+			copy = copy->next;
+		}
+		g_list_free (to_remove);
 	}
 }
 

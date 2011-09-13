@@ -1049,6 +1049,28 @@ tracker_property_add_super_property (TrackerProperty *property,
 }
 
 void
+tracker_property_del_super_property (TrackerProperty *property,
+                                     TrackerProperty *value)
+{
+	TrackerPropertyPrivate *priv;
+	guint i;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+	g_return_if_fail (TRACKER_IS_PROPERTY (value));
+
+	priv = GET_PRIV (property);
+
+	for (i = 0; priv->super_properties->len; i++) {
+		TrackerProperty *c_value = g_array_index (priv->super_properties, TrackerProperty*, i);
+
+		if (c_value == value) {
+			priv->super_properties = g_array_remove_index (priv->super_properties, i);
+			return;
+		}
+	}
+}
+
+void
 tracker_property_set_default_value (TrackerProperty *property,
                                     const gchar     *value)
 {
