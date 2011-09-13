@@ -120,8 +120,10 @@ handle_unsupported_ontology_change (const gchar  *ontology_path,
                                     const gchar  *attempted_new,
                                     GError      **error)
 {
+#ifndef DISABLE_JOURNAL
 	/* force reindex on restart */
 	tracker_db_manager_remove_version_file ();
+#endif /* DISABLE_JOURNAL */
 
 	g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
 	             TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
@@ -622,6 +624,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					/* Reset for a correct post and pre-check */
 					tracker_property_set_last_multiple_values (property, TRUE);
 					tracker_property_reset_domain_indexes (property);
+					tracker_property_reset_super_properties (property);
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
@@ -899,10 +902,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		is_new = tracker_property_get_is_new (property);
 		if (is_new != in_update) {
+			gboolean ignore = FALSE;
 			/* Detect unsupported ontology change (this needs a journal replay) */
 			if (in_update == TRUE && is_new == FALSE) {
 				TrackerProperty **super_properties = tracker_property_get_super_properties (property);
-				gboolean found = FALSE;
+				gboolean had = FALSE;
 
 				super_property = tracker_ontologies_get_property_by_uri (object);
 				if (super_property == NULL) {
@@ -912,16 +916,30 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 				while (*super_properties) {
 					if (*super_properties == super_property) {
-						found = TRUE;
+						ignore = TRUE;
+						g_debug ("%s: Property %s already has rdfs:subPropertyOf in %s",
+						         ontology_path, object, subject);
 						break;
 					}
 					super_properties++;
 				}
 
-				/* This doesn't detect removed rdfs:subPropertyOf situations, it
-				 * only checks whether no new ones are being added */
+				super_properties = tracker_property_get_last_super_properties (property);
+				if (super_properties) {
+					while (*super_properties) {
+						if (super_property == *super_properties) {
+							had = TRUE;
+						}
+						super_properties++;
+					}
+				}
 
-				if (found == FALSE) {
+				/* This doesn't detect removed rdfs:subPropertyOf situations, it
+				 * only checks whether no new ones are being added. For
+				 * detecting the removal of a rdfs:subPropertyOf, please check the
+				 * tracker_data_ontology_process_changes_pre_db stuff */
+
+				if (!ignore && !had) {
 					handle_unsupported_ontology_change (ontology_path,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:subPropertyOf",
@@ -930,6 +948,12 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					                                    error);
 				}
 			}
+
+			if (!ignore) {
+				super_property = tracker_ontologies_get_property_by_uri (object);
+				tracker_property_add_super_property (property, super_property);
+			}
+
 			return;
 		}
 
@@ -1363,6 +1387,74 @@ check_for_deleted_super_classes (TrackerClass  *class,
 	}
 }
 
+
+static void
+check_for_deleted_super_properties (TrackerProperty  *property,
+                                    GError          **error)
+{
+	TrackerProperty **last_super_properties;
+	GList *to_remove = NULL;
+
+	last_super_properties = tracker_property_get_last_super_properties (property);
+
+	if (!last_super_properties) {
+		return;
+	}
+
+	while (*last_super_properties) {
+		TrackerProperty *last_super_property = *last_super_properties;
+		gboolean found = FALSE;
+		TrackerProperty **super_properties;
+
+		super_properties = tracker_property_get_super_properties (property);
+
+		while (*super_properties) {
+			TrackerProperty *super_property = *super_properties;
+
+			if (last_super_property == super_property) {
+				found = TRUE;
+				break;
+			}
+			super_properties++;
+		}
+
+		if (!found) {
+			to_remove = g_list_prepend (to_remove, last_super_property);
+		}
+
+		last_super_properties++;
+	}
+
+	if (to_remove) {
+		GList *copy = to_remove;
+
+		while (copy) {
+			GError *n_error = NULL;
+			TrackerProperty *prop_to_remove = copy->data;
+			const gchar *object = tracker_property_get_uri (prop_to_remove);
+			const gchar *subject = tracker_property_get_uri (property);
+
+			tracker_property_del_super_property (property, prop_to_remove);
+
+			tracker_data_delete_statement (NULL, subject,
+			                               RDFS_PREFIX "subPropertyOf",
+			                               object, &n_error);
+
+			if (!n_error) {
+				tracker_data_update_buffer_flush (&n_error);
+			}
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
+			copy = copy->next;
+		}
+		g_list_free (to_remove);
+	}
+}
+
 static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
                                               GPtrArray  *seen_properties,
@@ -1386,8 +1478,17 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 
 	if (seen_properties) {
 		for (i = 0; i < seen_properties->len; i++) {
+			GError *n_error = NULL;
+
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
+
+			check_for_deleted_super_properties (property, &n_error);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
 
 			if (tracker_property_get_is_new (property) == FALSE &&
 			    last_multiple_values != tracker_property_get_multiple_values (property)) {
@@ -3838,7 +3939,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			/* Load ontology from database into memory */
 			db_get_static_data (iface, &internal_error);
-			check_ontology = TRUE;
+			check_ontology = (flags & TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY) == 0;
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
@@ -4019,8 +4120,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					                              uri_id_map,
 					                              &ontology_error);
 
-					if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
-						g_debug ("\nUnsupported ontology change, replaying journal\n");
+					if (g_error_matches (ontology_error,
+					                     TRACKER_DATA_ONTOLOGY_ERROR,
+					                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
+						g_warning ("%s", ontology_error->message);
 						g_error_free (ontology_error);
 
 						tracker_data_ontology_free_seen (seen_classes);
@@ -4029,22 +4132,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 						/* as we're processing an ontology change,
 						   transaction is guaranteed to be started */
-						tracker_data_commit_transaction (&internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-							tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-							tracker_db_manager_shutdown ();
-							tracker_ontologies_shutdown ();
-							if (!reloading) {
-								tracker_locale_shutdown ();
-							}
-							tracker_data_update_shutdown ();
-
-							return FALSE;
-						}
+						tracker_data_rollback_transaction ();
 
 						if (ontos_table) {
 							g_hash_table_unref (ontos_table);
@@ -4062,7 +4150,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						/* This also does tracker_locale_shutdown */
 						tracker_data_manager_shutdown ();
 
-						return tracker_data_manager_init (flags,
+						return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 						                                  test_schemas,
 						                                  first_time,
 						                                  journal_check,
@@ -4122,8 +4210,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				                              uri_id_map,
 				                              &ontology_error);
 
-				if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
-					g_debug ("\nUnsupported ontology change, replaying journal\n");
+				if (g_error_matches (ontology_error,
+				                     TRACKER_DATA_ONTOLOGY_ERROR,
+				                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
+					g_warning ("%s", ontology_error->message);
 					g_error_free (ontology_error);
 
 					tracker_data_ontology_free_seen (seen_classes);
@@ -4132,22 +4222,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					/* as we're processing an ontology change,
 					   transaction is guaranteed to be started */
-					tracker_data_commit_transaction (&internal_error);
-					if (internal_error) {
-						g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-						tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-						tracker_db_manager_shutdown ();
-						tracker_ontologies_shutdown ();
-						if (!reloading) {
-							tracker_locale_shutdown ();
-						}
-						tracker_data_update_shutdown ();
-
-						return FALSE;
-					}
+					tracker_data_rollback_transaction ();
 
 					if (ontos_table) {
 						g_hash_table_unref (ontos_table);
@@ -4165,7 +4240,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					/* This also does tracker_locale_shutdown */
 					tracker_data_manager_shutdown ();
 
-					return tracker_data_manager_init (flags,
+					return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 					                                  test_schemas,
 					                                  first_time,
 					                                  journal_check,
@@ -4231,8 +4306,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 			}
 
-			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
-				g_debug ("\nUnsupported ontology change, replaying journal\n");
+			if (g_error_matches (ontology_error,
+			                     TRACKER_DATA_ONTOLOGY_ERROR,
+			                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
+				g_warning ("%s", ontology_error->message);
 				g_error_free (ontology_error);
 
 				tracker_data_ontology_free_seen (seen_classes);
@@ -4241,22 +4318,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				/* as we're processing an ontology change,
 				   transaction is guaranteed to be started */
-				tracker_data_commit_transaction (&internal_error);
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-
-#ifndef DISABLE_JOURNAL
-					tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
-					tracker_db_manager_shutdown ();
-					tracker_ontologies_shutdown ();
-					if (!reloading) {
-						tracker_locale_shutdown ();
-					}
-					tracker_data_update_shutdown ();
-
-					return FALSE;
-				}
+				tracker_data_rollback_transaction ();
 
 				if (ontos_table) {
 					g_hash_table_unref (ontos_table);
@@ -4274,7 +4336,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				/* This also does tracker_locale_shutdown */
 				tracker_data_manager_shutdown ();
 
-				return tracker_data_manager_init (flags,
+				return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 				                                  test_schemas,
 				                                  first_time,
 				                                  journal_check,

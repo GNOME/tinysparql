@@ -70,6 +70,7 @@ struct _TrackerPropertyPrivate {
 
 	GArray        *super_properties;
 	GArray        *domain_indexes;
+	GArray        *last_super_properties;
 };
 
 static void property_finalize     (GObject      *object);
@@ -140,6 +141,7 @@ tracker_property_init (TrackerProperty *property)
 	priv->force_journal = TRUE;
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
+	priv->last_super_properties = NULL;
 
 	/* Make GET_PRIV working */
 	property->priv = priv;
@@ -170,6 +172,10 @@ property_finalize (GObject *object)
 
 	if (priv->secondary_index) {
 		g_object_unref (priv->secondary_index);
+	}
+
+	if (priv->last_super_properties) {
+		g_array_free (priv->last_super_properties, TRUE);
 	}
 
 	g_array_free (priv->super_properties, TRUE);
@@ -353,6 +359,37 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 
 	return (TrackerClass ** ) priv->domain_indexes->data;
 }
+
+TrackerProperty **
+tracker_property_get_last_super_properties (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
+	g_return_val_if_fail (property != NULL, NULL);
+
+	priv = GET_PRIV (property);
+
+	return (TrackerProperty **) (priv->last_super_properties ? priv->last_super_properties->data : NULL);
+}
+
+void
+tracker_property_reset_super_properties (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	if (priv->last_super_properties) {
+		g_array_free (priv->last_super_properties, TRUE);
+	}
+
+	priv->last_super_properties = priv->super_properties;
+	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+}
+
 
 TrackerClass *
 tracker_property_get_range (TrackerProperty *property)
@@ -1009,6 +1046,28 @@ tracker_property_add_super_property (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	g_array_append_val (priv->super_properties, value);
+}
+
+void
+tracker_property_del_super_property (TrackerProperty *property,
+                                     TrackerProperty *value)
+{
+	TrackerPropertyPrivate *priv;
+	guint i;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+	g_return_if_fail (TRACKER_IS_PROPERTY (value));
+
+	priv = GET_PRIV (property);
+
+	for (i = 0; priv->super_properties->len; i++) {
+		TrackerProperty *c_value = g_array_index (priv->super_properties, TrackerProperty*, i);
+
+		if (c_value == value) {
+			priv->super_properties = g_array_remove_index (priv->super_properties, i);
+			return;
+		}
+	}
 }
 
 void
