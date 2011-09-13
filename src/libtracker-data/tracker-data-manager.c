@@ -624,6 +624,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					/* Reset for a correct post and pre-check */
 					tracker_property_set_last_multiple_values (property, TRUE);
 					tracker_property_reset_domain_indexes (property);
+					tracker_property_reset_super_properties (property);
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
@@ -901,10 +902,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		is_new = tracker_property_get_is_new (property);
 		if (is_new != in_update) {
+			gboolean ignore = FALSE;
 			/* Detect unsupported ontology change (this needs a journal replay) */
 			if (in_update == TRUE && is_new == FALSE) {
 				TrackerProperty **super_properties = tracker_property_get_super_properties (property);
-				gboolean found = FALSE;
+				gboolean had = FALSE;
 
 				super_property = tracker_ontologies_get_property_by_uri (object);
 				if (super_property == NULL) {
@@ -914,16 +916,30 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 				while (*super_properties) {
 					if (*super_properties == super_property) {
-						found = TRUE;
+						ignore = TRUE;
+						g_debug ("%s: Property %s already has rdfs:subPropertyOf in %s",
+						         ontology_path, object, subject);
 						break;
 					}
 					super_properties++;
 				}
 
-				/* This doesn't detect removed rdfs:subPropertyOf situations, it
-				 * only checks whether no new ones are being added */
+				super_properties = tracker_property_get_last_super_properties (property);
+				if (super_properties) {
+					while (*super_properties) {
+						if (super_property == *super_properties) {
+							had = TRUE;
+						}
+						super_properties++;
+					}
+				}
 
-				if (found == FALSE) {
+				/* This doesn't detect removed rdfs:subPropertyOf situations, it
+				 * only checks whether no new ones are being added. For
+				 * detecting the removal of a rdfs:subPropertyOf, please check the
+				 * tracker_data_ontology_process_changes_pre_db stuff */
+
+				if (!ignore && !had) {
 					handle_unsupported_ontology_change (ontology_path,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:subPropertyOf",
@@ -932,6 +948,12 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					                                    error);
 				}
 			}
+
+			if (!ignore) {
+				super_property = tracker_ontologies_get_property_by_uri (object);
+				tracker_property_add_super_property (property, super_property);
+			}
+
 			return;
 		}
 
@@ -1365,6 +1387,51 @@ check_for_deleted_super_classes (TrackerClass  *class,
 	}
 }
 
+
+static void
+check_for_deleted_super_properties (TrackerProperty  *property,
+                                    GError          **error)
+{
+	TrackerProperty **last_super_properties;
+
+	last_super_properties = tracker_property_get_last_super_properties (property);
+
+	if (!last_super_properties) {
+		return;
+	}
+
+	while (*last_super_properties) {
+		TrackerProperty *last_super_property = *last_super_properties;
+		gboolean found = FALSE;
+		TrackerProperty **super_properties;
+
+		super_properties = tracker_property_get_super_properties (property);
+
+		while (*super_properties) {
+			TrackerProperty *super_property = *super_properties;
+
+			if (last_super_property == super_property) {
+				found = TRUE;
+				break;
+			}
+			super_properties++;
+		}
+
+		if (!found) {
+			const gchar *ontology_path = "Unknown";
+			const gchar *subject = tracker_property_get_uri (property);
+
+			handle_unsupported_ontology_change (ontology_path,
+			                                    subject,
+			                                    "rdfs:subPropertyOf", "-", "-",
+			                                    error);
+			return;
+		}
+
+		last_super_properties++;
+	}
+}
+
 static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
                                               GPtrArray  *seen_properties,
@@ -1388,8 +1455,17 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 
 	if (seen_properties) {
 		for (i = 0; i < seen_properties->len; i++) {
+			GError *n_error = NULL;
+
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
+
+			check_for_deleted_super_properties (property, &n_error);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
 
 			if (tracker_property_get_is_new (property) == FALSE &&
 			    last_multiple_values != tracker_property_get_multiple_values (property)) {
