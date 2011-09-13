@@ -823,7 +823,7 @@ extract_track_metadata (MetadataExtractor    *extractor,
 	tracker_sparql_builder_subject_iri (track_metadata, track_uri);
 
 	tracker_sparql_builder_predicate (track_metadata, "a");
-	tracker_sparql_builder_object (track_metadata, "nfo:MusicPiece");
+	tracker_sparql_builder_object (track_metadata, "nmm:MusicPiece");
 
 	extractor_apply_general_metadata (extractor,
 	                                  toc_entry->tag_list,
@@ -843,7 +843,7 @@ extract_track_metadata (MetadataExtractor    *extractor,
 	                                album_disc_uri);
 
 	if (toc_entry->duration > 0) {
-		tracker_sparql_builder_predicate (track_metadata, "nmm:duration");
+		tracker_sparql_builder_predicate (track_metadata, "nfo:duration");
 		tracker_sparql_builder_object_int64 (track_metadata, (gint64)toc_entry->duration);
 	}
 
