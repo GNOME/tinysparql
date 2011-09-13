@@ -801,83 +801,73 @@ extract_track_metadata (MetadataExtractor    *extractor,
                         TrackerTocEntry      *toc_entry,
                         const gchar          *file_url,
                         TrackerSparqlBuilder *preupdate,
+                        TrackerSparqlBuilder *postupdate,
                         const gchar          *graph,
                         const gchar          *album_uri,
                         const gchar          *album_disc_uri)
 {
-	TrackerSparqlBuilder *track_metadata;
 	gchar *track_performer_uri = NULL;
 	gchar *track_composer_uri = NULL;
 	gchar *track_uri;
-	gchar *track_url;
 
 	track_uri = tracker_sparql_get_uuid_urn ();
 
-	track_metadata = tracker_sparql_builder_new_update ();
+	tracker_sparql_builder_subject_iri (postupdate, track_uri);
 
-	tracker_sparql_builder_insert_open (track_metadata, NULL);
-	if (graph) {
-		tracker_sparql_builder_graph_open (track_metadata, graph);
-	}
-	
-	tracker_sparql_builder_subject_iri (track_metadata, track_uri);
-
-	tracker_sparql_builder_predicate (track_metadata, "a");
-	tracker_sparql_builder_object (track_metadata, "nmm:MusicPiece");
+	tracker_sparql_builder_predicate (postupdate, "a");
+	tracker_sparql_builder_object (postupdate, "nmm:MusicPiece");
+	tracker_sparql_builder_object (postupdate, "nfo:Audio");
 
 	extractor_apply_general_metadata (extractor,
 	                                  toc_entry->tag_list,
 	                                  file_url,
 	                                  preupdate,
-	                                  track_metadata,
+	                                  postupdate,
 	                                  graph,
 	                                  &track_performer_uri,
 	                                  &track_composer_uri);
 
 	extractor_apply_audio_metadata (extractor,
 	                                toc_entry->tag_list,
-	                                track_metadata,
+	                                postupdate,
 	                                track_performer_uri,
 	                                track_composer_uri,
 	                                album_uri,
 	                                album_disc_uri);
 
 	if (toc_entry->duration > 0) {
-		tracker_sparql_builder_predicate (track_metadata, "nfo:duration");
-		tracker_sparql_builder_object_int64 (track_metadata, (gint64)toc_entry->duration);
+		tracker_sparql_builder_predicate (postupdate, "nfo:duration");
+		tracker_sparql_builder_object_int64 (postupdate, (gint64)toc_entry->duration);
 	}
 
-	track_url = g_strdup_printf ("%s#%lf", file_url, toc_entry->start);
-	tracker_sparql_builder_predicate (track_metadata, "nie:url");
-	tracker_sparql_builder_object_unvalidated (track_metadata, track_url);
+	tracker_sparql_builder_predicate (postupdate, "nfo:containerStartTime");
+	tracker_sparql_builder_object_double (postupdate, toc_entry->start);
 
-	if (graph) {
-		tracker_sparql_builder_graph_close (track_metadata);
-	}
-	tracker_sparql_builder_insert_close (track_metadata);
-
-	tracker_sparql_builder_append (preupdate,
-	                               tracker_sparql_builder_get_result (track_metadata));
-
-	g_object_unref (track_metadata);
+	/* Link the track to its container file. Since the file might not have been
+	 * inserted yet, we use a WHERE clause based on its nie:url to refer to it.
+	 */
+	tracker_sparql_builder_predicate (postupdate, "nie:isStoredAs");
+	tracker_sparql_builder_object_variable (postupdate, "file");
 
 	g_free (track_performer_uri);
 	g_free (track_composer_uri);
 
 	g_free (track_uri);
-	g_free (track_url);
 }
 
 static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *file_url,
                   TrackerSparqlBuilder   *preupdate,
+                  TrackerSparqlBuilder   *postupdate,
                   TrackerSparqlBuilder   *metadata,
                   gchar                 **album_artist,
                   gchar                 **album_title,
                   const gchar            *graph)
 {
 	g_return_if_fail (extractor != NULL);
+	g_return_if_fail (preupdate != NULL);
+	g_return_if_fail (postupdate != NULL);
 	g_return_if_fail (metadata != NULL);
 
 	if (extractor->toc)
@@ -967,15 +957,36 @@ extract_metadata (MetadataExtractor      *extractor,
 			                                album_uri,
 			                                album_disc_uri);
 
+			/* If the audio file contains multiple tracks, we create the tracks
+			 * as abstract information element types and relate them to the
+			 * concrete nfo:FileDataObject using nie:isStoredAs.
+			 */
 			if (extractor->toc && g_list_length (extractor->toc->entry_list) > 1) {
+				tracker_sparql_builder_insert_open (postupdate, NULL);
+				if (graph) {
+					tracker_sparql_builder_graph_open (postupdate, graph);
+				}
+
 				for (node=extractor->toc->entry_list; node; node=node->next)
 					extract_track_metadata (extractor,
 					                        node->data,
 					                        file_url,
 					                        preupdate,
+					                        postupdate,
 					                        graph,
 					                        album_uri,
 					                        album_disc_uri);
+
+				if (graph) {
+					tracker_sparql_builder_graph_close (postupdate);
+				}
+				tracker_sparql_builder_insert_close (postupdate);
+
+				tracker_sparql_builder_where_open (postupdate);
+				tracker_sparql_builder_subject_variable (postupdate, "file");
+				tracker_sparql_builder_predicate (postupdate, "nie:url");
+				tracker_sparql_builder_object_string (postupdate, file_url);
+				tracker_sparql_builder_where_close (postupdate);
 			}
 		}
 
@@ -1757,6 +1768,7 @@ tagreadbin_init_and_run (MetadataExtractor *extractor,
 static void
 tracker_extract_gstreamer (const gchar          *uri,
                            TrackerSparqlBuilder *preupdate,
+                           TrackerSparqlBuilder *postupdate,
                            TrackerSparqlBuilder *metadata,
                            ExtractMime           type,
                            const gchar          *graph)
@@ -1808,7 +1820,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	album_artist = NULL;
 	album_title = NULL;
 
-	extract_metadata (extractor, uri, preupdate, metadata, &album_artist, &album_title, graph);
+	extract_metadata (extractor, uri, preupdate, postupdate, metadata, &album_artist, &album_title, graph);
 
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
@@ -1843,7 +1855,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata, *preupdate;
+	TrackerSparqlBuilder *metadata, *preupdate, *postupdate;
 	const gchar *mimetype;
 	GFile *file;
 	gchar *uri;
@@ -1852,6 +1864,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	graph = tracker_extract_info_get_graph (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
+	postupdate = tracker_extract_info_get_postupdate_builder (info);
 	mimetype = tracker_extract_info_get_mimetype (info);
 
 	file = tracker_extract_info_get_file (info);
@@ -1859,23 +1872,23 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	if (g_str_has_prefix (mimetype, "dlna/")) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph);
 	} else
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 
 	if (strcmp (mimetype, "image/svg+xml") == 0) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_SVG, graph);
 	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
 	           strcmp (mimetype, "video/mp4") == 0 ||
 	           strcmp (mimetype, "video/x-ms-asf") == 0 ||
 	           strcmp (mimetype, "application/vnd.rn-realmedia") == 0) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph);
 	} else if (g_str_has_prefix (mimetype, "audio/")) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_AUDIO, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_AUDIO, graph);
 	} else if (g_str_has_prefix (mimetype, "video/")) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_VIDEO, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_VIDEO, graph);
 	} else if (g_str_has_prefix (mimetype, "image/")) {
-		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_IMAGE, graph);
 	} else {
 		g_free (uri);
 		return FALSE;
