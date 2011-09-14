@@ -1306,17 +1306,8 @@ tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
                 }
 
                 if (region->link_uri && region->link_class) {
-                        tracker_sparql_builder_insert_open (preupdate, NULL);
-                        tracker_sparql_builder_subject_variable (preupdate, "region");
                         tracker_sparql_builder_predicate (preupdate, "nfo:roiRefersTo");
                         tracker_sparql_builder_object_iri (preupdate, region->link_uri);
-                        tracker_sparql_builder_insert_close (preupdate);
-
-                        tracker_sparql_builder_where_open (preupdate);
-                        tracker_sparql_builder_subject_iri (preupdate, region->link_uri);
-                        tracker_sparql_builder_predicate (preupdate, "a");
-                        tracker_sparql_builder_object (preupdate, region->link_class);
-                        tracker_sparql_builder_where_close (preupdate);
                 }
 
 		if (graph) {
