@@ -3697,7 +3697,7 @@ check_item_queues (TrackerMinerFS *fs,
 			g_debug ("  Deleting previous unhandled UPDATED event");
 		}
 
-		if (tracker_priority_queue_foreach_remove (fs->priv->items_updated,
+		if (tracker_priority_queue_foreach_remove (fs->priv->items_created,
 		                                           (GEqualFunc) g_file_equal,
 		                                           file,
 		                                           (GDestroyNotify) g_object_unref)) {
