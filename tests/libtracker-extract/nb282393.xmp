@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about=""
+    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+    xmlns:tiff="http://ns.adobe.com/tiff/1.0/"
+    xmlns:exif="http://ns.adobe.com/exif/1.0/"
+    xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/"
+    xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"
+    xmlns:nco="http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"
+    xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmp:CreateDate="2011-09-11T11:29:48"
+   xmp:ModifyDate="2011-09-13T15:33:39"
+   xmp:Rating="0"
+   tiff:NativeDigest="256,257,258,259,262,274,277,284,530,531,282,283,296,301,318,319,529,532,306,270,271,272,305,315,33432;7ED55293F2FB266034F7E47E457379EF"
+   tiff:Orientation="1"
+   tiff:YCbCrPositioning="2"
+   tiff:XResolution="72/1"
+   tiff:YResolution="72/1"
+   tiff:ResolutionUnit="2"
+   tiff:DateTime="2011-09-13T15:33:39"
+   tiff:Make="Canon"
+   tiff:Model="Canon PowerShot S95"
+   exif:NativeDigest="36864,40960,40961,37121,37122,40962,40963,37510,40964,36867,36868,33434,33437,34850,34852,34855,34856,37377,37378,37379,37380,37381,37382,37383,37384,37385,37386,37396,41483,41484,41486,41487,41488,41492,41493,41495,41728,41729,41730,41985,41986,41987,41988,41989,41990,41991,41992,41993,41994,41995,41996,42016,0,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,22,23,24,25,26,27,28,30;47F59181CDFD6A141145DA200B8C041D"
+   exif:ExifVersion="0230"
+   exif:FlashpixVersion="0100"
+   exif:ColorSpace="1"
+   exif:CompressedBitsPerPixel="3/1"
+   exif:PixelXDimension="150"
+   exif:PixelYDimension="200"
+   exif:DateTimeOriginal="2011-09-11T11:29:48"
+   exif:DateTimeDigitized="2011-09-11T11:29:48"
+   exif:ExposureTime="1/800"
+   exif:FNumber="40/10"
+   exif:ShutterSpeedValue="309/32"
+   exif:ApertureValue="128/32"
+   exif:ExposureBiasValue="0/3"
+   exif:MaxApertureValue="116/32"
+   exif:MeteringMode="5"
+   exif:FocalLength="12845/1000"
+   exif:FocalPlaneXResolution="3648000/292"
+   exif:FocalPlaneYResolution="2736000/219"
+   exif:FocalPlaneResolutionUnit="2"
+   exif:SensingMethod="2"
+   exif:FileSource="3"
+   exif:CustomRendered="0"
+   exif:ExposureMode="0"
+   exif:WhiteBalance="0"
+   exif:DigitalZoomRatio="3648/3648"
+   exif:SceneCaptureType="0">
+   <exif:Flash
+    exif:Fired="False"
+    exif:Return="0"
+    exif:Mode="2"
+    exif:Function="False"
+    exif:RedEyeMode="False"/>
+   <exif:ComponentsConfiguration>
+    <rdf:Seq>
+     <rdf:li>1</rdf:li>
+     <rdf:li>2</rdf:li>
+     <rdf:li>3</rdf:li>
+     <rdf:li>0</rdf:li>
+    </rdf:Seq>
+   </exif:ComponentsConfiguration>
+   <exif:UserComment>
+    <rdf:Alt>
+     <rdf:li xml:lang="x-default"/>
+    </rdf:Alt>
+   </exif:UserComment>
+   <exif:ISOSpeedRatings>
+    <rdf:Seq>
+     <rdf:li>80</rdf:li>
+    </rdf:Seq>
+   </exif:ISOSpeedRatings>
+   <mwg-rs:Regions rdf:parseType="Resource">
+    <mwg-rs:RegionList>
+     <rdf:Bag>
+      <rdf:li>
+       <rdf:Description
+        mwg-rs:Name=" "
+        mwg-rs:Type="">
+       <mwg-rs:Area
+        stArea:x="0.433333"
+        stArea:y="0.370000"
+        stArea:h="0.440000"
+        stArea:w="0.586667"/>
+       <mwg-rs:Extensions
+        nco:PersonContact="urn:uuid:840a3c05-6cc6-48a1-bb56-fc50fae3345a"/>
+       </rdf:Description>
+      </rdf:li>
+     </rdf:Bag>
+    </mwg-rs:RegionList>
+    <mwg-rs:AppliedToDimensions
+     stDim:h="200"
+     stDim:w="150"/>
+   </mwg-rs:Regions>
+   <dc:description>
+    <rdf:Alt>
+     <rdf:li xml:lang="x-default">                               </rdf:li>
+    </rdf:Alt>
+   </dc:description>
+  </rdf:Description>
+ </rdf:RDF>
+</x:xmpmeta>

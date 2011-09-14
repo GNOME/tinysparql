@@ -2,7 +2,7 @@
       xmlns:x="adobe:ns:meta/"
       xmlns:exif="http://ns.adobe.com/exif/1.0/"
       xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#"
-      xmlns:stArea="http://ns.adobe.com/xap/1.0/sType/Area#"
+      xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"
       xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/">
      <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
        <rdf:Description rdf:about="">
