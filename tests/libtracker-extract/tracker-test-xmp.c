@@ -539,6 +539,43 @@ test_xmp_regions_nb282393 ()
 	tracker_xmp_free (data);
 }
 
+void
+test_xmp_regions_nb282393_2 ()
+{
+	TrackerXmpData *data;
+	TrackerXmpRegion *region;
+
+	GFile *f;
+	gchar *contents;
+	gsize  size;
+	gchar *filepath;
+
+	filepath = g_build_filename (TOP_SRCDIR, "tests", "libtracker-extract", "nb282393_simple.xmp", NULL);
+	f = g_file_new_for_path (filepath);
+	g_assert(g_file_load_contents (f, NULL, &contents, &size, NULL, NULL));
+	g_object_unref (f);
+	g_free (filepath);
+
+	data = tracker_xmp_new (contents, size, "test://file");
+
+	g_assert_cmpint (1, ==, g_slist_length (data->regions));
+
+	/* Regions are stacked while parsing.*/
+	region = g_slist_nth_data (data->regions, 0);
+	g_assert_cmpstr (region->x, ==, "0.440000");
+	g_assert_cmpstr (region->y, ==, "0.365000");
+	g_assert_cmpstr (region->width, ==, "0.586667");
+	g_assert_cmpstr (region->height, ==, "0.440000");
+	g_assert_cmpstr (region->title, ==, " ");
+
+        g_assert_cmpstr (region->link_class, ==, "nco:PersonContact");
+        g_assert_cmpstr (region->link_uri, ==, "urn:uuid:840a3c05-6cc6-48a1-bb56-fc50fae3345a");
+
+	//debug_print_sparql (data);
+
+	tracker_xmp_free (data);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -573,6 +610,9 @@ main (int    argc,
 
         g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions_crash_nb282393",
                          test_xmp_regions_nb282393);
+
+        g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions_crash_nb282393_2",
+                         test_xmp_regions_nb282393_2);
 
 	g_test_add_func ("/libtracker-extract/tracker-xmp/xmp_regions_ns_prefix",
 	                 test_xmp_regions_ns_prefix);
