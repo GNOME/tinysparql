@@ -292,8 +292,6 @@ iterate_simple_qual (XmpPtr          xmp,
 static const gchar *
 fix_orientation (const gchar *orientation)
 {
-	g_debug ("Checking orientation");
-
 	if (orientation && g_ascii_strcasecmp (orientation, "1") == 0) {
 		return "nfo:orientation-top";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "2") == 0) {
