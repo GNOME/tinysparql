@@ -32,6 +32,8 @@
 #define NS_ST_DIM "http://ns.adobe.com/xap/1.0/sType/Dimensions#"
 #define NS_ST_AREA "http://ns.adobe.com/xmp/sType/Area#"
 
+#define REGION_LIST_REGEX "^mwg-rs:Regions/mwg-rs:RegionList\\[(\\d+)\\]"
+
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
@@ -313,6 +315,38 @@ fix_orientation (const gchar *orientation)
 	return  "nfo:orientation-top";
 }
 
+/*
+ * In a path like: mwg-rs:Regions/mwg-rs:RegionList[2]/mwg-rs:Area/stArea:x
+ * this function returns the "2" from RegionsList[2] 
+ *  Note: The first element from a list is 1
+ */
+static gint
+get_region_counter (const gchar *path) 
+{
+        static GRegex *regex = NULL;
+        GMatchInfo    *match_info;
+        gchar         *match;
+        gint           result;
+        
+        if (!regex) {
+                regex = g_regex_new (REGION_LIST_REGEX, 0, 0, NULL);
+        }
+
+        if (!g_regex_match (regex, path, 0, &match_info)) {
+                return -1;
+        }
+
+        match = g_match_info_fetch (match_info, 1);
+        result =  g_strtod (match, NULL);
+
+        g_free (match);
+        g_match_info_free (match_info);
+
+        return result;
+}
+
+
+
 /* We have a simple element. Add any data we know about to the
  * hash table.
  */
@@ -498,9 +532,19 @@ iterate_simple (const gchar    *uri,
 	} else if (g_ascii_strcasecmp (schema, NS_XMP_REGIONS) == 0) {
                 if (g_str_has_prefix (path, "mwg-rs:Regions/mwg-rs:RegionList")) {
 	                TrackerXmpRegion *current_region;
+                        gint              position = get_region_counter (path);
 
-	                /* We always prepend the regions for each new one created. */
-                        current_region = g_slist_nth_data (data->regions, 0);
+                        if (position == -1) {
+                                g_free (name);
+                                return;
+                        }
+
+                        /* First time a property appear for a region, we create the region */
+                        current_region = g_slist_nth_data (data->regions, position-1);
+                        if (current_region == NULL) {
+                                current_region = g_slice_new0 (TrackerXmpRegion);
+                                data->regions = g_slist_append (data->regions, current_region);
+                        }
 
                         propname = g_strdup (strrchr (path, '/') + 1);
 
@@ -538,21 +582,6 @@ iterate_simple (const gchar    *uri,
 	g_free (name);
 }
 
-static void
-iterate_complex_element (TrackerXmpData *data,
-                         const gchar    *schema,
-                         const gchar    *path)
-{
-        TrackerXmpRegion *region;
-
-        /* When we go into an Area, we put a region on the stack
-         * further statements will put values in that region.
-         */
-        if (g_str_has_suffix (path, "mwg-rs:Area")) {
-                region = g_slice_new0 (TrackerXmpRegion);
-                data->regions = g_slist_prepend (data->regions, region);
-        }
-}
 
 /* Iterate over the XMP, dispatching to the appropriate element type
  * (simple, simple w/qualifiers, or an array) handler.
@@ -598,8 +627,6 @@ iterate (XmpPtr          xmp,
                                         xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
                                 }
 			}
-		} else {
-			iterate_complex_element (data, schema, path);
 		}
 	}
 
