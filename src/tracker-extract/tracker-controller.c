@@ -95,6 +95,7 @@ static const gchar *introspection_xml =
 	"      <arg type='s' name='mime' direction='in' />"
 	"      <arg type='s' name='graph' direction='in' />"
 	"      <arg type='s' name='preupdate' direction='out' />"
+	"      <arg type='s' name='postupdate' direction='out' />"
 	"      <arg type='s' name='embedded' direction='out' />"
 	"      <arg type='s' name='where' direction='out' />"
 	"    </method>"
@@ -442,11 +443,14 @@ get_metadata_cb (GObject      *object,
 	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
 	if (info) {
-		const gchar *preupdate, *statements, *where;
+		const gchar *preupdate, *postupdate, *statements, *where;
 		TrackerSparqlBuilder *builder;
 
 		builder = tracker_extract_info_get_preupdate_builder (info);
 		preupdate = tracker_sparql_builder_get_result (builder);
+
+		builder = tracker_extract_info_get_postupdate_builder (info);
+		postupdate = tracker_sparql_builder_get_result (builder);
 
 		builder = tracker_extract_info_get_metadata_builder (info);
 		statements = tracker_sparql_builder_get_result (builder);
@@ -455,13 +459,14 @@ get_metadata_cb (GObject      *object,
 
 		if (statements && *statements) {
 			g_dbus_method_invocation_return_value (data->invocation,
-			                                       g_variant_new ("(sss)",
+			                                       g_variant_new ("(ssss)",
 			                                                      preupdate ? preupdate : "",
+			                                                      postupdate ? postupdate : "",
 			                                                      statements,
 			                                                      where ? where : ""));
 		} else {
 			g_dbus_method_invocation_return_value (data->invocation,
-			                                       g_variant_new ("(sss)", "", "", ""));
+			                                       g_variant_new ("(ssss)", "", "", "", ""));
 		}
 
 		tracker_dbus_request_end (data->request, NULL);
@@ -556,7 +561,7 @@ get_metadata_fast_cb (GObject      *object,
 		GOutputStream *unix_output_stream;
 		GOutputStream *buffered_output_stream;
 		GDataOutputStream *data_output_stream;
-		const gchar *preupdate, *statements, *where;
+		const gchar *preupdate, *postupdate, *statements, *where;
 		TrackerSparqlBuilder *builder;
 		GError *error = NULL;
 
@@ -575,6 +580,9 @@ get_metadata_fast_cb (GObject      *object,
 		builder = tracker_extract_info_get_preupdate_builder (info);
 		preupdate = tracker_sparql_builder_get_result (builder);
 
+		builder = tracker_extract_info_get_postupdate_builder (info);
+		postupdate = tracker_sparql_builder_get_result (builder);
+
 		builder = tracker_extract_info_get_metadata_builder (info);
 		statements = tracker_sparql_builder_get_result (builder);
 
@@ -585,6 +593,20 @@ get_metadata_fast_cb (GObject      *object,
 			                                 preupdate ? preupdate : "",
 			                                 NULL,
 			                                 &error);
+
+			if (!error) {
+				g_data_output_stream_put_byte (data_output_stream,
+				                               0,
+				                               NULL,
+				                               &error);
+			}
+
+			if (!error) {
+				g_data_output_stream_put_string (data_output_stream,
+				                                 postupdate ? postupdate : "",
+				                                 NULL,
+				                                 &error);
+			}
 
 			if (!error) {
 				g_data_output_stream_put_byte (data_output_stream,

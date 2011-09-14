@@ -524,10 +524,10 @@ static gboolean
 get_metadata (TrackerExtractTask *task)
 {
 	TrackerExtractInfo *info;
-	TrackerSparqlBuilder *preupdate, *statements;
+	TrackerSparqlBuilder *preupdate, *postupdate, *statements;
 	gchar *where = NULL;
 
-	preupdate = statements = NULL;
+	preupdate = postupdate = statements = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p --> File:'%s' - Extracted",
@@ -557,6 +557,10 @@ get_metadata (TrackerExtractTask *task)
 	} else {
 		if (preupdate) {
 			g_object_unref (preupdate);
+		}
+
+		if (postupdate) {
+			g_object_unref (postupdate);
 		}
 
 		if (statements) {
@@ -796,7 +800,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	while (task->cur_module && task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
 		    get_file_metadata (task, &info)) {
-			const gchar *preupdate_str, *statements_str, *where;
+			const gchar *preupdate_str, *postupdate_str, *statements_str, *where;
 			TrackerSparqlBuilder *builder;
 
 			no_modules = FALSE;
@@ -814,6 +818,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 				preupdate_str = tracker_sparql_builder_get_result (builder);
 			}
 
+			builder = tracker_extract_info_get_postupdate_builder (info);
+
+			if (tracker_sparql_builder_get_length (builder) > 0) {
+				postupdate_str = tracker_sparql_builder_get_result (builder);
+			}
+
 			where = tracker_extract_info_get_where_clause (info);
 
 			g_print ("\n");
@@ -824,6 +834,8 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			         statements_str ? statements_str : "");
 			g_print ("SPARQL where clause:\n--\n%s--\n\n",
 			         where ? where : "");
+			g_print ("SPARQL post-update:\n--\n%s--\n\n",
+			         postupdate_str ? postupdate_str : "");
 
 			tracker_extract_info_unref (info);
 			break;
