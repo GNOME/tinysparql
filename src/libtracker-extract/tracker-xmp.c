@@ -30,7 +30,7 @@
 
 #define NS_XMP_REGIONS "http://www.metadataworkinggroup.com/schemas/regions/"
 #define NS_ST_DIM "http://ns.adobe.com/xap/1.0/sType/Dimensions#"
-#define NS_ST_AREA "http://ns.adobe.com/xap/1.0/sType/Area#"
+#define NS_ST_AREA "http://ns.adobe.com/xmp/sType/Area#"
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
