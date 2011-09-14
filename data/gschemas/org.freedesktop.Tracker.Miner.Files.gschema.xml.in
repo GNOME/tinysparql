@@ -98,7 +98,7 @@ Boston, MA  02110-1301, USA.
     <key name="index-on-battery" type="b">
       <_summary>Index when running on battery</_summary>
       <_description>Set to true to index while running on battery</_description>
-      <default>false</default>
+      <default>true</default>
     </key>
 
     <key name="index-on-battery-first-time" type="b">
