@@ -83,7 +83,7 @@ Boston, MA  02110-1301, USA.
     <key name="index-removable-devices" type="b">
       <_summary>Index removable devices</_summary>
       <_description>Set to true to enable indexing mounted directories for removable devices.</_description>
-      <default>true</default>
+      <default>false</default>
     </key>
 
     <key name="index-optical-discs" type="b">
