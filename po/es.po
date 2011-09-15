@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-08-31 10:36+0000\n"
-"PO-Revision-Date: 2011-09-01 10:03+0200\n"
+"POT-Creation-Date: 2011-09-01 17:55+0000\n"
+"PO-Revision-Date: 2011-09-15 10:35+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -635,47 +635,48 @@ msgstr "El objeto de datos «%s» no existe"
 
 #: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr "El directorio es elegible para ser escrutado (según las reglas)"
+msgstr "La carpeta es elegible para ser escrutada (según las reglas)"
 
 #: ../src/miners/fs/tracker-main.c:472
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr "El directorio NO es elegible para ser escrutado (según las reglas)"
+msgstr "La carpeta NO es elegible para ser escrutada (según las reglas)"
 
 #: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr "El directorio es elegible para ser escrutado (según el contenido)"
+msgstr "La carpeta es elegible para ser escrutada (según el contenido)"
 
 #: ../src/miners/fs/tracker-main.c:493
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "El directorio NO es elegible para ser escrutado (según el contenido)"
+msgstr "La carpeta NO es elegible para ser escrutada (según el contenido)"
 
 #: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr "El directorio es elegible para ser escrutado (según la configuración)"
+msgstr "La carpeta es elegible para ser monitorizada (según la configuración)"
 
 #: ../src/miners/fs/tracker-main.c:541
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
-"El directorio NO es elegible para ser escrutado (según la configuración)"
+"La carpeta NO es elegible para ser monitorizada (según la configuración)"
 
 #: ../src/miners/fs/tracker-main.c:545
 msgid "File is eligible to be monitored (based on config)"
-msgstr "El archivo es elegible para ser escrutado (según la configuración)"
+msgstr "El archivo es elegible para ser monitorizado (según la configuración)"
 
 #: ../src/miners/fs/tracker-main.c:546
 msgid "File is NOT eligible to be monitored (based on config)"
-msgstr "El archivo NO es elegible para ser escrutado (según la configuración)"
+msgstr ""
+"El archivo NO es elegible para ser monitoririzado (según la configuración)"
 
 #: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
-"El archivo o directorio es elegible para ser monitorizado (según la "
+"El archivo o carpeta es elegible para ser monitorizada (según la "
 "configuración)"
 
 #: ../src/miners/fs/tracker-main.c:551
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
-"El archivo o directorio NO es elegible para ser monitorizado (según la "
+"El archivo o carpeta NO es elegible para ser monitorizada (según la "
 "configuración)"
 
 #: ../src/miners/fs/tracker-main.c:566
@@ -783,7 +784,7 @@ msgstr "Búsqueda e indexado"
 #: ../src/tracker-preferences/tracker-preferences.vala:119
 #: ../src/tracker-preferences/tracker-preferences.vala:120
 msgid "Directory"
-msgstr "Directorio"
+msgstr "Carpeta"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:121
 #: ../src/tracker-needle/tracker-view.vala:180
@@ -816,7 +817,7 @@ msgstr "Introducir un valor"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:389
 msgid "Select directory"
-msgstr "Seleccionar directorio"
+msgstr "Seleccionar carpeta"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:497
 #: ../src/tracker-needle/tracker-needle.vala:622
@@ -840,15 +841,15 @@ msgstr "Día(s)"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "Directories"
-msgstr "Directorios"
+msgstr "Carpetas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Directories (no sub-directories are indexed):"
-msgstr "Directorios (no se indexan los subdirectorios):"
+msgstr "Carpetas (no se indexan las subcarpetas):"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "Directories:"
-msgstr "Directorios:"
+msgstr "Carpetas:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "Drop removable device from database after:"
@@ -885,7 +886,7 @@ msgid ""
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Aquí se pueden usar patrones de coincidencia, por ejemplo: «*bar*».\n"
-"Esto se suele usar para ignorar directorios como *~, *.o, *.la, etc"
+"Esto se suele usar para ignorar carpetas como *~, *.o, *.la, etc"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Ignored Content"
@@ -1338,7 +1339,6 @@ msgstr "no se proporcionó ningún error"
 
 #: ../src/tracker-control/tracker-control-general.c:323
 #, c-format
-#| msgid "Could not get status, manager could not be created, %s"
 msgid "Could not get log verbosity, manager could not be created, %s"
 msgstr "No se pudo obtener registro detallado, no se pudo crear el gestor, %s"
 
@@ -1359,7 +1359,6 @@ msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "No puede usar los argumentos «--hard-reset» y «--soft-reset» juntos"
 
 #: ../src/tracker-control/tracker-control-general.c:566
-#| msgid "You can not use the --kill and --terminate arguments together"
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
@@ -1405,7 +1404,6 @@ msgstr "Quitando archivos de configuración…"
 
 #: ../src/tracker-control/tracker-control-general.c:846
 #: ../src/tracker-control/tracker-control-general.c:888
-#| msgid "Documents"
 msgid "Components"
 msgstr "Componentes"
 
@@ -1668,12 +1666,12 @@ msgstr "Obteniendo…"
 #: ../src/tracker-control/tracker-control-status.c:54
 #, c-format
 msgid "Crawling single directory '%s'"
-msgstr "Arrastrándose sólo por el directorio «%s»"
+msgstr "Arrastrándose sólo por la carpeta «%s»"
 
 #: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling recursively directory '%s'"
-msgstr "Arrastrándose recursivamente por el directorio «%s»"
+msgstr "Arrastrándose recursivamente por la carpeta «%s»"
 
 #: ../src/tracker-control/tracker-control-status.c:56
 msgid "Paused"
