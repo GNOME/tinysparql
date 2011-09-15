@@ -3,13 +3,6 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
-<!ENTITY tracker-overview SYSTEM "overview.sgml">
-<!ENTITY tracker-data SYSTEM "xml/tracker-data.xml">
-<!ENTITY tracker-extract-info SYSTEM "xml/tracker-extract-info.xml">
-<!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
-<!ENTITY tracker-xmp SYSTEM "xml/tracker-xmp.xml">
-<!ENTITY tracker-iptc SYSTEM "xml/tracker-iptc.xml">
-<!ENTITY tracker-exif SYSTEM "xml/tracker-exif.xml">
 ]>
 <book id="index">
   <bookinfo>
@@ -24,7 +17,7 @@
   </bookinfo>
 
   <!-- The Library Overview -->
-  &tracker-overview;
+  <xi:include href="overview.sgml"/>
 
   <!-- The API Reference -->
   <part id="libtracker-extract-reference">
@@ -37,16 +30,16 @@
 
     <chapter>
       <title>Core API</title>
-      &tracker-data;
-      &tracker-extract-info;
-      &tracker-utils;
+      <xi:include href="xml/tracker-data.xml"/>
+      <xi:include href="xml/tracker-extract-info.xml"/>
+      <xi:include href="xml/tracker-utils.xml"/>
     </chapter>
 
     <chapter>
       <title>Common Embedded Support API</title>
-      &tracker-xmp;
-      &tracker-iptc;
-      &tracker-exif;
+      <xi:include href="xml/tracker-xmp.xml"/>
+      <xi:include href="xml/tracker-iptc.xml"/>
+      <xi:include href="xml/tracker-exif.xml"/>
     </chapter>
 
     <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
