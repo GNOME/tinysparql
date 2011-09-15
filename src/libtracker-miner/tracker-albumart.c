@@ -89,7 +89,7 @@ on_query_finished (GObject      *source_object,
 		g_hash_table_replace (table, target, target);
 
 		/* Also add the file to which the symlinks are made */
-		tracker_albumart_get_path (" ",
+		tracker_albumart_get_path (NULL,
 		                           album,
 		                           "album", NULL,
 		                           &album_path, NULL);
