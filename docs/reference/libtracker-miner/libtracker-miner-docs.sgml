@@ -1,16 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
-<!ENTITY tracker-overview SYSTEM "overview.sgml">
-<!ENTITY tracker-miner SYSTEM "xml/tracker-miner.xml">
-<!ENTITY tracker-miner-fs SYSTEM "xml/tracker-miner-fs.xml">
-<!ENTITY tracker-miner-manager SYSTEM "xml/tracker-miner-manager.xml">
-<!ENTITY tracker-miner-web SYSTEM "xml/tracker-miner-web.xml">
-<!ENTITY tracker-network-provider SYSTEM "xml/tracker-network-provider.xml">
-<!ENTITY tracker-password-provider SYSTEM "xml/tracker-password-provider.xml">
-<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
-<!ENTITY tracker-thumbnailer SYSTEM "xml/tracker-thumbnailer.xml">
 ]>
 <book id="index">
   <bookinfo>
@@ -25,7 +17,7 @@
   </bookinfo>
 
   <!-- The Library Overview -->
-  &tracker-overview;
+  <xi:include href="overview.sgml"/>
 
   <!-- The API Reference -->
   <part id="libtracker-miner-reference">
@@ -38,30 +30,32 @@
 
     <chapter>
       <title>Base abstract miners</title>
-      &tracker-miner;
-      &tracker-miner-web;
+      <xi:include href="xml/tracker-miner.xml"/>
+      <xi:include href="xml/tracker-miner-web.xml"/>
     </chapter>
 
     <chapter>
       <title>Additional miners</title>
-      &tracker-miner-fs;
+      <xi:include href="xml/tracker-miner-fs.xml"/>
     </chapter>
 
     <chapter>
       <title>Managing miners</title>
-      &tracker-miner-manager;
+      <xi:include href="xml/tracker-miner-manager.xml"/>
     </chapter>
 
     <chapter>
       <title>Base abstract utilities</title>
-      &tracker-network-provider;
-      &tracker-password-provider;
+      <xi:include href="xml/tracker-network-provider.xml"/>
+      <xi:include href="xml/tracker-password-provider.xml"/>
     </chapter>
 
     <chapter>
       <title>Additional utilities</title>
-      &tracker-storage;
-      &tracker-thumbnailer;
+      <xi:include href="xml/tracker-storage.xml"/>
+      <xi:include href="xml/tracker-thumbnailer.xml"/>
     </chapter>
   </part>
+
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
 </book>
