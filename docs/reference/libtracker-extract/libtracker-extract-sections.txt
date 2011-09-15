@@ -17,10 +17,7 @@ tracker_iptc_read
 
 <SECTION>
 <FILE>tracker-data</FILE>
-TrackerExtractMimeFunc
-TrackerExtractDataFunc
-TrackerExtractData
-tracker_extract_get_data
+tracker_extract_get_metadata
 </SECTION>
 
 <SECTION>
@@ -65,4 +62,6 @@ tracker_extract_info_set_where_clause
 tracker_extract_info_get_file
 tracker_extract_info_get_mimetype
 tracker_extract_info_get_graph
+<SUBSECTION Standard>
+tracker_extract_info_get_type
 </SECTION>
