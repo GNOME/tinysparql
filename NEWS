@@ -1,3 +1,29 @@
+NEW in 0.10.27 - 2011-09-15
+===========================
+
+The changes are:
+
+  * Fixes: GB#651815, Nautilus crashes or hangs with Tracker plugin
+  * Fixes: GB#658645, Port writeback to GDBus
+  * Fixes: NB#282190, Invalid artist md5 hash in media-art filename.
+  * Fixes: NB#282393, tracker-extract crashes parsing XMP metadata which contains regions of interest
+  * Fixes: NB#277052, Tracker doesn't cope with inconsistent mount point states between reboots
+  * Fixes: NB#281335, Handle removal of superproperty definitions in the ontology
+  * libtracker-data: Support removing rdfs:subPropertyOf in ontology
+  * libtracker-miner: Export TrackerTask* and TrackerPriority* API for new unit tests
+  * libtracker-miner: Check to turn create + delete events into noop was wrong in check_item_queues()
+  * libtracker-extract: Fix Regions of Interest SPARQL generated from metadata
+  * tracker-miner-fs: Avoid trying to parse directories as desktop files
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.26 - 2011-09-08
 ===========================
 
