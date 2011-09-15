@@ -1,3 +1,37 @@
+NEW in 0.12.1 - 2011-09-15
+==========================
+
+The changes are:
+
+  * Require Vala >= 0.13.4 was 0.12.0 (for correct introspection with libtracker-sparql)
+  * Fixes: GB#659062, Shouldn't index removable media devices by default
+  * Fixes: GB#659063, Should enable indexing on battery by default
+  * Fixes: GB#651815, Nautilus crashes or hangs with Tracker plugin
+  * Fixes: GB#658645, Port writeback to GDBus
+  * Fixes: GB#658706, Broken Tracker-0.12.gir in 0.12.0 release
+  * Fixes: GB#658787, tracker 0.12.0 does not build
+  * Fixes: NB#282190, Invalid artist md5 hash in media-art filename.
+  * Fixes: NB#282393, tracker-extract crashes parsing XMP metadata which contains regions of interest
+  * Fixes: NB#277052, Tracker doesn't cope with inconsistent mount point states between reboots
+  * Fixes: NB#281335, Handle removal of superproperty definitions in the ontology
+  * libtracker-data: Support removing rdfs:subPropertyOf in ontology
+  * libtracker-sparql: Updated documentation build instructions for 0.12 and to include introspection annotations glossary
+  * libtracker-miner: Updated documentation build instructions for 0.12 and to include introspection annotations glossary
+  * libtracker-miner: Export TrackerTask* and TrackerPriority* API for new unit tests
+  * libtracker-miner: Check to turn create + delete events into noop was wrong in check_item_queues()
+  * libtracker-extract: Updated documentation build instructions for 0.12 and to include introspection annotations glossary
+  * libtracker-extract: Fix Regions of Interest SPARQL generated from metadata
+  * tracker-miner-fs: Avoid trying to parse directories as desktop files
+
+Translations:
+
+  * Updated es: dmustieles
+
+Notes:
+
+  None
+
+
 NEW in 0.12.0 - 2011-09-09
 ==========================
 
