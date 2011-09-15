@@ -51,21 +51,15 @@ G_BEGIN_DECLS
  * An example of how to write an extractor to retrieve PNG embedded
  * metadata.
  * <programlisting>
- *  /&ast; Set functions to use to extract different mime types. &ast;/
- *  static TrackerExtractData extract_data[] = {
- *          { "image/png",  extract_png },
- *          { "sketch/png", extract_png },
- *          { NULL, NULL }
- *  };
- *
  *  G_MODULE_EXPORT gboolean
- *  tracker_extract_get_metadata (const gchar          *uri,
- *                                const gchar          *mimetype,
- *                                TrackerSparqlBuilder *preupdate,
- *                                TrackerSparqlBuilder *metadata,
- *                                GString              *where)
+ *  tracker_extract_get_metadata (TrackerExtractInfo *info)
  *  {
+ *          GFile *file;
+ *          TrackerSparqlBuilder *metadata;
  *          gint height, width;
+ *
+ *          file = tracker_extract_info_get_file (info);
+ *          metadata = tracker_extract_info_get_metadata_builder (info);
  *
  *          /&ast; Do data extraction. &ast;/
  *          height = ...
@@ -81,8 +75,6 @@ G_BEGIN_DECLS
  *
  *          tracker_sparql_builder_predicate (metadata, "nfo:height");
  *          tracker_sparql_builder_object_int64 (metadata, height);
- *
- *          g_free (filename);
  *
  *          /&ast; Were we successful or not? &ast;/
  *          return TRUE;
@@ -102,13 +94,7 @@ gboolean tracker_extract_module_shutdown (void);
 
 /**
  * tracker_extract_get_metadata:
- * @uri: a string representing a URI.
- * @mimetype: mimetype for the element contained in URI
- * @preupdate: used to populate with data updates that
- *             are a prerequisite for the actual file
- *             metadata insertion.
- * @metadata: used to populate with file metadata predicate/object(s).
- * @where: used for optional WHERE patterns
+ * @info: a #TrackerExtractInfo object
  *
  * This function must be provided by ALL extractors. This is merely
  * the declaration of the function which must be written by each
@@ -117,24 +103,30 @@ gboolean tracker_extract_module_shutdown (void);
  * This is checked by tracker-extract by looking up the symbols for
  * each started plugin and making sure this function exists.
  *
- * The @metadata parameter is a #TrackerSparqlBuilder constructed
- * through tracker_sparql_builder_new_embedded_insert(), the subject
+ * The @info parameter contains required information for the
+ * extraction and a location to store the results. The
+ * tracker_extract_info_get_metadata_builder() function returns a
+ * #TrackerSparqlBuilder constructed through
+ * tracker_sparql_builder_new_embedded_insert(). The subject
  * is already set to be the file URN, so implementations of this
- * function should just provide predicate/object(s) pairs. the data
- * triples contained in there at the end of the function will be
+ * function should just provide predicate/object(s) pairs. The
+ * triples contained in this object at the end of the function will be
  * merged with further file information from miners.
  *
  * Whenever any of the inserted triples rely on entities that
  * should also be provided by this extractor (for example, album
  * or artist information from a song), such insertions should be
- * added to @preupdate, which is a #TrackerSparqlBuilder constructed.
- * through tracker_sparql_builder_new_update().
+ * added to the preupdate object returned by
+ * tracker_extract_info_get_preupdate_builder(). This is a
+ * #TrackerSparqlBuilder created through
+ * tracker_sparql_builder_new_update().
  *
- * NOTE: If upgrading from 0.10, this function is replacing the old
+ * NOTE: If upgrading from 0.10, this function replaces the old
  * function named tracker_extract_get_data() and has a few subtle
- * differences. First there is a return value for success. Second
- * there is also a @mimetype argument which should will be passed to
- * each extractor.
+ * differences. First, there is a return value for success and the
+ * parameters are contained in @info instead of being passed
+ * individually. Second, the extractor is passed the detected
+ * MIME type of the file being extracted.
  *
  * Returns: %TRUE if the extraction succeeded, %FALSE otherwise.
  *

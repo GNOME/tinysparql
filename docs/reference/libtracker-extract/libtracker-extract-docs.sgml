@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
 <!ENTITY tracker-overview SYSTEM "overview.sgml">
 <!ENTITY tracker-data SYSTEM "xml/tracker-data.xml">
+<!ENTITY tracker-extract-info SYSTEM "xml/tracker-extract-info.xml">
 <!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY tracker-xmp SYSTEM "xml/tracker-xmp.xml">
 <!ENTITY tracker-iptc SYSTEM "xml/tracker-iptc.xml">
@@ -36,6 +38,7 @@
     <chapter>
       <title>Core API</title>
       &tracker-data;
+      &tracker-extract-info;
       &tracker-utils;
     </chapter>
 
@@ -45,5 +48,7 @@
       &tracker-iptc;
       &tracker-exif;
     </chapter>
+
+    <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
   </part>
 </book>

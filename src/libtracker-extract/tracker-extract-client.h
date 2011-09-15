@@ -36,11 +36,11 @@ void                 tracker_extract_client_get_metadata        (GFile          
                                                                  GAsyncReadyCallback  callback,
                                                                  gpointer             user_data);
 
-TrackerExtractInfo * tracker_extract_client_get_metadata_finish (GFile               *uri,
+TrackerExtractInfo * tracker_extract_client_get_metadata_finish (GFile               *file,
                                                                  GAsyncResult        *res,
                                                                  GError             **error);
 
-void                 tracker_extract_client_cancel_for_prefix   (GFile               *uri);
+void                 tracker_extract_client_cancel_for_prefix   (GFile               *prefix);
 
 G_END_DECLS
 
