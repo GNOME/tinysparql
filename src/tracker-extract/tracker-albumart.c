@@ -399,7 +399,7 @@ albumart_heuristic (const gchar *artist,
 					}
 
 					if (!album_path) {
-						tracker_albumart_get_path (" ",
+						tracker_albumart_get_path (NULL,
 						                           album_stripped,
 						                           "album",
 						                           NULL,
@@ -509,7 +509,7 @@ albumart_heuristic (const gchar *artist,
 					}
 
 					if (!album_path) {
-						tracker_albumart_get_path (" ",
+						tracker_albumart_get_path (NULL,
 						                           album_stripped,
 						                           "album",
 						                           NULL,
@@ -572,7 +572,7 @@ albumart_set (const unsigned char *buffer,
 	} else {
 		gchar *album_path;
 
-		tracker_albumart_get_path (" ", album, "album", NULL, &album_path, NULL);
+		tracker_albumart_get_path (NULL, album, "album", NULL, &album_path, NULL);
 
 		if (!g_file_test (album_path, G_FILE_TEST_EXISTS)) {
 			retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, album_path);
