@@ -1,14 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
-<!ENTITY tracker-overview SYSTEM "overview.sgml">
-<!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
-<!ENTITY tracker-sparql-connection SYSTEM "xml/tracker-sparql-connection.xml">
-<!ENTITY tracker-sparql-cursor SYSTEM "xml/tracker-sparql-cursor.xml">
-<!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
-<!ENTITY tracker-version SYSTEM "xml/tracker-version.xml">
-<!ENTITY tracker-examples SYSTEM "examples.sgml">
 ]>
 <book id="index">
   <bookinfo>
@@ -23,7 +17,7 @@
   </bookinfo>
 
   <!-- The Library Overview -->
-  &tracker-overview;
+  <xi:include href="overview.sgml"/>
 
   <!-- The API Reference -->
   <part id="libtracker-sparql-reference">
@@ -34,14 +28,14 @@
       </para>
     </partintro>
 
-    &tracker-sparql-builder;
-    &tracker-sparql-connection;
-    &tracker-sparql-cursor;
-    &tracker-misc;
-    &tracker-version;
+    <xi:include href="xml/tracker-sparql-builder.xml"/>
+    <xi:include href="xml/tracker-sparql-connection.xml"/>
+    <xi:include href="xml/tracker-sparql-cursor.xml"/>
+    <xi:include href="xml/tracker-misc.xml"/>
+    <xi:include href="xml/tracker-version.xml"/>
   </part>
 
-  <!-- The Examples -->
-  &tracker-examples;
+  <xi:include href="examples.sgml"/>
 
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
 </book>
