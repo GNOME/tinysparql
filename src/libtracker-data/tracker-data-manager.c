@@ -3458,18 +3458,6 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 
 	g_debug ("Starting index re-creation...");
 	for (i = 0; i < n_properties; i++) {
-		TrackerClass *class;
-		const gchar *service_name;
-		const gchar *field_name;
-
-		class = tracker_property_get_domain (properties [i]);
-		field_name = tracker_property_get_name (properties [i]);
-		service_name = tracker_class_get_name (class);
-		g_debug ("  Re-creating possible indexes in property "
-		         "(service: '%s', field: '%s')",
-		         service_name,
-		         field_name);
-
 		fix_indexed (properties [i], &internal_error);
 
 		if (internal_error) {
