@@ -33,6 +33,7 @@ public class Tracker.Preferences {
 
 	private const string UI_FILE = "tracker-preferences.ui";
 	private const string HOME_STRING = "$HOME";
+	private string HOME_STRING_EVALUATED;
 
 	private Window window;
 	private CheckButton checkbutton_enable_index_on_battery_first_time;
@@ -44,21 +45,29 @@ public class Tracker.Preferences {
 	private Scale hscale_disk_space_limit;
 	private Scale hscale_throttle;
 	private Scale hscale_drop_device_threshold;
-	private ListStore liststore_index_recursively;
-	private ListStore liststore_index_single;
+	private ListStore liststore_index;
 	private ListStore liststore_ignored_directories;
 	private ListStore liststore_ignored_files;
-	private ListStore liststore_gnored_directories_with_content;
-	private TreeView treeview_index_recursively;
-	private TreeView treeview_index_single;
+	private ListStore liststore_ignored_directories_with_content;
+	private TreeView treeview_index;
 	private TreeView treeview_ignored_directories;
 	private TreeView treeview_ignored_directories_with_content;
 	private TreeView treeview_ignored_files;
+	private TreeViewColumn treeviewcolumn_index1;
+	private TreeViewColumn treeviewcolumn_index2;
 	private ToggleButton togglebutton_home;
+	private ToggleButton togglebutton_desktop;
+	private ToggleButton togglebutton_documents;
+	private ToggleButton togglebutton_music;
+	private ToggleButton togglebutton_pictures;
+	private ToggleButton togglebutton_videos;
+	private ToggleButton togglebutton_download;
 	private Notebook notebook;
 
 	public Preferences () {
 		debug ("Getting current settings");
+
+		HOME_STRING_EVALUATED = dir_from_config (HOME_STRING);
 
 		//config = new Config ();
 		settings = new GLib.Settings ("org.freedesktop.Tracker.Miner.Files");
@@ -107,24 +116,30 @@ public class Tracker.Preferences {
 		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
 		hscale_drop_device_threshold = builder.get_object ("hscale_drop_device_threshold") as Scale;
 		togglebutton_home = builder.get_object ("togglebutton_home") as ToggleButton;
+		togglebutton_desktop = builder.get_object ("togglebutton_desktop") as ToggleButton;
+		togglebutton_documents = builder.get_object ("togglebutton_documents") as ToggleButton;
+		togglebutton_music = builder.get_object ("togglebutton_music") as ToggleButton;
+		togglebutton_pictures = builder.get_object ("togglebutton_pictures") as ToggleButton;
+		togglebutton_videos = builder.get_object ("togglebutton_videos") as ToggleButton;
+		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
 
-		treeview_index_recursively = builder.get_object ("treeview_index_recursively") as TreeView;
-		treeview_index_single = builder.get_object ("treeview_index_single") as TreeView;
+		treeview_index = builder.get_object ("treeview_index") as TreeView;
+		treeviewcolumn_index1 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
+		treeviewcolumn_index2 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
 		treeview_ignored_directories = builder.get_object ("treeview_ignored_directories") as TreeView;
 		treeview_ignored_directories_with_content = builder.get_object ("treeview_ignored_directories_with_content") as TreeView;
 		treeview_ignored_files = builder.get_object ("treeview_ignored_files") as TreeView;
 
-		setup_standard_treeview (treeview_index_recursively, _("Directory"));
-		setup_standard_treeview (treeview_index_single, _("Directory"));
-		setup_standard_treeview (treeview_ignored_directories, _("Directory"));
-		setup_standard_treeview (treeview_ignored_directories_with_content, _("Directory"));
-		setup_standard_treeview (treeview_ignored_files, _("File"));
+		treeview_setup (treeview_index, _("Directory"), true);
+		treeview_setup (treeview_ignored_directories, _("Directory"), false);
+		treeview_setup (treeview_ignored_directories_with_content, _("Directory"), false);
+		treeview_setup (treeview_ignored_files, _("File"), false);
 
-		liststore_index_recursively = builder.get_object ("liststore_index_recursively") as ListStore;
-		liststore_index_single = builder.get_object ("liststore_index_single") as ListStore;
+		liststore_index = builder.get_object ("liststore_index") as ListStore;
+		liststore_index.set_sort_column_id (0, Gtk.SortType.ASCENDING);
 		liststore_ignored_directories = builder.get_object ("liststore_ignored_directories") as ListStore;
 		liststore_ignored_files = builder.get_object ("liststore_ignored_files") as ListStore;
-		liststore_gnored_directories_with_content = builder.get_object ("liststore_gnored_directories_with_content") as ListStore;
+		liststore_ignored_directories_with_content = builder.get_object ("liststore_ignored_directories_with_content") as ListStore;
 
 		// Set initial values
 		checkbutton_enable_index_on_battery.active = settings.get_boolean ("index-on-battery");
@@ -139,14 +154,19 @@ public class Tracker.Preferences {
 		hscale_throttle.set_value ((double) settings.get_int ("throttle"));
 		hscale_drop_device_threshold.set_value ((double) settings.get_int ("removable-days-threshold"));
 
-		// FIXME: Work out how to do this
-		fill_in_model (liststore_index_recursively, settings.get_strv ("index-recursive-directories"));
-		fill_in_model (liststore_index_single, settings.get_strv ("index-single-directories"));
-		fill_in_model (liststore_ignored_directories, settings.get_strv ("ignored-directories"));
-		fill_in_model (liststore_ignored_files, settings.get_strv ("ignored-files"));
-		fill_in_model (liststore_gnored_directories_with_content, settings.get_strv ("ignored-directories-with-content"));
+		model_populate (liststore_index, settings.get_strv ("index-recursive-directories"), true, true);
+		model_populate (liststore_index, settings.get_strv ("index-single-directories"), true, false);
+		model_populate (liststore_ignored_directories, settings.get_strv ("ignored-directories"), false, false);
+		model_populate (liststore_ignored_files, settings.get_strv ("ignored-files"), false, false);
+		model_populate (liststore_ignored_directories_with_content, settings.get_strv ("ignored-directories-with-content"), false, false);
 
-		togglebutton_home.active = model_contains (liststore_index_recursively, HOME_STRING);
+		togglebutton_home.active = model_contains (liststore_index, HOME_STRING_EVALUATED);
+		togglebutton_desktop.active = model_contains (liststore_index, "&DESKTOP");
+		togglebutton_documents.active = model_contains (liststore_index, "&DOCUMENTS");
+		togglebutton_music.active = model_contains (liststore_index, "&MUSIC");
+		togglebutton_pictures.active = model_contains (liststore_index, "&PICTURES");
+		togglebutton_videos.active = model_contains (liststore_index, "&VIDEOS");
+		togglebutton_download.active = model_contains (liststore_index, "&DOWNLOAD");
 
 		// We hide this page because it contains the start up
 		// delay which is not necessary to display for most people.
@@ -162,7 +182,6 @@ public class Tracker.Preferences {
 
 		window.show ();
 	}
-
 
 	// This function is used to fix up the parameter ordering for callbacks
 	// from the .ui file which has the callback names.
@@ -189,12 +208,11 @@ public class Tracker.Preferences {
 		case ResponseType.APPLY:
 			debug ("Converting directories for storage");
 
-			// FIXME: Work out how to do this.
-			settings.set_strv ("index-single-directories", model_to_strv (liststore_index_single));
-			settings.set_strv ("index-recursive-directories", model_to_strv (liststore_index_recursively));
-			settings.set_strv ("ignored-directories", model_to_strv (liststore_ignored_directories));
-			settings.set_strv ("ignored-files", model_to_strv (liststore_ignored_files));
-			settings.set_strv ("ignored-directories-with-content", model_to_strv (liststore_gnored_directories_with_content));
+			settings.set_strv ("index-single-directories", model_to_strv (liststore_index, true, false));
+			settings.set_strv ("index-recursive-directories", model_to_strv (liststore_index, true, true));
+			settings.set_strv ("ignored-directories", model_to_strv (liststore_ignored_directories, false, false));
+			settings.set_strv ("ignored-files", model_to_strv (liststore_ignored_files, false, false));
+			settings.set_strv ("ignored-directories-with-content", model_to_strv (liststore_ignored_directories_with_content, false, false));
 
 			settings.set_int ("low-disk-space-limit", (int) hscale_disk_space_limit.get_value ());
 			settings.set_int ("throttle", (int) hscale_throttle.get_value ());
@@ -270,89 +288,142 @@ public class Tracker.Preferences {
 	}
 
 	[CCode (instance_pos = -1)]
-	public void button_index_recursively_add_clicked_cb (Button source) {
-		add_dir (liststore_index_recursively);
+	public void button_index_add_clicked_cb (Button source) {
+		store_add_dir (liststore_index);
 	}
 
 	[CCode (instance_pos = -1)]
-	public void button_index_recursively_remove_clicked_cb (Button source) {
-		del_dir (treeview_index_recursively);
-	}
-
-	[CCode (instance_pos = -1)]
-	public void button_index_single_remove_clicked_cb (Button source) {
-		del_dir (treeview_index_single);
-	}
-
-	[CCode (instance_pos = -1)]
-	public void button_index_single_add_clicked_cb (Button source) {
-		add_dir (liststore_index_single);
+	public void button_index_remove_clicked_cb (Button source) {
+		store_del_dir (treeview_index);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_globs_add_clicked_cb (Button source) {
-		add_freevalue (liststore_ignored_directories);
+		store_add_value_dialog (liststore_ignored_directories);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_add_clicked_cb (Button source) {
-		add_dir (liststore_ignored_directories);
+		store_add_dir (liststore_ignored_directories);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_remove_clicked_cb (Button source) {
-		del_dir (treeview_ignored_directories);
+		store_del_dir (treeview_ignored_directories);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_with_content_add_clicked_cb (Button source) {
-		add_freevalue (liststore_gnored_directories_with_content);
+		store_add_value_dialog (liststore_ignored_directories_with_content);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_with_content_remove_clicked_cb (Button source) {
-		del_dir (treeview_ignored_directories_with_content);
+		store_del_dir (treeview_ignored_directories_with_content);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_files_add_clicked_cb (Button source) {
-		add_freevalue (liststore_ignored_files);
+		store_add_value_dialog (liststore_ignored_files);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_files_remove_clicked_cb (Button source) {
-		del_dir (treeview_ignored_files);
+		store_del_dir (treeview_ignored_files);
 	}
 
-	[CCode (instance_pos = -1)]
-	public void togglebutton_home_toggled_cb (ToggleButton source) {
-		if (source.active && !model_contains (liststore_index_recursively, HOME_STRING)) {
+	private void togglebutton_directory_update_model (ToggleButton source, ListStore store, string to_check) {
+		if (source.active && !model_contains (store, to_check)) {
 			TreeIter iter;
-			liststore_index_recursively.append (out iter);
+			liststore_index.append (out iter);
 			var v = Value (typeof (string));
-			v.set_string (HOME_STRING);
-			liststore_index_recursively.set_value (iter, 0, v);
+			v.set_string (to_check);
+
+			bool recurse = to_check != HOME_STRING_EVALUATED;
+			liststore_index.set_value (iter, 0, v);
+			liststore_index.set_value (iter, 1, recurse);
 		}
 
-		if (!source.active && model_contains (liststore_index_recursively, HOME_STRING)) {
+		if (!source.active && model_contains (store, to_check)) {
 			bool valid;
 			TreeIter iter;
 
-			valid = liststore_index_recursively.get_iter_first (out iter);
+			valid = store.get_iter_first (out iter);
 			while (valid) {
 				Value value;
-				liststore_index_recursively.get_value (iter, 0, out value);
-				if (value.get_string () == HOME_STRING) {
-					liststore_index_recursively.remove (iter);
-					valid = liststore_index_recursively.get_iter_first (out iter);
+				store.get_value (iter, 0, out value);
+				if (value.get_string () == to_check) {
+					store.remove (iter);
+					valid = store.get_iter_first (out iter);
 				} else {
-					valid = liststore_index_recursively.iter_next (ref iter);
+					valid = store.iter_next (ref iter);
 				}
 			}
 		}
 	}
 
-	private void add_freevalue (ListStore model) {
+	[CCode (instance_pos = -1)]
+	public void togglebutton_home_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, HOME_STRING_EVALUATED);
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_desktop_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DESKTOP));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_documents_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_music_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.MUSIC));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_pictures_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.PICTURES));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_videos_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.VIDEOS));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void togglebutton_download_toggled_cb (ToggleButton source) {
+		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+	}
+
+	private void toggles_update (UserDirectory[] matches, bool active) {
+		// Check if we need to untoggle a button
+		foreach (UserDirectory ud in matches) {
+			switch (ud) {
+			case UserDirectory.DESKTOP:
+				togglebutton_desktop.active = active;
+				break;
+			case UserDirectory.DOCUMENTS:
+				togglebutton_documents.active = active;
+				break;
+			case UserDirectory.DOWNLOAD:
+				togglebutton_download.active = active;
+				break;
+			case UserDirectory.MUSIC:
+				togglebutton_music.active = active;
+				break;
+			case UserDirectory.PICTURES:
+				togglebutton_pictures.active = active;
+				break;
+			case UserDirectory.VIDEOS:
+				togglebutton_videos.active = active;
+				break;
+			}
+		}
+	}
+
+	private void store_add_value_dialog (ListStore store) {
 		Dialog dialog;
 		Entry entry;
 		Container content_area;
@@ -375,56 +446,177 @@ public class Tracker.Preferences {
 
 			if (text != null && text != "") {
 				TreeIter iter;
-				model.append (out iter);
+				store.append (out iter);
 				var v = Value (typeof (string));
 				v.set_string (text);
-				model.set_value (iter, 0, v);
+				store.set_value (iter, 0, v);
 			}
 		}
 
 		dialog.destroy ();
 	}
 
-	private void add_dir (ListStore model) {
-		FileChooserDialog dialog = new FileChooserDialog (_("Select directory"), window,
+	private void store_add_dir (ListStore store) {
+		FileChooserDialog dialog = new FileChooserDialog (_("Select directory"),
+		                                                  window,
 		                                                  FileChooserAction.SELECT_FOLDER,
-		                                                  Stock.CANCEL, ResponseType.CANCEL,
-		                                                  Stock.OK, ResponseType.ACCEPT);
+		                                                  Stock.CANCEL,
+		                                                  ResponseType.CANCEL,
+		                                                  Stock.OK,
+		                                                  ResponseType.ACCEPT);
 
-		if (dialog.run () == ResponseType.ACCEPT) {
-			TreeIter iter;
-			File dir;
+		while (true) {
+			if (dialog.run () == ResponseType.ACCEPT) {
+				TreeIter iter;
+				File f;
 
-			dir = dialog.get_file ();
+				f = dialog.get_file ();
+				string path = f.get_path ();
 
-			model.append (out iter);
-			var v = Value (typeof (string));
-			v.set_string (dir.get_path());
-			model.set_value (iter, 0, v);
+				if (model_contains (store, path)) {
+					MessageDialog md = new MessageDialog (dialog,
+					                                      DialogFlags.DESTROY_WITH_PARENT,
+					                                      MessageType.ERROR,
+					                                      ButtonsType.CLOSE,
+					                                      _("That directory is already selected as a location to index"),
+					                                      null);
+					md.run ();
+					md.destroy ();
+					continue;
+				}
+
+				string dir = f.get_path ();
+
+				// Check which UserDirectorys we match with str
+				UserDirectory[] matches = dir_match_user_directories (dir);
+
+				// Add to store
+				store.append (out iter);
+				var v = Value (typeof (string));
+				v.set_string (dir);
+				store.set_value (iter, 0, v);
+
+				toggles_update (matches, true);
+
+				if (dir == HOME_STRING_EVALUATED)
+					togglebutton_home.active = true;
+
+			}
+
+			break;
 		}
 
 		dialog.destroy ();
 	}
 
-	private void del_dir (TreeView view) {
+	private void store_del_dir (TreeView view) {
 		List<TreePath> list;
 		ListStore store;
 		TreeModel model;
 
 		TreeSelection selection = view.get_selection ();
-		list= selection.get_selected_rows (out model);
+		list = selection.get_selected_rows (out model);
 
 		store = (ListStore) model;
 
 		foreach (TreePath path in list) {
 			TreeIter iter;
-			if (model.get_iter (out iter, path)) {
-				store.remove (iter);
+
+			if (!model.get_iter (out iter, path)) {
+				continue;
 			}
+
+			Value value;
+
+			model.get_value (iter, 0, out value);
+			string dir = value.get_string ();
+
+			// Check which UserDirectorys we match with str
+			UserDirectory[] matches = dir_match_user_directories (dir);
+
+			store.remove (iter);
+
+			// Check if we need to untoggle a button
+			toggles_update (matches, false);
+
+			if (dir == HOME_STRING_EVALUATED)
+				togglebutton_home.active = false;
 		}
 	}
 
-	private string[] model_to_strv (ListStore model) {
+	private UserDirectory[] dir_match_user_directories (string input) {
+		UserDirectory[] matches = {};
+		int i;
+
+		for (i = 0; i < UserDirectory.N_DIRECTORIES; i++) {
+			UserDirectory ud = (UserDirectory) i;
+			unowned string dir = null;
+
+			dir = Environment.get_user_special_dir (ud);
+			if (input == dir) {
+				matches += ud;
+			}
+		}
+
+		return matches;
+	}
+
+	private string dir_to_config (string input) {
+		string output = input;
+
+		if (HOME_STRING_EVALUATED != null && HOME_STRING_EVALUATED == input) {
+			return HOME_STRING;
+		}
+
+		for (int i = 0; i < UserDirectory.N_DIRECTORIES; i++) {
+			UserDirectory ud = (UserDirectory) i;
+			unowned string dir = null;
+
+			dir = Environment.get_user_special_dir (ud);
+			if (input == dir) {
+				// Convert 'G_USER_DIRECTORY_FOO' to '&FOO'
+				string ud_string = ud.to_string ();
+				output = "&%s".printf (ud_string.substring (ud_string.last_index_of_char ('_') + 1, -1));
+			}
+		}
+
+		return output;
+	}
+
+	private string dir_from_config (string input) {
+		string output = input;
+
+		if (input.has_prefix ("&")) {
+			unowned string dir = null;
+
+			// Convert '&FOO' to 'G_USER_DIRECTORY_FOO'
+			string ud_input = "G_USER_DIRECTORY_%s".printf (input.next_char ());
+
+			for (int i = 0; i < UserDirectory.N_DIRECTORIES && dir == null; i++) {
+				UserDirectory ud = (UserDirectory) i;
+
+				if (ud_input == ud.to_string ()) {
+					dir = Environment.get_user_special_dir (ud);
+				}
+			}
+
+			// debug ("Found dir '%s' evaluates to '%s'", input, dir);
+
+			if (dir != null)
+				output = dir;
+		} else if (input.has_prefix ("$")) {
+			unowned string env = Environment.get_variable (input.substring (1, -1));
+
+			// debug ("Found env '%s' (%s) evaluates to '%s'", input, input.substring (1, -1), env);
+
+			if (env != null)
+				output = env;
+		}
+
+		return output;
+	}
+
+	private string[] model_to_strv (ListStore model, bool recurse_required, bool recurse_value) {
 		string[] list = {};
 		TreeIter iter;
 		bool valid;
@@ -435,7 +627,20 @@ public class Tracker.Preferences {
 			Value value;
 
 			model.get_value (iter, 0, out value);
-			list += value.get_string ();
+
+			if (recurse_required) {
+				Value recurse;
+
+				model.get_value (iter, 1, out recurse);
+
+				if (recurse_value != recurse.get_boolean ())
+					continue;
+			}
+
+			// Convert from real value to config values,
+			// e.g. '$HOME/Desktop' to '&DESKTOP'
+			string dir = dir_to_config (value.get_string ());
+			list += dir;
 		}
 
 		return list;
@@ -443,7 +648,10 @@ public class Tracker.Preferences {
 
 	public bool model_contains (TreeModel model, string needle) {
 		TreeIter iter;
+		string needle_evaluated;
 		bool valid;
+
+		needle_evaluated = dir_from_config (needle);
 
 		for (valid = model.get_iter_first (out iter);
 		     valid;
@@ -452,7 +660,7 @@ public class Tracker.Preferences {
 
 			model.get_value (iter, 0, out value);
 
-			if (value.get_string () == needle) {
+			if (value.get_string () == needle_evaluated) {
 				return true;
 			}
 		}
@@ -460,29 +668,76 @@ public class Tracker.Preferences {
 		return false;
 	}
 
-	private void fill_in_model (ListStore model, string[] list) {
+	private void model_populate (ListStore model, string[] list, bool have_recurse, bool recurse) {
 		int position = 0;
 
 		foreach (string str in list) {
+			// Convert any dirs from config to real values
+			str = dir_from_config (str);
+
 			try {
-				model.insert_with_values (null,
-				                          position++,
-				                          0,
-				                          Filename.to_utf8 (str,
-				                                            -1,
-				                                            null,
-				                                            null));
+				if (have_recurse)
+					model.insert_with_values (null,
+					                          position++,
+					                          0,
+					                          Filename.to_utf8 (str,
+					                                            -1,
+					                                            null,
+					                                            null),
+					                          1,
+					                          recurse,
+					                          -1);
+				else
+					model.insert_with_values (null,
+					                          position++,
+					                          0,
+					                          Filename.to_utf8 (str,
+					                                            -1,
+					                                            null,
+					                                            null),
+					                          -1);
 			} catch (GLib.ConvertError e) {
 				print ("Could not convert filename to UTF8: %s", e.message);
 			}
 		}
 	}
 
-	private void setup_standard_treeview (TreeView view, string title) {
-		TreeViewColumn column = new TreeViewColumn.with_attributes (title,
-		                                                            new CellRendererText (),
-		                                                            "text", 0);
+	private void treeview_setup (TreeView view, string title, bool show_recurse_column) {
+		TreeViewColumn column;
+		GLib.List<weak TreeViewColumn> columns = view.get_columns ();
+
+		// Needed to fix glade mess
+		foreach (TreeViewColumn c in columns) {
+			view.remove_column (c);
+		}
+
+		column = new TreeViewColumn.with_attributes (title,
+		                                             new CellRendererText (),
+		                                             "text", 0,
+		                                             null);
+		column.set_expand (true);
 		view.append_column (column);
+
+		if (show_recurse_column) {
+			ListStore store = view.get_model () as ListStore;
+			CellRendererToggle cell = new CellRendererToggle ();
+
+			column = new TreeViewColumn.with_attributes ("Recurse",
+			                                             cell,
+			                                             "active", 1,
+			                                             null);
+			column.set_expand (false);
+			column.set_fixed_width (50);
+			view.append_column (column);
+
+			cell.toggled.connect ((toggle, path) => {
+				var tree_path = new TreePath.from_string (path);
+				TreeIter iter;
+
+				store.get_iter (out iter, tree_path);
+				store.set (iter, 1, !toggle.active);
+			});
+		}
 	}
 }
 
