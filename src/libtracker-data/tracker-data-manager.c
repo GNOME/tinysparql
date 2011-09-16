@@ -224,6 +224,7 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
                                     const gchar         *service_name,
                                     const gchar         *field_name,
                                     gboolean             enabled,
+                                    gboolean             recreate,
                                     GError             **error)
 {
 	GError *internal_error = NULL;
@@ -256,6 +257,10 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
+		return;
+	}
+
+	if (!recreate) {
 		return;
 	}
 
@@ -519,6 +524,7 @@ check_range_conversion_is_allowed (const gchar  *ontology_path,
 
 static void
 fix_indexed (TrackerProperty  *property,
+             gboolean          recreate,
              GError          **error)
 {
 	GError *internal_error = NULL;
@@ -536,6 +542,7 @@ fix_indexed (TrackerProperty  *property,
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, service_name, field_name,
 		                                    tracker_property_get_indexed (property),
+		                                    recreate,
 		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
@@ -543,12 +550,12 @@ fix_indexed (TrackerProperty  *property,
 		secondary_index = tracker_property_get_secondary_index (property);
 		if (secondary_index == NULL) {
 			set_index_for_single_value_property (iface, service_name, field_name,
-			                                     tracker_property_get_indexed (property),
+			                                     recreate && tracker_property_get_indexed (property),
 			                                     &internal_error);
 		} else {
 			set_secondary_index_for_single_value_property (iface, service_name, field_name,
 			                                               tracker_property_get_name (secondary_index),
-			                                               tracker_property_get_indexed (property),
+			                                               recreate && tracker_property_get_indexed (property),
 			                                               &internal_error);
 		}
 	}
@@ -1621,7 +1628,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (property, &n_error);
+					fix_indexed (property, TRUE, &n_error);
 					indexed_set = TRUE;
 				}
 			} else {
@@ -1631,7 +1638,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (property, &n_error);
+					fix_indexed (property, TRUE, &n_error);
 					indexed_set = TRUE;
 				}
 			}
@@ -1651,7 +1658,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           tracker_property_get_uri (secondary_index), NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (property, &n_error);
+						fix_indexed (property, TRUE, &n_error);
 					}
 				}
 			} else {
@@ -1662,7 +1669,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           NULL, NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (property, &n_error);
+						fix_indexed (property, TRUE, &n_error);
 					}
 				}
 			}
@@ -2668,14 +2675,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, service_name, field_name, TRUE,
+				set_index_for_multi_value_property (iface, service_name, field_name, TRUE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
 			} else {
-				set_index_for_multi_value_property (iface, service_name, field_name, FALSE,
+				set_index_for_multi_value_property (iface, service_name, field_name, FALSE, TRUE,
 				                                    &internal_error);
 				/* we still have to include the property value in
 				 * the unique index for proper constraints */
@@ -2715,14 +2722,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, service_name, field_name, TRUE,
+				set_index_for_multi_value_property (iface, service_name, field_name, TRUE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
 			} else {
-				set_index_for_multi_value_property (iface, service_name, field_name, FALSE,
+				set_index_for_multi_value_property (iface, service_name, field_name, FALSE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
@@ -3456,21 +3463,19 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 		return;
 	}
 
+	g_debug ("Dropping all indexes...");
+	for (i = 0; i < n_properties; i++) {
+		fix_indexed (properties [i], FALSE, &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
+	}
+
 	g_debug ("Starting index re-creation...");
 	for (i = 0; i < n_properties; i++) {
-		TrackerClass *class;
-		const gchar *service_name;
-		const gchar *field_name;
-
-		class = tracker_property_get_domain (properties [i]);
-		field_name = tracker_property_get_name (properties [i]);
-		service_name = tracker_class_get_name (class);
-		g_debug ("  Re-creating possible indexes in property "
-		         "(service: '%s', field: '%s')",
-		         service_name,
-		         field_name);
-
-		fix_indexed (properties [i], &internal_error);
+		fix_indexed (properties [i], TRUE, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
