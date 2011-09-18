@@ -8,10 +8,10 @@ TEST_PROGS +=                                          \
 
 if HAVE_ENCA
 TEST_PROGS += tracker-encoding
-else 
-  if HAVE_MEEGOTOUCH
-    TEST_PROGS += tracker-encoding
-  endif
+else
+if HAVE_MEEGOTOUCH
+TEST_PROGS += tracker-encoding
+endif
 endif
 
 AM_CPPFLAGS =                                          \
