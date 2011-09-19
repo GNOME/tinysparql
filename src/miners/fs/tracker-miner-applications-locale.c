@@ -92,26 +92,13 @@ tracker_miner_applications_locale_changed (void)
 	                             NULL);
 	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
 
+#ifdef HAVE_MEEGOTOUCH
+	/* If we have meegotouch enabled, take the correct locale as the one from
+	 * meegotouch. */
+	current_locale = tracker_miner_applications_meego_get_locale ();
+#else
 	/* Get current tracker LANG locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-
-#ifdef HAVE_MEEGOTOUCH
-	/* If we have meegotouch enabled, sanity check to compare with our
-	 * tracker locale */
-	{
-		/* Get also current meegotouch locale, which should be EQUAL to
-		 * the tracker locale */
-		gchar *current_mlocale;
-
-		current_mlocale = tracker_miner_applications_meego_get_locale ();
-
-		if (g_strcmp0 (current_locale, current_mlocale) != 0) {
-			g_critical ("Wrong locale settings (tracker locale '%s' vs MLocale '%s')",
-			            current_locale, current_mlocale);
-		}
-
-		g_free (current_mlocale);
-	}
 #endif
 
 	/* Get previous locale */
