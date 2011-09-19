@@ -118,7 +118,7 @@ class WritebackBasicDataTest (CommonTrackerWritebackTest):
         time.sleep (REASONABLE_TIMEOUT)
 
         results = self.extractor.get_metadata (filename, mimetype)
-        self.assertIn ("testTag", results ["nao:hasTag:prefLabel"])
+        self.assertIn ("testTag", results ["nao:hasTag"])
 
 
     # JPEG test
@@ -133,7 +133,7 @@ class WritebackBasicDataTest (CommonTrackerWritebackTest):
     def test_003_jpeg_keyword (self):
         #FILENAME = "test-writeback-monitored/writeback-test-1.jpeg"
         self.__writeback_test (self.get_test_filename_jpeg (), "image/jpeg",
-                               "nie:keyword", "nao:hasTag:prefLabel")
+                               "nie:keyword", "nao:hasTag")
 
     def test_004_jpeg_hasTag (self):
         #FILENAME = "test-writeback-monitored/writeback-test-1.jpeg"
@@ -152,7 +152,7 @@ class WritebackBasicDataTest (CommonTrackerWritebackTest):
     def test_013_tiff_keyword (self):
         FILENAME = "test-writeback-monitored/writeback-test-2.tif"
         self.__writeback_test (self.get_test_filename_tiff (), "image/tiff",
-                               "nie:keyword", "nao:hasTag:prefLabel")
+                               "nie:keyword", "nao:hasTag")
 
     def test_014_tiff_hasTag (self):
         FILENAME = "test-writeback-monitored/writeback-test-2.tif"
