@@ -11,14 +11,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-17 08:39+0000\n"
-"PO-Revision-Date: 2011-09-17 11:34+0100\n"
-"Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
+"POT-Creation-Date: 2011-09-19 09:16+0000\n"
+"PO-Revision-Date: 2011-09-19 11:37+0100\n"
+"Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n%100==4 ? 3 : 0);\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -861,41 +861,37 @@ msgstr "Počasneje"
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</b> directory, can be easily toggled below. This will add or remove their real paths from the list underneath.\n"
 "\n"
-"You can decide if you want to index the content recursively or not using the checkbuttons in the list next to each entry.\n"
-"\n"
-"If some special directories are not available, it may be because they're not defined or duplicate another special directory."
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-directories underneath it will also be indexed. Otherwise, only files immediately in that directory will be indexed."
 msgstr ""
-"Med posebnimi mesti kot so vaše mape <b>Domov</b>, <b>Namizje</b> ali <b>Dokumenti</b> lahko enostavno preklapljate spodaj. To do dodalo ali odstranilo prave poti s seznama spodaj.\n"
+"Med posebnimi mesti kot je vaša <b>Domača mapa</b>, <b>Namizje</b> ali <b>Dokumenti</b> lahko enostavno preklapljate spodaj. To do dodalo ali odstranilo prave poti s seznama spodaj.\n"
 "\n"
-"Odločite se lahko, ali želite kazalo vsebine pripraviti rekurzivno z uporabo izbirnih gumbov na seznamu poleg vsakega vnosa.\n"
-"\n"
-"V primeru da posebne mape niso na voljo, se to lahko zgodi, ker niso določene ali pa so dvojnik druge posebne mape."
+"V primeru, da mapo preklopite <b>Rekurzivno</b>, pomeni, da bo ustvarjeno kazalo tudi vseh podrejenih map, sicer pa le datoteke vrhnje ravni."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Start up"
 msgstr "Zagon"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Stop indexing when _disk space is below:"
 msgstr "Zaustavi pripravo kazala, ko je prazen prostor na _disku pod:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "To vključuje VSE odstranljive medije, spominske kartice, CD-je, DVD-je, itn."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "With specific files:"
 msgstr "Z določenimi datotekami:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "_Delay"
 msgstr "_Zakasnitev"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Monitor file and directory changes"
 msgstr "_Nadziraj spremembe datotek in map"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "seconds"
 msgstr "sekunde"
 
@@ -2241,18 +2237,23 @@ msgstr "Prazen niz rezultatov"
 
 #~ msgid "Day(s)"
 #~ msgstr "Dan/dni"
+
 #~ msgid "Directories (no sub-directories are indexed):"
 #~ msgstr "Mape (podmape niso vključene v pripravo kazala):"
+
 #~ msgid "Directories:"
 #~ msgstr "Mape:"
+
 #~ msgid "Drop removable device from database after:"
 #~ msgstr "Izbriši odstranljivo napravo iz podatkovne zbirke po:"
+
 #~ msgid "Non-Recursively Indexed"
 #~ msgstr "Nerekurzivna priprava seznama"
+
 #~ msgid "Recursively Indexed"
 #~ msgstr "Rekurzivna priprava kazala"
+
 #~ msgid ""
 #~ "When toggled, this makes sure your home directory is included in the list."
 #~ msgstr ""
 #~ "Preklopljena možnost zagotovi, da je vaša domača mapa vključena v seznam."
-
