@@ -58,22 +58,21 @@ public class Tracker.TagList : ScrolledWindow {
 		col.set_expand (true);
 		col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
 
-		// Do this later when we have more time
-//		renderer = new CellRendererToggle ();
-//		renderer.xpad = 5;
-//		renderer.ypad = 5;
-//		col.pack_start (renderer, false);
-//		col.add_attribute (renderer, "active", 0);
-
+		// Name
 		renderer = new CellRendererText ();
 		col.pack_start (renderer, true);
 		col.set_cell_data_func (renderer, model_text_renderer_func);
+		col.add_attribute (renderer, "text", 1);
 
 		renderer.xpad = 5;
 		renderer.ypad = 5;
 		((CellRendererText) renderer).ellipsize = Pango.EllipsizeMode.END;
 		((CellRendererText) renderer).ellipsize_set = true;
 
+		// Count
+		renderer = new CellRendererText ();
+		renderer.xpad = 5;
+		renderer.ypad = 5;
 		col.pack_end (renderer, false);
 		col.add_attribute (renderer, "text", 3);
 		treeview.append_column (col);
