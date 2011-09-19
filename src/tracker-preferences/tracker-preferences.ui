@@ -665,9 +665,7 @@
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Special locations such as your &lt;b&gt;Home&lt;/b&gt;, &lt;b&gt;Desktop&lt;/b&gt; or &lt;b&gt;Documents&lt;/b&gt; directory, can be easily toggled below. This will add or remove their real paths from the list underneath.
 
-You can decide if you want to index the content recursively or not using the checkbuttons in the list next to each entry.
-
-If some special directories are not available, it may be because they're not defined or duplicate another special directory.</property>
+If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-directories underneath it will also be indexed. Otherwise, only files immediately in that directory will be indexed.</property>
                                     <property name="use_markup">True</property>
                                     <property name="justify">fill</property>
                                     <property name="wrap">True</property>
@@ -915,6 +913,7 @@ If some special directories are not available, it may be because they're not def
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_markup">Add directory to be indexed</property>
                                             <property name="use_action_appearance">False</property>
                                             <signal name="clicked" handler="tracker_preferences_button_index_add_clicked_cb" swapped="no"/>
                                             <child>
@@ -936,6 +935,7 @@ If some special directories are not available, it may be because they're not def
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_markup">Remove directory from being indexed</property>
                                             <property name="use_action_appearance">False</property>
                                             <signal name="clicked" handler="tracker_preferences_button_index_remove_clicked_cb" swapped="no"/>
                                             <child>
