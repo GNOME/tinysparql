@@ -69,9 +69,11 @@ public class Tracker.TagList : ScrolledWindow {
 		col.pack_start (renderer, true);
 		col.set_cell_data_func (renderer, model_text_renderer_func);
 
-		renderer = new CellRendererText ();
 		renderer.xpad = 5;
 		renderer.ypad = 5;
+		((CellRendererText) renderer).ellipsize = Pango.EllipsizeMode.END;
+		((CellRendererText) renderer).ellipsize_set = true;
+
 		col.pack_end (renderer, false);
 		col.add_attribute (renderer, "text", 3);
 		treeview.append_column (col);
