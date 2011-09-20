@@ -300,6 +300,11 @@ test_xmp_apply (void)
 	 */
 
 	/* g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50); */
+        g_string_free (where, TRUE);
+        g_object_unref (metadata);
+        g_object_unref (preupdate);
+
+        tracker_xmp_free (data);
 }
 
 static void
@@ -379,6 +384,8 @@ test_xmp_regions (void)
 	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
+        
+        g_free (contents);
 
 	g_assert_cmpint (2, ==, g_slist_length (data->regions));
 
@@ -424,6 +431,8 @@ test_xmp_regions_quill (void)
 	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
+
+        g_free (contents);
 
 	g_assert_cmpint (2, ==, g_slist_length (data->regions));
 
@@ -471,6 +480,8 @@ test_xmp_regions_ns_prefix (void)
 
 	data = tracker_xmp_new (contents, size, "test://file");
 
+        g_free (contents);
+
 	g_assert_cmpint (2, ==, g_slist_length (data->regions));
 
 	region = g_slist_nth_data (data->regions, 1);
@@ -514,6 +525,8 @@ test_xmp_regions_nb282393 ()
 
 	data = tracker_xmp_new (contents, size, "test://file");
 
+        g_free (contents);
+
 	g_assert_cmpint (1, ==, g_slist_length (data->regions));
 
 	/* Regions are stacked while parsing.*/
@@ -547,6 +560,8 @@ test_xmp_regions_nb282393_2 ()
 	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
+
+        g_free (contents);
 
 	g_assert_cmpint (1, ==, g_slist_length (data->regions));
 
