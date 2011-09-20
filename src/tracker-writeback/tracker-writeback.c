@@ -504,6 +504,7 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 	GArray *rdf_types_array;
 	GStrv rdf_types;
 	gchar *rdf_type = NULL;
+	gboolean handled = FALSE;
 
 	priv = controller->priv;
 
@@ -553,6 +554,7 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 			           subject,
 			           module->name);
 
+			handled = TRUE;
 			writeback = tracker_writeback_module_create (module);
 			data = writeback_data_new (controller,
 			                           writeback,
@@ -567,6 +569,13 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 
 			g_object_unref (writeback);
 		}
+	}
+
+	if (!handled) {
+		g_dbus_method_invocation_return_error (invocation,
+		                                       G_IO_ERROR,
+		                                       G_IO_ERROR_FAILED,
+		                                       "No module for rdf types");
 	}
 
 	g_free (rdf_types);
