@@ -179,10 +179,11 @@ tracker_writeback_init (TrackerWriteback *writeback)
 }
 
 gboolean
-tracker_writeback_update_metadata (TrackerWriteback        *writeback,
-                                   GPtrArray               *values,
-                                   TrackerSparqlConnection *connection,
-                                   GCancellable            *cancellable)
+tracker_writeback_update_metadata (TrackerWriteback         *writeback,
+                                   GPtrArray                *values,
+                                   TrackerSparqlConnection  *connection,
+                                   GCancellable             *cancellable,
+                                   GError                  **error)
 {
 	g_return_val_if_fail (TRACKER_IS_WRITEBACK (writeback), FALSE);
 	g_return_val_if_fail (values != NULL, FALSE);
@@ -191,7 +192,8 @@ tracker_writeback_update_metadata (TrackerWriteback        *writeback,
 		return TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata (writeback,
 		                                                                 values,
 		                                                                 connection,
-		                                                                 cancellable);
+		                                                                 cancellable,
+		                                                                 error);
 	}
 
 	return FALSE;

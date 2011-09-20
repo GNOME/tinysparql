@@ -44,16 +44,17 @@ struct TrackerWritebackTaglibClass {
 };
 
 static GType                tracker_writeback_taglib_get_type         (void) G_GNUC_CONST;
-static gboolean             writeback_taglib_update_file_metadata     (TrackerWritebackFile    *wbf,
-                                                                       GFile                   *file,
-                                                                       GPtrArray               *values,
-                                                                       TrackerSparqlConnection *connection,
-                                                                       GCancellable            *cancellable);
-static const gchar * const *writeback_taglib_content_types            (TrackerWritebackFile    *wbf);
-static gchar*               writeback_taglib_get_artist_name          (TrackerSparqlConnection *connection,
-                                                                       const gchar             *urn);
-static gchar*               writeback_taglib_get_album_name           (TrackerSparqlConnection *connection,
-                                                                       const gchar             *urn);
+static gboolean             writeback_taglib_update_file_metadata     (TrackerWritebackFile     *wbf,
+                                                                       GFile                    *file,
+                                                                       GPtrArray                *values,
+                                                                       TrackerSparqlConnection  *connection,
+                                                                       GCancellable             *cancellable,
+                                                                       GError                   **error);
+static const gchar * const *writeback_taglib_content_types            (TrackerWritebackFile     *wbf);
+static gchar*               writeback_taglib_get_artist_name          (TrackerSparqlConnection  *connection,
+                                                                       const gchar              *urn);
+static gchar*               writeback_taglib_get_album_name           (TrackerSparqlConnection  *connection,
+                                                                       const gchar              *urn);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackTaglib, tracker_writeback_taglib, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -136,7 +137,8 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
                                        GFile                    *file,
                                        GPtrArray                *values,
                                        TrackerSparqlConnection  *connection,
-                                       GCancellable            *cancellable)
+                                       GCancellable             *cancellable,
+                                       GError                  **error)
 {
 	gboolean ret;
 	gchar *path;
