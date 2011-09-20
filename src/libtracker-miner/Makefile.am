@@ -22,6 +22,8 @@ AM_CPPFLAGS =                                          \
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
 
+noinst_LTLIBRARIES = libtracker-miner-private.la
+
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
@@ -57,12 +59,14 @@ miner_sources = 				       \
 	tracker-miner-web.h                            
 
 
+libtracker_miner_private_la_SOURCES =                  \
+	$(private_sources)
+
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(network_provider_sources)                    \
 	$(password_provider_sources)                   \
 	$(crawler_sources)			       \
 	$(miner_sources)			       \
-	$(private_sources)			       \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
 	tracker-thumbnailer.c                          \
@@ -90,10 +94,11 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|priority|task|password_provider|network_provider)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
+	libtracker-miner-private.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	-lm                                            \
