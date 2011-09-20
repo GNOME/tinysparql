@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-16 22:56+0000\n"
-"PO-Revision-Date: 2011-09-18 17:29+0200\n"
+"POT-Creation-Date: 2011-09-19 08:41+0000\n"
+"PO-Revision-Date: 2011-09-20 11:36+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -932,53 +932,59 @@ msgid "Slower"
 msgstr "Más lento"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#| msgid ""
+#| "Special locations such as your <b>Home</b>, <b>Desktop</b> or "
+#| "<b>Documents</b> directory, can be easily toggled below. This will add or "
+#| "remove their real paths from the list underneath.\n"
+#| "\n"
+#| "You can decide if you want to index the content recursively or not using "
+#| "the checkbuttons in the list next to each entry.\n"
+#| "\n"
+#| "If some special directories are not available, it may be because they're "
+#| "not defined or duplicate another special directory."
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
 "b> directory, can be easily toggled below. This will add or remove their "
 "real paths from the list underneath.\n"
 "\n"
-"You can decide if you want to index the content recursively or not using the "
-"checkbuttons in the list next to each entry.\n"
-"\n"
-"If some special directories are not available, it may be because they're not "
-"defined or duplicate another special directory."
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+"directories underneath it will also be indexed. Otherwise, only files "
+"immediately in that directory will be indexed."
 msgstr ""
 "Las ubicaciones especiales, como su carpeta <b>Personal</b>, <b>Escritorio</"
 "b> o <b>Documentos</b> se pueden conmutar fácilmente más abajo. Esto añadirá "
 "o quitará sus rutas reales de la lista de abajo.\n"
 "\n"
-"Puede decidir si quiere indexar el contenido recursivamente o no usando las "
-"casillas en la lista junto a cada entrada.\n"
-"\n"
-"Si algunas carpetas especiales no están disponibles, puede ser porque no se "
-"han definido o duplicado otras carpetas especiales"
+"Si una carpeta está marcada como <b>Recursiva</b>, significa que también se "
+"indexarán todas su subcarpetas. De otro modo, sólo se indexarán los archivos "
+"que estén en esa carpeta."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Start up"
 msgstr "Inicio"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Stop indexing when _disk space is below:"
 msgstr "Dejar de indexar cuando el espacio en _disco está bajo:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr ""
 "Esto cubre todos los soportes extraíbles, tarjetas de memoria, CD, DVD, etc."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "With specific files:"
 msgstr "Con los archivos específicos:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "_Delay"
 msgstr "_Retardo"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Monitor file and directory changes"
 msgstr "_Monitorizar cambios en archivos y carpetas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "seconds"
 msgstr "segundos"
 
@@ -1303,8 +1309,8 @@ msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
 msgstr ""
-"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
-"«mínimo», «errores») para todos los procesos"
+"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», «mínimo», "
+"«errores») para todos los procesos"
 
 #: ../src/tracker-control/tracker-control-general.c:98
 msgid "LEVEL"
@@ -1353,8 +1359,8 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» "
-"está implicado"
+"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
+"implicado"
 
 #: ../src/tracker-control/tracker-control-general.c:560
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
@@ -1367,8 +1373,8 @@ msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» junto
 #: ../src/tracker-control/tracker-control-general.c:581
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
-"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
-"o «errores»"
+"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» o "
+"«errores»"
 
 #: ../src/tracker-control/tracker-control-general.c:629
 #, c-format
@@ -1839,8 +1845,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
-"music-artists», «--feeds», «--software», «--software-categories»)"
+"Mostrar URN para los resultados (no se aplica para «--music-albums», «--music-"
+"artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker-utils/tracker-search.c:84
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2478,8 +2484,8 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Include details with state updates (only applies to --follow)"
 #~ msgstr ""
-#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a "
-#~ "«--follow»)"
+#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a «--"
+#~ "follow»)"
 
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Icono de estado de Tracker"
@@ -3084,8 +3090,7 @@ msgstr "Conjunto de resultados vacío"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
-#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los "
-#~ "datos)"
+#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
 
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
@@ -3621,8 +3626,7 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
 
 #~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-#~ msgstr ""
-#~ "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
 
 #~ msgid "Last file to be indexed was '%s'"
 #~ msgstr "El último archivo indexado fue «%s»"
@@ -4005,8 +4009,7 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-#~ msgstr ""
-#~ "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #~ msgid "Could not delete \"%s\"."
 #~ msgstr "No se pudo borrar «%s»."
