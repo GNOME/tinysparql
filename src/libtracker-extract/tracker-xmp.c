@@ -153,9 +153,11 @@ gps_coordinate_dup (const gchar *coordinates)
 		g_free (deg);
 		g_free (min);
 		g_free (ref);
+                g_match_info_free (info);
 
 		return g_strdup_printf ("%f", r);
 	} else {
+                g_match_info_free (info);
 		return NULL;
 	}
 }
@@ -324,7 +326,7 @@ static gint
 get_region_counter (const gchar *path) 
 {
         static GRegex *regex = NULL;
-        GMatchInfo    *match_info;
+        GMatchInfo    *match_info = NULL;
         gchar         *match;
         gint           result;
         
@@ -333,6 +335,7 @@ get_region_counter (const gchar *path)
         }
 
         if (!g_regex_match (regex, path, 0, &match_info)) {
+                g_match_info_free (match_info);
                 return -1;
         }
 
