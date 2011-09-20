@@ -53,7 +53,8 @@ static gboolean             writeback_playlist_update_file_metadata (TrackerWrit
                                                                      GFile                    *file,
                                                                      GPtrArray                *values,
                                                                      TrackerSparqlConnection  *connection,
-                                                                     GCancellable            *cancellable);
+                                                                     GCancellable             *cancellable,
+                                                                     GError                  **error);
 static const gchar * const *writeback_playlist_content_types        (TrackerWritebackFile     *wbf);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackPlaylist, tracker_writeback_playlist, TRACKER_TYPE_WRITEBACK_FILE);
@@ -208,7 +209,8 @@ writeback_playlist_update_file_metadata (TrackerWritebackFile     *writeback_fil
                                          GFile                    *file,
                                          GPtrArray                *values,
                                          TrackerSparqlConnection  *connection,
-                                         GCancellable            *cancellable)
+                                         GCancellable             *cancellable,
+                                         GError                  **error)
 {
 	guint n;
 

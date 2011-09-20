@@ -46,6 +46,7 @@ typedef struct {
 	TrackerSparqlConnection *connection;
 	TrackerWriteback *writeback;
 	guint cancel_id;
+	GError *error;
 } WritebackData;
 
 typedef struct {
@@ -246,6 +247,7 @@ writeback_data_new (TrackerController       *controller,
 	data->connection = g_object_ref (connection);
 	data->writeback = g_object_ref (writeback);
 	data->request = request;
+	data->error = NULL;
 
 	data->cancel_id = g_cancellable_connect (data->cancellable,
 	                                         G_CALLBACK (task_cancellable_cancelled_cb),
@@ -266,6 +268,9 @@ writeback_data_free (WritebackData *data)
 	g_object_unref (data->writeback);
 	g_ptr_array_unref (data->results);
 	g_object_unref (data->cancellable);
+	if (data->error) {
+		g_error_free (data->error);
+	}
 	g_slice_free (WritebackData, data);
 }
 
@@ -422,7 +427,13 @@ perform_writeback_cb (gpointer user_data)
 	data = user_data;
 	priv = data->controller->priv;
 	priv->ongoing_tasks = g_list_remove (priv->ongoing_tasks, data);
-	g_dbus_method_invocation_return_value (data->invocation, NULL);
+
+	if (data->error == NULL) {
+		g_dbus_method_invocation_return_value (data->invocation, NULL);
+	} else {
+		g_dbus_method_invocation_return_gerror (data->invocation, data->error);
+	}
+
 	tracker_dbus_request_end (data->request, NULL);
 
 	g_mutex_lock (priv->mutex);
@@ -465,10 +476,13 @@ io_writeback_job (GIOSchedulerJob *job,
 	priv->current = data;
 	g_mutex_unlock (priv->mutex);
 
+	g_clear_error (&data->error);
+
 	tracker_writeback_update_metadata (data->writeback,
 	                                   data->results,
 	                                   data->connection,
-	                                   data->cancellable);
+	                                   data->cancellable,
+	                                   &data->error);
 
 	g_idle_add (perform_writeback_cb, data);
 
