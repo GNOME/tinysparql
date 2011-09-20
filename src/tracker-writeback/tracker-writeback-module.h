@@ -50,10 +50,11 @@ struct TrackerWriteback {
 struct TrackerWritebackClass {
 	GObjectClass parent_class;
 
-	gboolean (* update_metadata) (TrackerWriteback        *writeback,
-	                              GPtrArray               *values,
-	                              TrackerSparqlConnection *connection,
-	                              GCancellable            *cancellable);
+	gboolean (* update_metadata) (TrackerWriteback         *writeback,
+	                              GPtrArray                *values,
+	                              TrackerSparqlConnection  *connection,
+	                              GCancellable             *cancellable,
+	                              GError                  **error);
 };
 
 struct TrackerWritebackModule {
@@ -72,21 +73,22 @@ struct TrackerWritebackModuleClass {
 
 
 GType                   tracker_writeback_get_type          (void) G_GNUC_CONST;
-gboolean                tracker_writeback_update_metadata   (TrackerWriteback        *writeback,
-                                                             GPtrArray               *values,
-                                                             TrackerSparqlConnection *connection,
-                                                             GCancellable            *cancellable);
+gboolean                tracker_writeback_update_metadata   (TrackerWriteback         *writeback,
+                                                             GPtrArray                *values,
+                                                             TrackerSparqlConnection  *connection,
+                                                             GCancellable             *cancellable,
+                                                             GError                  **error);
 TrackerMinerManager*    tracker_writeback_get_miner_manager (void);
 
 /* Entry functions to be defined by modules */
-TrackerWriteback *      writeback_module_create             (GTypeModule             *module);
+TrackerWriteback *      writeback_module_create             (GTypeModule              *module);
 const gchar * const *   writeback_module_get_rdf_types      (void);
 
 GType                   tracker_writeback_module_get_type      (void) G_GNUC_CONST;
 
-TrackerWritebackModule *tracker_writeback_module_get           (const gchar            *name);
-TrackerWriteback *      tracker_writeback_module_create        (TrackerWritebackModule *module);
-const gchar * const *   tracker_writeback_module_get_rdf_types (TrackerWritebackModule *module);
+TrackerWritebackModule *tracker_writeback_module_get           (const gchar             *name);
+TrackerWriteback *      tracker_writeback_module_create        (TrackerWritebackModule  *module);
+const gchar * const *   tracker_writeback_module_get_rdf_types (TrackerWritebackModule  *module);
 GList *                 tracker_writeback_modules_list         (void);
 
 G_END_DECLS

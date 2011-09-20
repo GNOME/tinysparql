@@ -43,12 +43,13 @@ struct TrackerWritebackFile {
 struct TrackerWritebackFileClass {
 	TrackerWritebackClass parent_class;
 
-	gboolean              (* update_file_metadata) (TrackerWritebackFile    *writeback_file,
-	                                                GFile                   *file,
-	                                                GPtrArray               *values,
-	                                                TrackerSparqlConnection *connection,
-	                                                GCancellable            *cancellable);
-	const gchar * const * (* content_types)        (TrackerWritebackFile    *writeback_file);
+	gboolean              (* update_file_metadata) (TrackerWritebackFile     *writeback_file,
+	                                                GFile                    *file,
+	                                                GPtrArray                *values,
+	                                                TrackerSparqlConnection  *connection,
+	                                                GCancellable             *cancellable,
+	                                                GError                  **error);
+	const gchar * const * (* content_types)        (TrackerWritebackFile     *writeback_file);
 
 };
 

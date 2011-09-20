@@ -53,7 +53,8 @@ static gboolean             writeback_xmp_update_file_metadata (TrackerWriteback
                                                                 GFile                    *file,
                                                                 GPtrArray                *values,
                                                                 TrackerSparqlConnection  *connection,
-                                                                GCancellable            *cancellable);
+                                                                GCancellable             *cancellable,
+                                                                GError                  **error);
 static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile     *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
@@ -106,11 +107,12 @@ writeback_xmp_content_types (TrackerWritebackFile *wbf)
 }
 
 static gboolean
-writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
-                                    GFile                   *file,
-                                    GPtrArray               *values,
-                                    TrackerSparqlConnection *connection,
-                                    GCancellable            *cancellable)
+writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
+                                    GFile                    *file,
+                                    GPtrArray                *values,
+                                    TrackerSparqlConnection  *connection,
+                                    GCancellable             *cancellable,
+                                    GError                  **error)
 {
 	gchar *path;
 	guint n;
@@ -127,6 +129,12 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 	xmp_files = xmp_files_open_new (path, XMP_OPEN_FORUPDATE);
 
 	if (!xmp_files) {
+		g_set_error (error,
+		             G_IO_ERROR,
+		             G_IO_ERROR_FAILED,
+		             "Can't open '%s' for update with Exempi (Exempi error code = %d)",
+		             path,
+		             xmp_get_error ());
 		g_free (path);
 		return FALSE;
 	}

@@ -28,10 +28,11 @@
 
 #include "tracker-writeback-file.h"
 
-static gboolean tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
-                                                        GPtrArray               *values,
-                                                        TrackerSparqlConnection *connection,
-                                                        GCancellable            *cancellable);
+static gboolean tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
+                                                        GPtrArray                *values,
+                                                        TrackerSparqlConnection  *connection,
+                                                        GCancellable             *cancellable,
+                                                        GError                  **error);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWritebackFile, tracker_writeback_file, TRACKER_TYPE_WRITEBACK)
 
@@ -123,10 +124,11 @@ create_temporary_file (GFile     *file,
 }
 
 static gboolean
-tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
-                                        GPtrArray               *values,
-                                        TrackerSparqlConnection *connection,
-                                        GCancellable            *cancellable)
+tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
+                                        GPtrArray                *values,
+                                        TrackerSparqlConnection  *connection,
+                                        GCancellable             *cancellable,
+                                        GError                  **error)
 {
 	TrackerWritebackFileClass *writeback_file_class;
 	gboolean retval;
@@ -136,6 +138,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	const gchar * const *content_types;
 	const gchar *mime_type;
 	guint n;
+	GError *n_error = NULL;
 
 	writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
 
@@ -200,7 +203,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	                                                       tmp_file,
 	                                                       values,
 	                                                       connection,
-	                                                       cancellable);
+	                                                       cancellable,
+	                                                       &n_error);
 
 	if (!retval) {
 		/* Delete the temporary file and preserve original */
@@ -215,6 +219,10 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 	g_object_unref (tmp_file);
 	g_object_unref (file_info);
 	g_object_unref (file);
+
+	if (n_error) {
+		g_propagate_error (error, n_error);
+	}
 
 	return retval;
 }
