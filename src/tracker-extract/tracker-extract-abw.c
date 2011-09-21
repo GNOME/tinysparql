@@ -24,14 +24,20 @@
 #define _GNU_SOURCE
 #endif
 
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/mman.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#ifndef _O_BINARY
+#define _O_BINARY 0
+#endif
 
 #include <libtracker-common/tracker-file-utils.h>
 
@@ -175,11 +181,11 @@ extract_abw (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	GMappedFile *file;
+	int fd;
 	gchar *filename, *contents;
 	GError *error = NULL;
-	gboolean retval = FALSE;
 	gsize len;
+	struct stat st;
 
 	filename = g_filename_from_uri (uri, NULL, &error);
 
@@ -189,17 +195,36 @@ extract_abw (const gchar          *uri,
 		return;
 	}
 
-	file = g_mapped_file_new (filename, FALSE, &error);
-	g_free (filename);
+	fd = g_open (filename, O_RDONLY | _O_BINARY | O_NOATIME, 0);
 
-	if (error) {
-		g_warning ("Could not mmap abw file: %s\n", error->message);
+	if (fd == -1) {
+		g_warning ("Could not mmap abw file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
 		g_error_free (error);
+		g_free (filename);
 		return;
 	}
 
-	contents = g_mapped_file_get_contents (file);
-	len = g_mapped_file_get_length (file);
+	if (fstat (fd, &st) == -1) {
+		g_warning ("Could not fstat abw file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		close (fd);
+		g_error_free (error);
+		g_free (filename);
+		return;
+	}
+
+	if (st.st_size == 0) {
+		contents = NULL;
+		len = 0;
+	} else {
+		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		len = st.st_size;
+	}
+
+	g_free (filename);
 
 	if (contents) {
 		GMarkupParseContext *context;
@@ -230,7 +255,11 @@ extract_abw (const gchar          *uri,
 		g_markup_parse_context_free (context);
 	}
 
-	g_mapped_file_unref (file);
+	if (contents) {
+		munmap (contents, len);
+	}
+
+	close (fd);
 }
 
 TrackerExtractData *
