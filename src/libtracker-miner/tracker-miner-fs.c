@@ -3787,17 +3787,6 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	gchar *uri;
 
 	fs = user_data;
-
-	/* Writeback tasks would receive an updated after move,
-	 * consequence of the data being written back in the
-	 * copy, and its monitor events being propagated to
-	 * the destination file.
-	 */
-	if (remove_writeback_task (fs, file)) {
-		item_queue_handlers_set_up (fs);
-		return;
-	}
-
 	should_process = should_check_file (fs, file, is_directory);
 
 	uri = g_file_get_uri (file);
@@ -3836,6 +3825,17 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	gchar *uri;
 
 	fs = user_data;
+
+	/* Writeback tasks would receive an updated after move,
+	 * consequence of the data being written back in the
+	 * copy, and its monitor events being propagated to
+	 * the destination file.
+	 */
+	if (remove_writeback_task (fs, file)) {
+		item_queue_handlers_set_up (fs);
+		return;
+	}
+
 	should_process = should_check_file (fs, file, is_directory);
 
 	uri = g_file_get_uri (file);
