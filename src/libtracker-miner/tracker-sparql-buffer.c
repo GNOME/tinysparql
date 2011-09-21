@@ -307,6 +307,8 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 		g_simple_async_result_set_op_res_gpointer (task_data->result,
 		                                           task, NULL);
 		if (error) {
+			g_critical ("  (Sparql buffer) Error in task %u of the array-update: %s",
+			            i, error->message);
 			g_simple_async_result_set_from_error (task_data->result, error);
 		}
 
