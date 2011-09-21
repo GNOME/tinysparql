@@ -394,7 +394,7 @@ test_xmp_regions (void)
 	g_free (filepath);
 
 	data = tracker_xmp_new (contents, size, "test://file");
-        
+
         g_free (contents);
 
 	g_assert_cmpint (2, ==, g_slist_length (data->regions));
@@ -516,7 +516,7 @@ test_xmp_regions_ns_prefix (void)
 	tracker_xmp_free (data);
 }
 
-void
+static void
 test_xmp_regions_nb282393 ()
 {
 	TrackerXmpData *data;
@@ -552,7 +552,7 @@ test_xmp_regions_nb282393 ()
 	tracker_xmp_free (data);
 }
 
-void
+static void
 test_xmp_regions_nb282393_2 ()
 {
 	TrackerXmpData *data;
