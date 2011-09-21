@@ -17,9 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <errno.h>
 #include <string.h>
 
 #include <glib.h>
+
+#include <libtracker-common/tracker-file-utils.h>
 
 #include <gsf/gsf.h>
 #include <gsf/gsf-infile.h>
@@ -87,6 +90,7 @@ tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
 	GsfInfile *infile = NULL;
 	GsfInput *src = NULL;
 	GsfInput *member = NULL;
+	FILE *file;
 
 	g_debug ("Parsing '%s' XML file from '%s' zip archive...",
 	         xml_filename, zip_file_uri);
@@ -96,49 +100,58 @@ tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
 	                                     NULL, &error)) == NULL) {
 		g_warning ("Can't get filename from uri '%s': %s",
 		           zip_file_uri, error ? error->message : "no error given");
-	}
-	/* Create a new Input GSF object for the given file */
-	else if ((src = gsf_input_stdio_new (filename, &error)) == NULL) {
-		g_warning ("Failed creating a GSF Input object for '%s': %s",
-		           zip_file_uri, error ? error->message : "no error given");
-	}
-	/* Input object is a Zip file */
-	else if ((infile = gsf_infile_zip_new (src, &error)) == NULL) {
-		g_warning ("'%s' Not a zip file: %s",
-		           zip_file_uri, error ? error->message : "no error given");
-	}
-	/* Look for requested filename inside the ZIP file */
-	else if ((member = find_member (infile, xml_filename)) == NULL) {
-		g_warning ("No member '%s' in zip file '%s'",
-		           xml_filename, zip_file_uri);
-	}
-	/* Load whole contents of the internal file in the xml buffer */
-	else {
-		guint8 buf[XML_BUFFER_SIZE];
-		size_t remaining_size, chunk_size, accum;
+	} else { /* Create a new Input GSF object for the given file */
 
-		/* Get whole size of the contents to read */
-		remaining_size = (size_t) gsf_input_size (GSF_INPUT (member));
+		file = tracker_file_open (filename, "rb", FALSE);
+		if (!file) {
+			g_warning ("Can't open file from uri '%s': %s",
+			           zip_file_uri, g_strerror (errno));
+		} else if ((src = gsf_input_stdio_new_FILE (filename, file, TRUE)) == NULL) {
+			g_warning ("Failed creating a GSF Input object for '%s': %s",
+			           zip_file_uri, error ? error->message : "no error given");
+		}
+		/* Input object is a Zip file */
+		else if ((infile = gsf_infile_zip_new (src, &error)) == NULL) {
+			g_warning ("'%s' Not a zip file: %s",
+			           zip_file_uri, error ? error->message : "no error given");
+		}
+		/* Look for requested filename inside the ZIP file */
+		else if ((member = find_member (infile, xml_filename)) == NULL) {
+			g_warning ("No member '%s' in zip file '%s'",
+			           xml_filename, zip_file_uri);
+		}
+		/* Load whole contents of the internal file in the xml buffer */
+		else {
+			guint8 buf[XML_BUFFER_SIZE];
+			size_t remaining_size, chunk_size, accum;
 
-		/* Note that gsf_input_read() needs to be able to read ALL specified
-		 *  number of bytes, or it will fail */
-		chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
+			/* Get whole size of the contents to read */
+			remaining_size = (size_t) gsf_input_size (GSF_INPUT (member));
 
-		accum = 0;
-		while (!error &&
-		       accum  <= XML_MAX_BYTES_READ &&
-		       chunk_size > 0 &&
-		       gsf_input_read (GSF_INPUT (member), chunk_size, buf) != NULL) {
-
-			/* update accumulated count */
-			accum += chunk_size;
-
-			/* Pass the read stream to the context parser... */
-			g_markup_parse_context_parse (context, buf, chunk_size, &error);
-
-			/* update bytes to be read */
-			remaining_size -= chunk_size;
+			/* Note that gsf_input_read() needs to be able to read ALL specified
+			 *  number of bytes, or it will fail */
 			chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
+
+			accum = 0;
+			while (!error &&
+			       accum  <= XML_MAX_BYTES_READ &&
+			       chunk_size > 0 &&
+			       gsf_input_read (GSF_INPUT (member), chunk_size, buf) != NULL) {
+
+				/* update accumulated count */
+				accum += chunk_size;
+
+				/* Pass the read stream to the context parser... */
+				g_markup_parse_context_parse (context, buf, chunk_size, &error);
+
+				/* update bytes to be read */
+				remaining_size -= chunk_size;
+				chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
+			}
+		}
+
+		if (file) {
+			tracker_file_close (file, FALSE);
 		}
 	}
 
