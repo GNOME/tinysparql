@@ -102,7 +102,7 @@ tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
 		           zip_file_uri, error ? error->message : "no error given");
 	} else { /* Create a new Input GSF object for the given file */
 
-		file = tracker_file_open (filename, "rb", FALSE);
+		file = tracker_file_open (filename);
 		if (!file) {
 			g_warning ("Can't open file from uri '%s': %s",
 			           zip_file_uri, g_strerror (errno));

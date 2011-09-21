@@ -103,7 +103,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
-	f = tracker_file_open (filename, "r", FALSE);
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);

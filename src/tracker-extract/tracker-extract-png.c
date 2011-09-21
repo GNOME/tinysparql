@@ -800,7 +800,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	f = tracker_file_open (filename, "r", FALSE);
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	if (!f) {

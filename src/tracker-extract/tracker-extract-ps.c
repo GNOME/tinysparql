@@ -205,7 +205,7 @@ extract_ps (const gchar          *uri,
 	gchar *filename;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
-	f = tracker_file_open (filename, "r", TRUE);
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	if (!f) {
