@@ -584,6 +584,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	const gchar *graph;
 	gchar *filename, *uri;
 	GFile *file;
+	FILE *f;
+	int fd;
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
@@ -598,7 +600,14 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	if ((gifFile = DGifOpenFileName (filename)) == NULL) {
+	f = tracker_file_open (filename);
+	if (!f) {
+		return FALSE;
+	}
+
+	fd = fileno (f);
+
+	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
 		PrintGifError ();
 		return FALSE;
 	}
@@ -621,6 +630,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 		PrintGifError ();
 	}
+
+	tracker_file_close (f, FALSE);
 
 	return TRUE;
 }
