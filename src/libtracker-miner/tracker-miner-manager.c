@@ -901,6 +901,10 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  * where the calling process has a risk of crashing without resuming
  * the pause.
  *
+ * NOTE: If you call g_object_unref() on the @manager before you
+ * intend to resume the pause and it finalizes, it will automatically
+ * resume.
+ *
  * Returns: %TRUE if the miner was paused successfully, otherwise
  * %FALSE.
  *
