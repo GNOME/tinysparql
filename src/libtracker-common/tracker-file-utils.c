@@ -51,30 +51,24 @@
 static GHashTable *file_locks = NULL;
 
 FILE *
-tracker_file_open (const gchar *path,
-                   const gchar *how,
-                   gboolean     sequential)
+tracker_file_open (const gchar *path)
 {
 	FILE *file;
-	gboolean readonly;
 	int fd;
 
 	g_return_val_if_fail (path != NULL, NULL);
-	g_return_val_if_fail (how != NULL, NULL);
-
-	readonly = !strstr (how, "r+") && strchr (how, 'r');
 
 #if defined(__linux__)
-	fd = g_open (path, (readonly ? O_RDONLY : O_RDWR) | O_NOATIME);
+	fd = g_open (path, O_RDONLY | O_NOATIME);
 #else
-	fd = g_open (path, readonly ? O_RDONLY : O_RDWR);
+	fd = g_open (path, O_RDONLY);
 #endif
 
 	if (fd == -1) {
 		return NULL;
 	}
 
-	file = fdopen (fd, how);
+	file = fdopen (fd, "r");
 
 	if (!file) {
 		return NULL;
