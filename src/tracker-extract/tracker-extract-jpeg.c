@@ -178,7 +178,7 @@ extract_jpeg (const gchar          *uri,
 		return;
 	}
 
-	f = tracker_file_open (filename, "rb", FALSE);
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	if (!f) {

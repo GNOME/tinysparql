@@ -768,7 +768,7 @@ extract_png (const gchar          *uri,
 		return;
 	}
 
-	f = tracker_file_open (filename, "r", FALSE);
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	if (!f) {
