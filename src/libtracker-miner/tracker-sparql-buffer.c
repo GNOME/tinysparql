@@ -301,14 +301,16 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 			 */
 			error_pos += update_data->n_bulk_operations;
 			error = g_ptr_array_index (sparql_array_errors, error_pos);
+			if (error) {
+				g_critical ("  (Sparql buffer) Error in task %u of the array-update: %s",
+				            i, error->message);
+			}
 		}
 
 		/* Call finished handler with the error, if any */
 		g_simple_async_result_set_op_res_gpointer (task_data->result,
 		                                           task, NULL);
 		if (error) {
-			g_critical ("  (Sparql buffer) Error in task %u of the array-update: %s",
-			            i, error->message);
 			g_simple_async_result_set_from_error (task_data->result, error);
 		}
 
