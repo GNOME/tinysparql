@@ -35,10 +35,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#ifndef _O_BINARY
-#define _O_BINARY 0
-#endif
-
 #include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -195,13 +191,12 @@ extract_abw (const gchar          *uri,
 		return;
 	}
 
-	fd = g_open (filename, O_RDONLY | _O_BINARY | O_NOATIME, 0);
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
 
 	if (fd == -1) {
-		g_warning ("Could not mmap abw file '%s': %s\n",
+		g_warning ("Could not open abw file '%s': %s\n",
 		           filename,
 		           g_strerror (errno));
-		g_error_free (error);
 		g_free (filename);
 		return;
 	}
@@ -211,7 +206,6 @@ extract_abw (const gchar          *uri,
 		           filename,
 		           g_strerror (errno));
 		close (fd);
-		g_error_free (error);
 		g_free (filename);
 		return;
 	}
@@ -221,12 +215,21 @@ extract_abw (const gchar          *uri,
 		len = 0;
 	} else {
 		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap abw file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return;
+		}
 		len = st.st_size;
 	}
 
 	g_free (filename);
 
 	if (contents) {
+		GError *error = NULL;
 		GMarkupParseContext *context;
 		AbwParserData data = { 0 };
 
@@ -249,7 +252,6 @@ extract_abw (const gchar          *uri,
 				g_string_free (data.content, TRUE);
 			}
 
-			retval = TRUE;
 		}
 
 		g_markup_parse_context_free (context);
