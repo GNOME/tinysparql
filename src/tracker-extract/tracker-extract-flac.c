@@ -179,7 +179,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	iter = FLAC__metadata_simple_iterator_new ();
-	success = FLAC__metadata_simple_iterator_init (iter, filename, TRUE, FALSE);
+	success = FLAC__metadata_simple_iterator_init (iter, filename, TRUE, TRUE);
 	g_free (filename);
 
 	if (!success) {
