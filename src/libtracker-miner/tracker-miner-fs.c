@@ -915,8 +915,8 @@ fs_finalize (GObject *object)
 	tracker_priority_queue_unref (priv->items_created);
 
 	tracker_priority_queue_foreach (priv->items_writeback,
-					(GFunc) item_writeback_data_free,
-					NULL);
+	                                (GFunc) item_writeback_data_free,
+	                                NULL);
 	tracker_priority_queue_unref (priv->items_writeback);
 
 	g_list_foreach (priv->dirs_without_parent, (GFunc) g_object_unref, NULL);
@@ -1569,17 +1569,17 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	if (fs->priv->current_iri_cache_parent_urn) {
 		query = g_strdup_printf ("SELECT ?url ?u { "
-					 "  ?u nfo:belongsToContainer <%s> ; "
-					 "     nie:url ?url "
-					 "}",
-					 fs->priv->current_iri_cache_parent_urn);
+		                         "  ?u nfo:belongsToContainer <%s> ; "
+		                         "     nie:url ?url "
+		                         "}",
+		                         fs->priv->current_iri_cache_parent_urn);
 	} else {
 		query = g_strdup_printf ("SELECT ?url ?u { "
-					 "  ?u nfo:belongsToContainer ?p ; "
-					 "     nie:url ?url . "
-					 "  ?p nie:url \"%s\" "
-					 "}",
-					 uri);
+		                         "  ?u nfo:belongsToContainer ?p ; "
+		                         "     nie:url ?url . "
+		                         "  ?p nie:url \"%s\" "
+		                         "}",
+		                         uri);
 	}
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
@@ -1724,7 +1724,7 @@ iri_cache_invalidate (TrackerMinerFS *fs,
 
 static void
 iri_cache_check_update (TrackerMinerFS *fs,
-			GFile          *file)
+                        GFile          *file)
 {
 	GFile *parent;
 
@@ -1748,7 +1748,7 @@ iri_cache_check_update (TrackerMinerFS *fs,
 
 			if (!item_query_exists (fs,
 			                        parent,
-						FALSE,
+			                        FALSE,
 			                        &fs->priv->current_iri_cache_parent_urn,
 			                        NULL)) {
 				fs->priv->current_iri_cache_parent_urn = NULL;
@@ -3071,12 +3071,12 @@ item_queue_handlers_cb (gpointer user_data)
 			 * are processed promptly anyway.
 			 */
 			tracker_priority_queue_add (item_queue,
-						    g_object_ref (parent),
-						    priority - 1);
+			                            g_object_ref (parent),
+			                            priority - 1);
 
 			tracker_priority_queue_add (item_queue,
-						    g_object_ref (file),
-						    priority);
+			                            g_object_ref (file),
+			                            priority);
 			keep_processing = TRUE;
 		}
 
@@ -3236,9 +3236,9 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	if (G_UNLIKELY (!fs->priv->mtime_cache)) {
 		fs->priv->mtime_cache = g_hash_table_new_full (g_file_hash,
-		                                                  (GEqualFunc) g_file_equal,
-		                                                  (GDestroyNotify) g_object_unref,
-		                                                  (GDestroyNotify) g_free);
+		                                               (GEqualFunc) g_file_equal,
+		                                               (GDestroyNotify) g_object_unref,
+		                                               (GDestroyNotify) g_free);
 	}
 
 	/* Is input file already the parent dir? */
@@ -3535,7 +3535,7 @@ writeback_files_equal (gconstpointer a,
 
 static gboolean
 remove_writeback_task (TrackerMinerFS *fs,
-		       GFile          *file)
+                       GFile          *file)
 {
 	TrackerTask *task;
 	ItemWritebackData *data;
@@ -3974,8 +3974,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					if (check_item_queues (fs, QUEUE_CREATED, other_file, NULL)) {
 						trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
 						tracker_priority_queue_add (fs->priv->items_created,
-									    g_object_ref (other_file),
-									    G_PRIORITY_DEFAULT);
+						                            g_object_ref (other_file),
+						                            G_PRIORITY_DEFAULT);
 
 						item_queue_handlers_set_up (fs);
 					}
@@ -4891,7 +4891,7 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 
 	data = item_writeback_data_new (file, rdf_types, results);
 	tracker_priority_queue_add (fs->priv->items_writeback, data,
-				    G_PRIORITY_DEFAULT);
+	                            G_PRIORITY_DEFAULT);
 
 	item_queue_handlers_set_up (fs);
 
@@ -5520,7 +5520,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 
 	/* We add the parent of the input file */
 	fs->priv->dirs_without_parent = g_list_prepend (fs->priv->dirs_without_parent,
-	                                                   parent);
+	                                                parent);
 }
 
 /* Returns TRUE if the given GFile is actually the REAL parent
