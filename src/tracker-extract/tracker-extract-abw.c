@@ -35,10 +35,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#ifndef _O_BINARY
-#define _O_BINARY 0
-#endif
-
 #include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -173,7 +169,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	TrackerSparqlBuilder *preupdate, *metadata;
 	int fd;
 	gchar *filename, *contents;
-	GError *error = NULL;
 	gboolean retval = FALSE;
 	GFile *f;
 	gsize len;
@@ -185,19 +180,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	f = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (f);
 
-	if (error) {
-		g_warning ("Could not get filename: %s\n", error->message);
-		g_error_free (error);
-		return retval;
-	}
-
-	fd = g_open (filename, O_RDONLY | _O_BINARY | O_NOATIME, 0);
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
 
 	if (fd == -1) {
-		g_warning ("Could not mmap abw file '%s': %s\n",
+		g_warning ("Could not open abw file '%s': %s\n",
 		           filename,
 		           g_strerror (errno));
-		g_error_free (error);
 		g_free (filename);
 		return retval;
 	}
@@ -207,7 +195,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		           filename,
 		           g_strerror (errno));
 		close (fd);
-		g_error_free (error);
 		g_free (filename);
 		return retval;
 	}
@@ -217,12 +204,21 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		len = 0;
 	} else {
 		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap abw file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return retval;
+		}
 		len = st.st_size;
 	}
 
 	g_free (filename);
 
 	if (contents) {
+		GError *error = NULL;
 		GMarkupParseContext *context;
 		AbwParserData data = { 0 };
 
