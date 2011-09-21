@@ -544,6 +544,8 @@ extract_gif (const gchar          *uri,
 	goffset size;
 	GifFileType *gifFile = NULL;
 	gchar *filename;
+	FILE *f;
+	int fd;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	size = tracker_file_get_size (filename);
@@ -553,7 +555,14 @@ extract_gif (const gchar          *uri,
 		return;
 	}
 
-	if ((gifFile = DGifOpenFileName (filename)) == NULL) {
+	f = tracker_file_open (filename);
+	if (!f) {
+		return;
+	}
+
+	fd = fileno (f);
+
+	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
 		PrintGifError ();
 		return;
 	}
@@ -570,6 +579,7 @@ extract_gif (const gchar          *uri,
 		PrintGifError ();
 	}
 
+	tracker_file_close (f, FALSE);
 }
 
 TrackerExtractData *
