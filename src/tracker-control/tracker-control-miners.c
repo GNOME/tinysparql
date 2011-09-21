@@ -275,8 +275,11 @@ miner_list (gboolean available,
 
 		miners_available = tracker_miner_manager_get_available (manager);
 
-		str = g_strdup_printf (_("Found %d miners installed"),
+		str = g_strdup_printf (ngettext ("Found %d miner installed",
+		                                 "Found %d miners installed",
+		                                 g_slist_length (miners_available)),
 		                       g_slist_length (miners_available));
+
 		g_print ("%s%s\n", str, g_slist_length (miners_available) > 0 ? ":" : "");
 		g_free (str);
 
@@ -295,8 +298,11 @@ miner_list (gboolean available,
 
 		miners_running = tracker_miner_manager_get_running (manager);
 
-		str = g_strdup_printf (_("Found %d miners running"),
+		str = g_strdup_printf (ngettext ("Found %d miner running",
+		                                 "Found %d miners running",
+		                                 g_slist_length (miners_running)),
 		                       g_slist_length (miners_running));
+
 		g_print ("%s%s\n", str, g_slist_length (miners_running) > 0 ? ":" : "");
 		g_free (str);
 
