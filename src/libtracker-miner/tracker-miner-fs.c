@@ -3131,21 +3131,31 @@ _tracker_idle_add (TrackerMinerFS *fs,
 static void
 item_queue_handlers_set_up (TrackerMinerFS *fs)
 {
+	trace_eq ("Setting up queue handlers...");
 	if (fs->priv->item_queues_handler_id != 0) {
+		trace_eq ("   cancelled: already one active");
 		return;
 	}
 
 	if (fs->priv->is_paused) {
+		trace_eq ("   cancelled: paused");
 		return;
 	}
 
 	/* Already sent max number of tasks to tracker-extract/writeback? */
 	if (tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (fs->priv->writeback_pool)) {
+		trace_eq ("   cancelled: pool limit reached (tasks: %u (max %u) , writeback: %u (max %u))",
+		          tracker_task_pool_get_size (fs->priv->task_pool),
+		          tracker_task_pool_get_limit (fs->priv->task_pool),
+		          tracker_task_pool_get_size (fs->priv->writeback_pool),
+		          tracker_task_pool_get_limit (fs->priv->writeback_pool));
 		return;
 	}
 
 	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+		trace_eq ("   cancelled: pool limit reached (sparql buffer: %u)",
+		          tracker_task_pool_get_limit (TRACKER_TASK_POOL (fs->priv->sparql_buffer)));
 		return;
 	}
 
@@ -3167,6 +3177,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		g_free (status);
 	}
 
+	trace_eq ("   scheduled in idle");
 	fs->priv->item_queues_handler_id =
 		_tracker_idle_add (fs,
 		                   item_queue_handlers_cb,
@@ -5545,8 +5556,8 @@ miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 
 static void
-miner_fs_trace_queue_with_files_foreach (gpointer file,
-                                         gpointer fs)
+trace_files_foreach (gpointer file,
+                     gpointer fs)
 {
 	gchar *uri;
 
@@ -5558,22 +5569,8 @@ miner_fs_trace_queue_with_files_foreach (gpointer file,
 }
 
 static void
-miner_fs_trace_queue_with_files (TrackerMinerFS       *fs,
-                                 const gchar          *queue_name,
-                                 TrackerPriorityQueue *queue)
-{
-	trace_eq ("(%s) Queue '%s' has %u elements:",
-	          G_OBJECT_TYPE_NAME (fs),
-	          queue_name,
-	          tracker_priority_queue_get_length (queue));
-	tracker_priority_queue_foreach (queue,
-	                                miner_fs_trace_queue_with_files_foreach,
-	                                fs);
-}
-
-static void
-miner_fs_trace_queue_with_data_foreach (gpointer moved_data,
-                                        gpointer fs)
+trace_moved_foreach (gpointer moved_data,
+                     gpointer fs)
 {
 	ItemMovedData *data = moved_data;
 	gchar *source_uri;
@@ -5590,16 +5587,31 @@ miner_fs_trace_queue_with_data_foreach (gpointer moved_data,
 }
 
 static void
-miner_fs_trace_queue_with_data (TrackerMinerFS       *fs,
-                                const gchar          *queue_name,
-                                TrackerPriorityQueue *queue)
+trace_writeback_foreach (gpointer writeback_data,
+                         gpointer fs)
+{
+	ItemWritebackData *data = writeback_data;
+	gchar *uri;
+
+	uri = g_file_get_uri (G_FILE (data->file));
+	trace_eq ("(%s)     '%s'",
+	          G_OBJECT_TYPE_NAME (G_OBJECT (fs)),
+	          uri);
+	g_free (uri);
+}
+
+static void
+miner_fs_trace_queue (TrackerMinerFS       *fs,
+                      const gchar          *queue_name,
+                      TrackerPriorityQueue *queue,
+                      GFunc                 foreach_cb)
 {
 	trace_eq ("(%s) Queue '%s' has %u elements:",
 	          G_OBJECT_TYPE_NAME (fs),
 	          queue_name,
 	          tracker_priority_queue_get_length (queue));
 	tracker_priority_queue_foreach (queue,
-	                                miner_fs_trace_queue_with_data_foreach,
+	                                foreach_cb,
 	                                fs);
 }
 
@@ -5609,11 +5621,11 @@ miner_fs_queues_status_trace_timeout_cb (gpointer data)
 	TrackerMinerFS *fs = data;
 
 	trace_eq ("(%s) ------------", G_OBJECT_TYPE_NAME (fs));
-	miner_fs_trace_queue_with_files (fs, "CREATED", fs->priv->items_created);
-	miner_fs_trace_queue_with_files (fs, "UPDATED", fs->priv->items_updated);
-	miner_fs_trace_queue_with_files (fs, "DELETED", fs->priv->items_deleted);
-	miner_fs_trace_queue_with_data  (fs, "MOVED",   fs->priv->items_moved);
-	miner_fs_trace_queue_with_files (fs, "WRITEBACK", fs->priv->items_writeback);
+	miner_fs_trace_queue (fs, "CREATED",   fs->priv->items_created,   trace_files_foreach);
+	miner_fs_trace_queue (fs, "UPDATED",   fs->priv->items_updated,   trace_files_foreach);
+	miner_fs_trace_queue (fs, "DELETED",   fs->priv->items_deleted,   trace_files_foreach);
+	miner_fs_trace_queue (fs, "MOVED",     fs->priv->items_moved,     trace_moved_foreach);
+	miner_fs_trace_queue (fs, "WRITEBACK", fs->priv->items_writeback, trace_writeback_foreach);
 
 	return TRUE;
 }
