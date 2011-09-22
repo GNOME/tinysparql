@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 #include <string.h>
 
 #include <glib.h>
@@ -35,6 +36,7 @@
 #include <gsf/gsf-infile-zip.h>
 
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -757,28 +759,20 @@ extract_powerpoint_content (GsfInfile *infile,
 	return all_texts ? g_string_free (all_texts, FALSE) : NULL;
 }
 
-/**
- * @brief Open specified uri for reading and initialize gsf
- * @param uri URI of the file to open
- * @return GsfInFile of the opened file or NULL if failed to open file
- */
 static GsfInfile *
-open_uri (const gchar *uri)
+open_file (const gchar *filename, FILE *file)
 {
 	GsfInput *input;
 	GsfInfile *infile;
-	gchar *filename;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
-	input = gsf_input_stdio_new (filename, NULL);
-	g_free (filename);
-
+	input = gsf_input_stdio_new_FILE (filename, file, TRUE);
+	
 	if (!input) {
 		return NULL;
 	}
 
 	infile = gsf_infile_msole_new (input, NULL);
-	g_object_unref (G_OBJECT (input));
+	g_object_unref (input);
 
 	return infile;
 }
@@ -1655,6 +1649,8 @@ extract_msoffice (const gchar          *uri,
 	gchar *content = NULL;
 	gboolean is_encrypted = FALSE;
 	gsize max_bytes;
+	gchar *filename;
+	FILE *mfile;
 
 	file = g_file_new_for_uri (uri);
 
@@ -1679,10 +1675,24 @@ extract_msoffice (const gchar          *uri,
 
 	gsf_init ();
 
-	infile = open_uri (uri);
+	filename = g_filename_from_uri (uri, NULL, NULL);
+
+	mfile = tracker_file_open (filename);
+	g_free (filename);
+
+	if (!mfile) {
+		g_warning ("Can't open file from uri '%s': %s",
+		           uri, g_strerror (errno));
+		return;
+	}
+
+	infile = open_file (uri, mfile);
 	if (!infile) {
 		g_object_unref (file_info);
 		gsf_shutdown ();
+		if (mfile) {
+			tracker_file_close (mfile, FALSE);
+		}
 		return;
 	}
 
@@ -1728,6 +1738,10 @@ extract_msoffice (const gchar          *uri,
 	g_object_unref (infile);
 	g_object_unref (file_info);
 	gsf_shutdown ();
+
+	if (mfile) {
+		tracker_file_close (mfile, FALSE);
+	}
 }
 
 TrackerExtractData *
