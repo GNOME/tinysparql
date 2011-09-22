@@ -20,6 +20,17 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <glib/gstdio.h>
 
 #include <tiffio.h>
@@ -261,7 +272,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	TrackerSparqlBuilder *metadata, *preupdate;
 	const gchar *graph;
 	GString *where;
-	FILE *mfile = NULL;
 	int fd;
 
 #ifdef HAVE_LIBIPTCDATA
@@ -281,18 +291,20 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	graph = tracker_extract_info_get_graph (info);
 
-	mfile = tracker_file_open (filename);
-	
-	if (!mfile) {
-		return FALSE;
-	}
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
 
-	fd = fileno (mfile);
+	if (fd == -1) {
+		g_warning ("Could not open tiff file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return FALSE;
+	}	
 
 	if ((image = TIFFFdOpen (fd, filename, "r")) == NULL){
 		g_warning ("Could not open image:'%s'\n", filename);
 		g_free (filename);
-		tracker_file_close (mfile, FALSE);
+		close (fd);
 		return FALSE;
 	}
 
@@ -845,9 +857,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_iptc_free (id);
 	g_free (uri);
 
-	if (mfile) {
-		tracker_file_close (mfile, FALSE);
-	}
+	close (fd);
 
 	return TRUE;
 }
