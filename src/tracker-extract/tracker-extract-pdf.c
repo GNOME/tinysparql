@@ -21,13 +21,25 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib/poppler.h>
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
 
@@ -283,6 +295,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	GString *where;
 	guint i;
 	GFile *file;
+	gchar *filename;
+	int fd;
+	gchar *contents = NULL;
+	gsize len;
+	struct stat st;
 
 	g_type_init ();
 
@@ -291,10 +308,48 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	graph = tracker_extract_info_get_graph (info);
 
 	file = tracker_extract_info_get_file (info);
+	filename = g_file_get_path (file);
+
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+
+	if (fd == -1) {
+		g_warning ("Could not open pdf file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return FALSE;
+	}
+
+	if (fstat (fd, &st) == -1) {
+		g_warning ("Could not fstat pdf file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		close (fd);
+		g_free (filename);
+		return FALSE;
+	}
+
+	if (st.st_size == 0) {
+		contents = NULL;
+		len = 0;
+	} else {
+		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap pdf file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return FALSE;
+		}
+		len = st.st_size;
+	}
+
+	g_free (filename);
 	uri = g_file_get_uri (file);
 
-	document = poppler_document_new_from_file (uri, NULL, &error);
-
+	document = poppler_document_new_from_data (contents, len, NULL, &error);
+	
 	if (error) {
 		if (error->code == POPPLER_ERROR_ENCRYPTED) {
 			tracker_sparql_builder_predicate (metadata, "a");
@@ -685,6 +740,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	g_free (uri);
 
 	g_object_unref (document);
+
+	if (contents) {
+		munmap (contents, len);
+	}
+
+	close (fd);
 
 	return TRUE;
 }
