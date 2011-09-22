@@ -287,6 +287,7 @@ tracker_gsettings_set_all (GSList           *all,
 		}
 
 		success &= g_settings_set_enum (c->settings, "verbosity", verbosity);
+		g_settings_apply (c->settings);
 	}
 
 	return success;
@@ -320,7 +321,7 @@ tracker_gsettings_get_all (gint *longest_name_length)
 	/* Don't auto-start the miners here */
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
-		g_printerr (_("Could not get log verbosity, manager could not be created, %s"),
+		g_printerr (_("Could not get GSettings for miners, manager could not be created, %s"),
 		            error ? error->message : "unknown error");
 		g_printerr ("\n");
 		g_clear_error (&error);
@@ -790,6 +791,7 @@ tracker_control_general_run (void)
 		const gchar *suffix = ".cfg";
 		const gchar *home_conf_dir;
 		gchar *path;
+		GSList *all, *l;
 
 		crawler = tracker_crawler_new ();
 		main_loop = g_main_loop_new (NULL, FALSE);
@@ -827,6 +829,39 @@ tracker_control_general_run (void)
 
 		g_main_loop_run (main_loop);
 		g_object_unref (crawler);
+
+		g_print ("%s\n", _("Resetting existing configuration…"));
+
+		all = tracker_gsettings_get_all (NULL);
+
+		if (!all) {
+			return EXIT_FAILURE;
+		}
+
+		for (l = all; l; l = l->next) {
+			ComponentGSettings *c = l->data;
+			gchar **keys, **p;
+
+			if (!c) {
+				continue;
+			}
+
+			g_print ("  %s\n", c->name);
+
+			keys = g_settings_list_keys (c->settings);
+			for (p = keys; p && *p; p++) {
+				g_print ("    %s\n", *p);
+				g_settings_reset (c->settings, *p);
+			}
+
+			if (keys) {
+				g_strfreev (keys);
+			}
+
+			g_settings_apply (c->settings);
+		}
+
+		tracker_gsettings_free (all);
 	}
 
 	/* Deal with logging changes AFTER the config may have been
