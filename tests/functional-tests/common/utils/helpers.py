@@ -75,6 +75,9 @@ class Helper:
         path = getattr (self,
                         "PROCESS_PATH",
                         os.path.join (cfg.EXEC_PREFIX, self.PROCESS_NAME))
+        flags = getattr (self,
+                         "FLAGS",
+                         [])
 
         if options.is_manual_start ():
             print ("Start %s manually" % self.PROCESS_NAME)
@@ -85,7 +88,7 @@ class Helper:
                 FNULL = open ('/dev/null', 'w')
                 kws = { 'stdout': FNULL, 'stderr': FNULL }
 
-            return subprocess.Popen ([path], **kws)
+            return subprocess.Popen ([path] + flags, **kws)
 
     def _stop_process (self):
         if options.is_manual_start ():
@@ -301,6 +304,8 @@ class MinerFsHelper (Helper):
     PROCESS_NAME = 'tracker-miner-fs'
     PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, "tracker-miner-fs")
     BUS_NAME = cfg.MINERFS_BUSNAME
+
+    FLAGS = ['--initial-sleep=0']
 
     def _stop_process (self):
         if options.is_manual_start ():
