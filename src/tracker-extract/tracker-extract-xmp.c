@@ -19,6 +19,21 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -124,22 +139,59 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	TrackerSparqlBuilder *metadata, *preupdate;
 	TrackerXmpData *xd = NULL;
-	GError *error = NULL;
 	gchar *filename, *uri;
 	gchar *contents;
-	gsize length;
+	gsize length = 0;
 	GFile *file;
 	const gchar *graph;
+	int fd;
+	struct stat st;
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
-	uri = g_file_get_uri (file);
 
 	graph = tracker_extract_info_get_graph (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
 
-	if (g_file_get_contents (filename, &contents, &length, &error)) {
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+
+	if (fd == -1) {
+		g_warning ("Could not open xmp file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return FALSE;
+	}
+
+	if (fstat (fd, &st) == -1) {
+		g_warning ("Could not fstat xmp file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		close (fd);
+		g_free (filename);
+		return FALSE;
+	}
+
+	if (st.st_size == 0) {
+		contents = NULL;
+		length = 0;
+	} else {
+		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap xmp file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return FALSE;
+		}
+		length = st.st_size;
+	}
+
+	uri = g_file_get_uri (file);
+
+	if (contents) {
 		gchar *original_uri;
 
 		original_uri = find_orig_uri (filename);
@@ -162,13 +214,17 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		g_free (original_uri);
 		tracker_xmp_free (xd);
-		g_free (contents);
 		g_free (filename);
 		g_free (uri);
+
+		munmap (contents, length);
+
+		close (fd);
 
 		return TRUE;
 	}
 
+	close (fd);
 	g_free (filename);
 	g_free (uri);
 
