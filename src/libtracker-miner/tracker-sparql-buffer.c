@@ -344,6 +344,7 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 	if (merge->bulk_operation && merge->tasks) {
 		GString *equals_string = NULL, *children_string = NULL, *sparql;
 		guint n_equals = 0;
+		gboolean include_logical_resources = FALSE;
 		GList *l;
 
 		for (l = merge->tasks; l; l = l->next) {
@@ -375,6 +376,10 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 				g_string_append_printf (children_string, "\"%s\"", uri);
 			}
 
+			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_LOGICAL_RESOURCES) {
+				include_logical_resources = TRUE;
+			}
+
 			g_free (uri);
 		}
 
@@ -382,23 +387,24 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 
 		if (equals_string) {
 			g_string_append (sparql, merge->bulk_operation);
+			g_string_append_printf (sparql, " WHERE { ");
 
 			if (n_equals == 1) {
 				g_string_append_printf (sparql,
-				                        " WHERE { "
-				                        "  ?f nie:url %s"
-				                        "} ",
+				                        "  ?f nie:url %s .",
 				                        equals_string->str);
 			} else {
 				g_string_append_printf (sparql,
-				                        " WHERE { "
 				                        "  ?f nie:url ?u ."
-				                        "  FILTER (?u IN (%s))"
-				                        "} ",
+				                        "  FILTER (?u IN (%s))",
 				                        equals_string->str);
 			}
-
 			g_string_free (equals_string, TRUE);
+
+			if (include_logical_resources) {
+				g_string_append (sparql, "  ?ie nie:isStoredAs ?f .");
+			}
+			g_string_append_printf (sparql, " } ");
 		}
 
 		if (children_string) {
@@ -406,10 +412,14 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 			g_string_append_printf (sparql,
 			                        " WHERE { "
 			                        "  ?f nie:url ?u ."
-			                        "  FILTER (tracker:uri-is-descendant (%s, ?u))"
-			                        "} ",
+			                        "  FILTER (tracker:uri-is-descendant (%s, ?u))",
 			                        children_string->str);
 			g_string_free (children_string, TRUE);
+
+			if (include_logical_resources) {
+				g_string_append (sparql, "  ?ie nie:isStoredAs ?f .");
+			}
+			g_string_append_printf (sparql, "} ");
 		}
 
 		merge->sparql = g_string_free (sparql, FALSE);

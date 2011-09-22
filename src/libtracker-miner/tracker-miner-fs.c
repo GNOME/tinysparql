@@ -2063,10 +2063,12 @@ item_remove (TrackerMinerFS *fs,
 	/* Add new task to processing pool */
 	task = tracker_sparql_task_new_bulk (file,
 	                                     "DELETE { "
-	                                     "  ?f a rdfs:Resource "
+	                                     "  ?f a rdfs:Resource . "
+	                                     "  ?ie a rdfs:Resource "
 	                                     "}",
 	                                     TRACKER_BULK_MATCH_EQUALS |
-	                                     TRACKER_BULK_MATCH_CHILDREN);
+	                                     TRACKER_BULK_MATCH_CHILDREN |
+	                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,

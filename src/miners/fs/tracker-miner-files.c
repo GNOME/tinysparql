@@ -2800,12 +2800,14 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		 * of the given type */
 		g_string_append_printf (queries,
 		                        "DELETE { "
-		                        "  ?f a rdfs:Resource "
+		                        "  ?f a rdfs:Resource . "
+		                        "  ?ie a rdfs:Resource "
 		                        "} WHERE { "
 		                        "  ?v a tracker:Volume ; "
 		                        "     tracker:isRemovable %s ; "
 		                        "     tracker:isOptical %s . "
-		                        "  ?f nie:dataSource ?v "
+		                        "  ?f nie:dataSource ?v . "
+		                        "  ?ie nie:isStoredAs ?f "
 		                        "}",
 		                        removable ? "true" : "false",
 		                        optical ? "true" : "false");
@@ -2841,13 +2843,15 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	 * which was last unmounted before the given date */
 	g_string_append_printf (queries,
 	                        "DELETE { "
-	                        "  ?f a rdfs:Resource "
+	                        "  ?f a rdfs:Resource . "
+	                        "  ?ie a rdfs:Resource "
 	                        "} WHERE { "
 	                        "  ?v a tracker:Volume ; "
 	                        "     tracker:isRemovable true ; "
 	                        "     tracker:isMounted false ; "
 	                        "     tracker:unmountDate ?d . "
 	                        "  ?f nie:dataSource ?v . "
+	                        "  ?ie nie:isStoredAs ?f "
 	                        "  FILTER ( ?d < \"%s\") "
 	                        "}",
 	                        date);
