@@ -269,6 +269,8 @@ extract_tiff (const gchar          *uri,
 	GPtrArray *keywords;
 	guint i;
 	GString *where = NULL;
+	FILE *mfile = NULL;
+	int fd;
 
 #ifdef HAVE_LIBIPTCDATA
 	gchar *iptc_offset;
@@ -282,9 +284,18 @@ extract_tiff (const gchar          *uri,
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
-	if ((image = TIFFOpen (filename, "r")) == NULL){
+	mfile = tracker_file_open (filename);
+	
+	if (!mfile) {
+		return;
+	}
+
+	fd = fileno (mfile);
+
+	if ((image = TIFFFdOpen (fd, filename, "r")) == NULL){
 		g_warning ("Could not open image:'%s'\n", filename);
 		g_free (filename);
+		tracker_file_close (mfile, FALSE);
 		return;
 	}
 
@@ -774,6 +785,10 @@ extract_tiff (const gchar          *uri,
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	tracker_iptc_free (id);
+
+	if (mfile) {
+		tracker_file_close (mfile, FALSE);
+	}
 }
 
 TrackerExtractData *
