@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-21 09:50+0000\n"
-"PO-Revision-Date: 2011-09-21 15:08+0100\n"
+"POT-Creation-Date: 2011-09-22 10:53+0000\n"
+"PO-Revision-Date: 2011-09-22 13:20+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -1204,123 +1204,127 @@ msgid "Could not open /proc"
 msgstr "Ni mogoče odpreti /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:632
-#: ../src/tracker-control/tracker-control-general.c:672
-#: ../src/tracker-control/tracker-control-general.c:693
+#: ../src/tracker-control/tracker-control-general.c:633
+#: ../src/tracker-control/tracker-control-general.c:673
+#: ../src/tracker-control/tracker-control-general.c:694
 msgid "no error given"
 msgstr "napaka ni podana"
 
-#: ../src/tracker-control/tracker-control-general.c:323
+#: ../src/tracker-control/tracker-control-general.c:324
 #, c-format
-msgid "Could not get log verbosity, manager could not be created, %s"
-msgstr "Ni mogoče razbrati obsežnosti beleženja, upravljalnika ni mogoče ustvariti, %s"
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr "Ni mogoče dobiti podatkov GSettings za podatkovno rudarjenje, saj upravljalnika ni mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:548
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Argumentov --kill in --terminate ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-general.c:554
+#: ../src/tracker-control/tracker-control-general.c:555
 msgid "You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"
 msgstr "Argumenta --terminate ni mogoče uporabiti s --hard-reset, --kill je predpostavljen"
 
-#: ../src/tracker-control/tracker-control-general.c:560
+#: ../src/tracker-control/tracker-control-general.c:561
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Argumentov --hard-reset in --soft-reset ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-general.c:566
+#: ../src/tracker-control/tracker-control-general.c:567
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Argumentov --get-logging in --set-logging ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-general.c:581
+#: ../src/tracker-control/tracker-control-general.c:582
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr "Neveljavna obsežnost beleženja, poskusite z 'debug' (razhroščevalna), 'detailed' (podrobna), 'minimal' (minimalna) ali 'errors' (napake)"
 
-#: ../src/tracker-control/tracker-control-general.c:629
+#: ../src/tracker-control/tracker-control-general.c:630
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Ni mogoče odpreti '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:654
+#: ../src/tracker-control/tracker-control-general.c:655
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Najden je bil ID opravila %d za '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:669
+#: ../src/tracker-control/tracker-control-general.c:670
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Opravila %d ni mogoče končati"
 
-#: ../src/tracker-control/tracker-control-general.c:675
+#: ../src/tracker-control/tracker-control-general.c:676
 #, c-format
 msgid "Terminated process %d"
 msgstr "Opravilo %d je končano"
 
-#: ../src/tracker-control/tracker-control-general.c:690
+#: ../src/tracker-control/tracker-control-general.c:691
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Opravila %d ni mogoče uničiti"
 
-#: ../src/tracker-control/tracker-control-general.c:696
+#: ../src/tracker-control/tracker-control-general.c:697
 #, c-format
 msgid "Killed process %d"
 msgstr "Opravilo %d je bilo uničeno"
 
-#: ../src/tracker-control/tracker-control-general.c:823
+#: ../src/tracker-control/tracker-control-general.c:825
 msgid "Removing configuration files…"
 msgstr "Odstranjevanje namestitvenih datotek ..."
 
-#: ../src/tracker-control/tracker-control-general.c:846
-#: ../src/tracker-control/tracker-control-general.c:888
+#: ../src/tracker-control/tracker-control-general.c:833
+msgid "Resetting existing configuration…"
+msgstr "Poteka čiščenje obstoječih nastavitev ..."
+
+#: ../src/tracker-control/tracker-control-general.c:881
+#: ../src/tracker-control/tracker-control-general.c:923
 msgid "Components"
 msgstr "Komponente"
 
-#: ../src/tracker-control/tracker-control-general.c:852
-#: ../src/tracker-control/tracker-control-general.c:894
-#: ../src/tracker-control/tracker-control-miners.c:377
+#: ../src/tracker-control/tracker-control-general.c:887
+#: ../src/tracker-control/tracker-control-general.c:929
+#: ../src/tracker-control/tracker-control-miners.c:385
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-general.c:853
-#: ../src/tracker-control/tracker-control-general.c:895
+#: ../src/tracker-control/tracker-control-general.c:888
+#: ../src/tracker-control/tracker-control-general.c:930
 msgid "Only those with config listed"
 msgstr "Samo tisti z izpisano prilagoditvijo"
 
-#: ../src/tracker-control/tracker-control-general.c:871
+#: ../src/tracker-control/tracker-control-general.c:906
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Določanje obsežnosti beleženja za vse komponente na '%s' …"
 
-#: ../src/tracker-control/tracker-control-general.c:911
+#: ../src/tracker-control/tracker-control-general.c:946
 msgid "Waiting one second before starting miners…"
 msgstr "Čakanje eno sekundo pred začetkom podatkovnega rudarjenja ..."
 
-#: ../src/tracker-control/tracker-control-general.c:917
+#: ../src/tracker-control/tracker-control-general.c:952
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnega rudarjenja ..."
 
-#: ../src/tracker-control/tracker-control-general.c:923
+#: ../src/tracker-control/tracker-control-general.c:958
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Podatkovnega rudarjenja ni mogoče začeti, upravljalnika ni bilo mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:948
+#: ../src/tracker-control/tracker-control-general.c:983
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker-control/tracker-control-general.c:970
+#: ../src/tracker-control/tracker-control-general.c:1005
 msgid "Backing up database"
 msgstr "Ustvarjanje varnostne kopije podatkovne zbirke"
 
-#: ../src/tracker-control/tracker-control-general.c:1042
+#: ../src/tracker-control/tracker-control-general.c:1077
 msgid "Restoring database from backup"
 msgstr "Obnavljanje podatkovne zbirke iz varnostne kopije"
 
-#: ../src/tracker-control/tracker-control-general.c:1115
+#: ../src/tracker-control/tracker-control-general.c:1150
 msgid "General options"
 msgstr "Splošne možnosti"
 
-#: ../src/tracker-control/tracker-control-general.c:1116
+#: ../src/tracker-control/tracker-control-general.c:1151
 msgid "Show general options"
 msgstr "Pokaži splošne možnosti"
 
@@ -1394,63 +1398,63 @@ msgstr "Ni mogoče narediti premora podatkovnega rudarjenja: %s"
 msgid "Cookie is %d"
 msgstr "Piškotek je %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:144
+#: ../src/tracker-control/tracker-control-miners.c:145
 msgid "Press Ctrl+C to end pause"
 msgstr "Pritisnite Ctrl+C za končanje premora"
 
-#: ../src/tracker-control/tracker-control-miners.c:161
+#: ../src/tracker-control/tracker-control-miners.c:169
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
 msgstr "Podatkovnega rudarjenja ni mogoče nadaljevati, upravljalnika ni mogoče ustvariti: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:168
+#: ../src/tracker-control/tracker-control-miners.c:176
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Poskus nadaljevanja podatkovnega rudarjenja %s s piškotkom %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:175
+#: ../src/tracker-control/tracker-control-miners.c:183
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "Podatkovnega rudarjenja ni mogoče nadaljevati: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:179
+#: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:142
 #: ../src/tracker-utils/tracker-sparql.c:571
 msgid "Done"
 msgstr "Končano"
 
-#: ../src/tracker-control/tracker-control-miners.c:195
+#: ../src/tracker-control/tracker-control-miners.c:203
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
 msgstr "Iz vrst mime ni mogoče znova pripraviti kazala, upravljalnika ni mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:205
+#: ../src/tracker-control/tracker-control-miners.c:213
 msgid "Could not reindex mimetypes"
 msgstr "Iz vrst mime ni mogoče znova pripraviti kazala"
 
-#: ../src/tracker-control/tracker-control-miners.c:211
+#: ../src/tracker-control/tracker-control-miners.c:219
 msgid "Reindexing mime types was successful"
 msgstr "Ponovna priprava kazala vrst mime je bila uspešna"
 
-#: ../src/tracker-control/tracker-control-miners.c:227
+#: ../src/tracker-control/tracker-control-miners.c:235
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
 msgstr "Ni mogoče (ponovno) pripraviti kazala datoteke, upravljalnika ni mogoče ustvariti, %s "
 
-#: ../src/tracker-control/tracker-control-miners.c:240
+#: ../src/tracker-control/tracker-control-miners.c:248
 msgid "Could not (re)index file"
 msgstr "Ni mogoče (znova) pripraviti kazala datoteke"
 
-#: ../src/tracker-control/tracker-control-miners.c:246
+#: ../src/tracker-control/tracker-control-miners.c:254
 msgid "(Re)indexing file was successful"
 msgstr "(Ponovna) priprava kazala je bila uspešna"
 
-#: ../src/tracker-control/tracker-control-miners.c:264
+#: ../src/tracker-control/tracker-control-miners.c:272
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr "Ni mogoče dobiti seznama podatkovnega rudarjenja, upravljalnika ni mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:278
+#: ../src/tracker-control/tracker-control-miners.c:286
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
@@ -1459,7 +1463,7 @@ msgstr[1] "Najden je %d nameščen program za podatkovno rudarjenje"
 msgstr[2] "Najdena sta %d nameščena programa za podatkovno rudarjenje"
 msgstr[3] "Najdeni so %d nameščeni programi za podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-miners.c:301
+#: ../src/tracker-control/tracker-control-miners.c:309
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
@@ -1468,44 +1472,44 @@ msgstr[1] "Najden je %d zagnan program za podatkovno rudarjenje"
 msgstr[2] "Najdena sta %d zagnana programa za podatkovno rudarjenje"
 msgstr[3] "Najdeni so %d zagnani programi za podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
+#: ../src/tracker-control/tracker-control-miners.c:341
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr "Ni mogoče dobiti podrobnosti premora, upravljalnika ni bilo mogoče ustvariti, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:343
+#: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are running"
 msgstr "Ni zagnanih programov za podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-miners.c:384
+#: ../src/tracker-control/tracker-control-miners.c:392
 msgid "Application"
 msgstr "Program"
 
-#: ../src/tracker-control/tracker-control-miners.c:386
+#: ../src/tracker-control/tracker-control-miners.c:394
 msgid "Reason"
 msgstr "Vzrok"
 
-#: ../src/tracker-control/tracker-control-miners.c:395
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "No miners are paused"
 msgstr "Ni podatkovnega rudarjenja v premoru"
 
-#: ../src/tracker-control/tracker-control-miners.c:419
+#: ../src/tracker-control/tracker-control-miners.c:427
 msgid "You can not use miner pause and resume switches together"
 msgstr "Stikal premora in nadaljevanja podatkovnega rudarjenja ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:433
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Za ukaze premora ali nadaljevanja je treba zagotoviti podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-miners.c:431
+#: ../src/tracker-control/tracker-control-miners.c:439
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Zagotoviti morate ukaz premora ali nadaljevanja za podatkovno rudarjenje"
 
-#: ../src/tracker-control/tracker-control-miners.c:492
+#: ../src/tracker-control/tracker-control-miners.c:487
 msgid "Miner options"
 msgstr "Možnosti rudarjenja"
 
-#: ../src/tracker-control/tracker-control-miners.c:493
+#: ../src/tracker-control/tracker-control-miners.c:488
 msgid "Show miner options"
 msgstr "Pokaži možnosti podatkovnega rudarjenja"
 
@@ -2242,6 +2246,11 @@ msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 #: ../utils/tracker-sql/tracker-sql.c:205
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
+
+#~ msgid "Could not get log verbosity, manager could not be created, %s"
+#~ msgstr ""
+#~ "Ni mogoče razbrati obsežnosti beleženja, upravljalnika ni mogoče "
+#~ "ustvariti, %s"
 
 #~ msgid "Day(s)"
 #~ msgstr "Dan/dni"
