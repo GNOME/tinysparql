@@ -856,6 +856,42 @@ extract_track_metadata (MetadataExtractor    *extractor,
 }
 
 static void
+delete_existing_tracks (TrackerSparqlBuilder *postupdate,
+                        const gchar          *graph,
+                        const gchar          *file_url)
+{
+	gchar *sparql;
+
+	/* Delete existing tracks */
+
+	tracker_sparql_builder_delete_open (postupdate, NULL);
+	if (graph) {
+		tracker_sparql_builder_graph_open (postupdate, graph);
+	}
+
+	tracker_sparql_builder_subject_variable (postupdate, "track");
+	tracker_sparql_builder_predicate (postupdate, "a");
+	tracker_sparql_builder_object (postupdate, "rdfs:Resource");
+
+	if (graph) {
+		tracker_sparql_builder_graph_close (postupdate);
+	}
+	tracker_sparql_builder_delete_close (postupdate);
+
+	sparql = g_strdup_printf ("WHERE { "
+	                          "  ?track a nmm:MusicPiece . "
+	                          "  ?file a nfo:FileDataObject ; "
+	                          "        nie:url \"%s\" . "
+	                          "  ?track nie:isStoredAs ?file "
+	                          "} \n",
+	                          file_url);
+	tracker_sparql_builder_append (postupdate, sparql);
+	g_free (sparql);
+}
+
+
+
+static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *file_url,
                   TrackerSparqlBuilder   *preupdate,
@@ -962,6 +998,8 @@ extract_metadata (MetadataExtractor      *extractor,
 			 * concrete nfo:FileDataObject using nie:isStoredAs.
 			 */
 			if (extractor->toc && g_list_length (extractor->toc->entry_list) > 1) {
+				delete_existing_tracks (postupdate, graph, file_url);
+
 				tracker_sparql_builder_insert_open (postupdate, NULL);
 				if (graph) {
 					tracker_sparql_builder_graph_open (postupdate, graph);
