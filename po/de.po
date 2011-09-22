@@ -19,8 +19,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-16 22:56+0000\n"
-"PO-Revision-Date: 2011-09-18 16:17+0100\n"
+"POT-Creation-Date: 2011-09-21 09:50+0000\n"
+"PO-Revision-Date: 2011-09-22 12:39+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@freenet.de>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -949,48 +949,44 @@ msgid ""
 "b> directory, can be easily toggled below. This will add or remove their real "
 "paths from the list underneath.\n"
 "\n"
-"You can decide if you want to index the content recursively or not using the "
-"checkbuttons in the list next to each entry.\n"
-"\n"
-"If some special directories are not available, it may be because they're not "
-"defined or duplicate another special directory."
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+"directories underneath it will also be indexed. Otherwise, only files "
+"immediately in that directory will be indexed."
 msgstr ""
 "Spezielle Orte wie Ihr <b>Persönlicher Ordner</p> oder die Ordner "
 "<b>Arbeitsfläche</b> oder <b>Dokumente</b> können nachfolgend einfach "
 "aktiviert oder deaktiviert werden. Dadurch werden deren reale Pfade zur Liste "
 "hinzugefügt oder daraus entfernt.\n"
 "\n"
-"Sie können entscheiden, ob Sie die Inhalte rekursiv indizieren wollen, indem "
-"Sie die Ankreuzfelder neben jedem Listeneintrag verwenden.\n"
-"\n"
-"Falls bestimmte spezielle Ordner nicht verfügbar sind, könnte es sein, dass "
-"diese nicht eingerichtet wurden oder Duplikate anderer spezieller Ordner sind."
+"Falls ein Ordner <b>rekursiv</b> markiert ist, bedeutet dies, dass alle "
+"Unterordner unterhalb davon ebenfalls indiziert werden. Anderenfalls werden "
+"nur direkt in diesem Ordner befindliche Dateien indiziert."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Start up"
 msgstr "Programmstart"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Stop indexing when _disk space is below:"
 msgstr "In_dizierung anhalten, wenn Plattenplatz kleiner als:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "Dies deckt ALLE Wechseldatenträger, Speicherkarten, CDs, DVDs usw. ab"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "With specific files:"
 msgstr "Mit angegebenen Dateien:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "_Delay"
 msgstr "_Verzögerung"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Monitor file and directory changes"
 msgstr "_Änderungen an Dateien und Ordnern überwachen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "seconds"
 msgstr "Sekunden"
 
@@ -1427,7 +1423,7 @@ msgstr "Komponenten"
 
 #: ../src/tracker-control/tracker-control-general.c:852
 #: ../src/tracker-control/tracker-control-general.c:894
-#: ../src/tracker-control/tracker-control-miners.c:371
+#: ../src/tracker-control/tracker-control-miners.c:377
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Indizierer"
@@ -1630,59 +1626,63 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:278
 #, c-format
-msgid "Found %d miners installed"
-msgstr "Es wurden %d installierte Indizierer gefunden"
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "Es wurden %d installierter Indizierer gefunden"
+msgstr[1] "Es wurden %d installierte Indizierer gefunden"
 
-#: ../src/tracker-control/tracker-control-miners.c:298
+#: ../src/tracker-control/tracker-control-miners.c:301
 #, c-format
-msgid "Found %d miners running"
-msgstr "Es wurden %d laufende Indizierer gefunden"
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "Es wurden %d laufender Indizierer gefunden"
+msgstr[1] "Es wurden %d laufende Indizierer gefunden"
 
-#: ../src/tracker-control/tracker-control-miners.c:327
+#: ../src/tracker-control/tracker-control-miners.c:333
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
 "Details zur Unterbrechung konnten nicht ermittelt werden, die Verwaltung "
 "konnte nicht erstellt werden, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:337
+#: ../src/tracker-control/tracker-control-miners.c:343
 msgid "No miners are running"
 msgstr "Es laufen derzeit keine Indizierer"
 
-#: ../src/tracker-control/tracker-control-miners.c:378
+#: ../src/tracker-control/tracker-control-miners.c:384
 msgid "Application"
 msgstr "Anwendung"
 
-#: ../src/tracker-control/tracker-control-miners.c:380
+#: ../src/tracker-control/tracker-control-miners.c:386
 msgid "Reason"
 msgstr "Grund"
 
-#: ../src/tracker-control/tracker-control-miners.c:389
+#: ../src/tracker-control/tracker-control-miners.c:395
 msgid "No miners are paused"
 msgstr "Es sind keine Indizierer angehalten"
 
-#: ../src/tracker-control/tracker-control-miners.c:413
+#: ../src/tracker-control/tracker-control-miners.c:419
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Die Argumente zum Anhalten und Fortsetzen des Indizierers können nicht "
 "zugleich verwendet werden"
 
-#: ../src/tracker-control/tracker-control-miners.c:419
+#: ../src/tracker-control/tracker-control-miners.c:425
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Der Indizierer muss für die Befehle zum Anhalten und Fortsetzen angegeben "
 "werden"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:431
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Sie müssen die Befehle zum Anhalten und Fortsetzen für den Indizierer angeben"
 
-#: ../src/tracker-control/tracker-control-miners.c:486
+#: ../src/tracker-control/tracker-control-miners.c:492
 msgid "Miner options"
 msgstr "Indizierungsoptionen"
 
-#: ../src/tracker-control/tracker-control-miners.c:487
+#: ../src/tracker-control/tracker-control-miners.c:493
 msgid "Show miner options"
 msgstr "Indizierungsoptionen anzeigen"
 
