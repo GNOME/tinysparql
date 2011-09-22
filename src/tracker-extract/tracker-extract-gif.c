@@ -24,6 +24,13 @@
 #define _GNU_SOURCE
 #endif
 
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <gif_lib.h>
 
 #include <libtracker-common/tracker-common.h>
@@ -584,7 +591,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	const gchar *graph;
 	gchar *filename, *uri;
 	GFile *file;
-	FILE *f;
 	int fd;
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
@@ -600,12 +606,15 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	f = tracker_file_open (filename);
-	if (!f) {
-		return FALSE;
-	}
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
 
-	fd = fileno (f);
+	if (fd == -1) {
+		g_warning ("Could not open gif file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return FALSE;
+	}	
 
 	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
 		PrintGifError ();
@@ -631,7 +640,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		PrintGifError ();
 	}
 
-	tracker_file_close (f, FALSE);
+	close (fd);
 
 	return TRUE;
 }
