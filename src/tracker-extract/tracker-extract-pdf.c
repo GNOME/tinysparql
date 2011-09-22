@@ -21,13 +21,25 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib/poppler.h>
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
 
@@ -291,11 +303,55 @@ extract_pdf (const gchar          *uri,
 	GPtrArray *keywords;
 	guint i;
 	GString *where = NULL;
+	gchar *filename;
+	int fd;
+	gchar *contents = NULL;
+	gsize len;
+	struct stat st;
 
 	g_type_init ();
 
-	document = poppler_document_new_from_file (uri, NULL, &error);
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+
+	if (fd == -1) {
+		g_warning ("Could not open pdf file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return;
+	}
+
+	if (fstat (fd, &st) == -1) {
+		g_warning ("Could not fstat pdf file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		close (fd);
+		g_free (filename);
+		return;
+	}
+
+	if (st.st_size == 0) {
+		contents = NULL;
+		len = 0;
+	} else {
+		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap pdf file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return;
+		}
+		len = st.st_size;
+	}
+
+	g_free (filename);
+
+	document = poppler_document_new_from_data (contents, len, NULL, &error);
+	
 	if (error) {
 		if (error->code == POPPLER_ERROR_ENCRYPTED) {
 			tracker_sparql_builder_predicate (metadata, "a");
@@ -651,6 +707,12 @@ extract_pdf (const gchar          *uri,
 	g_free (pd.date);
 
 	g_object_unref (document);
+
+	if (contents) {
+		munmap (contents, len);
+	}
+
+	close (fd);
 }
 
 TrackerExtractData *
