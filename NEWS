@@ -1,3 +1,40 @@
+NEW in 0.12.2 - 2011-09-22
+==========================
+
+The changes are:
+
+  * Fixes: GB#659806, tracker-control -c seems broken
+  * Fixes: GB#659470, Missing plural handling for "Found %d miners"
+  * Fixes: GB#659620, fix pkg-config file
+  * Fixes: NB#276653, MLocale returns empty country code
+  * Fixes: NB#282957, Keep track of MLocale-reported locale in the Applications miner
+  * Fixes: NB#282541, Contacts disappear when changing the device language
+  * libtracker-common: Refactor tracker_file_open() which was buggy and should use O_NOATIME
+  * libtracker-data: Drop all indexes before index recreation
+  * libtracker-data: Make index recreation less verbose
+  * libtracker-miner: Improve documentation for tracker_miner_manager_pause_for_process()
+  * libtracker-extract: Do not leak GMatchInfo objects
+  * tracker-miner-fs: Disable wake ups every 10 seconds by default (for disk space checks)
+  * tracker-extract-png: Handle raw profiles by Imagemagick encoded with line changes/twists
+  * tracker-extract: Use O_NOATIME for TEXT, XMP, PDF, TIFF, GIF, MSOFFICE, ODF ABW and FLAC files
+  * tracker-writeback: Propagate all errors of writeback over DBus
+  * tracker-writeback: Handle if there's no module for the passed rdf types
+  * tracker-control: Don't finalize TrackerMinerManager with --pause-for-process causing it to break
+  * tracker-preferences: Use one list for locations and add XDG toggle buttons
+
+Translations:
+
+  * Updated es: dmustieles
+  * Updated cs: Marek Černocký
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated sl: Andrej Žnidaršič, Matej Urbančič
+
+Notes:
+
+  None
+
+
 NEW in 0.12.1 - 2011-09-15
 ==========================
 
