@@ -261,6 +261,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	TrackerSparqlBuilder *metadata, *preupdate;
 	const gchar *graph;
 	GString *where;
+	FILE *mfile = NULL;
+	int fd;
 
 #ifdef HAVE_LIBIPTCDATA
 	gchar *iptc_offset;
@@ -279,9 +281,18 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	graph = tracker_extract_info_get_graph (info);
 
-	if ((image = TIFFOpen (filename, "r")) == NULL){
+	mfile = tracker_file_open (filename);
+	
+	if (!mfile) {
+		return FALSE;
+	}
+
+	fd = fileno (mfile);
+
+	if ((image = TIFFFdOpen (fd, filename, "r")) == NULL){
 		g_warning ("Could not open image:'%s'\n", filename);
 		g_free (filename);
+		tracker_file_close (mfile, FALSE);
 		return FALSE;
 	}
 
@@ -833,6 +844,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_xmp_free (xd);
 	tracker_iptc_free (id);
 	g_free (uri);
+
+	if (mfile) {
+		tracker_file_close (mfile, FALSE);
+	}
 
 	return TRUE;
 }
