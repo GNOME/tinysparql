@@ -1,3 +1,31 @@
+NEW in 0.10.28 - 2011-09-22
+===========================
+
+The changes are:
+
+  * Fixes: GB#659470, Missing plural handling for "Found %d miners"
+  * Fixes: GB#659620, fix pkg-config file
+  * Fixes: NB#276653, MLocale returns empty country code
+  * Fixes: NB#282957, Keep track of MLocale-reported locale in the Applications miner
+  * Fixes: NB#282541, Contacts disappear when changing the device language
+  * libtracker-data: Drop all indexes before index recreation
+  * libtracker-data: Make index recreation less verbose
+  * libtracker-miner: Improve documentation for tracker_miner_manager_pause_for_process()
+  * libtracker-extract: Do not leak GMatchInfo objects
+  * tracker-extract-png: Handle raw profiles by Imagemagick encoded with line changes/twists
+  * tracker-writeback: Propagate all errors of writeback over DBus
+  * tracker-writeback: Handle if there's no module for the passed rdf types
+  * tracker-control: Don't finalize TrackerMinerManager with --pause-for-process causing it to break
+
+Translations:
+
+  * Updated de: Mario Blättermann
+
+Notes:
+
+  None
+
+
 NEW in 0.10.27 - 2011-09-15
 ===========================
 
