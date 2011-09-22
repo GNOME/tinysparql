@@ -19,9 +19,21 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
+
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -35,9 +47,9 @@ static gchar *
 get_file_content (GFile *file,
                   gsize  n_bytes)
 {
-	GFileInputStream *stream;
 	GError *error = NULL;
-	gchar *text, *uri;
+	gchar *text, *uri, *path;
+	int fd;
 
 	/* If no content requested, return */
 	if (n_bytes == 0) {
@@ -47,14 +59,17 @@ get_file_content (GFile *file,
 	uri = g_file_get_uri (file);
 
 	/* Get filename from URI */
-	stream = g_file_read (file, NULL, &error);
-	if (error) {
-		g_message ("Could not read file '%s': %s",
+	path = g_file_get_path (file);
+
+	fd = g_open (path, O_RDONLY | O_NOATIME, 0);
+
+	if (fd == -1) {
+		g_message ("Could not open file '%s': %s",
 		           uri,
 		           error->message);
 		g_error_free (error);
 		g_free (uri);
-
+		g_free (path);
 		return NULL;
 	}
 
@@ -62,12 +77,13 @@ get_file_content (GFile *file,
 	         uri, n_bytes);
 
 	/* Read up to n_bytes from stream. Output is always, always valid UTF-8 */
-	text = tracker_read_text_from_stream (G_INPUT_STREAM (stream),
-	                                      n_bytes,
-	                                      TRY_LOCALE_TO_UTF8_CONVERSION);
+	text = tracker_read_text_from_fd (fd,
+	                                  n_bytes,
+	                                  TRY_LOCALE_TO_UTF8_CONVERSION);
 
-	g_object_unref (stream);
+	close (fd);
 	g_free (uri);
+	g_free (path);
 
 	return text;
 }
