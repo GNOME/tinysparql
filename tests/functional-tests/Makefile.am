@@ -44,7 +44,8 @@ standard_tests += \
 	16-collation.py \
 	17-ontology-changes.py  \
 	200-backup-restore.py \
-	300-miner-basic-ops.py
+	300-miner-basic-ops.py \
+	301-miner-resource-removal.py
 if HAVE_TRACKER_FTS
 standard_tests += 310-fts-indexing.py
 endif
