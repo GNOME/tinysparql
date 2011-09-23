@@ -70,6 +70,9 @@ get_file_content (const gchar  *uri,
 	path = g_filename_from_uri (uri, NULL, NULL);
 
 	fd = g_open (path, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (path, O_RDONLY, 0);
+	}
 
 	if (fd == -1) {
 		g_message ("Could not open file '%s': %s",
