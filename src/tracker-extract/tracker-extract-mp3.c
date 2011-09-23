@@ -2102,9 +2102,9 @@ extract_mp3 (const gchar          *uri,
 	 * without as a last resort. This can happen due to
 	 * permissions.
 	 */
-	fd = open (filename, O_RDONLY | O_NOATIME);
+	fd = g_open (filename, O_RDONLY | O_NOATIME);
 	if (fd == -1) {
-		fd = open (filename, O_RDONLY);
+		fd = g_open (filename, O_RDONLY);
 
 		if (fd == -1) {
 			return;
