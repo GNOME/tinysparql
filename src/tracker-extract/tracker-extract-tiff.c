@@ -292,6 +292,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	graph = tracker_extract_info_get_graph (info);
 
 	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (filename, O_RDONLY, 0);
+	}
 
 	if (fd == -1) {
 		g_warning ("Could not open tiff file '%s': %s\n",
