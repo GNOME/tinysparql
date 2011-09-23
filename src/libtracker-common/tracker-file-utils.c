@@ -60,6 +60,9 @@ tracker_file_open (const gchar *path)
 
 #if defined(__linux__)
 	fd = g_open (path, O_RDONLY | O_NOATIME);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (path, O_RDONLY);
+	}
 #else
 	fd = g_open (path, O_RDONLY);
 #endif
