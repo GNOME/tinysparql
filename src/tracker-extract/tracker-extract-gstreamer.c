@@ -906,10 +906,26 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (postupdate != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	if (extractor->toc)
+	if (extractor->toc) {
 		gst_tag_list_insert (extractor->tagcache,
 		                     extractor->toc->tag_list,
 		                     GST_TAG_MERGE_REPLACE);
+
+		if (g_list_length (extractor->toc->entry_list) == 1) {
+			/* If we only got one track, stick all the info together and
+			 * forget about the table of contents
+			 */
+			TrackerTocEntry *toc_entry;
+
+			toc_entry = extractor->toc->entry_list->data;
+			gst_tag_list_insert (extractor->tagcache,
+			                     toc_entry->tag_list,
+			                     GST_TAG_MERGE_REPLACE);
+
+			tracker_toc_free (extractor->toc);
+			extractor->toc = NULL;
+		}
+	}
 
 	if (extractor->mime == EXTRACT_MIME_GUESS && extractor->tagcache)
 		extractor_guess_content_type (extractor);
