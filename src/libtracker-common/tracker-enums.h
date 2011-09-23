@@ -29,6 +29,12 @@ typedef enum {
 	TRACKER_VERBOSITY_DEBUG,
 } TrackerVerbosity;
 
+typedef enum {
+	TRACKER_SCHED_IDLE_ALWAYS,
+	TRACKER_SCHED_IDLE_FIRST_INDEX,
+	TRACKER_SCHED_IDLE_NEVER,
+} TrackerSchedIdle;
+
 G_END_DECLS
 
 #endif /* __TRACKER_ENUMS_H__ */

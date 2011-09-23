@@ -29,7 +29,8 @@ extern static const string UIDIR;
 extern static const string SRCDIR;
 
 public class Tracker.Preferences {
-	private GLib.Settings settings = null;
+	private GLib.Settings settings_miner_fs = null;
+	private GLib.Settings settings_extract = null;
 
 	private const string UI_FILE = "tracker-preferences.ui";
 	private const string HOME_STRING = "$HOME";
@@ -43,7 +44,10 @@ public class Tracker.Preferences {
 	private CheckButton checkbutton_index_removable_media;
 	private CheckButton checkbutton_index_optical_discs;
 	private Scale hscale_disk_space_limit;
-	private Scale hscale_throttle;
+	//private Scale hscale_throttle;
+	private RadioButton radiobutton_sched_idle_always;
+	private RadioButton radiobutton_sched_idle_first_index;
+	private RadioButton radiobutton_sched_idle_never;
 	private Scale hscale_drop_device_threshold;
 	private ListStore liststore_index;
 	private ListStore liststore_ignored_directories;
@@ -69,12 +73,16 @@ public class Tracker.Preferences {
 
 		HOME_STRING_EVALUATED = dir_from_config (HOME_STRING);
 
-		//config = new Config ();
-		settings = new GLib.Settings ("org.freedesktop.Tracker.Miner.Files");
+		settings_miner_fs = new GLib.Settings ("org.freedesktop.Tracker.Miner.Files");
+		settings_extract = new GLib.Settings ("org.freedesktop.Tracker.Extract");
 
 		// Change notification for any key in the schema
-		settings.changed.connect ((key) => {
-		      print ("Key '%s' changed\n", key);
+		settings_miner_fs.changed.connect ((key) => {
+		      print ("tracker-miner-fs: Key '%s' changed\n", key);
+		});
+
+		settings_extract.changed.connect ((key) => {
+		      print ("tracker-extract: Key '%s' changed\n", key);
 		});
 	}
 
@@ -113,7 +121,10 @@ public class Tracker.Preferences {
 		checkbutton_index_optical_discs = builder.get_object ("checkbutton_index_optical_discs") as CheckButton;
 		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
 		hscale_disk_space_limit = builder.get_object ("hscale_disk_space_limit") as Scale;
-		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
+		//hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
+		radiobutton_sched_idle_always = builder.get_object ("radiobutton_sched_idle_always") as RadioButton;
+		radiobutton_sched_idle_first_index = builder.get_object ("radiobutton_sched_idle_first_index") as RadioButton;
+		radiobutton_sched_idle_never = builder.get_object ("radiobutton_sched_idle_never") as RadioButton;
 		hscale_drop_device_threshold = builder.get_object ("hscale_drop_device_threshold") as Scale;
 		togglebutton_home = builder.get_object ("togglebutton_home") as ToggleButton;
 		togglebutton_desktop = builder.get_object ("togglebutton_desktop") as ToggleButton;
@@ -142,23 +153,40 @@ public class Tracker.Preferences {
 		liststore_ignored_directories_with_content = builder.get_object ("liststore_ignored_directories_with_content") as ListStore;
 
 		// Set initial values
-		checkbutton_enable_index_on_battery.active = settings.get_boolean ("index-on-battery");
+		checkbutton_enable_index_on_battery.active = settings_miner_fs.get_boolean ("index-on-battery");
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!checkbutton_enable_index_on_battery.active);
-		checkbutton_enable_index_on_battery_first_time.active = settings.get_boolean ("index-on-battery-first-time");
+		checkbutton_enable_index_on_battery_first_time.active = settings_miner_fs.get_boolean ("index-on-battery-first-time");
 		spinbutton_delay.set_increments (1, 1);
-		spinbutton_delay.value = (double) settings.get_int ("initial-sleep");
-		checkbutton_enable_monitoring.active = settings.get_boolean ("enable-monitors");
-		checkbutton_index_removable_media.active = settings.get_boolean ("index-removable-devices");
-		checkbutton_index_optical_discs.active = settings.get_boolean ("index-optical-discs");
-		hscale_disk_space_limit.set_value ((double) settings.get_int ("low-disk-space-limit"));
-		hscale_throttle.set_value ((double) settings.get_int ("throttle"));
-		hscale_drop_device_threshold.set_value ((double) settings.get_int ("removable-days-threshold"));
+		spinbutton_delay.value = (double) settings_miner_fs.get_int ("initial-sleep");
+		checkbutton_enable_monitoring.active = settings_miner_fs.get_boolean ("enable-monitors");
+		checkbutton_index_removable_media.active = settings_miner_fs.get_boolean ("index-removable-devices");
+		checkbutton_index_optical_discs.active = settings_miner_fs.get_boolean ("index-optical-discs");
+		hscale_disk_space_limit.set_value ((double) settings_miner_fs.get_int ("low-disk-space-limit"));
+		//thscale_throttle.set_value ((double) settings_miner_fs.get_int ("throttle"));
+		hscale_drop_device_threshold.set_value ((double) settings_miner_fs.get_int ("removable-days-threshold"));
 
-		model_populate (liststore_index, settings.get_strv ("index-recursive-directories"), true, true);
-		model_populate (liststore_index, settings.get_strv ("index-single-directories"), true, false);
-		model_populate (liststore_ignored_directories, settings.get_strv ("ignored-directories"), false, false);
-		model_populate (liststore_ignored_files, settings.get_strv ("ignored-files"), false, false);
-		model_populate (liststore_ignored_directories_with_content, settings.get_strv ("ignored-directories-with-content"), false, false);
+		// What do we do here if extract/miner-fs are different, we
+		// could use inconsistent states for radiobuttons, but instead
+		// we're going to just assume miner-fs is the lead here and
+		// overwrite the extract config with anything we change here.
+		int sched_idle = settings_miner_fs.get_enum ("sched-idle");
+
+		if (sched_idle == 0) {
+			radiobutton_sched_idle_always.active = true;
+		} else if (sched_idle == 1) {
+			radiobutton_sched_idle_first_index.active = true;
+		} else if (sched_idle == 2) {
+			radiobutton_sched_idle_never.active = true;
+		} else {
+			// If broken value set, use default.
+			radiobutton_sched_idle_first_index.active = true;
+		}
+
+		model_populate (liststore_index, settings_miner_fs.get_strv ("index-recursive-directories"), true, true);
+		model_populate (liststore_index, settings_miner_fs.get_strv ("index-single-directories"), true, false);
+		model_populate (liststore_ignored_directories, settings_miner_fs.get_strv ("ignored-directories"), false, false);
+		model_populate (liststore_ignored_files, settings_miner_fs.get_strv ("ignored-files"), false, false);
+		model_populate (liststore_ignored_directories_with_content, settings_miner_fs.get_strv ("ignored-directories-with-content"), false, false);
 
 		togglebutton_home.active = model_contains (liststore_index, HOME_STRING_EVALUATED);
 		togglebutton_desktop.active = model_contains (liststore_index, "&DESKTOP");
@@ -208,19 +236,40 @@ public class Tracker.Preferences {
 		case ResponseType.APPLY:
 			debug ("Converting directories for storage");
 
-			settings.set_strv ("index-single-directories", model_to_strv (liststore_index, true, false));
-			settings.set_strv ("index-recursive-directories", model_to_strv (liststore_index, true, true));
-			settings.set_strv ("ignored-directories", model_to_strv (liststore_ignored_directories, false, false));
-			settings.set_strv ("ignored-files", model_to_strv (liststore_ignored_files, false, false));
-			settings.set_strv ("ignored-directories-with-content", model_to_strv (liststore_ignored_directories_with_content, false, false));
+			settings_miner_fs.set_strv ("index-single-directories", model_to_strv (liststore_index, true, false));
+			settings_miner_fs.set_strv ("index-recursive-directories", model_to_strv (liststore_index, true, true));
+			settings_miner_fs.set_strv ("ignored-directories", model_to_strv (liststore_ignored_directories, false, false));
+			settings_miner_fs.set_strv ("ignored-files", model_to_strv (liststore_ignored_files, false, false));
+			settings_miner_fs.set_strv ("ignored-directories-with-content", model_to_strv (liststore_ignored_directories_with_content, false, false));
 
-			settings.set_int ("low-disk-space-limit", (int) hscale_disk_space_limit.get_value ());
-			settings.set_int ("throttle", (int) hscale_throttle.get_value ());
-			settings.set_int ("removable-days-threshold", (int) hscale_drop_device_threshold.get_value ());
+			settings_miner_fs.set_int ("low-disk-space-limit", (int) hscale_disk_space_limit.get_value ());
+			//settings_miner_fs.set_int ("throttle", (int) hscale_throttle.get_value ());
+			settings_miner_fs.set_int ("removable-days-threshold", (int) hscale_drop_device_threshold.get_value ());
+
+			int sched_idle;
+
+			if (radiobutton_sched_idle_always.active) {
+				sched_idle = 0;
+			} else if (radiobutton_sched_idle_first_index.active) {
+				sched_idle = 1;
+			} else if (radiobutton_sched_idle_never.active) {
+				sched_idle = 2;
+			} else {
+				assert_not_reached ();
+			}
+
+			// What do we do here if extract/miner-fs are different, we
+			// could use inconsistent states for radiobuttons, but instead
+			// we're going to just assume miner-fs is the lead here and
+			// overwrite the extract config with anything we change here.
+			settings_miner_fs.set_enum ("sched-idle", sched_idle);
+			settings_extract.set_enum ("sched-idle", sched_idle);
 
 			debug ("Saving settings...");
-			settings.apply ();
-			debug ("Done");
+			settings_miner_fs.apply ();
+			debug ("  tracker-miner-fs: Done");
+			settings_extract.apply ();
+			debug ("  tracker-extract: Done");
 
 			// TODO: restart the Application and Files miner (no idea how to cleanly do this atm)
 			return;
@@ -234,34 +283,34 @@ public class Tracker.Preferences {
 
 	[CCode (instance_pos = -1)]
 	public void spinbutton_delay_value_changed_cb (SpinButton source) {
-		settings.set_int ("initial-sleep", source.get_value_as_int ());
+		settings_miner_fs.set_int ("initial-sleep", source.get_value_as_int ());
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_monitoring_toggled_cb (CheckButton source) {
-		settings.set_boolean ("enable-monitors", source.active);
+		settings_miner_fs.set_boolean ("enable-monitors", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_toggled_cb (CheckButton source) {
-		settings.set_boolean ("index-on-battery", source.active);
+		settings_miner_fs.set_boolean ("index-on-battery", source.active);
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_first_time_toggled_cb (CheckButton source) {
-		settings.set_boolean ("index-on-battery-first-time", source.active);
+		settings_miner_fs.set_boolean ("index-on-battery-first-time", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_index_removable_media_toggled_cb (CheckButton source) {
-		settings.set_boolean ("index-removable-devices", source.active);
+		settings_miner_fs.set_boolean ("index-removable-devices", source.active);
 		checkbutton_index_optical_discs.set_sensitive (source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_index_optical_discs_toggled_cb (CheckButton source) {
-		settings.set_boolean ("index-optical-discs", source.active);
+		settings_miner_fs.set_boolean ("index-optical-discs", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
@@ -273,10 +322,10 @@ public class Tracker.Preferences {
 		return _("%d%%").printf ((int) value);
 	}
 
-	[CCode (instance_pos = -1)]
-	public string hscale_throttle_format_value_cb (Scale source, double value) {
-		return _("%d/20").printf ((int) value);
-	}
+	//[CCode (instance_pos = -1)]
+	//public string hscale_throttle_format_value_cb (Scale source, double value) {
+	//	return _("%d/20").printf ((int) value);
+	//}
 
 	[CCode (instance_pos = -1)]
 	public string hscale_drop_device_threshold_format_value_cb (Scale source, double value) {
