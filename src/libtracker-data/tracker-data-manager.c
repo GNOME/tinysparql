@@ -3478,8 +3478,10 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 		fix_indexed (properties [i], TRUE, &internal_error);
 
 		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
+			g_critical ("Unable to create index for %s: %s",
+			            tracker_property_get_name (properties[i]),
+			            internal_error->message);
+			g_clear_error (&internal_error);
 		}
 
 		if (busy_callback) {
