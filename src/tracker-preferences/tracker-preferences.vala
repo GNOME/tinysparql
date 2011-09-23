@@ -44,7 +44,6 @@ public class Tracker.Preferences {
 	private CheckButton checkbutton_index_removable_media;
 	private CheckButton checkbutton_index_optical_discs;
 	private Scale hscale_disk_space_limit;
-	//private Scale hscale_throttle;
 	private RadioButton radiobutton_sched_idle_always;
 	private RadioButton radiobutton_sched_idle_first_index;
 	private RadioButton radiobutton_sched_idle_never;
@@ -121,7 +120,6 @@ public class Tracker.Preferences {
 		checkbutton_index_optical_discs = builder.get_object ("checkbutton_index_optical_discs") as CheckButton;
 		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
 		hscale_disk_space_limit = builder.get_object ("hscale_disk_space_limit") as Scale;
-		//hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
 		radiobutton_sched_idle_always = builder.get_object ("radiobutton_sched_idle_always") as RadioButton;
 		radiobutton_sched_idle_first_index = builder.get_object ("radiobutton_sched_idle_first_index") as RadioButton;
 		radiobutton_sched_idle_never = builder.get_object ("radiobutton_sched_idle_never") as RadioButton;
@@ -162,7 +160,6 @@ public class Tracker.Preferences {
 		checkbutton_index_removable_media.active = settings_miner_fs.get_boolean ("index-removable-devices");
 		checkbutton_index_optical_discs.active = settings_miner_fs.get_boolean ("index-optical-discs");
 		hscale_disk_space_limit.set_value ((double) settings_miner_fs.get_int ("low-disk-space-limit"));
-		//thscale_throttle.set_value ((double) settings_miner_fs.get_int ("throttle"));
 		hscale_drop_device_threshold.set_value ((double) settings_miner_fs.get_int ("removable-days-threshold"));
 
 		// What do we do here if extract/miner-fs are different, we
@@ -243,7 +240,6 @@ public class Tracker.Preferences {
 			settings_miner_fs.set_strv ("ignored-directories-with-content", model_to_strv (liststore_ignored_directories_with_content, false, false));
 
 			settings_miner_fs.set_int ("low-disk-space-limit", (int) hscale_disk_space_limit.get_value ());
-			//settings_miner_fs.set_int ("throttle", (int) hscale_throttle.get_value ());
 			settings_miner_fs.set_int ("removable-days-threshold", (int) hscale_drop_device_threshold.get_value ());
 
 			int sched_idle;
@@ -321,11 +317,6 @@ public class Tracker.Preferences {
 
 		return _("%d%%").printf ((int) value);
 	}
-
-	//[CCode (instance_pos = -1)]
-	//public string hscale_throttle_format_value_cb (Scale source, double value) {
-	//	return _("%d/20").printf ((int) value);
-	//}
 
 	[CCode (instance_pos = -1)]
 	public string hscale_drop_device_threshold_format_value_cb (Scale source, double value) {
