@@ -36,6 +36,7 @@
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-sched.h>
+#include <libtracker-common/tracker-enums.h>
 
 #include <libtracker-miner/tracker-miner.h>
 
@@ -104,6 +105,8 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
 	           tracker_config_get_verbosity (config));
+	g_message ("  Sched Idle  ...........................  %d",
+	           tracker_config_get_sched_idle (config));
 	g_message ("  Initial Sleep  ........................  %d",
 	           tracker_config_get_initial_sleep (config));
 
@@ -169,10 +172,14 @@ initialize_signal_handler (void)
 }
 
 static void
-initialize_priority_and_scheduling (void)
+initialize_priority_and_scheduling (TrackerSchedIdle sched_idle,
+                                    gboolean         first_time_index)
 {
 	/* Set CPU priority */
-	tracker_sched_idle ();
+	if (sched_idle == TRACKER_SCHED_IDLE_ALWAYS ||
+	    (sched_idle == TRACKER_SCHED_IDLE_FIRST_INDEX && first_time_index)) {
+		tracker_sched_idle ();
+	}
 
 	/* Set disk IO priority and scheduling */
 	tracker_ioprio_init ();
@@ -184,6 +191,8 @@ initialize_priority_and_scheduling (void)
 	 * successful call so we have to check value of errno too.
 	 * Stupid...
 	 */
+
+	g_message ("Setting priority nice level to 19");
 
 	errno = 0;
 	if (nice (19) == -1 && errno != 0) {
@@ -733,7 +742,8 @@ main (gint argc, gchar *argv[])
 	sanity_check_option_values (config);
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling ();
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
+	                                    tracker_db_manager_get_first_index_done () == FALSE);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 

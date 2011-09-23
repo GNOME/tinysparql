@@ -45,6 +45,8 @@
 #include <libtracker-common/tracker-locale.h>
 #include <libtracker-common/tracker-sched.h>
 
+#include <libtracker-data/tracker-db-manager.h>
+
 #include "tracker-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
@@ -115,10 +117,14 @@ static GOptionEntry entries[] = {
 };
 
 static void
-initialize_priority_and_scheduling (void)
+initialize_priority_and_scheduling (TrackerSchedIdle sched_idle,
+                                    gboolean         first_time_index)
 {
 	/* Set CPU priority */
-	tracker_sched_idle ();
+	if (sched_idle == TRACKER_SCHED_IDLE_ALWAYS ||
+	    (sched_idle == TRACKER_SCHED_IDLE_FIRST_INDEX && first_time_index)) {
+		tracker_sched_idle ();
+	}
 
 	/* Set disk IO priority and scheduling */
 	tracker_ioprio_init ();
@@ -130,7 +136,7 @@ initialize_priority_and_scheduling (void)
 	 * successful call so we have to check value of errno too.
 	 * Stupid...
 	 */
-	g_message ("Setting process priority");
+	g_message ("Setting priority nice level to 19");
 
 	if (nice (19) == -1) {
 		const gchar *str = g_strerror (errno);
@@ -244,6 +250,8 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
 	           tracker_config_get_verbosity (config));
+	g_message ("  Sched Idle  ...........................  %d",
+	           tracker_config_get_sched_idle (config));
 	g_message ("  Max bytes (per file)  .................  %d",
 	           tracker_config_get_max_bytes (config));
 }
@@ -255,7 +263,7 @@ tracker_main_get_config (void)
 }
 
 static int
-run_standalone (void)
+run_standalone (TrackerConfig *config)
 {
 	TrackerExtract *object;
 	GFile *file;
@@ -273,7 +281,8 @@ run_standalone (void)
 	tracker_albumart_init ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling ();
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
+	                                    tracker_db_manager_get_first_index_done () == FALSE);
 
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
@@ -380,7 +389,7 @@ main (int argc, char *argv[])
 
 	/* Set conditions when we use stand alone settings */
 	if (filename) {
-		return run_standalone ();
+		return run_standalone (config);
 	}
 
 	/* Initialize subsystems */
@@ -398,7 +407,8 @@ main (int argc, char *argv[])
 	sanity_check_option_values (config);
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling ();
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
+	                                    tracker_db_manager_get_first_index_done () == FALSE);
 	tracker_memory_setrlimits ();
 
 	if (disable_shutdown) {

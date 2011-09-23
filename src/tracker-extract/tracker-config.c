@@ -39,11 +39,13 @@ static void     config_constructed          (GObject       *object);
 enum {
 	PROP_0,
 	PROP_VERBOSITY,
+	PROP_SCHED_IDLE,
 	PROP_MAX_BYTES
 };
 
 static TrackerConfigMigrationEntry migration[] = {
 	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity" },
+	{ G_TYPE_ENUM, "General", "SchedIdle", "sched-idle" },
 	{ G_TYPE_INT, "General", "MaxBytes", "max-bytes" },
 	{ 0 }
 };
@@ -68,6 +70,14 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                    "Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
 	                                                    TRACKER_TYPE_VERBOSITY,
 	                                                    TRACKER_VERBOSITY_ERRORS,
+	                                                    G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_SCHED_IDLE,
+	                                 g_param_spec_enum ("sched-idle",
+	                                                    "Scheduler priority when idle",
+	                                                    "Scheduler priority when idle (0=always, 1=first-index, 2=never)",
+	                                                    TRACKER_TYPE_SCHED_IDLE,
+	                                                    TRACKER_SCHED_IDLE_FIRST_INDEX,
 	                                                    G_PARAM_READWRITE));
 
 	g_object_class_install_property (object_class,
@@ -97,6 +107,11 @@ config_set_property (GObject      *object,
 		                     g_value_get_enum (value));
 		break;
 
+	case PROP_SCHED_IDLE:
+		g_settings_set_enum (G_SETTINGS (object), "sched-idle",
+		                     g_value_get_enum (value));
+		break;
+
 	case PROP_MAX_BYTES:
 		g_settings_set_int (G_SETTINGS (object), "max-bytes",
 		                    g_value_get_int (value));
@@ -118,6 +133,11 @@ config_get_property (GObject    *object,
 	case PROP_VERBOSITY:
 		g_value_set_enum (value,
 		                  g_settings_get_enum (G_SETTINGS (object), "verbosity"));
+		break;
+
+	case PROP_SCHED_IDLE:
+		g_value_set_enum (value,
+		                  g_settings_get_enum (G_SETTINGS (object), "sched-idle"));
 		break;
 
 	case PROP_MAX_BYTES:
@@ -189,6 +209,24 @@ tracker_config_set_verbosity (TrackerConfig *config,
 	g_object_set (G_OBJECT (config), "verbosity", value, NULL);
 }
 
+gint
+tracker_config_get_sched_idle (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), TRACKER_SCHED_IDLE_FIRST_INDEX);
+
+	return g_settings_get_enum (G_SETTINGS (config), "sched-idle");
+}
+
+void
+tracker_config_set_sched_idle (TrackerConfig *config,
+                               gint           value)
+{
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	g_settings_set_enum (G_SETTINGS (config), "sched-idle", value);
+	g_object_notify (G_OBJECT (config), "sched-idle");
+}
 
 gint
 tracker_config_get_max_bytes (TrackerConfig *config)

@@ -34,6 +34,7 @@
 
 /* Default values */
 #define DEFAULT_VERBOSITY                        0
+#define DEFAULT_SCHED_IDLE                       1
 #define DEFAULT_INITIAL_SLEEP                    15       /* 0->1000 */
 #define DEFAULT_ENABLE_MONITORS                  TRUE
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
@@ -78,6 +79,7 @@ enum {
 
 	/* General */
 	PROP_VERBOSITY,
+	PROP_SCHED_IDLE,
 	PROP_INITIAL_SLEEP,
 
 	/* Monitors */
@@ -105,6 +107,7 @@ enum {
 
 static TrackerConfigMigrationEntry migration[] = {
 	{ G_TYPE_ENUM,    "General",   "Verbosity",                     "verbosity"                        },
+	{ G_TYPE_ENUM,    "General",   "SchedIdle",                     "sched-idle"                       },
 	{ G_TYPE_INT,     "General",   "InitialSleep",                  "initial-sleep"                    },
 	{ G_TYPE_BOOLEAN, "Monitors",  "EnableMonitors",                "enable-monitors"                  },
 	{ G_TYPE_INT,     "Indexing",  "Throttle",                      "throttle"                         },
@@ -143,7 +146,15 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                    "Log verbosity",
 	                                                    "Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
 	                                                    TRACKER_TYPE_VERBOSITY,
-	                                                    TRACKER_VERBOSITY_ERRORS,
+	                                                    DEFAULT_VERBOSITY,
+	                                                    G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_SCHED_IDLE,
+	                                 g_param_spec_enum ("sched-idle",
+	                                                    "Scheduler priority when idle",
+	                                                    "Scheduler priority when idle (0=always, 1=first-index, 2=never)",
+	                                                    TRACKER_TYPE_SCHED_IDLE,
+	                                                    DEFAULT_SCHED_IDLE,
 	                                                    G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_INITIAL_SLEEP,
@@ -310,6 +321,10 @@ config_set_property (GObject      *object,
 		tracker_config_set_verbosity (TRACKER_CONFIG (object),
 		                              g_value_get_enum (value));
 		break;
+	case PROP_SCHED_IDLE:
+		tracker_config_set_sched_idle (TRACKER_CONFIG (object),
+		                               g_value_get_enum (value));
+		break;
 	case PROP_INITIAL_SLEEP:
 		tracker_config_set_initial_sleep (TRACKER_CONFIG (object),
 		                                  g_value_get_int (value));
@@ -398,6 +413,9 @@ config_get_property (GObject    *object,
 		/* General */
 	case PROP_VERBOSITY:
 		g_value_set_enum (value, tracker_config_get_verbosity (config));
+		break;
+	case PROP_SCHED_IDLE:
+		g_value_set_enum (value, tracker_config_get_sched_idle (config));
 		break;
 	case PROP_INITIAL_SLEEP:
 		g_value_set_int (value, tracker_config_get_initial_sleep (config));
@@ -835,6 +853,14 @@ tracker_config_get_verbosity (TrackerConfig *config)
 }
 
 gint
+tracker_config_get_sched_idle (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_SCHED_IDLE);
+
+	return g_settings_get_enum (G_SETTINGS (config), "sched-idle");
+}
+
+gint
 tracker_config_get_initial_sleep (TrackerConfig *config)
 {
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INITIAL_SLEEP);
@@ -1015,6 +1041,17 @@ tracker_config_set_verbosity (TrackerConfig *config,
 
 	g_settings_set_enum (G_SETTINGS (config), "verbosity", value);
 	g_object_notify (G_OBJECT (config), "verbosity");
+}
+
+void
+tracker_config_set_sched_idle (TrackerConfig *config,
+                               gint           value)
+{
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	g_settings_set_enum (G_SETTINGS (config), "sched-idle", value);
+	g_object_notify (G_OBJECT (config), "sched-idle");
 }
 
 void
