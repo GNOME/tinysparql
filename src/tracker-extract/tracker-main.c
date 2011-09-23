@@ -28,10 +28,6 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
-#if defined(__linux__)
-#include <linux/sched.h>
-#endif
-#include <sched.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -47,6 +43,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-locale.h>
+#include <libtracker-common/tracker-sched.h>
 
 #include "tracker-albumart.h"
 #include "tracker-config.h"
@@ -118,8 +115,11 @@ static GOptionEntry entries[] = {
 };
 
 static void
-initialize_priority (void)
+initialize_priority_and_scheduling (void)
 {
+	/* Set CPU priority */
+	tracker_sched_idle ();
+
 	/* Set disk IO priority and scheduling */
 	tracker_ioprio_init ();
 
@@ -273,7 +273,7 @@ run_standalone (void)
 	tracker_albumart_init ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority ();
+	initialize_priority_and_scheduling ();
 
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
@@ -398,7 +398,7 @@ main (int argc, char *argv[])
 	sanity_check_option_values (config);
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority ();
+	initialize_priority_and_scheduling ();
 	tracker_memory_setrlimits ();
 
 	if (disable_shutdown) {

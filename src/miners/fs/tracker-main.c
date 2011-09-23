@@ -26,10 +26,6 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
-#if defined(__linux__)
-#include <linux/sched.h>
-#endif
-#include <sched.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -39,6 +35,7 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-sched.h>
 
 #include <libtracker-miner/tracker-miner.h>
 
@@ -172,8 +169,11 @@ initialize_signal_handler (void)
 }
 
 static void
-initialize_priority (void)
+initialize_priority_and_scheduling (void)
 {
+	/* Set CPU priority */
+	tracker_sched_idle ();
+
 	/* Set disk IO priority and scheduling */
 	tracker_ioprio_init ();
 
@@ -714,9 +714,6 @@ main (gint argc, gchar *argv[])
 
 	initialize_signal_handler ();
 
-	/* This makes sure we don't steal all the system's resources */
-	initialize_priority ();
-
 	/* Initialize logging */
 	config = tracker_config_new ();
 
@@ -734,6 +731,9 @@ main (gint argc, gchar *argv[])
 	g_free (log_filename);
 
 	sanity_check_option_values (config);
+
+	/* This makes sure we don't steal all the system's resources */
+	initialize_priority_and_scheduling ();
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
