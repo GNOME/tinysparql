@@ -2097,7 +2097,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	 * permissions.
 	 */
 	fd = g_open (filename, O_RDONLY | O_NOATIME);
-	if (fd == -1) {
+	if (fd == -1 && errno == EPERM) {
 		fd = g_open (filename, O_RDONLY);
 
 		if (fd == -1) {
