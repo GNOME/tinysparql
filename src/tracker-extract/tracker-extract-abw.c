@@ -192,6 +192,9 @@ extract_abw (const gchar          *uri,
 	}
 
 	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (filename, O_RDONLY, 0);
+	}
 
 	if (fd == -1) {
 		g_warning ("Could not open abw file '%s': %s\n",
