@@ -25,6 +25,7 @@ libtracker_common_la_SOURCES = \
 	tracker-ioprio.c \
 	tracker-keyfile-object.c \
 	tracker-log.c \
+	tracker-sched.c \
 	tracker-type-utils.c \
 	tracker-utils.c \
 	tracker-crc32.c \
@@ -43,6 +44,7 @@ noinst_HEADERS = \
 	tracker-file-utils.h \
 	tracker-keyfile-object.h \
 	tracker-ontologies.h \
+	tracker-sched.h \
 	tracker-type-utils.h \
 	tracker-utils.h \
 	tracker-crc32.h \
