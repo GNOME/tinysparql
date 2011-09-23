@@ -804,7 +804,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			TrackerSparqlBuilder *builder;
 
 			no_modules = FALSE;
-			preupdate_str = statements_str = NULL;
+			preupdate_str = statements_str = postupdate_str = NULL;
 
 			builder = tracker_extract_info_get_metadata_builder (info);
 
