@@ -314,6 +314,9 @@ extract_pdf (const gchar          *uri,
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (filename, O_RDONLY, 0);
+	}
 
 	if (fd == -1) {
 		g_warning ("Could not open pdf file '%s': %s\n",
