@@ -170,6 +170,8 @@ process_toc_tags (TrackerToc *toc)
 	gint track_count;
 	gint i;
 
+	gchar *album_artist = NULL;
+
 	if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_TRACK_COUNT) == 0) {
 		track_count = g_list_length (toc->entry_list);
 		gst_tag_list_add (toc->tag_list,
@@ -178,6 +180,8 @@ process_toc_tags (TrackerToc *toc)
 		                  track_count,
 		                  NULL);
 	}
+
+	gst_tag_list_get_string (toc->tag_list, GST_TAG_ALBUM_ARTIST, &album_artist);
 
 	i = 1;
 	for (node=toc->entry_list; node; node=node->next, i++) {
@@ -189,7 +193,19 @@ process_toc_tags (TrackerToc *toc)
 			                  GST_TAG_TRACK_NUMBER,
 			                  i,
 			                  NULL);
+
+		if (album_artist != NULL) {
+			if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_ARTIST) == 0 &&
+			    gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_PERFORMER) == 0)
+				gst_tag_list_add (entry->tag_list,
+				                  GST_TAG_MERGE_REPLACE,
+				                  GST_TAG_ARTIST,
+				                  album_artist,
+				                  NULL);
+		}
 	}
+
+	g_free (album_artist);
 }
 
 /* This function runs in two modes: for external CUE sheets, it will check
