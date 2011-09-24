@@ -2,22 +2,22 @@
 # translation of tracker to spanish
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010.
 # Daniel Mustieles <daniel.mustieles@gmail.com>, 2010, 2011.
+# Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-19 08:41+0000\n"
-"PO-Revision-Date: 2011-09-20 11:36+0200\n"
-"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: Español <gnome-es-list@gnome.org>\n"
+"POT-Creation-Date: 2011-09-22 10:53+0000\n"
+"PO-Revision-Date: 2011-09-24 13:53+0200\n"
+"Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
+"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
@@ -932,16 +932,6 @@ msgid "Slower"
 msgstr "Más lento"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
-#| msgid ""
-#| "Special locations such as your <b>Home</b>, <b>Desktop</b> or "
-#| "<b>Documents</b> directory, can be easily toggled below. This will add or "
-#| "remove their real paths from the list underneath.\n"
-#| "\n"
-#| "You can decide if you want to index the content recursively or not using "
-#| "the checkbuttons in the list next to each entry.\n"
-#| "\n"
-#| "If some special directories are not available, it may be because they're "
-#| "not defined or duplicate another special directory."
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
 "b> directory, can be easily toggled below. This will add or remove their "
@@ -1309,8 +1299,8 @@ msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
 msgstr ""
-"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», «mínimo», "
-"«errores») para todos los procesos"
+"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
+"«mínimo», «errores») para todos los procesos"
 
 #: ../src/tracker-control/tracker-control-general.c:98
 msgid "LEVEL"
@@ -1339,129 +1329,137 @@ msgid "Could not open /proc"
 msgstr "No se pudo abrir /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:632
-#: ../src/tracker-control/tracker-control-general.c:672
-#: ../src/tracker-control/tracker-control-general.c:693
+#: ../src/tracker-control/tracker-control-general.c:633
+#: ../src/tracker-control/tracker-control-general.c:673
+#: ../src/tracker-control/tracker-control-general.c:694
 msgid "no error given"
 msgstr "no se proporcionó ningún error"
 
-#: ../src/tracker-control/tracker-control-general.c:323
+#: ../src/tracker-control/tracker-control-general.c:324
 #, c-format
-msgid "Could not get log verbosity, manager could not be created, %s"
-msgstr "No se pudo obtener registro detallado, no se pudo crear el gestor, %s"
+#| msgid "Could not list miners, manager could not be created, %s"
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr ""
+"No se pudieron obtener los GSettings para los mineros, no se pudo crear el "
+"gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:548
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos «--kill» y «--terminate» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:554
+#: ../src/tracker-control/tracker-control-general.c:555
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
-"implicado"
+"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» "
+"está implicado"
 
-#: ../src/tracker-control/tracker-control-general.c:560
+#: ../src/tracker-control/tracker-control-general.c:561
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "No puede usar los argumentos «--hard-reset» y «--soft-reset» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:566
+#: ../src/tracker-control/tracker-control-general.c:567
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:581
+#: ../src/tracker-control/tracker-control-general.c:582
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
-"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» o "
-"«errores»"
+"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
+"o «errores»"
 
-#: ../src/tracker-control/tracker-control-general.c:629
+#: ../src/tracker-control/tracker-control-general.c:630
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No se pudo abrir «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:654
+#: ../src/tracker-control/tracker-control-general.c:655
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:669
+#: ../src/tracker-control/tracker-control-general.c:670
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No se pudo terminar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:675
+#: ../src/tracker-control/tracker-control-general.c:676
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proceso %d terminado"
 
-#: ../src/tracker-control/tracker-control-general.c:690
+#: ../src/tracker-control/tracker-control-general.c:691
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No se pudo matar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:696
+#: ../src/tracker-control/tracker-control-general.c:697
 #, c-format
 msgid "Killed process %d"
 msgstr "Proceso %d matado"
 
-#: ../src/tracker-control/tracker-control-general.c:823
+#: ../src/tracker-control/tracker-control-general.c:825
 msgid "Removing configuration files…"
 msgstr "Quitando archivos de configuración…"
 
-#: ../src/tracker-control/tracker-control-general.c:846
-#: ../src/tracker-control/tracker-control-general.c:888
+#: ../src/tracker-control/tracker-control-general.c:833
+#| msgid "Removing configuration files…"
+msgid "Resetting existing configuration…"
+msgstr "Restableciendo la configuración existente…"
+
+#: ../src/tracker-control/tracker-control-general.c:881
+#: ../src/tracker-control/tracker-control-general.c:923
 msgid "Components"
 msgstr "Componentes"
 
-#: ../src/tracker-control/tracker-control-general.c:852
-#: ../src/tracker-control/tracker-control-general.c:894
-#: ../src/tracker-control/tracker-control-miners.c:371
+#: ../src/tracker-control/tracker-control-general.c:887
+#: ../src/tracker-control/tracker-control-general.c:929
+#: ../src/tracker-control/tracker-control-miners.c:385
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Mineros"
 
-#: ../src/tracker-control/tracker-control-general.c:853
-#: ../src/tracker-control/tracker-control-general.c:895
+#: ../src/tracker-control/tracker-control-general.c:888
+#: ../src/tracker-control/tracker-control-general.c:930
 msgid "Only those with config listed"
 msgstr "Sólo aquellos con la configuración listada"
 
-#: ../src/tracker-control/tracker-control-general.c:871
+#: ../src/tracker-control/tracker-control-general.c:906
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Estableciendo el registro detallado para todos los componentes a «%s»…"
 
-#: ../src/tracker-control/tracker-control-general.c:911
+#: ../src/tracker-control/tracker-control-general.c:946
 msgid "Waiting one second before starting miners…"
 msgstr "Esperando un segundo antes de iniciar los mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:917
+#: ../src/tracker-control/tracker-control-general.c:952
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:923
+#: ../src/tracker-control/tracker-control-general.c:958
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "No se pudieron iniciar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:948
+#: ../src/tracker-control/tracker-control-general.c:983
 msgid "perhaps a disabled plugin?"
 msgstr "¿quizá es un complemento desactivado?"
 
-#: ../src/tracker-control/tracker-control-general.c:970
+#: ../src/tracker-control/tracker-control-general.c:1005
 msgid "Backing up database"
 msgstr "Respaldando base de datos"
 
-#: ../src/tracker-control/tracker-control-general.c:1042
+#: ../src/tracker-control/tracker-control-general.c:1077
 msgid "Restoring database from backup"
 msgstr "Restaurando base de datos desde el respaldo"
 
-#: ../src/tracker-control/tracker-control-general.c:1115
+#: ../src/tracker-control/tracker-control-general.c:1150
 msgid "General options"
 msgstr "Opciones generales"
 
-#: ../src/tracker-control/tracker-control-general.c:1116
+#: ../src/tracker-control/tracker-control-general.c:1151
 msgid "Show general options"
 msgstr "Mostrar las opciones generales"
 
@@ -1547,112 +1545,118 @@ msgstr "No se pudo pausar el minero: %s"
 msgid "Cookie is %d"
 msgstr "La «cookie» es la %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:144
+#: ../src/tracker-control/tracker-control-miners.c:145
 msgid "Press Ctrl+C to end pause"
 msgstr "Pulse «Ctrl+C» para terminar la pausa"
 
-#: ../src/tracker-control/tracker-control-miners.c:161
+#: ../src/tracker-control/tracker-control-miners.c:169
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
 msgstr "No se pudo reanudar el minero, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:168
+#: ../src/tracker-control/tracker-control-miners.c:176
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Intentando resumir el minero %s con la «cookie» %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:175
+#: ../src/tracker-control/tracker-control-miners.c:183
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "No se pudo resumir el minero: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:179
+#: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:142
 #: ../src/tracker-utils/tracker-sparql.c:571
 msgid "Done"
 msgstr "Hecho"
 
-#: ../src/tracker-control/tracker-control-miners.c:195
+#: ../src/tracker-control/tracker-control-miners.c:203
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
 msgstr ""
 "No se pudieron reindexar los tipos MIME, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:205
+#: ../src/tracker-control/tracker-control-miners.c:213
 msgid "Could not reindex mimetypes"
 msgstr "No se pudieron reindexar los tipos MIME"
 
-#: ../src/tracker-control/tracker-control-miners.c:211
+#: ../src/tracker-control/tracker-control-miners.c:219
 msgid "Reindexing mime types was successful"
 msgstr "Reindexado de los tipos MIME correctamente"
 
-#: ../src/tracker-control/tracker-control-miners.c:227
+#: ../src/tracker-control/tracker-control-miners.c:235
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
 msgstr "No se pudo (re)indexar el archivo, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:240
+#: ../src/tracker-control/tracker-control-miners.c:248
 msgid "Could not (re)index file"
 msgstr "No se pudo (re)indexar el archivo"
 
-#: ../src/tracker-control/tracker-control-miners.c:246
+#: ../src/tracker-control/tracker-control-miners.c:254
 msgid "(Re)indexing file was successful"
 msgstr "(Re)indexado del archivo correctamente"
 
-#: ../src/tracker-control/tracker-control-miners.c:264
+#: ../src/tracker-control/tracker-control-miners.c:272
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr "No se pudieron listar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:278
+#: ../src/tracker-control/tracker-control-miners.c:286
 #, c-format
-msgid "Found %d miners installed"
-msgstr "Se encontraron %d mineros instalados"
+#| msgid "Found %d miners installed"
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "Se encontraró %d minero instalado"
+msgstr[1] "Se encontraron %d mineros instalados"
 
-#: ../src/tracker-control/tracker-control-miners.c:298
+#: ../src/tracker-control/tracker-control-miners.c:309
 #, c-format
-msgid "Found %d miners running"
-msgstr "Se encontraron %d mineros en ejecución"
+#| msgid "Found %d miners running"
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "Se encontraró %d minero en ejecución"
+msgstr[1] "Se encontraron %d mineros en ejecución"
 
-#: ../src/tracker-control/tracker-control-miners.c:327
+#: ../src/tracker-control/tracker-control-miners.c:341
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
 "No se pudieron obtener los detalles de pausa, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:337
+#: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are running"
 msgstr "No hay ningún minero en ejecución"
 
-#: ../src/tracker-control/tracker-control-miners.c:378
+#: ../src/tracker-control/tracker-control-miners.c:392
 msgid "Application"
 msgstr "Aplicación"
 
-#: ../src/tracker-control/tracker-control-miners.c:380
+#: ../src/tracker-control/tracker-control-miners.c:394
 msgid "Reason"
 msgstr "Razón"
 
-#: ../src/tracker-control/tracker-control-miners.c:389
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "No miners are paused"
 msgstr "No hay ningún minero pausado"
 
-#: ../src/tracker-control/tracker-control-miners.c:413
+#: ../src/tracker-control/tracker-control-miners.c:427
 msgid "You can not use miner pause and resume switches together"
 msgstr "No puede usar un minero pausado y resumir los cambios a la vez"
 
-#: ../src/tracker-control/tracker-control-miners.c:419
+#: ../src/tracker-control/tracker-control-miners.c:433
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:439
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Debe proporcionar una pausa o resumir el comando para el minero"
 
-#: ../src/tracker-control/tracker-control-miners.c:486
+#: ../src/tracker-control/tracker-control-miners.c:487
 msgid "Miner options"
 msgstr "Opciones del minero"
 
-#: ../src/tracker-control/tracker-control-miners.c:487
+#: ../src/tracker-control/tracker-control-miners.c:488
 msgid "Show miner options"
 msgstr "Mostrar las opciones del minero"
 
@@ -1845,8 +1849,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostrar URN para los resultados (no se aplica para «--music-albums», «--music-"
-"artists», «--feeds», «--software», «--software-categories»)"
+"Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
+"music-artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker-utils/tracker-search.c:84
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2431,6 +2435,10 @@ msgstr "Falló al iniciar el administrador de datos"
 msgid "Empty result set"
 msgstr "Conjunto de resultados vacío"
 
+#~ msgid "Could not get log verbosity, manager could not be created, %s"
+#~ msgstr ""
+#~ "No se pudo obtener registro detallado, no se pudo crear el gestor, %s"
+
 #~ msgid "Day(s)"
 #~ msgstr "Día(s)"
 
@@ -2484,8 +2492,8 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Include details with state updates (only applies to --follow)"
 #~ msgstr ""
-#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a «--"
-#~ "follow»)"
+#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a "
+#~ "«--follow»)"
 
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Icono de estado de Tracker"
@@ -3090,7 +3098,8 @@ msgstr "Conjunto de resultados vacío"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
-#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
+#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los "
+#~ "datos)"
 
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
@@ -3626,7 +3635,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
 
 #~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+#~ msgstr ""
+#~ "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
 
 #~ msgid "Last file to be indexed was '%s'"
 #~ msgstr "El último archivo indexado fue «%s»"
@@ -4009,7 +4019,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+#~ msgstr ""
+#~ "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #~ msgid "Could not delete \"%s\"."
 #~ msgstr "No se pudo borrar «%s»."
