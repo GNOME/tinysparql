@@ -89,108 +89,6 @@ rfc1123_to_iso8601_date (const gchar *date)
 	return tracker_date_format_to_iso8601 (date, RFC1123_DATE_FORMAT);
 }
 
-/* Handle raw profiles by Imagemagick (at least). Hex encoded with
- * line-changes and other (undocumented/unofficial) twists.
- */
-static gchar *
-raw_profile_new (const gchar *input,
-                 const guint  input_length,
-                 guint       *output_length)
-{
-	static const gchar* const lut = "0123456789abcdef";
-	gchar *output;
-	const gchar *ptr;
-	const gchar *length_ptr;
-	gsize size;
-	gchar *length_str;
-	guint length;
-
-	size_t len;
-	size_t i;
-	size_t o;
-	char *p;
-	char *q;
-
-	ptr = input;
-
-	if (*ptr != '\n') {
-		return NULL;
-	}
-
-	ptr++;
-
-	if (!g_ascii_isalpha (*ptr)) {
-		return NULL;
-	}
-
-	/* Skip the type string */
-	do {
-		ptr++;
-	} while (g_ascii_isalpha (*ptr));
-
-	if (*ptr != '\n') {
-		return NULL;
-	}
-
-	/* Hop over whitespaces */
-	do {
-		ptr++;
-	} while (*ptr == ' ');
-
-	if (!g_ascii_isdigit (*ptr)) {
-		return NULL;
-	}
-
-	/* Get the length string */
-	length_ptr = ptr;
-	size = 1;
-
-	do {
-		ptr++;
-		size++;
-	} while (g_ascii_isdigit (*ptr));
-
-	length_str = g_strndup (length_ptr, size - 1);
-
-	if (*ptr != '\n') {
-		return NULL;
-	}
-
-	ptr++;
-
-	length = atoi (length_str);
-	g_free (length_str);
-
-	len = length;
-	i = 0;
-	o = 0;
-
-	output = malloc (length + 1); /* A bit less with non-valid */
-
-	o = 0;
-	while (o < len) {
-		do {
-			gchar a = ptr[i];
-			p = strchr (lut, a);
-			i++;
-		} while (p == 0);
-
-		do {
-			gchar b = ptr[i];
-			q = strchr (lut, b);
-			i++;
-		} while (q == 0);
-
-		output[o] = (((p - lut) << 4) | (q - lut));
-		o++;
-	}
-
-	output[o] = '\0';
-	*output_length = o;
-
-	return output;
-}
-
 static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
@@ -226,74 +124,32 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 				continue;
 			}
 
-#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
+	#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
 			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
 				/* ATM tracker_extract_xmp_read supports setting xd
 				 * multiple times, keep it that way as here it's
 				 * theoretically possible that the function gets
-				 * called multiple times
+				 * called multiple times 
 				 */
 				xd = tracker_xmp_new (text_ptr[i].text,
-				                      text_ptr[i].itxt_length,
-				                      uri);
-
+					              text_ptr[i].itxt_length,
+					              uri);
 				continue;
 			}
+	#endif
 
-			if (g_strcmp0 ("Raw profile type xmp", text_ptr[i].key) == 0) {
-				gchar *xmp_buffer;
-				guint xmp_buffer_length = 0;
-				guint input_len;
-
-				if (text_ptr[i].text_length) {
-					input_len = text_ptr[i].text_length;
-				} else {
-					input_len = text_ptr[i].itxt_length;
-				}
-
-				xmp_buffer = raw_profile_new (text_ptr[i].text,
-				                              input_len,
-				                              &xmp_buffer_length);
-
-				if (xmp_buffer) {
-					xd = tracker_xmp_new (xmp_buffer,
-					                      xmp_buffer_length,
-					                      uri);
-				}
-
-				g_free (xmp_buffer);
-
-				continue;
-			}
-#endif
-
-#if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
+	#if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
+			/* I'm not certain this is the key for EXIF. Using key according to
+			 * this document about exiftool:
+			 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData 
+			 */
 			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
-				gchar *exif_buffer;
-				guint exif_buffer_length = 0;
-				guint input_len;
-
-				if (text_ptr[i].text_length) {
-					input_len = text_ptr[i].text_length;
-				} else {
-					input_len = text_ptr[i].itxt_length;
-				}
-
-				exif_buffer = raw_profile_new (text_ptr[i].text,
-				                               input_len,
-				                               &exif_buffer_length);
-
-				if (exif_buffer) {
-					ed = tracker_exif_new (exif_buffer,
-					                       exif_buffer_length,
-					                       uri);
-				}
-
-				g_free (exif_buffer);
-
+				ed = tracker_exif_new (text_ptr[i].text,
+					               text_ptr[i].itxt_length,
+					               uri);
 				continue;
 			}
-#endif /* HAVE_LIBEXIF */
+	#endif /* HAVE_LIBEXIF */
 
 			if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
 				pd.author = text_ptr[i].text;
@@ -577,12 +433,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 		if (xd->address || xd->state || xd->country || xd->city)  {
 			gchar *addruri;
-
 			addruri = tracker_sparql_get_uuid_urn ();
 
 			tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
-			tracker_sparql_builder_object_iri (metadata, addruri);
-
+			tracker_sparql_builder_object_iri (metadata, addruri);			
+			
 			tracker_sparql_builder_insert_open (preupdate, NULL);
 			tracker_sparql_builder_subject_iri (preupdate, addruri);
 
@@ -651,10 +506,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		value = ed->resolution_unit != 3 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
 		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
-	}
-
-	if (xd->regions) {
-		tracker_xmp_apply_regions (preupdate, metadata, NULL, xd);
 	}
 
 	for (i = 0; i < keywords->len; i++) {

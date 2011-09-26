@@ -300,6 +300,7 @@ test_xmp_apply (void)
 	 */
 
 	/* g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50); */
+        g_string_free (where, TRUE);
         g_object_unref (metadata);
         g_object_unref (preupdate);
 
