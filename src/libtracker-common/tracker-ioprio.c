@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IOPRIO
+#ifdef __linux__
 
 #include <stdio.h>
 #include <errno.h>
@@ -40,14 +40,16 @@
 
 #include <glib/gstdio.h>
 
-#endif /* HAVE_IOPRIO */
+#endif /* __linux__ */
 
 #include <libtracker-common/tracker-log.h>
 
 #include "tracker-ioprio.h"
 
-#ifdef HAVE_IOPRIO
+/* We assume ALL linux architectures have the syscalls defined here */
+#ifdef __linux__
 
+/* Make sure the system call is supported */
 #ifndef __NR_ioprio_set
 
 #if defined(__i386__)
@@ -84,7 +86,7 @@
 #error "Unsupported architecture!"
 #endif
 
-#endif
+#endif /* __NR_ioprio_set */
 
 enum {
 	IOPRIO_CLASS_NONE,
@@ -140,12 +142,11 @@ tracker_ioprio_init (void)
 	}
 }
 
-#else  /* HAVE_IOPRIO */
-
+#else  /* __linux__ */
 
 void
 tracker_ioprio_init (void)
 {
 }
 
-#endif /* HAVE_IOPRIO */
+#endif /* __linux__ */

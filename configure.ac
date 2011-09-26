@@ -148,31 +148,6 @@ if test "x$have_function" = "xno" ; then
             [Defined for compilers not supporting __FUNCTION__])
 fi
 
-# Check ioprio support
-AC_CACHE_CHECK([if we have ioprio],[tracker_cv_have_ioprio],
-   [AC_RUN_IFELSE(
-      [AC_LANG_PROGRAM([[
-         #include <stdlib.h>
-         #include <errno.h>
-         #include <sys/syscall.h>
-         #include <unistd.h>
-         inline int ioprio_get (int which, int who)
-         {
-             return syscall (__NR_ioprio_get, which, who);
-         }
-         ]],
-         [[
-             return !(ioprio_get (1, 0) != -1);
-         ]])],
-   [tracker_cv_have_ioprio=yes],
-   [tracker_cv_have_ioprio=no],
-   [AC_MSG_ERROR([cross-compiling: please set 'tracker_cv_have_ioprio'])])
-])
-
-if test "x$tracker_cv_have_ioprio" = "xyes" ; then
-   AC_DEFINE(HAVE_IOPRIO, 1, [Define if we have ioprio])
-fi
-
 # Binary required versions
 PYTHON_REQUIRED=2.6
 
@@ -2192,7 +2167,6 @@ Build Configuration:
 	Enable functional tests:                $enable_functional_tests
 	Enable unit tests:                      $have_unit_tests
 
-	Support for ioprio:                     $tracker_cv_have_ioprio
 	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
 	Support for Cyrillic languages (enca):  $have_enca
