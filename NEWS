@@ -1,3 +1,24 @@
+NEW in 0.10.29 - 2011-09-26
+===========================
+
+The changes are:
+
+  * Fixes: NB#283501, Backup restore doesn't restore contacts, messages or call history
+  * tracker-extract: Use O_NOATIME for TEXT, XMP, PDF, TIFF, GIF, MSOFFICE, ODF ABW and FLAC files
+  * tracker-extract: Allow g_open() without O_NOATIME if -EPERM is returned
+  * tracker-extract-png: Handle raw profiles by Imagemagick encoded with line changes/twists
+
+Translations:
+
+  * Updated de: Christian Kirbach
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  None
+
+
 NEW in 0.10.28 - 2011-09-22
 ===========================
 
