@@ -51,6 +51,7 @@ TrackerConfig *tracker_config_new                                  (void);
 gboolean       tracker_config_save                                 (TrackerConfig *config);
 
 gint           tracker_config_get_verbosity                        (TrackerConfig *config);
+gint           tracker_config_get_sched_idle                       (TrackerConfig *config);
 gint           tracker_config_get_initial_sleep                    (TrackerConfig *config);
 gboolean       tracker_config_get_enable_monitors                  (TrackerConfig *config);
 gint           tracker_config_get_throttle                         (TrackerConfig *config);
@@ -72,6 +73,8 @@ gint           tracker_config_get_removable_days_threshold         (TrackerConfi
 gboolean       tracker_config_get_enable_writeback                 (TrackerConfig *config);
 
 void           tracker_config_set_verbosity                        (TrackerConfig *config,
+                                                                    gint           value);
+void           tracker_config_set_sched_idle                       (TrackerConfig *config,
                                                                     gint           value);
 void           tracker_config_set_initial_sleep                    (TrackerConfig *config,
                                                                     gint           value);

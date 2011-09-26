@@ -32,6 +32,16 @@ Boston, MA  02110-1301, USA.
       <default>15</default>
     </key>
 
+    <key name="sched-idle" enum="org.freedesktop.Tracker.TrackerSchedIdle">
+      <default>'first-index'</default>
+      <_summary>Scheduler priority when idle</_summary>
+      <_description>
+	The scheduler is the kernel component that decides which
+	runnable application will be executed by the CPU next. Each
+	application has an associated scheduling policy and priority.
+      </_description>
+    </key>
+
     <key name="throttle" type="i">
       <_summary>Throttle</_summary>
       <_description>Indexing speed, the higher the slower.</_description>

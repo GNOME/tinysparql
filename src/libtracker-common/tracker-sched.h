@@ -17,24 +17,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_ENUMS_H__
-#define __TRACKER_ENUMS_H__
+#ifndef __LIBTRACKER_COMMON_SCHED_H__
+#define __LIBTRACKER_COMMON_SCHED_H__
 
 G_BEGIN_DECLS
 
-typedef enum {
-	TRACKER_VERBOSITY_ERRORS,
-	TRACKER_VERBOSITY_MINIMAL,
-	TRACKER_VERBOSITY_DETAILED,
-	TRACKER_VERBOSITY_DEBUG,
-} TrackerVerbosity;
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
 
-typedef enum {
-	TRACKER_SCHED_IDLE_ALWAYS,
-	TRACKER_SCHED_IDLE_FIRST_INDEX,
-	TRACKER_SCHED_IDLE_NEVER,
-} TrackerSchedIdle;
+gboolean tracker_sched_idle (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_ENUMS_H__ */
+#endif /* __LIBTRACKER_COMMON_SCHED_H__ */
