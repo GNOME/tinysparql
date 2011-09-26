@@ -19,6 +19,21 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -134,14 +149,54 @@ extract_xmp (const gchar          *uri,
              TrackerSparqlBuilder *metadata)
 {
 	TrackerXmpData *xd = NULL;
-	GError *error = NULL;
 	gchar *filename;
 	gchar *contents;
-	gsize length;
+	gsize length = 0;
+	int fd;
+	struct stat st;
+
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
-	if (g_file_get_contents (filename, &contents, &length, &error)) {
+	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (filename, O_RDONLY, 0);
+	}
+
+	if (fd == -1) {
+		g_warning ("Could not open xmp file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		g_free (filename);
+		return;
+	}
+
+	if (fstat (fd, &st) == -1) {
+		g_warning ("Could not fstat xmp file '%s': %s\n",
+		           filename,
+		           g_strerror (errno));
+		close (fd);
+		g_free (filename);
+		return;
+	}
+
+	if (st.st_size == 0) {
+		contents = NULL;
+		length = 0;
+	} else {
+		contents = (gchar *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (contents == NULL) {
+			g_warning ("Could not mmap xmp file '%s': %s\n",
+			           filename,
+			           g_strerror (errno));
+			close (fd);
+			g_free (filename);
+			return;
+		}
+		length = st.st_size;
+	}
+
+	if (contents) {
 		gchar *original_uri;
 
 		original_uri = find_orig_uri (filename);
@@ -159,9 +214,11 @@ extract_xmp (const gchar          *uri,
 
 		g_free (original_uri);
 		tracker_xmp_free (xd);
-		g_free (contents);
+
+		munmap (contents, length);
 	}
 
+	close (fd);
 	g_free (filename);
 }
 

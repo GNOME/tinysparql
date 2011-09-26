@@ -51,36 +51,30 @@
 static GHashTable *file_locks = NULL;
 
 FILE *
-tracker_file_open (const gchar *path,
-                   const gchar *how,
-                   gboolean     sequential)
+tracker_file_open (const gchar *path)
 {
-	FILE     *file;
-	gboolean  readonly;
-	int       flags;
+	FILE *file;
+	int fd;
 
 	g_return_val_if_fail (path != NULL, NULL);
-	g_return_val_if_fail (how != NULL, NULL);
 
-	file = fopen (path, how);
-	if (!file) {
+#if defined(__linux__)
+	fd = g_open (path, O_RDONLY | O_NOATIME);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (path, O_RDONLY);
+	}
+#else
+	fd = g_open (path, O_RDONLY);
+#endif
+
+	if (fd == -1) {
 		return NULL;
 	}
 
-	/* Are we opening for readonly? */
-	readonly = !strstr (path, "r+") && strchr (path, 'r');
+	file = fdopen (fd, "r");
 
-	if (readonly) {
-		int fd;
-
-		fd = fileno (file);
-
-#if defined(__linux__)
-		/* Make sure we set the NOATIME flag if we have permissions to */
-		if ((flags = fcntl (fd, F_GETFL, 0)) != -1) {
-			fcntl (fd, F_SETFL, flags | O_NOATIME);
-		}
-#endif
+	if (!file) {
+		return NULL;
 	}
 
 	return file;

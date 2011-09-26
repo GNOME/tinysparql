@@ -111,7 +111,8 @@ extract_vorbis (const char *uri,
 	gint time;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
-	f = tracker_file_open (filename, "r", FALSE);
+
+	f = tracker_file_open (filename);
 	g_free (filename);
 
 	if (!f) {
