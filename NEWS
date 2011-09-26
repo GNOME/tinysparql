@@ -1,3 +1,28 @@
+NEW in 0.12.3 - 2011-09-26
+==========================
+
+The changes are:
+
+  * Fixes: GB#659422, please set SCHED_IDLE+IOPRIO_CLASS_IDLE for the miners on Linux
+  * Fixes: NB#283501, Backup restore doesn't restore contacts, messages or call history
+  * tracker-extract: Allow g_open() without O_NOATIME if -EPERM is returned
+  * tracker-extract-png: Handle raw profiles by Imagemagick encoded with line changes/twists
+  * tracker-preferences: Remove throttle implementation
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated es: Jorge González
+  * Updated pl: Piotr Drąg
+  * Updated sl: Andrej Žnidaršič
+  * Updated zh_CN: Wylmer Wang
+
+Notes:
+
+  None
+
+
 NEW in 0.12.2 - 2011-09-22
 ==========================
 
