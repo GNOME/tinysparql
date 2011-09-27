@@ -14,5 +14,8 @@ libtracker_miner_monitor_sources =                              \
 libtracker_miner_monitor_headers =                              \
 	$(top_srcdir)/src/libtracker-miner/tracker-monitor.h
 
+libtracker_miner_file_system_sources =                          \
+	$(top_srcdir)/src/libtracker-miner/tracker-file-system.c
 
- 
+libtracker_miner_file_system_headers =                          \
+	$(top_srcdir)/src/libtracker-miner/tracker-file-system.h

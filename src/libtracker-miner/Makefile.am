@@ -6,6 +6,7 @@ include $(top_srcdir)/Makefile.decl
 #    $(libtracker_miner_marshal_headers)
 #    $(libtracker_miner_monitor_sources)
 #    $(libtracker_miner_monitor_headers)
+#    $(libtracker_miner_file_system_sources)
 #
 # Headers and sources are split for the tests to build
 # with make distcheck.
@@ -67,6 +68,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(password_provider_sources)                   \
 	$(crawler_sources)			       \
 	$(miner_sources)			       \
+	tracker-file-system.h                          \
+	tracker-file-system.c                          \
 	tracker-indexing-tree.c                        \
 	tracker-indexing-tree.h                        \
 	tracker-network-provider.c                     \
@@ -79,6 +82,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 libtracker_minerinclude_HEADERS =                      \
 	tracker-albumart.h                             \
 	tracker-crawler.h                              \
+	tracker-file-system.h                          \
 	tracker-indexing-tree.h                        \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
@@ -97,7 +101,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
