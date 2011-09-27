@@ -473,12 +473,15 @@ process_desktop_file (ProcessApplicationData  *data,
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
 		if (icon) {
+			gchar *escaped_icon;
 			gchar *icon_uri;
 
 			/* Sanitize icon */
 			g_strstrip (icon);
 
-			icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
+			escaped_icon = g_uri_escape_string (icon, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, FALSE);
+
+			icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", escaped_icon);
 
 			tracker_sparql_builder_subject_iri (sparql, icon_uri);
 			tracker_sparql_builder_predicate (sparql, "a");
@@ -489,6 +492,7 @@ process_desktop_file (ProcessApplicationData  *data,
 			tracker_sparql_builder_object_iri (sparql, icon_uri);
 
 			g_free (icon_uri);
+			g_free (escaped_icon);
 			g_free (icon);
 		}
 
@@ -670,12 +674,15 @@ process_desktop_file (ProcessApplicationData  *data,
 			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 			if (icon) {
+				gchar *escaped_icon;
 				gchar *icon_uri;
 
 				/* Sanitize icon */
 				g_strstrip (icon);
 
-				icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
+				escaped_icon = g_uri_escape_string (icon, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, FALSE);
+
+				icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", escaped_icon);
 
 				tracker_sparql_builder_subject_iri (sparql, icon_uri);
 				tracker_sparql_builder_predicate (sparql, "a");
@@ -686,6 +693,7 @@ process_desktop_file (ProcessApplicationData  *data,
 				tracker_sparql_builder_object_iri (sparql, icon_uri);
 
 				g_free (icon_uri);
+				g_free (escaped_icon);
 				g_free (icon);
 			}
 		}
