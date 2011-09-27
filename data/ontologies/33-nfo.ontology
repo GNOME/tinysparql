@@ -977,11 +977,11 @@ nfo:lastPlayedPosition a rdf:Property ;
         rdfs:range xsd:integer .
 
 # Bug upstream: http://sourceforge.net/apps/trac/oscaf/ticket/123
-nfo:containerStartTime a rdf:Property;
+nfo:audioOffset a rdf:Property;
         rdfs:label "Time offset within media container (seconds)" ;
         rdfs:comment "Specifies the start offset of this resource within a larger file, such as a single song within a recording of a radio broadcast or a CD rip.";
         nrl:maxCardinality 1 ;
-        rdfs:domain nfo:Media ;
+        rdfs:domain nfo:Audio ;
         rdfs:range xsd:double.
 
 
