@@ -273,13 +273,19 @@ get_metadata_fast_cb (void     *buffer,
 			}
 		}
 
-		tracker_extract_info_set_where_clause (data->info, where);
+		if (where) {
+			tracker_extract_info_set_where_clause (data->info, where);
+		}
 
-		builder = tracker_extract_info_get_preupdate_builder (data->info);
-		tracker_sparql_builder_prepend (builder, preupdate);
+		if (preupdate) {
+			builder = tracker_extract_info_get_preupdate_builder (data->info);
+			tracker_sparql_builder_prepend (builder, preupdate);
+		}
 
-		builder = tracker_extract_info_get_metadata_builder (data->info);
-		tracker_sparql_builder_prepend (builder, sparql);
+		if (sparql) {
+			builder = tracker_extract_info_get_metadata_builder (data->info);
+			tracker_sparql_builder_prepend (builder, sparql);
+		}
 
 		g_simple_async_result_set_op_res_gpointer (data->res,
 		                                           tracker_extract_info_ref (data->info),
