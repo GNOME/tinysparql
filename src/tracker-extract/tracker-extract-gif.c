@@ -576,6 +576,7 @@ extract_gif (const gchar          *uri,
 
 	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
 		PrintGifError ();
+		close (fd);
 		return;
 	}
 
