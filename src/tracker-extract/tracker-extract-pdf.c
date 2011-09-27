@@ -363,6 +363,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 			g_error_free (error);
 			g_free (uri);
+			close (fd);
 
 			return TRUE;
 		} else {
@@ -372,6 +373,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 			g_error_free (error);
 			g_free (uri);
+			close (fd);
 
 			return FALSE;
 		}
@@ -382,6 +384,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		           "NULL returned without an error",
 		           uri);
 		g_free (uri);
+		close (fd);
 		return FALSE;
 	}
 
