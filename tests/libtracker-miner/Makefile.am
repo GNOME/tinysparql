@@ -18,6 +18,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=                                          \
 	tracker-crawler-test                           \
+	tracker-file-system-test		       \
 	tracker-miner-manager-test                     \
 	tracker-password-provider-test                 \
 	tracker-thumbnailer-test                       \
@@ -106,6 +107,9 @@ tracker_task_pool_test_SOURCES = 		       \
 tracker_indexing_tree_test_SOURCES = \
 	tracker-indexing-tree-test.c
 
+tracker_file_system_test_SOURCES = \
+	tracker-file-system-test.c
+
 noinst_HEADERS =                                       \
 	$(libtracker_miner_marshal_headers)            \
 	$(libtracker_miner_monitor_headers)            \
@@ -115,6 +119,8 @@ noinst_HEADERS =                                       \
 	empty-gobject.h
 
 BUILT_SOURCES = \
+	$(libtracker_miner_file_system_sources) \
+	$(libtracker_miner_file_system_headers) \
 	libtracker_miner_tests_la_vala.stamp
 
 EXTRA_DIST = \
