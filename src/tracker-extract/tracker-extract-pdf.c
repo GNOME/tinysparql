@@ -362,13 +362,13 @@ extract_pdf (const gchar          *uri,
 
 			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
 			tracker_sparql_builder_object_boolean (metadata, TRUE);
-			return;
 		} else {
 			g_warning ("Couldn't create PopplerDocument from uri:'%s', %s",
 			           uri,
 			           error->message ? error->message : "no error given");
 		}
 
+		close (fd);
 		g_error_free (error);
 		return;
 	}
@@ -377,6 +377,7 @@ extract_pdf (const gchar          *uri,
 		g_warning ("Could not create PopplerDocument from uri:'%s', "
 		           "NULL returned without an error",
 		           uri);
+		close (fd);
 		return;
 	}
 
