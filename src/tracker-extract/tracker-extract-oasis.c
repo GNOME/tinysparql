@@ -300,6 +300,11 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 	data = user_data;
 	metadata = data->metadata;
 
+	if (text_len == 0) {
+		/* ignore empty values */
+		return;
+	}
+
 	switch (data->current) {
 	case ODT_TAG_TYPE_TITLE:
 		if (data->title_already_set) {
@@ -354,9 +359,11 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 
 	case ODT_TAG_TYPE_CREATED:
 		date = tracker_date_guess (text);
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, date);
-		g_free (date);
+		if (date) {
+			tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+			tracker_sparql_builder_object_unvalidated (metadata, date);
+			g_free (date);
+		}
 		break;
 
 	case ODT_TAG_TYPE_GENERATOR:
