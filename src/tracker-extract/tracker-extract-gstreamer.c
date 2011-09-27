@@ -1037,12 +1037,16 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 				extractor->has_image = TRUE;
 			} else {
 				extractor->has_video = TRUE;
-				extractor->video_fps = (gfloat)(gst_discoverer_video_info_get_framerate_num (video) /
-				                                gst_discoverer_video_info_get_framerate_denom (video));
+				if (gst_discoverer_video_info_get_framerate_denom (video) > 0) {
+					extractor->video_fps = (gfloat)(gst_discoverer_video_info_get_framerate_num (video) /
+						                        gst_discoverer_video_info_get_framerate_denom (video));
+				}
 				extractor->width = gst_discoverer_video_info_get_width (video);
 				extractor->height = gst_discoverer_video_info_get_height (video);
-				extractor->aspect_ratio = (gfloat)(gst_discoverer_video_info_get_par_num (video) /
-				                                   gst_discoverer_video_info_get_par_denom (video));
+				if (gst_discoverer_video_info_get_par_denom (video) > 0) {
+					extractor->aspect_ratio = (gfloat)(gst_discoverer_video_info_get_par_num (video) /
+						                           gst_discoverer_video_info_get_par_denom (video));
+				}
 			}
 		} else {
 			/* Unknown type - do nothing */
