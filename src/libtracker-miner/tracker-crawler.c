@@ -862,12 +862,12 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 		priv->timer = NULL;
 	}
 
-	g_signal_emit (crawler, signals[FINISHED], 0,
-	               !priv->is_finished);
-
 	/* Clean up queue */
 	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_clear (priv->directories);
+
+	g_signal_emit (crawler, signals[FINISHED], 0,
+	               !priv->is_finished);
 
 	/* We don't free the queue in case the crawler is reused, it
 	 * is only freed in finalize.
