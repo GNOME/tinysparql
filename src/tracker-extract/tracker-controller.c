@@ -688,7 +688,12 @@ handle_method_call_get_metadata_fast (TrackerController     *controller,
 
 		fd_list = g_dbus_message_get_unix_fd_list (method_message);
 
-		if ((fd = g_unix_fd_list_get (fd_list, index_fd, &error)) != -1) {
+		if (fd_list == NULL) {
+			error = g_error_new_literal (TRACKER_DBUS_ERROR, 0,
+				                     "No FD list");
+		}
+
+		if (fd_list && (fd = g_unix_fd_list_get (fd_list, index_fd, &error)) != -1) {
 			data = metadata_data_new (controller, uri, mime, invocation, request);
 			data->fd = fd;
 
