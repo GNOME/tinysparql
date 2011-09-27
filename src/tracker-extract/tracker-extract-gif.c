@@ -621,6 +621,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
 		PrintGifError ();
+		close (fd);
 		return FALSE;
 	}
 
