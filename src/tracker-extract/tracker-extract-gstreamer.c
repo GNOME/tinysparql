@@ -840,7 +840,7 @@ extract_track_metadata (MetadataExtractor    *extractor,
 		tracker_sparql_builder_object_int64 (postupdate, (gint64)toc_entry->duration);
 	}
 
-	tracker_sparql_builder_predicate (postupdate, "nfo:containerStartTime");
+	tracker_sparql_builder_predicate (postupdate, "nfo:audioOffset");
 	tracker_sparql_builder_object_double (postupdate, toc_entry->start);
 
 	/* Link the track to its container file. Since the file might not have been
