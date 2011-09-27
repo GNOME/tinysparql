@@ -2506,9 +2506,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_albumart_process (md.albumart_data,
 	                          md.albumart_size,
 	                          md.albumart_mime,
+	                          TRACKER_MEDIA_ART_ALBUM,
 	                          md.performer,
 	                          md.album,
-	                          filename);
+	                          uri);
 	g_free (md.albumart_data);
 	g_free (md.albumart_mime);
 

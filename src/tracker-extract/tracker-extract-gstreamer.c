@@ -598,7 +598,8 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
                                   TrackerSparqlBuilder  *metadata,
                                   const gchar           *graph,
                                   gchar                **p_performer_uri,
-                                  gchar                **p_composer_uri)
+                                  gchar                **p_composer_uri,
+                                  gchar                **p_media_title)
 {
 	const gchar *performer = NULL;
 	gchar *performer_temp = NULL;
@@ -647,7 +648,12 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	g_free (artist_temp);
 	g_free (composer);
 	g_free (genre);
-	g_free (title);
+
+	if (p_media_title != NULL) {
+		*p_media_title = title;
+	} else {
+		g_free (title);
+	}
 }
 
 static void
@@ -929,7 +935,8 @@ extract_track_metadata (MetadataExtractor    *extractor,
 	                                  postupdate,
 	                                  graph,
 	                                  &track_performer_uri,
-	                                  &track_composer_uri);
+	                                  &track_composer_uri,
+	                                  NULL);
 
 	extractor_apply_audio_metadata (extractor,
 	                                toc_entry->tag_list,
@@ -999,14 +1006,17 @@ extract_metadata (MetadataExtractor      *extractor,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *postupdate,
                   TrackerSparqlBuilder   *metadata,
-                  gchar                 **album_artist,
-                  gchar                 **album_title,
+                  TrackerMediaArtType    *media_type,
+                  gchar                 **media_artist,
+                  gchar                 **media_title,
                   const gchar            *graph)
 {
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (preupdate != NULL);
 	g_return_if_fail (postupdate != NULL);
 	g_return_if_fail (metadata != NULL);
+
+	*media_type = TRACKER_MEDIA_ART_NONE;
 
 	if (extractor->toc) {
 		gst_tag_list_insert (extractor->tagcache,
@@ -1050,8 +1060,12 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			if (extractor->toc == NULL || extractor->toc->entry_list == NULL)
 				tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+
+			*media_type = TRACKER_MEDIA_ART_ALBUM;
 		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
+
+			*media_type = TRACKER_MEDIA_ART_VIDEO;
 		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
@@ -1078,7 +1092,8 @@ extract_metadata (MetadataExtractor      *extractor,
 		                                  metadata,
 		                                  graph,
 		                                  &performer_uri,
-		                                  &composer_uri);
+		                                  &composer_uri,
+		                                  media_title);
 
 		extractor_apply_device_metadata (extractor,
 		                                 extractor->tagcache,
@@ -1092,14 +1107,21 @@ extract_metadata (MetadataExtractor      *extractor,
 		                                      metadata,
 		                                      graph);
 
-		if (extractor->mime == EXTRACT_MIME_VIDEO)
+		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			extractor_apply_video_metadata (extractor,
 			                                extractor->tagcache,
 			                                metadata,
 			                                performer_uri,
 			                                composer_uri);
+		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			/* FIXME: we need to use album title instead of file title - we can
+			 * avoid this waste by storing the media art extract info in the
+			 * MetadataExtractor object
+			 */
+			g_free (*media_title);
+
 			extractor_apply_album_metadata (extractor,
 			                                extractor->tagcache,
 			                                preupdate,
@@ -1107,8 +1129,8 @@ extract_metadata (MetadataExtractor      *extractor,
 			                                &album_artist_uri,
 			                                &album_uri,
 			                                &album_disc_uri,
-			                                album_artist,
-			                                album_title);
+			                                media_artist,
+			                                media_title);
 
 			extractor_apply_audio_metadata (extractor,
 			                                extractor->tagcache,
@@ -1946,7 +1968,8 @@ tracker_extract_gstreamer (const gchar          *uri,
 {
 	MetadataExtractor *extractor;
 	gchar *cue_sheet;
-	gchar *album_artist, *album_title;
+	TrackerMediaArtType media_type;
+	gchar *media_artist, *media_title;
 	gboolean success;
 
 	g_return_if_fail (uri);
@@ -1994,20 +2017,31 @@ tracker_extract_gstreamer (const gchar          *uri,
 		extractor->toc = tracker_cue_sheet_parse_uri (uri);
 	}
 
-	album_artist = NULL;
-	album_title = NULL;
+	media_artist = NULL;
+	media_title = NULL;
 
-	extract_metadata (extractor, uri, preupdate, postupdate, metadata, &album_artist, &album_title, graph);
+	extract_metadata (extractor,
+	                  uri,
+	                  preupdate,
+	                  postupdate,
+	                  metadata,
+	                  &media_type,
+	                  &media_artist,
+	                  &media_title,
+	                  graph);
 
-	tracker_albumart_process (extractor->album_art_data,
-	                          extractor->album_art_size,
-	                          extractor->album_art_mime,
-	                          album_artist,
-	                          album_title,
-	                          uri);
+	if (media_type != TRACKER_MEDIA_ART_NONE) {
+		tracker_albumart_process (extractor->album_art_data,
+		                          extractor->album_art_size,
+		                          extractor->album_art_mime,
+		                          media_type,
+		                          media_artist,
+		                          media_title,
+		                          uri);
+	}
 
-	g_free (album_artist);
-	g_free (album_title);
+	g_free (media_artist);
+	g_free (media_title);
 
 	gst_tag_list_free (extractor->tagcache);
 

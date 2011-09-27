@@ -24,14 +24,23 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+	TRACKER_MEDIA_ART_NONE,
+	TRACKER_MEDIA_ART_ALBUM,
+	TRACKER_MEDIA_ART_VIDEO,
+	TRACKER_MEDIA_ART_TYPE_COUNT
+} TrackerMediaArtType;
+
 gboolean tracker_albumart_init     (void);
 void     tracker_albumart_shutdown (void);
+
 gboolean tracker_albumart_process  (const unsigned char *buffer,
                                     size_t               len,
-                                    const gchar         *mime,
+                                    const gchar         *mime_type,
+                                    TrackerMediaArtType  type,
                                     const gchar         *artist,
-                                    const gchar         *album,
-                                    const gchar         *filename);
+                                    const gchar         *title,
+                                    const gchar         *uri);
 
 G_END_DECLS
 

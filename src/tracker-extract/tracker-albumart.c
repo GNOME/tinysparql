@@ -49,6 +49,12 @@
 #define ALBUMARTER_PATH       "/com/nokia/albumart/Requester"
 #define ALBUMARTER_INTERFACE  "com.nokia.albumart.Requester"
 
+static const gchar *media_art_type_name[TRACKER_MEDIA_ART_TYPE_COUNT] = {
+	"invalid",
+	"album",
+	"video"
+};
+
 typedef struct {
 	TrackerStorage *storage;
 	gchar *art_path;
@@ -553,26 +559,29 @@ static gboolean
 albumart_set (const unsigned char *buffer,
               size_t               len,
               const gchar         *mime,
+              TrackerMediaArtType  type,
               const gchar         *artist,
-              const gchar         *album,
+              const gchar         *title,
               const gchar         *uri)
 {
 	gchar *local_path;
 	gboolean retval = FALSE;
 
-	if (!artist && !album) {
-		g_warning ("Could not save embedded album art, no artist or album supplied");
+	g_return_val_if_fail (type > TRACKER_MEDIA_ART_NONE && type < TRACKER_MEDIA_ART_TYPE_COUNT, FALSE);
+
+	if (!artist && !title) {
+		g_warning ("Could not save embedded album art, not enough metadata supplied");
 		return FALSE;
 	}
 
-	tracker_albumart_get_path (artist, album, "album", NULL, &local_path, NULL);
+	tracker_albumart_get_path (artist, title, media_art_type_name[type], NULL, &local_path, NULL);
 
-	if (artist == NULL || g_strcmp0 (artist, " ") == 0) {
+	if (type != TRACKER_MEDIA_ART_ALBUM || (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
 		retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
 	} else {
 		gchar *album_path;
 
-		tracker_albumart_get_path (NULL, album, "album", NULL, &album_path, NULL);
+		tracker_albumart_get_path (NULL, title, media_art_type_name[type], NULL, &album_path, NULL);
 
 		if (!g_file_test (album_path, G_FILE_TEST_EXISTS)) {
 			retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, album_path);
@@ -659,16 +668,21 @@ albumart_set (const unsigned char *buffer,
 }
 
 static void
-albumart_request_download (TrackerStorage *storage,
-                           const gchar    *album,
-                           const gchar    *artist,
-                           const gchar    *local_uri,
-                           const gchar    *art_path)
+albumart_request_download (TrackerStorage      *storage,
+                           TrackerMediaArtType  type,
+                           const gchar         *album,
+                           const gchar         *artist,
+                           const gchar         *local_uri,
+                           const gchar         *art_path)
 {
 	if (connection) {
 		GetFileInfo *info;
 
 		if (disable_requests) {
+			return;
+		}
+
+		if (type != TRACKER_MEDIA_ART_ALBUM) {
 			return;
 		}
 
@@ -880,43 +894,41 @@ gboolean
 tracker_albumart_process (const unsigned char *buffer,
                           size_t               len,
                           const gchar         *mime,
+                          TrackerMediaArtType  type,
                           const gchar         *artist,
-                          const gchar         *album,
-                          const gchar         *filename)
+                          const gchar         *title,
+                          const gchar         *uri)
 {
 	gchar *art_path;
+	gchar *local_art_uri = NULL;
 	gboolean processed = TRUE, a_exists, created = FALSE;
-	gchar *local_uri = NULL;
-	gchar *filename_uri;
 	guint64 mtime, a_mtime = 0;
 
-	g_debug ("Processing album art, buffer is %ld bytes, artist:'%s', album:'%s', filename:'%s', mime:'%s'",
-	         (long int) len,
+	g_return_val_if_fail (type > TRACKER_MEDIA_ART_NONE && type < TRACKER_MEDIA_ART_TYPE_COUNT, FALSE);
+
+	g_debug ("Processing media art: artist:'%s', title:'%s', type:'%s', uri:'%s'. Buffer is %ld bytes, mime:'%s'",
 	         artist ? artist : "",
-	         album ? album : "",
-	         filename,
+	         title ? title : "",
+	         media_art_type_name[type],
+	         uri,
+	         (long int) len,
 	         mime);
 
 	/* TODO: We can definitely work with GFiles better here */
 
-	filename_uri = (strstr (filename, "://") ?
-	                g_strdup (filename) :
-	                g_filename_to_uri (filename, NULL, NULL));
-
-	mtime = tracker_file_get_mtime_uri (filename_uri);
+	mtime = tracker_file_get_mtime_uri (uri);
 
 	tracker_albumart_get_path (artist,
-	                           album,
-	                           "album",
-	                           filename_uri,
+	                           title,
+	                           media_art_type_name[type],
+	                           uri,
 	                           &art_path,
-	                           &local_uri);
+	                           &local_art_uri);
 
 	if (!art_path) {
 		g_debug ("Album art path could not be obtained, not processing any further");
 
-		g_free (filename_uri);
-		g_free (local_uri);
+		g_free (local_art_uri);
 
 		return FALSE;
 	}
@@ -928,12 +940,7 @@ tracker_albumart_process (const unsigned char *buffer,
 	}
 
 	if ((buffer && len > 0) && ((!a_exists) || (a_exists && mtime > a_mtime))) {
-		processed = albumart_set (buffer,
-		                          len,
-		                          mime,
-		                          artist,
-		                          album,
-		                          filename_uri);
+		processed = albumart_set (buffer, len, mime, type, artist, title, uri);
 		set_mtime (art_path, mtime);
 		created = TRUE;
 	}
@@ -944,7 +951,7 @@ tracker_albumart_process (const unsigned char *buffer,
 		gchar *dirname = NULL;
 		GFile *file, *dirf;
 
-		file = g_file_new_for_uri (filename_uri);
+		file = g_file_new_for_uri (uri);
 		dirf = g_file_get_parent (file);
 		if (dirf) {
 			dirname = g_file_get_path (dirf);
@@ -952,18 +959,19 @@ tracker_albumart_process (const unsigned char *buffer,
 		}
 		g_object_unref (file);
 
-		key = g_strdup_printf ("%s-%s-%s",
+		key = g_strdup_printf ("%i-%s-%s-%s",
+		                       type,
 		                       artist ? artist : "",
-		                       album ? album : "",
+		                       title ? title : "",
 		                       dirname ? dirname : "");
 
 		g_free (dirname);
 
 		if (!g_hash_table_lookup (albumart_cache, key)) {
 			if (!albumart_heuristic (artist,
-			                         album,
-			                         filename_uri,
-			                         local_uri,
+			                         title,
+			                         uri,
+			                         local_art_uri,
 			                         NULL)) {
 				/* If the heuristic failed, we
 				 * request the download the
@@ -971,9 +979,10 @@ tracker_albumart_process (const unsigned char *buffer,
 				 * downloaders
 				 */
 				albumart_request_download (albumart_storage,
+				                           type,
 				                           artist,
-				                           album,
-				                           local_uri,
+				                           title,
+				                           local_art_uri,
 				                           art_path);
 			}
 
@@ -988,25 +997,24 @@ tracker_albumart_process (const unsigned char *buffer,
 	} else {
 		if (!created) {
 			g_debug ("Album art already exists for uri:'%s' as '%s'",
-			         filename_uri,
+			         uri,
 			         art_path);
 		}
 	}
 
-	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
+	if (local_art_uri && !g_file_test (local_art_uri, G_FILE_TEST_EXISTS)) {
 		/* We can't reuse art_exists here because the
 		 * situation might have changed
 		 */
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 			albumart_copy_to_local (albumart_storage,
 			                        art_path,
-			                        local_uri);
+			                        local_art_uri);
 		}
 	}
 
 	g_free (art_path);
-	g_free (filename_uri);
-	g_free (local_uri);
+	g_free (local_art_uri);
 
 	return processed;
 }
