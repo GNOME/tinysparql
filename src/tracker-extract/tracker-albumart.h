@@ -36,7 +36,7 @@ void     tracker_albumart_shutdown (void);
 
 gboolean tracker_albumart_process  (const unsigned char *buffer,
                                     size_t               len,
-                                    const gchar         *mime_type,
+                                    const gchar         *mime,
                                     TrackerMediaArtType  type,
                                     const gchar         *artist,
                                     const gchar         *title,
