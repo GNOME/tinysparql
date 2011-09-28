@@ -37,7 +37,6 @@ from common.utils.expectedFailure import expectedFailureBug
 
 class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
 
-        @expectedFailureBug ("NB#217566")
         def test_01_NB217566_union_exists_filter (self):
                 """
                 NB217566: Use of UNION in EXISTS in a FILTER breaks filtering 
