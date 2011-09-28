@@ -155,7 +155,6 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
 	process = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
 	                                                     parent, children);
-#if 0
 	if (process) {
 		TrackerDirectoryFlags parent_flags;
 		gboolean add_monitor;
@@ -165,9 +164,12 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 
 		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
 
-		/* FIXME: add monitor */
+		if (add_monitor) {
+			tracker_monitor_add (priv->monitor, parent);
+		} else {
+			tracker_monitor_remove (priv->monitor, parent);
+		}
 	}
-#endif
 
 	return process;
 }
@@ -539,6 +541,7 @@ tracker_file_notifier_finalize (GObject *object)
 
 	g_object_unref (priv->file_system);
 	g_object_unref (priv->crawler);
+	g_object_unref (priv->monitor);
 
 	g_list_free (priv->pending_index_roots);
 
@@ -685,6 +688,9 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 	g_signal_connect (priv->crawler, "finished",
 	                  G_CALLBACK (crawler_finished_cb),
 	                  notifier);
+
+	/* Set up monitor */
+	priv->monitor = tracker_monitor_new ();
 }
 
 TrackerFileNotifier *
