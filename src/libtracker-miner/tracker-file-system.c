@@ -321,7 +321,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
 	GNode *node, *parent_node;
-	gchar *uri_suffix;
+	gchar *uri_suffix = NULL;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
@@ -331,10 +331,43 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 
 	if (parent) {
 		FileNodeData *parent_data;
+		GNode *child;
 
 		parent_node = (GNode *) parent;
 		parent_data = parent_node->data;
-		uri_suffix = g_file_get_relative_path (parent_data->file, file);
+
+		/* Find child node, if any */
+		for (child = g_node_first_child (parent_node);
+		     child != NULL;
+		     child = g_node_next_sibling (child)) {
+			FileNodeData *child_data;
+
+			child_data = child->data;
+
+			if (g_file_equal (child_data->file, file)) {
+				node = child;
+				break;
+			}
+		}
+
+		if (!node) {
+			gchar *uri, *parent_uri;
+			const gchar *ptr;
+			gint len;
+
+			uri = g_file_get_uri (file);
+			parent_uri = g_file_get_uri (parent_data->file);
+			len = strlen (parent_uri);
+
+			ptr = uri + len;
+			g_assert (ptr[0] == '/');
+
+			ptr++;
+			uri_suffix = g_strdup (ptr);
+
+			g_free (parent_uri);
+			g_free (uri);
+		}
 	} else {
 		node = file_tree_lookup (priv->file_tree, file,
 					 &parent_node, &uri_suffix);
