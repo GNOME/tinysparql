@@ -50,6 +50,9 @@ struct _TrackerFileSystemClass {
 	GObjectClass parent_class;
 };
 
+typedef gboolean (* TrackerFileSystemTraverseFunc) (TrackerFile *file,
+						    gpointer     user_data);
+
 GType      tracker_file_system_get_type      (void) G_GNUC_CONST;
 
 TrackerFileSystem * tracker_file_system_new  (void);
@@ -65,6 +68,12 @@ void          tracker_file_system_unref_file     (TrackerFileSystem  *file_syste
 						  TrackerFile        *file);
 TrackerFile * tracker_file_system_peek_file      (TrackerFileSystem  *file_system,
 						  GFile              *file);
+
+void          tracker_file_system_traverse       (TrackerFileSystem             *file_system,
+						  TrackerFile                   *root,
+						  GTraverseType                  order,
+						  TrackerFileSystemTraverseFunc  func,
+						  gpointer                       user_data);
 
 /* TrackerFile -> GFile */
 GFile *       tracker_file_system_resolve_file   (TrackerFileSystem  *file_system,

@@ -433,6 +433,27 @@ tracker_file_system_resolve_file (TrackerFileSystem *file_system,
 }
 
 void
+tracker_file_system_traverse (TrackerFileSystem             *file_system,
+			      TrackerFile                   *root,
+			      GTraverseType                  order,
+			      TrackerFileSystemTraverseFunc  func,
+			      gpointer                       user_data)
+{
+	TrackerFileSystemPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
+	g_return_if_fail (func != NULL);
+
+	priv = file_system->priv;
+	g_node_traverse ((root) ? (GNode *) root : priv->file_tree,
+			 order,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 (GNodeTraverseFunc) func,
+			 user_data);
+}
+
+void
 tracker_file_system_register_property (TrackerFileSystem *file_system,
                                        GQuark             prop,
                                        GDestroyNotify     destroy_notify)
