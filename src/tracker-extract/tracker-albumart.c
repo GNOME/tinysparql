@@ -61,6 +61,12 @@ typedef struct {
 	gchar *local_uri;
 } GetFileInfo;
 
+typedef struct {
+	gchar               *uri;
+	TrackerMediaArtType  type;
+	gchar               *artist_strdown;
+	gchar               *title_strdown;
+} TrackerMediaArtSearch;
 
 static gboolean initialized;
 static gboolean disable_requests;
@@ -72,6 +78,40 @@ static void
 albumart_queue_cb (GObject      *source_object,
                    GAsyncResult *res,
                    gpointer      user_data);
+
+
+static GDir *
+get_parent_g_dir (const gchar  *uri,
+                  gchar       **dirname,
+                  GError      **error)
+{
+	GFile *file, *dirf;
+	GDir *dir;
+
+	g_return_val_if_fail (dirname != NULL, NULL);
+
+	*dirname = NULL;
+
+	file = g_file_new_for_uri (uri);
+	dirf = g_file_get_parent (file);
+	if (dirf) {
+		*dirname = g_file_get_path (dirf);
+		g_object_unref (dirf);
+	}
+	g_object_unref (file);
+
+	if ((*dirname) == NULL) {
+		*error = g_error_new (G_FILE_ERROR,
+		                      G_FILE_ERROR_EXIST,
+		                      "No parent directory found for '%s'",
+		                      uri);
+		return NULL;
+	}
+
+	dir = g_dir_open (*dirname, 0, error);
+
+	return dir;
+}
 
 
 static gchar *
@@ -245,118 +285,187 @@ convert_from_other_format (const gchar *found,
 	return retval;
 }
 
+static TrackerMediaArtSearch *
+tracker_media_art_search_new (const gchar         *uri,
+                              TrackerMediaArtType  type,
+                              const gchar         *artist,
+                              const gchar         *title)
+{
+	TrackerMediaArtSearch *search;
+	gchar *temp;
+
+	search = g_slice_new0 (TrackerMediaArtSearch);
+	search->uri = g_strdup (uri);
+	search->type = type;
+
+	if (artist) {
+		temp = tracker_albumart_strip_invalid_entities (artist);
+		search->artist_strdown = g_utf8_strdown (temp, -1);
+		g_free (temp);
+	}
+
+	temp = tracker_albumart_strip_invalid_entities (title);
+	search->title_strdown = g_utf8_strdown (temp, -1);
+	g_free (temp);
+
+	return search;
+}
+
+static void
+tracker_media_art_search_free (TrackerMediaArtSearch *search)
+{
+	g_free (search->uri);
+	g_free (search->artist_strdown);
+	g_free (search->title_strdown);
+
+	g_slice_free (TrackerMediaArtSearch, search);
+}
+
+static int
+classify_image_file (TrackerMediaArtSearch *search,
+                     const gchar           *file_name_strdown)
+{
+	if ((search->artist_strdown && search->artist_strdown[0] != '\0' &&
+	     strstr (file_name_strdown, search->artist_strdown)) ||
+	    (search->title_strdown && search->title_strdown[0] != '\0' &&
+	     strstr (file_name_strdown, search->title_strdown))) {
+		return 2;
+	}
+
+	if (search->type == TRACKER_MEDIA_ART_ALBUM) {
+		/* Accept cover, front, folder, AlbumArt_{GUID}_Large (first choice)
+		 * second choice is AlbumArt_{GUID}_Small and AlbumArtSmall. We
+		 * don't support just AlbumArt. (it must have a Small or Large) */
+
+		if (strstr (file_name_strdown, "cover") ||
+		    strstr (file_name_strdown, "front") ||
+		    strstr (file_name_strdown, "folder")) {
+			return 2;
+		}
+
+		if (strstr (file_name_strdown, "albumart")) {
+			if (strstr (file_name_strdown, "large")) {
+				return 2;
+			} else if (strstr (file_name_strdown, "small")) {
+				return 1;
+			}
+		}
+	}
+
+	if (search->type == TRACKER_MEDIA_ART_VIDEO) {
+		if (strstr (file_name_strdown, "folder") ||
+		    strstr (file_name_strdown, "poster")) {
+			return 2;
+		}
+	}
+
+	/* Lowest priority for other images, but we still might use it for videos */
+	return 0;
+}
+
 static gchar *
 tracker_albumart_find_external (const gchar         *uri,
                                 TrackerMediaArtType  type,
                                 const gchar         *artist,
                                 const gchar         *title)
 {
-	GFile *file, *dirf;
+	TrackerMediaArtSearch *search;
 	GDir *dir;
 	GError *error = NULL;
 	gchar *dirname = NULL;
-	const gchar *name;
-	gint count;
-	gchar *artist_strdown, *title_strdown;
 	guint i;
-	gchar *temp;
-	gchar *art_file_path = NULL;
+	gchar *art_file_name;
+	gchar *art_file_path;
+	gint priority;
+
+	GList *image_list[3] = { NULL, NULL, NULL };
 
 	g_return_val_if_fail (type > TRACKER_MEDIA_ART_NONE && type < TRACKER_MEDIA_ART_TYPE_COUNT, FALSE);
 	g_return_val_if_fail (title != NULL, FALSE);
 
-	file = g_file_new_for_uri (uri);
-	dirf = g_file_get_parent (file);
-	if (dirf) {
-		dirname = g_file_get_path (dirf);
-		g_object_unref (dirf);
-	}
-	g_object_unref (file);
+	search = tracker_media_art_search_new (uri, type, artist, title);
 
-
-	if (!dirname) {
-		g_debug ("No media art directory found for '%s'", uri);
-		return FALSE;
-	}
-
-	dir = g_dir_open (dirname, 0, &error);
+	dir = get_parent_g_dir (uri, &dirname, &error);
 
 	if (!dir) {
-		g_debug ("Media art directory could not be opened:'%s', %s",
-		         dirname,
+		g_debug ("Media art directory could not be opened: %s",
 		         error ? error->message : "no error given");
 
 		g_clear_error (&error);
 		g_free (dirname);
+		tracker_media_art_search_free (search);
 
-		return FALSE;
+		return NULL;
 	}
 
-	if (artist) {
-		temp = tracker_albumart_strip_invalid_entities (artist);
-		artist_strdown = g_utf8_strdown (temp, -1);
-	}
+	/* First, classify each file in the directory as either an image, relevant
+	 * to the media object in question, or irrelevant. We use this information
+	 * to decide if the image is a cover or if the file is in a random directory.
+	 */
 
-	temp = tracker_albumart_strip_invalid_entities (title);
-	title_strdown = g_utf8_strdown (temp, -1);
+	const gchar *name;
+	gchar *name_utf8, *name_strdown;
 
-	for (i = 0; i < 2 && !art_file_path; i++) {
-		/* We loop twice to find secondary choices, or just once as soon as a
-		 * primary choice is found. When i != 0 it means that we're in the
-		 * secondary choice's loop (current only switch is 'large' vs. 'small') */
+	for (name = g_dir_read_name (dir);
+	     name != NULL;
+	     name = g_dir_read_name (dir)) {
 
-		g_dir_rewind (dir);
+		name_utf8 = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
 
-		/* Try to find cover art in the directory */
-		for (name = g_dir_read_name (dir), count = 0;
-		     name != NULL && art_file_path == NULL && count < 50;
-		     name = g_dir_read_name (dir), count++) {
-			gchar *name_utf8, *name_strdown;
+		if (!name_utf8) {
+			g_debug ("Could not convert filename '%s' to UTF-8", name);
+			continue;
+		}
 
-			name_utf8 = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
+		name_strdown = g_utf8_strdown (name_utf8, -1);
 
-			if (!name_utf8) {
-				g_debug ("Could not convert filename '%s' to UTF-8", name);
-				continue;
-			}
+		if (g_str_has_suffix (name_strdown, "jpeg") ||
+			g_str_has_suffix (name_strdown, "jpg") ||
+			g_str_has_suffix (name_strdown, "png")) {
 
-			name_strdown = g_utf8_strdown (name_utf8, -1);
-
-			/* Accept cover, front, folder, AlbumArt_{GUID}_Large (first choice)
-			 * second choice is AlbumArt_{GUID}_Small and AlbumArtSmall. We 
-			 * don't support just AlbumArt. (it must have a Small or Large) */
-
-			if ((artist_strdown && artist_strdown[0] != '\0' && strstr (name_strdown, artist_strdown)) ||
-			    (title_strdown && title_strdown[0] != '\0' && strstr (name_strdown, title_strdown)) ||
-			    (strstr (name_strdown, "cover")) ||
-			    (strstr (name_strdown, "front")) ||
-			    (strstr (name_strdown, "folder")) ||
-			    ((strstr (name_strdown, "albumart") && strstr (name_strdown, i == 0 ? "large" : "small")))) {
-
-				if (g_str_has_suffix (name_strdown, "jpeg") ||
-				    g_str_has_suffix (name_strdown, "jpg") ||
-				    g_str_has_suffix (name_strdown, "png")) {
-
-					art_file_path = g_build_filename (dirname, name, NULL);
-				}
-			}
-
-			g_free (name_utf8);
+			priority = classify_image_file (search, name_strdown);
+			image_list[priority] = g_list_prepend (image_list[priority], name_strdown);
+		} else {
 			g_free (name_strdown);
+		}
+
+		g_free (name_utf8);
+	}
+
+	/* Use the results to pick a media art image */
+
+	art_file_name = NULL;
+	art_file_path = NULL;
+
+	if (g_list_length (image_list[2]) > 0) {
+		/* Use the obvious choices, if available */
+		art_file_name = g_strdup (image_list[2]->data);
+	} else if (g_list_length (image_list[1]) > 0) {
+		art_file_name = g_strdup (image_list[1]->data);
+	} else {
+		if (type == TRACKER_MEDIA_ART_VIDEO && g_list_length (image_list[0]) == 1) {
+			/* For videos, if there was only one image in the directory
+			 * use it as poster regardless of name */
+			art_file_name = g_strdup (image_list[0]->data);
 		}
 	}
 
-	if (count >= 50) {
-		g_debug ("Album art NOT found in same directory (over 50 files found)");
-	} else if (!art_file_path) {
-		g_debug ("Album art NOT found in same directory");
+	for (i = 0; i < 3; i ++) {
+		g_list_foreach (image_list[i], (GFunc)g_free, NULL);
+		g_list_free (image_list[i]);
 	}
 
-	g_free (artist_strdown);
-	g_free (title_strdown);
-	g_free (dirname);
+	if (art_file_name) {
+		art_file_path = g_build_filename (dirname, art_file_name, NULL);
+		g_free (art_file_name);
+	} else {
+		g_debug ("Album art NOT found in same directory");
+		art_file_path = NULL;
+	}
 
+	tracker_media_art_search_free (search);
 	g_dir_close (dir);
+	g_free (dirname);
 
 	return art_file_path;
 }
