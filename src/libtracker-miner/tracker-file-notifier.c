@@ -26,6 +26,13 @@
 #include "tracker-crawler.h"
 #include "tracker-monitor.h"
 
+static GQuark quark_property_crawled = 0;
+static GQuark quark_property_queried = 0;
+static GQuark quark_property_iri = 0;
+static GQuark quark_property_store_mtime = 0;
+static GQuark quark_property_filesystem_mtime = 0;
+static GQuark quark_property_file_info = 0;
+
 enum {
 	PROP_0,
 	PROP_INDEXING_TREE
@@ -404,6 +411,14 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	                                                      G_PARAM_CONSTRUCT_ONLY));
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerFileNotifierClass));
+
+	/* Initialize property quarks */
+	quark_property_crawled = g_quark_from_static_string ("tracker-property-crawled");
+	quark_property_queried = g_quark_from_static_string ("tracker-property-queried");
+	quark_property_iri = g_quark_from_static_string ("tracker-property-iri");
+	quark_property_store_mtime = g_quark_from_static_string ("tracker-property-store-mtime");
+	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
+	quark_property_file_info = g_quark_from_static_string ("tracker-property-file-info");
 }
 
 static void
@@ -416,7 +431,30 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 		                             TRACKER_TYPE_FILE_NOTIFIER,
 		                             TrackerFileNotifierPrivate);
 
+	/* Initialize filesystem and register properties */
 	priv->file_system = tracker_file_system_new ();
+
+	/* booleans */
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_crawled, NULL);
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_queried, NULL);
+
+	/* strings */
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_iri, g_free);
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_store_mtime,
+					       g_free);
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_filesystem_mtime,
+					       g_free);
+
+	/* GFileInfo */
+	tracker_file_system_register_property (priv->file_system,
+					       quark_property_file_info,
+					       g_object_unref);
+
 	priv->crawling_timer = g_timer_new ();
 	priv->stopped = TRUE;
 
