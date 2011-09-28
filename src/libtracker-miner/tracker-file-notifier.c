@@ -31,6 +31,16 @@ enum {
 	PROP_INDEXING_TREE
 };
 
+enum {
+	FILE_CREATED,
+	FILE_UPDATED,
+	FILE_DELETED,
+	FILE_MOVED,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 typedef struct {
 	TrackerIndexingTree *indexing_tree;
 	TrackerFileSystem *file_system;
@@ -352,6 +362,37 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	object_class->set_property = tracker_file_notifier_set_property;
 	object_class->get_property = tracker_file_notifier_get_property;
 	object_class->constructed = tracker_file_notifier_constructed;
+
+	signals[FILE_CREATED] =
+		g_signal_new ("file-created",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       file_created),
+			      NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE,
+		              1, G_TYPE_FILE);
+	signals[FILE_UPDATED] =
+		g_signal_new ("file-updated",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       file_updated),
+			      NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE,
+		              1, G_TYPE_FILE);
+	signals[FILE_DELETED] =
+		g_signal_new ("file-deleted",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       file_deleted),
+			      NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE,
+		              1, G_TYPE_FILE);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEXING_TREE,
