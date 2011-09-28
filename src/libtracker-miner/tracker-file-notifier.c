@@ -177,6 +177,8 @@ file_notifier_add_node_foreach (GNode    *node,
 {
 	DirectoryCrawledData *data = user_data;
 	TrackerFileNotifierPrivate *priv;
+	GFileInfo *file_info;
+	TrackerFile *f;
 	GFile *file;
 
 	priv = data->notifier->priv;
@@ -192,10 +194,40 @@ file_notifier_add_node_foreach (GNode    *node,
 		data->cur_parent = NULL;
 	}
 
-	tracker_file_system_get_file (priv->file_system,
-				      file,
-				      G_FILE_TYPE_UNKNOWN,
-				      data->cur_parent);
+	f = tracker_file_system_get_file (priv->file_system,
+					  file,
+					  G_FILE_TYPE_UNKNOWN,
+					  data->cur_parent);
+	file_info = g_file_query_info (file,
+				       G_FILE_ATTRIBUTE_TIME_MODIFIED,
+				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+				       NULL,
+				       NULL);
+	if (file_info) {
+		guint64 time;
+		time_t mtime;
+		struct tm t;
+		gchar *time_str;
+
+		time = g_file_info_get_attribute_uint64 (file_info,
+							 G_FILE_ATTRIBUTE_TIME_MODIFIED);
+		mtime = (time_t) time;
+		gmtime_r (&mtime, &t);
+
+		time_str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:%02dZ",
+					    t.tm_year + 1900,
+					    t.tm_mon + 1,
+					    t.tm_mday,
+					    t.tm_hour,
+					    t.tm_min,
+					    t.tm_sec);
+
+		tracker_file_system_set_property (priv->file_system, f,
+						  quark_property_filesystem_mtime,
+						  time_str);
+		g_object_unref (file_info);
+	}
+
 	return FALSE;
 }
 
