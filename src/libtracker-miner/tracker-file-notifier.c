@@ -20,6 +20,7 @@
  */
 
 #include <libtracker-common/tracker-log.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-file-notifier.h"
 #include "tracker-file-system.h"
@@ -52,10 +53,12 @@ typedef struct {
 	TrackerIndexingTree *indexing_tree;
 	TrackerFileSystem *file_system;
 
+	TrackerSparqlConnection *connection;
+
 	TrackerCrawler *crawler;
 	TrackerMonitor *monitor;
 
-	GTimer *crawling_timer;
+	GTimer *timer;
 
 	/* List of pending directory
 	 * trees to get data from
@@ -64,6 +67,10 @@ typedef struct {
 
 	guint stopped : 1;
 } TrackerFileNotifierPrivate;
+
+
+static gboolean crawl_directories_start (TrackerFileNotifier *notifier);
+
 
 G_DEFINE_TYPE (TrackerFileNotifier, tracker_file_notifier, G_TYPE_OBJECT)
 
@@ -165,6 +172,64 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	return process;
 }
 
+static gboolean
+file_notifier_traverse_tree_foreach (TrackerFile *file,
+				     gpointer     user_data)
+{
+	TrackerFileNotifier *notifier;
+	TrackerFileNotifierPrivate *priv;
+	const gchar *store_mtime, *disk_mtime;
+	GFile *f;
+
+	notifier = user_data;
+	priv = notifier->priv;
+
+	store_mtime = tracker_file_system_get_property (priv->file_system, file,
+							quark_property_store_mtime);
+	disk_mtime = tracker_file_system_get_property (priv->file_system, file,
+						       quark_property_filesystem_mtime);
+	f = tracker_file_system_resolve_file (priv->file_system, file);
+
+	if (store_mtime && !disk_mtime) {
+		/* In store but not in disk, delete */
+		g_signal_emit (notifier, signals[FILE_DELETED], 0, f);
+	} else if (disk_mtime && !store_mtime) {
+		/* In disk but not in store, create */
+		g_signal_emit (notifier, signals[FILE_CREATED], 0, f);
+	} else if (store_mtime && disk_mtime &&
+		   strcmp (store_mtime, disk_mtime) != 0) {
+		/* Mtime changed, update */
+		g_signal_emit (notifier, signals[FILE_UPDATED], 0, f);
+	} else if (!store_mtime && !disk_mtime) {
+		g_assert_not_reached ();
+	}
+
+	return FALSE;
+}
+
+static void
+file_notifier_traverse_tree (TrackerFileNotifier *notifier)
+{
+	TrackerFileNotifierPrivate *priv;
+
+	priv = notifier->priv;
+	tracker_file_system_traverse (priv->file_system,
+				      priv->pending_index_roots->data,
+				      G_PRE_ORDER,
+				      file_notifier_traverse_tree_foreach,
+				      notifier);
+
+	tracker_info ("Finished notifying files after %2.2f seconds",
+	              g_timer_elapsed (priv->timer, NULL));
+
+	/* We've finished crawling/querying on the first element
+	 * of the pending list, continue onto the next */
+	priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
+							priv->pending_index_roots);
+
+	crawl_directories_start (notifier);
+}
+
 typedef struct {
 	TrackerFileNotifier *notifier;
 	GNode *cur_parent_node;
@@ -259,6 +324,69 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	           files_ignored);
 }
 
+static void
+sparql_query_cb (GObject      *object,
+		 GAsyncResult *result,
+		 gpointer      user_data)
+{
+	TrackerFileNotifierPrivate *priv;
+	TrackerFileNotifier *notifier;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	notifier = user_data;
+	priv = notifier->priv;
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
+							 result, &error);
+
+	if (!cursor || error) {
+		g_warning ("Could not query directory elements: %s\n", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		TrackerFile *file;
+		const gchar *mtime, *iri;
+		GFile *f;
+
+		f = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+		file = tracker_file_system_get_file (priv->file_system, f,
+						     G_FILE_TYPE_UNKNOWN,
+						     NULL);
+
+		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		tracker_file_system_set_property (priv->file_system, file,
+						  quark_property_iri,
+						  g_strdup (iri));
+
+		mtime = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+		tracker_file_system_set_property (priv->file_system, file,
+						  quark_property_store_mtime,
+						  g_strdup (mtime));
+
+		g_object_unref (f);
+	}
+
+	/* Mark the directory root as queried */
+	tracker_file_system_set_property (priv->file_system,
+					  priv->pending_index_roots->data,
+					  quark_property_queried,
+					  GUINT_TO_POINTER (TRUE));
+
+	tracker_info ("finished querying files after %2.2f seconds",
+	              g_timer_elapsed (priv->timer, NULL));
+
+	/* If it's also been crawled, finish operation */
+	if (tracker_file_system_get_property (priv->file_system,
+					      priv->pending_index_roots->data,
+					      quark_property_crawled)) {
+		file_notifier_traverse_tree (notifier);
+	}
+
+	g_object_unref (cursor);
+}
+
 static gboolean
 crawl_directories_start (TrackerFileNotifier *notifier)
 {
@@ -285,7 +413,40 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		if (tracker_crawler_start (priv->crawler,
 					   directory,
 					   (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)) {
-			g_timer_reset (priv->crawling_timer);
+			gchar *sparql, *uri;
+
+			g_timer_reset (priv->timer);
+
+			uri = g_file_get_uri (directory);
+
+			if (flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
+				sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
+							  "where {"
+							  "  ?u a nfo:FileDataObject ; "
+							  "     nie:url ?url . "
+							  "  FILTER (?url = \"%s\" || "
+							  "          fn:starts-with (?url, \"%s/\")) "
+							  "}", uri, uri);
+			} else {
+				sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
+							  "where { "
+							  "  ?u a nfo:FileDataObject ; "
+							  "     nie:url ?url . "
+							  "  OPTIONAL { ?u nfo:belongsToContainer ?p } . "
+							  "  FILTER (?url = \"%s\" || "
+							  "          nie:url(?p) = \"%s\") "
+							  "}", uri, uri);
+			}
+
+			tracker_sparql_connection_query_async (priv->connection,
+							       sparql,
+							       NULL,
+							       sparql_query_cb,
+							       notifier);
+
+			g_free (sparql);
+			g_free (uri);
+
 			return TRUE;
 		}
 
@@ -307,18 +468,24 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	tracker_info ("%s crawling files after %2.2f seconds",
 	              was_interrupted ? "Stopped" : "Finished",
-	              g_timer_elapsed (priv->crawling_timer, NULL));
+	              g_timer_elapsed (priv->timer, NULL));
 
 	if (!was_interrupted) {
-		/* FIXME: signal delete signals for files found
-		 * during crawling but not during querying */
+		TrackerFile *directory;
 
-		/* We've finished indexing on the first element
-		 * of the pending list, continue onto the next */
-		priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
-								priv->pending_index_roots);
+		directory = priv->pending_index_roots->data;
 
-		crawl_directories_start (notifier);
+		/* Mark the directory root as crawled */
+		tracker_file_system_set_property (priv->file_system, directory,
+						  quark_property_crawled,
+						  GUINT_TO_POINTER (TRUE));
+
+		/* If it's also been queried, finish operation */
+		if (tracker_file_system_get_property (priv->file_system,
+						      directory,
+						      quark_property_queried)) {
+			file_notifier_traverse_tree (notifier);
+		}
 	}
 }
 
@@ -457,11 +624,22 @@ static void
 tracker_file_notifier_init (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
+	GError *error = NULL;
 
 	priv = notifier->priv =
 		G_TYPE_INSTANCE_GET_PRIVATE (notifier,
 		                             TRACKER_TYPE_FILE_NOTIFIER,
 		                             TrackerFileNotifierPrivate);
+
+	priv->connection = tracker_sparql_connection_get (NULL, &error);
+
+	if (error) {
+		g_critical ("Could not get SPARQL connection: %s\n",
+			    error->message);
+		g_error_free (error);
+
+		g_assert_not_reached ();
+	}
 
 	/* Initialize filesystem and register properties */
 	priv->file_system = tracker_file_system_new ();
@@ -487,7 +665,7 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 					       quark_property_file_info,
 					       g_object_unref);
 
-	priv->crawling_timer = g_timer_new ();
+	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
 
 	/* Set up crawler */
