@@ -49,7 +49,7 @@ struct _TrackerFileNotifier {
 struct _TrackerFileNotifierClass {
 	GObjectClass parent_class;
 
-	void (* file_added)   (TrackerFileNotifier *notifier,
+	void (* file_created) (TrackerFileNotifier *notifier,
 			       GFile               *file);
 	void (* file_updated) (TrackerFileNotifier *notifier,
 			       GFile               *file);
