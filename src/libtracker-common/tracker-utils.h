@@ -44,9 +44,6 @@ gchar *  tracker_strhex                     (const guint8 *data,
                                              gsize         size,
                                              gchar         delimiter);
 
-gboolean tracker_case_match_filename_without_extension (const gchar *a,
-                                                        const gchar *b);
-
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_UTILS_H__ */

@@ -241,9 +241,10 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 		 * extension in the FILE field, so this is what we test for.
 		 */
 		if (file_name != NULL) {
-			if (!tracker_case_match_filename_without_extension
-			       (file_name, track_get_filename (track)))
+			if (!tracker_filename_casecmp_without_extension (file_name,
+			                                                 track_get_filename (track))) {
 				continue;
+			}
 		}
 
 		if (track_get_mode (track) != MODE_AUDIO)
