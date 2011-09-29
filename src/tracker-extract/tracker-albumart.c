@@ -366,26 +366,31 @@ albumart_heuristic (const gchar         *artist,
                     const gchar         *title,
                     TrackerMediaArtType  type,
                     const gchar         *filename_uri,
-                    const gchar         *local_uri,
-                    gboolean            *copied)
+                    const gchar         *local_uri)
 {
-	gchar *target = NULL, *album_art_file_path = NULL;
 	gchar *art_file_path = NULL;
+	gchar *album_art_file_path = NULL;
+	gchar *target = NULL;
 	gchar *artist_stripped = NULL;
 	gchar *title_stripped = NULL;
 	gboolean retval = FALSE;
 
-	if (copied) {
-		*copied = FALSE;
+	if (title == NULL || title[0] == '\0') {
+		g_debug ("Unable to fetch media art, no title specified");
+		return FALSE;
 	}
 
 	if (artist) {
 		artist_stripped = tracker_albumart_strip_invalid_entities (artist);
 	}
+	title_stripped = tracker_albumart_strip_invalid_entities (title);
 
-	if (title) {
-		title_stripped = tracker_albumart_strip_invalid_entities (title);
-	}
+	tracker_albumart_get_path (artist_stripped,
+	                           title_stripped,
+	                           media_art_type_name[type],
+	                           NULL,
+	                           &target,
+	                           NULL);
 
 	/* Copy from local album art (.mediaartlocal) to spec */
 	if (local_uri) {
@@ -397,23 +402,13 @@ albumart_heuristic (const gchar         *artist,
 			g_debug ("Album art being copied from local (.mediaartlocal) file:'%s'",
 			         local_uri);
 
-			tracker_albumart_get_path (artist_stripped,
-			                           title_stripped,
-			                           media_art_type_name[type], NULL,
-			                           &target, NULL);
-			if (target) {
-				file = g_file_new_for_path (target);
+			file = g_file_new_for_path (target);
 
-				g_file_copy_async (local_file, file, 0, 0,
-				                   NULL, NULL, NULL, NULL, NULL);
+			g_file_copy_async (local_file, file, 0, 0,
+			                   NULL, NULL, NULL, NULL, NULL);
 
-				g_object_unref (file);
-			}
+			g_object_unref (file);
 			g_object_unref (local_file);
-
-			if (copied) {
-				*copied = TRUE;
-			}
 
 			g_free (target);
 			g_free (artist_stripped);
@@ -433,15 +428,6 @@ albumart_heuristic (const gchar         *artist,
 
 			gboolean is_jpeg = FALSE;
 			gchar *sum1 = NULL;
-
-			if (!target) {
-				tracker_albumart_get_path (artist_stripped,
-				                           title_stripped,
-				                           media_art_type_name[type],
-				                           NULL,
-				                           &target,
-				                           NULL);
-			}
 
 			if (type != TRACKER_MEDIA_ART_ALBUM || (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
 				GFile *art_file;
@@ -543,16 +529,6 @@ albumart_heuristic (const gchar         *artist,
 				retval = FALSE;
 			}
 		} else if (g_str_has_suffix (art_file_path, "png")) {
-
-			if (!target) {
-				tracker_albumart_get_path (artist_stripped,
-				                           title_stripped,
-				                           media_art_type_name[type],
-				                           NULL,
-				                           &target,
-				                           NULL);
-			}
-
 			if (!album_art_file_path) {
 				tracker_albumart_get_path (NULL,
 				                           title_stripped,
@@ -994,8 +970,7 @@ tracker_albumart_process (const unsigned char *buffer,
 			                         title,
 			                         type,
 			                         uri,
-			                         local_art_uri,
-			                         NULL)) {
+			                         local_art_uri)) {
 				/* If the heuristic failed, we
 				 * request the download the
 				 * media-art to the media-art
