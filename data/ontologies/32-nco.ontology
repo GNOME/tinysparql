@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2011-04-28T09:50:00Z" .
+	nao:lastModified "2011-09-29T12:20:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -108,6 +108,7 @@ nco:Gender a rdfs:Class ;
 
 nco:gender-male a nco:Gender .
 nco:gender-female a nco:Gender .
+nco:gender-other a nco:Gender .
 
 nco:VoicePhoneNumber a rdfs:Class ;
 	rdfs:label "VoicePhoneNumber" ;
