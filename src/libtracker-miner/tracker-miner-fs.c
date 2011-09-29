@@ -225,9 +225,6 @@ struct _TrackerMinerFSPrivate {
 
 	GList          *dirs_without_parent;
 
-	/* Files to check if no longer exist */
-	GHashTable     *check_removed;
-
 	TrackerIndexingTree *indexing_tree;
 
 	/* Config directories where we should force mtime checking, regardless of
@@ -828,11 +825,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                         (GDestroyNotify) g_object_unref,
 	                                         (GDestroyNotify) g_free);
 
-	priv->check_removed = g_hash_table_new_full (g_file_hash,
-	                                             (GEqualFunc) g_file_equal,
-	                                             (GDestroyNotify) g_object_unref,
-	                                             NULL);
-
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
 	priv->dirs_without_parent = NULL;
@@ -958,10 +950,6 @@ fs_finalize (GObject *object)
 
 	if (priv->iri_cache) {
 		g_hash_table_unref (priv->iri_cache);
-	}
-
-	if (priv->check_removed) {
-		g_hash_table_unref (priv->check_removed);
 	}
 
 	g_object_unref (priv->indexing_tree);
@@ -3234,42 +3222,6 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 }
 
 static gboolean
-remove_unexisting_file_cb (gpointer key,
-                           gpointer value,
-                           gpointer user_data)
-{
-	TrackerMinerFS *fs = user_data;
-	GFile *file = key;
-
-	/* If file no longer exists, remove it from the store */
-	if (!g_file_query_exists (file, NULL)) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		g_debug ("  Marking file which no longer exists in FS for removal: %s", uri);
-		g_free (uri);
-
-		trace_eq_push_tail ("DELETED", file, "No longer exists");
-		tracker_priority_queue_add (fs->priv->items_deleted,
-		                            g_object_ref (file),
-		                            G_PRIORITY_LOW);
-
-		item_queue_handlers_set_up (fs);
-	}
-
-	return TRUE;
-}
-
-static void
-check_if_files_removed (TrackerMinerFS *fs)
-{
-	g_debug ("Checking if any file was removed...");
-	g_hash_table_foreach_remove (fs->priv->check_removed,
-	                             remove_unexisting_file_cb,
-	                             fs);
-}
-
-static gboolean
 should_change_index_for_file (TrackerMinerFS *fs,
                               GFile          *file)
 {
@@ -3278,9 +3230,6 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	time_t              mtime;
 	struct tm           t;
 	gchar              *time_str, *lookup_time = "";
-
-	/* Remove the file from the list of files to be checked if removed */
-	g_hash_table_remove (fs->priv->check_removed, file);
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -3897,16 +3846,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	directory_data_unref (fs->priv->current_directory);
 	fs->priv->current_directory = NULL;
-
-	if (!was_interrupted) {
-		/* Check if any file was left after whole crawling */
-		check_if_files_removed (fs);
-	} else {
-		/* Ditch files to check for removal, as the crawler was
-		 * interrupted, it can lead to false positives.
-		 */
-		g_hash_table_remove_all (fs->priv->check_removed);
-	}
 
 	/* Proceed to next thing to process */
 	crawl_directories_start (fs);
