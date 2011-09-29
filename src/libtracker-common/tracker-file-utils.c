@@ -869,11 +869,9 @@ tracker_filename_casecmp_without_extension (const gchar *a,
 		if (*ca == '\0' && *cb == '\0')
 			break;
 
-		if (*ca != '\0' && *cb != '\0') {
-			if (g_ascii_tolower (*ca) != g_ascii_tolower (*cb)) {
-				match = FALSE;
-				break;
-			}
+		if (g_ascii_tolower (*ca) != g_ascii_tolower (*cb)) {
+			match = FALSE;
+			break;
 		}
 
 		if (*ca == '.')
@@ -895,17 +893,21 @@ tracker_filename_casecmp_without_extension (const gchar *a,
 		if (*ca != '\0' && period_a) {
 			match = TRUE;
 
-			while (*(ca ++) != '\0')
-				if (*ca == '.')
+			while (*(ca ++) != '\0') {
+				if (*ca == '.') {
 					match = FALSE;
+				}
+			}
 		}
 
 		if (*cb != '\0' && period_b) {
 			match = TRUE;
 
-			while (*(cb ++) != '\0')
-				if (*cb == '.')
+			while (*(cb ++) != '\0') {
+				if (*cb == '.') {
 					match = FALSE;
+				}
+			}
 		}
 	}
 
