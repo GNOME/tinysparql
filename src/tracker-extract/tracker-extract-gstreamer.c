@@ -174,7 +174,7 @@ add_artist (MetadataExtractor     *extractor,
 	*p_artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist_name);
 
 	/* Check if already added to the preupdate, to avoid sending 9 identical INSERTs */
-	if (g_slist_find_custom (extractor->artist_list, artist_name, (GCompareFunc)g_ascii_strcasecmp))
+	if (g_slist_find_custom (extractor->artist_list, artist_name, (GCompareFunc) g_ascii_strcasecmp))
 		return;
 
 	tracker_sparql_builder_insert_open (preupdate, NULL);
@@ -372,9 +372,8 @@ replace_double_gst_tag (TrackerSparqlBuilder  *preupdate,
 	tracker_sparql_builder_insert_close (preupdate);
 }
 
-static void
-get_embedded_cue_sheet_data (GstTagList  *tag_list,
-                             gchar      **p_data)
+static gchar *
+get_embedded_cue_sheet_data (GstTagList *tag_list)
 {
 	gint i, count;
 	gchar *buffer;
@@ -384,8 +383,12 @@ get_embedded_cue_sheet_data (GstTagList  *tag_list,
 		gst_tag_list_get_string_index (tag_list, GST_TAG_EXTENDED_COMMENT, i, &buffer);
 
 		if (g_ascii_strncasecmp (buffer, "cuesheet=", 9) == 0) {
-			*p_data = buffer;
-			break;
+			gchar *result;
+
+			result = g_strdup (buffer + 9);
+			g_free (buffer);
+
+			return result;
 		}
 
 		g_free (buffer);
@@ -532,7 +535,12 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 
 	tracker_guarantee_title_from_file (metadata, "nie:title", title, file_url);
 
-	add_date_time_gst_tag_with_mtime_fallback (metadata, file_url, "nie:contentCreated", tag_list, GST_TAG_DATE_TIME, GST_TAG_DATE);
+	add_date_time_gst_tag_with_mtime_fallback (metadata,
+	                                           file_url,
+	                                           "nie:contentCreated",
+	                                           tag_list,
+	                                           GST_TAG_DATE_TIME,
+	                                           GST_TAG_DATE);
 
 	add_string_gst_tag (metadata, "nie:copyright", tag_list, GST_TAG_COPYRIGHT);
 	add_string_gst_tag (metadata, "nie:license", tag_list, GST_TAG_LICENSE);
@@ -733,8 +741,8 @@ extractor_apply_device_metadata (MetadataExtractor    *extractor,
 
 	tracker_sparql_builder_predicate (metadata, "nfo:equipment");
 	tracker_sparql_builder_object_iri (metadata, equip_uri);
-	g_free (equip_uri);
 
+	g_free (equip_uri);
 	g_free (model);
 	g_free (manuf);
 }
@@ -748,7 +756,7 @@ extractor_apply_audio_metadata (MetadataExtractor     *extractor,
                                 const gchar           *album_uri,
                                 const gchar           *album_disc_uri)
 {
-	add_uint_gst_tag   (metadata, "nmm:trackNumber", tag_list, GST_TAG_TRACK_NUMBER);
+	add_uint_gst_tag (metadata, "nmm:trackNumber", tag_list, GST_TAG_TRACK_NUMBER);
 	add_string_gst_tag (metadata, "nfo:codec", tag_list, GST_TAG_AUDIO_CODEC);
 	add_double_gst_tag (metadata, "nfo:gain", tag_list, GST_TAG_TRACK_GAIN);
 	add_double_gst_tag (metadata, "nfo:peakGain", tag_list, GST_TAG_TRACK_PEAK);
@@ -889,8 +897,6 @@ delete_existing_tracks (TrackerSparqlBuilder *postupdate,
 	g_free (sparql);
 }
 
-
-
 static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *file_url,
@@ -929,7 +935,6 @@ extract_metadata (MetadataExtractor      *extractor,
 
 	if (extractor->mime == EXTRACT_MIME_GUESS && extractor->tagcache)
 		extractor_guess_content_type (extractor);
-
 	if (extractor->mime == EXTRACT_MIME_GUESS) {
 		g_warning ("Cannot guess real stream type if no tags were read! "
 		           "Defaulting to Video.");
@@ -1021,7 +1026,7 @@ extract_metadata (MetadataExtractor      *extractor,
 					tracker_sparql_builder_graph_open (postupdate, graph);
 				}
 
-				for (node=extractor->toc->entry_list; node; node=node->next)
+				for (node = extractor->toc->entry_list; node; node = node->next)
 					extract_track_metadata (extractor,
 					                        node->data,
 					                        file_url,
@@ -1856,14 +1861,14 @@ tracker_extract_gstreamer (const gchar          *uri,
 #endif
 
 	if (extractor->tagcache) {
-		gchar *cue_sheet = NULL;
+		gchar *cue_sheet;
 
-		get_embedded_cue_sheet_data (extractor->tagcache, &cue_sheet);
+		cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
 
 		if (cue_sheet) {
-			extractor->toc = tracker_parse_cue_sheet (cue_sheet + strlen("cuesheet="));
-			g_free (cue_sheet);
 			g_debug ("Using embedded CUE sheet.");
+			extractor->toc = tracker_parse_cue_sheet (cue_sheet);
+			g_free (cue_sheet);
 		}
 	}
 

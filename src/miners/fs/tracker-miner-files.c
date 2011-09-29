@@ -1977,10 +1977,10 @@ sparql_builder_finish (ProcessFileData *data,
 		tracker_sparql_builder_prepend (data->sparql, preupdate);
 	}
 
-    /* Append postupdate */
-    if (postupdate && *postupdate) {
-        tracker_sparql_builder_append (data->sparql, postupdate);
-    }
+	/* Append postupdate */
+	if (postupdate && *postupdate) {
+		tracker_sparql_builder_append (data->sparql, postupdate);
+	}
 
 	uuid = g_object_get_qdata (G_OBJECT (data->file),
 	                           data->miner->private->quark_mount_point_uuid);
