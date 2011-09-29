@@ -52,7 +52,8 @@ struct _TrackerFileNotifierClass {
 	void (* file_created) (TrackerFileNotifier *notifier,
 			       GFile               *file);
 	void (* file_updated) (TrackerFileNotifier *notifier,
-			       GFile               *file);
+	                       GFile               *file,
+	                       gboolean             attributes_only);
 	void (* file_deleted) (TrackerFileNotifier *notifier,
 			       GFile               *file);
 	void (* file_moved)   (TrackerFileNotifier *notifier,

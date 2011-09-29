@@ -26,6 +26,7 @@
 #include "tracker-file-system.h"
 #include "tracker-crawler.h"
 #include "tracker-monitor.h"
+#include "tracker-marshal.h"
 
 static GQuark quark_property_crawled = 0;
 static GQuark quark_property_queried = 0;
@@ -201,8 +202,9 @@ file_notifier_traverse_tree_foreach (TrackerFile *file,
 	} else if (store_mtime && disk_mtime &&
 		   strcmp (store_mtime, disk_mtime) != 0) {
 		/* Mtime changed, update */
-		g_signal_emit (notifier, signals[FILE_UPDATED], 0, f);
+		g_signal_emit (notifier, signals[FILE_UPDATED], 0, f, FALSE);
 	} else if (!store_mtime && !disk_mtime) {
+		/* what are we doing with such file? shouldn't happen */
 		g_assert_not_reached ();
 	}
 
@@ -589,9 +591,9 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
 					       file_updated),
 			      NULL, NULL,
-		              g_cclosure_marshal_VOID__OBJECT,
+		              tracker_marshal_VOID__OBJECT_BOOLEAN,
 		              G_TYPE_NONE,
-		              1, G_TYPE_FILE);
+		              2, G_TYPE_FILE, G_TYPE_BOOLEAN);
 	signals[FILE_DELETED] =
 		g_signal_new ("file-deleted",
 		              G_TYPE_FROM_CLASS (klass),
