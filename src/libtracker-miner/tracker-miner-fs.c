@@ -35,6 +35,7 @@
 #include "tracker-priority-queue.h"
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
+#include "tracker-file-notifier.h"
 
 /* If defined will print the tree from GNode while running */
 #ifdef CRAWLED_TREE_ENABLE_TRACE
@@ -193,6 +194,8 @@ struct _TrackerMinerFSPrivate {
 	guint           queue_status_timeout_id;
 #endif /* EVENT_QUEUE_ENABLE_TRACE */
 
+	TrackerFileNotifier *file_notifier;
+
 	GHashTable     *items_ignore_next_update;
 
 	GQuark          quark_ignore_file;
@@ -333,6 +336,22 @@ static ItemMovedData *item_moved_data_new                 (GFile                
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
 static void           item_writeback_data_free            (ItemWritebackData    *data);
+
+static void           file_notifier_file_created          (TrackerFileNotifier  *notifier,
+							   GFile                *file,
+							   gpointer              user_data);
+static void           file_notifier_file_deleted          (TrackerFileNotifier  *notifier,
+							   GFile                *file,
+							   gpointer              user_data);
+static void           file_notifier_file_updated          (TrackerFileNotifier  *notifier,
+							   GFile                *file,
+                                                           gboolean              attributes_only,
+							   gpointer              user_data);
+static void           file_notifier_file_moved            (TrackerFileNotifier  *notifier,
+                                                           GFile                *source,
+                                                           GFile                *dest,
+                                                           gpointer              user_data);
+
 static void           monitor_item_created_cb             (TrackerMonitor       *monitor,
                                                            GFile                *file,
                                                            gboolean              is_directory,
@@ -796,6 +815,22 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 			  G_CALLBACK (indexing_tree_directory_removed_cb),
 			  object);
 
+	/* Create the file notifier */
+	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree);
+
+	g_signal_connect (priv->file_notifier, "file-created",
+	                  G_CALLBACK (file_notifier_file_created),
+	                  object);
+	g_signal_connect (priv->file_notifier, "file-updated",
+	                  G_CALLBACK (file_notifier_file_updated),
+	                  object);
+	g_signal_connect (priv->file_notifier, "file-deleted",
+	                  G_CALLBACK (file_notifier_file_deleted),
+	                  object);
+	g_signal_connect (priv->file_notifier, "file-moved",
+	                  G_CALLBACK (file_notifier_file_moved),
+	                  object);
+
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
 
@@ -903,6 +938,7 @@ fs_finalize (GObject *object)
 
 	crawl_directories_stop (TRACKER_MINER_FS (object));
 
+	g_object_unref (priv->file_notifier);
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 
@@ -1108,7 +1144,7 @@ miner_started (TrackerMiner *miner)
 	              "remaining-time", 0,
 	              NULL);
 
-	crawl_directories_start (fs);
+	tracker_file_notifier_start (fs->priv->file_notifier);
 }
 
 static void
@@ -1132,7 +1168,7 @@ miner_paused (TrackerMiner *miner)
 
 	fs->priv->is_paused = TRUE;
 
-	tracker_crawler_pause (fs->priv->crawler);
+	tracker_file_notifier_stop (fs->priv->file_notifier);
 
 	if (fs->priv->item_queues_handler_id) {
 		g_source_remove (fs->priv->item_queues_handler_id);
@@ -1149,7 +1185,7 @@ miner_resumed (TrackerMiner *miner)
 
 	fs->priv->is_paused = FALSE;
 
-	tracker_crawler_resume (fs->priv->crawler);
+	tracker_file_notifier_start (fs->priv->file_notifier);
 
 	/* Only set up queue handler if we have items waiting to be
 	 * processed.
@@ -3802,6 +3838,85 @@ check_item_queues (TrackerMinerFS *fs,
 	}
 
 	return TRUE;
+}
+
+static void
+file_notifier_file_created (TrackerFileNotifier  *notifier,
+                            GFile                *file,
+                            gpointer              user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	if (check_item_queues (fs, QUEUE_CREATED, file, NULL)) {
+		tracker_priority_queue_add (fs->priv->items_created,
+		                            g_object_ref (file),
+		                            G_PRIORITY_DEFAULT);
+		item_queue_handlers_set_up (fs);
+	}
+}
+
+static void
+file_notifier_file_deleted (TrackerFileNotifier  *notifier,
+                            GFile                *file,
+                            gpointer              user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
+		tracker_priority_queue_add (fs->priv->items_deleted,
+		                            g_object_ref (file),
+		                            G_PRIORITY_DEFAULT);
+		item_queue_handlers_set_up (fs);
+	}
+}
+
+static void
+file_notifier_file_updated (TrackerFileNotifier  *notifier,
+                            GFile                *file,
+                            gboolean              attributes_only,
+                            gpointer              user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	/* Writeback tasks would receive an updated after move,
+	 * consequence of the data being written back in the
+	 * copy, and its monitor events being propagated to
+	 * the destination file.
+	 */
+	if (!attributes_only &&
+	    remove_writeback_task (fs, file)) {
+		item_queue_handlers_set_up (fs);
+		return;
+	}
+
+	if (check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
+		if (attributes_only) {
+			g_object_set_qdata (G_OBJECT (file),
+			                    fs->priv->quark_attribute_updated,
+			                    GINT_TO_POINTER (TRUE));
+		}
+
+		tracker_priority_queue_add (fs->priv->items_updated,
+		                            g_object_ref (file),
+		                            G_PRIORITY_DEFAULT);
+		item_queue_handlers_set_up (fs);
+	}
+}
+
+static void
+file_notifier_file_moved (TrackerFileNotifier *notifier,
+                          GFile               *source,
+                          GFile               *dest,
+                          gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	if (check_item_queues (fs, QUEUE_MOVED, source, dest)) {
+		tracker_priority_queue_add (fs->priv->items_moved,
+		                            item_moved_data_new (dest, source),
+		                            G_PRIORITY_DEFAULT);
+		item_queue_handlers_set_up (fs);
+	}
 }
 
 static void
