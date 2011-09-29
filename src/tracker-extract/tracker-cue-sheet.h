@@ -30,18 +30,17 @@ G_BEGIN_DECLS
 
 typedef struct {
 	/* Values in seconds */
-	gdouble start, duration;
-
+	gdouble start;
+	gdouble duration;
 	GstTagList *tag_list;
 } TrackerTocEntry;
 
 typedef struct {
 	GstTagList *tag_list;
-
 	GList *entry_list;
 } TrackerToc;
 
-void tracker_toc_free (TrackerToc *toc);
+void        tracker_toc_free                    (TrackerToc  *toc);
 
 TrackerToc *tracker_parse_cue_sheet             (const gchar *cue_sheet);
 TrackerToc *tracker_process_external_cue_sheets (const gchar *audio_uri);

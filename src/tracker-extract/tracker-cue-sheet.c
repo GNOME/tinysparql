@@ -33,12 +33,12 @@
 #include <libcue/libcue.h>
 #endif
 
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-cue-sheet.h"
 
 static TrackerToc *
-tracker_toc_new ()
+tracker_toc_new (void)
 {
 	TrackerToc *toc;
 
@@ -54,6 +54,10 @@ tracker_toc_free (TrackerToc *toc)
 {
 	TrackerTocEntry *entry;
 	GList *n;
+
+	if (!toc) {
+		return;
+	}
 
 	for (n = toc->entry_list; n != NULL; n = n->next) {
 		entry = n->data;
@@ -78,8 +82,9 @@ add_cdtext_string_tag (Cdtext      *cd_text,
 
 	text = cdtext_get (index, cd_text);
 
-	if (text != NULL)
+	if (text != NULL) {
 		gst_tag_list_add (tag_list, GST_TAG_MERGE_REPLACE, tag, text, NULL);
+	}
 }
 
 static void
@@ -258,7 +263,7 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 			                            cd_get_rem (cd));
 		}
 
-		toc_entry = g_slice_new0 (TrackerTocEntry);
+		toc_entry = g_slice_new (TrackerTocEntry);
 		toc_entry->tag_list = gst_tag_list_new ();
 		toc_entry->start = track_get_start (track) / 75.0;
 		toc_entry->duration = track_get_length (track) / 75.0;
@@ -298,10 +303,10 @@ find_local_cue_sheets (GFile *audio_file)
 	GFile *cue_sheet;
 	GFileEnumerator *e;
 	GFileInfo *file_info;
-    gchar *container_path;
+	gchar *container_path;
 	const gchar *file_name;
 	const gchar *file_content_type;
-    gchar *file_path;
+	gchar *file_path;
 	GList *result = NULL;
 	GError *error = NULL;
 
@@ -331,8 +336,7 @@ find_local_cue_sheets (GFile *audio_file)
 			g_debug ("Unable to get info for file %s/%s",
 			         container_path,
 			         g_file_info_get_display_name (file_info));
-		} else
-		if (strcmp (file_content_type, "application/x-cue") == 0) {
+		} else if (strcmp (file_content_type, "application/x-cue") == 0) {
 			file_path = g_build_filename (container_path, file_name, NULL);
 			cue_sheet = g_file_new_for_path (file_path);
 			result = g_list_prepend (result, cue_sheet);
@@ -418,4 +422,4 @@ tracker_process_external_cue_sheets (const gchar *audio_uri)
 	return NULL;
 }
 
-#endif
+#endif /* ! HAVE_LIBCUE */
