@@ -42,8 +42,8 @@ typedef struct {
 
 void        tracker_toc_free                    (TrackerToc  *toc);
 
-TrackerToc *tracker_parse_cue_sheet             (const gchar *cue_sheet);
-TrackerToc *tracker_process_external_cue_sheets (const gchar *audio_uri);
+TrackerToc *tracker_cue_sheet_parse     (const gchar *cue_sheet);
+TrackerToc *tracker_cue_sheet_parse_uri (const gchar *uri);
 
 G_END_DECLS
 

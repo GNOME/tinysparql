@@ -1867,13 +1867,13 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 		if (cue_sheet) {
 			g_debug ("Using embedded CUE sheet.");
-			extractor->toc = tracker_parse_cue_sheet (cue_sheet);
+			extractor->toc = tracker_cue_sheet_parse (cue_sheet);
 			g_free (cue_sheet);
 		}
 	}
 
 	if (extractor->toc == NULL) {
-		extractor->toc = tracker_process_external_cue_sheets (uri);
+		extractor->toc = tracker_cue_sheet_parse_uri (uri);
 	}
 
 	album_artist = NULL;

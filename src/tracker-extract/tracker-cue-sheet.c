@@ -284,7 +284,7 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 }
 
 TrackerToc *
-tracker_parse_cue_sheet (const gchar *cue_sheet)
+tracker_cue_sheet_parse (const gchar *cue_sheet)
 {
 	TrackerToc *result;
 
@@ -354,7 +354,7 @@ find_local_cue_sheets (GFile *audio_file)
 }
 
 TrackerToc *
-tracker_process_external_cue_sheets (const gchar *audio_uri)
+tracker_cue_sheet_parse_uri (const gchar *uri)
 {
 	GFile *audio_file;
 	gchar *audio_file_name;
@@ -363,7 +363,7 @@ tracker_process_external_cue_sheets (const gchar *audio_uri)
 	GError *error = NULL;
 	GList *n;
 
-	audio_file = g_file_new_for_uri (audio_uri);
+	audio_file = g_file_new_for_uri (uri);
 	audio_file_name = g_file_get_basename (audio_file);
 
 	cue_sheet_list = find_local_cue_sheets (audio_file);
@@ -411,13 +411,13 @@ tracker_process_external_cue_sheets (const gchar *audio_uri)
 #else  /* ! HAVE_LIBCUE */
 
 TrackerToc *
-tracker_parse_cue_sheet (const gchar *cue_sheet)
+tracker_cue_sheet_parse (const gchar *cue_sheet)
 {
 	return NULL;
 }
 
 TrackerToc *
-tracker_process_external_cue_sheets (const gchar *audio_uri)
+tracker_cue_sheet_parse_uri (const gchar *uri)
 {
 	return NULL;
 }
