@@ -383,16 +383,21 @@ get_embedded_cue_sheet_data (GstTagList *tag_list)
 		gst_tag_list_get_string_index (tag_list, GST_TAG_EXTENDED_COMMENT, i, &buffer);
 
 		if (g_ascii_strncasecmp (buffer, "cuesheet=", 9) == 0) {
-			gchar *result;
+			/* Use same functionality as g_strchug() here
+			 * for cuesheet, to avoid allocating new
+			 * memory but also to return the string and
+			 * not have to jump past cuesheet= on the
+			 * returned value.
+			 */
+			g_memmove (buffer, buffer + 9, strlen ((gchar *) buffer + 9) + 1);
 
-			result = g_strdup (buffer + 9);
-			g_free (buffer);
-
-			return result;
+			return buffer;
 		}
 
 		g_free (buffer);
 	}
+
+	return NULL;
 }
 
 static gboolean
