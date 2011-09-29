@@ -75,12 +75,12 @@ test_seconds_estimate_to_string ()
 }
 
 #define assert_filename_match(a, b) { \
-	g_assert (tracker_case_match_filename_without_extension (a, b) == TRUE); \
-	g_assert (tracker_case_match_filename_without_extension (b, a) == TRUE); }
+	g_assert (tracker_filename_casecmp_without_extension (a, b) == TRUE); \
+	g_assert (tracker_filename_casecmp_without_extension (b, a) == TRUE); }
 
 #define assert_no_filename_match(a, b) { \
-	g_assert (tracker_case_match_filename_without_extension (a, b) == FALSE); \
-	g_assert (tracker_case_match_filename_without_extension (b, a) == FALSE); }
+	g_assert (tracker_filename_casecmp_without_extension (a, b) == FALSE); \
+	g_assert (tracker_filename_casecmp_without_extension (b, a) == FALSE); }
 
 static void
 test_case_match_filename_without_extension ()
