@@ -604,6 +604,16 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 		              g_cclosure_marshal_VOID__OBJECT,
 		              G_TYPE_NONE,
 		              1, G_TYPE_FILE);
+	signals[FILE_MOVED] =
+		g_signal_new ("file-moved",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       file_moved),
+			      NULL, NULL,
+		              tracker_marshal_VOID__OBJECT_OBJECT,
+		              G_TYPE_NONE,
+		              2, G_TYPE_FILE, G_TYPE_FILE);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEXING_TREE,
