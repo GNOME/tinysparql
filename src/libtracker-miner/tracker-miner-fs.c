@@ -47,11 +47,6 @@
 #warning IRI cache contents traces enabled
 #endif /* IRI_CACHE_ENABLE_TRACE */
 
-/* If defined will print contents of populated mtime cache while running */
-#ifdef MTIME_CACHE_ENABLE_TRACE
-#warning MTIME cache contents traces enabled
-#endif /* MTIME_CACHE_ENABLE_TRACE */
-
 /* If defined will print push/pop actions on queues */
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 #warning Event Queue traces enabled
@@ -222,10 +217,6 @@ struct _TrackerMinerFSPrivate {
 	/* Sparql insertion tasks */
 	TrackerSparqlBuffer *sparql_buffer;
 	guint sparql_buffer_limit;
-
-	/* URI mtime cache */
-	GFile          *current_mtime_cache_parent;
-	GHashTable     *mtime_cache;
 
 	/* File -> iri cache */
 	GFile          *current_iri_cache_parent;
@@ -902,8 +893,6 @@ fs_finalize (GObject *object)
 	g_free (priv->current_iri_cache_parent_urn);
 	if (priv->current_iri_cache_parent)
 		g_object_unref (priv->current_iri_cache_parent);
-	if (priv->current_mtime_cache_parent)
-		g_object_unref (priv->current_mtime_cache_parent);
 
 	tracker_priority_queue_foreach (priv->directories,
 	                                (GFunc) directory_data_unref,
@@ -966,10 +955,6 @@ fs_finalize (GObject *object)
 	g_list_free (priv->dirs_without_parent);
 
 	g_hash_table_unref (priv->items_ignore_next_update);
-
-	if (priv->mtime_cache) {
-		g_hash_table_unref (priv->mtime_cache);
-	}
 
 	if (priv->iri_cache) {
 		g_hash_table_unref (priv->iri_cache);
@@ -3284,235 +3269,18 @@ check_if_files_removed (TrackerMinerFS *fs)
 	                             fs);
 }
 
-static void
-add_to_check_removed_cb (gpointer key,
-                         gpointer value,
-                         gpointer user_data)
-{
-	TrackerMinerFS *fs = user_data;
-	GFile *file = key;
-
-	/* Not adding any data to the value, we just want
-	 * fast search for key availability */
-	g_hash_table_insert (fs->priv->check_removed,
-	                     g_object_ref (file),
-	                     NULL);
-}
-
-static void
-ensure_mtime_cache (TrackerMinerFS *fs,
-                    GFile          *file,
-                    gboolean        is_parent)
-{
-	gchar *query, *uri;
-	GFile *parent;
-	guint cache_size;
-	GFile *parent_in_queue;
-
-	if (G_UNLIKELY (!fs->priv->mtime_cache)) {
-		fs->priv->mtime_cache = g_hash_table_new_full (g_file_hash,
-		                                               (GEqualFunc) g_file_equal,
-		                                               (GDestroyNotify) g_object_unref,
-		                                               (GDestroyNotify) g_free);
-	}
-
-	/* Is input file already the parent dir? */
-	if (is_parent) {
-		g_return_if_fail (file != NULL);
-		parent = g_object_ref (file);
-	} else {
-		/* Note: parent may be NULL if the file represents
-		 * the root directory of the file system (applies to
-		 * .gvfs mounts also!) */
-		parent = g_file_get_parent (file);
-	}
-	query = NULL;
-
-	if (fs->priv->current_mtime_cache_parent) {
-		if (parent &&
-		    g_file_equal (parent, fs->priv->current_mtime_cache_parent)) {
-			/* Cache is still valid */
-			g_object_unref (parent);
-			return;
-		}
-
-		g_object_unref (fs->priv->current_mtime_cache_parent);
-	}
-
-	fs->priv->current_mtime_cache_parent = parent;
-
-	g_hash_table_remove_all (fs->priv->mtime_cache);
-
-	/* Hack hack alert!
-	 * Before querying the store, check if the parent directory is scheduled to
-	 * be added, and if so, leave the mtime cache empty.
-	 */
-	parent_in_queue = tracker_priority_queue_find (fs->priv->items_created,
-	                                               NULL,
-	                                               (GEqualFunc) g_file_equal,
-	                                               parent);
-	if (parent_in_queue &&
-	    !g_object_get_qdata (G_OBJECT (parent_in_queue),
-	                         fs->priv->quark_directory_found_crawling)) {
-		uri = g_file_get_uri (file);
-		g_debug ("Empty mtime cache for URI '%s' "
-		         "(parent scheduled to be created)",
-		         uri);
-		g_free (uri);
-		return;
-	}
-
-	if (!parent || (!is_parent && file_is_crawl_directory (fs, file))) {
-		/* File is a crawl directory itself, query its mtime directly */
-		uri = g_file_get_uri (file);
-
-		g_debug ("Generating mtime cache for URI '%s' (config location)", uri);
-
-		query = g_strdup_printf ("SELECT ?url ?last "
-		                         "WHERE { "
-		                         "  ?u nfo:fileLastModified ?last ; "
-		                         "     nie:url ?url ; "
-		                         "     nie:url \"%s\" "
-		                         "}",
-		                         uri);
-		g_free (uri);
-	} else if (parent) {
-		uri = g_file_get_uri (parent);
-
-		g_debug ("Generating mtime cache for URI '%s'", uri);
-
-		query = g_strdup_printf ("SELECT ?url IF(bound(?damaged) && ?damaged, '0001-01-01T00:00:00Z', STR(?last)) { "
-		                         "?u nfo:belongsToContainer ?p ; "
-		                         "   nie:url ?url ; "
-		                         "   nfo:fileLastModified ?last . "
-		                         "?p nie:url \"%s\" . "
-		                         "OPTIONAL { ?u tracker:damaged ?damaged }}", uri);
-
-		g_free (uri);
-	}
-
-	if (query) {
-		CacheQueryData data;
-
-		/* Initialize data contents */
-		data.main_loop = g_main_loop_new (NULL, FALSE);
-		data.values = g_hash_table_ref (fs->priv->mtime_cache);
-
-		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                       query,
-		                                       NULL,
-		                                       cache_query_cb,
-		                                       &data);
-		g_free (query);
-		g_main_loop_run (data.main_loop);
-		g_main_loop_unref (data.main_loop);
-		g_hash_table_unref (data.values);
-	}
-
-	cache_size = g_hash_table_size (fs->priv->mtime_cache);
-
-	/* Quite ugly hack: If mtime_cache is found EMPTY after the query, still, we
-	 * may have a nfo:Folder where nfo:belogsToContainer was not yet set (when
-	 * generating the dummy nfo:Folder for mount points). In this case, make a
-	 * new query not using nfo:belongsToContainer, and using fn:starts-with
-	 * instead. Any better solution is highly appreciated */
-	if (parent &&
-	    cache_size == 0 &&
-	    miner_fs_has_children_without_parent (fs, parent)) {
-		CacheQueryData data;
-
-		/* Initialize data contents */
-		data.main_loop = g_main_loop_new (NULL, FALSE);
-		data.values = g_hash_table_ref (fs->priv->mtime_cache);
-		uri = g_file_get_uri (parent);
-
-		g_debug ("Generating mtime cache for URI '%s' (fn:starts-with)", uri);
-
-		/* Note the last '/' in the url passed in the FILTER: We want to look for
-		 * directory contents, not the directory itself */
-		query = g_strdup_printf ("SELECT ?url ?last "
-		                         "WHERE { ?u a nfo:Folder ; "
-		                         "           nie:url ?url ; "
-		                         "           nfo:fileLastModified ?last . "
-		                         "        FILTER (fn:starts-with (?url,\"%s/\"))"
-		                         "}",
-		                         uri);
-		g_free (uri);
-
-		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                       query,
-		                                       NULL,
-		                                       cache_query_cb,
-		                                       &data);
-		g_free (query);
-		g_main_loop_run (data.main_loop);
-		g_main_loop_unref (data.main_loop);
-		g_hash_table_unref (data.values);
-
-		/* Note that in this case, the cache may be actually populated with items
-		 * which are not direct children of this parent, but doesn't seem a big
-		 * issue right now. In the best case, the dummy item that we created will
-		 * be there with a proper mtime set. */
-		cache_size = g_hash_table_size (fs->priv->mtime_cache);
-	}
-
-#ifdef MTIME_CACHE_ENABLE_TRACE
-	g_debug ("Populated mtime cache with '%u' items", cache_size);
-	if (cache_size > 0) {
-		GHashTableIter iter;
-		gpointer key, value;
-
-		g_hash_table_iter_init (&iter, fs->priv->mtime_cache);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			gchar *fileuri;
-
-			fileuri = g_file_get_uri (key);
-			g_debug ("  In mtime cache: '%s','%s'", fileuri, (gchar *) value);
-			g_free (fileuri);
-		}
-	}
-#endif /* MTIME_CACHE_ENABLE_TRACE */
-
-	/* Iterate repopulated HT and add all to the check_removed HT */
-	g_hash_table_foreach (fs->priv->mtime_cache,
-	                      add_to_check_removed_cb,
-	                      fs);
-}
-
 static gboolean
 should_change_index_for_file (TrackerMinerFS *fs,
                               GFile          *file)
 {
 	GFileInfo          *file_info;
 	guint64             time;
-	time_t              mtime, lookup_mtime;
-	gchar              *lookup_time;
-	GError             *error = NULL;
-
-	/* Make sure mtime cache contains the mtimes of all files in the
-	 * same directory as the given file
-	 */
-	ensure_mtime_cache (fs, file, FALSE);
+	time_t              mtime;
+	struct tm           t;
+	gchar              *time_str, *lookup_time = "";
 
 	/* Remove the file from the list of files to be checked if removed */
 	g_hash_table_remove (fs->priv->check_removed, file);
-
-	/* If the file is NOT found in the cache, it means its a new
-	 * file the store doesn't know about, so just report it to be
-	 * re-indexed.
-	 */
-	lookup_time = g_hash_table_lookup (fs->priv->mtime_cache, file);
-	if (!lookup_time) {
-		return TRUE;
-	}
-
-	lookup_mtime = tracker_string_to_date (lookup_time, NULL, &error);
-	if (error) {
-		/* This should never happen. Assume that file was modified. */
-		g_critical ("should_change_index_for_file: %s", error->message);
-		g_clear_error (&error);
-		return TRUE;
-	}
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -3562,17 +3330,6 @@ should_process_file (TrackerMinerFS *fs,
                      gboolean        is_dir)
 {
 	if (!should_check_file (fs, file, is_dir)) {
-		ensure_mtime_cache (fs, file, FALSE);
-
-		if (g_hash_table_lookup (fs->priv->mtime_cache, file) != NULL) {
-			/* File is told not to be checked, but exists
-			 * in the store, put in deleted queue.
-			 */
-			trace_eq_push_tail ("DELETED", file, "No longer to be indexed");
-			tracker_priority_queue_add (fs->priv->items_deleted,
-			                            g_object_ref (file),
-			                            G_PRIORITY_DEFAULT);
-		}
 		return FALSE;
 	}
 
@@ -3904,20 +3661,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 
 	should_check = should_check_file (fs, file, TRUE);
 
-	if (!should_check) {
-		/* Put item in deleted queue if it existed in the store */
-		ensure_mtime_cache (fs, file, FALSE);
-
-		if (g_hash_table_lookup (fs->priv->mtime_cache, file) != NULL) {
-			/* File is told not to be checked, but exists
-			 * in the store, put in deleted queue.
-			 */
-			trace_eq_push_tail ("DELETED", file, "while crawling directory");
-			tracker_priority_queue_add (fs->priv->items_deleted,
-			                            g_object_ref (file),
-			                            G_PRIORITY_DEFAULT);
-		}
-	} else {
+	if (should_check) {
 		gboolean should_change_index;
 
 		if (!fs->priv->been_crawled &&
@@ -3969,17 +3713,6 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 						parent, &parent_flags);
 
 		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
-
-		/* If the directory crawled doesn't have ANY file, we need to
-		 * force a mtime cache reload using the given directory as input
-		 * parent to mtime_cache. This is done in order to track any
-		 * possible deleted file on the directory if the directory is fully
-		 * empty (if there is at least one file in the directory,
-		 * ensure_mtime_cache() will be called using the given file as input,
-		 * and thus reloading the mtime cache at least once). */
-		if (!children) {
-			ensure_mtime_cache (fs, parent, TRUE);
-		}
 	}
 
 	/* FIXME: Should we add here or when we process the queue in
@@ -4197,12 +3930,6 @@ crawl_directories_cb (gpointer user_data)
 			/* Unset parent folder so caches are regenerated */
 			g_object_unref (fs->priv->current_iri_cache_parent);
 			fs->priv->current_iri_cache_parent = NULL;
-		}
-
-		if (fs->priv->current_mtime_cache_parent) {
-			/* Unset parent folder so caches are regenerated */
-			g_object_unref (fs->priv->current_mtime_cache_parent);
-			fs->priv->current_mtime_cache_parent = NULL;
 		}
 
 		/* Now we handle the queue */
