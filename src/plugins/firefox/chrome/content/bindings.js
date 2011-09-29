@@ -2,7 +2,7 @@ if (!org.bustany.TrackerFox.TrackerSparql || !org.bustany.TrackerFox.TrackerSpar
 org.bustany.TrackerFox.TrackerSparql = {
 	__initialized: true,
 
-	_trackerSparqlPath: "libtracker-sparql-0.10.so.0",
+	_trackerSparqlPath: "libtracker-sparql-0.12.so.0",
 	_lib: null,
 
 	init: function () {
@@ -18,14 +18,8 @@ org.bustany.TrackerFox.TrackerSparql = {
 		try {
 			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
 		} catch (e) {
-			tracker._trackerSparqlPath = "libtracker-sparql-0.12.so.0";
-
-			try {
-				tracker._lib = ctypes.open (tracker._trackerSparqlPath);
-			} catch (e) {
-				dump("Could not load libtracker-sparql 0.10 or 0.12\n");
-				return false;
-			}
+			dump("Could not load libtracker-sparql 0.12\n");
+			return false;
 		}
 
 		// GLib types
