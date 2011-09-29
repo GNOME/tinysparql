@@ -493,6 +493,337 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	}
 }
 
+/* Monitor signal handlers */
+static void
+monitor_item_created_cb (TrackerMonitor *monitor,
+                         GFile          *file,
+                         gboolean        is_directory,
+                         gpointer        user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerFile *canonical;
+	GFileType file_type;
+
+	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+
+	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                              file, file_type)) {
+		/* File should not be indexed */
+		return ;
+	}
+
+	if (!is_directory) {
+		gboolean indexable;
+		GList *children;
+		GFile *parent;
+
+		children = g_list_prepend (NULL, file);
+		parent = g_file_get_parent (file);
+
+		indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
+		                                                       parent, children);
+		g_list_free (children);
+
+		if (!indexable) {
+			/* New file triggered a directory content
+			 * filter, remove parent directory altogether
+			 */
+			g_signal_emit (notifier, signals[FILE_DELETED], 0, parent);
+			g_object_unref (parent);
+			return;
+		}
+
+		g_object_unref (parent);
+	} else {
+		TrackerDirectoryFlags flags;
+
+		/* If config for the directory is recursive,
+		 * Crawl new entire directory and add monitors
+		 */
+		tracker_indexing_tree_get_root (priv->indexing_tree,
+		                                file, &flags);
+
+		if (flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
+			TrackerFile *f;
+
+			f = tracker_file_system_get_file (priv->file_system,
+			                                  file,
+			                                  G_FILE_TYPE_DIRECTORY,
+			                                  NULL);
+
+			priv->pending_index_roots =
+				g_list_append (priv->pending_index_roots, f);
+
+			crawl_directories_start (notifier);
+			return;
+		}
+	}
+
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file, file_type, NULL);
+
+	/* Fetch the unique copy */
+	file = tracker_file_system_resolve_file (priv->file_system, canonical);
+
+	g_signal_emit (notifier, signals[FILE_CREATED], 0, file);
+}
+
+static void
+monitor_item_updated_cb (TrackerMonitor *monitor,
+                         GFile          *file,
+                         gboolean        is_directory,
+                         gpointer        user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerFile *canonical;
+	GFileType file_type;
+
+	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+
+	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                              file, file_type)) {
+		/* File should not be indexed */
+		return ;
+	}
+
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file, file_type, NULL);
+
+	/* Fetch the unique copy */
+	file = tracker_file_system_resolve_file (priv->file_system, canonical);
+
+	g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, FALSE);
+}
+
+static void
+monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
+                                   GFile          *file,
+                                   gboolean        is_directory,
+                                   gpointer        user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerFile *canonical;
+	GFileType file_type;
+
+	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+
+	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                              file, file_type)) {
+		/* File should not be indexed */
+		return ;
+	}
+
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file, file_type, NULL);
+
+	/* Fetch the unique copy */
+	file = tracker_file_system_resolve_file (priv->file_system, canonical);
+
+	g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, TRUE);
+}
+
+static void
+monitor_item_deleted_cb (TrackerMonitor *monitor,
+                         GFile          *file,
+                         gboolean        is_directory,
+                         gpointer        user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerFile *canonical;
+	GFileType file_type;
+
+	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+
+	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                              file, file_type)) {
+		/* File was not indexed */
+		return ;
+	}
+
+	if (!is_directory) {
+		gboolean indexable;
+		GList *children;
+		GFile *parent;
+
+		children = g_list_prepend (NULL, file);
+		parent = g_file_get_parent (file);
+
+		indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
+		                                                       parent, children);
+		g_object_unref (parent);
+		g_list_free (children);
+
+		/* FIXME: This supposedly works, but in practice
+		 * won't ever happen as the parent directory
+		 * wasn't being monitored if being ignored
+		 */
+		if (!indexable) {
+			TrackerFile *f;
+
+			/* New file was triggering a directory content
+			 * filter, reindex parent directory altogether
+			 */
+			f = tracker_file_system_get_file (priv->file_system,
+			                                  file,
+			                                  G_FILE_TYPE_DIRECTORY,
+			                                  NULL);
+			priv->pending_index_roots =
+				g_list_append (priv->pending_index_roots, f);
+
+			crawl_directories_start (notifier);
+			return;
+		}
+	}
+
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file, file_type, NULL);
+	/* Fetch the unique copy */
+	file = tracker_file_system_resolve_file (priv->file_system, canonical);
+
+	g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
+}
+
+static void
+monitor_item_moved_cb (TrackerMonitor *monitor,
+                       GFile          *file,
+                       GFile          *other_file,
+                       gboolean        is_directory,
+                       gboolean        is_source_monitored,
+                       gpointer        user_data)
+{
+	TrackerFileNotifier *notifier;
+	TrackerFileNotifierPrivate *priv;
+
+	notifier = user_data;
+	priv = notifier->priv;
+
+	if (!is_source_monitored) {
+		if (is_directory) {
+			TrackerFile *f;
+
+			/* Remove monitors if any */
+			tracker_monitor_remove_recursively (priv->monitor, file);
+
+			/* If should recurse, crawl other_file, as content is "new" */
+			f = tracker_file_system_get_file (priv->file_system,
+			                                  other_file,
+			                                  G_FILE_TYPE_DIRECTORY,
+			                                  NULL);
+			priv->pending_index_roots =
+				g_list_append (priv->pending_index_roots, f);
+
+			crawl_directories_start (notifier);
+		}
+		/* else, file, do nothing */
+	} else {
+		gboolean source_stored, should_process_other;
+		GFileType file_type;
+		GFile *check_file;
+
+		if (is_directory) {
+			check_file = g_object_ref (file);
+		} else {
+			check_file = g_file_get_parent (file);
+		}
+
+		file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+
+		/* If the (parent) directory is in
+		 * the filesystem, file is stored
+		 */
+		source_stored = (tracker_file_system_peek_file (priv->file_system,
+		                                                check_file) != NULL);
+		should_process_other = tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+		                                                                other_file,
+		                                                                file_type);
+		if (!source_stored) {
+			/* Destination location should be indexed as if new */
+			/* Remove monitors if any */
+			if (is_directory) {
+				tracker_monitor_remove_recursively (priv->monitor,
+				                                    file);
+			}
+
+			if (should_process_other) {
+				gboolean dest_is_recursive;
+				TrackerDirectoryFlags flags;
+
+				tracker_indexing_tree_get_root (priv->indexing_tree, other_file, &flags);
+				dest_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
+
+				/* Source file was not stored, check dest file as new */
+				if (!is_directory || !dest_is_recursive) {
+					g_signal_emit (notifier, signals[FILE_CREATED], 0, other_file);
+				} else if (is_directory) {
+					TrackerFile *f;
+
+					/* Crawl dest directory */
+					f = tracker_file_system_get_file (priv->file_system,
+					                                  other_file,
+					                                  G_FILE_TYPE_DIRECTORY,
+					                                  NULL);
+					priv->pending_index_roots =
+						g_list_append (priv->pending_index_roots, f);
+
+					crawl_directories_start (notifier);
+				}
+			}
+			/* Else, do nothing else */
+		} else if (!should_process_other) {
+			/* Delete original location as it moves to be non indexable */
+			if (is_directory) {
+				tracker_monitor_remove_recursively (priv->monitor,
+				                                    file);
+			}
+
+			g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
+		} else {
+			/* Handle move */
+			if (is_directory) {
+				gboolean dest_is_recursive, source_is_recursive;
+				TrackerDirectoryFlags flags;
+
+				tracker_monitor_move (priv->monitor,
+				                      file, other_file);
+
+				tracker_indexing_tree_get_root (priv->indexing_tree,
+				                                other_file,
+				                                &flags);
+				dest_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
+
+				tracker_indexing_tree_get_root (priv->indexing_tree,
+				                                file, &flags);
+				source_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
+
+				if (source_is_recursive && !dest_is_recursive) {
+					/* Move only the folder, and
+					 * delete all its contents
+					 */
+					/* FIXME: it doesn't */
+				} else if (!source_is_recursive && dest_is_recursive) {
+					TrackerFile *f;
+
+					/* crawl the folder */
+					f = tracker_file_system_get_file (priv->file_system,
+					                                  other_file,
+					                                  G_FILE_TYPE_DIRECTORY,
+					                                  NULL);
+					priv->pending_index_roots =
+						g_list_append (priv->pending_index_roots, f);
+
+					crawl_directories_start (notifier);
+				}
+			}
+
+			g_signal_emit (notifier, signals[FILE_MOVED], 0, file, other_file);
+		}
+	}
+}
+
 /* Indexing tree signal handlers */
 static void
 indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
@@ -703,6 +1034,22 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 	/* Set up monitor */
 	priv->monitor = tracker_monitor_new ();
+
+	g_signal_connect (priv->monitor, "item-created",
+	                  G_CALLBACK (monitor_item_created_cb),
+	                  notifier);
+	g_signal_connect (priv->monitor, "item-updated",
+	                  G_CALLBACK (monitor_item_updated_cb),
+	                  notifier);
+	g_signal_connect (priv->monitor, "item-attribute-updated",
+	                  G_CALLBACK (monitor_item_attribute_updated_cb),
+	                  notifier);
+	g_signal_connect (priv->monitor, "item-deleted",
+	                  G_CALLBACK (monitor_item_deleted_cb),
+	                  notifier);
+	g_signal_connect (priv->monitor, "item-moved",
+	                  G_CALLBACK (monitor_item_moved_cb),
+	                  notifier);
 }
 
 TrackerFileNotifier *
