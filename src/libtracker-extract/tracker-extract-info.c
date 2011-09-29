@@ -226,7 +226,7 @@ tracker_extract_info_get_preupdate_builder (TrackerExtractInfo *info)
  * Returns: (transfer none): #TrackerSparqlBuilder for
  * resources that need inserting after the file resource.
  *
- * Since: 0.12.1
+ * Since: 0.12.4
  **/
 TrackerSparqlBuilder *
 tracker_extract_info_get_postupdate_builder (TrackerExtractInfo *info)
