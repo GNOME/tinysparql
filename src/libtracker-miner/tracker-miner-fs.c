@@ -179,7 +179,6 @@ typedef struct {
 } CrawledDirectoryData;
 
 struct _TrackerMinerFSPrivate {
-	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
 
 	TrackerPriorityQueue *crawled_directories;
@@ -352,28 +351,6 @@ static void           file_notifier_file_moved            (TrackerFileNotifier  
                                                            GFile                *dest,
                                                            gpointer              user_data);
 
-static void           monitor_item_created_cb             (TrackerMonitor       *monitor,
-                                                           GFile                *file,
-                                                           gboolean              is_directory,
-                                                           gpointer              user_data);
-static void           monitor_item_updated_cb             (TrackerMonitor       *monitor,
-                                                           GFile                *file,
-                                                           gboolean              is_directory,
-                                                           gpointer              user_data);
-static void           monitor_item_attribute_updated_cb   (TrackerMonitor       *monitor,
-                                                           GFile                *file,
-                                                           gboolean              is_directory,
-                                                           gpointer              user_data);
-static void           monitor_item_deleted_cb             (TrackerMonitor       *monitor,
-                                                           GFile                *file,
-                                                           gboolean              is_directory,
-                                                           gpointer              user_data);
-static void           monitor_item_moved_cb               (TrackerMonitor       *monitor,
-                                                           GFile                *file,
-                                                           GFile                *other_file,
-                                                           gboolean              is_directory,
-                                                           gboolean              is_source_monitored,
-                                                           gpointer              user_data);
 static gboolean       crawler_check_file_cb               (TrackerCrawler       *crawler,
                                                            GFile                *file,
                                                            gpointer              user_data);
@@ -851,25 +828,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 
-	/* Set up the monitor */
-	priv->monitor = tracker_monitor_new ();
-
-	g_signal_connect (priv->monitor, "item-created",
-	                  G_CALLBACK (monitor_item_created_cb),
-	                  object);
-	g_signal_connect (priv->monitor, "item-updated",
-	                  G_CALLBACK (monitor_item_updated_cb),
-	                  object);
-	g_signal_connect (priv->monitor, "item-attribute-updated",
-	                  G_CALLBACK (monitor_item_attribute_updated_cb),
-	                  object);
-	g_signal_connect (priv->monitor, "item-deleted",
-	                  G_CALLBACK (monitor_item_deleted_cb),
-	                  object);
-	g_signal_connect (priv->monitor, "item-moved",
-	                  G_CALLBACK (monitor_item_moved_cb),
-	                  object);
-
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
@@ -940,7 +898,6 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->file_notifier);
 	g_object_unref (priv->crawler);
-	g_object_unref (priv->monitor);
 
 	g_free (priv->current_iri_cache_parent_urn);
 	if (priv->current_iri_cache_parent)
@@ -1268,8 +1225,10 @@ process_print_stats (TrackerMinerFS *fs)
 		tracker_info ("Total files       : %d (%d ignored)",
 		              fs->priv->total_files_found,
 		              fs->priv->total_files_ignored);
+#if 0
 		tracker_info ("Total monitors    : %d",
 		              tracker_monitor_get_count (fs->priv->monitor));
+#endif
 		tracker_info ("Total processed   : %d (%d notified, %d with error)",
 		              fs->priv->total_files_processed,
 		              fs->priv->total_files_notified,
@@ -3919,299 +3878,6 @@ file_notifier_file_moved (TrackerFileNotifier *notifier,
 	}
 }
 
-static void
-monitor_item_created_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
-{
-	TrackerMinerFS *fs;
-	gboolean should_process = TRUE;
-	gchar *uri;
-
-	fs = user_data;
-	should_process = should_check_file (fs, file, is_directory);
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("%s:'%s' (%s) (create monitor event or user request)",
-	         should_process ? "Found " : "Ignored",
-	         uri,
-	         is_directory ? "DIR" : "FILE");
-
-	if (should_process) {
-		if (is_directory &&
-		    should_recurse_for_directory (fs, file)) {
-			tracker_miner_fs_directory_add_internal (fs, file,
-			                                         G_PRIORITY_DEFAULT);
-		} else {
-			trace_eq_push_tail ("CREATED", file, "On monitor event");
-			tracker_priority_queue_add (fs->priv->items_created,
-			                            g_object_ref (file),
-			                            G_PRIORITY_DEFAULT);
-
-			item_queue_handlers_set_up (fs);
-		}
-	}
-
-	g_free (uri);
-}
-
-static void
-monitor_item_updated_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
-{
-	TrackerMinerFS *fs;
-	gboolean should_process;
-	gchar *uri;
-
-	fs = user_data;
-
-	/* Writeback tasks would receive an updated after move,
-	 * consequence of the data being written back in the
-	 * copy, and its monitor events being propagated to
-	 * the destination file.
-	 */
-	if (remove_writeback_task (fs, file)) {
-		item_queue_handlers_set_up (fs);
-		return;
-	}
-
-	should_process = should_check_file (fs, file, is_directory);
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("%s:'%s' (%s) (update monitor event or user request)",
-	         should_process ? "Found " : "Ignored",
-	         uri,
-	         is_directory ? "DIR" : "FILE");
-
-	if (should_process &&
-	    check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
-		trace_eq_push_tail ("UPDATED", file, "On monitor event");
-		tracker_priority_queue_add (fs->priv->items_updated,
-		                            g_object_ref (file),
-		                            G_PRIORITY_DEFAULT);
-
-		item_queue_handlers_set_up (fs);
-	}
-
-	g_free (uri);
-}
-
-static void
-monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
-                                   GFile          *file,
-                                   gboolean        is_directory,
-                                   gpointer        user_data)
-{
-	TrackerMinerFS *fs;
-	gboolean should_process;
-	gchar *uri;
-
-	fs = user_data;
-	should_process = should_check_file (fs, file, is_directory);
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("%s:'%s' (%s) (attribute update monitor event or user request)",
-	         should_process ? "Found " : "Ignored",
-	         uri,
-	         is_directory ? "DIR" : "FILE");
-
-	if (should_process &&
-	    check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
-		/* Set the Quark specifying that ONLY attributes were
-		 * modified */
-		g_object_set_qdata (G_OBJECT (file),
-		                    fs->priv->quark_attribute_updated,
-		                    GINT_TO_POINTER (TRUE));
-
-		trace_eq_push_tail ("UPDATED", file, "On monitor event (attributes)");
-		tracker_priority_queue_add (fs->priv->items_updated,
-		                            g_object_ref (file),
-		                            G_PRIORITY_DEFAULT);
-
-		item_queue_handlers_set_up (fs);
-	}
-
-	g_free (uri);
-}
-
-static void
-monitor_item_deleted_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
-{
-	TrackerMinerFS *fs;
-	gboolean should_process;
-	gchar *uri;
-
-	fs = user_data;
-	should_process = should_check_file (fs, file, is_directory);
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
-	         should_process ? "Found " : "Ignored",
-	         uri,
-	         is_directory ? "DIR" : "FILE");
-
-	if (should_process &&
-	    check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
-		trace_eq_push_tail ("DELETED", file, "On monitor event");
-		tracker_priority_queue_add (fs->priv->items_deleted,
-		                            g_object_ref (file),
-		                            G_PRIORITY_DEFAULT);
-
-		item_queue_handlers_set_up (fs);
-	}
-
-#if 0
-	/* FIXME: Should we do this for MOVE events too? */
-
-	/* Remove directory from list of directories we are going to
-	 * iterate if it is in there.
-	 */
-	l = g_list_find_custom (fs->priv->directories,
-	                        path,
-	                        (GCompareFunc) g_strcmp0);
-
-	/* Make sure we don't remove the current device we are
-	 * processing, this is because we do this same clean up later
-	 * in process_device_next()
-	 */
-	if (l && l != fs->priv->current_directory) {
-		directory_data_unref (l->data);
-		fs->priv->directories =
-			g_list_delete_link (fs->priv->directories, l);
-	}
-#endif
-
-	g_free (uri);
-}
-
-static void
-monitor_item_moved_cb (TrackerMonitor *monitor,
-                       GFile          *file,
-                       GFile          *other_file,
-                       gboolean        is_directory,
-                       gboolean        is_source_monitored,
-                       gpointer        user_data)
-{
-	TrackerMinerFS *fs;
-
-	fs = user_data;
-
-	if (!is_source_monitored) {
-		if (is_directory) {
-			/* Remove monitors if any */
-			tracker_monitor_remove_recursively (fs->priv->monitor,
-			                                    file);
-			if (should_recurse_for_directory (fs, other_file)) {
-				gchar *uri;
-
-				uri = g_file_get_uri (other_file);
-				g_debug ("Not in store:'?'->'%s' (DIR) "
-				         "(move monitor event, source unknown)",
-				         uri);
-				/* If the source is not monitored, we need to crawl it. */
-				tracker_miner_fs_directory_add_internal (fs, other_file,
-				                                         G_PRIORITY_DEFAULT);
-				g_free (uri);
-			}
-		}
-		/* else, file, do nothing */
-	} else {
-		gchar *uri;
-		gchar *other_uri;
-		gboolean source_stored, should_process_other;
-
-		uri = g_file_get_uri (file);
-		other_uri = g_file_get_uri (other_file);
-
-		source_stored = item_query_exists (fs, file, FALSE, NULL, NULL);
-		should_process_other = should_check_file (fs, other_file, is_directory);
-
-		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
-		         source_stored ? "In store" : "Not in store",
-		         uri,
-		         other_uri,
-		         should_process_other ? "Found " : "Ignored",
-		         is_directory ? "DIR" : "FILE");
-
-		/* FIXME: Guessing this soon the queue the event should pertain
-		 *        to could introduce race conditions if events from other
-		 *        queues for the same files are processed before items_moved,
-		 *        Most of these decisions should be taken when the event is
-		 *        actually being processed.
-		 */
-		if (!source_stored) {
-			/* Remove monitors if any */
-			if (is_directory) {
-				tracker_monitor_remove_recursively (fs->priv->monitor,
-				                                    file);
-			}
-
-			if (should_process_other) {
-				/* Source file was not stored, check dest file as new */
-				if (!is_directory ||
-				    !should_recurse_for_directory (fs, other_file)) {
-					if (check_item_queues (fs, QUEUE_CREATED, other_file, NULL)) {
-						trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
-						tracker_priority_queue_add (fs->priv->items_created,
-						                            g_object_ref (other_file),
-						                            G_PRIORITY_DEFAULT);
-
-						item_queue_handlers_set_up (fs);
-					}
-				} else {
-					tracker_miner_fs_directory_add_internal (fs, other_file,
-					                                         G_PRIORITY_DEFAULT);
-				}
-			}
-			/* Else, do nothing else */
-		} else if (!should_process_other) {
-			/* Remove monitors if any */
-			if (is_directory) {
-				tracker_monitor_remove_recursively (fs->priv->monitor,
-				                                    file);
-			}
-
-			/* Delete old file */
-			if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
-				trace_eq_push_tail ("DELETED", file, "On move monitor event");
-				tracker_priority_queue_add (fs->priv->items_deleted,
-				                            g_object_ref (file),
-				                            G_PRIORITY_DEFAULT);
-				item_queue_handlers_set_up (fs);
-			}
-		} else {
-			/* Move monitors to the new place */
-			if (is_directory) {
-				tracker_monitor_move (fs->priv->monitor,
-				                      file,
-				                      other_file);
-			}
-
-			/* Move old file to new file */
-			if (check_item_queues (fs, QUEUE_MOVED, file, other_file)) {
-				trace_eq_push_tail_2 ("MOVED", file, other_file, "On monitor event");
-				tracker_priority_queue_add (fs->priv->items_moved,
-				                            item_moved_data_new (other_file, file),
-				                            G_PRIORITY_DEFAULT);
-				item_queue_handlers_set_up (fs);
-			}
-		}
-
-		g_free (other_uri);
-		g_free (uri);
-	}
-}
-
 static gboolean
 crawler_check_file_cb (TrackerCrawler *crawler,
                        GFile          *file,
@@ -4239,9 +3905,6 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	should_check = should_check_file (fs, file, TRUE);
 
 	if (!should_check) {
-		/* Remove monitors if any */
-		tracker_monitor_remove (fs->priv->monitor, file);
-
 		/* Put item in deleted queue if it existed in the store */
 		ensure_mtime_cache (fs, file, FALSE);
 
@@ -4349,10 +4012,6 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 			                    fs->priv->quark_ignore_file,
 			                    GINT_TO_POINTER (TRUE));
 		}
-
-		tracker_monitor_add (fs->priv->monitor, parent);
-	} else {
-		tracker_monitor_remove (fs->priv->monitor, parent);
 	}
 
 	return process;
@@ -4898,9 +4557,6 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	                                       (GDestroyNotify) g_object_unref);
 
 	g_debug ("  Removed files at %f\n", g_timer_elapsed (timer, NULL));
-
-	/* Remove all monitors */
-	tracker_monitor_remove_recursively (fs->priv->monitor, file);
 
 	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
 	g_timer_destroy (timer);
