@@ -1651,9 +1651,7 @@ decodebin2_init_and_run (MetadataExtractor *extractor,
 	extractor->pipeline = decodebin2_create_pipeline (extractor, uri);
 	if (!extractor->pipeline) {
 		g_warning ("No valid pipeline for uri %s", uri);
-
 		g_list_free (extractor->fsinks);
-		g_slice_free (MetadataExtractor, extractor);
 		return FALSE;
 	}
 
@@ -1666,7 +1664,6 @@ decodebin2_init_and_run (MetadataExtractor *extractor,
 		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 		gst_object_unref (GST_OBJECT (extractor->pipeline));
 		gst_object_unref (extractor->bus);
-		g_slice_free (MetadataExtractor, extractor);
 		return FALSE;
 	}
 
@@ -1808,8 +1805,6 @@ tagreadbin_init_and_run (MetadataExtractor *extractor,
 	extractor->pipeline = tagreadbin_create_pipeline (extractor, uri);
 	if (!extractor->pipeline) {
 		g_warning ("No valid pipeline for uri %s", uri);
-
-		g_slice_free (MetadataExtractor, extractor);
 		return FALSE;
 	}
 
@@ -1822,7 +1817,6 @@ tagreadbin_init_and_run (MetadataExtractor *extractor,
 		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 		gst_object_unref (GST_OBJECT (extractor->pipeline));
 		gst_object_unref (extractor->bus);
-		g_slice_free (MetadataExtractor, extractor);
 		return FALSE;
 	}
 
@@ -1840,7 +1834,9 @@ tracker_extract_gstreamer (const gchar          *uri,
                            const gchar          *graph)
 {
 	MetadataExtractor *extractor;
+	gchar *cue_sheet;
 	gchar *album_artist, *album_title;
+	gboolean success;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -1857,26 +1853,25 @@ tracker_extract_gstreamer (const gchar          *uri,
 	extractor->album_art_mime = NULL;
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	if (!tagreadbin_init_and_run (extractor, uri))
-		return;
+	success = tagreadbin_init_and_run (extractor, uri);
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-	if (!decodebin2_init_and_run (extractor, uri))
-		return;
+	success = decodebin2_init_and_run (extractor, uri);
 #else /* DISCOVERER/GUPnP-DLNA */
-	if (!discoverer_init_and_run (extractor, uri))
-		return;
+	success = discoverer_init_and_run (extractor, uri);
 #endif
 
-	if (extractor->tagcache) {
-		gchar *cue_sheet;
+	if (!success) {
+		gst_tag_list_free (extractor->tagcache);
+		g_slice_free (MetadataExtractor, extractor);
+		return;
+	}
 
-		cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
+	cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
 
-		if (cue_sheet) {
-			g_debug ("Using embedded CUE sheet.");
-			extractor->toc = tracker_cue_sheet_parse (cue_sheet);
-			g_free (cue_sheet);
-		}
+	if (cue_sheet) {
+		g_debug ("Using embedded CUE sheet.");
+		extractor->toc = tracker_cue_sheet_parse (cue_sheet);
+		g_free (cue_sheet);
 	}
 
 	if (extractor->toc == NULL) {
