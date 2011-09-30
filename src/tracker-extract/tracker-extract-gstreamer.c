@@ -418,7 +418,7 @@ get_embedded_album_art (MetadataExtractor *extractor)
 			gint type;
 
 			buffer = gst_value_get_buffer (value);
-			caps   = gst_buffer_get_caps (buffer);
+			caps = gst_buffer_get_caps (buffer);
 			caps_struct = gst_caps_get_structure (buffer->caps, 0);
 
 			gst_structure_get_enum (caps_struct,
@@ -426,12 +426,13 @@ get_embedded_album_art (MetadataExtractor *extractor)
 			                        GST_TYPE_TAG_IMAGE_TYPE,
 			                        &type);
 
-			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)||
-			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) {
+			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
+			    (type == GST_TAG_IMAGE_TYPE_UNDEFINED && extractor->album_art_size == 0)) {
 				extractor->album_art_data = buffer->data;
 				extractor->album_art_size = buffer->size;
 				extractor->album_art_mime = gst_structure_get_name (caps_struct);
 				gst_caps_unref (caps);
+
 				return TRUE;
 			}
 
@@ -460,7 +461,6 @@ get_embedded_album_art (MetadataExtractor *extractor)
 
 	return FALSE;
 }
-
 
 static void
 extractor_guess_content_type (MetadataExtractor *extractor)
@@ -1272,7 +1272,6 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	extractor->streams = gst_discoverer_info_get_stream_list (info);
 	for (l = extractor->streams; l; l = g_list_next (l)) {
 		GstDiscovererStreamInfo *stream = l->data;
-		GstTagList *tmp;
 
 		if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_AUDIO_INFO)) {
 			GstDiscovererAudioInfo *audio = (GstDiscovererAudioInfo*)stream;

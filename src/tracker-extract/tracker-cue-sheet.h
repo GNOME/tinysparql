@@ -40,7 +40,7 @@ typedef struct {
 	GList *entry_list;
 } TrackerToc;
 
-void        tracker_toc_free                    (TrackerToc  *toc);
+void        tracker_toc_free            (TrackerToc  *toc);
 
 TrackerToc *tracker_cue_sheet_parse     (const gchar *cue_sheet);
 TrackerToc *tracker_cue_sheet_parse_uri (const gchar *uri);
