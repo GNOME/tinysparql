@@ -192,8 +192,8 @@ process_toc_tags (TrackerToc *toc)
 		TrackerTocEntry *entry = node->data;
 
 		if (album_artist != NULL) {
-			if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_ARTIST) == 0 &&
-			    gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_PERFORMER) == 0)
+			if (gst_tag_list_get_tag_size (entry->tag_list, GST_TAG_ARTIST) == 0 &&
+			    gst_tag_list_get_tag_size (entry->tag_list, GST_TAG_PERFORMER) == 0)
 				gst_tag_list_add (entry->tag_list,
 				                  GST_TAG_MERGE_REPLACE,
 				                  GST_TAG_ARTIST,
