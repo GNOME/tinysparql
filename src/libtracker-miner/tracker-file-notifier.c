@@ -33,7 +33,6 @@ static GQuark quark_property_queried = 0;
 static GQuark quark_property_iri = 0;
 static GQuark quark_property_store_mtime = 0;
 static GQuark quark_property_filesystem_mtime = 0;
-static GQuark quark_property_file_info = 0;
 
 enum {
 	PROP_0,
@@ -963,7 +962,6 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	quark_property_iri = g_quark_from_static_string ("tracker-property-iri");
 	quark_property_store_mtime = g_quark_from_static_string ("tracker-property-store-mtime");
 	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
-	quark_property_file_info = g_quark_from_static_string ("tracker-property-file-info");
 }
 
 static void
@@ -1005,11 +1003,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 	tracker_file_system_register_property (priv->file_system,
 					       quark_property_filesystem_mtime,
 					       g_free);
-
-	/* GFileInfo */
-	tracker_file_system_register_property (priv->file_system,
-					       quark_property_file_info,
-					       g_object_unref);
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
