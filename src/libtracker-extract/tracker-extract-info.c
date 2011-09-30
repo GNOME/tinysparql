@@ -38,6 +38,7 @@
 struct _TrackerExtractInfo
 {
 	TrackerSparqlBuilder *preupdate;
+	TrackerSparqlBuilder *postupdate;
 	TrackerSparqlBuilder *metadata;
 	gchar *where_clause;
 
@@ -78,6 +79,7 @@ tracker_extract_info_new (GFile       *file,
 	info->graph = g_strdup (graph);
 
 	info->preupdate = tracker_sparql_builder_new_update ();
+	info->postupdate = tracker_sparql_builder_new_update ();
 	info->metadata = tracker_sparql_builder_new_embedded_insert ();
 
 	info->ref_count = 1;
@@ -125,6 +127,7 @@ tracker_extract_info_unref (TrackerExtractInfo *info)
 		g_free (info->graph);
 
 		g_object_unref (info->preupdate);
+		g_object_unref (info->postupdate);
 		g_object_unref (info->metadata);
 		g_free (info->where_clause);
 
@@ -210,6 +213,27 @@ tracker_extract_info_get_preupdate_builder (TrackerExtractInfo *info)
 	g_return_val_if_fail (info != NULL, NULL);
 
 	return info->preupdate;
+}
+
+/**
+ * tracker_extract_info_get_postupdate_builder:
+ * @info: a #TrackerExtractInfo
+ *
+ * Returns a #TrackerSparqlBuilder containing separate
+ * updates for resources that are contained within the file
+ * and need to refer to it.
+ *
+ * Returns: (transfer none): #TrackerSparqlBuilder for
+ * resources that need inserting after the file resource.
+ *
+ * Since: 0.12.4
+ **/
+TrackerSparqlBuilder *
+tracker_extract_info_get_postupdate_builder (TrackerExtractInfo *info)
+{
+	g_return_val_if_fail (info != NULL, NULL);
+
+	return info->postupdate;
 }
 
 /**

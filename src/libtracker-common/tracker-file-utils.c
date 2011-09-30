@@ -835,3 +835,81 @@ tracker_file_cmp (GFile *file_a,
 	 * Useful to be used in g_list_find_custom() or g_queue_find_custom() */
 	return !g_file_equal (file_a, file_b);
 }
+
+/**
+ * tracker_filename_casecmp_without_extension:
+ * @a: a string containing a file name
+ * @b: filename to be compared with @a
+ *
+ * This function performs a case-insensitive comparison of @a and @b.
+ * Additionally, text beyond the last '.' in a string is not considered
+ * part of the match, so for example given the inputs "file.mp3" and
+ * "file.wav" this function will return %TRUE.
+ *
+ * Internally, the g_ascii_tolower() function is used - this means that
+ * @a and @b must be in an encoding in which ASCII characters always
+ * represent themselves, such as UTF-8 or the ISO-8859-* charsets.
+ *
+ * Returns: %TRUE if the two file names match.
+ **/
+gboolean
+tracker_filename_casecmp_without_extension (const gchar *a,
+                                            const gchar *b)
+{
+	const gchar *ca = a;
+	const gchar *cb = b;
+	gboolean period_a = FALSE;
+	gboolean period_b = FALSE;
+	gboolean match = TRUE;
+
+	g_return_val_if_fail (a != NULL, FALSE);
+	g_return_val_if_fail (b != NULL, FALSE);
+
+	while (1) {
+		if (*ca == '\0' && *cb == '\0')
+			break;
+
+		if (g_ascii_tolower (*ca) != g_ascii_tolower (*cb)) {
+			match = FALSE;
+			break;
+		}
+
+		if (*ca == '.')
+			period_a = TRUE;
+
+		if (*cb == '.')
+			period_b = TRUE;
+
+		if (*ca == '\0' || *cb == '\0') {
+			match = FALSE;
+			break;
+		}
+
+		ca ++; cb ++;
+	}
+
+	if (!match) {
+		/* If the mismatch was past the last '.' then forgive it. */
+		if (*ca != '\0' && period_a) {
+			match = TRUE;
+
+			while (*(ca ++) != '\0') {
+				if (*ca == '.') {
+					match = FALSE;
+				}
+			}
+		}
+
+		if (*cb != '\0' && period_b) {
+			match = TRUE;
+
+			while (*(cb ++) != '\0') {
+				if (*cb == '.') {
+					match = FALSE;
+				}
+			}
+		}
+	}
+
+	return match;
+}

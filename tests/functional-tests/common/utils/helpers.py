@@ -75,6 +75,9 @@ class Helper:
         path = getattr (self,
                         "PROCESS_PATH",
                         os.path.join (cfg.EXEC_PREFIX, self.PROCESS_NAME))
+        flags = getattr (self,
+                         "FLAGS",
+                         [])
 
         if options.is_manual_start ():
             print ("Start %s manually" % self.PROCESS_NAME)
@@ -85,7 +88,7 @@ class Helper:
                 FNULL = open ('/dev/null', 'w')
                 kws = { 'stdout': FNULL, 'stderr': FNULL }
 
-            return subprocess.Popen ([path], **kws)
+            return subprocess.Popen ([path] + flags, **kws)
 
     def _stop_process (self):
         if options.is_manual_start ():
@@ -302,6 +305,8 @@ class MinerFsHelper (Helper):
     PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, "tracker-miner-fs")
     BUS_NAME = cfg.MINERFS_BUSNAME
 
+    FLAGS = ['--initial-sleep=0']
+
     def _stop_process (self):
         if options.is_manual_start ():
             if self.available:
@@ -393,7 +398,7 @@ class ExtractorHelper (Helper):
         """
         metadata = {}
         try:
-            preupdate, embedded, where = self.extractor.GetMetadata (filename, mime, "")
+            preupdate, postupdate, embedded, where = self.extractor.GetMetadata (filename, mime, "")
             extras = self.__process_where_part (where)
             for attribute_value in self.__process_lines (embedded):
                 att, value = attribute_value.split (" ", 1)

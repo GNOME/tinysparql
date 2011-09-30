@@ -1938,6 +1938,7 @@ process_file_data_free (ProcessFileData *data)
 static void
 sparql_builder_finish (ProcessFileData *data,
                        const gchar     *preupdate,
+                       const gchar     *postupdate,
                        const gchar     *sparql,
                        const gchar     *where)
 {
@@ -1974,6 +1975,11 @@ sparql_builder_finish (ProcessFileData *data,
 	/* Prepend preupdate queries */
 	if (preupdate && *preupdate) {
 		tracker_sparql_builder_prepend (data->sparql, preupdate);
+	}
+
+	/* Append postupdate */
+	if (postupdate && *postupdate) {
+		tracker_sparql_builder_append (data->sparql, postupdate);
 	}
 
 	uuid = g_object_get_qdata (G_OBJECT (data->file),
@@ -2022,7 +2028,7 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 	ProcessFileData *data = user_data;
 	TrackerMinerFiles *miner = data->miner;
 	TrackerMinerFilesPrivate *priv = miner->private;
-	const gchar *preupdate, *sparql, *where;
+	const gchar *preupdate, *postupdate, *sparql, *where;
 	TrackerExtractInfo *info;
 	GError *error = NULL;
 	gchar *uri;
@@ -2046,13 +2052,16 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 		builder = tracker_extract_info_get_preupdate_builder (info);
 		preupdate = tracker_sparql_builder_get_result (builder);
 
+		builder = tracker_extract_info_get_postupdate_builder (info);
+		postupdate = tracker_sparql_builder_get_result (builder);
+
 		builder = tracker_extract_info_get_metadata_builder (info);
 		sparql = tracker_sparql_builder_get_result (builder);
 
 		where = tracker_extract_info_get_where_clause (info);
 	}
 
-	sparql_builder_finish (data, preupdate, sparql, where);
+	sparql_builder_finish (data, preupdate, postupdate, sparql, where);
 
 	/* Notify success even if the extraction failed
 	 * again, so we get the essential data in the store.
@@ -2138,7 +2147,7 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 	TrackerMinerFilesPrivate *priv;
 	TrackerMinerFiles *miner;
 	ProcessFileData *data = user_data;
-	TrackerSparqlBuilder *preupdate, *sparql;
+	TrackerSparqlBuilder *preupdate, *postupdate, *sparql;
 	const gchar *where;
 	TrackerExtractInfo *info;
 	GError *error = NULL;
@@ -2168,7 +2177,7 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 			priv->failed_extraction_queue = g_list_prepend (priv->failed_extraction_queue, data);
 			g_free (uri);
 		} else {
-			sparql_builder_finish (data, NULL, NULL, NULL);
+			sparql_builder_finish (data, NULL, NULL, NULL, NULL);
 
 			/* Something bad happened, notify about the error */
 			tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
@@ -2178,11 +2187,13 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 		g_error_free (error);
 	} else {
 		preupdate = tracker_extract_info_get_preupdate_builder (info);
+		postupdate = tracker_extract_info_get_postupdate_builder (info);
 		sparql = tracker_extract_info_get_metadata_builder (info);
 		where = tracker_extract_info_get_where_clause (info);
 
 		sparql_builder_finish (data,
 		                       tracker_sparql_builder_get_result (preupdate),
+		                       tracker_sparql_builder_get_result (postupdate),
 		                       tracker_sparql_builder_get_result (sparql),
 		                       where);
 
@@ -2303,7 +2314,7 @@ process_file_cb (GObject      *object,
 	} else {
 		/* Otherwise, don't request embedded metadata extraction. */
 		g_debug ("Avoiding embedded metadata request for uri '%s'", uri);
-		sparql_builder_finish (data, NULL, NULL, NULL);
+		sparql_builder_finish (data, NULL, NULL, NULL, NULL);
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 		priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
@@ -2789,12 +2800,14 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		 * of the given type */
 		g_string_append_printf (queries,
 		                        "DELETE { "
-		                        "  ?f a rdfs:Resource "
+		                        "  ?f a rdfs:Resource . "
+		                        "  ?ie a rdfs:Resource "
 		                        "} WHERE { "
 		                        "  ?v a tracker:Volume ; "
 		                        "     tracker:isRemovable %s ; "
 		                        "     tracker:isOptical %s . "
-		                        "  ?f nie:dataSource ?v "
+		                        "  ?f nie:dataSource ?v . "
+		                        "  ?ie nie:isStoredAs ?f "
 		                        "}",
 		                        removable ? "true" : "false",
 		                        optical ? "true" : "false");
@@ -2830,13 +2843,15 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	 * which was last unmounted before the given date */
 	g_string_append_printf (queries,
 	                        "DELETE { "
-	                        "  ?f a rdfs:Resource "
+	                        "  ?f a rdfs:Resource . "
+	                        "  ?ie a rdfs:Resource "
 	                        "} WHERE { "
 	                        "  ?v a tracker:Volume ; "
 	                        "     tracker:isRemovable true ; "
 	                        "     tracker:isMounted false ; "
 	                        "     tracker:unmountDate ?d . "
 	                        "  ?f nie:dataSource ?v . "
+	                        "  ?ie nie:isStoredAs ?f "
 	                        "  FILTER ( ?d < \"%s\") "
 	                        "}",
 	                        date);

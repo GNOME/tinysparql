@@ -44,7 +44,8 @@ typedef struct _TrackerSparqlBufferClass TrackerSparqlBufferClass;
 
 typedef enum {
 	TRACKER_BULK_MATCH_EQUALS   = 1 << 0,
-	TRACKER_BULK_MATCH_CHILDREN = 1 << 1
+	TRACKER_BULK_MATCH_CHILDREN = 1 << 1,
+	TRACKER_BULK_MATCH_LOGICAL_RESOURCES = 1 << 2
 } TrackerBulkTaskFlags;
 
 struct _TrackerSparqlBuffer
