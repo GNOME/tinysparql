@@ -338,6 +338,15 @@ static void           file_notifier_file_moved            (TrackerFileNotifier  
                                                            GFile                *source,
                                                            GFile                *dest,
                                                            gpointer              user_data);
+static void           file_notifier_directory_finished    (TrackerFileNotifier *notifier,
+                                                           GFile               *directory,
+                                                           guint                directories_found,
+                                                           guint                directories_ignored,
+                                                           guint                files_found,
+                                                           guint                files_ignored,
+                                                           gpointer             user_data);
+static void           file_notifier_finished              (TrackerFileNotifier *notifier,
+                                                           gpointer             user_data);
 
 static gboolean       crawler_check_file_cb               (TrackerCrawler       *crawler,
                                                            GFile                *file,
@@ -795,10 +804,17 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->file_notifier, "file-moved",
 	                  G_CALLBACK (file_notifier_file_moved),
 	                  object);
+	g_signal_connect (priv->file_notifier, "directory-finished",
+	                  G_CALLBACK (file_notifier_directory_finished),
+	                  object);
+	g_signal_connect (priv->file_notifier, "finished",
+	                  G_CALLBACK (file_notifier_finished),
+	                  object);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
 
+#if 0
 	g_signal_connect (priv->crawler, "check-file",
 	                  G_CALLBACK (crawler_check_file_cb),
 	                  object);
@@ -814,6 +830,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->crawler, "finished",
 	                  G_CALLBACK (crawler_finished_cb),
 	                  object);
+#endif
 
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
@@ -2843,8 +2860,11 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 	if (fs->priv->is_crawling ||
 	    fs->priv->crawl_directories_id != 0 ||
+	    tracker_file_notifier_is_active (fs->priv->file_notifier) ||
+#if 0
 	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
 	    !tracker_priority_queue_is_empty (fs->priv->directories) ||
+#endif
 	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		/* There are still pending items to crawl,
@@ -3584,6 +3604,41 @@ file_notifier_file_moved (TrackerFileNotifier *notifier,
 	}
 }
 
+static void
+file_notifier_directory_finished (TrackerFileNotifier *notifier,
+                                  GFile               *directory,
+                                  guint                directories_found,
+                                  guint                directories_ignored,
+                                  guint                files_found,
+                                  guint                files_ignored,
+                                  gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	/* Update stats */
+	fs->priv->directories_found += directories_found;
+	fs->priv->directories_ignored += directories_ignored;
+	fs->priv->files_found += files_found;
+	fs->priv->files_ignored += files_ignored;
+
+	fs->priv->total_directories_found += directories_found;
+	fs->priv->total_directories_ignored += directories_ignored;
+	fs->priv->total_files_found += files_found;
+	fs->priv->total_files_ignored += files_ignored;
+}
+
+static void
+file_notifier_finished (TrackerFileNotifier *notifier,
+                        gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	if (!tracker_miner_fs_has_items_to_process (fs)) {
+		g_message ("Finished content crawling");
+		process_stop (fs);
+	}
+}
+
 static gboolean
 crawler_check_file_cb (TrackerCrawler *crawler,
                        GFile          *file,
@@ -4023,6 +4078,7 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
                                          GFile          *file,
                                          gint            priority)
 {
+#if 0
 	DirectoryData *data;
 	gboolean recurse;
 
@@ -4042,6 +4098,7 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	}
 
 	directory_data_unref (data);
+#endif
 }
 
 /**
@@ -4075,6 +4132,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 			               directory_data_ref (dir_data));
 	}
 
+#if 0
 	/* If not already in the list to process, add it */
 	if (tracker_priority_queue_find (fs->priv->directories,
 	                                 NULL,
@@ -4088,6 +4146,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 	}
 
 	directory_data_unref (dir_data);
+#endif
 }
 
 static void
