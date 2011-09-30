@@ -46,6 +46,7 @@ enum {
 	FILE_MOVED,
 	DIRECTORY_STARTED,
 	DIRECTORY_FINISHED,
+	FINISHED,
 	LAST_SIGNAL
 };
 
@@ -232,7 +233,11 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 	priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
 							priv->pending_index_roots);
 
-	crawl_directories_start (notifier);
+	if (priv->pending_index_roots) {
+		crawl_directories_start (notifier);
+	} else {
+		g_signal_emit (notifier, signals[FINISHED], 0);
+	}
 }
 
 typedef struct {
@@ -472,6 +477,8 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
 								priv->pending_index_roots);
 	}
+
+	g_signal_emit (notifier, signals[FINISHED], 0);
 
 	return FALSE;
 }
@@ -980,6 +987,15 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 		              G_TYPE_NONE,
 		              5, G_TYPE_FILE, G_TYPE_UINT,
 		              G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
+	signals[FINISHED] =
+		g_signal_new ("finished",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       finished),
+			      NULL, NULL,
+		              g_cclosure_marshal_VOID__VOID,
+		              G_TYPE_NONE, 0, G_TYPE_NONE);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEXING_TREE,

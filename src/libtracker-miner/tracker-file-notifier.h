@@ -69,6 +69,8 @@ struct _TrackerFileNotifierClass {
 	                             guint                directories_ignored,
 	                             guint                files_found,
 	                             guint                files_ignored);
+
+	void (* finished)           (TrackerFileNotifier *notifier);
 };
 
 GType         tracker_file_notifier_get_type      (void) G_GNUC_CONST;
