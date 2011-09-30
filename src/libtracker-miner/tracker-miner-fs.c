@@ -42,11 +42,6 @@
 #warning Tree debugging traces enabled
 #endif /* CRAWLED_TREE_ENABLE_TRACE */
 
-/* If defined will print contents of populated IRI cache while running */
-#ifdef IRI_CACHE_ENABLE_TRACE
-#warning IRI cache contents traces enabled
-#endif /* IRI_CACHE_ENABLE_TRACE */
-
 /* If defined will print push/pop actions on queues */
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 #warning Event Queue traces enabled
@@ -217,11 +212,6 @@ struct _TrackerMinerFSPrivate {
 	/* Sparql insertion tasks */
 	TrackerSparqlBuffer *sparql_buffer;
 	guint sparql_buffer_limit;
-
-	/* File -> iri cache */
-	GFile          *current_iri_cache_parent;
-	gchar          *current_iri_cache_parent_urn;
-	GHashTable     *iri_cache;
 
 	GList          *dirs_without_parent;
 
@@ -837,11 +827,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 
-	priv->iri_cache = g_hash_table_new_full (g_file_hash,
-	                                         (GEqualFunc) g_file_equal,
-	                                         (GDestroyNotify) g_object_unref,
-	                                         (GDestroyNotify) g_free);
-
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
 	priv->dirs_without_parent = NULL;
@@ -898,10 +883,6 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->file_notifier);
 	g_object_unref (priv->crawler);
-
-	g_free (priv->current_iri_cache_parent_urn);
-	if (priv->current_iri_cache_parent)
-		g_object_unref (priv->current_iri_cache_parent);
 
 	tracker_priority_queue_foreach (priv->directories,
 	                                (GFunc) directory_data_unref,
@@ -964,10 +945,6 @@ fs_finalize (GObject *object)
 	g_list_free (priv->dirs_without_parent);
 
 	g_hash_table_unref (priv->items_ignore_next_update);
-
-	if (priv->iri_cache) {
-		g_hash_table_unref (priv->iri_cache);
-	}
 
 	g_object_unref (priv->indexing_tree);
 
@@ -1336,31 +1313,6 @@ sparql_buffer_task_finished_cb (GObject      *object,
 		g_critical ("Could not execute sparql: %s", error->message);
 		priv->total_files_notified_error++;
 		g_error_free (error);
-	} else if (fs->priv->current_iri_cache_parent) {
-		GFile *parent;
-		GFile *task_file;
-
-		task = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-		task_file = tracker_task_get_file (task);
-
-		/* Note: parent may be NULL if the file represents
-		 * the root directory of the file system (applies to
-		 * .gvfs mounts also!) */
-		parent = g_file_get_parent (task_file);
-
-		if (parent) {
-			if (g_file_equal (parent, fs->priv->current_iri_cache_parent) &&
-			    g_hash_table_lookup (fs->priv->iri_cache, task_file) == NULL) {
-				/* Item is processed, add an empty element for the processed GFile,
-				 * in case it is again processed before the cache expires
-				 */
-				g_hash_table_insert (fs->priv->iri_cache,
-				                     g_object_ref (task_file),
-				                     NULL);
-			}
-
-			g_object_unref (parent);
-		}
 	}
 
 	item_queue_handlers_set_up (fs);
@@ -1390,11 +1342,6 @@ item_query_exists_cb (GObject      *object,
 	}
 
 	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-#ifdef IRI_CACHE_ENABLE_TRACE
-		g_debug ("Querying for resources with uri '%s', NONE found",
-		         data->uri);
-#endif /* IRI_CACHE_ENABLE_TRACE */
-
 		g_object_unref (cursor);
 		return;
 	}
@@ -1403,12 +1350,6 @@ item_query_exists_cb (GObject      *object,
 	data->iri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	if (data->get_mime)
 		data->mime = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
-#ifdef IRI_CACHE_ENABLE_TRACE
-	g_debug ("Querying for resources with uri '%s', ONE found: '%s'",
-	         data->uri,
-	         data->iri);
-#endif /* IRI_CACHE_ENABLE_TRACE */
 
 	/* Any additional result must be logged as critical */
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -1587,225 +1528,6 @@ find_config_directory (TrackerMinerFS *fs,
 	}
 
 	return NULL;
-}
-
-
-static void
-ensure_iri_cache (TrackerMinerFS *fs,
-                  GFile          *file)
-{
-	gchar *query, *uri;
-	CacheQueryData data;
-	GFile *parent;
-	guint cache_size;
-
-	g_hash_table_remove_all (fs->priv->iri_cache);
-
-	/* Note: parent may be NULL if the file represents
-	 * the root directory of the file system (applies to
-	 * .gvfs mounts also!) */
-	parent = g_file_get_parent (file);
-
-	if (!parent) {
-		return;
-	}
-
-	uri = g_file_get_uri (parent);
-
-	g_debug ("Generating children cache for URI '%s'", uri);
-
-	if (fs->priv->current_iri_cache_parent_urn) {
-		query = g_strdup_printf ("SELECT ?url ?u { "
-		                         "  ?u nfo:belongsToContainer <%s> ; "
-		                         "     nie:url ?url "
-		                         "}",
-		                         fs->priv->current_iri_cache_parent_urn);
-	} else {
-		query = g_strdup_printf ("SELECT ?url ?u { "
-		                         "  ?u nfo:belongsToContainer ?p ; "
-		                         "     nie:url ?url . "
-		                         "  ?p nie:url \"%s\" "
-		                         "}",
-		                         uri);
-	}
-
-	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.values = g_hash_table_ref (fs->priv->iri_cache);
-
-	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                                       query,
-	                                       NULL,
-	                                       cache_query_cb,
-	                                       &data);
-	g_free (query);
-
-	g_main_loop_run (data.main_loop);
-
-	g_main_loop_unref (data.main_loop);
-	g_hash_table_unref (data.values);
-
-	cache_size = g_hash_table_size (fs->priv->iri_cache);
-
-	if (cache_size == 0) {
-		if (file_is_crawl_directory (fs, file)) {
-			gchar *query_iri;
-
-			if (item_query_exists (fs, file, FALSE, &query_iri, NULL)) {
-				g_hash_table_insert (data.values,
-				                     g_object_ref (file), query_iri);
-				cache_size++;
-			}
-		} else if (miner_fs_has_children_without_parent (fs, parent)) {
-			/* Quite ugly hack: If mtime_cache is found EMPTY after the query, still, we
-			 * may have a nfo:Folder where nfo:belogsToContainer was not yet set (when
-			 * generating the dummy nfo:Folder for mount points). In this case, make a
-			 * new query not using nfo:belongsToContainer, and using fn:starts-with
-			 * instead. Any better solution is highly appreciated */
-
-			/* Initialize data contents */
-			data.main_loop = g_main_loop_new (NULL, FALSE);
-			data.values = g_hash_table_ref (fs->priv->iri_cache);
-
-			g_debug ("Generating children cache for URI '%s' (fn:starts-with)",
-			         uri);
-
-			/* Note the last '/' in the url passed in the FILTER: We want to look for
-			 * directory contents, not the directory itself */
-			query = g_strdup_printf ("SELECT ?url ?u "
-			                         "WHERE { ?u a nfo:Folder ; "
-			                         "           nie:url ?url . "
-			                         "        FILTER (fn:starts-with (?url,\"%s/\"))"
-			                         "}",
-			                         uri);
-
-			tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-			                                       query,
-			                                       NULL,
-			                                       cache_query_cb,
-			                                       &data);
-			g_free (query);
-
-			g_main_loop_run (data.main_loop);
-			g_main_loop_unref (data.main_loop);
-			g_hash_table_unref (data.values);
-
-			/* Note that in this case, the cache may be actually populated with items
-			 * which are not direct children of this parent, but doesn't seem a big
-			 * issue right now. In the best case, the dummy item that we created will
-			 * be there with a proper mtime set. */
-			cache_size = g_hash_table_size (fs->priv->iri_cache);
-		}
-	}
-
-#ifdef IRI_CACHE_ENABLE_TRACE
-	g_debug ("Populated IRI cache with '%u' items", cache_size);
-	if (cache_size > 0) {
-		GHashTableIter iter;
-		gpointer key, value;
-
-		g_hash_table_iter_init (&iter, fs->priv->iri_cache);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			gchar *fileuri;
-
-			fileuri = g_file_get_uri (key);
-			g_debug ("  In IRI cache: '%s','%s'", fileuri, (gchar *) value);
-			g_free (fileuri);
-		}
-	}
-#endif /* IRI_CACHE_ENABLE_TRACE */
-
-	g_object_unref (parent);
-	g_free (uri);
-}
-
-static const gchar *
-iri_cache_lookup (TrackerMinerFS *fs,
-                  GFile          *file,
-                  gboolean        force_direct_iri_query)
-{
-	gpointer in_cache_value;
-	gboolean in_cache;
-	gchar *query_iri;
-
-	/* Look for item in IRI cache */
-	in_cache = g_hash_table_lookup_extended (fs->priv->iri_cache,
-	                                         file,
-	                                         NULL,
-	                                         &in_cache_value);
-
-	/* Item found with a proper value. If value is NULL, we need
-	 * to do a direct IRI query as it was a cache miss (item was added
-	 * after the last iri cache update) */
-	if (in_cache && in_cache_value)
-		return (const gchar *) in_cache_value;
-
-	/* Item doesn't exist in cache. If we don't need to force iri query,
-	 * just return. */
-	if (!in_cache && !force_direct_iri_query)
-		return NULL;
-
-	/* Independent direct IRI query */
-	if (item_query_exists (fs, file, FALSE, &query_iri, NULL)) {
-		/* Replace! as we may already have an item in the cache with
-		 * NULL value! */
-		g_hash_table_replace (fs->priv->iri_cache,
-		                      g_object_ref (file),
-		                      query_iri);
-		/* Set iri to return */
-		return query_iri;
-	}
-
-	/* Not in store, remove item from cache if any */
-	if (in_cache)
-		g_hash_table_remove (fs->priv->iri_cache, file);
-
-	return NULL;
-}
-
-static void
-iri_cache_invalidate (TrackerMinerFS *fs,
-                      GFile          *file)
-{
-	g_hash_table_remove (fs->priv->iri_cache, file);
-}
-
-static void
-iri_cache_check_update (TrackerMinerFS *fs,
-                        GFile          *file)
-{
-	GFile *parent;
-
-	parent = g_file_get_parent (file);
-
-	if (parent) {
-		if (!fs->priv->current_iri_cache_parent ||
-		    !g_file_equal (parent, fs->priv->current_iri_cache_parent)) {
-			/* Cache the URN for the new current parent, processing
-			 * order guarantees that all contents for a folder are
-			 * inspected together, and that the parent folder info
-			 * is already in tracker-store. So this should only
-			 * happen on folder switch.
-			 */
-			if (fs->priv->current_iri_cache_parent)
-				g_object_unref (fs->priv->current_iri_cache_parent);
-
-			g_free (fs->priv->current_iri_cache_parent_urn);
-
-			fs->priv->current_iri_cache_parent = g_object_ref (parent);
-
-			if (!item_query_exists (fs,
-			                        parent,
-			                        FALSE,
-			                        &fs->priv->current_iri_cache_parent_urn,
-			                        NULL)) {
-				fs->priv->current_iri_cache_parent_urn = NULL;
-			}
-
-			ensure_iri_cache (fs, file);
-		}
-
-		g_object_unref (parent);
-	}
 }
 
 static UpdateProcessingTaskContext *
@@ -2013,8 +1735,9 @@ item_add_or_update (TrackerMinerFS *fs,
 	GCancellable *cancellable;
 	gboolean retval;
 	TrackerTask *task;
-	const gchar *urn;
+	const gchar *parent_urn, *urn = NULL;
 	UpdateProcessingTaskContext *ctxt;
+	GFile *parent;
 
 	priv = fs->priv;
 	retval = TRUE;
@@ -2023,17 +1746,18 @@ item_add_or_update (TrackerMinerFS *fs,
 	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
 
-	/* Force a direct URN query if not found in the cache. This is to handle
-	 * situations where an application inserted items in the store after we
-	 * updated the cache, or without a proper nfo:belongsToContainer */
-	urn = iri_cache_lookup (fs, file, TRUE);
+	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file);
+
+	parent = g_file_get_parent (file);
+	parent_urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent);
+	g_object_unref (parent);
 
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
 	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
 	                                           priority,
 	                                           urn,
-	                                           fs->priv->current_iri_cache_parent_urn,
+	                                           parent_urn,
 	                                           cancellable,
 	                                           sparql);
 	task = tracker_task_new (file, ctxt,
@@ -2063,7 +1787,6 @@ item_remove (TrackerMinerFS *fs,
 	gchar *mime = NULL;
 	TrackerTask *task;
 
-	iri_cache_invalidate (fs, file);
 	uri = g_file_get_uri (file);
 
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
@@ -2322,9 +2045,6 @@ item_move (TrackerMinerFS *fs,
 	gboolean source_exists;
 	GFile *new_parent;
 	gchar *new_parent_iri;
-
-	iri_cache_invalidate (fs, file);
-	iri_cache_invalidate (fs, source_file);
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
@@ -3102,10 +2822,9 @@ item_queue_handlers_cb (gpointer user_data)
 		/* Else, fall down and treat as QUEUE_UPDATED */
 	case QUEUE_UPDATED:
 		parent = g_file_get_parent (file);
-		iri_cache_check_update (fs, file);
 
 		if (!parent ||
-		    fs->priv->current_iri_cache_parent_urn ||
+		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent) ||
 		    file_is_crawl_directory (fs, file)) {
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
@@ -3920,12 +3639,6 @@ crawl_directories_cb (gpointer user_data)
 	}
 
 	if (tracker_priority_queue_is_empty (fs->priv->directories)) {
-		if (fs->priv->current_iri_cache_parent) {
-			/* Unset parent folder so caches are regenerated */
-			g_object_unref (fs->priv->current_iri_cache_parent);
-			fs->priv->current_iri_cache_parent = NULL;
-		}
-
 		/* Now we handle the queue */
 		item_queue_handlers_set_up (fs);
 		crawl_directories_stop (fs);
