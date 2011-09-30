@@ -174,7 +174,7 @@ add_artist (MetadataExtractor     *extractor,
 	*p_artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist_name);
 
 	/* Check if already added to the preupdate, to avoid sending 9 identical INSERTs */
-	if (g_slist_find_custom (extractor->artist_list, artist_name, (GCompareFunc) g_ascii_strcasecmp))
+	if (g_slist_find_custom (extractor->artist_list, artist_name, (GCompareFunc) strcmp))
 		return;
 
 	tracker_sparql_builder_insert_open (preupdate, NULL);
