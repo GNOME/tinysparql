@@ -188,16 +188,8 @@ process_toc_tags (TrackerToc *toc)
 
 	gst_tag_list_get_string (toc->tag_list, GST_TAG_ALBUM_ARTIST, &album_artist);
 
-	i = 1;
-	for (node=toc->entry_list; node; node=node->next, i++) {
+	for (node=toc->entry_list; node; node=node->next) {
 		TrackerTocEntry *entry = node->data;
-
-		if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_TRACK_NUMBER) == 0)
-			gst_tag_list_add (entry->tag_list,
-			                  GST_TAG_MERGE_REPLACE,
-			                  GST_TAG_TRACK_NUMBER,
-			                  i,
-			                  NULL);
 
 		if (album_artist != NULL) {
 			if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_ARTIST) == 0 &&
@@ -271,6 +263,13 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 		set_track_tags_from_cdtext (toc_entry->tag_list,
 		                            track_get_cdtext (track),
 		                            track_get_rem (track));
+
+		gst_tag_list_add (entry->tag_list,
+		                  GST_TAG_MERGE_REPLACE,
+		                  GST_TAG_TRACK_NUMBER,
+		                  i,
+		                  NULL);
+
 
 		toc->entry_list = g_list_prepend (toc->entry_list, toc_entry);
 	}
