@@ -1894,9 +1894,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 	gst_tag_list_free (extractor->tagcache);
 
-	if (extractor->toc) {
-		tracker_toc_free (extractor->toc);
-	}
+	tracker_toc_free (extractor->toc);
 
 	g_slist_foreach (extractor->artist_list, (GFunc)g_free, NULL);
 	g_slist_free (extractor->artist_list);
