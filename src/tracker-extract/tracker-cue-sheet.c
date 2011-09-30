@@ -173,7 +173,6 @@ process_toc_tags (TrackerToc *toc)
 {
 	GList *node;
 	gint track_count;
-	gint i;
 
 	gchar *album_artist = NULL;
 
@@ -188,7 +187,7 @@ process_toc_tags (TrackerToc *toc)
 
 	gst_tag_list_get_string (toc->tag_list, GST_TAG_ALBUM_ARTIST, &album_artist);
 
-	for (node=toc->entry_list; node; node=node->next) {
+	for (node = toc->entry_list; node; node = node->next) {
 		TrackerTocEntry *entry = node->data;
 
 		if (album_artist != NULL) {
@@ -264,7 +263,7 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 		                            track_get_cdtext (track),
 		                            track_get_rem (track));
 
-		gst_tag_list_add (entry->tag_list,
+		gst_tag_list_add (toc_entry->tag_list,
 		                  GST_TAG_MERGE_REPLACE,
 		                  GST_TAG_TRACK_NUMBER,
 		                  i,
