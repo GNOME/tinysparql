@@ -938,8 +938,10 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 	}
 
-	if (extractor->mime == EXTRACT_MIME_GUESS && extractor->tagcache)
+	if (extractor->mime == EXTRACT_MIME_GUESS && !gst_tag_list_is_empty (extractor->tagcache)) {
 		extractor_guess_content_type (extractor);
+	}
+
 	if (extractor->mime == EXTRACT_MIME_GUESS) {
 		g_warning ("Cannot guess real stream type if no tags were read! "
 		           "Defaulting to Video.");
