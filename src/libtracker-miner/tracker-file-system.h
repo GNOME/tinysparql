@@ -39,7 +39,6 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerFileSystem TrackerFileSystem;
 typedef struct _TrackerFileSystemClass TrackerFileSystemClass;
-typedef struct _TrackerFile TrackerFile;
 
 struct _TrackerFileSystem {
 	GObject parent_instance;
@@ -50,34 +49,27 @@ struct _TrackerFileSystemClass {
 	GObjectClass parent_class;
 };
 
-typedef gboolean (* TrackerFileSystemTraverseFunc) (TrackerFile *file,
-						    gpointer     user_data);
+typedef gboolean (* TrackerFileSystemTraverseFunc) (GFile    *file,
+                                                    gpointer  user_data);
 
 GType      tracker_file_system_get_type      (void) G_GNUC_CONST;
 
 TrackerFileSystem * tracker_file_system_new  (void);
 
-/* GFile -> TrackerFile */
-TrackerFile * tracker_file_system_get_file       (TrackerFileSystem  *file_system,
-						  GFile              *file,
-						  GFileType           file_type,
-						  TrackerFile        *parent);
-TrackerFile * tracker_file_system_ref_file       (TrackerFileSystem  *file_system,
-                                                  TrackerFile        *file);
-void          tracker_file_system_unref_file     (TrackerFileSystem  *file_system,
-						  TrackerFile        *file);
-TrackerFile * tracker_file_system_peek_file      (TrackerFileSystem  *file_system,
-						  GFile              *file);
+GFile *       tracker_file_system_get_file       (TrackerFileSystem  *file_system,
+                                                  GFile              *file,
+                                                  GFileType           file_type,
+                                                  GFile              *parent);
+GFile *       tracker_file_system_peek_file      (TrackerFileSystem  *file_system,
+                                                  GFile              *file);
+GFile *       tracker_file_system_peek_parent    (TrackerFileSystem  *file_system,
+                                                  GFile              *file);
 
 void          tracker_file_system_traverse       (TrackerFileSystem             *file_system,
-						  TrackerFile                   *root,
-						  GTraverseType                  order,
-						  TrackerFileSystemTraverseFunc  func,
-						  gpointer                       user_data);
-
-/* TrackerFile -> GFile */
-GFile *       tracker_file_system_resolve_file   (TrackerFileSystem  *file_system,
-                                                  TrackerFile        *file);
+                                                  GFile                         *root,
+                                                  GTraverseType                  order,
+                                                  TrackerFileSystemTraverseFunc  func,
+                                                  gpointer                       user_data);
 
 /* properties */
 void      tracker_file_system_register_property (TrackerFileSystem *file_system,
@@ -85,14 +77,14 @@ void      tracker_file_system_register_property (TrackerFileSystem *file_system,
                                                  GDestroyNotify     destroy_notify);
 
 void      tracker_file_system_set_property   (TrackerFileSystem  *file_system,
-					      TrackerFile        *file,
+                                              GFile              *file,
                                               GQuark              prop,
                                               gpointer            prop_data);
 gpointer  tracker_file_system_get_property   (TrackerFileSystem  *file_system,
-                                              TrackerFile        *file,
+                                              GFile              *file,
                                               GQuark              prop);
 void      tracker_file_system_unset_property (TrackerFileSystem  *file_system,
-					      TrackerFile        *file,
+                                              GFile              *file,
                                               GQuark              prop);
 
 G_END_DECLS

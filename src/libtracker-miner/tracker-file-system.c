@@ -42,10 +42,14 @@ struct _FileNodeData {
 	GFile *file;
 	gchar *uri_suffix;
 	GArray *properties;
-	guint ref_count;
 	guint shallow   : 1;
 	guint file_type : 4;
 };
+
+static GQuark quark_file_node = 0;
+
+static void file_weak_ref_notify (gpointer  user_data,
+                                  GObject  *prev_location);
 
 G_DEFINE_TYPE (TrackerFileSystem, tracker_file_system, G_TYPE_OBJECT)
 
@@ -58,9 +62,45 @@ G_DEFINE_TYPE (TrackerFileSystem, tracker_file_system, G_TYPE_OBJECT)
  */
 
 
+static void
+file_node_data_free (FileNodeData *data,
+                     GNode        *node)
+{
+	if (data->shallow) {
+		/* Shallow nodes own the reference to the file */
+		g_object_unref (data->file);
+	} else if (node) {
+		g_object_weak_unref (G_OBJECT (data->file),
+		                     file_weak_ref_notify,
+		                     node);
+	}
+
+	g_free (data->uri_suffix);
+	g_array_free (data->properties, TRUE);
+
+	g_slice_free (FileNodeData, data);
+}
+
+static void
+file_weak_ref_notify (gpointer  user_data,
+                      GObject  *prev_location)
+{
+	FileNodeData *data;
+	GNode *node;
+
+	node = user_data;
+	data = node->data;
+
+	g_assert (data->file == (GFile *) prev_location);
+
+	/* Delete node tree here */
+	file_node_data_free (data, NULL);
+}
+
 static FileNodeData *
 file_node_data_new (GFile     *file,
-                    GFileType  file_type)
+                    GFileType  file_type,
+                    GNode     *node)
 {
 	FileNodeData *data;
 
@@ -68,7 +108,14 @@ file_node_data_new (GFile     *file,
 	data->file = g_object_ref (file);
 	data->file_type = file_type;
 	data->properties = g_array_new (FALSE, TRUE, sizeof (FileNodeProperty));
-	data->ref_count = 1;
+
+	/* We use weak refs to keep track of files */
+	g_object_weak_ref (G_OBJECT (data->file), file_weak_ref_notify, node);
+	g_object_set_qdata (G_OBJECT (data->file),
+	                    quark_file_node, node);
+
+	g_assert (node->data == NULL);
+	node->data = data;
 
 	return data;
 }
@@ -84,19 +131,8 @@ file_node_data_root_new (void)
 	data->properties = g_array_new (FALSE, TRUE, sizeof (FileNodeProperty));
 	data->file_type = G_FILE_TYPE_DIRECTORY;
 	data->shallow = TRUE;
-	data->ref_count = 1;
 
 	return data;
-}
-
-static void
-file_node_data_free (FileNodeData *data)
-{
-	g_object_unref (data->file);
-	g_free (data->uri_suffix);
-	g_array_free (data->properties, TRUE);
-
-	g_slice_free (FileNodeData, data);
 }
 
 static gboolean
@@ -227,8 +263,8 @@ static gboolean
 file_tree_free_node_foreach (GNode    *node,
                              gpointer  user_data)
 {
-	file_node_data_free (node->data);
-	return TRUE;
+	file_node_data_free (node->data, node);
+	return FALSE;
 }
 
 /* TrackerFileSystem implementation */
@@ -259,6 +295,9 @@ tracker_file_system_class_init (TrackerFileSystemClass *klass)
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerFileSystemPrivate));
+
+	quark_file_node =
+		g_quark_from_static_string ("tracker-quark-file-node");
 }
 static void
 tracker_file_system_init (TrackerFileSystem *file_system)
@@ -312,11 +351,29 @@ reparent_child_nodes (GNode *node,
 	}
 }
 
-TrackerFile *
+static GNode *
+file_system_get_node (TrackerFileSystem *file_system,
+                      GFile             *file)
+{
+	TrackerFileSystemPrivate *priv;
+	GNode *node;
+
+	node = g_object_get_qdata (G_OBJECT (file), quark_file_node);
+
+	if (!node) {
+		priv = file_system->priv;
+		node = file_tree_lookup (priv->file_tree, file,
+		                         NULL, NULL);
+	}
+
+	return node;
+}
+
+GFile *
 tracker_file_system_get_file (TrackerFileSystem *file_system,
                               GFile             *file,
-			      GFileType          file_type,
-			      TrackerFile       *parent)
+                              GFileType          file_type,
+                              GFile             *parent)
 {
 	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
@@ -333,7 +390,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 		FileNodeData *parent_data;
 		GNode *child;
 
-		parent_node = (GNode *) parent;
+		parent_node = file_system_get_node (file_system, parent);
 		parent_data = parent_node->data;
 
 		/* Find child node, if any */
@@ -376,11 +433,11 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	if (!node) {
 		g_assert (parent_node != NULL);
 
-		/* Parent was found, add file as child */
-		data = file_node_data_new (file, file_type);
-		data->uri_suffix = uri_suffix;
+		node = g_node_new (NULL);
 
-		node = g_node_new (data);
+		/* Parent was found, add file as child */
+		data = file_node_data_new (file, file_type, node);
+		data->uri_suffix = uri_suffix;
 
 		/* Reparent any previously created child to it,
 		 * that would currently be a child of parent_node
@@ -389,48 +446,59 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 
 		g_node_append (parent_node, node);
 	} else {
-		/* Increment reference count of node if found */
 		data = node->data;
-		g_atomic_int_inc (&data->ref_count);
-
 		g_free (uri_suffix);
 	}
 
-	return (TrackerFile *) node;
+	return data->file;
 }
 
-TrackerFile *
+GFile *
 tracker_file_system_peek_file (TrackerFileSystem *file_system,
-			       GFile             *file)
+                               GFile             *file)
 {
-	TrackerFileSystemPrivate *priv;
 	GNode *node;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 
-	priv = file_system->priv;
-	node = file_tree_lookup (priv->file_tree, file, NULL, NULL);
+	node = file_system_get_node (file_system, file);
 
-	return (TrackerFile *) node;
+	if (node) {
+		FileNodeData *data;
+
+		data = node->data;
+		return data->file;
+	}
+
+	return NULL;
 }
 
-TrackerFile *
-tracker_file_system_ref_file (TrackerFileSystem  *file_system,
-                              TrackerFile        *file)
+GFile *
+tracker_file_system_peek_parent (TrackerFileSystem *file_system,
+                                 GFile             *file)
 {
-	FileNodeData *data;
+	GNode *node;
 
-	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 	g_return_val_if_fail (file != NULL, NULL);
+	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 
-	data = ((GNode *) file)->data;
+	node = file_system_get_node (file_system, file);
 
-	g_atomic_int_inc (&data->ref_count);
+	if (node) {
+		FileNodeData *parent_data;
+		GNode *parent;
 
-	return file;
+		parent = node->parent;
+		parent_data = parent->data;
+
+		return parent_data->file;
+	}
+
+	return NULL;
 }
 
+#if 0
 void
 tracker_file_system_unref_file (TrackerFileSystem  *file_system,
                                 TrackerFile        *file)
@@ -451,39 +519,58 @@ tracker_file_system_unref_file (TrackerFileSystem  *file_system,
 		g_node_destroy (node);
 	}
 }
+#endif
 
+typedef struct {
+	TrackerFileSystemTraverseFunc func;
+	gpointer user_data;
+} TraverseData;
 
-GFile *
-tracker_file_system_resolve_file (TrackerFileSystem *file_system,
-                                  TrackerFile       *file)
+static gboolean
+traverse_filesystem_func (GNode    *node,
+                          gpointer  user_data)
 {
-	FileNodeData *data;
+	TraverseData *data = user_data;
+	FileNodeData *node_data;
+	gboolean retval;
 
-	g_return_val_if_fail (file != NULL, NULL);
+	node_data = node->data;
+	retval = data->func (node_data->file, data->user_data);
 
-	data = ((GNode *) file)->data;
-	return data->file;
+	return retval;
 }
 
 void
 tracker_file_system_traverse (TrackerFileSystem             *file_system,
-			      TrackerFile                   *root,
-			      GTraverseType                  order,
-			      TrackerFileSystemTraverseFunc  func,
-			      gpointer                       user_data)
+                              GFile                         *root,
+                              GTraverseType                  order,
+                              TrackerFileSystemTraverseFunc  func,
+                              gpointer                       user_data)
 {
 	TrackerFileSystemPrivate *priv;
+	TraverseData data;
+	GNode *node;
 
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (func != NULL);
 
 	priv = file_system->priv;
-	g_node_traverse ((root) ? (GNode *) root : priv->file_tree,
+
+	if (root) {
+		node = file_system_get_node (file_system, root);
+	} else {
+		node = priv->file_tree;
+	}
+
+	data.func = func;
+	data.user_data = user_data;
+
+	g_node_traverse (node,
 			 order,
 			 G_TRAVERSE_ALL,
 			 -1,
-			 (GNodeTraverseFunc) func,
-			 user_data);
+	                 traverse_filesystem_func,
+			 &data);
 }
 
 void
@@ -532,7 +619,7 @@ search_property_node (gconstpointer key,
 
 void
 tracker_file_system_set_property (TrackerFileSystem *file_system,
-                                  TrackerFile       *file,
+                                  GFile             *file,
                                   GQuark             prop,
                                   gpointer           prop_data)
 {
@@ -540,6 +627,7 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify;
 	FileNodeData *data;
+	GNode *node;
 
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (file != NULL);
@@ -556,10 +644,12 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 		return;
 	}
 
-	data = ((GNode *) file)->data;
+	node = file_system_get_node (file_system, file);
+	g_return_if_fail (node != NULL);
+
+	data = node->data;
 
 	property.prop_quark = prop;
-
 	match = bsearch (&property, data->properties->data,
 	                 data->properties->len, sizeof (FileNodeProperty),
 	                 search_property_node);
@@ -596,18 +686,21 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 
 gpointer
 tracker_file_system_get_property (TrackerFileSystem *file_system,
-                                  TrackerFile       *file,
+                                  GFile             *file,
                                   GQuark             prop)
 {
 	FileNodeData *data;
 	FileNodeProperty property, *match;
+	GNode *node;
 
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (prop > 0, NULL);
 
-	data = ((GNode *) file)->data;
+	node = file_system_get_node (file_system, file);
+	g_return_val_if_fail (node != NULL, NULL);
 
+	data = node->data;
 	property.prop_quark = prop;
 
 	match = bsearch (&property, data->properties->data,
@@ -619,13 +712,14 @@ tracker_file_system_get_property (TrackerFileSystem *file_system,
 
 void
 tracker_file_system_unset_property (TrackerFileSystem *file_system,
-                                    TrackerFile       *file,
+                                    GFile             *file,
                                     GQuark             prop)
 {
 	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify;
+	GNode *node;
 	guint index;
 
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
@@ -643,8 +737,10 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 		           g_quark_to_string (prop));
 	}
 
-	data = ((GNode *) file)->data;
+	node = file_system_get_node (file_system, file);
+	g_return_if_fail (node != NULL);
 
+	data = node->data;
 	property.prop_quark = prop;
 
 	match = bsearch (&property, data->properties->data,
