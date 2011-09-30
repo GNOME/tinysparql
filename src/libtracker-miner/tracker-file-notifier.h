@@ -59,6 +59,16 @@ struct _TrackerFileNotifierClass {
 	void (* file_moved)   (TrackerFileNotifier *notifier,
 			       GFile               *from,
 			       GFile               *to);
+
+	/* Directory notifications */
+	void (* directory_started)  (TrackerFileNotifier *notifier,
+	                             GFile               *directory);
+	void (* directory_finished) (TrackerFileNotifier *notifier,
+	                             GFile               *directory,
+	                             guint                directories_found,
+	                             guint                directories_ignored,
+	                             guint                files_found,
+	                             guint                files_ignored);
 };
 
 GType         tracker_file_notifier_get_type      (void) G_GNUC_CONST;

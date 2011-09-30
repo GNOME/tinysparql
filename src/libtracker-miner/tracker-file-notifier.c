@@ -44,6 +44,8 @@ enum {
 	FILE_UPDATED,
 	FILE_DELETED,
 	FILE_MOVED,
+	DIRECTORY_STARTED,
+	DIRECTORY_FINISHED,
 	LAST_SIGNAL
 };
 
@@ -309,15 +311,21 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
                               guint           files_ignored,
                               gpointer        user_data)
 {
+	TrackerFileNotifier *notifier;
 	DirectoryCrawledData data = { 0 };
 
-	data.notifier = user_data;
+	notifier = data.notifier = user_data;
 	g_node_traverse (tree,
 			 G_PRE_ORDER,
 			 G_TRAVERSE_ALL,
 			 -1,
 			 file_notifier_add_node_foreach,
 			 &data);
+
+	g_signal_emit (notifier, signals[DIRECTORY_FINISHED], 0,
+	               directory,
+	               directories_found, directories_ignored,
+	               files_found, files_ignored);
 
 	g_message ("  Found %d directories, ignored %d directories",
 	           directories_found,
@@ -447,10 +455,17 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 							       sparql_query_cb,
 							       notifier);
 
+			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
+
 			g_free (sparql);
 			g_free (uri);
 
 			return TRUE;
+		} else {
+			/* Emit both signals for consistency */
+			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
+			g_signal_emit (notifier, signals[DIRECTORY_FINISHED], 0,
+			               directory, 0, 0, 0, 0);
 		}
 
 		/* Remove index root and try the next one */
@@ -944,6 +959,27 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 		              tracker_marshal_VOID__OBJECT_OBJECT,
 		              G_TYPE_NONE,
 		              2, G_TYPE_FILE, G_TYPE_FILE);
+	signals[DIRECTORY_STARTED] =
+		g_signal_new ("directory-started",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       directory_started),
+			      NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE,
+		              1, G_TYPE_FILE);
+	signals[DIRECTORY_FINISHED] =
+		g_signal_new ("directory-finished",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerFileNotifierClass,
+					       directory_finished),
+			      NULL, NULL,
+		              tracker_marshal_VOID__OBJECT_UINT_UINT_UINT_UINT,
+		              G_TYPE_NONE,
+		              5, G_TYPE_FILE, G_TYPE_UINT,
+		              G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEXING_TREE,
