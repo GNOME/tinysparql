@@ -341,25 +341,12 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 }
 
 static void
-sparql_query_cb (GObject      *object,
-		 GAsyncResult *result,
-		 gpointer      user_data)
+sparql_file_query_populate (TrackerFileNotifier *notifier,
+                            TrackerSparqlCursor *cursor)
 {
 	TrackerFileNotifierPrivate *priv;
-	TrackerFileNotifier *notifier;
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
 
-	notifier = user_data;
 	priv = notifier->priv;
-	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
-							 result, &error);
-
-	if (!cursor || error) {
-		g_warning ("Could not query directory elements: %s\n", error->message);
-		g_error_free (error);
-		return;
-	}
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		GFile *file, *canonical;
@@ -383,6 +370,30 @@ sparql_query_cb (GObject      *object,
 
 		g_object_unref (file);
 	}
+}
+
+static void
+sparql_query_cb (GObject      *object,
+		 GAsyncResult *result,
+		 gpointer      user_data)
+{
+	TrackerFileNotifierPrivate *priv;
+	TrackerFileNotifier *notifier;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	notifier = user_data;
+	priv = notifier->priv;
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
+							 result, &error);
+
+	if (!cursor || error) {
+		g_warning ("Could not query directory elements: %s\n", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	sparql_file_query_populate (notifier, cursor);
 
 	/* Mark the directory root as queried */
 	tracker_file_system_set_property (priv->file_system,
@@ -401,6 +412,69 @@ sparql_query_cb (GObject      *object,
 	}
 
 	g_object_unref (cursor);
+}
+
+static void
+sparql_file_query_start (TrackerFileNotifier *notifier,
+                         GFile               *file,
+                         GFileType            file_type,
+                         gboolean             recursive,
+                         gboolean             sync)
+{
+	TrackerFileNotifierPrivate *priv;
+	gchar *uri, *sparql;
+
+	priv = notifier->priv;
+	uri = g_file_get_uri (file);
+
+	if (file_type == G_FILE_TYPE_DIRECTORY) {
+		if (recursive) {
+			sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
+			                          "where {"
+			                          "  ?u a nfo:FileDataObject ; "
+			                          "     nie:url ?url . "
+			                          "  FILTER (?url = \"%s\" || "
+			                          "          fn:starts-with (?url, \"%s/\")) "
+			                          "}", uri, uri);
+		} else {
+			sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
+			                          "where { "
+			                          "  ?u a nfo:FileDataObject ; "
+			                          "     nie:url ?url . "
+			                          "  OPTIONAL { ?u nfo:belongsToContainer ?p } . "
+			                          "  FILTER (?url = \"%s\" || "
+			                          "          nie:url(?p) = \"%s\") "
+			                          "}", uri, uri);
+		}
+	} else {
+		/* If it's a regular file, only query this item */
+		sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
+		                          "where { "
+		                          "  ?u a nfo:FileDataObject ; "
+		                          "     nie:url ?url ; "
+		                          "     nie:url \"%s\" . "
+		                          "}", uri);
+	}
+
+	if (sync) {
+		TrackerSparqlCursor *cursor;
+
+		cursor = tracker_sparql_connection_query (priv->connection,
+		                                          sparql, NULL, NULL);
+		if (cursor) {
+			sparql_file_query_populate (notifier, cursor);
+			g_object_unref (cursor);
+		}
+	} else {
+		tracker_sparql_connection_query_async (priv->connection,
+		                                       sparql,
+		                                       NULL,
+		                                       sparql_query_cb,
+		                                       notifier);
+	}
+
+	g_free (sparql);
+	g_free (uri);
 }
 
 static gboolean
@@ -427,41 +501,13 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		if (tracker_crawler_start (priv->crawler,
 					   directory,
 					   (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)) {
-			gchar *sparql, *uri;
+			sparql_file_query_start (notifier, directory,
+			                         G_FILE_TYPE_DIRECTORY,
+			                         (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0,
+			                         FALSE);
 
 			g_timer_reset (priv->timer);
-
-			uri = g_file_get_uri (directory);
-
-			if (flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
-				sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
-							  "where {"
-							  "  ?u a nfo:FileDataObject ; "
-							  "     nie:url ?url . "
-							  "  FILTER (?url = \"%s\" || "
-							  "          fn:starts-with (?url, \"%s/\")) "
-							  "}", uri, uri);
-			} else {
-				sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
-							  "where { "
-							  "  ?u a nfo:FileDataObject ; "
-							  "     nie:url ?url . "
-							  "  OPTIONAL { ?u nfo:belongsToContainer ?p } . "
-							  "  FILTER (?url = \"%s\" || "
-							  "          nie:url(?p) = \"%s\") "
-							  "}", uri, uri);
-			}
-
-			tracker_sparql_connection_query_async (priv->connection,
-							       sparql,
-							       NULL,
-							       sparql_query_cb,
-							       notifier);
-
 			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
-
-			g_free (sparql);
-			g_free (uri);
 
 			return TRUE;
 		} else {
@@ -1127,4 +1173,39 @@ tracker_file_notifier_is_active (TrackerFileNotifier *notifier)
 
 	priv = notifier->priv;
 	return priv->pending_index_roots != NULL;
+}
+
+const gchar *
+tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
+                                    GFile               *file)
+{
+	TrackerFileNotifierPrivate *priv;
+	GFile *canonical;
+	gchar *iri = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	priv = notifier->priv;
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file,
+	                                          G_FILE_TYPE_REGULAR,
+	                                          NULL);
+
+	iri = tracker_file_system_get_property (priv->file_system,
+	                                        canonical,
+	                                        quark_property_iri);
+
+	if (!iri) {
+		/* Fetch data for this file synchronously */
+		sparql_file_query_start (notifier, file,
+		                         G_FILE_TYPE_REGULAR,
+		                         FALSE, TRUE);
+
+		iri = tracker_file_system_get_property (priv->file_system,
+		                                        canonical,
+		                                        quark_property_iri);
+	}
+
+	return iri;
 }

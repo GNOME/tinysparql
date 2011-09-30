@@ -81,6 +81,8 @@ gboolean      tracker_file_notifier_start (TrackerFileNotifier *notifier);
 void          tracker_file_notifier_stop  (TrackerFileNotifier *notifier);
 gboolean      tracker_file_notifier_is_active (TrackerFileNotifier *notifier);
 
+const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
+                                                  GFile               *file);
 
 G_END_DECLS
 
