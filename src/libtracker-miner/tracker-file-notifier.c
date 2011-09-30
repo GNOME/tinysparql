@@ -1141,3 +1141,14 @@ tracker_file_notifier_stop (TrackerFileNotifier *notifier)
 		priv->stopped = TRUE;
 	}
 }
+
+gboolean
+tracker_file_notifier_is_active (TrackerFileNotifier *notifier)
+{
+	TrackerFileNotifierPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), FALSE);
+
+	priv = notifier->priv;
+	return priv->pending_index_roots != NULL;
+}

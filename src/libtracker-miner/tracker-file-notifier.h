@@ -79,6 +79,8 @@ TrackerFileNotifier* tracker_file_notifier_new  (TrackerIndexingTree *indexing_t
 
 gboolean      tracker_file_notifier_start (TrackerFileNotifier *notifier);
 void          tracker_file_notifier_stop  (TrackerFileNotifier *notifier);
+gboolean      tracker_file_notifier_is_active (TrackerFileNotifier *notifier);
+
 
 G_END_DECLS
 
