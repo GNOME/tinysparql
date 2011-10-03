@@ -22,6 +22,7 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
+#include "tracker-miner-common.h"
 #include "tracker-file-notifier.h"
 #include "tracker-file-system.h"
 #include "tracker-crawler.h"
@@ -515,6 +516,8 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		if (tracker_crawler_start (priv->crawler,
 					   directory,
 					   (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)) {
+			gchar *uri;
+
 			sparql_file_query_start (notifier, directory,
 			                         G_FILE_TYPE_DIRECTORY,
 			                         (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0,
@@ -522,6 +525,10 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 
 			g_timer_reset (priv->timer);
 			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
+
+			uri = g_file_get_uri (directory);
+			tracker_info ("Started inspecting '%s'", uri);
+			g_free (uri);
 
 			return TRUE;
 		} else {
