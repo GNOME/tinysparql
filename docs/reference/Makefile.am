@@ -4,6 +4,8 @@ SUBDIRS =                                              \
 	libtracker-sparql                              \
 	libtracker-client                              \
 	libtracker-extract                             \
-	libtracker-miner                               \
-	ontology
+	libtracker-miner
 
+if ENABLE_GTK_DOC
+SUBDIRS += ontology
+endif
