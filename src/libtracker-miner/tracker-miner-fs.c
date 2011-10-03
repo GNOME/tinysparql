@@ -2307,7 +2307,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			/* Need to postpone event... */
 			tracker_priority_queue_add (fs->priv->items_deleted,
-			                            queue_file, priority);
+			                            queue_file, priority - 1);
 			return QUEUE_WAIT;
 		}
 
@@ -2388,7 +2388,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			/* Need to postpone event... */
 			tracker_priority_queue_add (fs->priv->items_created,
-			                            queue_file, priority);
+			                            queue_file, priority - 1);
 			return QUEUE_WAIT;
 		}
 
@@ -2427,7 +2427,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			/* Need to postpone event... */
 			tracker_priority_queue_add (fs->priv->items_updated,
-			                            queue_file, priority);
+			                            queue_file, priority - 1);
 			return QUEUE_WAIT;
 		}
 
@@ -2471,7 +2471,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			/* Need to postpone event... */
 			tracker_priority_queue_add (fs->priv->items_moved,
-			                            data, priority);
+			                            data, priority - 1);
 			return QUEUE_WAIT;
 		}
 
