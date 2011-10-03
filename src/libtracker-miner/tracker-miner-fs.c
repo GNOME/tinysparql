@@ -188,9 +188,6 @@ struct _TrackerMinerFSPrivate {
 
 	GList          *config_directories;
 
-	TrackerPriorityQueue *directories;
-	DirectoryData  *current_directory;
-
 	GTimer         *timer;
 
 	guint           item_queues_handler_id;
@@ -337,7 +334,6 @@ static void           item_update_children_uri            (TrackerMinerFS       
                                                            RecursiveMoveData    *data,
                                                            const gchar          *source_uri,
                                                            const gchar          *uri);
-static void           crawled_directory_data_free         (CrawledDirectoryData *data);
 
 static gboolean       should_recurse_for_directory            (TrackerMinerFS *fs,
                                                                GFile          *file);
@@ -714,8 +710,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->items_moved = tracker_priority_queue_new ();
 	priv->items_writeback = tracker_priority_queue_new ();
 
-	priv->directories = tracker_priority_queue_new ();
-
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	priv->queue_status_timeout_id = g_timeout_add_seconds (EVENT_QUEUE_STATUS_TIMEOUT_SECS,
 	                                                       miner_fs_queues_status_trace_timeout_cb,
@@ -824,11 +818,6 @@ fs_finalize (GObject *object)
 
 	tracker_file_notifier_stop (priv->file_notifier);
 	g_object_unref (priv->file_notifier);
-
-	tracker_priority_queue_foreach (priv->directories,
-	                                (GFunc) directory_data_unref,
-	                                NULL);
-	tracker_priority_queue_unref (priv->directories);
 
 	if (priv->config_directories) {
 		g_list_foreach (priv->config_directories, (GFunc) directory_data_unref, NULL);
@@ -2381,13 +2370,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	return QUEUE_NONE;
 }
 
-static void
-get_tree_progress_foreach (CrawledDirectoryData *data,
-                           gint                 *items_to_process)
-{
-	*items_to_process += data->n_items - data->n_items_processed;
-}
-
 static gdouble
 item_queue_get_progress (TrackerMinerFS *fs,
                          guint          *n_items_processed,
@@ -3111,30 +3093,6 @@ print_file_tree (GNode    *node,
 
 #endif /* CRAWLED_TREE_ENABLE_TRACE */
 
-static gboolean
-crawled_directory_data_free_foreach (GNode    *node,
-                                     gpointer  user_data)
-{
-	g_object_unref (node->data);
-	return FALSE;
-}
-
-static void
-crawled_directory_data_free (CrawledDirectoryData *data)
-{
-	g_node_traverse (data->tree,
-	                 G_POST_ORDER,
-	                 G_TRAVERSE_ALL,
-	                 -1,
-	                 crawled_directory_data_free_foreach,
-	                 NULL);
-	g_node_destroy (data->tree);
-
-	g_queue_free (data->nodes);
-
-	g_slice_free (CrawledDirectoryData, data);
-}
-
 /* Returns TRUE if file equals to
  * other_file, or is a child of it
  */
@@ -3148,13 +3106,6 @@ file_equal_or_descendant (GFile *file,
 	}
 
 	return FALSE;
-}
-
-static gboolean
-crawled_directory_contains_file (CrawledDirectoryData *data,
-                                 GFile                *file)
-{
-	return file_equal_or_descendant (file, data->tree->data);
 }
 
 static gboolean
@@ -3354,21 +3305,6 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	g_debug ("  Cancelled writeback pool tasks at %f\n",
 	         g_timer_elapsed (timer, NULL));
 
-	if (fs->priv->current_directory) {
-		GFile *current_file;
-
-		current_file = fs->priv->current_directory->file;
-
-		if (g_file_equal (file, current_file) ||
-		    g_file_has_prefix (file, current_file)) {
-			return_val = TRUE;
-		}
-	}
-
-	tracker_priority_queue_foreach_remove (fs->priv->directories,
-	                                       (GEqualFunc) directory_contains_file,
-	                                       file,
-	                                       (GDestroyNotify) directory_data_unref);
 	dirs = fs->priv->config_directories;
 
 	while (dirs) {
@@ -3987,6 +3923,7 @@ tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
 void
 tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 {
+#if 0
 	GList *directories;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
@@ -4002,7 +3939,6 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 		directories = directories->next;
 	}
 
-#if 0
 	crawl_directories_start (fs);
 #endif
 }
