@@ -985,6 +985,8 @@ mp3_parse_header (const gchar          *data,
 	                        &dlna_profile, &dlna_mimetype)) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, dlna_profile);
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
+		tracker_sparql_builder_object_string (metadata, dlna_mimetype);
 	}
 
 	return TRUE;

@@ -155,7 +155,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	goffset size;
 	gchar *filename, *uri;
 	gchar *comment = NULL;
-	const gchar *dlna_profile, *graph;
+	const gchar *dlna_profile, *dlna_mimetype, *graph;
 	GPtrArray *keywords;
 	gboolean success = TRUE;
 	GString *where;
@@ -322,9 +322,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_sparql_builder_predicate (metadata, "nfo:height");
 	tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
 
-	if (guess_dlna_profile (cinfo.image_width, cinfo.image_height, &dlna_profile, NULL)) {
+	if (guess_dlna_profile (cinfo.image_width, cinfo.image_height, &dlna_profile, &dlna_mimetype)) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, dlna_profile);
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
+		tracker_sparql_builder_object_string (metadata, dlna_mimetype);
 	}
 
 	if (id->contact) {
