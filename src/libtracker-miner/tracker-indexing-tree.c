@@ -797,3 +797,19 @@ tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
 
 	return NULL;
 }
+
+gboolean
+tracker_indexing_tree_file_is_root (TrackerIndexingTree *tree,
+                                    GFile               *file)
+{
+	TrackerIndexingTreePrivate *priv;
+	GNode *node;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	priv = tree->priv;
+	node = find_directory_node (priv->config_tree, file,
+	                            (GEqualFunc) g_file_equal);
+	return node != NULL;
+}
