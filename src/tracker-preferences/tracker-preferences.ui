@@ -732,7 +732,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                             <property name="xpad">1</property>
                                             <property name="ypad">1</property>
                                             <property name="pixel_size">24</property>
-                                            <property name="icon_name">folder-home</property>
+                                            <property name="icon_name">user-home</property>
                                           </object>
                                         </child>
                                       </object>
@@ -883,7 +883,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                             <property name="can_focus">False</property>
                                             <property name="xpad">1</property>
                                             <property name="pixel_size">24</property>
-                                            <property name="icon_name">folder-downloads</property>
+                                            <property name="icon_name">folder-download</property>
                                           </object>
                                         </child>
                                       </object>
