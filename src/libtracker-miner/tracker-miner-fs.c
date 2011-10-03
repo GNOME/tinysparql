@@ -1635,7 +1635,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
                     GFile          *file,
-                    gint            priority)
+                    gint            priority,
+                    gboolean        is_new)
 {
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
@@ -1653,7 +1654,10 @@ item_add_or_update (TrackerMinerFS *fs,
 	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
 
-	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file);
+	if (!is_new) {
+		urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+		                                          file);
+	}
 
 	parent = g_file_get_parent (file);
 	parent_urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent);
@@ -1997,7 +2001,9 @@ item_move (TrackerMinerFS *fs,
 			                                         G_PRIORITY_DEFAULT);
 			retval = TRUE;
 		} else {
-			retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT);
+			retval = item_add_or_update (fs, file,
+			                             G_PRIORITY_DEFAULT,
+			                             TRUE);
 		}
 
 		g_free (source_uri);
@@ -2735,7 +2741,8 @@ item_queue_handlers_cb (gpointer user_data)
 		if (!parent ||
 		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent) ||
 		    file_is_crawl_directory (fs, file)) {
-			keep_processing = item_add_or_update (fs, file, priority);
+			keep_processing = item_add_or_update (fs, file, priority,
+			                                      (queue == QUEUE_CREATED));
 		} else {
 			TrackerPriorityQueue *item_queue;
 			gchar *uri;
