@@ -136,14 +136,6 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
-	const gchar *uri;
-	gchar *iri;
-	gchar *mime;
-	gboolean get_mime;
-} ItemQueryExistsData;
-
-typedef struct {
-	GMainLoop *main_loop;
 	GString   *sparql;
 	const gchar *source_uri;
 	const gchar *uri;
@@ -1169,123 +1161,6 @@ sparql_buffer_task_finished_cb (GObject      *object,
 	item_queue_handlers_set_up (fs);
 }
 
-static void
-item_query_exists_cb (GObject      *object,
-                      GAsyncResult *result,
-                      gpointer      user_data)
-{
-	ItemQueryExistsData *data = user_data;
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	guint n_results;
-
-	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
-
-	g_main_loop_quit (data->main_loop);
-
-	if (error) {
-		g_critical ("Could not execute sparql query: %s", error->message);
-		g_error_free (error);
-		if (cursor) {
-			g_object_unref (cursor);
-		}
-		return;
-	}
-
-	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		g_object_unref (cursor);
-		return;
-	}
-
-	n_results = 1;
-	data->iri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
-	if (data->get_mime)
-		data->mime = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
-	/* Any additional result must be logged as critical */
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		if (n_results == 1) {
-			/* If first duplicate found, log initial critical */
-			g_critical ("More than one URNs have been found for uri \"%s\"...",
-			            data->uri);
-			g_critical ("  (1) urn:'%s', mime:'%s'",
-			            data->iri,
-			            data->get_mime ? data->mime : "unneeded");
-		}
-		n_results++;
-		g_critical ("  (%d) urn:'%s', mime:'%s'",
-		            n_results,
-		            tracker_sparql_cursor_get_string (cursor, 0, NULL),
-		            data->get_mime ? tracker_sparql_cursor_get_string (cursor, 1, NULL) : "unneeded");
-	}
-
-	g_object_unref (cursor);
-}
-
-static gboolean
-item_query_exists (TrackerMinerFS  *miner,
-                   GFile           *file,
-                   gboolean         use_graph,
-                   gchar          **iri,
-                   gchar          **mime)
-{
-	gboolean   result;
-	gchar     *sparql, *uri;
-	GString *str;
-	ItemQueryExistsData data = { 0 };
-
-	data.get_mime = (mime != NULL);
-
-	uri = g_file_get_uri (file);
-
-	if (data.get_mime) {
-		str = g_string_new ("SELECT ?s nie:mimeType(?s) WHERE { ");
-	} else {
-		str = g_string_new ("SELECT ?s WHERE { ");
-	}
-
-	if (use_graph) {
-		g_string_append_printf (str, "GRAPH <" TRACKER_MINER_FS_GRAPH_URN "> { ?s nie:url \"%s\" } ", uri);
-	} else {
-		g_string_append_printf (str, "?s nie:url \"%s\"", uri);
-	}
-
-	g_string_append_c (str, '}');
-
-	sparql = g_string_free (str, FALSE);
-
-	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.uri = uri;
-
-	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                                       sparql,
-	                                       NULL,
-	                                       item_query_exists_cb,
-	                                       &data);
-
-	g_main_loop_run (data.main_loop);
-	result = (data.iri != NULL);
-
-	g_main_loop_unref (data.main_loop);
-
-	if (iri) {
-		*iri = data.iri;
-	} else {
-		g_free (data.iri);
-	}
-
-	if (mime) {
-		*mime = data.mime;
-	} else {
-		g_free (data.mime);
-	}
-
-	g_free (sparql);
-	g_free (uri);
-
-	return result;
-}
-
 static UpdateProcessingTaskContext *
 update_processing_task_context_new (TrackerMiner         *miner,
                                     gint                  priority,
@@ -1552,15 +1427,12 @@ item_remove (TrackerMinerFS *fs,
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
 
-	if (!item_query_exists (fs, file, FALSE, NULL, &mime)) {
-		g_debug ("  File does not exist anyway (uri '%s')", uri);
-		g_free (uri);
-		g_free (mime);
-		return TRUE;
-	}
+#if 0
+	/* FIXME: Find out mime to remove thumbnail/albumart */
 
 	tracker_thumbnailer_remove_add (uri, mime);
 	tracker_albumart_remove_add (uri, mime);
+#endif
 
 	g_free (mime);
 
@@ -1800,11 +1672,11 @@ item_move (TrackerMinerFS *fs,
 	GString   *sparql;
 	RecursiveMoveData move_data;
 	TrackerTask *task;
-	gchar *source_iri;
+	const gchar *source_iri;
 	gchar *display_name;
 	gboolean source_exists;
 	GFile *new_parent;
-	gchar *new_parent_iri;
+	const gchar *new_parent_iri;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
@@ -1817,7 +1689,9 @@ item_move (TrackerMinerFS *fs,
 	                               NULL, NULL);
 
 	/* Get 'source' ID */
-	source_exists = item_query_exists (fs, source_file, FALSE, &source_iri, NULL);
+	source_iri = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+	                                                 source_file);
+	source_exists = (source_iri != NULL);
 
 	if (!file_info) {
 		gboolean retval;
@@ -1830,7 +1704,6 @@ item_move (TrackerMinerFS *fs,
 			retval = TRUE;
 		}
 
-		g_free (source_iri);
 		g_free (source_uri);
 		g_free (uri);
 
@@ -1899,9 +1772,9 @@ item_move (TrackerMinerFS *fs,
 
 	/* Get new parent information */
 	new_parent = g_file_get_parent (file);
-
-	if (new_parent &&
-	    item_query_exists (fs, new_parent, FALSE, &new_parent_iri, NULL)) {
+	new_parent_iri = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+	                                                     new_parent);
+	if (new_parent && new_parent_iri) {
 		g_string_append_printf (sparql,
 		                        "INSERT INTO <%s> {"
 		                        "  <%s> nfo:fileName \"%s\" ; "
@@ -1913,7 +1786,6 @@ item_move (TrackerMinerFS *fs,
 		                        display_name, uri,
 		                        source_iri,
 		                        new_parent_iri);
-		g_free (new_parent_iri);
 	} else {
 		g_warning ("Adding moved item '%s' without nfo:belongsToContainer (new_parent: %p)",
 		           uri, new_parent);
@@ -1960,7 +1832,6 @@ item_move (TrackerMinerFS *fs,
 	g_free (uri);
 	g_free (source_uri);
 	g_object_unref (file_info);
-	g_free (source_iri);
 
 	return TRUE;
 }
@@ -2100,7 +1971,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			uri = g_file_get_uri (queue_file);
 
-			if (item_query_exists (fs, queue_file, TRUE, NULL, NULL)) {
+			if (tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+			                                        queue_file) != NULL) {
 				g_debug ("CREATED event ignored on file '%s' as it already existed, "
 				         " processing as IgnoreNextUpdate...",
 				         uri);
@@ -2440,16 +2312,6 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
-		/* If the item is a directory which was found during crawling, we need
-		 * to check existence before processing */
-		if (g_object_get_qdata (G_OBJECT (file),
-		                        fs->priv->quark_directory_found_crawling) &&
-		    item_query_exists (fs, file, FALSE, NULL, NULL)) {
-			/* If already in store, skip processing the CREATED task */
-			keep_processing = TRUE;
-			break;
-		}
-		/* Else, fall down and treat as QUEUE_UPDATED */
 	case QUEUE_UPDATED:
 		parent = g_file_get_parent (file);
 
@@ -3694,16 +3556,11 @@ gchar *
 tracker_miner_fs_query_urn (TrackerMinerFS *fs,
                             GFile          *file)
 {
-	gchar *iri = NULL;
-
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
-	/* We don't really need to check the return value here, just
-	 * looking at the output iri is enough. */
-	item_query_exists (fs, file, FALSE, &iri, NULL);
-
-	return iri;
+	return g_strdup (tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+	                                                     file));
 }
 
 /**
