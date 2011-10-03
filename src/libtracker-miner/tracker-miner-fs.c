@@ -125,12 +125,6 @@ typedef struct {
 } ItemWritebackData;
 
 typedef struct {
-	GFile    *file;
-	guint     recurse : 1;
-	guint     ref_count : 7;
-} DirectoryData;
-
-typedef struct {
 	GFile *file;
 	gchar *urn;
 	gchar *parent_urn;
@@ -186,8 +180,6 @@ struct _TrackerMinerFSPrivate {
 	GQuark          quark_attribute_updated;
 	GQuark          quark_directory_found_crawling;
 
-	GList          *config_directories;
-
 	GTimer         *timer;
 
 	guint           item_queues_handler_id;
@@ -203,8 +195,6 @@ struct _TrackerMinerFSPrivate {
 	/* Sparql insertion tasks */
 	TrackerSparqlBuffer *sparql_buffer;
 	guint sparql_buffer_limit;
-
-	GList          *dirs_without_parent;
 
 	TrackerIndexingTree *indexing_tree;
 
@@ -296,10 +286,6 @@ static void           miner_paused                        (TrackerMiner         
 static void           miner_resumed                       (TrackerMiner         *miner);
 static void           miner_ignore_next_update            (TrackerMiner         *miner,
                                                            const GStrv           subjects);
-static DirectoryData *directory_data_new                  (GFile                *file,
-                                                           gboolean              recurse);
-static DirectoryData *directory_data_ref                  (DirectoryData        *dd);
-static void           directory_data_unref                (DirectoryData        *dd);
 static ItemMovedData *item_moved_data_new                 (GFile                *file,
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
@@ -766,7 +752,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
-	priv->dirs_without_parent = NULL;
 }
 
 static gboolean
@@ -819,11 +804,6 @@ fs_finalize (GObject *object)
 	tracker_file_notifier_stop (priv->file_notifier);
 	g_object_unref (priv->file_notifier);
 
-	if (priv->config_directories) {
-		g_list_foreach (priv->config_directories, (GFunc) directory_data_unref, NULL);
-		g_list_free (priv->config_directories);
-	}
-
 	if (priv->forced_mtime_check_directories) {
 		g_list_foreach (priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
 		g_list_free (priv->forced_mtime_check_directories);
@@ -865,9 +845,6 @@ fs_finalize (GObject *object)
 	                                (GFunc) item_writeback_data_free,
 	                                NULL);
 	tracker_priority_queue_unref (priv->items_writeback);
-
-	g_list_foreach (priv->dirs_without_parent, (GFunc) g_object_unref, NULL);
-	g_list_free (priv->dirs_without_parent);
 
 	g_hash_table_unref (priv->items_ignore_next_update);
 
@@ -1060,44 +1037,6 @@ miner_ignore_next_update (TrackerMiner *miner, const GStrv urls)
 	}
 
 	item_queue_handlers_set_up (fs);
-}
-
-
-static DirectoryData *
-directory_data_new (GFile    *file,
-                    gboolean  recurse)
-{
-	DirectoryData *dd;
-
-	dd = g_slice_new (DirectoryData);
-
-	dd->file = g_object_ref (file);
-	dd->recurse = recurse;
-	dd->ref_count = 1;
-
-	return dd;
-}
-
-static DirectoryData *
-directory_data_ref (DirectoryData *dd)
-{
-	dd->ref_count++;
-	return dd;
-}
-
-static void
-directory_data_unref (DirectoryData *dd)
-{
-	if (!dd) {
-		return;
-	}
-
-	dd->ref_count--;
-
-	if (dd->ref_count == 0) {
-		g_object_unref (dd->file);
-		g_slice_free (DirectoryData, dd);
-	}
 }
 
 static void
@@ -1357,65 +1296,6 @@ item_query_exists (TrackerMinerFS  *miner,
 	g_free (uri);
 
 	return result;
-}
-
-static gboolean
-file_is_crawl_directory (TrackerMinerFS *fs,
-                         GFile          *file)
-{
-	GList *dirs;
-
-	/* Check whether file is a crawl directory itself */
-	dirs = fs->priv->config_directories;
-
-	while (dirs) {
-		DirectoryData *data;
-
-		data = dirs->data;
-		dirs = dirs->next;
-
-		if (g_file_equal (data->file, file)) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-static gboolean
-directory_contains_file (DirectoryData *dir_data,
-                         GFile         *file)
-{
-
-	if (g_file_equal (file, dir_data->file) ||
-	    (dir_data->recurse &&
-	     g_file_has_prefix (file, dir_data->file))) {
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-static DirectoryData *
-find_config_directory (TrackerMinerFS *fs,
-                       GFile          *file)
-{
-	GList *dirs;
-
-	dirs = fs->priv->config_directories;
-
-	while (dirs) {
-		DirectoryData *data;
-
-		data = dirs->data;
-		dirs = dirs->next;
-
-		if (directory_contains_file (data, file)) {
-			return data;
-		}
-	}
-
-	return NULL;
 }
 
 static UpdateProcessingTaskContext *
@@ -2587,7 +2467,7 @@ item_queue_handlers_cb (gpointer user_data)
 
 		if (!parent ||
 		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent) ||
-		    file_is_crawl_directory (fs, file)) {
+		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
 			keep_processing = item_add_or_update (fs, file, priority,
 			                                      (queue == QUEUE_CREATED));
 		} else {
@@ -3120,28 +3000,6 @@ should_recurse_for_directory (TrackerMinerFS *fs,
 	return (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 }
 
-static gboolean
-directory_equals_or_contains (gconstpointer a,
-                              gconstpointer b)
-{
-	DirectoryData *dda = (DirectoryData *) a;
-	DirectoryData *ddb = (DirectoryData *) b;
-
-	return directory_contains_file (dda, ddb->file);
-}
-
-
-/* Returns 0 if 'a' and 'b' point to the same directory, OR if
- *  'b' is contained inside directory 'a' and 'a' is recursively
- *  indexed. */
-static gint
-directory_compare_cb (gconstpointer a,
-                      gconstpointer b)
-{
-	return directory_equals_or_contains (a, b) ? 0 : -1;
-}
-
-
 /* This function is for internal use, adds the file to the processing
  * queue with the same directory settings than the corresponding
  * config directory.
@@ -3189,6 +3047,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
                                 gboolean        recurse)
 {
+#if 0
 	DirectoryData *dir_data;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
@@ -3205,7 +3064,6 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 			               directory_data_ref (dir_data));
 	}
 
-#if 0
 	/* If not already in the list to process, add it */
 	if (tracker_priority_queue_find (fs->priv->directories,
 	                                 NULL,
@@ -3283,7 +3141,6 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	TrackerMinerFSPrivate *priv;
 	gboolean return_val = FALSE;
 	GTimer *timer;
-	GList *dirs;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -3305,6 +3162,7 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	g_debug ("  Cancelled writeback pool tasks at %f\n",
 	         g_timer_elapsed (timer, NULL));
 
+#if 0
 	dirs = fs->priv->config_directories;
 
 	while (dirs) {
@@ -3319,6 +3177,7 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 			return_val = TRUE;
 		}
 	}
+#endif
 
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
@@ -3381,8 +3240,7 @@ static gboolean
 check_file_parents (TrackerMinerFS *fs,
                     GFile          *file)
 {
-	DirectoryData *data;
-	GFile *parent;
+	GFile *parent, *root;
 	GList *parents = NULL, *p;
 
 	parent = g_file_get_parent (file);
@@ -3391,15 +3249,16 @@ check_file_parents (TrackerMinerFS *fs,
 		return FALSE;
 	}
 
-	data = find_config_directory (fs, parent);
-
-	if (!data) {
+	root = tracker_indexing_tree_get_root (fs->priv->indexing_tree,
+	                                       parent, NULL);
+	if (!root) {
+		g_object_unref (parent);
 		return FALSE;
 	}
 
 	/* Add parent directories until we're past the config dir */
 	while (parent &&
-	       !g_file_has_prefix (data->file, parent)) {
+	       !g_file_has_prefix (root, parent)) {
 		parents = g_list_prepend (parents, parent);
 		parent = g_file_get_parent (parent);
 	}
@@ -4094,6 +3953,7 @@ void
 tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
                                                GFile          *file)
 {
+#if 0
 	GFile *parent;
 	GList *l;
 
@@ -4119,6 +3979,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	/* We add the parent of the input file */
 	fs->priv->dirs_without_parent = g_list_prepend (fs->priv->dirs_without_parent,
 	                                                parent);
+#endif
 }
 
 /**
