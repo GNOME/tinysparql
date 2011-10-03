@@ -35,6 +35,7 @@ src/tracker-needle/tracker-query.vala
 src/tracker-needle/tracker-taglist.vala
 src/tracker-needle/tracker-utils.vala
 src/tracker-needle/tracker-view.vala
+src/tracker-needle/tracker-stats.vala
 [type: gettext/glade]src/tracker-needle/tracker-needle.ui
 src/tracker-search-bar/org.gnome.panel.SearchBar.panel-applet.in.in
 src/tracker-search-bar/tracker-results-window.c
