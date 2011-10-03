@@ -138,8 +138,19 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
                             gpointer        user_data)
 {
 	TrackerFileNotifierPrivate *priv;
+	GFile *root;
 
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
+
+	/* If it's a config root itself, other than the one
+	 * currently processed, bypass it, it will be processed
+	 * when the time arrives.
+	 */
+	root = tracker_indexing_tree_get_root (priv->indexing_tree, directory, NULL);
+
+	if (root != priv->pending_index_roots->data) {
+		return FALSE;
+	}
 
 	return tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 							directory,
@@ -204,8 +215,11 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 		/* Mtime changed, update */
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, FALSE);
 	} else if (!store_mtime && !disk_mtime) {
-		/* what are we doing with such file? shouldn't happen */
-		g_assert_not_reached ();
+		/* what are we doing with such file? should happen rarely,
+		 * only with files that we've queried, but we decided not
+		 * to crawl (i.e. embedded root directories, that would
+		 * be processed when that root is being crawled).
+		 */
 	}
 
 	return FALSE;
