@@ -36,6 +36,8 @@ public class Tracker.Preferences {
 	private const string HOME_STRING = "$HOME";
 	private string HOME_STRING_EVALUATED;
 
+	private UserDirectory[] ignored_user_directories = null;
+
 	private Window window;
 	private CheckButton checkbutton_enable_index_on_battery_first_time;
 	private CheckButton checkbutton_enable_index_on_battery;
@@ -65,6 +67,7 @@ public class Tracker.Preferences {
 	private ToggleButton togglebutton_pictures;
 	private ToggleButton togglebutton_videos;
 	private ToggleButton togglebutton_download;
+	private HBox hbox_duplicate_warning;
 	private Notebook notebook;
 
 	public Preferences () {
@@ -131,6 +134,7 @@ public class Tracker.Preferences {
 		togglebutton_pictures = builder.get_object ("togglebutton_pictures") as ToggleButton;
 		togglebutton_videos = builder.get_object ("togglebutton_videos") as ToggleButton;
 		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
+		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as HBox;
 
 		treeview_index = builder.get_object ("treeview_index") as TreeView;
 		treeviewcolumn_index1 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
@@ -179,11 +183,21 @@ public class Tracker.Preferences {
 			radiobutton_sched_idle_first_index.active = true;
 		}
 
+		// Evaluate any user directories which have same target directory
+		sanitize_user_dirs ();
+
+		// Populate and toggle user directories
 		model_populate (liststore_index, settings_miner_fs.get_strv ("index-recursive-directories"), true, true);
 		model_populate (liststore_index, settings_miner_fs.get_strv ("index-single-directories"), true, false);
 		model_populate (liststore_ignored_directories, settings_miner_fs.get_strv ("ignored-directories"), false, false);
 		model_populate (liststore_ignored_files, settings_miner_fs.get_strv ("ignored-files"), false, false);
 		model_populate (liststore_ignored_directories_with_content, settings_miner_fs.get_strv ("ignored-directories-with-content"), false, false);
+
+		if (ignored_user_directories.length > 0) {
+			hbox_duplicate_warning.show ();
+		} else {
+			hbox_duplicate_warning.hide ();
+		}
 
 		togglebutton_home.active = model_contains (liststore_index, HOME_STRING_EVALUATED);
 		togglebutton_desktop.active = model_contains (liststore_index, "&DESKTOP");
@@ -711,9 +725,27 @@ public class Tracker.Preferences {
 	private void model_populate (ListStore model, string[] list, bool have_recurse, bool recurse) {
 		int position = 0;
 
-		foreach (string str in list) {
+		foreach (string s in list) {
 			// Convert any dirs from config to real values
-			str = dir_from_config (str);
+			bool ignore = false;
+
+			// Don't insert configs if toggle is not sensitive
+			foreach (UserDirectory ud in ignored_user_directories) {
+				string ud_string = ud.to_string ();
+				string output = "&%s".printf (ud_string.substring (ud_string.last_index_of_char ('_') + 1, -1));
+
+				if (s == output) {
+					ignore = true;
+					break;
+				}
+			}
+
+			if (ignore) {
+				debug ("Ignoring '%s' (duplicates other entries in config)", s);
+				continue;
+			}
+
+			string str = dir_from_config (s);
 
 			try {
 				if (have_recurse)
@@ -777,6 +809,74 @@ public class Tracker.Preferences {
 				store.get_iter (out iter, tree_path);
 				store.set (iter, 1, !toggle.active);
 			});
+		}
+	}
+
+	private void sanitize_user_dirs () {
+		string[] all_dirs = null;
+
+		all_dirs += HOME_STRING_EVALUATED;
+
+		for (int i = 0; i < UserDirectory.N_DIRECTORIES; i++) {
+			UserDirectory ud = (UserDirectory) i;
+
+			string dir = Environment.get_user_special_dir (ud);
+			if (dir == null) {
+				continue;
+			}
+
+			foreach (string d in all_dirs) {
+				if (d == dir) {
+					debug ("Directory '%s' duplicated in XDG dir %d", d, ud);
+
+					switch (ud) {
+					case UserDirectory.DESKTOP:
+					case UserDirectory.DOCUMENTS:
+					case UserDirectory.DOWNLOAD:
+					case UserDirectory.MUSIC:
+					case UserDirectory.PICTURES:
+					case UserDirectory.VIDEOS:
+						ignored_user_directories += ud;
+						break;
+
+					default:
+						// We don't care about others, we don't
+						// have toggle buttons for them
+						break;
+					}
+
+					break;
+				}
+			}
+
+			// Add dir to list of dirs we know about to filter
+			// out subsequent dirs
+			all_dirs += dir;
+		}
+
+		foreach (UserDirectory ud in ignored_user_directories) {
+			switch (ud) {
+			case UserDirectory.DESKTOP:
+				togglebutton_desktop.sensitive = false;
+				break;
+			case UserDirectory.DOCUMENTS:
+				togglebutton_documents.sensitive = false;
+				break;
+			case UserDirectory.DOWNLOAD:
+				togglebutton_download.sensitive = false;
+				break;
+			case UserDirectory.MUSIC:
+				togglebutton_music.sensitive = false;
+				break;
+			case UserDirectory.PICTURES:
+				togglebutton_pictures.sensitive = false;
+				break;
+			case UserDirectory.VIDEOS:
+				togglebutton_videos.sensitive = false;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }
