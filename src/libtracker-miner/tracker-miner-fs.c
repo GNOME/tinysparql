@@ -178,10 +178,6 @@ struct _TrackerMinerFSPrivate {
 
 	TrackerIndexingTree *indexing_tree;
 
-	/* Config directories where we should force mtime checking, regardless of
-	 * the global mtime check configuration. */
-	GList          *forced_mtime_check_directories;
-
 	/* Status */
 	guint           been_started : 1;     /* TRUE if miner has been started */
 	guint           been_crawled : 1;     /* TRUE if initial crawling has been
@@ -301,20 +297,11 @@ static void           item_update_children_uri            (TrackerMinerFS       
                                                            const gchar          *source_uri,
                                                            const gchar          *uri);
 
-static gboolean       should_recurse_for_directory            (TrackerMinerFS *fs,
-                                                               GFile          *file);
-static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-                                                               GFile          *file,
-                                                               gint            priority);
-
 static void           task_pool_cancel_foreach                (gpointer        data,
                                                                gpointer        user_data);
 static void           task_pool_limit_reached_notify_cb       (GObject        *object,
                                                                GParamSpec     *pspec,
                                                                gpointer        user_data);
-
-static gboolean       miner_fs_is_forced_mtime_checking_directory      (TrackerMinerFS *fs,
-                                                                        GFile          *directory);
 
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -784,11 +771,6 @@ fs_finalize (GObject *object)
 	tracker_file_notifier_stop (priv->file_notifier);
 	g_object_unref (priv->file_notifier);
 
-	if (priv->forced_mtime_check_directories) {
-		g_list_foreach (priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
-		g_list_free (priv->forced_mtime_check_directories);
-	}
-
 	/* Cancel every pending task */
 	tracker_task_pool_foreach (priv->task_pool,
 	                           task_pool_cancel_foreach,
@@ -1078,14 +1060,6 @@ process_stop (TrackerMinerFS *fs)
 	fs->priv->total_directories_ignored = 0;
 	fs->priv->total_files_found = 0;
 	fs->priv->total_files_ignored = 0;
-
-	/* Once we have done first crawling, we can safely clear forced mtime check
-	 * directories */
-	if (fs->priv->forced_mtime_check_directories) {
-		g_list_foreach (fs->priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
-		g_list_free (fs->priv->forced_mtime_check_directories);
-		fs->priv->forced_mtime_check_directories = NULL;
-	}
 
 	fs->priv->been_crawled = TRUE;
 }
@@ -1709,11 +1683,14 @@ item_move (TrackerMinerFS *fs,
 
 		return retval;
 	} else if (file_info && !source_exists) {
-		gboolean retval;
-		GFileType file_type;
+		gboolean retval = TRUE;
 
 		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
 
+		/* FIXME: This situation shouldn't happen
+		 * from a TrackerFileNotifier event
+		 */
+#if 0
 		file_type = g_file_info_get_file_type (file_info);
 
 		if (file_type == G_FILE_TYPE_DIRECTORY &&
@@ -1727,6 +1704,7 @@ item_move (TrackerMinerFS *fs,
 			                             G_PRIORITY_DEFAULT,
 			                             TRUE);
 		}
+#endif
 
 		g_free (source_uri);
 		g_free (uri);
@@ -2838,50 +2816,6 @@ file_equal_or_descendant (GFile *file,
 	return FALSE;
 }
 
-static gboolean
-should_recurse_for_directory (TrackerMinerFS *fs,
-                              GFile          *file)
-{
-	TrackerDirectoryFlags flags;
-
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-					file, &flags);
-
-	return (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
-}
-
-/* This function is for internal use, adds the file to the processing
- * queue with the same directory settings than the corresponding
- * config directory.
- */
-static void
-tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-                                         GFile          *file,
-                                         gint            priority)
-{
-#if 0
-	DirectoryData *data;
-	gboolean recurse;
-
-	recurse = should_recurse_for_directory (fs, file);
-	data = directory_data_new (file, recurse);
-
-	/* Only add if not already there */
-	if (tracker_priority_queue_find (fs->priv->directories,
-	                                 NULL,
-	                                 directory_equals_or_contains,
-	                                 data) == NULL) {
-		tracker_priority_queue_add (fs->priv->directories,
-		                            directory_data_ref (data),
-		                            priority);
-
-		crawl_directories_start (fs);
-	}
-
-	directory_data_unref (data);
-#endif
-}
-
 /**
  * tracker_miner_fs_directory_add:
  * @fs: a #TrackerMinerFS
@@ -2897,37 +2831,23 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
                                 gboolean        recurse)
 {
-#if 0
-	DirectoryData *dir_data;
+	TrackerDirectoryFlags flags;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	dir_data = directory_data_new (file, recurse);
+	flags = TRACKER_DIRECTORY_FLAG_MONITOR;
 
-	/* New directory to add in config_directories? */
-	if (!g_list_find_custom (fs->priv->config_directories,
-	                         dir_data,
-	                         directory_compare_cb)) {
-		fs->priv->config_directories =
-			g_list_append (fs->priv->config_directories,
-			               directory_data_ref (dir_data));
+	if (recurse) {
+		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
 	}
 
-	/* If not already in the list to process, add it */
-	if (tracker_priority_queue_find (fs->priv->directories,
-	                                 NULL,
-	                                 directory_equals_or_contains,
-	                                 dir_data) == NULL) {
-		tracker_priority_queue_add (fs->priv->directories,
-		                            directory_data_ref (dir_data),
-		                            G_PRIORITY_DEFAULT);
-
-		crawl_directories_start (fs);
+	if (fs->priv->mtime_checking) {
+		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 	}
 
-	directory_data_unref (dir_data);
-#endif
+	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	                           file, flags);
 }
 
 static void
@@ -3350,7 +3270,12 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 			return;
 		}
 
-		tracker_miner_fs_directory_add_internal (fs, file, priority);
+		/* FIXME: Apply priority */
+		tracker_indexing_tree_add (fs->priv->indexing_tree,
+		                           file,
+		                           TRACKER_DIRECTORY_FLAG_RECURSE |
+		                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+		                           TRACKER_DIRECTORY_FLAG_MONITOR);
 	}
 
 	g_free (path);
@@ -3696,21 +3621,6 @@ tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
 	return fs->priv->mtime_checking;
 }
 
-static gboolean
-miner_fs_is_forced_mtime_checking_directory (TrackerMinerFS *fs,
-                                             GFile          *directory)
-{
-	GList *l;
-
-	/* Ensure we don't add the same one more than once */
-	for (l = fs->priv->forced_mtime_check_directories; l; l = g_list_next (l)) {
-		if (g_file_equal (directory, G_FILE (l->data)) ||
-		    g_file_has_prefix (directory, G_FILE (l->data)))
-			return TRUE;
-	}
-	return FALSE;
-}
-
 /**
  * tracker_miner_fs_force_mtime_checking:
  * @fs: a #TrackerMinerFS
@@ -3724,18 +3634,14 @@ void
 tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                        GFile          *directory)
 {
-	gchar *uri;
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (directory));
 
-	if (miner_fs_is_forced_mtime_checking_directory (fs, directory))
-		return;
-
-	uri = g_file_get_uri (directory);
-	g_debug ("Will force mtime checks under directory '%s'", uri);
-	g_free (uri);
-
-	fs->priv->forced_mtime_check_directories =
-		g_list_prepend (fs->priv->forced_mtime_check_directories,
-		                g_object_ref (directory));
+	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	                           directory,
+	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+	                           TRACKER_DIRECTORY_FLAG_RECURSE |
+	                           TRACKER_DIRECTORY_FLAG_MONITOR);
 }
 
 void
@@ -3798,33 +3704,14 @@ void
 tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
                                                GFile          *file)
 {
-#if 0
-	GFile *parent;
-	GList *l;
-
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	/* Get parent of the input file, IF ANY! */
-	parent = g_file_get_parent (file);
-	if (!parent) {
-		return;
-	}
-
-	for (l = fs->priv->dirs_without_parent;
-	     l;
-	     l = g_list_next (l)) {
-		if (g_file_equal (l->data, parent)) {
-			/* If parent already in the list, return */
-			g_object_unref (parent);
-			return;
-		}
-	}
-
-	/* We add the parent of the input file */
-	fs->priv->dirs_without_parent = g_list_prepend (fs->priv->dirs_without_parent,
-	                                                parent);
-#endif
+	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	                           file,
+	                           TRACKER_DIRECTORY_FLAG_RECURSE |
+	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+	                           TRACKER_DIRECTORY_FLAG_MONITOR);
 }
 
 /**
