@@ -490,7 +490,8 @@ process_func (gpointer data)
 								  g_object_ref (child_data->child));
 			}
 
-			if (priv->is_running && child_node && child_data->is_dir) {
+			if (info->recurse && priv->is_running &&
+			    child_node && child_data->is_dir) {
 				DirectoryProcessingData *child_dir_data;
 
 				child_dir_data = directory_processing_data_new (child_node);
