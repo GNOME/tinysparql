@@ -561,11 +561,20 @@ AM_CONDITIONAL(DIST_FUNCTIONAL_TESTS, test "x$enable_functional_tests" != "xno")
 # Check for gtk-doc and docbook-tools
 ####################################################################
 
+# Check for GTK_DOC_CHECK availability. The GTK_DOC_CHECK invocation
+# must be on its own line, gtkdocize relies on it
+m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.8])
 
-if test "x$enable_gtk_doc" != "xno"; then
-   AC_DEFINE(HAVE_GTK_DOC, 1, [Define if we have gtk-doc (with gtk-doc)])
+# NOTE: We need to use a separate automake conditional for this
+#       to make this work with the tarballs.
+AM_CONDITIONAL([ENABLE_GTK_DOC], test "x$enable_gtk_doc" = xyes)
+],
+[
+AM_CONDITIONAL([ENABLE_GTK_DOC], false)
+])
 
+if test "x$enable_gtk_doc" != xno; then
    # Check for dia if we are building gtk_doc
    AC_PATH_PROG(DIA, dia)
    AC_SUBST(DIA)
@@ -583,7 +592,6 @@ if test "x$enable_gtk_doc" != "xno"; then
    fi
 fi
 
-AM_CONDITIONAL(HAVE_GTK_DOC, test "$enable_gtk_doc" = "yes")
 AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
 
 ####################################################################
