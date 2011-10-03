@@ -144,22 +144,10 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
-	GHashTable *values;
-} CacheQueryData;
-
-typedef struct {
-	GMainLoop *main_loop;
 	GString   *sparql;
 	const gchar *source_uri;
 	const gchar *uri;
 } RecursiveMoveData;
-
-typedef struct {
-	GNode *tree;
-	GQueue *nodes;
-	guint n_items;
-	guint n_items_processed;
-} CrawledDirectoryData;
 
 struct _TrackerMinerFSPrivate {
 	/* File queues for indexer */
