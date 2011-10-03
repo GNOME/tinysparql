@@ -68,7 +68,7 @@ public class Tracker.Stats : Dialog {
 		vbox.set_border_width (0);
 
 		// Label for dialog
-		var label = new Label ("The statistics represented here do not reflect their availability, rather the total data stored:");
+		var label = new Label (_("The statistics represented here do not reflect their availability, rather the total data stored:"));
 		label.set_line_wrap (true);
 		label.set_alignment (0.0f, 0.5f);
 		vbox.pack_start (label, true, true, 0);
