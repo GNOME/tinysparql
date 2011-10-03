@@ -168,8 +168,6 @@ typedef struct {
 } CrawledDirectoryData;
 
 struct _TrackerMinerFSPrivate {
-	TrackerPriorityQueue *crawled_directories;
-
 	/* File queues for indexer */
 	TrackerPriorityQueue *items_created;
 	TrackerPriorityQueue *items_updated;
@@ -710,7 +708,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv = object->priv;
 
-	priv->crawled_directories = tracker_priority_queue_new ();
 	priv->items_created = tracker_priority_queue_new ();
 	priv->items_updated = tracker_priority_queue_new ();
 	priv->items_deleted = tracker_priority_queue_new ();
@@ -842,11 +839,6 @@ fs_finalize (GObject *object)
 		g_list_foreach (priv->forced_mtime_check_directories, (GFunc) g_object_unref, NULL);
 		g_list_free (priv->forced_mtime_check_directories);
 	}
-
-	tracker_priority_queue_foreach (priv->crawled_directories,
-	                                (GFunc) crawled_directory_data_free,
-	                                NULL);
-	tracker_priority_queue_unref (priv->crawled_directories);
 
 	/* Cancel every pending task */
 	tracker_task_pool_foreach (priv->task_pool,
@@ -2128,95 +2120,6 @@ check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
 	return FALSE;
 }
 
-static void
-fill_in_items_created_queue (TrackerMinerFS *fs)
-{
-	CrawledDirectoryData *dir_data;
-	GList *l, *post_nodes = NULL;
-	gint priority;
-	GFile *file;
-	GNode *node;
-
-	dir_data = tracker_priority_queue_peek (fs->priv->crawled_directories,
-	                                        &priority);
-
-	if (g_queue_is_empty (dir_data->nodes)) {
-		/* Special case, append the root directory for the tree */
-		node = dir_data->tree;
-		file = node->data;
-		dir_data->n_items_processed++;
-
-		g_queue_push_tail (dir_data->nodes, node);
-
-		if (!g_object_get_qdata (G_OBJECT (file), fs->priv->quark_ignore_file)) {
-			trace_eq_push_tail ("CREATED", file, "Root directory of tree");
-
-			tracker_priority_queue_add (fs->priv->items_created,
-			                            g_object_ref (file),
-			                            priority);
-			return;
-		}
-	}
-
-	node = g_queue_pop_head (dir_data->nodes);
-
-	/* There are nodes in the middle of processing. Append
-	 * items to the queue, an add directories to post_nodes,
-	 * so they can be processed later on.
-	 */
-	while (node) {
-		GNode *children;
-
-#ifdef EVENT_QUEUE_ENABLE_TRACE
-		gchar *uri;
-
-		uri = g_file_get_uri (node->data);
-		g_message ("Adding files from directory '%s' into the processing queue", uri);
-		g_free (uri);
-#endif /* EVENT_QUEUE_ENABLE_TRACE */
-
-		children = node->children;
-
-		while (children) {
-			file = children->data;
-			dir_data->n_items_processed++;
-
-			if (!g_object_get_qdata (G_OBJECT (file), fs->priv->quark_ignore_file)) {
-				trace_eq_push_tail ("CREATED", file, NULL);
-
-				tracker_priority_queue_add (fs->priv->items_created,
-				                            g_object_ref (file),
-				                            priority);
-			}
-
-			if (children->children) {
-				post_nodes = g_list_prepend (post_nodes, children);
-			}
-
-			children = children->next;
-		}
-
-		node = g_queue_pop_head (dir_data->nodes);
-	}
-
-	/* Children collected in post_nodes will be
-	 * the ones processed on the next iteration
-	 */
-	for (l = post_nodes; l; l = l->next) {
-		g_queue_push_tail (dir_data->nodes, l->data);
-	}
-
-	g_list_free (post_nodes);
-
-	if (g_queue_is_empty (dir_data->nodes)) {
-		/* There's no more data to process, move on to the next one */
-		tracker_priority_queue_pop (fs->priv->crawled_directories,
-		                            NULL);
-		crawled_directory_data_free (dir_data);
-	}
-}
-
-
 static gboolean
 should_wait (TrackerMinerFS *fs,
              GFile          *file)
@@ -2320,35 +2223,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		*file = queue_file;
 		*priority_out = priority;
 		return QUEUE_DELETED;
-	}
-
-	if (tracker_priority_queue_is_empty (fs->priv->items_created) &&
-	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories)) {
-
-		trace_eq ("Created items queue empty, but still crawling (%d tasks in WAIT state)",
-		          tracker_task_pool_get_size (fs->priv->task_pool));
-
-		/* The items_created queue is empty, but there are pending
-		 * items from the crawler to be processed. We feed the queue
-		 * in this manner so it's ensured that the parent directory
-		 * info is inserted to the store before the children are
-		 * inspected.
-		 */
-		if (tracker_task_pool_get_size (fs->priv->task_pool) > 0) {
-			/* Items still being processed */
-			*file = NULL;
-			*source_file = NULL;
-			return QUEUE_WAIT;
-		} else {
-			/* Iterate through all directory hierarchies until
-			 * one of these return something for the miner to do,
-			 * or no data is left to process.
-			 */
-			while (tracker_priority_queue_is_empty (fs->priv->items_created) &&
-			       !tracker_priority_queue_is_empty (fs->priv->crawled_directories)) {
-				fill_in_items_created_queue (fs);
-			}
-		}
 	}
 
 	/* Created items next */
@@ -2496,10 +2370,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	    fs->priv->crawl_directories_id != 0 ||
 #endif
 	    tracker_file_notifier_is_active (fs->priv->file_notifier) ||
-#if 0
-	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
-	    !tracker_priority_queue_is_empty (fs->priv->directories) ||
-#endif
 	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		/* There are still pending items to crawl,
@@ -2531,10 +2401,6 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_updated);
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_moved);
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_writeback);
-
-	tracker_priority_queue_foreach (fs->priv->crawled_directories,
-	                                (GFunc) get_tree_progress_foreach,
-	                                &items_to_process);
 
 	items_total += fs->priv->total_directories_found;
 	items_total += fs->priv->total_files_found;
@@ -2581,8 +2447,7 @@ item_queue_handlers_cb (gpointer user_data)
 	queue = item_queue_get_next_file (fs, &file, &source_file, &priority);
 
 	if (queue == QUEUE_WAIT) {
-		/* Items are still being processed, and there is pending
-		 * data in priv->crawled_directories, so wait until
+		/* Items are still being processed, so wait until
 		 * the processing pool is cleared before starting with
 		 * the next directories batch.
 		 */
@@ -3519,11 +3384,6 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		}
 	}
 
-	tracker_priority_queue_foreach_remove (fs->priv->crawled_directories,
-	                                       (GEqualFunc) crawled_directory_contains_file,
-	                                       file,
-	                                       (GDestroyNotify) crawled_directory_data_free);
-
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
 	 */
@@ -4270,7 +4130,6 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
 	if (fs->priv->is_crawling ||
-	    !tracker_priority_queue_is_empty (fs->priv->crawled_directories) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_created) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_updated) ||
