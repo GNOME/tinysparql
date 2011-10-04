@@ -57,8 +57,7 @@ static void
 test_file_system_insertions (TestCommonContext *fixture,
                              gconstpointer      data)
 {
-	TrackerFile *canonical, *other;
-	GFile *file;
+	GFile *file, *canonical, *other;
 
 	file = g_file_new_for_uri ("file:///aaa/");
 	canonical = tracker_file_system_peek_file (fixture->file_system, file);
@@ -84,8 +83,7 @@ static void
 test_file_system_children (TestCommonContext *fixture,
 			   gconstpointer      data)
 {
-	TrackerFile *parent, *child, *other;
-	GFile *file;
+	GFile *file, *parent, *child, *other;
 
 	file = g_file_new_for_uri ("file:///aaa/");
 	parent = tracker_file_system_get_file (fixture->file_system, file,
@@ -111,8 +109,7 @@ static void
 test_file_system_indirect_children (TestCommonContext *fixture,
 				    gconstpointer      data)
 {
-	TrackerFile *parent, *child, *other;
-	GFile *file;
+	GFile *file, *parent, *child, *other;
 
 	file = g_file_new_for_uri ("file:///aaa/");
 	parent = tracker_file_system_get_file (fixture->file_system, file,
@@ -140,8 +137,7 @@ static void
 test_file_system_reparenting (TestCommonContext *fixture,
 			      gconstpointer      data)
 {
-	TrackerFile *parent, *child, *grandchild, *other;
-	GFile *file;
+	GFile *file, *parent, *child, *grandchild, *other;
 
 	file = g_file_new_for_uri ("file:///aaa/");
 	parent = tracker_file_system_get_file (fixture->file_system, file,
@@ -167,7 +163,7 @@ test_file_system_reparenting (TestCommonContext *fixture,
 	g_object_unref (file);
 
 	/* Delete child in between */
-	tracker_file_system_unref_file (fixture->file_system, child);
+	g_object_unref (child);
 
 	/* Check that child doesn't exist anymore */
 	file = g_file_new_for_uri ("file:///aaa/bbb");
@@ -187,11 +183,10 @@ static void
 test_file_system_properties (TestCommonContext *fixture,
 			     gconstpointer      data)
 {
-	TrackerFile *file;
 	GQuark property1_quark, property2_quark;
 	gchar *value = "value";
 	gchar *ret_value;
-	GFile *f;
+	GFile *file, *f;
 
 	property1_quark = g_quark_from_string ("file-system-test-property1");
 	tracker_file_system_register_property (fixture->file_system,
