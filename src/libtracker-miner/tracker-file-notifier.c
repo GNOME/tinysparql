@@ -978,6 +978,16 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
 	}
 
+	if (directory == priv->pending_index_roots->data) {
+		/* Directory being currently processed */
+		tracker_crawler_stop (priv->crawler);
+
+		/* Remove index root and try the next one */
+		priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
+								priv->pending_index_roots);
+		crawl_directories_start (notifier);
+	}
+
 	/* Remove monitors if any */
 	tracker_monitor_remove_recursively (priv->monitor, directory);
 }
