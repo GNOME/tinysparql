@@ -357,17 +357,31 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 
 static void
 sparql_file_query_populate (TrackerFileNotifier *notifier,
-                            TrackerSparqlCursor *cursor)
+                            TrackerSparqlCursor *cursor,
+                            gboolean             check_root)
 {
 	TrackerFileNotifierPrivate *priv;
 
 	priv = notifier->priv;
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		GFile *file, *canonical;
+		GFile *file, *canonical, *root;
 		const gchar *mtime, *iri;
 
 		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+
+		if (check_root) {
+			/* If it's a config root itself, other than the one
+			 * currently processed, bypass it, it will be processed
+			 * when the time arrives.
+			 */
+			root = tracker_indexing_tree_get_root (priv->indexing_tree, file, NULL);
+
+			if (root != priv->pending_index_roots->data) {
+				continue;
+			}
+		}
+
 		canonical = tracker_file_system_get_file (priv->file_system,
 		                                          file,
 		                                          G_FILE_TYPE_UNKNOWN,
@@ -408,7 +422,7 @@ sparql_query_cb (GObject      *object,
 		return;
 	}
 
-	sparql_file_query_populate (notifier, cursor);
+	sparql_file_query_populate (notifier, cursor, TRUE);
 
 	/* Mark the directory root as queried */
 	tracker_file_system_set_property (priv->file_system,
@@ -477,7 +491,7 @@ sparql_file_query_start (TrackerFileNotifier *notifier,
 		cursor = tracker_sparql_connection_query (priv->connection,
 		                                          sparql, NULL, NULL);
 		if (cursor) {
-			sparql_file_query_populate (notifier, cursor);
+			sparql_file_query_populate (notifier, cursor, FALSE);
 			g_object_unref (cursor);
 		}
 	} else {
