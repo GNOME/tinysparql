@@ -611,17 +611,12 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
                                          GFile               *file,
                                          GFileType            file_type)
 {
-	TrackerIndexingTreePrivate *priv;
 	TrackerFilterType filter;
 	TrackerDirectoryFlags config_flags;
 	GFile *config_file;
-	NodeData *data;
-	GNode *parent;
 
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	priv = tree->priv;
 
 	if (file_type == G_FILE_TYPE_UNKNOWN)
 		file_type = g_file_query_file_type (file,
