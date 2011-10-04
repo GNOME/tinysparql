@@ -552,7 +552,8 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 						directory,
 						&flags);
 
-		if (tracker_crawler_start (priv->crawler,
+		if ((flags & TRACKER_DIRECTORY_FLAG_IGNORE) == 0 &&
+		    tracker_crawler_start (priv->crawler,
 					   directory,
 					   (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)) {
 			gchar *uri;
