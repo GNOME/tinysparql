@@ -335,7 +335,7 @@
               <object class="GtkToggleToolButton" id="toolbutton_show_tags">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Tags</property>
+                <property name="tooltip_text" translatable="yes">Show results by tags</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
                 <property name="icon_name">emblem-default</property>
