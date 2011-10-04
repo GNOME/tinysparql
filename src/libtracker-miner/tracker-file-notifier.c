@@ -190,6 +190,14 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 }
 
 static gboolean
+file_notifier_unref_files (GFile    *file,
+                           gpointer  user_data)
+{
+	g_object_unref (file);
+	return FALSE;
+}
+
+static gboolean
 file_notifier_traverse_tree_foreach (GFile    *file,
                                      gpointer  user_data)
 {
@@ -240,6 +248,12 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 				      G_PRE_ORDER,
 				      file_notifier_traverse_tree_foreach,
 				      notifier);
+
+	tracker_file_system_traverse (priv->file_system,
+				      priv->pending_index_roots->data,
+				      G_POST_ORDER,
+	                              file_notifier_unref_files,
+	                              NULL);
 
 	tracker_info ("Finished notifying files after %2.2f seconds",
 	              g_timer_elapsed (priv->timer, NULL));
@@ -292,7 +306,8 @@ file_notifier_add_node_foreach (GNode    *node,
 	                                     G_FILE_TYPE_UNKNOWN,
 	                                     data->cur_parent);
 	file_info = g_file_query_info (file,
-				       G_FILE_ATTRIBUTE_TIME_MODIFIED,
+	                               G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 				       NULL,
 				       NULL);
@@ -318,6 +333,12 @@ file_notifier_add_node_foreach (GNode    *node,
 		tracker_file_system_set_property (priv->file_system, file,
 						  quark_property_filesystem_mtime,
 						  time_str);
+
+		if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+			/* Reference directories so they're always cached */
+			g_object_ref (file);
+		}
+
 		g_object_unref (file_info);
 	}
 
@@ -399,8 +420,9 @@ sparql_file_query_populate (TrackerFileNotifier *notifier,
 		tracker_file_system_set_property (priv->file_system, canonical,
 						  quark_property_store_mtime,
 						  g_strdup (mtime));
-
-		g_object_unref (file);
+		if (file != canonical) {
+			g_object_unref (file);
+		}
 	}
 }
 

@@ -81,22 +81,6 @@ file_node_data_free (FileNodeData *data,
 	g_slice_free (FileNodeData, data);
 }
 
-static void
-file_weak_ref_notify (gpointer  user_data,
-                      GObject  *prev_location)
-{
-	FileNodeData *data;
-	GNode *node;
-
-	node = user_data;
-	data = node->data;
-
-	g_assert (data->file == (GFile *) prev_location);
-
-	/* Delete node tree here */
-	file_node_data_free (data, NULL);
-}
-
 static FileNodeData *
 file_node_data_new (GFile     *file,
                     GFileType  file_type,
@@ -351,6 +335,25 @@ reparent_child_nodes (GNode *node,
 	}
 }
 
+static void
+file_weak_ref_notify (gpointer  user_data,
+                      GObject  *prev_location)
+{
+	FileNodeData *data;
+	GNode *node;
+
+	node = user_data;
+	data = node->data;
+
+	g_assert (data->file == (GFile *) prev_location);
+
+	reparent_child_nodes (node, node->parent);
+
+	/* Delete node tree here */
+	file_node_data_free (data, NULL);
+	g_node_destroy (node);
+}
+
 static GNode *
 file_system_get_node (TrackerFileSystem *file_system,
                       GFile             *file)
@@ -497,29 +500,6 @@ tracker_file_system_peek_parent (TrackerFileSystem *file_system,
 
 	return NULL;
 }
-
-#if 0
-void
-tracker_file_system_unref_file (TrackerFileSystem  *file_system,
-                                TrackerFile        *file)
-{
-	FileNodeData *data;
-	GNode *node;
-
-	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
-	g_return_if_fail (file != NULL);
-
-	node = (GNode *) file;
-	data = node->data;
-
-	if (g_atomic_int_dec_and_test (&data->ref_count)) {
-		reparent_child_nodes (node, node->parent);
-
-		g_assert (g_node_first_child (node) == NULL);
-		g_node_destroy (node);
-	}
-}
-#endif
 
 typedef struct {
 	TrackerFileSystemTraverseFunc func;
