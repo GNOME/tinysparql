@@ -443,14 +443,14 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 		return;
 	}
 
+	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, directory);
+
 	parent = node->parent;
 	g_node_unlink (node);
 
 	/* Move children to parent */
 	g_node_children_foreach (node, G_TRAVERSE_ALL,
 	                         check_reparent_node, parent);
-
-	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, directory);
 
 	node_data_free (node->data);
 	g_node_destroy (node);

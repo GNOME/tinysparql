@@ -939,7 +939,20 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
                                  GFile               *directory,
                                  gpointer             user_data)
 {
-	/* Signal as removed? depends on delete vs unmount */
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerDirectoryFlags flags;
+
+	/* Flags are still valid at the moment of deletion */
+	tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
+
+	if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) == 0) {
+		/* Directory needs to be deleted from the store too */
+		g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
+	}
+
+	/* Remove monitors if any */
+	tracker_monitor_remove_recursively (priv->monitor, directory);
 }
 
 static void

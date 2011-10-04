@@ -30,6 +30,7 @@ typedef enum {
 	TRACKER_DIRECTORY_FLAG_CHECK_MTIME = 1 << 2,
 	TRACKER_DIRECTORY_FLAG_MONITOR     = 1 << 3,
 	TRACKER_DIRECTORY_FLAG_IGNORE      = 1 << 4,
+	TRACKER_DIRECTORY_FLAG_PRESERVE    = 1 << 5
 } TrackerDirectoryFlags;
 
 typedef enum {

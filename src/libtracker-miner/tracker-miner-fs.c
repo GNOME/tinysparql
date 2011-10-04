@@ -3680,7 +3680,8 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	                           file,
 	                           TRACKER_DIRECTORY_FLAG_RECURSE |
 	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR |
+	                           TRACKER_DIRECTORY_FLAG_PRESERVE);
 }
 
 /**
