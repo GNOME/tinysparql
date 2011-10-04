@@ -29,7 +29,7 @@ tracker_needle_SOURCES = \
 	tracker-query.vala \
 	tracker-result-store.vala \
 	tracker-stats.vala \
-	tracker-taglist.vala \
+	tracker-tags-filter.vala \
 	tracker-tags-view.vala \
 	tracker-utils.vala \
 	tracker-needle.vala \
