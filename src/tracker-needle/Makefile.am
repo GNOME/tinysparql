@@ -24,14 +24,15 @@ LDADD =                                            \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_NEEDLE_LIBS)
 
-tracker_needle_SOURCES =                           \
-	tracker-history.vala                           \
-	tracker-query.vala                             \
-	tracker-result-store.vala                      \
-	tracker-stats.vala                             \
-	tracker-taglist.vala                           \
-	tracker-utils.vala                             \
-	tracker-needle.vala                            \
+tracker_needle_SOURCES = \
+	tracker-history.vala \
+	tracker-query.vala \
+	tracker-result-store.vala \
+	tracker-stats.vala \
+	tracker-taglist.vala \
+	tracker-tags-view.vala \
+	tracker-utils.vala \
+	tracker-needle.vala \
 	tracker-view.vala
 
 @INTLTOOL_DESKTOP_RULE@

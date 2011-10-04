@@ -452,14 +452,8 @@ public class Tracker.View : ScrolledWindow {
 		var separator = new SeparatorMenuItem ();
 		context_menu.append (separator);
 
-		item = new MenuItem.with_mnemonic (_("_Add Tag..."));
-		item.activate.connect (context_menu_tag_add_clicked);
-		item.sensitive = false;
-		context_menu.append (item);
-
-		item = new MenuItem.with_mnemonic (_("_Remove Tag..."));
-		item.activate.connect (context_menu_tag_remove_clicked);
-		item.sensitive = false;
+		item = new MenuItem.with_mnemonic (_("_Tags..."));
+		item.activate.connect (context_menu_tags_clicked);
 		context_menu.append (item);
 
 		context_menu.show_all ();
@@ -522,12 +516,42 @@ public class Tracker.View : ScrolledWindow {
 		tracker_model_launch_selected_parent_dir (model, path, 1);
 	}
 
-	private void context_menu_tag_add_clicked () {
-		warning ("Not yet implemented");
-	}
+	private void context_menu_tags_clicked () {
+		TreeModel model = get_model ();
+		TreePath path = get_selected_path ();
+		TreeIter iter;
+		model.get_iter (out iter, path);
 
-	private void context_menu_tag_remove_clicked () {
-		warning ("Not yet implemented");
-	}
+		weak string uri;
+		model.get (iter, 1, out uri);
 
+		if (uri == null) {
+			return;
+		}
+
+		debug ("Showing tags dialog for uri:'%s'", uri);
+
+		// Create dialog and embed vbox.
+		Dialog dialog = new Dialog.with_buttons (_("Tags"),
+		                                         (Window) this.get_toplevel (),
+		                                         DialogFlags.MODAL | DialogFlags.DESTROY_WITH_PARENT,
+		                                         Stock.CLOSE, ResponseType.CLOSE,
+		                                         null);
+		dialog.set_default_size (400, 300);
+		dialog.border_width = 12;
+		dialog.response.connect (() => {
+			dialog.destroy ();
+		});
+
+		List<string> files = null;
+		files.prepend (uri);
+		VBox vbox = new TrackerTagsView (files);
+
+		var content = dialog.get_content_area () as Box;
+		content.pack_start (vbox, true, true, 6);
+		content.spacing = 10;
+
+		((Widget) dialog).show_all ();
+		dialog.run ();
+	}
 }
