@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-26 09:22+0000\n"
-"PO-Revision-Date: 2011-09-26 12:20+0100\n"
+"POT-Creation-Date: 2011-10-04 08:14+0000\n"
+"PO-Revision-Date: 2011-10-04 12:41+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -656,7 +656,7 @@ msgstr "Nizka napetost baterije"
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2163
+#: ../src/miners/fs/tracker-miner-files.c:2172
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Napaka razširjevalnika. Izvajanje pred napakami varne izvleke metapodatkov"
 
@@ -715,45 +715,50 @@ msgstr "Nastavitev priprave kazala datotek"
 msgid "Search and Indexing"
 msgstr "Iskanje in priprava kazala"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:142
-#: ../src/tracker-preferences/tracker-preferences.vala:143
-#: ../src/tracker-preferences/tracker-preferences.vala:144
+#: ../src/tracker-preferences/tracker-preferences.vala:146
+#: ../src/tracker-preferences/tracker-preferences.vala:147
+#: ../src/tracker-preferences/tracker-preferences.vala:148
 msgid "Directory"
 msgstr "Mapa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:145
+#: ../src/tracker-preferences/tracker-preferences.vala:149
 #: ../src/tracker-needle/tracker-view.vala:180
+#: ../src/tracker-needle/tracker-stats.vala:103
 msgid "File"
-msgstr "Datoteka"
+msgid_plural "Files"
+msgstr[0] "Datoteke"
+msgstr[1] "Datoteka"
+msgstr[2] "Datoteki"
+msgstr[3] "Datoteke"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:315
-#: ../src/tracker-preferences/tracker-preferences.vala:324
+#: ../src/tracker-preferences/tracker-preferences.vala:329
+#: ../src/tracker-preferences/tracker-preferences.vala:338
 msgid "Disabled"
 msgstr "Onemogočeno"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:318
+#: ../src/tracker-preferences/tracker-preferences.vala:332
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:341
 #, c-format
 msgid "%d"
 msgstr "%d"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:471
+#: ../src/tracker-preferences/tracker-preferences.vala:485
 msgid "Enter value"
 msgstr "Vnesite vrednost"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:500
+#: ../src/tracker-preferences/tracker-preferences.vala:514
 msgid "Select directory"
 msgstr "Izbor mape"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:521
+#: ../src/tracker-preferences/tracker-preferences.vala:535
 msgid "That directory is already selected as a location to index"
 msgstr "Ta mapa je že izbrana kot mesto kazala"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:792
+#: ../src/tracker-preferences/tracker-preferences.vala:892
 #: ../src/tracker-needle/tracker-needle.vala:622
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
@@ -765,7 +770,7 @@ msgstr "Ta mapa je že izbrana kot mesto kazala"
 msgid "Print version"
 msgstr "Izpiši različico"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:798
+#: ../src/tracker-preferences/tracker-preferences.vala:898
 msgid "Desktop Search preferences"
 msgstr "Možnosti namiznega iskanja"
 
@@ -851,18 +856,26 @@ msgid "O_nly when computer is not being used"
 msgstr "_Le ko računalnik ni v uporabi"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"One or more special locations have the same path.\n"
+"Those which are the same are disabled!"
+msgstr ""
+"Več povezav do mest ima določenih enako pot.\n"
+"Mesta z enako potjo so onemogočena!"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Opens text entry for glob patterns"
 msgstr "Odpre besedilni vnos za vzorce glob"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Opens the filechooser dialogue"
 msgstr "Odpre pogovorno okno izbirnika datotek"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "Semantics"
 msgstr "Pomenoslovje"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</b> directory, can be easily toggled below. This will add or remove their real paths from the list underneath.\n"
 "\n"
@@ -872,15 +885,15 @@ msgstr ""
 "\n"
 "V primeru, da mapo preklopite <b>Rekurzivno</b>, pomeni, da bo ustvarjeno kazalo tudi vseh podrejenih map, sicer pa le datoteke vrhnje ravni."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Start up"
 msgstr "Zagon"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Stop indexing when _disk space is below:"
 msgstr "Zaustavi pripravo kazala, ko je prazen prostor na _disku pod:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid ""
 "The  scheduler  is  the kernel component that decides which runnable application will be executed by the CPU next.  Each application has an associated scheduling  policy and priority.\n"
 "\n"
@@ -890,31 +903,31 @@ msgstr ""
 "\n"
 "Možnost omogoča prerazporejanje delovne moči za program Tracker na čas, ko procesor ni zelo obremenjen ali pa je računalnik nedejaven. S tem drugi uporabniški programi, ki jih trenutno uporabljamo, delujejo prednostno."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "To vključuje VSE odstranljive medije, spominske kartice, CD-je, DVD-je, itn."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "While _other applications are running"
 msgstr "Med izvajanjem _drugih programov"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "With specific files:"
 msgstr "Z določenimi datotekami:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "_Delay"
 msgstr "_Zakasnitev"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "_Monitor file and directory changes"
 msgstr "_Nadziraj spremembe datotek in map"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "_While other applications are running, except for initial data population"
 msgstr "_Med izvajanjem drugih programov, razen začetnega nabora podatkov"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "seconds"
 msgstr "sekunde"
 
@@ -1038,6 +1051,126 @@ msgstr "Nalaganje ..."
 msgid "Pages"
 msgstr "Strani"
 
+#. Label for dialog
+#: ../src/tracker-needle/tracker-stats.vala:71
+msgid "The statistics represented here do not reflect their availability, rather the total data stored:"
+msgstr "Predstavljena statistika ne odraža dostopnosti, ampak skupna velikost shranjenih podatkov:"
+
+#: ../src/tracker-needle/tracker-stats.vala:91
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Oznake"
+msgstr[1] "Oznaka"
+msgstr[2] "Oznaki"
+msgstr[3] "Oznake"
+
+#: ../src/tracker-needle/tracker-stats.vala:94
+msgid "Contact"
+msgid_plural "Contacts"
+msgstr[0] "Stiki"
+msgstr[1] "Stik"
+msgstr[2] "Stika"
+msgstr[3] "Stiki"
+
+#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-search-bar/tracker-results-window.c:724
+msgid "Audio"
+msgid_plural "Audios"
+msgstr[0] "Zvoki"
+msgstr[1] "Zvok"
+msgstr[2] "Zvoki"
+msgstr[3] "Zvoki"
+
+#: ../src/tracker-needle/tracker-stats.vala:100
+msgid "Document"
+msgid_plural "Documents"
+msgstr[0] "Dokumenti"
+msgstr[1] "Dokument"
+msgstr[2] "Dokumenti"
+msgstr[3] "Dokumenti"
+
+#: ../src/tracker-needle/tracker-stats.vala:106
+msgid "Folder"
+msgid_plural "Folders"
+msgstr[0] "Mape"
+msgstr[1] "Mapa"
+msgstr[2] "Mape"
+msgstr[3] "Mape"
+
+#: ../src/tracker-needle/tracker-stats.vala:109
+msgid "Image"
+msgid_plural "Images"
+msgstr[0] "Slike"
+msgstr[1] "Slika"
+msgstr[2] "Slike"
+msgstr[3] "Slike"
+
+#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-control/tracker-control-miners.c:392
+msgid "Application"
+msgid_plural "Applications"
+msgstr[0] "Programi"
+msgstr[1] "Program"
+msgstr[2] "Programi"
+msgstr[3] "Programi"
+
+#. case "nmm:Video":
+#: ../src/tracker-needle/tracker-stats.vala:116
+msgid "Video"
+msgid_plural "Videos"
+msgstr[0] "Posnetki"
+msgstr[1] "Posnetek"
+msgstr[2] "Posnetki"
+msgstr[3] "Posnetki"
+
+#: ../src/tracker-needle/tracker-stats.vala:119
+msgid "Album"
+msgid_plural "Albums"
+msgstr[0] "Albumi"
+msgstr[1] "Album"
+msgstr[2] "Albumi"
+msgstr[3] "Albumi"
+
+#: ../src/tracker-needle/tracker-stats.vala:122
+msgid "Music Track"
+msgid_plural "Music Tracks"
+msgstr[0] "Glasba"
+msgstr[1] "Glasba"
+msgstr[2] "Glasba"
+msgstr[3] "Glasba"
+
+#: ../src/tracker-needle/tracker-stats.vala:125
+msgid "Photo"
+msgid_plural "Photos"
+msgstr[0] "Fotografije"
+msgstr[1] "Fotografija"
+msgstr[2] "Fotografije"
+msgstr[3] "Fotografije"
+
+#: ../src/tracker-needle/tracker-stats.vala:128
+msgid "Playlist"
+msgid_plural "Playlists"
+msgstr[0] "Seznami predvajanja"
+msgstr[1] "Seznam predvajanja"
+msgstr[2] "Seznami predvajanja"
+msgstr[3] "Seznami predvajanja"
+
+#: ../src/tracker-needle/tracker-stats.vala:131
+msgid "Email"
+msgid_plural "Emails"
+msgstr[0] "Elektronska pošta"
+msgstr[1] "Elektronska pošta"
+msgstr[2] "Elektronska pošta"
+msgstr[3] "Elektronska pošta"
+
+#: ../src/tracker-needle/tracker-stats.vala:134
+msgid "Bookmark"
+msgid_plural "Bookmarks"
+msgstr[0] "Zaznamki"
+msgstr[1] "Zaznamek"
+msgstr[2] "Zaznamki"
+msgstr[3] "Zaznamki"
+
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display found images"
 msgstr "Prikaži najdene slike"
@@ -1075,10 +1208,6 @@ msgstr "Stiki"
 #: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Email Addresses"
 msgstr "Naslovi elektronske pošte"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:724
-msgid "Audio"
-msgstr "Zvok"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
@@ -1503,10 +1632,6 @@ msgstr "Ni mogoče dobiti podrobnosti premora, upravljalnika ni bilo mogoče ust
 #: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are running"
 msgstr "Ni zagnanih programov za podatkovno rudarjenje"
-
-#: ../src/tracker-control/tracker-control-miners.c:392
-msgid "Application"
-msgstr "Program"
 
 #: ../src/tracker-control/tracker-control-miners.c:394
 msgid "Reason"
