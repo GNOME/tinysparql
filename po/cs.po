@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-09-26 09:22+0000\n"
-"PO-Revision-Date: 2011-09-27 18:33+0200\n"
+"POT-Creation-Date: 2011-10-03 11:51+0000\n"
+"PO-Revision-Date: 2011-10-04 10:12+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -727,7 +727,7 @@ msgstr "Nízká úroveň nabití baterie"
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2163
+#: ../src/miners/fs/tracker-miner-files.c:2172
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Chyba rozbalování, provádí se zotavení rozbalování vložených metadat"
 
@@ -786,45 +786,50 @@ msgstr "Nastavit indexování souborů prohledávačem Tracker"
 msgid "Search and Indexing"
 msgstr "Hledání a indexování"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:142
-#: ../src/tracker-preferences/tracker-preferences.vala:143
-#: ../src/tracker-preferences/tracker-preferences.vala:144
+#: ../src/tracker-preferences/tracker-preferences.vala:146
+#: ../src/tracker-preferences/tracker-preferences.vala:147
+#: ../src/tracker-preferences/tracker-preferences.vala:148
 msgid "Directory"
 msgstr "Složka"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:145
+#: ../src/tracker-preferences/tracker-preferences.vala:149
 #: ../src/tracker-needle/tracker-view.vala:180
+#: ../src/tracker-needle/tracker-stats.vala:103
+#| msgid "File"
 msgid "File"
-msgstr "Soubor"
+msgid_plural "Files"
+msgstr[0] "Soubor"
+msgstr[1] "Soubory"
+msgstr[2] "Soubory"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:315
-#: ../src/tracker-preferences/tracker-preferences.vala:324
+#: ../src/tracker-preferences/tracker-preferences.vala:329
+#: ../src/tracker-preferences/tracker-preferences.vala:338
 msgid "Disabled"
 msgstr "Zakázáno"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:318
+#: ../src/tracker-preferences/tracker-preferences.vala:332
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:341
 #, c-format
 msgid "%d"
 msgstr "%d"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:471
+#: ../src/tracker-preferences/tracker-preferences.vala:485
 msgid "Enter value"
 msgstr "Zadejte hodnotu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:500
+#: ../src/tracker-preferences/tracker-preferences.vala:514
 msgid "Select directory"
 msgstr "Vyberte složku"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:521
+#: ../src/tracker-preferences/tracker-preferences.vala:535
 msgid "That directory is already selected as a location to index"
 msgstr "Tato složka již jako umístění určené k indexování vybrána je"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:792
+#: ../src/tracker-preferences/tracker-preferences.vala:892
 #: ../src/tracker-needle/tracker-needle.vala:622
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
@@ -836,7 +841,7 @@ msgstr "Tato složka již jako umístění určené k indexování vybrána je"
 msgid "Print version"
 msgstr "Vypsat verzi"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:798
+#: ../src/tracker-preferences/tracker-preferences.vala:898
 msgid "Desktop Search preferences"
 msgstr "Předvolby prohledávání pracovního prostředí"
 
@@ -924,18 +929,26 @@ msgid "O_nly when computer is not being used"
 msgstr "Je_n když počítač není využíván"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"One or more special locations have the same path.\n"
+"Those which are the same are disabled!"
+msgstr ""
+"Jedno nebo více speciálních umístění má stejnou cestu.\n"
+"Ty, které jsou stejné, budou vypnuty!"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Opens text entry for glob patterns"
 msgstr "Otevírá textové pole pro zadání globálního vzorku"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Opens the filechooser dialogue"
 msgstr "Otevírá dialogové okno pro výběr souboru"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "Semantics"
 msgstr "Sémantika"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
 "b> directory, can be easily toggled below. This will add or remove their "
@@ -953,15 +966,15 @@ msgstr ""
 "i podřízené složky. V opačném případě se budou indexovat pouze soubory "
 "bezprostředně v této složce."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Start up"
 msgstr "Spuštění"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Stop indexing when _disk space is below:"
 msgstr "Zastavit indexování při poklesu místa na _disku pod:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid ""
 "The  scheduler  is  the kernel component that decides which runnable "
 "application will be executed by the CPU next.  Each application has an "
@@ -978,32 +991,32 @@ msgstr ""
 "nespotřebovával tolik procesorového času, když jej víc potřebují jiné "
 "aplikace."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "Toto pokrývá VŠECHNA výměnná média, paměťové karty, CD, DVD atd."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "While _other applications are running"
 msgstr "Zatímc_o běží jiné aplikace"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "With specific files:"
 msgstr "Se zadanými soubory:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "_Delay"
 msgstr "Zpož_dění"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "_Monitor file and directory changes"
 msgstr "Sledovat z_měny souborů a složek"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid ""
 "_While other applications are running, except for initial data population"
 msgstr "Zatímco běží jiné aplikace, vyjma počátečního sběru dat"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "seconds"
 msgstr "sekund"
 
@@ -1131,6 +1144,128 @@ msgstr "Načítá se…"
 msgid "Pages"
 msgstr "Stránek"
 
+#. Label for dialog
+#: ../src/tracker-needle/tracker-stats.vala:71
+msgid ""
+"The statistics represented here do not reflect their availability, rather "
+"the total data stored:"
+msgstr ""
+"Zde uvedené statistiky neodrážejí jejich dostupnost, ale celková uložená "
+"data:"
+
+#: ../src/tracker-needle/tracker-stats.vala:91
+#| msgid "Tags"
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Štítek"
+msgstr[1] "Štítky"
+msgstr[2] "Štítky"
+
+#: ../src/tracker-needle/tracker-stats.vala:94
+#| msgid "Contacts"
+msgid "Contact"
+msgid_plural "Contacts"
+msgstr[0] "Kontakt"
+msgstr[1] "Kontakty"
+msgstr[2] "Kontakty"
+
+#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-search-bar/tracker-results-window.c:724
+#| msgid "Audio"
+msgid "Audio"
+msgid_plural "Audios"
+msgstr[0] "Zvuk"
+msgstr[1] "Zvuky"
+msgstr[2] "Zvuky"
+
+#: ../src/tracker-needle/tracker-stats.vala:100
+#| msgid "Documents"
+msgid "Document"
+msgid_plural "Documents"
+msgstr[0] "Dokument"
+msgstr[1] "Dokumenty"
+msgstr[2] "Dokumenty"
+
+#: ../src/tracker-needle/tracker-stats.vala:106
+#| msgid "Folders"
+msgid "Folder"
+msgid_plural "Folders"
+msgstr[0] "Složka"
+msgstr[1] "Složky"
+msgstr[2] "Složky"
+
+#: ../src/tracker-needle/tracker-stats.vala:109
+#| msgid "Images"
+msgid "Image"
+msgid_plural "Images"
+msgstr[0] "Obrázek"
+msgstr[1] "Obrázky"
+msgstr[2] "Obrázky"
+
+#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-control/tracker-control-miners.c:392
+#| msgid "Application"
+msgid "Application"
+msgid_plural "Applications"
+msgstr[0] "Aplikace"
+msgstr[1] "Aplikace"
+msgstr[2] "Aplikace"
+
+#. case "nmm:Video":
+#: ../src/tracker-needle/tracker-stats.vala:116
+#| msgid "Videos"
+msgid "Video"
+msgid_plural "Videos"
+msgstr[0] "Video"
+msgstr[1] "Videa"
+msgstr[2] "Videa"
+
+#: ../src/tracker-needle/tracker-stats.vala:119
+#| msgid "Albums"
+msgid "Album"
+msgid_plural "Albums"
+msgstr[0] "Album"
+msgstr[1] "Alba"
+msgstr[2] "Alba"
+
+#: ../src/tracker-needle/tracker-stats.vala:122
+#| msgid "Music"
+msgid "Music Track"
+msgid_plural "Music Tracks"
+msgstr[0] "Hudba"
+msgstr[1] "Hudba"
+msgstr[2] "Hudba"
+
+#: ../src/tracker-needle/tracker-stats.vala:125
+msgid "Photo"
+msgid_plural "Photos"
+msgstr[0] "Fotografie"
+msgstr[1] "Fotografie"
+msgstr[2] "Fotografie"
+
+#: ../src/tracker-needle/tracker-stats.vala:128
+msgid "Playlist"
+msgid_plural "Playlists"
+msgstr[0] "Seznam skladeb"
+msgstr[1] "Seznamy skladeb"
+msgstr[2] "Seznamy skladeb"
+
+#: ../src/tracker-needle/tracker-stats.vala:131
+#| msgid "Emails"
+msgid "Email"
+msgid_plural "Emails"
+msgstr[0] "E-mail"
+msgstr[1] "E-maily"
+msgstr[2] "E-maily"
+
+#: ../src/tracker-needle/tracker-stats.vala:134
+#| msgid "Bookmarks"
+msgid "Bookmark"
+msgid_plural "Bookmarks"
+msgstr[0] "Záložka"
+msgstr[1] "Záložky"
+msgstr[2] "Záložky"
+
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display found images"
 msgstr "Zobrazit nalezené obrázky"
@@ -1169,10 +1304,6 @@ msgstr "Kontakty"
 #: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Email Addresses"
 msgstr "E-mailové adresy"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:724
-msgid "Audio"
-msgstr "Zvuk"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
@@ -1655,10 +1786,6 @@ msgstr ""
 #: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are running"
 msgstr "Neběží žádný démon na dolování dat"
-
-#: ../src/tracker-control/tracker-control-miners.c:392
-msgid "Application"
-msgstr "Aplikace"
 
 #: ../src/tracker-control/tracker-control-miners.c:394
 msgid "Reason"
