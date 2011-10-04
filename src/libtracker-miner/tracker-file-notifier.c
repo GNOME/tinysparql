@@ -208,6 +208,9 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	if (store_mtime && !disk_mtime) {
 		/* In store but not in disk, delete */
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
+
+		/* Only emit it for the toplevel folder, if it is a folder */
+		return TRUE;
 	} else if (disk_mtime && !store_mtime) {
 		/* In disk but not in store, create */
 		g_signal_emit (notifier, signals[FILE_CREATED], 0, file);
