@@ -573,6 +573,11 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		} else {
 			/* Emit both signals for consistency */
 			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
+
+			if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) == 0) {
+				g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
+			}
+
 			g_signal_emit (notifier, signals[DIRECTORY_FINISHED], 0,
 			               directory, 0, 0, 0, 0);
 		}
