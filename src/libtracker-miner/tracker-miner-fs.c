@@ -219,10 +219,6 @@ typedef enum {
 } QueueState;
 
 enum {
-	CHECK_FILE,
-	CHECK_DIRECTORY,
-	CHECK_DIRECTORY_CONTENTS,
-	MONITOR_DIRECTORY,
 	PROCESS_FILE,
 	PROCESS_FILE_ATTRIBUTES,
 	IGNORE_NEXT_UPDATE_FILE,
@@ -251,11 +247,6 @@ static void           fs_get_property                     (GObject              
                                                            guint                 prop_id,
                                                            GValue               *value,
                                                            GParamSpec           *pspec);
-static gboolean       fs_defaults                         (TrackerMinerFS       *fs,
-                                                           GFile                *file);
-static gboolean       fs_contents_defaults                (TrackerMinerFS       *fs,
-                                                           GFile                *parent,
-                                                           GList                *children);
 static void           miner_started                       (TrackerMiner         *miner);
 static void           miner_stopped                       (TrackerMiner         *miner);
 static void           miner_paused                        (TrackerMiner         *miner);
@@ -314,7 +305,6 @@ static void
 tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
-	TrackerMinerFSClass *fs_class = TRACKER_MINER_FS_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
 
 	object_class->finalize = fs_finalize;
@@ -326,11 +316,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	miner_class->paused  = miner_paused;
 	miner_class->resumed = miner_resumed;
 	miner_class->ignore_next_update = miner_ignore_next_update;
-
-	fs_class->check_file        = fs_defaults;
-	fs_class->check_directory   = fs_defaults;
-	fs_class->monitor_directory = fs_defaults;
-	fs_class->check_directory_contents = fs_contents_defaults;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_THROTTLE,
@@ -370,97 +355,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE));
 
-	/**
-	 * TrackerMinerFS::check-file:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @file: a #GFile
-	 *
-	 * The ::check-file signal is emitted either on the filesystem crawling
-	 * phase or whenever a new file appears in a monitored directory
-	 * in order to check whether @file must be inspected my @miner_fs.
-	 *
-	 * Returns: %TRUE if @file must be inspected.
-	 *
-	 * Since: 0.8
-	 **/
-	signals[CHECK_FILE] =
-		g_signal_new ("check-file",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, check_file),
-		              tracker_accumulator_check_file,
-		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT,
-		              G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
-	/**
-	 * TrackerMinerFS::check-directory:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @directory: a #GFile
-	 *
-	 * The ::check-directory signal is emitted either on the filesystem crawling
-	 * phase or whenever a new directory appears in a monitored directory
-	 * in order to check whether @directory must be inspected my @miner_fs.
-	 *
-	 * Returns: %TRUE if @directory must be inspected.
-	 *
-	 * Since: 0.8
-	 **/
-	signals[CHECK_DIRECTORY] =
-		g_signal_new ("check-directory",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, check_directory),
-		              tracker_accumulator_check_file,
-		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT,
-		              G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
-	/**
-	 * TrackerMinerFS::check-directory-contents:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @directory: a #GFile
-	 * @children: #GList of #GFile<!-- -->s
-	 *
-	 * The ::check-directory-contents signal is emitted either on the filesystem
-	 * crawling phase or whenever a new directory appears in a monitored directory
-	 * in order to check whether @directory must be inspected my @miner_fs based on
-	 * the directory contents, for some implementations this signal may be useful
-	 * to discard backup directories for example.
-	 *
-	 * Returns: %TRUE if @directory must be inspected.
-	 *
-	 * Since: 0.8
-	 **/
-	signals[CHECK_DIRECTORY_CONTENTS] =
-		g_signal_new ("check-directory-contents",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, check_directory_contents),
-		              tracker_accumulator_check_file,
-		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT_POINTER,
-		              G_TYPE_BOOLEAN, 2, G_TYPE_FILE, G_TYPE_POINTER);
-	/**
-	 * TrackerMinerFS::monitor-directory:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @directory: a #GFile
-	 *
-	 * The ::monitor-directory is emitted either on the filesystem crawling phase
-	 * or whenever a new directory appears in a monitored directory in order to
-	 * check whether @directory must be monitored for filesystem changes or not.
-	 *
-	 * Returns: %TRUE if the directory must be monitored for changes.
-	 *
-	 * Since: 0.8
-	 **/
-	signals[MONITOR_DIRECTORY] =
-		g_signal_new ("monitor-directory",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, monitor_directory),
-		              tracker_accumulator_check_file,
-		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT,
-		              G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	/**
 	 * TrackerMinerFS::process-file:
 	 * @miner_fs: the #TrackerMinerFS
@@ -867,21 +761,6 @@ task_pool_limit_reached_notify_cb (GObject    *object,
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (object))) {
 		item_queue_handlers_set_up (TRACKER_MINER_FS (user_data));
 	}
-}
-
-static gboolean
-fs_defaults (TrackerMinerFS *fs,
-             GFile          *file)
-{
-	return TRUE;
-}
-
-static gboolean
-fs_contents_defaults (TrackerMinerFS *fs,
-                      GFile          *parent,
-                      GList          *children)
-{
-	return TRUE;
 }
 
 static void

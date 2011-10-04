@@ -41,10 +41,6 @@ static void     miner_applications_initable_iface_init     (GInitableIface      
 static gboolean miner_applications_initable_init           (GInitable            *initable,
                                                             GCancellable         *cancellable,
                                                             GError              **error);
-static gboolean miner_applications_check_file              (TrackerMinerFS       *fs,
-                                                            GFile                *file);
-static gboolean miner_applications_check_directory         (TrackerMinerFS       *fs,
-                                                            GFile                *file);
 static gboolean miner_applications_process_file            (TrackerMinerFS       *fs,
                                                             GFile                *file,
                                                             TrackerSparqlBuilder *sparql,
@@ -53,8 +49,6 @@ static gboolean miner_applications_process_file_attributes (TrackerMinerFS      
                                                             GFile                *file,
                                                             TrackerSparqlBuilder *sparql,
                                                             GCancellable         *cancellable);
-static gboolean miner_applications_monitor_directory       (TrackerMinerFS       *fs,
-                                                            GFile                *file);
 static void     miner_applications_finalize                (GObject              *object);
 
 
@@ -85,9 +79,6 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 
 	object_class->finalize = miner_applications_finalize;
 
-	miner_fs_class->check_file = miner_applications_check_file;
-	miner_fs_class->check_directory = miner_applications_check_directory;
-	miner_fs_class->monitor_directory = miner_applications_monitor_directory;
 	miner_fs_class->process_file = miner_applications_process_file;
 	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
 
@@ -313,42 +304,6 @@ insert_data_from_desktop_file (TrackerSparqlBuilder *sparql,
 		tracker_sparql_builder_object_string (sparql, str);
 		g_free (str);
 	}
-}
-
-static gboolean
-miner_applications_check_file (TrackerMinerFS *fs,
-                               GFile          *file)
-{
-	gboolean retval = FALSE;
-	gchar *basename;
-
-	basename = g_file_get_basename (file);
-
-	/* Check we're dealing with a desktop file */
-	if (g_str_has_suffix (basename, ".desktop") ||
-	    g_str_has_suffix (basename, ".directory")) {
-		retval = TRUE;
-	}
-
-	g_free (basename);
-
-	return retval;
-}
-
-static gboolean
-miner_applications_check_directory (TrackerMinerFS *fs,
-                                    GFile          *file)
-{
-	/* We want to inspect all the passed dirs and their children */
-	return TRUE;
-}
-
-static gboolean
-miner_applications_monitor_directory (TrackerMinerFS *fs,
-                                      GFile          *file)
-{
-	/* We want to monitor all the passed dirs and their children */
-	return TRUE;
 }
 
 static GKeyFile *

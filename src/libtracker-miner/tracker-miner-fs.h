@@ -84,13 +84,6 @@ struct _TrackerMinerFS {
 typedef struct {
 	TrackerMinerClass parent;
 
-	gboolean (* check_file)               (TrackerMinerFS       *fs,
-	                                       GFile                *file);
-	gboolean (* check_directory)          (TrackerMinerFS       *fs,
-	                                       GFile                *file);
-	gboolean (* check_directory_contents) (TrackerMinerFS       *fs,
-	                                       GFile                *parent,
-	                                       GList                *children);
 	gboolean (* process_file)             (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
@@ -99,8 +92,6 @@ typedef struct {
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);
-	gboolean (* monitor_directory)        (TrackerMinerFS       *fs,
-	                                       GFile                *file);
 	void     (* finished)                 (TrackerMinerFS       *fs);
 	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,

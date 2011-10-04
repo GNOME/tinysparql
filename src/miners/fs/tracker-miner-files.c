@@ -175,13 +175,6 @@ static void        trigger_recheck_cb                   (GObject              *g
 static void        index_volumes_changed_cb             (GObject              *gobject,
                                                          GParamSpec           *arg1,
                                                          gpointer              user_data);
-static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
-                                                         GFile                *file);
-static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
-                                                         GFile                *file);
-static gboolean    miner_files_check_directory_contents (TrackerMinerFS       *fs,
-                                                         GFile                *parent,
-                                                         GList                *children);
 static gboolean    miner_files_process_file             (TrackerMinerFS       *fs,
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
@@ -190,8 +183,6 @@ static gboolean    miner_files_process_file_attributes  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
-static gboolean    miner_files_monitor_directory        (TrackerMinerFS       *fs,
-                                                         GFile                *file);
 static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *fs,
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
@@ -236,10 +227,6 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	object_class->get_property = miner_files_get_property;
 	object_class->set_property = miner_files_set_property;
 
-	miner_fs_class->check_file = miner_files_check_file;
-	miner_fs_class->check_directory = miner_files_check_directory;
-	miner_fs_class->check_directory_contents = miner_files_check_directory_contents;
-	miner_fs_class->monitor_directory = miner_files_monitor_directory;
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
 	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
@@ -1872,79 +1859,6 @@ index_volumes_changed_cb (GObject    *gobject,
 		miner_files->private->volumes_changed_id =
 			g_idle_add (index_volumes_changed_idle, miner_files);
 	}
-}
-
-static gboolean
-miner_files_check_file (TrackerMinerFS *fs,
-                        GFile          *file)
-{
-	TrackerMinerFiles *mf;
-
-	/* Check module file ignore patterns */
-	mf = TRACKER_MINER_FILES (fs);
-
-	if (G_UNLIKELY (!mf->private->config)) {
-		return TRUE;
-	}
-
-	return tracker_miner_files_check_file (file,
-	                                       tracker_config_get_ignored_file_paths (mf->private->config),
-	                                       tracker_config_get_ignored_file_patterns (mf->private->config));
-}
-
-static gboolean
-miner_files_check_directory (TrackerMinerFS *fs,
-                             GFile          *file)
-{
-	TrackerMinerFiles *mf;
-
-	/* Check module file ignore patterns */
-	mf = TRACKER_MINER_FILES (fs);
-
-	if (G_UNLIKELY (!mf->private->config)) {
-		return TRUE;
-	}
-
-	return tracker_miner_files_check_directory (file,
-	                                            tracker_config_get_index_recursive_directories (mf->private->config),
-	                                            tracker_config_get_index_single_directories (mf->private->config),
-	                                            tracker_config_get_ignored_directory_paths (mf->private->config),
-	                                            tracker_config_get_ignored_directory_patterns (mf->private->config));
-}
-
-static gboolean
-miner_files_check_directory_contents (TrackerMinerFS *fs,
-                                      GFile          *parent,
-                                      GList          *children)
-{
-	TrackerMinerFiles *mf;
-
-	mf = TRACKER_MINER_FILES (fs);
-
-	if (G_UNLIKELY (!mf->private->config)) {
-		return TRUE;
-	}
-
-	return tracker_miner_files_check_directory_contents (parent,
-	                                                     children,
-	                                                     tracker_config_get_ignored_directories_with_content (mf->private->config));
-}
-
-static gboolean
-miner_files_monitor_directory (TrackerMinerFS *fs,
-                               GFile          *file)
-{
-	TrackerMinerFiles *mf;
-
-	mf = TRACKER_MINER_FILES (fs);
-
-	if (G_UNLIKELY (!mf->private->config)) {
-		return TRUE;
-	}
-
-	return tracker_miner_files_monitor_directory (file,
-	                                              tracker_config_get_enable_monitors (mf->private->config),
-	                                              mf->private->index_single_directories);
 }
 
 static const gchar *
