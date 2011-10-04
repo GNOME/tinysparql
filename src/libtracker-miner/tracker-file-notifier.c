@@ -245,7 +245,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 	priv = notifier->priv;
 	tracker_file_system_traverse (priv->file_system,
 				      priv->pending_index_roots->data,
-				      G_PRE_ORDER,
+				      G_LEVEL_ORDER,
 				      file_notifier_traverse_tree_foreach,
 				      notifier);
 
