@@ -18,8 +18,9 @@
 //
 
 using Gtk;
+using Tracker;
 
-public class Tracker.TagList : ScrolledWindow {
+public class TrackerTagsFilter : ScrolledWindow {
 	private static Sparql.Connection connection;
 	private TreeView treeview;
 	private ListStore store;
@@ -30,7 +31,7 @@ public class Tracker.TagList : ScrolledWindow {
 
 	public signal void selection_changed (GenericArray<string> new_tags); 
 
-	public TagList () {
+	public TrackerTagsFilter () {
 		limit = 100;
 
 		tags = new GenericArray<string> ();

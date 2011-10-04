@@ -48,7 +48,7 @@ public class Tracker.Needle {
 	private Tracker.View sw_categories;
 	private Tracker.View sw_filelist;
 	private Tracker.View sw_icons;
-	private Tracker.TagList taglist;
+	private TrackerTagsFilter tags_filter;
 	private uint last_search_id = 0;
 	private int size_small = 0;
 	private int size_medium = 0;
@@ -311,11 +311,11 @@ public class Tracker.Needle {
 		iconview.item_activated.connect (icon_item_selected);
 		view.pack_start (sw_icons, true, true, 0);
 
-		// Set up taglist
-		taglist = new Tracker.TagList ();
-		taglist.hide ();
-		view.pack_end (taglist, false, true, 0);
-		taglist.selection_changed.connect (taglist_selection_changed);
+		// Set up tags_filter
+		tags_filter = new TrackerTagsFilter ();
+		tags_filter.hide ();
+		view.pack_end (tags_filter, false, true, 0);
+		tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
 	}
@@ -329,7 +329,7 @@ public class Tracker.Needle {
 		return false;
 	}
 
-	private void taglist_selection_changed (GenericArray<string> new_tags) {
+	private void tags_filter_selection_changed (GenericArray<string> new_tags) {
 		if (new_tags != null && new_tags.length > 0) {
 			debug ("Tags selected changed, first:'%s', ...", new_tags[0]);
 		} else {
@@ -471,7 +471,7 @@ public class Tracker.Needle {
 		if (store != null) {
 			// Set tags first
 			if (show_tags.active) {
-				store.search_tags = taglist.tags;
+				store.search_tags = tags_filter.tags;
 
 				// Don't search if no tags are selected
 				if (store.search_tags.length < 1) {
@@ -573,11 +573,11 @@ public class Tracker.Needle {
 	private void show_tags_clicked () {
 		if (show_tags.active) {
 			debug ("Showing tags");
-			taglist.show ();
+			tags_filter.show ();
 			search_entry.sensitive = false;
 		} else {
 			debug ("Hiding tags");
-			taglist.hide ();
+			tags_filter.hide ();
 			search_entry.sensitive = true;
 		}
 
