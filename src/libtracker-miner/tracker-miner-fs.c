@@ -624,31 +624,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 }
 
 static void
-indexing_tree_directory_added_cb (TrackerIndexingTree *tree,
-				  GFile               *directory,
-				  gpointer             user_data)
-{
-	TrackerMinerFS *fs = user_data;
-	TrackerDirectoryFlags dir_flags;
-	gboolean recurse;
-
-	tracker_indexing_tree_get_root (tree, directory, &dir_flags);
-	recurse = (dir_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
-
-	tracker_miner_fs_directory_add (fs, directory, recurse);
-}
-
-static void
-indexing_tree_directory_removed_cb (TrackerIndexingTree *tree,
-				    GFile               *directory,
-				    gpointer             user_data)
-{
-	TrackerMinerFS *fs = user_data;
-
-	tracker_miner_fs_directory_remove (fs, directory);
-}
-
-static void
 tracker_miner_fs_init (TrackerMinerFS *object)
 {
 	TrackerMinerFSPrivate *priv;
@@ -684,12 +659,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create the indexing tree */
 	priv->indexing_tree = tracker_indexing_tree_new ();
-	g_signal_connect (priv->indexing_tree, "directory-added",
-			  G_CALLBACK (indexing_tree_directory_added_cb),
-			  object);
-	g_signal_connect (priv->indexing_tree, "directory-removed",
-			  G_CALLBACK (indexing_tree_directory_removed_cb),
-			  object);
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree);
