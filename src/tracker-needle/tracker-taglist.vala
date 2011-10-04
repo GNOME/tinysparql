@@ -20,7 +20,7 @@
 using Gtk;
 
 public class Tracker.TagList : ScrolledWindow {
-	static Sparql.Connection connection;
+	private static Sparql.Connection connection;
 	private TreeView treeview;
 	private ListStore store;
 	private int offset;
