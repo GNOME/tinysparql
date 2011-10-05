@@ -72,8 +72,7 @@ void          tracker_file_system_traverse       (TrackerFileSystem             
                                                   gpointer                       user_data);
 
 /* properties */
-void      tracker_file_system_register_property (TrackerFileSystem *file_system,
-                                                 GQuark             prop,
+void      tracker_file_system_register_property (GQuark             prop,
                                                  GDestroyNotify     destroy_notify);
 
 void      tracker_file_system_set_property   (TrackerFileSystem  *file_system,

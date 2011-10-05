@@ -28,9 +28,10 @@ typedef struct _TrackerFileSystemPrivate TrackerFileSystemPrivate;
 typedef struct _FileNodeProperty FileNodeProperty;
 typedef struct _FileNodeData FileNodeData;
 
+static GHashTable *properties = NULL;
+
 struct _TrackerFileSystemPrivate {
 	GNode *file_tree;
-	GHashTable *properties;
 };
 
 struct _FileNodeProperty {
@@ -66,6 +67,8 @@ static void
 file_node_data_free (FileNodeData *data,
                      GNode        *node)
 {
+	guint i;
+
 	if (data->shallow) {
 		/* Shallow nodes own the reference to the file */
 		g_object_unref (data->file);
@@ -76,8 +79,23 @@ file_node_data_free (FileNodeData *data,
 	}
 
 	g_free (data->uri_suffix);
-	g_array_free (data->properties, TRUE);
 
+	for (i = 0; i < data->properties->len; i++) {
+		FileNodeProperty *property;
+		GDestroyNotify destroy_notify;
+
+		property = &g_array_index (data->properties,
+					   FileNodeProperty, i);
+
+		destroy_notify = g_hash_table_lookup (properties,
+						      GUINT_TO_POINTER (property->prop_quark));
+
+		if (destroy_notify) {
+			(destroy_notify) (property->value);
+		}
+	}
+
+	g_array_free (data->properties, TRUE);
 	g_slice_free (FileNodeData, data);
 }
 
@@ -554,28 +572,22 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 }
 
 void
-tracker_file_system_register_property (TrackerFileSystem *file_system,
-                                       GQuark             prop,
+tracker_file_system_register_property (GQuark             prop,
                                        GDestroyNotify     destroy_notify)
 {
-	TrackerFileSystemPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (prop != 0);
 
-	priv = file_system->priv;
-
-	if (!priv->properties) {
-		priv->properties = g_hash_table_new (NULL, NULL);
+	if (!properties) {
+		properties = g_hash_table_new (NULL, NULL);
 	}
 
-	if (g_hash_table_lookup (priv->properties, GUINT_TO_POINTER (prop))) {
+	if (g_hash_table_lookup (properties, GUINT_TO_POINTER (prop))) {
 		g_warning ("FileSystem: property '%s' has been already registered",
 		           g_quark_to_string (prop));
 		return;
 	}
 
-	g_hash_table_insert (priv->properties,
+	g_hash_table_insert (properties,
 	                     GUINT_TO_POINTER (prop),
 	                     destroy_notify);
 }
@@ -615,8 +627,8 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 
 	priv = file_system->priv;
 
-	if (!priv->properties ||
-	    !g_hash_table_lookup_extended (priv->properties,
+	if (!properties ||
+	    !g_hash_table_lookup_extended (properties,
 	                                   GUINT_TO_POINTER (prop),
 	                                   NULL, (gpointer *) &destroy_notify)) {
 		g_warning ("FileSystem: property '%s' is not registered",
@@ -708,8 +720,8 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 
 	priv = file_system->priv;
 
-	if (!priv->properties ||
-	    !g_hash_table_lookup_extended (priv->properties,
+	if (!properties ||
+	    !g_hash_table_lookup_extended (properties,
 	                                   GUINT_TO_POINTER (prop),
 	                                   NULL,
 	                                   (gpointer *) &destroy_notify)) {

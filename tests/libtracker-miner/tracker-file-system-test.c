@@ -189,12 +189,10 @@ test_file_system_properties (TestCommonContext *fixture,
 	GFile *file, *f;
 
 	property1_quark = g_quark_from_string ("file-system-test-property1");
-	tracker_file_system_register_property (fixture->file_system,
-					       property1_quark,
+	tracker_file_system_register_property (property1_quark,
 					       NULL);
 	property2_quark = g_quark_from_string ("file-system-test-property2");
-	tracker_file_system_register_property (fixture->file_system,
-					       property2_quark,
+	tracker_file_system_register_property (property2_quark,
 					       NULL);
 
 	f = g_file_new_for_uri ("file:///aaa/");

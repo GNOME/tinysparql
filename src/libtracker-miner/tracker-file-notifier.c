@@ -1124,10 +1124,21 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 
 	/* Initialize property quarks */
 	quark_property_crawled = g_quark_from_static_string ("tracker-property-crawled");
+	tracker_file_system_register_property (quark_property_crawled, NULL);
+
 	quark_property_queried = g_quark_from_static_string ("tracker-property-queried");
+	tracker_file_system_register_property (quark_property_queried, NULL);
+
 	quark_property_iri = g_quark_from_static_string ("tracker-property-iri");
+	tracker_file_system_register_property (quark_property_iri, g_free);
+
 	quark_property_store_mtime = g_quark_from_static_string ("tracker-property-store-mtime");
+	tracker_file_system_register_property (quark_property_store_mtime,
+	                                       g_free);
+
 	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
+	tracker_file_system_register_property (quark_property_filesystem_mtime,
+	                                       g_free);
 }
 
 static void
@@ -1153,22 +1164,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 	/* Initialize filesystem and register properties */
 	priv->file_system = tracker_file_system_new ();
-
-	/* booleans */
-	tracker_file_system_register_property (priv->file_system,
-					       quark_property_crawled, NULL);
-	tracker_file_system_register_property (priv->file_system,
-	                                       quark_property_queried, NULL);
-
-	/* strings */
-	tracker_file_system_register_property (priv->file_system,
-					       quark_property_iri, g_free);
-	tracker_file_system_register_property (priv->file_system,
-	                                       quark_property_store_mtime,
-	                                       g_free);
-	tracker_file_system_register_property (priv->file_system,
-	                                       quark_property_filesystem_mtime,
-	                                       g_free);
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
