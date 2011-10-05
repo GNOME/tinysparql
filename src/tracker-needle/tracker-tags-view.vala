@@ -87,7 +87,7 @@ public class TrackerTagsView : VBox {
 		TRUE = 1
 	}
 
-	public TrackerTagsView (List<string> _files) requires (_files != null) {
+	public TrackerTagsView (List<string> _files) requires (_files.length () > 0) {
 		try {
 			connection = Sparql.Connection.get ();
 		} catch (GLib.Error e) {
@@ -699,7 +699,7 @@ public class TrackerTagsView : VBox {
 		td = null;
 	}
 
-	private string sparql_get_filter_string (string? tag) requires (files != null) {
+	private string sparql_get_filter_string (string? tag) requires (files.length () > 0) {
 		string filter = "FILTER (";
 
 		if (tag != null && tag != "") {
@@ -726,7 +726,7 @@ public class TrackerTagsView : VBox {
 		return filter;
 	}
 
-	private string sparql_get_escaped_string (string str) requires (str != null) {
+	private string sparql_get_escaped_string (string str) {
 		string escaped = Sparql.escape_string (str);
 		return "\"%s\"".printf (escaped);
 	}
