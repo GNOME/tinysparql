@@ -1024,6 +1024,8 @@ tracker_file_notifier_constructed (GObject *object)
 
 	g_signal_connect (priv->indexing_tree, "directory-added",
 	                  G_CALLBACK (indexing_tree_directory_added), object);
+	g_signal_connect (priv->indexing_tree, "directory-updated",
+	                  G_CALLBACK (indexing_tree_directory_added), object);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
 }
