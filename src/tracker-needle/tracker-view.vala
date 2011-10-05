@@ -58,6 +58,7 @@ public class Tracker.View : ScrolledWindow {
 	}
 
 	private Widget view = null;
+	private Menu context_menu;
 
 	private void store_row_changed (TreeModel model,
 	                                TreePath  path,
@@ -130,6 +131,7 @@ public class Tracker.View : ScrolledWindow {
 		} else {
 			add (view);
 			setup_model ();
+			setup_menus ();
 		}
 
 		base.show_all ();
@@ -180,7 +182,7 @@ public class Tracker.View : ScrolledWindow {
 			col.set_title (_("File"));
 			col.set_resizable (true);
 			col.set_expand (true);
-			col.set_cell_data_func (renderer1, renderer_background_func);
+			col.set_cell_data_func (renderer1, background_renderer_func);
 			col.set_cell_data_func (renderer2, text_renderer_func);
 			tv.append_column (col);
 
@@ -227,7 +229,7 @@ public class Tracker.View : ScrolledWindow {
 			var renderer1 = new CellRendererPixbuf ();
 			col.pack_start (renderer1, false);
 			col.add_attribute (renderer1, "pixbuf", 6);
-			col.set_cell_data_func (renderer1, renderer_background_func);
+			col.set_cell_data_func (renderer1, background_renderer_func);
 			renderer1.xpad = 5;
 			renderer1.ypad = 5;
 
@@ -266,7 +268,7 @@ public class Tracker.View : ScrolledWindow {
 		}
 	}
 
-	private void renderer_background_func (CellLayout   cell_layout,
+	private void background_renderer_func (CellLayout   cell_layout,
 	                                       CellRenderer cell,
 	                                       TreeModel    tree_model,
 	                                       TreeIter     iter) {
@@ -312,7 +314,7 @@ public class Tracker.View : ScrolledWindow {
 		string markup = null;
 		int n_children;
 
-		renderer_background_func (cell_layout, cell, tree_model, iter);
+		background_renderer_func (cell_layout, cell, tree_model, iter);
 		n_children = tree_model.iter_n_children (iter);
 
 		if (n_children > 0) {
@@ -373,7 +375,7 @@ public class Tracker.View : ScrolledWindow {
 	                                      TreeIter     iter) {
 		string size;
 
-		renderer_background_func (cell_layout, cell, tree_model, iter);
+		background_renderer_func (cell_layout, cell, tree_model, iter);
 		tree_model.get (iter, 4, out size, -1);
 
 		if (size != null) {
@@ -389,7 +391,7 @@ public class Tracker.View : ScrolledWindow {
 	                                      TreeIter     iter) {
 		string date;
 
-		renderer_background_func (cell_layout, cell, tree_model, iter);
+		background_renderer_func (cell_layout, cell, tree_model, iter);
 		tree_model.get (iter, 5, out date, -1);
 
 		if (date != null) {
@@ -407,7 +409,7 @@ public class Tracker.View : ScrolledWindow {
 		string markup = null;
 		string detail;
 
-		renderer_background_func (cell_layout, cell, tree_model, iter);
+		background_renderer_func (cell_layout, cell, tree_model, iter);
 		tree_model.get (iter, 4, out detail, 7, out category, -1);
 
 		if (detail == null) {
@@ -435,5 +437,121 @@ public class Tracker.View : ScrolledWindow {
 
 		markup = "<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
 		cell.set ("markup", markup);
+	}
+
+	private void setup_menus () {
+		// Set up context menu
+		view.button_press_event.connect (view_button_press_event);
+
+		context_menu = new Menu ();
+
+		var item = new MenuItem.with_mnemonic (_("_Show Parent Directory"));
+		item.activate.connect (context_menu_directory_clicked);
+		context_menu.append (item);
+
+		var separator = new SeparatorMenuItem ();
+		context_menu.append (separator);
+
+		item = new MenuItem.with_mnemonic (_("_Tags..."));
+		item.activate.connect (context_menu_tags_clicked);
+		context_menu.append (item);
+
+		context_menu.show_all ();
+	}
+
+	private bool view_button_press_event (Gtk.Widget widget, Gdk.EventButton event) {
+		if (event.button == 3) {
+			if (get_selected_path () != null) {
+				context_menu.popup (null, null, null, event.button, event.time);
+			}
+		}
+
+		return false;
+	}
+
+	private TreeModel? get_model () {
+		switch (display) {
+		case Display.CATEGORIES:
+		case Display.FILE_LIST:
+			TreeView v = (TreeView) view;
+			return v.get_model ();
+
+		case Display.FILE_ICONS:
+			IconView v = (IconView) view;
+			return v.get_model ();
+		default:
+			break;
+		}
+
+		return null;
+	}
+
+	private TreePath? get_selected_path () {
+		switch (display) {
+		case Display.CATEGORIES:
+		case Display.FILE_LIST:
+			TreeView v = (TreeView) view;
+			TreeSelection s = v.get_selection ();
+			List<TreePath> selected = s.get_selected_rows (null);
+
+			return selected.nth_data (0);
+
+		case Display.FILE_ICONS:
+			IconView v = (IconView) view;
+			List<TreePath> selected = v.get_selected_items ();
+
+			return selected.nth_data (0);
+
+		default:
+			break;
+		}
+
+		return null;
+	}
+
+	private void context_menu_directory_clicked () {
+		TreeModel model = get_model ();
+		TreePath path = get_selected_path ();
+
+		tracker_model_launch_selected_parent_dir (model, path, 1);
+	}
+
+	private void context_menu_tags_clicked () {
+		TreeModel model = get_model ();
+		TreePath path = get_selected_path ();
+		TreeIter iter;
+		model.get_iter (out iter, path);
+
+		weak string uri;
+		model.get (iter, 1, out uri);
+
+		if (uri == null) {
+			return;
+		}
+
+		debug ("Showing tags dialog for uri:'%s'", uri);
+
+		// Create dialog and embed vbox.
+		Dialog dialog = new Dialog.with_buttons (_("Tags"),
+		                                         (Window) this.get_toplevel (),
+		                                         DialogFlags.MODAL | DialogFlags.DESTROY_WITH_PARENT,
+		                                         Stock.CLOSE, ResponseType.CLOSE,
+		                                         null);
+		dialog.set_default_size (400, 300);
+		dialog.border_width = 12;
+		dialog.response.connect (() => {
+			dialog.destroy ();
+		});
+
+		List<string> files = null;
+		files.prepend (uri);
+		VBox vbox = new TrackerTagsView (files);
+
+		var content = dialog.get_content_area () as Box;
+		content.pack_start (vbox, true, true, 6);
+		content.spacing = 10;
+
+		((Widget) dialog).show_all ();
+		dialog.run ();
 	}
 }

@@ -21,6 +21,70 @@ using Gtk;
 
 private const int secs_per_day = 60 * 60 * 24;
 
+private string? uri_get_selected (TreeModel model, TreePath path, int col) {
+	TreeIter iter;
+	model.get_iter (out iter, path);
+
+	weak string uri;
+	model.get (iter, col, out uri);
+
+	return uri;
+}
+
+private void uri_launch (string uri) {
+	// Bit of a hack for now if there is no URI scheme, we assume that
+	// the uri is actually a command line to launch.
+	if (uri.index_of ("://") < 1) {
+		var command = uri.split (" ");
+		debug ("Attempting to spawn_async() '%s'", command[0]);
+
+		Pid child_pid;
+		string[] argv = new string[1];
+		argv[0] = command[0];
+
+		try {
+			Process.spawn_async ("/usr/bin",
+			                     argv,
+			                     null, // environment
+			                     SpawnFlags.SEARCH_PATH,
+			                     null, // child_setup
+			                     out child_pid);
+		} catch (Error e) {
+			warning ("Could not launch '%s', %d->%s", command[0], e.code, GLib.strerror (e.code));
+			return;
+		}
+
+		debug ("Launched application with PID:%d", child_pid);
+		return;
+	}
+
+	try {
+		debug ("Attempting to launch application for uri:'%s'", uri);
+		AppInfo.launch_default_for_uri (uri, null);
+	} catch (GLib.Error e) {
+		warning ("Could not launch application: " + e.message);
+	}
+}
+
+public void tracker_model_launch_selected (TreeModel model, TreePath path, int col) {
+	string uri = uri_get_selected (model, path, col);
+	debug ("Selected uri:'%s'", uri);
+
+	uri_launch (uri);
+}
+
+public void tracker_model_launch_selected_parent_dir (TreeModel model, TreePath path, int col) {
+	string uri = uri_get_selected (model, path, col);
+	debug ("Selected uri:'%s'", uri);
+
+	File f = File.new_for_uri (uri);
+	File p = f.get_parent ();
+	string parent_uri = p.get_uri ();
+
+	debug ("Parent uri:'%s'", parent_uri);
+	uri_launch (parent_uri);
+}
+
 public string tracker_time_format_from_iso8601 (string s) {
 	GLib.Time t = GLib.Time ();
 	t.strptime (s, "%FT%T");

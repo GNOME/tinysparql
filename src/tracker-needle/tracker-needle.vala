@@ -37,7 +37,7 @@ public class Tracker.Needle {
 	private ToggleToolButton find_in_titles;
 	private ToggleToolButton find_in_all;
 	private ToolItem search_entry;
-	private ComboBoxText search_list;
+	private ComboBox search_list;
 	private Entry search;
 	private Spinner spinner;
 	private ToolItem spinner_shell;
@@ -48,7 +48,7 @@ public class Tracker.Needle {
 	private Tracker.View sw_categories;
 	private Tracker.View sw_filelist;
 	private Tracker.View sw_icons;
-	private Tracker.TagList taglist;
+	private TrackerTagsFilter tags_filter;
 	private uint last_search_id = 0;
 	private int size_small = 0;
 	private int size_medium = 0;
@@ -270,7 +270,7 @@ public class Tracker.Needle {
 		find_in_all.toggled.connect (find_in_toggled);
 
 		search_entry = builder.get_object ("toolitem_search_entry") as ToolItem;
-		search_list = builder.get_object ("comboboxtext_search") as ComboBoxText;
+		search_list = builder.get_object ("combobox_search") as ComboBox;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
 		search.activate.connect (search_activated);
@@ -311,22 +311,32 @@ public class Tracker.Needle {
 		iconview.item_activated.connect (icon_item_selected);
 		view.pack_start (sw_icons, true, true, 0);
 
-		// Set up taglist
-		taglist = new Tracker.TagList ();
-		taglist.hide ();
-		view.pack_end (taglist, false, true, 0);
+		// Set up tags_filter
+		tags_filter = new TrackerTagsFilter ();
+		tags_filter.hide ();
+		view.pack_end (tags_filter, false, true, 0);
+		tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
 	}
 
-	private bool window_key_press_event (Gtk.Widget   widget,
-	                                     Gdk.EventKey event) {
+	private bool window_key_press_event (Gtk.Widget widget, Gdk.EventKey event) {
 		// Add Ctrl+W close window semantics
 		if (Gdk.ModifierType.CONTROL_MASK in event.state && Gdk.keyval_name (event.keyval) == "w") {
 			widget.destroy();
 		}
 
 		return false;
+	}
+
+	private void tags_filter_selection_changed (GenericArray<string> new_tags) {
+		if (new_tags != null && new_tags.length > 0) {
+			debug ("Tags selected changed, first:'%s', ...", new_tags[0]);
+		} else {
+			debug ("Tags selected changed, none selected");
+		}
+
+		search_run ();
 	}
 
 	private void search_changed (Editable editable) {
@@ -408,15 +418,17 @@ public class Tracker.Needle {
 		string criteria = str.strip ();
 		ResultStore store = null;
 
-		if (criteria.length < 3) {
-			// Allow empty search criteria for finding all
-			if (!view_icons.active || !find_in_all.active) {
-				search_finished (store);
-				return false;
+		if (!show_tags.active) {
+			if (criteria.length < 3) {
+				// Allow empty search criteria for finding all
+				if (!view_icons.active || !find_in_all.active) {
+					search_finished (store);
+					return false;
+				}
 			}
-		}
 
-		search_history_find_or_insert (criteria, true);
+			search_history_find_or_insert (criteria, true);
+		}
 
 		// Show correct window
 		sw_noresults.hide ();
@@ -457,6 +469,19 @@ public class Tracker.Needle {
 		}
 
 		if (store != null) {
+			// Set tags first
+			if (show_tags.active) {
+				store.search_tags = tags_filter.tags;
+
+				// Don't search if no tags are selected
+				if (store.search_tags.length < 1) {
+					search_finished (store);
+					return false;
+				}
+			} else {
+				store.search_tags = null;
+			}
+
 			store.search_term = search.get_text ();
 		}
 
@@ -535,71 +560,29 @@ public class Tracker.Needle {
 		}
 	}
 
-	private void launch_selected (TreeModel model, TreePath path, int col) {
-		TreeIter iter;
-		model.get_iter (out iter, path);
-
-		weak string uri;
-		model.get (iter, col, out uri);
-
-		if (uri == null) {
-			return;
-		}
-
-		debug ("Selected uri:'%s'", uri);
-
-		// Bit of a hack for now if there is no URI scheme, we assume that
-		// the uri is actually a command line to launch.
-		if (uri.index_of ("://") < 1) {
-			var command = uri.split (" ");
-			debug ("Attempting to spawn_async() '%s'", command[0]);
-
-			Pid child_pid;
-			string[] argv = new string[1];
-			argv[0] = command[0];
-
-			try {
-				Process.spawn_async ("/usr/bin",
-				                     argv,
-				                     null, // environment
-				                     SpawnFlags.SEARCH_PATH,
-				                     null, // child_setup
-				                     out child_pid);
-			} catch (Error e) {
-				warning ("Could not launch '%s', %d->%s", command[0], e.code, GLib.strerror (e.code));
-				return;
-			}
-
-			debug ("Launched application with PID:%d", child_pid);
-			return;
-		}
-
-		try {
-			debug ("Attempting to launch application for uri:'%s'", uri);
-			AppInfo.launch_default_for_uri (uri, null);
-		} catch (GLib.Error e) {
-			warning ("Could not launch application: " + e.message);
-		}
-	}
-
 	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
 		var model = view.get_model ();
-		launch_selected (model, path, 1);
+		tracker_model_launch_selected (model, path, 1);
 	}
 
 	private void icon_item_selected (IconView view, TreePath path) {
 		var model = view.get_model ();
-		launch_selected (model, path, 1);
+		tracker_model_launch_selected (model, path, 1);
 	}
 
 	private void show_tags_clicked () {
 		if (show_tags.active) {
 			debug ("Showing tags");
-			taglist.show ();
+			tags_filter.show ();
+			search_entry.sensitive = false;
 		} else {
 			debug ("Hiding tags");
-			taglist.hide ();
+			tags_filter.hide ();
+			search_entry.sensitive = true;
 		}
+
+		// Re-run search to filter with or without tags
+		search_run ();
 	}
 
 	private void show_stats_clicked () {
