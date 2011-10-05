@@ -676,6 +676,9 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		           uri, iri);
 		g_free (iri);
 	} else {
+		TrackerIndexingTree *indexing_tree;
+		TrackerDirectoryFlags flags;
+
 		/* If it doesn't exist, we need to create it */
 		g_message ("Mount point '%s' does not exist in store, need to create it",
 		           uri);
@@ -691,10 +694,22 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		                        "}",
 		                        uri);
 
-		/* Tell the underlying miner-fs that we created a directory without
-		 * a valid specific parent */
-		tracker_miner_fs_add_directory_without_parent (TRACKER_MINER_FS (miner),
-		                                               mount_point);
+		/* Tell the underlying miner-fs about the mount point,
+		 * mtime is forced as the contents might have changed
+		 * since the last mount.
+		 */
+		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+			TRACKER_DIRECTORY_FLAG_PRESERVE;
+
+		if (tracker_config_get_enable_monitors (miner->private->config)) {
+			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+		}
+
+		tracker_indexing_tree_add (indexing_tree,
+					   mount_point,
+					   flags);
 	}
 
 	g_free (uri);
@@ -1037,13 +1052,26 @@ init_mount_points (TrackerMinerFiles *miner_files)
 				                         accumulator);
 
 				if (mount_point) {
+					TrackerIndexingTree *indexing_tree;
+					TrackerDirectoryFlags flags;
 					GFile *file;
+
+					indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+					flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+						TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+						TRACKER_DIRECTORY_FLAG_PRESERVE;
+
+					if (tracker_config_get_enable_monitors (miner_files->private->config)) {
+						flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+					}
 
 					/* Add the current mount point as reported to have incorrect
 					 * state. We will force mtime checks on this mount points,
 					 * even if no-mtime-check-needed was set. */
 					file = g_file_new_for_path (mount_point);
-					tracker_miner_fs_force_mtime_checking (TRACKER_MINER_FS (miner), file);
+					tracker_indexing_tree_add (indexing_tree,
+								   file,
+								   flags);
 					g_object_unref (file);
 				}
 			}
@@ -1690,13 +1718,22 @@ static gboolean
 miner_files_force_recheck_idle (gpointer user_data)
 {
 	TrackerMinerFiles *miner_files = user_data;
+	TrackerIndexingTree *indexing_tree;
+	GList *roots, *l;
 
 	miner_files_update_filters (miner_files);
 
-	/* Recheck all directories for compliance with the new config */
-	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
+	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner_files));
+	roots = tracker_indexing_tree_list_roots (indexing_tree);
+
+	for (l = roots; l; l = l->next)	{
+		GFile *root = l->data;
+
+		g_signal_emit_by_name (indexing_tree, "directory-updated", root);
+	}
 
 	miner_files->private->force_recheck_id = 0;
+	g_list_free (roots);
 
 	return FALSE;
 }
