@@ -66,6 +66,7 @@ enum {
 enum {
 	DIRECTORY_ADDED,
 	DIRECTORY_REMOVED,
+	DIRECTORY_UPDATED,
 	LAST_SIGNAL
 };
 
@@ -213,6 +214,15 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
 					       directory_removed),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__OBJECT,
+		              G_TYPE_NONE, 1, G_TYPE_FILE);
+	signals[DIRECTORY_UPDATED] =
+		g_signal_new ("directory-updated",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
+					       directory_updated),
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__OBJECT,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
@@ -379,6 +389,8 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 			g_free (uri);
 
 			data->flags = flags;
+			g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0,
+				       directory);
 		}
 		return;
 	}
