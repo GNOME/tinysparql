@@ -260,7 +260,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 
 	/* We've finished crawling/querying on the first element
 	 * of the pending list, continue onto the next */
-	priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
+	priv->pending_index_roots = g_list_delete_link (priv->pending_index_roots,
 							priv->pending_index_roots);
 
 	if (priv->pending_index_roots) {
@@ -584,7 +584,7 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		}
 
 		/* Remove index root and try the next one */
-		priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
+		priv->pending_index_roots = g_list_delete_link (priv->pending_index_roots,
 								priv->pending_index_roots);
 	}
 
@@ -984,7 +984,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		tracker_crawler_stop (priv->crawler);
 
 		/* Remove index root and try the next one */
-		priv->pending_index_roots = g_list_remove_link (priv->pending_index_roots,
+		priv->pending_index_roots = g_list_delete_link (priv->pending_index_roots,
 								priv->pending_index_roots);
 		crawl_directories_start (notifier);
 	}
@@ -1009,6 +1009,7 @@ tracker_file_notifier_finalize (GObject *object)
 	g_object_unref (priv->monitor);
 
 	g_list_free (priv->pending_index_roots);
+	g_timer_destroy (priv->timer);
 
 	G_OBJECT_CLASS (tracker_file_notifier_parent_class)->finalize (object);
 }
