@@ -820,3 +820,32 @@ tracker_indexing_tree_file_is_root (TrackerIndexingTree *tree,
 	                            (GEqualFunc) g_file_equal);
 	return node != NULL;
 }
+
+static gboolean
+prepend_config_root (GNode    *node,
+		     gpointer  user_data)
+{
+	GList **list = user_data;
+	NodeData *data = node->data;
+
+	*list = g_list_prepend (*list, data->file);
+	return FALSE;
+}
+
+GList *
+tracker_indexing_tree_list_roots (TrackerIndexingTree *tree)
+{
+	TrackerIndexingTreePrivate *priv;
+	GList *nodes = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), NULL);
+
+	priv = tree->priv;
+	g_node_traverse (priv->config_tree,
+			 G_POST_ORDER,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 prepend_config_root,
+			 &nodes);
+	return nodes;
+}

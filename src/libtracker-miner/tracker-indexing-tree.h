@@ -101,6 +101,9 @@ GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tre
 gboolean  tracker_indexing_tree_file_is_root         (TrackerIndexingTree   *tree,
                                                       GFile                 *file);
 
+GList *   tracker_indexing_tree_list_roots           (TrackerIndexingTree   *tree);
+
+
 G_END_DECLS
 
 #endif /* __TRACKER_INDEXING_TREE_H__ */
