@@ -367,6 +367,39 @@
           </packing>
         </child>
         <child>
+          <object class="GtkInfoBar" id="info_bar">
+            <property name="visible">False</property>
+	    <child internal-child="content_area">
+	      <object class="GtkBox" id="info_bar_content_area">
+		<child>
+		  <object class="GtkLabel" id="info_bar_label">
+		    <property name="visible">True</property>
+		    <property name="label" translatable="yes"></property>
+		    <property name="wrap">True</property>
+		  </object>
+		</child>
+	      </object>
+	    </child>
+	    <child internal-child="action_area">
+	      <object class="GtkBox" id="info_bar_action_area">
+		<child>
+		  <object class="GtkButton" id="info_bar_button">
+		    <property name="label">gtk-close</property>
+		    <property name="visible">True</property>
+		    <property name="use_underline">True</property>
+		    <property name="use_stock">True</property>
+		  </object>
+		</child>
+	      </object>
+	    </child>
+	  </object>
+	  <packing>
+	    <property name="expand">False</property>
+	    <property name="fill">True</property>
+	    <property name="position">1</property>
+	  </packing>
+        </child>
+        <child>
           <object class="GtkHBox" id="hbox_view">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -378,7 +411,7 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>
