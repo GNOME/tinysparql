@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-06 19:10+0200\n"
-"PO-Revision-Date: 2011-10-06 19:11+0200\n"
+"POT-Creation-Date: 2011-10-06 20:36+0200\n"
+"PO-Revision-Date: 2011-10-06 20:35+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -844,7 +844,7 @@ msgid "That directory is already selected as a location to index"
 msgstr "Ten katalog został już wybrany jako położenie do indeksowania"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:892
-#: ../src/tracker-needle/tracker-needle.vala:605
+#: ../src/tracker-needle/tracker-needle.vala:647
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
@@ -1050,17 +1050,26 @@ msgstr ""
 "Wyszukiwanie na tym komputerze według nazwy lub treści używając programu "
 "Tracker"
 
-#: ../src/tracker-needle/tracker-needle.vala:612
-#: ../src/tracker-needle/tracker-needle.vala:613
+#: ../src/tracker-needle/tracker-needle.vala:69
+#, c-format
+msgid "Search criteria was too generic"
+msgstr "Kryteria wyszukiwania są zbyt ogólne"
+
+#: ../src/tracker-needle/tracker-needle.vala:70
+msgid "Only the first 500 items will be displayed"
+msgstr "Zostanie wyświetlone tylko pierwsze 500 elementów"
+
+#: ../src/tracker-needle/tracker-needle.vala:654
+#: ../src/tracker-needle/tracker-needle.vala:655
 msgid "[SEARCH-CRITERIA]"
 msgstr "[KRYTERIA-WYSZUKIWANIA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:618
+#: ../src/tracker-needle/tracker-needle.vala:660
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interfejs użytkownika do wyszukiwania na pulpicie używający programu Tracker"
 
-#: ../src/tracker-needle/tracker-tags-filter.vala:57
+#: ../src/tracker-needle/tracker-tags-filter.vala:58
 msgid "Filter by tags"
 msgstr "Filtruje według etykiet"
 
