@@ -258,6 +258,9 @@ static ItemMovedData *item_moved_data_new                 (GFile                
 static void           item_moved_data_free                (ItemMovedData        *data);
 static void           item_writeback_data_free            (ItemWritebackData    *data);
 
+static void           indexing_tree_directory_removed     (TrackerIndexingTree  *indexing_tree,
+							   GFile                *directory,
+							   gpointer              user_data);
 static void           file_notifier_file_created          (TrackerFileNotifier  *notifier,
 							   GFile                *file,
 							   gpointer              user_data);
@@ -553,6 +556,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create the indexing tree */
 	priv->indexing_tree = tracker_indexing_tree_new ();
+	g_signal_connect (priv->indexing_tree, "directory-removed",
+			  G_CALLBACK (indexing_tree_directory_removed),
+			  object);
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree);
@@ -2740,6 +2746,47 @@ writeback_pool_cancel_foreach (gpointer data,
 	}
 }
 
+static void
+indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
+				 GFile               *directory,
+				 gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	TrackerMinerFSPrivate *priv = fs->priv;
+	GTimer *timer = g_timer_new ();
+
+	/* Cancel all pending tasks on files inside the path given by file */
+	tracker_task_pool_foreach (priv->task_pool,
+	                           task_pool_cancel_foreach,
+	                           directory);
+
+	g_debug ("  Cancelled processing pool tasks at %f\n", g_timer_elapsed (timer, NULL));
+
+	tracker_task_pool_foreach (priv->writeback_pool,
+	                           writeback_pool_cancel_foreach,
+	                           directory);
+
+	g_debug ("  Cancelled writeback pool tasks at %f\n",
+	         g_timer_elapsed (timer, NULL));
+
+	/* Remove anything contained in the removed directory
+	 * from all relevant processing queues.
+	 */
+	tracker_priority_queue_foreach_remove (priv->items_updated,
+	                                       (GEqualFunc) file_equal_or_descendant,
+	                                       directory,
+	                                       (GDestroyNotify) g_object_unref);
+	tracker_priority_queue_foreach_remove (priv->items_created,
+	                                       (GEqualFunc) file_equal_or_descendant,
+	                                       directory,
+	                                       (GDestroyNotify) g_object_unref);
+
+	g_debug ("  Removed files at %f\n", g_timer_elapsed (timer, NULL));
+
+	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
+	g_timer_destroy (timer);
+}
+
 /**
  * tracker_miner_fs_directory_remove:
  * @fs: a #TrackerMinerFS
@@ -2757,64 +2804,20 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
                                    GFile          *file)
 {
 	TrackerMinerFSPrivate *priv;
-	gboolean return_val = FALSE;
-	GTimer *timer;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = fs->priv;
-	timer = g_timer_new ();
-	g_debug ("Removing directory");
 
-	/* Cancel all pending tasks on files inside the path given by file */
-	tracker_task_pool_foreach (priv->task_pool,
-	                           task_pool_cancel_foreach,
-	                           file);
-
-	g_debug ("  Cancelled processing pool tasks at %f\n", g_timer_elapsed (timer, NULL));
-
-	tracker_task_pool_foreach (priv->writeback_pool,
-	                           writeback_pool_cancel_foreach,
-	                           file);
-	g_debug ("  Cancelled writeback pool tasks at %f\n",
-	         g_timer_elapsed (timer, NULL));
-
-#if 0
-	dirs = fs->priv->config_directories;
-
-	while (dirs) {
-		DirectoryData *data = dirs->data;
-		GList *link = dirs;
-
-		dirs = dirs->next;
-
-		if (g_file_equal (file, data->file)) {
-			directory_data_unref (data);
-			fs->priv->config_directories = g_list_delete_link (fs->priv->config_directories, link);
-			return_val = TRUE;
-		}
+	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+		return FALSE;
 	}
-#endif
 
-	/* Remove anything contained in the removed directory
-	 * from all relevant processing queues.
-	 */
-	tracker_priority_queue_foreach_remove (priv->items_updated,
-	                                       (GEqualFunc) file_equal_or_descendant,
-	                                       file,
-	                                       (GDestroyNotify) g_object_unref);
-	tracker_priority_queue_foreach_remove (priv->items_created,
-	                                       (GEqualFunc) file_equal_or_descendant,
-	                                       file,
-	                                       (GDestroyNotify) g_object_unref);
+	g_debug ("Removing directory");
+	tracker_indexing_tree_remove (priv->indexing_tree, file);
 
-	g_debug ("  Removed files at %f\n", g_timer_elapsed (timer, NULL));
-
-	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
-	g_timer_destroy (timer);
-
-	return return_val;
+	return TRUE;
 }
 
 
@@ -2835,18 +2838,26 @@ gboolean
 tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
                                         GFile          *file)
 {
+	TrackerDirectoryFlags flags;
+
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	/* Tell miner not to keep on inspecting the directory... */
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
+
 	if (tracker_miner_fs_directory_remove (fs, file)) {
-		/* And remove all info about the directory (recursively)
-		 * from the store... */
-		trace_eq_push_tail ("DELETED", file, "on remove full");
-		tracker_priority_queue_add (fs->priv->items_deleted,
-		                            g_object_ref (file),
-		                            G_PRIORITY_DEFAULT);
-		item_queue_handlers_set_up (fs);
+		if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
+			/* If the preserve flag is unset, TrackerFileNotifier
+			 * will delete automatically files from this config
+			 * directory, if it's set, we force the delete here
+			 * to preserve remove_full() semantics.
+			 */
+			trace_eq_push_tail ("DELETED", file, "on remove full");
+			tracker_priority_queue_add (fs->priv->items_deleted,
+						    g_object_ref (file),
+						    G_PRIORITY_DEFAULT);
+			item_queue_handlers_set_up (fs);
+		}
 
 		return TRUE;
 	}
