@@ -1211,9 +1211,13 @@ item_add_or_update (TrackerMinerFS *fs,
 		                                          file);
 	}
 
-	parent = g_file_get_parent (file);
-	parent_urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent);
-	g_object_unref (parent);
+	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
+		parent = g_file_get_parent (file);
+		parent_urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent);
+		g_object_unref (parent);
+	} else {
+		parent_urn = NULL;
+	}
 
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
@@ -2148,8 +2152,8 @@ item_queue_handlers_cb (gpointer user_data)
 		parent = g_file_get_parent (file);
 
 		if (!parent ||
-		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent) ||
-		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
+		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
+		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent)) {
 			keep_processing = item_add_or_update (fs, file, priority,
 			                                      (queue == QUEUE_CREATED));
 		} else {
