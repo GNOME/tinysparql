@@ -93,10 +93,12 @@ node_data_free (NodeData *data)
 	g_slice_free (NodeData, data);
 }
 
-static void
-node_free (GNode *node)
+static gboolean
+node_free (GNode    *node,
+           gpointer  user_data)
 {
 	node_data_free (node->data);
+	return FALSE;
 }
 
 static PatternData *
