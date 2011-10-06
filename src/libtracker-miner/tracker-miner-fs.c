@@ -638,7 +638,6 @@ fs_finalize (GObject *object)
 	}
 
 	tracker_file_notifier_stop (priv->file_notifier);
-	g_object_unref (priv->file_notifier);
 
 	/* Cancel every pending task */
 	tracker_task_pool_foreach (priv->task_pool,
@@ -680,6 +679,7 @@ fs_finalize (GObject *object)
 	g_hash_table_unref (priv->items_ignore_next_update);
 
 	g_object_unref (priv->indexing_tree);
+	g_object_unref (priv->file_notifier);
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	if (priv->queue_status_timeout_id)

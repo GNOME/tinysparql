@@ -69,15 +69,17 @@ file_node_data_free (FileNodeData *data,
 {
 	guint i;
 
-	if (data->shallow) {
-		/* Shallow nodes own the reference to the file */
+	if (data->file) {
+		if (!data->shallow) {
+			g_object_weak_unref (G_OBJECT (data->file),
+			                     file_weak_ref_notify,
+			                     node);
+		}
+
 		g_object_unref (data->file);
-	} else if (node) {
-		g_object_weak_unref (G_OBJECT (data->file),
-		                     file_weak_ref_notify,
-		                     node);
 	}
 
+	data->file = NULL;
 	g_free (data->uri_suffix);
 
 	for (i = 0; i < data->properties->len; i++) {
@@ -365,6 +367,7 @@ file_weak_ref_notify (gpointer  user_data,
 
 	g_assert (data->file == (GFile *) prev_location);
 
+	data->file = NULL;
 	reparent_child_nodes (node, node->parent);
 
 	/* Delete node tree here */
