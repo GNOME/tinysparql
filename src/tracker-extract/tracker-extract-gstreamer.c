@@ -433,6 +433,97 @@ get_embedded_album_art (MetadataExtractor *extractor)
 }
 
 static void
+extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
+                                      GstTagList            *tag_list,
+                                      TrackerSparqlBuilder  *preupdate,
+                                      TrackerSparqlBuilder  *metadata,
+                                      const gchar           *graph)
+{
+	gchar *country, *city, *sublocation;
+	gdouble lat, lon, alt;
+	gboolean has_coords;
+
+	g_debug ("Retrieving geolocation metadata...");
+
+	country = city = sublocation = NULL;
+	has_coords = (gst_tag_list_get_double (tag_list, GST_TAG_GEO_LOCATION_LATITUDE, &lat) &&
+	              gst_tag_list_get_double (tag_list, GST_TAG_GEO_LOCATION_LONGITUDE, &lon) &&
+	              gst_tag_list_get_double (tag_list, GST_TAG_GEO_LOCATION_ELEVATION, &alt));
+
+	gst_tag_list_get_string (tag_list, GST_TAG_GEO_LOCATION_CITY, &city);
+	gst_tag_list_get_string (tag_list, GST_TAG_GEO_LOCATION_COUNTRY, &country);
+	gst_tag_list_get_string (tag_list, GST_TAG_GEO_LOCATION_SUBLOCATION, &sublocation);
+
+	if (city || country || sublocation || has_coords) {
+		gchar *address_uri = NULL;
+
+		/* Create postal address */
+		if (city || country || sublocation) {
+			address_uri = tracker_sparql_get_uuid_urn ();
+
+			tracker_sparql_builder_insert_open (preupdate, NULL);
+			if (graph) {
+				tracker_sparql_builder_graph_open (preupdate, graph);
+			}
+
+			tracker_sparql_builder_subject_iri (preupdate, address_uri);
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
+
+			if (sublocation) {
+				tracker_sparql_builder_predicate (preupdate, "nco:region");
+				tracker_sparql_builder_object_unvalidated (preupdate, sublocation);
+			}
+
+			if (city) {
+				tracker_sparql_builder_predicate (preupdate, "nco:locality");
+				tracker_sparql_builder_object_unvalidated (preupdate, city);
+			}
+
+			if (country) {
+				tracker_sparql_builder_predicate (preupdate, "nco:country");
+				tracker_sparql_builder_object_unvalidated (preupdate, country);
+			}
+
+			if (graph) {
+				tracker_sparql_builder_graph_close (preupdate);
+			}
+			tracker_sparql_builder_insert_close (preupdate);
+		}
+
+		/* Create geolocation */
+		tracker_sparql_builder_predicate (metadata, "slo:location");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "slo:GeoLocation");
+
+		if (address_uri) {
+			tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
+			tracker_sparql_builder_object_iri (metadata, address_uri);
+		}
+
+		if (has_coords) {
+			tracker_sparql_builder_predicate (metadata, "slo:latitude");
+			tracker_sparql_builder_object_double (metadata, lat);
+
+			tracker_sparql_builder_predicate (metadata, "slo:longitude");
+			tracker_sparql_builder_object_double (metadata, lon);
+
+			tracker_sparql_builder_predicate (metadata, "slo:altitude");
+			tracker_sparql_builder_object_double (metadata, alt);
+		}
+
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (address_uri);
+	}
+
+	g_free (city);
+	g_free (country);
+	g_free (sublocation);
+}
+
+static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *uri,
                   TrackerSparqlBuilder   *preupdate,
@@ -1648,15 +1739,20 @@ tracker_extract_gstreamer (const gchar          *uri,
 	extractor->album_art_size = 0;
 	extractor->album_art_mime = NULL;
 
+	g_debug ("GStreamer backend in use:");
+
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)
 	if (!tagreadbin_init_and_run (extractor, uri))
 		return;
+	g_debug ("  Tagreadbin");
 #elif defined(GSTREAMER_BACKEND_DECODEBIN2)
 	if (!decodebin2_init_and_run (extractor, uri))
 		return;
+	g_debug ("  Decodebin2");
 #else /* DISCOVERER/GUPnP-DLNA */
 	if (!discoverer_init_and_run (extractor, uri))
 		return;
+	g_debug ("  Discoverer/GUPnP-DLNA");
 #endif
 
 	album = NULL;
