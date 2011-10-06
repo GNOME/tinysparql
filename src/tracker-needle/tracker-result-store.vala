@@ -414,6 +414,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		CategoryNode cat;
 		int i = 0;
 
+		iter = TreeIter ();
+
 		if (queries.length > 1) {
 			if (indices[i] >= categories.length) {
 				iter.stamp = 0;
@@ -541,12 +543,13 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public void get_value (Gtk.TreeIter iter, int column, out GLib.Value value) {
 		CategoryNode cat;
 
+		value = GLib.Value (this.get_column_type (column));
+
 		if (column >= n_columns + n_extra_columns) {
 			return;
 		}
 
 		cat = (CategoryNode) iter.user_data;
-		value.init (this.get_column_type (column));
 
 		if (column == n_columns + 1) {
 			// Type column
@@ -622,6 +625,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	public bool iter_children (out Gtk.TreeIter iter, Gtk.TreeIter? parent) {
 		CategoryNode cat;
+
+		iter = TreeIter ();
 
 		if (parent == null) {
 			if (categories.length == 0) {
@@ -734,6 +739,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public bool iter_nth_child (out Gtk.TreeIter iter, Gtk.TreeIter? parent, int n) {
 		CategoryNode cat;
 
+		iter = TreeIter ();
+
 		if (parent != null) {
 			cat = (CategoryNode) parent.user_data;
 
@@ -775,6 +782,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	public bool iter_parent (out Gtk.TreeIter iter, Gtk.TreeIter child) {
+		iter = TreeIter ();
+
 		if (queries.length > 1 &&
 		    child.user_data2 != null) {
 			// child within a category

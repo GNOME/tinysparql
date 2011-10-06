@@ -430,12 +430,15 @@ public class TrackerTagsView : VBox {
 	}
 
 	private bool find_tag (string tag, out TreeIter iter) {
+		TreeIter found_iter = { 0 };
+
+		iter = found_iter;
+
 		if (tag == null || tag == "") {
 			return false;
 		}
 
 		TreeModel model = view.get_model ();
-		TreeIter found_iter = { 0 };
 		bool found = false;
 
 		model.foreach ((model, path, foreach_iter) => {
