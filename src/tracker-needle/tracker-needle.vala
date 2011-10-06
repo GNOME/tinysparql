@@ -66,9 +66,9 @@ public class Tracker.Needle {
 	private ResultStore images_in_title_model;
 
 	private void result_overflow () {
-		show_info_message ("Search result was too generic\n" +
-		                   "<small>Only the first 500 items will be displayed</small>",
-		                   MessageType.INFO);
+		string str = "%s\n<small>%s</small>".printf (_("Search criteria was too generic"),
+		                                             _("Only the first 500 items will be displayed"));
+		show_info_message (str, MessageType.INFO);
 	}
 
 	private void create_models () {
