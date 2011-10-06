@@ -61,6 +61,13 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		set;
 	}
 
+        public uint limit {
+                get;
+                set;
+        }
+
+	public signal void result_overflow ();
+
 	private Operation? find_operation (GenericArray<Operation> array, CategoryNode node, int offset) {
 		Operation op;
 		int i;
@@ -88,7 +95,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			query = new Tracker.Query ();
 			query.criteria = _search_term;
 			query.tags = search_tags;
-			query.limit = 100;
+			query.limit = limit;
 			query.offset = op.offset;
 
 			cursor = yield query.perform_async (op.node.query.type, op.node.query.match, op.node.query.args, cancellable);
@@ -223,6 +230,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			CategoryNode cat;
 			ResultNode *res;
 			int i;
+
+			if (count > limit) {
+				result_overflow ();
+				count = limit;
+			}
 
 			Gtk.TreeIter iter;
 			Gtk.TreePath path;

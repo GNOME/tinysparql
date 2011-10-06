@@ -55,6 +55,7 @@ public class Tracker.Needle {
 	private int size_small = 0;
 	private int size_medium = 0;
 	private int size_big = 0;
+	private uint limit = 500;
 	static bool current_find_in_filelist = true;
 	static bool current_find_in_icons = true;
 
@@ -64,9 +65,17 @@ public class Tracker.Needle {
 	private ResultStore images_model;
 	private ResultStore images_in_title_model;
 
+	private void result_overflow () {
+		show_info_message ("Search result was too generic\n" +
+		                   "<small>Only the first 500 items will be displayed</small>",
+		                   MessageType.INFO);
+	}
+
 	private void create_models () {
 		// Categories model
 		categories_model = new ResultStore (6);
+		categories_model.limit = limit;
+		categories_model.result_overflow.connect (result_overflow);
 		categories_model.add_query (Tracker.Query.Type.APPLICATIONS,
 		                            Tracker.Query.Match.FTS,
 		                            "?urn",
@@ -135,6 +144,8 @@ public class Tracker.Needle {
 
 		// Files model
 		files_model = new ResultStore (7);
+		files_model.limit = limit;
+		files_model.result_overflow.connect (result_overflow);
 		files_model.add_query (Tracker.Query.Type.ALL,
 		                       Tracker.Query.Match.FTS,
 		                       "?urn",
@@ -146,6 +157,8 @@ public class Tracker.Needle {
 		                       "nie:url(?urn)");
 
 		files_in_title_model = new ResultStore (7);
+		files_in_title_model.limit = limit;
+		files_in_title_model.result_overflow.connect (result_overflow);
 		files_in_title_model.add_query (Tracker.Query.Type.ALL,
 		                                Tracker.Query.Match.TITLES,
 		                                "?urn",
@@ -158,6 +171,8 @@ public class Tracker.Needle {
 
 		// Images model
 		images_model = new ResultStore (6);
+		images_model.limit = limit;
+		images_model.result_overflow.connect (result_overflow);
 		images_model.icon_size = 128;
 		images_model.add_query (Tracker.Query.Type.IMAGES,
 		                        Tracker.Query.Match.NONE,
@@ -170,6 +185,8 @@ public class Tracker.Needle {
 		                        "nie:url(?urn)");
 
 		images_in_title_model = new ResultStore (6);
+		images_in_title_model.limit = limit;
+		images_in_title_model.result_overflow.connect (result_overflow);
 		images_in_title_model.icon_size = 128;
 		images_in_title_model.add_query (Tracker.Query.Type.IMAGES,
 		                                 Tracker.Query.Match.TITLES,
@@ -606,7 +623,7 @@ public class Tracker.Needle {
 	public void show_info_message (string          message,
 	                               Gtk.MessageType type) {
 		info_bar.set_message_type (type);
-		info_bar_label.set_label (message);
+		info_bar_label.set_markup (message);
 		info_bar.show ();
 	}
 
