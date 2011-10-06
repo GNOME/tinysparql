@@ -113,7 +113,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 					try {
 						b = yield cursor.next_async (cancellable);
 					} catch (GLib.Error ge) {
-						warning ("Could not fetch row: %s\n", ge.message);
+						if (!cancellable.is_cancelled ()) {
+							warning ("Could not fetch row: %s\n", ge.message);
+						}
 					}
 
 					if (!b) {
@@ -499,7 +501,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			                                    GLib.Priority.DEFAULT,
 			                                    cancellable);
 		} catch (GLib.Error ie) {
-			warning ("Could not get thumbnail: %s", ie.message);
+			if (!cancellable.is_cancelled ()) {
+				warning ("Could not get thumbnail: %s", ie.message);
+			}
 			return;
 		}
 
