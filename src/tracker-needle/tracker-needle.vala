@@ -48,11 +48,14 @@ public class Tracker.Needle {
 	private Tracker.View sw_categories;
 	private Tracker.View sw_filelist;
 	private Tracker.View sw_icons;
+	private InfoBar info_bar;
+	private Label info_bar_label;
 	private TrackerTagsFilter tags_filter;
 	private uint last_search_id = 0;
 	private int size_small = 0;
 	private int size_medium = 0;
 	private int size_big = 0;
+	private uint limit = 500;
 	static bool current_find_in_filelist = true;
 	static bool current_find_in_icons = true;
 
@@ -62,9 +65,17 @@ public class Tracker.Needle {
 	private ResultStore images_model;
 	private ResultStore images_in_title_model;
 
+	private void result_overflow () {
+		string str = "%s\n<small>%s</small>".printf (_("Search criteria was too generic"),
+		                                             _("Only the first 500 items will be displayed"));
+		show_info_message (str, MessageType.INFO);
+	}
+
 	private void create_models () {
 		// Categories model
 		categories_model = new ResultStore (6);
+		categories_model.limit = limit;
+		categories_model.result_overflow.connect (result_overflow);
 		categories_model.add_query (Tracker.Query.Type.APPLICATIONS,
 		                            Tracker.Query.Match.FTS,
 		                            "?urn",
@@ -133,6 +144,8 @@ public class Tracker.Needle {
 
 		// Files model
 		files_model = new ResultStore (7);
+		files_model.limit = limit;
+		files_model.result_overflow.connect (result_overflow);
 		files_model.add_query (Tracker.Query.Type.ALL,
 		                       Tracker.Query.Match.FTS,
 		                       "?urn",
@@ -144,6 +157,8 @@ public class Tracker.Needle {
 		                       "nie:url(?urn)");
 
 		files_in_title_model = new ResultStore (7);
+		files_in_title_model.limit = limit;
+		files_in_title_model.result_overflow.connect (result_overflow);
 		files_in_title_model.add_query (Tracker.Query.Type.ALL,
 		                                Tracker.Query.Match.TITLES,
 		                                "?urn",
@@ -156,6 +171,8 @@ public class Tracker.Needle {
 
 		// Images model
 		images_model = new ResultStore (6);
+		images_model.limit = limit;
+		images_model.result_overflow.connect (result_overflow);
 		images_model.icon_size = 128;
 		images_model.add_query (Tracker.Query.Type.IMAGES,
 		                        Tracker.Query.Match.NONE,
@@ -168,6 +185,8 @@ public class Tracker.Needle {
 		                        "nie:url(?urn)");
 
 		images_in_title_model = new ResultStore (6);
+		images_in_title_model.limit = limit;
+		images_in_title_model.result_overflow.connect (result_overflow);
 		images_in_title_model.icon_size = 128;
 		images_in_title_model.add_query (Tracker.Query.Type.IMAGES,
 		                                 Tracker.Query.Match.TITLES,
@@ -221,6 +240,9 @@ public class Tracker.Needle {
 
 	private void setup_ui () {
 		var builder = new Gtk.Builder ();
+		Button info_bar_button;
+		Toolbar toolbar;
+		Paned paned;
 
 		try {
 			//try load from source tree first.
@@ -248,6 +270,14 @@ public class Tracker.Needle {
 		window = builder.get_object ("window_needle") as Window;
 		window.destroy.connect (Gtk.main_quit);
 		window.key_press_event.connect (window_key_press_event);
+
+		toolbar = builder.get_object ("toolbar_main") as Toolbar;
+		toolbar.get_style_context().add_class (STYLE_CLASS_PRIMARY_TOOLBAR);
+
+		info_bar = builder.get_object("info_bar") as InfoBar;
+		info_bar_label = builder.get_object ("info_bar_label") as Label;
+		info_bar_button = builder.get_object("info_bar_button") as Button;
+		info_bar_button.clicked.connect (info_bar_closed);
 
 		view_filelist = builder.get_object ("toolbutton_view_filelist") as ToggleToolButton;
 		view_filelist.toggled.connect (view_toggled);
@@ -312,9 +342,10 @@ public class Tracker.Needle {
 		view.pack_start (sw_icons, true, true, 0);
 
 		// Set up tags_filter
+		paned = builder.get_object ("hpaned") as Paned;
 		tags_filter = new TrackerTagsFilter ();
 		tags_filter.hide ();
-		view.pack_end (tags_filter, false, true, 0);
+		paned.pack2 (tags_filter, false, false);
 		tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
@@ -589,6 +620,17 @@ public class Tracker.Needle {
 		debug ("Showing stats dialog");
 		Tracker.Stats s = new Tracker.Stats ();
 		s.show ();
+	}
+
+	public void show_info_message (string          message,
+	                               Gtk.MessageType type) {
+		info_bar.set_message_type (type);
+		info_bar_label.set_markup (message);
+		info_bar.show ();
+	}
+
+	private void info_bar_closed () {
+		info_bar.hide ();
 	}
 }
 
