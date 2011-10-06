@@ -1,3 +1,41 @@
+NEW in 0.12.4 - 2011-10-06
+==========================
+
+The changes are:
+
+  * Fixes: GB#647575, DLNA mime-types needed
+  * Fixes: GB#660350, New way to set indexable directories is broken
+  * Fixes: GB#659995, Build buglet in docs/Makefile.am
+  * Fixes: GB#660589, wrong icon names for home and download folder in tracker-preferences.ui
+  * Fixes: GB#660601, Strings from tracker-stats.vala are not marked for translation
+  * Fixes: GB#660123, firefox: Drop support for tracker 0.10
+  * Fixes: GB#657183, Cue sheet parsing for GStreamer extractor
+  * Fixes: NB#257478, Location tags are not copied for saved videos if original video has location tags
+  * Fixes: NB#284711, Unable to see the saved gender option 'Not defined' in edit contact view.
+  * Fixes: NB#217566, Use of UNION in EXISTS in a FILTER breaks filtering
+  * Fixes: NB#285251, Miner inresponsive some time after heavy insertion
+  * functional-tests: Disable initial sleep of tracker-miner-fs when testing
+  * functional-tests: Remove expected failure annotation from NB#217566 test
+  * libtracker-common: Fixed missing include directive for utils tests
+  * libtracker-common: Disable configure.ac checks for ioprio_set()
+  * libtracker-data: Set journal_size_limit to 10 MB
+  * tracker-extract: Fixed critical when FD list is missing
+  * tracker-extract-oasis: Ignore empty values and invalid dates
+  * tracker-extract-gstreamer: Fixed division by zero
+  * tracker-extract-gif: Fixed file descriptor leak in error case
+  * tracker-extract-pdf: Fixed file descriptor leak in error cases
+  * tracker-miner-fs: Fixed theme icon URIs for application indexing
+  * thunderbird: Don't operate with tracker 0.10 libraries, only 0.12
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Michael Biebl
+  * Updated es: Daniel Mustieles, Jorge González
+  * Updated pl: Piotr Drąg
+  * Updated sl: Andrej Žnidaršič, Matej Urbančič
+
+
 NEW in 0.12.3 - 2011-09-26
 ==========================
 
