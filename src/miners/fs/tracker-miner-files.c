@@ -1164,6 +1164,7 @@ mount_point_removed_cb (TrackerStorage *storage,
                         gpointer        user_data)
 {
 	TrackerMinerFiles *miner = user_data;
+	TrackerIndexingTree *indexing_tree;
 	gchar *urn;
 	GFile *mount_point_file;
 
@@ -1177,7 +1178,8 @@ mount_point_removed_cb (TrackerStorage *storage,
 
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
-	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (miner), mount_point_file);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+	tracker_indexing_tree_remove (indexing_tree, mount_point_file);
 
 	/* Set mount point status in tracker-store */
 	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
@@ -1441,14 +1443,18 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
                       GMount            *mount,
                       TrackerMinerFiles *mf)
 {
+	TrackerIndexingTree *indexing_tree;
 	GFile *mount_root;
 	gchar *uri;
 
 	mount_root = g_mount_get_root (mount);
 	uri = g_file_get_uri (mount_root);
 	g_message ("Pre-unmount requested for '%s'", uri);
-	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf), mount_root);
+
+	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
+	tracker_indexing_tree_remove (indexing_tree, mount_root);
 	g_object_unref (mount_root);
+
 	g_free (uri);
 }
 
@@ -1622,9 +1628,12 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 
 			g_message ("  Removing directory: '%s'", path);
 
+			/* Fully remove item (monitors and from store),
+			 * directories from configuration do not have the
+			 * preserve flag set.
+			 */
 			file = g_file_new_for_path (path);
-			/* Fully remove item (monitors and from store) */
-			tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
+			tracker_indexing_tree_remove (indexing_tree, file);
 			g_object_unref (file);
 		}
 	}
@@ -1834,14 +1843,17 @@ index_volumes_changed_idle (gpointer user_data)
 
 	/* Tell TrackerMinerFS to stop monitoring the given removed mount paths, if any */
 	if (mounts_removed) {
+		TrackerIndexingTree *indexing_tree;
 		GSList *sl;
+
+		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
 
 		for (sl = mounts_removed; sl; sl = g_slist_next (sl)) {
 			GFile *mount_point_file;
 
 			mount_point_file = g_file_new_for_path (sl->data);
-			tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf),
-			                                   mount_point_file);
+			tracker_indexing_tree_remove (indexing_tree,
+						      mount_point_file);
 			g_object_unref (mount_point_file);
 		}
 
