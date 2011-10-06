@@ -1,3 +1,32 @@
+NEW in 0.10.30 - 2011-10-06
+===========================
+
+The changes are:
+
+  * Fixes: GB#647575, DLNA mime-types needed
+  * Fixes: GB#659995, Build buglet in docs/Makefile.am
+  * Fixes: GB#660601, Strings from tracker-stats.vala are not marked for translation
+  * Fixes: GB#642288, Extractor plugin for EPUBs
+  * Fixes: NB#257478, Location tags are not copied for saved videos if original video has location tags
+  * Fixes: NB#285251, Miner inresponsive some time after heavy insertion
+  * Fixes: NB#284711, Unable to see the saved gender option 'Not defined' in edit contact view.
+  * Fixes: NB#217566, Use of UNION in EXISTS in a FILTER breaks filtering
+  * Fixes: NB#269359, tracker-control got crashed at tracker_control_status_run   when the file system is full  * functional-tests: Remove expected failure annotation from NB#217566 test
+  * libtracker-common: Fixed missing include directive for utils tests
+  * libtracker-common: Disable configure.ac checks for ioprio_set()
+  * libtracker-data: Set journal_size_limit to 10 MB
+  * tracker-extract: Fixed critical when FD list is missing
+  * tracker-extract-oasis: Ignore empty values and invalid dates
+  * tracker-extract-gstreamer: Fixed division by zero
+  * tracker-extract-gif: Fixed file descriptor leak in error case
+  * tracker-extract-pdf: Fixed file descriptor leak in error cases
+  * tracker-miner-fs: Fixed theme icon URIs for application indexing
+
+Translations:
+
+  None
+
+
 NEW in 0.10.29 - 2011-09-26
 ===========================
 
