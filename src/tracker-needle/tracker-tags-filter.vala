@@ -38,6 +38,7 @@ public class TrackerTagsFilter : ScrolledWindow {
 
 		// Set scrolling
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
+		set_shadow_type (ShadowType.IN);
 		set_size_request (175, -1);
 
 		// Add widgets
