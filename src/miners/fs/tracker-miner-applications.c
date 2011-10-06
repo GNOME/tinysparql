@@ -116,7 +116,6 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 				   TRACKER_DIRECTORY_FLAG_RECURSE |
 				   TRACKER_DIRECTORY_FLAG_MONITOR |
 				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
-	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 	g_free (path);
 
@@ -128,7 +127,6 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 				   TRACKER_DIRECTORY_FLAG_RECURSE |
 				   TRACKER_DIRECTORY_FLAG_MONITOR |
 				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
-	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 	g_free (path);
 }
@@ -176,7 +174,6 @@ miner_applications_add_directories (TrackerMinerFS *fs)
 				   TRACKER_DIRECTORY_FLAG_RECURSE |
 				   TRACKER_DIRECTORY_FLAG_MONITOR |
 				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
-	//tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 #endif /* HAVE_MEEGOTOUCH */
 }
