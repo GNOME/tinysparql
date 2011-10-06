@@ -758,7 +758,7 @@ extract_png (const gchar          *uri,
 	png_uint_32 width, height;
 	gint bit_depth, color_type;
 	gint interlace_type, compression_type, filter_type;
-	const gchar *dlna_profile;
+	const gchar *dlna_profile, *dlna_mimetype;
 	gchar *filename;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
@@ -853,9 +853,11 @@ extract_png (const gchar          *uri,
 	tracker_sparql_builder_predicate (metadata, "nfo:height");
 	tracker_sparql_builder_object_int64 (metadata, height);
 
-	if (guess_dlna_profile (bit_depth, width, height, &dlna_profile, NULL)) {
+	if (guess_dlna_profile (bit_depth, width, height, &dlna_profile, &dlna_mimetype)) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, dlna_profile);
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
+		tracker_sparql_builder_object_string (metadata, dlna_mimetype);
 	}
 
 	png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);

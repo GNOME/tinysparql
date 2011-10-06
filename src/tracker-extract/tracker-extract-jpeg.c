@@ -164,7 +164,7 @@ extract_jpeg (const gchar          *uri,
 	goffset size;
 	gchar *filename;
 	gchar *comment = NULL;
-	const gchar *dlna_profile;
+	const gchar *dlna_profile, *dlna_mimetype;
 	GPtrArray *keywords;
 	guint i;
 	GString *where = NULL;
@@ -322,9 +322,11 @@ extract_jpeg (const gchar          *uri,
 	tracker_sparql_builder_predicate (metadata, "nfo:height");
 	tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
 
-	if (guess_dlna_profile (cinfo.image_width, cinfo.image_height, &dlna_profile, NULL)) {
+	if (guess_dlna_profile (cinfo.image_width, cinfo.image_height, &dlna_profile, &dlna_mimetype)) {
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, dlna_profile);
+		tracker_sparql_builder_predicate (metadata, "nmm:dlnaMime");
+		tracker_sparql_builder_object_string (metadata, dlna_mimetype);
 	}
 
 	if (id->contact) {
