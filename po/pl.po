@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-22 20:18+0200\n"
-"PO-Revision-Date: 2011-09-22 20:19+0200\n"
+"POT-Creation-Date: 2011-10-06 19:04+0200\n"
+"PO-Revision-Date: 2011-10-06 19:05+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -525,8 +525,12 @@ msgstr "Katalog"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
 #: ../src/tracker-needle/tracker-view.vala:180
+#: ../src/tracker-needle/tracker-stats.vala:104
 msgid "File"
-msgstr "Plik"
+msgid_plural "Files"
+msgstr[0] "Plik"
+msgstr[1] "Pliki"
+msgstr[2] "Pliki"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Day(s)"
@@ -805,6 +809,116 @@ msgstr "Wczytywanie..."
 msgid "Pages"
 msgstr "Strony"
 
+#. Label for dialog
+#: ../src/tracker-needle/tracker-stats.vala:72
+msgid ""
+"The statistics represented here do not reflect their availability, rather "
+"the total data stored:"
+msgstr ""
+"Przedstawione tu statystyki nie odpowiadają ich dostępności, tylko całkowity "
+"rozmiar przechowywanych danych:"
+
+#: ../src/tracker-needle/tracker-stats.vala:92
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Etykieta"
+msgstr[1] "Etykiety"
+msgstr[2] "Etykiety"
+
+#: ../src/tracker-needle/tracker-stats.vala:95
+msgid "Contact"
+msgid_plural "Contacts"
+msgstr[0] "Kontakt"
+msgstr[1] "Kontakty"
+msgstr[2] "Kontakty"
+
+#: ../src/tracker-needle/tracker-stats.vala:98
+#: ../src/tracker-search-bar/tracker-results-window.c:724
+msgid "Audio"
+msgid_plural "Audios"
+msgstr[0] "Nagranie dźwiękowe"
+msgstr[1] "Nagrania dźwiękowe"
+msgstr[2] "Nagrania dźwiękowe"
+
+#: ../src/tracker-needle/tracker-stats.vala:101
+msgid "Document"
+msgid_plural "Documents"
+msgstr[0] "Dokument"
+msgstr[1] "Dokumenty"
+msgstr[2] "Dokumenty"
+
+#: ../src/tracker-needle/tracker-stats.vala:107
+msgid "Folder"
+msgid_plural "Folders"
+msgstr[0] "Katalog"
+msgstr[1] "Katalogi"
+msgstr[2] "Katalogi"
+
+#: ../src/tracker-needle/tracker-stats.vala:110
+msgid "Image"
+msgid_plural "Images"
+msgstr[0] "Obraz"
+msgstr[1] "Obrazy"
+msgstr[2] "Obrazy"
+
+#: ../src/tracker-needle/tracker-stats.vala:113
+#: ../src/tracker-control/tracker-control-miners.c:421
+msgid "Application"
+msgid_plural "Applications"
+msgstr[0] "Program"
+msgstr[1] "Programy"
+msgstr[2] "Programy"
+
+#. case "nmm:Video":
+#: ../src/tracker-needle/tracker-stats.vala:117
+msgid "Video"
+msgid_plural "Videos"
+msgstr[0] "Nagranie wideo"
+msgstr[1] "Nagrania wideo"
+msgstr[2] "Nagrania wideo"
+
+#: ../src/tracker-needle/tracker-stats.vala:120
+msgid "Album"
+msgid_plural "Albums"
+msgstr[0] "Album"
+msgstr[1] "Albumy"
+msgstr[2] "Albumy"
+
+#: ../src/tracker-needle/tracker-stats.vala:123
+msgid "Music Track"
+msgid_plural "Music Tracks"
+msgstr[0] "Utwór muzyczny"
+msgstr[1] "Utwory muzyczne"
+msgstr[2] "Utwory muzyczne"
+
+#: ../src/tracker-needle/tracker-stats.vala:126
+msgid "Photo"
+msgid_plural "Photos"
+msgstr[0] "Zdjęcie"
+msgstr[1] "Zdjęcia"
+msgstr[2] "Zdjęcia"
+
+#: ../src/tracker-needle/tracker-stats.vala:129
+msgid "Playlist"
+msgid_plural "Playlists"
+msgstr[0] "Lista odtwarzania"
+msgstr[1] "Listy odtwarzania"
+msgstr[2] "Listy odtwarzania"
+
+#: ../src/tracker-needle/tracker-stats.vala:132
+msgid "Email"
+msgid_plural "Emails"
+msgstr[0] "Wiadomość e-mail"
+msgstr[1] "Wiadomości e-mail"
+msgstr[2] "Wiadomości e-mail"
+
+#: ../src/tracker-needle/tracker-stats.vala:135
+msgid "Bookmark"
+msgid_plural "Bookmarks"
+msgstr[0] "Zakładka"
+msgstr[1] "Zakładki"
+msgstr[2] "Zakładki"
+
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display found images"
 msgstr "Wyświetla odnalezione obrazy"
@@ -844,10 +958,6 @@ msgstr "Kontakty"
 #: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Email Addresses"
 msgstr "Adresy e-mail"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:724
-msgid "Audio"
-msgstr "Dźwięk"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
@@ -1282,13 +1392,9 @@ msgid "No miners are running"
 msgstr "Brak uruchomionych przeszukiwań"
 
 #: ../src/tracker-control/tracker-control-miners.c:414
-#: ../src/tracker-control/tracker-control-status.c:535
+#: ../src/tracker-control/tracker-control-status.c:541
 msgid "Miners"
 msgstr "Przeszukiwania"
-
-#: ../src/tracker-control/tracker-control-miners.c:421
-msgid "Application"
-msgstr "Program"
 
 #: ../src/tracker-control/tracker-control-miners.c:423
 msgid "Reason"
@@ -1320,7 +1426,7 @@ msgid "Show miner options"
 msgstr "Wyświetla opcje przeszukiwań"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:277
+#: ../src/tracker-control/tracker-control-status.c:283
 msgid "Unavailable"
 msgstr "Niedostępne"
 
@@ -1365,35 +1471,35 @@ msgid "List common statuses for miners and the store"
 msgstr "Wyświetla listę wspólnych stanów dla przeszukiwań i przechowalni"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:191
-#: ../src/tracker-control/tracker-control-status.c:519
+#: ../src/tracker-control/tracker-control-status.c:197
+#: ../src/tracker-control/tracker-control-status.c:525
 msgid "PAUSED"
 msgstr "WSTRZYMANE"
 
-#: ../src/tracker-control/tracker-control-status.c:205
+#: ../src/tracker-control/tracker-control-status.c:211
 msgid "Not running or is a disabled plugin"
 msgstr "Nieuruchomiona lub wyłączona wtyczka"
 
-#: ../src/tracker-control/tracker-control-status.c:490
+#: ../src/tracker-control/tracker-control-status.c:496
 msgid "Common statuses include"
 msgstr "Wspólne stany obejmują"
 
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:514
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr ""
 "Nie można uzyskać stanu przeszukiwania, nie można utworzyć menedżera, %s"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:529
+#: ../src/tracker-control/tracker-control-status.c:535
 msgid "Store"
 msgstr "Przechowalnia"
 
-#: ../src/tracker-control/tracker-control-status.c:642
+#: ../src/tracker-control/tracker-control-status.c:648
 msgid "Status options"
 msgstr "Opcje stanu"
 
-#: ../src/tracker-control/tracker-control-status.c:643
+#: ../src/tracker-control/tracker-control-status.c:649
 msgid "Show status options"
 msgstr "Wyświetla opcje stanu"
 
