@@ -38,9 +38,13 @@ typedef struct {
 
 typedef struct {
 	TrackerWritebackListener *self;
-	gint subject_id;
 	GStrv rdf_types;
 } QueryData;
+
+typedef struct {
+	GVariantIter *iter1;
+	TrackerWritebackListener *self;
+} DelayedLoopData;
 
 enum {
 	PROP_0,
@@ -229,13 +233,11 @@ tracker_writeback_listener_new (TrackerMinerFiles  *miner_files,
 }
 
 static QueryData*
-query_data_new (TrackerWritebackListener *self,
-                gint subject_id)
+query_data_new (TrackerWritebackListener *self)
 {
 	QueryData *data = g_slice_new0 (QueryData);
 
 	data->self = g_object_ref (self);
-	data->subject_id = subject_id;
 
 	return data;
 }
@@ -344,34 +346,25 @@ rdf_types_to_uris_cb (GObject      *object,
 
 	if (!error) {
 		gchar *query;
-		const gchar *subject;
 		GArray *rdf_types;
+		gchar *subject = NULL;
 
 		rdf_types = g_array_new (TRUE, TRUE, sizeof (gchar *));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			gchar *uri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			if (subject == NULL) {
+				subject = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			}
 			g_array_append_val (rdf_types, uri);
 		}
+
+		g_object_unref (cursor);
 
 		data->rdf_types = (GStrv) rdf_types->data;
 		g_array_free (rdf_types, FALSE);
 
-		g_object_unref (cursor);
-
-		query = g_strdup_printf ("SELECT tracker:uri (%d) {}", data->subject_id);
-		cursor = tracker_sparql_connection_query (connection, query, NULL, NULL);
-		g_free (query);
-
-		if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			subject = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			if (!subject) {
-				g_object_unref (cursor);
-				goto trouble;
-			}
-		} else {
-			if (cursor)
-				g_object_unref (cursor);
+		if (subject == NULL) {
 			goto trouble;
 		}
 
@@ -383,14 +376,14 @@ rdf_types_to_uris_cb (GObject      *object,
 		                              "{ <%s> ?predicate ?object } }) } ",
 		                         subject, subject, subject, subject);
 
-		tracker_sparql_connection_query_async (priv->connection,
+		tracker_sparql_connection_query_async (connection,
 		                                       query,
 		                                       NULL,
 		                                       sparql_query_cb,
 		                                       data);
 
+		g_free (subject);
 		g_free (query);
-		g_object_unref (cursor);
 
 	} else {
 		goto trouble;
@@ -406,32 +399,32 @@ trouble:
 	query_data_free (data);
 }
 
-static void
-on_writeback_cb (GDBusConnection      *connection,
-                 const gchar          *sender_name,
-                 const gchar          *object_path,
-                 const gchar          *interface_name,
-                 const gchar          *signal_name,
-                 GVariant             *parameters,
-                 gpointer              user_data)
+static gboolean
+delayed_loop_idle (gpointer user_data)
 {
-	TrackerWritebackListener *self = TRACKER_WRITEBACK_LISTENER (user_data);
-	TrackerWritebackListenerPrivate *priv;
-	GVariantIter *iter1, *iter2;
+	DelayedLoopData *ldata = user_data;
+	GVariantIter *iter2;
 	gint subject_id = 0, rdf_type = 0;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (self);
-
-	g_variant_get (parameters, "(a{iai})", &iter1);
-	while (g_variant_iter_loop (iter1, "{iai}", &subject_id, &iter2)) {
+	if (g_variant_iter_next (ldata->iter1, "{iai}", &subject_id, &iter2)) {
+		TrackerWritebackListenerPrivate *priv;
+		QueryData *data = NULL;
 		GString *query;
 		gboolean comma = FALSE;
-		QueryData *data;
 
-		data = query_data_new (self, subject_id);
+		priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (ldata->self);
 
-		query = g_string_new ("SELECT ?resource { ?resource a rdfs:Class . "
-		                      "FILTER (tracker:id (?resource) IN (");
+		data = query_data_new (ldata->self);
+
+		/* Two queries are grouped together here to reduce the amount of
+		 * queries that must be made. tracker:uri() is idd unrelated to
+		 * the other part of the query (and is repeated each result, idd) */
+
+		query = g_string_new ("SELECT ");
+		g_string_append_printf (query, "?resource tracker:uri (%d) { "
+		                               "?resource a rdfs:Class . "
+		                               "FILTER (tracker:id (?resource) IN (",
+		                        subject_id);
 
 		while (g_variant_iter_loop (iter2, "i", &rdf_type)) {
 			if (comma) {
@@ -451,7 +444,41 @@ on_writeback_cb (GDBusConnection      *connection,
 		                                       data);
 
 		g_string_free (query, TRUE);
+
+		g_variant_iter_free (iter2);
+
+		return TRUE;
 	}
 
-	g_variant_iter_free (iter1);
+	return FALSE;
+}
+
+static void
+delayed_loop_finished (gpointer user_data)
+{
+	DelayedLoopData *ldata = user_data;
+	g_variant_iter_free (ldata->iter1);
+	g_object_unref (ldata->self);
+	g_free (ldata);
+}
+
+static void
+on_writeback_cb (GDBusConnection      *connection,
+                 const gchar          *sender_name,
+                 const gchar          *object_path,
+                 const gchar          *interface_name,
+                 const gchar          *signal_name,
+                 GVariant             *parameters,
+                 gpointer              user_data)
+{
+	TrackerWritebackListener *self = TRACKER_WRITEBACK_LISTENER (user_data);
+	DelayedLoopData *data = g_new (DelayedLoopData, 1);
+
+	data->self = g_object_ref (self);
+	g_variant_get (parameters, "(a{iai})", &data->iter1);
+
+	g_idle_add_full (G_PRIORITY_LOW,
+	                 delayed_loop_idle,
+	                 data,
+	                 delayed_loop_finished);
 }
