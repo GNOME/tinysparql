@@ -106,9 +106,12 @@ public class Tracker.View : ScrolledWindow {
 			Label l;
 
 			l = new Label ("");
+			l.set_justify (Justification.CENTER);
 
-			string message = _("No Search Results");
-			string markup = @"<big>$message</big>";
+			string results = _("No Search Results");
+			string help_views = _("Select the view on the toolbar for the content you want, e.g. everything, files or just images");
+			string help_search = _("Start to search using the entry box above");
+			string markup = @"<big>$results</big>\n\n$help_views\n\n$help_search";
 			
 			l.set_use_markup (true);
 			l.set_markup (markup);
