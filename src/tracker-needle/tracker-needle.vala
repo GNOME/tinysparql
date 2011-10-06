@@ -242,6 +242,7 @@ public class Tracker.Needle {
 		var builder = new Gtk.Builder ();
 		Button info_bar_button;
 		Toolbar toolbar;
+		Paned paned;
 
 		try {
 			//try load from source tree first.
@@ -341,9 +342,10 @@ public class Tracker.Needle {
 		view.pack_start (sw_icons, true, true, 0);
 
 		// Set up tags_filter
+		paned = builder.get_object ("hpaned") as Paned;
 		tags_filter = new TrackerTagsFilter ();
 		tags_filter.hide ();
-		view.pack_end (tags_filter, false, true, 0);
+		paned.pack2 (tags_filter, false, false);
 		tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
