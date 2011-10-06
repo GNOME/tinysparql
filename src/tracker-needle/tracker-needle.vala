@@ -48,6 +48,8 @@ public class Tracker.Needle {
 	private Tracker.View sw_categories;
 	private Tracker.View sw_filelist;
 	private Tracker.View sw_icons;
+	private InfoBar info_bar;
+	private Label info_bar_label;
 	private TrackerTagsFilter tags_filter;
 	private uint last_search_id = 0;
 	private int size_small = 0;
@@ -221,6 +223,7 @@ public class Tracker.Needle {
 
 	private void setup_ui () {
 		var builder = new Gtk.Builder ();
+		Button info_bar_button;
 		Toolbar toolbar;
 
 		try {
@@ -252,6 +255,11 @@ public class Tracker.Needle {
 
 		toolbar = builder.get_object ("toolbar_main") as Toolbar;
 		toolbar.get_style_context().add_class (STYLE_CLASS_PRIMARY_TOOLBAR);
+
+		info_bar = builder.get_object("info_bar") as InfoBar;
+		info_bar_label = builder.get_object ("info_bar_label") as Label;
+		info_bar_button = builder.get_object("info_bar_button") as Button;
+		info_bar_button.clicked.connect (info_bar_closed);
 
 		view_filelist = builder.get_object ("toolbutton_view_filelist") as ToggleToolButton;
 		view_filelist.toggled.connect (view_toggled);
@@ -593,6 +601,17 @@ public class Tracker.Needle {
 		debug ("Showing stats dialog");
 		Tracker.Stats s = new Tracker.Stats ();
 		s.show ();
+	}
+
+	public void show_info_message (string          message,
+	                               Gtk.MessageType type) {
+		info_bar.set_message_type (type);
+		info_bar_label.set_label (message);
+		info_bar.show ();
+	}
+
+	private void info_bar_closed () {
+		info_bar.hide ();
 	}
 }
 
