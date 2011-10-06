@@ -10,7 +10,8 @@ src/tracker-preferences/tracker-preferences.desktop.in
 src/tracker-needle/tracker-needle.desktop.in
 src/tracker-needle/tracker-needle.c
 src/tracker-needle/tracker-query.c
-src/tracker-needle/tracker-taglist.c
+src/tracker-needle/tracker-tags-filter.c
+src/tracker-needle/tracker-tags-view.c
 src/tracker-needle/tracker-utils.c
 src/tracker-needle/tracker-view.c
 src/tracker-needle/tracker-stats.c
