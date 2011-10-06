@@ -221,6 +221,7 @@ public class Tracker.Needle {
 
 	private void setup_ui () {
 		var builder = new Gtk.Builder ();
+		Toolbar toolbar;
 
 		try {
 			//try load from source tree first.
@@ -248,6 +249,9 @@ public class Tracker.Needle {
 		window = builder.get_object ("window_needle") as Window;
 		window.destroy.connect (Gtk.main_quit);
 		window.key_press_event.connect (window_key_press_event);
+
+		toolbar = builder.get_object ("toolbar_main") as Toolbar;
+		toolbar.get_style_context().add_class (STYLE_CLASS_PRIMARY_TOOLBAR);
 
 		view_filelist = builder.get_object ("toolbutton_view_filelist") as ToggleToolButton;
 		view_filelist.toggled.connect (view_toggled);
