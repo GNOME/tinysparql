@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-05 18:37+0200\n"
-"PO-Revision-Date: 2011-10-05 18:38+0200\n"
+"POT-Creation-Date: 2011-10-06 19:10+0200\n"
+"PO-Revision-Date: 2011-10-06 19:11+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-Country: Poland\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-view.vala:326
+#: ../src/tracker-needle/tracker-view.vala:331
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Programy"
@@ -411,21 +411,23 @@ msgid "By usage"
 msgstr "Według użycia"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-needle/tracker-tags-view.vala:135
 msgid "No error was given"
 msgstr "Nie podano błędu"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/tracker-needle/tracker-tags-view.vala:264
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
-msgstr[0] "U_stawienie znaczników do powiązania z %d zaznaczonym elementem:"
-msgstr[1] "U_stawienie znaczników do powiązania z %d zaznaczonymi elementami:"
-msgstr[2] "U_stawienie znaczników do powiązania z %d zaznaczonymi elementami:"
+msgstr[0] "U_stawienie etykiet do powiązania z %d zaznaczonym elementem:"
+msgstr[1] "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
+msgstr[2] "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 
+#. Create dialog and embed vbox.
 #: ../src/plugins/nautilus/tracker-tags-extension.c:111
 #: ../src/plugins/nautilus/tracker-tags-extension.c:185
-#: ../src/tracker-needle/tracker-taglist.vala:50
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Tags"
 msgstr "Etykiety"
@@ -806,7 +808,7 @@ msgid "Directory"
 msgstr "Katalog"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:149
-#: ../src/tracker-needle/tracker-view.vala:180
+#: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-needle/tracker-stats.vala:103
 msgid "File"
 msgid_plural "Files"
@@ -842,7 +844,7 @@ msgid "That directory is already selected as a location to index"
 msgstr "Ten katalog został już wybrany jako położenie do indeksowania"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:892
-#: ../src/tracker-needle/tracker-needle.vala:622
+#: ../src/tracker-needle/tracker-needle.vala:605
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
@@ -1048,36 +1050,44 @@ msgstr ""
 "Wyszukiwanie na tym komputerze według nazwy lub treści używając programu "
 "Tracker"
 
-#: ../src/tracker-needle/tracker-needle.vala:629
-#: ../src/tracker-needle/tracker-needle.vala:630
+#: ../src/tracker-needle/tracker-needle.vala:612
+#: ../src/tracker-needle/tracker-needle.vala:613
 msgid "[SEARCH-CRITERIA]"
 msgstr "[KRYTERIA-WYSZUKIWANIA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:635
+#: ../src/tracker-needle/tracker-needle.vala:618
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interfejs użytkownika do wyszukiwania na pulpicie używający programu Tracker"
 
+#: ../src/tracker-needle/tracker-tags-filter.vala:57
+msgid "Filter by tags"
+msgstr "Filtruje według etykiet"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:302
+msgid "Name"
+msgstr "Nazwa"
+
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
-#: ../src/tracker-needle/tracker-utils.vala:44
+#: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
 msgid "%x"
 msgstr "%x"
 
-#: ../src/tracker-needle/tracker-utils.vala:48
+#: ../src/tracker-needle/tracker-utils.vala:112
 msgid "Today"
 msgstr "Dzisiaj"
 
-#: ../src/tracker-needle/tracker-utils.vala:57
+#: ../src/tracker-needle/tracker-utils.vala:121
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: ../src/tracker-needle/tracker-utils.vala:59
+#: ../src/tracker-needle/tracker-utils.vala:123
 msgid "Yesterday"
 msgstr "Wczoraj"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:63
+#: ../src/tracker-needle/tracker-utils.vala:127
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -1086,7 +1096,7 @@ msgstr[1] "%ld dni od teraz"
 msgstr[2] "%ld dni od teraz"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:66
+#: ../src/tracker-needle/tracker-utils.vala:130
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
@@ -1094,69 +1104,89 @@ msgstr[0] "%ld dzień temu"
 msgstr[1] "%ld dni temu"
 msgstr[2] "%ld dni temu"
 
-#: ../src/tracker-needle/tracker-utils.vala:78
-#: ../src/tracker-needle/tracker-utils.vala:107
+#: ../src/tracker-needle/tracker-utils.vala:142
+#: ../src/tracker-needle/tracker-utils.vala:171
 msgid "Less than one second"
 msgstr "Mniej niż sekundę"
 
-#: ../src/tracker-needle/tracker-view.vala:109
+#: ../src/tracker-needle/tracker-view.vala:111
 msgid "No Search Results"
 msgstr "Brak wyników wyszukiwania"
 
-#: ../src/tracker-needle/tracker-view.vala:192
+#: ../src/tracker-needle/tracker-view.vala:112
+msgid ""
+"Select the view on the toolbar for the content you want, e.g. everything, "
+"files or just images"
+msgstr ""
+"Można ustawić widok na pasku narzędziowym dla dowolnej zawartości, np. "
+"wszystkiego, tylko plików lub tylko obrazów"
+
+#: ../src/tracker-needle/tracker-view.vala:113
+msgid "Start to search using the entry box above"
+msgstr "Rozpoczyna wyszukiwanie używając powyższego pola wprowadzania"
+
+#: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
 msgstr "Ostatnio zmieniono"
 
-#: ../src/tracker-needle/tracker-view.vala:201
+#: ../src/tracker-needle/tracker-view.vala:206
 msgid "Size"
 msgstr "Rozmiar"
 
-#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-needle/tracker-view.vala:334
 msgid "Music"
 msgstr "Muzyka"
 
-#: ../src/tracker-needle/tracker-view.vala:332
+#: ../src/tracker-needle/tracker-view.vala:337
 #: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Images"
 msgstr "Obrazy"
 
-#: ../src/tracker-needle/tracker-view.vala:335
+#: ../src/tracker-needle/tracker-view.vala:340
 #: ../src/tracker-search-bar/tracker-results-window.c:727
 msgid "Videos"
 msgstr "Nagrania wideo"
 
-#: ../src/tracker-needle/tracker-view.vala:338
+#: ../src/tracker-needle/tracker-view.vala:343
 #: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Documents"
 msgstr "Dokumenty"
 
-#: ../src/tracker-needle/tracker-view.vala:341
+#: ../src/tracker-needle/tracker-view.vala:346
 msgid "Mail"
 msgstr "Poczta"
 
-#: ../src/tracker-needle/tracker-view.vala:344
+#: ../src/tracker-needle/tracker-view.vala:349
 #: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Folders"
 msgstr "Katalogi"
 
-#: ../src/tracker-needle/tracker-view.vala:347
+#: ../src/tracker-needle/tracker-view.vala:352
 #: ../src/tracker-search-bar/tracker-results-window.c:729
 #: ../src/tracker-utils/tracker-search.c:912
 msgid "Bookmarks"
 msgstr "Zakładki"
 
-#: ../src/tracker-needle/tracker-view.vala:351
+#: ../src/tracker-needle/tracker-view.vala:356
 msgid "Items"
 msgstr "Elementy"
 
-#: ../src/tracker-needle/tracker-view.vala:363
+#: ../src/tracker-needle/tracker-view.vala:368
 #, c-format
 msgid "Loading..."
 msgstr "Wczytywanie..."
 
-#: ../src/tracker-needle/tracker-view.vala:429
+#: ../src/tracker-needle/tracker-view.vala:434
 msgid "Pages"
 msgstr "Strony"
+
+#: ../src/tracker-needle/tracker-view.vala:451
+msgid "_Show Parent Directory"
+msgstr "_Wyświetl katalog nadrzędny"
+
+#: ../src/tracker-needle/tracker-view.vala:458
+msgid "_Tags..."
+msgstr "_Etykiety..."
 
 #. Label for dialog
 #: ../src/tracker-needle/tracker-stats.vala:71
@@ -1291,8 +1321,17 @@ msgid "Find search criteria inside files"
 msgstr "Wyszukuje kryteria wyszukiwania wewnątrz plików"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Show results by tags"
+msgstr "Wyświetla wyniki według etykiet"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show statistics about the data stored"
 msgstr "Wyświetla statystyki o przechowywanych danych"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:11
+#, no-c-format
+msgid "_Set the tags you want to associate with the %d selected items:"
+msgstr "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:717
 #: ../src/tracker-search-bar/tracker-results-window.c:733
