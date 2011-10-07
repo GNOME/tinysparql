@@ -249,7 +249,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				} else {
 					result.add (null);
 				}
+
+                                message = null;
 			}
+
+                        code = null;
 		}
 		return result;
 	}
