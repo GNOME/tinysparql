@@ -123,9 +123,9 @@ pattern_data_free (PatternData *data)
 
 static void
 tracker_indexing_tree_get_property (GObject    *object,
-				    guint       prop_id,
-				    GValue     *value,
-				    GParamSpec *pspec)
+                                    guint       prop_id,
+                                    GValue     *value,
+                                    GParamSpec *pspec)
 {
 	TrackerIndexingTreePrivate *priv;
 
@@ -143,9 +143,9 @@ tracker_indexing_tree_get_property (GObject    *object,
 
 static void
 tracker_indexing_tree_set_property (GObject      *object,
-				    guint         prop_id,
-				    const GValue *value,
-				    GParamSpec   *pspec)
+                                    guint         prop_id,
+                                    const GValue *value,
+                                    GParamSpec   *pspec)
 {
 	TrackerIndexingTree *tree;
 
@@ -154,7 +154,7 @@ tracker_indexing_tree_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_FILTER_HIDDEN:
 		tracker_indexing_tree_set_filter_hidden (tree,
-							 g_value_get_boolean (value));
+		                                         g_value_get_boolean (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -197,36 +197,36 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	g_object_class_install_property (object_class,
 	                                 PROP_FILTER_HIDDEN,
 	                                 g_param_spec_boolean ("filter-hidden",
-							       "Filter hidden",
-							       "Whether hidden resources are filtered",
-							       FALSE,
-							       G_PARAM_READWRITE));
+	                                                       "Filter hidden",
+	                                                       "Whether hidden resources are filtered",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 	signals[DIRECTORY_ADDED] =
 		g_signal_new ("directory-added",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
-					       directory_added),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
+		                               directory_added),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 	signals[DIRECTORY_REMOVED] =
 		g_signal_new ("directory-removed",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
-					       directory_removed),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
+		                               directory_removed),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 	signals[DIRECTORY_UPDATED] =
 		g_signal_new ("directory-updated",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
-					       directory_updated),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
+		                               directory_updated),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__OBJECT,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class,
@@ -392,7 +392,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 
 			data->flags = flags;
 			g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0,
-				       directory);
+			               directory);
 		}
 		return;
 	}
@@ -581,8 +581,8 @@ parent_or_equals (GFile *file1,
 
 static gboolean
 indexing_tree_file_is_filtered (TrackerIndexingTree *tree,
-				TrackerFilterType    filter,
-				GFile               *file)
+                                TrackerFilterType    filter,
+                                GFile               *file)
 {
 	TrackerIndexingTreePrivate *priv;
 
@@ -692,8 +692,8 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree *tree,
 
 	while (children) {
 		if (indexing_tree_file_is_filtered (tree,
-						    TRACKER_FILTER_PARENT_DIRECTORY,
-						    children->data)) {
+		                                    TRACKER_FILTER_PARENT_DIRECTORY,
+		                                    children->data)) {
 			return FALSE;
 		}
 
@@ -716,7 +716,7 @@ tracker_indexing_tree_get_filter_hidden (TrackerIndexingTree *tree)
 
 void
 tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
-					 gboolean             filter_hidden)
+                                         gboolean             filter_hidden)
 {
 	TrackerIndexingTreePrivate *priv;
 
@@ -730,8 +730,8 @@ tracker_indexing_tree_set_filter_hidden (TrackerIndexingTree *tree,
 
 void
 tracker_indexing_tree_set_default_policy (TrackerIndexingTree *tree,
-					  TrackerFilterType    filter,
-					  TrackerFilterPolicy  policy)
+                                          TrackerFilterType    filter,
+                                          TrackerFilterPolicy  policy)
 {
 	TrackerIndexingTreePrivate *priv;
 
@@ -744,15 +744,15 @@ tracker_indexing_tree_set_default_policy (TrackerIndexingTree *tree,
 
 TrackerFilterPolicy
 tracker_indexing_tree_get_default_policy (TrackerIndexingTree *tree,
-					  TrackerFilterType    filter)
+                                          TrackerFilterType    filter)
 {
 	TrackerIndexingTreePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree),
-			      TRACKER_FILTER_POLICY_DENY);
+	                      TRACKER_FILTER_POLICY_DENY);
 	g_return_val_if_fail (filter >= TRACKER_FILTER_FILE &&
-			      filter <= TRACKER_FILTER_PARENT_DIRECTORY,
-			      TRACKER_FILTER_POLICY_DENY);
+	                      filter <= TRACKER_FILTER_PARENT_DIRECTORY,
+	                      TRACKER_FILTER_POLICY_DENY);
 
 	priv = tree->priv;
 	return priv->policies[filter];
@@ -774,8 +774,8 @@ tracker_indexing_tree_get_default_policy (TrackerIndexingTree *tree,
  **/
 GFile *
 tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
-				GFile                 *file,
-				TrackerDirectoryFlags *directory_flags)
+                                GFile                 *file,
+                                TrackerDirectoryFlags *directory_flags)
 {
 	TrackerIndexingTreePrivate *priv;
 	NodeData *data;
@@ -825,7 +825,7 @@ tracker_indexing_tree_file_is_root (TrackerIndexingTree *tree,
 
 static gboolean
 prepend_config_root (GNode    *node,
-		     gpointer  user_data)
+                     gpointer  user_data)
 {
 	GList **list = user_data;
 	NodeData *data = node->data;
@@ -844,10 +844,10 @@ tracker_indexing_tree_list_roots (TrackerIndexingTree *tree)
 
 	priv = tree->priv;
 	g_node_traverse (priv->config_tree,
-			 G_POST_ORDER,
-			 G_TRAVERSE_ALL,
-			 -1,
-			 prepend_config_root,
-			 &nodes);
+	                 G_POST_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 prepend_config_root,
+	                 &nodes);
 	return nodes;
 }

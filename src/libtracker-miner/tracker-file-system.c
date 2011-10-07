@@ -87,10 +87,10 @@ file_node_data_free (FileNodeData *data,
 		GDestroyNotify destroy_notify;
 
 		property = &g_array_index (data->properties,
-					   FileNodeProperty, i);
+		                           FileNodeProperty, i);
 
 		destroy_notify = g_hash_table_lookup (properties,
-						      GUINT_TO_POINTER (property->prop_quark));
+		                                      GUINT_TO_POINTER (property->prop_quark));
 
 		if (destroy_notify) {
 			(destroy_notify) (property->value);
@@ -156,8 +156,8 @@ file_node_data_equal_or_child (GNode  *node,
 		if (uri_suffix[0] == '/') {
 			uri_suffix++;
 		} else if (uri_suffix[0] != '\0' &&
-			   (len < 4 ||
-			    strcmp (data->uri_suffix + len - 4, ":///") != 0)) {
+		           (len < 4 ||
+		            strcmp (data->uri_suffix + len - 4, ":///") != 0)) {
 			/* If the first char isn't an uri separator
 			 * nor \0, node represents a similarly named
 			 * file, but not a parent after all.
@@ -327,7 +327,7 @@ tracker_file_system_new (void)
 
 static void
 reparent_child_nodes (GNode *node,
-		      GNode *new_parent)
+                      GNode *new_parent)
 {
 	FileNodeData *parent_data;
 	GNode *child;
@@ -349,7 +349,7 @@ reparent_child_nodes (GNode *node,
 		}
 
 		data->uri_suffix = g_file_get_relative_path (parent_data->file,
-							     data->file);
+		                                             data->file);
 
 		g_node_unlink (cur);
 		g_node_append (new_parent, cur);
@@ -452,7 +452,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 		}
 	} else {
 		node = file_tree_lookup (priv->file_tree, file,
-					 &parent_node, &uri_suffix);
+		                         &parent_node, &uri_suffix);
 	}
 
 	if (!node) {
@@ -568,11 +568,11 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 	data.user_data = user_data;
 
 	g_node_traverse (node,
-			 order,
-			 G_TRAVERSE_ALL,
-			 -1,
+	                 order,
+	                 G_TRAVERSE_ALL,
+	                 -1,
 	                 traverse_filesystem_func,
-			 &data);
+	                 &data);
 }
 
 void
@@ -753,7 +753,7 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 
 	/* Find out the index from memory positions */
 	index = (guint) ((FileNodeProperty *) match -
-			 (FileNodeProperty *) data->properties->data);
+	                 (FileNodeProperty *) data->properties->data);
 	g_assert (index >= 0 && index < data->properties->len);
 
 	g_array_remove_index (data->properties, index);

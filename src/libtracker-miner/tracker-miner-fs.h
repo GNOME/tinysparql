@@ -117,7 +117,7 @@ void                  tracker_miner_fs_check_file_with_priority (TrackerMinerFS 
                                                                  gboolean        check_parents);
 void                  tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
                                                                       GFile          *file,
-	                                                              gint            priority,
+                                                                      gint            priority,
                                                                       gboolean        check_parents);
 void                  tracker_miner_fs_check_file           (TrackerMinerFS *fs,
                                                              GFile          *file,

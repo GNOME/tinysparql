@@ -52,11 +52,11 @@ struct _TrackerIndexingTreeClass
 	GObjectClass parent_class;
 
 	void (* directory_added)   (TrackerIndexingTree *indexing_tree,
-				    GFile               *directory);
+	                            GFile               *directory);
 	void (* directory_removed) (TrackerIndexingTree *indexing_tree,
-				    GFile               *directory);
+	                            GFile               *directory);
 	void (* directory_updated) (TrackerIndexingTree *indexing_tree,
-				    GFile               *directory);
+	                            GFile               *directory);
 };
 
 GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
@@ -87,13 +87,13 @@ gboolean  tracker_indexing_tree_parent_is_indexable  (TrackerIndexingTree  *tree
 
 gboolean  tracker_indexing_tree_get_filter_hidden    (TrackerIndexingTree  *tree);
 void      tracker_indexing_tree_set_filter_hidden    (TrackerIndexingTree  *tree,
-						      gboolean              filter_hidden);
+                                                      gboolean              filter_hidden);
 
 TrackerFilterPolicy tracker_indexing_tree_get_default_policy (TrackerIndexingTree *tree,
-							      TrackerFilterType    filter);
+                                                              TrackerFilterType    filter);
 void                tracker_indexing_tree_set_default_policy (TrackerIndexingTree *tree,
-							      TrackerFilterType    filter,
-							      TrackerFilterPolicy  policy);
+                                                              TrackerFilterType    filter,
+                                                              TrackerFilterPolicy  policy);
 
 GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tree,
                                                       GFile                 *file,

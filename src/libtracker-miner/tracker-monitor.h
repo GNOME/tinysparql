@@ -55,7 +55,7 @@ TrackerMonitor *tracker_monitor_new                  (void);
 
 TrackerIndexingTree * tracker_monitor_get_indexing_tree (TrackerMonitor *monitor);
 void                  tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
-							 TrackerIndexingTree *tree);
+                                                         TrackerIndexingTree *tree);
 
 gboolean        tracker_monitor_get_enabled          (TrackerMonitor *monitor);
 void            tracker_monitor_set_enabled          (TrackerMonitor *monitor,

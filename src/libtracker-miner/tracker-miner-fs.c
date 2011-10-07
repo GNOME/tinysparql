@@ -259,18 +259,18 @@ static void           item_moved_data_free                (ItemMovedData        
 static void           item_writeback_data_free            (ItemWritebackData    *data);
 
 static void           indexing_tree_directory_removed     (TrackerIndexingTree  *indexing_tree,
-							   GFile                *directory,
-							   gpointer              user_data);
+                                                           GFile                *directory,
+                                                           gpointer              user_data);
 static void           file_notifier_file_created          (TrackerFileNotifier  *notifier,
-							   GFile                *file,
-							   gpointer              user_data);
+                                                           GFile                *file,
+                                                           gpointer              user_data);
 static void           file_notifier_file_deleted          (TrackerFileNotifier  *notifier,
-							   GFile                *file,
-							   gpointer              user_data);
+                                                           GFile                *file,
+                                                           gpointer              user_data);
 static void           file_notifier_file_updated          (TrackerFileNotifier  *notifier,
-							   GFile                *file,
+                                                           GFile                *file,
                                                            gboolean              attributes_only,
-							   gpointer              user_data);
+                                                           gpointer              user_data);
 static void           file_notifier_file_moved            (TrackerFileNotifier  *notifier,
                                                            GFile                *source,
                                                            GFile                *dest,
@@ -560,8 +560,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Create the indexing tree */
 	priv->indexing_tree = tracker_indexing_tree_new ();
 	g_signal_connect (priv->indexing_tree, "directory-removed",
-			  G_CALLBACK (indexing_tree_directory_removed),
-			  object);
+	                  G_CALLBACK (indexing_tree_directory_removed),
+	                  object);
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree);
@@ -2770,8 +2770,8 @@ writeback_pool_cancel_foreach (gpointer data,
 
 static void
 indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
-				 GFile               *directory,
-				 gpointer             user_data)
+                                 GFile               *directory,
+                                 gpointer             user_data)
 {
 	TrackerMinerFS *fs = user_data;
 	TrackerMinerFSPrivate *priv = fs->priv;
@@ -2876,8 +2876,8 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 			 */
 			trace_eq_push_tail ("DELETED", file, "on remove full");
 			tracker_priority_queue_add (fs->priv->items_deleted,
-						    g_object_ref (file),
-						    G_PRIORITY_DEFAULT);
+			                            g_object_ref (file),
+			                            G_PRIORITY_DEFAULT);
 			item_queue_handlers_set_up (fs);
 		}
 
