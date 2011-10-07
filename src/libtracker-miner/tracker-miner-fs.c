@@ -275,6 +275,9 @@ static void           file_notifier_file_moved            (TrackerFileNotifier  
                                                            GFile                *source,
                                                            GFile                *dest,
                                                            gpointer              user_data);
+static void           file_notifier_directory_started     (TrackerFileNotifier *notifier,
+                                                           GFile               *directory,
+                                                           gpointer             user_data);
 static void           file_notifier_directory_finished    (TrackerFileNotifier *notifier,
                                                            GFile               *directory,
                                                            guint                directories_found,
@@ -574,6 +577,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 	g_signal_connect (priv->file_notifier, "file-moved",
 	                  G_CALLBACK (file_notifier_file_moved),
+	                  object);
+	g_signal_connect (priv->file_notifier, "directory-started",
+	                  G_CALLBACK (file_notifier_directory_started),
 	                  object);
 	g_signal_connect (priv->file_notifier, "directory-finished",
 	                  G_CALLBACK (file_notifier_directory_finished),
@@ -2596,6 +2602,18 @@ file_notifier_file_moved (TrackerFileNotifier *notifier,
 		                            item_moved_data_new (dest, source),
 		                            G_PRIORITY_DEFAULT);
 		item_queue_handlers_set_up (fs);
+	}
+}
+
+static void
+file_notifier_directory_started (TrackerFileNotifier *notifier,
+                                 GFile               *directory,
+                                 gpointer             user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	if (!fs->priv->timer) {
+		fs->priv->timer = g_timer_new ();
 	}
 }
 
