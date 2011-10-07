@@ -156,7 +156,8 @@ file_node_data_equal_or_child (GNode  *node,
 		if (uri_suffix[0] == '/') {
 			uri_suffix++;
 		} else if (uri_suffix[0] != '\0' &&
-			   strcmp (data->uri_suffix + len - 4, ":///") != 0) {
+			   (len < 4 ||
+			    strcmp (data->uri_suffix + len - 4, ":///") != 0)) {
 			/* If the first char isn't an uri separator
 			 * nor \0, node represents a similarly named
 			 * file, but not a parent after all.
