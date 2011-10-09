@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-10-03 11:51+0000\n"
-"PO-Revision-Date: 2011-10-04 15:22+0200\n"
+"POT-Creation-Date: 2011-10-06 16:00+0000\n"
+"PO-Revision-Date: 2011-10-09 12:00+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-view.vala:326
+#: ../src/tracker-needle/tracker-view.vala:331
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Aplicaciones"
@@ -405,10 +405,12 @@ msgid "By usage"
 msgstr "Por uso"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-needle/tracker-tags-view.vala:135
 msgid "No error was given"
 msgstr "No se proporcionó ningún error"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/tracker-needle/tracker-tags-view.vala:264
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -418,10 +420,10 @@ msgstr[1] ""
 "_Establecer las etiquetas que quiere asociar con los %d elementos "
 "seleccionados:"
 
+#. Create dialog and embed vbox.
 #: ../src/plugins/nautilus/tracker-tags-extension.c:111
 #: ../src/plugins/nautilus/tracker-tags-extension.c:185
-#: ../src/tracker-needle/tracker-taglist.vala:50
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Tags"
 msgstr "Etiquetas"
@@ -800,9 +802,8 @@ msgid "Directory"
 msgstr "Carpeta"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:149
-#: ../src/tracker-needle/tracker-view.vala:180
+#: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-needle/tracker-stats.vala:103
-#| msgid "File"
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Archivo"
@@ -836,7 +837,7 @@ msgid "That directory is already selected as a location to index"
 msgstr "La carpeta ya está seleccionada como una ubicación que indexar"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:892
-#: ../src/tracker-needle/tracker-needle.vala:622
+#: ../src/tracker-needle/tracker-needle.vala:647
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
@@ -1031,37 +1032,55 @@ msgstr ""
 "Encuentre lo que está buscando por nombre o contenido en este equipo usando "
 "Tracker"
 
-#: ../src/tracker-needle/tracker-needle.vala:629
-#: ../src/tracker-needle/tracker-needle.vala:630
+#: ../src/tracker-needle/tracker-needle.vala:69
+#, c-format
+msgid "Search criteria was too generic"
+msgstr "El criterio de búsqueda es muy genérico"
+
+#: ../src/tracker-needle/tracker-needle.vala:70
+msgid "Only the first 500 items will be displayed"
+msgstr "Sólo se mostrarán los 500 primeros elementos"
+
+#: ../src/tracker-needle/tracker-needle.vala:654
+#: ../src/tracker-needle/tracker-needle.vala:655
 msgid "[SEARCH-CRITERIA]"
 msgstr "[CRITERIO_DE_BÚSQUEDA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:635
+#: ../src/tracker-needle/tracker-needle.vala:660
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interfaz de usuario de la herramienta de búsqueda del Escritorio usando "
 "Tracker"
 
+#: ../src/tracker-needle/tracker-tags-filter.vala:58
+msgid "Filter by tags"
+msgstr "Filtrar por etiquetas"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:302
+#| msgid "Name:"
+msgid "Name"
+msgstr "Nombre"
+
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
-#: ../src/tracker-needle/tracker-utils.vala:44
+#: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
 msgid "%x"
 msgstr "%x"
 
-#: ../src/tracker-needle/tracker-utils.vala:48
+#: ../src/tracker-needle/tracker-utils.vala:112
 msgid "Today"
 msgstr "Hoy"
 
-#: ../src/tracker-needle/tracker-utils.vala:57
+#: ../src/tracker-needle/tracker-utils.vala:121
 msgid "Tomorrow"
 msgstr "Mañana"
 
-#: ../src/tracker-needle/tracker-utils.vala:59
+#: ../src/tracker-needle/tracker-utils.vala:123
 msgid "Yesterday"
 msgstr "Ayer"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:63
+#: ../src/tracker-needle/tracker-utils.vala:127
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -1069,76 +1088,98 @@ msgstr[0] "%ld día desde ahora"
 msgstr[1] "%ld días desde ahora"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:66
+#: ../src/tracker-needle/tracker-utils.vala:130
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
 msgstr[0] "hace %ld día"
 msgstr[1] "hace %ld días"
 
-#: ../src/tracker-needle/tracker-utils.vala:78
-#: ../src/tracker-needle/tracker-utils.vala:107
+#: ../src/tracker-needle/tracker-utils.vala:142
+#: ../src/tracker-needle/tracker-utils.vala:171
 msgid "Less than one second"
 msgstr "Menos de un segundo"
 
-#: ../src/tracker-needle/tracker-view.vala:109
+#: ../src/tracker-needle/tracker-view.vala:111
 msgid "No Search Results"
 msgstr "No se han encontrado resultados"
 
-#: ../src/tracker-needle/tracker-view.vala:192
+#: ../src/tracker-needle/tracker-view.vala:112
+msgid ""
+"Select the view on the toolbar for the content you want, e.g. everything, "
+"files or just images"
+msgstr ""
+"Seleccione en la barra de herramientas la vista que quiere para su "
+"contenido, ej. todo, archivos o sólo imágenes"
+
+#: ../src/tracker-needle/tracker-view.vala:113
+msgid "Start to search using the entry box above"
+msgstr "Empezar a buscar usando la caja de entrada superior"
+
+#: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
 msgstr "Último cambio"
 
-#: ../src/tracker-needle/tracker-view.vala:201
+#: ../src/tracker-needle/tracker-view.vala:206
 msgid "Size"
 msgstr "Tamaño"
 
-#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-needle/tracker-view.vala:334
 msgid "Music"
 msgstr "Música"
 
-#: ../src/tracker-needle/tracker-view.vala:332
+#: ../src/tracker-needle/tracker-view.vala:337
 #: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Images"
 msgstr "Imágenes"
 
-#: ../src/tracker-needle/tracker-view.vala:335
+#: ../src/tracker-needle/tracker-view.vala:340
 #: ../src/tracker-search-bar/tracker-results-window.c:727
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../src/tracker-needle/tracker-view.vala:338
+#: ../src/tracker-needle/tracker-view.vala:343
 #: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Documents"
 msgstr "Documentos"
 
-#: ../src/tracker-needle/tracker-view.vala:341
+#: ../src/tracker-needle/tracker-view.vala:346
 msgid "Mail"
 msgstr "Correo-e"
 
-#: ../src/tracker-needle/tracker-view.vala:344
+#: ../src/tracker-needle/tracker-view.vala:349
 #: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Folders"
 msgstr "Carpetas"
 
-#: ../src/tracker-needle/tracker-view.vala:347
+#: ../src/tracker-needle/tracker-view.vala:352
 #: ../src/tracker-search-bar/tracker-results-window.c:729
 #: ../src/tracker-utils/tracker-search.c:912
 msgid "Bookmarks"
 msgstr "Marcadores"
 
-#: ../src/tracker-needle/tracker-view.vala:351
+#: ../src/tracker-needle/tracker-view.vala:356
 msgid "Items"
 msgstr "Elementos"
 
-#: ../src/tracker-needle/tracker-view.vala:363
+#: ../src/tracker-needle/tracker-view.vala:368
 #, c-format
 msgid "Loading..."
 msgstr "Cargando…"
 
-#: ../src/tracker-needle/tracker-view.vala:429
+#: ../src/tracker-needle/tracker-view.vala:434
 msgid "Pages"
 msgstr "Páginas"
+
+#: ../src/tracker-needle/tracker-view.vala:451
+#| msgid "Select directory"
+msgid "_Show Parent Directory"
+msgstr "Mo_strar la carpeta padre"
+
+#: ../src/tracker-needle/tracker-view.vala:458
+#| msgid "Tags..."
+msgid "_Tags..."
+msgstr "_Etiquetas…"
 
 #. Label for dialog
 #: ../src/tracker-needle/tracker-stats.vala:71
@@ -1148,14 +1189,12 @@ msgid ""
 msgstr ""
 
 #: ../src/tracker-needle/tracker-stats.vala:91
-#| msgid "Tags"
 msgid "Tag"
 msgid_plural "Tags"
 msgstr[0] "Etiqueta"
 msgstr[1] "Etiquetas"
 
 #: ../src/tracker-needle/tracker-stats.vala:94
-#| msgid "Contacts"
 msgid "Contact"
 msgid_plural "Contacts"
 msgstr[0] "Contacto"
@@ -1163,28 +1202,24 @@ msgstr[1] "Contactos"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
 #: ../src/tracker-search-bar/tracker-results-window.c:724
-#| msgid "Audio"
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Sonido"
 msgstr[1] "Sonidos"
 
 #: ../src/tracker-needle/tracker-stats.vala:100
-#| msgid "Documents"
 msgid "Document"
 msgid_plural "Documents"
 msgstr[0] "Documento"
 msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:106
-#| msgid "Folders"
 msgid "Folder"
 msgid_plural "Folders"
 msgstr[0] "Carpeta"
 msgstr[1] "Carpetas"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
-#| msgid "Images"
 msgid "Image"
 msgid_plural "Images"
 msgstr[0] "Imagen"
@@ -1192,7 +1227,6 @@ msgstr[1] "Imágenes"
 
 #: ../src/tracker-needle/tracker-stats.vala:112
 #: ../src/tracker-control/tracker-control-miners.c:392
-#| msgid "Application"
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Aplicación"
@@ -1200,21 +1234,18 @@ msgstr[1] "Aplicaciones"
 
 #. case "nmm:Video":
 #: ../src/tracker-needle/tracker-stats.vala:116
-#| msgid "Videos"
 msgid "Video"
 msgid_plural "Videos"
 msgstr[0] "Vídeo"
 msgstr[1] "Vídeos"
 
 #: ../src/tracker-needle/tracker-stats.vala:119
-#| msgid "Albums"
 msgid "Album"
 msgid_plural "Albums"
 msgstr[0] "Álbum"
 msgstr[1] "Álbumes"
 
 #: ../src/tracker-needle/tracker-stats.vala:122
-#| msgid "Music"
 msgid "Music Track"
 msgid_plural "Music Tracks"
 msgstr[0] "Pista de música"
@@ -1227,21 +1258,18 @@ msgstr[0] "Foto"
 msgstr[1] "Fotos"
 
 #: ../src/tracker-needle/tracker-stats.vala:128
-#| msgid "Playlists"
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Lista de reproducción"
 msgstr[1] "Listas de reproducción"
 
 #: ../src/tracker-needle/tracker-stats.vala:131
-#| msgid "Emails"
 msgid "Email"
 msgid_plural "Emails"
 msgstr[0] "Correo-e"
 msgstr[1] "Correos-e"
 
 #: ../src/tracker-needle/tracker-stats.vala:134
-#| msgid "Bookmarks"
 msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "Marcador"
@@ -1271,8 +1299,23 @@ msgid "Find search criteria inside files"
 msgstr "Buscar criterios de búsqueda dentro de archivos"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+#| msgid "Show current status"
+msgid "Show results by tags"
+msgstr "Mostrar resultados por etiquetas"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show statistics about the data stored"
 msgstr "Mostrar estadísticas de los datos almacenados"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:11
+#, no-c-format
+#| msgid "_Set the tags you want to associate with the %d selected item:"
+#| msgid_plural ""
+#| "_Set the tags you want to associate with the %d selected items:"
+msgid "_Set the tags you want to associate with the %d selected items:"
+msgstr ""
+"_Establecer las etiquetas que quiere asociar con los %d elementos "
+"seleccionados:"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:717
 #: ../src/tracker-search-bar/tracker-results-window.c:733
@@ -1442,8 +1485,8 @@ msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
 msgstr ""
-"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», «mínimo», "
-"«errores») para todos los procesos"
+"Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
+"«mínimo», «errores») para todos los procesos"
 
 #: ../src/tracker-control/tracker-control-general.c:98
 msgid "LEVEL"
@@ -1494,8 +1537,8 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
-"implicado"
+"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» "
+"está implicado"
 
 #: ../src/tracker-control/tracker-control-general.c:561
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
@@ -1508,8 +1551,8 @@ msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» junto
 #: ../src/tracker-control/tracker-control-general.c:582
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
-"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» o "
-"«errores»"
+"Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
+"o «errores»"
 
 #: ../src/tracker-control/tracker-control-general.c:630
 #, c-format
@@ -1984,8 +2027,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostrar URN para los resultados (no se aplica para «--music-albums», «--music-"
-"artists», «--feeds», «--software», «--software-categories»)"
+"Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
+"music-artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker-utils/tracker-search.c:84
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2642,8 +2685,8 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Include details with state updates (only applies to --follow)"
 #~ msgstr ""
-#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a «--"
-#~ "follow»)"
+#~ "Incluir detalles con el estado de las actualizaciones (sólo se aplica a "
+#~ "«--follow»)"
 
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Icono de estado de Tracker"
@@ -2748,9 +2791,6 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Clear the search text"
 #~ msgstr "Limpiar el texto de búsqueda"
-
-#~ msgid "Name:"
-#~ msgstr "Nombre:"
 
 #~ msgid "Folder:"
 #~ msgstr "Carpeta:"
@@ -3248,7 +3288,8 @@ msgstr "Conjunto de resultados vacío"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
-#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
+#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los "
+#~ "datos)"
 
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
@@ -3781,7 +3822,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
 
 #~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+#~ msgstr ""
+#~ "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
 
 #~ msgid "Last file to be indexed was '%s'"
 #~ msgstr "El último archivo indexado fue «%s»"
@@ -4164,7 +4206,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+#~ msgstr ""
+#~ "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #~ msgid "Could not delete \"%s\"."
 #~ msgstr "No se pudo borrar «%s»."
