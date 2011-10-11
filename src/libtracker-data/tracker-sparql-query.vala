@@ -656,9 +656,16 @@ public class Tracker.Sparql.Query : Object {
 		var template_location = get_location ();
 
 		if (!data) {
-			skip_braces ();
+			// DELETE WHERE is a short form where the pattern is also used as the template for deletion
+			bool delete_where = accept (SparqlTokenType.WHERE);
 
-			if (accept (SparqlTokenType.WHERE)) {
+			if (delete_where) {
+				template_location = get_location ();
+			} else {
+				skip_braces ();
+			}
+
+			if (delete_where || accept (SparqlTokenType.WHERE)) {
 				pattern.current_graph = current_graph;
 				context = pattern.translate_group_graph_pattern (pattern_sql);
 				pattern.current_graph = null;
