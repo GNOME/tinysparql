@@ -4980,7 +4980,11 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
 	} else if (error) {
-		g_warning ("Writeback operation failed: %s", error->message);
+
+		if (!(error->domain == TRACKER_DBUS_ERROR &&
+		      error->code == TRACKER_DBUS_ERROR_UNSUPPORTED)) {
+			g_warning ("Writeback operation failed: %s", error->message);
+		}
 
 		/* We don't expect any further monitor
 		 * events on the original file.
