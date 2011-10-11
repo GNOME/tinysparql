@@ -869,9 +869,11 @@ tracker_filename_casecmp_without_extension (const gchar *a,
 		if (*ca == '\0' && *cb == '\0')
 			break;
 
-		if (g_ascii_tolower (*ca) != g_ascii_tolower (*cb)) {
-			match = FALSE;
-			break;
+		if (*ca != '\0' && *cb != '\0') {
+			if (g_ascii_tolower (*ca) != g_ascii_tolower (*cb)) {
+				match = FALSE;
+				break;
+			}
 		}
 
 		if (*ca == '.')
