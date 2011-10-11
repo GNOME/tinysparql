@@ -573,8 +573,8 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 
 	if (!handled) {
 		g_dbus_method_invocation_return_error (invocation,
-		                                       G_IO_ERROR,
-		                                       G_IO_ERROR_FAILED,
+		                                       TRACKER_DBUS_ERROR,
+		                                       TRACKER_DBUS_ERROR_UNSUPPORTED,
 		                                       "No module for rdf types");
 	}
 
