@@ -2,6 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS =                                              \
 	common                                         \
+	gvdb					       \
 	libtracker-common                              \
 	libtracker-extract                             \
 	libtracker-miner                               \
