@@ -123,6 +123,7 @@ class Tracker.Sparql.Expression : Object {
 
 	internal PropertyType translate_select_expression (StringBuilder sql, bool subquery, int variable_index) throws Sparql.Error {
 		Variable variable = null;
+		bool expect_close_parens = false;
 
 		long begin = sql.len;
 		var type = PropertyType.UNKNOWN;
@@ -134,7 +135,30 @@ class Tracker.Sparql.Expression : Object {
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
 			}
+		} else if (accept (SparqlTokenType.OPEN_PARENS)) {
+			if (current () == SparqlTokenType.SELECT) {
+				// no parenthesis around expression
+				// deprecated but supported for backward compatibility
+				sql.append ("(");
+				var select_context = pattern.translate_select (sql, true, true);
+				sql.append (")");
+
+				expect (SparqlTokenType.CLOSE_PARENS);
+				type = select_context.type;
+			} else {
+				type = translate_expression (sql);
+				if (accept (SparqlTokenType.CLOSE_PARENS)) {
+					// missing AS
+					// deprecated but supported for backward compatibility
+				} else {
+					// syntax from SPARQL 1.1 Draft
+					// (Expression AS Var)
+					expect_close_parens = true;
+				}
+			}
 		} else {
+			// no parenthesis around expression
+			// deprecated but supported for backward compatibility
 			type = translate_expression (sql);
 		}
 
@@ -162,6 +186,10 @@ class Tracker.Sparql.Expression : Object {
 				binding.sql_expression = variable.sql_expression;
 				pattern.add_variable_binding (new StringBuilder (), binding, VariableState.BOUND);
 			}
+		}
+
+		if (expect_close_parens) {
+			expect (SparqlTokenType.CLOSE_PARENS);
 		}
 
 		if (variable != null) {
