@@ -523,6 +523,45 @@ get_uri_from_arg (const gchar *arg)
 	return uri;
 }
 
+static inline guint32
+get_uid_for_pid (const gchar  *pid_as_string,
+                 gchar       **filename)
+{
+	GFile *f;
+	GFileInfo *info;
+	GError *error = NULL;
+	gchar *fn;
+	guint uid;
+
+	fn = g_build_filename ("/proc", pid_as_string, "cmdline", NULL);
+
+	f = g_file_new_for_path (fn);
+	info = g_file_query_info (f,
+	                          G_FILE_ATTRIBUTE_UNIX_UID,
+	                          G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                          NULL,
+	                          &error);
+
+	if (error) {
+		g_warning ("Could not stat() file:'%s', %s", fn, error->message);
+		g_error_free (error);
+		uid = 0;
+	} else {
+		uid = g_file_info_get_attribute_uint32 (info, G_FILE_ATTRIBUTE_UNIX_UID);
+	}
+
+	if (filename) {
+		*filename = fn;
+	} else {
+		g_free (fn);
+	}
+
+	g_object_unref (info);
+	g_object_unref (f);
+
+	return uid;
+}
+
 void
 tracker_control_general_run_default (void)
 {
@@ -611,6 +650,10 @@ tracker_control_general_run (void)
 	if (kill_option != TERM_NONE ||
 	    terminate_option != TERM_NONE ||
 	    list_processes) {
+		guint32 own_pid;
+		guint32 own_uid;
+		gchar *own_uid_str;
+
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
 		                                    "Found %d PID…",
@@ -620,12 +663,27 @@ tracker_control_general_run (void)
 		g_print ("%s\n", str);
 		g_free (str);
 
+		/* Establish own uid/pid */
+		own_pid = (guint32) getpid ();
+		own_uid_str = g_strdup_printf ("%d", own_pid);
+		own_uid = get_uid_for_pid (own_uid_str, NULL);
+		g_free (own_uid_str);
+
 		for (l = pids; l; l = l->next) {
+			GError *error = NULL;
 			gchar *filename;
 			gchar *contents = NULL;
 			gchar **strv;
+			guint uid;
 
-			filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
+			uid = get_uid_for_pid (l->data, &filename);
+
+			/* Stat the file and make sure current user == file owner */
+			if (uid != own_uid) {
+				continue;
+			}
+
+			/* Get contents to determin basename */
 			if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 				str = g_strdup_printf (_("Could not open '%s'"), filename);
 				g_printerr ("%s, %s\n",
