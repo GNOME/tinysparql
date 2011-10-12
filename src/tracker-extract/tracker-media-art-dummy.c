@@ -20,23 +20,30 @@
  * Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_ALBUMART_GENERIC_H__
-#define __TRACKER_ALBUMART_GENERIC_H__
+#include "tracker-media-art-generic.h"
 
-#include <glib.h>
+void
+tracker_media_art_plugin_init (void)
+{
+}
 
-G_BEGIN_DECLS
+void
+tracker_media_art_plugin_shutdown (void)
+{
+}
 
-void      tracker_albumart_plugin_init     (void);
-void      tracker_albumart_plugin_shutdown (void);
+gboolean
+tracker_media_art_file_to_jpeg (const gchar *filename,
+                                const gchar *target)
+{
+	return FALSE;
+}
 
-gboolean  tracker_albumart_file_to_jpeg    (const gchar         *filename,
-                                            const gchar         *target);
-gboolean  tracker_albumart_buffer_to_jpeg  (const unsigned char *buffer,
-                                            size_t               len,
-                                            const gchar         *buffer_mime,
-                                            const gchar         *target);
-
-G_END_DECLS
-
-#endif /* __TRACKER_ALBUMART_GENERIC_H__ */
+gboolean
+tracker_media_art_buffer_to_jpeg (const unsigned char *buffer,
+                                  size_t               len,
+                                  const gchar         *buffer_mime,
+                                  const gchar         *target)
+{
+	return FALSE;
+}

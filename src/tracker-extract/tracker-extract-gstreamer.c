@@ -53,7 +53,7 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 #include "tracker-cue-sheet.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
@@ -2031,13 +2031,13 @@ tracker_extract_gstreamer (const gchar          *uri,
 	                  graph);
 
 	if (media_type != TRACKER_MEDIA_ART_NONE) {
-		tracker_albumart_process (extractor->album_art_data,
-		                          extractor->album_art_size,
-		                          extractor->album_art_mime,
-		                          media_type,
-		                          media_artist,
-		                          media_title,
-		                          uri);
+		tracker_media_art_process (extractor->album_art_data,
+		                           extractor->album_art_size,
+		                           extractor->album_art_mime,
+		                           media_type,
+		                           media_artist,
+		                           media_title,
+		                           uri);
 	}
 
 	g_free (media_artist);

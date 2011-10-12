@@ -17,8 +17,8 @@
  * 02110-1301  USA
  */
 
-#ifndef __LIBTRACKER_MINER_ALBUMART_H__
-#define __LIBTRACKER_MINER_ALBUMART_H__
+#ifndef __LIBTRACKER_MINER_MEDIA_ART_H__
+#define __LIBTRACKER_MINER_MEDIA_ART_H__
 
 #include <libtracker-sparql/tracker-sparql.h>
 
@@ -28,9 +28,9 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_albumart_remove_add    (const gchar             *uri,
-                                         const gchar             *mime_type);
-void     tracker_albumart_check_cleanup (TrackerSparqlConnection *connection);
+gboolean tracker_media_art_remove_add    (const gchar             *uri,
+                                          const gchar             *mime_type);
+void     tracker_media_art_check_cleanup (TrackerSparqlConnection *connection);
 G_END_DECLS
 
-#endif /* __LIBTRACKER_MINER_ALBUMART_H__ */
+#endif /* __LIBTRACKER_MINER_MEDIA_ART_H__ */

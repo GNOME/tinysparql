@@ -28,7 +28,8 @@
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-fs.h"
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
+#include "tracker-monitor.h"
 #include "tracker-utils.h"
 #include "tracker-thumbnailer.h"
 #include "tracker-priority-queue.h"
@@ -1279,7 +1280,7 @@ item_remove (TrackerMinerFS *fs,
 		flags = TRACKER_BULK_MATCH_EQUALS;
 	} else {
 		tracker_thumbnailer_remove_add (uri, NULL);
-		tracker_albumart_remove_add (uri, NULL);
+		tracker_media_art_remove_add (uri, NULL);
 	}
 
 	/* FIRST:
@@ -2143,7 +2144,7 @@ item_queue_handlers_cb (gpointer user_data)
 				process_stop (fs);
 
 				tracker_thumbnailer_send ();
-				tracker_albumart_check_cleanup (tracker_miner_get_connection (TRACKER_MINER (fs)));
+				tracker_media_art_check_cleanup (tracker_miner_get_connection (TRACKER_MINER (fs)));
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,

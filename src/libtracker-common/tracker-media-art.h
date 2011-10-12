@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_ALBUMART_H__
-#define __LIBTRACKER_COMMON_ALBUMART_H__
+#ifndef __LIBTRACKER_COMMON_MEDIA_ART_H__
+#define __LIBTRACKER_COMMON_MEDIA_ART_H__
 
 #include <glib.h>
 
@@ -28,15 +28,15 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-gchar * tracker_albumart_strip_invalid_entities (const gchar  *original);
-void    tracker_albumart_get_path               (const gchar  *artist,
-                                                 const gchar  *album,
-                                                 const gchar  *prefix,
-                                                 const gchar  *uri,
-                                                 gchar       **path,
-                                                 gchar       **local_uri);
+gchar * tracker_media_art_strip_invalid_entities (const gchar  *original);
+void    tracker_media_art_get_path               (const gchar  *artist,
+                                                  const gchar  *album,
+                                                  const gchar  *prefix,
+                                                  const gchar  *uri,
+                                                  gchar       **path,
+                                                  gchar       **local_uri);
 
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_LOCALE_H__ */
+#endif /* __LIBTRACKER_COMMON_MEDIA_ART_H__ */

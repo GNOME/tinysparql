@@ -1561,7 +1561,7 @@ AC_ARG_ENABLE(qt,
                              [enable Qt support, (MP3 album art) [[default=auto]]]),,
               [enable_qt=auto])
 
-selected_for_albumart="no  (disabled)"
+selected_for_media_art="no  (disabled)"
 
 ##################################################################
 # Check for tracker-extract: Choose between GdkPixbuf/Qt
@@ -1578,7 +1578,7 @@ if test "x$enable_qt" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
 
    if test "x$have_qt" = "xyes"; then
       AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
-      selected_for_albumart="yes (qt)"
+      selected_for_media_art="yes (qt)"
    fi
 else
    have_qt="no  (disabled)"
@@ -1603,7 +1603,7 @@ if test "x$enable_gdkpixbuf" != "xno" && test "x$enable_quill" != "xyes"; then
 
    if test "x$have_gdkpixbuf" = "xyes"; then
       AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
-      selected_for_albumart="yes (GdkPixbuf)"
+      selected_for_media_art="yes (GdkPixbuf)"
    fi
 else
    have_gdkpixbuf="no  (disabled)"
@@ -2345,7 +2345,7 @@ Metadata Extractors:
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
 	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
-	Support MP3 album art:                  $selected_for_albumart
+	Support media art processing:           $selected_for_media_art
 	Support cue sheet parsing:              $have_libcue
 	Support playlists (w/ Totem):           $have_playlist
 

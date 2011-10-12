@@ -38,12 +38,12 @@
 #include <libtracker-miner/tracker-miner.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-albumart.h>
+#include <libtracker-common/tracker-media-art.h>
 
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 #include "tracker-extract.h"
 #include "tracker-marshal.h"
-#include "tracker-albumart-generic.h"
+#include "tracker-media-art-generic.h"
 
 #define ALBUMARTER_SERVICE    "com.nokia.albumart"
 #define ALBUMARTER_PATH       "/com/nokia/albumart/Requester"
@@ -70,8 +70,8 @@ typedef struct {
 
 static gboolean initialized;
 static gboolean disable_requests;
-static TrackerStorage *albumart_storage;
-static GHashTable *albumart_cache;
+static TrackerStorage *media_art_storage;
+static GHashTable *media_art_cache;
 static GDBusConnection *connection;
 
 static void
@@ -224,7 +224,7 @@ convert_from_other_format (const gchar *found,
 
 	target_temp = g_strdup_printf ("%s-tmp", target);
 
-	retval = tracker_albumart_file_to_jpeg (found, target_temp);
+	retval = tracker_media_art_file_to_jpeg (found, target_temp);
 
 	if (retval && (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
 		if (g_rename (target_temp, album_path) == -1) {
@@ -299,12 +299,12 @@ tracker_media_art_search_new (const gchar         *uri,
 	search->type = type;
 
 	if (artist) {
-		temp = tracker_albumart_strip_invalid_entities (artist);
+		temp = tracker_media_art_strip_invalid_entities (artist);
 		search->artist_strdown = g_utf8_strdown (temp, -1);
 		g_free (temp);
 	}
 
-	temp = tracker_albumart_strip_invalid_entities (title);
+	temp = tracker_media_art_strip_invalid_entities (title);
 	search->title_strdown = g_utf8_strdown (temp, -1);
 	g_free (temp);
 
@@ -364,10 +364,10 @@ classify_image_file (TrackerMediaArtSearch *search,
 }
 
 static gchar *
-tracker_albumart_find_external (const gchar         *uri,
-                                TrackerMediaArtType  type,
-                                const gchar         *artist,
-                                const gchar         *title)
+tracker_media_art_find_external (const gchar         *uri,
+                                 TrackerMediaArtType  type,
+                                 const gchar         *artist,
+                                 const gchar         *title)
 {
 	TrackerMediaArtSearch *search;
 	GDir *dir;
@@ -471,11 +471,11 @@ tracker_albumart_find_external (const gchar         *uri,
 }
 
 static gboolean
-albumart_heuristic (const gchar         *artist,
-                    const gchar         *title,
-                    TrackerMediaArtType  type,
-                    const gchar         *filename_uri,
-                    const gchar         *local_uri)
+media_art_heuristic (const gchar         *artist,
+                     const gchar         *title,
+                     TrackerMediaArtType  type,
+                     const gchar         *filename_uri,
+                     const gchar         *local_uri)
 {
 	gchar *art_file_path = NULL;
 	gchar *album_art_file_path = NULL;
@@ -490,16 +490,16 @@ albumart_heuristic (const gchar         *artist,
 	}
 
 	if (artist) {
-		artist_stripped = tracker_albumart_strip_invalid_entities (artist);
+		artist_stripped = tracker_media_art_strip_invalid_entities (artist);
 	}
-	title_stripped = tracker_albumart_strip_invalid_entities (title);
+	title_stripped = tracker_media_art_strip_invalid_entities (title);
 
-	tracker_albumart_get_path (artist_stripped,
-	                           title_stripped,
-	                           media_art_type_name[type],
-	                           NULL,
-	                           &target,
-	                           NULL);
+	tracker_media_art_get_path (artist_stripped,
+	                            title_stripped,
+	                            media_art_type_name[type],
+	                            NULL,
+	                            &target,
+	                            NULL);
 
 	/* Copy from local album art (.mediaartlocal) to spec */
 	if (local_uri) {
@@ -529,7 +529,7 @@ albumart_heuristic (const gchar         *artist,
 		g_object_unref (local_file);
 	}
 
-	art_file_path = tracker_albumart_find_external (filename_uri, type, artist, title);
+	art_file_path = tracker_media_art_find_external (filename_uri, type, artist, title);
 
 	if (art_file_path != NULL) {
 		if (g_str_has_suffix (art_file_path, "jpeg") ||
@@ -557,12 +557,12 @@ albumart_heuristic (const gchar         *artist,
 				g_object_unref (target_file);
 			} else if (file_get_checksum_if_exists (G_CHECKSUM_MD5, art_file_path, &sum1, TRUE, &is_jpeg)) {
 				/* Avoid duplicate artwork for each track in an album */
-				tracker_albumart_get_path (NULL,
-				                           title_stripped,
-				                           media_art_type_name [type],
-				                           NULL,
-				                           &album_art_file_path,
-				                           NULL);
+				tracker_media_art_get_path (NULL,
+				                            title_stripped,
+				                            media_art_type_name [type],
+				                            NULL,
+				                            &album_art_file_path,
+				                            NULL);
 
 				if (is_jpeg) {
 					gchar *sum2 = NULL;
@@ -639,7 +639,7 @@ albumart_heuristic (const gchar         *artist,
 			}
 		} else if (g_str_has_suffix (art_file_path, "png")) {
 			if (!album_art_file_path) {
-				tracker_albumart_get_path (NULL,
+				tracker_media_art_get_path (NULL,
 				                           title_stripped,
 				                           media_art_type_name[type],
 				                           NULL,
@@ -663,13 +663,13 @@ albumart_heuristic (const gchar         *artist,
 }
 
 static gboolean
-albumart_set (const unsigned char *buffer,
-              size_t               len,
-              const gchar         *mime,
-              TrackerMediaArtType  type,
-              const gchar         *artist,
-              const gchar         *title,
-              const gchar         *uri)
+media_art_set (const unsigned char *buffer,
+               size_t               len,
+               const gchar         *mime,
+               TrackerMediaArtType  type,
+               const gchar         *artist,
+               const gchar         *title,
+               const gchar         *uri)
 {
 	gchar *local_path;
 	gboolean retval = FALSE;
@@ -681,17 +681,17 @@ albumart_set (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	tracker_albumart_get_path (artist, title, media_art_type_name[type], NULL, &local_path, NULL);
+	tracker_media_art_get_path (artist, title, media_art_type_name[type], NULL, &local_path, NULL);
 
 	if (type != TRACKER_MEDIA_ART_ALBUM || (artist == NULL || g_strcmp0 (artist, " ") == 0)) {
-		retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+		retval = tracker_media_art_buffer_to_jpeg (buffer, len, mime, local_path);
 	} else {
 		gchar *album_path;
 
-		tracker_albumart_get_path (NULL, title, media_art_type_name[type], NULL, &album_path, NULL);
+		tracker_media_art_get_path (NULL, title, media_art_type_name[type], NULL, &album_path, NULL);
 
 		if (!g_file_test (album_path, G_FILE_TEST_EXISTS)) {
-			retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, album_path);
+			retval = tracker_media_art_buffer_to_jpeg (buffer, len, mime, album_path);
 
 			/* If album-space-md5.jpg doesn't exist, make one and make a symlink
 			 * to album-md5-md5.jpg */
@@ -713,7 +713,7 @@ albumart_set (const unsigned char *buffer,
 
 					/* If buffer isn't a JPEG */
 
-					retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, temp);
+					retval = tracker_media_art_buffer_to_jpeg (buffer, len, mime, temp);
 
 					if (retval && file_get_checksum_if_exists (G_CHECKSUM_MD5, temp, &sum1, FALSE, NULL)) {
 						if (g_strcmp0 (sum1, sum2) == 0) {
@@ -759,7 +759,7 @@ albumart_set (const unsigned char *buffer,
 					} else {
 						/* If album-space-md5.jpg isn't the same as buffer, make a
 						 * new album-md5-md5.jpg */
-						retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
+						retval = tracker_media_art_buffer_to_jpeg (buffer, len, mime, local_path);
 					}
 					g_free (sum1);
 				}
@@ -820,9 +820,9 @@ albumart_request_download (TrackerStorage      *storage,
 }
 
 static void
-albumart_copy_to_local (TrackerStorage *storage,
-                        const gchar    *filename,
-                        const gchar    *local_uri)
+media_art_copy_to_local (TrackerStorage *storage,
+                         const gchar    *filename,
+                         const gchar    *local_uri)
 {
 	GSList *roots, *l;
 	gboolean on_removable_device = FALSE;
@@ -877,7 +877,7 @@ albumart_copy_to_local (TrackerStorage *storage,
 				g_object_unref (dirf);
 			}
 
-			g_debug ("Copying album art from:'%s' to:'%s'",
+			g_debug ("Copying media art from:'%s' to:'%s'",
 			         filename, local_uri);
 
 			g_file_copy_async (from, local_file, 0, 0,
@@ -918,9 +918,9 @@ albumart_queue_cb (GObject      *source_object,
 	if (info->storage && info->art_path &&
 	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 
-		albumart_copy_to_local (info->storage,
-		                        info->art_path,
-		                        info->local_uri);
+		media_art_copy_to_local (info->storage,
+		                         info->art_path,
+		                         info->local_uri);
 	}
 
 	g_free (info->art_path);
@@ -934,21 +934,21 @@ albumart_queue_cb (GObject      *source_object,
 }
 
 gboolean
-tracker_albumart_init (void)
+tracker_media_art_init (void)
 {
 	GError *error = NULL;
 
 	g_return_val_if_fail (initialized == FALSE, FALSE);
 
-	tracker_albumart_plugin_init ();
+	tracker_media_art_plugin_init ();
 
-	albumart_storage = tracker_storage_new ();
+	media_art_storage = tracker_storage_new ();
 
 	/* Cache to know if we have already handled uris */
-	albumart_cache = g_hash_table_new_full (g_str_hash,
-	                                        g_str_equal,
-	                                        (GDestroyNotify) g_free,
-	                                        NULL);
+	media_art_cache = g_hash_table_new_full (g_str_hash,
+	                                         g_str_equal,
+	                                         (GDestroyNotify) g_free,
+	                                         NULL);
 
 	/* Signal handler for new album art from the extractor */
 	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
@@ -966,7 +966,7 @@ tracker_albumart_init (void)
 }
 
 void
-tracker_albumart_shutdown (void)
+tracker_media_art_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
@@ -974,15 +974,15 @@ tracker_albumart_shutdown (void)
 		g_object_unref (connection);
 	}
 
-	if (albumart_cache) {
-		g_hash_table_unref (albumart_cache);
+	if (media_art_cache) {
+		g_hash_table_unref (media_art_cache);
 	}
 
-	if (albumart_storage) {
-		g_object_unref (albumart_storage);
+	if (media_art_storage) {
+		g_object_unref (media_art_storage);
 	}
 
-	tracker_albumart_plugin_shutdown ();
+	tracker_media_art_plugin_shutdown ();
 
 	initialized = FALSE;
 }
@@ -998,13 +998,13 @@ set_mtime (const gchar *filename, guint64 mtime)
 }
 
 gboolean
-tracker_albumart_process (const unsigned char *buffer,
-                          size_t               len,
-                          const gchar         *mime,
-                          TrackerMediaArtType  type,
-                          const gchar         *artist,
-                          const gchar         *title,
-                          const gchar         *uri)
+tracker_media_art_process (const unsigned char *buffer,
+                           size_t               len,
+                           const gchar         *mime,
+                           TrackerMediaArtType  type,
+                           const gchar         *artist,
+                           const gchar         *title,
+                           const gchar         *uri)
 {
 	gchar *art_path;
 	gchar *local_art_uri = NULL;
@@ -1025,12 +1025,12 @@ tracker_albumart_process (const unsigned char *buffer,
 
 	mtime = tracker_file_get_mtime_uri (uri);
 
-	tracker_albumart_get_path (artist,
-	                           title,
-	                           media_art_type_name[type],
-	                           uri,
-	                           &art_path,
-	                           &local_art_uri);
+	tracker_media_art_get_path (artist,
+	                            title,
+	                            media_art_type_name[type],
+	                            uri,
+	                            &art_path,
+	                            &local_art_uri);
 
 	if (!art_path) {
 		g_debug ("Album art path could not be obtained, not processing any further");
@@ -1047,7 +1047,7 @@ tracker_albumart_process (const unsigned char *buffer,
 	}
 
 	if ((buffer && len > 0) && ((!a_exists) || (a_exists && mtime > a_mtime))) {
-		processed = albumart_set (buffer, len, mime, type, artist, title, uri);
+		processed = media_art_set (buffer, len, mime, type, artist, title, uri);
 		set_mtime (art_path, mtime);
 		created = TRUE;
 	}
@@ -1074,18 +1074,18 @@ tracker_albumart_process (const unsigned char *buffer,
 
 		g_free (dirname);
 
-		if (!g_hash_table_lookup (albumart_cache, key)) {
-			if (!albumart_heuristic (artist,
-			                         title,
-			                         type,
-			                         uri,
-			                         local_art_uri)) {
+		if (!g_hash_table_lookup (media_art_cache, key)) {
+			if (!media_art_heuristic (artist,
+			                          title,
+			                          type,
+			                          uri,
+			                          local_art_uri)) {
 				/* If the heuristic failed, we
 				 * request the download the
 				 * media-art to the media-art
 				 * downloaders
 				 */
-				albumart_request_download (albumart_storage,
+				albumart_request_download (media_art_storage,
 				                           type,
 				                           artist,
 				                           title,
@@ -1095,7 +1095,7 @@ tracker_albumart_process (const unsigned char *buffer,
 
 			set_mtime (art_path, mtime);
 
-			g_hash_table_insert (albumart_cache,
+			g_hash_table_insert (media_art_cache,
 			                     key,
 			                     GINT_TO_POINTER(TRUE));
 		} else {
@@ -1114,9 +1114,9 @@ tracker_albumart_process (const unsigned char *buffer,
 		 * situation might have changed
 		 */
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			albumart_copy_to_local (albumart_storage,
-			                        art_path,
-			                        local_art_uri);
+			media_art_copy_to_local (media_art_storage,
+			                         art_path,
+			                         local_art_uri);
 		}
 	}
 

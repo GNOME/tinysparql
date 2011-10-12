@@ -22,21 +22,21 @@
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "tracker-albumart-generic.h"
+#include "tracker-media-art-generic.h"
 
 void
-tracker_albumart_plugin_init (void)
+tracker_media_art_plugin_init (void)
 {
 }
 
 void
-tracker_albumart_plugin_shutdown (void)
+tracker_media_art_plugin_shutdown (void)
 {
 }
 
 gboolean
-tracker_albumart_file_to_jpeg (const gchar *filename,
-                               const gchar *target)
+tracker_media_art_file_to_jpeg (const gchar *filename,
+                                const gchar *target)
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
@@ -62,10 +62,10 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 
 
 gboolean
-tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
-                                 size_t               len,
-                                 const gchar         *buffer_mime,
-                                 const gchar         *target)
+tracker_media_art_buffer_to_jpeg (const unsigned char *buffer,
+                                  size_t               len,
+                                  const gchar         *buffer_mime,
+                                  const gchar         *target)
 {
 	/* FF D8 FF are the three first bytes of JPeg images */
 	if ((g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
