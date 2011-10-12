@@ -301,9 +301,6 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex *miner,
 	                                                            connection,
 	                                                            priv->files_miner));
 
-	tracker_dbus_request_end (request, NULL);
-	g_dbus_method_invocation_return_value (invocation, NULL);
-
 	g_string_free (query, TRUE);
 	g_object_unref (connection);
 	g_free (mime_types);
