@@ -566,13 +566,17 @@ public class Tracker.Needle {
 		if (find_in_contents.active) {
 			debug ("Find in toggled to 'contents'");
 
-			search_entry.sensitive = true;
+			if (show_tags.active != true) {
+				search_entry.sensitive = true;
+			}
 
 			search_run ();
 		} else if (find_in_titles.active) {
 			debug ("Find in toggled to 'titles'");
 
-			search_entry.sensitive = true;
+			if (show_tags.active != true) {
+				search_entry.sensitive = true;
+			}
 
 			search_run ();
 		} else if (find_in_all.active) {
