@@ -1,3 +1,21 @@
+NEW in 0.10.31 - 2011-10-13
+===========================
+
+The changes are:
+
+  * Fixes GB#655177: tracker-control: List/control processes for the calling user only
+  * Fixes NB#271751: tracker-extract-epub: Port to 0.10 API
+  * Fixes NB#285979: tracker-writeback: Don't warn in case of unsupported format for writeback
+  * Fixes NB#286103: tracker-miner-fs: Fix crash in ReindexMimeTypes
+  * SPARQL: Support DELETE WHERE {...}
+  * SPARQL: Support SELECT (Expression AS Var) syntax
+  * tracker-extract-gstreamer: flag renamed from TAGS to LIGHTWEIGHT in GStreamer
+
+Translations:
+
+  None
+
+
 NEW in 0.10.30 - 2011-10-06
 ===========================
 
