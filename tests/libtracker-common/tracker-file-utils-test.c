@@ -181,6 +181,37 @@ test_file_get_mime_type (void)
 	g_free (dir_name);
 }
 
+
+#define assert_filename_match(a, b) { \
+	g_assert (tracker_filename_casecmp_without_extension (a, b) == TRUE); \
+	g_assert (tracker_filename_casecmp_without_extension (b, a) == TRUE); }
+
+#define assert_no_filename_match(a, b) { \
+	g_assert (tracker_filename_casecmp_without_extension (a, b) == FALSE); \
+	g_assert (tracker_filename_casecmp_without_extension (b, a) == FALSE); }
+
+static void
+test_case_match_filename_without_extension ()
+{
+	assert_filename_match ("test.mp3", "test.mp3");
+	assert_filename_match ("test.mp3", "test.wav");
+	assert_filename_match ("test.mp3", "test.mp");
+	assert_filename_match ("test.mp3", "test.");
+	assert_filename_match ("test.mp3", "test");
+	assert_filename_match ("01 - Song 1 (Remix).wav", "01 - Song 1 (Remix).flac");
+
+	assert_no_filename_match ("test.mp3", "bacon.mp3");
+
+	/* Pathological cases, mainly testing that nothing crashes */
+	assert_no_filename_match (".", "\n");
+	assert_no_filename_match ("as", "as..");
+	assert_no_filename_match ("...as", "...as..");
+	assert_no_filename_match (".", "test.");
+	assert_filename_match ("", ".");
+}
+
+
+
 int
 main (int argc, char **argv)
 {
@@ -199,6 +230,9 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/file_get_mime_type",
 	                 test_file_get_mime_type);
+
+	g_test_add_func ("/libtracker-common/tracker-utils/case_match_filename_without_extension",
+	                 test_case_match_filename_without_extension);
 
 	result = g_test_run ();
 
