@@ -1,3 +1,25 @@
+NEW in 0.12.5 - 2011-10-13
+==========================
+
+The changes are:
+
+  * Fixes GB#655177: tracker-control: List/control processes for the calling user only
+  * Fixes NB#272997: tracker-extract: Use black background for transparant album art
+  * Fixes NB#285979: tracker-writeback: Don't warn in case of unsupported format for writeback
+  * Fixes NB#286103: tracker-miner-fs: Fix crash in ReindexMimeTypes
+  * SPARQL: Support DELETE WHERE {...}
+  * SPARQL: Support SELECT (Expression AS Var) syntax
+  * tracker-extract-gstreamer: flag renamed from TAGS to LIGHTWEIGHT in GStreamer
+  * tests: Testing gvdb to get a good coverage report
+  * doc/tools: Include GCov flags (fixes building error with doc + coverage)
+
+Translations:
+
+  * Updated es: Daniel Mustieles
+  * Updated pl: Piotr Drąg
+  * Updated sl: Matej Urbančič
+
+
 NEW in 0.12.4 - 2011-10-06
 ==========================
 
