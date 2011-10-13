@@ -47,6 +47,15 @@ typedef struct {
 	gsize limit;
 } OPFContentData;
 
+static void extract_epub (const gchar          *uri,
+                          TrackerSparqlBuilder *preupdate,
+                          TrackerSparqlBuilder *metadata);
+
+static TrackerExtractData extract_data[] = {
+	{ "application/epub+zip", extract_epub },
+	{ NULL, NULL }
+};
+
 /* Methods to parse the container.xml file
  * pointing to the real metadata/content
  */
@@ -351,23 +360,27 @@ extract_opf (const gchar          *uri,
 	return TRUE;
 }
 
-G_MODULE_EXPORT gboolean
-tracker_extract_get_metadata (const gchar          *uri,
-                              const gchar          *mime_used,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata,
-                              GString              *where)
+static void
+extract_epub (const gchar          *uri,
+              TrackerSparqlBuilder *preupdate,
+              TrackerSparqlBuilder *metadata)
 {
 	gchar *opf_path;
 
 	opf_path = extract_opf_path (uri);
 
 	if (!opf_path) {
-		return FALSE;
+		return;
 	}
 
 	extract_opf (uri, opf_path, preupdate, metadata);
 	g_free (opf_path);
 
-	return TRUE;
+	return;
+}
+
+TrackerExtractData *
+tracker_extract_get_data (void)
+{
+	return extract_data;
 }
