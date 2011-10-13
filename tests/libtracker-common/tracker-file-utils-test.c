@@ -181,14 +181,13 @@ test_file_get_mime_type (void)
 	g_free (dir_name);
 }
 
-
 #define assert_filename_match(a, b) { \
-	g_assert (tracker_filename_casecmp_without_extension (a, b) == TRUE); \
-	g_assert (tracker_filename_casecmp_without_extension (b, a) == TRUE); }
+	g_assert_cmpint (tracker_filename_casecmp_without_extension (a, b), ==, TRUE); \
+	g_assert_cmpint (tracker_filename_casecmp_without_extension (b, a), ==, TRUE); }
 
 #define assert_no_filename_match(a, b) { \
-	g_assert (tracker_filename_casecmp_without_extension (a, b) == FALSE); \
-	g_assert (tracker_filename_casecmp_without_extension (b, a) == FALSE); }
+	g_assert_cmpint (tracker_filename_casecmp_without_extension (a, b), ==, FALSE); \
+	g_assert_cmpint (tracker_filename_casecmp_without_extension (b, a), ==, FALSE); }
 
 static void
 test_case_match_filename_without_extension ()
@@ -210,8 +209,6 @@ test_case_match_filename_without_extension ()
 	assert_filename_match ("", ".");
 }
 
-
-
 int
 main (int argc, char **argv)
 {
@@ -224,14 +221,11 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/path_evaluate_name",
 	                 test_path_evaluate_name);
-
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/path_list_filter_duplicates",
 	                 test_path_list_filter_duplicates);
-
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/file_get_mime_type",
 	                 test_file_get_mime_type);
-
-	g_test_add_func ("/libtracker-common/tracker-utils/case_match_filename_without_extension",
+	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/case_match_filename_without_extension",
 	                 test_case_match_filename_without_extension);
 
 	result = g_test_run ();

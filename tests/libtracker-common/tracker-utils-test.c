@@ -75,7 +75,6 @@ test_seconds_estimate_to_string ()
 	g_print ("%s\n", result);
 }
 
-
 int
 main (int argc, char **argv)
 {
