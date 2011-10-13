@@ -26,6 +26,8 @@
 #include <QImageReader>
 #include <QImageWriter>
 #include <QApplication>
+#include <QColor>
+#include <QPainter>
 
 #include <glib.h>
 
@@ -77,10 +79,18 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 		return FALSE;
 	}
 
-	QImage image;
+	QImage image1;
+	image1 = reader.read ();
 
-	image = reader.read ();
-	image.save (QString (target), "jpeg");
+	if (image1.hasAlphaChannel ()) {
+		QImage image2 (image1.size(), QImage::Format_RGB32);
+		image2.fill (QColor(Qt::black).rgb());
+		QPainter painter (&image2);
+		painter.drawImage (0, 0, image1);
+		image2.save (QString (target), "jpeg");
+	} else {
+		image1.save (QString (target), "jpeg");
+	}
 
 	return TRUE;
 }
@@ -124,10 +134,18 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 			return FALSE;
 		}
 
-		QImage image;
+		QImage image1;
+		image1 = reader->read ();
 
-		image = reader->read ();
-		image.save (QString (target), "jpeg");
+		if (image1.hasAlphaChannel ()) {
+			QImage image2 (image1.size(), QImage::Format_RGB32);
+			image2.fill (QColor(Qt::black).rgb());
+			QPainter painter (&image2);
+			painter.drawImage (0, 0, image1);
+			image2.save (QString (target), "jpeg");
+		} else {
+			image1.save (QString (target), "jpeg");
+		}
 
 		delete reader;
 	}
