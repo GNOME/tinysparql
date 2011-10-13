@@ -82,6 +82,8 @@ tracker_extract_info_new (GFile       *file,
 	info->postupdate = tracker_sparql_builder_new_update ();
 	info->metadata = tracker_sparql_builder_new_embedded_insert ();
 
+        info->where_clause = NULL;
+
 	info->ref_count = 1;
 
 	return info;
