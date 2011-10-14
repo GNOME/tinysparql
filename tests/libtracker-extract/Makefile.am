@@ -4,7 +4,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=                                          \
 	tracker-test-utils                             \
-	tracker-test-xmp
+	tracker-test-xmp			       \
+	tracker-exif-test
 
 if HAVE_ENCA
 TEST_PROGS += tracker-encoding
@@ -37,4 +38,13 @@ tracker_test_utils_SOURCES = tracker-test-utils.c
 
 tracker_test_xmp_SOURCES = tracker-test-xmp.c
 
-EXTRA_DIST = encoding-detect.bin areas.xmp areas-with-contacts.xmp areas-ns.xmp nb282393.xmp nb282393_simple.xmp
+tracker_exif_test_SOURCES = tracker-exif-test.c
+
+EXTRA_DIST = encoding-detect.bin 	\
+	areas.xmp 			\
+	areas-with-contacts.xmp 	\
+	areas-ns.xmp 			\
+	nb282393.xmp 			\
+	nb282393_simple.xmp		\
+	exif-img.jpg			\
+	exif-free-img.jpg
