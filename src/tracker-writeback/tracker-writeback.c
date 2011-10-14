@@ -744,14 +744,6 @@ tracker_controller_dbus_start (TrackerController   *controller,
 	g_message ("  Path:'" TRACKER_WRITEBACK_PATH "'");
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (controller));
 
-	priv->bus_name_id =
-		g_bus_own_name_on_connection (priv->d_connection,
-		                              TRACKER_WRITEBACK_SERVICE,
-		                              G_BUS_NAME_OWNER_FLAGS_NONE,
-		                              bus_name_acquired_cb,
-		                              bus_name_vanished_cb,
-		                              controller, NULL);
-
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->d_connection,
 		                                   TRACKER_WRITEBACK_PATH,
@@ -765,6 +757,14 @@ tracker_controller_dbus_start (TrackerController   *controller,
 		g_propagate_error (error, err);
 		return FALSE;
 	}
+
+	priv->bus_name_id =
+		g_bus_own_name_on_connection (priv->d_connection,
+		                              TRACKER_WRITEBACK_SERVICE,
+		                              G_BUS_NAME_OWNER_FLAGS_NONE,
+		                              bus_name_acquired_cb,
+		                              bus_name_vanished_cb,
+		                              controller, NULL);
 
 	return TRUE;
 }
