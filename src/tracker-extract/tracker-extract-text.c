@@ -57,7 +57,6 @@ static gchar *
 get_file_content (const gchar  *uri,
                   gsize         n_bytes)
 {
-	GError *error = NULL;
 	gchar *text, *path;
 	int fd;
 
@@ -77,8 +76,7 @@ get_file_content (const gchar  *uri,
 	if (fd == -1) {
 		g_message ("Could not open file '%s': %s",
 		           uri,
-		           error->message);
-		g_error_free (error);
+		           g_strerror (errno));
 		g_free (path);
 		return NULL;
 	}
