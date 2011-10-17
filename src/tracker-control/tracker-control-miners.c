@@ -374,6 +374,12 @@ miner_pause_details (void)
 		                                 &pause_applications,
 		                                 &pause_reasons);
 
+		if (!pause_applications || !pause_reasons) {
+			/* unable to get pause details,
+			   already logged by tracker_miner_manager_is_paused */
+			continue;
+		}
+
 		if (!(*pause_applications) || !(*pause_reasons)) {
 			g_strfreev (pause_applications);
 			g_strfreev (pause_reasons);
