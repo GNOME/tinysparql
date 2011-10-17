@@ -558,7 +558,7 @@ albumart_set (const unsigned char *buffer,
               const gchar         *uri)
 {
 	gchar *local_path;
-	gboolean retval;
+	gboolean retval = FALSE;
 
 	if (!artist && !album) {
 		g_warning ("Could not save embedded album art, no artist or album supplied");
