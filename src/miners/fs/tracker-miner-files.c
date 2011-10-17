@@ -2034,7 +2034,7 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 	gchar *uri;
 
 	info = tracker_extract_client_get_metadata_finish (G_FILE (object), res, &error);
-	preupdate = sparql = where = NULL;
+	preupdate = postupdate = sparql = where = NULL;
 
 	if (error) {
 		uri = g_file_get_uri (data->file);
