@@ -689,6 +689,8 @@ parse_xmp (const gchar    *buffer,
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
+// LCOV_EXCL_START
+
 /**
  * tracker_xmp_read:
  * @buffer: a chunk of data with xmp data in it.
@@ -720,6 +722,8 @@ tracker_xmp_read (const gchar    *buffer,
 
 	return parse_xmp (buffer, len, uri, data);
 }
+
+// LCOV_EXCL_STOP
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
