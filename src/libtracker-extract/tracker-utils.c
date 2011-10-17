@@ -116,6 +116,7 @@ tracker_coalesce_strip (gint n_values,
 	return result;
 }
 
+// LCOV_EXCL_START
 /**
  * tracker_coalesce:
  * @n_values: the number of @Varargs supplied
@@ -162,7 +163,7 @@ tracker_coalesce (gint n_values,
 
 	return result;
 }
-
+// LCOV_EXCL_STOP
 
 /**
  * tracker_merge_const:
@@ -217,6 +218,8 @@ tracker_merge_const (const gchar *delimiter,
 
 	return g_string_free (str, FALSE);
 }
+
+// LCOV_EXCL_START
 
 /**
  * tracker_merge:
@@ -356,6 +359,8 @@ tracker_text_normalize (const gchar *text,
 
 	return g_string_free (string, FALSE);
 }
+
+// LCOV_EXCL_STOP
 
 /**
  * tracker_text_validate_utf8:
