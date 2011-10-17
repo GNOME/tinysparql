@@ -436,8 +436,7 @@ static void
 extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
                                       GstTagList            *tag_list,
                                       TrackerSparqlBuilder  *preupdate,
-                                      TrackerSparqlBuilder  *metadata,
-                                      const gchar           *graph)
+                                      TrackerSparqlBuilder  *metadata)
 {
 	gchar *country, *city, *sublocation;
 	gdouble lat, lon, alt;
@@ -462,9 +461,6 @@ extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
 			address_uri = tracker_sparql_get_uuid_urn ();
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
 
 			tracker_sparql_builder_subject_iri (preupdate, address_uri);
 			tracker_sparql_builder_predicate (preupdate, "a");
@@ -485,9 +481,6 @@ extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
 				tracker_sparql_builder_object_unvalidated (preupdate, country);
 			}
 
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
 			tracker_sparql_builder_insert_close (preupdate);
 		}
 
@@ -637,6 +630,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			}
 
 		}
+
+		extractor_apply_geolocation_metadata (extractor,
+		                                      extractor->tagcache,
+		                                      preupdate,
+		                                      metadata);
 
 		/* Audio */
 
