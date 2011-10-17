@@ -548,6 +548,7 @@ get_uid_for_pid (const gchar  *pid_as_string,
 		uid = 0;
 	} else {
 		uid = g_file_info_get_attribute_uint32 (info, G_FILE_ATTRIBUTE_UNIX_UID);
+		g_object_unref (info);
 	}
 
 	if (filename) {
@@ -556,7 +557,6 @@ get_uid_for_pid (const gchar  *pid_as_string,
 		g_free (fn);
 	}
 
-	g_object_unref (info);
 	g_object_unref (f);
 
 	return uid;
