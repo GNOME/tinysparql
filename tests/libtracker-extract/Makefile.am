@@ -51,4 +51,5 @@ EXTRA_DIST = encoding-detect.bin 	\
 	nb282393_simple.xmp		\
 	exif-img.jpg			\
 	exif-free-img.jpg		\
-	guarantee-mtime-test.txt
+	guarantee-mtime-test.txt	\
+	getline-test.txt
