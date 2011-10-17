@@ -53,6 +53,17 @@ test_encoding_guessing ()
 }
 
 
+void
+test_encoding_can_guess ()
+{
+        /* This just duplicates the function code... */
+#if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH)
+        g_assert (tracker_encoding_can_guess ());
+#else
+        g_assert (!tracker_encoding_can_guess ());
+#endif       
+}
+
 int
 main (int argc, char **argv)
 {
@@ -62,6 +73,8 @@ main (int argc, char **argv)
 	tracker_locale_init ();
 	g_test_add_func ("/libtracker-extract/tracker-encoding/encoding_guessing",
 	                 test_encoding_guessing);
+	g_test_add_func ("/libtracker-extract/tracker-encoding/can_guess",
+	                 test_encoding_can_guess);
 	tracker_locale_shutdown ();
 
 	return g_test_run ();
