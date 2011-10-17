@@ -36,7 +36,7 @@ import unittest2 as ut
 from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest
 from common.utils.helpers import log
 
-MINER_FS_IDLE_TIMEOUT = 5
+MINER_FS_IDLE_TIMEOUT = 30
 
 class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
 
