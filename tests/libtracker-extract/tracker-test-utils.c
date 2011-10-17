@@ -62,6 +62,9 @@ test_guess_date (void)
         g_assert (tracker_test_helpers_cmpstr_equal (result, "2010-01-01T00:00:00Z"));
         g_free (result);
 
+        result = tracker_date_guess ("201a");
+        g_assert (!result);
+
         result = tracker_date_guess ("A2010");
         g_assert (!result);
 
@@ -204,6 +207,57 @@ test_date_to_iso8601 ()
         g_assert (result == NULL);
 }
 
+static void
+test_coalesce_strip ()
+{
+        /* Used in other tests, but this one can try some corner cases */
+        g_assert (!tracker_coalesce_strip (0, NULL));
+        g_assert_cmpstr (tracker_coalesce_strip (2, "", "a", NULL), ==, "a");
+}
+
+static void
+test_merge_const ()
+{
+        gchar *result;
+
+        result = tracker_merge_const ("*", 3, "a", "b", NULL);
+        g_assert_cmpstr (result, ==, "a*b");
+        g_free (result);
+
+        result = tracker_merge_const ("****", 3, "a", "b", NULL);
+        g_assert_cmpstr (result, ==, "a****b");
+        g_free (result);
+
+        result = tracker_merge_const (NULL, 3, "a", "b", NULL);
+        g_assert_cmpstr (result, ==, "ab");
+        g_free (result);
+
+        result = tracker_merge_const ("", 3, "a", "b", NULL);
+        g_assert_cmpstr (result, ==, "ab");
+        g_free (result);
+
+        result = tracker_merge_const ("*", 0, NULL);
+        g_assert (!result);
+}
+
+void
+test_getline ()
+{
+        FILE *f;
+        gchar *line = NULL;
+        gsize  n;
+ 
+        f = fopen ("./getline-test.txt", "r");
+        g_assert_cmpint (tracker_getline (&line, &n, f), >, 0);
+        g_assert_cmpstr (line, ==, "Line 1\n");
+
+        g_assert_cmpint (tracker_getline (&line, &n, f), >, 0);
+        g_assert_cmpstr (line, ==, "line 2\n");
+
+        g_assert_cmpint (tracker_getline (&line, &n, f), >, 0);
+        g_assert_cmpstr (line, ==, "line 3\n");
+}
+
 int
 main (int argc, char **argv)
 {
@@ -214,13 +268,16 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/libtracker-extract/tracker-utils/guess_date",
 	                 test_guess_date);
-
         g_test_add_func ("/libtracker-extract/tracker-utils/text-validate-utf8",
                          test_text_validate_utf8);
-
         g_test_add_func ("/libtracker-extract/tracker-utils/date_to_iso8601",
                          test_date_to_iso8601);
-
+        g_test_add_func ("/libtracker-extract/tracker-utils/coalesce_strip",
+                         test_coalesce_strip);
+        g_test_add_func ("/libtracker-extract/tracker-utils/merge_const",
+                         test_merge_const);
+        g_test_add_func ("/libtracker-extract/tracker-utils/getline",
+                         test_getline);
 	result = g_test_run ();
 
 	return result;
