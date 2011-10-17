@@ -47,7 +47,6 @@ static gchar *
 get_file_content (GFile *file,
                   gsize  n_bytes)
 {
-	GError *error = NULL;
 	gchar *text, *uri, *path;
 	int fd;
 
@@ -69,8 +68,7 @@ get_file_content (GFile *file,
 	if (fd == -1) {
 		g_message ("Could not open file '%s': %s",
 		           uri,
-		           error->message);
-		g_error_free (error);
+		           g_strerror (errno));
 		g_free (uri);
 		g_free (path);
 		return NULL;
