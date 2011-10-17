@@ -121,7 +121,7 @@ tracker_locale_init (void)
 	/* Initialize those not retrieved from gconf, or if not in meegotouch */
 	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
 		if (!current_locales[i]) {
-			const gchar *env_locale;
+			const gchar *env_locale = NULL;
 
 			switch (i) {
 			case TRACKER_LOCALE_LANGUAGE:
