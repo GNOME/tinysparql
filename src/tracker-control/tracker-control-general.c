@@ -372,7 +372,7 @@ tracker_control_general_run (void)
 	    list_processes) {
 		guint32 own_pid;
 		guint32 own_uid;
-		gchar *own_uid_str;
+		gchar *own_pid_str;
 
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
@@ -385,9 +385,9 @@ tracker_control_general_run (void)
 
 		/* Establish own uid/pid */
 		own_pid = (guint32) getpid ();
-		own_uid_str = g_strdup_printf ("%d", own_pid);
-		own_uid = get_uid_for_pid (own_uid_str, NULL);
-		g_free (own_uid_str);
+		own_pid_str = g_strdup_printf ("%d", own_pid);
+		own_uid = get_uid_for_pid (own_pid_str, NULL);
+		g_free (own_pid_str);
 
 		for (l = pids; l; l = l->next) {
 			GError *error = NULL;
@@ -403,7 +403,7 @@ tracker_control_general_run (void)
 				continue;
 			}
 
-			/* Get contents to determin basename */
+			/* Get contents to determine basename */
 			if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 				str = g_strdup_printf (_("Could not open '%s'"), filename);
 				g_printerr ("%s, %s\n",
