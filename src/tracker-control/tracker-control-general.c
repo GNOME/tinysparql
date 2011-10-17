@@ -303,7 +303,7 @@ get_uid_for_pid (const gchar  *pid_as_string,
 	                          &error);
 
 	if (error) {
-		g_warning ("Could not stat() file:'%s', %s", fn, error->message);
+		g_printerr ("Could not stat() file:'%s', %s", fn, error->message);
 		g_error_free (error);
 		uid = 0;
 	} else {
