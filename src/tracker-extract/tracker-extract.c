@@ -669,6 +669,8 @@ get_metadata_cb (gpointer user_data)
 		                                 TRACKER_DBUS_ERROR, 0,
 		                                 "Extraction of '%s' was cancelled",
 		                                 task->file);
+
+		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
 		return FALSE;
 	}
