@@ -660,8 +660,10 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		if (iter == null) {
 			if (queries.length > 1) {
 				return categories.length - 1;
-			} else {
+			} else if (categories.length > 0) {
 				return categories[0].count;
+			} else {
+				return -1;
 			}
 		}
 
