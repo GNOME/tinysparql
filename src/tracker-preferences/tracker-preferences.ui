@@ -450,7 +450,7 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="tooltip_markup">Indexing content will be &lt;b&gt;much slower&lt;/b&gt; but other applications will have priority.</property>
+                                        <property name="tooltip_markup" translatable="yes">Indexing content will be &lt;b&gt;much slower&lt;/b&gt; but other applications will have priority.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="yalign">0.51999998092651367</property>
@@ -469,7 +469,7 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="tooltip_markup">Indexing content will be &lt;b&gt;much slower&lt;/b&gt; but other applications will have priority. This will only be the case on the &lt;b&gt;first index&lt;/b&gt; of your content after you start your computer from a new install</property>
+                                        <property name="tooltip_markup" translatable="yes">Indexing content will be &lt;b&gt;much slower&lt;/b&gt; but other applications will have priority. This will only be the case on the &lt;b&gt;first index&lt;/b&gt; of your content after you start your computer from a new install</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="active">True</property>
@@ -488,7 +488,7 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="tooltip_markup">Indexing content will be as &lt;b&gt;fast&lt;/b&gt; as possible but other applications may suffer and be slower as a result.</property>
+                                        <property name="tooltip_markup" translatable="yes">Indexing content will be as &lt;b&gt;fast&lt;/b&gt; as possible but other applications may suffer and be slower as a result.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="active">True</property>
@@ -721,7 +721,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Home Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Home Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_home_toggled_cb" swapped="no"/>
@@ -747,7 +747,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Desktop Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Desktop Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_desktop_toggled_cb" swapped="no"/>
@@ -773,7 +773,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Documents Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Documents Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_documents_toggled_cb" swapped="no"/>
@@ -798,7 +798,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Music Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Music Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_music_toggled_cb" swapped="no"/>
@@ -823,7 +823,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Pictures Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Pictures Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_pictures_toggled_cb" swapped="no"/>
@@ -848,7 +848,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Videos Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Videos Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_videos_toggled_cb" swapped="no"/>
@@ -873,7 +873,7 @@ If a directory is toggled to &lt;b&gt;Recurse&lt;/b&gt;, it means that all sub-d
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_markup">Index Download Directory</property>
+                                        <property name="tooltip_markup" translatable="yes">Index Download Directory</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <signal name="toggled" handler="tracker_preferences_togglebutton_download_toggled_cb" swapped="no"/>
@@ -987,7 +987,7 @@ Those which are the same are disabled!</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="tooltip_markup">Add directory to be indexed</property>
+                                            <property name="tooltip_markup" translatable="yes">Add directory to be indexed</property>
                                             <property name="use_action_appearance">False</property>
                                             <signal name="clicked" handler="tracker_preferences_button_index_add_clicked_cb" swapped="no"/>
                                             <child>
@@ -1009,7 +1009,7 @@ Those which are the same are disabled!</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="tooltip_markup">Remove directory from being indexed</property>
+                                            <property name="tooltip_markup" translatable="yes">Remove directory from being indexed</property>
                                             <property name="use_action_appearance">False</property>
                                             <signal name="clicked" handler="tracker_preferences_button_index_remove_clicked_cb" swapped="no"/>
                                             <child>
