@@ -542,6 +542,7 @@ get_metadata (TrackerExtractTask *task)
 		                                 "Extraction of '%s' was cancelled",
 		                                 task->file);
 
+		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
 		return FALSE;
 	}
