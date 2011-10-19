@@ -794,7 +794,7 @@ public class Tracker.Preferences {
 			ListStore store = view.get_model () as ListStore;
 			CellRendererToggle cell = new CellRendererToggle ();
 
-			column = new TreeViewColumn.with_attributes ("Recurse",
+			column = new TreeViewColumn.with_attributes (_("Recurse"),
 			                                             cell,
 			                                             "active", 1,
 			                                             null);
