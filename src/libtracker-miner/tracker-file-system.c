@@ -473,6 +473,11 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	} else {
 		data = node->data;
 		g_free (uri_suffix);
+
+		/* Update file type if it was unknown */
+		if (data->file_type == G_FILE_TYPE_UNKNOWN) {
+			data->file_type = file_type;
+		}
 	}
 
 	return data->file;
