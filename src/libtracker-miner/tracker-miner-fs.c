@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-log.h>
@@ -3456,9 +3457,9 @@ should_change_index_for_file (TrackerMinerFS *fs,
 {
 	GFileInfo          *file_info;
 	guint64             time;
-	time_t              mtime;
-	struct tm           t;
-	gchar              *time_str, *lookup_time;
+	time_t              mtime, lookup_mtime;
+	gchar              *lookup_time;
+	GError             *error = NULL;
 
 	/* Make sure mtime cache contains the mtimes of all files in the
 	 * same directory as the given file
@@ -3474,6 +3475,14 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	 */
 	lookup_time = g_hash_table_lookup (fs->priv->mtime_cache, file);
 	if (!lookup_time) {
+		return TRUE;
+	}
+
+	lookup_mtime = tracker_string_to_date (lookup_time, NULL, &error);
+	if (error) {
+		/* This should never happen. Assume that file was modified. */
+		g_critical ("should_change_index_for_file: %s", error->message);
+		g_clear_error (&error);
 		return TRUE;
 	}
 
@@ -3493,23 +3502,13 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	mtime = (time_t) time;
 	g_object_unref (file_info);
 
-	gmtime_r (&mtime, &t);
-
-	time_str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:%02dZ",
-	                            t.tm_year + 1900,
-	                            t.tm_mon + 1,
-	                            t.tm_mday,
-	                            t.tm_hour,
-	                            t.tm_min,
-	                            t.tm_sec);
-
-	if (strcmp (time_str, lookup_time) == 0) {
-		/* File already up-to-date in the database */
-		g_free (time_str);
+	if (abs (mtime - lookup_mtime) < 2) {
+		/* File already up-to-date in the database
+		 * accept 1 second difference as FAT stores timestamps
+		 * with 2 second granularity
+		 */
 		return FALSE;
 	}
-
-	g_free (time_str);
 
 	/* File either not yet in the database or mtime is different
 	 * Update in database required
