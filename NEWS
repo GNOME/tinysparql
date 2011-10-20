@@ -1,3 +1,34 @@
+NEW in 0.12.6 - 2011-10-21
+==========================
+
+The changes are:
+
+  * Fixes: GB#662099: tracker-preferences: Make sure "Recurse" column title is translated
+  * Fixes: NB#286589: tracker-writeback: Don't own the DBus name before registering the object
+  * Fixes: NB#287278: libtracker-miner: Ignore mtime difference of less than 2 seconds
+  * tracker-miner-fs: Fix uninitialized variable
+  * tracker-extract: Also complete cancelled tasks
+  * tracker-extract: Fix uninitialized variable in albumart
+  * tracker-extract-text: Fix crash if unable to open file
+  * tracker-control: Fix crash when unable to get miner pause details
+  * tracker-control: Do not call g_object_unref on NULL in error case
+  * tracker-needle: Fix crash in result store
+  * tracker-preferences: Mark tooltips in tracker-preferences.ui for translation
+  * tests/libtracker-extract: unit tests for tracker-iptc
+  * tests/libtracker-extract: Complete tracker-encoding tests
+  * tests/libtracker-extract: Complete tests for tracker-utils
+  * tests/libtracker-extract: tracker-guaranteee unit tests
+  * tests/libtracker-extract: Unit tests for tracker-exif
+  * tests/libtracker-extract: Tests for TrackerExtractInfo
+  * functional-tests: Increase timeout in application tests
+
+Translations:
+
+  * Updated es: Daniel Mustieles
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+
+
 NEW in 0.12.5 - 2011-10-13
 ==========================
 
