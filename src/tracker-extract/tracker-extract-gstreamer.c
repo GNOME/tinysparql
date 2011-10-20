@@ -1963,7 +1963,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 {
 	MetadataExtractor *extractor;
 	gchar *cue_sheet;
-	TrackerMediaArtType media_type;
+	TrackerMediaArtType media_type = TRACKER_MEDIA_ART_NONE;
 	gchar *media_artist, *media_title;
 	gboolean success;
 
