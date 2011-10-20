@@ -412,7 +412,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	tracker_guarantee_title_from_file (metadata,
 	                                   "nie:title",
 	                                   md.title,
-	                                   uri);
+	                                   uri,
+	                                   NULL);
 
 	if (md.make || md.model) {
 		gchar *equip_uri;

@@ -630,7 +630,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 		tracker_sparql_builder_object_unvalidated (metadata, genre);
 	}
 
-	tracker_guarantee_title_from_file (metadata, "nie:title", title, file_url);
+	tracker_guarantee_title_from_file (metadata, "nie:title", title, file_url, p_media_title);
 
 	add_date_time_gst_tag_with_mtime_fallback (metadata,
 	                                           file_url,
@@ -648,12 +648,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	g_free (artist_temp);
 	g_free (composer);
 	g_free (genre);
-
-	if (p_media_title != NULL) {
-		*p_media_title = title;
-	} else {
-		g_free (title);
-	}
+	g_free (title);
 }
 
 static void

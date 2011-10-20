@@ -74,8 +74,10 @@ get_date_from_file_mtime (const gchar *uri)
  * tracker_guarantee_title_from_file:
  * @metadata: the metadata object to insert the data into
  * @key: the key to insert into @metadata
- * @current_value: the current data to check before looking at @uri
+ * @current_value: the current data to check before looking at @uri.
  * @uri: a string representing a URI to use
+ * @new_value: pointer to a string which receives the new title, or
+ *             %NULL
  *
  * Checks @current_value to make sure it is sane (i.e. not %NULL or an
  * empty string). If it is, then @uri is parsed to guarantee a
@@ -90,10 +92,11 @@ get_date_from_file_mtime (const gchar *uri)
  * Since: 0.10
  **/
 gboolean
-tracker_guarantee_title_from_file (TrackerSparqlBuilder *metadata,
-                                   const gchar          *key,
-                                   const gchar          *current_value,
-                                   const gchar          *uri)
+tracker_guarantee_title_from_file (TrackerSparqlBuilder  *metadata,
+                                   const gchar           *key,
+                                   const gchar           *current_value,
+                                   const gchar           *uri,
+                                   gchar                **p_new_value)
 {
 #ifdef GUARANTEE_METADATA
 	g_return_val_if_fail (metadata != NULL, FALSE);
@@ -104,17 +107,30 @@ tracker_guarantee_title_from_file (TrackerSparqlBuilder *metadata,
 
 	if (current_value && *current_value != '\0') {
 		tracker_sparql_builder_object_unvalidated (metadata, current_value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = g_strdup (current_value);
+		}
 	} else {
 		gchar *value;
 
 		value = get_title_from_file (uri);
 		tracker_sparql_builder_object_unvalidated (metadata, value);
-		g_free (value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = value;
+		} else {
+			g_free (value);
+		}
 	}
 #else  /* GUARANTEE_METADATA */
 	if (current_value && *current_value != '\0') {
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_unvalidated (metadata, current_value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = g_strdup (current_value);
+		}
 	}
 #endif /* GUARANTEE_METADATA */
 
