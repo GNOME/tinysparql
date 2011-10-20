@@ -185,8 +185,6 @@ file_tree_lookup (GNode     *tree,
 	FileNodeData *data;
 	gchar *uri, *ptr;
 
-	g_assert (G_NODE_IS_ROOT (tree));
-
 	uri = ptr = g_file_get_uri (file);
 	node_found = parent_found = NULL;
 
@@ -208,10 +206,31 @@ file_tree_lookup (GNode     *tree,
 		return NULL;
 	}
 
-	/* First check the root node */
-	if (!file_node_data_equal_or_child (tree, uri, &ptr)) {
-		g_free (uri);
-		return NULL;
+	if (!G_NODE_IS_ROOT (tree)) {
+		FileNodeData *parent_data;
+		gchar *parent_uri;
+
+		parent_data = tree->data;
+		parent_uri = g_file_get_uri (parent_data->file);
+
+		/* Sanity check */
+		if (!g_str_has_prefix (uri, parent_uri)) {
+			g_free (parent_uri);
+			return NULL;
+		}
+
+		ptr += strlen (parent_uri);
+
+		g_assert (ptr[0] == '/');
+		ptr++;
+
+		g_free (parent_uri);
+	} else {
+		/* First check the root node */
+		if (!file_node_data_equal_or_child (tree, uri, &ptr)) {
+			g_free (uri);
+			return NULL;
+		}
 	}
 
 	parent = tree;
@@ -326,33 +345,37 @@ tracker_file_system_new (void)
 }
 
 static void
-reparent_child_nodes (GNode *node,
-                      GNode *new_parent)
+reparent_child_nodes_to_parent (GNode *node)
 {
-	FileNodeData *parent_data;
-	GNode *child;
+	FileNodeData *node_data;
+	GNode *child, *parent;
 
-	parent_data = new_parent->data;
+	if (!node->parent) {
+		return;
+	}
+
+	parent = node->parent;
+	node_data = node->data;
 	child = g_node_first_child (node);
 
 	while (child) {
 		FileNodeData *data;
+		gchar *uri_suffix;
 		GNode *cur;
 
 		cur = child;
 		data = cur->data;
 		child = g_node_next_sibling (child);
 
-		/* Ensure consistency is preserved */
-		if (!g_file_has_prefix (data->file, parent_data->file)) {
-			continue;
-		}
+		uri_suffix = g_strdup_printf ("%s/%s",
+					      node_data->uri_suffix,
+					      data->uri_suffix);
 
-		data->uri_suffix = g_file_get_relative_path (parent_data->file,
-		                                             data->file);
+		g_free (data->uri_suffix);
+		data->uri_suffix = uri_suffix;
 
 		g_node_unlink (cur);
-		g_node_append (new_parent, cur);
+		g_node_prepend (parent, cur);
 	}
 }
 
@@ -369,7 +392,7 @@ file_weak_ref_notify (gpointer  user_data,
 	g_assert (data->file == (GFile *) prev_location);
 
 	data->file = NULL;
-	reparent_child_nodes (node, node->parent);
+	reparent_child_nodes_to_parent (node);
 
 	/* Delete node tree here */
 	file_node_data_free (data, NULL);
@@ -412,44 +435,9 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	node = NULL;
 
 	if (parent) {
-		FileNodeData *parent_data;
-		GNode *child;
-
 		parent_node = file_system_get_node (file_system, parent);
-		parent_data = parent_node->data;
-
-		/* Find child node, if any */
-		for (child = g_node_first_child (parent_node);
-		     child != NULL;
-		     child = g_node_next_sibling (child)) {
-			FileNodeData *child_data;
-
-			child_data = child->data;
-
-			if (g_file_equal (child_data->file, file)) {
-				node = child;
-				break;
-			}
-		}
-
-		if (!node) {
-			gchar *uri, *parent_uri;
-			const gchar *ptr;
-			gint len;
-
-			uri = g_file_get_uri (file);
-			parent_uri = g_file_get_uri (parent_data->file);
-			len = strlen (parent_uri);
-
-			ptr = uri + len;
-			g_assert (ptr[0] == '/');
-
-			ptr++;
-			uri_suffix = g_strdup (ptr);
-
-			g_free (parent_uri);
-			g_free (uri);
-		}
+		node = file_tree_lookup (parent_node, file,
+		                         NULL, &uri_suffix);
 	} else {
 		node = file_tree_lookup (priv->file_tree, file,
 		                         &parent_node, &uri_suffix);
@@ -463,11 +451,6 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 		/* Parent was found, add file as child */
 		data = file_node_data_new (file, file_type, node);
 		data->uri_suffix = uri_suffix;
-
-		/* Reparent any previously created child to it,
-		 * that would currently be a child of parent_node
-		 */
-		reparent_child_nodes (parent_node, node);
 
 		g_node_append (parent_node, node);
 	} else {
