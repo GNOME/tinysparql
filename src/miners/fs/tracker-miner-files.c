@@ -1229,7 +1229,8 @@ mount_point_added_cb (TrackerStorage *storage,
 			GFile *config_file;
 
 			config_file = g_file_new_for_path (l->data);
-			flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+			flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+				TRACKER_DIRECTORY_FLAG_PRESERVE;
 
 			if (tracker_config_get_enable_monitors (miner->private->config)) {
 				flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
@@ -2959,10 +2960,11 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 	}
 
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
-	flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+		TRACKER_DIRECTORY_FLAG_PRESERVE;
 
 	if (tracker_config_get_enable_monitors (mf->private->config)) {
-		flags = TRACKER_DIRECTORY_FLAG_MONITOR;
+		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
 	g_object_set_qdata_full (G_OBJECT (mount_point_file),
