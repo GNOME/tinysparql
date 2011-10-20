@@ -1629,15 +1629,31 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 
 			g_message ("  Removing directory: '%s'", path);
 
-			/* Fully remove item (monitors and from store),
-			 * directories from configuration do not have the
-			 * preserve flag set.
-			 */
 			file = g_file_new_for_path (path);
+
+			/* First, remove the preserve flag, it might be
+			 * set on configuration directories within mount
+			 * points, as data should be persistent across
+			 * unmounts.
+			 */
+			tracker_indexing_tree_get_root (indexing_tree,
+							file, &flags);
+
+			if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
+				flags &= ~(TRACKER_DIRECTORY_FLAG_PRESERVE);
+				tracker_indexing_tree_add (indexing_tree,
+							   file, flags);
+			}
+
+			/* Fully remove item (monitors and from store),
+			 * now that there's no preserve flag.
+			 */
 			tracker_indexing_tree_remove (indexing_tree, file);
 			g_object_unref (file);
 		}
 	}
+
+	flags = TRACKER_DIRECTORY_FLAG_NONE;
 
 	if (recurse) {
 		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
