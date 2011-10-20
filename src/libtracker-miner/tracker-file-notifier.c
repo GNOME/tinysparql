@@ -58,6 +58,7 @@ typedef struct {
 	TrackerFileSystem *file_system;
 
 	TrackerSparqlConnection *connection;
+	GCancellable *cancellable;
 
 	TrackerCrawler *crawler;
 	TrackerMonitor *monitor;
@@ -520,7 +521,7 @@ sparql_file_query_start (TrackerFileNotifier *notifier,
 	} else {
 		tracker_sparql_connection_query_async (priv->connection,
 		                                       sparql,
-		                                       NULL,
+		                                       priv->cancellable,
 		                                       sparql_query_cb,
 		                                       notifier);
 	}
@@ -560,6 +561,8 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		tracker_file_system_unset_property (priv->file_system,
 						    directory,
 						    quark_property_queried);
+
+		g_cancellable_reset (priv->cancellable);
 
 		if ((flags & TRACKER_DIRECTORY_FLAG_IGNORE) == 0 &&
 		    tracker_crawler_start (priv->crawler,
@@ -1001,6 +1004,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	    directory == priv->pending_index_roots->data) {
 		/* Directory being currently processed */
 		tracker_crawler_stop (priv->crawler);
+		g_cancellable_cancel (priv->cancellable);
 
 		/* Remove index root and try the next one */
 		priv->pending_index_roots = g_list_delete_link (priv->pending_index_roots,
@@ -1030,6 +1034,7 @@ tracker_file_notifier_finalize (GObject *object)
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
+	g_object_unref (priv->cancellable);
 
 	g_list_free (priv->pending_index_roots);
 	g_timer_destroy (priv->timer);
@@ -1176,6 +1181,7 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 		                             TrackerFileNotifierPrivate);
 
 	priv->connection = tracker_sparql_connection_get (NULL, &error);
+	priv->cancellable = g_cancellable_new ();
 
 	if (error) {
 		g_critical ("Could not get SPARQL connection: %s\n",
@@ -1270,6 +1276,7 @@ tracker_file_notifier_stop (TrackerFileNotifier *notifier)
 
 	if (!priv->stopped) {
 		tracker_crawler_stop (priv->crawler);
+		g_cancellable_cancel (priv->cancellable);
 		priv->stopped = TRUE;
 	}
 }
