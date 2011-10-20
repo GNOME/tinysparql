@@ -552,6 +552,17 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		                                directory,
 		                                &flags);
 
+		/* Unset crawled/queried checks on the
+		 * directory, we might have requested a
+		 * reindex.
+		 */
+		tracker_file_system_unset_property (priv->file_system,
+						    directory,
+						    quark_property_crawled);
+		tracker_file_system_unset_property (priv->file_system,
+						    directory,
+						    quark_property_queried);
+
 		if ((flags & TRACKER_DIRECTORY_FLAG_IGNORE) == 0 &&
 		    tracker_crawler_start (priv->crawler,
 		                           directory,
@@ -962,10 +973,12 @@ indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
 		start_crawler = TRUE;
 	}
 
-	priv->pending_index_roots = g_list_append (priv->pending_index_roots,
-	                                           directory);
-	if (start_crawler) {
-		crawl_directories_start (notifier);
+	if (!g_list_find (priv->pending_index_roots, directory)) {
+		priv->pending_index_roots = g_list_append (priv->pending_index_roots,
+		                                           directory);
+		if (start_crawler) {
+			crawl_directories_start (notifier);
+		}
 	}
 }
 
@@ -986,7 +999,8 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
 	}
 
-	if (directory == priv->pending_index_roots->data) {
+	if (priv->pending_index_roots &&
+	    directory == priv->pending_index_roots->data) {
 		/* Directory being currently processed */
 		tracker_crawler_stop (priv->crawler);
 
