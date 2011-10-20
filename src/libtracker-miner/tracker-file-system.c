@@ -758,3 +758,55 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 
 	g_array_remove_index (data->properties, index);
 }
+
+typedef struct {
+	TrackerFileSystem *file_system;
+	GList *list;
+	GFileType file_type;
+} DeleteFilesData;
+
+static gboolean
+append_deleted_files (GNode    *node,
+		      gpointer  user_data)
+{
+	DeleteFilesData *data;
+	FileNodeData *node_data;
+
+	data = user_data;
+	node_data = node->data;
+
+	if (data->file_type == G_FILE_TYPE_UNKNOWN ||
+	    node_data->file_type == data->file_type) {
+		data->list = g_list_prepend (data->list, node_data->file);
+	}
+
+	return FALSE;
+}
+
+void
+tracker_file_system_delete_files (TrackerFileSystem *file_system,
+				  GFile             *root,
+				  GFileType          file_type)
+{
+	DeleteFilesData data = { file_system, NULL, file_type };
+	GNode *node;
+
+	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
+	g_return_if_fail (G_IS_FILE (root));
+
+	node = file_system_get_node (file_system, root);
+	g_return_if_fail (node != NULL);
+
+	/* We need to get the files to delete into a list, so
+	 * the node tree isn't modified during traversal.
+	 */
+	g_node_traverse (node,
+	                 G_PRE_ORDER,
+	                 (file_type == G_FILE_TYPE_REGULAR) ?
+	                   G_TRAVERSE_LEAVES : G_TRAVERSE_ALL,
+	                 -1, append_deleted_files,
+	                 &data);
+
+	g_list_foreach (data.list, (GFunc) g_object_unref, NULL);
+	g_list_free (data.list);
+}
