@@ -34,7 +34,6 @@ static GQuark quark_property_queried = 0;
 static GQuark quark_property_iri = 0;
 static GQuark quark_property_store_mtime = 0;
 static GQuark quark_property_filesystem_mtime = 0;
-static GQuark quark_property_file_type = 0;
 
 enum {
 	PROP_0,
@@ -202,7 +201,6 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	TrackerFileNotifier *notifier;
 	TrackerFileNotifierPrivate *priv;
 	const gchar *store_mtime, *disk_mtime;
-	GFileType file_type;
 
 	notifier = user_data;
 	priv = notifier->priv;
@@ -211,16 +209,15 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	                                                quark_property_store_mtime);
 	disk_mtime = tracker_file_system_get_property (priv->file_system, file,
 	                                               quark_property_filesystem_mtime);
-	file_type =
-		GPOINTER_TO_UINT (tracker_file_system_get_property (priv->file_system,
-		                                                    file,
-		                                                    quark_property_file_type));
+
 	if (store_mtime && !disk_mtime) {
 		/* In store but not in disk, delete */
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
 
-		/* Only emit it for the toplevel folder, if it is a folder */
-		return TRUE;
+		/* FIXME: Should avoid recursing through children,
+		 * but we're not allowed to modify the tree during
+		 * traversal, nor have a way to skip recursing within
+		 */
 	} else if (disk_mtime && !store_mtime) {
 		/* In disk but not in store, create */
 		g_signal_emit (notifier, signals[FILE_CREATED], 0, file);
@@ -234,11 +231,6 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 		 * to crawl (i.e. embedded root directories, that would
 		 * be processed when that root is being crawled).
 		 */
-	}
-
-	if (file_type != G_FILE_TYPE_DIRECTORY) {
-		/* We only cache directories, so regular files are freed */
-		g_object_unref (file);
 	}
 
 	return FALSE;
@@ -255,6 +247,11 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 	                              G_LEVEL_ORDER,
 	                              file_notifier_traverse_tree_foreach,
 	                              notifier);
+
+	/* We dispose regular files, only directories are cached */
+	tracker_file_system_delete_files (priv->file_system,
+	                                  priv->pending_index_roots->data,
+	                                  G_FILE_TYPE_REGULAR);
 
 	tracker_info ("Finished notifying files after %2.2f seconds",
 	              g_timer_elapsed (priv->timer, NULL));
@@ -301,23 +298,26 @@ file_notifier_add_node_foreach (GNode    *node,
 		data->cur_parent = NULL;
 	}
 
-	/* Intern file in filesystem */
-	canonical = tracker_file_system_get_file (priv->file_system,
-	                                          file,
-	                                          G_FILE_TYPE_UNKNOWN,
-	                                          data->cur_parent);
-	file_info = g_file_query_info (canonical,
+	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED ","
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL,
 	                               NULL);
+
 	if (file_info) {
 		GFileType file_type;
 		guint64 time;
 		time_t mtime;
 		struct tm t;
 		gchar *time_str;
+
+		file_type = g_file_info_get_file_type (file_info);
+
+		/* Intern file in filesystem */
+		canonical = tracker_file_system_get_file (priv->file_system,
+							  file, file_type,
+							  data->cur_parent);
 
 		time = g_file_info_get_attribute_uint64 (file_info,
 		                                         G_FILE_ATTRIBUTE_TIME_MODIFIED);
@@ -336,10 +336,6 @@ file_notifier_add_node_foreach (GNode    *node,
 		                                  quark_property_filesystem_mtime,
 		                                  time_str);
 
-		file_type = g_file_info_get_file_type (file_info);
-		tracker_file_system_set_property (priv->file_system, canonical,
-		                                  quark_property_file_type,
-		                                  GUINT_TO_POINTER (file_type));
 		g_object_unref (file_info);
 	}
 
@@ -1012,6 +1008,10 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 
 	/* Remove monitors if any */
 	tracker_monitor_remove_recursively (priv->monitor, directory);
+
+	/* Remove all files from filesystem */
+	tracker_file_system_delete_files (priv->file_system, directory,
+	                                  G_FILE_TYPE_UNKNOWN);
 }
 
 static void
@@ -1160,9 +1160,6 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
 	tracker_file_system_register_property (quark_property_filesystem_mtime,
 	                                       g_free);
-
-	quark_property_file_type = g_quark_from_static_string ("tracker-property-file-type");
-	tracker_file_system_register_property (quark_property_file_type, NULL);
 }
 
 static void
