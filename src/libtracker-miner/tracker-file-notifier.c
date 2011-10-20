@@ -149,7 +149,8 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	 */
 	root = tracker_indexing_tree_get_root (priv->indexing_tree, directory, NULL);
 
-	if (root != priv->pending_index_roots->data) {
+	if (root == directory &&
+	    root != priv->pending_index_roots->data) {
 		return FALSE;
 	}
 
@@ -398,7 +399,8 @@ sparql_file_query_populate (TrackerFileNotifier *notifier,
 			 */
 			root = tracker_indexing_tree_get_root (priv->indexing_tree, file, NULL);
 
-			if (root != priv->pending_index_roots->data) {
+			if (root == file &&
+			    root != priv->pending_index_roots->data) {
 				g_object_unref (file);
 				continue;
 			}
