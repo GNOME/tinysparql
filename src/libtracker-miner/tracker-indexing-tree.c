@@ -387,7 +387,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 			gchar *uri;
 
 			uri = g_file_get_uri (directory);
-			g_warning ("Overwriting flags for directory '%s'", uri);
+			g_message ("Overwriting flags for directory '%s'", uri);
 			g_free (uri);
 
 			data->flags = flags;
