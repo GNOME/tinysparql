@@ -817,6 +817,13 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file, file_type, NULL);
 	g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
+
+	if (is_directory) {
+		/* Delete all files underneath this dir from the filesystem */
+		tracker_file_system_delete_files (priv->file_system,
+						  file,
+						  G_FILE_TYPE_UNKNOWN);
+	}
 }
 
 static void
