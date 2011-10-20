@@ -230,6 +230,8 @@ parse_iptc (const unsigned char *buffer,
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
+// LCOV_EXCL_START
+
 /**
  * tracker_iptc_read:
  * @buffer: a chunk of data with iptc data in it.
@@ -261,6 +263,8 @@ tracker_iptc_read (const unsigned char *buffer,
 
 	return parse_iptc (buffer, len, uri, data);
 }
+
+// LCOV_EXCL_STOP
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
