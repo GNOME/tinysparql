@@ -704,7 +704,7 @@ media_art_set (const unsigned char *buffer,
 			}
 		} else {
 			gchar *sum2 = NULL;
-			
+
 			if (file_get_checksum_if_exists (G_CHECKSUM_MD5, album_path, &sum2, FALSE, NULL)) {
 				if ( !(g_strcmp0 (mime, "image/jpeg") == 0 || g_strcmp0 (mime, "JPG") == 0) ||
 			       ( !(len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) )) {
@@ -747,7 +747,7 @@ media_art_set (const unsigned char *buffer,
 
 					sum1 = checksum_for_data (G_CHECKSUM_MD5, buffer, len);
 					/* If album-space-md5.jpg is the same as buffer, make a symlink
-				 	 * to album-md5-md5.jpg */
+					 * to album-md5-md5.jpg */
 
 					if (g_strcmp0 (sum1, sum2) == 0) {
 						if (symlink (album_path, local_path) != 0) {
