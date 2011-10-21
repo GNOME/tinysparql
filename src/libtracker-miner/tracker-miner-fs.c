@@ -184,8 +184,6 @@ struct _TrackerMinerFSPrivate {
 	                                       * done */
 	guint           shown_totals : 1;     /* TRUE if totals have been shown */
 	guint           is_paused : 1;        /* TRUE if miner is paused */
-	guint           is_crawling : 1;      /* TRUE if currently is crawling
-	                                       * (initial or non-initial) */
 	guint           mtime_checking : 1;   /* TRUE if mtime checks should be done
 	                                       * during initial crawling. */
 	guint           initial_crawling : 1; /* TRUE if initial crawling should be
@@ -1936,11 +1934,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	*file = NULL;
 	*source_file = NULL;
 
-	if (fs->priv->is_crawling ||
-#if 0
-	    fs->priv->crawl_directories_id != 0 ||
-#endif
-	    tracker_file_notifier_is_active (fs->priv->file_notifier) ||
+	if (tracker_file_notifier_is_active (fs->priv->file_notifier) ||
 	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		/* There are still pending items to crawl,
@@ -2069,7 +2063,7 @@ item_queue_handlers_cb (gpointer user_data)
 		                                        &items_remaining);
 		seconds_elapsed = g_timer_elapsed (fs->priv->timer, NULL);
 
-		if (!fs->priv->is_crawling) {
+		if (!tracker_file_notifier_is_active (fs->priv->file_notifier)) {
 			gchar *status;
 			gint remaining_time;
 
@@ -2129,7 +2123,7 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Handle queues */
 	switch (queue) {
 	case QUEUE_NONE:
-		if (!fs->priv->is_crawling &&
+		if (!tracker_file_notifier_is_active (fs->priv->file_notifier) &&
 		    tracker_task_pool_get_size (fs->priv->task_pool) == 0) {
 			if (tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0) {
 				/* Print stats and signal finished */
@@ -2270,7 +2264,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	if (!fs->priv->is_crawling) {
+	if (!tracker_file_notifier_is_active (fs->priv->file_notifier)) {
 		gchar *status;
 		gdouble progress;
 
@@ -3556,7 +3550,7 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
-	if (fs->priv->is_crawling ||
+	if (tracker_file_notifier_is_active (fs->priv->file_notifier) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_created) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_updated) ||
