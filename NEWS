@@ -1,3 +1,28 @@
+NEW in 0.10.32 - 2011-10-21
+===========================
+
+The changes are:
+
+  * Fixes: NB#286558: tracker-extract, gstreamer: Use the GEO information at extraction
+  * tracker-extract: Also complete cancelled tasks
+  * tracker-extract: Fix uninitialized variable in albumart
+  * tracker-extract-text: Fix crash if unable to open file
+  * tracker-control: Fix crash when unable to get miner pause details
+  * tracker-control: Do not call g_object_unref on NULL in error case
+  * tracker-needle: Fix crash in result store
+  * tests/libtracker-extract: unit tests for tracker-iptc
+  * tests/libtracker-extract: Complete tracker-encoding tests
+  * tests/libtracker-extract: Complete tests for tracker-utils
+  * tests/libtracker-extract: tracker-guaranteee unit tests
+  * tests/libtracker-extract: Unit tests for tracker-exif
+  * functional-tests: Increase timeout in application tests
+
+
+Translations:
+
+  None
+
+
 NEW in 0.10.31 - 2011-10-13
 ===========================
 
