@@ -304,6 +304,53 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 			if (error) {
 				g_critical ("  (Sparql buffer) Error in task %u of the array-update: %s",
 				            i, error->message);
+
+				if (error_pos < update_data->n_bulk_operations) {
+					BulkOperationMerge *bulk;
+					GList *tasks;
+					guint bulk_pos;
+
+					bulk_pos = ABS (error_pos - update_data->n_bulk_operations + 1);
+					bulk = g_ptr_array_index (update_data->bulk_ops, bulk_pos);
+					tasks = bulk->tasks;
+
+					g_debug ("    Affected files:");
+
+					while (tasks) {
+						TrackerTask *task = tasks->data;
+						gchar *uri;
+
+						uri = g_file_get_uri (tracker_task_get_file (task));
+						g_debug ("      - %s", uri);
+						g_free (uri);
+
+						tasks = tasks->next;
+					}
+
+					g_debug ("    Sparql: %s", bulk->sparql);
+				} else {
+					const gchar *sparql;
+					gchar *uri;
+
+					uri = g_file_get_uri (tracker_task_get_file (task));
+					g_debug ("    Affected file: %s", uri);
+					g_free (uri);
+
+					switch (task_data->type) {
+					case TASK_TYPE_SPARQL_STR:
+						sparql = task_data->data.str;
+						break;
+					case TASK_TYPE_SPARQL:
+						sparql = tracker_sparql_builder_get_result (task_data->data.builder);
+						break;
+					default:
+						break;
+					}
+
+					if (sparql) {
+						g_debug ("    Sparql: %s", sparql);
+					}
+				}
 			}
 		}
 
