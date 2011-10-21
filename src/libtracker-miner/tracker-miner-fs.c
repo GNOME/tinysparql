@@ -161,6 +161,7 @@ struct _TrackerMinerFSPrivate {
 	GQuark          quark_directory_found_crawling;
 
 	GTimer         *timer;
+	GTimer         *extraction_timer;
 
 	guint           item_queues_handler_id;
 
@@ -188,6 +189,8 @@ struct _TrackerMinerFSPrivate {
 	                                       * during initial crawling. */
 	guint           initial_crawling : 1; /* TRUE if initial crawling should be
 	                                       * done */
+	guint           extraction_timer_stopped : 1; /* TRUE if the extraction
+						       * timer is stopped */
 
 	/* Statistics */
 	guint           total_directories_found;
@@ -636,6 +639,10 @@ fs_finalize (GObject *object)
 		g_timer_destroy (priv->timer);
 	}
 
+	if (priv->extraction_timer) {
+		g_timer_destroy (priv->extraction_timer);
+	}
+
 	if (priv->item_queues_handler_id) {
 		g_source_remove (priv->item_queues_handler_id);
 		priv->item_queues_handler_id = 0;
@@ -908,6 +915,8 @@ process_stop (TrackerMinerFS *fs)
 	               fs->priv->total_directories_ignored,
 	               fs->priv->total_files_found,
 	               fs->priv->total_files_ignored);
+
+	g_timer_reset (fs->priv->extraction_timer);
 
 	if (fs->priv->timer) {
 		g_timer_destroy (fs->priv->timer);
@@ -1937,6 +1946,12 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	if (tracker_file_notifier_is_active (fs->priv->file_notifier) ||
 	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+		if (fs->priv->extraction_timer &&
+		    tracker_task_pool_get_size (fs->priv->task_pool) == 0) {
+			fs->priv->extraction_timer_stopped = TRUE;
+			g_timer_stop (fs->priv->extraction_timer);
+		}
+
 		/* There are still pending items to crawl,
 		 * or extract pool limit is reached
 		 */
@@ -2017,7 +2032,6 @@ item_queue_handlers_cb (gpointer user_data)
 		 * on with the queues... */
 		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 		                             "Queue handlers WAIT");
-
 		return FALSE;
 	}
 
@@ -2041,6 +2055,18 @@ item_queue_handlers_cb (gpointer user_data)
 		return TRUE;
 	}
 
+	if (queue == QUEUE_NONE) {
+		if (fs->priv->extraction_timer) {
+			g_timer_stop (fs->priv->extraction_timer);
+			fs->priv->extraction_timer_stopped = TRUE;
+		}
+	} else if (!fs->priv->extraction_timer) {
+		fs->priv->extraction_timer = g_timer_new ();
+	} else if (fs->priv->extraction_timer_stopped) {
+		g_timer_continue (fs->priv->extraction_timer);
+		fs->priv->extraction_timer_stopped = FALSE;
+	}
+
 	if (!fs->priv->timer) {
 		fs->priv->timer = g_timer_new ();
 	}
@@ -2053,7 +2079,7 @@ item_queue_handlers_cb (gpointer user_data)
 		gdouble progress_now;
 		static gdouble progress_last = 0.0;
 		static gint info_last = 0;
-		gdouble seconds_elapsed;
+		gdouble seconds_elapsed, extraction_elapsed;
 
 		time_last = time_now;
 
@@ -2062,6 +2088,7 @@ item_queue_handlers_cb (gpointer user_data)
 		                                        &items_processed,
 		                                        &items_remaining);
 		seconds_elapsed = g_timer_elapsed (fs->priv->timer, NULL);
+		extraction_elapsed = g_timer_elapsed (fs->priv->extraction_timer, NULL);
 
 		if (!tracker_file_notifier_is_active (fs->priv->file_notifier)) {
 			gchar *status;
@@ -2070,7 +2097,7 @@ item_queue_handlers_cb (gpointer user_data)
 			g_object_get (fs, "status", &status, NULL);
 
 			/* Compute remaining time */
-			remaining_time = (gint)tracker_seconds_estimate (seconds_elapsed,
+			remaining_time = (gint)tracker_seconds_estimate (extraction_elapsed,
 			                                                 items_processed,
 			                                                 items_remaining);
 
@@ -2103,7 +2130,7 @@ item_queue_handlers_cb (gpointer user_data)
 			progress_last = progress_now;
 
 			/* Log estimated remaining time */
-			str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
+			str1 = tracker_seconds_estimate_to_string (extraction_elapsed,
 			                                           TRUE,
 			                                           items_processed,
 			                                           items_remaining);
