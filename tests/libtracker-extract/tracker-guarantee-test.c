@@ -122,7 +122,7 @@ test_guarantee_date ()
 
 #ifdef GUARANTEE_METADATA        
         
-        f = g_file_new_for_path ("./guarantee-mtime-test.txt");
+        f = g_file_new_for_path (TOP_SRCDIR "/tests/libtracker-extract/guarantee-mtime-test.txt");
         uri = g_file_get_uri (f);
         
         internal_test_date (uri, NULL);
