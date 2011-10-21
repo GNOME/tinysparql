@@ -140,17 +140,19 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
                             gpointer        user_data)
 {
 	TrackerFileNotifierPrivate *priv;
-	GFile *root;
+	GFile *root, *canonical;
 
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
+
+	canonical = tracker_file_system_peek_file (priv->file_system, directory);
+	root = tracker_indexing_tree_get_root (priv->indexing_tree, directory, NULL);
 
 	/* If it's a config root itself, other than the one
 	 * currently processed, bypass it, it will be processed
 	 * when the time arrives.
 	 */
-	root = tracker_indexing_tree_get_root (priv->indexing_tree, directory, NULL);
-
-	if (root == directory &&
+	if (canonical &&
+	    root == canonical &&
 	    root != priv->pending_index_roots->data) {
 		return FALSE;
 	}
@@ -398,9 +400,11 @@ sparql_file_query_populate (TrackerFileNotifier *notifier,
 			 * currently processed, bypass it, it will be processed
 			 * when the time arrives.
 			 */
+			canonical = tracker_file_system_peek_file (priv->file_system, file);
 			root = tracker_indexing_tree_get_root (priv->indexing_tree, file, NULL);
 
-			if (root == file &&
+			if (canonical &&
+			    root == file &&
 			    root != priv->pending_index_roots->data) {
 				g_object_unref (file);
 				continue;
