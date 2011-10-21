@@ -2605,6 +2605,29 @@ file_notifier_directory_started (TrackerFileNotifier *notifier,
                                  gpointer             user_data)
 {
 	TrackerMinerFS *fs = user_data;
+	TrackerDirectoryFlags flags;
+	gchar *str, *uri;
+
+	uri = g_file_get_uri (directory);
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree,
+					directory, &flags);
+
+	if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
+                str = g_strdup_printf ("Crawling recursively directory '%s'", uri);
+        } else {
+                str = g_strdup_printf ("Crawling single directory '%s'", uri);
+        }
+
+	/* Always set the progress here to at least 1%, and the remaining time
+         * to -1 as we cannot guess during crawling (we don't know how many directories
+         * we will find) */
+        g_object_set (fs,
+                      "progress", 0.01,
+                      "status", str,
+                      "remaining-time", -1,
+                      NULL);
+	g_free (str);
+	g_free (uri);
 
 	if (!fs->priv->timer) {
 		fs->priv->timer = g_timer_new ();
