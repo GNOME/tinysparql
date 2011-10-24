@@ -68,6 +68,13 @@ typedef struct {
 	gchar *title_strdown;
 } TrackerMediaArtSearch;
 
+typedef enum {
+	IMAGE_MATCH_EXACT = 0,
+	IMAGE_MATCH_EXACT_SMALL = 1,
+	IMAGE_MATCH_SAME_DIRECTORY = 2,
+	IMAGE_MATCH_TYPE_COUNT
+} ImageMatchType;
+
 static gboolean initialized;
 static gboolean disable_requests;
 static TrackerStorage *media_art_storage;
@@ -321,7 +328,7 @@ tracker_media_art_search_free (TrackerMediaArtSearch *search)
 	g_slice_free (TrackerMediaArtSearch, search);
 }
 
-static int
+static ImageMatchType
 classify_image_file (TrackerMediaArtSearch *search,
                      const gchar           *file_name_strdown)
 {
@@ -329,7 +336,7 @@ classify_image_file (TrackerMediaArtSearch *search,
 	     strstr (file_name_strdown, search->artist_strdown)) ||
 	    (search->title_strdown && search->title_strdown[0] != '\0' &&
 	     strstr (file_name_strdown, search->title_strdown))) {
-		return 2;
+		return IMAGE_MATCH_EXACT;
 	}
 
 	if (search->type == TRACKER_MEDIA_ART_ALBUM) {
@@ -340,14 +347,14 @@ classify_image_file (TrackerMediaArtSearch *search,
 		if (strstr (file_name_strdown, "cover") ||
 		    strstr (file_name_strdown, "front") ||
 		    strstr (file_name_strdown, "folder")) {
-			return 2;
+			return IMAGE_MATCH_EXACT;
 		}
 
 		if (strstr (file_name_strdown, "albumart")) {
 			if (strstr (file_name_strdown, "large")) {
-				return 2;
+				return IMAGE_MATCH_EXACT;
 			} else if (strstr (file_name_strdown, "small")) {
-				return 1;
+				return IMAGE_MATCH_EXACT_SMALL;
 			}
 		}
 	}
@@ -355,12 +362,12 @@ classify_image_file (TrackerMediaArtSearch *search,
 	if (search->type == TRACKER_MEDIA_ART_VIDEO) {
 		if (strstr (file_name_strdown, "folder") ||
 		    strstr (file_name_strdown, "poster")) {
-			return 2;
+			return IMAGE_MATCH_EXACT;
 		}
 	}
 
 	/* Lowest priority for other images, but we still might use it for videos */
-	return 0;
+	return IMAGE_MATCH_SAME_DIRECTORY;
 }
 
 static gchar *
@@ -380,7 +387,7 @@ tracker_media_art_process_external_images (const gchar         *uri,
 	gchar *art_file_path;
 	gint priority;
 
-	GList *image_list[3] = { NULL, NULL, NULL };
+	GList *image_list[IMAGE_MATCH_TYPE_COUNT] = { NULL, };
 
 	g_return_val_if_fail (type > TRACKER_MEDIA_ART_NONE && type < TRACKER_MEDIA_ART_TYPE_COUNT, FALSE);
 	g_return_val_if_fail (title != NULL, FALSE);
@@ -435,20 +442,17 @@ tracker_media_art_process_external_images (const gchar         *uri,
 	art_file_name = NULL;
 	art_file_path = NULL;
 
-	if (g_list_length (image_list[2]) > 0) {
-		/* Use the obvious choices, if available */
-		art_file_name = g_strdup (image_list[2]->data);
-	} else if (g_list_length (image_list[1]) > 0) {
-		art_file_name = g_strdup (image_list[1]->data);
+	if (g_list_length (image_list[IMAGE_MATCH_EXACT]) > 0) {
+		art_file_name = g_strdup (image_list[IMAGE_MATCH_EXACT]->data);
+	} else if (g_list_length (image_list[IMAGE_MATCH_EXACT_SMALL]) > 0) {
+		art_file_name = g_strdup (image_list[IMAGE_MATCH_EXACT_SMALL]->data);
 	} else {
-		if (type == TRACKER_MEDIA_ART_VIDEO && g_list_length (image_list[0]) == 1) {
-			/* For videos, if there was only one image in the directory
-			 * use it as poster regardless of name */
-			art_file_name = g_strdup (image_list[0]->data);
+		if (type == TRACKER_MEDIA_ART_VIDEO && g_list_length (image_list[IMAGE_MATCH_SAME_DIRECTORY]) == 1) {
+			art_file_name = g_strdup (image_list[IMAGE_MATCH_SAME_DIRECTORY]->data);
 		}
 	}
 
-	for (i = 0; i < 3; i ++) {
+	for (i = 0; i < IMAGE_MATCH_TYPE_COUNT; i ++) {
 		g_list_foreach (image_list[i], (GFunc)g_free, NULL);
 		g_list_free (image_list[i]);
 	}
