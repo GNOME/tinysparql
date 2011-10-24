@@ -28,9 +28,10 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_media_art_remove_add    (const gchar             *uri,
+gboolean tracker_media_art_queue_removal (const gchar             *uri,
                                           const gchar             *mime_type);
-void     tracker_media_art_check_cleanup (TrackerSparqlConnection *connection);
+void     tracker_media_art_execute_queue (TrackerSparqlConnection *connection);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_MINER_MEDIA_ART_H__ */
