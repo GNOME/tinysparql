@@ -105,9 +105,13 @@ typedef struct {
 
 	GSList         *artist_list;
 
-	unsigned char  *album_art_data;
-	guint           album_art_size;
-	const gchar    *album_art_mime;
+	TrackerMediaArtType  media_art_type;
+	gchar               *media_art_artist;
+	gchar               *media_art_title;
+
+	unsigned char       *media_art_buffer;
+	guint                media_art_buffer_size;
+	const gchar         *media_art_buffer_mime;
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
     defined(GSTREAMER_BACKEND_DECODEBIN2)
@@ -401,7 +405,7 @@ get_embedded_cue_sheet_data (GstTagList *tag_list)
 }
 
 static gboolean
-get_embedded_album_art (MetadataExtractor *extractor)
+get_embedded_media_art (MetadataExtractor *extractor)
 {
 	const GValue *value;
 	guint lindex;
@@ -427,10 +431,10 @@ get_embedded_album_art (MetadataExtractor *extractor)
 			                        &type);
 
 			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
-			    (type == GST_TAG_IMAGE_TYPE_UNDEFINED && extractor->album_art_size == 0)) {
-				extractor->album_art_data = buffer->data;
-				extractor->album_art_size = buffer->size;
-				extractor->album_art_mime = gst_structure_get_name (caps_struct);
+			    (type == GST_TAG_IMAGE_TYPE_UNDEFINED && extractor->media_art_buffer_size == 0)) {
+				extractor->media_art_buffer = buffer->data;
+				extractor->media_art_buffer_size = buffer->size;
+				extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
 				gst_caps_unref (caps);
 
 				return TRUE;
@@ -451,9 +455,9 @@ get_embedded_album_art (MetadataExtractor *extractor)
 		buffer = gst_value_get_buffer (value);
 		caps_struct = gst_caps_get_structure (buffer->caps, 0);
 
-		extractor->album_art_data = buffer->data;
-		extractor->album_art_size = buffer->size;
-		extractor->album_art_mime = gst_structure_get_name (caps_struct);
+		extractor->media_art_buffer = buffer->data;
+		extractor->media_art_buffer_size = buffer->size;
+		extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
 
 
 		return TRUE;
@@ -598,8 +602,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
                                   TrackerSparqlBuilder  *metadata,
                                   const gchar           *graph,
                                   gchar                **p_performer_uri,
-                                  gchar                **p_composer_uri,
-                                  gchar                **p_media_title)
+                                  gchar                **p_composer_uri)
 {
 	const gchar *performer = NULL;
 	gchar *performer_temp = NULL;
@@ -607,6 +610,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	gchar *composer = NULL;
 	gchar *genre = NULL;
 	gchar *title = NULL;
+	gchar *title_guaranteed = NULL;
 
 	gst_tag_list_get_string (tag_list, GST_TAG_PERFORMER, &performer_temp);
 	gst_tag_list_get_string (tag_list, GST_TAG_ARTIST, &artist_temp);
@@ -630,7 +634,11 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 		tracker_sparql_builder_object_unvalidated (metadata, genre);
 	}
 
-	tracker_guarantee_title_from_file (metadata, "nie:title", title, file_url, p_media_title);
+	tracker_guarantee_title_from_file (metadata,
+	                                   "nie:title",
+	                                   title,
+	                                   file_url,
+	                                   &title_guaranteed);
 
 	add_date_time_gst_tag_with_mtime_fallback (metadata,
 	                                           file_url,
@@ -643,6 +651,12 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	add_string_gst_tag (metadata, "nie:license", tag_list, GST_TAG_LICENSE);
 	add_string_gst_tag (metadata, "dc:coverage", tag_list, GST_TAG_LOCATION);
 	add_string_gst_tag (metadata, "nie:comment", tag_list, GST_TAG_COMMENT);
+
+	if (extractor->media_art_type == TRACKER_MEDIA_ART_VIDEO) {
+		extractor->media_art_title = title_guaranteed;
+	} else {
+		g_free (title_guaranteed);
+	}
 
 	g_free (performer_temp);
 	g_free (artist_temp);
@@ -658,9 +672,7 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
                                 const gchar           *graph,
                                 gchar                **p_album_artist_uri,
                                 gchar                **p_album_uri,
-                                gchar                **p_album_disc_uri,
-                                gchar                **p_album_artist,
-                                gchar                **p_album_title)
+                                gchar                **p_album_disc_uri)
 {
 	gchar *album_artist;
 	gchar *album_title;
@@ -786,8 +798,8 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 	replace_double_gst_tag (preupdate, *p_album_uri, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN, graph);
 	replace_double_gst_tag (preupdate, *p_album_uri, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK, graph);
 
-	*p_album_artist = album_artist;
-	*p_album_title = album_title;
+	extractor->media_art_artist = album_artist;
+	extractor->media_art_title = album_title;
 
 	g_free (album_artist_temp);
 	g_free (track_artist_temp);
@@ -930,8 +942,7 @@ extract_track_metadata (MetadataExtractor    *extractor,
 	                                  postupdate,
 	                                  graph,
 	                                  &track_performer_uri,
-	                                  &track_composer_uri,
-	                                  NULL);
+	                                  &track_composer_uri);
 
 	extractor_apply_audio_metadata (extractor,
 	                                toc_entry->tag_list,
@@ -1001,9 +1012,6 @@ extract_metadata (MetadataExtractor      *extractor,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *postupdate,
                   TrackerSparqlBuilder   *metadata,
-                  TrackerMediaArtType    *media_type,
-                  gchar                 **media_artist,
-                  gchar                 **media_title,
                   const gchar            *graph)
 {
 	g_return_if_fail (extractor != NULL);
@@ -1011,7 +1019,7 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (postupdate != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	*media_type = TRACKER_MEDIA_ART_NONE;
+	extractor->media_art_type = TRACKER_MEDIA_ART_NONE;
 
 	if (extractor->toc) {
 		gst_tag_list_insert (extractor->tagcache,
@@ -1056,11 +1064,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (extractor->toc == NULL || extractor->toc->entry_list == NULL)
 				tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 
-			*media_type = TRACKER_MEDIA_ART_ALBUM;
+			extractor->media_art_type = TRACKER_MEDIA_ART_ALBUM;
 		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 
-			*media_type = TRACKER_MEDIA_ART_VIDEO;
+			extractor->media_art_type = TRACKER_MEDIA_ART_VIDEO;
 		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
@@ -1087,8 +1095,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		                                  metadata,
 		                                  graph,
 		                                  &performer_uri,
-		                                  &composer_uri,
-		                                  media_title);
+		                                  &composer_uri);
 
 		extractor_apply_device_metadata (extractor,
 		                                 extractor->tagcache,
@@ -1111,21 +1118,13 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
-			/* FIXME: we need to use album title instead of file title - we can
-			 * avoid this waste by storing the media art extract info in the
-			 * MetadataExtractor object
-			 */
-			g_free (*media_title);
-
 			extractor_apply_album_metadata (extractor,
 			                                extractor->tagcache,
 			                                preupdate,
 			                                graph,
 			                                &album_artist_uri,
 			                                &album_uri,
-			                                &album_disc_uri,
-			                                media_artist,
-			                                media_title);
+			                                &album_disc_uri);
 
 			extractor_apply_audio_metadata (extractor,
 			                                extractor->tagcache,
@@ -1195,7 +1194,7 @@ extract_metadata (MetadataExtractor      *extractor,
 #endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
-		get_embedded_album_art (extractor);
+		get_embedded_media_art (extractor);
 	}
 }
 
@@ -1963,8 +1962,6 @@ tracker_extract_gstreamer (const gchar          *uri,
 {
 	MetadataExtractor *extractor;
 	gchar *cue_sheet;
-	TrackerMediaArtType media_type = TRACKER_MEDIA_ART_NONE;
-	gchar *media_artist, *media_title;
 	gboolean success;
 
 	g_return_if_fail (uri);
@@ -1977,9 +1974,10 @@ tracker_extract_gstreamer (const gchar          *uri,
 	extractor->tagcache = gst_tag_list_new ();
 	extractor->toc = NULL;
 	extractor->artist_list = NULL;
-	extractor->album_art_data = NULL;
-	extractor->album_art_size = 0;
-	extractor->album_art_mime = NULL;
+	extractor->media_art_type = TRACKER_MEDIA_ART_NONE;
+	extractor->media_art_buffer = NULL;
+	extractor->media_art_buffer_size = 0;
+	extractor->media_art_buffer_mime = NULL;
 
 	g_debug ("GStreamer backend in use:");
 
@@ -2012,31 +2010,26 @@ tracker_extract_gstreamer (const gchar          *uri,
 		extractor->toc = tracker_cue_sheet_parse_uri (uri);
 	}
 
-	media_artist = NULL;
-	media_title = NULL;
-
 	extract_metadata (extractor,
 	                  uri,
 	                  preupdate,
 	                  postupdate,
 	                  metadata,
-	                  &media_type,
-	                  &media_artist,
-	                  &media_title,
 	                  graph);
 
-	if (media_type != TRACKER_MEDIA_ART_NONE) {
-		tracker_media_art_process (extractor->album_art_data,
-		                           extractor->album_art_size,
-		                           extractor->album_art_mime,
-		                           media_type,
-		                           media_artist,
-		                           media_title,
+	if (extractor->media_art_type != TRACKER_MEDIA_ART_NONE) {
+		tracker_media_art_process (extractor->media_art_buffer,
+		                           extractor->media_art_buffer_size,
+		                           extractor->media_art_buffer_mime,
+		                           extractor->media_art_type,
+		                           extractor->media_art_artist,
+		                           extractor->media_art_title,
 		                           uri);
 	}
 
-	g_free (media_artist);
-	g_free (media_title);
+	g_free (extractor->media_art_artist);
+	g_free (extractor->media_art_title);
+	/* Embedded media art buffer is owned and freed by the GstTagList */
 
 	gst_tag_list_free (extractor->tagcache);
 
