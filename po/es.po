@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-10-18 10:15+0000\n"
-"PO-Revision-Date: 2011-10-18 16:35+0200\n"
+"POT-Creation-Date: 2011-10-19 07:29+0000\n"
+"PO-Revision-Date: 2011-10-24 16:59+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -836,6 +836,10 @@ msgstr "Seleccionar carpeta"
 msgid "That directory is already selected as a location to index"
 msgstr "La carpeta ya está seleccionada como una ubicación que indexar"
 
+#: ../src/tracker-preferences/tracker-preferences.vala:797
+msgid "Recurse"
+msgstr "Recurso"
+
 #: ../src/tracker-preferences/tracker-preferences.vala:892
 #: ../src/tracker-needle/tracker-needle.vala:647
 #: ../src/tracker-control/tracker-control.c:53
@@ -861,7 +865,6 @@ msgid "<b>Where is your content?</b>"
 msgstr "<b>¿Dónde está su contenido?</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
-#| msgid "Directory to exclude from indexing"
 msgid "Add directory to be indexed"
 msgstr "Añadir carpeta al indexado"
 
@@ -917,12 +920,10 @@ msgid "Include optical di_scs"
 msgstr "Incluir di_scos ópticos"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:16
-#| msgid "Select directory"
 msgid "Index Desktop Directory"
 msgstr "Indexar carpeta «Escritorio»"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:17
-#| msgid "Text Documents"
 msgid "Index Documents Directory"
 msgstr "Indexar carpeta «Documentos»"
 
@@ -931,22 +932,18 @@ msgid "Index Download Directory"
 msgstr "Indexar carpeta «Descargas»"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:19
-#| msgid "Index and watch my home _directory"
 msgid "Index Home Directory"
 msgstr "Indexar carpeta personal"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
-#| msgid "Directory"
 msgid "Index Music Directory"
 msgstr "Indexar carpeta «Música»"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:21
-#| msgid "_Show Parent Directory"
 msgid "Index Pictures Directory"
 msgstr "Indexar carpeta «Imágenes»"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#| msgid "Index and watch my home _directory"
 msgid "Index Videos Directory"
 msgstr "Indexar carpeta «Vídeos»"
 
