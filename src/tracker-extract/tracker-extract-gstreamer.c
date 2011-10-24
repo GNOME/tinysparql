@@ -1972,12 +1972,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
 	extractor->tagcache = gst_tag_list_new ();
-	extractor->toc = NULL;
-	extractor->artist_list = NULL;
 	extractor->media_art_type = TRACKER_MEDIA_ART_NONE;
-	extractor->media_art_buffer = NULL;
-	extractor->media_art_buffer_size = 0;
-	extractor->media_art_buffer_mime = NULL;
 
 	g_debug ("GStreamer backend in use:");
 
