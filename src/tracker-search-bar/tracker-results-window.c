@@ -395,8 +395,7 @@ tracker_results_window_init (TrackerResultsWindow *window)
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
 	priv->cancellable = g_cancellable_new ();
-	priv->connection = tracker_sparql_connection_get_direct (priv->cancellable,
-								 NULL);
+	priv->connection = tracker_sparql_connection_get (priv->cancellable, NULL);
 
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);
@@ -518,15 +517,11 @@ static gboolean
 results_window_key_press_event (GtkWidget   *widget,
                                 GdkEventKey *event)
 {
-	TrackerResultsWindowPrivate *priv;
-
 	if (event->keyval == GDK_KEY_Escape) {
 		gtk_widget_hide (widget);
 
 		return TRUE;
 	}
-
-	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (widget);
 
         if (event->keyval != GDK_KEY_Return &&
             (*event->string != '\0' ||
@@ -921,7 +916,7 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 {
 	GtkTreePath *path;
 	GtkTreeIter prev_iter;
-	TrackerCategory category, prev_category;
+	TrackerCategory category;
 	gboolean previous_path;
 	gboolean print = FALSE;
 
@@ -935,6 +930,8 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 	if (!previous_path) {
 		print = TRUE;
 	} else if (previous_path && gtk_tree_model_get_iter (model, &prev_iter, path)) {
+		TrackerCategory prev_category = CATEGORY_NONE;
+
 		gtk_tree_model_get (model, &prev_iter,
 		                    COL_CATEGORY_ID, &prev_category,
 		                    -1);
@@ -1314,25 +1311,25 @@ search_get_cb (GObject      *source_object,
 						   priv->cancellable,
 						   &error)) {
 			search_get_foreach (sq, cursor);
+		}
 
-			/* Add separator */
-			if (priv->first_category_populated) {
-				model_add (window, CATEGORY_NONE, NULL, NULL, NULL, NULL, NULL);
-			}
-
-			for (l = sq->results; l; l = l->next) {
-				ItemData *id = l->data;
-
-				model_add (window,
-				           sq->category,
-				           id->urn,
-				           id->title,
-				           id->tooltip,
-				           id->link,
-					   id->icon_name);
-			}
-
+		/* Add separator */
+		if (priv->first_category_populated && g_slist_length (sq->results) > 0) {
+			model_add (window, CATEGORY_NONE, NULL, NULL, NULL, NULL, NULL);
+		} else {
 			priv->first_category_populated = TRUE;
+		}
+
+		for (l = sq->results; l; l = l->next) {
+			ItemData *id = l->data;
+
+			model_add (window,
+			           sq->category,
+			           id->urn,
+			           id->title,
+			           id->tooltip,
+			           id->link,
+			           id->icon_name);
 		}
 
 		g_object_unref (cursor);
@@ -1462,14 +1459,12 @@ search_start (TrackerResultsWindow *window)
 static gboolean
 grab_popup_window (TrackerResultsWindow *window)
 {
-	TrackerResultsWindowPrivate *priv;
 	GdkGrabStatus status;
 	GtkWidget *widget;
 	guint32 time;
 
 	widget = GTK_WIDGET (window);
 	time = gtk_get_current_event_time ();
-	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
 	/* Grab pointer */
 	status = gdk_pointer_grab (gtk_widget_get_window (widget),
