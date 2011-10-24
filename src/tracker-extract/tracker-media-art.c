@@ -364,10 +364,10 @@ classify_image_file (TrackerMediaArtSearch *search,
 }
 
 static gchar *
-tracker_media_art_find_external (const gchar         *uri,
-                                 TrackerMediaArtType  type,
-                                 const gchar         *artist,
-                                 const gchar         *title)
+tracker_media_art_process_external_images (const gchar         *uri,
+                                           TrackerMediaArtType  type,
+                                           const gchar         *artist,
+                                           const gchar         *title)
 {
 	TrackerMediaArtSearch *search;
 	GDir *dir;
@@ -529,7 +529,7 @@ media_art_heuristic (const gchar         *artist,
 		g_object_unref (local_file);
 	}
 
-	art_file_path = tracker_media_art_find_external (filename_uri, type, artist, title);
+	art_file_path = tracker_media_art_process_external_images (filename_uri, type, artist, title);
 
 	if (art_file_path != NULL) {
 		if (g_str_has_suffix (art_file_path, "jpeg") ||
