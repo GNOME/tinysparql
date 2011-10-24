@@ -44,7 +44,7 @@ typedef struct {
 	gchar *subject;
 	GPtrArray *results;
 	TrackerSparqlConnection *connection;
-	TrackerWriteback *writeback;
+	GList *writeback_handlers;
 	guint cancel_id;
 	GError *error;
 } WritebackData;
@@ -229,7 +229,7 @@ task_cancellable_cancelled_cb (GCancellable  *cancellable,
 
 static WritebackData *
 writeback_data_new (TrackerController       *controller,
-                    TrackerWriteback        *writeback,
+                    GList                   *writeback_handlers,
                     TrackerSparqlConnection *connection,
                     const gchar             *subject,
                     GPtrArray               *results,
@@ -245,7 +245,7 @@ writeback_data_new (TrackerController       *controller,
 	data->results = g_ptr_array_ref (results);
 	data->invocation = invocation;
 	data->connection = g_object_ref (connection);
-	data->writeback = g_object_ref (writeback);
+	data->writeback_handlers = writeback_handlers;
 	data->request = request;
 	data->error = NULL;
 
@@ -265,9 +265,12 @@ writeback_data_free (WritebackData *data)
 	g_cancellable_disconnect (data->cancellable, data->cancel_id);
 	g_free (data->subject);
 	g_object_unref (data->connection);
-	g_object_unref (data->writeback);
 	g_ptr_array_unref (data->results);
 	g_object_unref (data->cancellable);
+
+	g_list_foreach (data->writeback_handlers, (GFunc) g_object_unref, NULL);
+	g_list_free (data->writeback_handlers);
+
 	if (data->error) {
 		g_error_free (data->error);
 	}
@@ -471,18 +474,38 @@ io_writeback_job (GIOSchedulerJob *job,
 {
 	WritebackData *data = user_data;
 	TrackerControllerPrivate *priv = data->controller->priv;
+	GError *error = NULL;
+	gboolean handled = FALSE;
+	GList *writeback_handlers;
 
 	g_mutex_lock (priv->mutex);
 	priv->current = data;
 	g_mutex_unlock (priv->mutex);
 
-	g_clear_error (&data->error);
+	writeback_handlers = data->writeback_handlers;
 
-	tracker_writeback_update_metadata (data->writeback,
-	                                   data->results,
-	                                   data->connection,
-	                                   data->cancellable,
-	                                   &data->error);
+	while (writeback_handlers) {
+		handled |= tracker_writeback_update_metadata (writeback_handlers->data,
+		                                              data->results,
+		                                              data->connection,
+		                                              data->cancellable,
+		                                              (error) ? NULL : &error);
+		writeback_handlers = writeback_handlers->next;
+	}
+
+	if (!handled) {
+		if (error) {
+			data->error = error;
+		} else {
+			g_set_error_literal (&data->error,
+			                     TRACKER_DBUS_ERROR,
+			                     TRACKER_DBUS_ERROR_UNSUPPORTED,
+			                     "No writeback modules handled "
+			                     "successfully this file");
+		}
+	} else {
+		g_clear_error (&error);
+	}
 
 	g_idle_add (perform_writeback_cb, data);
 
@@ -504,7 +527,8 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 	GArray *rdf_types_array;
 	GStrv rdf_types;
 	gchar *rdf_type = NULL;
-	gboolean handled = FALSE;
+	GList *writeback_handlers = NULL;
+	WritebackData *data;
 
 	priv = controller->priv;
 
@@ -547,31 +571,29 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		module_types = tracker_writeback_module_get_rdf_types (module);
 
 		if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
-			WritebackData *data;
 			TrackerWriteback *writeback;
 
 			g_message ("  Updating metadata for subject:'%s' using module:'%s'",
 			           subject,
 			           module->name);
 
-			handled = TRUE;
 			writeback = tracker_writeback_module_create (module);
-			data = writeback_data_new (controller,
-			                           writeback,
-			                           priv->connection,
-			                           subject,
-			                           results,
-			                           invocation,
-			                           request);
-
-			g_io_scheduler_push_job (io_writeback_job, data, NULL, 0,
-			                         data->cancellable);
-
-			g_object_unref (writeback);
+			writeback_handlers = g_list_prepend (writeback_handlers, writeback);
 		}
 	}
 
-	if (!handled) {
+	if (writeback_handlers != NULL) {
+		data = writeback_data_new (controller,
+		                           writeback_handlers,
+		                           priv->connection,
+		                           subject,
+		                           results,
+		                           invocation,
+		                           request);
+
+		g_io_scheduler_push_job (io_writeback_job, data, NULL, 0,
+		                         data->cancellable);
+	} else {
 		g_dbus_method_invocation_return_error (invocation,
 		                                       TRACKER_DBUS_ERROR,
 		                                       TRACKER_DBUS_ERROR_UNSUPPORTED,
