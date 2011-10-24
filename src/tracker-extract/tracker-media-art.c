@@ -62,10 +62,10 @@ typedef struct {
 } GetFileInfo;
 
 typedef struct {
-	gchar               *uri;
-	TrackerMediaArtType  type;
-	gchar               *artist_strdown;
-	gchar               *title_strdown;
+	gchar *uri;
+	TrackerMediaArtType type;
+	gchar *artist_strdown;
+	gchar *title_strdown;
 } TrackerMediaArtSearch;
 
 static gboolean initialized;
@@ -100,7 +100,7 @@ get_parent_g_dir (const gchar  *uri,
 	}
 	g_object_unref (file);
 
-	if ((*dirname) == NULL) {
+	if (*dirname == NULL) {
 		*error = g_error_new (G_FILE_ERROR,
 		                      G_FILE_ERROR_EXIST,
 		                      "No parent directory found for '%s'",
@@ -373,6 +373,8 @@ tracker_media_art_process_external_images (const gchar         *uri,
 	GDir *dir;
 	GError *error = NULL;
 	gchar *dirname = NULL;
+	const gchar *name;
+	gchar *name_utf8, *name_strdown;
 	guint i;
 	gchar *art_file_name;
 	gchar *art_file_path;
@@ -383,8 +385,6 @@ tracker_media_art_process_external_images (const gchar         *uri,
 	g_return_val_if_fail (type > TRACKER_MEDIA_ART_NONE && type < TRACKER_MEDIA_ART_TYPE_COUNT, FALSE);
 	g_return_val_if_fail (title != NULL, FALSE);
 
-	search = tracker_media_art_search_new (uri, type, artist, title);
-
 	dir = get_parent_g_dir (uri, &dirname, &error);
 
 	if (!dir) {
@@ -393,7 +393,6 @@ tracker_media_art_process_external_images (const gchar         *uri,
 
 		g_clear_error (&error);
 		g_free (dirname);
-		tracker_media_art_search_free (search);
 
 		return NULL;
 	}
@@ -403,8 +402,7 @@ tracker_media_art_process_external_images (const gchar         *uri,
 	 * to decide if the image is a cover or if the file is in a random directory.
 	 */
 
-	const gchar *name;
-	gchar *name_utf8, *name_strdown;
+	search = tracker_media_art_search_new (uri, type, artist, title);
 
 	for (name = g_dir_read_name (dir);
 	     name != NULL;
