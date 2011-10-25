@@ -30,6 +30,8 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-extract/tracker-extract.h>
 
+#include "tracker-albumart.h"
+
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 #define CM_TO_INCH          0.393700787
 
@@ -189,7 +191,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
                png_infop             info_ptr,
                png_infop             end_ptr,
                const gchar          *uri,
-               const gchar          *graph)
+               const gchar          *graph,
+               gboolean              is_albumart)
 {
 	MergeData md = { 0 };
 	PngData pd = { 0 };
@@ -478,41 +481,42 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, md.orientation);
 	}
 
-	if (md.exposure_time) {
-		tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
-		tracker_sparql_builder_object_unvalidated (metadata, md.exposure_time);
-	}
+	if (!is_albumart) {
+		if (md.exposure_time) {
+			tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
+			tracker_sparql_builder_object_unvalidated (metadata, md.exposure_time);
+		}
 
-	if (md.iso_speed_ratings) {
-		tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
-		tracker_sparql_builder_object_unvalidated (metadata, md.iso_speed_ratings);
-	}
+		if (md.iso_speed_ratings) {
+			tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
+			tracker_sparql_builder_object_unvalidated (metadata, md.iso_speed_ratings);
+		}
 
-	if (md.white_balance) {
-		tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
-		tracker_sparql_builder_object_unvalidated (metadata, md.white_balance);
-	}
+		if (md.white_balance) {
+			tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
+			tracker_sparql_builder_object_unvalidated (metadata, md.white_balance);
+		}
 
-	if (md.fnumber) {
-		tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
-		tracker_sparql_builder_object_unvalidated (metadata, md.fnumber);
-	}
+		if (md.fnumber) {
+			tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
+			tracker_sparql_builder_object_unvalidated (metadata, md.fnumber);
+		}
 
-	if (md.flash) {
-		tracker_sparql_builder_predicate (metadata, "nmm:flash");
-		tracker_sparql_builder_object_unvalidated (metadata, md.flash);
-	}
+		if (md.flash) {
+			tracker_sparql_builder_predicate (metadata, "nmm:flash");
+			tracker_sparql_builder_object_unvalidated (metadata, md.flash);
+		}
 
-	if (md.focal_length) {
-		tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
-		tracker_sparql_builder_object_unvalidated (metadata, md.focal_length);
-	}
+		if (md.focal_length) {
+			tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
+			tracker_sparql_builder_object_unvalidated (metadata, md.focal_length);
+		}
 
-	if (md.metering_mode) {
-		tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
-		tracker_sparql_builder_object_unvalidated (metadata, md.metering_mode);
+		if (md.metering_mode) {
+			tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
+			tracker_sparql_builder_object_unvalidated (metadata, md.metering_mode);
+		}
 	}
-
 
 	if (xd->keywords) {
 		tracker_keywords_parse (keywords, xd->keywords);
@@ -798,8 +802,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	gchar *filename, *uri;
 	GString *where;
 	GFile *file;
+	gboolean is_albumart;
 
 	file = tracker_extract_info_get_file (info);
+	is_albumart = tracker_is_albumart (file);
 	filename = g_file_get_path (file);
 	size = tracker_file_get_size (filename);
 
@@ -886,12 +892,19 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Image");
-	tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+	if (is_albumart) {
+		tracker_sparql_builder_object (metadata, "nmm:MediaArt");
+	} else {
+		tracker_sparql_builder_object (metadata, "nmm:Photo");
+	}
 
 	uri = g_file_get_uri (file);
 	where = g_string_new ("");
 
-	read_metadata (preupdate, metadata, where, png_ptr, info_ptr, end_ptr, uri, graph);
+	read_metadata (preupdate, metadata, where,
+	               png_ptr, info_ptr, end_ptr,
+	               uri, graph, is_albumart);
 	tracker_extract_info_set_where_clause (info, where->str);
 	g_string_free (where, TRUE);
 	g_free (uri);
