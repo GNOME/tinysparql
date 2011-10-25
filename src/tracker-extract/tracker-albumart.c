@@ -240,6 +240,110 @@ convert_from_other_format (const gchar *found,
 }
 
 static gboolean
+str_is_in (const gchar **options, const gchar *name_strdown)
+{
+	guint i;
+	for (i = 0; options[i] != NULL; i++) {
+		if (strstr (name_strdown, options[i])) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+gboolean
+tracker_is_albumart (GFile *file)
+{
+	gchar *name_utf8, *name_strdown, *dirname = NULL;
+	GDir *dir;
+	GFile *dirf;
+	GError *error = NULL;
+	const gchar *name;
+	const gchar *options[6] = { "cover", "front", "back", "folder", "albumart", NULL };
+	gboolean is_ok = FALSE, has_audio, stop_l;
+
+	name_utf8 = g_file_get_path (file);
+
+	name_strdown = g_utf8_strdown (name_utf8, -1);
+
+	if (strstr (name_strdown, ".mediaartlocal") != NULL) {
+		g_free (name_strdown);
+		g_free (name_utf8);
+		return TRUE;
+	}
+
+	is_ok = str_is_in (options, name_strdown);
+
+	g_free (name_strdown);
+	g_free (name_utf8);
+
+	if (!is_ok) {
+		return FALSE;
+	}
+
+	dirf = g_file_get_parent (file);
+	if (dirf) {
+		dirname = g_file_get_path (dirf);
+		g_object_unref (dirf);
+	}
+
+	if (!dirname) {
+		g_debug ("Album art directory could not be used:'%s'", dirname);
+		return FALSE;
+	}
+
+	dir = g_dir_open (dirname, 0, &error);
+
+	if (!dir) {
+		g_debug ("Album art directory could not be opened:'%s', %s",
+		         dirname,
+		         error ? error->message : "no error given");
+		g_clear_error (&error);
+		g_free (dirname);
+		return FALSE;
+	}
+
+	
+	for (name = g_dir_read_name (dir), has_audio = FALSE, is_ok = TRUE, stop_l = FALSE;
+	     name != NULL && !stop_l;
+	     name = g_dir_read_name (dir)) {
+		GFile *nfile;
+		gchar *full = g_build_filename (dirname, name, NULL);
+		GFileInfo *info;
+
+		nfile = g_file_new_for_path (full);
+		info = g_file_query_info (nfile, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+		                          G_FILE_QUERY_INFO_NONE, NULL, NULL);
+
+		if (!has_audio && (g_str_has_prefix (g_file_info_get_content_type (info), "audio/") ||
+		                   g_str_has_prefix (g_file_info_get_content_type (info), "video/"))) {
+			has_audio = TRUE;
+		}
+
+		if (g_str_has_prefix (g_file_info_get_content_type (info), "image/")) {
+			name_utf8 = g_file_get_path (nfile);
+			name_strdown = g_utf8_strdown (name_utf8, -1);
+
+			if (!str_is_in (options, name_strdown)) {
+				is_ok = FALSE;
+				stop_l = TRUE;
+			}
+
+			g_free (name_strdown);
+			g_free (name_utf8);
+		}
+
+		g_object_unref (info);
+		g_object_unref (nfile);
+		g_free (full);
+	}
+
+	g_dir_close (dir);
+
+	return is_ok && has_audio;
+}
+
+static gboolean
 albumart_heuristic (const gchar *artist,
                     const gchar *album,
                     const gchar *filename_uri,

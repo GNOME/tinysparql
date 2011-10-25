@@ -32,6 +32,7 @@ gboolean tracker_albumart_process  (const unsigned char *buffer,
                                     const gchar         *artist,
                                     const gchar         *album,
                                     const gchar         *filename);
+gboolean tracker_is_albumart       (GFile               *file);
 
 G_END_DECLS
 
