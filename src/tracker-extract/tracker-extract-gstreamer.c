@@ -1001,7 +1001,8 @@ extract_metadata (MetadataExtractor      *extractor,
                   TrackerSparqlBuilder   *metadata,
                   gchar                 **album_artist,
                   gchar                 **album_title,
-                  const gchar            *graph)
+                  const gchar            *graph,
+                  gboolean                is_albumart)
 {
 	g_return_if_fail (extractor != NULL);
 	g_return_if_fail (preupdate != NULL);
@@ -1056,7 +1057,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
 			if (extractor->mime != EXTRACT_MIME_SVG) {
-				tracker_sparql_builder_object (metadata, "nmm:Photo");
+				if (is_albumart) {
+					tracker_sparql_builder_object (metadata, "nmm:MediaArt");
+				} else {
+					tracker_sparql_builder_object (metadata, "nmm:Photo");
+				}
 			} else {
 				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
 			}
@@ -1932,7 +1937,8 @@ tracker_extract_gstreamer (const gchar          *uri,
                            TrackerSparqlBuilder *postupdate,
                            TrackerSparqlBuilder *metadata,
                            ExtractMime           type,
-                           const gchar          *graph)
+                           const gchar          *graph,
+                           gboolean              is_albumart)
 {
 	MetadataExtractor *extractor;
 	gchar *cue_sheet;
@@ -1987,7 +1993,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	album_artist = NULL;
 	album_title = NULL;
 
-	extract_metadata (extractor, uri, preupdate, postupdate, metadata, &album_artist, &album_title, graph);
+	extract_metadata (extractor, uri, preupdate, postupdate, metadata, &album_artist, &album_title, graph, is_albumart);
 
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
@@ -2037,23 +2043,29 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	if (g_str_has_prefix (mimetype, "dlna/")) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph,
+		                           tracker_is_albumart (file));
 	} else
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 
 	if (strcmp (mimetype, "image/svg+xml") == 0) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_SVG, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_SVG, graph,
+		                           tracker_is_albumart (file));
 	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
 	           strcmp (mimetype, "video/mp4") == 0 ||
 	           strcmp (mimetype, "video/x-ms-asf") == 0 ||
 	           strcmp (mimetype, "application/vnd.rn-realmedia") == 0) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_GUESS, graph,
+		                           FALSE);
 	} else if (g_str_has_prefix (mimetype, "audio/")) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_AUDIO, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_AUDIO, graph,
+		                           FALSE);
 	} else if (g_str_has_prefix (mimetype, "video/")) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_VIDEO, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_VIDEO, graph,
+		                           FALSE);
 	} else if (g_str_has_prefix (mimetype, "image/")) {
-		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_IMAGE, graph);
+		tracker_extract_gstreamer (uri, preupdate, postupdate, metadata, EXTRACT_MIME_IMAGE, graph,
+		                           tracker_is_albumart (file));
 	} else {
 		g_free (uri);
 		return FALSE;
