@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2011-08-19T13:05:00Z" .
+	nao:lastModified "2011-10-25T11:26:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -336,6 +336,11 @@ nmm:Photo a rdfs:Class ;
 	rdfs:label "Photo" ;
 	tracker:notify true ;
 	rdfs:comment "A photo" .
+
+nmm:MediaArt a rdfs:Class ;
+	rdfs:subClassOf nfo:Image ;
+	rdfs:label "MediaArt" ;
+	rdfs:comment "Media art" .
 
 # Properties
 # Photo location is waiting for the Location ontology
