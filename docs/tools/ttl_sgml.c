@@ -268,6 +268,7 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
         g_free (id);
 
         g_fprintf (f, "<title>%s</title>\n", name);
+        g_free (name);
 
         if (def->description) {
                 g_fprintf (f, "<para>%s</para>\n", def->description);
