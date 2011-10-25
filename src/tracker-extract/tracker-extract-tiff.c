@@ -37,6 +37,8 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
+#include "tracker-albumart.h"
+
 #define CM_TO_INCH          0.393700787
 
 typedef enum {
@@ -273,6 +275,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	const gchar *graph;
 	GString *where;
 	int fd;
+	gboolean is_albumart;
 
 #ifdef HAVE_LIBIPTCDATA
 	gchar *iptc_offset;
@@ -286,6 +289,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
+	is_albumart = tracker_is_albumart (file);
 
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
@@ -313,7 +317,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Image");
-	tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+	if (is_albumart) {
+		tracker_sparql_builder_object (metadata, "nmm:MediaArt");
+	} else {
+		tracker_sparql_builder_object (metadata, "nmm:Photo");
+	}
 
 	uri = g_file_get_uri (file);
 
@@ -722,24 +731,36 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
 	}
 
-	if (md.white_balance) {
-		tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
-		tracker_sparql_builder_object_unvalidated (metadata, md.white_balance);
-	}
+	if (!is_albumart) {
+		if (md.white_balance) {
+			tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
+			tracker_sparql_builder_object_unvalidated (metadata, md.white_balance);
+		}
 
-	if (md.fnumber) {
-		tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
-		tracker_sparql_builder_object_unvalidated (metadata, md.fnumber);
-	}
+		if (md.fnumber) {
+			tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
+			tracker_sparql_builder_object_unvalidated (metadata, md.fnumber);
+		}
 
-	if (md.flash) {
-		tracker_sparql_builder_predicate (metadata, "nmm:flash");
-		tracker_sparql_builder_object_unvalidated (metadata, md.flash);
-	}
+		if (md.flash) {
+			tracker_sparql_builder_predicate (metadata, "nmm:flash");
+			tracker_sparql_builder_object_unvalidated (metadata, md.flash);
+		}
 
-	if (md.focal_length) {
-		tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
-		tracker_sparql_builder_object_unvalidated (metadata, md.focal_length);
+		if (md.focal_length) {
+			tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
+			tracker_sparql_builder_object_unvalidated (metadata, md.focal_length);
+		}
+
+		if (md.exposure_time) {
+			tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
+			tracker_sparql_builder_object_unvalidated (metadata, md.exposure_time);
+		}
+
+		if (md.iso_speed_ratings) {
+			tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
+			tracker_sparql_builder_object_unvalidated (metadata, md.iso_speed_ratings);
+		}
 	}
 
 	if (md.artist) {
@@ -764,16 +785,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
 		tracker_sparql_builder_object_iri (metadata, uri);
 		g_free (uri);
-	}
-
-	if (md.exposure_time) {
-		tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
-		tracker_sparql_builder_object_unvalidated (metadata, md.exposure_time);
-	}
-
-	if (md.iso_speed_ratings) {
-		tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
-		tracker_sparql_builder_object_unvalidated (metadata, md.iso_speed_ratings);
 	}
 
 	tracker_guarantee_date_from_file_mtime (metadata,
