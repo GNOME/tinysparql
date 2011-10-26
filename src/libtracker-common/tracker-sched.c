@@ -47,6 +47,7 @@ tracker_sched_idle (void)
 
 	if (sched_getparam (0, &sp) == 0) {
 		if (sched_setscheduler (0, SCHED_IDLE, &sp) != 0) {
+//LCOV_EXCL_START
 			const gchar *str = g_strerror (errno);
 
 			g_warning ("Could not set scheduler policy, %s",
@@ -62,6 +63,7 @@ tracker_sched_idle (void)
 
 		return FALSE;
 	}
+//LCOV_EXCL_END
 
 	return TRUE;
 }
