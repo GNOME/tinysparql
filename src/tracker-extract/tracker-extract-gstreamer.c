@@ -1343,7 +1343,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	 */
 	g_debug ("Using Tagreadbin backend in the GStreamer discoverer...");
 	g_object_set (extractor->discoverer,
-	              "flags", GST_DISCOVERER_FLAGS_EXTRACT_TAGS,
+	              "flags", GST_DISCOVERER_FLAGS_EXTRACT_LIGHTWEIGHT,
 	              NULL);
 #endif
 
