@@ -281,7 +281,7 @@ get_contacts (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
+		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), fn:concat(nco:nameFamily(?contact), \" \", nco:nameGiven(?contact)),\"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
 		                         "WHERE { "
 		                         "  ?contact a nco:Contact ;"
 		                         "  fts:match \"%s\" ."
@@ -289,21 +289,21 @@ get_contacts (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
-                                         _("No Name"),
-                                         _("No Address"),
+                                         _("No name"),
+                                         _("No E-mail address"),
 		                         fts,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
+		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), fn:concat(nco:nameFamily(?contact), \" \", nco:nameGiven(?contact)), \"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
 		                         "WHERE { "
 		                         "  ?contact a nco:Contact ."
 		                         "} "
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
-                                         _("No Name"),
-                                         _("No Address"),
+                                         _("No name"),
+                                         _("No E-mail address"),
 		                         search_offset,
 		                         search_limit);
 	}
