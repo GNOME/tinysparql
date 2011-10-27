@@ -72,7 +72,65 @@ test_seconds_estimate_to_string ()
 	result = tracker_seconds_estimate_to_string (60, TRUE, 60, 120);
 	g_assert_cmpstr (result, ==, "02m");
 	g_free (result);
-	g_print ("%s\n", result);
+}
+
+static void
+test_is_empty_string ()
+{
+        g_assert (tracker_is_empty_string (NULL));
+        g_assert (tracker_is_empty_string (""));
+        g_assert (!tracker_is_empty_string ("Eeeeepa not empty"));
+}
+
+static void
+test_is_blank_string ()
+{
+        g_assert (tracker_is_blank_string (NULL));
+        g_assert (tracker_is_blank_string (""));
+        g_assert (tracker_is_blank_string (" "));
+        g_assert (tracker_is_blank_string ("       "));
+        g_assert (!tracker_is_blank_string ("   -    "));
+        g_assert (!tracker_is_blank_string ("   -"));
+        g_assert (!tracker_is_blank_string ("-   "));
+        g_assert (!tracker_is_blank_string ("nonono"));
+
+}
+
+static void
+test_seconds_estimate ()
+{
+        g_assert_cmpint (tracker_seconds_estimate (10, 10, 20), ==, 20);
+        g_assert_cmpint (tracker_seconds_estimate (10, 9, 20), ==, 22);
+
+        g_assert_cmpint (tracker_seconds_estimate (0, 2, 2), ==, 0);
+        g_assert_cmpint (tracker_seconds_estimate (-1, 2, 2), ==, 0);
+        g_assert_cmpint (tracker_seconds_estimate (1, 0, 2), ==, 0);
+        g_assert_cmpint (tracker_seconds_estimate (1, -1, 2), ==, 0);
+        g_assert_cmpint (tracker_seconds_estimate (1, 1, 0), ==, 0);
+//        g_assert_cmpint (tracker_seconds_estimate (1, 1, -1), ==, 0);
+}
+
+void
+test_strhex ()
+{
+        gchar *result;
+
+        result = tracker_strhex ((const guint8 *)"a", 1, "|");
+        g_assert_cmpstr (result, ==, "61");
+        g_free (result);
+
+        result = tracker_strhex ((const guint8 *)"ab", 2, '@');
+        g_assert_cmpstr (result, ==, "61@62");
+        g_free (result);
+
+        result = tracker_strhex ((const guint8 *)"a b", 3, '@');
+        g_assert_cmpstr (result, ==, "61@20@62");
+        g_free (result);
+
+        result = tracker_strhex ((const guint8 *)"abc", 1, '@');
+        g_assert_cmpstr (result, ==, "61");
+        g_free (result);
+
 }
 
 int
@@ -90,6 +148,18 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/libtracker-common/tracker-utils/seconds_estimate_to_string",
 	                 test_seconds_estimate_to_string);
+        
+        g_test_add_func ("/libtracker-common/tracker-utils/seconds_estimate",
+                         test_seconds_estimate);
+
+        g_test_add_func ("/libtracker-common/tracker-utils/empty_string",
+                         test_is_empty_string);
+
+        g_test_add_func ("/libtracker-common/tracker-utils/blank_string",
+                         test_is_blank_string);
+
+        g_test_add_func ("/libtracker-common/tracker-utils/strhex",
+                         test_strhex);
 
 	ret = g_test_run ();
 
