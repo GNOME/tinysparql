@@ -1,3 +1,20 @@
+NEW in 0.10.33 - 2011-10-27
+===========================
+
+The changes are:
+
+  * Fixes: GB#662364: tracker-search-bar: Don't display the results in a broken fashion
+  * Fixes: NB#287278: libtracker-miner: Ignore mtime difference of less than 2 seconds
+  * libtracker-miner,crawler: Use a cancellable per crawled directory
+  * libtracker-miner,buffer: Improve logging of sparql errors
+  * tracker-writeback: Apply writeback handlers sequentially on a same file
+
+
+Translations:
+
+  None
+
+
 NEW in 0.10.32 - 2011-10-21
 ===========================
 
