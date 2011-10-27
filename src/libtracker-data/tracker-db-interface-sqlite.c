@@ -86,9 +86,6 @@ struct TrackerDBInterface {
 	gint n_active_cursors;
 
 	guint ro : 1;
-#if HAVE_TRACKER_FTS
-	TrackerFts *fts;
-#endif
 	GCancellable *cancellable;
 
 	TrackerDBStatementLru select_stmt_lru;
@@ -988,12 +985,6 @@ close_database (TrackerDBInterface *db_interface)
 		db_interface->function_data = NULL;
 	}
 
-#if HAVE_TRACKER_FTS
-	if (db_interface->fts) {
-		tracker_fts_free (db_interface->fts);
-	}
-#endif
-
 	if (db_interface->db) {
 		rc = sqlite3_close (db_interface->db);
 		g_warn_if_fail (rc == SQLITE_OK);
@@ -1005,9 +996,9 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface *db_interface,
                                       gboolean            create)
 {
 #if HAVE_TRACKER_FTS
-	db_interface->fts = tracker_fts_new (db_interface->db, create);
-#else
-	g_message ("FTS support is disabled");
+	if (!tracker_fts_init_db (db_interface->db, create)) {
+		g_warning ("FTS tables creation failed");
+	}
 #endif
 }
 
@@ -1016,29 +1007,89 @@ int
 tracker_db_interface_sqlite_fts_update_init (TrackerDBInterface *db_interface,
                                              int                 id)
 {
-	return tracker_fts_update_init (db_interface->fts, id);
+	return 0;
 }
 
-int
+gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
                                              int                 id,
                                              int                 column_id,
                                              const char         *text,
                                              gboolean            limit_word_length)
 {
-	return tracker_fts_update_text (db_interface->fts, id, column_id, text, limit_word_length);
+	TrackerDBStatement *stmt;
+	GError *error = NULL;
+
+	if (!text || !*text || column_id < 0) {
+		return FALSE;
+	}
+
+	/* Insert docid/property into property map */
+	stmt = tracker_db_interface_create_statement (db_interface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &error,
+	                                              "INSERT OR REPLACE "
+						      "INTO fts_prop_map "
+						      "  (resourceid, propid) "
+						      "VALUES (?, ?)");
+
+	if (!stmt || error) {
+		if (error) {
+			g_warning ("Could not create FTS property map insert statement: %s\n",
+			           error->message);
+			g_error_free (error);
+		}
+		return FALSE;
+	}
+
+	tracker_db_statement_bind_int (stmt, 0, id);
+	tracker_db_statement_bind_int (stmt, 1, column_id);
+
+	tracker_db_statement_execute (stmt, &error);
+	g_object_unref (stmt);
+
+	if (error) {
+		g_warning ("Could not insert FTS property map: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	stmt = tracker_db_interface_create_statement (db_interface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &error,
+	                                              "INSERT OR REPLACE "
+						      "INTO fts (docid,content) "
+						      "VALUES (last_insert_rowid(), ?)");
+	if (!stmt || error) {
+		if (error) {
+			g_warning ("Could not create FTS insert statement: %s\n",
+			           error->message);
+			g_error_free (error);
+		}
+		return FALSE;
+	}
+
+	tracker_db_statement_bind_text (stmt, 0, text);
+	tracker_db_statement_execute (stmt, &error);
+	g_object_unref (stmt);
+
+	if (error) {
+		g_warning ("Could not insert FTS text: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 void
 tracker_db_interface_sqlite_fts_update_commit (TrackerDBInterface *db_interface)
 {
-	return tracker_fts_update_commit (db_interface->fts);
 }
 
 void
 tracker_db_interface_sqlite_fts_update_rollback (TrackerDBInterface *db_interface)
 {
-	return tracker_fts_update_rollback (db_interface->fts);
 }
 #endif
 

@@ -3616,6 +3616,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	tracker_data_update_init ();
 
+#ifdef TRACKER_FTS
+	if (tracker_fts_init ()) {
+		g_warning ("FTS module loading failed");
+	}
+#endif
+
 	/* First set defaults for return values */
 	if (first_time) {
 		*first_time = FALSE;

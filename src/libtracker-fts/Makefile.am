@@ -8,13 +8,29 @@ AM_CPPFLAGS =                                          \
 
 noinst_LTLIBRARIES = libtracker-fts.la
 
+fts4_sources =                                         \
+	fts3_aux.c                                     \
+	fts3.c                                         \
+	fts3_expr.c                                    \
+	fts3.h                                         \
+	fts3_hash.c                                    \
+	fts3_hash.h                                    \
+	fts3_icu.c                                     \
+	fts3Int.h                                      \
+	fts3_porter.c                                  \
+	fts3_snippet.c                                 \
+	fts3_term.c                                    \
+	fts3_tokenizer1.c                              \
+	fts3_tokenizer.c                               \
+	fts3_tokenizer.h                               \
+	fts3_write.c
+
 libtracker_fts_la_SOURCES =                            \
+	$(fts4_sources)                                \
 	tracker-fts.c                                  \
 	tracker-fts.h                                  \
 	tracker-fts-config.c                           \
 	tracker-fts-config.h                           \
-	tracker-fts-hash.c                             \
-	tracker-fts-hash.h                             \
 	tracker-parser-utils.c                         \
 	tracker-parser-utils.h                         \
 	tracker-parser.h
