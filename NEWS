@@ -1,3 +1,26 @@
+NEW in 0.12.7 - 2011-10-27
+==========================
+
+The changes are:
+
+  * Fixes: GB#662364: tracker-search-bar: Don't display the results in a broken fashion
+  * Fixes: NB#287970: tracker-utils: Display nameGiven and nameFamily when fullname is empty
+  * Fixes: NB#287972: ttl2sgml: Fixed memory leak
+  * tracker-extract,gstreamer: Handle streams with no tags
+  * libtracker-miner,crawler: Use a cancellable per crawled directory
+  * libtracker-miner,buffer: Improve logging of sparql errors
+  * tracker-writeback: Apply writeback handlers sequentially on a same file
+  * tests/libtracker-common: Complete tests for tracker-utils.c
+  * tests/libtracker-common: testing tracker_sched_idle
+  * tests/libtracker-common: Test for tracker-albumart
+
+Translations:
+
+  * Updated es: Daniel Mustieles
+  * Updated lt: Aurimas Černius
+  * Updated sl: Matej Urbančič
+
+
 NEW in 0.12.6 - 2011-10-21
 ==========================
 
