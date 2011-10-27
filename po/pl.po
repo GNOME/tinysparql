@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-20 21:41+0200\n"
-"PO-Revision-Date: 2011-10-20 21:42+0200\n"
+"POT-Creation-Date: 2011-10-27 18:58+0200\n"
+"PO-Revision-Date: 2011-10-27 18:59+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -23,7 +23,7 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
-#: ../src/tracker-search-bar/tracker-results-window.c:722
+#: ../src/tracker-search-bar/tracker-results-window.c:717
 msgid "Applications"
 msgstr "Programy"
 
@@ -428,7 +428,7 @@ msgstr[2] "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 #: ../src/plugins/nautilus/tracker-tags-extension.c:111
 #: ../src/plugins/nautilus/tracker-tags-extension.c:185
 #: ../src/tracker-needle/tracker-view.vala:538
-#: ../src/tracker-search-bar/tracker-results-window.c:719
+#: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Etykiety"
 
@@ -1213,17 +1213,17 @@ msgid "Music"
 msgstr "Muzyka"
 
 #: ../src/tracker-needle/tracker-view.vala:337
-#: ../src/tracker-search-bar/tracker-results-window.c:723
+#: ../src/tracker-search-bar/tracker-results-window.c:718
 msgid "Images"
 msgstr "Obrazy"
 
 #: ../src/tracker-needle/tracker-view.vala:340
-#: ../src/tracker-search-bar/tracker-results-window.c:727
+#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Videos"
 msgstr "Nagrania wideo"
 
 #: ../src/tracker-needle/tracker-view.vala:343
-#: ../src/tracker-search-bar/tracker-results-window.c:721
+#: ../src/tracker-search-bar/tracker-results-window.c:716
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1232,12 +1232,12 @@ msgid "Mail"
 msgstr "Poczta"
 
 #: ../src/tracker-needle/tracker-view.vala:349
-#: ../src/tracker-search-bar/tracker-results-window.c:725
+#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Folders"
 msgstr "Katalogi"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-search-bar/tracker-results-window.c:729
+#: ../src/tracker-search-bar/tracker-results-window.c:724
 #: ../src/tracker-utils/tracker-search.c:912
 msgid "Bookmarks"
 msgstr "Zakładki"
@@ -1287,7 +1287,7 @@ msgstr[1] "Kontakty"
 msgstr[2] "Kontakty"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
-#: ../src/tracker-search-bar/tracker-results-window.c:724
+#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Nagranie dźwiękowe"
@@ -1408,41 +1408,41 @@ msgstr "Wyświetla statystyki o przechowywanych danych"
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:717
-#: ../src/tracker-search-bar/tracker-results-window.c:733
+#: ../src/tracker-search-bar/tracker-results-window.c:712
+#: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Other"
 msgstr "Inne"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:718
+#: ../src/tracker-search-bar/tracker-results-window.c:713
 #: ../src/tracker-utils/tracker-search.c:239
 msgid "Contacts"
 msgstr "Kontakty"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:720
+#: ../src/tracker-search-bar/tracker-results-window.c:715
 msgid "Email Addresses"
 msgstr "Adresy e-mail"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:726
+#: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Fonts"
 msgstr "Czcionki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:728
+#: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Archives"
 msgstr "Archiwa"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:730
+#: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Links"
 msgstr "Odnośniki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1104
+#: ../src/tracker-search-bar/tracker-results-window.c:1101
 msgid "Category"
 msgstr "Kategoria"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1132
+#: ../src/tracker-search-bar/tracker-results-window.c:1129
 msgid "Title"
 msgstr "Tytuł"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1198
+#: ../src/tracker-search-bar/tracker-results-window.c:1195
 #, c-format
 msgid "No results found for “%s”"
 msgstr "Nie odnaleziono wyników dla \"%s\""
@@ -2227,13 +2227,13 @@ msgstr "Nie odnaleziono kontaktów"
 
 #: ../src/tracker-utils/tracker-search.c:292
 #: ../src/tracker-utils/tracker-search.c:305
-msgid "No Name"
+msgid "No name"
 msgstr "Brak nazwy"
 
 #: ../src/tracker-utils/tracker-search.c:293
 #: ../src/tracker-utils/tracker-search.c:306
-msgid "No Address"
-msgstr "Brak adresu"
+msgid "No E-mail address"
+msgstr "Brak adresu e-mail"
 
 #: ../src/tracker-utils/tracker-search.c:340
 msgid "No emails were found"
