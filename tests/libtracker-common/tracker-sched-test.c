@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <glib-object.h>
 #include <libtracker-common/tracker-sched.h>
 
 #ifdef __linux__
