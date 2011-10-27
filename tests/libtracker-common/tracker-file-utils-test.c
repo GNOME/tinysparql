@@ -88,14 +88,14 @@ test_path_evaluate_name (void)
 
 
 	result = tracker_path_evaluate_name ("/home/user/all/ok");
-	tracker_test_helpers_cmpstr_equal (result, "/home/user/all/ok");
+	g_assert_cmpstr (result, ==, "/home/user/all/ok");
 	g_free (result);
 
 	/* The result of this test and the next one are not consistent!
 	 * Must it remove the end '/' or not?
 	 */
 	result = tracker_path_evaluate_name ("/home/user/all/dir/");
-	tracker_test_helpers_cmpstr_equal (result, "/home/user/all/dir");
+	g_assert_cmpstr (result, ==, "/home/user/all/dir");
 	g_free (result);
 
 
@@ -104,35 +104,35 @@ test_path_evaluate_name (void)
 	 */
 	result = tracker_path_evaluate_name ("~/all/dir/");
 	expected = g_build_path (G_DIR_SEPARATOR_S, home, "/all/dir/", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (expected);
 
 	result = tracker_path_evaluate_name ("$HOME/all/dir/");
 	expected = g_build_path (G_DIR_SEPARATOR_S, home, "/all/dir", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (expected);
 
 	result = tracker_path_evaluate_name ("${HOME}/all/dir/");
 	expected = g_build_path (G_DIR_SEPARATOR_S, home, "/all/dir", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (expected);
 
 	result = tracker_path_evaluate_name ("./test/current/dir");
 	expected = g_build_path (G_DIR_SEPARATOR_S, pwd, "/test/current/dir", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (expected);
 
 	result = tracker_path_evaluate_name ("$TEST_TRACKER_DIR/test/dir");
 	expected = g_build_path (G_DIR_SEPARATOR_S, test, "/test/dir", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (expected);
@@ -140,7 +140,7 @@ test_path_evaluate_name (void)
 	result = tracker_path_evaluate_name ("../test/dir");
 	parent_dir = g_path_get_dirname (pwd);
 	expected = g_build_path (G_DIR_SEPARATOR_S, parent_dir, "/test/dir", NULL);
-	tracker_test_helpers_cmpstr_equal (result, expected);
+	g_assert_cmpstr (result, ==, expected);
 
 	g_free (result);
 	g_free (parent_dir);
@@ -153,8 +153,7 @@ test_path_evaluate_name (void)
 	g_assert (!result);
 
 	result = tracker_path_evaluate_name (tracker_test_helpers_get_nonutf8 ());
-	tracker_test_helpers_cmpstr_equal (result,
-	                                   tracker_test_helpers_get_nonutf8 ());
+	g_assert_cmpstr (result, ==, tracker_test_helpers_get_nonutf8 ());
 
 	g_unsetenv ("TEST_TRACKER_DIR");
 }
@@ -173,7 +172,7 @@ test_file_get_mime_type (void)
 
 	result = tracker_file_get_mime_type (dir);
 
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "inode/directory"));
+	g_assert_cmpstr (result, ==, "inode/directory");
 
 	/* Remove test directory */
 	g_file_delete (dir, NULL, NULL);
