@@ -20,39 +20,12 @@
  */
 
 #include <sqlite3.h>
-#include "tracker-fts-tokenizer.h"
-#include "tracker-fts.h"
-#include "fts3.h"
+#include <glib.h>
+#include "fts3_tokenizer.h"
 
-gboolean tracker_fts_init (void) {
-	static gsize module_initialized = 0;
-	int rc = SQLITE_OK;
+#ifndef __TRACKER_FTS_TOKENIZER_H__
+#define __TRACKER_FTS_TOKENIZER_H__
 
-	if (g_once_init_enter (&module_initialized)) {
-		rc = sqlite3_auto_extension ((void (*) (void)) fts4_extension_init);
-		g_once_init_leave (&module_initialized, (rc == SQLITE_OK));
-	}
+gboolean tracker_tokenizer_initialize (sqlite3 *db);
 
-	return (module_initialized != 0);
-}
-
-gboolean tracker_fts_init_db (sqlite3 *db, int create){
-	int rc = SQLITE_OK;
-
-	if (!tracker_tokenizer_initialize (db)) {
-		return FALSE;
-	}
-
-	if (create){
-		rc = sqlite3_exec(db,
-		                  "CREATE VIRTUAL TABLE fts "
-		                  "USING fts4(tokenize=TrackerTokenizer)",
-		                  NULL, 0, NULL);
-	}
-
-	if (SQLITE_OK != rc){
-		return FALSE;
-	}
-
-	return TRUE;
-}
+#endif /* __TRACKER_FTS_TOKENIZER_H__ */

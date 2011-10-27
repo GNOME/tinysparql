@@ -31,6 +31,8 @@ libtracker_fts_la_SOURCES =                            \
 	tracker-fts.h                                  \
 	tracker-fts-config.c                           \
 	tracker-fts-config.h                           \
+	tracker-fts-tokenizer.c                        \
+	tracker-fts-tokenizer.h                        \
 	tracker-parser-utils.c                         \
 	tracker-parser-utils.h                         \
 	tracker-parser.h
