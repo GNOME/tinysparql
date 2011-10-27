@@ -28,8 +28,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#include <tracker-test-helpers.h>
-
 static void
 test_guess_date (void)
 {
@@ -39,27 +37,27 @@ test_guess_date (void)
 	g_assert (result == NULL);
 
 	result = tracker_date_guess ("2008-06-14");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
+	g_assert_cmpstr (result, ==, "2008-06-14T00:00:00");
 	g_free (result);
 
 	result = tracker_date_guess ("20080614000000");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
+	g_assert_cmpstr (result, ==, "2008-06-14T00:00:00");
 	g_free (result);
 
 	result = tracker_date_guess ("20080614000000Z");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00Z"));
+	g_assert_cmpstr (result, ==, "2008-06-14T00:00:00Z");
 	g_free (result);
 
 	result = tracker_date_guess ("Mon Jun 14 04:20:20 2008"); /* MS Office */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
+	g_assert_cmpstr (result, ==, "2008-06-14T04:20:20");
 	g_free (result);
 
 	result = tracker_date_guess ("2008:06:14 04:20:20"); /* Exif style */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
+	g_assert_cmpstr (result, ==, "2008-06-14T04:20:20");
 	g_free (result);
 
         result = tracker_date_guess ("2010");
-        g_assert (tracker_test_helpers_cmpstr_equal (result, "2010-01-01T00:00:00Z"));
+        g_assert_cmpstr (result, ==, "2010-01-01T00:00:00Z");
         g_free (result);
 
         result = tracker_date_guess ("201a");
@@ -70,16 +68,16 @@ test_guess_date (void)
 
         /* Guessing from the code */
         result = tracker_date_guess ("20100318010203-00:03Z");
-        g_assert (tracker_test_helpers_cmpstr_equal (result, "2010-03-18T01:02:03-00:03"));
+        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03-00:03");
         g_free (result);
 
         result = tracker_date_guess ("20100318010203+00:03Z");
-        g_assert (tracker_test_helpers_cmpstr_equal (result, "2010-03-18T01:02:03+00:03"));
+        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03+00:03");
         g_free (result);
 
         /* "YYYY-MM-DDThh:mm:ss.ff+zz:zz" */
         result = tracker_date_guess ("2010-03-18T01:02:03.10-00:03");
-        g_assert (tracker_test_helpers_cmpstr_equal (result, "2010-03-18T01:02:03-00:03"));
+        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03-00:03");
         g_free (result);
 
 
