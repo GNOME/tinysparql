@@ -17,6 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 #include <glib.h>
+#include <glib-object.h>
 #include <libtracker-common/tracker-albumart.h>
 
 struct {
