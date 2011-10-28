@@ -8,7 +8,8 @@ TEST_PROGS +=                                          \
 	tracker-file-utils                             \
 	tracker-utils				       \
 	tracker-albumart-test			       \
-	tracker-sched-test
+	tracker-sched-test			       \
+	tracker-crc32-test
 
 AM_CPPFLAGS =                                      \
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"             \
@@ -36,5 +37,7 @@ tracker_utils_SOURCES = tracker-utils-test.c
 tracker_albumart_test_SOURCES = tracker-albumart-test.c
 
 tracker_sched_test_SOURCES = tracker-sched-test.c
+
+tracker_crc32_test_SOURCES = tracker-crc32-test.c
 
 EXTRA_DIST = non-utf8.txt
