@@ -22,7 +22,8 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_miner_applications_locale_changed (void);
+void     tracker_miner_applications_locale_set_current (void);
+gboolean tracker_miner_applications_locale_changed     (void);
 
 G_END_DECLS
 
