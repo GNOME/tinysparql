@@ -256,11 +256,13 @@ tracker_file_system_get_remaining_space (const gchar *path)
 	guint64 remaining;
 	struct __statvfs st;
 
+//LCOV_EXCL_START
 	if (__statvfs (path, &st) == -1) {
 		remaining = 0;
 		g_critical ("Could not statvfs() '%s': %s",
 		            path,
 		            g_strerror (errno));
+//LCOV_EXCL_STOP
 	} else {
 		remaining = st.f_bsize * st.f_bavail;
 	}
@@ -274,11 +276,13 @@ tracker_file_system_get_remaining_space_percentage (const gchar *path)
 	gdouble remaining;
 	struct __statvfs st;
 
+//LCOV_EXCL_START
 	if (__statvfs (path, &st) == -1) {
 		remaining = 0.0;
 		g_critical ("Could not statvfs() '%s': %s",
 		            path,
 		            g_strerror (errno));
+//LCOV_EXCL_STOP
 	} else {
 		remaining = (st.f_bavail * 100.0 / st.f_blocks);
 	}
@@ -673,6 +677,7 @@ tracker_file_lock (GFile *file)
 	fd = open (path, O_RDONLY);
 
 	if (fd < 0) {
+//LCOV_EXCL_START
 		gchar *uri;
 
 		uri = g_file_get_uri (file);
@@ -681,6 +686,7 @@ tracker_file_lock (GFile *file)
 		g_free (path);
 
 		return FALSE;
+//LCOV_EXCL_STOP
 	}
 
 	retval = flock (fd, LOCK_EX);
@@ -690,12 +696,14 @@ tracker_file_lock (GFile *file)
 		                     g_object_ref (file),
 		                     GINT_TO_POINTER (fd));
 	} else {
+//LCOV_EXCL_START
 		gchar *uri;
 
 		uri = g_file_get_uri (file);
 		g_warning ("Could not lock file '%s'", uri);
 		g_free (uri);
 		close (fd);
+//LCOV_EXCL_STOP
 	}
 
 	g_free (path);
@@ -724,6 +732,7 @@ tracker_file_unlock (GFile *file)
 	retval = flock (fd, LOCK_UN);
 
 	if (retval < 0) {
+//LCOV_EXCL_START
 		gchar *uri;
 
 		uri = g_file_get_uri (file);
@@ -731,6 +740,7 @@ tracker_file_unlock (GFile *file)
 		g_free (uri);
 
 		return FALSE;
+//LCOV_EXCL_STOP
 	}
 
 	g_hash_table_remove (file_locks, file);
