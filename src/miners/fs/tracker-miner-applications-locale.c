@@ -30,9 +30,28 @@
 #define TRACKER_MINER_APPLICATIONS_LOCALE_FILE "miner-applications-locale.txt"
 
 static gchar *
-miner_applications_locale_get_previous (const gchar *locale_file)
+miner_applications_locale_get_filename (void)
 {
-	gchar *locale = NULL;
+	gchar *data_dir;
+	gchar *filename;
+
+	/* Locate locale file */
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+	                             "tracker",
+	                             NULL);
+	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
+
+	g_free (data_dir);
+
+	return filename;
+}
+
+static gchar *
+miner_applications_locale_get_previous (void)
+{
+	gchar *locale_file, *locale = NULL;
+
+	locale_file = miner_applications_locale_get_filename ();
 
 	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
 		gchar *contents;
@@ -54,43 +73,15 @@ miner_applications_locale_get_previous (const gchar *locale_file)
 		g_message ("  Could not find locale file:'%s'", locale_file);
 	}
 
+	g_free (locale_file);
+
 	return locale;
 }
 
-static void
-miner_applications_locale_set_current (const gchar *locale_file,
-                                       const gchar *locale)
+static gchar *
+miner_applications_locale_get_current (void)
 {
-	GError *error = NULL;
-	gchar  *str;
-
-	g_message ("  Creating locale file '%s'", locale_file);
-
-	str = g_strdup_printf ("%s", locale ? locale : "");
-
-	if (!g_file_set_contents (locale_file, str, -1, &error)) {
-		g_message ("  Could not set file contents, %s",
-		           error ? error->message : "no error given");
-		g_clear_error (&error);
-	}
-
-	g_free (str);
-}
-
-gboolean
-tracker_miner_applications_locale_changed (void)
-{
-	gchar *previous_locale;
 	gchar *current_locale;
-	gboolean changed;
-	gchar *data_dir;
-	gchar *filename;
-
-	/* Locate previous locale file */
-	data_dir = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             NULL);
-	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
 
 #ifdef HAVE_MEEGOTOUCH
 	/* If we have meegotouch enabled, take the correct locale as the one from
@@ -101,16 +92,52 @@ tracker_miner_applications_locale_changed (void)
 	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
 #endif
 
+	return current_locale;
+}
+
+void
+tracker_miner_applications_locale_set_current (void)
+{
+	GError *error = NULL;
+	gchar *locale_file, *locale = NULL;
+
+	locale_file = miner_applications_locale_get_filename ();
+
+	g_message ("  Creating locale file '%s'", locale_file);
+
+	locale = miner_applications_locale_get_current ();
+
+	if (locale == NULL) {
+		locale = g_strdup ("");
+	}
+
+	if (!g_file_set_contents (locale_file, locale, -1, &error)) {
+		g_message ("  Could not set file contents, %s",
+		           error ? error->message : "no error given");
+		g_clear_error (&error);
+	}
+
+	g_free (locale);
+	g_free (locale_file);
+}
+
+gboolean
+tracker_miner_applications_locale_changed (void)
+{
+	gchar *previous_locale;
+	gchar *current_locale;
+	gboolean changed;
+
+	current_locale = miner_applications_locale_get_current ();
+
 	/* Get previous locale */
-	previous_locale = miner_applications_locale_get_previous (filename);
+	previous_locale = miner_applications_locale_get_previous ();
 
 	/* Note that having both to NULL is actually valid, they would default
 	 * to the unicode collation without locale-specific stuff. */
 	if (g_strcmp0 (previous_locale, current_locale) != 0) {
 		g_message ("Locale change detected from '%s' to '%s'...",
 		           previous_locale, current_locale);
-		/* Store the new one now */
-		miner_applications_locale_set_current (filename, current_locale);
 		changed = TRUE;
 	} else {
 		g_message ("Current and previous locales match: '%s'", previous_locale);
@@ -119,7 +146,5 @@ tracker_miner_applications_locale_changed (void)
 
 	g_free (previous_locale);
 	g_free (current_locale);
-	g_free (filename);
-	g_free (data_dir);
 	return changed;
 }

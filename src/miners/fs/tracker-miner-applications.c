@@ -185,6 +185,21 @@ tracker_locale_notify_cb (TrackerLocaleID id,
 	}
 }
 
+static void
+miner_finished_cb (TrackerMinerFS *fs,
+                   gdouble         seconds_elapsed,
+                   guint           total_directories_found,
+                   guint           total_directories_ignored,
+                   guint           total_files_found,
+                   guint           total_files_ignored,
+                   gpointer        user_data)
+{
+	/* Update locale file if necessary */
+	if (tracker_miner_applications_locale_changed ()) {
+		tracker_miner_applications_locale_set_current ();
+	}
+}
+
 static gboolean
 miner_applications_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
@@ -202,6 +217,10 @@ miner_applications_initable_init (GInitable     *initable,
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
+
+	g_signal_connect (fs, "finished",
+	                  G_CALLBACK (miner_finished_cb),
+	                  NULL);
 
 	miner_applications_add_directories (fs);
 
