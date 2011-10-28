@@ -546,6 +546,7 @@ fix_indexed (TrackerProperty  *property,
 		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
+		TrackerClass **domain_index_classes;
 
 		secondary_index = tracker_property_get_secondary_index (property);
 		if (secondary_index == NULL) {
@@ -557,6 +558,17 @@ fix_indexed (TrackerProperty  *property,
 			                                               tracker_property_get_name (secondary_index),
 			                                               recreate && tracker_property_get_indexed (property),
 			                                               &internal_error);
+		}
+
+		/* single-valued properties may also have domain-specific indexes */
+		domain_index_classes = tracker_property_get_domain_indexes (property);
+		while (!internal_error && domain_index_classes && *domain_index_classes) {
+			set_index_for_single_value_property (iface,
+			                                     tracker_class_get_name (*domain_index_classes),
+			                                     field_name,
+			                                     recreate,
+			                                     &internal_error);
+			domain_index_classes++;
 		}
 	}
 
