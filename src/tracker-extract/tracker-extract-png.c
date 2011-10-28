@@ -755,15 +755,7 @@ guess_dlna_profile (gint          depth,
 		*dlna_mimetype = NULL;
 	}
 
-	if (width == 120 && height == 120) {
-		profile = "PNG_LRG_ICO";
-	} else if (width == 48 && height == 48) {
-		profile = "PNG_SM_ICO";
-	} else if (width <= 160 && height <= 160) {
-		profile = "PNG_TN";
-	} else if (depth <= 32 && width <= 4096 && height <= 4096) {
-		profile = "PNG_LRG";
-	}
+	profile = "PNG_LRG";
 
 	if (profile) {
 		if (dlna_profile) {
