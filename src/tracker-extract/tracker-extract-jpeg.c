@@ -119,13 +119,7 @@ guess_dlna_profile (gint          width,
 		*dlna_mimetype = NULL;
 	}
 
-	if (width == 48 && height == 48) {
-		profile = "JPEG_SM_ICO";
-	} else if (width == 120 && height == 120) {
-		profile = "JPEG_LRG_ICO";
-	} else if (width <= 160 && height <= 160) {
-		profile = "JPEG_TN";
-	} else if (width <= 640 && height <= 480) {
+	if (width <= 640 && height <= 480) {
 		profile = "JPEG_SM";
 	} else if (width <= 1024 && height <= 768) {
 		profile = "JPEG_MED";
