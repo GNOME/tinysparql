@@ -61,10 +61,10 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		set;
 	}
 
-        public uint limit {
-                get;
-                set;
-        }
+	public uint limit {
+		get;
+		set;
+	}
 
 	public signal void result_overflow ();
 

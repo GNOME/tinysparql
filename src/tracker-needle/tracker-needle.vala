@@ -50,7 +50,7 @@ public class Tracker.Needle {
 	private Tracker.View sw_icons;
 	private InfoBar info_bar;
 	private Label info_bar_label;
-	private TrackerTagsFilter tags_filter;
+	private TrackerTagsView tags_view;
 	private uint last_search_id = 0;
 	private int size_small = 0;
 	private int size_medium = 0;
@@ -274,9 +274,9 @@ public class Tracker.Needle {
 		toolbar = builder.get_object ("toolbar_main") as Toolbar;
 		toolbar.get_style_context().add_class (STYLE_CLASS_PRIMARY_TOOLBAR);
 
-		info_bar = builder.get_object("info_bar") as InfoBar;
+		info_bar = builder.get_object ("info_bar") as InfoBar;
 		info_bar_label = builder.get_object ("info_bar_label") as Label;
-		info_bar_button = builder.get_object("info_bar_button") as Button;
+		info_bar_button = builder.get_object ("info_bar_button") as Button;
 		info_bar_button.clicked.connect (info_bar_closed);
 
 		view_filelist = builder.get_object ("toolbutton_view_filelist") as ToggleToolButton;
@@ -321,32 +321,40 @@ public class Tracker.Needle {
 		// Set up views
 		TreeView treeview;
 		IconView iconview;
+		TreeSelection treeselection;
 
 		sw_noresults = new Tracker.View (Tracker.View.Display.NO_RESULTS, null);
 		view.pack_start (sw_noresults, true, true, 0);
 
 		sw_categories = new Tracker.View (Tracker.View.Display.CATEGORIES, categories_model);
-		treeview = (TreeView) sw_categories.get_child ();
-		treeview.row_activated.connect (view_row_selected);
 		sw_categories.store.notify["active"].connect (store_state_changed);
+		treeview = (TreeView) sw_categories.get_child ();
+		treeview.row_activated.connect (view_row_activated);
+		treeselection = treeview.get_selection ();
+		treeselection.changed.connect (view_row_selected);
 		view.pack_start (sw_categories, true, true, 0);
 
 		sw_filelist = new Tracker.View (Tracker.View.Display.FILE_LIST, null);
 		treeview = (TreeView) sw_filelist.get_child ();
-		treeview.row_activated.connect (view_row_selected);
+		treeview.row_activated.connect (view_row_activated);
+		treeselection = treeview.get_selection ();
+		treeselection.changed.connect (view_row_selected);
 		view.pack_start (sw_filelist, true, true, 0);
 
 		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
 		iconview = (IconView) sw_icons.get_child ();
-		iconview.item_activated.connect (icon_item_selected);
+		iconview.item_activated.connect (icon_item_activated);
+		//var iconselection = iconview.get_selection ();
+		//iconselection.changed.connect (icon_item_selected);
 		view.pack_start (sw_icons, true, true, 0);
 
-		// Set up tags_filter
+		// Set up tags widget
 		paned = builder.get_object ("hpaned") as Paned;
-		tags_filter = new TrackerTagsFilter ();
-		tags_filter.hide ();
-		paned.pack2 (tags_filter, false, false);
-		tags_filter.selection_changed.connect (tags_filter_selection_changed);
+		tags_view = new TrackerTagsView (null);
+		tags_view.hide ();
+		tags_view.hide_label ();
+		paned.pack2 (tags_view, false, false);
+		//tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
 	}
@@ -502,13 +510,14 @@ public class Tracker.Needle {
 		if (store != null) {
 			// Set tags first
 			if (show_tags.active) {
-				store.search_tags = tags_filter.tags;
+				// TODO: finish
+				// store.search_tags = tags_filter.tags;
 
 				// Don't search if no tags are selected
-				if (store.search_tags.length < 1) {
-					search_finished (store);
-					return false;
-				}
+				// if (store.search_tags.length < 1) {
+				//	search_finished (store);
+				//	return false;
+				// }
 			} else {
 				store.search_tags = null;
 			}
@@ -595,29 +604,57 @@ public class Tracker.Needle {
 		}
 	}
 
-	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
+	private void view_row_activated (TreeView view, TreePath path, TreeViewColumn column) {
 		var model = view.get_model ();
 		tracker_model_launch_selected (model, path, 1);
 	}
 
-	private void icon_item_selected (IconView view, TreePath path) {
+	private void icon_item_activated (IconView view, TreePath path) {
 		var model = view.get_model ();
 		tracker_model_launch_selected (model, path, 1);
+	}
+
+	private void view_row_selected (TreeSelection selection) {
+		TreeIter iter;
+		TreeModel model = null;
+		debug ("Row selection changed");
+
+		List<TreePath> rows = selection.get_selected_rows (out model);
+		List<string> uris = null;
+
+		if (rows == null) {
+			return;
+		}
+
+		foreach (TreePath path in rows) {
+			if (model.get_iter (out iter, path)) {
+				string uri;
+
+				model.get (iter, 1, out uri, -1);
+				debug ("--> %s", uri);
+
+				if (uri != null) {
+					uris.prepend (uri);
+				}
+			}
+		}
+
+		tags_view.set_files (uris);
 	}
 
 	private void show_tags_clicked () {
 		if (show_tags.active) {
 			debug ("Showing tags");
-			tags_filter.show ();
-			search_entry.sensitive = false;
+			tags_view.show ();
+			//search_entry.sensitive = false;
 		} else {
 			debug ("Hiding tags");
-			tags_filter.hide ();
-			search_entry.sensitive = true;
+			tags_view.hide ();
+			//search_entry.sensitive = true;
 		}
 
 		// Re-run search to filter with or without tags
-		search_run ();
+		// search_run ();
 	}
 
 	private void show_stats_clicked () {
@@ -633,7 +670,7 @@ public class Tracker.Needle {
 		info_bar.show ();
 	}
 
-	private void info_bar_closed () {
+	private void info_bar_closed (Button source) {
 		info_bar.hide ();
 	}
 }

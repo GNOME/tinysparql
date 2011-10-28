@@ -87,14 +87,18 @@ public class TrackerTagsView : VBox {
 		TRUE = 1
 	}
 
-	public TrackerTagsView (List<string> _files) requires (_files.length () > 0) {
+	public TrackerTagsView (List<string>? _files) {
 		try {
 			connection = Sparql.Connection.get ();
 		} catch (GLib.Error e) {
 			warning ("Could not get Sparql connection: %s", e.message);
 		}
 
-		files = _files.copy ();
+		if (_files != null) {
+			files = _files.copy ();
+		} else {
+			files = null;
+		}
 
 		cancellable = new Cancellable ();
 
@@ -131,7 +135,31 @@ public class TrackerTagsView : VBox {
 		}
 	}
 
-	private void show_error_dialog (Error e) {
+	public void hide_label () {
+		label.hide ();
+	}
+
+	public void set_files (List<string>? _files) {
+		if (files != null) {
+			foreach (string url in files) {
+				url = null;
+			}
+
+			files = null;
+		}
+
+		if (_files != null) {
+			foreach (string url in _files) {
+				files.prepend (url);
+			}
+
+			files.reverse ();
+		}
+
+		update_for_files ();
+	}
+
+	private void show_error_dialog (string action, Error e) {
 		string str = e.message != null ? e.message : _("No error was given");
 
 		var msg = new MessageDialog (null,
@@ -139,7 +167,12 @@ public class TrackerTagsView : VBox {
 		                             MessageType.ERROR,
 		                             ButtonsType.CLOSE,
 		                             "%s",
-		                             str);
+		                             action);
+		msg.format_secondary_text (str);
+		msg.response.connect (() => {
+			msg.destroy ();
+		});
+
 		msg.run ();
 	}
 
@@ -246,7 +279,7 @@ public class TrackerTagsView : VBox {
 				                             "Failed to load UI file, %s\n",
 				                             e.message);
 				msg.run ();
-				Gtk.main_quit();
+				Gtk.main_quit ();
 			}
 		}
 
@@ -258,13 +291,6 @@ public class TrackerTagsView : VBox {
 		button_remove = builder.get_object ("button_remove") as Button;
 		scrolled_window = builder.get_object ("scrolled_window_tags") as ScrolledWindow;
 		view = builder.get_object ("treeview_tags") as TreeView;
-
-		// Set label based on files selected
-		string str = dngettext (null,
-		                        "_Set the tags you want to associate with the %d selected item:",
-		                        "_Set the tags you want to associate with the %d selected items:",
-		                        files.length ()).printf (files.length ());
-		label.set_text_with_mnemonic (str);
 
 		// Set up signal handlers (didn't work from glade)
 		((Editable) entry).changed.connect (entry_tag_changed_cb);
@@ -286,7 +312,7 @@ public class TrackerTagsView : VBox {
 		col.set_title ("-");
 		col.set_resizable (false);
 		col.set_sizing (Gtk.TreeViewColumnSizing.FIXED);
-		col.set_fixed_width (50);
+		col.set_fixed_width (25);
 		col.pack_start (renderer, false);
 		col.set_cell_data_func (renderer, treeview_tags_toggle_cell_data_func);
 		view.append_column (col);
@@ -336,9 +362,30 @@ public class TrackerTagsView : VBox {
 		sortable.set_sort_column_id (2, SortType.ASCENDING);
 
 		// Add vbox to this widget's vbox
+		vbox.unparent ();
 		base.pack_start (vbox, true, true, 0);
 
+		// Set controls up based on selected file(s)
+		// NOTE: This can't occur before the view is created
+		update_for_files ();
+
 		query_tags ();
+	}
+
+	private void update_for_files () {
+		if (files != null) {
+			string str = dngettext (null,
+			                        "_Set the tags you want to associate with the %d selected item:",
+			                        "_Set the tags you want to associate with the %d selected items:",
+			                        files.length ()).printf (files.length ());
+			label.set_text_with_mnemonic (str);
+			vbox.sensitive = true;
+		} else {
+			label.set_text (_("No items currently selected"));
+			vbox.sensitive = false;
+		}
+
+		query_tags_for_files ();
 	}
 
 	private async void model_toggle_row (TreePath path) {
@@ -420,7 +467,7 @@ public class TrackerTagsView : VBox {
 			entry.set_text ("");
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql update query: %s", e.message);
-			show_error_dialog (e);
+			show_error_dialog (_("Could not update tags"), e);
 		}
 
 		tag_data_requests.remove (td);
@@ -480,7 +527,7 @@ public class TrackerTagsView : VBox {
 			store.remove (td.iter);
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql update query: %s", e.message);
-			show_error_dialog (e);
+			show_error_dialog (_("Could not remove tag"), e);
 		}
 
 		tag_data_requests.remove (td);
@@ -497,7 +544,7 @@ public class TrackerTagsView : VBox {
 
 		entry.set_sensitive (false);
 
-		if (files.length () > 0) {
+		if (files != null && files.length () > 0) {
 			query = "";
 
 			string filter = sparql_get_filter_string (null);
@@ -561,7 +608,7 @@ public class TrackerTagsView : VBox {
 			entry.set_text ("");
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql update query: %s", e.message);
-			show_error_dialog (e);
+			show_error_dialog (_("Could not update tags"), e);
 		}
 
 		tag_data_requests.remove (td);
@@ -603,6 +650,62 @@ public class TrackerTagsView : VBox {
 		}
 	}
 
+	private void untoggle_all () {
+		TreeModel model = view.get_model ();
+		ListStore store = (ListStore) model;
+
+		model.foreach ((model, path, foreach_iter) => {
+			store.set (foreach_iter, Col.SELECTION, Selection.FALSE, -1);
+			return false;
+		});
+	}
+
+	private async void query_tags_for_files () {
+		untoggle_all ();
+
+		if (files == null) {
+			return;
+		}
+
+		// Get tags for files only and make sure we toggle the list
+		string files_filter = "";
+
+		foreach (string url in files) {
+			if (files_filter.length > 0) {
+				files_filter += ",";
+			}
+
+			files_filter += "'%s'".printf (url);
+		}
+
+		string query = "select ?tag nao:prefLabel(?tag) WHERE { ?urn nao:hasTag ?tag . FILTER(nie:url(?urn) IN (%s)) } ORDER BY (?tag)".printf (files_filter);
+
+		debug ("Getting tags for files selected...");
+
+		try {
+			Sparql.Cursor cursor = yield connection.query_async (query, null);
+
+			while (yield cursor.next_async ()) {
+				debug ("Toggling tags...");
+
+				unowned string id = cursor.get_string (0);
+				unowned string label = cursor.get_string (1);
+
+				debug ("  Enabling tag:'%s', label:'%s'", id, label);
+
+				TreeIter iter;
+				if (find_tag (label, out iter)) {
+					store.set (iter,
+					           Col.SELECTION, Selection.TRUE,
+					           -1);
+				}
+			}
+		} catch (GLib.Error e) {
+			warning ("Could not run Sparql query: %s", e.message);
+			show_error_dialog (_("Could toggle tags according to selection"), e);
+		}
+	}
+
 	private async void query_tags () {
 		// Get all tags
 		string query = "SELECT ?urn ?label WHERE { ?urn a nao:Tag ; nao:prefLabel ?label . } ORDER BY ?label";
@@ -638,7 +741,7 @@ public class TrackerTagsView : VBox {
 			}
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql query: %s", e.message);
-			show_error_dialog (e);
+			show_error_dialog (_("Could not add tag"), e);
 		}
 	}
 
@@ -695,14 +798,14 @@ public class TrackerTagsView : VBox {
 			debug ("Tags for file updated");
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql query: %s", e.message);
-			show_error_dialog (e);
+			show_error_dialog (_("Could not update tags for file"), e);
 		}
 
 		tag_data_requests.remove (td);
 		td = null;
 	}
 
-	private string sparql_get_filter_string (string? tag) requires (files.length () > 0) {
+	private string sparql_get_filter_string (string? tag) requires (files != null && files.length () > 0) {
 		string filter = "FILTER (";
 
 		if (tag != null && tag != "") {
