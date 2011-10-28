@@ -30,6 +30,23 @@
 #define TRACKER_MINER_APPLICATIONS_LOCALE_FILE "miner-applications-locale.txt"
 
 static gchar *
+miner_applications_locale_get_filename (void)
+{
+	gchar *data_dir;
+	gchar *filename;
+
+	/* Locate locale file */
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+	                             "tracker",
+	                             NULL);
+	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
+
+	g_free (data_dir);
+
+	return filename;
+}
+
+static gchar *
 miner_applications_locale_get_previous (const gchar *locale_file)
 {
 	gchar *locale = NULL;
@@ -100,14 +117,10 @@ tracker_miner_applications_locale_changed (void)
 	gchar *previous_locale;
 	gchar *current_locale;
 	gboolean changed;
-	gchar *data_dir;
 	gchar *filename;
 
 	/* Locate previous locale file */
-	data_dir = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             NULL);
-	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
+	filename = miner_applications_locale_get_filename ();
 
 	current_locale = miner_applications_locale_get_current ();
 
@@ -130,6 +143,5 @@ tracker_miner_applications_locale_changed (void)
 	g_free (previous_locale);
 	g_free (current_locale);
 	g_free (filename);
-	g_free (data_dir);
 	return changed;
 }
