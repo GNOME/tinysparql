@@ -57,6 +57,23 @@ miner_applications_locale_get_previous (const gchar *locale_file)
 	return locale;
 }
 
+static gchar *
+miner_applications_locale_get_current (void)
+{
+	gchar *current_locale;
+
+#ifdef HAVE_MEEGOTOUCH
+	/* If we have meegotouch enabled, take the correct locale as the one from
+	 * meegotouch. */
+	current_locale = tracker_miner_applications_meego_get_locale ();
+#else
+	/* Get current tracker LANG locale */
+	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+#endif
+
+	return current_locale;
+}
+
 static void
 miner_applications_locale_set_current (const gchar *locale_file,
                                        const gchar *locale)
@@ -92,14 +109,7 @@ tracker_miner_applications_locale_changed (void)
 	                             NULL);
 	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
 
-#ifdef HAVE_MEEGOTOUCH
-	/* If we have meegotouch enabled, take the correct locale as the one from
-	 * meegotouch. */
-	current_locale = tracker_miner_applications_meego_get_locale ();
-#else
-	/* Get current tracker LANG locale */
-	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-#endif
+	current_locale = miner_applications_locale_get_current ();
 
 	/* Get previous locale */
 	previous_locale = miner_applications_locale_get_previous (filename);
