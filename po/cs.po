@@ -1397,11 +1397,8 @@ msgstr "Zobrazit statistiky o uchovaných datech"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:11
 #, no-c-format
-#| msgid "_Set the tags you want to associate with the %d selected item:"
-#| msgid_plural ""
-#| "_Set the tags you want to associate with the %d selected items:"
 msgid "_Set the tags you want to associate with the %d selected items:"
-msgstr "Na_stavit štítky, které chcete přiřadit k %d vybrané položce:"
+msgstr "Na_stavit štítky, které chcete přiřadit k %d vybraným položkám:"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:712
 #: ../src/tracker-search-bar/tracker-results-window.c:728
