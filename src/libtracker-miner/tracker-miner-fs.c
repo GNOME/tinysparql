@@ -377,6 +377,8 @@ static void           crawler_finished_cb                 (TrackerCrawler       
                                                            gpointer              user_data);
 static void           crawl_directories_start             (TrackerMinerFS       *fs);
 static void           crawl_directories_stop              (TrackerMinerFS       *fs);
+static gboolean       item_remove                         (TrackerMinerFS       *fs,
+                                                           GFile                *file);
 static void           item_queue_handlers_set_up          (TrackerMinerFS       *fs);
 static void           item_update_children_uri            (TrackerMinerFS       *fs,
                                                            RecursiveMoveData    *data,
@@ -1922,6 +1924,20 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 				tracker_task_unref (extraction_task);
 
 				item_queue_handlers_set_up (fs);
+				g_free (uri);
+				return;
+			} else if (error->code == G_IO_ERROR_NOT_FOUND) {
+				/* File was not found, remove it
+				 * if it was in the store
+				 */
+				if (ctxt->urn) {
+					item_remove (fs, task_file);
+				} else {
+					item_queue_handlers_set_up (fs);
+				}
+
+				tracker_task_unref (extraction_task);
+				g_free (uri);
 				return;
 			}
 		}
