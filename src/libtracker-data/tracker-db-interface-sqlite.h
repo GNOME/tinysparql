@@ -54,6 +54,9 @@ int                 tracker_db_interface_sqlite_fts_update_text        (TrackerD
                                                                         int                       column_id,
                                                                         const char               *text,
                                                                         gboolean                  limit_word_length);
+gboolean            tracker_db_interface_sqlite_fts_delete_text        (TrackerDBInterface       *db_interface,
+									int                       id,
+									int                       column_id);
 void                tracker_db_interface_sqlite_fts_update_commit      (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_fts_update_rollback    (TrackerDBInterface       *interface);
 #endif

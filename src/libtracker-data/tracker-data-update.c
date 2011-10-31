@@ -1459,17 +1459,17 @@ get_old_property_values (TrackerProperty  *property,
 
 					if (tracker_property_get_fulltext_indexed (prop)
 					    && check_property_domain (prop)) {
+						gint prop_id;
 						gint i;
 
 						old_values = get_property_values (prop);
+						prop_id = tracker_data_query_resource_id (tracker_property_get_uri (prop));
 
 						/* delete old fts entries */
 						for (i = 0; i < old_values->n_values; i++) {
-							tracker_db_interface_sqlite_fts_update_text (iface,
-								resource_buffer->id,
-								-1,
-								g_value_get_string (g_value_array_get_nth (old_values, i)),
-								!tracker_property_get_fulltext_no_limit (prop));
+							tracker_db_interface_sqlite_fts_delete_text (iface,
+							                                             resource_buffer->id,
+							                                             prop_id);
 						}
 					}
 				}

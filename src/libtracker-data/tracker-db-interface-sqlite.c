@@ -1082,6 +1082,72 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
+gboolean
+tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
+                                             int                 id,
+                                             int                 column_id)
+{
+	TrackerDBStatement *stmt;
+	GError *error = NULL;
+	int doc_id;
+
+	stmt = tracker_db_interface_create_statement (db_interface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &error,
+	                                              "DELETE FROM fts "
+	                                              "WHERE docid IN ("
+	                                              "  SELECT docid "
+	                                              "  FROM fts_prop_map "
+	                                              "  WHERE resourceid = ? AND propid = ?"
+	                                              ")");
+	if (!stmt) {
+		if (error) {
+			g_warning ("Could not delete FTS text: %s\n",
+			           error->message);
+			g_error_free (error);
+		}
+		return FALSE;
+	}
+
+	tracker_db_statement_execute (stmt, &error);
+	g_object_unref (stmt);
+
+	if (error) {
+		g_warning ("Could not execute FTS text deletion: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	stmt = tracker_db_interface_create_statement (db_interface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &error,
+	                                              "DELETE FROM fts "
+	                                              "WHERE docid IN ("
+	                                              "  SELECT docid "
+	                                              "  FROM fts_prop_map "
+	                                              "  WHERE resourceid = ? AND propid = ?"
+	                                              ")");
+	if (!stmt) {
+		if (error) {
+			g_warning ("Could not delete FTS property map: %s\n",
+			           error->message);
+			g_error_free (error);
+		}
+		return FALSE;
+	}
+
+	tracker_db_statement_execute (stmt, &error);
+	g_object_unref (stmt);
+
+	if (error) {
+		g_warning ("Could not execute FTS properties deletion: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 void
 tracker_db_interface_sqlite_fts_update_commit (TrackerDBInterface *db_interface)
 {
