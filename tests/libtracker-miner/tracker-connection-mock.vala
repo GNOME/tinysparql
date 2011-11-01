@@ -68,11 +68,11 @@ public class TrackerMockConnection : Sparql.Connection {
 
     TrackerMockResults results = null;
     TrackerMockResults hardcoded = new TrackerMockResults ({{"11", "12"}, {"21", "22"}}, 2, 2,
-                                                           {"artist", "album"}, 
+                                                           {"artist", "album"},
                                                            {Sparql.ValueType.STRING, Sparql.ValueType.STRING});
 
-	public override Sparql.Cursor query (string sparql, 
-                                  Cancellable? cancellable = null) 
+	public override Sparql.Cursor query (string sparql,
+                                  Cancellable? cancellable = null)
     throws Sparql.Error, IOError, DBusError {
         if (this.results != null) {
             return results;
@@ -82,7 +82,7 @@ public class TrackerMockConnection : Sparql.Connection {
     }
 
 
-	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) 
+	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null)
     throws Sparql.Error, IOError, DBusError {
         if (this.results != null) {
             return results;
