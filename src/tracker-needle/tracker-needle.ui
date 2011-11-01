@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.24"/>
-  <!-- interface-naming-policy toplevel-contextual -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkListStore" id="liststore_search">
     <columns>
       <!-- column-name text -->
@@ -177,6 +176,12 @@
                         <property name="model">liststore_search</property>
                         <property name="has_entry">True</property>
                         <property name="entry_text_column">0</property>
+                        <child internal-child="entry">
+                          <object class="GtkEntry" id="combobox-entry">
+                            <property name="can_focus">True</property>
+                            <property name="has_focus">True</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -311,7 +316,7 @@
       <object class="GtkVBox" id="vbox_tags">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="spacing">6</property>
+        <property name="spacing">2</property>
         <child>
           <object class="GtkLabel" id="label_tag">
             <property name="visible">True</property>
@@ -343,8 +348,6 @@
                 <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
                 <signal name="activate" handler="tracker_tags_view_entry_tag_activate_cb" swapped="no"/>
               </object>
               <packing>
@@ -426,7 +429,6 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hscrollbar_policy">never</property>
-            <property name="vscrollbar_policy">automatic</property>
             <property name="shadow_type">in</property>
             <child>
               <object class="GtkTreeView" id="treeview_tags">
@@ -434,6 +436,9 @@
                 <property name="can_focus">True</property>
                 <property name="headers_visible">False</property>
                 <property name="enable_search">False</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="treeview_tags_selection"/>
+                </child>
               </object>
             </child>
           </object>
