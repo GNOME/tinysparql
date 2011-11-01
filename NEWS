@@ -1,3 +1,20 @@
+NEW in 0.10.34 - 2011-11-01
+===========================
+
+The changes are:
+
+  * Fixes: NB#286589, Writeback operation fails while marking/unmarking a document file as favorite when the device is woke up from idle state
+  * Fixes: NB#286610, New sort order after Regional format change not working
+  * Fixes: NB#284591, Name of Tudou is in simplified Chinese while changing language from Chinese to English
+  * Fixes: NB#288530, DLNA profiles incorrect for PNG and JPEG (Testcase 7.3.60.5 fails)
+  * Fixes: NB#287529, Incorrect Chinese characters shown for Chinese songs downloaded from website "音乐好礼(乐随享(手机版))"
+  * Fixes: NB#273694, Corrupted image thumbnails are displayed for deleted images after marking them as favorite from tags grid
+
+Translations:
+
+  None
+
+
 NEW in 0.10.33 - 2011-10-27
 ===========================
 
