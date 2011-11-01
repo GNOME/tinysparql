@@ -89,9 +89,13 @@ tracker_thumbnailer_test_SOURCES =                     \
 	empty-gobject.c
 
 tracker_monitor_test_SOURCES =                         \
-	$(libtracker_miner_marshal_sources)            \
-	$(libtracker_miner_monitor_sources)            \
 	tracker-monitor-test.c
+if !ENABLE_GCOV
+# If gcov is enabled, libtracker-miner exports all symbols and this is not needed.
+tracker_monitor_test_SOURCES +=			       \
+	$(libtracker_miner_marshal_sources)            \
+	$(libtracker_miner_monitor_sources)
+endif
 
 tracker_priority_queue_test_SOURCES = 		       \
 	tracker-priority-queue-test.c
