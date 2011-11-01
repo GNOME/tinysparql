@@ -47,10 +47,22 @@ LDADD =                                                \
 libtracker_miner_tests_la_VALAFLAGS =                  \
 	--header tracker-miner-mock.h                  \
 	--pkg glib-2.0                                 \
+	--pkg gio-2.0                                  \
+	--pkg gio-unix-2.0                             \
+	--pkg posix				       \
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(BUILD_VALAFLAGS)
 
 libtracker_miner_tests_la_SOURCES =                    \
-	tracker-miner-mock.vala
+	tracker-miner-mock.vala			       \
+	tracker-connection-mock.vala
+
+libtracker_miner_tests_la_LIBADD = 		       \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(BUILD_LIBS)
+
 
 tracker_crawler_test_SOURCES =                         \
 	tracker-crawler-test.c
