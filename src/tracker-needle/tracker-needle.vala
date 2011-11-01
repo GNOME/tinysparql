@@ -354,7 +354,6 @@ public class Tracker.Needle {
 		tags_view.hide ();
 		tags_view.hide_label ();
 		paned.pack2 (tags_view, false, false);
-		//tags_filter.selection_changed.connect (tags_filter_selection_changed);
 
 		view_categories.set_active (true);
 	}
@@ -366,16 +365,6 @@ public class Tracker.Needle {
 		}
 
 		return false;
-	}
-
-	private void tags_filter_selection_changed (GenericArray<string> new_tags) {
-		if (new_tags != null && new_tags.length > 0) {
-			debug ("Tags selected changed, first:'%s', ...", new_tags[0]);
-		} else {
-			debug ("Tags selected changed, none selected");
-		}
-
-		search_run ();
 	}
 
 	private void search_changed (Editable editable) {
@@ -508,20 +497,8 @@ public class Tracker.Needle {
 		}
 
 		if (store != null) {
-			// Set tags first
-			if (show_tags.active) {
-				// TODO: finish
-				// store.search_tags = tags_filter.tags;
-
-				// Don't search if no tags are selected
-				// if (store.search_tags.length < 1) {
-				//	search_finished (store);
-				//	return false;
-				// }
-			} else {
-				store.search_tags = null;
-			}
-
+			// We can set tags to search by but we don't anymore
+			store.search_tags = null;
 			store.search_term = search.get_text ();
 		}
 
