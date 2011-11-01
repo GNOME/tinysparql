@@ -4,7 +4,7 @@ bin_PROGRAMS = tracker-needle
 
 AM_VALAFLAGS = \
 	--pkg gtk+-3.0 --pkg gio-2.0 \
-	$(BUILD_VALAFLAGS) \
+	$(BUILD_fVALAFLAGS) \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	config.vapi
 
@@ -29,7 +29,6 @@ tracker_needle_SOURCES = \
 	tracker-query.vala \
 	tracker-result-store.vala \
 	tracker-stats.vala \
-	tracker-tags-filter.vala \
 	tracker-tags-view.vala \
 	tracker-utils.vala \
 	tracker-needle.vala \
