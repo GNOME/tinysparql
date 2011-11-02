@@ -20,6 +20,7 @@
  */
 
 #include <libtracker-common/tracker-log.h>
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-common.h"
@@ -204,7 +205,7 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 {
 	TrackerFileNotifier *notifier;
 	TrackerFileNotifierPrivate *priv;
-	const gchar *store_mtime, *disk_mtime;
+	guint64 *store_mtime, *disk_mtime;
 
 	notifier = user_data;
 	priv = notifier->priv;
@@ -226,7 +227,7 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 		/* In disk but not in store, create */
 		g_signal_emit (notifier, signals[FILE_CREATED], 0, file);
 	} else if (store_mtime && disk_mtime &&
-	           strcmp (store_mtime, disk_mtime) != 0) {
+	           abs (*disk_mtime - *store_mtime) > 2) {
 		/* Mtime changed, update */
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, FALSE);
 	} else if (!store_mtime && !disk_mtime) {
@@ -311,10 +312,7 @@ file_notifier_add_node_foreach (GNode    *node,
 
 	if (file_info) {
 		GFileType file_type;
-		guint64 time;
-		time_t mtime;
-		struct tm t;
-		gchar *time_str;
+		guint64 time, *time_ptr;
 
 		file_type = g_file_info_get_file_type (file_info);
 
@@ -325,21 +323,13 @@ file_notifier_add_node_foreach (GNode    *node,
 
 		time = g_file_info_get_attribute_uint64 (file_info,
 		                                         G_FILE_ATTRIBUTE_TIME_MODIFIED);
-		mtime = (time_t) time;
-		gmtime_r (&mtime, &t);
 
-		time_str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:%02dZ",
-		                            t.tm_year + 1900,
-		                            t.tm_mon + 1,
-		                            t.tm_mday,
-		                            t.tm_hour,
-		                            t.tm_min,
-		                            t.tm_sec);
+		time_ptr = g_new (guint64, 1);
+		*time_ptr = time;
 
 		tracker_file_system_set_property (priv->file_system, canonical,
 		                                  quark_property_filesystem_mtime,
-		                                  time_str);
-
+		                                  time_ptr);
 		g_object_unref (file_info);
 	}
 
@@ -392,6 +382,8 @@ sparql_file_query_populate (TrackerFileNotifier *notifier,
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		GFile *file, *canonical, *root;
 		const gchar *mtime, *iri;
+		guint64 *time_ptr;
+		GError *error = NULL;
 
 		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 
@@ -422,9 +414,19 @@ sparql_file_query_populate (TrackerFileNotifier *notifier,
 		                                  g_strdup (iri));
 
 		mtime = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+		time_ptr = g_new (guint64, 1);
+		*time_ptr = (guint64) tracker_string_to_date (mtime, NULL, &error);
+
+		if (error) {
+			/* This should never happen. Assume that file was modified. */
+			g_critical ("Getting store mtime: %s", error->message);
+			g_clear_error (&error);
+			*time_ptr = 0;
+		}
+
 		tracker_file_system_set_property (priv->file_system, canonical,
 		                                  quark_property_store_mtime,
-		                                  g_strdup (mtime));
+		                                  time_ptr);
 		g_object_unref (file);
 	}
 }
