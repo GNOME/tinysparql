@@ -1470,7 +1470,8 @@ class Tracker.Sparql.Pattern : Object {
 				binding.sql_db_column_name = "fts";
 				triple_context.bindings.append (binding);
 
-				sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
+				sql.append_printf ("tracker_rank(matchinfo(\"%s\".\"fts\", 'cl'),fts_column_weights()) " +
+                                                   "AS \"%s_u_rank\", ",
 					binding.table.sql_query_tablename,
 					context.get_variable (current_subject).name);
 				sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
