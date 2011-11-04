@@ -1474,7 +1474,8 @@ class Tracker.Sparql.Pattern : Object {
                                                    "AS \"%s_u_rank\", ",
 					binding.table.sql_query_tablename,
 					context.get_variable (current_subject).name);
-				sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
+				sql.append_printf ("tracker_offsets(offsets(\"%s\".\"fts\"),fts_property_names()) " +
+                                                   "AS \"%s_u_offsets\", ",
 					binding.table.sql_query_tablename,
 					context.get_variable (current_subject).name);
 			} else {

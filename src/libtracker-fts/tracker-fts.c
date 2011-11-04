@@ -67,6 +67,52 @@ function_rank (sqlite3_context *context,
 }
 
 static void
+function_offsets (sqlite3_context *context,
+                  int              argc,
+                  sqlite3_value   *argv[])
+{
+	gchar *offsets, **names;
+	gint offset_values[4];
+	GString *result = NULL;
+	gint i = 0;
+
+	if (argc != 2) {
+		sqlite3_result_error(context,
+		                     "wrong number of arguments to function tracker_offsets()",
+		                     -1);
+		return;
+	}
+
+	offsets = sqlite3_value_text (argv[0]);
+	names = (unsigned int *) sqlite3_value_blob (argv[1]);
+
+	while (offsets && *offsets) {
+		offset_values[i] = g_strtod (offsets, &offsets);
+
+		/* All 4 values from the quartet have been gathered */
+		if (i == 3) {
+			if (!result) {
+				result = g_string_new ("");
+			} else {
+				g_string_append_c (result, ',');
+			}
+
+			g_string_append_printf (result,
+						"%s,%d",
+						names[offset_values[0]],
+						offset_values[2]);
+
+		}
+
+		i = (i + 1) % 4;
+	}
+
+	sqlite3_result_text (context,
+			     (result) ? g_string_free (result, FALSE) : NULL,
+			     -1, g_free);
+}
+
+static void
 function_weights (sqlite3_context *context,
                   int              argc,
                   sqlite3_value   *argv[])
@@ -101,13 +147,57 @@ function_weights (sqlite3_context *context,
 			rc = sqlite3_finalize (stmt);
 		}
 
-		weights = g_array_free (weight_array, FALSE);
+		weights = (guint *) g_array_free (weight_array, FALSE);
 		g_once_init_leave (&weights_initialized, (rc == SQLITE_OK));
 	}
 
 	sqlite3_result_blob (context, weights, sizeof (weights), NULL);
 }
 
+static void
+function_property_names (sqlite3_context *context,
+                         int              argc,
+                         sqlite3_value   *argv[])
+{
+	static gchar **names = NULL;
+	static gsize names_initialized = 0;
+
+	if (g_once_init_enter (&names_initialized)) {
+		GPtrArray *names_array;
+		sqlite3_stmt *stmt;
+		sqlite3 *db;
+		int rc;
+
+		names_array = g_ptr_array_new ();
+		db = sqlite3_context_db_handle (context);
+		rc = sqlite3_prepare_v2 (db,
+		                         "SELECT Uri "
+		                         "FROM Resource "
+		                         "JOIN \"rdf:Property\" "
+		                         "ON Resource.ID = \"rdf:Property\".ID "
+		                         "WHERE \"rdf:Property\".\"tracker:fulltextIndexed\" = 1 "
+		                         "ORDER BY \"rdf:Property\".ID ",
+		                         -1, &stmt, NULL);
+
+		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
+			if (rc == SQLITE_ROW) {
+				const gchar *name;
+
+				name = sqlite3_column_text (stmt, 0);
+				g_ptr_array_add (names_array, g_strdup (name));
+			}
+		}
+
+		if (rc == SQLITE_DONE) {
+			rc = sqlite3_finalize (stmt);
+		}
+
+		names = (gchar **) g_ptr_array_free (names_array, FALSE);
+		g_once_init_leave (&names_initialized, (rc == SQLITE_OK));
+	}
+
+	sqlite3_result_blob (context, names, sizeof (names), NULL);
+}
 
 static void
 tracker_fts_register_functions (sqlite3 *db)
@@ -115,8 +205,14 @@ tracker_fts_register_functions (sqlite3 *db)
 	sqlite3_create_function (db, "tracker_rank", 2, SQLITE_ANY,
 	                         NULL, &function_rank,
 	                         NULL, NULL);
+	sqlite3_create_function (db, "tracker_offsets", 2, SQLITE_ANY,
+	                         NULL, &function_offsets,
+	                         NULL, NULL);
 	sqlite3_create_function (db, "fts_column_weights", 0, SQLITE_ANY,
 	                         NULL, &function_weights,
+	                         NULL, NULL);
+	sqlite3_create_function (db, "fts_property_names", 0, SQLITE_ANY,
+	                         NULL, &function_property_names,
 	                         NULL, NULL);
 }
 
