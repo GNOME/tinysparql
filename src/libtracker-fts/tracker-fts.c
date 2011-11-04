@@ -24,7 +24,8 @@
 #include "tracker-fts.h"
 #include "fts3.h"
 
-gboolean tracker_fts_init (void) {
+gboolean
+tracker_fts_init (void) {
 	static gsize module_initialized = 0;
 	int rc = SQLITE_OK;
 
@@ -36,23 +37,34 @@ gboolean tracker_fts_init (void) {
 	return (module_initialized != 0);
 }
 
-gboolean tracker_fts_init_db (sqlite3 *db, int create){
-	int rc = SQLITE_OK;
-
+gboolean
+tracker_fts_init_db (sqlite3 *db) {
 	if (!tracker_tokenizer_initialize (db)) {
 		return FALSE;
 	}
 
-	if (create){
-		rc = sqlite3_exec(db,
-		                  "CREATE VIRTUAL TABLE fts "
-		                  "USING fts4(tokenize=TrackerTokenizer)",
-		                  NULL, 0, NULL);
-	}
-
-	if (SQLITE_OK != rc){
-		return FALSE;
-	}
-
 	return TRUE;
+}
+
+gboolean
+tracker_fts_create_table (sqlite3  *db,
+			  gchar    *table_name,
+			  gchar   **column_names)
+{
+	GString *str;
+	gint i, rc;
+
+	str = g_string_new ("CREATE VIRTUAL TABLE ");
+	g_string_append_printf (str, "%s USING fts4(", table_name);
+
+	for (i = 0; column_names[i]; i++) {
+		g_string_append_printf (str, "\"%s\", ", column_names[i]);
+	}
+
+	g_string_append (str, " tokenize=TrackerTokenizer)");
+
+	rc = sqlite3_exec(db, str->str, NULL, 0, NULL);
+	g_string_free (str, TRUE);
+
+	return (rc == SQLITE_OK);
 }

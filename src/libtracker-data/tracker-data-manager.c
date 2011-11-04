@@ -2487,7 +2487,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 	}
 }
 
-
 static void
 insert_uri_in_resource_table (TrackerDBInterface  *iface,
                               const gchar         *uri,
@@ -3583,6 +3582,48 @@ load_ontologies_gvdb (GError **error)
 	g_free (filename);
 }
 
+static gint
+compare_fts_property_ids (gconstpointer a,
+                          gconstpointer b)
+{
+	TrackerProperty *pa, *pb;
+
+	pa = (TrackerProperty *) a;
+	pb = (TrackerProperty *) b;
+
+	return tracker_property_get_id (pa) - tracker_property_get_id (pb);
+}
+
+static const gchar **
+ontology_get_fts_properties (void)
+{
+	TrackerProperty **properties;
+	GList *fts_props = NULL, *l;
+	const gchar **prop_names;
+	guint i, len;
+
+	properties = tracker_ontologies_get_properties (&len);
+
+	for (i = 0; i < len; i++) {
+		if (tracker_property_get_fulltext_indexed (properties[i])) {
+			/* Sort them by ID */
+			fts_props =
+				g_list_insert_sorted (fts_props, properties[i],
+						      (GCompareFunc) compare_fts_property_ids);
+		}
+	}
+
+	prop_names = g_new0 (const gchar *, g_list_length (fts_props) + 1);
+
+	for (l = fts_props, i = 0; l; l = l->next, i++) {
+		prop_names[i] = tracker_property_get_name (l->data);
+	}
+
+	g_list_free (fts_props);
+
+	return prop_names;
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            const gchar           **test_schemas,
@@ -3760,6 +3801,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	if (is_first_time_index && !read_only) {
+		const gchar **fts_props;
+
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
 #ifndef DISABLE_JOURNAL
@@ -3848,8 +3891,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
+		fts_props = ontology_get_fts_properties ();
 		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, TRUE);
+		tracker_db_interface_sqlite_fts_init (iface, fts_props, TRUE);
+		g_free (fts_props);
 
 		tracker_data_ontology_import_into_db (FALSE,
 		                                      &internal_error);
@@ -3997,7 +4042,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, FALSE);
+		tracker_db_interface_sqlite_fts_init (iface, NULL, FALSE);
 	}
 
 	if (check_ontology) {

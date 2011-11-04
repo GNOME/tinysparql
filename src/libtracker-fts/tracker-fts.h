@@ -28,8 +28,10 @@
 G_BEGIN_DECLS
 
 gboolean    tracker_fts_init             (void);
-gboolean    tracker_fts_init_db          (sqlite3    *db,
-                                          int         create);
+gboolean    tracker_fts_init_db          (sqlite3    *db);
+gboolean    tracker_fts_create_table     (sqlite3    *db,
+					  gchar      *table_name,
+					  gchar     **column_names);
 
 G_END_DECLS
 

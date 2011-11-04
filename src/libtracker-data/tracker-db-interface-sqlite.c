@@ -992,11 +992,15 @@ close_database (TrackerDBInterface *db_interface)
 }
 
 void
-tracker_db_interface_sqlite_fts_init (TrackerDBInterface *db_interface,
-                                      gboolean            create)
+tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
+                                      const gchar        **columns,
+                                      gboolean             create)
 {
 #if HAVE_TRACKER_FTS
-	if (!tracker_fts_init_db (db_interface->db, create)) {
+	tracker_fts_init_db (db_interface->db);
+
+	if (create &&
+	    !tracker_fts_create_table (db_interface->db, "fts", columns)) {
 		g_warning ("FTS tables creation failed");
 	}
 #endif
@@ -1013,53 +1017,31 @@ tracker_db_interface_sqlite_fts_update_init (TrackerDBInterface *db_interface,
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
                                              int                 id,
-                                             int                 column_id,
+                                             const gchar        *property,
                                              const char         *text,
-                                             gboolean            limit_word_length)
+                                             gboolean            limit_word_length,
+                                             gboolean            create)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
+	gchar *query;
 
-	if (!text || !*text || column_id < 0) {
-		return FALSE;
-	}
-
-	/* Insert docid/property into property map */
-	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
-	                                              "INSERT OR REPLACE "
-						      "INTO fts_prop_map "
-						      "  (resourceid, propid) "
-						      "VALUES (?, ?)");
-
-	if (!stmt || error) {
-		if (error) {
-			g_warning ("Could not create FTS property map insert statement: %s\n",
-			           error->message);
-			g_error_free (error);
-		}
-		return FALSE;
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, id);
-	tracker_db_statement_bind_int (stmt, 1, column_id);
-
-	tracker_db_statement_execute (stmt, &error);
-	g_object_unref (stmt);
-
-	if (error) {
-		g_warning ("Could not insert FTS property map: %s", error->message);
-		g_error_free (error);
-		return FALSE;
+	if (create) {
+		query = g_strdup_printf ("INSERT INTO fts (docid, \"%s\") "
+		                         "VALUES (?, ?) ",
+		                         property);
+	} else {
+		query = g_strdup_printf ("UPDATE fts "
+		                         "SET \"%s\" = ? "
+		                         "WHERE docid = ? ",
+		                         property);
 	}
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
-	                                              "INSERT OR REPLACE "
-						      "INTO fts (docid,content) "
-						      "VALUES (last_insert_rowid(), ?)");
+	                                              &error, query);
+	g_free (query);
+
 	if (!stmt || error) {
 		if (error) {
 			g_warning ("Could not create FTS insert statement: %s\n",
@@ -1069,7 +1051,14 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
 		return FALSE;
 	}
 
-	tracker_db_statement_bind_text (stmt, 0, text);
+	if (create) {
+		tracker_db_statement_bind_int (stmt, 0, id);
+		tracker_db_statement_bind_text (stmt, 1, text);
+	} else {
+		tracker_db_statement_bind_text (stmt, 0, text);
+		tracker_db_statement_bind_int (stmt, 1, id);
+	}
+
 	tracker_db_statement_execute (stmt, &error);
 	g_object_unref (stmt);
 
@@ -1085,62 +1074,37 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
 gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
                                              int                 id,
-                                             int                 column_id)
+					     const gchar        *property)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	int doc_id;
+	gchar *query;
+
+	query = g_strdup_printf ("UPDATE fts "
+	                         "SET \"%s\" = '' "
+	                         "WHERE docid = ?",
+	                         property);
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
-	                                              "DELETE FROM fts "
-	                                              "WHERE docid IN ("
-	                                              "  SELECT docid "
-	                                              "  FROM fts_prop_map "
-	                                              "  WHERE resourceid = ? AND propid = ?"
-	                                              ")");
-	if (!stmt) {
+	                                              &error, query);
+	g_free (query);
+
+	if (!stmt || error) {
 		if (error) {
-			g_warning ("Could not delete FTS text: %s\n",
+			g_warning ("Could not create FTS update statement: %s\n",
 			           error->message);
 			g_error_free (error);
 		}
 		return FALSE;
 	}
 
+	tracker_db_statement_bind_int (stmt, 0, id);
 	tracker_db_statement_execute (stmt, &error);
 	g_object_unref (stmt);
 
 	if (error) {
-		g_warning ("Could not execute FTS text deletion: %s", error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
-	                                              "DELETE FROM fts "
-	                                              "WHERE docid IN ("
-	                                              "  SELECT docid "
-	                                              "  FROM fts_prop_map "
-	                                              "  WHERE resourceid = ? AND propid = ?"
-	                                              ")");
-	if (!stmt) {
-		if (error) {
-			g_warning ("Could not delete FTS property map: %s\n",
-			           error->message);
-			g_error_free (error);
-		}
-		return FALSE;
-	}
-
-	tracker_db_statement_execute (stmt, &error);
-	g_object_unref (stmt);
-
-	if (error) {
-		g_warning ("Could not execute FTS properties deletion: %s", error->message);
+		g_warning ("Could not execute FTS update: %s", error->message);
 		g_error_free (error);
 		return FALSE;
 	}

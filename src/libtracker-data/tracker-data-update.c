@@ -961,8 +961,7 @@ tracker_data_resource_buffer_flush (GError **error)
 	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
 		GValueArray *values;
-
-		tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
+		gboolean create = resource_buffer->create;
 
 		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
@@ -975,15 +974,17 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append_c (fts, ' ');
 				}
 				tracker_db_interface_sqlite_fts_update_text (iface,
-					resource_buffer->id,
-					tracker_data_query_resource_id (tracker_property_get_uri (prop)),
-					fts->str,
-					!tracker_property_get_fulltext_no_limit (prop));
+				                                             resource_buffer->id,
+				                                             tracker_property_get_name (prop),
+				                                             fts->str,
+				                                             !tracker_property_get_fulltext_no_limit (prop),
+				                                             create);
 				g_string_free (fts, TRUE);
 
 				/* Set that we ever updated FTS, so that tracker_db_interface_sqlite_fts_update_commit()
 				 * gets called */
 				update_buffer.fts_ever_updated = TRUE;
+				create = FALSE;
 			}
 		}
 	}
@@ -1450,8 +1451,6 @@ get_old_property_values (TrackerProperty  *property,
 				/* first fulltext indexed property to be modified
 				 * retrieve values of all fulltext indexed properties
 				 */
-				tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
-
 				properties = tracker_ontologies_get_properties (&n_props);
 
 				for (i = 0; i < n_props; i++) {
@@ -1459,17 +1458,17 @@ get_old_property_values (TrackerProperty  *property,
 
 					if (tracker_property_get_fulltext_indexed (prop)
 					    && check_property_domain (prop)) {
-						gint prop_id;
+						const gchar *property_name;
 						gint i;
 
 						old_values = get_property_values (prop);
-						prop_id = tracker_data_query_resource_id (tracker_property_get_uri (prop));
+						property_name = tracker_property_get_name (prop);
 
 						/* delete old fts entries */
 						for (i = 0; i < old_values->n_values; i++) {
 							tracker_db_interface_sqlite_fts_delete_text (iface,
 							                                             resource_buffer->id,
-							                                             prop_id);
+							                                             property_name);
 						}
 					}
 				}
