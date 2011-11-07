@@ -3582,6 +3582,7 @@ load_ontologies_gvdb (GError **error)
 	g_free (filename);
 }
 
+#if HAVE_TRACKER_FTS
 static gint
 compare_fts_property_ids (gconstpointer a,
                           gconstpointer b)
@@ -3627,6 +3628,7 @@ ontology_get_fts_properties (gboolean only_new)
 
 	return prop_names;
 }
+#endif
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
@@ -3805,7 +3807,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	if (is_first_time_index && !read_only) {
+#if HAVE_TRACKER_FTS
 		const gchar **fts_props;
+#endif
 
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
@@ -3895,10 +3899,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
+#if HAVE_TRACKER_FTS
 		fts_props = ontology_get_fts_properties (FALSE);
-		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, fts_props, TRUE);
 		g_free (fts_props);
+#endif
 
 		tracker_data_ontology_import_into_db (FALSE,
 		                                      &internal_error);
@@ -4045,8 +4050,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 
+#if HAVE_TRACKER_FTS
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, NULL, FALSE);
+#endif
 	}
 
 	if (check_ontology) {

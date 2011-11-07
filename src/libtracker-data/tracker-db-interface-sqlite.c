@@ -1017,13 +1017,6 @@ tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 	}
 }
 
-int
-tracker_db_interface_sqlite_fts_update_init (TrackerDBInterface *db_interface,
-                                             int                 id)
-{
-	return 0;
-}
-
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
                                              int                 id,
@@ -1122,15 +1115,6 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
-void
-tracker_db_interface_sqlite_fts_update_commit (TrackerDBInterface *db_interface)
-{
-}
-
-void
-tracker_db_interface_sqlite_fts_update_rollback (TrackerDBInterface *db_interface)
-{
-}
 #endif
 
 void

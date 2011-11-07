@@ -1060,7 +1060,6 @@ tracker_data_update_buffer_clear (void)
 	resource_buffer = NULL;
 
 #if HAVE_TRACKER_FTS
-	tracker_db_interface_sqlite_fts_update_rollback (iface);
 	update_buffer.fts_ever_updated = FALSE;
 #endif
 
@@ -3378,7 +3377,6 @@ tracker_data_commit_transaction (GError **error)
 
 #if HAVE_TRACKER_FTS
 	if (update_buffer.fts_ever_updated) {
-		tracker_db_interface_sqlite_fts_update_commit (iface);
 		update_buffer.fts_ever_updated = FALSE;
 	}
 #endif
