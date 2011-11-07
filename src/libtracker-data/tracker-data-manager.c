@@ -3595,7 +3595,7 @@ compare_fts_property_ids (gconstpointer a,
 }
 
 static const gchar **
-ontology_get_fts_properties (void)
+ontology_get_fts_properties (gboolean only_new)
 {
 	TrackerProperty **properties;
 	GList *fts_props = NULL, *l;
@@ -3605,6 +3605,10 @@ ontology_get_fts_properties (void)
 	properties = tracker_ontologies_get_properties (&len);
 
 	for (i = 0; i < len; i++) {
+		if (only_new && !tracker_property_get_is_new (properties[i])) {
+			continue;
+		}
+
 		if (tracker_property_get_fulltext_indexed (properties[i])) {
 			/* Sort them by ID */
 			fts_props =
@@ -3891,7 +3895,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-		fts_props = ontology_get_fts_properties ();
+		fts_props = ontology_get_fts_properties (FALSE);
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, fts_props, TRUE);
 		g_free (fts_props);
@@ -4333,6 +4337,17 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 
 			if (update_nao) {
+#if HAVE_TRACKER_FTS
+				const gchar **new_fts_properties;
+
+				new_fts_properties = ontology_get_fts_properties (TRUE);
+
+				if (new_fts_properties) {
+					tracker_db_interface_sqlite_fts_alter_table (iface, new_fts_properties, NULL);
+					g_free (new_fts_properties);
+				}
+#endif
+
 				/* Update the nao:lastModified in the database */
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &n_error,
 				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "

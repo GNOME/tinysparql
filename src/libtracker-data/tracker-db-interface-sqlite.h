@@ -48,6 +48,9 @@ void                tracker_db_interface_sqlite_wal_hook               (TrackerD
                                                                         TrackerDBWalCallback      callback);
 
 #if HAVE_TRACKER_FTS
+void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
+                                                                        const gchar             **added_columns,
+                                                                        const gchar             **removed_columns);
 int                 tracker_db_interface_sqlite_fts_update_init        (TrackerDBInterface       *interface,
                                                                         int                       id);
 int                 tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *interface,

@@ -1007,6 +1007,16 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 }
 
 #if HAVE_TRACKER_FTS
+void
+tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
+					     const gchar        **added_columns,
+					     const gchar        **removed_columns)
+{
+	if (!tracker_fts_alter_table (db_interface->db, "fts", added_columns, removed_columns)) {
+		g_critical ("Failed to update FTS columns");
+	}
+}
+
 int
 tracker_db_interface_sqlite_fts_update_init (TrackerDBInterface *db_interface,
                                              int                 id)
