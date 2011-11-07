@@ -248,3 +248,135 @@ tracker_fts_create_table (sqlite3  *db,
 
 	return (rc == SQLITE_OK);
 }
+
+gboolean
+tracker_fts_alter_table (sqlite3  *db,
+			 gchar    *table_name,
+			 gchar   **added_columns,
+			 gchar   **removed_columns)
+{
+	GString *columns_str = NULL;
+	GPtrArray *columns;
+	sqlite3_stmt *stmt;
+	gchar *query, *tmp_name;
+	int rc, i;
+
+	if (!added_columns && !removed_columns) {
+		return TRUE;
+	}
+
+	query = g_strdup_printf ("PRAGMA table_info(%s)", table_name);
+	rc = sqlite3_prepare_v2 (db, query, -1, &stmt, NULL);
+	g_free (query);
+
+	if (rc != SQLITE_OK) {
+		return FALSE;
+	}
+
+	columns = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
+
+	/* Fetch the old columns, don't add stuff in removed_columns */
+	while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
+		if (rc == SQLITE_ROW) {
+			const gchar *name;
+
+			name = sqlite3_column_text (stmt, 1);
+
+			for (i = 0; removed_columns && removed_columns[i]; i++) {
+				if (g_strcmp0 (name, removed_columns[i]) == 0) {
+					continue;
+				}
+			}
+
+			g_ptr_array_add (columns, g_strdup (name));
+		}
+	}
+
+	if (rc == SQLITE_DONE) {
+		rc = sqlite3_finalize (stmt);
+	}
+
+	if (rc != SQLITE_OK) {
+		g_ptr_array_free (columns, TRUE);
+		return FALSE;
+	}
+
+	/* In columns we have the current columns, minus the removed columns,
+	 * create the update we'll execute later on to dump data from one
+	 * table to another.
+	 */
+	for (i = 0; i < columns->len; i++) {
+		if (!columns_str) {
+			columns_str = g_string_new ("");
+		} else {
+			g_string_append_c (columns_str, ',');
+		}
+
+		g_string_append_printf (columns_str, "\"%s\"",
+					(gchar *) g_ptr_array_index (columns, i));
+	}
+
+	if (!columns_str) {
+		g_ptr_array_free (columns, TRUE);
+		return FALSE;
+	}
+
+	tmp_name = g_strdup_printf ("%s_TMP", table_name);
+
+	query = g_strdup_printf ("INSERT INTO %s (%s) SELECT %s FROM %s",
+				 tmp_name, columns_str->str,
+				 columns_str->str, table_name);
+	g_string_free (columns_str, TRUE);
+
+	/* Now append stuff in added_columns and create the temporary table */
+	for (i = 0; added_columns && added_columns[i]; i++) {
+		g_ptr_array_add (columns, g_strdup (added_columns[i]));
+	}
+
+	/* Add trailing NULL */
+	g_ptr_array_add (columns, NULL);
+
+	if (!tracker_fts_create_table (db, tmp_name, (gchar **) columns->pdata)) {
+		g_ptr_array_free (columns, TRUE);
+		g_free (tmp_name);
+		g_free (query);
+		return FALSE;
+	}
+
+	/* Dump all content from one table to another */
+	g_ptr_array_free (columns, TRUE);
+	rc = sqlite3_exec(db, query, NULL, 0, NULL);
+	g_free (query);
+
+	if (rc != SQLITE_OK) {
+		query = g_strdup_printf ("DROP TABLE %s", tmp_name);
+		rc = sqlite3_exec(db, query, NULL, 0, NULL);
+		g_free (query);
+		g_free (tmp_name);
+		return FALSE;
+	}
+
+	/* Drop the old table */
+	query = g_strdup_printf ("DROP TABLE %s", table_name);
+	rc = sqlite3_exec(db, query, NULL, 0, NULL);
+	g_free (query);
+
+	if (rc != SQLITE_OK) {
+		/* FIXME: How can we leave such state? this is rather fatal */
+		g_free (tmp_name);
+		return FALSE;
+	}
+
+	/* And rename the previous one */
+	query = g_strdup_printf ("ALTER TABLE %s RENAME TO %s",
+				 tmp_name, table_name);
+	rc = sqlite3_exec(db, query, NULL, 0, NULL);
+	g_free (query);
+	g_free (tmp_name);
+
+	if (rc != SQLITE_OK) {
+		return FALSE;
+	}
+
+	return TRUE;
+}

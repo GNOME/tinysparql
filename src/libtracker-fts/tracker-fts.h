@@ -32,6 +32,11 @@ gboolean    tracker_fts_init_db          (sqlite3    *db);
 gboolean    tracker_fts_create_table     (sqlite3    *db,
 					  gchar      *table_name,
 					  gchar     **column_names);
+gboolean    tracker_fts_alter_table      (sqlite3    *db,
+					  gchar      *table_name,
+					  gchar     **added_columns,
+					  gchar     **removed_columns);
+
 
 G_END_DECLS
 
