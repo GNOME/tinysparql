@@ -1,3 +1,18 @@
+NEW in 0.10.35 - 2011-11-08
+===========================
+
+The changes are:
+
+  * Fixes: NB#272997, Album art images with transparency not handled nicely
+  * Fixes: NB#287972, Memory leak in ttl2sgml found by coverity in 0.10.31-1maemo1_0m7
+  * Fixes: NB#289635, Crash in gconf-dbus locale handling where we're called back during/after shutdown
+  * Fixes: NB#286656, Writeback operation fails due to race condition when tagging music in parallel
+
+Translations:
+
+  None
+
+
 NEW in 0.10.34 - 2011-11-01
 ===========================
 
