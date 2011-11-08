@@ -93,6 +93,11 @@ add_notify (void)
 	GVariant *reply;
 	GError *error = NULL;
 
+	if (gconf_dbus_default_db == NULL || connection == NULL) {
+		/* shutdown has already been called */
+		return FALSE;
+	}
+
 	reply = g_dbus_connection_call_sync (connection,
 	                                     GCONF_DBUS_SERVICE,
 	                                     gconf_dbus_default_db,
