@@ -962,7 +962,9 @@ tracker_data_resource_buffer_flush (GError **error)
 		TrackerProperty *prop;
 		GValueArray *values;
 		gboolean create = resource_buffer->create;
+		GPtrArray *properties, *text;
 
+		properties = text = NULL;
 		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
@@ -973,19 +975,29 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
-				tracker_db_interface_sqlite_fts_update_text (iface,
-				                                             resource_buffer->id,
-				                                             tracker_property_get_name (prop),
-				                                             fts->str,
-				                                             !tracker_property_get_fulltext_no_limit (prop),
-				                                             create);
-				g_string_free (fts, TRUE);
 
-				/* Set that we ever updated FTS, so that tracker_db_interface_sqlite_fts_update_commit()
-				 * gets called */
-				update_buffer.fts_ever_updated = TRUE;
-				create = FALSE;
+				if (!properties && !text) {
+					properties = g_ptr_array_new ();
+					text = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
+				}
+
+				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
+				g_ptr_array_add (text, g_string_free (fts, FALSE));
 			}
+		}
+
+		if (properties && text) {
+			g_ptr_array_add (properties, NULL);
+			g_ptr_array_add (text, NULL);
+
+			tracker_db_interface_sqlite_fts_update_text (iface,
+			                                             resource_buffer->id,
+			                                             (gchar **) properties->pdata,
+			                                             (gchar **) text->pdata,
+			                                             create);
+			update_buffer.fts_ever_updated = TRUE;
+			g_ptr_array_free (properties, TRUE);
+			g_ptr_array_free (text, TRUE);
 		}
 	}
 #endif
@@ -1048,12 +1060,6 @@ tracker_data_update_buffer_might_flush (GError **error)
 static void
 tracker_data_update_buffer_clear (void)
 {
-#if HAVE_TRACKER_FTS
-	TrackerDBInterface *iface;
-
-	iface = tracker_db_manager_get_db_interface ();
-#endif
-
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	g_hash_table_remove_all (update_buffer.resource_cache);

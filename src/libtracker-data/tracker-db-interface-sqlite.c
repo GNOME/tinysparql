@@ -1018,32 +1018,48 @@ tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 }
 
 gboolean
-tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
-                                             int                 id,
-                                             const gchar        *property,
-                                             const char         *text,
-                                             gboolean            limit_word_length,
-                                             gboolean            create)
+tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
+                                             int                  id,
+                                             const gchar        **properties,
+                                             const char         **text,
+                                             gboolean             create)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	gchar *query;
+	GString *query;
+	gint i;
 
 	if (create) {
-		query = g_strdup_printf ("INSERT INTO fts (docid, \"%s\") "
-		                         "VALUES (?, ?) ",
-		                         property);
+		query = g_string_new ("INSERT INTO fts (docid");
+
+		for (i = 0; properties[i] != NULL; i++) {
+			g_string_append_printf (query, ", \"%s\"", properties[i]);
+		}
+
+		g_string_append (query, ") VALUES (?");
+
+		for (i = 0; properties[i] != NULL; i++) {
+			g_string_append (query, ", ?");
+		}
+
+		g_string_append_c (query, ')');
 	} else {
-		query = g_strdup_printf ("UPDATE fts "
-		                         "SET \"%s\" = ? "
-		                         "WHERE docid = ? ",
-		                         property);
+		query = g_string_new ("UPDATE fts SET ");
+
+		for (i = 0; properties[i] != NULL; i++) {
+			if (i != 0) {
+				g_string_append_c (query, ',');
+			}
+			g_string_append_printf (query, "\"%s\" = ?", properties[i]);
+		}
+
+		g_string_append (query, " WHERE docid = ?");
 	}
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error, query);
-	g_free (query);
+	                                              &error, query->str);
+	g_string_free (query, TRUE);
 
 	if (!stmt || error) {
 		if (error) {
@@ -1056,10 +1072,16 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
 
 	if (create) {
 		tracker_db_statement_bind_int (stmt, 0, id);
-		tracker_db_statement_bind_text (stmt, 1, text);
+
+		for (i = 0; properties[i] != NULL; i++) {
+			tracker_db_statement_bind_text (stmt, i + 1, text[i]);
+		}
 	} else {
-		tracker_db_statement_bind_text (stmt, 0, text);
-		tracker_db_statement_bind_int (stmt, 1, id);
+		for (i = 0; properties[i] != NULL; i++) {
+			tracker_db_statement_bind_text (stmt, i, text[i]);
+		}
+
+		tracker_db_statement_bind_int (stmt, i, id);
 	}
 
 	tracker_db_statement_execute (stmt, &error);
