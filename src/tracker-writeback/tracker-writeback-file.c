@@ -214,8 +214,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 		g_object_unref (file_info);
 
 		g_set_error_literal (error,
-		                     G_IO_ERROR,
-		                     G_IO_ERROR_FAILED,
+		                     TRACKER_DBUS_ERROR,
+		                     TRACKER_DBUS_ERROR_UNSUPPORTED,
 		                     "Module does not support writeback for this file");
 
 		return FALSE;
