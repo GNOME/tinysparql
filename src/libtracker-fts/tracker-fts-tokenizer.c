@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include "tracker-fts-tokenizer.h"
 #include "tracker-fts-config.h"
 #include "tracker-parser.h"
 #include "fts3_tokenizer.h"
@@ -45,6 +46,7 @@ struct TrackerCursor {
   sqlite3_tokenizer_cursor base;
 
   TrackerTokenizer *tokenizer;
+  guint n_words;
 };
 
 /*
@@ -159,6 +161,10 @@ static int trackerNext(
 
   p  = cursor->tokenizer;
 
+  if (cursor->n_words > p->max_words){
+    return SQLITE_DONE;
+  }
+
   do {
     pToken = tracker_parser_next (p->parser,
 				  piPosition,
@@ -175,6 +181,8 @@ static int trackerNext(
   if (ppToken){
     *ppToken = pToken;
   }
+
+  cursor->n_words++;
 
   return SQLITE_OK;
 }
@@ -195,7 +203,7 @@ static const sqlite3_tokenizer_module trackerTokenizerModule = {
 ** Set *ppModule to point at the implementation of the tracker tokenizer.
 */
 gboolean tracker_tokenizer_initialize (sqlite3 *db) {
-  sqlite3_tokenizer_module *pTokenizer;
+  const sqlite3_tokenizer_module *pTokenizer;
   int rc = SQLITE_OK;
   sqlite3_stmt *stmt;
 
