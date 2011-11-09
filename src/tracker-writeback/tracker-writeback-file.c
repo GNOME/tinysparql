@@ -181,7 +181,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_UNIX_MODE ","
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+	                               G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
 
@@ -192,6 +193,19 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 		             G_IO_ERROR,
 		             G_IO_ERROR_FAILED,
 		             "%s doesn't exist",
+		             row[0]);
+
+		return FALSE;
+	}
+
+	if (!g_file_info_get_attribute_boolean (file_info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE)) {
+		g_object_unref (file_info);
+		g_object_unref (file);
+
+		g_set_error (error,
+		             G_IO_ERROR,
+		             G_IO_ERROR_FAILED,
+		             "%s not writable",
 		             row[0]);
 
 		return FALSE;
