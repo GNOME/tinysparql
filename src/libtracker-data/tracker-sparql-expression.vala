@@ -322,7 +322,7 @@ class Tracker.Sparql.Expression : Object {
 			break;
 		case PropertyType.DATETIME:
 			// ISO 8601 format
-			sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%SZ\", ");
+			sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%fZ\", ");
 			sql.append (", \"unixepoch\")");
 			break;
 		default:
