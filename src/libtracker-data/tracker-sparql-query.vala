@@ -514,9 +514,9 @@ public class Tracker.Sparql.Query : Object {
 					throw new Sparql.Error.TYPE ("`%s' is not a valid boolean".printf (binding.literal));
 				}
 			} else if (binding.data_type == PropertyType.DATE) {
-				stmt.bind_int (i, string_to_date (binding.literal + "T00:00:00Z", null));
+				stmt.bind_int (i, (int) string_to_date (binding.literal + "T00:00:00Z", null));
 			} else if (binding.data_type == PropertyType.DATETIME) {
-				stmt.bind_int (i, string_to_date (binding.literal, null));
+				stmt.bind_double (i, string_to_date (binding.literal, null));
 			} else if (binding.data_type == PropertyType.INTEGER) {
 				stmt.bind_int (i, int.parse (binding.literal));
 			} else {

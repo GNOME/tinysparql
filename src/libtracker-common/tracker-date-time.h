@@ -43,20 +43,20 @@ GQuark   tracker_date_error_quark              (void);
 GType    tracker_date_time_get_type            (void);
 
 void     tracker_date_time_set                 (GValue       *value,
-                                                gint64        time,
+                                                gdouble       time,
                                                 gint          offset);
 void     tracker_date_time_set_from_string     (GValue       *value,
                                                 const gchar  *date_time_string,
                                                 GError      **error);
-gint64   tracker_date_time_get_time            (const GValue *value);
+gdouble  tracker_date_time_get_time            (const GValue *value);
 gint     tracker_date_time_get_offset          (const GValue *value);
 gint     tracker_date_time_get_local_date      (const GValue *value);
 gint     tracker_date_time_get_local_time      (const GValue *value);
 
-time_t   tracker_string_to_date                (const gchar  *date_string,
+gdouble  tracker_string_to_date                (const gchar  *date_string,
                                                 gint         *offset,
                                                 GError      **error);
-gchar *  tracker_date_to_string                (time_t        date_time);
+gchar *  tracker_date_to_string                (gdouble       date_time);
 
 G_END_DECLS
 
