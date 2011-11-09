@@ -77,9 +77,12 @@ test_guess_date (void)
 
         /* "YYYY-MM-DDThh:mm:ss.ff+zz:zz" */
         result = tracker_date_guess ("2010-03-18T01:02:03.10-00:03");
-        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03-00:03");
+        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03.10-00:03");
         g_free (result);
 
+        result = tracker_date_guess ("2010-03-18T01:02:03.100");
+        g_assert_cmpstr (result, ==, "2010-03-18T01:02:03.100");
+        g_free (result);
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_date_guess (NULL);
