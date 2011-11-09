@@ -66,7 +66,8 @@ libtracker_common_la_LDFLAGS = \
 
 libtracker_common_la_LIBADD = \
 	$(BUILD_LIBS) \
-	$(LIBTRACKER_COMMON_LIBS)
+	$(LIBTRACKER_COMMON_LIBS) \
+	-lm
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_LIBADD += $(top_builddir)/src/libstemmer/libstemmer.la
