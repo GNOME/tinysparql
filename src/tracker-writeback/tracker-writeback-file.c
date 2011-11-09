@@ -239,11 +239,10 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 	/* Copy to a temporary file so we can perform an atomic write on move */
 	tmp_file = create_temporary_file (file, file_info, &n_error);
 
-	g_object_unref (file_info);
-
 	if (!tmp_file) {
 		g_object_unref (file);
 		g_propagate_error (error, n_error);
+		g_object_unref (file_info);
 		return FALSE;
 	}
 
@@ -258,12 +257,21 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 		/* Delete the temporary file and preserve original */
 		g_file_delete (tmp_file, NULL, NULL);
 	} else {
+		GError *m_error = NULL;
 		/* Move back the modified file to the original location */
 		g_file_move (tmp_file, file,
-			     G_FILE_COPY_OVERWRITE,
-			     NULL, NULL, NULL, NULL);
+		             G_FILE_COPY_OVERWRITE,
+		             NULL, NULL, NULL, NULL);
+		/* Set file attributes on tmp_file using file_info of original file */
+		g_file_set_attributes_from_info (tmp_file, file_info, 0, NULL, &m_error);
+		if (m_error) {
+			g_warning ("Can't restore permissions of original file for %s",
+			           row[0]);
+			g_error_free (m_error);
+		}
 	}
 
+	g_object_unref (file_info);
 	g_object_unref (tmp_file);
 	g_object_unref (file);
 
