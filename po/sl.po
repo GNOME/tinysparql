@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-10-21 14:44+0000\n"
-"PO-Revision-Date: 2011-10-22 20:43+0100\n"
+"POT-Creation-Date: 2011-11-10 14:11+0000\n"
+"PO-Revision-Date: 2011-11-10 21:13+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -26,7 +26,7 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
-#: ../src/tracker-search-bar/tracker-results-window.c:722
+#: ../src/tracker-search-bar/tracker-results-window.c:717
 msgid "Applications"
 msgstr "Programi"
 
@@ -358,7 +358,7 @@ msgstr[3] "_Nastavi oznake za povezavo s %d izbranimi predmeti:"
 #: ../src/plugins/nautilus/tracker-tags-extension.c:111
 #: ../src/plugins/nautilus/tracker-tags-extension.c:185
 #: ../src/tracker-needle/tracker-view.vala:538
-#: ../src/tracker-search-bar/tracker-results-window.c:719
+#: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Oznake"
 
@@ -1088,17 +1088,17 @@ msgid "Music"
 msgstr "Glasba"
 
 #: ../src/tracker-needle/tracker-view.vala:337
-#: ../src/tracker-search-bar/tracker-results-window.c:723
+#: ../src/tracker-search-bar/tracker-results-window.c:718
 msgid "Images"
 msgstr "Slike"
 
 #: ../src/tracker-needle/tracker-view.vala:340
-#: ../src/tracker-search-bar/tracker-results-window.c:727
+#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Videos"
 msgstr "Posnetki"
 
 #: ../src/tracker-needle/tracker-view.vala:343
-#: ../src/tracker-search-bar/tracker-results-window.c:721
+#: ../src/tracker-search-bar/tracker-results-window.c:716
 msgid "Documents"
 msgstr "Dokumenti"
 
@@ -1107,12 +1107,12 @@ msgid "Mail"
 msgstr "Pošta"
 
 #: ../src/tracker-needle/tracker-view.vala:349
-#: ../src/tracker-search-bar/tracker-results-window.c:725
+#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Folders"
 msgstr "Mape"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-search-bar/tracker-results-window.c:729
+#: ../src/tracker-search-bar/tracker-results-window.c:724
 #: ../src/tracker-utils/tracker-search.c:912
 msgid "Bookmarks"
 msgstr "Zaznamki"
@@ -1160,7 +1160,7 @@ msgstr[2] "Stika"
 msgstr[3] "Stiki"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
-#: ../src/tracker-search-bar/tracker-results-window.c:724
+#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Zvoki"
@@ -1291,41 +1291,41 @@ msgstr "Pokaži statistiko o shranjenih podatkih"
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr "_Nastavi oznake za povezavo z %d izbranimi predmeti:"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:717
-#: ../src/tracker-search-bar/tracker-results-window.c:733
+#: ../src/tracker-search-bar/tracker-results-window.c:712
+#: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Other"
 msgstr "Ostalo"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:718
+#: ../src/tracker-search-bar/tracker-results-window.c:713
 #: ../src/tracker-utils/tracker-search.c:239
 msgid "Contacts"
 msgstr "Stiki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:720
+#: ../src/tracker-search-bar/tracker-results-window.c:715
 msgid "Email Addresses"
 msgstr "Naslovi elektronske pošte"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:726
+#: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Fonts"
 msgstr "Pisave"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:728
+#: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Archives"
 msgstr "Arhivi"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:730
+#: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Links"
 msgstr "Povezave"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1104
+#: ../src/tracker-search-bar/tracker-results-window.c:1101
 msgid "Category"
 msgstr "Kategorija"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1132
+#: ../src/tracker-search-bar/tracker-results-window.c:1129
 msgid "Title"
 msgstr "Naslov"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1198
+#: ../src/tracker-search-bar/tracker-results-window.c:1195
 #, c-format
 msgid "No results found for “%s”"
 msgstr "Za “%s” ni najdenih rezultatov"
@@ -2035,13 +2035,13 @@ msgstr "Ni najdenih stikov"
 
 #: ../src/tracker-utils/tracker-search.c:292
 #: ../src/tracker-utils/tracker-search.c:305
-msgid "No Name"
+msgid "No name"
 msgstr "Brez imena"
 
 #: ../src/tracker-utils/tracker-search.c:293
 #: ../src/tracker-utils/tracker-search.c:306
-msgid "No Address"
-msgstr "Brez naslova"
+msgid "No E-mail address"
+msgstr "Ni elektronskega naslova"
 
 #: ../src/tracker-utils/tracker-search.c:340
 msgid "No emails were found"
@@ -2490,6 +2490,12 @@ msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 #: ../utils/tracker-sql/tracker-sql.c:205
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
+
+#~ msgid "No Name"
+#~ msgstr "Brez imena"
+
+#~ msgid "No Address"
+#~ msgstr "Brez naslova"
 
 #~ msgid "%d/20"
 #~ msgstr "%d/20"
