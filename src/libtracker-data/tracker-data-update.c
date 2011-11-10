@@ -2577,6 +2577,7 @@ handle_blank_node (const gchar  *subject,
                    const gchar  *predicate,
                    const gchar  *object,
                    const gchar  *graph,
+                   gboolean      update,
                    GError      **error)
 {
 	GError *actual_error = NULL;
@@ -2599,7 +2600,11 @@ handle_blank_node (const gchar  *subject,
 
 	if (blank_uri != NULL) {
 		/* now insert statement referring to blank node */
-		tracker_data_update_statement (graph, subject, predicate, blank_uri, &actual_error);
+		if (update) {
+			tracker_data_update_statement (graph, subject, predicate, blank_uri, &actual_error);
+		} else {
+			tracker_data_insert_statement (graph, subject, predicate, blank_uri, &actual_error);
+		}
 
 		g_hash_table_remove (blank_buffer.table, object);
 
@@ -2655,7 +2660,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-		if (handle_blank_node (subject, predicate, object, graph, &actual_error)) {
+		if (handle_blank_node (subject, predicate, object, graph, FALSE, &actual_error)) {
 			return;
 		}
 
@@ -2873,7 +2878,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-		if (handle_blank_node (subject, predicate, object, graph, &actual_error)) {
+		if (handle_blank_node (subject, predicate, object, graph, TRUE, &actual_error)) {
 			return;
 		}
 
