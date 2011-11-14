@@ -226,6 +226,7 @@ tracker_albumart_get_path (const gchar  *artist,
 	gchar *dir;
 	gchar *artist_down, *album_down;
 	gchar *artist_stripped, *album_stripped;
+	gchar *artist_norm, *album_norm;
 	gchar *artist_checksum, *album_checksum;
 
 	/* http://live.gnome.org/MediaArtStorageSpec */
@@ -254,11 +255,16 @@ tracker_albumart_get_path (const gchar  *artist,
 		album_stripped = tracker_albumart_strip_invalid_entities (album);
 	}
 
-	artist_down = g_utf8_strdown (artist_stripped, -1);
-	album_down = g_utf8_strdown (album_stripped, -1);
+	artist_norm = g_utf8_normalize (artist_stripped, -1, G_NORMALIZE_NFKD);
+	album_norm = g_utf8_normalize (album_stripped, -1, G_NORMALIZE_NFKD);
+
+	artist_down = g_utf8_strdown (artist_norm, -1);
+	album_down = g_utf8_strdown (album_norm, -1);
 
 	/* g_print ("[%s] [%s]\n", artist_down, album_down); */
 
+	g_free (artist_norm);
+	g_free (album_norm);
 	g_free (artist_stripped);
 	g_free (album_stripped);
 
