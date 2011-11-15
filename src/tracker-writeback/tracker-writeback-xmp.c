@@ -23,6 +23,7 @@
 
 #include <locale.h>
 #include <string.h>
+#include <math.h>
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
