@@ -501,12 +501,38 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 
 				xmp_delete_property (xmp, NS_EXIF, "GPSLongitude");
 				if (longitude != NULL) {
-					xmp_set_property (xmp, NS_EXIF, "GPSLongitude", longitude, 0);
+					double coord = atof (longitude);
+					double degrees, minutes;
+					gchar *val;
+
+					minutes = modf (coord, &degrees);
+
+					val = g_strdup_printf ("%3d,%f%c",
+					                       (int) fabs(degrees),
+					                       minutes,
+					                       coord >= 0 ? 'E' : 'W');
+
+					xmp_set_property (xmp, NS_EXIF, "GPSLongitude", val, 0);
+
+					g_free (val);
 				}
 
 				xmp_delete_property (xmp, NS_EXIF, "GPSLatitude");
 				if (latitude != NULL) {
-					xmp_set_property (xmp, NS_EXIF, "GPSLatitude", latitude, 0);
+					double coord = atof (latitude);
+					double degrees, minutes;
+					gchar *val;
+
+					minutes = modf (coord, &degrees);
+
+					val = g_strdup_printf ("%3d,%f%c",
+					                       (int) fabs(degrees),
+					                       minutes,
+					                       coord >= 0 ? 'N' : 'S');
+
+					xmp_set_property (xmp, NS_EXIF, "GPSLatitude", val, 0);
+
+					g_free (val);
 				}
 			}
 		}
