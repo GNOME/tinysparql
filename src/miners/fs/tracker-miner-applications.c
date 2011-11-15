@@ -338,13 +338,6 @@ get_desktop_key_file (GFile   *file,
 		return NULL;
 	}
 
-	if (g_key_file_get_boolean (key_file, GROUP_DESKTOP_ENTRY, "Hidden", NULL)) {
-		g_set_error_literal (error, miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
-		g_key_file_free (key_file);
-		g_free (path);
-		return NULL;
-	}
-
 	str = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
 
 	if (G_UNLIKELY (!str)) {
@@ -851,6 +844,8 @@ process_file_cb (GObject      *object,
 			g_clear_error (&error);
 
 			error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+		} else if (g_key_file_get_boolean (data->key_file, GROUP_DESKTOP_ENTRY, "Hidden", NULL)) {
+			error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
 		} else {
 			process_desktop_file (data, file_info, &error);
 		}
