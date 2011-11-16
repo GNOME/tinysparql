@@ -838,6 +838,8 @@ class Tracker.Sparql.Expression : Object {
 	}
 
 	internal string parse_string_literal (out PropertyType type = null) throws Sparql.Error {
+		type = PropertyType.STRING;
+
 		next ();
 		switch (last ()) {
 		case SparqlTokenType.STRING_LITERAL1:
@@ -889,12 +891,7 @@ class Tracker.Sparql.Expression : Object {
 
 			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
 				// typed literal
-				var parsed_type = parse_type_uri ();
-				if (&type == null) {
-					// caller not interested in type
-				} else {
-					type = parsed_type;
-				}
+				type = parse_type_uri ();
 			}
 
 			return sb.str;
@@ -904,12 +901,7 @@ class Tracker.Sparql.Expression : Object {
 
 			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
 				// typed literal
-				var parsed_type = parse_type_uri ();
-				if (&type == null) {
-					// caller not interested in type
-				} else {
-					type = parsed_type;
-				}
+				type = parse_type_uri ();
 			}
 
 			return result;

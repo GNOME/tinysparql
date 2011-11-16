@@ -468,9 +468,7 @@ public class Tracker.SparqlScanner : Object {
 
 		SparqlTokenType type;
 		char* begin = current;
-		token_begin.pos = begin;
-		token_begin.line = line;
-		token_begin.column = column;
+		token_begin = SourceLocation (begin, line, column);
 
 		int token_length_in_chars = -1;
 
@@ -792,9 +790,7 @@ public class Tracker.SparqlScanner : Object {
 			column += token_length_in_chars;
 		}
 
-		token_end.pos = current;
-		token_end.line = line;
-		token_end.column = column - 1;
+		token_end = SourceLocation (current, line, column - 1);
 
 		return type;
 	}
@@ -850,6 +846,12 @@ public struct Tracker.SourceLocation {
 	public char* pos;
 	public int line;
 	public int column;
+
+	public SourceLocation (char* pos, int line, int column) {
+		this.pos = pos;
+		this.line = line;
+		this.column = column;
+	}
 }
 
 public enum Tracker.SparqlTokenType {
