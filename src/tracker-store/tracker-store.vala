@@ -63,7 +63,7 @@ public class Tracker.Store {
 		public string query;
 		public Cancellable cancellable;
 		public uint watchdog_id;
-		public SparqlQueryInThread in_thread;
+		public unowned SparqlQueryInThread in_thread;
 
 		~QueryTask () {
 			if (watchdog_id > 0) {

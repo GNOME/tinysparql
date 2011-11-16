@@ -51,9 +51,7 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 
 		str = results[current_row, column];
 
-		if (&length != null) {
-			length = str.length;
-		}
+		length = str.length;
 
 		return str;
 	}
