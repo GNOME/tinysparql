@@ -226,7 +226,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         self.assertEquals (len (result), 1)
                         self.assertEquals (len (result[0]), 2)
                         self.assertEquals (int (result[0][0]), i)
-                        self.assertEquals (result[0][1], "2000-01-01T00:4%d:47Z" % (i))
+                        self.assertEquals (result[0][1], "2000-01-01T00:4%d:47.000Z" % (i))
 
                 self.tracker.update ("""
                 DELETE { <test://instance-1> a rdfs:Resource. }
@@ -257,7 +257,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         self.assertEquals (len (result), 1)
                         self.assertEquals (len (result[0]), 2)
                         self.assertEquals (int (result[0][0]), i)
-                        self.assertEquals (result[0][1], "2000-01-01T00:4%d:47Z" % (i))
+                        self.assertEquals (result[0][1], "2000-01-01T00:4%d:47.000Z" % (i))
 
                 self.tracker.update ("""
                 DELETE { <test://instance-1> a rdfs:Resource. }

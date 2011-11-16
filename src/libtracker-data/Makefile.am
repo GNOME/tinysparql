@@ -49,7 +49,8 @@ libtracker_data_la_LIBADD =                            \
 	$(top_builddir)/src/gvdb/libgvdb.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
-	$(LIBTRACKER_DATA_LIBS)
+	$(LIBTRACKER_DATA_LIBS)                        \
+	-lm
 
 if HAVE_TRACKER_FTS
 libtracker_data_la_LIBADD +=                           \
