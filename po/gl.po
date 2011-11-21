@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-05 01:20+0200\n"
-"PO-Revision-Date: 2011-09-05 01:49+0200\n"
+"PO-Revision-Date: 2011-11-21 15:40+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galego <gnome-l10n-gl@gnome.org>\n"
+"Language-Team: Galician <gnome-l10n-gl@gnome.org>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bits\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Generator: Lokalize 0.3\n"
 
@@ -314,25 +314,34 @@ msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
 "removable devices are not indexed, optical discs won't be either)"
 msgstr ""
+"Estabelecer a certo para activar a indexación de CD, DVD e medios ópticos en "
+"xeral (se os dispositivos extraíbeis non están indexados, os discos ópticos "
+"tampouco o estarán)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid ""
 "Set to true to enable indexing mounted directories for removable devices."
 msgstr ""
+"Estabelecer a certo para activar a indexación de cartafoles de dispositivos "
+"extraíbeis montados"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Set to true to index while running on battery"
-msgstr ""
+msgstr "Estabelecer a certo para indexar ao funcionar con baterías"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
 msgid "Set to true to index while running on battery for the first time only"
 msgstr ""
+"Estabelecer a certo para indexar mentres se estea funcionando con baterías "
+"só para a próxima vez"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
 msgid ""
 "Threshold in days after which files from removables devices will be removed "
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
+"Umbral en días despois dos cales os dispositivos extraíbeis se quitarán da "
+"base de datos se non se montaron. 0 significa nunca, e o máximo é 365."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
 msgid "Throttle"
@@ -387,7 +396,9 @@ msgstr "Non se forneceu ningún erro"
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
 msgstr[0] ""
+"_Estabelecer as etiquetas que quere asociar co elemento seleccionado:"
 msgstr[1] ""
+"_Estabelecer as etiquetas que quere asociar cos %d elementos seleccionados:"
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:116
 #: ../src/plugins/nautilus/tracker-tags-extension.c:221
@@ -471,6 +482,8 @@ msgstr[1] " %2.2d segundos"
 #: ../src/libtracker-miner/tracker-miner-object.c:957
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
+"O aplicativo de pausa e a razón xa coinciden cunha solicitude de pausa "
+"existente"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:1054
 msgid "Cookie not recognized to resume paused miner"
@@ -621,27 +634,28 @@ msgstr "O cartafol é elexíbel para ser escrutado (segundo as regras)"
 
 #: ../src/miners/fs/tracker-main.c:472
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr ""
+msgstr "O cartafol NON é elixíbel para ser escrutada (segundo as regras)"
 
 #: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr ""
+msgstr "O cartafol é elixíbel para ser escrutada (segundo o contido)"
 
 #: ../src/miners/fs/tracker-main.c:493
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr ""
+msgstr "O cartafol NON é elixíbel para ser escrutada (segundo o contido)"
 
 #: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "O cartafol é elixíbel para ser monitorizada (segundo a configuración)"
 
 #: ../src/miners/fs/tracker-main.c:541
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
+"O cartafol NON é elixíbel para ser monitorizado (segundo a configuración)"
 
 #: ../src/miners/fs/tracker-main.c:545
 msgid "File is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "O ficheiro é elixíbel para ser monitorizado (segundo a configuración)"
 
 #: ../src/miners/fs/tracker-main.c:546
 msgid "File is NOT eligible to be monitored (based on config)"
@@ -664,24 +678,20 @@ msgid "File is NOT eligible to be mined (based on rules)"
 msgstr ""
 
 #: ../src/miners/fs/tracker-main.c:576
-#, fuzzy
 msgid "Would be indexed"
-msgstr "Débese indexar de novo a información"
+msgstr "Indexarase"
 
 #: ../src/miners/fs/tracker-main.c:577 ../src/miners/fs/tracker-main.c:579
-#, fuzzy
 msgid "Yes"
-msgstr "si"
+msgstr "Si"
 
 #: ../src/miners/fs/tracker-main.c:577 ../src/miners/fs/tracker-main.c:579
-#, fuzzy
 msgid "No"
-msgstr "Ningún"
+msgstr "Non"
 
 #: ../src/miners/fs/tracker-main.c:578
-#, fuzzy
 msgid "Would be monitored"
-msgstr "Deben ser convertidas a"
+msgstr "Monitorizarase"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -691,13 +701,12 @@ msgid "- start the tracker indexer"
 msgstr "- iniciar o indexador do tracker"
 
 #: ../src/miners/fs/tracker-miner-files.c:1307
-#, fuzzy
 msgid "Low battery"
-msgstr "batería baixa"
+msgstr "Batería baixa"
 
 #: ../src/miners/fs/tracker-miner-files.c:1430
 msgid "Low disk space"
-msgstr ""
+msgstr "Espazo en disco baixo"
 
 #: ../src/miners/fs/tracker-miner-files.c:2141
 msgid "Extractor error, performing failsafe embedded metadata extraction"
@@ -705,27 +714,26 @@ msgstr ""
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
-msgstr ""
+msgstr "Engadir fornecedor (débese usar con «--title»)"
 
 #: ../src/miners/rss/tracker-main.c:45
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../src/miners/rss/tracker-main.c:48
 msgid "Title to use (must be used with --add-feed)"
-msgstr ""
+msgstr "Título que usar (débese usar con «--add-feed»)"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:76
-#, fuzzy
 msgid "- start the feeds indexer"
 msgstr "- iniciar o indexador do tracker"
 
 #: ../src/miners/rss/tracker-main.c:81
 msgid "Adding a feed requires --add-feed and --title"
-msgstr ""
+msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:115
@@ -734,9 +742,8 @@ msgstr ""
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#, fuzzy
 msgid "Could not establish a connection to Tracker"
-msgstr "Non se puido establecer unha conexión DBus co Tracker"
+msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
 #: ../src/miners/rss/tracker-main.c:116
 #: ../src/tracker-utils/tracker-import.c:116
@@ -749,9 +756,8 @@ msgid "No error given"
 msgstr "Non se obtivo ningún erro"
 
 #: ../src/miners/rss/tracker-main.c:141
-#, fuzzy
 msgid "Could not add feed"
-msgstr "Non se puido ler o ficheiro"
+msgstr "Non foi posíbel engadir un fornecedor"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -814,9 +820,8 @@ msgid "Print version"
 msgstr "Imprimir versión"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:503
-#, fuzzy
 msgid "Desktop Search preferences"
-msgstr "Preferencias do Tracker"
+msgstr "Preferencias de buscas do Escritorio"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Day(s)"
@@ -868,6 +873,8 @@ msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
+"Aquí pódense usar patróns de coincidencia, por exemplo: «*bar*».\n"
+"Isto soe usarse para ignorar cartafoles como *~, *.o, *.la, etc"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Ignored Content"
@@ -891,7 +898,7 @@ msgstr "Preferencias do indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:19
 msgid "Indexing s_peed (faster consumes more resources):"
-msgstr ""
+msgstr "_Velocidade de indexado (máis rápida consume máis recursos)."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
@@ -915,7 +922,7 @@ msgstr "Abre o diálogo do selector de ficheiros"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "Recursively Indexed"
-msgstr ""
+msgstr "Indexado recursivo"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Semantics"
@@ -975,11 +982,12 @@ msgstr ""
 #: ../src/tracker-needle/tracker-needle.vala:629
 #: ../src/tracker-needle/tracker-needle.vala:630
 msgid "[SEARCH-CRITERIA]"
-msgstr ""
+msgstr "[CRITERIO_DE_BUSCA]"
 
 #: ../src/tracker-needle/tracker-needle.vala:635
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
+"Interface de usuario da ferramenta de busca do Escritorio usando Tracker"
 
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
 #: ../src/tracker-needle/tracker-utils.vala:44
@@ -1179,6 +1187,20 @@ msgid ""
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
 "Street, Fifth Floor, Boston, MA  02110-1301, USA."
 msgstr ""
+"O Tracker é software libre, pode redistribuílo ou modificalo \n"
+"baixo os termos da Licenza pública xeral GNU tal como a publica\n"
+" a Free Software Foundation; tanto na versión 2 da Licenza como \n"
+"(segundo o seu criterio) en calquera versión posterior.\n"
+"\n"
+"O Gcalctool distribúese esperando que sexa útil, \n"
+"mais SEN NINGUNHA GARANTÍA; mesmo sen a garantía implícita\n"
+"de VALOR COMERCIAL ou ADECUACIÓN PARA UN PROPÓSITO PARTICULAR.\n"
+"Para máis detalles vexa a Licenza pública xeral GNU.\n"
+"\n"
+"Debeu recibir unha copia da Licenza pública xeral GNU \n"
+"xunto co Gcalctool; en caso contrario, escriba á Free Software Foundation,"
+"Inc.,\n"
+"51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA"
 
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:51
@@ -1242,25 +1264,29 @@ msgid ""
 msgstr ""
 
 #: ../src/tracker-control/tracker-control-general.c:88
-#, fuzzy
 msgid "Kill all Tracker processes and remove all databases"
-msgstr ""
-"Isto matará todos os procesos de Tracker e eliminará todas as bases de datos"
+msgstr "Matar todos os procesos de Tracker e borrar todas as bases de datos"
 
 #: ../src/tracker-control/tracker-control-general.c:91
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
+"Igual que --hard-reset pero o respaldo e o diario restáuranse despois de "
+"reiniciar"
 
 #: ../src/tracker-control/tracker-control-general.c:94
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
+"Quitar todos os ficheiros de configuración para que se rexeneren no seguinte "
+"inicio"
 
 #: ../src/tracker-control/tracker-control-general.c:97
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
 msgstr ""
+"Estabelece o nivel de detalle a «NIVEL» («depuración», «detallado», "
+"«mínimo», «erros») para todos os procesos"
 
 #: ../src/tracker-control/tracker-control-general.c:98
 msgid "LEVEL"
@@ -1276,14 +1302,12 @@ msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Inicia mineiros (que indirectamente inicia Tracker tamén)"
 
 #: ../src/tracker-control/tracker-control-general.c:106
-#, fuzzy
 msgid "Backup databases to the file provided"
-msgstr "Non se proporcionou ningunha base de datos"
+msgstr "Respaldar bases de datos ao ficheiro fornecido"
 
 #: ../src/tracker-control/tracker-control-general.c:109
-#, fuzzy
 msgid "Restore databases from the file provided"
-msgstr "Non se proporcionou ningunha base de datos"
+msgstr "Restaurar bases de datos desde o ficheiro fornecido"
 
 #: ../src/tracker-control/tracker-control-general.c:131
 msgid "Could not open /proc"
@@ -1362,9 +1386,8 @@ msgid "Killed process %d"
 msgstr "Proceso %d matado"
 
 #: ../src/tracker-control/tracker-control-general.c:823
-#, fuzzy
 msgid "Removing configuration files…"
-msgstr "- Obter toda a información dun ficheiro determinado"
+msgstr "Quitando ficheiros de configuración…"
 
 #: ../src/tracker-control/tracker-control-general.c:846
 #: ../src/tracker-control/tracker-control-general.c:888
@@ -1390,7 +1413,7 @@ msgstr "Estabelendo o rexistro detallado para tódolos compoñentens a «%s»…
 
 #: ../src/tracker-control/tracker-control-general.c:911
 msgid "Waiting one second before starting miners…"
-msgstr ""
+msgstr "Agardando un segundo antes de iniciar os mineiros…"
 
 #: ../src/tracker-control/tracker-control-general.c:917
 msgid "Starting miners…"
@@ -1427,14 +1450,16 @@ msgid ""
 "Tell miners to reindex files which match the mime type supplied (for new "
 "extractors), use -m MIME1 -m MIME2"
 msgstr ""
+"Decir aos mineiros que reindexen os ficheiros que coincidan co tipo MIME "
+"fornecido (para extractores novos), uso -m MIME1 -m MIME2"
 
 #: ../src/tracker-control/tracker-control-miners.c:59
 msgid "Tell miners to (re)index a given file"
-msgstr ""
+msgstr "Decir aos mineiros que (re)indexen un ficheiro dado"
 
 #: ../src/tracker-control/tracker-control-miners.c:62
 msgid "Pause a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Pausar un mineiro (debe usalo con «--miner»)"
 
 #: ../src/tracker-control/tracker-control-miners.c:63
 #: ../src/tracker-control/tracker-control-miners.c:67
@@ -1446,10 +1471,12 @@ msgid ""
 "Pause a miner while the calling process is alive or until resumed (you must "
 "use this with --miner)"
 msgstr ""
+"Pausar un mineiro mentres o proceso de chamada estea activo ou até que se "
+"reanude (debe usalo con «--miner»)"
 
 #: ../src/tracker-control/tracker-control-miners.c:70
 msgid "Resume a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Reanudar un mineiro (debe usalo con «--miner»)"
 
 #: ../src/tracker-control/tracker-control-miners.c:71
 msgid "COOKIE"
@@ -1460,6 +1487,8 @@ msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
 msgstr ""
+"Mineiro que usar con --resume ou --pause (pode usar sufixos, ex. «Ficheiros» "
+"ou «Aplicativos»)"
 
 #: ../src/tracker-control/tracker-control-miners.c:75
 msgid "MINER"
@@ -1467,21 +1496,20 @@ msgstr "MINEIRO"
 
 #: ../src/tracker-control/tracker-control-miners.c:78
 msgid "List all miners currently running"
-msgstr ""
+msgstr "Listar todos os mineiros actualmente en execución"
 
 #: ../src/tracker-control/tracker-control-miners.c:82
-#, fuzzy
 msgid "List all miners installed"
-msgstr "Listar todas as etiquetas definidas"
+msgstr "Listar tódolos mineiros instalados"
 
 #: ../src/tracker-control/tracker-control-miners.c:86
 msgid "List pause reasons"
-msgstr ""
+msgstr "Listar os motivos de pausa"
 
 #: ../src/tracker-control/tracker-control-miners.c:111
 #, c-format
 msgid "Could not pause miner, manager could not be created, %s"
-msgstr ""
+msgstr "Non foi posíbel pausar o mineiro, non foi posíbel crear o xestor, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:118
 #, c-format
@@ -1501,7 +1529,7 @@ msgstr "A «cookie» é %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:144
 msgid "Press Ctrl+C to end pause"
-msgstr ""
+msgstr "Prema «Ctrl+C» para rematar a pausa"
 
 #: ../src/tracker-control/tracker-control-miners.c:161
 #, c-format
@@ -1560,12 +1588,12 @@ msgstr ""
 #: ../src/tracker-control/tracker-control-miners.c:278
 #, c-format
 msgid "Found %d miners installed"
-msgstr ""
+msgstr "Atopáronse %d mineiros instalados"
 
 #: ../src/tracker-control/tracker-control-miners.c:298
 #, c-format
 msgid "Found %d miners running"
-msgstr ""
+msgstr "Atopáronse %d mineiros en execución"
 
 #: ../src/tracker-control/tracker-control-miners.c:327
 #, c-format
@@ -1574,7 +1602,7 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:337
 msgid "No miners are running"
-msgstr ""
+msgstr "Non hai ningún mineiro en execución"
 
 #: ../src/tracker-control/tracker-control-miners.c:378
 msgid "Application"
@@ -1582,11 +1610,11 @@ msgstr "Aplicación"
 
 #: ../src/tracker-control/tracker-control-miners.c:380
 msgid "Reason"
-msgstr ""
+msgstr "Razón"
 
 #: ../src/tracker-control/tracker-control-miners.c:389
 msgid "No miners are paused"
-msgstr ""
+msgstr "Non hai ningún mineiro pausado"
 
 #: ../src/tracker-control/tracker-control-miners.c:413
 #, fuzzy
@@ -1624,7 +1652,7 @@ msgstr "Inicializando"
 
 #: ../src/tracker-control/tracker-control-status.c:53
 msgid "Fetching…"
-msgstr ""
+msgstr "Obtendo…"
 
 #. miner/rss
 #: ../src/tracker-control/tracker-control-status.c:54
@@ -1635,7 +1663,7 @@ msgstr "Analizando sistema de ficheiros"
 #: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling recursively directory '%s'"
-msgstr ""
+msgstr "Arrastrándose recursivamente polo cartafol «%s»"
 
 #: ../src/tracker-control/tracker-control-status.c:56
 msgid "Paused"
@@ -1646,9 +1674,8 @@ msgid "Idle"
 msgstr "Inactivo"
 
 #: ../src/tracker-control/tracker-control-status.c:62
-#, fuzzy
 msgid "Show current status"
-msgstr "- Informar do estado actual"
+msgstr "Mostrar o estado actual"
 
 #: ../src/tracker-control/tracker-control-status.c:66
 msgid "Follow status changes as they happen"
@@ -1670,23 +1697,22 @@ msgid "%s remaining"
 msgstr ""
 
 #: ../src/tracker-control/tracker-control-status.c:206
-#, fuzzy
 msgid "unknown time left"
-msgstr "hora descoñecida"
+msgstr "tempo restante descoñecido"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-control/tracker-control-status.c:219
 #: ../src/tracker-control/tracker-control-status.c:551
 msgid "PAUSED"
-msgstr ""
+msgstr "PAUSADO"
 
 #: ../src/tracker-control/tracker-control-status.c:236
 msgid "Not running or is a disabled plugin"
-msgstr ""
+msgstr "Non está en execución ou é un complemento desactivado"
 
 #: ../src/tracker-control/tracker-control-status.c:522
 msgid "Common statuses include"
-msgstr ""
+msgstr "Os estados comúns inclúen"
 
 #: ../src/tracker-control/tracker-control-status.c:540
 #, c-format
@@ -1696,23 +1722,21 @@ msgstr ""
 #. Display states
 #: ../src/tracker-control/tracker-control-status.c:561
 msgid "Store"
-msgstr ""
+msgstr "Almacenar"
 
 #: ../src/tracker-control/tracker-control-status.c:682
-#, fuzzy
 msgid "Status options"
-msgstr "Estatísticas:"
+msgstr "Opcións de estado"
 
 #: ../src/tracker-control/tracker-control-status.c:683
-#, fuzzy
 msgid "Show status options"
-msgstr "Mostrar as opcións do daemon"
+msgstr "Mostrar as opcións de estado"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-import.c:75
 msgid "- Import data using Turtle files"
-msgstr ""
+msgstr "- Importar datos usando ficheiros Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
 #: ../src/tracker-utils/tracker-info.c:338
@@ -1722,35 +1746,35 @@ msgstr "Non se especificou ningún ficheiro"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
-msgstr ""
+msgstr "Importando ficheiro Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:135
 msgid "Unable to import Turtle file"
-msgstr ""
+msgstr "Non foi posíbel importar o ficheiro Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:54
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
+"Mostrar espazos de nomes completos (ex. non usar nie:títlo, usar URL "
+"completo)"
 
 #: ../src/tracker-utils/tracker-info.c:58
 msgid "Output results as RDF in Turtle format"
-msgstr ""
+msgstr "Mostrar os resultados como RDF en formato Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:136
-#, fuzzy
 msgid "Unable to retrieve namespace prefixes"
-msgstr "Non é posíbel obter datos para o URI"
+msgstr "Non foi posíbel obter os prefixos de espazos de nomes"
 
 #: ../src/tracker-utils/tracker-info.c:144
 msgid "No namespace prefixes were returned"
-msgstr ""
+msgstr "Non foi posíbel ningún prefixo de espazo de nomes"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:320
-#, fuzzy
 msgid "- Get all information about one or more files"
-msgstr "- Obter toda a información dun ficheiro determinado"
+msgstr "- Obter toda a información dun ou máis ficheiros"
 
 #: ../src/tracker-utils/tracker-info.c:382
 #, fuzzy
@@ -1769,9 +1793,8 @@ msgid "Unable to retrieve data for URI"
 msgstr "Non é posíbel obter datos para o URI"
 
 #: ../src/tracker-utils/tracker-info.c:457
-#, fuzzy
 msgid "No metadata available for that URI"
-msgstr "Non hai metadatos dispoñíbeis para ese URI"
+msgstr "Non existen metadatos dispoñíbeis para ese URI"
 
 #: ../src/tracker-utils/tracker-info.c:462
 #: ../src/tracker-utils/tracker-search.c:1348
@@ -1803,7 +1826,7 @@ msgstr "0"
 #: ../src/tracker-utils/tracker-search.c:76
 #: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
-msgstr ""
+msgstr "Use OR para buscar termos en lugar de AND (o predeterminado)"
 
 #: ../src/tracker-utils/tracker-search.c:80
 msgid ""
@@ -1944,61 +1967,54 @@ msgstr "Non se encontraron etiquetas"
 
 #: ../src/tracker-utils/tracker-search.c:741
 msgid "Artists"
-msgstr ""
+msgstr "Artistas"
 
 #: ../src/tracker-utils/tracker-search.c:822
-#, fuzzy
 msgid "No music was found"
-msgstr "Non se encontraron etiquetas"
+msgstr "Non se atopou música"
 
 #: ../src/tracker-utils/tracker-search.c:826
 msgid "Albums"
-msgstr ""
+msgstr "Álbumes"
 
 #: ../src/tracker-utils/tracker-search.c:908
-#, fuzzy
 msgid "No bookmarks were found"
-msgstr "Non se encontraron etiquetas"
+msgstr "No se atoparon marcadores"
 
 #: ../src/tracker-utils/tracker-search.c:988
-#, fuzzy
 msgid "No feeds were found"
-msgstr "Non se indicou ningún campo"
+msgstr "Non se atopou ningún fornecedor"
 
 #: ../src/tracker-utils/tracker-search.c:992
 msgid "Feeds"
-msgstr ""
+msgstr "Fornecedores"
 
 #: ../src/tracker-utils/tracker-search.c:1068
-#, fuzzy
 msgid "No software was found"
-msgstr "Non se encontraron etiquetas"
+msgstr "Non se atopou software"
 
 #: ../src/tracker-utils/tracker-search.c:1072
 msgid "Software"
-msgstr ""
+msgstr "Software"
 
 #: ../src/tracker-utils/tracker-search.c:1148
 msgid "No software categories were found"
-msgstr ""
+msgstr "Non se atoparon categorías de software"
 
 #: ../src/tracker-utils/tracker-search.c:1152
-#, fuzzy
 msgid "Software Categories"
-msgstr "_Categorías"
+msgstr "Categorías de software"
 
 #: ../src/tracker-utils/tracker-search.c:1344
-#, fuzzy
 msgid "No results were found matching your query"
-msgstr "Non se encontraron resultados coincidentes coa súa consulta"
+msgstr "Non se atopou ningún resultado coincidente coa súa consulta"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
 #: ../src/tracker-utils/tracker-search.c:1416
-#, fuzzy
 msgid "- Search for terms in all data"
-msgstr " - Buscar determinados termos nos ficheiros"
+msgstr " - Buscar termos en todos os datos"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
@@ -2037,11 +2053,11 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:68
 msgid "SPARQL query"
-msgstr ""
+msgstr "Consulta SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:69
 msgid "SPARQL"
-msgstr ""
+msgstr "SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:72
 msgid "This is used with --query and for database updates only."
@@ -2049,11 +2065,11 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:76
 msgid "Retrieve classes"
-msgstr ""
+msgstr "Obter clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:80
 msgid "Retrieve class prefixes"
-msgstr ""
+msgstr "Obter prefixos de clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:84
 msgid ""
@@ -2064,7 +2080,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-sparql.c:85
 #: ../src/tracker-utils/tracker-sparql.c:89
 msgid "CLASS"
-msgstr ""
+msgstr "CLASE"
 
 #: ../src/tracker-utils/tracker-sparql.c:88
 msgid ""
@@ -2079,7 +2095,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:93
 msgid "PROPERTY"
-msgstr ""
+msgstr "PROPIEDADE"
 
 #: ../src/tracker-utils/tracker-sparql.c:96
 msgid ""
@@ -2088,7 +2104,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:97
 msgid "CLASS/PROPERTY"
-msgstr ""
+msgstr "CLASE/PROPIEDAD"
 
 #: ../src/tracker-utils/tracker-sparql.c:126
 #, fuzzy
@@ -2109,7 +2125,7 @@ msgstr "Ningún"
 
 #: ../src/tracker-utils/tracker-sparql.c:245
 msgid "- Query or update using SPARQL"
-msgstr ""
+msgstr "- Consulta ou actualiación usando SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:259
 #: ../utils/tracker-sql/tracker-sql.c:72
@@ -2136,7 +2152,7 @@ msgstr "Non se encontraron etiquetas"
 #: ../src/tracker-utils/tracker-sparql.c:313
 #: ../src/tracker-utils/tracker-sparql.c:500
 msgid "Classes"
-msgstr ""
+msgstr "Clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:329
 #, fuzzy
@@ -2145,7 +2161,7 @@ msgstr "Non se puideron obter etiquetas do ficheiro:'%s'"
 
 #: ../src/tracker-utils/tracker-sparql.c:337
 msgid "No class prefixes were found"
-msgstr ""
+msgstr "Non se atopou ningún prefixo de clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:337
 #, fuzzy
@@ -2179,37 +2195,31 @@ msgstr "Non se especificou ningún ficheiro"
 
 #: ../src/tracker-utils/tracker-sparql.c:440
 msgid "Notifies"
-msgstr ""
+msgstr "Notifica"
 
 #: ../src/tracker-utils/tracker-sparql.c:466
-#, fuzzy
 msgid "Could not find indexed properties"
-msgstr "Non se puideron obter as propiedades do Tracker"
+msgstr "Non foi posíbel atopar as propiedades dos índices"
 
 #: ../src/tracker-utils/tracker-sparql.c:474
-#, fuzzy
 msgid "No indexes were found"
-msgstr "Non se especificou ningún ficheiro"
+msgstr "Non se atopou ningún índice"
 
 #: ../src/tracker-utils/tracker-sparql.c:474
-#, fuzzy
 msgid "Indexes"
-msgstr "Indexación"
+msgstr "Índices"
 
 #: ../src/tracker-utils/tracker-sparql.c:492
-#, fuzzy
 msgid "Could not search classes"
-msgstr "Non se puido buscar etiquetas"
+msgstr "Non é posíbel buscar chaves"
 
 #: ../src/tracker-utils/tracker-sparql.c:500
-#, fuzzy
 msgid "No classes were found to match search term"
-msgstr "Non se encontrou ningún ficheiro por ese tipo de servizo"
+msgstr "Non se atopou ningunha chave que coincidira co termo de busca"
 
 #: ../src/tracker-utils/tracker-sparql.c:515
-#, fuzzy
 msgid "Could not search properties"
-msgstr "Non se puideron obter as propiedades do Tracker"
+msgstr "Non se puideron buscar propiedades"
 
 #: ../src/tracker-utils/tracker-sparql.c:523
 #, fuzzy
@@ -2227,16 +2237,14 @@ msgid "Could not read file"
 msgstr "Non se puido ler o ficheiro"
 
 #: ../src/tracker-utils/tracker-sparql.c:564
-#, fuzzy
 msgid "Could not run update"
-msgstr "Non se puido ler o ficheiro"
+msgstr "Non foi posíbel execuctar a actualización"
 
 #: ../src/tracker-utils/tracker-sparql.c:606
 #: ../utils/tracker-sql/tracker-sql.c:164
 #: ../utils/tracker-sql/tracker-sql.c:197
-#, fuzzy
 msgid "Could not run query"
-msgstr "Non se puido consultar a busca"
+msgstr "Non foi posíbel executar a consulta"
 
 #: ../src/tracker-utils/tracker-sparql.c:613
 msgid "No results found matching your query"
@@ -2246,7 +2254,7 @@ msgstr "Non se encontraron resultados coincidentes coa súa consulta"
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-stats.c:69
 msgid " - Show statistics for all Nepomuk defined ontology classes"
-msgstr ""
+msgstr " - Mostrar estatísticas para as clases ontolóxicas Nepomuk definidas"
 
 #: ../src/tracker-utils/tracker-stats.c:102
 msgid "Could not get Tracker statistics"
@@ -2262,7 +2270,7 @@ msgstr "Estatísticas:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid "List all tags (using FILTER if specified)"
-msgstr ""
+msgstr "Listar tódalas etiquetas (usando FILTRO se se especifica)"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2279,24 +2287,24 @@ msgstr "ETIQUETA"
 #: ../src/tracker-utils/tracker-tag.c:79
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
+"Eliminar unha etiqueta (se se omiten os FICHEIROS, a ETIQUETA elimínase para "
+"todos os ficheiros)"
 
 #: ../src/tracker-utils/tracker-tag.c:83
 msgid "Description for a tag (this is only used with --add)"
-msgstr ""
+msgstr "Descrición para unha etiqueta (só se usa con «--add»)"
 
 #: ../src/tracker-utils/tracker-tag.c:84
 msgid "STRING"
 msgstr "CADEA"
 
 #: ../src/tracker-utils/tracker-tag.c:93
-#, fuzzy
 msgid "FILE…"
-msgstr "FICHEIRO"
+msgstr "FICHEIRO…"
 
 #: ../src/tracker-utils/tracker-tag.c:94
-#, fuzzy
 msgid "FILE [FILE…]"
-msgstr "FICHEIRO [FICHEIRO...]"
+msgstr "FICHEIRO [FICHEIRO…]"
 
 #: ../src/tracker-utils/tracker-tag.c:298
 #, fuzzy
@@ -2310,95 +2318,84 @@ msgstr "Non se puido obter resultados da busca por texto"
 
 #: ../src/tracker-utils/tracker-tag.c:438
 #: ../src/tracker-utils/tracker-tag.c:847
-#, fuzzy
 msgid "Could not get all tags"
-msgstr "Non se puido obter a lista de etiquetas"
+msgstr "Non foi posíbel obter todas as etiquetas"
 
 #: ../src/tracker-utils/tracker-tag.c:447
 #: ../src/tracker-utils/tracker-tag.c:856
-#, fuzzy
 msgid "No tags were found"
-msgstr "Non se encontraron etiquetas"
+msgstr "Non se atopou ningunha etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:451
 msgid "Tags (shown by name)"
-msgstr ""
+msgstr "Etiquetas (mostradas por nome)"
 
 #: ../src/tracker-utils/tracker-tag.c:518
-#, fuzzy
 msgid "No files were modified"
-msgstr "Non se especificou ningún ficheiro"
+msgstr "Non se modificou ningún ficheiro"
 
 #: ../src/tracker-utils/tracker-tag.c:627
-#, fuzzy
 msgid "Could not add tag"
-msgstr "Non se puido buscar etiquetas"
+msgstr "Non foi posíbel engadir a etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:643
 msgid "Tag was added successfully"
-msgstr ""
+msgstr "Etiqueta engadida correctamente"
 
 #: ../src/tracker-utils/tracker-tag.c:672
-#, fuzzy
 msgid "Could not add tag to files"
-msgstr "Non se puideron engadir todas as etiquetas a '%s'"
+msgstr "Non foi posíbel engadir as etiquetas aos ficheiros"
 
 #: ../src/tracker-utils/tracker-tag.c:682
 msgid "Tagged"
-msgstr ""
+msgstr "Etiquetado"
 
 #: ../src/tracker-utils/tracker-tag.c:683
 msgid "Not tagged, file is not indexed"
-msgstr ""
+msgstr "Sen etiquetar, o ficheiro non está indexado"
 
 #: ../src/tracker-utils/tracker-tag.c:729
-#, fuzzy
 msgid "Could not get tag by label"
-msgstr "Non se puido obter a lista de etiquetas"
+msgstr "Non foi posíbel obter a etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:740
-#, fuzzy
 msgid "No tags were found by that name"
-msgstr "Non se encontrou ningún ficheiro por ese tipo de servizo"
+msgstr "Non foi posíbel atopar ningunha etiqueta con ese nome"
 
 #: ../src/tracker-utils/tracker-tag.c:757
 msgid "None of the files had this tag set"
-msgstr ""
+msgstr "Ningún dos ficheiros ten este conxunto de etiquetas"
 
 #: ../src/tracker-utils/tracker-tag.c:803
-#, fuzzy
 msgid "Could not remove tag"
-msgstr "Non se puideron eliminar as etiquetas de '%s'"
+msgstr "Non foi posíbel quitar a etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:810
 msgid "Tag was removed successfully"
-msgstr ""
+msgstr "Etiqueta quitada correctamente"
 
 #: ../src/tracker-utils/tracker-tag.c:814
 msgid "Untagged"
-msgstr ""
+msgstr "Sen etiquetar"
 
 #: ../src/tracker-utils/tracker-tag.c:815
 msgid "File not indexed or already untagged"
-msgstr ""
+msgstr "O ficheiro non está indexado ou xa se desetiquetou"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
 #: ../src/tracker-utils/tracker-tag.c:894
-#, fuzzy
 msgid "Add, remove or list tags"
-msgstr "Engadir, eliminar ou buscar etiquetas"
+msgstr "Engadir, quitar ou listar etiquetas"
 
 #: ../src/tracker-utils/tracker-tag.c:910
 msgid "The --list option is required for --show-files"
-msgstr ""
+msgstr "Requírese a opción «--list» para «--show-files»"
 
 #: ../src/tracker-utils/tracker-tag.c:912
-#, fuzzy
 msgid "Add and delete actions can not be used together"
-msgstr ""
-"As accións engadir e eliminar non se poden usar con eliminar todas as accións"
+msgstr "Engadir ou borrar accións que non se poden usar conxuntamente"
 
 #: ../src/tracker-utils/tracker-tag.c:914
 msgid "No arguments were provided"
@@ -2406,32 +2403,30 @@ msgstr "Non se proporcionou ningún argumento"
 
 #: ../src/tracker-utils/tracker-tag.c:916
 msgid "The --description option can only be used with --add"
-msgstr ""
+msgstr "A opción «--description» só se pode usar con «--add»"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:104
-#, fuzzy
 msgid "- start the tracker writeback service"
-msgstr "- iniciar o indexador do tracker"
+msgstr "- iniciar o servizo de escrita en diferido"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
-#, fuzzy
 msgid "Saved queries"
-msgstr "<b>Directorios percorridos</b>"
+msgstr "Consultas gardadas"
 
 #: ../utils/tracker-sql/tracker-sql.c:66
 msgid "- Query or update using SQL"
-msgstr ""
+msgstr "- Consulta ou actualización usando SQL"
 
 #: ../utils/tracker-sql/tracker-sql.c:145
 msgid "Failed to initialize data manager"
-msgstr ""
+msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 
 #: ../utils/tracker-sql/tracker-sql.c:205
 msgid "Empty result set"
-msgstr ""
+msgstr "Conxunto de resultados baleiro"
 
 #~ msgid "Search for %s with Tracker Search Tool"
 #~ msgstr "Buscar %s coa ferramenta de busca Tracker"
