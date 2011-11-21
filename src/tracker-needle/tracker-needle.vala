@@ -344,8 +344,7 @@ public class Tracker.Needle {
 		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
 		iconview = (IconView) sw_icons.get_child ();
 		iconview.item_activated.connect (icon_item_activated);
-		//var iconselection = iconview.get_selection ();
-		//iconselection.changed.connect (icon_item_selected);
+		iconview.selection_changed.connect (icon_view_selection_changed);
 		view.pack_start (sw_icons, true, true, 0);
 
 		// Set up tags widget
@@ -615,6 +614,33 @@ public class Tracker.Needle {
 				}
 			}
 		}
+
+		tags_view.set_files (uris);
+	}
+
+	private void icon_view_selection_changed () {
+		IconView iconview;
+		TreeModel model = null;
+		debug ("Icon selection changed");
+
+		iconview = (IconView) sw_icons.get_child ();
+		model = iconview.get_model ();
+		List<string> uris = null;
+
+		iconview.selected_foreach ((iconview, path) => {
+			TreeIter iter;
+
+			if (model.get_iter (out iter, path)) {
+				string uri;
+
+				model.get (iter, 1, out uri, -1);
+				debug ("--> %s", uri);
+
+				if (uri != null) {
+					uris.prepend (uri);
+				}
+			}
+		});
 
 		tags_view.set_files (uris);
 	}
