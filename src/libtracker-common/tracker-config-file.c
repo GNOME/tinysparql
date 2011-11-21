@@ -413,18 +413,12 @@ tracker_config_file_new (void)
 			     NULL);
 }
 
-gboolean
-tracker_config_file_migrate (TrackerConfigFile           *file,
-			     GSettings                   *settings,
-			     TrackerConfigMigrationEntry *entries)
+static gboolean
+migrate_keyfile_to_settings (TrackerConfigMigrationEntry *entries,
+                             TrackerConfigFile           *file,
+                             GSettings                   *settings)
 {
 	gint i;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
-
-	if (!file->key_file || !file->file_exists) {
-		return TRUE;
-	}
 
 	g_message ("Migrating configuration to GSettings...");
 
@@ -433,6 +427,7 @@ tracker_config_file_migrate (TrackerConfigFile           *file,
 		                         entries[i].file_section,
 		                         entries[i].file_key,
 		                         NULL)) {
+			g_settings_reset (settings, entries[i].settings_key);
 			continue;
 		}
 
@@ -487,9 +482,120 @@ tracker_config_file_migrate (TrackerConfigFile           *file,
 		}
 	}
 
-	g_file_delete (file->file, NULL, NULL);
 	g_message ("Finished migration to GSettings.");
 
 	return TRUE;
 }
 
+static void
+migrate_settings_to_keyfile (TrackerConfigMigrationEntry *entries,
+                             GSettings                   *settings,
+                             TrackerConfigFile           *file)
+{
+	gint i;
+
+	g_message ("Storing configuration to Keyfile...");
+
+	for (i = 0; entries[i].type != G_TYPE_INVALID; i++) {
+		switch (entries[i].type) {
+		case G_TYPE_INT:
+		case G_TYPE_ENUM: {
+			gint val;
+
+			if (entries[i].type == G_TYPE_INT) {
+				val = g_settings_get_int (settings, entries[i].settings_key);
+			} else {
+				val = g_settings_get_enum (settings, entries[i].settings_key);
+			}
+
+			g_key_file_set_integer (file->key_file,
+			                        entries[i].file_section,
+			                        entries[i].file_key,
+			                        val);
+			break;
+		}
+		case G_TYPE_BOOLEAN: {
+			gboolean val;
+
+			val = g_settings_get_boolean (settings, entries[i].settings_key);
+			g_key_file_set_boolean (file->key_file,
+			                        entries[i].file_section,
+			                        entries[i].file_key,
+			                        val);
+			break;
+		}
+		case G_TYPE_POINTER: {
+			gchar **vals;
+
+			vals = g_settings_get_strv (settings, entries[i].settings_key);
+
+			if (vals) {
+				g_key_file_set_string_list (file->key_file,
+				                            entries[i].file_section,
+				                            entries[i].file_key,
+				                            (const gchar * const *)vals,
+				                            g_strv_length (vals));
+				g_strfreev (vals);
+			}
+
+			break;
+		}
+		default:
+			g_assert_not_reached ();
+			break;
+		}
+	}
+}
+
+typedef struct {
+	TrackerConfigFile *file;
+	TrackerConfigMigrationEntry *entries;
+} UnappliedNotifyData;
+
+static void
+settings_has_unapplied_notify (GObject    *object,
+                               GParamSpec *pspec,
+                               gpointer    user_data)
+{
+	UnappliedNotifyData *data = user_data;
+
+	if (!g_settings_get_has_unapplied (G_SETTINGS (object))) {
+		/* Dump to config file too */
+		migrate_settings_to_keyfile (data->entries,
+		                             G_SETTINGS (object),
+		                             data->file);
+		tracker_config_file_save (data->file);
+	}
+}
+
+gboolean
+tracker_config_file_migrate (TrackerConfigFile           *file,
+                             GSettings                   *settings,
+                             TrackerConfigMigrationEntry *entries)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
+
+	if (file->key_file && file->file_exists) {
+		migrate_keyfile_to_settings (entries, file, settings);
+	}
+
+	if (g_getenv ("TRACKER_USE_CONFIG_FILES")) {
+		UnappliedNotifyData *data;
+
+		/* Keep the file around, and connect to notify::has-unapplied so
+		 * we write back to it when g_settings_apply() is called
+		 */
+		data = g_new (UnappliedNotifyData, 1);
+		data->file = g_object_ref (file);
+		data->entries = entries;
+
+		g_signal_connect (settings, "notify::has-unapplied",
+		                  G_CALLBACK (settings_has_unapplied_notify),
+		                  data);
+	} else {
+		/* The config file has been migrated to GSettings, delete it */
+		g_file_delete (file->file, NULL, NULL);
+	}
+
+	return TRUE;
+}
