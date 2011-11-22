@@ -1561,35 +1561,6 @@ item_move (TrackerMinerFS *fs,
 		g_free (uri);
 
 		return retval;
-	} else if (file_info && !source_exists) {
-		gboolean retval = TRUE;
-
-		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
-
-		/* FIXME: This situation shouldn't happen
-		 * from a TrackerFileNotifier event
-		 */
-#if 0
-		file_type = g_file_info_get_file_type (file_info);
-
-		if (file_type == G_FILE_TYPE_DIRECTORY &&
-		    should_recurse_for_directory (fs, file)) {
-			/* We're dealing with a recursive directory */
-			tracker_miner_fs_directory_add_internal (fs, file,
-			                                         G_PRIORITY_DEFAULT);
-			retval = TRUE;
-		} else {
-			retval = item_add_or_update (fs, file,
-			                             G_PRIORITY_DEFAULT,
-			                             TRUE);
-		}
-#endif
-
-		g_free (source_uri);
-		g_free (uri);
-		g_object_unref (file_info);
-
-		return retval;
 	}
 
 	g_debug ("Moving item from '%s' to '%s'",
