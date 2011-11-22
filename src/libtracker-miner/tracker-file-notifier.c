@@ -219,10 +219,7 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 		/* In store but not in disk, delete */
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
 
-		/* FIXME: Should avoid recursing through children,
-		 * but we're not allowed to modify the tree during
-		 * traversal, nor have a way to skip recursing within
-		 */
+		return TRUE;
 	} else if (disk_mtime && !store_mtime) {
 		/* In disk but not in store, create */
 		g_signal_emit (notifier, signals[FILE_CREATED], 0, file);

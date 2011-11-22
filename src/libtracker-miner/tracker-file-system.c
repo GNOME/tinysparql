@@ -514,7 +514,18 @@ tracker_file_system_peek_parent (TrackerFileSystem *file_system,
 typedef struct {
 	TrackerFileSystemTraverseFunc func;
 	gpointer user_data;
+	GSList *ignore_children;
 } TraverseData;
+
+static gint
+node_is_child_of_ignored (gconstpointer a,
+                          gconstpointer b)
+{
+	if (g_node_is_ancestor ((GNode *) a, (GNode *) b))
+		return 0;
+
+	return 1;
+}
 
 static gboolean
 traverse_filesystem_func (GNode    *node,
@@ -522,12 +533,26 @@ traverse_filesystem_func (GNode    *node,
 {
 	TraverseData *data = user_data;
 	FileNodeData *node_data;
-	gboolean retval;
+	gboolean retval = FALSE;
 
 	node_data = node->data;
-	retval = data->func (node_data->file, data->user_data);
 
-	return retval;
+	if (!data->ignore_children ||
+	    !g_slist_find_custom (data->ignore_children,
+	                          node, node_is_child_of_ignored)) {
+		/* This node isn't a child of an
+		 * ignored one, execute callback
+		 */
+		retval = data->func (node_data->file, data->user_data);
+	}
+
+	/* Avoid recursing within the children of this node */
+	if (retval) {
+		data->ignore_children = g_slist_prepend (data->ignore_children,
+		                                         node);
+	}
+
+	return FALSE;
 }
 
 void
@@ -554,6 +579,7 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 
 	data.func = func;
 	data.user_data = user_data;
+	data.ignore_children = NULL;
 
 	g_node_traverse (node,
 	                 order,
@@ -561,6 +587,8 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 	                 -1,
 	                 traverse_filesystem_func,
 	                 &data);
+
+	g_slist_free (data.ignore_children);
 }
 
 void
