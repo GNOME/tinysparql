@@ -1267,7 +1267,6 @@ item_remove (TrackerMinerFS *fs,
              gboolean        only_children)
 {
 	gchar *uri;
-	gchar *mime = NULL;
 	TrackerTask *task;
 	guint flags = 0;
 
@@ -1278,16 +1277,10 @@ item_remove (TrackerMinerFS *fs,
 
 	if (!only_children) {
 		flags = TRACKER_BULK_MATCH_EQUALS;
+	} else {
+		tracker_thumbnailer_remove_add (uri, NULL);
+		tracker_albumart_remove_add (uri, NULL);
 	}
-
-#if 0
-	/* FIXME: Find out mime to remove thumbnail/albumart */
-
-	tracker_thumbnailer_remove_add (uri, mime);
-	tracker_albumart_remove_add (uri, mime);
-#endif
-
-	g_free (mime);
 
 	/* FIRST:
 	 * Remove tracker:available for the resources we're going to remove.
