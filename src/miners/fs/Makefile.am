@@ -47,12 +47,6 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-writeback.c                            \
 	tracker-writeback.h
 
-if HAVE_MAEMO
-tracker_miner_fs_SOURCES += \
-	tracker-miner-userguides.c \
-	tracker-mienr-userguides.h
-endif
-
 tracker_miner_fs_LDADD =                               \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
@@ -61,6 +55,14 @@ tracker_miner_fs_LDADD =                               \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_FS_LIBS)
+
+if HAVE_MAEMO
+tracker_miner_fs_SOURCES += \
+	tracker-miner-userguides.c \
+	tracker-mienr-userguides.h
+tracker_miner_fs_CFLAGS = $(LIBXML2_CFLAGS)
+tracker_miner_fs_LDADD += $(LIBXML2_LIBS)
+endif
 
 if HAVE_MEEGOTOUCH
 tracker_miner_fs_SOURCES += \

@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <libxml/HTMLparser.h>
+
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-locale.h>
@@ -29,6 +31,28 @@
 
 /* FIXME: Should we rename this to just -locale not -applications-locale ? */
 #include "tracker-miner-applications-locale.h"
+
+// FIXME: get this value from tracker conf
+#define MAX_EXTRACT_SIZE 1024 * 1024 // 1 MiB
+#define MAX_TITLE_LENGTH 1000
+
+typedef struct {
+	gchar *uri;
+	GString *title;
+	gboolean in_text;
+	gboolean in_title;
+	GString *plain_text;
+	gssize max_length;
+} ParserContext;
+
+typedef struct {
+	TrackerMinerFS *miner;
+	GFile *file;
+	TrackerSparqlBuilder *sparql;
+	GCancellable *cancellable;
+	GKeyFile *key_file;
+	gchar *type;
+} ProcessUserguideData;
 
 static void     miner_userguides_initable_iface_init     (GInitableIface       *iface);
 static gboolean miner_userguides_initable_init           (GInitable            *initable,
@@ -49,20 +73,12 @@ static gboolean miner_userguides_process_file_attributes (TrackerMinerFS       *
 static gboolean miner_userguides_monitor_directory       (TrackerMinerFS       *fs,
                                                           GFile                *file);
 static void     miner_userguides_finalize                (GObject              *object);
-
+static void     parser_get_file_content                  (const gchar          *uri,
+                                                          gssize                max_extract_size,
+                                                          gchar               **content,
+                                                          gchar               **title);
 
 static GQuark miner_userguides_error_quark = 0;
-
-typedef struct ProcessUserguideData ProcessUserguideData;
-
-struct ProcessUserguideData {
-	TrackerMinerFS *miner;
-	GFile *file;
-	TrackerSparqlBuilder *sparql;
-	GCancellable *cancellable;
-	GKeyFile *key_file;
-	gchar *type;
-};
 
 static GInitableIface* miner_userguides_initable_parent_iface;
 
@@ -218,6 +234,10 @@ miner_userguides_check_file (TrackerMinerFS *fs,
 		retval = TRUE;
 	}
 
+	g_debug ("Checking FILE '%s', returning %s", basename, retval ? "TRUE" : "FALSE");
+
+	/* FIXME: Do we check the mime type is 'application/x-userguide-html' */
+
 	g_free (basename);
 
 	return retval;
@@ -240,6 +260,8 @@ miner_userguides_check_directory (TrackerMinerFS *fs,
 		g_message ("  Ignoring:'%s'", basename);
 		retval = FALSE;
 	}
+
+	g_debug ("Checking DIR  '%s', returning %s", basename, retval ? "TRUE" : "FALSE");
 
 	g_free (basename);
 
@@ -306,7 +328,87 @@ process_userguide_file (ProcessUserguideData  *data,
                         GFileInfo             *file_info,
                         GError               **error)
 {
-	/* TODO: Insert SPARQL per user guide */
+	TrackerSparqlBuilder *sparql;
+	gchar *uri;
+	gchar *path;
+	gchar *filename;
+	gchar *content = NULL;
+	gchar *title = NULL;
+	const gchar *parent_urn;
+
+	sparql = data->sparql;
+	uri = g_file_get_uri (data->file);
+
+	g_message ("Processing '%s'", uri);
+
+	/* FIXME: We didn't use a graph before AFAICS. */
+	/* tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN); */
+	tracker_sparql_builder_insert_open (sparql, NULL);
+
+	tracker_sparql_builder_subject (sparql, "_:file");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+	tracker_sparql_builder_object (sparql, "nie:DataObject");
+	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
+
+	/* tracker_sparql_builder_object (sparql, "nfo:Document"); */
+
+	/* FIXME: Do we need these, they're all new:
+	 * nie:dataSource, nfo:fileName, nie:url, nfo:fileLastModified, tracker:available
+	 */
+
+	/* tracker_sparql_builder_predicate (sparql, "nie:dataSource"); */
+	/* tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN); */
+
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	path = g_file_get_path (data->file);
+	filename = g_filename_display_basename (path);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
+	tracker_sparql_builder_object_string (sparql, filename);
+	g_free (filename);
+	g_free (path);
+
+	tracker_sparql_builder_predicate (sparql, "nie:url");
+	tracker_sparql_builder_object_string (sparql, uri);
+
+	if (file_info) {
+		guint64 time;
+
+		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
+	}
+
+	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), data->file);
+
+	if (parent_urn) {
+		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+		tracker_sparql_builder_object_iri (sparql, parent_urn);
+	}
+
+	/* Get content */
+	parser_get_file_content (uri, MAX_EXTRACT_SIZE, &content, &title);
+
+	g_message ("  Title: '%s'", title);
+	/* g_debug ("  Content:\n\"\"\"\n%s\n\"\"\"\n", content); */
+
+	if (title && title[0]) {
+		tracker_sparql_builder_predicate (sparql, "nie:title");
+		tracker_sparql_builder_object_unvalidated (sparql, title);
+	}
+
+	if (content) {
+		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (sparql, content);
+	}
+
+	tracker_sparql_builder_insert_close (sparql);
+
+	g_free (content);
+	g_free (title);
+	g_free (uri);
 }
 
 static void
@@ -409,11 +511,148 @@ miner_userguides_process_file_attributes (TrackerMinerFS       *fs,
 	return FALSE;
 }
 
+static void
+parser_start_element (void           *ctx,
+                      const xmlChar  *name,
+                      const xmlChar **atts G_GNUC_UNUSED)
+{
+	const gchar *elem = (const gchar *) name;
+	ParserContext *pctx = ctx;
+
+	if (g_strcmp0 (elem, "title") == 0) {
+		pctx->in_title = TRUE;
+		return;
+	}
+
+	if (g_strcmp0 (elem, "body") == 0) {
+		pctx->in_text = TRUE;
+		return;
+	}
+}
+
+static void
+parser_end_element (void          *ctx,
+                    const xmlChar *name)
+{
+	const gchar *elem = (const gchar *) name;
+	ParserContext *pctx = ctx;
+
+	if (g_strcmp0 (elem, "title") == 0) {
+		pctx->in_title = FALSE;
+	}
+}
+
+static void
+parser_characters (void          *ctx,
+                   const xmlChar *ch,
+                   int            len G_GNUC_UNUSED)
+{
+	ParserContext *pctx = ctx;
+	gchar *str;
+	int len_to_append;
+
+	if (pctx->in_title) {
+		gchar *title = g_strdup ((const gchar *) ch);
+
+		if (title[0]) {
+			g_string_append_len (pctx->title,
+			                     title,
+			                     MIN(strlen (title), MAX_TITLE_LENGTH));
+		}
+
+		g_free(title);
+	}
+
+	if (!pctx->in_text) {
+		return;
+	}
+
+	if ((gssize) pctx->plain_text->len >= pctx->max_length) {
+		return;
+	}
+
+	str = g_strdup ((const gchar *) ch);
+
+	if (!str[0]) {
+		g_free (str);
+		return;
+	}
+
+	len_to_append = strlen (str);
+
+	if ((gssize) pctx->plain_text->len + len_to_append > pctx->max_length) {
+		len_to_append = pctx->max_length - pctx->plain_text->len;
+	}
+
+	g_string_append_len (pctx->plain_text, str, len_to_append);
+	g_free (str);
+}
+
+static void
+parser_error (void       *ctx,
+              const char *msg,
+              ...)
+{
+	ParserContext *pctx = ctx;
+
+	g_critical ("Could not parse file '%s': %s", pctx->uri, msg);
+}
+
+static void
+parser_get_file_content (const gchar *uri,
+                         gssize       max_extract_size,
+                         gchar      **content,
+                         gchar      **title)
+{
+	GError *error = NULL;
+	gchar *filename;
+	ParserContext parser_ctx;
+	htmlSAXHandler sax_handler = { 0 };
+	htmlDocPtr doc;
+
+	/* TODO: utf8 sanitization */
+
+	filename = g_filename_from_uri (uri, NULL, &error);
+
+	if (error) {
+		g_message ("Could not open '%s': %s", uri, error->message);
+		g_error_free (error);
+		g_free (filename);
+		return;
+	}
+
+	parser_ctx.uri = g_strdup (uri);
+	parser_ctx.title = g_string_new (NULL);
+	parser_ctx.in_text = FALSE;
+	parser_ctx.in_title = FALSE;
+	parser_ctx.plain_text = g_string_new (NULL);
+	/* leave space for terminating 0 char */
+	parser_ctx.max_length = max_extract_size - 1;
+
+	sax_handler.startElement = parser_start_element;
+	sax_handler.endElement = parser_end_element;
+	sax_handler.characters = parser_characters;
+	sax_handler.error = parser_error;
+
+	doc = htmlSAXParseFile (filename, "utf-8", &sax_handler, &parser_ctx);
+	g_free (filename);
+
+	if (doc) {
+		xmlFreeDoc (doc);
+	}
+
+	g_free (parser_ctx.uri);
+
+	*title = g_string_free (parser_ctx.title, FALSE);
+	g_strstrip (*title);
+
+	*content = g_string_free (parser_ctx.plain_text, FALSE);
+	g_strstrip (*content);
+}
+
 /* If a reset is requested, we will remove from the store all items previously
  * inserted by the tracker-miner-userguides, this is:
- *  (a) ... FIXME: What needs doing here?
- *  (b) ... FIXME: What needs doing here?
- *  (c) ... FIXME: What needs doing here?
+ *  (a) Remove all resources which are a nfo:HelpDocument
  */
 static void
 miner_userguides_reset (TrackerMiner *miner)
@@ -423,7 +662,17 @@ miner_userguides_reset (TrackerMiner *miner)
 
 	sparql = tracker_sparql_builder_new_update ();
 
-	/* FIXME: Add necessary SPARQL to clean up */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "userguide");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "userguide");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
+	tracker_sparql_builder_where_close (sparql);
 
 	/* Execute a sync update, we don't want the userguides miner to start before
 	 * we finish this. */
