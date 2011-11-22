@@ -1418,6 +1418,13 @@ AC_ARG_ENABLE(libxml2,
                              [disable HTML/XML extractors [[default=yes]]]),,
               [enable_libxml2=yes])
 
+# Force libxml requirement for HAVE_MAEMO,
+# given the miner-fs needs it for the userguide extraction.
+if test "x$enable_maemo" = "xyes" ; then
+  enable_libxml2="yes"
+fi
+
+
 if test "x$enable_libxml2" != "xno"; then
    PKG_CHECK_MODULES(LIBXML2,
                      [libxml-2.0 >= $LIBXML2_REQUIRED],
