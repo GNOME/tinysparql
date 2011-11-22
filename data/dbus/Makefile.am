@@ -26,6 +26,10 @@ service_in_files = \
 	org.freedesktop.Tracker1.Extract.service.in \
 	org.freedesktop.Tracker1.Writeback.service.in
 
+if HAVE_MAEMO
+service_in_files += org.freedesktop.Tracker1.Miner.Userguides.service.in
+endif
+
 %.service: %.service.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
@@ -38,6 +42,9 @@ service_DATA = \
 	org.freedesktop.Tracker1.Extract.service \
 	org.freedesktop.Tracker1.Writeback.service
 
+if HAVE_MAEMO
+service_DATA += org.freedesktop.Tracker1.Miner.Userguides.service
+endif
 
 if HAVE_TRACKER_MINER_EVOLUTION
 service_DATA += org.freedesktop.Tracker1.Miner.EMails.service

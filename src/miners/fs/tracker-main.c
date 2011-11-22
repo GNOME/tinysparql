@@ -46,6 +46,7 @@
 
 #include "tracker-config.h"
 #include "tracker-marshal.h"
+#include "tracker-miner-userguides.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
 #include "tracker-miner-files-index.h"
@@ -647,6 +648,11 @@ miner_needs_check (TrackerMiner *miner,
 			return TRUE;
 		}
 
+		/* FIXME: We currently don't check the applications
+		 *  miner OR the userguides miner if we are finished
+		 * before returning TRUE/FALSE here, should we?
+		 */
+
 		/* We consider the miner finished */
 		return FALSE;
 	} else {
@@ -668,6 +674,9 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerMiner *miner_applications, *miner_files;
 	TrackerMinerFilesIndex *miner_files_index;
+#ifdef HAVE_MAEMO
+	TrackerMiner *miner_userguides;
+#endif /* HAVE_MAEMO */
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -788,6 +797,22 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+#ifdef HAVE_MAEMO
+	/* Create miner for userguides */
+	miner_userguides = tracker_miner_userguides_new (&error);
+	if (!miner_userguides) {
+		g_critical ("Couldn't create new User Guides miner: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (miner_applications);
+		g_object_unref (miner_files);
+		g_object_unref (miner_files_index);
+		tracker_writeback_shutdown ();
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+#endif /* HAVE_MAEMO */
+
 	/* Check if we should crawl and if we should force mtime
 	 * checking based on the config.
 	 */
@@ -828,20 +853,44 @@ main (gint argc, gchar *argv[])
 	/* Configure applications miner */
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_applications), do_crawling);
 
+#ifdef HAVE_MAEMO
+	/* Configure userguides miner */
+	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_userguides), do_crawling);
+#endif /* HAVE_MAEMO */
+
 	/* If a locale change was detected, always do mtime checks */
 	if (tracker_miner_applications_detect_locale_changed (miner_applications)) {
 		if (!do_mtime_checking)
 			g_debug ("Forcing mtime check in applications miner as locale change was detected");
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), TRUE);
+
+#ifdef HAVE_MAEMO
+		if (!do_mtime_checking)
+			g_debug ("Forcing mtime check in userguides miner as locale change was detected");
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), TRUE);
+#endif /* HAVE_MAEMO */
 	} else {
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
+#ifdef HAVE_MAEMO
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), do_mtime_checking);
+#endif /* HAVE_MAEMO */
 	}
 
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
 
+#ifdef HAVE_MAEMO
+	g_signal_connect (miner_userguides, "finished",
+			  G_CALLBACK (miner_finished_cb),
+			  NULL);
+#endif /* HAVE_MAEMO */
+
 	/* Setup miners, applications first in list */
+#ifdef HAVE_MAEMO
+	miners = g_slist_prepend (miners, miner_userguides);
+#endif /* HAVE_MAEMO */
+
 	miners = g_slist_prepend (miners, miner_files);
 	miners = g_slist_prepend (miners, miner_applications);
 
@@ -858,7 +907,8 @@ main (gint argc, gchar *argv[])
 
 	if (miners_timeout_id == 0 &&
 	    !miner_needs_check (miner_files, store_available) &&
-	    !miner_needs_check (miner_applications, store_available)) {
+	    !miner_needs_check (miner_applications, store_available) && 
+	    !miner_needs_check (miner_userguides, store_available)) {
 		tracker_db_manager_set_need_mtime_check (FALSE);
 	}
 
