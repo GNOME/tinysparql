@@ -1263,16 +1263,22 @@ item_add_or_update (TrackerMinerFS *fs,
 
 static gboolean
 item_remove (TrackerMinerFS *fs,
-             GFile          *file)
+             GFile          *file,
+             gboolean        only_children)
 {
 	gchar *uri;
 	gchar *mime = NULL;
 	TrackerTask *task;
+	guint flags = 0;
 
 	uri = g_file_get_uri (file);
 
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
+
+	if (!only_children) {
+		flags = TRACKER_BULK_MATCH_EQUALS;
+	}
 
 #if 0
 	/* FIXME: Find out mime to remove thumbnail/albumart */
@@ -1295,8 +1301,7 @@ item_remove (TrackerMinerFS *fs,
 	                                     "DELETE { "
 	                                     "  ?f tracker:available true "
 	                                     "}",
-	                                     TRACKER_BULK_MATCH_EQUALS |
-	                                     TRACKER_BULK_MATCH_CHILDREN);
+	                                     flags | TRACKER_BULK_MATCH_CHILDREN);
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,
@@ -1315,7 +1320,7 @@ item_remove (TrackerMinerFS *fs,
 	                                     "  ?f a rdfs:Resource . "
 	                                     "  ?ie a rdfs:Resource "
 	                                     "}",
-	                                     TRACKER_BULK_MATCH_EQUALS |
+	                                     flags |
 	                                     TRACKER_BULK_MATCH_CHILDREN |
 	                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
 
@@ -1524,6 +1529,7 @@ item_move (TrackerMinerFS *fs,
 	gboolean source_exists;
 	GFile *new_parent;
 	const gchar *new_parent_iri;
+	TrackerDirectoryFlags source_flags, flags;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
@@ -1545,7 +1551,7 @@ item_move (TrackerMinerFS *fs,
 
 		if (source_exists) {
 			/* Destination file has gone away, ignore dest file and remove source if any */
-			retval = item_remove (fs, source_file);
+			retval = item_remove (fs, source_file, FALSE);
 		} else {
 			/* Destination file went away, and source wasn't indexed either */
 			retval = TRUE;
@@ -1655,16 +1661,32 @@ item_move (TrackerMinerFS *fs,
 		g_object_unref (new_parent);
 	g_free (display_name);
 
-	move_data.main_loop = g_main_loop_new (NULL, FALSE);
-	move_data.sparql = sparql;
-	move_data.source_uri = source_uri;
-	move_data.uri = uri;
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
 
-	item_update_children_uri (fs, &move_data, source_uri, uri);
+	if ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+	    g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		tracker_indexing_tree_get_root (fs->priv->indexing_tree,
+		                                file, &flags);
 
-	g_main_loop_run (move_data.main_loop);
+		if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
+			/* Update children uris */
+			move_data.main_loop = g_main_loop_new (NULL, FALSE);
+			move_data.sparql = sparql;
+			move_data.source_uri = source_uri;
+			move_data.uri = uri;
 
-	g_main_loop_unref (move_data.main_loop);
+			item_update_children_uri (fs, &move_data, source_uri, uri);
+
+			g_main_loop_run (move_data.main_loop);
+
+			g_main_loop_unref (move_data.main_loop);
+		} else {
+			/* A directory is being moved from a recursive location to
+			 * a non-recursive one, mark all children as deleted.
+			 */
+			item_remove (fs, source_file, TRUE);
+		}
+	}
 
 	/* Add new task to processing pool */
 	task = tracker_sparql_task_new_take_sparql_str (file,
@@ -2174,7 +2196,7 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_move (fs, file, source_file);
 		break;
 	case QUEUE_DELETED:
-		keep_processing = item_remove (fs, file);
+		keep_processing = item_remove (fs, file, FALSE);
 		break;
 	case QUEUE_CREATED:
 	case QUEUE_UPDATED:

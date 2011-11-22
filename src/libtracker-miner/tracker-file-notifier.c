@@ -941,10 +941,11 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				source_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 
 				if (source_is_recursive && !dest_is_recursive) {
-					/* Move only the folder, and
-					 * delete all its contents
+					/* A directory is being moved from a
+					 * recursive location to a non-recursive
+					 * one, don't do anything here, and let
+					 * TrackerMinerFS handle it, see item_move().
 					 */
-					/* FIXME: it doesn't */
 				} else if (!source_is_recursive && dest_is_recursive) {
 					/* crawl the folder */
 					file = tracker_file_system_get_file (priv->file_system,
