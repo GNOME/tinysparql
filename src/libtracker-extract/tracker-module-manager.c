@@ -30,6 +30,7 @@
 typedef struct {
 	const gchar *module_path; /* intern string */
 	GList *patterns;
+	gchar *fallback_rdf_type;
 } RuleInfo;
 
 typedef struct {
@@ -73,6 +74,8 @@ load_extractor_rule (GKeyFile  *key_file,
 		g_free (module_path);
 		return FALSE;
 	}
+
+	rule.fallback_rdf_type = g_key_file_get_string (key_file, "ExtractorRule", "FallbackRdfType", NULL);
 
 	/* Construct the rule */
 	rule.module_path = g_intern_string (module_path);
@@ -223,9 +226,31 @@ lookup_rules (const gchar *mimetype)
 	return mimetype_rules;
 }
 
+GStrv
+tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
+{
+	GList *l, *list = lookup_rules (mimetype);
+	GArray *res = g_array_new (TRUE, TRUE, sizeof (gchar *));
+	gchar **types;
+
+	for (l = list; l; l = l->next) {
+		RuleInfo *r_info = l->data;
+
+		if (r_info->fallback_rdf_type != NULL) {
+			gchar *val = g_strdup (r_info->fallback_rdf_type);
+			g_array_append_val (res, val);
+		}
+	}
+
+	types = (GStrv) res->data;
+	g_array_free (res, FALSE);
+
+	return types;
+}
+
 static ModuleInfo *
 load_module (RuleInfo *info,
-	     gboolean  initialize)
+             gboolean  initialize)
 {
 	ModuleInfo *module_info = NULL;
 
