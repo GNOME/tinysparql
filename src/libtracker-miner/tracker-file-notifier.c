@@ -796,9 +796,10 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		g_object_unref (parent);
 		g_list_free (children);
 
-		/* FIXME: This supposedly works, but in practice
-		 * won't ever happen as the parent directory
-		 * wasn't being monitored if being ignored
+		/* note: This supposedly works, but in practice
+		 * won't ever happen as we don't get monitor events
+		 * from directories triggering a filter of type
+		 * TRACKER_FILTER_PARENT_DIRECTORY.
 		 */
 		if (!indexable) {
 			/* New file was triggering a directory content
