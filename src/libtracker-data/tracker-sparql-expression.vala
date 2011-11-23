@@ -632,7 +632,9 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (" * 24 * 3600 + ");
 			sql.append (variable.get_extra_sql_expression ("localTime"));
 			sql.append ("- ");
+			sql.append ("CAST (");
 			sql.append (variable.sql_expression);
+			sql.append (" AS INTEGER)");
 			sql.append (")");
 
 			return PropertyType.INTEGER;
