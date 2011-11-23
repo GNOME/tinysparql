@@ -17,81 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
-[DBus (name = "org.freedesktop.Tracker1.Resources")]
-private interface Tracker.Bus.Resources : DBusProxy {
-	public abstract void load (string uri, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	[DBus (name = "Load")]
-	public abstract async void load_async (string uri, Cancellable? cancellable) throws Sparql.Error, DBusError;
-}
-
-[DBus (name = "org.freedesktop.Tracker1.Steroids")]
-private interface Tracker.Bus.Steroids : DBusProxy {
-	public abstract async string[] query (string query, UnixOutputStream result_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	public abstract async void update (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	[DBus (signature = "aaa{ss}")]
-	public abstract async Variant update_blank (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	public abstract async void batch_update (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-	[DBus (signature = "as")]
-	public abstract async Variant update_array (UnixInputStream sparql_stream, Cancellable? cancellable) throws Sparql.Error, DBusError;
-
-	[DBus (visible = false)]
-	public void update_begin (UnixInputStream sparql_stream, int priority, Cancellable? cancellable, AsyncReadyCallback callback) {
-		if (priority <= GLib.Priority.DEFAULT) {
-			update.begin (sparql_stream, cancellable, callback);
-		} else {
-			batch_update.begin (sparql_stream, cancellable, callback);
-		}
-	}
-}
-
-[DBus (name = "org.freedesktop.Tracker1.Statistics")]
-private interface Tracker.Bus.Statistics : DBusProxy {
-	public abstract string[,] Get (Cancellable? cancellable) throws DBusError;
-	public async abstract string[,] Get_async (Cancellable? cancellable) throws DBusError;
-}
-
-// Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
-	Resources resources_object;
-	Steroids steroids_object;
-	Statistics statistics_object;
-
 	public Connection () throws Sparql.Error, IOError, DBusError {
-	}
-
-	void ensure_resources_object () throws IOError, DBusError {
-		if (resources_object != null) {
-			return;
-		}
-
-		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-		                                            TRACKER_DBUS_SERVICE,
-		                                            TRACKER_DBUS_OBJECT_RESOURCES,
-		                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
-		resources_object.set_default_timeout (int.MAX);
-	}
-
-	void ensure_steroids_object () throws IOError, DBusError {
-		if (steroids_object != null) {
-			return;
-		}
-
-		steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-		                                           TRACKER_DBUS_SERVICE,
-		                                           TRACKER_DBUS_OBJECT_STEROIDS,
-		                                           DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
-		steroids_object.set_default_timeout (int.MAX);
-	}
-
-	void ensure_statistics_object () throws IOError, DBusError {
-		if (statistics_object != null) {
-			return;
-		}
-
-		statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-		                                             TRACKER_DBUS_SERVICE,
-		                                             TRACKER_DBUS_OBJECT_STATISTICS,
-		                                             DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+		// ensure that error domain is registered with GDBus
+		new Sparql.Error.INTERNAL ("");
 	}
 
 	void pipe (out UnixInputStream input, out UnixOutputStream output) throws IOError {
@@ -101,6 +30,29 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 		input = new UnixInputStream (pipefd[0], true);
 		output = new UnixOutputStream (pipefd[1], true);
+	}
+
+	void handle_error_reply (DBusMessage message) throws Sparql.Error, IOError, DBusError {
+		try {
+			message.to_gerror ();
+		} catch (IOError e_io) {
+			throw e_io;
+		} catch (Sparql.Error e_sparql) {
+			throw e_sparql;
+		} catch (DBusError e_dbus) {
+			throw e_dbus;
+		} catch (Error e) {
+			throw new IOError.FAILED (e.message);
+		}
+	}
+
+	void send_query (DBusConnection connection, string sparql, UnixOutputStream output, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError {
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STEROIDS, TRACKER_DBUS_INTERFACE_STEROIDS, "Query");
+		var fd_list = new UnixFDList ();
+		message.set_body (new Variant ("(sh)", sparql, fd_list.append (output.fd)));
+		message.set_unix_fd_list (fd_list);
+
+		connection.send_message_with_reply.begin (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable, callback);
 	}
 
 	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
@@ -119,16 +71,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_steroids_object ();
-
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
 
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
+
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool received_result = false;
-		steroids_object.query.begin (sparql, output, cancellable, (o, res) => {
+		send_query (connection, sparql, output, cancellable, (o, res) => {
 			dbus_res = res;
 			if (received_result) {
 				query_async.callback ();
@@ -146,9 +98,22 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		if (dbus_res == null) {
 			yield;
 		}
-		string[] variable_names = steroids_object.query.end (dbus_res);
+
+		var reply = connection.send_message_with_reply.end (dbus_res);
+		handle_error_reply (reply);
+
+		string[] variable_names = (string[]) reply.get_body ().get_child_value (0);
 		mem_stream.close ();
 		return new FDCursor (mem_stream.steal_data (), mem_stream.data_size, variable_names);
+	}
+
+	void send_update (DBusConnection connection, string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError {
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STEROIDS, TRACKER_DBUS_INTERFACE_STEROIDS, method);
+		var fd_list = new UnixFDList ();
+		message.set_body (new Variant ("(h)", fd_list.append (input.fd)));
+		message.set_unix_fd_list (fd_list);
+
+		connection.send_message_with_reply.begin (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable, callback);
 	}
 
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
@@ -167,16 +132,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_steroids_object ();
-
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
 
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
+
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		steroids_object.update_begin (input, priority, cancellable, (o, res) => {
+		send_update (connection, priority <= GLib.Priority.DEFAULT ? "Update" : "BatchUpdate", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_async.callback ();
@@ -196,24 +161,21 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			yield;
 		}
 
-		if (priority <= GLib.Priority.DEFAULT) {
-			steroids_object.update.end (dbus_res);
-		} else {
-			steroids_object.batch_update.end (dbus_res);
-		}
+		var reply = connection.send_message_with_reply.end (dbus_res);
+		handle_error_reply (reply);
 	}
 
 	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_steroids_object ();
-
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
 
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
+
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		steroids_object.update_array.begin (input, cancellable, (o, res) => {
+		send_update (connection, "UpdateArray", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_array_async.callback ();
@@ -236,10 +198,13 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			yield;
 		}
 
+		var reply = connection.send_message_with_reply.end (dbus_res);
+		handle_error_reply (reply);
+
 		// process results (errors)
 		var result = new GenericArray<Error?> ();
 		Variant resultv;
-		resultv = steroids_object.update_array.end (dbus_res);
+		resultv = reply.get_body ().get_child_value (0);
 		var iter = resultv.iterator ();
 		string code, message;
 		while (iter.next ("s", out code)) {
@@ -274,16 +239,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_steroids_object ();
-
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
 
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
+
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		steroids_object.update_blank.begin (input, cancellable, (o, res) => {
+		send_update (connection, "UpdateBlank", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_blank_async.callback ();
@@ -303,32 +268,40 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			yield;
 		}
 
-		return steroids_object.update_blank.end (dbus_res);
+		var reply = connection.send_message_with_reply.end (dbus_res);
+		handle_error_reply (reply);
+		return reply.get_body ().get_child_value (0);
 	}
 
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_resources_object ();
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
 
-		resources_object.load (file.get_uri (), cancellable);
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_RESOURCES, TRACKER_DBUS_INTERFACE_RESOURCES, "Load");
+		message.set_body (new Variant ("(s)", file.get_uri ()));
 
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
+		var reply = connection.send_message_with_reply_sync (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable);
+		handle_error_reply (reply);
 	}
+
 	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_resources_object ();
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
 
-		yield resources_object.load_async (file.get_uri (), cancellable);
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_RESOURCES, TRACKER_DBUS_INTERFACE_RESOURCES, "Load");
+		message.set_body (new Variant ("(s)", file.get_uri ()));
 
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
+		var reply = yield connection.send_message_with_reply (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable);
+		handle_error_reply (reply);
 	}
 
 	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_statistics_object ();
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
 
-		string[,] results = statistics_object.Get (cancellable);
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STATISTICS, TRACKER_DBUS_INTERFACE_STATISTICS, "Get");
+
+		var reply = connection.send_message_with_reply_sync (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable);
+		handle_error_reply (reply);
+
+		string[,] results = (string[,]) reply.get_body ().get_child_value (0);
 		Sparql.ValueType[] types = new Sparql.ValueType[2];
 		string[] var_names = new string[2];
 
@@ -345,9 +318,14 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		ensure_statistics_object ();
+		var connection = GLib.Bus.get_sync (BusType.SESSION, cancellable);
 
-		string[,] results = yield statistics_object.Get_async (cancellable);
+		var message = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STATISTICS, TRACKER_DBUS_INTERFACE_STATISTICS, "Get");
+
+		var reply = yield connection.send_message_with_reply (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable);
+		handle_error_reply (reply);
+
+		string[,] results = (string[,]) reply.get_body ().get_child_value (0);
 		Sparql.ValueType[] types = new Sparql.ValueType[2];
 		string[] var_names = new string[2];
 
