@@ -50,7 +50,7 @@ struct _TrackerSparqlBufferPrivate
 	TrackerSparqlConnection *connection;
 	guint flush_timeout_id;
 	GPtrArray *tasks;
-	guint n_updates;
+	gint n_updates;
 };
 
 struct _SparqlTaskData
@@ -260,7 +260,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 	GError *global_error = NULL;
 	GPtrArray *sparql_array_errors;
 	UpdateArrayData *update_data;
-	guint i;
+	gint i;
 
 	/* Get arrays of errors and queries */
 	update_data = user_data;
@@ -308,7 +308,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 				if (error_pos < update_data->n_bulk_operations) {
 					BulkOperationMerge *bulk;
 					GList *tasks;
-					guint bulk_pos;
+					gint bulk_pos;
 
 					bulk_pos = ABS (error_pos - update_data->n_bulk_operations + 1);
 					bulk = g_ptr_array_index (update_data->bulk_ops, bulk_pos);
@@ -390,7 +390,7 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 
 	if (merge->bulk_operation && merge->tasks) {
 		GString *equals_string = NULL, *children_string = NULL, *sparql;
-		guint n_equals = 0;
+		gint n_equals = 0;
 		gboolean include_logical_resources = FALSE;
 		GList *l;
 
@@ -503,7 +503,7 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 	GPtrArray *bulk_ops = NULL;
 	GArray *sparql_array, *error_map;
 	UpdateArrayData *update_data;
-	guint i, j;
+	gint i, j;
 
 	priv = buffer->priv;
 
