@@ -81,7 +81,7 @@ struct _UpdateArrayData {
 	GArray *sparql_array;
 	GArray *error_map;
 	GPtrArray *bulk_ops;
-	guint n_bulk_operations;
+	gint n_bulk_operations;
 };
 
 struct _BulkOperationMerge {
