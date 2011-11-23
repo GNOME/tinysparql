@@ -228,8 +228,7 @@ miner_userguides_check_file (TrackerMinerFS *fs,
 	basename = g_file_get_basename (file);
 
 	/* FIXME: What do we ignore and what don't we? */
-	if (g_str_has_suffix (basename, ".html") ||
-	    g_str_has_suffix (basename, ".ini")) {
+	if (g_str_has_suffix (basename, ".html")) {
 		retval = TRUE;
 	}
 
@@ -297,7 +296,6 @@ process_item (ProcessUserguideData  *data,
               GError               **error)
 {
 	TrackerSparqlBuilder *sparql;
-	gchar *path;
 	gchar *uri;
 	const gchar *mime_type;
 	const gchar *urn;
@@ -307,11 +305,9 @@ process_item (ProcessUserguideData  *data,
 
 	sparql = data->sparql;
 
-	path = g_file_get_path (data->file);
 	uri = g_file_get_uri (data->file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-	/* urn = tracker_sparql_escape_uri_printf ("urn:userguides-dir:%s", path); */
 	urn = get_file_urn (data->miner, data->file, &is_iri);
 
 	tracker_sparql_builder_insert_silent_open (sparql, NULL);
@@ -380,8 +376,9 @@ process_item (ProcessUserguideData  *data,
 		/* Get content */
 		parser_get_file_content (uri, MAX_EXTRACT_SIZE, &content, &title);
 
-		g_message ("  Title: '%s'", title);
-		/* g_debug ("  Content:\n\"\"\"\n%s\n\"\"\"\n", content); */
+		g_message ("Adding userguide:'%s', uri:'%s'",
+		           title,
+		           uri);
 
 		if (title && title[0]) {
 			tracker_sparql_builder_predicate (sparql, "nie:title");
@@ -395,12 +392,13 @@ process_item (ProcessUserguideData  *data,
 
 		g_free (content);
 		g_free (title);
+	} else {
+		g_message ("Adding userguide directory:'%s'", uri);
 	}
 
 	tracker_sparql_builder_graph_close (sparql);
 	tracker_sparql_builder_insert_close (sparql);
 
-	g_free (path);
 	g_free (uri);
 }
 
@@ -473,9 +471,6 @@ miner_userguides_process_file (TrackerMinerFS       *fs,
 		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
 		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
 		G_FILE_ATTRIBUTE_TIME_ACCESS;
-
-	/* attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED "," */
-	/* 	G_FILE_ATTRIBUTE_STANDARD_TYPE; */
 
 	g_file_query_info_async (file,
 	                         attrs,
