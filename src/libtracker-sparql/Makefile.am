@@ -9,8 +9,7 @@ libtracker_sparql_la_VALAFLAGS =                       \
 	--header $(vala_header:.h=-no-checks.h)        \
 	--vapi tracker-sparql.vapi                     \
 	--pkg gio-2.0 --pkg gmodule-2.0 --pkg posix    \
-	$(BUILD_VALAFLAGS)                             \
-	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
+	$(BUILD_VALAFLAGS)
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
