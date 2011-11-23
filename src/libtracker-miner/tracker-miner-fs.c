@@ -2878,7 +2878,7 @@ item_queue_get_progress (TrackerMinerFS *fs,
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
-	TrackerMinerFS *fs;
+	TrackerMinerFS *fs = user_data;
 	GFile *file = NULL;
 	GFile *source_file = NULL;
 	GFile *parent;
@@ -2888,7 +2888,12 @@ item_queue_handlers_cb (gpointer user_data)
 	gboolean keep_processing = TRUE;
 	gint priority = 0;
 
-	fs = user_data;
+	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+		/* Task pool is full, give it a break */
+		fs->priv->item_queues_handler_id = 0;
+		return FALSE;
+	}
+
 	queue = item_queue_get_next_file (fs, &file, &source_file, &priority);
 
 	if (queue == QUEUE_WAIT) {
