@@ -50,7 +50,6 @@ typedef struct {
 	GFile *file;
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
-	GKeyFile *key_file;
 	gchar *type;
 } ProcessUserguideData;
 
@@ -234,8 +233,6 @@ miner_userguides_check_file (TrackerMinerFS *fs,
 		retval = TRUE;
 	}
 
-	g_debug ("Checking FILE '%s', returning %s", basename, retval ? "TRUE" : "FALSE");
-
 	/* FIXME: Do we check the mime type is 'application/x-userguide-html' */
 
 	g_free (basename);
@@ -261,8 +258,6 @@ miner_userguides_check_directory (TrackerMinerFS *fs,
 		retval = FALSE;
 	}
 
-	g_debug ("Checking DIR  '%s', returning %s", basename, retval ? "TRUE" : "FALSE");
-
 	g_free (basename);
 
 	return retval;
@@ -276,109 +271,66 @@ miner_userguides_monitor_directory (TrackerMinerFS *fs,
 	return TRUE;
 }
 
-static void
-process_directory (ProcessUserguideData  *data,
-                   GFileInfo             *file_info,
-                   GError               **error)
+static const gchar *
+get_file_urn (TrackerMinerFS *miner,
+              GFile          *file,
+              gboolean       *is_iri)
 {
-	TrackerSparqlBuilder *sparql;
-	gchar *urn, *path, *uri;
+	const gchar *urn;
 
-	sparql = data->sparql;
+	urn = tracker_miner_fs_get_urn (miner, file);
+	*is_iri = TRUE;
 
-	path = g_file_get_path (data->file);
-	uri = g_file_get_uri (data->file);
-	urn = tracker_sparql_escape_uri_printf ("urn:userguides-dir:%s", path);
-
-	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
-
-	tracker_sparql_builder_subject_iri (sparql, urn);
-
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
-	tracker_sparql_builder_object (sparql, "nie:DataObject");
-	tracker_sparql_builder_object (sparql, "nie:Folder");
-
-	tracker_sparql_builder_predicate (sparql, "tracker:available");
-	tracker_sparql_builder_object_boolean (sparql, TRUE);
-
-	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object_iri (sparql, urn);
-
-	tracker_sparql_builder_predicate (sparql, "nie:url");
-	tracker_sparql_builder_object_string (sparql, uri);
-
-	if (file_info) {
-		guint64 time;
-
-		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
-		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
+	if (!urn) {
+		/* This is a new insertion, use anonymous URNs to store files */
+		urn = "_:file";
+		*is_iri = FALSE;
 	}
 
-	tracker_sparql_builder_insert_close (data->sparql);
-
-	g_free (path);
-	g_free (urn);
-	g_free (uri);
+	return urn;
 }
 
-static void
-process_userguide_file (ProcessUserguideData  *data,
-                        GFileInfo             *file_info,
-                        GError               **error)
+static inline void
+process_item (ProcessUserguideData  *data,
+              GFileInfo             *file_info,
+              gboolean               is_dir,
+              GError               **error)
 {
 	TrackerSparqlBuilder *sparql;
-	gchar *uri;
 	gchar *path;
-	gchar *filename;
-	gchar *content = NULL;
-	gchar *title = NULL;
+	gchar *uri;
+	const gchar *mime_type;
+	const gchar *urn;
 	const gchar *parent_urn;
+	gboolean is_iri;
+	guint64 time_;
 
 	sparql = data->sparql;
-	uri = g_file_get_uri (data->file);
-
-	g_message ("Processing '%s'", uri);
-
-	/* FIXME: We didn't use a graph before AFAICS. */
-	/* tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN); */
-	tracker_sparql_builder_insert_open (sparql, NULL);
-
-	tracker_sparql_builder_subject (sparql, "_:file");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
-	tracker_sparql_builder_object (sparql, "nie:DataObject");
-	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
-
-	/* tracker_sparql_builder_object (sparql, "nfo:Document"); */
-
-	/* FIXME: Do we need these, they're all new:
-	 * nie:dataSource, nfo:fileName, nie:url, nfo:fileLastModified, tracker:available
-	 */
-
-	/* tracker_sparql_builder_predicate (sparql, "nie:dataSource"); */
-	/* tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN); */
-
-	tracker_sparql_builder_predicate (sparql, "tracker:available");
-	tracker_sparql_builder_object_boolean (sparql, TRUE);
 
 	path = g_file_get_path (data->file);
-	filename = g_filename_display_basename (path);
-	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
-	tracker_sparql_builder_object_string (sparql, filename);
-	g_free (filename);
-	g_free (path);
+	uri = g_file_get_uri (data->file);
+	mime_type = g_file_info_get_content_type (file_info);
 
-	tracker_sparql_builder_predicate (sparql, "nie:url");
-	tracker_sparql_builder_object_string (sparql, uri);
+	/* urn = tracker_sparql_escape_uri_printf ("urn:userguides-dir:%s", path); */
+	urn = get_file_urn (data->miner, data->file, &is_iri);
 
-	if (file_info) {
-		guint64 time;
+	tracker_sparql_builder_insert_silent_open (sparql, NULL);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
-		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
-		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
+	if (is_iri) {
+		tracker_sparql_builder_subject_iri (sparql, urn);
+	} else {
+		tracker_sparql_builder_subject (sparql, urn);
+	}
+
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+	tracker_sparql_builder_object (sparql, "nie:InformationElement");
+
+	if (is_dir) {
+		tracker_sparql_builder_object (sparql, "nfo:Folder");
+	} else {
+		tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
 	}
 
 	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), data->file);
@@ -388,26 +340,67 @@ process_userguide_file (ProcessUserguideData  *data,
 		tracker_sparql_builder_object_iri (sparql, parent_urn);
 	}
 
-	/* Get content */
-	parser_get_file_content (uri, MAX_EXTRACT_SIZE, &content, &title);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
+	tracker_sparql_builder_object_string (sparql, g_file_info_get_display_name (file_info));
 
-	g_message ("  Title: '%s'", title);
-	/* g_debug ("  Content:\n\"\"\"\n%s\n\"\"\"\n", content); */
+	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
+	tracker_sparql_builder_object_int64 (sparql, g_file_info_get_size (file_info));
 
-	if (title && title[0]) {
-		tracker_sparql_builder_predicate (sparql, "nie:title");
-		tracker_sparql_builder_object_unvalidated (sparql, title);
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+
+	/* Laying the link between the IE and the DO. We use IE = DO */
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	if (is_iri) {
+		tracker_sparql_builder_object_iri (sparql, urn);
+	} else {
+		tracker_sparql_builder_object (sparql, urn);
 	}
 
-	if (content) {
-		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (sparql, content);
+	/* The URL of the DataObject (because IE = DO, this is correct) */
+	tracker_sparql_builder_predicate (sparql, "nie:url");
+	tracker_sparql_builder_object_string (sparql, uri);
+
+	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
+	tracker_sparql_builder_object_string (sparql, mime_type);
+
+	/* FIXME: Add nie:dataSource for switching different userguides? */
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	if (!is_dir) {
+		gchar *content = NULL;
+		gchar *title = NULL;
+
+		/* Get content */
+		parser_get_file_content (uri, MAX_EXTRACT_SIZE, &content, &title);
+
+		g_message ("  Title: '%s'", title);
+		/* g_debug ("  Content:\n\"\"\"\n%s\n\"\"\"\n", content); */
+
+		if (title && title[0]) {
+			tracker_sparql_builder_predicate (sparql, "nie:title");
+			tracker_sparql_builder_object_unvalidated (sparql, title);
+		}
+
+		if (content && content[0]) {
+			tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
+			tracker_sparql_builder_object_unvalidated (sparql, content);
+		}
+
+		g_free (content);
+		g_free (title);
 	}
 
+	tracker_sparql_builder_graph_close (sparql);
 	tracker_sparql_builder_insert_close (sparql);
 
-	g_free (content);
-	g_free (title);
+	g_free (path);
 	g_free (uri);
 }
 
@@ -418,11 +411,6 @@ process_userguide_data_free (ProcessUserguideData *data)
 	g_object_unref (data->file);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
-	g_free (data->type);
-
-	if (data->key_file) {
-		g_key_file_free (data->key_file);
-	}
 
 	g_slice_free (ProcessUserguideData, data);
 }
@@ -436,6 +424,7 @@ process_file_cb (GObject      *object,
 	GFileInfo *file_info;
 	GError *error = NULL;
 	GFile *file;
+	gboolean is_dir;
 
 	data = user_data;
 	file = G_FILE (object);
@@ -448,11 +437,8 @@ process_file_cb (GObject      *object,
 		return;
 	}
 
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		process_directory (data, file_info, &error);
-	} else {
-		process_userguide_file (data, file_info, &error);
-	}
+	is_dir = g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY;
+	process_item (data, file_info, is_dir, &error);
 
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 	process_userguide_data_free (data);
@@ -481,8 +467,15 @@ miner_userguides_process_file (TrackerMinerFS       *fs,
 	data->file = g_object_ref (file);
 	data->cancellable = g_object_ref (cancellable);
 
-	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
-		G_FILE_ATTRIBUTE_STANDARD_TYPE;
+	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
+		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+		G_FILE_ATTRIBUTE_TIME_ACCESS;
+
+	/* attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED "," */
+	/* 	G_FILE_ATTRIBUTE_STANDARD_TYPE; */
 
 	g_file_query_info_async (file,
 	                         attrs,
@@ -573,7 +566,7 @@ parser_characters (void          *ctx,
 
 	str = g_strdup ((const gchar *) ch);
 
-	if (!str[0]) {
+	if (!str || !str[0]) {
 		g_free (str);
 		return;
 	}
@@ -594,8 +587,15 @@ parser_error (void       *ctx,
               ...)
 {
 	ParserContext *pctx = ctx;
+        va_list args;
+        gchar *str;
 
-	g_critical ("Could not parse file '%s': %s", pctx->uri, msg);
+        va_start (args, msg);
+        str = g_strdup_vprintf (msg, args);
+        va_end (args);
+
+	g_critical ("Could not parse file '%s': %s", pctx->uri, str);
+	g_free (str);
 }
 
 static void
@@ -606,7 +606,7 @@ parser_get_file_content (const gchar *uri,
 {
 	GError *error = NULL;
 	gchar *filename;
-	ParserContext parser_ctx;
+	ParserContext parser_ctx = { 0 };
 	htmlSAXHandler sax_handler = { 0 };
 	htmlDocPtr doc;
 
@@ -634,6 +634,7 @@ parser_get_file_content (const gchar *uri,
 	sax_handler.characters = parser_characters;
 	sax_handler.error = parser_error;
 
+	doc = NULL;
 	doc = htmlSAXParseFile (filename, "utf-8", &sax_handler, &parser_ctx);
 	g_free (filename);
 
