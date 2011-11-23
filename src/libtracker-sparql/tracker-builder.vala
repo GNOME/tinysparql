@@ -557,7 +557,7 @@ public class Tracker.Sparql.Builder : Object {
 	public void object_unvalidated (string value) {
 		char* end;
 
-		if (!utf8_validate (value, -1, out end)) {
+		if (!value.validate (-1, out end)) {
 			if (value != end) {
 				object_string (value.substring (0, (long) (end - (char*) value)));
 			} else {

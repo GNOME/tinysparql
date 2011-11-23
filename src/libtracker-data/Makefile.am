@@ -7,7 +7,6 @@ AM_VALAFLAGS =                                         \
 	--pkg gio-2.0                                  \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/posix.vapi              \
-	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi     \
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	libtracker-data.vapi
