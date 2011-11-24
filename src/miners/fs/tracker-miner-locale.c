@@ -22,7 +22,7 @@
 
 #include <libtracker-common/tracker-locale.h>
 
-#include "tracker-miner-applications-locale.h"
+#include "tracker-miner-locale.h"
 #ifdef HAVE_MEEGOTOUCH
 #include "tracker-miner-applications-meego.h"
 #endif
