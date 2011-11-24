@@ -146,6 +146,16 @@ miner_userguides_basedir_add (TrackerMinerFS *fs,
 	gchar *path;
 	gboolean added = FALSE;
 
+	/* Do preliminary check on basedir */
+	path = g_build_filename (basedir, "userguide", "contents", NULL);
+	if (!g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+		g_message ("  No userguides in prefix:'%s'", path);
+		g_free (path);
+		return;
+	}
+
+	g_free (path);
+
 	/* Without MeeGoTouch, we simply index ALL content. */
 #ifdef HAVE_MEEGOTOUCH
 	gchar *locale;
