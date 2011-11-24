@@ -32,6 +32,10 @@
 /* FIXME: Should we rename this to just -locale not -applications-locale ? */
 #include "tracker-miner-locale.h"
 
+#ifdef HAVE_MEEGOTOUCH
+#include "tracker-miner-meego.h"
+#endif /* HAVE_MEEGOTOUCH */
+
 // FIXME: get this value from tracker conf
 #define MAX_EXTRACT_SIZE 1024 * 1024 // 1 MiB
 #define MAX_TITLE_LENGTH 1000
@@ -120,14 +124,65 @@ miner_userguides_basedir_add (TrackerMinerFS *fs,
 {
 	GFile *file;
 	gchar *path;
+	gint added = 0;
 
-	/* Add $dir/userguide/contents */
-	path = g_build_filename (basedir, "userguide", "contents", NULL);
-	file = g_file_new_for_path (path);
-	g_message ("  Adding:'%s'", path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
-	g_object_unref (file);
-	g_free (path);
+	/* Without MeeGoTouch, we simply index ALL content. */
+#ifdef HAVE_MEEGOTOUCH
+	gchar *locale;
+
+	locale = tracker_miner_meego_get_locale ();
+	if (locale) {
+		/* First we try the "xx_YY" of the current locale */
+		path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
+
+		if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+			g_message ("  Adding:'%s'", path);
+			file = g_file_new_for_path (path);
+			tracker_miner_fs_directory_add (fs, file, TRUE);
+			g_object_unref (file);
+
+			added++;
+		} else if (strlen (locale) > 2) {
+			/* Clean up */
+			g_message ("  Did not find userguide yet matching locale:'%s'", locale);
+			g_free (path);
+
+			/* Second we try the "xx" of the current locale */
+			locale[2] = '\0';
+			path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
+
+			if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+				g_message ("  Adding:'%s'", path);
+				file = g_file_new_for_path (path);
+				tracker_miner_fs_directory_add (fs, file, TRUE);
+				g_object_unref (file);
+
+				added++;
+			}
+		}
+
+		/* Clean up */
+		g_free (path);
+
+		if (added < 1) {
+			g_message ("  Did not find userguide yet matching locale:'%s' (either)", locale);
+		}
+
+		g_free (locale);
+	} else {
+		g_warning ("Locale was not set which is unexpected, indexing ALL user guides");
+	}
+#endif /* HAVE_MEEGOTOUCH */
+
+	if (added < 1) {
+		/* Add $dir/userguide/contents */
+		path = g_build_filename (basedir, "userguide", "contents", NULL);
+		file = g_file_new_for_path (path);
+		g_message ("  Adding:'%s'", path);
+		tracker_miner_fs_directory_add (fs, file, TRUE);
+		g_object_unref (file);
+		g_free (path);
+	}
 }
 
 static void
@@ -240,53 +295,10 @@ static gboolean
 miner_userguides_check_directory (TrackerMinerFS *fs,
                                   GFile          *file)
 {
-	gboolean retval = FALSE;
-	gchar *basename;
-
-	/* We want to inspect all the passed dirs and their children except one:
-	 * $prefix/userguide/contents/images/
+	/* We target specific locale based userguides now, no
+	 * filtering needed at this level
 	 */
-	basename = g_file_get_basename (file);
-
-	if (strcmp (basename, "images") != 0) {
-		g_message ("  Ignoring:'%s'", basename);
-		retval = TRUE;
-	}
-
-	/* Without MeeGoTouch, we simply index ALL content. */
-#ifdef HAVE_MEEGOTOUCH
-	GFile *parent;
-	gchar *parent_basename;
-
-	/* We want to ignore all locales which are not the current one:
-	 * $prefix/userguide/contents/$locale/
-	 */
-	parent = g_file_get_parent (file);
-	if (parent) {
-		parent_basename = g_file_get_basename (parent);
-	} else {
-		parent_basename = NULL;
-	}
-
-	if (parent_basename && strcmp (parent_basename, "contents") == 0) {
-		gchar *locale;
-
-		locale = tracker_miner_meego_get_locale ();
-
-		if (locale && g_ascii_strcasecmp (locale, basename) == 0) {
-			g_message ("  Ignoring:'%s' (doesn't match locale:'%s')",
-			           basename, locale);
-			retval = TRUE;
-		}
-
-		g_free (locale);
-	}
-
-	g_free (parent_basename);
-#endif /* HAVE_MEEGOTOUCH */
-	g_free (basename);
-
-	return retval;
+	return TRUE;
 }
 
 static gboolean
