@@ -17,14 +17,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__
-#define __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__
+#ifndef __TRACKER_MINER_FS_LOCALE_H__
+#define __TRACKER_MINER_FS_LOCALE_H__
 
 G_BEGIN_DECLS
 
-void     tracker_miner_applications_locale_set_current (void);
-gboolean tracker_miner_applications_locale_changed     (void);
+void     tracker_miner_locale_set_current (void);
+gboolean tracker_miner_locale_changed     (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__ */
+#endif /* __TRACKER_MINER_FS_LOCALE_H__ */
