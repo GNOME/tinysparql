@@ -17,19 +17,21 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__
-#define __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__
+#ifndef __TRACKER_MINER_FS_MEEGO_H__
+#define __TRACKER_MINER_FS_MEEGO_H__
 
 G_BEGIN_DECLS
 
+/* MeeGo general functions */
+gchar *tracker_miner_meego_get_locale (void);
+
+/* MeeGo application functions */
 gchar *tracker_miner_applications_meego_translate (const gchar  *catalogue,
                                                    const gchar  *id);
-
-gchar *tracker_miner_applications_meego_get_locale (void);
 
 void   tracker_miner_applications_meego_init       (void);
 void   tracker_miner_applications_meego_shutdown   (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__ */
+#endif /* __TRACKER_MINER_FS_MEEGO_H__ */

@@ -27,10 +27,13 @@
 #include "tracker-miner-applications-meego.h"
 #endif
 
-#define TRACKER_MINER_APPLICATIONS_LOCALE_FILE "miner-applications-locale.txt"
+/* NOTE: This applies to more miners than just the application miner,
+ * it's kept this way to avoid breaking things.
+ */
+#define TRACKER_MINER_LOCALE_FILE "miner-applications-locale.txt"
 
 static gchar *
-miner_applications_locale_get_filename (void)
+miner_locale_get_filename (void)
 {
 	gchar *data_dir;
 	gchar *filename;
@@ -39,7 +42,7 @@ miner_applications_locale_get_filename (void)
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
 	                             NULL);
-	filename = g_build_filename (data_dir, TRACKER_MINER_APPLICATIONS_LOCALE_FILE, NULL);
+	filename = g_build_filename (data_dir, TRACKER_MINER_LOCALE_FILE, NULL);
 
 	g_free (data_dir);
 
@@ -47,11 +50,11 @@ miner_applications_locale_get_filename (void)
 }
 
 static gchar *
-miner_applications_locale_get_previous (void)
+miner_locale_get_previous (void)
 {
 	gchar *locale_file, *locale = NULL;
 
-	locale_file = miner_applications_locale_get_filename ();
+	locale_file = miner_locale_get_filename ();
 
 	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
 		gchar *contents;
@@ -79,14 +82,14 @@ miner_applications_locale_get_previous (void)
 }
 
 static gchar *
-miner_applications_locale_get_current (void)
+miner_locale_get_current (void)
 {
 	gchar *current_locale;
 
 #ifdef HAVE_MEEGOTOUCH
 	/* If we have meegotouch enabled, take the correct locale as the one from
 	 * meegotouch. */
-	current_locale = tracker_miner_applications_meego_get_locale ();
+	current_locale = tracker_miner_meego_get_locale ();
 #else
 	/* Get current tracker LANG locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
@@ -96,16 +99,16 @@ miner_applications_locale_get_current (void)
 }
 
 void
-tracker_miner_applications_locale_set_current (void)
+tracker_miner_locale_set_current (void)
 {
 	GError *error = NULL;
 	gchar *locale_file, *locale = NULL;
 
-	locale_file = miner_applications_locale_get_filename ();
+	locale_file = miner_locale_get_filename ();
 
 	g_message ("  Creating locale file '%s'", locale_file);
 
-	locale = miner_applications_locale_get_current ();
+	locale = miner_locale_get_current ();
 
 	if (locale == NULL) {
 		locale = g_strdup ("");
@@ -122,16 +125,16 @@ tracker_miner_applications_locale_set_current (void)
 }
 
 gboolean
-tracker_miner_applications_locale_changed (void)
+tracker_miner_locale_changed (void)
 {
 	gchar *previous_locale;
 	gchar *current_locale;
 	gboolean changed;
 
-	current_locale = miner_applications_locale_get_current ();
+	current_locale = miner_locale_get_current ();
 
 	/* Get previous locale */
-	previous_locale = miner_applications_locale_get_previous ();
+	previous_locale = miner_locale_get_previous ();
 
 	/* Note that having both to NULL is actually valid, they would default
 	 * to the unicode collation without locale-specific stuff. */

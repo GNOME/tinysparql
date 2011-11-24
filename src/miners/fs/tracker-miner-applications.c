@@ -27,7 +27,7 @@
 #include "tracker-miner-locale.h"
 
 #ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-applications-meego.h"
+#include "tracker-miner-meego.h"
 #endif
 
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
@@ -195,8 +195,8 @@ miner_finished_cb (TrackerMinerFS *fs,
                    gpointer        user_data)
 {
 	/* Update locale file if necessary */
-	if (tracker_miner_applications_locale_changed ()) {
-		tracker_miner_applications_locale_set_current ();
+	if (tracker_miner_locale_changed ()) {
+		tracker_miner_locale_set_current ();
 	}
 }
 
@@ -1004,7 +1004,7 @@ tracker_miner_applications_detect_locale_changed (TrackerMiner *miner)
 {
 	gboolean changed;
 
-	changed = tracker_miner_applications_locale_changed ();
+	changed = tracker_miner_locale_changed ();
 	if (changed) {
 		g_message ("Locale change detected, so resetting miner to "
 		           "remove all previously created items...");
