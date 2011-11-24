@@ -39,6 +39,16 @@ coverage-report: coverage
 		libtracker-sparql/tracker-plugin-loader.c \
 		libtracker-sparql/tracker-utils.c      \
 		libtracker-sparql-backend/tracker-backend.c \
+		tracker-store/tracker-backup.c \
+		tracker-store/tracker-dbus.c \
+		tracker-store/tracker-main.c \
+		tracker-store/tracker-resources.c \
+		tracker-store/tracker-statistics.c \
+		tracker-store/tracker-status.c \
+		tracker-store/tracker-steroids.c \
+		tracker-store/tracker-store.c \
+		tracker-control/* \
+		libstemmer/stem_UTF_8_* \
 		tracker-control/tracker-miner-files-index-client.h \
 		"*.vapi"                               \
 		"tracker-marshal.*"
