@@ -863,18 +863,22 @@ main (gint argc, gchar *argv[])
 		if (!do_mtime_checking)
 			g_debug ("Forcing mtime check in applications miner as locale change was detected");
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), TRUE);
+	} else {
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
+	}
+
 
 #ifdef HAVE_MAEMO
+	/* If a locale change was detected, always do mtime checks */
+	if (tracker_miner_userguides_detect_locale_changed (miner_userguides)) {
 		if (!do_mtime_checking)
 			g_debug ("Forcing mtime check in userguides miner as locale change was detected");
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), TRUE);
-#endif /* HAVE_MAEMO */
 	} else {
-		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
-#ifdef HAVE_MAEMO
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), do_mtime_checking);
 #endif /* HAVE_MAEMO */
 	}
+
 
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
