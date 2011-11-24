@@ -2037,6 +2037,8 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 	preupdate = postupdate = sparql = where = NULL;
 
 	if (error) {
+		GStrv types;
+
 		uri = g_file_get_uri (data->file);
 		g_warning ("  Got second extraction DBus error on '%s'. "
 			   "Adding only non-embedded metadata to the SparQL, "
@@ -2044,6 +2046,23 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 			   uri, error->message);
 		g_error_free (error);
 		g_free (uri);
+
+		types = tracker_extract_module_manager_get_fallback_rdf_types (data->mime_type);
+
+		if (types && types[0] != NULL) {
+			guint i;
+			GString *str = g_string_new (" a ");
+			for (i = 0; types[i] != NULL; i++) {
+				if (i != 0) {
+					g_string_append_c (str, ',');
+				}
+				g_string_append (str, types[i]);
+			}
+			sparql = g_string_free (str, FALSE);
+		}
+
+		g_strfreev (types);
+
 	} else {
 		TrackerSparqlBuilder *builder;
 
@@ -2097,18 +2116,18 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 		g_free (uri);
 
 		tracker_extract_client_get_metadata (data->file,
-						     data->mime_type,
+		                                     data->mime_type,
 		                                     TRACKER_MINER_FS_GRAPH_URN,
-						     data->cancellable,
-						     extractor_get_failsafe_metadata_cb,
-						     data);
+		                                     data->cancellable,
+		                                     extractor_get_failsafe_metadata_cb,
+		                                     data);
 	} else {
 		g_debug ("Failsafe extraction finished. Resuming miner...");
 
 		if (priv->failed_extraction_pause_cookie != 0) {
 			tracker_miner_resume (TRACKER_MINER (miner),
-					      priv->failed_extraction_pause_cookie,
-					      NULL);
+			                      priv->failed_extraction_pause_cookie,
+			                      NULL);
 
 			priv->failed_extraction_pause_cookie = 0;
 		}
@@ -2169,9 +2188,9 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 			if (priv->failed_extraction_pause_cookie != 0) {
 				priv->failed_extraction_pause_cookie =
 					tracker_miner_pause (TRACKER_MINER (data->miner),
-							     _("Extractor error, performing "
-							       "failsafe embedded metadata extraction"),
-							     NULL);
+					                     _("Extractor error, performing "
+					                       "failsafe embedded metadata extraction"),
+					                     NULL);
 			}
 
 			priv->failed_extraction_queue = g_list_prepend (priv->failed_extraction_queue, data);
