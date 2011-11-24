@@ -2058,7 +2058,7 @@ extractor_get_failsafe_metadata_cb (GObject      *object,
 				}
 				g_string_append (str, types[i]);
 			}
-			g_string_append_c (str, '.');
+			g_string_append (str, " .");
 			sparql = g_string_free (str, FALSE);
 		}
 
