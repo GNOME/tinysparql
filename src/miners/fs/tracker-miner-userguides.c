@@ -536,19 +536,17 @@ parser_characters (void          *ctx,
                    int            len G_GNUC_UNUSED)
 {
 	ParserContext *pctx = ctx;
-	gchar *str;
+	const gchar *str;
 	int len_to_append;
 
 	if (pctx->in_title) {
-		gchar *title = g_strdup ((const gchar *) ch);
+		const gchar *title = (const gchar *) ch;
 
 		if (title[0]) {
 			g_string_append_len (pctx->title,
 			                     title,
 			                     MIN(strlen (title), MAX_TITLE_LENGTH));
 		}
-
-		g_free(title);
 	}
 
 	if (!pctx->in_text) {
@@ -559,10 +557,9 @@ parser_characters (void          *ctx,
 		return;
 	}
 
-	str = g_strdup ((const gchar *) ch);
+	str = (const gchar *) ch;
 
 	if (!str || !str[0]) {
-		g_free (str);
 		return;
 	}
 
@@ -573,7 +570,6 @@ parser_characters (void          *ctx,
 	}
 
 	g_string_append_len (pctx->plain_text, str, len_to_append);
-	g_free (str);
 }
 
 static void
