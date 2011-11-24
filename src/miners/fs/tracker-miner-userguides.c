@@ -118,69 +118,87 @@ miner_userguides_initable_iface_init (GInitableIface *iface)
 	iface->init = miner_userguides_initable_init;
 }
 
+static inline gboolean
+miner_userguides_basedir_add_path (TrackerMinerFS *fs,
+                                   const gchar    *path,
+                                   const gchar    *locale)
+{
+	if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+		GFile *file;
+
+		g_message ("  Adding:'%s'", path);
+		file = g_file_new_for_path (path);
+		tracker_miner_fs_directory_add (fs, file, TRUE);
+		g_object_unref (file);
+
+		return TRUE;
+	}
+
+	g_message ("  No userguide found for locale:'%s' in this prefix", locale);
+
+	return FALSE;
+}
+
 static void
 miner_userguides_basedir_add (TrackerMinerFS *fs,
                               const gchar    *basedir)
 {
-	GFile *file;
 	gchar *path;
-	gint added = 0;
+	gboolean added = FALSE;
 
 	/* Without MeeGoTouch, we simply index ALL content. */
 #ifdef HAVE_MEEGOTOUCH
 	gchar *locale;
 
 	locale = tracker_miner_meego_get_locale ();
-	if (locale) {
-		/* First we try the "xx_YY" of the current locale */
-		path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
 
-		if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
-			g_message ("  Adding:'%s'", path);
-			file = g_file_new_for_path (path);
-			tracker_miner_fs_directory_add (fs, file, TRUE);
-			g_object_unref (file);
+	/* Order of which we try here:
+	 * 1, make sure locale is set, otherwise default to 'en'
+	 * 2, try the "xx_YY" of the current locale
+	 * 3, try the "xx" of the current locale
+	 * 4, default to 'en' for cases where current locale has no userguide
+	 */
 
-			added++;
-		} else if (strlen (locale) > 2) {
-			/* Clean up */
-			g_message ("  Did not find userguide yet matching locale:'%s'", locale);
-			g_free (path);
-
-			/* Second we try the "xx" of the current locale */
-			locale[2] = '\0';
-			path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
-
-			if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
-				g_message ("  Adding:'%s'", path);
-				file = g_file_new_for_path (path);
-				tracker_miner_fs_directory_add (fs, file, TRUE);
-				g_object_unref (file);
-
-				added++;
-			}
-		}
-
-		/* Clean up */
-		g_free (path);
-
-		if (added < 1) {
-			g_message ("  Did not find userguide yet matching locale:'%s' (either)", locale);
-		}
-
+	/* Step 1 */
+	if (locale == NULL || *locale == '\0') {
+		g_message ("  Locale was not set which is unexpected, defaulting to 'en'");
 		g_free (locale);
-	} else {
-		g_warning ("Locale was not set which is unexpected, indexing ALL user guides");
+		locale = g_strdup ("en");
 	}
+
+	/* Step 2 */
+	path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
+	added = miner_userguides_basedir_add_path (fs, path, locale);
+	g_free (path);
+
+	/* Step 3 */
+	if (!added && strlen (locale) > 2) {
+		locale[2] = '\0';
+		path = g_build_filename (basedir, "userguide", "contents", locale, NULL);
+		added = miner_userguides_basedir_add_path (fs, path, locale);
+		g_free (path);
+	}
+
+	/* Step 4 */
+	if (!added) {
+		g_message ("  Locale has no userguide currently, defaulting to 'en'");
+		path = g_build_filename (basedir, "userguide", "contents", "en", NULL);
+		added = miner_userguides_basedir_add_path (fs, path, "en");
+		g_free (path);
+	}
+
+	if (!added) {
+		g_message ("  Default locale 'en' has no userguide in this prefix");
+	}
+
+	g_free (locale);
 #endif /* HAVE_MEEGOTOUCH */
 
-	if (added < 1) {
+	if (!added) {
 		/* Add $dir/userguide/contents */
+		g_message ("  MeeGoTouch is disabled, indexing all userguides...");
 		path = g_build_filename (basedir, "userguide", "contents", NULL);
-		file = g_file_new_for_path (path);
-		g_message ("  Adding:'%s'", path);
-		tracker_miner_fs_directory_add (fs, file, TRUE);
-		g_object_unref (file);
+		miner_userguides_basedir_add_path (fs, path, "");
 		g_free (path);
 	}
 }
