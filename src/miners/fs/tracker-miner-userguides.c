@@ -227,12 +227,9 @@ miner_userguides_check_file (TrackerMinerFS *fs,
 
 	basename = g_file_get_basename (file);
 
-	/* FIXME: What do we ignore and what don't we? */
 	if (g_str_has_suffix (basename, ".html")) {
 		retval = TRUE;
 	}
-
-	/* FIXME: Do we check the mime type is 'application/x-userguide-html' */
 
 	g_free (basename);
 
@@ -645,6 +642,7 @@ parser_get_file_content (const gchar *uri,
 /* If a reset is requested, we will remove from the store all items previously
  * inserted by the tracker-miner-userguides, this is:
  *  (a) Remove all resources which are a nfo:HelpDocument
+ *  (b) Remove all unnecessary directories 
  */
 static void
 miner_userguides_reset (TrackerMiner *miner)
@@ -654,6 +652,7 @@ miner_userguides_reset (TrackerMiner *miner)
 
 	sparql = tracker_sparql_builder_new_update ();
 
+	/* (a) Remove all resources which are a nfo:HelpDocument */
 	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "userguide");
 	tracker_sparql_builder_predicate (sparql, "a");
@@ -665,6 +664,10 @@ miner_userguides_reset (TrackerMiner *miner)
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
 	tracker_sparql_builder_where_close (sparql);
+
+	/* (b) Remove all unnecessary directories */
+	/* TODO: Finish */
+
 
 	/* Execute a sync update, we don't want the userguides miner to start before
 	 * we finish this. */
