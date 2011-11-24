@@ -30,7 +30,7 @@
 #include "tracker-miner-userguides.h"
 
 /* FIXME: Should we rename this to just -locale not -applications-locale ? */
-#include "tracker-miner-applications-locale.h"
+#include "tracker-miner-locale.h"
 
 // FIXME: get this value from tracker conf
 #define MAX_EXTRACT_SIZE 1024 * 1024 // 1 MiB
