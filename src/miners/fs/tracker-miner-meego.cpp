@@ -24,10 +24,12 @@
 
 #include <glib-object.h>
 
-#include "tracker-miner-applications-meego.h"
+#include "tracker-miner-meego.h"
 
 static QCoreApplication *app = NULL;
-
+/*
+ * MeeGo application functions...
+ */
 void
 tracker_miner_applications_meego_init (void)
 {
@@ -79,8 +81,11 @@ tracker_miner_applications_meego_translate (const gchar  *catalogue,
 	return ret;
 }
 
+/*
+ * MeeGo general functions...
+ */
 gchar *
-tracker_miner_applications_meego_get_locale (void)
+tracker_miner_meego_get_locale (void)
 {
 	/* Get the system default locale */
 	MLocale locale;
