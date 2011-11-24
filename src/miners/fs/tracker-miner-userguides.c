@@ -240,7 +240,7 @@ static gboolean
 miner_userguides_check_directory (TrackerMinerFS *fs,
                                   GFile          *file)
 {
-	gboolean retval = TRUE;
+	gboolean retval = FALSE;
 	gchar *basename;
 
 	/* We want to inspect all the passed dirs and their children except one:
@@ -248,12 +248,42 @@ miner_userguides_check_directory (TrackerMinerFS *fs,
 	 */
 	basename = g_file_get_basename (file);
 
-	/* FIXME: Perhaps this is too broad? */
-	if (strcmp (basename, "images") == 0) {
+	if (strcmp (basename, "images") != 0) {
 		g_message ("  Ignoring:'%s'", basename);
-		retval = FALSE;
+		retval = TRUE;
 	}
 
+	/* Without MeeGoTouch, we simply index ALL content. */
+#ifdef HAVE_MEEGOTOUCH
+	GFile *parent;
+	gchar *parent_basename;
+
+	/* We want to ignore all locales which are not the current one:
+	 * $prefix/userguide/contents/$locale/
+	 */
+	parent = g_file_get_parent (file);
+	if (parent) {
+		parent_basename = g_file_get_basename (parent);
+	} else {
+		parent_basename = NULL;
+	}
+
+	if (parent_basename && strcmp (parent_basename, "contents") == 0) {
+		gchar *locale;
+
+		locale = tracker_miner_meego_get_locale ();
+
+		if (locale && g_ascii_strcasecmp (locale, basename) == 0) {
+			g_message ("  Ignoring:'%s' (doesn't match locale:'%s')",
+			           basename, locale);
+			retval = TRUE;
+		}
+
+		g_free (locale);
+	}
+
+	g_free (parent_basename);
+#endif /* HAVE_MEEGOTOUCH */
 	g_free (basename);
 
 	return retval;

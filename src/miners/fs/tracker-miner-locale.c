@@ -24,7 +24,7 @@
 
 #include "tracker-miner-locale.h"
 #ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-applications-meego.h"
+#include "tracker-miner-meego.h"
 #endif
 
 /* NOTE: This applies to more miners than just the application miner,
