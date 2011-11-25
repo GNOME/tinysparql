@@ -800,7 +800,6 @@ extract_tiff (const gchar          *uri,
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	tracker_iptc_free (id);
-	close (fd);
 }
 
 TrackerExtractData *
