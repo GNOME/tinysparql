@@ -1,3 +1,25 @@
+NEW in 0.10.36 - 2011-11-25
+===========================
+
+The changes are:
+
+  * Fixes: NB#285426, Do not use GDBusProxy, finalizer schedules an idle function to disconnect name owner changed signal and leaks GMainContext
+  * Fixes: NB#285537, [PR1.2] "updating library" message comes up after launch of Music application
+  * Fixes: NB#291569, [PR1.1.1] "updating library" message comes up after launch of Music application
+  * Fixes: NB#292744, Tracker-extract from region-of-interest type "Face" produces nfo:roi-content-pet region type
+  * Fixes: NB#290480, Resolution of timestamp values is not enough for some use cases
+  * libtracker-data: Ensure that fn:timezone-from-dateTime returns an integer
+  * libtracker-miner: Avoid blocking other SPARQL buffers from being able to process update arrays
+  * tracker-extract: Do not close FDs more than once for GIF, TIFF and TEXT extractors
+  * tracker-extract-pdf: Fixed leak Poppler actions when reading TOC
+  * tracker-extract-pdf: Fixed uninitialised read warnings in Valgrind
+  * tracker-extract-albumart: Fixed memory leak with Pixbuf loader
+
+Translations:
+
+  None
+
+
 NEW in 0.10.35 - 2011-11-08
 ===========================
 
