@@ -591,8 +591,6 @@ extract_gif (const gchar          *uri,
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 		PrintGifError ();
 	}
-
-	close (fd);
 }
 
 TrackerExtractData *
