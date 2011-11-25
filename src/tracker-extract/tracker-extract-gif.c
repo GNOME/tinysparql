@@ -644,7 +644,5 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		PrintGifError ();
 	}
 
-	close (fd);
-
 	return TRUE;
 }
