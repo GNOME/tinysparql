@@ -92,6 +92,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 
 			g_clear_error (&error);
 			gdk_pixbuf_loader_close (loader, NULL);
+			g_object_unref (loader);
 
 			return FALSE;
 		}
@@ -102,6 +103,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 			g_warning ("Could not get pixbuf from GdkPixbufLoader when setting album art");
 
 			gdk_pixbuf_loader_close (loader, NULL);
+			g_object_unref (loader);
 
 			return FALSE;
 		}
@@ -111,19 +113,19 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 			           error ? error->message : "no error given");
 
 			g_clear_error (&error);
-			g_object_unref (pixbuf);
 			gdk_pixbuf_loader_close (loader, NULL);
+			g_object_unref (loader);
 
 			return FALSE;
 		}
-
-		g_object_unref (pixbuf);
 
 		if (!gdk_pixbuf_loader_close (loader, &error)) {
 			g_warning ("Could not close GdkPixbufLoader when setting album art, %s",
 			           error ? error->message : "no error given");
 			g_clear_error (&error);
 		}
+
+		g_object_unref (loader);
 	}
 
 	return TRUE;
