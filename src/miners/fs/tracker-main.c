@@ -876,9 +876,8 @@ main (gint argc, gchar *argv[])
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), TRUE);
 	} else {
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), do_mtime_checking);
-#endif /* HAVE_MAEMO */
 	}
-
+#endif /* HAVE_MAEMO */
 
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
@@ -911,9 +910,14 @@ main (gint argc, gchar *argv[])
 
 	if (miners_timeout_id == 0 &&
 	    !miner_needs_check (miner_files, store_available) &&
-	    !miner_needs_check (miner_applications, store_available) && 
-	    !miner_needs_check (miner_userguides, store_available)) {
+	    !miner_needs_check (miner_applications, store_available)) {
+#ifdef HAVE_MAEMO
+		if (!miner_needs_check (miner_userguides, store_available)) {
+			tracker_db_manager_set_need_mtime_check (FALSE);
+		}
+#else  /* HAVE_MAEMO */
 		tracker_db_manager_set_need_mtime_check (FALSE);
+#endif /* HAVE_MAEMO */
 	}
 
 	g_main_loop_unref (main_loop);
