@@ -21,6 +21,8 @@
 #include "tracker-extract-client.h"
 
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
@@ -347,12 +349,28 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	TrackerExtractInfo *info;
 	GDBusMessage *message;
 	GUnixFDList *fd_list;
-	int pipefd[2];
+	int pipefd[2], fd_index;
+	GError *error = NULL;
 	gchar *uri;
 
 	if (pipe (pipefd) < 0) {
+		gint err = errno;
+
 		g_critical ("Coudln't open pipe");
-		/* FIXME: Report async error */
+		g_simple_async_result_set_error (res,
+		                                 G_IO_ERROR,
+		                                 g_io_error_from_errno (err),
+		                                 "Could not open pipe to extractor");
+		g_simple_async_result_complete_in_idle (res);
+		return;
+	}
+
+	fd_list = g_unix_fd_list_new ();
+
+	if ((fd_index = g_unix_fd_list_append (fd_list, pipefd[1], &error)) == -1) {
+		g_simple_async_result_set_from_error (res, error);
+		g_simple_async_result_complete_in_idle (res);
+		g_error_free (error);
 		return;
 	}
 
@@ -361,7 +379,6 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	                                          DBUS_INTERFACE_EXTRACT,
 	                                          "GetMetadataFast");
 
-	fd_list = g_unix_fd_list_new ();
 	uri = g_file_get_uri (file);
 
 	g_dbus_message_set_body (message,
@@ -369,15 +386,13 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	                                        uri,
 	                                        mime_type,
 	                                        graph,
-	                                        g_unix_fd_list_append (fd_list,
-	                                                               pipefd[1],
-	                                                               NULL)));
+	                                        fd_index));
 	g_dbus_message_set_unix_fd_list (message, fd_list);
 
 	/* We need to close the fd as g_unix_fd_list_append duplicates the fd */
 
-	close (pipefd[1]);
 	g_object_unref (fd_list);
+	close (pipefd[1]);
 	g_free (uri);
 
 	info = tracker_extract_info_new (file, mime_type, graph);
