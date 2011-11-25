@@ -1,0 +1,6 @@
+[Desktop Entry]
+_Name=Userguides
+_Comment=Userguide data miner
+Icon=system-installer
+DBusName=org.freedesktop.Tracker1.Miner.Userguides
+DBusPath=/org/freedesktop/Tracker1/Miner/Userguides

@@ -34,8 +34,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-main.c                                 \
 	tracker-miner-applications.c                   \
 	tracker-miner-applications.h                   \
-	tracker-miner-applications-locale.c            \
-	tracker-miner-applications-locale.h            \
+	tracker-miner-locale.c                         \
+	tracker-miner-locale.h                         \
 	tracker-miner-files.c                          \
 	tracker-miner-files.h                          \
 	tracker-miner-files-index.c                    \
@@ -56,10 +56,18 @@ tracker_miner_fs_LDADD =                               \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_FS_LIBS)
 
+if HAVE_MAEMO
+tracker_miner_fs_SOURCES += \
+	tracker-miner-userguides.c \
+	tracker-miner-userguides.h
+tracker_miner_fs_CFLAGS = $(LIBXML2_CFLAGS)
+tracker_miner_fs_LDADD += $(LIBXML2_LIBS)
+endif
+
 if HAVE_MEEGOTOUCH
 tracker_miner_fs_SOURCES += \
-	tracker-miner-applications-meego.cpp \
-	tracker-miner-applications-meego.h
+	tracker-miner-meego.cpp \
+	tracker-miner-meego.h
 endif
 
 marshal_sources =                                      \
