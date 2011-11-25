@@ -393,6 +393,9 @@ static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 
 static void           task_pool_cancel_foreach                (gpointer        data,
                                                                gpointer        user_data);
+static void           task_pool_limit_reached_notify_cb       (GObject        *object,
+                                                               GParamSpec     *pspec,
+                                                               gpointer        user_data);
 
 static gboolean       miner_fs_is_forced_mtime_checking_directory      (TrackerMinerFS *fs,
                                                                         GFile          *directory);
@@ -750,7 +753,12 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create processing pools */
 	priv->task_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
+	g_signal_connect (priv->task_pool, "notify::limit-reached",
+	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
+
 	priv->writeback_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
+	g_signal_connect (priv->writeback_pool, "notify::limit-reached",
+	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -826,6 +834,10 @@ miner_fs_initable_init (GInitable     *initable,
 	g_object_get (initable, "processing-pool-ready-limit", &limit, NULL);
 	priv->sparql_buffer = tracker_sparql_buffer_new (tracker_miner_get_connection (TRACKER_MINER (initable)),
 	                                                 limit);
+	g_signal_connect (priv->sparql_buffer, "notify::limit-reached",
+	                  G_CALLBACK (task_pool_limit_reached_notify_cb),
+	                  initable);
+
 	return TRUE;
 }
 
@@ -1012,6 +1024,16 @@ fs_get_property (GObject    *object,
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
+	}
+}
+
+static void
+task_pool_limit_reached_notify_cb (GObject    *object,
+				   GParamSpec *pspec,
+				   gpointer    user_data)
+{
+	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (object))) {
+		item_queue_handlers_set_up (TRACKER_MINER_FS (user_data));
 	}
 }
 
