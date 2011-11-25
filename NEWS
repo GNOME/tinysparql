@@ -1,3 +1,51 @@
+NEW in 0.12.8 - 2011-11-25
+==========================
+
+The changes are:
+
+  * New Feature: Added userguide miner (currently only indexes html from Nokia user guides on n9)
+  * Fixes: NB#285537, [PR1.2] "updating library" message comes up after launch of Music application
+  * Fixes: NB#291569, [PR1.1.1] "updating library" message comes up after launch of Music application
+  * Fixes: NB#292744, Tracker-extract from region-of-interest type "Face" produces nfo:roi-content-pet region type
+  * Fixes: NB#290406, PDF is not recognized after transferred to the device
+  * Fixes: NB#285426, Do not use GDBusProxy, finalizer schedules an idle function to disconnect name owner changed signal and leaks GMainContext
+  * Fixes: NB#290165, Update array bulk error handling in miner-fs crashes due to int and uint comparisons with ABS()
+  * Fixes: NB#290480, Resolution of timestamp values is not enough for some use cases
+  * Fixes: NB#291088, Writeback N/E/S/W notation for GPS coordinates
+  * Fixes: NB#290814, hashes in album art generated for artists/albums with umlauts is wrong
+  * Fixes: NB#290249, Geotag is not assigned when existing geotag is replaced
+  * Fixes: NB#289953, Check for write permissions on files before attempting to writeback metadata
+  * Fixes: NB#289635, Crash in gconf-dbus locale handling where we're called back during/after shutdown
+  * Fixes: NB#286656, Writeback operation fails due to race condition when tagging music in parallel
+  * Fixes: NB#286610, New sort order after Regional format change not working
+  * Fixes: NB#284591, Name of Tudou is in simplified Chinese while changing language from Chinese to English
+  * Fixes: NB#288530, DLNA profiles incorrect for PNG and JPEG (Testcase 7.3.60.5 fails)
+  * libtracker-data: Ensure that fn:timezone-from-dateTime returns an integer
+  * libtracker-extract: Do not leak GUnixFDList on errors getting metadata
+  * libtracker-extract: Call g_simple_async_result_complete*() for all error conditions too getting metadata
+  * libtracker-miner: Avoid blocking other SPARQL buffers from being able to process update arrays
+  * tracker-extract: Do not close FDs more than once for GIF, TIFF and TEXT extractors
+  * tracker-extract: Fixed possible leak TrackerExtractInfos
+  * tracker-extract-pdf: Fixed leak Poppler actions when reading TOC
+  * tracker-extract-pdf: Fixed uninitialised read warnings in Valgrind
+  * tracker-extract-albumart: Fixed memory leak with Pixbuf loader
+  * tracker-needle: Require GTK+ 3.0 in glade file
+  * tracker-needle: Now display and allow editing of tags in the tag view
+  * tracker-needle: Now find tags as well as other results with search criteria
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated gl: Fran Diéguez
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+  * Updated sl: Andrej Žnidaršič
+  * Updated sr: Miloš Popović
+  * Updated sr@latin: Miloš Popović
+
+
 NEW in 0.12.7 - 2011-10-27
 ==========================
 
