@@ -1927,6 +1927,10 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 				g_free (uri);
 				return;
 			} else if (error->code == G_IO_ERROR_NOT_FOUND) {
+				tracker_task_pool_remove (fs->priv->task_pool, extraction_task);
+				fs->priv->extraction_tasks = g_list_remove (fs->priv->extraction_tasks,
+									    extraction_task);
+
 				/* File was not found, remove it
 				 * if it was in the store
 				 */
