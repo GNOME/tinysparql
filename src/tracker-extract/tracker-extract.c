@@ -333,6 +333,7 @@ get_file_metadata (TrackerExtractTask  *task,
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */
 	else {
+		tracker_extract_info_unref (info);
 		return FALSE;
 	}
 
@@ -362,11 +363,13 @@ get_file_metadata (TrackerExtractTask  *task,
 		g_free (mime_used);
 	}
 
-	*info_out = info;
-
 	if (items == 0) {
 		g_debug ("No extractor or failed");
+		tracker_extract_info_unref (info);
+		info = NULL;
 	}
+
+	*info_out = info;
 
 	return (items > 0);
 }
