@@ -370,6 +370,8 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	if ((fd_index = g_unix_fd_list_append (fd_list, pipefd[1], &error)) == -1) {
 		g_simple_async_result_set_from_error (res, error);
 		g_simple_async_result_complete_in_idle (res);
+
+		g_object_unref (fd_list);
 		g_error_free (error);
 		return;
 	}
