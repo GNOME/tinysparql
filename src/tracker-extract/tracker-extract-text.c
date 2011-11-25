@@ -77,12 +77,12 @@ get_file_content (GFile *file,
 	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
 	         uri, n_bytes);
 
-	/* Read up to n_bytes from stream. Output is always, always valid UTF-8 */
+	/* Read up to n_bytes from stream. Output is always, always valid UTF-8,
+	 * this function closes the FD.
+	 */
 	text = tracker_read_text_from_fd (fd,
 	                                  n_bytes,
 	                                  TRY_LOCALE_TO_UTF8_CONVERSION);
-
-	close (fd);
 	g_free (uri);
 	g_free (path);
 
