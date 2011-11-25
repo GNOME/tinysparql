@@ -851,13 +851,13 @@ fix_region_type (const gchar *region_type)
                 return "nfo:region-content-undefined";
         }
 
-        if (g_ascii_strcasecmp (region_type, "Face")) {
+        if (g_ascii_strncasecmp (region_type, "Face", 4) == 0) {
                 return "nfo:roi-content-face";
-        } else if (g_ascii_strcasecmp (region_type, "Pet")) {
+        } else if (g_ascii_strncasecmp (region_type, "Pet", 3) == 0) {
                 return "nfo:roi-content-pet";
-        } else if (g_ascii_strcasecmp (region_type, "Focus")) {
+        } else if (g_ascii_strncasecmp (region_type, "Focus", 5) == 0) {
                 return "nfo:roi-content-focus";
-        } else if (g_ascii_strcasecmp (region_type, "BarCode")) {
+        } else if (g_ascii_strncasecmp (region_type, "BarCode", 7) == 0) {
                 return "nfo:roi-content-barcode";
         }
 
