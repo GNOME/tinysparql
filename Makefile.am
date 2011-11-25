@@ -92,8 +92,8 @@ DISTCHECK_CONFIGURE_FLAGS =                            \
 	--enable-functional-tests                      \
 	--enable-gtk-doc                               \
 	--enable-introspection                         \
-	--enable-miner-rss                             \
-	--enable-miner-flickr                          \
+	--disable-miner-rss                            \
+	--disable-miner-flickr                         \
 	--disable-miner-evolution                      \
 	--disable-miner-thunderbird                    \
 	--disable-miner-firefox                        \
