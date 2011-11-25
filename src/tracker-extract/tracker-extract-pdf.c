@@ -162,6 +162,7 @@ read_toc (PopplerIndexIter  *index,
 				break;
 		}
 
+		poppler_action_free (action);
 		iter = poppler_index_iter_get_child (index);
 		read_toc (iter, toc);
 	} while (poppler_index_iter_next (index));
@@ -211,7 +212,7 @@ extract_content (PopplerDocument *document,
 	       remaining_bytes > 0 &&
 	       g_timer_elapsed (timer, NULL) < 5) {
 		PopplerPage *page;
-		gsize written_bytes;
+		gsize written_bytes = 0;
 		gchar *text;
 
 		page = poppler_document_get_page (document, i);
