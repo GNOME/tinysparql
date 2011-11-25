@@ -860,7 +860,5 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_iptc_free (id);
 	g_free (uri);
 
-	close (fd);
-
 	return TRUE;
 }
