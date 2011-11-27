@@ -92,9 +92,6 @@ main (int argc, char **argv)
 	g_option_context_free (context);
 
 	g_type_init ();
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
 
 	if (file) {
 		gchar *path_in_utf8;

@@ -106,7 +106,6 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
 	/* Set test environment up */

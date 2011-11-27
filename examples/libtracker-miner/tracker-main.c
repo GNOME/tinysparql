@@ -195,10 +195,6 @@ main (int argc, char *argv[])
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	miner = tracker_miner_test_new ("test");

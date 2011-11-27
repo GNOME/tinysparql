@@ -366,7 +366,6 @@ main (int argc, char **argv)
 	int result;
 
 	g_type_init ();
-	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
 #ifndef DISABLE_JOURNAL
