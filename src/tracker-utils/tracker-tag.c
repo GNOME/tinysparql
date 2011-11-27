@@ -933,10 +933,6 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!connection) {

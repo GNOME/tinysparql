@@ -68,10 +68,6 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new (_(" - Manage Tracker processes and data"));

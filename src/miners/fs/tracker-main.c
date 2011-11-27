@@ -696,10 +696,6 @@ main (gint argc, gchar *argv[])
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	setlocale (LC_ALL, "");
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);

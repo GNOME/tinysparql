@@ -314,10 +314,6 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	g_test_init (&argc, &argv, NULL);
 
 	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);

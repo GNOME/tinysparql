@@ -326,10 +326,6 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
 	g_test_init (&argc, &argv, NULL);
 
 	setlocale (LC_COLLATE, "en_US.utf8");

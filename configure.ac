@@ -246,7 +246,6 @@ PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
 # Check requirements for libtracker-fts
 LIBTRACKER_FTS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED
-                         gthread-2.0  >= $GLIB_REQUIRED
                          sqlite3      >= $SQLITE_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
@@ -267,7 +266,6 @@ PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 # Check requirements for tracker-control
 TRACKER_CONTROL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
-                          gthread-2.0  >= $GLIB_REQUIRED
                           uuid"
 
 PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])
@@ -275,7 +273,6 @@ PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])
 # Check requirements for tracker-explorer
 TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
-                           gthread-2.0  >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED
                            gtk+-3.0     >= $GTK_REQUIRED
 			   gee-1.0      >= $GEE_REQUIRED"
@@ -294,7 +291,6 @@ PKG_CHECK_MODULES(TRACKER_RESDUMP, [$TRACKER_RESDUMP_REQUIRED],
 # Check requirements for tracker-store
 TRACKER_STORE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED
-                        gthread-2.0  >= $GLIB_REQUIRED
                         gmodule-2.0  >= $GLIB_REQUIRED
                         sqlite3      >= $SQLITE_REQUIRED"
 
@@ -305,7 +301,6 @@ TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
 # Check requirements for tracker-extract
 TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
-                          gthread-2.0  >= $GLIB_REQUIRED
                           gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
@@ -318,7 +313,6 @@ PKG_CHECK_MODULES(TRACKER_EXTRACT_MODULES, [$TRACKER_EXTRACT_MODULES_REQUIRED])
 # Check requirements for tracker-writeback
 TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
-                            gthread-2.0  >= $GLIB_REQUIRED
                             gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
@@ -326,7 +320,6 @@ PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
 # Check requirements for tracker-miner-fs
 TRACKER_MINER_FS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
-                           gthread-2.0  >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
@@ -429,15 +422,13 @@ TRACKER_MINER_FLICKR_LIBS="$TRACKER_MINER_FLICKR_LIBS -lz -lm"
 
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                        gio-unix-2.0 >= $GLIB_REQUIRED
-                        gthread-2.0  >= $GLIB_REQUIRED"
+                        gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
 
 # Check requirements for tracker-needle
 TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED
-                         gthread-2.0  >= $GLIB_REQUIRED
                          gmodule-2.0  >= $GLIB_REQUIRED
                          gtk+-3.0     >= $GTK_REQUIRED"
 
@@ -448,7 +439,6 @@ PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
 # Check requirements for tracker-preferences
 TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gio-unix-2.0   >= $GLIB_REQUIRED
-                              gthread-2.0    >= $GLIB_REQUIRED
                               gmodule-2.0    >= $GLIB_REQUIRED
                               gtk+-3.0       >= $GTK_REQUIRED"
 
@@ -459,7 +449,6 @@ PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
 # Check requirements for tracker-search-bar
 TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                              gio-unix-2.0   >= $GLIB_REQUIRED
-                             gthread-2.0    >= $GLIB_REQUIRED
                              gmodule-2.0    >= $GLIB_REQUIRED
                              gtk+-3.0       >= $GTK_REQUIRED
                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED

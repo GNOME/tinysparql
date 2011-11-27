@@ -530,7 +530,6 @@ check_duplicates (void)
 int main (int argc, char **argv)
 {
 	/* Initialize stuff */
-	g_thread_init (NULL);
 	g_type_init ();
 
 	/* Initialize locale support! */
