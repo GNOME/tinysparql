@@ -27,6 +27,7 @@
 typedef struct _TrackerFileSystemPrivate TrackerFileSystemPrivate;
 typedef struct _FileNodeProperty FileNodeProperty;
 typedef struct _FileNodeData FileNodeData;
+typedef struct _NodeLookupData NodeLookupData;
 
 static GHashTable *properties = NULL;
 
@@ -45,6 +46,11 @@ struct _FileNodeData {
 	GArray *properties;
 	guint shallow   : 1;
 	guint file_type : 4;
+};
+
+struct _NodeLookupData {
+	TrackerFileSystem *file_system;
+	GNode *node;
 };
 
 static GQuark quark_file_node = 0;
@@ -102,11 +108,14 @@ file_node_data_free (FileNodeData *data,
 }
 
 static FileNodeData *
-file_node_data_new (GFile     *file,
-                    GFileType  file_type,
-                    GNode     *node)
+file_node_data_new (TrackerFileSystem *file_system,
+                    GFile             *file,
+                    GFileType          file_type,
+                    GNode             *node)
 {
 	FileNodeData *data;
+	NodeLookupData lookup_data;
+	GArray *node_data;
 
 	data = g_slice_new0 (FileNodeData);
 	data->file = g_object_ref (file);
@@ -115,8 +124,21 @@ file_node_data_new (GFile     *file,
 
 	/* We use weak refs to keep track of files */
 	g_object_weak_ref (G_OBJECT (data->file), file_weak_ref_notify, node);
-	g_object_set_qdata (G_OBJECT (data->file),
-	                    quark_file_node, node);
+
+	node_data = g_object_get_qdata (G_OBJECT (data->file),
+	                                quark_file_node);
+
+	if (!node_data) {
+		node_data = g_array_new (FALSE, FALSE, sizeof (NodeLookupData));
+		g_object_set_qdata_full (G_OBJECT (data->file),
+		                         quark_file_node,
+		                         node_data,
+		                         (GDestroyNotify) g_array_unref);
+	}
+
+	lookup_data.file_system = file_system;
+	lookup_data.node = node;
+	g_array_append_val (node_data, lookup_data);
 
 	g_assert (node->data == NULL);
 	node->data = data;
@@ -404,9 +426,23 @@ file_system_get_node (TrackerFileSystem *file_system,
                       GFile             *file)
 {
 	TrackerFileSystemPrivate *priv;
-	GNode *node;
+	GArray *node_data;
+	GNode *node = NULL;
 
-	node = g_object_get_qdata (G_OBJECT (file), quark_file_node);
+	node_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
+
+	if (node_data) {
+		NodeLookupData *cur;
+		guint i;
+
+		for (i = 0; i < node_data->len; i++) {
+			cur = &g_array_index (node_data, NodeLookupData, i);
+
+			if (cur->file_system == file_system) {
+				node = cur->node;
+			}
+		}
+	}
 
 	if (!node) {
 		priv = file_system->priv;
@@ -449,7 +485,8 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 		node = g_node_new (NULL);
 
 		/* Parent was found, add file as child */
-		data = file_node_data_new (file, file_type, node);
+		data = file_node_data_new (file_system, file,
+		                           file_type, node);
 		data->uri_suffix = uri_suffix;
 
 		g_node_append (parent_node, node);
@@ -635,7 +672,6 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
                                   GQuark             prop,
                                   gpointer           prop_data)
 {
-	TrackerFileSystemPrivate *priv;
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify;
 	FileNodeData *data;
@@ -644,8 +680,6 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (file != NULL);
 	g_return_if_fail (prop != 0);
-
-	priv = file_system->priv;
 
 	if (!properties ||
 	    !g_hash_table_lookup_extended (properties,
@@ -727,7 +761,6 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
                                     GFile             *file,
                                     GQuark             prop)
 {
-	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify;
@@ -737,8 +770,6 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (file != NULL);
 	g_return_if_fail (prop > 0);
-
-	priv = file_system->priv;
 
 	if (!properties ||
 	    !g_hash_table_lookup_extended (properties,
