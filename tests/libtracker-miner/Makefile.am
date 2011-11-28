@@ -18,6 +18,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=                                          \
 	tracker-crawler-test                           \
+	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
 	tracker-miner-manager-test                     \
 	tracker-password-provider-test                 \
@@ -109,6 +110,9 @@ tracker_indexing_tree_test_SOURCES = \
 
 tracker_file_system_test_SOURCES = \
 	tracker-file-system-test.c
+
+tracker_file_notifier_test_SOURCES = \
+	tracker-file-notifier-test.c
 
 noinst_HEADERS =                                       \
 	$(libtracker_miner_marshal_headers)            \
