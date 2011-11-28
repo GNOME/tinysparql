@@ -100,6 +100,8 @@ tracker_file_notifier_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_INDEXING_TREE:
 		priv->indexing_tree = g_value_dup_object (value);
+		tracker_monitor_set_indexing_tree (priv->monitor,
+		                                   priv->indexing_tree);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
