@@ -74,6 +74,13 @@ typedef struct {
 	guint stopped : 1;
 } TrackerFileNotifierPrivate;
 
+typedef struct {
+	TrackerFileNotifier *notifier;
+	GNode *cur_parent_node;
+
+	/* Canonical copy from priv->file_system */
+	GFile *cur_parent;
+} DirectoryCrawledData;
 
 static gboolean crawl_directories_start (TrackerFileNotifier *notifier);
 
@@ -270,14 +277,6 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 	}
 }
 
-typedef struct {
-	TrackerFileNotifier *notifier;
-	GNode *cur_parent_node;
-
-	/* Canonical copy from priv->file_system */
-	GFile *cur_parent;
-} DirectoryCrawledData;
-
 static gboolean
 file_notifier_add_node_foreach (GNode    *node,
                                 gpointer  user_data)
@@ -300,12 +299,7 @@ file_notifier_add_node_foreach (GNode    *node,
 		data->cur_parent = NULL;
 	}
 
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_TIME_MODIFIED ","
-	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL,
-	                               NULL);
+	file_info = tracker_crawler_get_file_info (priv->crawler, file);
 
 	if (file_info) {
 		GFileType file_type;
@@ -327,7 +321,6 @@ file_notifier_add_node_foreach (GNode    *node,
 		tracker_file_system_set_property (priv->file_system, canonical,
 		                                  quark_property_filesystem_mtime,
 		                                  time_ptr);
-		g_object_unref (file_info);
 	}
 
 	return FALSE;
@@ -1211,6 +1204,10 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 	/* Set up crawler */
 	priv->crawler = tracker_crawler_new ();
+	tracker_crawler_set_file_attributes (priv->crawler,
+	                                     G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+	                                     G_FILE_ATTRIBUTE_STANDARD_TYPE);
+
 	g_signal_connect (priv->crawler, "check-file",
 	                  G_CALLBACK (crawler_check_file_cb),
 	                  notifier);
