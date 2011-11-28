@@ -1975,11 +1975,9 @@ item_queue_get_progress (TrackerMinerFS *fs,
 		*n_items_remaining = items_to_process;
 	}
 
-	if (items_to_process == 0 && items_total > 0) {
-		return 0.0;
-	}
-
-	if (items_total == 0 || items_to_process > items_total) {
+	if (items_total == 0 ||
+	    items_to_process == 0 ||
+	    items_to_process > items_total) {
 		return 1.0;
 	}
 
