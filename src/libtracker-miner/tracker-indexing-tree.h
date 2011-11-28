@@ -70,7 +70,7 @@ void      tracker_indexing_tree_remove               (TrackerIndexingTree   *tre
                                                       GFile                 *directory);
 
 void      tracker_indexing_tree_add_filter           (TrackerIndexingTree  *tree,
-                                                      TrackerFilterType     type,
+                                                      TrackerFilterType     filter,
                                                       const gchar          *glob_string);
 void      tracker_indexing_tree_clear_filters        (TrackerIndexingTree  *tree,
                                                       TrackerFilterType     type);

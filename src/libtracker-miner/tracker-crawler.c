@@ -975,6 +975,15 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 	}
 }
 
+/**
+ * tracker_crawler_set_file_attributes:
+ * @crawler: a #TrackerCrawler
+ * @file_attributes: file attributes to extract
+ *
+ * Sets the file attributes that @crawler will fetch for every
+ * file it gets, this info may be requested through
+ * tracker_crawler_get_file_info() in any #TrackerCrawler callback
+ **/
 void
 tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
 				     const gchar    *file_attributes)
@@ -985,6 +994,14 @@ tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
 	crawler->priv->file_attributes = g_strdup (file_attributes);
 }
 
+/**
+ * tracker_crawler_get_file_attributes:
+ * @crawler: a #TrackerCrawler
+ *
+ * Returns the file attributes that @crawler will fetch
+ *
+ * Returns: the file attributes as a string.
+ **/
 const gchar *
 tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 {
@@ -993,6 +1010,16 @@ tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 	return crawler->priv->file_attributes;
 }
 
+/**
+ * tracker_crawler_get_file_info:
+ * @crawler: a #TrackerCrawler
+ * @file: a #GFile returned by @crawler
+ *
+ * Returns a #GFileInfo with the file attributes requested through
+ * tracker_crawler_set_file_attributes().
+ *
+ * Returns: (transfer none): a #GFileInfo with the file information
+ **/
 GFileInfo *
 tracker_crawler_get_file_info (TrackerCrawler *crawler,
 			       GFile          *file)

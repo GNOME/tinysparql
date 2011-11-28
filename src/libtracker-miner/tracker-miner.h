@@ -33,9 +33,8 @@
 #include <libtracker-miner/tracker-miner-web.h>
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <libtracker-miner/tracker-miner-enums.h>
+#include <libtracker-miner/tracker-miner-enum-types.h>
 #include <libtracker-miner/tracker-indexing-tree.h>
-#include <libtracker-miner/tracker-file-system.h>
-#include <libtracker-miner/tracker-file-notifier.h>
 
 
 #undef __LIBTRACKER_MINER_H_INSIDE__

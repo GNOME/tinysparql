@@ -13,6 +13,12 @@ include $(top_srcdir)/Makefile.decl
 #
 include Makefile-shared-sources.decl
 
+tracker-miner-enum-types.h: tracker-miner-enum-types.h.template tracker-miner-enums.h
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-miner-enum-types.h.template tracker-miner-enums.h) > $@
+
+tracker-miner-enum-types.c: tracker-miner-enum-types.c.template
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-miner-enum-types.c.template tracker-miner-enums.h) > $@
+
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
@@ -37,6 +43,10 @@ crawler_sources = 				       \
 	tracker-utils.h					
 
 private_sources = 				       \
+	tracker-file-notifier.h                        \
+	tracker-file-notifier.c                        \
+	tracker-file-system.h                          \
+	tracker-file-system.c                          \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
 	tracker-task-pool.h                            \
@@ -50,6 +60,8 @@ miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
 	tracker-miner-dbus.h                           \
+	tracker-miner-enum-types.c                     \
+	tracker-miner-enum-types.h                     \
 	tracker-miner-object.c                         \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.c                             \
@@ -68,10 +80,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(password_provider_sources)                   \
 	$(crawler_sources)			       \
 	$(miner_sources)			       \
-	tracker-file-notifier.h                        \
-	tracker-file-notifier.c                        \
-	tracker-file-system.h                          \
-	tracker-file-system.c                          \
 	tracker-indexing-tree.c                        \
 	tracker-indexing-tree.h                        \
 	tracker-network-provider.c                     \
@@ -84,11 +92,11 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 libtracker_minerinclude_HEADERS =                      \
 	tracker-albumart.h                             \
 	tracker-crawler.h                              \
-	tracker-file-notifier.h                        \
-	tracker-file-system.h                          \
 	tracker-indexing-tree.h                        \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
+	tracker-miner-enums.h                          \
+	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.h                             \
 	tracker-miner-manager.h                        \
@@ -104,7 +112,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
@@ -147,6 +155,8 @@ tracker-miner-$(TRACKER_API_VERSION).deps: tracker-miner.deps
 	cp $< $@
 
 BUILT_SOURCES =                                        \
+	tracker-miner-enum-types.c                     \
+	tracker-miner-enum-types.h                     \
 	$(libtracker_miner_marshal_sources)            \
 	$(libtracker_miner_marshal_headers)            \
 	$(vapi_DATA)
@@ -154,6 +164,8 @@ BUILT_SOURCES =                                        \
 CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
+	tracker-miner-enum-types.c.template            \
+	tracker-miner-enum-types.h.template            \
 	tracker-marshal.list                           \
 	tracker-miner.vapi                             \
 	tracker-miner.deps

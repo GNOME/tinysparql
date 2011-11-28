@@ -672,8 +672,7 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
  * tracker_indexing_tree_parent_is_indexable:
  * @tree: a #TrackerIndexingTree
  * @parent: parent directory
- * @children: children within @parent
- * @n_children: number of children
+ * @children: (element-type GFile): children within @parent
  *
  * returns %TRUE if @parent should be indexed based on its contents.
  *
@@ -834,6 +833,17 @@ prepend_config_root (GNode    *node,
 	return FALSE;
 }
 
+/**
+ * tracker_indexing_tree_list_roots:
+ * @tree: a #TrackerIndexingTree
+ *
+ * Returns the list of indexing roots in @tree
+ *
+ * Returns: (transfer container) (element-type GFile): The list
+ *          of roots, the list itself must be freed with g_list_free(),
+ *          the list elements are owned by @tree and should not be
+ *          freed.
+ **/
 GList *
 tracker_indexing_tree_list_roots (TrackerIndexingTree *tree)
 {

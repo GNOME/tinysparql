@@ -147,7 +147,6 @@ on_error:
 }
 /**
  * tracker_albumart_remove_add:
- * @connection: SPARQL connection of this miner
  * @uri: URI of the file
  * @mime_type: mime-type of the file
  *
