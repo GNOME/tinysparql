@@ -62,6 +62,26 @@
 
 #define SECONDS_PER_DAY 60 * 60 * 24
 
+#define OPTION_DISABLE_FILES "files"
+#define OPTION_DISABLE_APPLICATIONS "applications"
+#define OPTION_DISABLE_USERGUIDES "userguides"
+
+typedef enum {
+	DISABLE_NONE,
+	DISABLE_FILES,
+	DISABLE_APPLICATIONS,
+#ifdef HAVE_MAEMO
+	DISABLE_USERGUIDES,
+#endif /* HAVE_MAEMO */
+} DisableOption;
+
+static gboolean miner_disable_option_arg_func (const gchar  *option_value,
+                                               const gchar  *value,
+                                               gpointer      data,
+                                               GError      **error);
+static void     miner_handle_next             (void);
+
+
 static GMainLoop *main_loop;
 static GSList *miners;
 static GSList *current_miner;
@@ -71,6 +91,8 @@ static gint verbosity = -1;
 static gint initial_sleep = -1;
 static gboolean no_daemon;
 static gchar *eligible;
+static GArray *disable_options = NULL;
+/* static DisableOption disable_option[] = { 0 }; */
 static gboolean version;
 static guint miners_timeout_id = 0;
 
@@ -93,12 +115,90 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_FILENAME, &eligible,
 	  N_("Checks if FILE is eligible for being mined based on configuration"),
 	  N_("FILE") },
+	{ "disable-miner", 'd', G_OPTION_FLAG_OPTIONAL_ARG,
+	  G_OPTION_ARG_CALLBACK, miner_disable_option_arg_func,
+	  N_("Disable miners started as part of this process, options include"
+	     ": '" OPTION_DISABLE_FILES "'"
+	     ", '" OPTION_DISABLE_APPLICATIONS "'"
+#ifdef HAVE_MAEMO
+	     ", '" OPTION_DISABLE_USERGUIDES "'"
+#endif /* HAVE_MAEMO */
+	  ),
+	  N_("MINER") },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
 	  NULL },
 	{ NULL }
 };
+
+static gboolean
+miner_disable_option_arg_func (const gchar  *option_value,
+                               const gchar  *value,
+                               gpointer      data,
+                               GError      **error)
+{
+	DisableOption option;
+	gchar *value_casefold;
+	gboolean found = FALSE;
+	gint i;
+
+	if (!value || *value == '\0') {
+		/* Show help */
+#ifdef HAVE_MAEMO
+		g_set_error_literal (error,
+		                     G_OPTION_ERROR,
+		                     G_OPTION_ERROR_FAILED,
+		                     "A value is required, either "
+		                     "'" OPTION_DISABLE_FILES "', "
+		                     "'" OPTION_DISABLE_APPLICATIONS "' or "
+		                     "'" OPTION_DISABLE_USERGUIDES "'");
+#else  /* HAVE_MAEMO */
+		g_set_error_literal (error,
+		                     G_OPTION_ERROR,
+		                     G_OPTION_ERROR_FAILED,
+		                     "A value is required, either "
+		                     "'" OPTION_DISABLE_FILES "', "
+		                     "'" OPTION_DISABLE_APPLICATIONS "'");
+#endif /* HAVE_MAEMO */
+		return FALSE;
+	}
+
+	value_casefold = g_utf8_casefold (value, -1);
+
+	if (strcmp (value_casefold, OPTION_DISABLE_FILES) == 0) {
+		option = DISABLE_FILES;
+	} else if (strcmp (value_casefold, OPTION_DISABLE_APPLICATIONS) == 0) {
+		option = DISABLE_APPLICATIONS;
+#ifdef HAVE_MAEMO
+	} else if (strcmp (value_casefold, OPTION_DISABLE_USERGUIDES) == 0) {
+		option = DISABLE_USERGUIDES;
+#endif /* HAVE_MAEMO */
+	} else {
+		g_set_error (error,
+		             G_OPTION_ERROR,
+		             G_OPTION_ERROR_FAILED,
+		             "Miner '%s' is not recognized",
+		             value);
+		return FALSE;
+	}
+
+	g_free (value_casefold);
+
+	/* Check we didn't already disable this miner */
+	for (i = 0; i < disable_options->len; i++) {
+		if (g_array_index (disable_options, gint, i) == option) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (!found) {
+		g_array_append_val (disable_options, option);
+	}
+
+	return TRUE;
+}
 
 static void
 sanity_check_option_values (TrackerConfig *config)
@@ -249,6 +349,62 @@ should_crawl (TrackerConfig *config,
 	}
 }
 
+static gboolean
+miner_disabled_check (void)
+{
+	gchar *name = NULL;
+	gchar *name_casefold;
+	gboolean disabled = FALSE;
+	gint i;
+
+	if (!disable_options || disable_options->len < 1) {
+		return FALSE;
+	}
+
+	g_object_get (current_miner->data, "name", &name, NULL);
+
+	if (!name || *name == '\0') {
+		g_warning ("Expected miner to have 'name' property set. "
+		           "Can not disable this particular miner as a result...");
+		return FALSE;
+	}
+
+	name_casefold = g_utf8_casefold (name, -1);
+
+	for (i = 0; i < disable_options->len && !disabled; i++) {
+		DisableOption o = (gint) g_array_index (disable_options, gint, i);
+
+		switch (o) {
+		case DISABLE_FILES:
+			disabled = strcmp (name_casefold, OPTION_DISABLE_FILES) == 0;
+			break;
+		case DISABLE_APPLICATIONS:
+			disabled = strcmp (name_casefold, OPTION_DISABLE_APPLICATIONS) == 0;
+			break;
+
+#ifdef HAVE_MAEMO
+		case DISABLE_USERGUIDES:
+			disabled = strcmp (name_casefold, OPTION_DISABLE_USERGUIDES) == 0;
+			break;
+#endif /* HAVE_MAEMO */
+
+		default:
+			g_assert_not_reached ();
+			break;
+		}
+	}
+
+	if (disabled) {
+		g_message ("Miner '%s' was disabled on the command line, moving to next...", name);
+		miner_handle_next ();
+	}
+
+	g_free (name_casefold);
+	g_free (name);
+
+	return disabled;
+}
+
 static void
 miner_handle_next (void)
 {
@@ -274,6 +430,11 @@ miner_handle_next (void)
 			g_main_loop_quit (main_loop);
 		}
 
+		return;
+	}
+
+	/* Check disabled miners */
+	if (miner_disabled_check ()) {
 		return;
 	}
 
@@ -710,17 +871,27 @@ main (gint argc, gchar *argv[])
 	 */
 	context = g_option_context_new (_("- start the tracker indexer"));
 
+	disable_options = g_array_new (FALSE, FALSE, sizeof (gint));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
+	if (error) {
+		g_printerr ("%s\n", error->message);
+		g_error_free (error);
+		g_array_free (disable_options, TRUE);
+		return EXIT_FAILURE;
+	}
+
 	if (version) {
 		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		g_array_free (disable_options, TRUE);
 		return EXIT_SUCCESS;
 	}
 
 	if (eligible) {
 		check_eligible ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_SUCCESS;
 	}
 
@@ -764,6 +935,7 @@ main (gint argc, gchar *argv[])
 		            error ? error->message : "unknown error");
 		g_object_unref (config);
 		tracker_log_shutdown ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_FAILURE;
 	}
 
@@ -777,6 +949,7 @@ main (gint argc, gchar *argv[])
 		g_object_unref (config);
 		g_object_unref (miner_files);
 		tracker_log_shutdown ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_FAILURE;
 	}
 
@@ -789,6 +962,7 @@ main (gint argc, gchar *argv[])
 		tracker_writeback_shutdown ();
 		g_object_unref (config);
 		tracker_log_shutdown ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_FAILURE;
 	}
 
@@ -800,6 +974,7 @@ main (gint argc, gchar *argv[])
 		tracker_writeback_shutdown ();
 		g_object_unref (config);
 		tracker_log_shutdown ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_FAILURE;
 	}
 
@@ -815,6 +990,7 @@ main (gint argc, gchar *argv[])
 		tracker_writeback_shutdown ();
 		g_object_unref (config);
 		tracker_log_shutdown ();
+		g_array_free (disable_options, TRUE);
 		return EXIT_FAILURE;
 	}
 #endif /* HAVE_MAEMO */
@@ -885,7 +1061,6 @@ main (gint argc, gchar *argv[])
 	}
 #endif /* HAVE_MAEMO */
 
-
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
@@ -935,6 +1110,8 @@ main (gint argc, gchar *argv[])
 
 	tracker_writeback_shutdown ();
 	tracker_log_shutdown ();
+
+	g_array_free (disable_options, TRUE);
 
 	g_print ("\nOK\n\n");
 
