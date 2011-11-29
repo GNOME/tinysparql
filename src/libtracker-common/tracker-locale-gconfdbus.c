@@ -88,13 +88,23 @@ static const gchar introspection_xml[] =
   "</node>";
 
 static gboolean
+check_gconf_dbus_default_db (void) {
+	if (gconf_dbus_default_db == NULL || !g_variant_is_object_path (gconf_dbus_default_db)) {
+		g_critical ("gconf_dbus_default_db is '%s', which is not a valid D-Bus object path.",
+		            gconf_dbus_default_db ? gconf_dbus_default_db : "(null)");
+		return FALSE;
+	} else {
+		return TRUE;
+	}
+}
+
+static gboolean
 add_notify (void)
 {
 	GVariant *reply;
 	GError *error = NULL;
 
-	if (gconf_dbus_default_db == NULL || connection == NULL) {
-		/* shutdown has already been called */
+	if (!check_gconf_dbus_default_db ()) {
 		return FALSE;
 	}
 
@@ -226,6 +236,10 @@ get_value_from_config (const gchar *key_in)
 	GError *error = NULL;
 	GVariant *reply;
 
+	if (!check_gconf_dbus_default_db ()) {
+		return NULL;
+	}
+
 	reply = g_dbus_connection_call_sync (connection,
 	                                     GCONF_DBUS_SERVICE,
 	                                     gconf_dbus_default_db,
@@ -340,26 +354,44 @@ tracker_locale_gconfdbus_init (void)
 				           "doesn't look like a gconf-dbus.\n"
 				           "Continuing in non-meegotouch mode",
 				           GCONF_DBUS_SERVER_OBJECT);
-				g_object_unref (connection);
-				connection = NULL;
 				meegotouch_mode = FALSE;
-				return;
 			} else {
 				g_critical ("%s", error->message);
 				g_clear_error (&error);
-				return;
 			}
+
+			g_object_unref (connection);
+			connection = NULL;
+			return;
 		}
 
 		g_variant_get (reply, "(s)", &gconf_dbus_default_db, NULL);
 
 		g_variant_unref (reply);
 
+		if (gconf_dbus_default_db == NULL || !g_variant_is_object_path (gconf_dbus_default_db)) {
+			g_critical (GCONF_DBUS_SERVER_INTERFACE ".GetDefaultDatabase returned '%s', which is not a valid D-Bus object path.",
+			            gconf_dbus_default_db ? gconf_dbus_default_db : "(null)");
+
+			g_free (gconf_dbus_default_db);
+			gconf_dbus_default_db = NULL;
+
+			g_object_unref (connection);
+			connection = NULL;
+			return;
+		}
+
 		introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &error);
 
 		if (error) {
 			g_critical ("%s", error->message);
 			g_clear_error (&error);
+
+			g_free (gconf_dbus_default_db);
+			gconf_dbus_default_db = NULL;
+
+			g_object_unref (connection);
+			connection = NULL;
 			return;
 		}
 
@@ -375,6 +407,15 @@ tracker_locale_gconfdbus_init (void)
 		if (error) {
 			g_critical ("%s", error->message);
 			g_clear_error (&error);
+
+			g_dbus_node_info_unref (introspection_data);
+			introspection_data = NULL;
+
+			g_free (gconf_dbus_default_db);
+			gconf_dbus_default_db = NULL;
+
+			g_object_unref (connection);
+			connection = NULL;
 			return;
 		}
 
@@ -406,7 +447,7 @@ tracker_locale_gconfdbus_init (void)
 void
 tracker_locale_gconfdbus_shutdown (void)
 {
-	if (gconf_dbus_default_db != NULL && connection != NULL) {
+	if (gconf_dbus_default_db != NULL && connection != NULL && check_gconf_dbus_default_db ()) {
 		GVariant *reply;
 		GError *error = NULL;
 
