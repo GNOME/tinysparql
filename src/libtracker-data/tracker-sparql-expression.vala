@@ -322,8 +322,8 @@ class Tracker.Sparql.Expression : Object {
 			break;
 		case PropertyType.DATETIME:
 			// ISO 8601 format
-			sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%fZ\", ");
-			sql.append (", \"unixepoch\")");
+			sql.insert (begin, "SparqlFormatTime (");
+			sql.append (")");
 			break;
 		default:
 			// let sqlite convert the expression to string
