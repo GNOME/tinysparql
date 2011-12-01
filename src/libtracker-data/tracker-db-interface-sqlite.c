@@ -26,6 +26,7 @@
 #include <math.h>
 #include <errno.h>
 
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-locale.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
@@ -400,6 +401,30 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 	}
 
 	sqlite3_result_int (context, match);
+}
+
+static void
+function_sparql_format_time (sqlite3_context *context,
+                             int              argc,
+                             sqlite3_value   *argv[])
+{
+	gdouble seconds;
+	gchar *str;
+
+	if (argc != 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
+		sqlite3_result_null (context);
+		return;
+	}
+
+	seconds = sqlite3_value_double (argv[0]);
+	str = tracker_date_to_string (seconds);
+
+	sqlite3_result_text (context, str, -1, g_free);
 }
 
 static void
@@ -861,6 +886,10 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_case_fold,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_format_time,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);

@@ -112,7 +112,7 @@ tracker_string_to_date (const gchar *date_string,
 	g_free (match);
 
 	match = g_match_info_fetch (match_info, 8);
-	if (match) {
+	if (match && strlen (match) > 0) {
 		/* timezoned */
 		g_free (match);
 
@@ -129,7 +129,7 @@ tracker_string_to_date (const gchar *date_string,
 		offset = 0;
 
 		match = g_match_info_fetch (match_info, 9);
-		if (match) {
+		if (match && strlen (match) > 0) {
 			/* non-UTC timezone */
 
 			gboolean positive_offset;
@@ -177,7 +177,7 @@ tracker_string_to_date (const gchar *date_string,
 	}
 
 	match = g_match_info_fetch (match_info, 7);
-	if (match) {
+	if (match && strlen (match) > 0) {
 		char milliseconds[4] = "000\0";
 		/* first character of match is decimal point
 		   we're interested in a maximum of 3 decimal places (milliseconds) */
@@ -200,6 +200,7 @@ tracker_date_to_string (gdouble date_time)
 {
 	gchar     buffer[30];
 	time_t seconds;
+	gint64 total_milliseconds;
 	gint milliseconds;
 	struct tm utc_time;
 	size_t    count;
@@ -207,8 +208,12 @@ tracker_date_to_string (gdouble date_time)
 	memset (buffer, '\0', sizeof (buffer));
 	memset (&utc_time, 0, sizeof (struct tm));
 
-	seconds = (time_t) date_time;
-	milliseconds = (gint) (fmod (date_time, 1) * 1000);
+	total_milliseconds = (gint64) round (date_time * 1000);
+	milliseconds = total_milliseconds % 1000;
+	if (milliseconds < 0) {
+		milliseconds += 1000;
+	}
+	seconds = (time_t) ((total_milliseconds - milliseconds) / 1000);
 	gmtime_r (&seconds, &utc_time);
 
 	/* Output is ISO 8601 format : "YYYY-MM-DDThh:mm:ss" */
