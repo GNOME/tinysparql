@@ -651,6 +651,33 @@ class Tracker.Sparql.Expression : Object {
 			sql.append ("tracker_offsets(offsets(\"fts\"),fts_property_names())");
 
 			return PropertyType.STRING;
+		} else if (uri == FTS_NS + "snippet") {
+			bool is_var;
+
+			string v = pattern.parse_var_or_term (null, out is_var);
+
+			sql.append_printf ("snippet(\"fts\"");
+
+			/* "start match" text */
+			if (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+
+			      /* "end match" text */
+			      expect (SparqlTokenType.COMMA);
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
+
+			/* "ellipses" text */
+			if (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
+
+			sql.append (")");
+
+			return PropertyType.STRING;
 		} else if (uri == TRACKER_NS + "id") {
 			var type = translate_expression (sql);
 			if (type != PropertyType.RESOURCE) {
