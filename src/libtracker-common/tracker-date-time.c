@@ -112,7 +112,7 @@ tracker_string_to_date (const gchar *date_string,
 	g_free (match);
 
 	match = g_match_info_fetch (match_info, 8);
-	if (match) {
+	if (match && strlen (match) > 0) {
 		/* timezoned */
 		g_free (match);
 
@@ -129,7 +129,7 @@ tracker_string_to_date (const gchar *date_string,
 		offset = 0;
 
 		match = g_match_info_fetch (match_info, 9);
-		if (match) {
+		if (match && strlen (match) > 0) {
 			/* non-UTC timezone */
 
 			gboolean positive_offset;
@@ -177,7 +177,7 @@ tracker_string_to_date (const gchar *date_string,
 	}
 
 	match = g_match_info_fetch (match_info, 7);
-	if (match) {
+	if (match && strlen (match) > 0) {
 		char milliseconds[4] = "000\0";
 		/* first character of match is decimal point
 		   we're interested in a maximum of 3 decimal places (milliseconds) */
