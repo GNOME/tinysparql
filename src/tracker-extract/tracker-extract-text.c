@@ -90,7 +90,6 @@ get_file_content (const gchar  *uri,
 	text = tracker_read_text_from_fd (fd,
 	                                  n_bytes,
 	                                  TRY_LOCALE_TO_UTF8_CONVERSION);
-	g_free (uri);
 	g_free (path);
 
 	return text;
