@@ -196,7 +196,7 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
 
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
-        self.assertEquals (result[0][0], "2010-10-12T13:30:00.000Z")
+        self.assertEquals (result[0][0], "2010-10-12T13:30:00Z")
 
 
 class PropertyRangeDateToString (OntologyChangeTestTemplate):
