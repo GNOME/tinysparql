@@ -170,6 +170,8 @@ class Tracker.Sparql.Pattern : Object {
 	string current_predicate;
 	bool current_predicate_is_var;
 
+	internal StringBuilder? match_str;
+
 	public Pattern (Query query) {
 		this.query = query;
 		this.expression = query.expression;
@@ -239,6 +241,8 @@ class Tracker.Sparql.Pattern : Object {
 
 	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws Sparql.Error {
 		SelectContext result;
+		bool has_fts_match = false;
+
 		if (scalar_subquery) {
 			result = new SelectContext.subquery (query, context);
 		} else {
@@ -249,6 +253,8 @@ class Tracker.Sparql.Pattern : Object {
 
 		var pattern_sql = new StringBuilder ();
 		var old_bindings = (owned) query.bindings;
+
+		match_str = new StringBuilder ();
 
 		sql.append ("SELECT ");
 
@@ -283,6 +289,8 @@ class Tracker.Sparql.Pattern : Object {
 		foreach (var variable in context.var_set.get_keys ()) {
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			} else if (variable.binding.table.sql_db_tablename == "fts") {
+				has_fts_match = true;
 			}
 		}
 
@@ -345,9 +353,20 @@ class Tracker.Sparql.Pattern : Object {
 		}
 
 		// select from results of WHERE clause
-		sql.append (" FROM (");
-		sql.append (pattern_sql.str);
-		sql.append (")");
+
+		if (has_fts_match) {
+			sql.append (" FROM fts JOIN (");
+			sql.append (pattern_sql.str);
+
+			/* Leave parenthesis opened,
+			 * "group/limit/offset goes in
+			 * the inner query
+			 */
+		} else {
+			sql.append (" FROM (");
+			sql.append (pattern_sql.str);
+			sql.append (")");
+		}
 
 		set_location (after_where);
 
@@ -429,9 +448,14 @@ class Tracker.Sparql.Pattern : Object {
 			query.bindings.append (binding);
 		}
 
+		if (has_fts_match) {
+			sql.append (") AS ranks USING (docid)");
+			sql.append_printf (" WHERE fts %s", match_str.str);
+		}
 		context = context.parent_context;
 
 		result.type = type;
+		match_str = null;
 
 		return result;
 	}
@@ -730,6 +754,10 @@ class Tracker.Sparql.Pattern : Object {
 				// parameters do not work with fts MATCH
 				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
 				sql.append_printf (" MATCH '%s'", escaped_literal);
+
+				if (match_str != null) {
+					match_str.append_printf (" MATCH '%s'", escaped_literal);
+				}
 			} else {
 				sql.append (" = ");
 				if (binding.data_type == PropertyType.RESOURCE) {
@@ -1470,14 +1498,12 @@ class Tracker.Sparql.Pattern : Object {
 				binding.sql_db_column_name = "fts";
 				triple_context.bindings.append (binding);
 
+				sql.append_printf ("\"%s\".\"docid\", ",
+				                   binding.table.sql_query_tablename);
 				sql.append_printf ("tracker_rank(matchinfo(\"%s\".\"fts\", 'cl'),fts_column_weights()) " +
-                                                   "AS \"%s_u_rank\", ",
-					binding.table.sql_query_tablename,
-					context.get_variable (current_subject).name);
-				sql.append_printf ("tracker_offsets(offsets(\"%s\".\"fts\"),fts_property_names()) " +
-                                                   "AS \"%s_u_offsets\", ",
-					binding.table.sql_query_tablename,
-					context.get_variable (current_subject).name);
+				                   "AS \"%s_u_rank\", ",
+				                   binding.table.sql_query_tablename,
+				                   context.get_variable (current_subject).name);
 			} else {
 				var binding = new LiteralBinding ();
 				binding.literal = object;

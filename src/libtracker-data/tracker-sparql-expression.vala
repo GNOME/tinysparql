@@ -647,7 +647,8 @@ class Tracker.Sparql.Expression : Object {
 		} else if (uri == FTS_NS + "offsets") {
 			bool is_var;
 			string v = pattern.parse_var_or_term (null, out is_var);
-			sql.append_printf ("\"%s_u_offsets\"", v);
+
+			sql.append ("tracker_offsets(offsets(\"fts\"),fts_property_names())");
 
 			return PropertyType.STRING;
 		} else if (uri == TRACKER_NS + "id") {
