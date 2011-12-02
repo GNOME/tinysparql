@@ -220,6 +220,8 @@ class TrackerMinerFsLifeCycle():
         FNULL = open ('/dev/null', 'w')
         if options.is_manual_start ():
             print "Start tracker-miner-fs manually"
+        elif cfg.haveMaemo:
+            return subprocess.Popen ([miner_fs_binary, "--disable-miner=userguides"], stdout=FNULL, stderr=FNULL)
         else:
             return subprocess.Popen ([miner_fs_binary], stdout=FNULL, stderr=FNULL)
 
