@@ -507,6 +507,10 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 
 	priv = buffer->priv;
 
+	if (priv->n_updates > 0) {
+		return FALSE;
+	}
+
 	if (!priv->tasks ||
 	    priv->tasks->len == 0) {
 		return FALSE;
