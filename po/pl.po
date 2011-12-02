@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-25 21:00+0100\n"
-"PO-Revision-Date: 2011-11-25 21:01+0100\n"
+"POT-Creation-Date: 2011-12-02 18:58+0100\n"
+"PO-Revision-Date: 2011-12-02 18:59+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -262,7 +262,8 @@ msgstr ""
 msgid "File to extract metadata for"
 msgstr "Pliki, z których wydobyć metadane"
 
-#: ../src/tracker-extract/tracker-main.c:94 ../src/miners/fs/tracker-main.c:97
+#: ../src/tracker-extract/tracker-main.c:94
+#: ../src/miners/fs/tracker-main.c:119
 #: ../src/tracker-control/tracker-control-general.c:97
 #: ../src/tracker-control/tracker-control-general.c:100
 #: ../src/tracker-control/tracker-control-miners.c:60
@@ -304,7 +305,7 @@ msgstr "MODUŁ"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:115
-#: ../src/miners/fs/tracker-main.c:100
+#: ../src/miners/fs/tracker-main.c:132
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -327,7 +328,7 @@ msgstr ""
 "Nie można używać jednocześnie opcji --force-internal-extractors i --force-"
 "module."
 
-#: ../src/miners/fs/tracker-main.c:82 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:104 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -335,101 +336,111 @@ msgstr ""
 "Zapisywanie do dziennika, 0 = tylko błędy, 1 = minimalne, 2 = szczegółowe i "
 "3 = debugowania (domyślnie=0)"
 
-#: ../src/miners/fs/tracker-main.c:87
+#: ../src/miners/fs/tracker-main.c:109
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Początkowy czas uśpienia w sekundach, 0->1000 (domyślnie=15)"
 
-#: ../src/miners/fs/tracker-main.c:92
+#: ../src/miners/fs/tracker-main.c:114
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
 "Działa, dopóki wszystkie skonfigurowane położenia została zindeksowane, a "
 "następnie kończy działanie"
 
-#: ../src/miners/fs/tracker-main.c:96
+#: ../src/miners/fs/tracker-main.c:118
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Sprawdza, czy PLIK nadaje się do przeszukiwania w oparciu o konfigurację"
 
-#: ../src/miners/fs/tracker-main.c:456
+#: ../src/miners/fs/tracker-main.c:122
+msgid "Disable miners started as part of this process, options include: '"
+msgstr ""
+"Wyłącza przeszukiwania rozpoczęte jako część tego procesu. Dostępne opcje: \""
+
+#: ../src/miners/fs/tracker-main.c:129
+#: ../src/tracker-control/tracker-control-miners.c:75
+msgid "MINER"
+msgstr "PRZESZUKIWANIE"
+
+#: ../src/miners/fs/tracker-main.c:617
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Obiekt danych \"%s\" obecnie istnieje"
 
-#: ../src/miners/fs/tracker-main.c:457
+#: ../src/miners/fs/tracker-main.c:618
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Obiekt danych \"%s\" obecnie nie istnieje"
 
-#: ../src/miners/fs/tracker-main.c:472
+#: ../src/miners/fs/tracker-main.c:633
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Katalog nadaje się do przeszukiwania (w oparciu o reguły)"
 
-#: ../src/miners/fs/tracker-main.c:473
+#: ../src/miners/fs/tracker-main.c:634
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o reguły)"
 
-#: ../src/miners/fs/tracker-main.c:493
+#: ../src/miners/fs/tracker-main.c:654
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Katalog nadaje się do przeszukiwania (w oparciu o zawartość)"
 
-#: ../src/miners/fs/tracker-main.c:494
+#: ../src/miners/fs/tracker-main.c:655
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o zawartość)"
 
-#: ../src/miners/fs/tracker-main.c:541
+#: ../src/miners/fs/tracker-main.c:702
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Katalog nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:542
+#: ../src/miners/fs/tracker-main.c:703
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:546
+#: ../src/miners/fs/tracker-main.c:707
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Plik nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:547
+#: ../src/miners/fs/tracker-main.c:708
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Plik NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:551
+#: ../src/miners/fs/tracker-main.c:712
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "Plik lub katalog nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:552
+#: ../src/miners/fs/tracker-main.c:713
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "Plik lub katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:728
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Plik nadaje się do przeszukiwania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:568
+#: ../src/miners/fs/tracker-main.c:729
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Plik NIE nadaje się do przeszukiwania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:577
+#: ../src/miners/fs/tracker-main.c:738
 msgid "Would be indexed"
 msgstr "Będzie indeksowane"
 
-#: ../src/miners/fs/tracker-main.c:578 ../src/miners/fs/tracker-main.c:580
+#: ../src/miners/fs/tracker-main.c:739 ../src/miners/fs/tracker-main.c:741
 msgid "Yes"
 msgstr "Tak"
 
-#: ../src/miners/fs/tracker-main.c:578 ../src/miners/fs/tracker-main.c:580
+#: ../src/miners/fs/tracker-main.c:739 ../src/miners/fs/tracker-main.c:741
 msgid "No"
 msgstr "Nie"
 
-#: ../src/miners/fs/tracker-main.c:579
+#: ../src/miners/fs/tracker-main.c:740
 msgid "Would be monitored"
 msgstr "Będzie monitorowane"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:706
+#: ../src/miners/fs/tracker-main.c:867
 msgid "- start the tracker indexer"
 msgstr "- uruchomia program indeksujący Tracker"
 
@@ -1270,10 +1281,6 @@ msgid ""
 msgstr ""
 "Przeszukiwanie do użycia z opcjami --resume lub --pause (można użyć "
 "przyrostków, np. Pliki lub Programy)"
-
-#: ../src/tracker-control/tracker-control-miners.c:75
-msgid "MINER"
-msgstr "PRZESZUKIWANIE"
 
 #: ../src/tracker-control/tracker-control-miners.c:78
 msgid "List all miners currently running"
