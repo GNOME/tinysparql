@@ -1,3 +1,24 @@
+NEW in 0.10.37 - 2011-12-02
+===========================
+
+The changes are:
+
+  * Fixes: NB#289635, libtracker-common: Add more checks to gconf-dbus locale handling
+  * Fixes: NB#290165, UpdateArray error handling in miner-fs crashes due to signedness mismatch
+  * Fixes: NB#293333, libtracker-bus: Keep connection to D-Bus session bus alive
+  * Fixes: NB#293344, libtracker-data: Use tracker_date_to_string instead of SQLite's strftime
+  * libtracker-common: Fix tracker_date_to_string for timestamps before 1970
+  * libtracker-common: Fix invalid read in tracker_string_to_date
+  * tracker-extract-text: Fix double free
+  * tracker-miner-fs: Provide --disable-miner command line argument
+  * tests: Update tests for changed date/time formatting
+  * functional-tests: Disable userguides miner to avoid timeouts
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+
 NEW in 0.10.36 - 2011-11-25
 ===========================
 
