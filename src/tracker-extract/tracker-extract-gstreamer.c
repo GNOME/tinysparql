@@ -1277,6 +1277,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
                          const gchar       *uri)
 {
 	GstDiscovererInfo *info;
+	const GstTagList *discoverer_tags;
 	GError *error = NULL;
 	GList *l;
 
@@ -1366,15 +1367,19 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
 
 	/* Retrieve global tags */
-	extractor->tagcache = gst_tag_list_merge (NULL,
-	                                          gst_discoverer_info_get_tags (info),
-	                                          GST_TAG_MERGE_APPEND);
+	discoverer_tags = gst_discoverer_info_get_tags (info);
+
+	if (discoverer_tags) {
+		gst_tag_list_insert (extractor->tagcache,
+				     discoverer_tags,
+				     GST_TAG_MERGE_APPEND);
+	}
 
 	/* Get list of Streams to iterate */
 	extractor->streams = gst_discoverer_info_get_stream_list (info);
 	for (l = extractor->streams; l; l = g_list_next (l)) {
 		GstDiscovererStreamInfo *stream = l->data;
-		GstTagList *stream_tags;
+		const GstTagList *stream_tags;
 
 		if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_AUDIO_INFO)) {
 			GstDiscovererAudioInfo *audio = (GstDiscovererAudioInfo*)stream;
