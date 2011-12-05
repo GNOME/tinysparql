@@ -72,7 +72,6 @@ struct TrackerDBInterface {
 	GSList *function_data;
 
 	/* Collation and locale change */
-	gpointer collator;
 	gpointer locale_notification_id;
 	gint collator_reset_requested;
 
@@ -1041,17 +1040,13 @@ tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
 	g_debug ("Resetting collator in db interface %p", db_interface);
 
-	if (db_interface->collator) {
-		tracker_collation_shutdown (db_interface->collator);
-	}
-
-	db_interface->collator = tracker_collation_init ();
 	/* This will overwrite any other collation set before, if any */
-	if (sqlite3_create_collation (db_interface->db,
-	                              TRACKER_COLLATION_NAME,
-	                              SQLITE_UTF8,
-	                              db_interface->collator,
-	                              tracker_collation_utf8) != SQLITE_OK)
+	if (sqlite3_create_collation_v2 (db_interface->db,
+	                                 TRACKER_COLLATION_NAME,
+	                                 SQLITE_UTF8,
+	                                 tracker_collation_init (),
+	                                 tracker_collation_utf8,
+	                                 tracker_collation_shutdown) != SQLITE_OK)
 	{
 		g_critical ("Couldn't set collation function: %s",
 		            sqlite3_errmsg (db_interface->db));
@@ -1093,10 +1088,6 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	if (db_interface->locale_notification_id) {
 		tracker_locale_notify_remove (db_interface->locale_notification_id);
-	}
-
-	if (db_interface->collator) {
-		tracker_collation_shutdown (db_interface->collator);
 	}
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
