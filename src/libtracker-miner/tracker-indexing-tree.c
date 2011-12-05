@@ -780,6 +780,10 @@ tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
 	NodeData *data;
 	GNode *parent;
 
+	if (directory_flags) {
+		*directory_flags = TRACKER_DIRECTORY_FLAG_NONE;
+	}
+
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
