@@ -1010,6 +1010,36 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	/* Flags are still valid at the moment of deletion */
 	tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
 
+	/* If the folder was being ignored, index/crawl it from scratch */
+	if (flags & TRACKER_DIRECTORY_FLAG_IGNORE) {
+		GFile *parent;
+
+		parent = g_file_get_parent (directory);
+
+		if (parent) {
+			TrackerDirectoryFlags parent_flags;
+
+			tracker_indexing_tree_get_root (indexing_tree,
+			                                parent,
+			                                &parent_flags);
+
+			if (parent_flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
+				priv->pending_index_roots =
+					g_list_append (priv->pending_index_roots,
+						       g_object_ref (directory));
+
+				crawl_directories_start (notifier);
+			} else if (tracker_indexing_tree_file_is_root (indexing_tree,
+			                                               parent)) {
+				g_signal_emit (notifier, signals[FILE_CREATED],
+					       0, directory);
+			}
+
+			g_object_unref (parent);
+		}
+		return;
+	}
+
 	if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) == 0) {
 		/* Directory needs to be deleted from the store too */
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
