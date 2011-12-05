@@ -42,6 +42,8 @@ typedef struct {
 	guint expire_timeout_id;
 	gboolean expect_finished;
 
+	guint expect_n_results;
+
 	GList *ops;
 } TestCommonContext;
 
@@ -116,6 +118,11 @@ file_notifier_file_created_cb (TrackerFileNotifier *notifier,
 	op->path = g_file_get_relative_path (fixture->test_file , file);
 
 	fixture->ops = g_list_prepend (fixture->ops, op);
+
+	if (!fixture->expect_finished &&
+	    fixture->expect_n_results == g_list_length (fixture->ops)) {
+		g_main_loop_quit (fixture->main_loop);
+	}
 }
 
 static void
@@ -132,6 +139,11 @@ file_notifier_file_updated_cb (TrackerFileNotifier *notifier,
 	op->path = g_file_get_relative_path (fixture->test_file , file);
 
 	fixture->ops = g_list_prepend (fixture->ops, op);
+
+	if (!fixture->expect_finished &&
+	    fixture->expect_n_results == g_list_length (fixture->ops)) {
+		g_main_loop_quit (fixture->main_loop);
+	}
 }
 
 static void
@@ -147,6 +159,11 @@ file_notifier_file_deleted_cb (TrackerFileNotifier *notifier,
 	op->path = g_file_get_relative_path (fixture->test_file , file);
 
 	fixture->ops = g_list_prepend (fixture->ops, op);
+
+	if (!fixture->expect_finished &&
+	    fixture->expect_n_results == g_list_length (fixture->ops)) {
+		g_main_loop_quit (fixture->main_loop);
+	}
 }
 
 static void
@@ -165,6 +182,11 @@ file_notifier_file_moved_cb (TrackerFileNotifier *notifier,
 						   other_file);
 
 	fixture->ops = g_list_prepend (fixture->ops, op);
+
+	if (!fixture->expect_finished &&
+	    fixture->expect_n_results == g_list_length (fixture->ops)) {
+		g_main_loop_quit (fixture->main_loop);
+	}
 }
 
 static void
@@ -191,6 +213,21 @@ test_common_context_index_dir (TestCommonContext     *fixture,
 	g_free (path);
 
 	tracker_indexing_tree_add (fixture->indexing_tree, file, flags);
+	g_object_unref (file);
+}
+
+static void
+test_common_context_remove_dir (TestCommonContext     *fixture,
+				const gchar           *filename)
+{
+	GFile *file;
+	gchar *path;
+
+	path = g_build_filename (fixture->test_path, filename, NULL);
+	file = g_file_new_for_path (path);
+	g_free (path);
+
+	tracker_indexing_tree_remove (fixture->indexing_tree, file);
 	g_object_unref (file);
 }
 
@@ -275,17 +312,21 @@ test_common_context_expect_results (TestCommonContext   *fixture,
 				    gboolean             expect_finished)
 {
 	GList *ops;
-	guint i;
+	guint i, id;
 
 	fixture->expect_finished = expect_finished;
+	fixture->expect_n_results = n_results;
 
-	if (max_timeout != 0) {
-		g_timeout_add_seconds (max_timeout,
-		                       (GSourceFunc) timeout_expired_cb,
-		                       fixture);
+	if (fixture->expect_n_results != g_list_length (fixture->ops)) {
+		if (max_timeout != 0) {
+			id = g_timeout_add_seconds (max_timeout,
+						    (GSourceFunc) timeout_expired_cb,
+						    fixture);
+		}
+
+		g_main_loop_run (fixture->main_loop);
+		g_source_remove (id);
 	}
-
-	g_main_loop_run (fixture->main_loop);
 
 	g_assert_cmpint (n_results, ==, g_list_length (fixture->ops));
 
@@ -458,9 +499,115 @@ test_file_notifier_crawling_recursive_within_non_recursive (TestCommonContext *f
 	tracker_file_notifier_start (fixture->notifier);
 
 	test_common_context_expect_results (fixture, expected_results,
-					    G_N_ELEMENTS (expected_results),
-					    2, TRUE);
+	                                    G_N_ELEMENTS (expected_results),
+	                                    2, TRUE);
 
+	tracker_file_notifier_stop (fixture->notifier);
+}
+
+static void
+test_file_notifier_crawling_ignore_within_recursive (TestCommonContext *fixture,
+						     gconstpointer      data)
+{
+	FilesystemOperation expected_results[] = {
+		{ OPERATION_CREATE, "recursive", NULL },
+		{ OPERATION_CREATE, "recursive/folder", NULL },
+		{ OPERATION_CREATE, "recursive/folder/aaa", NULL },
+		{ OPERATION_CREATE, "recursive/bbb", NULL },
+		{ OPERATION_DELETE, "recursive/folder/ignore", NULL }
+	};
+
+	CREATE_FOLDER (fixture, "recursive/folder");
+	CREATE_UPDATE_FILE (fixture, "recursive/folder/aaa");
+	CREATE_UPDATE_FILE (fixture, "recursive/bbb");
+	CREATE_FOLDER (fixture, "recursive/folder/ignore");
+	CREATE_UPDATE_FILE (fixture, "recursive/folder/ignore/ccc");
+	CREATE_FOLDER (fixture, "recursive/folder/ignore/folder");
+	CREATE_UPDATE_FILE (fixture, "recursive/folder/ignore/folder/ddd");
+
+	test_common_context_index_dir (fixture, "recursive",
+	                               TRACKER_DIRECTORY_FLAG_RECURSE);
+	test_common_context_index_dir (fixture, "recursive/folder/ignore",
+	                               TRACKER_DIRECTORY_FLAG_IGNORE);
+
+	tracker_file_notifier_start (fixture->notifier);
+
+	test_common_context_expect_results (fixture, expected_results,
+	                                    G_N_ELEMENTS (expected_results),
+	                                    2, TRUE);
+
+	tracker_file_notifier_stop (fixture->notifier);
+}
+
+static void
+test_file_notifier_changes_remove_non_recursive (TestCommonContext *fixture,
+						 gconstpointer      data)
+{
+	FilesystemOperation expected_results[] = {
+		{ OPERATION_DELETE, "non-recursive", NULL }
+	};
+
+	test_file_notifier_crawling_non_recursive (fixture, data);
+
+	test_common_context_remove_dir (fixture, "non-recursive");
+	tracker_file_notifier_start (fixture->notifier);
+	test_common_context_expect_results (fixture, expected_results,
+					    G_N_ELEMENTS (expected_results),
+					    1, FALSE);
+	tracker_file_notifier_stop (fixture->notifier);
+}
+
+static void
+test_file_notifier_changes_remove_recursive (TestCommonContext *fixture,
+                                             gconstpointer      data)
+{
+	FilesystemOperation expected_results[] = {
+		{ OPERATION_DELETE, "recursive", NULL }
+	};
+
+	test_file_notifier_crawling_recursive (fixture, data);
+
+	test_common_context_remove_dir (fixture, "recursive");
+	tracker_file_notifier_start (fixture->notifier);
+	test_common_context_expect_results (fixture, expected_results,
+	                                    G_N_ELEMENTS (expected_results),
+	                                    1, FALSE);
+	tracker_file_notifier_stop (fixture->notifier);
+}
+
+static void
+test_file_notifier_changes_remove_ignore (TestCommonContext *fixture,
+                                          gconstpointer      data)
+{
+	FilesystemOperation expected_results[] = {
+		{ OPERATION_CREATE, "recursive/folder/ignore", NULL },
+		{ OPERATION_CREATE, "recursive/folder/ignore/ccc", NULL },
+		{ OPERATION_CREATE, "recursive/folder/ignore/folder", NULL },
+		{ OPERATION_CREATE, "recursive/folder/ignore/folder/ddd", NULL }
+	};
+	FilesystemOperation expected_results2[] = {
+		{ OPERATION_DELETE, "recursive/folder/ignore", NULL }
+	};
+
+	/* Start off from ignore test case */
+	test_file_notifier_crawling_ignore_within_recursive (fixture, data);
+
+	/* Remove ignored folder */
+	test_common_context_remove_dir (fixture, "recursive/folder/ignore");
+	tracker_file_notifier_start (fixture->notifier);
+	test_common_context_expect_results (fixture, expected_results,
+	                                    G_N_ELEMENTS (expected_results),
+	                                    1, FALSE);
+	tracker_file_notifier_stop (fixture->notifier);
+
+	/* And add it back */
+	fixture->expect_n_results = G_N_ELEMENTS (expected_results2);
+	test_common_context_index_dir (fixture, "recursive/folder/ignore",
+	                               TRACKER_DIRECTORY_FLAG_IGNORE);
+	tracker_file_notifier_start (fixture->notifier);
+	test_common_context_expect_results (fixture, expected_results2,
+	                                    G_N_ELEMENTS (expected_results2),
+	                                    1, FALSE);
 	tracker_file_notifier_stop (fixture->notifier);
 }
 
@@ -473,14 +620,25 @@ main (gint    argc,
 
 	g_test_message ("Testing file notifier");
 
+	/* Crawling */
 	test_add ("/libtracker-miner/file-notifier/crawling-non-recursive",
 	          test_file_notifier_crawling_non_recursive);
 	test_add ("/libtracker-miner/file-notifier/crawling-recursive",
 	          test_file_notifier_crawling_recursive);
 	test_add ("/libtracker-miner/file-notifier/crawling-non-recursive-within-recursive",
 	          test_file_notifier_crawling_non_recursive_within_recursive);
-	test_add ("/libtracker-miner/file-notifier/crawling-non-recursive-within-recursive",
+	test_add ("/libtracker-miner/file-notifier/crawling-recursive-within-non-recursive",
 	          test_file_notifier_crawling_recursive_within_non_recursive);
+	test_add ("/libtracker-miner/file-notifier/crawling-ignore-within-recursive",
+	          test_file_notifier_crawling_ignore_within_recursive);
+
+	/* Config changes */
+	test_add ("/libtracker-miner/file-notifier/changes-remove-non-recursive",
+		  test_file_notifier_changes_remove_non_recursive);
+	test_add ("/libtracker-miner/file-notifier/changes-remove-recursive",
+		  test_file_notifier_changes_remove_recursive);
+	test_add ("/libtracker-miner/file-notifier/changes-remove-ignore",
+		  test_file_notifier_changes_remove_ignore);
 
 	return g_test_run ();
 }
