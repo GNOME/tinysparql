@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-09-29T11:00:00Z" .
+	nao:lastModified "2011-12-06T15:40:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -55,6 +55,7 @@ nfo:RasterImage a rdfs:Class ;
 nfo:DataContainer a rdfs:Class ;
 	rdfs:label "DataContainer" ;
 	rdfs:comment "A superclass for all entities, whose primary purpose is to serve as containers for other data object. They usually don't have any 'meaning' by themselves. Examples include folders, archives and optical disc images." ;
+	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:RemotePortAddress a rdfs:Class ;
