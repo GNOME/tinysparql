@@ -34,6 +34,7 @@
 
 typedef struct {
 	const gchar *creator;
+	gchar *creator_uri;
 } MergeData;
 
 typedef struct {
@@ -166,14 +167,15 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	md.creator = tracker_coalesce_strip (3, vd.artist, vd.album_artist, vd.performer);
 
 	if (md.creator) {
-		gchar *uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.creator);
+		/* NOTE: This must be created before vd.album is evaluated */
+		md.creator_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		if (graph) {
 			tracker_sparql_builder_graph_open (preupdate, graph);
 		}
 
-		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_subject_iri (preupdate, md.creator_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nmm:Artist");
 		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
@@ -185,8 +187,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nmm:performer");
-		tracker_sparql_builder_object_iri (metadata, uri);
-		g_free (uri);
+		tracker_sparql_builder_object_iri (metadata, md.creator_uri);
 	}
 
 	if (vd.album) {
@@ -206,6 +207,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		 */
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, vd.album);
+
+		if (md.creator_uri) {
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
+			tracker_sparql_builder_object_iri (preupdate, md.creator_uri);
+		}
 
 		if (graph) {
 			tracker_sparql_builder_graph_close (preupdate);
@@ -496,6 +502,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	g_free (vd.artist);
 	g_free (vd.album_artist);
 	g_free (vd.performer);
+
+	g_free (md.creator_uri);
 
 #ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED);
