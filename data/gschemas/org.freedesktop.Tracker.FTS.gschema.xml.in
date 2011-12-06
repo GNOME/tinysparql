@@ -48,7 +48,7 @@ Boston, MA  02110-1301, USA.
 
     <key name="enable-unaccent" type="b">
       <_summary>Enable unaccent</_summary>
-      <_description>Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching. </_description>
+      <_description>Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching. </_description>
       <default>true</default>
     </key>
 
