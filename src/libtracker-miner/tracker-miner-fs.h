@@ -30,6 +30,7 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-object.h"
+#include "tracker-indexing-tree.h"
 
 #include "tracker-miner-common.h"
 
@@ -83,13 +84,6 @@ struct _TrackerMinerFS {
 typedef struct {
 	TrackerMinerClass parent;
 
-	gboolean (* check_file)               (TrackerMinerFS       *fs,
-	                                       GFile                *file);
-	gboolean (* check_directory)          (TrackerMinerFS       *fs,
-	                                       GFile                *file);
-	gboolean (* check_directory_contents) (TrackerMinerFS       *fs,
-	                                       GFile                *parent,
-	                                       GList                *children);
 	gboolean (* process_file)             (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
@@ -98,8 +92,6 @@ typedef struct {
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);
-	gboolean (* monitor_directory)        (TrackerMinerFS       *fs,
-	                                       GFile                *file);
 	void     (* finished)                 (TrackerMinerFS       *fs);
 	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,
@@ -125,7 +117,7 @@ void                  tracker_miner_fs_check_file_with_priority (TrackerMinerFS 
                                                                  gboolean        check_parents);
 void                  tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
                                                                       GFile          *file,
-	                                                              gint            priority,
+                                                                      gint            priority,
                                                                       gboolean        check_parents);
 void                  tracker_miner_fs_check_file           (TrackerMinerFS *fs,
                                                              GFile          *file,
@@ -167,6 +159,8 @@ void                  tracker_miner_fs_add_directory_without_parent (TrackerMine
                                                                      GFile          *file);
 void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
+
+TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
 
 G_END_DECLS
 

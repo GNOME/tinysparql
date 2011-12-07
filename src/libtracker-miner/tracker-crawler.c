@@ -78,6 +78,8 @@ struct TrackerCrawlerPrivate {
 
 	gdouble         throttle;
 
+	gchar          *file_attributes;
+
 	gboolean        recurse;
 
 	/* Statistics */
@@ -123,6 +125,7 @@ static void     directory_root_info_free (DirectoryRootInfo *info);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
+static GQuark file_info_quark = 0;
 
 G_DEFINE_TYPE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
 
@@ -196,6 +199,8 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              1, G_TYPE_BOOLEAN);
 
 	g_type_class_add_private (object_class, sizeof (TrackerCrawlerPrivate));
+
+	file_info_quark = g_quark_from_static_string ("tracker-crawler-file-info");
 }
 
 static void
@@ -229,6 +234,8 @@ crawler_finalize (GObject *object)
 
 	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_free (priv->directories);
+
+	g_free (priv->file_attributes);
 
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
 }
@@ -365,7 +372,8 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 
 static DirectoryRootInfo *
 directory_root_info_new (GFile    *file,
-			 gboolean  recurse)
+                         gboolean  recurse,
+                         gchar    *file_attributes)
 {
 	DirectoryRootInfo *info;
 	DirectoryProcessingData *dir_info;
@@ -377,6 +385,20 @@ directory_root_info_new (GFile    *file,
 	info->directory_processing_queue = g_queue_new ();
 
 	info->tree = g_node_new (g_object_ref (file));
+
+	if (file_attributes) {
+		GFileInfo *file_info;
+
+		file_info = g_file_query_info (file,
+		                               file_attributes,
+		                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+		                               NULL,
+		                               NULL);
+		g_object_set_qdata_full (G_OBJECT (file),
+		                         file_info_quark,
+		                         file_info,
+		                         (GDestroyNotify) g_object_unref);
+	}
 
 	/* Fill in the processing info for the root node */
 	dir_info = directory_processing_data_new (info->tree);
@@ -490,7 +512,8 @@ process_func (gpointer data)
 								  g_object_ref (child_data->child));
 			}
 
-			if (priv->is_running && child_node && child_data->is_dir) {
+			if (info->recurse && priv->is_running &&
+			    child_node && child_data->is_dir) {
 				DirectoryProcessingData *child_dir_data;
 
 				child_dir_data = directory_processing_data_new (child_node);
@@ -713,6 +736,14 @@ file_enumerate_next_cb (GObject      *object,
 		child = g_file_get_child (parent, child_name);
 		is_dir = g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY;
 
+		if (crawler->priv->file_attributes) {
+			/* Store the file info for future retrieval */
+			g_object_set_qdata_full (G_OBJECT (child),
+						 file_info_quark,
+						 g_object_ref (info),
+						 (GDestroyNotify) g_object_unref);
+		}
+
 		directory_processing_data_add_child (ed->dir_info, child, is_dir);
 
 		g_object_unref (child);
@@ -783,16 +814,27 @@ file_enumerate_children (TrackerCrawler          *crawler,
 			 DirectoryProcessingData *dir_data)
 {
 	EnumeratorData *ed;
+	gchar *attrs;
 
 	ed = enumerator_data_new (crawler, info, dir_data);
 
+	if (crawler->priv->file_attributes) {
+		attrs = g_strconcat (FILE_ATTRIBUTES ",",
+		                     crawler->priv->file_attributes,
+		                     NULL);
+	} else {
+		attrs = g_strdup (FILE_ATTRIBUTES);
+	}
+
 	g_file_enumerate_children_async (ed->dir_file,
-	                                 FILE_ATTRIBUTES,
+	                                 attrs,
 	                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                 G_PRIORITY_LOW,
 	                                 ed->cancellable,
 	                                 file_enumerate_children_cb,
 	                                 ed);
+
+	g_free (attrs);
 }
 
 gboolean
@@ -830,7 +872,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
 
-	info = directory_root_info_new (file, recurse);
+	info = directory_root_info_new (file, recurse, priv->file_attributes);
 	g_queue_push_tail (priv->directories, info);
 
 	process_func_start (crawler);
@@ -862,12 +904,12 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 		priv->timer = NULL;
 	}
 
-	g_signal_emit (crawler, signals[FINISHED], 0,
-	               !priv->is_finished);
-
 	/* Clean up queue */
 	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_clear (priv->directories);
+
+	g_signal_emit (crawler, signals[FINISHED], 0,
+	               !priv->is_finished);
 
 	/* We don't free the queue in case the crawler is reused, it
 	 * is only freed in finalize.
@@ -931,4 +973,62 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 
 		crawler->priv->idle_id = idle_id;
 	}
+}
+
+/**
+ * tracker_crawler_set_file_attributes:
+ * @crawler: a #TrackerCrawler
+ * @file_attributes: file attributes to extract
+ *
+ * Sets the file attributes that @crawler will fetch for every
+ * file it gets, this info may be requested through
+ * tracker_crawler_get_file_info() in any #TrackerCrawler callback
+ **/
+void
+tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
+				     const gchar    *file_attributes)
+{
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+
+	g_free (crawler->priv->file_attributes);
+	crawler->priv->file_attributes = g_strdup (file_attributes);
+}
+
+/**
+ * tracker_crawler_get_file_attributes:
+ * @crawler: a #TrackerCrawler
+ *
+ * Returns the file attributes that @crawler will fetch
+ *
+ * Returns: the file attributes as a string.
+ **/
+const gchar *
+tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
+{
+	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
+
+	return crawler->priv->file_attributes;
+}
+
+/**
+ * tracker_crawler_get_file_info:
+ * @crawler: a #TrackerCrawler
+ * @file: a #GFile returned by @crawler
+ *
+ * Returns a #GFileInfo with the file attributes requested through
+ * tracker_crawler_set_file_attributes().
+ *
+ * Returns: (transfer none): a #GFileInfo with the file information
+ **/
+GFileInfo *
+tracker_crawler_get_file_info (TrackerCrawler *crawler,
+			       GFile          *file)
+{
+	GFileInfo *info;
+
+	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	info = g_object_get_qdata (G_OBJECT (file), file_info_quark);
+	return info;
 }

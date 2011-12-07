@@ -8,3 +8,4 @@ tracker-thumbnailer-test
 tracker-password-provider-test
 tracker-priority-queue-test
 tracker-task-pool-test
+tracker-indexing-tree-test

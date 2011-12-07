@@ -41,10 +41,6 @@ static void     miner_applications_initable_iface_init     (GInitableIface      
 static gboolean miner_applications_initable_init           (GInitable            *initable,
                                                             GCancellable         *cancellable,
                                                             GError              **error);
-static gboolean miner_applications_check_file              (TrackerMinerFS       *fs,
-                                                            GFile                *file);
-static gboolean miner_applications_check_directory         (TrackerMinerFS       *fs,
-                                                            GFile                *file);
 static gboolean miner_applications_process_file            (TrackerMinerFS       *fs,
                                                             GFile                *file,
                                                             TrackerSparqlBuilder *sparql,
@@ -53,8 +49,6 @@ static gboolean miner_applications_process_file_attributes (TrackerMinerFS      
                                                             GFile                *file,
                                                             TrackerSparqlBuilder *sparql,
                                                             GCancellable         *cancellable);
-static gboolean miner_applications_monitor_directory       (TrackerMinerFS       *fs,
-                                                            GFile                *file);
 static void     miner_applications_finalize                (GObject              *object);
 
 
@@ -85,9 +79,6 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 
 	object_class->finalize = miner_applications_finalize;
 
-	miner_fs_class->check_file = miner_applications_check_file;
-	miner_fs_class->check_directory = miner_applications_check_directory;
-	miner_fs_class->monitor_directory = miner_applications_monitor_directory;
 	miner_fs_class->process_file = miner_applications_process_file;
 	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
 
@@ -110,14 +101,21 @@ static void
 miner_applications_basedir_add (TrackerMinerFS *fs,
                                 const gchar    *basedir)
 {
+	TrackerIndexingTree *indexing_tree;
 	GFile *file;
 	gchar *path;
+
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	/* Add $dir/applications */
 	path = g_build_filename (basedir, "applications", NULL);
 	file = g_file_new_for_path (path);
 	g_message ("  Adding:'%s'", path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	g_object_unref (file);
 	g_free (path);
 
@@ -125,7 +123,10 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 	path = g_build_filename (basedir, "desktop-directories", NULL);
 	file = g_file_new_for_path (path);
 	g_message ("  Adding:'%s'", path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	g_object_unref (file);
 	g_free (path);
 }
@@ -134,6 +135,7 @@ static void
 miner_applications_add_directories (TrackerMinerFS *fs)
 {
 #ifdef HAVE_MEEGOTOUCH
+	TrackerIndexingTree *indexing_tree;
 	GFile *file;
 	const gchar *path;
 #endif /* HAVE_MEEGOTOUCH */
@@ -162,12 +164,16 @@ miner_applications_add_directories (TrackerMinerFS *fs)
 	 * this location because it is unique to MeeGoTouch.
 	 */
 	path = "/usr/lib/duicontrolpanel/";
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	g_message ("Setting up applications to iterate from MeegoTouch directories");
 	g_message ("  Adding:'%s'", path);
 
 	file = g_file_new_for_path (path);
-	tracker_miner_fs_directory_add (fs, file, TRUE);
+	tracker_indexing_tree_add (indexing_tree, file,
+				   TRACKER_DIRECTORY_FLAG_RECURSE |
+				   TRACKER_DIRECTORY_FLAG_MONITOR |
+				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	g_object_unref (file);
 #endif /* HAVE_MEEGOTOUCH */
 }
@@ -208,9 +214,24 @@ miner_applications_initable_init (GInitable     *initable,
 	TrackerMinerFS *fs;
 	TrackerMinerApplications *app;
 	GError *inner_error = NULL;
+	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
 	app = TRACKER_MINER_APPLICATIONS (initable);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+
+	/* Set up files filter, deny every file, but
+	 * those with a .desktop/directory extension
+	 */
+	tracker_indexing_tree_set_default_policy (indexing_tree,
+						  TRACKER_FILTER_FILE,
+						  TRACKER_FILTER_POLICY_DENY);
+	tracker_indexing_tree_add_filter (indexing_tree,
+					  TRACKER_FILTER_FILE,
+					  "*.desktop");
+	tracker_indexing_tree_add_filter (indexing_tree,
+					  TRACKER_FILTER_FILE,
+					  "*.directory");
 
 	/* Chain up parent's initable callback before calling child's one */
 	if (!miner_applications_initable_parent_iface->init (initable, cancellable, &inner_error)) {
@@ -280,42 +301,6 @@ insert_data_from_desktop_file (TrackerSparqlBuilder *sparql,
 		tracker_sparql_builder_object_string (sparql, str);
 		g_free (str);
 	}
-}
-
-static gboolean
-miner_applications_check_file (TrackerMinerFS *fs,
-                               GFile          *file)
-{
-	gboolean retval = FALSE;
-	gchar *basename;
-
-	basename = g_file_get_basename (file);
-
-	/* Check we're dealing with a desktop file */
-	if (g_str_has_suffix (basename, ".desktop") ||
-	    g_str_has_suffix (basename, ".directory")) {
-		retval = TRUE;
-	}
-
-	g_free (basename);
-
-	return retval;
-}
-
-static gboolean
-miner_applications_check_directory (TrackerMinerFS *fs,
-                                    GFile          *file)
-{
-	/* We want to inspect all the passed dirs and their children */
-	return TRUE;
-}
-
-static gboolean
-miner_applications_monitor_directory (TrackerMinerFS *fs,
-                                      GFile          *file)
-{
-	/* We want to monitor all the passed dirs and their children */
-	return TRUE;
 }
 
 static GKeyFile *

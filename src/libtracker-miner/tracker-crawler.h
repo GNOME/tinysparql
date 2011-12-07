@@ -80,6 +80,13 @@ void            tracker_crawler_resume       (TrackerCrawler *crawler);
 void            tracker_crawler_set_throttle (TrackerCrawler *crawler,
                                               gdouble         throttle);
 
+void            tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
+						     const gchar    *file_attributes);
+const gchar *   tracker_crawler_get_file_attributes (TrackerCrawler *crawler);
+
+GFileInfo *     tracker_crawler_get_file_info       (TrackerCrawler *crawler,
+						     GFile          *file);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_MINER_CRAWLER_H__ */
