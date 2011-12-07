@@ -120,7 +120,11 @@ public class Tracker.Steroids : Object {
 
 				return null;
 			} else {
-				return yield Tracker.Store.sparql_update_blank ((string) query, priority, sender);
+				var variant = yield Tracker.Store.sparql_update_blank ((string) query, priority, sender);
+
+				request.end ();
+
+				return variant;
 			}
 		} catch (DBInterfaceError.NO_SPACE ie) {
 			throw new Sparql.Error.NO_SPACE (ie.message);

@@ -148,7 +148,11 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdateBlank");
 		request.debug ("query: %s", update);
 		try {
-			return yield Tracker.Store.sparql_update_blank (update, Tracker.Store.Priority.HIGH, sender);
+			var variant = yield Tracker.Store.sparql_update_blank (update, Tracker.Store.Priority.HIGH, sender);
+
+			request.end ();
+
+			return variant;
 		} catch (DBInterfaceError.NO_SPACE ie) {
 			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
