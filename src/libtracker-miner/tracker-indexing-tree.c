@@ -650,6 +650,10 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 		return FALSE;
 	}
 
+	if (config_flags & TRACKER_DIRECTORY_FLAG_IGNORE) {
+		return FALSE;
+	}
+
 	if (g_file_equal (file, config_file)) {
 		return TRUE;
 	} else {
