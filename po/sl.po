@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-12-01 18:12+0000\n"
-"PO-Revision-Date: 2011-12-02 16:23+0100\n"
+"POT-Creation-Date: 2011-12-08 14:01+0000\n"
+"PO-Revision-Date: 2011-12-08 21:27+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -117,8 +117,8 @@ msgid "Simplify the words to their root to provide more results. E.g. 'shelves' 
 msgstr "Poenostavi besede na njihov koren za zagotavljanje več rezultatov. Na primer 'polica' in 'police' na 'polic'"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
-msgid "Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
-msgstr "Prevede znake z naglasom v nenaglašene. Na primer 'Idéa' v 'Idea' za izboljšano ujemanje."
+msgid "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
+msgstr "Prevede znake z naglasom v znake brez naglasa. Na primer 'védenje' v 'vedenje' za izboljšano ujemanje."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
 msgid "Words with less characters than this will be ignored by the indexer."
@@ -559,15 +559,15 @@ msgstr "Bi bilo nadzirano"
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1321
+#: ../src/miners/fs/tracker-miner-files.c:1373
 msgid "Low battery"
 msgstr "Nizka napetost baterije"
 
-#: ../src/miners/fs/tracker-miner-files.c:1444
+#: ../src/miners/fs/tracker-miner-files.c:1500
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2192
+#: ../src/miners/fs/tracker-miner-files.c:2258
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Napaka razširjevalnika. Izvajanje pred napakami varne izvleke metapodatkov"
 
@@ -626,7 +626,7 @@ msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2554
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2559
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Obdelovanje ..."
