@@ -115,11 +115,17 @@ miner_userguides_basedir_add_path (TrackerMinerFS *fs,
                                    const gchar    *locale)
 {
 	if (g_file_test (path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+		TrackerIndexingTree *indexing_tree;
 		GFile *file;
+
+		indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 		g_message ("  Adding:'%s'", path);
 		file = g_file_new_for_path (path);
-		tracker_miner_fs_directory_add (fs, file, TRUE);
+		tracker_indexing_tree_add (indexing_tree, file,
+		                           TRACKER_DIRECTORY_FLAG_RECURSE |
+		                           TRACKER_DIRECTORY_FLAG_MONITOR |
+		                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 		g_object_unref (file);
 
 		return TRUE;
