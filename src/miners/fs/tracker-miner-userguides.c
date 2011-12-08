@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -61,10 +61,6 @@ static void     miner_userguides_initable_iface_init     (GInitableIface       *
 static gboolean miner_userguides_initable_init           (GInitable            *initable,
                                                           GCancellable         *cancellable,
                                                           GError              **error);
-static gboolean miner_userguides_check_file              (TrackerMinerFS       *fs,
-                                                          GFile                *file);
-static gboolean miner_userguides_check_directory         (TrackerMinerFS       *fs,
-                                                          GFile                *file);
 static gboolean miner_userguides_process_file            (TrackerMinerFS       *fs,
                                                           GFile                *file,
                                                           TrackerSparqlBuilder *sparql,
@@ -73,8 +69,6 @@ static gboolean miner_userguides_process_file_attributes (TrackerMinerFS       *
                                                           GFile                *file,
                                                           TrackerSparqlBuilder *sparql,
                                                           GCancellable         *cancellable);
-static gboolean miner_userguides_monitor_directory       (TrackerMinerFS       *fs,
-                                                          GFile                *file);
 static void     miner_userguides_finalize                (GObject              *object);
 static void     parser_get_file_content                  (const gchar          *uri,
                                                           gssize                max_extract_size,
@@ -97,9 +91,6 @@ tracker_miner_userguides_class_init (TrackerMinerUserguidesClass *klass)
 
 	object_class->finalize = miner_userguides_finalize;
 
-	miner_fs_class->check_file = miner_userguides_check_file;
-	miner_fs_class->check_directory = miner_userguides_check_directory;
-	miner_fs_class->monitor_directory = miner_userguides_monitor_directory;
 	miner_fs_class->process_file = miner_userguides_process_file;
 	miner_fs_class->process_file_attributes = miner_userguides_process_file_attributes;
 
@@ -265,9 +256,21 @@ miner_userguides_initable_init (GInitable     *initable,
 	TrackerMinerFS *fs;
 	TrackerMinerUserguides *app;
 	GError *inner_error = NULL;
+	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
 	app = TRACKER_MINER_USERGUIDES (initable);
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+
+	/* Set up files filter, deny every file, but
+	 * those with a .desktop/directory extension
+	 */
+	tracker_indexing_tree_set_default_policy (indexing_tree,
+						  TRACKER_FILTER_FILE,
+						  TRACKER_FILTER_POLICY_DENY);
+	tracker_indexing_tree_add_filter (indexing_tree,
+					  TRACKER_FILTER_FILE,
+					  "*.html");
 
 	/* Chain up parent's initable callback before calling child's one */
 	if (!miner_userguides_initable_parent_iface->init (initable, cancellable, &inner_error)) {
@@ -280,6 +283,10 @@ miner_userguides_initable_init (GInitable     *initable,
 	                  NULL);
 
 	miner_userguides_add_directories (fs);
+
+#ifdef HAVE_MEEGOTOUCH
+	tracker_miner_applications_meego_init ();
+#endif /* HAVE_MEEGOTOUCH */
 
 	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
 	                                                         tracker_locale_notify_cb,
@@ -298,43 +305,11 @@ miner_userguides_finalize (GObject *object)
 
 	tracker_locale_notify_remove (app->locale_notification_id);
 
+#ifdef HAVE_MEEGOTOUCH
+	tracker_miner_applications_meego_shutdown ();
+#endif /* HAVE_MEEGOTOUCH */
+
 	G_OBJECT_CLASS (tracker_miner_userguides_parent_class)->finalize (object);
-}
-
-static gboolean
-miner_userguides_check_file (TrackerMinerFS *fs,
-                             GFile          *file)
-{
-	gboolean retval = FALSE;
-	gchar *basename;
-
-	basename = g_file_get_basename (file);
-
-	if (g_str_has_suffix (basename, ".html")) {
-		retval = TRUE;
-	}
-
-	g_free (basename);
-
-	return retval;
-}
-
-static gboolean
-miner_userguides_check_directory (TrackerMinerFS *fs,
-                                  GFile          *file)
-{
-	/* We target specific locale based userguides now, no
-	 * filtering needed at this level
-	 */
-	return TRUE;
-}
-
-static gboolean
-miner_userguides_monitor_directory (TrackerMinerFS *fs,
-                                    GFile          *file)
-{
-	/* We want to monitor all the passed dirs and their children */
-	return TRUE;
 }
 
 static const gchar *
