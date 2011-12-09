@@ -490,7 +490,7 @@ sparql_file_query_start (TrackerFileNotifier *notifier,
 		if (recursive) {
 			sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
 			                          "where {"
-			                          "  ?u a nfo:FileDataObject ; "
+			                          "  ?u a nie:DataObject ; "
 			                          "     nie:url ?url . "
 			                          "  FILTER (?url = \"%s\" || "
 			                          "          fn:starts-with (?url, \"%s/\")) "
@@ -498,7 +498,7 @@ sparql_file_query_start (TrackerFileNotifier *notifier,
 		} else {
 			sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
 			                          "where { "
-			                          "  ?u a nfo:FileDataObject ; "
+			                          "  ?u a nie:DataObject ; "
 			                          "     nie:url ?url . "
 			                          "  OPTIONAL { ?u nfo:belongsToContainer ?p } . "
 			                          "  FILTER (?url = \"%s\" || "
@@ -509,7 +509,7 @@ sparql_file_query_start (TrackerFileNotifier *notifier,
 		/* If it's a regular file, only query this item */
 		sparql = g_strdup_printf ("select ?url ?u nfo:fileLastModified(?u) "
 		                          "where { "
-		                          "  ?u a nfo:FileDataObject ; "
+		                          "  ?u a nie:DataObject ; "
 		                          "     nie:url ?url ; "
 		                          "     nie:url \"%s\" . "
 		                          "}", uri);
