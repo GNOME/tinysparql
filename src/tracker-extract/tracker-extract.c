@@ -152,10 +152,6 @@ tracker_extract_finalize (GObject *object)
 
 	/* FIXME: Shutdown modules? */
 
-	if (priv->task_mutex) {
-		g_mutex_free (priv->task_mutex);
-	}
-
 	g_hash_table_destroy (priv->single_thread_extractors);
 	g_thread_pool_free (priv->thread_pool, TRUE, FALSE);
 
@@ -168,6 +164,10 @@ tracker_extract_finalize (GObject *object)
 #endif /* HAVE_STREAMANALYZER */
 
 	g_hash_table_destroy (priv->statistics_data);
+
+	if (priv->task_mutex) {
+		g_mutex_free (priv->task_mutex);
+	}
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
