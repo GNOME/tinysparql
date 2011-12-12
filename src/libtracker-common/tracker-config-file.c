@@ -582,6 +582,14 @@ tracker_config_file_migrate (TrackerConfigFile           *file,
 	if (g_getenv ("TRACKER_USE_CONFIG_FILES")) {
 		UnappliedNotifyData *data;
 
+		/* Ensure we have the config file in place */
+		if (!file->file_exists) {
+			migrate_settings_to_keyfile (entries,
+			                             settings,
+			                             file);
+			tracker_config_file_save (file);
+		}
+
 		/* Keep the file around, and connect to notify::has-unapplied so
 		 * we write back to it when g_settings_apply() is called
 		 */
