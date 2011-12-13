@@ -419,10 +419,14 @@ miner_files_initable_init (GInitable     *initable,
 		                    mf->private->quark_directory_config_root,
 		                    GINT_TO_POINTER (TRUE));
 
+		flags = TRACKER_DIRECTORY_FLAG_NONE;
+
 		if (tracker_config_get_enable_monitors (mf->private->config)) {
-			flags = TRACKER_DIRECTORY_FLAG_MONITOR;
-		} else {
-			flags = TRACKER_DIRECTORY_FLAG_NONE;
+			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+		}
+
+		if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
 		tracker_indexing_tree_add (indexing_tree, file, flags);
@@ -477,6 +481,10 @@ miner_files_initable_init (GInitable     *initable,
 
 		if (tracker_config_get_enable_monitors (mf->private->config)) {
 			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+		}
+
+		if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
 		tracker_indexing_tree_add (indexing_tree, file, flags);
@@ -1213,6 +1221,7 @@ mount_point_added_cb (TrackerStorage *storage,
 
 			config_file = g_file_new_for_path (l->data);
 			flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+				TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
 				TRACKER_DIRECTORY_FLAG_PRESERVE;
 
 			if (tracker_config_get_enable_monitors (miner->private->config)) {
@@ -1248,10 +1257,10 @@ mount_point_added_cb (TrackerStorage *storage,
 		     l = g_slist_next (l)) {
 			GFile *config_file;
 
+			flags = TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+
 			if (tracker_config_get_enable_monitors (miner->private->config)) {
-				flags = TRACKER_DIRECTORY_FLAG_MONITOR;
-			} else {
-				flags = TRACKER_DIRECTORY_FLAG_NONE;
+				flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 			}
 
 			config_file = g_file_new_for_path (l->data);
@@ -1644,6 +1653,10 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 
 	if (tracker_config_get_enable_monitors (priv->config)) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
+	if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 	}
 
 	/* Second add directories which are new */
@@ -2960,6 +2973,7 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
 	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+		TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
 		TRACKER_DIRECTORY_FLAG_PRESERVE;
 
 	if (tracker_config_get_enable_monitors (mf->private->config)) {
