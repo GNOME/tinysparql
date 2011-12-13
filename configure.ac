@@ -178,6 +178,7 @@ LIBVORBIS_REQUIRED=0.22
 LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
+LIBOSINFO_REQUIRED=0.0.2
 EXEMPI_REQUIRED=2.1.0
 EVO_REQUIRED=2.32.0
 EVO_SHELL_REQUIRED=2.32.0
@@ -1815,6 +1816,39 @@ fi
 AM_CONDITIONAL(HAVE_LIBGSF, test "x$have_libgsf" = "xyes")
 
 ##################################################################
+# Check for tracker-extract: libosinfo
+##################################################################
+
+AC_ARG_ENABLE(libosinfo,
+              AS_HELP_STRING([--enable-libosinfo],
+                             [enable extractor for ISO data [[default=auto]]]),,
+              [enable_libosinfo=auto])
+
+if test "x$enable_libosinfo" != "xno" ; then
+   PKG_CHECK_MODULES(LIBOSINFO,
+                     [libosinfo-1.0 >= $LIBOSINFO_REQUIRED],
+		     [have_libosinfo=yes],
+		     [have_libosinfo=no])
+
+   AC_SUBST(LIBOSINFO_CFLAGS)
+   AC_SUBST(LIBOSINFO_LIBS)
+
+   if test "x$have_libosinfo" = "xyes"; then
+      AC_DEFINE(HAVE_LIBOSINFO, [], [Define if we have libosinfo])
+   fi
+else
+   have_libosinfo="no  (disabled)"
+fi
+
+if test "x$enable_libosinfo" = "xyes"; then
+   if test "x$have_libosinfo" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libosinfo >= $LIBOSINFO_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBOSINFO, test "x$have_libosinfo" = "xyes")
+
+##################################################################
 # Check for tracker-extract: libgif
 ##################################################################
 
@@ -2333,6 +2367,7 @@ Metadata Extractors:
 	Support media art processing:           $selected_for_media_art
 	Support cue sheet parsing:              $have_libcue
 	Support playlists (w/ Totem):           $have_playlist
+	Support ISO image parsing:              $have_libosinfo
 
 Data Miners:
 

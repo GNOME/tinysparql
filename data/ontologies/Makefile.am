@@ -24,7 +24,8 @@ config_DATA =                                          \
 	41-mfo.ontology	    41-mfo.description         \
 	89-mtp.ontology	    89-mtp.description         \
 	92-slo.ontology     92-slo.description         \
-	90-tracker.ontology 90-tracker.description
+	90-tracker.ontology 90-tracker.description     \
+	93-libosinfo.ontology 93-libosinfo.description
 
 if HAVE_MAEMO
 config_DATA +=                                         \

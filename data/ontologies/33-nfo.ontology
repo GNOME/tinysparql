@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-12-06T15:40:00Z" .
+	nao:lastModified "2011-12-15T18:51:25Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -926,6 +926,13 @@ nfo:isContentEncrypted a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:boolean .
 
+# This change must be proposed upstream
+nfo:isBootable a rdf:Property ;
+	rdfs:label "Is content bootable" ;
+	rdfs:comment "True when the file is bootable, for example like an ISO or other disc images" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:boolean .
 
 # Ontology request by Alexander Bokovoy, replaces nfo:device
 # These classes and properties need to be submitted to NEPOMUK

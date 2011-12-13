@@ -34,6 +34,7 @@ rules_in_files = \
 	10-tiff.rule.in \
 	10-vorbis.rule.in \
 	10-xmp.rule.in \
+	11-iso.rule.in \
 	11-msoffice-xml.rule.in \
 	15-gstreamer-guess.rule.in \
 	15-playlist.rule.in \
@@ -139,6 +140,11 @@ endif
 if HAVE_TOTEM_PL_PARSER
 modules_LTLIBRARIES += libextract-playlist.la
 rules_DATA += 15-playlist.rule
+endif
+
+if HAVE_LIBOSINFO
+modules_LTLIBRARIES += libextract-iso.la
+rules_DATA += 11-iso.rule
 endif
 
 # ABW
@@ -421,6 +427,19 @@ libextract_icon_la_LIBADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
+
+# ISO
+libextract_iso_la_SOURCES = tracker-extract-iso.c
+libextract_iso_la_CFLAGS = \
+	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
+	$(LIBOSINFO_CFLAGS)
+
+libextract_iso_la_LDFLAGS = $(module_flags)
+libextract_iso_la_LIBADD = \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(BUILD_LIBS) \
+	$(TRACKER_EXTRACT_MODULES_LIBS) \
+	$(LIBOSINFO_LIBS)
 
 #
 # Binaries

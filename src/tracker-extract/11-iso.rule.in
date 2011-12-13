@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-iso.so
+MimeTypes=application/x-cd-image
+
