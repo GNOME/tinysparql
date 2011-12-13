@@ -1008,7 +1008,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	TrackerDirectoryFlags flags;
 
 	/* Flags are still valid at the moment of deletion */
-	tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
+	directory = tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
 
 	/* If the folder was being ignored, index/crawl it from scratch */
 	if (flags & TRACKER_DIRECTORY_FLAG_IGNORE) {

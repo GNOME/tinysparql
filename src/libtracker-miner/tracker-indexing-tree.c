@@ -392,7 +392,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 
 			data->flags = flags;
 			g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0,
-			               directory);
+			               data->file);
 		}
 		return;
 	}
@@ -448,16 +448,17 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 		return;
 	}
 
+	data = node->data;
+
 	if (!node->parent) {
 		/* Node is the config tree
 		 * root, mark as shallow again
 		 */
-		data = node->data;
 		data->shallow = TRUE;
 		return;
 	}
 
-	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, directory);
+	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, data->file);
 
 	parent = node->parent;
 	g_node_unlink (node);
