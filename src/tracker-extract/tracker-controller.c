@@ -335,6 +335,9 @@ reset_shutdown_timeout (TrackerController *controller)
 	TrackerControllerPrivate *priv;
 	GSource *source;
 
+	/* Reset alarm of the process too */
+	tracker_main_timeout_reset ();
+
 	priv = controller->priv;
 
 	if (priv->shutdown_timeout == 0) {

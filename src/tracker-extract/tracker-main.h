@@ -28,7 +28,7 @@ G_BEGIN_DECLS
 /* This is used to not shutdown after the default of 30 seconds if we
  * get more work to do.
  */
-void              tracker_main_quit_timeout_reset (void);
+void              tracker_main_timeout_reset      (void);
 
 /* Enables getting the config object from extractors */
 TrackerConfig    *tracker_main_get_config         (void);

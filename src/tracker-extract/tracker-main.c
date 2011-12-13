@@ -254,6 +254,20 @@ tracker_main_get_config (void)
 	return config;
 }
 
+void
+tracker_main_timeout_reset (void)
+{
+#ifndef G_OS_WIN32
+	/* This replaces the default timeout of the gdbus call in miner-fs at
+	 * dbus_send_and_splice_async (it puts control of the timeout in the hands
+	 * of this process). In GDBus the default timeout when using -1 is
+	 * 25*1000 msec (gdbusconnection.c at g_dbus_connection_send_message_
+	 * with_reply_unlocked), so 25 seconds. */
+
+	alarm (25);
+#endif /* G_OS_WIN32 */
+}
+
 static int
 run_standalone (void)
 {
@@ -435,6 +449,9 @@ main (int argc, char *argv[])
 
 	tracker_locale_init ();
 	tracker_albumart_init ();
+
+	/* Set initial alarm timeout */
+	tracker_main_timeout_reset ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);

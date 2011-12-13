@@ -2192,7 +2192,7 @@ dbus_send_and_splice_async (GDBusConnection                  *connection,
 	g_dbus_connection_send_message_with_reply (connection,
 	                                           message,
 	                                           G_DBUS_SEND_MESSAGE_FLAGS_NONE,
-	                                           -1,
+	                                           G_MAXINT, /* timeout is enforced by an alarm() in tracker-extract */
 	                                           NULL,
 	                                           cancellable,
 	                                           send_and_splice_dbus_callback,
