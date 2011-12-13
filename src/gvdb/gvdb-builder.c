@@ -24,7 +24,9 @@
 
 #include <glib.h>
 #include <fcntl.h>
+#if !defined(G_OS_WIN32) || !defined(_MSC_VER)
 #include <unistd.h>
+#endif
 #include <string.h>
 
 
@@ -91,7 +93,7 @@ djb_hash (const gchar *key)
   guint32 hash_value = 5381;
 
   while (*key)
-    hash_value = hash_value * 33 + *key++;
+    hash_value = hash_value * 33 + *(signed char *)key++;
 
   return hash_value;
 }
@@ -175,6 +177,14 @@ hash_table_new (gint n_buckets)
   table->n_buckets = n_buckets;
 
   return table;
+}
+
+static void
+hash_table_free (HashTable *table)
+{
+  g_free (table->buckets);
+
+  g_slice_free (HashTable, table);
 }
 
 static void
@@ -417,6 +427,8 @@ file_builder_add_hash (FileBuilder         *fb,
           index++;
         }
     }
+
+  hash_table_free (mytable);
 }
 
 static FileBuilder *
@@ -472,6 +484,8 @@ file_builder_serialise (FileBuilder          *fb,
 
       g_string_append_len (result, chunk->data, chunk->size);
       g_free (chunk->data);
+
+      g_slice_free (FileChunk, chunk);
     }
 
   g_queue_free (fb->chunks);

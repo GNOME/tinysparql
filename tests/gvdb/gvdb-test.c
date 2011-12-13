@@ -29,7 +29,8 @@ walk_open_cb (G_GNUC_UNUSED const gchar *name,
 }
 
 void
-walk_close_cb (G_GNUC_UNUSED gpointer user_data)
+walk_close_cb (G_GNUC_UNUSED gsize name_len,
+               G_GNUC_UNUSED gpointer user_data)
 {
 }
 
