@@ -259,17 +259,29 @@ static void
 file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
+	GFile *current_root, *canonical;
+	TrackerDirectoryFlags flags;
 
 	priv = notifier->priv;
-	tracker_file_system_traverse (priv->file_system,
-	                              priv->pending_index_roots->data,
-	                              G_LEVEL_ORDER,
-	                              file_notifier_traverse_tree_foreach,
-	                              notifier);
+	current_root = priv->pending_index_roots->data;
+	tracker_indexing_tree_get_root (priv->indexing_tree,
+	                                current_root, &flags);
+
+	/* Check mtime for 1) directories with the check_mtime flag
+	 * and 2) directories gotten from monitor events.
+	 */
+	if (canonical != current_root ||
+	    flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
+		tracker_file_system_traverse (priv->file_system,
+		                              current_root,
+		                              G_LEVEL_ORDER,
+		                              file_notifier_traverse_tree_foreach,
+		                              notifier);
+	}
 
 	/* We dispose regular files, only directories are cached */
 	tracker_file_system_delete_files (priv->file_system,
-	                                  priv->pending_index_roots->data,
+	                                  current_root,
 	                                  G_FILE_TYPE_REGULAR);
 
 	tracker_info ("Finished notifying files after %2.2f seconds",
