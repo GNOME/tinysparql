@@ -693,23 +693,6 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		                        "        nfo:fileLastModified \"1981-06-05T02:20:00Z\" . "
 		                        "}",
 		                        uri);
-
-		/* Tell the underlying miner-fs about the mount point,
-		 * mtime is forced as the contents might have changed
-		 * since the last mount.
-		 */
-		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-			TRACKER_DIRECTORY_FLAG_PRESERVE;
-
-		if (tracker_config_get_enable_monitors (miner->private->config)) {
-			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-		}
-
-		tracker_indexing_tree_add (indexing_tree,
-					   mount_point,
-					   flags);
 	}
 
 	g_free (uri);
