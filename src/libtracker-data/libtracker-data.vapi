@@ -107,7 +107,7 @@ namespace Tracker {
 		public DBConfig ();
 		public bool save ();
 		public int journal_chunk_size { get; set; }
-		public string journal_rotate_destination { get; set; }
+		public string journal_rotate_destination { owned get; set; }
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-config.h")]
