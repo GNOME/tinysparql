@@ -57,6 +57,7 @@ tracker_string_to_date (const gchar *date_string,
 	struct tm tm;
 	gdouble t;
 	gint offset;
+	gboolean timezoned;
 
 	g_return_val_if_fail (date_string, -1);
 
@@ -112,9 +113,11 @@ tracker_string_to_date (const gchar *date_string,
 	g_free (match);
 
 	match = g_match_info_fetch (match_info, 8);
-	if (match) {
+	timezoned = (match && strlen (match) > 0);
+	g_free (match);
+
+	if (timezoned) {
 		/* timezoned */
-		g_free (match);
 
 		/* mktime() always assumes that "tm" is in locale time but we
 		 * want to keep control on time, so we go to UTC
@@ -183,8 +186,8 @@ tracker_string_to_date (const gchar *date_string,
 		   we're interested in a maximum of 3 decimal places (milliseconds) */
 		memcpy (milliseconds, match + 1, MIN (3, strlen (match + 1)));
 		t += (gdouble) atoi (milliseconds) / 1000;
-		g_free (match);
 	}
+	g_free (match);
 
 	g_match_info_free (match_info);
 
