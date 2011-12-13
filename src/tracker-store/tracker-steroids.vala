@@ -109,7 +109,6 @@ public class Tracker.Steroids : Object {
 			data_input_stream.read_all (query[0:query_size], out bytes_read);
 
 			data_input_stream = null;
-			input_stream = null;
 
 			request.debug ("query: %s", (string) query);
 
@@ -181,7 +180,6 @@ public class Tracker.Steroids : Object {
 			}
 
 			data_input_stream = null;
-			input_stream = null;
 
 			var builder = new VariantBuilder ((VariantType) "as");
 
