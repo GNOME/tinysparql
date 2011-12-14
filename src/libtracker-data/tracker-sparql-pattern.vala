@@ -241,7 +241,6 @@ class Tracker.Sparql.Pattern : Object {
 
 	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws Sparql.Error {
 		SelectContext result;
-		bool has_fts_match = false;
 
 		if (scalar_subquery) {
 			result = new SelectContext.subquery (query, context);
@@ -253,8 +252,6 @@ class Tracker.Sparql.Pattern : Object {
 
 		var pattern_sql = new StringBuilder ();
 		var old_bindings = (owned) query.bindings;
-
-		match_str = new StringBuilder ();
 
 		sql.append ("SELECT ");
 
@@ -289,8 +286,6 @@ class Tracker.Sparql.Pattern : Object {
 		foreach (var variable in context.var_set.get_keys ()) {
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
-			} else if (variable.binding.table.sql_db_tablename == "fts") {
-				has_fts_match = true;
 			}
 		}
 
@@ -354,7 +349,7 @@ class Tracker.Sparql.Pattern : Object {
 
 		// select from results of WHERE clause
 
-		if (has_fts_match) {
+		if (match_str != null) {
 			sql.append (" FROM fts JOIN (");
 			sql.append (pattern_sql.str);
 
@@ -448,7 +443,7 @@ class Tracker.Sparql.Pattern : Object {
 			query.bindings.append (binding);
 		}
 
-		if (has_fts_match) {
+		if (match_str != null) {
 			sql.append (") AS ranks USING (docid)");
 			sql.append_printf (" WHERE fts %s", match_str.str);
 		}
@@ -755,7 +750,8 @@ class Tracker.Sparql.Pattern : Object {
 				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
 				sql.append_printf (" MATCH '%s'", escaped_literal);
 
-				if (match_str != null) {
+				if (match_str == null) {
+				        match_str = new StringBuilder ();
 					match_str.append_printf (" MATCH '%s'", escaped_literal);
 				}
 			} else {
