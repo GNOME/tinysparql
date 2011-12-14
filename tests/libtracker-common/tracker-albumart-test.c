@@ -16,9 +16,10 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
+
 #include <glib-object.h>
-#include <libtracker-common/tracker-albumart.h>
+
+#include <libtracker-common/tracker-common.h>
 
 struct {
         const gchar *input;
@@ -52,7 +53,7 @@ test_albumart_stripping ()
         gchar *result;
 
         for (i = 0; strip_test_cases[i].input != NULL; i++) {
-                result = tracker_albumart_strip_invalid_entities (strip_test_cases[i].input);
+                result = tracker_media_art_strip_invalid_entities (strip_test_cases[i].input);
                 g_assert_cmpstr (result, ==, strip_test_cases[i].expected_output);
                 g_free (result);
         }
@@ -100,12 +101,12 @@ test_albumart_location ()
         gint   i;
      
         for (i = 0; albumart_test_cases[i].filename != NULL; i++) {
-                tracker_albumart_get_path (albumart_test_cases[i].artist,
-                                           albumart_test_cases[i].album,
-                                           "album",
-                                           "file:///home/test/a.mp3",
-                                           &path,
-                                           &local_uri);
+                tracker_media_art_get_path (albumart_test_cases[i].artist,
+                                            albumart_test_cases[i].album,
+                                            "album",
+                                            "file:///home/test/a.mp3",
+                                            &path,
+                                            &local_uri);
                 expected = g_build_path (G_DIR_SEPARATOR_S, 
                                          g_get_user_cache_dir (),
                                          "media-art",
@@ -128,7 +129,7 @@ test_albumart_location_null ()
         gchar *path = NULL, *local_uri = NULL;
 
         /* NULL parameters */
-        tracker_albumart_get_path (NULL, NULL, "album", "file:///a/b/c.mp3", &path, &local_uri);
+        tracker_media_art_get_path (NULL, NULL, "album", "file:///a/b/c.mp3", &path, &local_uri);
         g_assert (!path && !local_uri);
 }
 
@@ -139,12 +140,12 @@ test_albumart_location_path ()
         gchar *expected;
 
         /* Use path instead of URI */
-        tracker_albumart_get_path (albumart_test_cases[0].artist,
-                                   albumart_test_cases[0].album,
-                                   "album",
-                                   "/home/test/a.mp3",
-                                   &path,
-                                   &local_uri);
+        tracker_media_art_get_path (albumart_test_cases[0].artist,
+                                    albumart_test_cases[0].album,
+                                    "album",
+                                    "/home/test/a.mp3",
+                                    &path,
+                                    &local_uri);
         expected = g_build_path (G_DIR_SEPARATOR_S, 
                                  g_get_user_cache_dir (),
                                  "media-art",
