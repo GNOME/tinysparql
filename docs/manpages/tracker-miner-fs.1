@@ -53,6 +53,13 @@ arguments as well as existing
 .B FILE
 arguments.
 
+.SH ENVIRONMENT
+.TP
+.B TRACKER_USE_CONFIG_FILES
+Don't use GSettings, instead use a config file similar to how settings
+were saved in 0.10.x. That is, a file which is much like an .ini file.
+These are saved to $HOME/.config/tracker/
+
 .SH SEE ALSO
 .BR tracker-store (1),
 .BR tracker-info (1).

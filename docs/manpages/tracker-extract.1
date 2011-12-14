@@ -84,6 +84,11 @@ default location is /usr/lib/tracker-0.10/extract-modules/.
 This is the directory which tracker uses to load the rules files from.
 The rules files describe extractor modules and their supported MIME
 types. The default location is /usr/share/tracker/extract-rules/.
+.TP
+.B TRACKER_USE_CONFIG_FILES
+Don't use GSettings, instead use a config file similar to how settings
+were saved in 0.10.x. That is, a file which is much like an .ini file.
+These are saved to $HOME/.config/tracker/
 
 .SH SEE ALSO
 .BR tracker-store (1),
