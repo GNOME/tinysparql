@@ -34,35 +34,58 @@
 #define BUFFER_SIZE 65535
 
 static gchar *
-get_string_in_locale (const gchar *locale_str,
-                      gsize        locale_str_len,
-                      gsize       *utf8_len)
+get_string_from_guessed_encoding (const gchar *str,
+                                  gsize        str_len,
+                                  gsize       *utf8_len)
 {
-	GError *error = NULL;
-	gchar  *utf8_str;
-	gsize   bytes_read = 0;
-	gsize   bytes_written = 0;
+	const gchar *current = NULL;
 
-	utf8_str = g_locale_to_utf8 (locale_str,
-	                             locale_str_len,
-	                             &bytes_read,
-	                             &bytes_written,
-	                             &error);
-	if (error) {
-		g_debug ("  Conversion to UTF-8 read %" G_GSIZE_FORMAT " bytes, wrote %" G_GSIZE_FORMAT " bytes",
-		         bytes_read,
-		         bytes_written);
-		g_message ("Could not convert string from locale to UTF-8, %s",
-		           error->message);
-		g_error_free (error);
+	/* If we have embedded NULs try UTF-16 directly */
+	if (memchr (str, '\0', str_len))
+		current = "UTF-16";
+	/* If locale charset is UTF-8, try with windows-1252.
+	 * NOTE: g_get_charset() returns TRUE if locale charset is UTF-8 */
+	else if (g_get_charset (&current))
+		current = "windows-1252";
+
+	while (current) {
+		gchar *utf8_str;
+		gsize bytes_read = 0;
+		gsize bytes_written = 0;
+
+		utf8_str = g_convert (str,
+		                      str_len,
+		                      "UTF-8",
+		                      current,
+		                      &bytes_read,
+		                      &bytes_written,
+		                      NULL);
+		if (utf8_str &&
+		    str_len == bytes_read) {
+			g_debug ("Converted %" G_GSIZE_FORMAT " bytes in '%s' codeset "
+			         "to %" G_GSIZE_FORMAT " bytes in UTF-8",
+			         bytes_read,
+			         current,
+			         bytes_written);
+			*utf8_len = bytes_written;
+			return utf8_str;
+		}
 		g_free (utf8_str);
-		return NULL;
+
+		g_debug ("Text not in '%s' encoding", current);
+
+		if (!strcmp (current, "windows-1252") ||
+		    !strcmp (current, "UTF-16"))
+			/* If we tried windows-1252 or UTF-16, don't try anything else */
+			current = NULL;
+		else
+			/* If we tried a locale encoding and didn't work, retry with
+			 * windows-1252 */
+			current = "windows-1252";
 	}
 
-	*utf8_len = bytes_written;
-	return utf8_str;
+	return NULL;
 }
-
 
 /* Returns %TRUE if read operation should continue, %FALSE otherwise */
 static gboolean
@@ -138,8 +161,7 @@ process_chunk (const gchar  *read_bytes,
 }
 
 static gchar *
-process_whole_string (GString  *s,
-                      gboolean  try_locale_if_not_utf8)
+process_whole_string (GString  *s)
 {
 	gchar *utf8 = NULL;
 	gsize  utf8_len = 0;
@@ -195,21 +217,20 @@ process_whole_string (GString  *s,
 	/* A valid UTF-8 file will be that where all read bytes are valid,
 	 *  with a margin of 3 bytes for the last UTF-8 character which might
 	 *  have been cut. */
-	if (try_locale_if_not_utf8 &&
-	    utf8_len - n_valid_utf8_bytes > 3) {
-		gchar *from_locale_str;
-		gsize  from_locale_str_len;
+	if (utf8_len - n_valid_utf8_bytes > 3) {
+		gchar *from_guessed_str;
+		gsize  from_guessed_str_len;
 
-		/* If not UTF-8, try to get contents in locale encoding
+		/* If not UTF-8, try to get contents in guessed encoding
 		 *  (returns valid UTF-8) */
-		from_locale_str = get_string_in_locale (utf8,
-		                                        utf8_len,
-		                                        &from_locale_str_len);
+		from_guessed_str = get_string_from_guessed_encoding (utf8,
+		                                                     utf8_len,
+		                                                     &from_guessed_str_len);
 		g_free (utf8);
-		if (!from_locale_str)
+		if (!from_guessed_str)
 			return NULL;
-		utf8 = from_locale_str;
-		utf8_len = from_locale_str_len;
+		utf8 = from_guessed_str;
+		utf8_len = from_guessed_str_len;
 	} else if (n_valid_utf8_bytes < utf8_len) {
 		g_debug ("  Truncating to last valid UTF-8 character "
 		         "(%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
@@ -231,18 +252,18 @@ process_whole_string (GString  *s,
  * tracker_read_text_from_stream:
  * @stream: input stream to read from
  * @max_bytes: max number of bytes to read from @stream
- * @try_locale_if_not_utf8: if the the text read is not valid UTF-8, try to
- *   convert from locale-encoding to UTF-8
  *
  * Reads up to @max_bytes from @stream, and validates the read text as proper
  *  UTF-8.
+ *
+ * If the input text is not UTF-8 it will also try to decode it based on the
+ * current locale, or windows-1252, or UTF-16.
  *
  * Returns: newly-allocated NUL-terminated UTF-8 string with the read text.
  **/
 gchar *
 tracker_read_text_from_stream (GInputStream *stream,
-                               gsize       max_bytes,
-                               gboolean    try_locale_if_not_utf8)
+                               gsize         max_bytes)
 {
 	GString *s = NULL;
 	gsize n_bytes_remaining = max_bytes;
@@ -287,7 +308,7 @@ tracker_read_text_from_stream (GInputStream *stream,
 	}
 
 	/* Validate UTF-8 if something was read, and return it */
-	return s ? process_whole_string (s, try_locale_if_not_utf8) : NULL;
+	return s ? process_whole_string (s) : NULL;
 }
 
 
@@ -295,18 +316,18 @@ tracker_read_text_from_stream (GInputStream *stream,
  * tracker_read_text_from_fd:
  * @fd: input fd to read from
  * @max_bytes: max number of bytes to read from @fd
- * @try_locale_if_not_utf8: if the the text read is not valid UTF-8, try to
- *   convert from locale-encoding to UTF-8
  *
  * Reads up to @max_bytes from @fd, and validates the read text as proper
  *  UTF-8. Will also properly close the FD when finishes.
  *
+ * If the input text is not UTF-8 it will also try to decode it based on the
+ * current locale, or windows-1252, or UTF-16.
+ *
  * Returns: newly-allocated NUL-terminated UTF-8 string with the read text.
  **/
 gchar *
-tracker_read_text_from_fd (gint     fd,
-                           gsize    max_bytes,
-                           gboolean try_locale_if_not_utf8)
+tracker_read_text_from_fd (gint  fd,
+                           gsize max_bytes)
 {
 	FILE *fz;
 	GString *s = NULL;
@@ -355,5 +376,5 @@ tracker_read_text_from_fd (gint     fd,
 	fclose (fz);
 
 	/* Validate UTF-8 if something was read, and return it */
-	return s ? process_whole_string (s, try_locale_if_not_utf8) : NULL;
+	return s ? process_whole_string (s) : NULL;
 }
