@@ -7,7 +7,7 @@ TEST_PROGS +=                                          \
 	tracker-dbus                                   \
 	tracker-file-utils                             \
 	tracker-utils				       \
-	tracker-albumart-test			       \
+	tracker-media-art-test			       \
 	tracker-sched-test			       \
 	tracker-crc32-test			       \
 	tracker-date-time-test
@@ -35,7 +35,7 @@ tracker_file_utils_SOURCES = tracker-file-utils-test.c
 
 tracker_utils_SOURCES = tracker-utils-test.c
 
-tracker_albumart_test_SOURCES = tracker-albumart-test.c
+tracker_media_art = tracker-media-art-test.c
 
 tracker_sched_test_SOURCES = tracker-sched-test.c
 
