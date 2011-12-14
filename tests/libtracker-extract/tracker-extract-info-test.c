@@ -16,11 +16,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
-#include <libtracker-extract/tracker-extract-info.h>
 
-void
-test_extract_info_setters ()
+#include <glib.h>
+
+#include <libtracker-extract/tracker-extract.h>
+
+static void
+test_extract_info_setters (void)
 {
         TrackerExtractInfo *info, *info_ref;
         GFile *file;
@@ -48,8 +50,8 @@ test_extract_info_setters ()
         g_object_unref (file);
 }
 
-void
-test_extract_info_empty_objects ()
+static void
+test_extract_info_empty_objects (void)
 {
         TrackerExtractInfo *info, *info_ref;
         GFile *file;

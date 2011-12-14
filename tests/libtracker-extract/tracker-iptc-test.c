@@ -51,7 +51,7 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
  * libiptcdata doesn't scan the file until find the IPTC blob.
  * We need to find the blob ourselves. This code comes from tracker-extract-jpeg
  */
-TrackerIptcData *
+static TrackerIptcData *
 load_iptc_blob (const gchar *filename)
 {
 	struct jpeg_decompress_struct cinfo;
@@ -126,9 +126,8 @@ load_iptc_blob (const gchar *filename)
         return id;
 }
 
-
-void
-test_iptc_extraction ()
+static void
+test_iptc_extraction (void)
 {
         TrackerIptcData *data;
 

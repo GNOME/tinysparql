@@ -684,9 +684,6 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		           uri, iri);
 		g_free (iri);
 	} else {
-		TrackerIndexingTree *indexing_tree;
-		TrackerDirectoryFlags flags;
-
 		/* If it doesn't exist, we need to create it */
 		g_message ("Mount point '%s' does not exist in store, need to create it",
 		           uri);

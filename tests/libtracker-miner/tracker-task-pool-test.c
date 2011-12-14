@@ -18,9 +18,11 @@
  *
  */
 #include <glib.h>
+
+/* NOTE: We're not including tracker-miner.h here because this is private. */
 #include <libtracker-miner/tracker-task-pool.h>
 
-void
+static void
 test_task_pool_limit_set (void)
 {
         TrackerTaskPool *pool;
@@ -35,8 +37,11 @@ test_task_pool_limit_set (void)
         g_object_unref (pool);
 }
 
-void
-add_task (TrackerTaskPool *pool, const gchar *filename, gint expected_size, gboolean hit_limit)
+static void
+add_task (TrackerTaskPool *pool,
+          const gchar     *filename,
+          gint             expected_size,
+          gboolean         hit_limit)
 {
         TrackerTask *task;
 
@@ -50,8 +55,11 @@ add_task (TrackerTaskPool *pool, const gchar *filename, gint expected_size, gboo
         tracker_task_unref (task);
 }
 
-void
-remove_task (TrackerTaskPool *pool, const gchar *filename, gint expected_size, gboolean hit_limit)
+static void
+remove_task (TrackerTaskPool *pool,
+             const gchar     *filename,
+             gint             expected_size,
+             gboolean         hit_limit)
 {
         TrackerTask *task;
 
@@ -65,7 +73,7 @@ remove_task (TrackerTaskPool *pool, const gchar *filename, gint expected_size, g
         tracker_task_unref (task);
 }
 
-void
+static void
 test_task_pool_add_remove (void)
 {
         TrackerTaskPool *pool;
@@ -95,12 +103,12 @@ test_task_pool_add_remove (void)
         g_object_unref (pool);
 }
 
-void
-test_task_pool_find ()
+static void
+test_task_pool_find (void)
 {
         TrackerTaskPool *pool;
-        TrackerTask     *task;
-        GFile           *goal;
+        TrackerTask *task;
+        GFile *goal;
 
         pool = tracker_task_pool_new (3);
 
@@ -132,18 +140,19 @@ test_task_pool_find ()
         g_object_unref (pool);
 }
 
-void
-count_elements_cb (gpointer data, gpointer user_data)
+static void
+count_elements_cb (gpointer data,
+                   gpointer user_data)
 {
         gint *counter = (gint*)user_data;
         (*counter) += 1;
 }
 
-void
-test_task_pool_foreach ()
+static void
+test_task_pool_foreach (void)
 {
         TrackerTaskPool *pool;
-        int              counter = 0;
+        int counter = 0;
 
         pool = tracker_task_pool_new (3);
 
@@ -155,7 +164,6 @@ test_task_pool_foreach ()
 
         g_assert_cmpint (counter, ==, 3);
 }
-
 
 gint
 main (gint argc, gchar **argv)

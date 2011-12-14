@@ -241,8 +241,8 @@ test_merge_const ()
         g_assert (!result);
 }
 
-void
-test_getline ()
+static void
+test_getline (void)
 {
         FILE *f;
         gchar *line = NULL;

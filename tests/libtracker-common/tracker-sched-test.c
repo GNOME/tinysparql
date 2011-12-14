@@ -31,8 +31,8 @@
 #include <errno.h>
 
 
-gboolean
-scheduler_is (gint scheduler) 
+static gboolean
+scheduler_is (gint scheduler)
 {
 #ifdef __linux__
         return (sched_getscheduler (0) == scheduler);
@@ -41,8 +41,8 @@ scheduler_is (gint scheduler)
 #endif
 }
 
-void
-test_sched_set_and_get ()
+static void
+test_sched_set_and_get (void)
 {
         g_assert (scheduler_is (SCHED_OTHER));
         g_assert (tracker_sched_idle ());

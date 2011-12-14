@@ -16,12 +16,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
-#include <glib-object.h>
-#include <libtracker-extract/tracker-exif.h>
 
-void
-test_exif_parse ()
+#include <glib-object.h>
+
+#include <libtracker-extract/tracker-extract.h>
+
+static void
+test_exif_parse (void)
 {
         TrackerExifData *exif;
         gchar *blob;
@@ -67,8 +68,8 @@ test_exif_parse ()
         tracker_exif_free (exif);
 }
 
-void
-test_exif_parse_empty ()
+static void
+test_exif_parse_empty (void)
 {
         TrackerExifData *exif;
         gchar *blob;

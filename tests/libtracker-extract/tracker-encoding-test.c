@@ -52,9 +52,8 @@ test_encoding_guessing ()
 	g_free (output);
 }
 
-
-void
-test_encoding_can_guess ()
+static void
+test_encoding_can_guess (void)
 {
         /* This just duplicates the function code... */
 #if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH)
