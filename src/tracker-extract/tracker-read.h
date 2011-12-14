@@ -26,14 +26,11 @@
 G_BEGIN_DECLS
 
 gchar *tracker_read_text_from_stream (GInputStream *stream,
-                                      gsize         max_bytes,
-                                      gboolean      try_locale_if_not_utf8);
+                                      gsize         max_bytes);
 
-gchar *tracker_read_text_from_fd (gint     fd,
-                                  gsize    max_bytes,
-                                  gboolean try_locale_if_not_utf8);
+gchar *tracker_read_text_from_fd (gint  fd,
+                                  gsize max_bytes);
 
 G_END_DECLS
 
 #endif /* __TRACKER_READ_H__ */
-
