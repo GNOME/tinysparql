@@ -93,6 +93,11 @@ If Tracker is compiled with meegotouch locale management support, setting this
 variable in the environment will disable retrieving the locale from GConf, and
 the standard locale settings will be used instead.
 
+.B TRACKER_USE_CONFIG_FILES
+Don't use GSettings, instead use a config file similar to how settings
+were saved in 0.10.x. That is, a file which is much like an .ini file.
+These are saved to $HOME/.config/tracker/
+
 .SH NOTES
 .B tracker-store
 is highly bound to the D-Bus freedesktop project. A D-Bus session is

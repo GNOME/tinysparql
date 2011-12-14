@@ -102,6 +102,15 @@ $ pkg-config --libs tracker-sparql-0.12
 
       <itemizedlist>
 	<listitem>
+	  <emphasis>TRACKER_USE_CONFIG_FILES</emphasis>
+	  <para>
+	    Don't use GSettings, instead use a config file similar to
+	    how settings were saved in 0.10.x. That is, a file which
+	    is much like an .ini file. These are saved to
+	    $HOME/.config/tracker/
+	  </para>
+	</listitem>
+	<listitem>
 	  <emphasis>TRACKER_SPARQL_BACKEND</emphasis>
 	  <para>
 	    Backends for libtracker-sparql are dynamically loaded at
