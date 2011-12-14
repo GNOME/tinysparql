@@ -86,13 +86,13 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-password-provider.c                    \
 	tracker-thumbnailer.c                          \
 	tracker-thumbnailer.h                          \
-	tracker-albumart.c                             \
-	tracker-albumart.h
+	tracker-media-art.c                            \
+	tracker-media-art.h
 
 libtracker_minerinclude_HEADERS =                      \
-	tracker-albumart.h                             \
 	tracker-crawler.h                              \
 	tracker-indexing-tree.h                        \
+	tracker-media-art.h                            \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
 	tracker-miner-enums.h                          \

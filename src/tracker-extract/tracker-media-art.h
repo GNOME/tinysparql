@@ -17,22 +17,31 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_EXTRACT_ALBUMART_H__
-#define __TRACKER_EXTRACT_ALBUMART_H__
+#ifndef __TRACKER_EXTRACT_MEDIA_ART_H__
+#define __TRACKER_EXTRACT_MEDIA_ART_H__
 
 #include <glib.h>
 
 G_BEGIN_DECLS
 
-gboolean tracker_albumart_init     (void);
-void     tracker_albumart_shutdown (void);
-gboolean tracker_albumart_process  (const unsigned char *buffer,
-                                    size_t               len,
-                                    const gchar         *mime,
-                                    const gchar         *artist,
-                                    const gchar         *album,
-                                    const gchar         *filename);
+typedef enum {
+	TRACKER_MEDIA_ART_NONE,
+	TRACKER_MEDIA_ART_ALBUM,
+	TRACKER_MEDIA_ART_VIDEO,
+	TRACKER_MEDIA_ART_TYPE_COUNT
+} TrackerMediaArtType;
+
+gboolean tracker_media_art_init     (void);
+void     tracker_media_art_shutdown (void);
+
+gboolean tracker_media_art_process  (const unsigned char *buffer,
+                                     size_t               len,
+                                     const gchar         *mime,
+                                     TrackerMediaArtType  type,
+                                     const gchar         *artist,
+                                     const gchar         *title,
+                                     const gchar         *uri);
 
 G_END_DECLS
 
-#endif /* __TRACKER_EXTRACT_EXTRACT_H__ */
+#endif /* __TRACKER_EXTRACT_MEDIA_ART_H__ */

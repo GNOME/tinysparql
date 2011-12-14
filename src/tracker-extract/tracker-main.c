@@ -47,7 +47,7 @@
 
 #include <libtracker-data/tracker-db-manager.h>
 
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-extract.h"
@@ -278,7 +278,7 @@ run_standalone (TrackerConfig *config)
 	}
 
 	tracker_locale_init ();
-	tracker_albumart_init ();
+	tracker_media_art_init ();
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
@@ -294,7 +294,7 @@ run_standalone (TrackerConfig *config)
 	if (!object) {
 		g_object_unref (file);
 		g_free (uri);
-		tracker_albumart_shutdown ();
+		tracker_media_art_shutdown ();
 		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -307,7 +307,7 @@ run_standalone (TrackerConfig *config)
 	g_object_unref (file);
 	g_free (uri);
 
-	tracker_albumart_shutdown ();
+	tracker_media_art_shutdown ();
 	tracker_locale_shutdown ();
 
 	return EXIT_SUCCESS;
@@ -444,7 +444,7 @@ main (int argc, char *argv[])
 #endif /* THREAD_ENABLE_TRACE */
 
 	tracker_locale_init ();
-	tracker_albumart_init ();
+	tracker_media_art_init ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
@@ -457,7 +457,7 @@ main (int argc, char *argv[])
 	g_message ("Shutdown started");
 
 	/* Shutdown subsystems */
-	tracker_albumart_shutdown ();
+	tracker_media_art_shutdown ();
 	tracker_locale_shutdown ();
 
 	g_object_unref (object);

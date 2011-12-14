@@ -350,7 +350,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	add_tuple (metadata, "nmm:musicAlbum", album_uri);
 
-	tracker_guarantee_title_from_file (metadata, "nie:title", fd.title, uri);
+	tracker_guarantee_title_from_file (metadata, "nie:title", fd.title, uri, NULL);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
 
 	if (fd.album && album_uri) {

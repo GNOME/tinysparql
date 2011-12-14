@@ -710,7 +710,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_guarantee_title_from_file (metadata,
 	                                   "nie:title",
 	                                   md.title,
-	                                   uri);
+	                                   uri,
+	                                   NULL);
 
 	if (md.orientation) {
 		tracker_sparql_builder_predicate (metadata, "nfo:orientation");

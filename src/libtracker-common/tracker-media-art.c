@@ -36,10 +36,10 @@
 
 #include "tracker-file-utils.h"
 #include "tracker-date-time.h"
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 
 static gboolean
-albumart_strip_find_next_block (const gchar    *original,
+media_art_strip_find_next_block (const gchar    *original,
                                 const gunichar  open_char,
                                 const gunichar  close_char,
                                 gint           *open_pos,
@@ -75,11 +75,11 @@ albumart_strip_find_next_block (const gchar    *original,
 }
 
 /**
- * tracker_albumart_strip_invalid_entities:
+ * tracker_media_art_strip_invalid_entities:
  * @original: original string
  *
  * Strip a albumname or artistname string to prepare it for calculating the
- * albumart path with it. Certain characters and charactersets will be stripped
+ * media art path with it. Certain characters and charactersets will be stripped
  * and a newly allocated string returned which you must free with g_free.
  *
  * Returns: copy of original but then stripped
@@ -87,7 +87,7 @@ albumart_strip_find_next_block (const gchar    *original,
  * Since: 0.10.14
  */
 gchar *
-tracker_albumart_strip_invalid_entities (const gchar *original)
+tracker_media_art_strip_invalid_entities (const gchar *original)
 {
 	GString *str_no_blocks;
 	gchar **strv;
@@ -120,7 +120,7 @@ tracker_albumart_strip_invalid_entities (const gchar *original)
 			gint start, end;
 
 			/* Go through blocks, find the earliest block we can */
-			if (albumart_strip_find_next_block (p, blocks[i][0], blocks[i][1], &start, &end)) {
+			if (media_art_strip_find_next_block (p, blocks[i][0], blocks[i][1], &start, &end)) {
 				if (pos1 == -1 || start < pos1) {
 					pos1 = start;
 					pos2 = end;
@@ -181,9 +181,9 @@ tracker_albumart_strip_invalid_entities (const gchar *original)
 }
 
 static gchar *
-albumart_checksum_for_data (GChecksumType  checksum_type,
-                            const guchar  *data,
-                            gsize          length)
+media_art_checksum_for_data (GChecksumType  checksum_type,
+                             const guchar  *data,
+                             gsize          length)
 {
 	GChecksum *checksum;
 	gchar *retval;
@@ -201,33 +201,36 @@ albumart_checksum_for_data (GChecksumType  checksum_type,
 }
 
 /**
- * tracker_albumart_get_path:
+ * tracker_media_art_get_path:
  * @artist: the artist
- * @album: the album
+ * @title: the title
  * @prefix: For example "album"
  * @uri: NULL or the uri of the file
  * @path: the location to store the local path
  * @local_uri: the location to store the local uri or NULL
  *
- * Get the path to albumart for a given album or song. Newly allocated data in
+ * Get the path to media art for a given resource. Newly allocated data in
  * @path and @local_uri must be freed with g_free.
  *
  * Since: 0.10.14
  */
 void
-tracker_albumart_get_path (const gchar  *artist,
-                           const gchar  *album,
-                           const gchar  *prefix,
-                           const gchar  *uri,
-                           gchar       **path,
-                           gchar       **local_uri)
+tracker_media_art_get_path (const gchar  *artist,
+                            const gchar  *title,
+                            const gchar  *prefix,
+                            const gchar  *uri,
+                            gchar       **path,
+                            gchar       **local_uri)
 {
+	const gchar *space_checksum = "7215ee9c7d9dc229d2921a40e899ec5f";
+	const gchar *a, *b;
+
 	gchar *art_filename;
 	gchar *dir;
-	gchar *artist_down, *album_down;
-	gchar *artist_stripped, *album_stripped;
-	gchar *artist_norm, *album_norm;
-	gchar *artist_checksum, *album_checksum;
+	gchar *artist_down, *title_down;
+	gchar *artist_stripped, *title_stripped;
+	gchar *artist_norm, *title_norm;
+	gchar *artist_checksum = NULL, *title_checksum = NULL;
 
 	/* http://live.gnome.org/MediaArtStorageSpec */
 
@@ -239,34 +242,27 @@ tracker_albumart_get_path (const gchar  *artist,
 		*local_uri = NULL;
 	}
 
-	if (!artist && !album) {
+	if (!artist && !title) {
 		return;
 	}
 
-	if (!artist) {
-		artist_stripped = g_strdup (" ");
-	} else {
-		artist_stripped = tracker_albumart_strip_invalid_entities (artist);
+	if (artist) {
+		artist_stripped = tracker_media_art_strip_invalid_entities (artist);
+		artist_norm = g_utf8_normalize (artist_stripped, -1, G_NORMALIZE_NFKD);
+		artist_down = g_utf8_strdown (artist_norm, -1);
+		artist_checksum = media_art_checksum_for_data (G_CHECKSUM_MD5,
+		                                               (const guchar *) artist_down,
+		                                               strlen (artist_down));
 	}
 
-	if (!album) {
-		album_stripped = g_strdup (" ");
-	} else {
-		album_stripped = tracker_albumart_strip_invalid_entities (album);
+	if (title) {
+		title_stripped = tracker_media_art_strip_invalid_entities (title);
+		title_norm = g_utf8_normalize (title_stripped, -1, G_NORMALIZE_NFKD);
+		title_down = g_utf8_strdown (title_norm, -1);
+		title_checksum = media_art_checksum_for_data (G_CHECKSUM_MD5,
+		                                              (const guchar *) title_down,
+		                                              strlen (title_down));
 	}
-
-	artist_norm = g_utf8_normalize (artist_stripped, -1, G_NORMALIZE_NFKD);
-	album_norm = g_utf8_normalize (album_stripped, -1, G_NORMALIZE_NFKD);
-
-	artist_down = g_utf8_strdown (artist_norm, -1);
-	album_down = g_utf8_strdown (album_norm, -1);
-
-	/* g_print ("[%s] [%s]\n", artist_down, album_down); */
-
-	g_free (artist_norm);
-	g_free (album_norm);
-	g_free (artist_stripped);
-	g_free (album_stripped);
 
 	dir = g_build_filename (g_get_user_cache_dir (),
 	                        "media-art",
@@ -276,20 +272,29 @@ tracker_albumart_get_path (const gchar  *artist,
 		g_mkdir_with_parents (dir, 0770);
 	}
 
-	artist_checksum = albumart_checksum_for_data (G_CHECKSUM_MD5,
-	                                              (const guchar *) artist_down,
-	                                              strlen (artist_down));
-	album_checksum = albumart_checksum_for_data (G_CHECKSUM_MD5,
-	                                             (const guchar *) album_down,
-	                                             strlen (album_down));
+	if (artist) {
+		a = artist_checksum;
+		b = title ? title_checksum : space_checksum;
+	} else {
+		a = title_checksum;
+		b = space_checksum;
+	}
 
-	g_free (artist_down);
-	g_free (album_down);
+	art_filename = g_strdup_printf ("%s-%s-%s.jpeg", prefix ? prefix : "album", a, b);
 
-	art_filename = g_strdup_printf ("%s-%s-%s.jpeg",
-	                                prefix ? prefix : "album",
-	                                artist_checksum,
-	                                album_checksum);
+	if (artist) {
+		g_free (artist_checksum);
+		g_free (artist_stripped);
+		g_free (artist_down);
+		g_free (artist_norm);
+	}
+
+	if (title) {
+		g_free (title_checksum);
+		g_free (title_stripped);
+		g_free (title_down);
+		g_free (title_norm);
+	}
 
 	if (path) {
 		*path = g_build_filename (dir, art_filename, NULL);
@@ -320,6 +325,4 @@ tracker_albumart_get_path (const gchar  *artist,
 
 	g_free (dir);
 	g_free (art_filename);
-	g_free (artist_checksum);
-	g_free (album_checksum);
 }

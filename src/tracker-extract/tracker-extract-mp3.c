@@ -44,7 +44,7 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 
 #ifdef FRAME_ENABLE_TRACE
 #warning Frame traces enabled
@@ -57,7 +57,7 @@
  * with unlimited size (might need to create private copy in some
  * special cases, finding continuous space etc). We now take 5 first
  * MB of the file and assume that this is enough. In theory there is
- * no maximum size as someone could embed 50 gigabytes of albumart
+ * no maximum size as someone could embed 50 gigabytes of album art
  * there.
  */
 
@@ -173,9 +173,9 @@ typedef struct {
 	gint set_number;
 	gint set_count;
 
-	unsigned char *albumart_data;
-	size_t albumart_size;
-	gchar *albumart_mime;
+	unsigned char *media_art_data;
+	size_t media_art_size;
+	gchar *media_art_mime;
 
 	id3tag id3v1;
 	id3v2tag id3v22;
@@ -1246,14 +1246,14 @@ get_id3v24_tags (id3v24frame           frame,
 		pic_type  =  data[pos + 1 + mime_len + 1];
 		desc      = &data[pos + 1 + mime_len + 1 + 1];
 
-		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
+		if (pic_type == 3 || (pic_type == 0 && filedata->media_art_size == 0)) {
 			offset = pos + 1 + mime_len + 2;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_data = g_malloc0 (csize - offset);
-			filedata->albumart_mime = g_strndup (mime, mime_len);
-			memcpy (filedata->albumart_data, &data[offset], csize - offset);
-			filedata->albumart_size = csize - offset;
+			filedata->media_art_data = g_malloc0 (csize - offset);
+			filedata->media_art_mime = g_strndup (mime, mime_len);
+			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_size = csize - offset;
 		}
 		break;
 	}
@@ -1432,14 +1432,14 @@ get_id3v23_tags (id3v24frame           frame,
 		pic_type  =  data[pos + 1 + mime_len + 1];
 		desc      = &data[pos + 1 + mime_len + 1 + 1];
 
-		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
+		if (pic_type == 3 || (pic_type == 0 && filedata->media_art_size == 0)) {
 			offset = pos + 1 + mime_len + 2;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_data = g_malloc0 (csize - offset);
-			filedata->albumart_mime = g_strndup (mime, mime_len);
-			memcpy (filedata->albumart_data, &data[offset], csize - offset);
-			filedata->albumart_size = csize - offset;
+			filedata->media_art_data = g_malloc0 (csize - offset);
+			filedata->media_art_mime = g_strndup (mime, mime_len);
+			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_size = csize - offset;
 		}
 		break;
 	}
@@ -1609,14 +1609,14 @@ get_id3v20_tags (id3v2frame            frame,
 		pic_type  =  data[pos + 1 + 3];
 		desc      = &data[pos + 1 + 3 + 1];
 
-		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
+		if (pic_type == 3 || (pic_type == 0 && filedata->media_art_size == 0)) {
 			offset = pos + 1 + 3 + 1;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_mime = g_strndup (mime, 3);
-			filedata->albumart_data = g_malloc0 (csize - offset);
-			memcpy (filedata->albumart_data, &data[offset], csize - offset);
-			filedata->albumart_size = csize - offset;
+			filedata->media_art_mime = g_strndup (mime, 3);
+			filedata->media_art_data = g_malloc0 (csize - offset);
+			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_size = csize - offset;
 		}
 	} else {
 		/* text frames */
@@ -2380,7 +2380,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_guarantee_title_from_file (metadata,
 	                                   "nie:title",
 	                                   md.title,
-	                                   uri);
+	                                   uri,
+	                                   NULL);
 
 	if (md.lyricist_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:lyricist");
@@ -2503,14 +2504,15 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
-	tracker_albumart_process (md.albumart_data,
-	                          md.albumart_size,
-	                          md.albumart_mime,
-	                          md.performer,
-	                          md.album,
-	                          filename);
-	g_free (md.albumart_data);
-	g_free (md.albumart_mime);
+	tracker_media_art_process (md.media_art_data,
+	                           md.media_art_size,
+	                           md.media_art_mime,
+	                           TRACKER_MEDIA_ART_ALBUM,
+	                           md.performer,
+	                           md.album,
+	                           uri);
+	g_free (md.media_art_data);
+	g_free (md.media_art_mime);
 
 	id3v2tag_free (&md.id3v22);
 	id3v2tag_free (&md.id3v23);

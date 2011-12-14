@@ -54,6 +54,7 @@ internal_test_title (const gchar *uri,
 {
         TrackerSparqlBuilder *builder;
         gchar                *sparql;
+        gchar                *title_guaranteed;
 
         builder = tracker_sparql_builder_new_update ();
         tracker_sparql_builder_insert_open (builder, "test");
@@ -61,7 +62,8 @@ internal_test_title (const gchar *uri,
         g_assert (tracker_guarantee_title_from_file (builder, 
                                                      "nie:title",
                                                      value,
-                                                     uri));
+                                                     uri,
+                                                     &title_guaranteed));
         tracker_sparql_builder_insert_close (builder);
 
         sparql = g_strdup_printf ("INSERT INTO <test> {\n<test://resource> nie:title \"%s\" .\n}\n",
@@ -69,6 +71,10 @@ internal_test_title (const gchar *uri,
         g_assert_cmpstr (sparql,
                          ==,
                          tracker_sparql_builder_get_result (builder));
+
+        g_assert_cmpstr (title_guaranteed,
+                         ==,
+                         expected);
 
         g_object_unref (builder);
         g_free (sparql);

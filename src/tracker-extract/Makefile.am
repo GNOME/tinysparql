@@ -429,19 +429,19 @@ libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = \
 	$(marshal_sources) \
-	tracker-albumart.c \
-	tracker-albumart.h \
 	tracker-config.c \
 	tracker-config.h \
 	tracker-controller.c \
 	tracker-controller.h \
 	tracker-extract.c \
 	tracker-extract.h \
+	tracker-media-art.c \
+	tracker-media-art.h \
 	tracker-read.c \
 	tracker-read.h \
 	tracker-main.c \
 	tracker-main.h \
-	tracker-albumart-generic.h
+	tracker-media-art-generic.h
 
 tracker_extract_LDADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
@@ -463,12 +463,12 @@ tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
 endif
 
 if HAVE_GDKPIXBUF
-tracker_extract_SOURCES += tracker-albumart-pixbuf.c
+tracker_extract_SOURCES += tracker-media-art-pixbuf.c
 else
 if HAVE_QT
-tracker_extract_SOURCES += tracker-albumart-qt.cpp
+tracker_extract_SOURCES += tracker-media-art-qt.cpp
 else
-tracker_extract_SOURCES += tracker-albumart-dummy.c
+tracker_extract_SOURCES += tracker-media-art-dummy.c
 endif
 endif
 

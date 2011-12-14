@@ -289,7 +289,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	tracker_guarantee_title_from_file (metadata,
 	                                   "nie:title",
 	                                   md.title,
-	                                   uri);
+	                                   uri,
+	                                   NULL);
 
 	if (md.artist) {
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);

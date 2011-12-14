@@ -24,10 +24,10 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-albumart.h>
+#include <libtracker-common/tracker-media-art.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
-#include "tracker-albumart.h"
+#include "tracker-media-art.h"
 
 static gboolean had_any = FALSE;
 static guint timer_id = 0;
@@ -81,25 +81,25 @@ on_query_finished (GObject      *source_object,
 		artist = tracker_sparql_cursor_get_value_type (cursor, 1) != TRACKER_SPARQL_VALUE_TYPE_UNBOUND ? tracker_sparql_cursor_get_string (cursor, 1, NULL) : NULL;
 
 		/* The get_path API does stripping itself */
-		tracker_albumart_get_path (artist,
-		                           album,
-		                           "album", NULL,
-		                           &target, NULL);
+		tracker_media_art_get_path (artist,
+		                            album,
+		                            "album", NULL,
+		                            &target, NULL);
 
 		g_hash_table_replace (table, target, target);
 
 		/* Also add the file to which the symlinks are made */
-		tracker_albumart_get_path (NULL,
-		                           album,
-		                           "album", NULL,
-		                           &album_path, NULL);
+		tracker_media_art_get_path (NULL,
+		                            album,
+		                            "album", NULL,
+		                            &album_path, NULL);
 
 
 		g_hash_table_replace (table, album_path, album_path);
 	}
 
-	/* Perhaps we should have an internal list of albumart files that we made,
-	 * instead of going over all the albumart (which could also have been made
+	/* Perhaps we should have an internal list of media art files that we made,
+	 * instead of going over all the media art (which could also have been made
 	 * by other softwares) */
 
 	for (name = g_dir_read_name (dir); name != NULL; name = g_dir_read_name (dir)) {
@@ -146,20 +146,20 @@ on_error:
 	}
 }
 /**
- * tracker_albumart_remove_add:
+ * tracker_media_art_queue_removal:
  * @uri: URI of the file
  * @mime_type: mime-type of the file
  *
- * Adds a new request to tell the albumart subsystem that @uri was removed.
- * Stored requests can be processed with tracker_albumart_check_cleanup().
+ * Adds a new request to tell the media art subsystem that @uri was removed.
+ * Stored requests can be processed with tracker_media_art_execute_queue().
  *
  * Returns: #TRUE if successfully stored to be reported, #FALSE otherwise.
  *
  * Since: 0.10.4
  */
 gboolean
-tracker_albumart_remove_add (const gchar *uri,
-                             const gchar *mime_type)
+tracker_media_art_queue_removal (const gchar *uri,
+                                 const gchar *mime_type)
 {
 	/* mime_type can be NULL */
 
@@ -200,14 +200,14 @@ on_timer_destroy (gpointer data)
 }
 
 /**
- * tracker_albumart_check_cleanup:
+ * tracker_media_art_queue_execute:
  *
- * Process all stored albumart requests.
+ * Process all stored media art requests.
  *
  * Since: 0.10.4
  */
 void
-tracker_albumart_check_cleanup (TrackerSparqlConnection *connection)
+tracker_media_art_execute_queue (TrackerSparqlConnection *connection)
 {
 	if (had_any && timer_id == 0) {
 
