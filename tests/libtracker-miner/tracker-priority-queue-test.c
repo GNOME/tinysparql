@@ -17,13 +17,13 @@
  * 02110-1301, USA.
  */
 
-#include <glib.h>
 #include <glib-object.h>
 
+/* NOTE: We're not including tracker-miner.h here because this is private. */
 #include <libtracker-miner/tracker-priority-queue.h>
 
-void
-test_priority_queue_ref_unref()
+static void
+test_priority_queue_ref_unref (void)
 {
         TrackerPriorityQueue *one, *two;
         
@@ -34,8 +34,8 @@ test_priority_queue_ref_unref()
         tracker_priority_queue_unref (one);
 }
 
-void
-test_priority_queue_emptiness ()
+static void
+test_priority_queue_emptiness (void)
 {
         TrackerPriorityQueue *one;
         
@@ -47,8 +47,8 @@ test_priority_queue_emptiness ()
         tracker_priority_queue_unref (one);
 }
 
-void
-test_priority_queue_insertion_pop ()
+static void
+test_priority_queue_insertion_pop (void)
 {
         TrackerPriorityQueue *queue;
         int                   i, priority;
@@ -81,8 +81,8 @@ test_priority_queue_insertion_pop ()
         tracker_priority_queue_unref (queue);
 }
 
-void
-test_priority_queue_peek ()
+static void
+test_priority_queue_peek (void)
 {
         TrackerPriorityQueue *queue;
         gchar                *result;
@@ -110,13 +110,12 @@ test_priority_queue_peek ()
         tracker_priority_queue_unref (queue);
 }
 
-
-void
-test_priority_queue_find ()
+static void
+test_priority_queue_find (void)
 {
         TrackerPriorityQueue *queue;
-        gchar                *result;
-        int                   priority;
+        gchar *result;
+        int priority;
 
         queue = tracker_priority_queue_new ();
         
@@ -124,21 +123,23 @@ test_priority_queue_find ()
         tracker_priority_queue_add (queue, g_strdup ("Not me"), 1);
         tracker_priority_queue_add (queue, g_strdup ("Not me either"), 20);
 
-        result = (gchar *)tracker_priority_queue_find (queue, &priority, g_str_equal, "search me");
+        result = (gchar *) tracker_priority_queue_find (queue, &priority, g_str_equal, "search me");
+        g_assert_cmpstr (result, !=, NULL);
         g_assert_cmpint (priority, ==, 10);
 
         tracker_priority_queue_unref (queue);
 }
 
-void
-foreach_testing_cb (G_GNUC_UNUSED gpointer data, gpointer user_data)
+static void
+foreach_testing_cb (G_GNUC_UNUSED gpointer data,
+                                  gpointer user_data)
 {
         gint *counter = (gint *)user_data;
         (*counter) += 1;
 }
 
-void
-test_priority_queue_foreach ()
+static void
+test_priority_queue_foreach (void)
 {
         TrackerPriorityQueue *queue;
         gint                  counter = 0;
@@ -156,8 +157,8 @@ test_priority_queue_foreach ()
         tracker_priority_queue_unref (queue);
 }
 
-void
-test_priority_queue_foreach_remove ()
+static void
+test_priority_queue_foreach_remove (void)
 {
         TrackerPriorityQueue *queue;
         
@@ -179,9 +180,8 @@ test_priority_queue_foreach_remove ()
         tracker_priority_queue_unref (queue);
 }
 
-
-void
-test_priority_queue_branches ()
+static void
+test_priority_queue_branches (void)
 {
 
         /* Few specific testing to improve the branch coverage */

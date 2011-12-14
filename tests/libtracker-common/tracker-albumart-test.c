@@ -45,10 +45,10 @@ struct {
         { NULL, NULL}
 };
 
-void
-test_albumart_stripping ()
+static void
+test_albumart_stripping (void)
 {
-        gint   i;
+        gint i;
         gchar *result;
 
         for (i = 0; strip_test_cases[i].input != NULL; i++) {
@@ -60,8 +60,8 @@ test_albumart_stripping ()
         g_print ("(%d test cases) ", i);
 }
 
-void
-test_albumart_stripping_null ()
+static void
+test_albumart_stripping_null (void)
 {
         // FIXME: Decide what is the expected behaviour here...
         //   a. Return NULL
@@ -92,12 +92,12 @@ struct {
         { NULL, NULL, NULL }
 };
 
-void
-test_albumart_location ()
+static void
+test_albumart_location (void)
 {
         gchar *path = NULL, *local_uri = NULL;
         gchar *expected;
-        gint   i;
+        gint i;
      
         for (i = 0; albumart_test_cases[i].filename != NULL; i++) {
                 tracker_albumart_get_path (albumart_test_cases[i].artist,
@@ -122,8 +122,8 @@ test_albumart_location ()
 
 }
 
-void 
-test_albumart_location_null ()
+static void
+test_albumart_location_null (void)
 {
         gchar *path = NULL, *local_uri = NULL;
 
@@ -132,8 +132,8 @@ test_albumart_location_null ()
         g_assert (!path && !local_uri);
 }
 
-void
-test_albumart_location_path ()
+static void
+test_albumart_location_path (void)
 {
         gchar *path = NULL, *local_uri = NULL;
         gchar *expected;

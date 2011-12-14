@@ -330,13 +330,6 @@ tracker_gsettings_get_all (gint *longest_name_length)
 
 	miners_available = tracker_miner_manager_get_available (manager);
 
-	/* First iterate to get max width for nice formatting */
-	for (l = miners_available; l; l = l->next) {
-		const gchar *name;
-
-		name = tracker_miner_manager_get_display_name (manager, l->data);
-	}
-
 	/* Get valid schemas so we don't try to load invalid ones */
 	for (schema = g_settings_list_schemas (); schema && *schema; schema++) {
 		if (!g_str_has_prefix (*schema, "org.freedesktop.Tracker.")) {

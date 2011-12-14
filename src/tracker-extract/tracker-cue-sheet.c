@@ -37,6 +37,8 @@
 
 #include "tracker-cue-sheet.h"
 
+#if defined(HAVE_LIBCUE)
+
 static TrackerToc *
 tracker_toc_new (void)
 {
@@ -48,6 +50,8 @@ tracker_toc_new (void)
 
 	return toc;
 }
+
+#endif /* HAVE_LIBCUE */
 
 void
 tracker_toc_free (TrackerToc *toc)

@@ -97,7 +97,7 @@ test_is_blank_string ()
 }
 
 static void
-test_seconds_estimate ()
+test_seconds_estimate (void)
 {
         g_assert_cmpint (tracker_seconds_estimate (10, 10, 20), ==, 20);
         g_assert_cmpint (tracker_seconds_estimate (10, 9, 20), ==, 22);
@@ -107,15 +107,14 @@ test_seconds_estimate ()
         g_assert_cmpint (tracker_seconds_estimate (1, 0, 2), ==, 0);
         g_assert_cmpint (tracker_seconds_estimate (1, -1, 2), ==, 0);
         g_assert_cmpint (tracker_seconds_estimate (1, 1, 0), ==, 0);
-//        g_assert_cmpint (tracker_seconds_estimate (1, 1, -1), ==, 0);
 }
 
-void
-test_strhex ()
+static void
+test_strhex (void)
 {
         gchar *result;
 
-        result = tracker_strhex ((const guint8 *)"a", 1, "|");
+        result = tracker_strhex ((const guint8 *)"a", 1, '|');
         g_assert_cmpstr (result, ==, "61");
         g_free (result);
 

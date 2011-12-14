@@ -36,6 +36,7 @@
 #include "tracker-keyfile-object.h"
 #include "tracker-language.h"
 #include "tracker-log.h"
+#include "tracker-albumart.h"
 #include "tracker-ontologies.h"
 #include "tracker-os-dependant.h"
 #include "tracker-sched.h"

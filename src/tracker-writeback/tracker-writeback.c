@@ -30,8 +30,6 @@
 #warning Stayalive traces enabled
 #endif /* STAYALIVE_ENABLE_TRACE */
 
-#define THREAD_ENABLE_TRACE
-
 #ifdef THREAD_ENABLE_TRACE
 #warning Controller thread traces enabled
 #endif /* THREAD_ENABLE_TRACE */
