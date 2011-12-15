@@ -295,14 +295,12 @@ feed_channel_change_updated_time_cb (GObject      *source,
 static gboolean
 feed_channel_changed_timeout_cb (gpointer user_data)
 {
-	TrackerMinerRSSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	FeedChannelUpdateData *fcud;
 	gchar *uri;
 	time_t now;
 
 	fcud = user_data;
-	priv = TRACKER_MINER_RSS_GET_PRIVATE (fcud->miner);
 
 	now = time (NULL);
 	uri = g_object_get_data (G_OBJECT (fcud->channel), "subject");
@@ -406,12 +404,10 @@ feed_item_insert_cb (GObject      *source,
                      gpointer      user_data)
 {
 	FeedItemInsertData *fiid;
-	FeedChannel *channel;
 	GError *error;
 	const gchar *title;
 
 	fiid = user_data;
-	channel = feed_item_get_parent (fiid->item);
 	title = feed_item_get_title (fiid->item);
 	error = NULL;
 

@@ -1168,7 +1168,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		tracker_sparql_builder_object_boolean (metadata, TRUE);
 	}
 #else
-#warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends
+/* #warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends */
 #endif
 
 #if defined(GSTREAMER_BACKEND_TAGREADBIN)

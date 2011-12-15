@@ -79,6 +79,8 @@ rfc1123_to_iso8601_date (const gchar *date)
 	return tracker_date_format_to_iso8601 (date, RFC1123_DATE_FORMAT);
 }
 
+#if defined(PNG_iTXt_SUPPORTED) && (defined(HAVE_EXEMPI) || defined(HAVE_LIBEXIF))
+
 /* Handle raw profiles by Imagemagick (at least). Hex encoded with
  * line-changes and other (undocumented/unofficial) twists.
  */
@@ -181,6 +183,8 @@ raw_profile_new (const gchar *input,
 	return output;
 }
 
+#endif /* defined(PNG_iTXt_SUPPORTED) && (defined(HAVE_EXEMPI) || defined(HAVE_LIBEXIF)) */
+
 static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
@@ -256,7 +260,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 				continue;
 			}
-#endif
+#endif /*HAVE_EXEMPI && PNG_iTXt_SUPPORTED */
 
 #if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
 			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
@@ -284,7 +288,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 				continue;
 			}
-#endif /* HAVE_LIBEXIF */
+#endif /* HAVE_LIBEXIF && PNG_iTXt_SUPPORTED */
 
 			if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
 				pd.author = text_ptr[i].text;
