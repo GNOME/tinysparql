@@ -33,7 +33,7 @@ typedef struct TrackerCursor TrackerCursor;
 
 struct TrackerTokenizer {
   sqlite3_tokenizer base;
-  TrackerParser *parser;
+  TrackerLanguage *language;
   int max_word_length;
   int max_words;
   gboolean enable_stemmer;
@@ -46,6 +46,7 @@ struct TrackerCursor {
   sqlite3_tokenizer_cursor base;
 
   TrackerTokenizer *tokenizer;
+  TrackerParser *parser;
   guint n_words;
 };
 
@@ -65,7 +66,7 @@ static int trackerCreate(
     return SQLITE_NOMEM;
   }
   memset(p, 0, sizeof(TrackerTokenizer));
-  p->parser = tracker_parser_new (tracker_language_new (NULL));
+  p->language = tracker_language_new (NULL);
 
   config = tracker_fts_config_new ();
 
@@ -93,7 +94,7 @@ static int trackerCreate(
 */
 static int trackerDestroy(sqlite3_tokenizer *pTokenizer){
   TrackerTokenizer *p = (TrackerTokenizer *)pTokenizer;
-  tracker_parser_free (p->parser);
+  g_object_unref (p->language);
   sqlite3_free(p);
   return SQLITE_OK;
 }
@@ -111,13 +112,15 @@ static int trackerOpen(
   sqlite3_tokenizer_cursor **ppCursor    /* OUT: Tokenization cursor */
 ){
   TrackerTokenizer *p = (TrackerTokenizer *)pTokenizer;
+  TrackerParser *parser;
   TrackerCursor *pCsr;
 
   if ( nInput<0 ){
     nInput = strlen(zInput);
   }
 
-  tracker_parser_reset (p->parser, zInput, nInput,
+  parser = tracker_parser_new (p->language);
+  tracker_parser_reset (parser, zInput, nInput,
 			p->max_word_length,
 			p->enable_stemmer,
 			p->enable_unaccent,
@@ -128,6 +131,7 @@ static int trackerOpen(
   pCsr = (TrackerCursor *)sqlite3_malloc(sizeof(TrackerCursor));
   memset(pCsr, 0, sizeof(TrackerCursor));
   pCsr->tokenizer = p;
+  pCsr->parser = parser;
 
   *ppCursor = (sqlite3_tokenizer_cursor *)pCsr;
   return SQLITE_OK;
@@ -139,6 +143,7 @@ static int trackerOpen(
 static int trackerClose(sqlite3_tokenizer_cursor *pCursor){
   TrackerCursor *pCsr = (TrackerCursor *)pCursor;
 
+  tracker_parser_free (pCsr->parser);
   sqlite3_free(pCsr);
   return SQLITE_OK;
 }
@@ -158,6 +163,7 @@ static int trackerNext(
   TrackerTokenizer *p;
   const gchar *pToken;
   gboolean stop_word;
+  int pos, start, end, len;
 
   p  = cursor->tokenizer;
 
@@ -166,21 +172,22 @@ static int trackerNext(
   }
 
   do {
-    pToken = tracker_parser_next (p->parser,
-				  piPosition,
-				  piStartOffset,
-				  piEndOffset,
+    pToken = tracker_parser_next (cursor->parser,
+				  &pos,
+				  &start, &end,
 				  &stop_word,
-				  pnBytes);
+				  &len);
 
     if (!pToken){
       return SQLITE_DONE;
     }
   } while (stop_word && p->ignore_stop_words);
 
-  if (ppToken){
-    *ppToken = pToken;
-  }
+  *ppToken = pToken;
+  *piStartOffset = start;
+  *piEndOffset = end;
+  *piPosition = pos;
+  *pnBytes = len;
 
   cursor->n_words++;
 
