@@ -25,6 +25,14 @@
 G_BEGIN_DECLS
 
 /**
+ * SECTION:tracker-miner-enums
+ * @short_description: Common types
+ * @include: libtracker-miner/tracker-miner-enums.h
+ *
+ * Common enumeration types used in libtracker-miner.
+ **/
+
+/**
  * TrackerDirectoryFlags:
  * @TRACKER_DIRECTORY_FLAG_NONE: No flags.
  * @TRACKER_DIRECTORY_FLAG_RECURSE: Should recurse in the directory.
