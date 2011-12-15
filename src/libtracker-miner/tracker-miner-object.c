@@ -49,7 +49,7 @@
 #endif /* MINER_STATUS_ENABLE_TRACE */
 
 /**
- * SECTION:tracker-miner
+ * SECTION:tracker-miner-object
  * @short_description: Abstract base class for data miners
  * @include: libtracker-miner/tracker-miner.h
  *
