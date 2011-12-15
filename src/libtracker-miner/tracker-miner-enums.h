@@ -26,7 +26,8 @@ G_BEGIN_DECLS
 
 /**
  * SECTION:tracker-miner-enums
- * @short_description: Common types
+ * @title: Enumerations
+ * @short_description: Common enumerations
  * @include: libtracker-miner/tracker-miner-enums.h
  *
  * Common enumeration types used in libtracker-miner.

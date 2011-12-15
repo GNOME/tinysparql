@@ -27,6 +27,7 @@
 
 /**
  * SECTION:tracker-thumbnailer
+ * @title: Thumbnailer management
  * @short_description: Request the thumbnailer service creates or
  * updates thumbnails.
  * @include: libtracker-miner/tracker-miner.h

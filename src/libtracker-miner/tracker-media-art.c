@@ -29,6 +29,15 @@
 
 #include "tracker-media-art.h"
 
+/**
+ * SECTION:tracker-media-art
+ * @title: Media art management
+ * @short_description: Media art request and management.
+ * @include: libtracker-miner/tracker-media-art.h
+ *
+ * This is a convenience API using D-Bus to talk to the media management service.
+ **/
+
 static gboolean had_any = FALSE;
 static guint timer_id = 0;
 
