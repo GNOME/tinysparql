@@ -22,6 +22,14 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include "tracker-indexing-tree.h"
 
+/**
+ * SECTION:tracker-indexing-tree
+ * @short_description: Indexing tree handling
+ *
+ * #TrackerIndexingTree handles the tree of directories configured to be indexed
+ * by the #TrackerMinerFS.
+ **/
+
 G_DEFINE_TYPE (TrackerIndexingTree, tracker_indexing_tree, G_TYPE_OBJECT)
 
 typedef struct _TrackerIndexingTreePrivate TrackerIndexingTreePrivate;
