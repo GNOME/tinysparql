@@ -235,7 +235,6 @@ gint
 main (gint    argc,
       gchar **argv)
 {
-	g_thread_init (NULL);
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
