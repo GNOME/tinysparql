@@ -242,9 +242,9 @@ cleanup:
  * tracker_sparql_escape_uri_printf:
  * @format: a standard printf() format string, but notice
  *     <link linkend="string-precision">string precision pitfalls</link> documented in g_strdup_printf()
- * @Varargs: the parameters to insert into the format string
+ * @...: the parameters to insert into the format string
  *
- * Calls tracker_sparql_escape_uri_vprintf() with the @Varargs supplied.
+ * Calls tracker_sparql_escape_uri_vprintf() with the @... supplied.
  *
  * Returns: a newly-allocated string holding the result.The returned string
  * should be freed with g_free() when no longer needed.
