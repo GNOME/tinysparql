@@ -1217,11 +1217,11 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:439
 msgid "You must provide the miner for pause or resume commands"
-msgstr "Vous devez fournir à le collecteur des commandes pause ou resume"
+msgstr "Vous devez fournir au collecteur des commandes pause ou resume"
 
 #: ../src/tracker-control/tracker-control-miners.c:445
 msgid "You must provide a pause or resume command for the miner"
-msgstr "Vous devez fournir à le collecteur une commande pause ou resume"
+msgstr "Vous devez fournir au collecteur une commande pause ou resume"
 
 #: ../src/tracker-control/tracker-control-miners.c:493
 msgid "Miner options"
