@@ -85,7 +85,7 @@ struct {
           "album-d41d8cd98f00b204e9800998ecf8427e-cfba4326a32b44b8760b3a2fc827a634.jpeg"},
 
         { NULL, "sgt. pepper",
-          "album-7215ee9c7d9dc229d2921a40e899ec5f-cfba4326a32b44b8760b3a2fc827a634.jpeg"}, 
+          "album-cfba4326a32b44b8760b3a2fc827a634-7215ee9c7d9dc229d2921a40e899ec5f.jpeg"}, 
 
         { "Beatles", NULL,
           "album-2a9ea35253dbec60e76166ec8420fbda-7215ee9c7d9dc229d2921a40e899ec5f.jpeg"},
