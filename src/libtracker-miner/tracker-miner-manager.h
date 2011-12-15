@@ -38,7 +38,6 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_MANAGER_ERROR tracker_miner_manager_error_quark ()
 
 typedef struct _TrackerMinerManager TrackerMinerManager;
-typedef struct _TrackerMinerManagerClass TrackerMinerManagerClass;
 
 /**
  * TrackerMinerManagerError:
