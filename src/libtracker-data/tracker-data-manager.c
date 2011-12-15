@@ -3663,8 +3663,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	tracker_data_update_init ();
 
-#ifdef TRACKER_FTS
-	if (tracker_fts_init ()) {
+#ifdef HAVE_TRACKER_FTS
+	if (!tracker_fts_init ()) {
 		g_warning ("FTS module loading failed");
 	}
 #endif
