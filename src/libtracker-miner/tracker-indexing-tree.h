@@ -38,8 +38,13 @@ G_BEGIN_DECLS
 #define TRACKER_IS_INDEXING_TREE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_INDEXING_TREE))
 #define TRACKER_INDEXING_TREE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_INDEXING_TREE, TrackerIndexingTreeClass))
 
+/**
+ * TrackerIndexingTree:
+ *
+ * Base object used to configure indexing within #TrackerMinerFS items.
+ */
+
 typedef struct _TrackerIndexingTree TrackerIndexingTree;
-typedef struct _TrackerIndexingTreeClass TrackerIndexingTreeClass;
 
 struct _TrackerIndexingTree
 {
@@ -47,8 +52,16 @@ struct _TrackerIndexingTree
 	gpointer priv;
 };
 
-struct _TrackerIndexingTreeClass
-{
+/**
+ * TrackerIndexingTreeClass:
+ * @parent_class: parent object class
+ * @directory_added: Called when a directory is added.
+ * @directory_removed: Called when a directory is removed.
+ * @directory_updated: Called when a directory is updated.
+ *
+ * Class for the #TrackerIndexingTree.
+ */
+typedef struct {
 	GObjectClass parent_class;
 
 	void (* directory_added)   (TrackerIndexingTree *indexing_tree,
@@ -57,7 +70,7 @@ struct _TrackerIndexingTreeClass
 	                            GFile               *directory);
 	void (* directory_updated) (TrackerIndexingTree *indexing_tree,
 	                            GFile               *directory);
-};
+} TrackerIndexingTreeClass;
 
 GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
 

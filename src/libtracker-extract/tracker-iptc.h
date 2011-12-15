@@ -30,6 +30,23 @@
 
 G_BEGIN_DECLS
 
+/**
+ * TrackerIptcData:
+ * @keywords: Keywords.
+ * @date_created: Date created.
+ * @byline: Byline.
+ * @credit: Credits.
+ * @copyright_notice: Copyright.
+ * @image_orientation: Image orientation.
+ * @byline_title: Byline title.
+ * @city: City.
+ * @state: State.
+ * @sublocation: Sublocation.
+ * @country_name: Country.
+ * @contact: Contact info.
+ *
+ * Structure defining IPTC data.
+ */
 typedef struct {
 	gchar *keywords;
 	gchar *date_created;

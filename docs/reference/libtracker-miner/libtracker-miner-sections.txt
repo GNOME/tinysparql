@@ -1,6 +1,9 @@
 <SECTION>
 <FILE>tracker-indexing-tree</FILE>
 <TITLE>TrackerIndexingTree</TITLE>
+TrackerDirectoryFlags
+TrackerFilterType
+TrackerFilterPolicy
 TrackerIndexingTree
 TrackerIndexingTreeClass
 tracker_indexing_tree_add

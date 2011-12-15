@@ -24,6 +24,17 @@
 
 G_BEGIN_DECLS
 
+/**
+ * TrackerDirectoryFlags:
+ * @TRACKER_DIRECTORY_FLAG_NONE: No flags.
+ * @TRACKER_DIRECTORY_FLAG_RECURSE: Should recurse in the directory.
+ * @TRACKER_DIRECTORY_FLAG_CHECK_MTIME: Should check mtimes of items in the directory.
+ * @TRACKER_DIRECTORY_FLAG_MONITOR: Should setup monitors in the items found in the directory.
+ * @TRACKER_DIRECTORY_FLAG_IGNORE: Should ignore the directory contents.
+ * @TRACKER_DIRECTORY_FLAG_PRESERVE: Should preserve items in the directory even if the directory gets removed.
+ *
+ * Flags used when adding a new directory to be indexed in the #TrackerIndexingTree.
+ */
 typedef enum {
 	TRACKER_DIRECTORY_FLAG_NONE        = 0,
 	TRACKER_DIRECTORY_FLAG_RECURSE     = 1 << 1,
@@ -33,12 +44,27 @@ typedef enum {
 	TRACKER_DIRECTORY_FLAG_PRESERVE    = 1 << 5
 } TrackerDirectoryFlags;
 
+/**
+ * TrackerFilterType:
+ * @TRACKER_FILTER_FILE: All files matching this filter will be filtered out.
+ * @TRACKER_FILTER_DIRECTORY: All directories matching this filter will be filtered out.
+ * @TRACKER_FILTER_PARENT_DIRECTORY: All files in directories matching this filter will be filtered out.
+ *
+ * Flags used when adding a new filter in the #TrackerIndexingTree.
+ */
 typedef enum {
 	TRACKER_FILTER_FILE,
 	TRACKER_FILTER_DIRECTORY,
 	TRACKER_FILTER_PARENT_DIRECTORY
 } TrackerFilterType;
 
+/**
+ * TrackerFilterPolicy:
+ * @TRACKER_FILTER_POLICY_DENY: Items matching the filter will be skipped.
+ * @TRACKER_FILTER_POLICY_ACCEPT: Items matching the filter will be accepted.
+ *
+ * Flags used when defining default filter policy in the #TrackerIndexingTree.
+ */
 typedef enum {
 	TRACKER_FILTER_POLICY_DENY,
 	TRACKER_FILTER_POLICY_ACCEPT

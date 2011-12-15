@@ -28,6 +28,39 @@
 
 G_BEGIN_DECLS
 
+/**
+ * TrackerExifData:
+ * @y_dimension: Y dimension.
+ * @x_dimension: X dimension.
+ * @image_width: Image width.
+ * @document_name: Document name.
+ * @time: Time.
+ * @time_original: Original time.
+ * @artist: Artist.
+ * @user_comment: User-provided comment.
+ * @description: Description.
+ * @make: Make info.
+ * @model: Model info.
+ * @orientation: Orientation.
+ * @exposure_time: Exposure time.
+ * @fnumber: Focal ratio
+ * @flash: Flash info.
+ * @focal_length: Focal length.
+ * @iso_speed_ratings: ISO speed ratings.
+ * @metering_mode: Metering mode.
+ * @white_balance: White balance.
+ * @copyright: Copyright.
+ * @software: Software used.
+ * @x_resolution: Horizontal resolution.
+ * @y_resolution: Vertical resolution.
+ * @resolution_unit: Resolution units.
+ * @gps_altitude: GPS altitude.
+ * @gps_latitude: GPS latitude.
+ * @gps_longitude: GPS longitude.
+ * @gps_direction: GPS direction information.
+ *
+ * Structure defining EXIF data.
+ */
 typedef struct {
 	gchar *y_dimension;
 	gchar *x_dimension;
