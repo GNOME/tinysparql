@@ -74,6 +74,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 	metadata = tracker_extract_info_get_metadata_builder (info_);
 	preupdate = tracker_extract_info_get_preupdate_builder (info_);
 
+	/* NOTE: File is not ref'd, so don't unref */
 	file = tracker_extract_info_get_file (info_);
 	filename = g_file_get_path (file);
 	info = g_file_query_info (file,
@@ -92,8 +93,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 		size = g_file_info_get_size (info);
 		g_object_unref (info);
 	}
-
-	g_object_unref (file);
 
 	/* TODO: Do any pre-checks on the file
 	 * (i.e check file size so we don't handle files of 0 size)
