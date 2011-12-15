@@ -80,7 +80,7 @@ tracker_password_provider_get_type (void)
 }
 
 /**
- * tracker_password_provider_error_quark (skip):
+ * tracker_password_provider_error_quark:
  *
  * Returns: the #GQuark used to identify password provider errors in
  * GError structures.

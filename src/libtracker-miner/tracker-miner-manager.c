@@ -1354,6 +1354,7 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
  * Returns: %TRUE on success, otherwise %FALSE.
  *
  * Since: 0.8
+ *
  * Deprecated since 0.12
  **/
 gboolean
@@ -1395,7 +1396,7 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 }
 
 /**
- * tracker_miner_manager_error_quark (skip):
+ * tracker_miner_manager_error_quark:
  *
  * Returns: the #GQuark used to identify miner manager errors in
  * GError structures.

@@ -29,14 +29,15 @@
     </partintro>
 
     <chapter>
-      <title>Base abstract miners</title>
-      <xi:include href="xml/tracker-miner.xml"/>
+      <title>Base abstract miner classes</title>
+      <xi:include href="xml/tracker-miner-object.xml"/>
       <xi:include href="xml/tracker-miner-web.xml"/>
     </chapter>
 
     <chapter>
-      <title>Additional miners</title>
+      <title>Miner classes for file system</title>
       <xi:include href="xml/tracker-miner-fs.xml"/>
+      <xi:include href="xml/tracker-indexing-tree.xml"/>
     </chapter>
 
     <chapter>
@@ -45,14 +46,15 @@
     </chapter>
 
     <chapter>
-      <title>Base abstract utilities</title>
+      <title>Base abstract providers for network/password/etc control</title>
       <xi:include href="xml/tracker-network-provider.xml"/>
       <xi:include href="xml/tracker-password-provider.xml"/>
     </chapter>
 
     <chapter>
-      <title>Additional utilities</title>
+      <title>Utilities</title>
       <xi:include href="xml/tracker-storage.xml"/>
+      <xi:include href="xml/tracker-media-art.xml"/>
       <xi:include href="xml/tracker-thumbnailer.xml"/>
     </chapter>
   </part>

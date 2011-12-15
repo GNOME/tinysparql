@@ -59,27 +59,17 @@ struct _TrackerMinerFS {
 /**
  * TrackerMinerFSClass:
  * @parent: parent object class
- * @check_file: Called when a file should be checked for further
- * processing.
- * @check_directory: Called when a directory should be checked for
- * further processing.
- * @check_directory_contents: Called when a directory should be
- * checked for further processing, based on the directory contents.
  * @process_file: Called when the metadata associated to a file is
  * requested.
  * @ignore_next_update_file: Called after a writeback event happens on
  * a file (deprecated since 0.12).
- * @monitor_directory: Called to check whether a directory should be
- * modified.
  * @finished: Called when all processing has been performed.
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
  * @writeback_file: Called when a file must be written back
  *
- * Prototype for the abstract class, @check_file, @check_directory,
- * @check_directory_contents, @process_file and @monitor_directory
- * must be implemented in the deriving class in order to actually
- * extract data.
+ * Prototype for the abstract class, @process_file must be implemented
+ * in the deriving class in order to actually extract data.
  **/
 typedef struct {
 	TrackerMinerClass parent;

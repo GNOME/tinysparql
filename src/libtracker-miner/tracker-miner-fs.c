@@ -451,6 +451,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *          %FALSE on failure
 	 *
 	 * Since: 0.8
+	 *
 	 * Deprecated since: 0.12
 	 **/
 	signals[IGNORE_NEXT_UPDATE_FILE] =
@@ -3536,6 +3537,7 @@ tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
 /**
  * tracker_miner_fs_force_mtime_checking:
  * @fs: a #TrackerMinerFS
+ * @directory: a #GFile representing the directory
  *
  * Tells @fs to force mtime checking (regardless of the global mtime check
  * configuration) on the given @directory.
