@@ -764,7 +764,7 @@ tracker_indexing_tree_get_default_policy (TrackerIndexingTree *tree,
 
 /**
  * tracker_indexing_tree_get_root:
- * @tree: a #TrackerIndexingtree
+ * @tree: a #TrackerIndexingTree
  * @file: a #GFile
  * @directory_flags: (out): return location for the applying #TrackerDirectoryFlags
  *
