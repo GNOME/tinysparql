@@ -76,7 +76,7 @@ get_date_from_file_mtime (const gchar *uri)
  * @key: the key to insert into @metadata
  * @current_value: the current data to check before looking at @uri.
  * @uri: a string representing a URI to use
- * @new_value: pointer to a string which receives the new title, or
+ * @p_new_value: pointer to a string which receives the new title, or
  *             %NULL
  *
  * Checks @current_value to make sure it is sane (i.e. not %NULL or an

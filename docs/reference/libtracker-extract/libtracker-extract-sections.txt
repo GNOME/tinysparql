@@ -1,10 +1,32 @@
 <SECTION>
+<FILE>tracker-module-manager</FILE>
+TrackerExtractInitFunc
+TrackerExtractMetadataFunc
+TrackerExtractShutdownFunc
+TrackerModuleThreadAwareness
+tracker_extract_module_init
+tracker_extract_module_manager_get_fallback_rdf_types
+tracker_extract_module_manager_get_for_mimetype
+tracker_extract_module_manager_get_mimetype_handlers
+tracker_extract_module_manager_init
+tracker_extract_module_manager_mimetype_is_handled
+tracker_extract_module_shutdown
+<SUBSECTION Standard>
+TrackerMimetypeInfo
+tracker_mimetype_info_free
+tracker_mimetype_info_get_module
+tracker_mimetype_info_iter_next
+</SECTION>
+
+<SECTION>
 <FILE>tracker-xmp</FILE>
 TrackerXmpData
+TrackerXmpRegion
 tracker_xmp_new
 tracker_xmp_free
 tracker_xmp_read
 tracker_xmp_apply
+tracker_xmp_apply_regions
 </SECTION>
 
 <SECTION>
@@ -18,6 +40,20 @@ tracker_iptc_read
 <SECTION>
 <FILE>tracker-data</FILE>
 tracker_extract_get_metadata
+</SECTION>
+
+<SECTION>
+<FILE>tracker-encoding</FILE>
+tracker_encoding_can_guess
+tracker_encoding_guess
+tracker_encoding_guess_enca
+tracker_encoding_guess_meegotouch
+</SECTION>
+
+<SECTION>
+<FILE>tracker-guarantee</FILE>
+tracker_guarantee_date_from_file_mtime
+tracker_guarantee_title_from_file
 </SECTION>
 
 <SECTION>
