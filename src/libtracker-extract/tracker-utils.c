@@ -76,11 +76,11 @@ static const char imonths[] = {
 
 /**
  * tracker_coalesce_strip:
- * @n_values: the number of @Varargs supplied
- * @Varargs: the string pointers to coalesce
+ * @n_values: the number of @... supplied
+ * @...: the string pointers to coalesce
  *
  * This function iterates through a series of string pointers passed
- * using @Varargs and returns the first which is not %NULL, not empty
+ * using @... and returns the first which is not %NULL, not empty
  * (i.e. "") and not comprised of one or more spaces (i.e. " ").
  *
  * The returned value is stripped using g_strstrip(). It is MOST
@@ -117,13 +117,14 @@ tracker_coalesce_strip (gint n_values,
 }
 
 // LCOV_EXCL_START
+
 /**
  * tracker_coalesce:
  * @n_values: the number of @Varargs supplied
- * @Varargs: the string pointers to coalesce
+ * @...: the string pointers to coalesce
  *
  * This function iterates through a series of string pointers passed
- * using @Varargs and returns the first which is not %NULL, not empty
+ * using @... and returns the first which is not %NULL, not empty
  * (i.e. "") and not comprised of one or more spaces (i.e. " ").
  *
  * The returned value is stripped using g_strstrip(). All other values
@@ -168,11 +169,11 @@ tracker_coalesce (gint n_values,
 /**
  * tracker_merge_const:
  * @delimiter: the delimiter to use when merging
- * @n_values: the number of @Varargs supplied
- * @Varargs: the string pointers to merge
+ * @n_values: the number of @... supplied
+ * @...: the string pointers to merge
  *
  * This function iterates through a series of string pointers passed
- * using @Varargs and returns a newly allocated string of the merged
+ * using @... and returns a newly allocated string of the merged
  * strings.
  *
  * The @delimiter can be %NULL. If specified, it will be used in
@@ -224,11 +225,11 @@ tracker_merge_const (const gchar *delimiter,
 /**
  * tracker_merge:
  * @delimiter: the delimiter to use when merging
- * @n_values: the number of @Varargs supplied
- * @Varargs: the string pointers to merge
+ * @n_values: the number of @... supplied
+ * @...: the string pointers to merge
  *
  * This function iterates through a series of string pointers passed
- * using @Varargs and returns a newly allocated string of the merged
+ * using @... and returns a newly allocated string of the merged
  * strings. All passed strings are freed (don't pass const values)/
  *
  * The @delimiter can be %NULL. If specified, it will be used in
