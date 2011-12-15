@@ -124,9 +124,6 @@ gboolean             tracker_miner_manager_get_status         (TrackerMinerManag
                                                                gchar               **status,
                                                                gdouble              *progress,
                                                                gint                 *remaining_time);
-gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
-                                                               const gchar          *miner,
-                                                               const gchar         **urls);
 const gchar *        tracker_miner_manager_get_display_name   (TrackerMinerManager  *manager,
                                                                const gchar          *miner);
 const gchar *        tracker_miner_manager_get_description    (TrackerMinerManager  *manager,
@@ -138,6 +135,12 @@ gboolean             tracker_miner_manager_reindex_by_mimetype (TrackerMinerMana
 gboolean             tracker_miner_manager_index_file          (TrackerMinerManager  *manager,
                                                                 GFile                *file,
                                                                 GError              **error);
+
+#ifndef TRACKER_DISABLE_DEPRECATED
+gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
+                                                               const gchar          *miner,
+                                                               const gchar         **urls) G_GNUC_DEPRECATED;
+#endif /* TRACKER_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

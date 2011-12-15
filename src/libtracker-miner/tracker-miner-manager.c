@@ -1339,6 +1339,7 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 	return NULL;
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
 
 /**
  * tracker_miner_manager_ignore_next_update:
@@ -1354,7 +1355,8 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
  * Returns: %TRUE on success, otherwise %FALSE.
  *
  * Since: 0.8
- * Deprecated since 0.12
+ *
+ * Deprecated: 0.12
  **/
 gboolean
 tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
@@ -1393,6 +1395,8 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 
 	return TRUE;
 }
+
+#endif /* TRACKER_DISABLE_DEPRECATED */
 
 /**
  * tracker_miner_manager_error_quark (skip):
