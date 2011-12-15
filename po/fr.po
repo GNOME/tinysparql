@@ -13,9 +13,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&component=general\n"
-"POT-Creation-Date: 2010-08-19 16:11+0000\n"
-"PO-Revision-Date: 2010-05-23 23:58+0200\n"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2011-04-27 09:01+0000\n"
+"PO-Revision-Date: 2011-12-15 21:13+0100\n"
 "Last-Translator: Bruno Brouard <annoa.b@gmail.com>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -31,7 +31,7 @@ msgstr "Applications"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:2
 msgid "Applications data miner"
-msgstr "Extracteur de données d'applications"
+msgstr "Collecteur de données d'applications"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.h:1
 #: ../src/tracker-search-tool/tracker-category-view.gs:83
@@ -40,7 +40,7 @@ msgstr "Courriels"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.h:2
 msgid "Evolution Email miner"
-msgstr "Extracteur des courriels d'Evolution"
+msgstr "Collecteur des courriels d'Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:1
 msgid "File System"
@@ -48,7 +48,7 @@ msgstr "Système de fichiers"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:2
 msgid "File system data miner"
-msgstr "Extracteur de données du système de fichiers"
+msgstr "Collecteur de données du système de fichiers"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.h:1
 msgid "Fetch RSS/ATOM Feeds"
@@ -64,7 +64,7 @@ msgstr "Parcourt et analyse les fichiers du système de fichier"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
-msgstr "Extracteur du système de fichiers Tracker"
+msgstr "Collecteur du système de fichiers Tracker"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:1
 msgid "Fetch RSS/ATOM feeds"
@@ -72,7 +72,7 @@ msgstr "Parcourt les flux RSS/ATOM"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Extracteur des flux RSS/ATOM Tracker"
+msgstr "Collecteur des flux RSS/ATOM Tracker"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -209,7 +209,7 @@ msgstr ""
 
 #: ../src/libtracker-miner/tracker-miner-object.c:1074
 msgid "Cookie not recognized to resume paused miner"
-msgstr "Le cookie n'est pas reconnu pour relancer l'extracteur en pause"
+msgstr "Le cookie n'est pas reconnu pour relancer le collecteur en pause"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Push data to Tracker to make it queryable."
@@ -219,7 +219,7 @@ msgstr "Envoie les données à Tracker pour les rendre interrogeables."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2498
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2500
 #: ../src/tracker-utils/tracker-status.c:70
 msgid "Processing…"
 msgstr "Traitement en cours…"
@@ -926,11 +926,11 @@ msgstr "Affiche la version"
 #: ../src/tracker-status-icon/tracker-main.c:63
 msgid "- Miner status and control notification area icon"
 msgstr ""
-"- Icône de zone de notification pour le contrôle et l'état de l'extracteur"
+"- Icône de zone de notification pour le contrôle et l'état du collecteur"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:523
 msgid "Miner is not running"
-msgstr "L'extracteur n'est pas lancé"
+msgstr "Le collecteur n'est pas lancé"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:564
 #: ../src/tracker-status-icon/tracker-status-icon.c:695
@@ -974,7 +974,7 @@ msgstr ""
 #: ../src/tracker-status-icon/tracker-status-icon.c:805
 msgid "A notification icon application to monitor data miners for Tracker"
 msgstr ""
-"Une application d'icône de notification pour surveiller les extracteurs de "
+"Une application d'icône de notification pour surveiller les collecteurs de "
 "données de Tracker"
 
 #. Translators should localize the following string
@@ -1033,7 +1033,7 @@ msgid ""
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Utilise SIGKILL pour arrêter tous les processus correspondants, soit "
-"« store » (dépôt), « miners » (extracteurs) ou « all » (tous) ; « all » est "
+"« store » (dépôt), « miners » (collecteurs) ou « all » (tous) ; « all » est "
 "utilisé si aucun paramètre n'est indiqué"
 
 #: ../src/tracker-control/tracker-control.c:79
@@ -1047,7 +1047,7 @@ msgid ""
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Utilise SIGTERM pour arrêter tous les processus correspondants, soit "
-"« store » (dépôt), « miners » (extracteurs) ou « all » (tous) ; « all » est "
+"« store » (dépôt), « miners » (collecteurs) ou « all » (tous) ; « all » est "
 "utilisé si aucun paramètre n'est indiqué"
 
 #: ../src/tracker-control/tracker-control.c:84
@@ -1070,7 +1070,7 @@ msgstr ""
 #: ../src/tracker-control/tracker-control.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
-"Démarre les extracteurs (ce qui démarre aussi tracker-store indirectement)"
+"Démarre les collecteurs (ce qui démarre aussi tracker-store indirectement)"
 
 #: ../src/tracker-control/tracker-control.c:96
 msgid ""
@@ -1153,11 +1153,11 @@ msgstr "Suppression des fichiers de configuration…"
 
 #: ../src/tracker-control/tracker-control.c:485
 msgid "Waiting one second before starting miners…"
-msgstr "Attente d'une seconde avant le démarrage des extracteurs…"
+msgstr "Attente d'une seconde avant le démarrage des collecteurs…"
 
 #: ../src/tracker-control/tracker-control.c:491
 msgid "Starting miners…"
-msgstr "Démarrage des extracteurs…"
+msgstr "Démarrage des collecteurs…"
 
 #: ../src/tracker-control/tracker-control.c:506
 msgid "perhaps a disabled plugin?"
@@ -1307,8 +1307,7 @@ msgstr "Recherche des contacts"
 
 #: ../src/tracker-utils/tracker-search.c:124
 msgid "Search for feeds (--all has no effect on this) "
-msgstr ""
-"Recherche des flux (--all n'a pas d'effet sur cette commande)"
+msgstr "Recherche des flux (--all n'a pas d'effet sur cette commande)"
 
 #: ../src/tracker-utils/tracker-search.c:133
 msgid "search terms"
@@ -1403,8 +1402,8 @@ msgstr "Le terme recherché « %s » est un mot ignoré."
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr ""
-"Les mots ignorés sont des mots communs qui peuvent ne pas être pris en compte dans "
-"le processus d'indexation."
+"Les mots ignorés sont des mots communs qui peuvent ne pas être pris en "
+"compte dans le processus d'indexation."
 
 #: ../src/tracker-utils/tracker-search.c:1310
 msgid "Could not establish a DBus connection to Tracker"
@@ -1618,36 +1617,36 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-status.c:88
 msgid "List common statuses for miners and the store"
-msgstr "Liste les états courants des extracteurs et du dépôt"
+msgstr "Liste les états courants des collecteurs et du dépôt"
 
 #: ../src/tracker-utils/tracker-status.c:92
 msgid "List all miners currently running"
-msgstr "Liste tous les extracteurs en cours de fonctionnement"
+msgstr "Liste tous les collecteurs en cours de fonctionnement"
 
 #: ../src/tracker-utils/tracker-status.c:96
 msgid "List all miners installed"
-msgstr "Liste toutes les extracteurs installés"
+msgstr "Liste toutes les collecteurs installés"
 
 #: ../src/tracker-utils/tracker-status.c:100
 msgid "List pause reasons and applications for a miner"
-msgstr "Liste les raisons des pauses et les applications d'un extracteur"
+msgstr "Liste les raisons des pauses et les applications d'un collecteur"
 
 #: ../src/tracker-utils/tracker-status.c:104
 msgid ""
 "Miner to use with other commands (you can use suffixes, e.g. FS or "
 "Applications)"
 msgstr ""
-"Extracteur à utiliser avec d'autres commandes (vous pouvez employer des "
+"Collecteur à utiliser avec d'autres commandes (vous pouvez employer des "
 "suffixes, comme par ex. FS ou Applications)"
 
 #: ../src/tracker-utils/tracker-status.c:105
 msgid "MINER"
-msgstr "EXTRACTEUR"
+msgstr "COLLECTEUR"
 
 #: ../src/tracker-utils/tracker-status.c:108
 msgid "Pause a miner (you must use this with --miner)"
 msgstr ""
-"Met un extracteur en pause (vous devez combiner cette commande avec --miner)"
+"Met un collecteur en pause (vous devez combiner cette commande avec --miner)"
 
 #: ../src/tracker-utils/tracker-status.c:109
 msgid "REASON"
@@ -1656,7 +1655,7 @@ msgstr "RAISON"
 #: ../src/tracker-utils/tracker-status.c:112
 msgid "Resume a miner (you must use this with --miner)"
 msgstr ""
-"Relance un extracteur (vous devez combiner cette commande avec --miner)"
+"Relance un collecteur (vous devez combiner cette commande avec --miner)"
 
 #: ../src/tracker-utils/tracker-status.c:113
 msgid "COOKIE"
@@ -1665,12 +1664,12 @@ msgstr "COOKIE"
 #: ../src/tracker-utils/tracker-status.c:174
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "Tentative de mise en pause de l'extracteur « %s » avec la raison « %s »"
+msgstr "Tentative de mise en pause du collecteur « %s » avec la raison « %s »"
 
 #: ../src/tracker-utils/tracker-status.c:181
 #, c-format
 msgid "Could not pause miner: %s"
-msgstr "Impossible de mettre l'extracteur en pause : %s"
+msgstr "Impossible de mettre le collecteur en pause : %s"
 
 #: ../src/tracker-utils/tracker-status.c:186
 #, c-format
@@ -1680,17 +1679,17 @@ msgstr "Le cookie est %d"
 #: ../src/tracker-utils/tracker-status.c:200
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Tentative de relancer l'extracteur %s avec le cookie %d"
+msgstr "Tentative de relancer le collecteur %s avec le cookie %d"
 
 #: ../src/tracker-utils/tracker-status.c:207
 #, c-format
 msgid "Could not resume miner: %s"
-msgstr "Impossible de relancer l'extracteur : %s"
+msgstr "Impossible de relancer le collecteur : %s"
 
 #: ../src/tracker-utils/tracker-status.c:227
 #, c-format
 msgid "Could not get status from miner: %s"
-msgstr "Impossible d'obtenir l'état de l'extracteur : %s"
+msgstr "Impossible d'obtenir l'état du collecteur : %s"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-utils/tracker-status.c:285
@@ -1714,15 +1713,15 @@ msgstr "- Surveillance et contrôle d'état"
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Vous ne pouvez pas utiliser simultanément les paramètres pause et resume "
-"d'un extracteur"
+"d'un collecteur"
 
 #: ../src/tracker-utils/tracker-status.c:508
 msgid "You must provide the miner for pause or resume commands"
-msgstr "Vous devez fournir à l'extracteur des commandes pause ou resume"
+msgstr "Vous devez fournir au collecteur des commandes pause ou resume"
 
 #: ../src/tracker-utils/tracker-status.c:522
 msgid "You must provide a pause or resume command for the miner"
-msgstr "Vous devez fournir à l'extracteur une commande pause ou resume"
+msgstr "Vous devez fournir au collecteur une commande pause ou resume"
 
 #: ../src/tracker-utils/tracker-status.c:556
 msgid "Common statuses include"
@@ -1731,21 +1730,21 @@ msgstr "Les états courants sont"
 #: ../src/tracker-utils/tracker-status.c:568
 #, c-format
 msgid "Found %d miners installed"
-msgstr "%d extracteurs sont installés"
+msgstr "%d collecteurs sont installés"
 
 #: ../src/tracker-utils/tracker-status.c:580
 #, c-format
 msgid "Found %d miners running"
-msgstr "%d extracteurs fonctionnent en ce moment"
+msgstr "%d collecteurs fonctionnent en ce moment"
 
 #: ../src/tracker-utils/tracker-status.c:613
 msgid "No miners are running"
-msgstr "Aucun extracteur n'est actuellement lancé"
+msgstr "Aucun collecteur n'est actuellement lancé"
 
 #: ../src/tracker-utils/tracker-status.c:653
 #: ../src/tracker-utils/tracker-status.c:700
 msgid "Miners"
-msgstr "Extracteurs"
+msgstr "Collecteurs"
 
 #: ../src/tracker-utils/tracker-status.c:660
 msgid "Application"
@@ -1757,7 +1756,7 @@ msgstr "Raison"
 
 #: ../src/tracker-utils/tracker-status.c:671
 msgid "No miners are paused"
-msgstr "Aucun extracteur n'est en pause"
+msgstr "Aucun collecteur n'est en pause"
 
 #. Display states
 #: ../src/tracker-utils/tracker-status.c:694
@@ -1908,32 +1907,3 @@ msgstr "- démarre le service de réécriture de tracker"
 msgid "Saved queries"
 msgstr "Requêtes enregistrées"
 
-#~ msgid "Include mou_nted directories"
-#~ msgstr "Inclure les dossiers _montés"
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=617124
-#~ msgid ""
-#~ "This means this search term will never be found when matching FTS entries."
-#~ msgstr ""
-#~ "Cela signifie que ce terme de recherche ne sera jamais trouvé lors de "
-#~ "recherche par mots."
-
-#~ msgid "Flickr"
-#~ msgstr "Flickr"
-
-#~ msgid "Index your Flickr photo albums"
-#~ msgstr "Indexe vos albums photos Flickr"
-
-#~ msgid "Processes images and albums on Flickr"
-#~ msgstr "Analyse les images et les albums sur Flickr"
-
-#~ msgid "Tracker Miner for Flickr"
-#~ msgstr "Extracteur Tracker pour Flickr"
-
-#~ msgid "Office Documents"
-#~ msgstr "Documents bureautiques"
-
-#~ msgid "Show more detailed results (only applies to general search)"
-#~ msgstr ""
-#~ "Affiche des résultats plus détaillés (uniquement pour la recherche "
-#~ "générale)"
