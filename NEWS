@@ -1,3 +1,27 @@
+NEW in 0.13.0 - 2011-12-15
+==========================
+
+The changes are:
+
+  * Require: libxml2 for --enable-maemo builds
+  * Require: Vala >= 0.13.4 (for introspection fixes)
+  * Removed: ioprio_get() check in configure, now most kernels have the syscall
+  * Removed: dbus-glib requirement (was only used in 1 or 2 cases)
+  * Removed: GLib unicode parser, it's was sub-optimal and unused
+  * New Feature: CUE sheet parsing is now supported
+  * libtracker-common: New env var TRACKER_USE_CONFIG_FILES to output ini files instead of use GSettings is available
+  * libtracker-miner: Updated TrackerMinerFS (breaks API/ABI)
+  * libtracker-miner: Introducing TrackerIndexingTree (to use with TrackerMinerFS)
+  * libtracker-miner: Albumart renamed to Media art and refactored
+  * tracker-miner-fs: Refactored, mtime checks are +50% faster and indexing slightly improved
+
+  Many other fixes
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+
 NEW in 0.12.0 - 2011-09-09
 ==========================
 
