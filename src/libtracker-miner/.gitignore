@@ -1,3 +1,5 @@
 tracker-miner-*.deps
 tracker-miner-*.vapi
 tracker-miner-web-full.xml
+tracker-miner-enum-types.c
+tracker-miner-enum-types.h

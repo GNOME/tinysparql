@@ -9,3 +9,6 @@ tracker-password-provider-test
 tracker-priority-queue-test
 tracker-task-pool-test
 tracker-indexing-tree-test
+tracker-connection-mock.c
+tracker-file-notifier-test
+tracker-file-system-test
