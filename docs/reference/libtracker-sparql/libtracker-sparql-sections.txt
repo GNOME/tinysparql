@@ -116,7 +116,6 @@ TRACKER_DBUS_SERVICE
 TrackerSparqlConnectionPrivate
 tracker_sparql_error_quark
 tracker_sparql_connection_construct
-tracker_sparql_connection_init
 </SECTION>
 
 
@@ -133,6 +132,7 @@ tracker_sparql_cursor_get_double
 tracker_sparql_cursor_get_integer
 tracker_sparql_cursor_get_value_type
 tracker_sparql_cursor_get_variable_name
+tracker_sparql_cursor_close
 tracker_sparql_cursor_is_bound
 tracker_sparql_cursor_next
 tracker_sparql_cursor_next_async
