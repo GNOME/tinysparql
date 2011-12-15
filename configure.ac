@@ -807,8 +807,6 @@ AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 # By default, AUTO with this order of preference:
 #  1)  libunistring
 #  2)  libicu
-#
-# Note that glib can only be used if explicitly requested for it.
 ##################################################################
 
 # Check for libunistring...
@@ -829,16 +827,10 @@ AC_CHECK_HEADER(unicode/ubrk.h,
 LIBICU_CFLAGS=""
 LIBICU_LIBS="-licuuc -licui18n"
 
-# Check for Pango...
-PKG_CHECK_MODULES(PANGO,
-                  [pango >= $PANGO_REQUIRED],
-                  [have_pango=yes],
-                  [have_pango=no])
-
 # Configure option
 AC_ARG_WITH([unicode-support],
             AS_HELP_STRING([--with-unicode-support],
-                           [Unicode support library? (libunistring|libicu|glib) [[default=auto (!glib)]]]),,
+                           [Unicode support library? (libunistring|libicu) [[default=auto]]]),,
             [with_unicode_support=auto])
 
 # If auto, decide ourselves
@@ -849,10 +841,7 @@ if test "x$with_unicode_support" = "xauto"; then
       if test "x$have_libicu" = "xyes"; then
          with_unicode_support=libicu
       else
-         AC_MSG_ERROR([Couldn't find neither libunistring nor libicu. You can still compile tracker
-                       without any of these two, using glib instead, but be warned that the FTS parsing
-                       performance will be much worse. If you still want to use glib as Unicode support
-                       library, enable it with an explicit --with-unicode-support=glib])
+         AC_MSG_ERROR([Couldn't find neither libunistring nor libicu])
       fi
    fi
 fi
@@ -879,14 +868,6 @@ case "x$with_unicode_support" in
           AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
         else
           AC_MSG_ERROR([Couldn't find libicu])
-        fi
-     ;;
-     # Use glib/pango
-     "xglib")
-        UNICODE_SUPPORT_CFLAGS=$PANGO_CFLAGS
-        UNICODE_SUPPORT_LIBS=$PANGO_LIBS
-        if test "x$have_pango" != "xyes"; then
-          AC_MSG_ERROR([Couldn't find pango])
         fi
      ;;
      # Invalid option value

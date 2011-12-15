@@ -21,12 +21,10 @@ libtracker_fts_la_SOURCES =                            \
 
 if BUILD_LIBUNISTRING_PARSER
   libtracker_fts_la_SOURCES += tracker-parser-libunistring.c
-else
+endif
+
 if BUILD_LIBICU_PARSER
   libtracker_fts_la_SOURCES += tracker-parser-libicu.c
-else
-  libtracker_fts_la_SOURCES += tracker-parser-glib.c
-endif
 endif
 
 libtracker_fts_la_LIBADD =                             \
