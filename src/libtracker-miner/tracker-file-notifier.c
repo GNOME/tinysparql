@@ -259,18 +259,18 @@ static void
 file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
-	GFile *current_root, *canonical;
+	GFile *current_root, *config_root;
 	TrackerDirectoryFlags flags;
 
 	priv = notifier->priv;
 	current_root = priv->pending_index_roots->data;
-	tracker_indexing_tree_get_root (priv->indexing_tree,
-	                                current_root, &flags);
+	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
+						      current_root, &flags);
 
 	/* Check mtime for 1) directories with the check_mtime flag
 	 * and 2) directories gotten from monitor events.
 	 */
-	if (canonical != current_root ||
+	if (config_root != current_root ||
 	    flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
 		tracker_file_system_traverse (priv->file_system,
 		                              current_root,
