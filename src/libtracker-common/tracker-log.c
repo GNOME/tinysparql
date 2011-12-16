@@ -35,10 +35,15 @@
 #include "tracker-file-utils.h"
 
 static gboolean  initialized;
-static GMutex   *mutex;
 static FILE     *fd;
 static gint      verbosity;
 static guint     log_handler_id;
+
+#if GLIB_CHECK_VERSION (2,31,0)
+static GMutex    mutex;
+#else
+static GMutex   *mutex;
+#endif
 
 static inline void
 log_output (const gchar    *domain,
@@ -56,7 +61,11 @@ log_output (const gchar    *domain,
 	g_return_if_fail (message != NULL && message[0] != '\0');
 
 	/* Ensure file logging is thread safe */
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&mutex);
+#else
 	g_mutex_lock (mutex);
+#endif
 
 	/* Check log size, 10MiB limit */
 	if (size > (10 << 20) && fd) {
@@ -113,7 +122,11 @@ log_output (const gchar    *domain,
 
 	g_free (output);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_unlock (&mutex);
+#else
 	g_mutex_unlock (mutex);
+#endif
 }
 
 static void
@@ -185,7 +198,12 @@ tracker_log_init (gint    this_verbosity,
 	}
 
 	verbosity = CLAMP (this_verbosity, 0, 3);
+
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_init (&mutex);
+#else
 	mutex = g_mutex_new ();
+#endif
 
 	switch (this_verbosity) {
 		/* Log level 3: EVERYTHING */
@@ -256,7 +274,11 @@ tracker_log_shutdown (void)
 		fclose (fd);
 	}
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_clear (&mutex);
+#else
 	g_mutex_free (mutex);
+#endif
 
 	initialized = FALSE;
 }
