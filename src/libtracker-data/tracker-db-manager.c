@@ -162,7 +162,11 @@ static TrackerDBManagerFlags old_flags = 0;
 static guint                 s_cache_size;
 static guint                 u_cache_size;
 
+#if GLIB_CHECK_VERSION (2,31,0)
+static GPrivate              interface_data_key = G_PRIVATE_INIT ((GDestroyNotify)g_object_unref);
+#else
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
+#endif
 
 /* mutex used by singleton connection in libtracker-direct, not used by tracker-store */
 static GStaticMutex          global_mutex = G_STATIC_MUTEX_INIT;
@@ -1255,7 +1259,11 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	u_cache_size = update_cache_size;
 
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+#if GLIB_CHECK_VERSION (2,31,0)
+		g_private_replace (&interface_data_key, resources_iface);
+#else
 		g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+#endif
 	}
 
 	return TRUE;
@@ -1295,9 +1303,12 @@ tracker_db_manager_shutdown (void)
 		global_iface = NULL;
 	}
 
-	/* shutdown db interface in all threads
-	 * this can currently cause critical warnings due to a bug in g_static_private_free */
+	/* shutdown db interface in all threads */
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_private_replace (&interface_data_key, NULL);
+#else
 	g_static_private_free (&interface_data_key);
+#endif
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
@@ -1507,7 +1518,11 @@ tracker_db_manager_get_db_interface (void)
 		return global_iface;
 	}
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	interface = g_private_get (&interface_data_key);
+#else
 	interface = g_static_private_get (&interface_data_key);
+#endif
 
 	/* Ensure the interface is there */
 	if (!interface) {
@@ -1531,7 +1546,11 @@ tracker_db_manager_get_db_interface (void)
 		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 		                                              u_cache_size);
 
-		g_static_private_set (&interface_data_key, interface, (GDestroyNotify) g_object_unref);
+#if GLIB_CHECK_VERSION (2,31,0)
+		g_private_set (&interface_data_key, interface);
+#else
+		g_static_private_set (&interface_data_key, interface, (GDestroyNotify)g_object_unref);
+#endif
 	}
 
 	return interface;
