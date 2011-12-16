@@ -59,9 +59,15 @@ struct TrackerControllerPrivate {
 	guint shutdown_timeout;
 	GSource *shutdown_source;
 
+
+	GError *initialization_error;
+#if GLIB_CHECK_VERSION (2,31,0)
+	GCond initialization_cond;
+	GMutex initialization_mutex;
+#else
 	GCond *initialization_cond;
 	GMutex *initialization_mutex;
-	GError *initialization_error;
+#endif
 
 	guint initialized : 1;
 };
@@ -166,8 +172,13 @@ tracker_controller_finalize (GObject *object)
 	g_main_loop_unref (priv->main_loop);
 	g_main_context_unref (priv->context);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_cond_clear (&priv->initialization_cond);
+	g_mutex_clear (&priv->initialization_mutex);
+#else
 	g_cond_free (priv->initialization_cond);
 	g_mutex_free (priv->initialization_mutex);
+#endif
 
 	G_OBJECT_CLASS (tracker_controller_parent_class)->finalize (object);
 }
@@ -400,8 +411,13 @@ tracker_controller_init (TrackerController *controller)
 	g_signal_connect (priv->storage, "mount-point-removed",
 	                  G_CALLBACK (mount_point_removed_cb), controller);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_cond_init (&priv->initialization_cond);
+	g_mutex_init (&priv->initialization_mutex);
+#else
 	priv->initialization_cond = g_cond_new ();
 	priv->initialization_mutex = g_mutex_new ();
+#endif
 }
 
 static void
@@ -775,15 +791,23 @@ controller_notify_main_thread (TrackerController *controller,
 
 	priv = controller->priv;
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->initialization_mutex);
+#else
 	g_mutex_lock (priv->initialization_mutex);
+#endif
 
 	priv->initialized = TRUE;
 	priv->initialization_error = error;
 
 	/* Notify about the initialization */
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_cond_signal (&priv->initialization_cond);
+	g_mutex_unlock (&priv->initialization_mutex);
+#else
 	g_cond_signal (priv->initialization_cond);
-
 	g_mutex_unlock (priv->initialization_mutex);
+#endif
 }
 
 static void
@@ -980,13 +1004,18 @@ tracker_controller_start (TrackerController  *controller,
 #endif /* THREAD_ENABLE_TRACE */
 
 	/* Wait for the controller thread to notify initialization */
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->initialization_mutex);
+	while (!priv->initialized)
+		g_cond_wait (&priv->initialization_cond, &priv->initialization_mutex);
+	g_mutex_unlock (&priv->initialization_mutex);
+#else
 	g_mutex_lock (priv->initialization_mutex);
-
 	while (!priv->initialized) {
 		g_cond_wait (priv->initialization_cond, priv->initialization_mutex);
 	}
-
 	g_mutex_unlock (priv->initialization_mutex);
+#endif
 
 	/* If there was any error resulting from initialization, propagate it */
 	if (priv->initialization_error != NULL) {
