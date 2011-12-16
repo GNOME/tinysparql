@@ -17,9 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-controller.h"
-#include "tracker-extract.h"
-
 #include <gio/gunixoutputstream.h>
 #include <gio/gunixinputstream.h>
 #include <gio/gunixfdlist.h>
@@ -28,6 +25,10 @@
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-miner/tracker-miner.h>
 #include <gio/gio.h>
+
+#include "tracker-controller.h"
+#include "tracker-extract.h"
+#include "tracker-main.h"
 
 #ifdef STAYALIVE_ENABLE_TRACE
 #warning Stayalive traces enabled
