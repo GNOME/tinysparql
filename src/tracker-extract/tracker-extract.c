@@ -732,6 +732,24 @@ dispatch_task_cb (TrackerExtractTask *task)
 			 */
 			async_queue = g_async_queue_new ();
 
+#if GLIB_CHECK_VERSION (2,31,0)
+			{
+				GThread *thread;
+
+				thread = g_thread_try_new ("single",
+				                           (GThreadFunc) single_thread_get_metadata,
+				                           g_async_queue_ref (async_queue),
+				                           &error);
+				if (!thread) {
+					g_simple_async_result_take_error ((GSimpleAsyncResult *) task->res, error);
+					g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
+					extract_task_free (task);
+					return FALSE;
+				}
+				/* We won't join the thread, so just unref it here */
+				g_object_unref (thread);
+			}
+#else
 			g_thread_create ((GThreadFunc) single_thread_get_metadata,
 			                 g_async_queue_ref (async_queue),
 			                 FALSE, &error);
@@ -744,6 +762,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 
 				return FALSE;
 			}
+#endif
 
 			g_hash_table_insert (priv->single_thread_extractors, module, async_queue);
 		}

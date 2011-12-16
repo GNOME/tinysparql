@@ -991,10 +991,24 @@ tracker_controller_start (TrackerController  *controller,
 {
 	TrackerControllerPrivate *priv;
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	GThread *thread;
+
+	thread = g_thread_try_new ("controller",
+	                           tracker_controller_thread_func,
+	                           controller,
+	                           error);
+	if (!thread)
+		return FALSE;
+
+	/* We don't want to join it, so just unref the GThread */
+	g_thread_unref (thread);
+#else
 	if (!g_thread_create (tracker_controller_thread_func,
 	                      controller, FALSE, error)) {
 		return FALSE;
 	}
+#endif
 
 	priv = controller->priv;
 
