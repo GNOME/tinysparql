@@ -1,3 +1,38 @@
+NEW in 0.12.9 - 2011-12-16
+==========================
+
+The changes are:
+
+  * New Feature: Support TRACKER_USE_CONFIG_FILES env var to circumvent GSettings only configuration
+  * Fixes: GB#655383, Tracker does not index text files with other encodings than UTF8
+  * Fixes: GB#664833, [abrt] tracker-0.12.7-1.fc16: read_uint32: Process /usr/libexec/tracker-store was killed by signal 11 (SIGSEGV)
+  * Fixes: NB#294705, tracker-store memory leak in w49-w50 when continously switching chat account availability between online and offline mode (regression)
+  * build: Use g_thread_try_new() if GLib >= 2.31
+  * build: Use g_(mutex|cond)_(init|clear) if GLib >= 2.31
+  * build: Use GPrivate if GLib >= 2.31 (GStaticPrivate now deprecated)
+  * build: Use GMutex if GLib >= 2.31 (GStaticMutex now deprecated)
+  * build: Use g_atomic_int_add() if GLib >= 2.30
+  * build: Use GRecMutex if GLib >= 2.31 (GStaticRecMutex now deprecated)
+  * build: Use g_format_size() if GLib >= 2.30
+  * build: Remove remaining g_thread_init() calls
+  * gvdb: Merge upstream changes
+  * libtracker-common: Fix memory leak in tracker_string_to_date()
+  * libtracker-data: Fix small memory leak in journal_rotate_destination()
+  * libtracker-data: Fix crash due to overflow in journal reader
+  * libtracker-miner: _ignore_next_update() is deprecated, wrap with TRACKER_DISABLE_DEPRECATED
+  * libtracker-sparql: Improved documentation
+  * libtracker-extract: Improved documentation
+  * tracker-store: Fix memory leak in Steroids.update (caused by valac)
+  * tracker-extract,text: try to extract text from files in typical windows charsets
+  * tracker-extract: Don't lock on freed mutexes
+
+Translations:
+
+  * Updated fr: Alexandre Franke
+  * Updated ja: Takeshi AIHANA
+  * Updated pl: Piotr Drąg
+
+
 NEW in 0.12.8 - 2011-11-25
 ==========================
 
