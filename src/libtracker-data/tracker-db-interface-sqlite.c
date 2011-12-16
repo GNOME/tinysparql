@@ -51,6 +51,13 @@
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
 
+/* Since 2.30, g_atomic_int_add() is fully equivalente to g_atomic_int_exchange_and_add() */
+#if GLIB_CHECK_VERSION (2,30,0)
+#define ATOMIC_EXCHANGE_AND_ADD(a,v) g_atomic_int_add (a,v)
+#else
+#define ATOMIC_EXCHANGE_AND_ADD(a,v) g_atomic_int_exchange_and_add (a,v)
+#endif
+
 #define UNKNOWN_STATUS 0.5
 
 typedef struct {
@@ -1335,7 +1342,7 @@ execute_stmt (TrackerDBInterface  *interface,
 
 	/* Statement is going to start, check if we got a request to reset the
 	 * collator, and if so, do it. */
-	if (g_atomic_int_exchange_and_add (&interface->n_active_cursors, 1) == 0 &&
+	if (ATOMIC_EXCHANGE_AND_ADD (&interface->n_active_cursors, 1) == 0 &&
 	    g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (interface);
 	}
@@ -1712,7 +1719,7 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
 	/* As soon as we create a cursor, check if we need a collator reset
 	 * and notify the iface about the new cursor */
 	iface = ref_stmt->db_interface;
-	if (g_atomic_int_exchange_and_add (&iface->n_active_cursors, 1) == 0 &&
+	if (ATOMIC_EXCHANGE_AND_ADD (&iface->n_active_cursors, 1) == 0 &&
 	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (iface);
 	}
@@ -2096,4 +2103,3 @@ tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
 }
-
