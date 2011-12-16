@@ -61,7 +61,11 @@ typedef struct {
 	/* used to maintain the running tasks
 	 * and stats from different threads
 	 */
+#if GLIB_CHECK_VERSION (2,31,0)
+	GMutex task_mutex;
+#else
 	GMutex *task_mutex;
+#endif
 
 	/* Thread pool for multi-threaded extractors */
 	GThreadPool *thread_pool;
@@ -140,7 +144,11 @@ tracker_extract_init (TrackerExtract *object)
 	priv->thread_pool = g_thread_pool_new ((GFunc) get_metadata,
 	                                       NULL, 10, TRUE, NULL);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_init (&priv->task_mutex);
+#else
 	priv->task_mutex = g_mutex_new ();
+#endif
 }
 
 static void
@@ -165,9 +173,11 @@ tracker_extract_finalize (GObject *object)
 
 	g_hash_table_destroy (priv->statistics_data);
 
-	if (priv->task_mutex) {
-		g_mutex_free (priv->task_mutex);
-	}
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_clear (&priv->task_mutex);
+#else
+	g_mutex_free (priv->task_mutex);
+#endif
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
@@ -181,7 +191,11 @@ report_statistics (GObject *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->task_mutex);
+#else
 	g_mutex_lock (priv->task_mutex);
+#endif
 
 	g_message ("--------------------------------------------------");
 	g_message ("Statistics:");
@@ -214,7 +228,11 @@ report_statistics (GObject *object)
 
 	g_message ("--------------------------------------------------");
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_unlock (&priv->task_mutex);
+#else
 	g_mutex_unlock (priv->task_mutex);
+#endif
 }
 
 TrackerExtract *
@@ -255,7 +273,11 @@ notify_task_finish (TrackerExtractTask *task,
 	/* Reports and ongoing tasks may be
 	 * accessed from other threads.
 	 */
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->task_mutex);
+#else
 	g_mutex_lock (priv->task_mutex);
+#endif
 
 	stats_data = g_hash_table_lookup (priv->statistics_data,
 	                                  task->cur_module);
@@ -275,7 +297,11 @@ notify_task_finish (TrackerExtractTask *task,
 
 	priv->running_tasks = g_list_remove (priv->running_tasks, task);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_unlock (&priv->task_mutex);
+#else
 	g_mutex_unlock (priv->task_mutex);
+#endif
 }
 
 static gboolean
@@ -385,7 +411,11 @@ task_cancellable_cancelled_cb (GCancellable       *cancellable,
 	extract = task->extract;
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->task_mutex);
+#else
 	g_mutex_lock (priv->task_mutex);
+#endif
 
 	if (g_list_find (priv->running_tasks, task)) {
 		g_message ("Cancelled task for '%s' was currently being "
@@ -394,7 +424,11 @@ task_cancellable_cancelled_cb (GCancellable       *cancellable,
 		_exit (0);
 	}
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_unlock (&priv->task_mutex);
+#else
 	g_mutex_unlock (priv->task_mutex);
+#endif
 }
 
 static TrackerExtractTask *
@@ -661,9 +695,15 @@ dispatch_task_cb (TrackerExtractTask *task)
 		return FALSE;
 	}
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&priv->task_mutex);
+	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
+	g_mutex_unlock (&priv->task_mutex);
+#else
 	g_mutex_lock (priv->task_mutex);
 	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
 	g_mutex_unlock (priv->task_mutex);
+#endif
 
 	switch (thread_awareness) {
 	case TRACKER_MODULE_NONE:
