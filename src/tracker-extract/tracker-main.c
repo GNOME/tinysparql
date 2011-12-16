@@ -264,7 +264,9 @@ tracker_main_timeout_reset (void)
 	 * 25*1000 msec (gdbusconnection.c at g_dbus_connection_send_message_
 	 * with_reply_unlocked), so 25 seconds. */
 
-	alarm (25);
+	if (!disable_shutdown) {
+		alarm (25);
+	}
 #endif /* G_OS_WIN32 */
 }
 
@@ -392,6 +394,9 @@ main (int argc, char *argv[])
 
 	config = tracker_config_new ();
 
+	/* Set initial alarm timeout */
+	tracker_main_timeout_reset ();
+
 	/* Set conditions when we use stand alone settings */
 	if (filename) {
 		return run_standalone ();
@@ -449,9 +454,6 @@ main (int argc, char *argv[])
 
 	tracker_locale_init ();
 	tracker_albumart_init ();
-
-	/* Set initial alarm timeout */
-	tracker_main_timeout_reset ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
