@@ -312,8 +312,13 @@ tracker_memory_setrlimits (void)
 		} else {
 			gchar *str1, *str2;
 
+#if GLIB_CHECK_VERSION (2,30,0)
+			str1 = g_format_size (total);
+			str2 = g_format_size (limit);
+#else
 			str1 = g_format_size_for_display (total);
 			str2 = g_format_size_for_display (limit);
+#endif
 
 			g_message ("Setting memory limitations: total is %s, minimum is 256 MB, recommended is ~1 GB", str1);
 			g_message ("  Virtual/Heap set to %s (50%% of total or MAXLONG)", str2);
