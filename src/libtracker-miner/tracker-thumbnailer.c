@@ -63,7 +63,12 @@ typedef struct {
 	gboolean service_is_available;
 } TrackerThumbnailerPrivate;
 
+#if GLIB_CHECK_VERSION (2,31,0)
+static void private_free (gpointer data);
+static GPrivate private_key = G_PRIVATE_INIT (private_free);
+#else
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+#endif
 
 static void
 private_free (gpointer data)
@@ -141,9 +146,11 @@ tracker_thumbnailer_init (void)
 	/* Don't start at 0, start at 1. */
 	private->request_id = 1;
 
-	g_static_private_set (&private_key,
-	                      private,
-	                      private_free);
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_private_replace (&private_key, private);
+#else
+	g_static_private_set (&private_key, private, private_free);
+#endif
 
 	g_message ("Thumbnailer connections being set up...");
 
@@ -269,7 +276,11 @@ error_handler:
 void
 tracker_thumbnailer_shutdown (void)
 {
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_private_replace (&private_key, NULL);
+#else
 	g_static_private_set (&private_key, NULL, NULL);
+#endif
 }
 
 /**
@@ -298,7 +309,11 @@ tracker_thumbnailer_move_add (const gchar *from_uri,
 	g_return_val_if_fail (from_uri != NULL, FALSE);
 	g_return_val_if_fail (to_uri != NULL, FALSE);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	private = g_private_get (&private_key);
+#else
 	private = g_static_private_get (&private_key);
+#endif
 	g_return_val_if_fail (private != NULL, FALSE);
 
 	if (!private->service_is_available) {
@@ -341,7 +356,11 @@ tracker_thumbnailer_remove_add (const gchar *uri,
 
 	g_return_val_if_fail (uri != NULL, FALSE);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	private = g_private_get (&private_key);
+#else
 	private = g_static_private_get (&private_key);
+#endif
 	g_return_val_if_fail (private != NULL, FALSE);
 
 	if (!private->service_is_available) {
@@ -376,7 +395,11 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 
 	g_return_val_if_fail (uri_prefix != NULL, FALSE);
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	private = g_private_get (&private_key);
+#else
 	private = g_static_private_get (&private_key);
+#endif
 	g_return_val_if_fail (private != NULL, FALSE);
 
 	if (!private->service_is_available) {
@@ -414,7 +437,11 @@ tracker_thumbnailer_send (void)
 	TrackerThumbnailerPrivate *private;
 	guint list_len;
 
+#if GLIB_CHECK_VERSION (2,31,0)
+	private = g_private_get (&private_key);
+#else
 	private = g_static_private_get (&private_key);
+#endif
 	g_return_if_fail (private != NULL);
 
 	if (!private->service_is_available) {
