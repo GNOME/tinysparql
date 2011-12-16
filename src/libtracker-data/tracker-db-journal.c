@@ -1663,8 +1663,8 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 		if ((gint64) entry_size > (gint64) (jreader->end - jreader->entry_begin)) {
 			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 			             TRACKER_DB_JOURNAL_ERROR_DAMAGED_JOURNAL_ENTRY,
-			             "Damaged journal entry, size %u > %ld (rest of the file)",
-			             entry_size, jreader->end - jreader->entry_begin);
+			             "Damaged journal entry, size %u > %" G_GINT64_FORMAT " (rest of the file)",
+			             entry_size, (gint64)(jreader->end - jreader->entry_begin));
 			return FALSE;
 		}
 
