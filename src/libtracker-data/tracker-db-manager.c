@@ -169,7 +169,12 @@ static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 #endif
 
 /* mutex used by singleton connection in libtracker-direct, not used by tracker-store */
+#if GLIB_CHECK_VERSION (2,31,0)
+static GMutex                global_mutex;
+#else
 static GStaticMutex          global_mutex = G_STATIC_MUTEX_INIT;
+#endif
+
 static TrackerDBInterface   *global_iface;
 
 static const gchar *
@@ -1820,17 +1825,29 @@ tracker_db_manager_set_need_mtime_check (gboolean needed)
 void
 tracker_db_manager_lock (void)
 {
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_lock (&global_mutex);
+#else
 	g_static_mutex_lock (&global_mutex);
+#endif
 }
 
 gboolean
 tracker_db_manager_trylock (void)
 {
+#if GLIB_CHECK_VERSION (2,31,0)
+	return g_mutex_trylock (&global_mutex);
+#else
 	return g_static_mutex_trylock (&global_mutex);
+#endif
 }
 
 void
 tracker_db_manager_unlock (void)
 {
+#if GLIB_CHECK_VERSION (2,31,0)
+	g_mutex_unlock (&global_mutex);
+#else
 	g_static_mutex_unlock (&global_mutex);
+#endif
 }
