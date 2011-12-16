@@ -2239,7 +2239,7 @@ _tracker_idle_add (TrackerMinerFS *fs,
 {
 	guint interval;
 
-	interval = MAX_TIMEOUT_INTERVAL * fs->priv->throttle;
+	interval = TRACKER_MAX_TIMEOUT_INTERVAL * fs->priv->throttle;
 
 	if (interval == 0) {
 		return g_idle_add_full (TRACKER_TASK_PRIORITY, func, user_data, NULL);
