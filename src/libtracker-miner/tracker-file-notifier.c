@@ -1020,7 +1020,15 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	TrackerDirectoryFlags flags;
 
 	/* Flags are still valid at the moment of deletion */
-	directory = tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
+	tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
+	directory = tracker_file_system_peek_file (priv->file_system, directory);
+
+	if (!directory) {
+		/* If the dir has no canonical copy,
+		 * it wasn't even told to be indexed.
+		 */
+		return;
+	}
 
 	/* If the folder was being ignored, index/crawl it from scratch */
 	if (flags & TRACKER_DIRECTORY_FLAG_IGNORE) {
