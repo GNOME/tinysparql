@@ -1115,7 +1115,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
                        const GError   *error)
 {
 	UpdateProcessingTaskContext *ctxt;
-	TrackerTask *sparql_task;
+	TrackerTask *sparql_task = NULL;
 	GFile *task_file;
 	gchar *uri;
 
@@ -1129,7 +1129,12 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		g_message ("Could not process '%s': %s", uri, error->message);
 
 		fs->priv->total_files_notified_error++;
-		sparql_task = tracker_sparql_task_new_with_sparql (task_file, ctxt->builder);
+
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND) &&
+		    !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			sparql_task = tracker_sparql_task_new_with_sparql (task_file,
+			                                                   ctxt->builder);
+		}
 	} else {
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
@@ -1186,11 +1191,13 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		}
 	}
 
-	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-	                            sparql_task,
-	                            ctxt->priority,
-	                            sparql_buffer_task_finished_cb,
-	                            fs);
+	if (sparql_task) {
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            sparql_task,
+		                            ctxt->priority,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+	}
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		item_queue_handlers_set_up (fs);
