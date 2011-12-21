@@ -153,7 +153,7 @@ config_set_property (GObject      *object,
 		domain = g_value_get_string (value);
 
 		/* Get rid of the "lt-" prefix if any */
-		if (g_str_has_prefix (domain, "lt-")) {
+		if (domain != NULL && g_str_has_prefix (domain, "lt-")) {
 			domain += 3;
 		}
 
