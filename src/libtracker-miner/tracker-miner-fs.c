@@ -1782,6 +1782,14 @@ iri_cache_check_update (TrackerMinerFS *fs,
 		}
 
 		g_object_unref (parent);
+	} else {
+		if (fs->priv->current_iri_cache_parent)
+			g_object_unref (fs->priv->current_iri_cache_parent);
+
+		g_free (fs->priv->current_iri_cache_parent_urn);
+
+		fs->priv->current_iri_cache_parent_urn = NULL;
+		fs->priv->current_iri_cache_parent = NULL;
 	}
 }
 
