@@ -284,7 +284,7 @@ extract_content (PopplerDocument *document,
 			g_object_unref (dataout_stream);
 			g_object_unref (output_stream);
 
-			close (fd[0]);
+			close (fd[1]);
 			exit (0);
 		} else {
 			gboolean failed = FALSE;
@@ -348,7 +348,7 @@ extract_content (PopplerDocument *document,
 				g_object_unref (input_stream);
 			}
 
-			close (fd[1]);
+			close (fd[0]);
 		}
 	} else {
 		close (fd[0]);
