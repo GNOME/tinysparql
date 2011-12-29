@@ -32,10 +32,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <stdlib.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/poppler.h>
+
+#include <gio/gunixoutputstream.h>
+#include <gio/gunixinputstream.h>
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-utils.h>
@@ -186,9 +192,9 @@ read_outline (PopplerDocument      *document,
 	}
 }
 
-static gchar *
-extract_content (PopplerDocument *document,
-                 gsize            n_bytes)
+static GString *
+extract_content_util (PopplerDocument *document,
+                      gsize            n_bytes)
 {
 	gint n_pages, i = 0;
 	GString *string;
@@ -239,7 +245,117 @@ extract_content (PopplerDocument *document,
 
 	g_timer_destroy (timer);
 
-	return g_string_free (string, FALSE);
+	return string;
+}
+
+
+static gchar *
+extract_content (PopplerDocument *document,
+                 gsize  n_bytes)
+{
+	pid_t childpid;
+	gchar *retval = NULL;
+	int fd[2];
+
+	pipe (fd);
+	childpid = fork();
+
+	if (childpid >= 0) {
+		if (childpid == 0) {
+			GString *str;
+			gint64 size;
+			GOutputStream *output_stream;
+			GDataOutputStream *dataout_stream;
+
+			/* This is the child extracting the content, hopefully in time */
+
+			output_stream = g_unix_output_stream_new (fd[1], FALSE);
+			dataout_stream = g_data_output_stream_new (output_stream);
+			str = extract_content_util (document, n_bytes);
+			size = (gint64) str->len;
+
+			/* Write the results to the pipe */
+			if (g_data_output_stream_put_int64 (dataout_stream, size, NULL, NULL)) {
+				g_output_stream_write_all (output_stream, str->str, str->len, NULL,
+				                           NULL, NULL);
+			}
+
+			g_string_free (str, TRUE);
+			g_object_unref (dataout_stream);
+			g_object_unref (output_stream);
+
+			close (fd[0]);
+			exit (0);
+		} else {
+			gboolean failed = FALSE;
+			sigset_t mask;
+			sigset_t orig_mask;
+			struct timespec timeout;
+
+			/* This is the parent process waiting for the content extractor to
+			 * finish in time. */
+
+			sigemptyset (&mask);
+			sigaddset (&mask, SIGCHLD);
+
+			if (sigprocmask (SIG_BLOCK, &mask, &orig_mask) < 0) {
+				return NULL;
+			}
+
+			/* We give the content extractor 10 seconds to do its job */
+			timeout.tv_sec = 10;
+			timeout.tv_nsec = 0;
+
+			do {
+				if (sigtimedwait (&mask, NULL, &timeout) < 0) {
+					if (errno == EINTR) {
+						continue;
+					} else if (errno == EAGAIN) {
+						g_warning ("Content extraction of PDF Timed out\n");
+						kill (childpid, SIGKILL);
+						failed = TRUE;
+					}
+				}
+				break;
+			} while (1);
+
+			if (!failed) {
+				GInputStream *input_stream;
+				GDataInputStream *datain_stream;
+				gsize to_read, nbytes;
+				GError *error = NULL;
+
+				/* If the child was in time, we read its results from the pipe */
+
+				input_stream = g_unix_input_stream_new (fd[0], FALSE);
+				datain_stream = g_data_input_stream_new (input_stream);
+
+				to_read = (gsize) g_data_input_stream_read_int64 (datain_stream,
+				                                                  NULL, &error);
+
+				if (!error) {
+					retval = g_malloc0 (to_read + 1);
+					if (!g_input_stream_read_all (input_stream, retval, to_read,
+					                              &nbytes, NULL, NULL)) {
+						g_free (retval);
+						retval = NULL;
+					}
+				} else {
+					g_error_free (error);
+				}
+
+				g_object_unref (datain_stream);
+				g_object_unref (input_stream);
+			}
+
+			close (fd[1]);
+		}
+	} else {
+		close (fd[0]);
+		close (fd[1]);
+	}
+
+	return retval;
 }
 
 static void
