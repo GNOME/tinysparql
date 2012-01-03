@@ -752,6 +752,7 @@ open_file (const gchar *filename, FILE *file)
 {
 	GsfInput *input;
 	GsfInfile *infile;
+	GError *error = NULL;
 
 	input = gsf_input_stdio_new_FILE (filename, file, TRUE);
 	
@@ -759,7 +760,13 @@ open_file (const gchar *filename, FILE *file)
 		return NULL;
 	}
 
-	infile = gsf_infile_msole_new (input, NULL);
+	infile = gsf_infile_msole_new (input, &error);
+
+	if (error) {
+		g_warning ("Failed to open file: %s", error->message);
+		g_error_free (error);
+	}
+
 	g_object_unref (input);
 
 	return infile;
