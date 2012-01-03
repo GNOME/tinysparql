@@ -239,7 +239,8 @@ PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
 
 # Check requirements for libtracker-extract
 LIBTRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                             gio-unix-2.0 >= $GLIB_REQUIRED"
+                             gio-unix-2.0 >= $GLIB_REQUIRED
+			     gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
 
