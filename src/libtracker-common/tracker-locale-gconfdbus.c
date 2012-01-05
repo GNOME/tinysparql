@@ -116,7 +116,9 @@ add_notify (void)
 		return FALSE;
 	}
 
-	g_variant_unref (reply);
+	if (reply) {
+		g_variant_unref (reply);
+	}
 
 	return TRUE;
 }
