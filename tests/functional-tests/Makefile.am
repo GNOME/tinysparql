@@ -69,13 +69,13 @@ tests.xml:
 	@if test -h /targets/links/scratchbox.config ; then \
 		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
 	fi;
-	./create-tests-xml.py $(standard_tests) > tests.xml
+	$(top_srcdir)/tests/functional-tests/create-tests-xml.py $(standard_tests) > tests.xml
 
 tracker-tests.aegis:
 	@if test -h /targets/links/scratchbox.config ; then \
 		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
 	fi;
-	./create-tests-aegis.py $(standard_tests) > tracker-tests.aegis
+	$(top_srcdir)/tests/functional-tests/create-tests-aegis.py $(standard_tests) > tracker-tests.aegis
 
 10-sqlite-misused.py: ttl/gen-test-data.stamp
 11-sqlite-misused-batch.py: ttl/gen-test-data.stamp
@@ -84,14 +84,16 @@ tracker-tests.aegis:
 ttl/gen-test-data.stamp:
 	cd ttl && $(MAKE) $(AM_MAKEFLAGS)
 
+TEST_RUNNER = $(top_srcdir)/tests/functional-tests/test-runner.sh
+
 functional-test: ${standard_tests}
 	for test in ${standard_tests} ; do \
-		./test-runner.sh python ./$$test; \
+		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 
 functional-test-slow: ${slow_tests}
 	@for test in ${slow_tests} ; do \
-		./test-runner.sh python ./$$test; \
+		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 
 EXTRA_DIST = \
