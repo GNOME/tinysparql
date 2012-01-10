@@ -180,10 +180,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	f = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (f);
 
-	fd = g_open (filename, O_RDONLY | O_NOATIME, 0);
-	if (fd == -1 && errno == EPERM) {
-		fd = g_open (filename, O_RDONLY, 0);
-	}
+	fd = tracker_file_open_fd (filename);
 
 	if (fd == -1) {
 		g_warning ("Could not open abw file '%s': %s\n",

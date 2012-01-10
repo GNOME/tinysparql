@@ -50,6 +50,25 @@
 
 static GHashTable *file_locks = NULL;
 
+int
+tracker_file_open_fd (const gchar *path)
+{
+	int fd;
+
+	g_return_val_if_fail (path != NULL, -1);
+
+#if defined(__linux__)
+	fd = g_open (path, O_RDONLY | O_NOATIME, 0);
+	if (fd == -1 && errno == EPERM) {
+		fd = g_open (path, O_RDONLY, 0);
+	}
+#else
+	fd = g_open (path, O_RDONLY, 0);
+#endif
+
+	return fd;
+}
+
 FILE *
 tracker_file_open (const gchar *path)
 {
@@ -58,14 +77,7 @@ tracker_file_open (const gchar *path)
 
 	g_return_val_if_fail (path != NULL, NULL);
 
-#if defined(__linux__)
-	fd = g_open (path, O_RDONLY | O_NOATIME);
-	if (fd == -1 && errno == EPERM) {
-		fd = g_open (path, O_RDONLY);
-	}
-#else
-	fd = g_open (path, O_RDONLY);
-#endif
+	fd = tracker_file_open_fd (path);
 
 	if (fd == -1) {
 		return NULL;
