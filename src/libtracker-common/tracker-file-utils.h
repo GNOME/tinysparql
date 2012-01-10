@@ -32,6 +32,7 @@ G_BEGIN_DECLS
 #endif
 
 /* File utils */
+int      tracker_file_open_fd                               (const gchar *path);
 FILE*    tracker_file_open                                  (const gchar *path);
 void     tracker_file_close                                 (FILE        *file,
                                                              gboolean     need_again_soon);

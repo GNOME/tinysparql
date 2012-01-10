@@ -2093,25 +2093,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	md.size = size;
 	buffer_size = MIN (size, MAX_FILE_READ);
 
-#if defined(__linux__)
-	/* Can return -1 because of O_NOATIME, so we try again after
-	 * without as a last resort. This can happen due to
-	 * permissions.
-	 */
-	fd = g_open (filename, O_RDONLY | O_NOATIME);
-	if (fd == -1 && errno == EPERM) {
-		fd = g_open (filename, O_RDONLY);
+	fd = tracker_file_open_fd (filename);
 
-		if (fd == -1) {
-			return FALSE;
-		}
-	}
-#else
-	fd = open (filename, O_RDONLY);
 	if (fd == -1) {
 		return FALSE;
 	}
-#endif
 
 #ifndef G_OS_WIN32
 	/* We don't use GLib's mmap because size can not be specified */
