@@ -213,7 +213,13 @@ test_coalesce_strip ()
 {
         /* Used in other tests, but this one can try some corner cases */
         g_assert (!tracker_coalesce_strip (0, NULL));
-        g_assert_cmpstr (tracker_coalesce_strip (2, "", "a", NULL), ==, "a");
+
+        /* Allocate, do not use constant strings */
+        char *e = g_strdup ("");
+        char *a = g_strdup ("a");
+        g_assert_cmpstr (tracker_coalesce_strip (2, e, a, NULL), ==, "a");
+        g_free (e);
+        g_free (a);
 }
 
 static void
