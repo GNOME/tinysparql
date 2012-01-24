@@ -140,8 +140,11 @@ signal_handler (int signo)
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
-		g_main_loop_quit (main_loop);
-
+		if (main_loop != NULL) {
+			g_main_loop_quit (main_loop);
+		} else {
+			exit (0);
+		}
 		/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
@@ -270,7 +273,7 @@ miner_handle_next (void)
 		/* We're not sticking around for file updates, so stop
 		 * the mainloop and exit.
 		 */
-		if (no_daemon) {
+		if (no_daemon && main_loop) {
 			g_main_loop_quit (main_loop);
 		}
 
@@ -694,6 +697,7 @@ main (gint argc, gchar *argv[])
 	gboolean force_mtime_checking = FALSE;
 	gboolean store_available;
 
+	main_loop = NULL;
 	g_type_init ();
 
 	setlocale (LC_ALL, "");
