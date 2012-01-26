@@ -116,7 +116,10 @@ main (gint argc, gchar **argv)
 	g_option_context_free (context);
 
 	fclose (f);
-	fclose (fts);
+
+	if (fts) {
+		fclose (fts);
+	}
 
 	return 0;
 }
