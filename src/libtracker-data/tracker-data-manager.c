@@ -3864,6 +3864,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
+#ifndef DISABLE_JOURNAL
 		if (uri_id_map) {
 			/* restore all IDs from ontology journal */
 			GHashTableIter iter;
@@ -3878,9 +3879,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
-#ifndef DISABLE_JOURNAL
 					tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
 					if (!reloading) {
@@ -3892,6 +3891,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 			}
 		}
+#endif /* DISABLE_JOURNAL */
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
