@@ -39,8 +39,11 @@ public class Tracker.Statistics : Object {
 						                            cl.name);
 
 					var stat_cursor = stmt.start_cursor ();
-					stat_cursor.next ();
-					cl.count = (int) stat_cursor.get_integer (0);
+					if (stat_cursor.next ()) {
+						cl.count = (int) stat_cursor.get_integer (0);
+					} else {
+						warning ("Unable to query instance count for class %s", cl.name);
+					}
 				}
 			}
 
