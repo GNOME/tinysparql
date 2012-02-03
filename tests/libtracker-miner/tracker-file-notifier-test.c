@@ -408,7 +408,7 @@ test_file_notifier_crawling_non_recursive (TestCommonContext *fixture,
 	CREATE_UPDATE_FILE (fixture, "non-recursive/bbb");
 
 	test_common_context_index_dir (fixture, "non-recursive",
-	                               TRACKER_DIRECTORY_FLAG_NONE);
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 
@@ -435,7 +435,8 @@ test_file_notifier_crawling_recursive (TestCommonContext *fixture,
 	CREATE_UPDATE_FILE (fixture, "recursive/bbb");
 
 	test_common_context_index_dir (fixture, "recursive",
-	                               TRACKER_DIRECTORY_FLAG_RECURSE);
+	                               TRACKER_DIRECTORY_FLAG_RECURSE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 
@@ -469,9 +470,11 @@ test_file_notifier_crawling_non_recursive_within_recursive (TestCommonContext *f
 	CREATE_UPDATE_FILE (fixture, "recursive/folder/non-recursive/folder/ddd");
 
 	test_common_context_index_dir (fixture, "recursive",
-	                               TRACKER_DIRECTORY_FLAG_RECURSE);
+	                               TRACKER_DIRECTORY_FLAG_RECURSE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	test_common_context_index_dir (fixture, "recursive/folder/non-recursive",
-	                               TRACKER_DIRECTORY_FLAG_NONE);
+	                               TRACKER_DIRECTORY_FLAG_NONE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 
@@ -505,9 +508,11 @@ test_file_notifier_crawling_recursive_within_non_recursive (TestCommonContext *f
 	CREATE_UPDATE_FILE (fixture, "non-recursive/folder/recursive/folder/ddd");
 
 	test_common_context_index_dir (fixture, "non-recursive/folder/recursive",
-	                               TRACKER_DIRECTORY_FLAG_RECURSE);
+	                               TRACKER_DIRECTORY_FLAG_RECURSE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	test_common_context_index_dir (fixture, "non-recursive",
-	                               TRACKER_DIRECTORY_FLAG_NONE);
+	                               TRACKER_DIRECTORY_FLAG_NONE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 
@@ -539,9 +544,11 @@ test_file_notifier_crawling_ignore_within_recursive (TestCommonContext *fixture,
 	CREATE_UPDATE_FILE (fixture, "recursive/folder/ignore/folder/ddd");
 
 	test_common_context_index_dir (fixture, "recursive",
-	                               TRACKER_DIRECTORY_FLAG_RECURSE);
+	                               TRACKER_DIRECTORY_FLAG_RECURSE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 	test_common_context_index_dir (fixture, "recursive/folder/ignore",
-	                               TRACKER_DIRECTORY_FLAG_IGNORE);
+	                               TRACKER_DIRECTORY_FLAG_IGNORE |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 
@@ -646,7 +653,8 @@ test_file_notifier_monitor_updates_non_recursive (TestCommonContext *fixture,
 	CREATE_UPDATE_FILE (fixture, "non-recursive/bbb");
 
 	test_common_context_index_dir (fixture, "non-recursive",
-	                               TRACKER_DIRECTORY_FLAG_MONITOR);
+	                               TRACKER_DIRECTORY_FLAG_MONITOR |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 	test_common_context_expect_results (fixture, expected_results,
@@ -693,7 +701,8 @@ test_file_notifier_monitor_updates_recursive (TestCommonContext *fixture,
 
 	test_common_context_index_dir (fixture, "recursive",
 	                               TRACKER_DIRECTORY_FLAG_RECURSE |
-	                               TRACKER_DIRECTORY_FLAG_MONITOR);
+	                               TRACKER_DIRECTORY_FLAG_MONITOR |
+	                               TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
 	tracker_file_notifier_start (fixture->notifier);
 	test_common_context_expect_results (fixture, expected_results,
