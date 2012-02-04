@@ -340,7 +340,10 @@ test_common_context_expect_results (TestCommonContext   *fixture,
 		}
 
 		g_main_loop_run (fixture->main_loop);
-		g_source_remove (id);
+
+		if (max_timeout != 0) {
+			g_source_remove (id);
+		}
 	}
 
 	for (i = 0; i < n_results; i++) {
