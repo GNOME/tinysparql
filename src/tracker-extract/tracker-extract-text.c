@@ -36,6 +36,8 @@
 
 #include <gio/gio.h>
 
+#include <libtracker-common/tracker-file-utils.h>
+
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
