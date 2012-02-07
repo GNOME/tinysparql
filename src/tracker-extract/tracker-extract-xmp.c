@@ -36,6 +36,8 @@
 
 #include <gio/gio.h>
 
+#include <libtracker-common/tracker-file-utils.h>
+
 #include <libtracker-extract/tracker-extract.h>
 
 /* This function is used to find the URI for a file.xmp file. The point here is
