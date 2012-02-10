@@ -155,20 +155,20 @@ on_error:
 	}
 }
 /**
- * tracker_media_art_queue_removal:
+ * tracker_media_art_queue_remove:
  * @uri: URI of the file
  * @mime_type: mime-type of the file
  *
  * Adds a new request to tell the media art subsystem that @uri was removed.
- * Stored requests can be processed with tracker_media_art_execute_queue().
+ * Stored requests can be processed with tracker_media_art_queue_empty().
  *
  * Returns: #TRUE if successfully stored to be reported, #FALSE otherwise.
  *
  * Since: 0.10.4
  */
 gboolean
-tracker_media_art_queue_removal (const gchar *uri,
-                                 const gchar *mime_type)
+tracker_media_art_queue_remove (const gchar *uri,
+                                const gchar *mime_type)
 {
 	/* mime_type can be NULL */
 
@@ -216,7 +216,7 @@ on_timer_destroy (gpointer data)
  * Since: 0.10.4
  */
 void
-tracker_media_art_execute_queue (TrackerSparqlConnection *connection)
+tracker_media_art_queue_empty (TrackerSparqlConnection *connection)
 {
 	if (had_any && timer_id == 0) {
 

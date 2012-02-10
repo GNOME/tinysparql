@@ -1288,7 +1288,7 @@ item_remove (TrackerMinerFS *fs,
 		flags = TRACKER_BULK_MATCH_EQUALS;
 	} else {
 		tracker_thumbnailer_remove_add (uri, NULL);
-		tracker_media_art_queue_removal (uri, NULL);
+		tracker_media_art_queue_remove (uri, NULL);
 	}
 
 	/* FIRST:
@@ -2152,7 +2152,7 @@ item_queue_handlers_cb (gpointer user_data)
 				process_stop (fs);
 
 				tracker_thumbnailer_send ();
-				tracker_media_art_execute_queue (tracker_miner_get_connection (TRACKER_MINER (fs)));
+				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
