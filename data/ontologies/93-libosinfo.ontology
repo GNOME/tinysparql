@@ -21,3 +21,8 @@ osinfo:id a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
+
+osinfo:mediaId a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .

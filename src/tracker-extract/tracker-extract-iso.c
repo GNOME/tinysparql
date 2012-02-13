@@ -120,6 +120,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 		tracker_sparql_builder_object_string (metadata, id);
 	}
 
+        id = osinfo_entity_get_id (OSINFO_ENTITY (matched_media));
+	if (id != NULL) {
+		tracker_sparql_builder_predicate (metadata, "osinfo:mediaId");
+		tracker_sparql_builder_object_string (metadata, id);
+	}
+
 	g_object_unref (G_OBJECT (media));
 	g_object_unref (G_OBJECT (loader));
 
