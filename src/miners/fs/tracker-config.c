@@ -38,7 +38,7 @@
 #define DEFAULT_INITIAL_SLEEP                    15       /* 0->1000 */
 #define DEFAULT_ENABLE_MONITORS                  TRUE
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
-#define DEFAULT_INDEX_REMOVABLE_DEVICES          TRUE
+#define DEFAULT_INDEX_REMOVABLE_DEVICES          FALSE
 #define DEFAULT_INDEX_OPTICAL_DISCS              FALSE
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
