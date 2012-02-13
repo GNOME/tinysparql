@@ -267,8 +267,8 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 	priv = TRACKER_SPARQL_BUFFER (update_data->buffer)->priv;
 	priv->n_updates--;
 
-	g_message ("(Sparql buffer) Finished array-update with %u tasks",
-	           update_data->tasks->len);
+	g_debug ("(Sparql buffer) Finished array-update with %u tasks",
+	         update_data->tasks->len);
 
 	sparql_array_errors = tracker_sparql_connection_update_array_finish (priv->connection,
 	                                                                     result,
@@ -516,7 +516,7 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 		return FALSE;
 	}
 
-	g_message ("Flushing SPARQL buffer, reason: %s", reason);
+	g_debug ("Flushing SPARQL buffer, reason: %s", reason);
 
 	if (priv->flush_timeout_id != 0) {
 		g_source_remove (priv->flush_timeout_id);

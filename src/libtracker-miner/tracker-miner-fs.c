@@ -2686,7 +2686,7 @@ file_notifier_finished (TrackerFileNotifier *notifier,
 	TrackerMinerFS *fs = user_data;
 
 	if (!tracker_miner_fs_has_items_to_process (fs)) {
-		g_message ("Finished content crawling");
+		tracker_info ("Finished all tasks");
 		process_stop (fs);
 	}
 }

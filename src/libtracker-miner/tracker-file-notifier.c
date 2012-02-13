@@ -284,7 +284,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 	                                  current_root,
 	                                  G_FILE_TYPE_REGULAR);
 
-	tracker_info ("Finished notifying files after %2.2f seconds",
+	tracker_info ("  Notified files after %2.2f seconds",
 	              g_timer_elapsed (priv->timer, NULL));
 
 	/* We've finished crawling/querying on the first element
@@ -374,12 +374,12 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	               directories_found, directories_ignored,
 	               files_found, files_ignored);
 
-	g_message ("  Found %d directories, ignored %d directories",
-	           directories_found,
-	           directories_ignored);
-	g_message ("  Found %d files, ignored %d files",
-	           files_found,
-	           files_ignored);
+	tracker_info ("  Found %d directories, ignored %d directories",
+	              directories_found,
+	              directories_ignored);
+	tracker_info ("  Found %d files, ignored %d files",
+	              files_found,
+	              files_ignored);
 }
 
 static void
@@ -472,7 +472,7 @@ sparql_query_cb (GObject      *object,
 	                                  quark_property_queried,
 	                                  GUINT_TO_POINTER (TRUE));
 
-	tracker_info ("finished querying files after %2.2f seconds",
+	tracker_info ("  Queried files after %2.2f seconds",
 	              g_timer_elapsed (priv->timer, NULL));
 
 	/* If it's also been crawled, finish operation */
@@ -631,7 +631,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 
-	tracker_info ("%s crawling files after %2.2f seconds",
+	tracker_info ("  %s crawling files after %2.2f seconds",
 	              was_interrupted ? "Stopped" : "Finished",
 	              g_timer_elapsed (priv->timer, NULL));
 
