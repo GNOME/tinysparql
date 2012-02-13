@@ -42,7 +42,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 	GFile *file;
 	GError *error = NULL;
 	gchar *filename;
-	OsinfoLoader *loader;
+	OsinfoLoader *loader = NULL;
 	OsinfoMedia *media;
 	OsinfoMedia *matched_media;
 	OsinfoDb *db;
@@ -50,8 +50,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 
 	/* Data input */
 	gboolean bootable;
-	gboolean has_installer;
-	gboolean is_live;
 	const gchar *id;
 	const gchar *name;
 	TrackerSparqlBuilder *metadata;
@@ -103,14 +101,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 		tracker_sparql_builder_object_string (metadata, name);
 	}
 
-	is_live = osinfo_media_get_live (matched_media);
-	if (is_live) {
+	if (osinfo_media_get_live (matched_media)) {
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:OperatingSystem");
 	}
 
-	has_installer = osinfo_media_get_installer (matched_media);
-	if (has_installer) {
+	if (osinfo_media_get_installer (matched_media)) {
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "osinfo:Installer");
 	}
