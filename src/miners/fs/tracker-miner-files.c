@@ -971,23 +971,25 @@ init_mount_points (TrackerMinerFiles *miner_files)
 	g_slist_free (uuids);
 
 	/* Then, get all currently mounted REMOVABLE volumes, according to GIO */
-	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
-	for (u = uuids; u; u = u->next) {
-		const gchar *uuid;
-		gchar *removable_device_urn;
-		gint state;
+	if (priv->index_removable_devices) {
+		uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
+		for (u = uuids; u; u = u->next) {
+			const gchar *uuid;
+			gchar *removable_device_urn;
+			gint state;
 
-		uuid = u->data;
-		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+			uuid = u->data;
+			removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 
-		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
-		state |= VOLUME_MOUNTED;
+			state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
+			state |= VOLUME_MOUNTED;
 
-		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
+			g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
+		}
+
+		g_slist_foreach (uuids, (GFunc) g_free, NULL);
+		g_slist_free (uuids);
 	}
-
-	g_slist_foreach (uuids, (GFunc) g_free, NULL);
-	g_slist_free (uuids);
 
 	accumulator = g_string_new (NULL);
 	g_hash_table_iter_init (&iter, volumes);
