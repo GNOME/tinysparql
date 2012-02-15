@@ -1,3 +1,37 @@
+NEW in 0.12.10 - 2011-02-15
+===========================
+
+The changes are:
+
+  * Fixes: GB#669546, tracker-miner-fs: Segmentation fault
+  * Fixes: GB#666654, unbreak compilation if the O_NOATIME flag for open(2) is not available
+  * Fixes: GB#666410, missing gmodule detection for LIBTRACKER_EXTRACT
+  * Fixes: GB#666678, g_str_has_prefix() called on a NULL string with tracker_config_file_new()
+  * Fixes: NB#296488, Fix crash when SIGTERM happens before mainloop is available
+  * Fixes: NB#289635, Test for reply being NULL and don't unref in that case
+  * Fixes: NB#296009, Add debugging aid for when opening MSOffice files fail
+  * build: Set _REQUIRED versions for giff, jpeg and tiff
+  * build: Depend on gmodule for libtracker-extract since glib 2.31.4 doesn't depend on it
+  * build: Remove all g_thread_init() calls
+  * libtracker-common: Add new function tracker_file_open_fd()
+  * libtracker-data: Fix dead code with disabled journal
+  * libtracker-extract: Don't build EXIF tests if we don't have support enabled
+  * libtracker-extract: Do not use tracker_coalesce_strip on constant strings in unit tests
+  * libtracker-extract: Fix mockup example which unrefs TrackerExtractInfo->GFile
+  * libtracker-miner: Don't send sparql to tracker-store for missing/cancelled files
+  * libtracker-miner: Several documentation related fixes
+  * tracker-store: Print warning if unable to initialize statistics
+  * tracker-miner-fs: Don't index removable media on initial index if disabled
+  * tracker-miner-fs: Fix crash when SIGTERM happens before mainloop is available
+  * tracker-extract-msoffice: Add debugging aid for when opening file fails
+  * tracker-needle: Fix build with GLib 2.31
+  * ttl2sgml: Do not call fclose if file is NULL
+
+Translations:
+
+  * Updated nb: Kjartan Maraas
+
+
 NEW in 0.12.9 - 2011-12-16
 ==========================
 
