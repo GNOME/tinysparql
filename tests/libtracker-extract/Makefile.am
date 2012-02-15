@@ -6,8 +6,11 @@ TEST_PROGS +=                                          \
 	tracker-test-utils                             \
 	tracker-test-xmp			       \
 	tracker-extract-info-test		       \
-	tracker-exif-test			       \
 	tracker-guarantee-test
+
+if HAVE_EXIF
+TEST_PROGS += tracker-exif-test
+endif
 
 if HAVE_IPTC
 # This test also requires libjpeg...
@@ -55,7 +58,8 @@ tracker_iptc_test_SOURCES = tracker-iptc-test.c
 tracker_iptc_test_LDADD = $(LDADD) $(LIBJPEG_LIBS)
 tracker_iptc_test_CFLAGS = $(LIBJPEG_CFLAGS)
 
-EXTRA_DIST = encoding-detect.bin 	\
+EXTRA_DIST = \
+	encoding-detect.bin             \
 	areas.xmp 			\
 	areas-with-contacts.xmp 	\
 	areas-ns.xmp 			\
