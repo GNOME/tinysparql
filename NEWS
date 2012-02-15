@@ -1,3 +1,52 @@
+NEW in 0.13.1 - 2012-02-15
+==========================
+
+The changes are:
+
+  * Require: libosinfo >= 0.0.2 for --enable-libosinfo (file ISO extractor)
+  * New Feature: ISO file extractor
+  * Fixes: GB#669546, tracker-miner-fs: Segmentation fault
+  * Fixes: GB#666654, unbreak compilation if the O_NOATIME flag for open(2) is not available
+  * Fixes: GB#666410, missing gmodule detection for LIBTRACKER_EXTRACT
+  * Fixes: GB#666678, g_str_has_prefix() called on a NULL string with tracker_config_file_new()
+  * Fixes: GB#666372, More information about bootable ISOs
+  * Fixes: GB#667786, Fix compile warning in tracker-file-notifier-test
+  * Fixes: GB#667787, Fix tracker-file-notifier-test
+  * Fixes: NB#296488, Fix crash when SIGTERM happens before mainloop is available
+  * Fixes: NB#289635, Test for reply being NULL and don't unref in that case
+  * Fixes: NB#296009, Add debugging aid for when opening MSOffice files fail
+  * Fixes: NB#290406, Timeout PDF content extraction after 10s
+  * build: Use g_thread_try_new() if GLib >= 2.31
+  * build: Use g_(mutex|cond)_(init|clear) if GLib >= 2.31
+  * build: Use GPrivate if GLib >= 2.31 (GStaticPrivate now deprecated)
+  * build: Use GMutex if GLib >= 2.31 (GStaticMutex now deprecated)
+  * build: Use g_atomic_int_add() if GLib >= 2.30
+  * build: Use GRecMutex if GLib >= 2.31 (GStaticRecMutex now deprecated)
+  * build: Use g_format_size() if GLib >= 2.30
+  * build: Remove remaining g_thread_init() calls
+  * build: Set _REQUIRED versions for giff, jpeg and tiff
+  * build: Depend on gmodule for libtracker-extract since glib 2.31.4 doesn't depend on it
+  * libtracker-common: Add new function tracker_file_open_fd()
+  * libtracker-data: Fix dead code with disabled journal
+  * libtracker-miner: Don't send sparql to tracker-store for missing/cancelled files
+  * libtracker-miner: Ensure we deal with the canonical copy on ::directory-removed
+  * libtracker-miner: Improve logging
+  * libtracker-extract: Do not use tracker_coalesce_strip on constant strings in unit tests
+  * libtracker-extract: Don't build EXIF tests if we don't have support enabled
+  * tracker-store: Print warning if unable to initialize statistics
+  * tracker-miner-fs: Fix crash when SIGTERM happens before mainloop is available
+  * tracker-miner-fs: Don't index removable media on initial index if disabled
+  * tracker-extract-msoffice: Add debugging aid for when opening file fails
+  * tracker-needle: Fix build with GLib 2.31
+  * ttl2sgml: Do not call fclose if file is NULL
+
+Translations:
+
+  * Updated fr: Alexandre Franke
+  * Updated ja: Jiro Matsuzawa
+  * Updated nb: Kjartan Maraas
+
+
 NEW in 0.13.0 - 2011-12-15
 ==========================
 
