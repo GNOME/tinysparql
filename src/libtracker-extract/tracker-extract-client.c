@@ -18,13 +18,15 @@
  */
 
 #include "config.h"
-#include "tracker-extract-client.h"
 
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
+
+#include "tracker-extract-client.h"
 
 /* Size of buffers used when sending data over a pipe, using DBus FD passing */
 #define DBUS_PIPE_BUFFER_SIZE      65536
@@ -270,6 +272,49 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
 	                              data);
 }
 
+static inline const gchar *
+get_metadata_fast_read (GDataInputStream *data_input_stream,
+                        gsize            *remaining,
+                        GError           *error)
+{
+	const gchar *output;
+	gsize len_read;
+
+	if (error) {
+		return NULL;
+	}
+
+	g_return_val_if_fail (*remaining > 0, NULL);
+
+	/* Read data */
+	output = g_data_input_stream_read_upto (data_input_stream, "\0", 1, &len_read, NULL, &error);
+
+	if (error) {
+		return NULL;
+	}
+
+	*remaining -= len_read;
+
+	g_return_val_if_fail (*remaining > 0, NULL);
+
+	/* Read NUL terminating byte.
+	 *
+	 * The g_data_input_stream_read_upto() function doesn't
+	 * consume the bytes we read up to according to the
+	 * documentation unlike the _until() variant which is now
+	 * deprecated anyway.
+	 */
+	g_data_input_stream_read_byte (data_input_stream, NULL, &error);
+
+	if (error) {
+		return NULL;
+	}
+
+	*remaining -= 1;
+
+	return output;
+}
+
 static void
 get_metadata_fast_cb (void     *buffer,
                       gssize    buffer_size,
@@ -283,31 +328,37 @@ get_metadata_fast_cb (void     *buffer,
 	if (G_UNLIKELY (error)) {
 		g_simple_async_result_set_from_error (data->res, error);
 	} else {
-		const gchar *preupdate, *postupdate, *sparql, *where, *end;
+		GInputStream *input_stream;
+		GDataInputStream *data_input_stream;
+		const gchar *preupdate, *postupdate, *sparql, *where;
 		TrackerSparqlBuilder *builder;
-		gsize len;
+		gssize remaining;
 
+		/* So the structure is like this:
+		 *
+		 *   [buffer,'\0'][buffer,'\0'][...]
+		 *
+		 * We avoid strlen() using
+		 * g_data_input_stream_read_upto() and the
+		 * NUL-terminating byte given strlen() has a size_t
+		 * limitation and costs us time evaluating string
+		 * lengths.
+		 */
 		preupdate = postupdate = sparql = where = NULL;
-		end = (gchar *) buffer + buffer_size;
+		remaining = buffer_size;
 
-		if (buffer) {
-			preupdate = buffer;
-			len = strlen (preupdate);
+		input_stream = g_memory_input_stream_new_from_data (buffer, buffer_size, NULL);
+		data_input_stream = g_data_input_stream_new (input_stream);
+		g_data_input_stream_set_byte_order (G_DATA_INPUT_STREAM (data_input_stream),
+		                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-			if (preupdate + len < end) {
-				postupdate = preupdate + len + 1;
-				len = strlen (postupdate);
+		preupdate  = get_metadata_fast_read (data_input_stream, &remaining, error);
+		postupdate = get_metadata_fast_read (data_input_stream, &remaining, error);
+		sparql     = get_metadata_fast_read (data_input_stream, &remaining, error);
+		where      = get_metadata_fast_read (data_input_stream, &remaining, error);
 
-				if (postupdate + len < end) {
-					sparql = postupdate + len + 1;
-					len = strlen (sparql);
-
-					if (sparql + len < end) {
-						where = sparql + len + 1;
-					}
-				}
-			}
-		}
+		g_object_unref (data_input_stream);
+		g_object_unref (input_stream);
 
 		if (where) {
 			tracker_extract_info_set_where_clause (data->info, where);

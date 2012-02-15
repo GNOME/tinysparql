@@ -559,6 +559,32 @@ handle_method_call_cancel_tasks (TrackerController     *controller,
 	g_dbus_method_invocation_return_value (invocation, NULL);
 }
 
+static inline void
+get_metadata_fast_write (GDataOutputStream *data_output_stream,
+                         const gchar       *string,
+                         GError            *error)
+{
+	if (error) {
+		return;
+	}
+
+	/* Append data */
+	g_data_output_stream_put_string (data_output_stream,
+	                                 string ? string : "",
+	                                 NULL,
+	                                 &error);
+
+	if (error) {
+		return;
+	}
+
+	/* Append a '\0' */
+	g_data_output_stream_put_byte (data_output_stream,
+	                               0,
+	                               NULL,
+	                               &error);
+}
+
 static void
 get_metadata_fast_cb (GObject      *object,
                       GAsyncResult *res,
@@ -604,60 +630,21 @@ get_metadata_fast_cb (GObject      *object,
 
 		where = tracker_extract_info_get_where_clause (info);
 
+		/* So the structure is like this:
+		 *
+		 *   [buffer,'\0'][buffer,'\0'][...]
+		 *
+		 * We avoid strlen() using
+		 * g_data_input_stream_read_upto() and the
+		 * NUL-terminating byte given strlen() has a size_t
+		 * limitation and costs us time evaluating string
+		 * lengths.
+		 */
 		if (statements && *statements) {
-			g_data_output_stream_put_string (data_output_stream,
-			                                 preupdate ? preupdate : "",
-			                                 NULL,
-			                                 &error);
-
-			if (!error) {
-				g_data_output_stream_put_byte (data_output_stream,
-				                               0,
-				                               NULL,
-				                               &error);
-			}
-
-			if (!error) {
-				g_data_output_stream_put_string (data_output_stream,
-				                                 postupdate ? postupdate : "",
-				                                 NULL,
-				                                 &error);
-			}
-
-			if (!error) {
-				g_data_output_stream_put_byte (data_output_stream,
-				                               0,
-				                               NULL,
-				                               &error);
-			}
-
-			if (!error) {
-				g_data_output_stream_put_string (data_output_stream,
-				                                 statements,
-				                                 NULL,
-				                                 &error);
-			}
-
-			if (!error) {
-				g_data_output_stream_put_byte (data_output_stream,
-				                               0,
-				                               NULL,
-				                               &error);
-			}
-
-			if (!error && where) {
-				g_data_output_stream_put_string (data_output_stream,
-				                                 where,
-				                                 NULL,
-				                                 &error);
-			}
-
-			if (!error) {
-				g_data_output_stream_put_byte (data_output_stream,
-				                               0,
-				                               NULL,
-				                               &error);
-			}
+			get_metadata_fast_write (data_output_stream, preupdate, error);
+			get_metadata_fast_write (data_output_stream, postupdate, error);
+			get_metadata_fast_write (data_output_stream, statements, error);
+			get_metadata_fast_write (data_output_stream, where, error);
 		}
 
 		g_object_unref (data_output_stream);
