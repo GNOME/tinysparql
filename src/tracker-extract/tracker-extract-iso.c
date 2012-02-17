@@ -90,7 +90,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 	os = osinfo_db_guess_os_from_media (db, media, &matched_media);
 
 	if (os == NULL)
-		goto no_os;
+		goto unknown_os;
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:FilesystemImage");
@@ -131,6 +131,16 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 
 	return TRUE;
 
+unknown_os:
+        name = osinfo_media_get_volume_id (media);
+	if (name != NULL) {
+                gchar *stripped = g_strdup (name);
+
+                g_strstrip (stripped);
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_string (metadata, stripped);
+                g_free (stripped);
+	}
 
 no_os:
 	if (media != NULL) {
