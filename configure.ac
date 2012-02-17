@@ -332,51 +332,76 @@ PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 
 # Check requirements for tracker-miner-evolution
-TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                  evolution-shell-3.0       >= 3.1
-                                  evolution-plugin-3.0
-                                  evolution-data-server-1.2 >= $EDS_REQUIRED
-                                  camel-1.2                 >= $CAMEL_REQUIRED"
+evolution_plugin_name=""
 
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
+# First test for 3_3_5
+TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                        evolution-shell-3.0       >= 3.1
+                                        evolution-plugin-3.0
+                                        libemail-utils
+                                        libemail-engine
+                                        evolution-data-server-1.2 >= $EDS_REQUIRED
+                                        camel-1.2                 >= $CAMEL_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED],
                   [have_tracker_miner_evolution=yes],
                   [have_tracker_miner_evolution=no])
 
-if test "x$have_tracker_miner_evolution" = "xyes"; then
+if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
+   evolution_plugin_name="evolution-plugin-3.0"
+
+   AC_DEFINE(EVOLUTION_SHELL_3_3_5, 1, [Use new evolution-shell API])
+   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
+   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
+fi
+
+# Second test for 3_2
+TRACKER_MINER_EVOLUTION_3_2_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                      evolution-shell-3.0       >= 3.1
+                                      evolution-plugin-3.0
+                                      evolution-data-server-1.2 >= $EDS_REQUIRED
+                                      camel-1.2                 >= $CAMEL_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_2_REQUIRED],
+                  [have_tracker_miner_evolution=yes],
+                  [have_tracker_miner_evolution=no])
+
+if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
    evolution_plugin_name="evolution-plugin-3.0"
 
    AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
    AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-else
-   TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                     evolution-shell-3.0
-                                     evolution-plugin-3.0
-                                     evolution-data-server-1.2 >= $EDS_REQUIRED
-                                     camel-1.2                 >= $CAMEL_REQUIRED"
+fi
 
-   PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
-                     [have_tracker_miner_evolution=yes],
-                     [have_tracker_miner_evolution=no])
+# Third test for 2_91
+TRACKER_MINER_EVOLUTION_2_91_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                       evolution-shell-3.0
+                                       evolution-plugin-3.0
+                                       evolution-data-server-1.2 >= $EDS_REQUIRED
+                                       camel-1.2                 >= $CAMEL_REQUIRED"
 
-   if test "x$have_tracker_miner_evolution" = "xyes"; then
-      evolution_plugin_name="evolution-plugin-3.0"
+PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_2_91_REQUIRED],
+                  [have_tracker_miner_evolution=yes],
+                  [have_tracker_miner_evolution=no])
 
-      AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-   else
-      evolution_plugin_name="evolution-plugin"
+if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
+   evolution_plugin_name="evolution-plugin-3.0"
+   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
+fi
 
+# Fourth test others (do we really want support for anything < 3.2)?
+TRACKER_MINER_EVOLUTION_LAST_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                       evolution-shell           >= $EVO_SHELL_REQUIRED
+                                       evolution-plugin          >= $EVO_REQUIRED
+                                       evolution-data-server-1.2 >= $EDS_REQUIRED
+                                       camel-1.2                 >= $CAMEL_REQUIRED"
 
-      TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                        evolution-shell           >= $EVO_SHELL_REQUIRED
-                                        evolution-plugin          >= $EVO_REQUIRED
-                                        evolution-data-server-1.2 >= $EDS_REQUIRED
-                                        camel-1.2                 >= $CAMEL_REQUIRED"
+PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_LAST_REQUIRED],
+                  [have_tracker_miner_evolution=yes],
+                  [have_tracker_miner_evolution=no])
 
-      PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
-                        [have_tracker_miner_evolution=yes],
-                        [have_tracker_miner_evolution=no])
-
-   fi
+if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
+   evolution_plugin_name="evolution-plugin"
 fi
 
 # Check requirements for tracker-miner-thunderbird
@@ -1155,7 +1180,6 @@ else
 fi
 
 if test "x$have_tracker_miner_evolution" = "xyes"; then
-
    AC_ARG_WITH([evolution_plugin_dir],
                AS_HELP_STRING([--with-evolution-plugin-dir],
                               [path to Evolution plugin directory]))
