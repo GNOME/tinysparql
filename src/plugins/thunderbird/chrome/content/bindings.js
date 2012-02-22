@@ -2,7 +2,8 @@ if (!org.bustany.TrackerBird.TrackerSparql || !org.bustany.TrackerBird.TrackerSp
 org.bustany.TrackerBird.TrackerSparql = {
 	__initialized: true,
 
-	_trackerSparqlPath: "libtracker-sparql-0.12.so.0",
+	_trackerSparqlPath1: "libtracker-sparql-0.12.so.0",
+	_trackerSparqlPath2: "libtracker-sparql-0.14.so.0",
 	_lib: null,
 
 	init: function () {
@@ -16,10 +17,16 @@ org.bustany.TrackerBird.TrackerSparql = {
 		Components.utils.import ("resource://gre/modules/ctypes.jsm");
 
 		try {
-			tracker._lib = ctypes.open (tracker._trackerSparqlPath);
+			tracker._lib = ctypes.open (tracker._trackerSparqlPath1);
 		} catch (e) {
-			dump ("Could not load libtracker-sparql 0.12: " + e + "\n");
-			return false;
+			dump ("Could not load " + tracker._trackerSparqlPath1 + ": " + e + "\n");
+
+		        try {
+			        tracker._lib = ctypes.open (tracker._trackerSparqlPath2);
+			} catch (e) {
+			        dump ("Could not load " + tracker._trackerSparqlPath2 + ": " + e + "\n");
+			        return false;
+			}
 		}
 
 		// GLib types
