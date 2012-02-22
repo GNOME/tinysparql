@@ -50,9 +50,8 @@ org.bustany.TrackerBird.Plugin = {
 			plugin.onTrackerReady(source_object, result, user_data);
 		}
 
-		tracker.connection_open_async(null,
-		                              tracker.AsyncReadyCallback.ptr(callback_closure),
-		                              null);
+	        tracker.readyCallback = tracker.AsyncReadyCallback.ptr(callback_closure)
+	        tracker.connection_open_async(null, tracker.readyCallback, null);
 
 		return true;
 	},
