@@ -1229,7 +1229,7 @@ if test "x$have_tracker_miner_thunderbird" = "xyes"; then
                               [path to Thunderbird plugin directory]))
    if test "x$with_thunderbird_plugin_dir" = "x" ; then
       # This is a symlinked to $prefix/share/xul-ext
-      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird-5.0/extensions"
+      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird-${thunderbird_version}/extensions"
    else
       tracker_miner_thunderbird_install_dir="$with_thunderbird_plugin_dir"
    fi
@@ -1268,13 +1268,12 @@ else
 fi
 
 if test "x$have_tracker_miner_firefox" = "xyes"; then
-
    AC_ARG_WITH([firefox_plugin_dir],
                AS_HELP_STRING([--with-firefox-plugin-dir],
                               [path to Firefox plugin directory]))
    if test "x$with_firefox_plugin_dir" = "x" ; then
       # This is a symlinked to $prefix/share/xul-ext
-      tracker_miner_firefox_install_dir="${prefix}/lib/firefox-5.0/extensions"
+      tracker_miner_firefox_install_dir="${prefix}/lib/firefox-${firefox_version}/extensions"
    else
       tracker_miner_firefox_install_dir="$with_firefox_plugin_dir"
    fi
