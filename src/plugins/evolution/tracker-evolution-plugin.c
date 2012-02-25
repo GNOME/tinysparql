@@ -45,8 +45,6 @@
 
 #include <camel/camel.h>
 
-#include <mail/em-utils.h>
-
 #ifdef EVOLUTION_SHELL_3_2
 #include <mail/em-utils.h>
 #include <mail/e-mail.h>
