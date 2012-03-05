@@ -797,6 +797,8 @@ tracker_controller_dbus_start (TrackerController   *controller,
 		                                   &err);
 
 	if (err) {
+		g_critical ("Could not register the D-Bus object "TRACKER_WRITEBACK_PATH", %s",
+		            err ? err->message : "no error given.");
 		g_propagate_error (error, err);
 		return FALSE;
 	}
@@ -808,6 +810,13 @@ tracker_controller_dbus_start (TrackerController   *controller,
 		                              bus_name_acquired_cb,
 		                              bus_name_vanished_cb,
 		                              controller, NULL);
+
+	if (err) {
+		g_critical ("Could not own the D-Bus name "TRACKER_WRITEBACK_SERVICE", %s",
+		            err ? err->message : "no error given.");
+		g_propagate_error (error, err);
+		return FALSE;
+	}
 
 	return TRUE;
 }

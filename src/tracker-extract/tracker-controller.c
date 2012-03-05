@@ -864,14 +864,6 @@ tracker_controller_dbus_start (TrackerController   *controller,
 	g_message ("  Path:'" TRACKER_EXTRACT_PATH "'");
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (controller));
 
-	priv->bus_name_id =
-		g_bus_own_name_on_connection (priv->connection,
-		                              TRACKER_EXTRACT_SERVICE,
-		                              G_BUS_NAME_OWNER_FLAGS_NONE,
-		                              bus_name_acquired_cb,
-		                              bus_name_vanished_cb,
-		                              controller, NULL);
-
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->connection,
 		                                   TRACKER_EXTRACT_PATH,
@@ -883,6 +875,21 @@ tracker_controller_dbus_start (TrackerController   *controller,
 
 	if (err) {
 		g_critical ("Could not register the D-Bus object "TRACKER_EXTRACT_PATH", %s",
+		            err ? err->message : "no error given.");
+		g_propagate_error (error, err);
+		return FALSE;
+	}
+
+	priv->bus_name_id =
+		g_bus_own_name_on_connection (priv->connection,
+		                              TRACKER_EXTRACT_SERVICE,
+		                              G_BUS_NAME_OWNER_FLAGS_NONE,
+		                              bus_name_acquired_cb,
+		                              bus_name_vanished_cb,
+		                              controller, NULL);
+
+	if (err) {
+		g_critical ("Could not own the D-Bus name "TRACKER_EXTRACT_SERVICE", %s",
 		            err ? err->message : "no error given.");
 		g_propagate_error (error, err);
 		return FALSE;
