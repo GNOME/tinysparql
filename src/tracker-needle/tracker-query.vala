@@ -169,6 +169,41 @@ public class Tracker.Query {
 		}"
 	};
 
+	private string [] sort_clauses = {
+		// ALL
+		"DESC(nfo:fileLastModified(?urn)) DESC(nie:contentCreated(?urn)) ASC(nie:title(?urn))",
+
+		// CONTACTS
+		"ASC(nco:fullname(?urn))",
+
+		// APPLICATIONS
+		"ASC(nie:title(?urn)) ASC(nie:comment(?urn))",
+
+		// MUSIC
+		"DESC(nfo:fileLastModified(?urn)) ASC(nie:title(?urn))",
+
+		// IMAGES
+		"DESC(nfo:fileLastModified(?urn)) ASC(nie:title(?urn))",
+
+		// VIDEOS
+		"DESC(nfo:fileLastModified(?urn)) ASC(nie:title(?urn))",
+
+		// DOCUMENTS
+		"DESC(nfo:fileLastModified(?urn)) ASC(nie:title(?urn))",
+
+		// MAIL
+		"DESC(nmo:receivedDate(?urn)) ASC(nmo:messageSubject(?urn))",
+
+		// CALENDAR
+		"DESC(nie:contentCreated(?urn))",
+
+		// FOLDERS
+		"DESC(nfo:fileLastModified(?urn)) ASC(nie:title(?urn))",
+
+		// BOOKMARKS
+		"DESC(nie:contentLastModified(?urn)) ASC(nie:title(?urn))"
+	};
+
 	public string criteria { get; set; }
 	public uint offset { get; set; }
 	public uint limit { get; set; }
@@ -270,7 +305,15 @@ public class Tracker.Query {
 			}
 		}
 
-		query = "SELECT count(?urn) " + where_clauses[query_type].printf (match);
+		query  = "SELECT count(?urn)";
+
+		if (where_clauses[query_type].length > 0) {
+			query += " " + where_clauses[query_type].printf (match);
+		}
+
+		if (sort_clauses[query_type].length > 0) {
+			query += " ORDER BY " + sort_clauses[query_type];
+		}
 
 		try {
 			cursor = yield connection.query_async (query, null);
@@ -330,8 +373,16 @@ public class Tracker.Query {
 			}
 		}
 
-		query = "SELECT " + string.joinv (" ", args) + " " + where_clauses[query_type].printf (match);
-		query += @" OFFSET $offset LIMIT $limit";
+		query  = "SELECT " + string.joinv (" ", args);
+		if (where_clauses[query_type].length > 0) {
+			query += " " + where_clauses[query_type].printf (match);
+		}
+
+		if (sort_clauses[query_type].length > 0) {
+			query += " ORDER BY " + sort_clauses[query_type];
+		}
+
+		query += " OFFSET %u LIMIT %u".printf (offset, limit);
 
 		debug ("Running query: '%s'", query);
 
