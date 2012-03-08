@@ -1,3 +1,36 @@
+NEW in 0.14.0 - 2012-03-08
+==========================
+
+The changes are:
+
+  * Require: libxml2 for --enable-maemo builds
+  * Require: Vala >= 0.13.4 (for introspection fixes)
+  * Require: libosinfo >= 0.0.2 for --enable-libosinfo (file ISO extractor)
+  * Removed: ioprio_get() check in configure, now most kernels have the syscall
+  * Removed: dbus-glib requirement (was only used in 1 or 2 cases)
+  * Removed: GLib unicode parser, it's was sub-optimal and unused
+  * New Feature: CUE sheet parsing is now supported
+  * New Feature: ISO file extractor
+  * libtracker-common: New env var TRACKER_USE_CONFIG_FILES to output ini files instead of use GSettings is available
+  * libtracker-miner: Updated TrackerMinerFS (breaks API/ABI)
+  * libtracker-miner: Introducing TrackerIndexingTree (to use with TrackerMinerFS)
+  * libtracker-miner: Albumart renamed to Media art and refactored
+  * tracker-miner-fs: Refactored, mtime checks are +50% faster and indexing slightly improved
+  * tracker-needle: Now results are sorted nicely
+
+GNOME bugs fixed (13):
+
+  https://bugzilla.gnome.org/buglist.cgi?quicksearch=670679,670778,537899,671314,670251,670294,669646,669546,666372,667786,667787,666654,666410
+
+Nokia bugs fixed (4):
+
+  https://projects.maemo.org/bugzilla/buglist.cgi?quicksearch=296488,289635,296009,290406
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+
 NEW in 0.13.1 - 2012-02-15
 ==========================
 
