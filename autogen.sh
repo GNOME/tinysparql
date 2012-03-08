@@ -28,6 +28,13 @@ compare_versions() {
 # Vala version check
 test -z "$VALAC" && VALAC=valac
 VALA_VERSION=`$VALAC --version | cut -d" " -f2`
+
+if [ -z "$VALA_VERSION" ]; then
+    echo "**Error**: valac not installed or broken. You must have valac >= $REQUIRED_VALA_VERSION"
+    echo "installed to build."
+    exit 1
+fi
+
 echo "Found Vala $VALA_VERSION"
 
 if ! compare_versions $REQUIRED_VALA_VERSION $VALA_VERSION; then
