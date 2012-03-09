@@ -39,7 +39,7 @@ struct _TrackerMinerRSSPrivate {
 	gboolean stopped;
 	gchar *last_status;
 
-	FeedsPool *pool;
+	GrssFeedsPool *pool;
 	gint now_fetching;
 	GDBusConnection *connection;
 	guint graph_updated_id;
@@ -50,14 +50,14 @@ struct _TrackerMinerRSSPrivate {
 
 typedef struct {
 	TrackerMinerRSS *miner;
-	FeedChannel *channel;
+	GrssFeedChannel *channel;
 	gint timeout_id;
 	GCancellable *cancellable;
 } FeedChannelUpdateData;
 
 typedef struct {
 	TrackerMinerRSS *miner;
-	FeedItem *item;
+	GrssFeedItem *item;
 	GCancellable *cancellable;
 } FeedItemInsertData;
 
@@ -76,14 +76,14 @@ static void         retrieve_and_schedule_feeds     (TrackerMinerRSS       *mine
 static gboolean     feed_channel_changed_timeout_cb (gpointer               user_data);
 static void         feed_channel_update_data_free   (FeedChannelUpdateData *fcud);
 static void         feed_item_insert_data_free      (FeedItemInsertData    *fiid);
-static void         feed_fetching_cb                (FeedsPool             *pool,
-                                                     FeedChannel           *feed,
+static void         feed_fetching_cb                (GrssFeedsPool             *pool,
+                                                     GrssFeedChannel           *feed,
                                                      gpointer               user_data);
-static void         feed_ready_cb                   (FeedsPool             *pool,
-                                                     FeedChannel           *feed,
+static void         feed_ready_cb                   (GrssFeedsPool             *pool,
+                                                     GrssFeedChannel           *feed,
                                                      GList                 *items,
                                                      gpointer               user_data);
-static const gchar *get_message_url                 (FeedItem              *item);
+static const gchar *get_message_url                 (GrssFeedItem              *item);
 
 G_DEFINE_TYPE (TrackerMinerRSS, tracker_miner_rss, TRACKER_TYPE_MINER)
 
@@ -150,7 +150,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	                                               NULL,
 	                                               (GDestroyNotify) feed_channel_update_data_free);
 
-	priv->pool = feeds_pool_new ();
+	priv->pool = grss_feeds_pool_new ();
 	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (feed_fetching_cb), object);
 	g_signal_connect (priv->pool, "feed-ready", G_CALLBACK (feed_ready_cb), object);
 	priv->now_fetching = 0;
@@ -193,7 +193,7 @@ graph_updated_cb (GDBusConnection *connection,
 
 static FeedChannelUpdateData *
 feed_channel_update_data_new (TrackerMinerRSS *miner,
-                              FeedChannel     *channel)
+                              GrssFeedChannel     *channel)
 {
 	FeedChannelUpdateData *fcud;
 
@@ -235,7 +235,7 @@ feed_channel_update_data_free (FeedChannelUpdateData *fcud)
 
 static FeedItemInsertData *
 feed_item_insert_data_new (TrackerMinerRSS *miner,
-                           FeedItem        *item)
+                           GrssFeedItem    *item)
 {
 	FeedItemInsertData *fiid;
 
@@ -305,7 +305,7 @@ feed_channel_changed_timeout_cb (gpointer user_data)
 	now = time (NULL);
 	uri = g_object_get_data (G_OBJECT (fcud->channel), "subject");
 
-	g_message ("Updating mfo:updatedTime for channel '%s'", feed_channel_get_title (fcud->channel));
+	g_message ("Updating mfo:updatedTime for channel '%s'", grss_feed_channel_get_title (fcud->channel));
 
 	/* I hope there will be soon a SPARQL command to just update a
 	 * value instead to delete and re-insert it
@@ -344,13 +344,13 @@ static void
 feed_channel_change_updated_time (FeedItemInsertData *fiid)
 {
 	TrackerMinerRSSPrivate *priv;
-	FeedChannel *channel;
+	GrssFeedChannel *channel;
 	FeedChannelUpdateData *fcud;
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (fiid->miner);
 
 	/* Check we don't already have an update request for this channel */
-	channel = feed_item_get_parent (fiid->item);
+	channel = grss_feed_item_get_parent (fiid->item);
 
 	fcud = g_hash_table_lookup (priv->channel_updates, channel);
 	if (fcud) {
@@ -371,9 +371,9 @@ feed_channel_change_updated_time (FeedItemInsertData *fiid)
 }
 
 static void
-feed_fetching_cb (FeedsPool   *pool,
-                  FeedChannel *channel,
-                  gpointer     user_data)
+feed_fetching_cb (GrssFeedsPool   *pool,
+                  GrssFeedChannel *channel,
+                  gpointer        user_data)
 {
 	gint avail;
 	gdouble prog;
@@ -382,7 +382,7 @@ feed_fetching_cb (FeedsPool   *pool,
 
 	miner = TRACKER_MINER_RSS (user_data);
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
-	avail = feeds_pool_get_listened_num (priv->pool);
+	avail = grss_feeds_pool_get_listened_num (priv->pool);
 
 	priv->now_fetching++;
 
@@ -390,7 +390,7 @@ feed_fetching_cb (FeedsPool   *pool,
 		priv->now_fetching = avail;
 
 	g_message ("Fetching channel details, source:'%s' (in progress: %d/%d)",
-	           feed_channel_get_source (channel),
+	           grss_feed_channel_get_source (channel),
 	           priv->now_fetching,
 	           avail);
 
@@ -408,7 +408,7 @@ feed_item_insert_cb (GObject      *source,
 	const gchar *title;
 
 	fiid = user_data;
-	title = feed_item_get_title (fiid->item);
+	title = grss_feed_item_get_title (fiid->item);
 	error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source), result, &error);
@@ -441,7 +441,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	TrackerSparqlCursor *cursor;
 	GError *error;
 	TrackerSparqlBuilder *sparql;
-	FeedChannel *channel;
+	GrssFeedChannel *channel;
 	gboolean has_geolocation;
 
 	fiid = user_data;
@@ -475,12 +475,12 @@ feed_item_check_exists_cb (GObject      *source_object,
 	}
 
 	url = get_message_url (fiid->item);
-	channel = feed_item_get_parent (fiid->item);
+	channel = grss_feed_item_get_parent (fiid->item);
 
 	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 	if (str && g_ascii_strcasecmp (str, "true") == 0) {
 		g_message ("  Item already exists '%s'",
-		           feed_item_get_title (fiid->item));
+		           grss_feed_item_get_title (fiid->item));
 
 		if (cursor) {
 			g_object_unref (cursor);
@@ -495,7 +495,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	sparql = tracker_sparql_builder_new_update ();
 
-	has_geolocation = feed_item_get_geo_point (fiid->item, &latitude, &longitude);
+	has_geolocation = grss_feed_item_get_geo_point (fiid->item, &latitude, &longitude);
 	tracker_sparql_builder_insert_open (sparql, NULL);
 
 	if (has_geolocation) {
@@ -523,7 +523,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object (sparql, "_:location");
 	}
 
-	tmp_string = feed_item_get_title (fiid->item);
+	tmp_string = grss_feed_item_get_title (fiid->item);
 	if (tmp_string != NULL) {
 		g_message ("  Title:'%s'", tmp_string);
 
@@ -531,7 +531,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
-	tmp_string = feed_item_get_description (fiid->item);
+	tmp_string = grss_feed_item_get_description (fiid->item);
 	if (tmp_string != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
@@ -553,7 +553,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "mfo:downloadedTime");
 	tracker_sparql_builder_object_date (sparql, &t);
 
-	t = feed_item_get_publish_time (fiid->item);
+	t = grss_feed_item_get_publish_time (fiid->item);
 	tracker_sparql_builder_predicate (sparql, "nie:contentCreated");
 	tracker_sparql_builder_object_date (sparql, &t);
 
@@ -579,16 +579,16 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 static void
 feed_item_check_exists (TrackerMinerRSS *miner,
-                        FeedItem        *item)
+                        GrssFeedItem    *item)
 {
 	FeedItemInsertData *fiid;
-	FeedChannel *feed;
+	GrssFeedChannel *feed;
 	gchar *query;
 	gchar *communication_channel;
 	const gchar *url;
 
 	url = get_message_url (item);
-	feed = feed_item_get_parent (item);
+	feed = grss_feed_item_get_parent (item);
 	communication_channel = g_object_get_data (G_OBJECT (feed), "subject");
 
 	query = g_strdup_printf ("ASK {"
@@ -610,10 +610,10 @@ feed_item_check_exists (TrackerMinerRSS *miner,
 }
 
 static void
-feed_ready_cb (FeedsPool   *pool,
-               FeedChannel *channel,
-               GList       *items,
-               gpointer     user_data)
+feed_ready_cb (GrssFeedsPool   *pool,
+               GrssFeedChannel *channel,
+               GList           *items,
+               gpointer         user_data)
 {
 	TrackerMinerRSS *miner;
 	TrackerMinerRSSPrivate *priv;
@@ -636,10 +636,10 @@ feed_ready_cb (FeedsPool   *pool,
 	}
 
 	g_message ("Verifying channel:'%s' is up to date",
-	           feed_channel_get_title (channel));
+	           grss_feed_channel_get_title (channel));
 
 	for (iter = items; iter; iter = iter->next) {
-		FeedItem *item = iter->data;
+		GrssFeedItem *item = iter->data;
 
 		feed_item_check_exists (miner, item);
 	}
@@ -654,7 +654,7 @@ feeds_retrieve_cb (GObject      *source_object,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
-	FeedChannel *chan;
+	GrssFeedChannel *chan;
 	gint count;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
@@ -691,12 +691,12 @@ feeds_retrieve_cb (GObject      *source_object,
 		interval = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 		subject = tracker_sparql_cursor_get_string (cursor, 3, NULL);
 
-		chan = feed_channel_new ();
+		chan = grss_feed_channel_new ();
 		g_object_set_data_full (G_OBJECT (chan),
 		                        "subject",
 		                        g_strdup (subject),
 		                        g_free);
-		feed_channel_set_source (chan, g_strdup (source));
+		grss_feed_channel_set_source (chan, g_strdup (source));
 
 		/* TODO How to manage feeds with an update mfo:updateInterval == 0 ?
 		 * Here the interval is forced to be at least 1 minute, but perhaps those
@@ -705,7 +705,7 @@ feeds_retrieve_cb (GObject      *source_object,
 		mins = strtoull (interval, NULL, 10);
 		if (mins <= 0)
 			mins = 1;
-		feed_channel_set_update_interval (chan, mins);
+		grss_feed_channel_set_update_interval (chan, mins);
 
 		g_message ("  '%s' (%s) - update interval of %s minutes",
 		           title,
@@ -720,7 +720,7 @@ feeds_retrieve_cb (GObject      *source_object,
 	}
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
-	feeds_pool_listen (priv->pool, channels);
+	grss_feeds_pool_listen (priv->pool, channels);
 
 	g_object_unref (cursor);
 
@@ -753,13 +753,13 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 }
 
 static const gchar *
-get_message_url (FeedItem *item)
+get_message_url (GrssFeedItem *item)
 {
 	const gchar *url;
 
-	feed_item_get_real_source (item, &url, NULL);
+	grss_feed_item_get_real_source (item, &url, NULL);
 	if (url == NULL)
-		url = feed_item_get_source (item);
+		url = grss_feed_item_get_source (item);
 	return url;
 }
 
@@ -772,7 +772,7 @@ miner_started (TrackerMiner *miner)
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	retrieve_and_schedule_feeds (TRACKER_MINER_RSS (miner));
-	feeds_pool_switch (priv->pool, TRUE);
+	grss_feeds_pool_switch (priv->pool, TRUE);
 }
 
 static void
@@ -781,7 +781,7 @@ miner_stopped (TrackerMiner *miner)
 	TrackerMinerRSSPrivate *priv;
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
-	feeds_pool_switch (priv->pool, FALSE);
+	grss_feeds_pool_switch (priv->pool, FALSE);
 	g_object_set (miner, "progress", 1.0, "status", "Idle", NULL);
 }
 
@@ -791,7 +791,7 @@ miner_paused (TrackerMiner *miner)
 	TrackerMinerRSSPrivate *priv;
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
-	feeds_pool_switch (priv->pool, FALSE);
+	grss_feeds_pool_switch (priv->pool, FALSE);
 
 	/* Save last status */
 	g_free (priv->last_status);
@@ -807,7 +807,7 @@ miner_resumed (TrackerMiner *miner)
 	TrackerMinerRSSPrivate *priv;
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
-	feeds_pool_switch (priv->pool, TRUE);
+	grss_feeds_pool_switch (priv->pool, TRUE);
 
 	/* Resume */
 	g_object_set (miner, "status", priv->last_status ? priv->last_status : "Idle", NULL);
