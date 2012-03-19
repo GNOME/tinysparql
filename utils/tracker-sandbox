@@ -1,0 +1,138 @@
+#!/bin/sh
+
+# Lightweight script for running test instances of Tracker. Less effort
+# than running a full instance of gnome-session from jhbuild. Primary
+# goal is to avoid messing with your actual data.
+
+usage() {
+	echo "tracker-sandbox:"
+	echo "  Creates a lightweight test environment for Tracker, to avoid"
+	echo "  messing with your real data. The safest mechanism is to run"
+	echo "  the sandbox as a different user, but also supports running in"
+	echo "  your real user account but with a database in /tmp/tracker-test"
+	echo
+	echo "  Multiple instances of tracker-sandbox will share a session."
+	echo "  Currently the first instance owns the session and those started"
+	echo "  later will stop working once the first instance has exited." 
+	echo
+	echo "Recommended usage:"
+	echo "  su <dummy user account>"
+	echo "  tracker-sandbox --user"
+	echo
+	echo "Alternative usage:"
+	echo "  tracker-sandbox"
+	echo
+	echo "Other options:"
+	echo "  --help                Show this information"
+	echo "  -p, --prefix DIR      Set up environment to use Tracker installed"
+	echo "                        in DIR (similar to 'jhbuild shell')"
+}
+
+PREFIX=
+SEPARATE_USER_MODE=false
+
+while [ $# -gt 0 ]; do
+	case $1 in
+		--help)
+			usage
+			exit 0
+			;;
+		--prefix|-p)
+			shift
+			if [ -z "$1" ]; then
+				echo "Error: --prefix option requires an argument"	
+				exit 127
+			fi
+			PREFIX=$1
+			;;
+		--user)
+			SEPARATE_USER_MODE=true
+			;;
+		*)
+			echo "Error: unknown option $1"
+			echo "Run '$0 --help' for help."
+			exit 127
+			;;
+	esac
+	shift
+done
+
+DBUS_SESSION_BUS_PID=
+
+set -o errexit
+
+if [ "$SEPARATE_USER_MODE" != "true" ]; then
+	export DCONF_PROFILE=trackertest
+
+	TEMP_DIR=/tmp/tracker-test
+	mkdir -p $TEMP_DIR
+	export XDG_CACHE_HOME=$TEMP_DIR
+	export XDG_CONFIG_HOME=$TEMP_DIR
+	export XDG_DATA_HOME=$TEMP_DIR
+
+	export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-$TEMP_DIR}
+
+	if [ ! -O "$XDG_RUNTIME_DIR" ]; then
+		echo "Error: $XDG_RUNTIME_DIR is not writable by current user ($(whoami))."
+		echo "Use the '--user' option if you have switched to a dummy user account."
+		exit 1
+	fi
+else
+	# We can't create a 'real' runtime dir without root, but for testing
+	# the security implications are irrelevant.
+	XDG_RUNTIME_DIR=/tmp/tracker-test-$(whoami)
+	mkdir -p $XDG_RUNTIME_DIR
+	export XDG_RUNTIME_DIR
+fi
+
+if [ -n "$PREFIX" ]; then
+	if [ ! -d "$PREFIX" ]; then
+		echo "Error: unable to find prefix '$PREFIX'"
+		exit 1
+	fi
+
+	# Interestingly, 'jhbuild run' *doesn't* alter PATH - I wonder why?
+	export PATH="$PREFIX/bin:$PATH"
+	export LD_LIBRARY_PATH="$PREFIX/lib:$PATH"
+	export XDG_DATA_DIRS="$PREFIX/share:$XDG_DATA_DIRS"
+
+	export TRACKER_DB_ONTOLOGIES_DIR="$PREFIX/share/tracker/ontologies"
+	export TRACKER_EXTRACTOR_RULES_DIR="$PREFIX/share/tracker/extract-rules"
+	export TRACKER_LANGUAGE_STOPWORDS_DIR="$PREFIX/share/tracker/languages"
+fi
+
+set -o nounset
+
+if [ "$SEPARATE_USER_MODE" != "true" ]; then
+	echo -n "Running as $(whoami) with data in $TEMP_DIR"
+	[ -e "$TEMP_DIR/tracker/meta.db" ] && echo -n " (previously used)"; echo
+else
+	echo "Running as $(whoami) using real Tracker store"
+fi
+
+if [ -n "$PREFIX" ]; then
+	echo "Using Tracker from $PREFIX"
+fi
+
+SESSION_FILE="$XDG_RUNTIME_DIR/tracker-sandbox"
+
+# Slight race condition here if you start two instances simultaneously .. so don't
+if [ ! -e "$SESSION_FILE" ]; then
+	eval $(dbus-launch --sh-syntax | tee $SESSION_FILE)
+
+	trap "rm \"$SESSION_FILE\"; /bin/kill $DBUS_SESSION_BUS_PID; exit" INT TERM EXIT
+
+	echo "[$DBUS_SESSION_BUS_PID] Launched new session at $DBUS_SESSION_BUS_ADDRESS"
+else
+	eval $(cat $SESSION_FILE)
+
+	echo "Using existing session at $DBUS_SESSION_BUS_ADDRESS"		
+fi
+
+sh
+
+# Cleanup handled by 'trap' handler above.
+
+# It would be nice if we could ref-count the session instead of pulling the rug
+# out from under any other tracker-sandbox processes that are still running.
+
