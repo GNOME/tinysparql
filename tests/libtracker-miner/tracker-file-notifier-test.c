@@ -61,6 +61,14 @@ typedef enum {
 	OPERATION_MOVE
 } OperationType;
 
+#if GLIB_MINOR_VERSION < 30
+gchar *
+g_mkdtemp (gchar *tmpl)
+{
+	return mkdtemp (tmpl);
+}
+#endif
+
 #define test_add(path,fun)	  \
 	g_test_add (path, \
 	            TestCommonContext, \
