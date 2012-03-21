@@ -2107,7 +2107,6 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 
 		uri = g_file_get_uri (data->file);
 		g_message ("Performing failsafe extraction on '%s'", uri);
-		g_free (uri);
 
 		get_metadata_fast_async (data->miner->private->connection,
 		                         uri,
@@ -2115,6 +2114,8 @@ extractor_process_failsafe (TrackerMinerFiles *miner)
 		                         data->cancellable,
 		                         extractor_get_failsafe_metadata_cb,
 		                         data);
+
+		g_free (uri);
 	} else {
 		g_debug ("Failsafe extraction finished. Resuming miner...");
 
