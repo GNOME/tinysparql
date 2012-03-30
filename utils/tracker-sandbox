@@ -13,7 +13,7 @@ usage() {
 	echo
 	echo "  Multiple instances of tracker-sandbox will share a session."
 	echo "  Currently the first instance owns the session and those started"
-	echo "  later will stop working once the first instance has exited." 
+	echo "  later will stop working once the first instance has exited."
 	echo
 	echo "Recommended usage:"
 	echo "  su <dummy user account>"
@@ -40,7 +40,7 @@ while [ $# -gt 0 ]; do
 		--prefix|-p)
 			shift
 			if [ -z "$1" ]; then
-				echo "Error: --prefix option requires an argument"	
+				echo "Error: --prefix option requires an argument"
 				exit 127
 			fi
 			PREFIX=$1
@@ -126,7 +126,7 @@ if [ ! -e "$SESSION_FILE" ]; then
 else
 	eval $(cat $SESSION_FILE)
 
-	echo "Using existing session at $DBUS_SESSION_BUS_ADDRESS"		
+	echo "Using existing session at $DBUS_SESSION_BUS_ADDRESS"
 fi
 
 sh
