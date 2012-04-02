@@ -41,41 +41,44 @@
 
 #include <sqlite3.h>
 
-#include <libedataserver/eds-version.h>
-
-#include <camel/camel.h>
-
-#ifdef EVOLUTION_SHELL_3_2
-#include <mail/em-utils.h>
-#include <mail/e-mail.h>
-#endif  /* EVOLUTION_SHELL_3_2 */
-
-#ifdef EVOLUTION_SHELL_3_3_5
+/* This is why you should seal your headers with one include for
+ * client sanity. This is the horendous shit we've had to put up with
+ * for years from the Evo shell API :(
+ */
+#if defined(EVOLUTION_SHELL_3_3_5)
 #include <libemail-engine/e-mail-folder-utils.h>
 #include <libemail-engine/e-mail-session.h>
 #include <libemail-engine/mail-config.h>
 #include <libemail-engine/mail-ops.h>
 #include <libemail-utils/e-account-utils.h>
-#else  /* EVOLUTION_SHELL_3_3_5 */
-#include <mail/e-mail-folder-utils.h>
+#elif defined(EVOLUTION_SHELL_3_2)
+#include <mail/em-utils.h>
+#include <mail/e-mail.h>
 #include <mail/mail-config.h>
 #include <mail/mail-ops.h>
 #include <e-util/e-account-utils.h>
-#ifdef EVOLUTION_SHELL_2_91
-#include <mail/e-mail-session.h>
-#else  /* EVOLUTION_SHELL_2_91 */
+#elif defined(EVOLUTION_SHELL_2_91)
+#include <mail/e-mail.h>
+#include <mail/mail-config.h>
+#include <mail/mail-ops.h>
+#include <e-util/e-account-utils.h>
+#else /* OLDER, mostly 2.32 or so */
+#include <mail/mail-config.h>
+#include <mail/mail-ops.h>
 #include <mail/mail-session.h>
-#endif /* EVOLUTION_SHELL_2_91 */
-#endif /* EVOLUTION_SHELL_3_3_5 */
+#include <e-util/e-account-utils.h>
+#endif
 
-#include <mail/e-mail-backend.h>
+/* Remaining includes which are in ALL versions: */
 #include <shell/e-shell.h>
 
 #include <e-util/e-config.h>
 
 #include <libedataserver/e-account.h>
 #include <libedataserver/e-account-list.h>
+#include <libedataserver/eds-version.h>
 
+/* Back to sanity */
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include <libtracker-common/tracker-date-time.h>
