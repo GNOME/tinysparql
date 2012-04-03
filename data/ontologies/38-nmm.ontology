@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2011-08-19T13:05:00Z" .
+	nao:lastModified "2012-04-03T12:00:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -542,4 +542,31 @@ nmm:uPnPShared a rdf:Property ;
 	rdfs:comment "Tells the uPnP MediaServer (e.g. Rygel) whether to export/share the resource or not" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
+	rdfs:range xsd:boolean .
+
+# TV / Series
+nmm:TVShow a rdfs:Class ;
+	rdfs:label "TV Show" ;
+	rdfs:comment "A TV Show" ;
+	rdfs:subClassOf nfo:Media, nie:InformationElement, nfo:Visual, nfo:Video ;
+	rdfs:domain nmm:episodeNumber, nmm:season .
+
+nmm:TVSeries a rdfs:Class ;
+	rdfs:label "TV Series" ;
+	rdfs:comment "A TV Series has multiple seasons and episodes" ;
+	rdfs:subClassOf nie:InformationElement .
+
+nmm:series a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
+	rdfs:label "series" ;
+	rdfs:comment "series" ;
+	rdfs:domain nmm:TVShow ;
+	rdfs:range nmm:TVSeries ;
+	nrl:maxCardinality 1 .
+
+nmm:hasEpisode a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
+	rdfs:label "has episode" ;
+	rdfs:comment "A TV Series has many episodes" ;
+	rdfs:domain nmm:TVSeries ;
 	rdfs:range xsd:boolean .
