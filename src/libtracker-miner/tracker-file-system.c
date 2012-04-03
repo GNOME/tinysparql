@@ -469,6 +469,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 
 	priv = file_system->priv;
 	node = NULL;
+	parent_node = NULL;
 
 	if (parent) {
 		parent_node = file_system_get_node (file_system, parent);
