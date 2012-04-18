@@ -2993,3 +2993,104 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 				   flags);
 	g_object_unref (mount_point_file);
 }
+
+gboolean
+tracker_miner_files_is_file_eligible (TrackerMinerFiles *miner,
+                                      GFile             *file)
+{
+	TrackerConfig *config;
+	GFile *dir;
+	GFileInfo *file_info;
+	gboolean is_dir;
+
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	if (!file_info) {
+		/* file does not exist */
+		return FALSE;
+	}
+
+	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
+	g_object_unref (file_info);
+
+	g_object_get (miner,
+	              "config", &config,
+	              NULL);
+
+	if (is_dir) {
+		dir = g_object_ref (file);
+	} else {
+		if (!tracker_miner_files_check_file (file,
+		                                     tracker_config_get_ignored_file_paths (config),
+		                                     tracker_config_get_ignored_file_patterns (config))) {
+			/* file is not eligible to be indexed */
+			g_object_unref (config);
+			return FALSE;
+		}
+
+		dir = g_file_get_parent (file);
+	}
+
+	if (dir) {
+		gboolean found = FALSE;
+		GSList *l;
+
+		if (!tracker_miner_files_check_directory (dir,
+		                                          tracker_config_get_index_recursive_directories (config),
+		                                          tracker_config_get_index_single_directories (config),
+		                                          tracker_config_get_ignored_directory_paths (config),
+		                                          tracker_config_get_ignored_directory_patterns (config))) {
+			/* file is not eligible to be indexed */
+			g_object_unref (dir);
+			g_object_unref (config);
+			return FALSE;
+		}
+
+		l = tracker_config_get_index_recursive_directories (config);
+
+		while (l && !found) {
+			GFile *config_dir;
+
+			config_dir = g_file_new_for_path ((gchar *) l->data);
+
+			if (g_file_equal (dir, config_dir) ||
+			    g_file_has_prefix (dir, config_dir)) {
+				found = TRUE;
+			}
+
+			g_object_unref (config_dir);
+			l = l->next;
+		}
+
+		l = tracker_config_get_index_single_directories (config);
+
+		while (l && !found) {
+			GFile *config_dir;
+
+			config_dir = g_file_new_for_path ((gchar *) l->data);
+
+			if (g_file_equal (dir, config_dir)) {
+				found = TRUE;
+			}
+
+			g_object_unref (config_dir);
+			l = l->next;
+		}
+
+		g_object_unref (dir);
+
+		if (!found) {
+			/* file is not eligible to be indexed */
+			g_object_unref (config);
+			return FALSE;
+		}
+	}
+
+	g_object_unref (config);
+
+	/* file is eligible to be indexed */
+	return TRUE;
+}
