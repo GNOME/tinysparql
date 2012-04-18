@@ -1059,9 +1059,11 @@ init_mount_points (TrackerMinerFiles *miner_files)
 					 * state. We will force mtime checks on this mount points,
 					 * even if no-mtime-check-needed was set. */
 					file = g_file_new_for_path (mount_point);
-					tracker_indexing_tree_add (indexing_tree,
-								   file,
-								   flags);
+					if (tracker_miner_files_is_file_eligible (miner_files, file)) {
+						tracker_indexing_tree_add (indexing_tree,
+									   file,
+									   flags);
+					}
 					g_object_unref (file);
 				}
 			}
