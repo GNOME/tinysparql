@@ -725,12 +725,6 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
-# Check we have the D-Bus binding tool we need
-AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
-if test -z $DBUSBINDINGTOOL; then
-   AC_MSG_ERROR([Could not find 'dbus-binding-tool'])
-fi
-
 GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
 AC_SUBST(GLIB_GENMARSHAL)
 
