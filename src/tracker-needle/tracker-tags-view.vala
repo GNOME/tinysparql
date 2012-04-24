@@ -702,7 +702,7 @@ public class TrackerTagsView : VBox {
 			}
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql query: %s", e.message);
-			show_error_dialog (_("Could toggle tags according to selection"), e);
+			show_error_dialog (_("Could not toggle tags according to selection"), e);
 		}
 	}
 
