@@ -238,6 +238,7 @@ tracker_password_provider_get_type
 TrackerStorage
 TrackerStorageClass
 TrackerStorageType
+tracker_storage_get
 tracker_storage_get_device_roots
 tracker_storage_get_device_uuids
 tracker_storage_get_mount_point_for_uuid

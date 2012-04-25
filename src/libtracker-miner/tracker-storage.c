@@ -97,6 +97,8 @@ enum {
 
 static guint signals[LAST_SIGNAL] = {0};
 
+static TrackerStorage *global_instance = NULL;
+
 G_DEFINE_TYPE (TrackerStorage, tracker_storage, G_TYPE_OBJECT);
 
 static void
@@ -842,13 +844,35 @@ mount_pre_removed_cb (GVolumeMonitor *monitor,
 }
 
 /**
+ * tracker_storage_get:
+ *
+ * Returns the global instance of #TrackerStorage. You should not
+ * call g_object_unref() on this object.
+ *
+ * Returns: (transfer none): The #TrackerStorage singleton object.
+ *
+ * Since: 0.14.2
+ **/
+TrackerStorage *
+tracker_storage_get (void)
+{
+	if (global_instance == NULL) {
+		global_instance = g_object_new (TRACKER_TYPE_STORAGE, NULL);
+	}
+
+	return global_instance;
+}
+
+/**
  * tracker_storage_new:
  *
- * Creates a new instance of #TrackerStorage.
+ * Creates a new instance of #TrackerStorage. You should use
+ * tracker_storage_get() instead to use the global instance.
  *
  * Returns: The newly created #TrackerStorage.
  *
  * Since: 0.8
+ * Deprecated: 0.14.2: Use tracker_storage_get() instead.
  **/
 TrackerStorage *
 tracker_storage_new (void)
@@ -1104,4 +1128,3 @@ tracker_storage_get_uuid_for_file (TrackerStorage *storage,
 
 	return info->uuid;
 }
-

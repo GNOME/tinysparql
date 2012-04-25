@@ -56,7 +56,6 @@ static const gchar *media_art_type_name[TRACKER_MEDIA_ART_TYPE_COUNT] = {
 };
 
 typedef struct {
-	TrackerStorage *storage;
 	gchar *art_path;
 	gchar *local_uri;
 } GetFileInfo;
@@ -77,7 +76,6 @@ typedef enum {
 
 static gboolean initialized = FALSE;
 static gboolean disable_requests;
-static TrackerStorage *media_art_storage;
 static GHashTable *media_art_cache;
 static GDBusConnection *connection;
 
@@ -777,8 +775,7 @@ media_art_set (const unsigned char *buffer,
 }
 
 static void
-albumart_request_download (TrackerStorage      *storage,
-                           TrackerMediaArtType  type,
+albumart_request_download (TrackerMediaArtType  type,
                            const gchar         *album,
                            const gchar         *artist,
                            const gchar         *local_uri,
@@ -796,8 +793,6 @@ albumart_request_download (TrackerStorage      *storage,
 		}
 
 		info = g_slice_new (GetFileInfo);
-
-		info->storage = storage ? g_object_ref (storage) : NULL;
 
 		info->local_uri = g_strdup (local_uri);
 		info->art_path = g_strdup (art_path);
@@ -822,24 +817,16 @@ albumart_request_download (TrackerStorage      *storage,
 }
 
 static void
-media_art_copy_to_local (TrackerStorage *storage,
-                         const gchar    *filename,
+media_art_copy_to_local (const gchar    *filename,
                          const gchar    *local_uri)
 {
 	GSList *roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
-	/* Determining if we are on a removable device */
-	if (!storage) {
-		/* This is usually because we are running on the
-		 * command line, so we don't error here with
-		 * g_return_if_fail().
-		 */
-		return;
-	}
-
-	roots = tracker_storage_get_device_roots (storage, TRACKER_STORAGE_REMOVABLE, FALSE);
+	roots = tracker_storage_get_device_roots (tracker_storage_get (),
+	                                          TRACKER_STORAGE_REMOVABLE,
+	                                          FALSE);
 	flen = strlen (filename);
 
 	for (l = roots; l; l = l->next) {
@@ -917,20 +904,13 @@ albumart_queue_cb (GObject      *source_object,
 		g_variant_unref (v);
 	}
 
-	if (info->storage && info->art_path &&
-	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+	if (info->art_path && g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 
-		media_art_copy_to_local (info->storage,
-		                         info->art_path,
-		                         info->local_uri);
+		media_art_copy_to_local (info->art_path, info->local_uri);
 	}
 
 	g_free (info->art_path);
 	g_free (info->local_uri);
-
-	if (info->storage) {
-		g_object_unref (info->storage);
-	}
 
 	g_slice_free (GetFileInfo, info);
 }
@@ -943,8 +923,6 @@ tracker_media_art_init (void)
 	g_return_val_if_fail (initialized == FALSE, FALSE);
 
 	tracker_media_art_plugin_init ();
-
-	media_art_storage = tracker_storage_new ();
 
 	/* Cache to know if we have already handled uris */
 	media_art_cache = g_hash_table_new_full (g_str_hash,
@@ -978,10 +956,6 @@ tracker_media_art_shutdown (void)
 
 	if (media_art_cache) {
 		g_hash_table_unref (media_art_cache);
-	}
-
-	if (media_art_storage) {
-		g_object_unref (media_art_storage);
 	}
 
 	tracker_media_art_plugin_shutdown ();
@@ -1087,8 +1061,7 @@ tracker_media_art_process (const unsigned char *buffer,
 				 * media-art to the media-art
 				 * downloaders
 				 */
-				albumart_request_download (media_art_storage,
-				                           type,
+				albumart_request_download (type,
 				                           artist,
 				                           title,
 				                           local_art_uri,
@@ -1116,9 +1089,7 @@ tracker_media_art_process (const unsigned char *buffer,
 		 * situation might have changed
 		 */
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			media_art_copy_to_local (media_art_storage,
-			                         art_path,
-			                         local_art_uri);
+			media_art_copy_to_local (art_path, local_art_uri);
 		}
 	}
 

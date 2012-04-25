@@ -99,6 +99,8 @@ struct _TrackerStorageClass {
 };
 
 GType              tracker_storage_get_type                 (void) G_GNUC_CONST;
+TrackerStorage *   tracker_storage_get                      (void);
+G_GNUC_DEPRECATED_FOR(tracker_storage_get)
 TrackerStorage *   tracker_storage_new                      (void);
 GSList *           tracker_storage_get_device_roots         (TrackerStorage     *storage,
                                                              TrackerStorageType  type,

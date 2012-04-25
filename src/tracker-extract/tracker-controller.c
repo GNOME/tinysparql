@@ -46,7 +46,6 @@ struct TrackerControllerPrivate {
 	GMainContext *context;
 	GMainLoop *main_loop;
 
-	TrackerStorage *storage;
 	TrackerExtract *extractor;
 
 	GDBusConnection *connection;
@@ -166,8 +165,6 @@ tracker_controller_finalize (GObject *object)
 	if (priv->extractor) {
 		g_object_unref (priv->extractor);
 	}
-
-	g_object_unref (priv->storage);
 
 	g_main_loop_unref (priv->main_loop);
 	g_main_context_unref (priv->context);
@@ -407,8 +404,7 @@ tracker_controller_init (TrackerController *controller)
 	priv->context = g_main_context_new ();
 	priv->main_loop = g_main_loop_new (priv->context, FALSE);
 
-	priv->storage = tracker_storage_new ();
-	g_signal_connect (priv->storage, "mount-point-removed",
+	g_signal_connect (tracker_storage_get (), "mount-point-removed",
 	                  G_CALLBACK (mount_point_removed_cb), controller);
 
 #if GLIB_CHECK_VERSION (2,31,0)
