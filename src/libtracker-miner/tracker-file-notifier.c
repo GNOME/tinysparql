@@ -1377,6 +1377,9 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	                                          file,
 	                                          G_FILE_TYPE_REGULAR,
 	                                          NULL);
+	if (!canonical) {
+		return NULL;
+	}
 
 	iri = tracker_file_system_get_property (priv->file_system,
 	                                        canonical,
