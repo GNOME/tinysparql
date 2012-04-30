@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-04 20:17+0100\n"
-"PO-Revision-Date: 2012-03-04 22:04+0100\n"
+"POT-Creation-Date: 2012-04-30 16:35+0200\n"
+"PO-Revision-Date: 2012-04-30 16:36+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <gnome-l10n-gl@gnome.org>\n"
 "Language: gl\n"
@@ -626,15 +626,15 @@ msgstr "Monitorizarase"
 msgid "- start the tracker indexer"
 msgstr "- iniciar o indexador do tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1364
+#: ../src/miners/fs/tracker-miner-files.c:1366
 msgid "Low battery"
 msgstr "Batería baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1491
+#: ../src/miners/fs/tracker-miner-files.c:1493
 msgid "Low disk space"
 msgstr "Espazo en disco baixo"
 
-#: ../src/miners/fs/tracker-miner-files.c:2253
+#: ../src/miners/fs/tracker-miner-files.c:2255
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Erro do extractor ao realizar a extracción a proba de fallos dos metadatos "
@@ -695,7 +695,7 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Meter os datos en Tracker para poder solicitalos."
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2576
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Procesando…"
@@ -1530,7 +1530,7 @@ msgid "Could not remove tag"
 msgstr "Non foi posíbel quitar a etiqueta"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could toggle tags according to selection"
+msgid "Could not toggle tags according to selection"
 msgstr "Non foi posíbel trocar as etiquetas segundo a selección"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
