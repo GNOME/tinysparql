@@ -40,13 +40,15 @@ enum {
 	PROP_0,
 	PROP_VERBOSITY,
 	PROP_SCHED_IDLE,
-	PROP_MAX_BYTES
+	PROP_MAX_BYTES,
+	PROP_MAX_MEDIA_ART_WIDTH
 };
 
 static TrackerConfigMigrationEntry migration[] = {
 	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity" },
 	{ G_TYPE_ENUM, "General", "SchedIdle", "sched-idle" },
 	{ G_TYPE_INT, "General", "MaxBytes", "max-bytes" },
+	{ G_TYPE_INT, "General", "MaxMediaArtWidth", "max-media-art-width" },
 	{ 0 }
 };
 
@@ -88,6 +90,16 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   0, 1024 * 1024 * 10,
 	                                                   1024 * 1024,
 	                                                   G_PARAM_READWRITE));
+
+	g_object_class_install_property (object_class,
+	                                 PROP_MAX_MEDIA_ART_WIDTH,
+	                                 g_param_spec_int ("max-media-art-width",
+	                                                   "Max Media Art Width",
+	                                                   " Maximum width of the Media Art to be generated (-1=disable, 0=original width, 1->2048=max pixel width)",
+	                                                   -1,
+	                                                   2048,
+	                                                   0,
+	                                                   G_PARAM_READWRITE));
 }
 
 static void
@@ -117,6 +129,11 @@ config_set_property (GObject      *object,
 		                    g_value_get_int (value));
 		break;
 
+	case PROP_MAX_MEDIA_ART_WIDTH:
+		g_settings_set_int (G_SETTINGS (object), "max-media-art-width",
+		                    g_value_get_int (value));
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -143,6 +160,11 @@ config_get_property (GObject    *object,
 	case PROP_MAX_BYTES:
 		g_value_set_int (value,
 		                 g_settings_get_int (G_SETTINGS (object), "max-bytes"));
+		break;
+
+	case PROP_MAX_MEDIA_ART_WIDTH:
+		g_value_set_int (value,
+		                 g_settings_get_int (G_SETTINGS (object), "max-media-art-width"));
 		break;
 
 	default:
@@ -247,4 +269,25 @@ tracker_config_set_max_bytes (TrackerConfig *config,
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	g_object_set (G_OBJECT (config), "max-bytes", value, NULL);
+}
+
+gint
+tracker_config_get_max_media_art_width (TrackerConfig *config)
+{
+	gint max_media_art_width;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
+
+	g_object_get (config, "max-media-art-width", &max_media_art_width, NULL);
+
+	return max_media_art_width;
+}
+
+void
+tracker_config_set_max_media_art_width (TrackerConfig *config,
+                                       gint           value)
+{
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	g_object_set (G_OBJECT (config), "max-media-art-width", value, NULL);
 }
