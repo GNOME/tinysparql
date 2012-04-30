@@ -24,6 +24,8 @@
 
 #include "tracker-media-art-generic.h"
 
+#include "tracker-main.h"
+
 void
 tracker_media_art_plugin_init (void)
 {
@@ -40,6 +42,15 @@ tracker_media_art_file_to_jpeg (const gchar *filename,
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
+	TrackerConfig *config = tracker_main_get_config ();
+	gint max_media_art_width = tracker_config_get_max_media_art_width (config);
+
+	if (max_media_art_width < 0) {
+		g_debug ("Not saving album art from file, disabled in config");
+		return TRUE;
+	}
+
+	/* TODO: Add resizing support */
 
 	pixbuf = gdk_pixbuf_new_from_file (filename, &error);
 
@@ -60,6 +71,26 @@ tracker_media_art_file_to_jpeg (const gchar *filename,
 	return TRUE;
 }
 
+static void
+size_prepared_cb (GdkPixbufLoader *loader,
+                  gint             width,
+                  gint             height,
+                  gpointer         user_data)
+{
+	TrackerConfig *config = tracker_main_get_config ();
+	gint max_media_art_width = tracker_config_get_max_media_art_width (config);
+	gfloat scale;
+
+	if (max_media_art_width < 1 || width <= max_media_art_width) {
+		return;
+	}
+
+	g_debug ("Resizing media art to %d width", max_media_art_width);
+
+	scale = width / (gfloat) max_media_art_width;
+
+	gdk_pixbuf_loader_set_size (loader, (gint) (width / scale), (gint) (height / scale));
+}
 
 gboolean
 tracker_media_art_buffer_to_jpeg (const unsigned char *buffer,
@@ -67,24 +98,37 @@ tracker_media_art_buffer_to_jpeg (const unsigned char *buffer,
                                   const gchar         *buffer_mime,
                                   const gchar         *target)
 {
+	TrackerConfig *config = tracker_main_get_config ();
+	gint max_media_art_width = tracker_config_get_max_media_art_width (config);
+
+	if (max_media_art_width < 0) {
+		g_debug ("Not saving album art from buffer, disabled in config");
+		return TRUE;
+	}
+
 	/* FF D8 FF are the three first bytes of JPeg images */
-	if ((g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
-	    g_strcmp0 (buffer_mime, "JPG") == 0) &&
+	if (max_media_art_width == 0 &&
+	    (g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
+	     g_strcmp0 (buffer_mime, "JPG") == 0) &&
 	    (buffer && len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)) {
-
-		g_debug ("Saving album art using raw data as uri:'%s'",
-		         target);
-
+		g_debug ("Saving album art using raw data as uri:'%s'", target);
 		g_file_set_contents (target, buffer, (gssize) len, NULL);
 	} else {
 		GdkPixbuf *pixbuf;
 		GdkPixbufLoader *loader;
 		GError *error = NULL;
 
-		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s'",
-		         target);
+		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s' (max width:%d)",
+		         target,
+		         max_media_art_width);
 
 		loader = gdk_pixbuf_loader_new ();
+		if (max_media_art_width > 0) {
+			g_signal_connect (loader,
+			                  "size-prepared",
+			                  G_CALLBACK (size_prepared_cb),
+			                  NULL);
+		}
 
 		if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
 			g_warning ("Could not write with GdkPixbufLoader when setting album art, %s",

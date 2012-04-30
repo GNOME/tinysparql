@@ -59,6 +59,16 @@ gboolean
 tracker_media_art_file_to_jpeg (const gchar *filename,
                                 const gchar *target)
 {
+	TrackerConfig *config = tracker_main_get_config ();
+	gint max_media_art_width = tracker_config_get_max_media_art_width (config);
+
+	if (max_media_art_width < 0) {
+		g_debug ("Not saving album art from file, disabled in config");
+		return TRUE;
+	}
+
+	/* TODO: Add resizing support */
+
 	QFile file (filename);
 
 	if (!file.open (QIODevice::ReadOnly)) {
@@ -101,18 +111,27 @@ tracker_media_art_buffer_to_jpeg (const unsigned char *buffer,
                                   const gchar         *buffer_mime,
                                   const gchar         *target)
 {
-	/* FF D8 FF are the three first bytes of JPeg images */
-	if ((g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
-	    g_strcmp0 (buffer_mime, "JPG") == 0) &&
-	    (buffer && len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)) {
+	TrackerConfig *config = tracker_main_get_config ();
+	gint max_media_art_width = tracker_config_get_max_media_art_width (config);
 
+	if (max_media_art_width < 0) {
+		g_debug ("Not saving album art from buffer, disabled in config");
+		return TRUE;
+	}
+
+	/* FF D8 FF are the three first bytes of JPeg images */
+	if (max_media_art_width == 0 &&
+	    (g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
+	     g_strcmp0 (buffer_mime, "JPG") == 0) &&
+	    (buffer && len > 2 && buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)) {
 		g_debug ("Saving album art using raw data as uri:'%s'",
 		         target);
-
 		g_file_set_contents (target, (const gchar*) buffer, (gssize) len, NULL);
 	} else {
 		QImageReader *reader = NULL;
 		QByteArray array;
+
+		/* TODO: Add resizing support */
 
 		array = QByteArray ((const char *) buffer, (int) len);
 

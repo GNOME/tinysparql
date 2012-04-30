@@ -41,5 +41,12 @@ Boston, MA  02110-1301, USA.
       <range min="0" max="10485760"/>
       <default>1048576</default>
     </key>
+
+    <key name="max-media-art-width" type="i">
+      <_summary>Max media art width</_summary>
+      <_description>Maximum width in pixels for any media art extracted. Anything bigger is resized. Set to -1 to disable saving media art from files. Setting to 0 sets no limit on the media art width.</_description>
+      <range min="-1" max="2048"/>
+      <default>0</default>
+    </key>
   </schema>
 </schemalist>
