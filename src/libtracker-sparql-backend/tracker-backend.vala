@@ -334,6 +334,11 @@ class Tracker.Sparql.Backend : Connection {
 
 		LogLevelFlags remove_levels = 0;
 
+		// If we have debug enabled, we imply G_MESSAGES_DEBUG or we
+		// see nothing, this came in since GLib 2.32.
+		if (verbosity > 2)
+			Environment.set_variable ("G_MESSAGES_DEBUG", "all", true);
+
 		switch (verbosity) {
 		// Log level 3: EVERYTHING
 		case 3:
