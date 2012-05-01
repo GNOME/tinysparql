@@ -176,6 +176,13 @@ tracker_log_init (gint    this_verbosity,
 		g_free (verbosity_string);
 	}
 
+	/* If we have debug enabled, we imply G_MESSAGES_DEBUG or we
+	 * see nothing, this came in since GLib 2.32.
+	 */
+	if (this_verbosity > 2) {
+		g_setenv ("G_MESSAGES_DEBUG", "all", TRUE);
+	}
+
 	basename = g_strdup_printf ("%s.log", g_get_application_name ());
 	filename = g_build_filename (g_get_user_data_dir (),
 	                             "tracker",
