@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-08 21:16+0100\n"
-"PO-Revision-Date: 2012-03-08 21:17+0100\n"
+"POT-Creation-Date: 2012-05-03 20:57+0200\n"
+"PO-Revision-Date: 2012-05-03 20:58+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -77,6 +77,21 @@ msgstr "Maksymalnie bajtów do wypakowania"
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
 msgstr "Maksymalna liczba bajtów UTF-8 do wypakowania."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr "Maksymalna szerokość okładki multimediów"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
+"no limit on the media art width."
+msgstr ""
+"Maksymalna szerokość w pikselach dla wypakowanych okładek multimediów. "
+"Większe obrazy zostaną zmniejszone. Ustawienie na wartość -1 wyłącza "
+"zapisywanie okładek z plików. Ustawienie na wartość 0 ustawia brak "
+"ograniczenia szerokości okładki."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Minimum length of a word to be indexed"
@@ -634,15 +649,15 @@ msgstr "Będzie monitorowane"
 msgid "- start the tracker indexer"
 msgstr "- uruchomia program indeksujący Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1364
+#: ../src/miners/fs/tracker-miner-files.c:1366
 msgid "Low battery"
 msgstr "Niski poziom naładowania akumulatora"
 
-#: ../src/miners/fs/tracker-miner-files.c:1491
+#: ../src/miners/fs/tracker-miner-files.c:1493
 msgid "Low disk space"
 msgstr "Mało miejsca na dysku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2253
+#: ../src/miners/fs/tracker-miner-files.c:2255
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Błąd podczas wydobywania, wykonywanie bezpiecznego wydobywania osadzonych "
@@ -703,7 +718,7 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Podaje dane programowi Tracker, aby można je było odpytywać."
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2574
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Przetwarzanie…"
@@ -1557,7 +1572,7 @@ msgid "Could not remove tag"
 msgstr "Nie można usunąć etykiety"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could toggle tags according to selection"
+msgid "Could not toggle tags according to selection"
 msgstr "Nie można przełączyć etykiet zgodnie z zaznaczeniem"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
