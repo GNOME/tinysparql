@@ -1,3 +1,31 @@
+NEW in 0.14.1 - 2012-05-03
+==========================
+
+The changes are:
+
+  * New Feature: tracker-sandbox, to help with development (in utils/ directory)
+  * Fixes: GB#672308, tracker-miner-fs suddenly crashed
+  * Fixes: GB#672415, doesn't build with evolution 2.32.x (Ubuntu 11.04)
+  * build: Error gracefully in autogen.sh when valac is not installed
+  * libtracker-common: Set G_MESSAGES_DEBUG when verbosity > 2
+  * libtracker-sparql: Set G_MESSAGES_DEBUG when verbosity > 2
+  * libtracker-miner: Don't abort() if none file:// URI themes are used
+  * libtracker-miner: Fix unit tests with GLib 2.28
+  * tracker-extract: Added 'max-media-art-width' config option
+  * tracker-extract-oasis: Support Libreoffice graphic/drawing files (*.odg)
+  * tracker-extract-oasis: Simplify text extraction and retrieve more content for ODT files
+  * tracker-miner-fs: Do not index non-eligible mount points on startup
+  * tracker-needle: Fix typo when toggling tags fails
+
+Translations:
+
+  * Updated es: Daniel Mustieles
+  * Updated fi: Timo Jyrinki
+  * Updated ja: Jiro Matsuzawa
+  * Updated pl: Piotr Drąg
+  * Updated zh_CN: Yinghua Wang
+
+
 NEW in 0.14.0 - 2012-03-08
 ==========================
 
