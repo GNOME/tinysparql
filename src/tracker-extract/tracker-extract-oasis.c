@@ -40,14 +40,16 @@ typedef enum {
 	ODT_TAG_TYPE_GENERATOR,
 	ODT_TAG_TYPE_WORD_TEXT,
 	ODT_TAG_TYPE_SLIDE_TEXT,
-	ODT_TAG_TYPE_SPREADSHEET_TEXT
+	ODT_TAG_TYPE_SPREADSHEET_TEXT,
+	ODT_TAG_TYPE_GRAPHICS_TEXT
 } ODTTagType;
 
 typedef enum {
 	FILE_TYPE_INVALID,
 	FILE_TYPE_ODP,
 	FILE_TYPE_ODT,
-	FILE_TYPE_ODS
+	FILE_TYPE_ODS,
+	FILE_TYPE_ODG
 } ODTFileType;
 
 typedef struct {
@@ -215,6 +217,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 		file_type = FILE_TYPE_ODP;
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.oasis.opendocument.spreadsheet") == 0) {
 		file_type = FILE_TYPE_ODS;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.oasis.opendocument.graphics") == 0) {
+		file_type = FILE_TYPE_ODG;
 	} else {
 		g_message ("Mime type was not recognised:'%s'", mime_used);
 		file_type = FILE_TYPE_INVALID;
@@ -447,6 +451,14 @@ xml_start_element_handler_content (GMarkupParseContext  *context,
 		}
 		break;
 
+	case FILE_TYPE_ODG:
+		if (g_ascii_strncasecmp (element_name, "text", 4) == 0) {
+			data->current = ODT_TAG_TYPE_GRAPHICS_TEXT;
+		} else {
+			data->current = -1;
+		}
+		break;
+
 	case FILE_TYPE_INVALID:
 		g_message ("Open Office Document type: %d invalid", data->file_type);
 		break;
@@ -494,6 +506,7 @@ xml_text_handler_content (GMarkupParseContext  *context,
 	case ODT_TAG_TYPE_WORD_TEXT:
 	case ODT_TAG_TYPE_SLIDE_TEXT:
 	case ODT_TAG_TYPE_SPREADSHEET_TEXT:
+	case ODT_TAG_TYPE_GRAPHICS_TEXT:
 		if (data->bytes_pending == 0) {
 			g_set_error_literal (error,
 			                     maximum_size_error_quark, 0,
