@@ -143,10 +143,10 @@ public class Tracker.Preferences {
 		treeview_ignored_directories_with_content = builder.get_object ("treeview_ignored_directories_with_content") as TreeView;
 		treeview_ignored_files = builder.get_object ("treeview_ignored_files") as TreeView;
 
-		treeview_setup (treeview_index, _("Directory"), true);
-		treeview_setup (treeview_ignored_directories, _("Directory"), false);
-		treeview_setup (treeview_ignored_directories_with_content, _("Directory"), false);
-		treeview_setup (treeview_ignored_files, _("File"), false);
+		treeview_setup (treeview_index, _("Directory"), true, false);
+		treeview_setup (treeview_ignored_directories, _("Directory"), false, true);
+		treeview_setup (treeview_ignored_directories_with_content, _("Directory"), false, true);
+		treeview_setup (treeview_ignored_files, _("File"), false, true);
 
 		liststore_index = builder.get_object ("liststore_index") as ListStore;
 		liststore_index.set_sort_column_id (0, Gtk.SortType.ASCENDING);
@@ -774,7 +774,7 @@ public class Tracker.Preferences {
 		}
 	}
 
-	private void treeview_setup (TreeView view, string title, bool show_recurse_column) {
+	private void treeview_setup (TreeView view, string title, bool show_recurse_column, bool sort) {
 		TreeViewColumn column;
 		GLib.List<weak TreeViewColumn> columns = view.get_columns ();
 
@@ -809,6 +809,11 @@ public class Tracker.Preferences {
 				store.get_iter (out iter, tree_path);
 				store.set (iter, 1, !toggle.active);
 			});
+		}
+
+		if (sort) {
+			TreeSortable sortable = view.get_model() as TreeSortable;
+			sortable.set_sort_column_id (0, SortType.ASCENDING);
 		}
 	}
 
