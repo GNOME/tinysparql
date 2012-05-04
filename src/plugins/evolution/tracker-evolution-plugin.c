@@ -70,6 +70,7 @@
 #endif
 
 /* Remaining includes which are in ALL versions: */
+#include <mail/e-mail-backend.h>
 #include <shell/e-shell.h>
 
 #include <e-util/e-config.h>
