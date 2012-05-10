@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-05-03 18:58+0000\n"
-"PO-Revision-Date: 2012-05-04 13:48+0100\n"
+"POT-Creation-Date: 2012-05-06 10:07+0000\n"
+"PO-Revision-Date: 2012-05-10 09:46+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -74,11 +74,11 @@ msgstr "Največje število bajtov UTF-8 za razširitev."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
 msgid "Max media art width"
-msgstr ""
+msgstr "Največja dovoljena širina predstavne vsebine"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
 msgid "Maximum width in pixels for any media art extracted. Anything bigger is resized. Set to -1 to disable saving media art from files. Setting to 0 sets no limit on the media art width."
-msgstr ""
+msgstr "Največja dovoljena širina predstavne vsebine. Večja vsebina je samodejno pomanjšana. Nastavitev možnosti na -1 onemogoči shranjevanje vsebine iz datotek. Nastavitev na vrednost 0 pa odstrani omejitve širine."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Minimum length of a word to be indexed"
@@ -634,7 +634,7 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Obdelovanje ..."
@@ -672,7 +672,7 @@ msgstr[3] "_Nastavi oznake za povezavo s %d izbranimi predmeti:"
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:892
+#: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:144
@@ -1816,7 +1816,7 @@ msgstr "Ta mapa je že izbrana kot mesto kazala"
 msgid "Recurse"
 msgstr "Po strukturi map"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:898
+#: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
 msgstr "Možnosti namiznega iskanja"
 
