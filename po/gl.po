@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-30 16:35+0200\n"
-"PO-Revision-Date: 2012-04-30 16:36+0200\n"
+"POT-Creation-Date: 2012-05-11 11:18+0200\n"
+"PO-Revision-Date: 2012-05-11 11:19+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <gnome-l10n-gl@gnome.org>\n"
 "Language: gl\n"
@@ -77,6 +77,21 @@ msgstr "Número máximo de bytes que extraer"
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
 msgstr "Número máximo de bytes UTF-8 que extraer."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr "Ancho máximo do arte dos medios"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
+"no limit on the media art width."
+msgstr ""
+"Ancho máximo, en píxeles, para calquera arte de medios extraida. O que sexa "
+"máis grande redimensiónase. Estabelecer a -1 para desactivar o gardado de "
+"arte de medios de ficheiros. Estabelecer a 0 para non limitar o ancho da "
+"arte dos medios."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Minimum length of a word to be indexed"
@@ -695,7 +710,7 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Meter os datos en Tracker para poder solicitalos."
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Procesando…"
@@ -733,7 +748,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:892
+#: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:144
@@ -1943,7 +1958,7 @@ msgstr "O cartafol xa está seleccionado como unha localización que indexar"
 msgid "Recurse"
 msgstr "Recurso"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:898
+#: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
 msgstr "Preferencias de buscas do Escritorio"
 
