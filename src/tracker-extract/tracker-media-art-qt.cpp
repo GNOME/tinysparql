@@ -20,6 +20,7 @@
  * Philip Van Hoof <philip@codeminded.be>
  */
 
+#include "tracker-main.h"
 
 #include <QFile>
 #include <QBuffer>
