@@ -89,7 +89,6 @@ struct TrackerMinerFilesPrivate {
 	GDBusConnection *connection;
 
 	GQuark quark_mount_point_uuid;
-	GQuark quark_directory_config_root;
 
 	guint force_recheck_id;
 
@@ -283,7 +282,6 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  mf);
 
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
-	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
 }
 
 static void
@@ -415,9 +413,6 @@ miner_files_initable_init (GInitable     *initable,
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 
 		file = g_file_new_for_path (dirs->data);
-		g_object_set_qdata (G_OBJECT (file),
-		                    mf->private->quark_directory_config_root,
-		                    GINT_TO_POINTER (TRUE));
 
 		flags = TRACKER_DIRECTORY_FLAG_NONE;
 
@@ -473,9 +468,6 @@ miner_files_initable_init (GInitable     *initable,
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 
 		file = g_file_new_for_path (dirs->data);
-		g_object_set_qdata (G_OBJECT (file),
-		                    mf->private->quark_directory_config_root,
-		                    GINT_TO_POINTER (TRUE));
 
 		flags = TRACKER_DIRECTORY_FLAG_RECURSE;
 
@@ -1673,10 +1665,6 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 			g_message ("  Adding directory:'%s'", path);
 
 			file = g_file_new_for_path (path);
-			g_object_set_qdata (G_OBJECT (file),
-			                    priv->quark_directory_config_root,
-			                    GINT_TO_POINTER (TRUE));
-
 			tracker_indexing_tree_add (indexing_tree, file, flags);
 			g_object_unref (file);
 		}
@@ -2985,9 +2973,6 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 	                         mf->private->quark_mount_point_uuid,
 	                         g_strdup (uuid),
 	                         (GDestroyNotify) g_free);
-	g_object_set_qdata (G_OBJECT (mount_point_file),
-	                    mf->private->quark_directory_config_root,
-	                    GINT_TO_POINTER (TRUE));
 
 	g_message ("  Adding removable/optical: '%s'", mount_path);
 	tracker_indexing_tree_add (indexing_tree,
