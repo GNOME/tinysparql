@@ -318,9 +318,6 @@ file_notifier_add_node_foreach (GNode    *node,
 		data->cur_parent_node = node->parent;
 		data->cur_parent = tracker_file_system_peek_file (priv->file_system,
 		                                                  node->parent->data);
-	} else {
-		data->cur_parent_node = NULL;
-		data->cur_parent = NULL;
 	}
 
 	file_info = tracker_crawler_get_file_info (priv->crawler, file);
