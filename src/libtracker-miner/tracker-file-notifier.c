@@ -567,6 +567,7 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 
 	while (priv->pending_index_roots) {
 		directory = priv->pending_index_roots->data;
+
 		tracker_indexing_tree_get_root (priv->indexing_tree,
 		                                directory,
 		                                &flags);
@@ -1067,16 +1068,22 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, directory);
 	}
 
-	if (priv->pending_index_roots &&
-	    directory == priv->pending_index_roots->data) {
-		/* Directory being currently processed */
-		tracker_crawler_stop (priv->crawler);
-		g_cancellable_cancel (priv->cancellable);
+	if (priv->pending_index_roots) {
+		gboolean start_crawler = FALSE;
 
-		/* Remove index root and try the next one */
-		priv->pending_index_roots = g_list_delete_link (priv->pending_index_roots,
-		                                                priv->pending_index_roots);
-		crawl_directories_start (notifier);
+		if (directory == priv->pending_index_roots->data) {
+			/* Directory being currently processed */
+			tracker_crawler_stop (priv->crawler);
+			g_cancellable_cancel (priv->cancellable);
+			start_crawler = TRUE;
+		}
+
+		priv->pending_index_roots = g_list_remove_all (priv->pending_index_roots,
+		                                               directory);
+
+		if (start_crawler && priv->pending_index_roots != NULL) {
+			crawl_directories_start (notifier);
+		}
 	}
 
 	/* Remove monitors if any */

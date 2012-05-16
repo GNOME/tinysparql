@@ -851,6 +851,9 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv = crawler->priv;
 
 	if (!g_file_query_exists (file, NULL)) {
+		/* This shouldn't happen, unless the removal/unmount notification
+		 * didn't yet reach the TrackerFileNotifier.
+		 */
 		return FALSE;
 	}
 
