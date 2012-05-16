@@ -1440,6 +1440,14 @@ miner_finished_cb (TrackerMinerFS *fs,
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 }
 
+/* Called when all files on a certain device have been crawled. */
+static void
+device_mining_complete_cb (TrackerRemovableDevice *device,
+                           TrackerMinerFiles      *mf)
+{
+	tracker_miner_fs_device_completed (TRACKER_MINER_FS (mf), device);
+}
+
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
                       GMount            *mount,
@@ -2990,6 +2998,11 @@ miner_files_add_removable_or_optical_device (TrackerMinerFiles      *mf,
 	                         mf->private->quark_mount_point_uuid,
 	                         g_strdup (uuid),
 	                         (GDestroyNotify) g_free);
+
+	g_signal_connect (device,
+	                  "mining-complete",
+	                  G_CALLBACK (device_mining_complete_cb),
+	                  mf);
 
 	g_message ("  Adding removable/optical: '%s'", g_file_get_path (mount_point_file));
 	tracker_indexing_tree_add (indexing_tree,

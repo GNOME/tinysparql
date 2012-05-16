@@ -36,6 +36,7 @@
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
 #include "tracker-file-notifier.h"
+#include "tracker-storage.h"
 
 /* If defined will print the tree from GNode while running */
 #ifdef CRAWLED_TREE_ENABLE_TRACE
@@ -181,6 +182,9 @@ struct _TrackerMinerFSPrivate {
 	guint sparql_buffer_limit;
 
 	TrackerIndexingTree *indexing_tree;
+
+	/* Signals waiting for SPARQL buffer to empty */
+	GSList *completed_devices;
 
 	/* Status */
 	guint           been_started : 1;     /* TRUE if miner has been started */
@@ -1003,6 +1007,18 @@ sparql_buffer_task_finished_cb (GObject      *object,
 		g_error_free (error);
 	}
 
+	if (tracker_sparql_buffer_get_n_outstanding_updates (TRACKER_SPARQL_BUFFER (object)) == 0) {
+		/* Device completed notifications are deferred until all the data is flushed */
+		while (priv->completed_devices != NULL) {
+			tracker_miner_device_completed (TRACKER_MINER (fs));
+
+			priv->completed_devices = priv->completed_devices->next;
+		}
+	}
+
+	/* FIXME: can be moved into the block above (noop really since we don't
+	 * do simultaneous updates
+	 */
 	item_queue_handlers_set_up (fs);
 }
 
@@ -1116,6 +1132,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 {
 	UpdateProcessingTaskContext *ctxt;
 	TrackerTask *sparql_task = NULL;
+	TrackerRemovableDevice *device;
 	GFile *task_file;
 	gchar *uri;
 
@@ -1201,6 +1218,16 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		if (fs->priv->item_queue_blocked == TRUE) {
 			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Queue handlers WAIT");
 		}
+	}
+
+	/* Notify device after the SPARQL task is pushed to the buffer. That way,
+	 * if this is the last file, we can be certain all of the device's data is
+	 * in the store once the SPARQL buffer has emptied.
+	 */
+	device = g_object_get_data (G_OBJECT (task_file), "tracker-removable-device");
+
+	if (device != NULL) {
+		tracker_removable_device_file_notify (TRACKER_REMOVABLE_DEVICE (device), task_file);
 	}
 
 	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
@@ -3688,6 +3715,39 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 
 	return fs->priv->indexing_tree;
+}
+
+/**
+ * tracker_miner_fs_device_completed:
+ * @fs: a #TrackerMinerFS
+ * @device: a #TrackerRemovableDevice
+ *
+ * A version of tracker_miner_device_completed() which avoids emitting the
+ * signal until the SPARQL buffer has been flushed. This prevents a race
+ * condition where an application receives the notification and queries the
+ * device contents before it is completely commited into the store.
+ **/
+/* This problem actually goes a lot deeper. On closed systems where contents of
+ * a removable device can't change, problem is solved, but extra steps are
+ * needed if you wish to connect to GraphUpdated because you need to be able
+ * to receive updates from the moment device-completed was emitted, but you
+ * don't know to connect to that signal until you receive it, which is a race
+ * condition. If you connect to GraphUpdated straight away. .. actually, you
+ * can just CONNECT to GraphUpdated but ignore the signals until your receive
+ * DeviceCompleted, and THEN go ... which can be atomic. So, yay.
+ */
+void
+tracker_miner_fs_device_completed (TrackerMinerFS         *fs,
+                                   TrackerRemovableDevice *device)
+{
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+	if (tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0 &&
+	    tracker_sparql_buffer_get_n_outstanding_updates (fs->priv->sparql_buffer) == 0) {
+		tracker_miner_device_completed (TRACKER_MINER (fs));
+	} else {
+		fs->priv->completed_devices = g_slist_prepend (fs->priv->completed_devices, device);
+	}
 }
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE

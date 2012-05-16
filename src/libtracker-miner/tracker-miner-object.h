@@ -102,6 +102,7 @@ gint                     tracker_miner_pause               (TrackerMiner        
 gboolean                 tracker_miner_resume              (TrackerMiner         *miner,
                                                             gint                  cookie,
                                                             GError              **error);
+void                     tracker_miner_device_completed    (TrackerMiner         *miner);
 
 TrackerSparqlConnection *tracker_miner_get_connection      (TrackerMiner         *miner);
 GDBusConnection         *tracker_miner_get_dbus_connection (TrackerMiner         *miner);

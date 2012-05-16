@@ -109,6 +109,7 @@ static const gchar introspection_xml[] =
   "      <arg type='s' name='status' />"
   "      <arg type='d' name='progress' />"
   "    </signal>"
+  "    <signal name='DeviceCompleted' />"
   "  </interface>"
   "</node>";
 
@@ -1072,6 +1073,30 @@ tracker_miner_resume (TrackerMiner  *miner,
 	}
 
 	return TRUE;
+}
+
+/**
+ * tracker_miner_device_completed:
+ * @miner: a #TrackerMiner
+ *
+ * Emits the DeviceCompleted signal. FIXME: document the signal.
+ *
+ * Since: 0.14.2
+ **/
+void
+tracker_miner_device_completed (TrackerMiner *miner)
+{
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+
+	if (miner->priv->d_connection) {
+		g_dbus_connection_emit_signal (miner->priv->d_connection,
+		                               NULL,
+		                               miner->priv->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "DeviceCompleted",
+		                               NULL,
+		                               NULL);
+	}
 }
 
 /**

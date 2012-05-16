@@ -714,6 +714,18 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 	}
 }
 
+gint
+tracker_sparql_buffer_get_n_outstanding_updates (TrackerSparqlBuffer *buffer)
+{
+	TrackerSparqlBufferPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_BUFFER (buffer), 0);
+
+	priv = buffer->priv;
+
+	return priv->n_updates;
+}
+
 static SparqlTaskData *
 sparql_task_data_new (guint    type,
                       gpointer data,

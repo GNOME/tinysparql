@@ -29,12 +29,15 @@
 #include "tracker-crawler.h"
 #include "tracker-monitor.h"
 #include "tracker-marshal.h"
+#include "tracker-removable-device.h"
+#include "tracker-storage.h"
 
 static GQuark quark_property_crawled = 0;
 static GQuark quark_property_queried = 0;
 static GQuark quark_property_iri = 0;
 static GQuark quark_property_store_mtime = 0;
 static GQuark quark_property_filesystem_mtime = 0;
+static GQuark quark_property_removable_device = 0;
 
 enum {
 	PROP_0,
@@ -76,6 +79,8 @@ typedef struct {
 
 typedef struct {
 	TrackerFileNotifier *notifier;
+	GSList *mounts;
+
 	GNode *cur_parent_node;
 
 	/* Canonical copy from priv->file_system */
@@ -215,6 +220,7 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	TrackerFileNotifier *notifier;
 	TrackerFileNotifierPrivate *priv;
 	guint64 *store_mtime, *disk_mtime;
+	TrackerRemovableDevice *removable_device;
 
 	notifier = user_data;
 	priv = notifier->priv;
@@ -236,19 +242,28 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	           abs (*disk_mtime - *store_mtime) > 2) {
 		/* Mtime changed, update */
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, FALSE);
-	} else if (!store_mtime && !disk_mtime) {
-		/* what are we doing with such file? should happen rarely,
-		 * only with files that we've queried, but we decided not
-		 * to crawl (i.e. embedded root directories, that would
-		 * be processed when that root is being crawled).
-		 */
-		if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
-			gchar *uri;
+	} else {
+		/* No change, update tally if on a removable device */
+		removable_device = g_object_get_data (G_OBJECT (file),
+		                                      "tracker-removable-device");
 
-			uri = g_file_get_uri (file);
-			g_critical ("File '%s' has no disk nor store mtime",
-			            uri);
-			g_free (uri);
+		if (removable_device != NULL) {
+			tracker_removable_device_file_notify (removable_device, file);
+		}
+
+		if (!store_mtime && !disk_mtime) {
+			/* what are we doing with such file? should happen rarely,
+			 * only with files that we've queried, but we decided not
+			 * to crawl (i.e. embedded root directories, that would
+			 * be processed when that root is being crawled).
+			 */
+			if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+				gchar *uri;
+
+				uri = g_file_get_uri (file);
+				g_critical ("File '%s' has no disk nor store mtime", uri);
+				g_free (uri);
+			}
 		}
 	}
 
@@ -309,15 +324,39 @@ file_notifier_add_node_foreach (GNode    *node,
 	TrackerFileNotifierPrivate *priv;
 	GFileInfo *file_info;
 	GFile *canonical, *file;
+	TrackerRemovableDevice *removable_device = NULL;
+	GSList *l;
 
 	priv = data->notifier->priv;
 	file = node->data;
 
-	if (node->parent &&
-	    node->parent != data->cur_parent_node) {
-		data->cur_parent_node = node->parent;
-		data->cur_parent = tracker_file_system_peek_file (priv->file_system,
-		                                                  node->parent->data);
+	if (data->cur_parent != NULL) {
+		removable_device = tracker_file_system_get_property (priv->file_system,
+		                                                     data->cur_parent,
+		                                                     quark_property_removable_device);
+	}
+
+	if (node->parent != data->cur_parent_node || node->parent == NULL) {
+		/* We are at a directory */
+
+		if (removable_device == NULL) {
+			/* Is this directory a mount point for a removable device? */
+			for (l = data->mounts; l != NULL; l = l->next) {
+				TrackerRemovableDevice *possible_removable_device;
+				possible_removable_device = TRACKER_REMOVABLE_DEVICE (l->data);
+				/* FIXME: memory leak */
+				if (g_file_equal (file, g_mount_get_root (tracker_removable_device_get_mount (possible_removable_device)))) {
+					removable_device = possible_removable_device;
+					break;
+				}
+			}
+		}
+
+		if (node->parent != NULL) {
+			data->cur_parent_node = node->parent;
+			data->cur_parent = tracker_file_system_peek_file (priv->file_system,
+			                                                  node->parent->data);
+		}
 	}
 
 	file_info = tracker_crawler_get_file_info (priv->crawler, file);
@@ -325,6 +364,7 @@ file_notifier_add_node_foreach (GNode    *node,
 	if (file_info) {
 		GFileType file_type;
 		guint64 time, *time_ptr;
+		gint removable_device_file_count;
 
 		file_type = g_file_info_get_file_type (file_info);
 
@@ -342,6 +382,27 @@ file_notifier_add_node_foreach (GNode    *node,
 		tracker_file_system_set_property (priv->file_system, canonical,
 		                                  quark_property_filesystem_mtime,
 		                                  time_ptr);
+
+		if (removable_device) {
+			tracker_file_system_set_property (priv->file_system, canonical,
+			                                  quark_property_removable_device,
+			                                  removable_device);
+			/* TrackerMinerFS can't access the above properties easily */
+			g_object_set_data_full (G_OBJECT (canonical),
+			                        "tracker-removable-device",
+			                        g_object_ref (removable_device),
+			                        g_object_unref);
+
+			removable_device_file_count = GPOINTER_TO_INT
+			  (g_object_get_data (G_OBJECT (removable_device), "tracker-files-found"));
+
+			g_object_set_data (G_OBJECT (removable_device),
+			                   "tracker-files-found",
+			                   GINT_TO_POINTER (++ removable_device_file_count));
+		}
+	} else {
+		/* FIXME: an error if this doesn't happen? */
+		g_warn_if_reached ();
 	}
 
 	return FALSE;
@@ -359,8 +420,45 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 {
 	TrackerFileNotifier *notifier;
 	DirectoryCrawledData data = { 0 };
+	GSList *all_mounts;
+	GSList *child_mounts;
+	GSList *l;
+
+	/* Don't need to detect here (could be passed by miner-files, because
+	 * there's no actual reason to index a mount point except by its mount
+	 * notification)  */
+
+	/* Find all the mounts beneath this directory. While mounts can't be
+	 * nested (this is ony supposed to be for removable devices), we could have
+	 * just crawled /media, for example, so there may be more than one.
+	 */
+
+	all_mounts = tracker_storage_get_devices (tracker_storage_get (),
+	                                          TRACKER_STORAGE_REMOVABLE,
+	                                          FALSE);
+	child_mounts = NULL;
+
+	for (l = all_mounts; l != NULL; l = l->next) {
+		TrackerRemovableDevice *device;
+		GMount *mount;
+		GFile *mount_point;
+
+		device = TRACKER_REMOVABLE_DEVICE (l->data);
+		mount = tracker_removable_device_get_mount (device);
+		mount_point = g_mount_get_root (mount);
+
+		if (g_file_equal (mount_point, directory) ||
+		    g_file_has_prefix (mount_point, directory)) {
+			child_mounts = g_slist_prepend (child_mounts, device);
+		}
+
+		g_object_unref (mount_point);
+	}
+
+	g_slist_free (all_mounts);
 
 	notifier = data.notifier = user_data;
+	data.mounts = child_mounts;
 	g_node_traverse (tree,
 	                 G_PRE_ORDER,
 	                 G_TRAVERSE_ALL,
@@ -379,6 +477,8 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	tracker_info ("  Found %d files, ignored %d files",
 	              files_found,
 	              files_ignored);
+
+	g_slist_free (data.mounts);
 }
 
 static void
@@ -1238,6 +1338,10 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
 	tracker_file_system_register_property (quark_property_filesystem_mtime,
 	                                       g_free);
+
+	quark_property_removable_device = g_quark_from_static_string ("tracker-property-removable-device");
+	tracker_file_system_register_property (quark_property_removable_device,
+	                                       NULL);
 }
 
 static void

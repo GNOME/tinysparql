@@ -31,6 +31,7 @@
 
 #include "tracker-miner-object.h"
 #include "tracker-indexing-tree.h"
+#include "tracker-removable-device.h"
 
 #include "tracker-miner-common.h"
 
@@ -151,6 +152,9 @@ void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
 
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
+
+void                  tracker_miner_fs_device_completed     (TrackerMinerFS         *fs,
+                                                             TrackerRemovableDevice *device);
 
 G_END_DECLS
 

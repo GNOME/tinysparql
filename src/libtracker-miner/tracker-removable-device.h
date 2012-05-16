@@ -68,6 +68,9 @@ TrackerRemovableDevice *tracker_removable_device_new                      (GMoun
 GMount                 *tracker_removable_device_get_mount                (TrackerRemovableDevice *device);
 GFile                  *tracker_removable_device_get_mount_point          (TrackerRemovableDevice *device);
 
+void                    tracker_removable_device_file_notify              (TrackerRemovableDevice *device,
+                                                                           GFile                  *file);
+
 G_END_DECLS
 
 #endif /* __TRACKER_REMOVABLE_DEVICE_H__ */

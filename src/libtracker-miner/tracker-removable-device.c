@@ -157,3 +157,33 @@ tracker_removable_device_get_mount_point (TrackerRemovableDevice *device)
 
 	return g_mount_get_root (device->priv->mount);
 }
+/**
+ * tracker_removable_device_file_notify:
+ * @device: a #TrackerRemovableDevice
+ * @file: a #GFile
+ *
+ * Increases the files completed count of @device. If all files have been
+ * processed, this function will cause the ::mining-complete signal to be
+ * emitted.
+ */
+void
+tracker_removable_device_file_notify (TrackerRemovableDevice *device,
+                                      GFile                  *file)
+{
+	gint files_found;
+	gint files_processed;
+
+	files_found = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (device), "tracker-files-found"));
+	files_processed = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (device), "tracker-files-processed"));
+
+	g_object_set_data (G_OBJECT (device), "tracker-files-processed", GINT_TO_POINTER (++ files_processed));
+
+	g_warn_if_fail (files_found >= files_processed);
+
+	if (files_found == files_processed) {
+		g_signal_emit (device, signals[MINING_COMPLETE], 0);
+
+		g_object_set_data (G_OBJECT (device), "tracker-files-found", NULL);
+		g_object_set_data (G_OBJECT (device), "tracker-files-processed", NULL);
+	}
+}
