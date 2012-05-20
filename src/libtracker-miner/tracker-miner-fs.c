@@ -190,6 +190,7 @@ struct _TrackerMinerFSPrivate {
 	                                       * during initial crawling. */
 	guint           initial_crawling : 1; /* TRUE if initial crawling should be
 	                                       * done */
+	guint           timer_stopped : 1;    /* TRUE if main timer is stopped */
 	guint           extraction_timer_stopped : 1; /* TRUE if the extraction
 						       * timer is stopped */
 
@@ -535,6 +536,12 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv = object->priv;
 
+	priv->timer = g_timer_new ();
+	priv->extraction_timer = g_timer_new ();
+
+	priv->timer_stopped = TRUE;
+	priv->extraction_timer_stopped = TRUE;
+
 	priv->items_created = tracker_priority_queue_new ();
 	priv->items_updated = tracker_priority_queue_new ();
 	priv->items_deleted = tracker_priority_queue_new ();
@@ -637,13 +644,8 @@ fs_finalize (GObject *object)
 
 	priv = TRACKER_MINER_FS_GET_PRIVATE (object);
 
-	if (priv->timer) {
-		g_timer_destroy (priv->timer);
-	}
-
-	if (priv->extraction_timer) {
-		g_timer_destroy (priv->extraction_timer);
-	}
+	g_timer_destroy (priv->timer);
+	g_timer_destroy (priv->extraction_timer);
 
 	if (priv->item_queues_handler_id) {
 		g_source_remove (priv->item_queues_handler_id);
@@ -903,6 +905,12 @@ process_stop (TrackerMinerFS *fs)
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
+	g_timer_stop (fs->priv->timer);
+	g_timer_stop (fs->priv->extraction_timer);
+
+	fs->priv->timer_stopped = TRUE;
+	fs->priv->extraction_timer_stopped = TRUE;
+
 	tracker_info ("Idle");
 
 	g_object_set (fs,
@@ -912,20 +920,14 @@ process_stop (TrackerMinerFS *fs)
 	              NULL);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
-	               fs->priv->timer ? g_timer_elapsed (fs->priv->timer, NULL) : 0.0,
+	               g_timer_elapsed (fs->priv->timer, NULL),
 	               fs->priv->total_directories_found,
 	               fs->priv->total_directories_ignored,
 	               fs->priv->total_files_found,
 	               fs->priv->total_files_ignored);
 
-	if (fs->priv->extraction_timer) {
-		g_timer_reset (fs->priv->extraction_timer);
-	}
-
-	if (fs->priv->timer) {
-		g_timer_destroy (fs->priv->timer);
-		fs->priv->timer = NULL;
-	}
+	g_timer_stop (fs->priv->timer);
+	g_timer_stop (fs->priv->extraction_timer);
 
 	fs->priv->total_directories_found = 0;
 	fs->priv->total_directories_ignored = 0;
@@ -1943,8 +1945,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	if (tracker_file_notifier_is_active (fs->priv->file_notifier) ||
 	    tracker_task_pool_limit_reached (fs->priv->task_pool) ||
 	    tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
-		if (fs->priv->extraction_timer &&
-		    tracker_task_pool_get_size (fs->priv->task_pool) == 0) {
+		if (tracker_task_pool_get_size (fs->priv->task_pool) == 0) {
 			fs->priv->extraction_timer_stopped = TRUE;
 			g_timer_stop (fs->priv->extraction_timer);
 		}
@@ -2006,6 +2007,11 @@ item_queue_handlers_cb (gpointer user_data)
 	gboolean keep_processing = TRUE;
 	gint priority = 0;
 
+	if (fs->priv->timer_stopped) {
+		g_timer_start (fs->priv->timer);
+		fs->priv->timer_stopped = FALSE;
+	}
+
 	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		/* Task pool is full, give it a break */
 		fs->priv->item_queues_handler_id = 0;
@@ -2051,19 +2057,11 @@ item_queue_handlers_cb (gpointer user_data)
 	}
 
 	if (queue == QUEUE_NONE) {
-		if (fs->priv->extraction_timer) {
-			g_timer_stop (fs->priv->extraction_timer);
-			fs->priv->extraction_timer_stopped = TRUE;
-		}
-	} else if (!fs->priv->extraction_timer) {
-		fs->priv->extraction_timer = g_timer_new ();
+		g_timer_stop (fs->priv->extraction_timer);
+		fs->priv->extraction_timer_stopped = TRUE;
 	} else if (fs->priv->extraction_timer_stopped) {
 		g_timer_continue (fs->priv->extraction_timer);
 		fs->priv->extraction_timer_stopped = FALSE;
-	}
-
-	if (!fs->priv->timer) {
-		fs->priv->timer = g_timer_new ();
 	}
 
 	/* Update progress, but don't spam it. */
@@ -2640,6 +2638,16 @@ file_notifier_directory_started (TrackerFileNotifier *notifier,
                 str = g_strdup_printf ("Crawling single directory '%s'", uri);
         }
 
+	if (fs->priv->timer_stopped) {
+		g_timer_start (fs->priv->timer);
+		fs->priv->timer_stopped = FALSE;
+	}
+
+	if (fs->priv->extraction_timer_stopped) {
+		g_timer_start (fs->priv->timer);
+		fs->priv->extraction_timer_stopped = FALSE;
+	}
+
 	/* Always set the progress here to at least 1%, and the remaining time
          * to -1 as we cannot guess during crawling (we don't know how many directories
          * we will find) */
@@ -2650,10 +2658,6 @@ file_notifier_directory_started (TrackerFileNotifier *notifier,
                       NULL);
 	g_free (str);
 	g_free (uri);
-
-	if (!fs->priv->timer) {
-		fs->priv->timer = g_timer_new ();
-	}
 }
 
 static void
