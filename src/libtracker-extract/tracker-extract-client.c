@@ -48,25 +48,16 @@ typedef struct {
 	GOutputStream *output_stream;
 	SendAndSpliceCallback callback;
 	GCancellable *cancellable;
-	GCancellable *inner_cancellable;
 	gpointer data;
 	gboolean splice_finished;
 	gboolean dbus_finished;
 	GError *error;
-	guint cancel_handler_id;
 } SendAndSpliceData;
 
 typedef struct {
 	TrackerExtractInfo *info;
 	GSimpleAsyncResult *res;
 } MetadataCallData;
-
-static void
-propagate_cancellation (GCancellable *cancellable,
-                        GCancellable *inner_cancellable)
-{
-	g_cancellable_cancel (inner_cancellable);
-}
 
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream          *unix_input_stream,
@@ -82,15 +73,11 @@ send_and_splice_data_new (GInputStream          *unix_input_stream,
 	data->unix_input_stream = unix_input_stream;
 	data->buffered_input_stream = buffered_input_stream;
 	data->output_stream = output_stream;
-	data->inner_cancellable = g_cancellable_new ();
 
 	if (cancellable) {
 		data->cancellable = g_object_ref (cancellable);
-
-		data->cancel_handler_id =
-			g_cancellable_connect (data->cancellable,
-			                       G_CALLBACK (propagate_cancellation),
-			                       data->inner_cancellable, NULL);
+	} else {
+		data->cancellable = g_cancellable_new ();
 	}
 
 	data->callback = callback;
@@ -103,7 +90,6 @@ static void
 send_and_splice_data_free (SendAndSpliceData *data)
 {
 	if (data->cancellable) {
-		g_cancellable_disconnect (data->cancellable, data->cancel_handler_id);
 		g_object_unref (data->cancellable);
 	}
 
@@ -113,7 +99,6 @@ send_and_splice_data_free (SendAndSpliceData *data)
 	g_object_unref (data->unix_input_stream);
 	g_object_unref (data->buffered_input_stream);
 	g_object_unref (data->output_stream);
-	g_object_unref (data->inner_cancellable);
 
 	if (data->error) {
 		g_error_free (data->error);
@@ -177,7 +162,7 @@ send_and_splice_splice_callback (GObject      *source,
 
 		/* Ensure the other operation is cancelled */
 		if (!data->dbus_finished) {
-			g_cancellable_cancel (data->inner_cancellable);
+			g_cancellable_cancel (data->cancellable);
 		}
 	}
 
@@ -217,7 +202,7 @@ send_and_splice_dbus_callback (GObject      *source,
 
 		/* Ensure the other operation is cancelled */
 		if (!data->splice_finished) {
-			g_cancellable_cancel (data->inner_cancellable);
+			g_cancellable_cancel (data->cancellable);
 		}
 	}
 
@@ -258,7 +243,7 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
 	                                           G_DBUS_SEND_MESSAGE_FLAGS_NONE,
 	                                           -1,
 	                                           NULL,
-	                                           data->inner_cancellable,
+	                                           cancellable,
 	                                           send_and_splice_dbus_callback,
 	                                           data);
 
@@ -267,7 +252,7 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
 	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
 	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                              0,
-	                              data->inner_cancellable,
+	                              cancellable,
 	                              send_and_splice_splice_callback,
 	                              data);
 }
