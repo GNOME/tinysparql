@@ -58,13 +58,13 @@ or the shortened prefix name \fInfo:Video\fR.
 
 This gives the following result:
 
-.NF
+.nf
 $ tracker-sparql -p nfo:Video
 
 Properties: 2
   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate
   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameCount
-.FI
+.fi
 
 These properties \fInfo:frameRate\fR and \fInfo:frameCount\fR can be
 used in more complex queries (see --query).
@@ -90,7 +90,7 @@ Returns a list of classes and properties which partially match
 \fITERM\fR in the ontology. This is a case insensitive match, for
 example:
 
-.NF
+.nf
 $ tracker-sparql -s text
 
 Classes: 4
@@ -105,7 +105,7 @@ Properties: 5
   http://www.semanticdesktop.org/ontologies/2007/01/19/nie#plainTextContent
   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent
   http://www.tracker-project.org/temp/scal#textLocation
-.FI
+.fi
 .TP
 .B \-V, \-\-version
 Print version.
@@ -115,41 +115,45 @@ Print version.
 List all classes
 
 .BR
+.nf
 $ tracker-sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
+.fi
 
 .TP
 List all properties for the Resources class (see \-\-list-properties)
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?prop WHERE {
       ?prop a rdf:Property ;
       rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource>
  }"
-.FI
+.fi
 
 .TP
 List all class namespace prefixes
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?prefix ?ns WHERE {
       ?ns a tracker:Namespace ;
       tracker:prefix ?prefix
- }"
-.FI
+  }"
+.fi
 
 .TP
 List all music files
 
 .BR
+.nf
 $ tracker-sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
+.fi
 
 .TP
 List all music albums
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?album ?title COUNT(?song)
                      AS songs
                      SUM(?length) AS totallength
@@ -158,63 +162,65 @@ $ tracker-sparql -q "SELECT ?album ?title COUNT(?song)
       nie:title ?title .
       ?song nmm:musicAlbum ?album ;
       nfo:duration ?length
- } GROUP BY ?album"
-.FI
+  } GROUP BY ?album"
+.fi
 
 .TP
 List all music from a particular artist
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?song ?title WHERE {
       ?song nmm:performer [ nmm:artistName 'Artist Name' ] ;
       nie:title ?title
- }"
-.FI
+  }"
+.fi
 
 .TP
 Set the played count for a song
 
 .BR
-.NF
+.nf
 $ tracker-sparql -u -q "DELETE {
       <file:///home/user/Music/song.mp3> nie:usageCounter ?count
- } WHERE {
+  } WHERE {
       <file:///home/user/Music/song.mp3> nie:usageCounter ?count
- } INSERT {
+  } INSERT {
       <file:///home/user/Music/song.mp3> nie:usageCounter 42
- }"
-.FI
+  }"
+.fi
 
 .TP
 List all image files
 
 .BR
+.nf
 $ tracker-sparql -q "SELECT ?image WHERE { ?image a nfo:Image }"
+.fi
 
 .TP
 List all image files with a specific tag
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?image WHERE {
       ?image a nfo:Image ;
       nao:hasTag [ nao:prefLabel 'tag' ]
- }"
-.FI
+  }"
+.fi
 
 .TP
 List all image files created on a specific month and order by date
 
 .BR
-.NF
+.nf
 $ tracker-sparql -q "SELECT ?image ?date WHERE {
       ?image a nfo:Image ;
       nie:contentCreated ?date .
       FILTER (?date >= '2008-07-01T00:00:00' &&
               ?date <  '2008-08-01T00:00:00')
- } ORDER BY ?date"
-.FI
+  } ORDER BY ?date"
+.fi
 
 .SH SEE ALSO
 .BR tracker-store (1),
