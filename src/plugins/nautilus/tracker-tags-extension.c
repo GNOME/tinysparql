@@ -48,6 +48,7 @@ struct _TrackerTagsExtensionClass {
 	GObjectClass parent;
 };
 
+GType        tracker_tags_extension_get_type                          (void);
 static void  tracker_tags_extension_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_TYPE_OBJECT, 0,
