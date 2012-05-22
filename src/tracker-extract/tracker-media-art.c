@@ -75,7 +75,7 @@ typedef enum {
 	IMAGE_MATCH_TYPE_COUNT
 } ImageMatchType;
 
-static gboolean initialized;
+static gboolean initialized = FALSE;
 static gboolean disable_requests;
 static TrackerStorage *media_art_storage;
 static GHashTable *media_art_cache;
