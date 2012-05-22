@@ -1029,7 +1029,7 @@ tags_view_create_ui (TrackerTagsView *tv)
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_box_pack_start (GTK_BOX (tv), label, FALSE, TRUE, 0);
 
-	hbox = gtk_hbox_new (FALSE, 12);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 	gtk_box_pack_start (GTK_BOX (tv), hbox, FALSE, TRUE, 0);
 
 	entry = gtk_entry_new ();
