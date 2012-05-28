@@ -107,6 +107,13 @@ if [ -n "$PREFIX" ]; then
 	export TRACKER_LANGUAGE_STOPWORDS_DIR="$PREFIX/share/tracker/languages"
 fi
 
+# FIXME: should be in lib/tracker-0.14 ;)
+# Allow use of test mounter, if desired ... this is bit of a black art which
+# requires executing libexec/tracker-test-mount-service and then calling its
+# DBus API manually for now.
+export GIO_EXTRA_MODULES="$(dirname $(which tracker-control))/../lib/tracker"
+export GIO_USE_VOLUME_MONITOR="tracker-test-volume-monitor"
+
 set -o nounset
 
 if [ "$SEPARATE_USER_MODE" != "true" ]; then
