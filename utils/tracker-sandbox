@@ -66,6 +66,12 @@ if [ "$SEPARATE_USER_MODE" != "true" ]; then
 
 	TEMP_DIR=/tmp/tracker-test
 	mkdir -p $TEMP_DIR
+
+	# Set up a bit of a fake user account
+	if [ ! -e "$TEMP_DIR/user-dirs.dirs" ]; then
+		ln -s $HOME/.config/user-dirs.dirs $TEMP_DIR/user-dirs.dirs
+	fi
+
 	export XDG_CACHE_HOME=$TEMP_DIR
 	export XDG_CONFIG_HOME=$TEMP_DIR
 	export XDG_DATA_HOME=$TEMP_DIR
