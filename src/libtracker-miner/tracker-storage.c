@@ -682,6 +682,7 @@ mount_add (TrackerStorage *storage,
 		 * Note: Never found a case where this g_mount_get_uuid() returns
 		 * non-NULL... :-) */
 		uuid = g_mount_get_uuid (mount);
+		is_removable = g_mount_can_unmount (mount);
 		if (!uuid) {
 			if (mount_path) {
 				gchar *content_type;

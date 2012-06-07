@@ -104,6 +104,15 @@ class CommonTrackerMinerTest (ut.TestCase):
           }
           """)
 
+    def _get_n_text_documents (self):
+        result = self.store.query ("""
+          SELECT COUNT(?u) WHERE {
+              ?u a nfo:TextDocument
+          }
+          """)
+        self.assertEquals (len (result), 1)
+        return int(result[0][0])
+
     def _get_parent_urn (self, filepath):
         result = self.store.query ("""
           SELECT nfo:belongsToContainer(?u) WHERE {

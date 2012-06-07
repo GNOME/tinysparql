@@ -45,6 +45,9 @@ TRACKER_EXTRACT_IFACE = "org.freedesktop.Tracker1.Extract"
 
 WRITEBACK_BUSNAME = "org.freedesktop.Tracker1.Writeback"
 
+TEST_MOUNTER_BUSNAME = "org.freedesktop.Tracker1.TestMounter"
+TEST_MOUNTER_OBJ_PATH = "/org/freedesktop/Tracker1/TestMounter"
+TEST_MOUNTER_IFACE = "org.freedesktop.Tracker1.TestMounter"
 
 DCONF_MINER_SCHEMA = "org.freedesktop.Tracker.Miner.Files"
 
@@ -73,10 +76,12 @@ RAW_EXEC_DIR = "@libexecdir@"
 RAW_DATA_DIR = "@datadir@"
 RAW_DATAROOT_DIR = "@datarootdir@"
 RAW_BINDIR = "@bindir@"
+RAW_LIBDIR = "@libdir@"
 
 EXEC_PREFIX = os.path.normpath (expandvars (RAW_EXEC_DIR))
 DATADIR = os.path.normpath (expandvars (RAW_DATA_DIR))
 BINDIR = os.path.normpath (expandvars (RAW_BINDIR))
+LIBDIR = os.path.normpath (expandvars (RAW_LIBDIR))
                             
 haveMaemo = ("@HAVE_MAEMO_TRUE@" == "")
 haveUpstart = ("@HAVE_UPSTART_TRUE@" == "")

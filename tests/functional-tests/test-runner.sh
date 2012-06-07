@@ -31,7 +31,7 @@ else
     trap "/bin/kill $DBUS_SESSION_BUS_PID; exit" INT
 
     echo "Running $@"
-    $@
+    python $@
 
     kill $DBUS_SESSION_BUS_PID
 fi ;

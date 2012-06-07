@@ -45,7 +45,8 @@ standard_tests += \
 	17-ontology-changes.py  \
 	200-backup-restore.py \
 	300-miner-basic-ops.py \
-	301-miner-resource-removal.py
+	301-miner-resource-removal.py \
+	302-miner-removable-devices.py
 if HAVE_TRACKER_FTS
 standard_tests += 310-fts-indexing.py
 endif
@@ -88,12 +89,12 @@ TEST_RUNNER = $(top_srcdir)/tests/functional-tests/test-runner.sh
 
 functional-test: ${standard_tests}
 	for test in ${standard_tests} ; do \
-		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
+		$(TEST_RUNNER) $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 
 functional-test-slow: ${slow_tests}
 	@for test in ${slow_tests} ; do \
-		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
+		$(TEST_RUNNER) $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 
 EXTRA_DIST = \

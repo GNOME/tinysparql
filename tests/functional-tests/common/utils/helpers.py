@@ -34,7 +34,8 @@ import options
 class NoMetadataException (Exception):
     pass
 
-REASONABLE_TIMEOUT = 30
+#############REASONABLE_TIMEOUT = 30
+REASONABLE_TIMEOUT = 3
 
 def log (message):
     if options.is_verbose ():
@@ -328,6 +329,8 @@ class MinerFsHelper (Helper):
         return False
 
     def _minerfs_status_cb (self, status, progress, remaining_time):
+        log ("Miner status: %s" % status)
+
         if (status == "Idle"):
             self.loop.quit ()
 
@@ -618,3 +621,24 @@ class WritebackHelper (Helper):
     PROCESS_NAME = 'tracker-writeback'
     PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, 'tracker-writeback')
     BUS_NAME = cfg.WRITEBACK_BUSNAME
+
+
+class TestMounterHelper (Helper):
+
+    PROCESS_NAME = 'tracker-test-mounter-service'
+    PROCESS_PATH = os.path.join (cfg.EXEC_PREFIX, 'tracker-test-mounter-service')
+    BUS_NAME = cfg.TEST_MOUNTER_BUSNAME
+
+    def start (self):
+        Helper.start (self)
+
+        bus_object = self.bus.get_object (cfg.TEST_MOUNTER_BUSNAME,
+                                          cfg.TEST_MOUNTER_OBJ_PATH)
+        self.test_mounter = dbus.Interface (bus_object,
+                                            dbus_interface=cfg.TEST_MOUNTER_IFACE)
+
+    def mount (self, path):
+        self.test_mounter.Mount (path);
+
+    def unmount (self, path):
+        self.test_mounter.Unmount (path)
