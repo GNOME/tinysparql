@@ -160,6 +160,7 @@ struct _TrackerMinerFSPrivate {
 	GQuark          quark_ignore_file;
 	GQuark          quark_attribute_updated;
 	GQuark          quark_directory_found_crawling;
+	GQuark          quark_reentry_counter;
 
 	GTimer         *timer;
 	GTimer         *extraction_timer;
@@ -597,6 +598,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
+	priv->quark_reentry_counter = g_quark_from_static_string ("tracker-reentry-counter");
 
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
@@ -1729,6 +1731,40 @@ should_wait (TrackerMinerFS *fs,
 	return FALSE;
 }
 
+static void
+item_reenqueue_full (TrackerMinerFS       *fs,
+                     TrackerPriorityQueue *item_queue,
+                     GFile                *queue_file,
+                     gpointer              queue_data,
+                     gint                  priority)
+{
+	gint reentry_counter;
+	gchar *uri;
+
+	reentry_counter = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (queue_file),
+	                                                       fs->priv->quark_reentry_counter));
+
+	if (reentry_counter < 2) {
+		g_object_set_qdata (G_OBJECT (queue_file),
+		                    fs->priv->quark_reentry_counter,
+		                    GINT_TO_POINTER (reentry_counter + 1));
+		tracker_priority_queue_add (item_queue, queue_data, priority);
+	} else {
+		uri = g_file_get_uri (queue_file);
+		g_warning ("File '%s' has been reenqueued more than twice. It will not be indexed.", uri);
+		g_free (uri);
+	}
+}
+
+static void
+item_reenqueue (TrackerMinerFS       *fs,
+                TrackerPriorityQueue *item_queue,
+                GFile                *queue_file,
+                gint                  priority)
+{
+	item_reenqueue_full (fs, item_queue, queue_file, queue_file, priority);
+}
+
 static QueueState
 item_queue_get_next_file (TrackerMinerFS  *fs,
                           GFile          **file,
@@ -1793,8 +1829,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("DELETED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_deleted,
-			                            queue_file, priority - 1);
+			item_reenqueue (fs, fs->priv->items_deleted, queue_file, priority - 1);
+
 			return QUEUE_WAIT;
 		}
 
@@ -1846,8 +1882,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("CREATED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_created,
-			                            queue_file, priority - 1);
+			item_reenqueue (fs, fs->priv->items_created, queue_file, priority - 1);
+
 			return QUEUE_WAIT;
 		}
 
@@ -1885,8 +1921,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("UPDATED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_updated,
-			                            queue_file, priority - 1);
+			item_reenqueue (fs, fs->priv->items_updated, queue_file, priority - 1);
+
 			return QUEUE_WAIT;
 		}
 
@@ -1929,8 +1965,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head_2 ("MOVED", data->source_file, data->file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_moved,
-			                            data, priority - 1);
+			item_reenqueue_full (fs, fs->priv->items_moved, data->file, data, priority - 1);
+
 			return QUEUE_WAIT;
 		}
 
@@ -2200,13 +2236,9 @@ item_queue_handlers_cb (gpointer user_data)
 			 * ensured, tasks are inserted at a higher priority so they
 			 * are processed promptly anyway.
 			 */
-			tracker_priority_queue_add (item_queue,
-			                            g_object_ref (parent),
-			                            priority - 1);
+			item_reenqueue (fs, item_queue, g_object_ref (parent), priority - 1);
+			item_reenqueue (fs, item_queue, g_object_ref (file), priority);
 
-			tracker_priority_queue_add (item_queue,
-			                            g_object_ref (file),
-			                            priority);
 			keep_processing = TRUE;
 		}
 
