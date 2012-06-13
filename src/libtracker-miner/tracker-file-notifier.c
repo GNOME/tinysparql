@@ -279,8 +279,10 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 		                              notifier);
 	}
 
-	/* We dispose regular files, only directories are cached */
-	tracker_file_system_delete_files (priv->file_system,
+	/* We dispose regular files here, only directories are cached once crawling
+	 * has completed.
+	 */
+	tracker_file_system_forget_files (priv->file_system,
 	                                  current_root,
 	                                  G_FILE_TYPE_REGULAR);
 
@@ -839,8 +841,8 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 
 	if (is_directory) {
-		/* Delete all files underneath this dir from the filesystem */
-		tracker_file_system_delete_files (priv->file_system,
+		/* Remove all files underneath this dir from the cache */
+		tracker_file_system_forget_files (priv->file_system,
 						  file,
 						  G_FILE_TYPE_UNKNOWN);
 	}
@@ -1087,8 +1089,8 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	/* Remove monitors if any */
 	tracker_monitor_remove_recursively (priv->monitor, directory);
 
-	/* Remove all files from filesystem */
-	tracker_file_system_delete_files (priv->file_system, directory,
+	/* Remove all files from cache */
+	tracker_file_system_forget_files (priv->file_system, directory,
 	                                  G_FILE_TYPE_UNKNOWN);
 }
 
