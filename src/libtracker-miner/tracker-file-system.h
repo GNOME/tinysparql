@@ -71,7 +71,7 @@ void          tracker_file_system_traverse       (TrackerFileSystem             
                                                   TrackerFileSystemTraverseFunc  func,
                                                   gpointer                       user_data);
 
-void          tracker_file_system_delete_files   (TrackerFileSystem *file_system,
+void          tracker_file_system_forget_files   (TrackerFileSystem *file_system,
 						  GFile             *root,
 						  GFileType          file_type);
 
