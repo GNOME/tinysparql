@@ -165,6 +165,7 @@ struct _TrackerMinerFSPrivate {
 	GTimer         *extraction_timer;
 
 	guint           item_queues_handler_id;
+	gboolean        item_queue_blocked;
 
 	gdouble         throttle;
 
@@ -1194,9 +1195,15 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		                            ctxt->priority,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+
+		if (fs->priv->item_queue_blocked == TRUE) {
+			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Queue handlers WAIT");
+		}
 	}
 
-	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
+	    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->task_pool)) == 0) {
+		/* We need to run this one more time to trigger process_stop() */
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -2028,8 +2035,11 @@ item_queue_handlers_cb (gpointer user_data)
 		 * on with the queues... */
 		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 		                             "Queue handlers WAIT");
+		fs->priv->item_queue_blocked = TRUE;
 		return FALSE;
 	}
+
+	fs->priv->item_queue_blocked = FALSE;
 
 	if (file && queue != QUEUE_DELETED &&
 	    tracker_file_is_locked (file)) {
