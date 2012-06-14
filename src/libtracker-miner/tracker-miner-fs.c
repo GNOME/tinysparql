@@ -1242,7 +1242,9 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		}
 	}
 
-	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
+	    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->task_pool)) == 0) {
+		/* We need to run this one more time to trigger process_stop() */
 		item_queue_handlers_set_up (fs);
 	}
 
