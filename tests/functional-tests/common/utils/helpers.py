@@ -331,28 +331,35 @@ class MinerFsHelper (Helper):
         if (status == "Idle"):
             self.loop.quit ()
 
+    def _device_completed_cb (self):
+        self.completed_devices += 1
+
+        if self.awaiting_device == True:
+            self.awaiting_device = False
+            self.loop.quit ()
+
     def start (self):
         Helper.start (self)
 
-        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
-                                                          signal_name="Progress",
-                                                          path=cfg.MINERFS_OBJ_PATH,
-                                                          dbus_interface=cfg.MINER_IFACE)
-
-        # It should step out of this loop after progress changes to "Idle"
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-        self.loop.run ()
-        glib.source_remove (self.timeout_id)
+        self.device_completed_id = self.bus.add_signal_receiver (self._device_completed_cb,
+                                                                 signal_name="DeviceCompleted",
+                                                                 path=cfg.MINERFS_OBJ_PATH,
+                                                                 dbus_interface=cfg.MINER_IFACE)
 
         bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
                                           cfg.MINERFS_OBJ_PATH)
         self.miner_fs = dbus.Interface (bus_object,
                                         dbus_interface = cfg.MINER_IFACE)
 
+        self.wait_for_idle ()
+
+        self.completed_devices = 0
+        self.awaiting_device = False
+
     def stop (self):
         Helper.stop (self)
 
-        self.bus._clean_up_signal_match (self.status_match)
+        self.bus._clean_up_signal_match (self.device_completed_id)
 
     def ignore (self, filelist):
         self.miner_fs.IgnoreNextUpdate (filelist)
@@ -366,12 +373,38 @@ class MinerFsHelper (Helper):
                                                           signal_name="Progress",
                                                           path=cfg.MINERFS_OBJ_PATH,
                                                           dbus_interface=cfg.MINER_IFACE)
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+
+        self.timeout_id = glib.timeout_add_seconds (timeout, self._timeout_on_idle_cb)
+
+        log ("Wait for idle ...")
+
+        # FIXME: check self.miner_fs.GetStatus() != "Idle" before running the
+        # loop, but ONLY if we're sure the miner will already be running ...
+        # when waiting for notifications, don't.
+        # Actually, you should adapt your GraphUpdated code for 301 rather
+        # than using that hack.
 
         self.loop.run ()
 
         glib.source_remove (self.timeout_id)
         self.bus._clean_up_signal_match (self.status_match)
+
+    def wait_for_device_complete (self, timeout=REASONABLE_TIMEOUT):
+        """
+        Block until we receive notification of a device having completed.
+        Returns True on success, False on timeout.
+        """
+        if self.completed_devices == 0:
+            self.awaiting_device = True
+            self.timeout_id = glib.timeout_add_seconds (timeout, self._timeout_on_idle_cb)
+            self.loop.run ()
+            glib.source_remove (self.timeout_id)
+
+        if self.completed_devices == 0:
+            return False
+
+        self.completed_devices -= 1
+        return True
 
 
 class ExtractorHelper (Helper):

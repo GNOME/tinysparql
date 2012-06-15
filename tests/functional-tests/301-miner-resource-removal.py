@@ -23,8 +23,8 @@ especially in the case where nie:InformationElement != nie:DataObject
 """
 
 from common.utils import configuration as cfg
-from common.utils.dconf import DConfClient
 from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, log
+from common.utils.minertest import CommonTrackerMinerTest, MINER_TMP_DIR, get_test_uri, get_test_path
 from common.utils.system import TrackerSystemAbstraction
 
 import dbus
@@ -32,14 +32,6 @@ import glib
 import os
 import shutil
 import unittest2 as ut
-
-MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
-
-def get_test_path (filename):
-    return os.path.join (MINER_TMP_DIR, filename)
-
-def get_test_uri (filename):
-    return "file://" + os.path.join (MINER_TMP_DIR, filename)
 
 
 CONF_OPTIONS = [
@@ -53,7 +45,7 @@ CONF_OPTIONS = [
 
 REASONABLE_TIMEOUT = 30
 
-class MinerResourceRemovalTest (ut.TestCase):
+class MinerResourceRemovalTest (CommonTrackerMinerTest):
     graph_updated_handler_id = 0
 
     # Use the same instances of store and miner-fs for the whole test suite,
@@ -302,30 +294,6 @@ class MinerResourceRemovalTest (ut.TestCase):
         self.assertResourceMissing (ie_1_urn)
         self.assertResourceExists (file_2_urn)
         self.assertResourceExists (ie_2_urn)
-
-    def test_02_removable_device_data (self):
-        """
-        Tracker does periodic cleanups of data on removable volumes that haven't
-        been seen since 'removable-days-threshold', and will also remove all data
-        from removable volumes if 'index-removable-devices' is disabled.
-
-        FIXME: not yet possible to test this - we need some way of mounting
-        a fake removable volume: https://bugzilla.gnome.org/show_bug.cgi?id=659739
-        """
-
-        #dconf = DConfClient ()
-        #dconf.write (cfg.DCONF_MINER_SCHEMA, 'index-removable-devices', 'true')
-
-        #self.mount_test_removable_volume ()
-
-        #self.add_test_resource ("urn:test:1", test_volume_urn)
-        #self.add_test_resource ("urn:test:2", None)
-
-        # Trigger removal of all resources from removable devices
-        #dconf.write (cfg.DCONF_MINER_SCHEMA, 'index-removable-devices', 'false')
-
-        # Check that only the data on the removable volume was deleted
-        #self.await_updates (2)
 
 
 if __name__ == "__main__":

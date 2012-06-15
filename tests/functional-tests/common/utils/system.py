@@ -23,7 +23,10 @@ TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-h
 
 TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
                    "LC_COLLATE": "en_GB.utf8",
-                   "DCONF_PROFILE": "trackertest"}
+                   "DCONF_PROFILE": "trackertest",
+                   # FIXME: should be tracker-0.14
+                   "GIO_EXTRA_MODULES": os.path.join (cfg.LIBDIR, 'tracker'),
+                   "GIO_USE_VOLUME_MONITOR": 'tracker-test-volume-monitor'}
 
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
