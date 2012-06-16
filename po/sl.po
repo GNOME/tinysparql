@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-05-06 10:07+0000\n"
-"PO-Revision-Date: 2012-05-10 09:46+0100\n"
+"POT-Creation-Date: 2012-06-15 21:09+0000\n"
+"PO-Revision-Date: 2012-06-16 08:35+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -567,15 +567,15 @@ msgstr "Bi bilo nadzirano"
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Nizka napetost baterije"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Napaka razširjevalnika. Izvajanje pred napakami varne izvleke metapodatkov"
 
@@ -640,20 +640,11 @@ msgid "Processing…"
 msgstr "Obdelovanje ..."
 
 #. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:111
-#: ../src/plugins/nautilus/tracker-tags-extension.c:185
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Oznake"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:158
-msgid "Tags..."
-msgstr "Oznake ..."
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:159
-msgid "Tag one or more files"
-msgstr "Označi eno ali več datotek"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:163
@@ -1436,8 +1427,8 @@ msgid "Could not remove tag"
 msgstr "Ni mogoče odstraniti oznake"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could not toggle tags according to selection"
-msgstr "Ni mogoče preklapljati oznak glede na izbor"
+msgid "Could not retrieve tags for the current selection"
+msgstr "Ni mogoče pridobiti oznak za trenutni izbor"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
 #: ../src/tracker-utils/tracker-tag.c:627
@@ -2534,6 +2525,12 @@ msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 #: ../utils/tracker-sql/tracker-sql.c:202
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
+
+#~ msgid "Tags..."
+#~ msgstr "Oznake ..."
+
+#~ msgid "Tag one or more files"
+#~ msgstr "Označi eno ali več datotek"
 
 #~ msgid "Filter by tags"
 #~ msgstr " Filtriraj po oznakah"
