@@ -27,6 +27,8 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
+#include "tracker-removable-device.h"
+
 G_BEGIN_DECLS
 
 /**
@@ -102,6 +104,9 @@ GType              tracker_storage_get_type                 (void) G_GNUC_CONST;
 TrackerStorage *   tracker_storage_get                      (void);
 G_GNUC_DEPRECATED_FOR(tracker_storage_get)
 TrackerStorage *   tracker_storage_new                      (void);
+GSList *           tracker_storage_get_devices              (TrackerStorage     *storage,
+                                                             TrackerStorageType  type,
+                                                             gboolean            exact_match);
 GSList *           tracker_storage_get_device_roots         (TrackerStorage     *storage,
                                                              TrackerStorageType  type,
                                                              gboolean            exact_match);

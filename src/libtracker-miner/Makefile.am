@@ -52,9 +52,8 @@ private_sources = 				       \
 	tracker-task-pool.h                            \
 	tracker-task-pool.c                            \
 	tracker-sparql-buffer.h                        \
-	tracker-sparql-buffer.c                        \
-	tracker-storage.c                              \
-	tracker-storage.h                              
+	tracker-sparql-buffer.c
+
 
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
@@ -69,7 +68,11 @@ miner_sources = 				       \
 	tracker-miner-manager.c                        \
 	tracker-miner-manager.h                        \
 	tracker-miner-web.c                            \
-	tracker-miner-web.h                            
+	tracker-miner-web.h                            \
+	tracker-removable-device.c                     \
+	tracker-removable-device.h                     \
+	tracker-storage.c                              \
+	tracker-storage.h
 
 
 libtracker_miner_private_la_SOURCES =                  \
@@ -103,6 +106,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-web.h                            \
 	tracker-network-provider.h                     \
 	tracker-password-provider.h                    \
+	tracker-removable-device.h                     \
 	tracker-storage.h                              \
 	tracker-thumbnailer.h
 
@@ -112,7 +116,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|removable_device|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

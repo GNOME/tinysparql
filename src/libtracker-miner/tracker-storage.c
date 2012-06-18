@@ -51,6 +51,7 @@ typedef struct {
 } TrackerStoragePrivate;
 
 typedef struct {
+	TrackerRemovableDevice *device;
 	gchar *mount_point;
 	gchar *uuid;
 	guint unmount_timer_id;
@@ -90,6 +91,7 @@ static void     mount_pre_removed_cb     (GVolumeMonitor *monitor,
                                           gpointer        user_data);
 
 enum {
+	DEVICE_ADDED,
 	MOUNT_POINT_ADDED,
 	MOUNT_POINT_REMOVED,
 	LAST_SIGNAL
@@ -109,6 +111,22 @@ tracker_storage_class_init (TrackerStorageClass *klass)
 	object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize     = tracker_storage_finalize;
+
+	signals[DEVICE_ADDED] =
+		g_signal_new ("device-added",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              tracker_marshal_VOID__OBJECT_STRING_STRING_STRING_BOOLEAN_BOOLEAN,
+		              G_TYPE_NONE,
+		              6,
+		              TRACKER_TYPE_REMOVABLE_DEVICE,
+		              G_TYPE_STRING,
+		              G_TYPE_STRING,
+		              G_TYPE_STRING,
+		              G_TYPE_BOOLEAN,
+		              G_TYPE_BOOLEAN);
 
 	signals[MOUNT_POINT_ADDED] =
 		g_signal_new ("mount-point-added",
@@ -261,6 +279,8 @@ mount_info_free (GNode    *node,
 	info = node->data;
 
 	if (info) {
+		g_object_unref (info->device);
+
 		g_free (info->mount_point);
 		g_free (info->uuid);
 
@@ -312,11 +332,12 @@ mount_point_normalize (const gchar *mount_point)
 }
 
 static GNode *
-mount_add_hierarchy (GNode       *root,
-                     const gchar *uuid,
-                     const gchar *mount_point,
-                     gboolean     removable,
-                     gboolean     optical)
+mount_add_hierarchy (GNode                  *root,
+                     TrackerRemovableDevice *device,
+                     const gchar            *uuid,
+                     const gchar            *mount_point,
+                     gboolean                removable,
+                     gboolean                optical)
 {
 	MountInfo *info;
 	GNode *node;
@@ -330,6 +351,7 @@ mount_add_hierarchy (GNode       *root,
 	}
 
 	info = g_slice_new (MountInfo);
+	info->device = device;
 	info->mount_point = mp;
 	info->uuid = g_strdup (uuid);
 	info->removable = removable;
@@ -340,6 +362,7 @@ mount_add_hierarchy (GNode       *root,
 
 static void
 mount_add_new (TrackerStorage *storage,
+               GMount         *mount,
                const gchar    *uuid,
                const gchar    *mount_point,
                const gchar    *mount_name,
@@ -347,19 +370,35 @@ mount_add_new (TrackerStorage *storage,
                gboolean        optical_disc)
 {
 	TrackerStoragePrivate *priv;
+	TrackerRemovableDevice *device;
 	GNode *node;
+
+	g_return_if_fail (G_IS_MOUNT (mount));
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
+	device = tracker_removable_device_new (mount);
+
+	node = mount_add_hierarchy (priv->mounts, device, uuid, mount_point, removable_device, optical_disc);
 	g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
+
+	g_signal_emit (storage,
+	               signals[DEVICE_ADDED],
+	               0,
+	               device,
+	               uuid,
+	               mount_point,
+	               mount_name,
+	               removable_device,
+	               optical_disc,
+	               NULL);
 
 	g_signal_emit (storage,
 	               signals[MOUNT_POINT_ADDED],
 	               0,
 	               uuid,
 	               mount_point,
-                       mount_name,
+	               mount_name,
 	               removable_device,
 	               optical_disc,
 	               NULL);
@@ -682,7 +721,7 @@ mount_add (TrackerStorage *storage,
 		         is_removable ? "yes" : "no",
 		         is_optical ? "yes" : "no",
 		         mount_path);
-		mount_add_new (storage, uuid, mount_path, mount_name, is_removable, is_optical);
+		mount_add_new (storage, mount, uuid, mount_path, mount_name, is_removable, is_optical);
 	} else {
 		g_debug ("  Skipping mount point with UUID: '%s', path: '%s', already managed: '%s'",
 		         uuid ? uuid : "none",
@@ -911,6 +950,53 @@ get_mount_point_by_uuid_foreach (gpointer key,
 
 		gr->roots = g_slist_prepend (gr->roots, normalized_mount_point);
 	}
+}
+
+/**
+ * tracker_storage_get_devices:
+ * @storage: A #TrackerStorage
+ * @type: A #TrackerStorageType
+ * @exact_match: if all devices should exactly match the types
+ *
+ * Returns: (transfer full) (element-type TrackerRemovableDevice): a #GSList of
+ * #TrackerRemovableDevice objects representing connected removable / optical
+ * devices, according
+ * to @type and @exact_match.
+ *
+ * Since: 0.14.2
+ **/
+GSList *
+tracker_storage_get_devices (TrackerStorage     *storage,
+                             TrackerStorageType  type,
+                             gboolean            exact_match)
+{
+	TrackerStoragePrivate *priv;
+	GList *mount_node_list;
+	GList *l;
+	GSList *devices_list;
+
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
+
+	mount_node_list = g_hash_table_get_values (priv->mounts_by_uuid);
+
+	devices_list = NULL;
+
+	for (l = mount_node_list; l != NULL; l = l->next) {
+		GNode *node = l->data;
+		MountInfo *mount_info = node->data;
+		TrackerStorageType mount_type;
+
+		mount_type = mount_info_get_type (mount_info);
+
+		if ((exact_match && mount_type == type) ||
+		    (!exact_match && (mount_type & type))) {
+			devices_list = g_slist_prepend (devices_list, mount_info->device);
+		}
+	}
+
+	g_list_free (mount_node_list);
+
+	return devices_list;
 }
 
 /**

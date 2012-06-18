@@ -132,14 +132,14 @@ static gboolean    miner_files_initable_init            (GInitable            *i
 static void        mount_pre_unmount_cb                 (GVolumeMonitor       *volume_monitor,
                                                          GMount               *mount,
                                                          TrackerMinerFiles    *mf);
-
-static void        mount_point_added_cb                 (TrackerStorage       *storage,
-                                                         const gchar          *uuid,
-                                                         const gchar          *mount_point,
-                                                         const gchar          *mount_name,
-                                                         gboolean              removable,
-                                                         gboolean              optical,
-                                                         gpointer              user_data);
+static void        device_added_cb                      (TrackerStorage         *storage,
+                                                         TrackerRemovableDevice *mount,
+                                                         const gchar            *uuid,
+                                                         const gchar            *mount_point,
+                                                         const gchar            *mount_name,
+                                                         gboolean                removable,
+                                                         gboolean                optical,
+                                                         gpointer                user_data);
 static void        mount_point_removed_cb               (TrackerStorage       *storage,
                                                          const gchar          *uuid,
                                                          const gchar          *mount_point,
@@ -200,14 +200,12 @@ static gboolean    miner_files_in_removable_media_remove_by_type  (TrackerMinerF
 static void        miner_files_in_removable_media_remove_by_date  (TrackerMinerFiles  *miner,
                                                                    const gchar        *date);
 
-static void        miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
-                                                                   const gchar       *mount_path,
-                                                                   const gchar       *uuid);
+static void        miner_files_add_removable_or_optical_device    (TrackerMinerFiles      *mf,
+                                                                   TrackerRemovableDevice *device);
 
 static void        extractor_process_failsafe                     (TrackerMinerFiles *miner);
 
 static void        miner_files_update_filters                     (TrackerMinerFiles *files);
-
 
 static GInitableIface* miner_files_initable_parent_iface;
 
@@ -253,8 +251,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 
 	storage = tracker_storage_get ();
 
-	g_signal_connect (storage, "mount-point-added",
-	                  G_CALLBACK (mount_point_added_cb),
+	g_signal_connect (storage, "device-added",
+	                  G_CALLBACK (device_added_cb),
 	                  mf);
 
 	g_signal_connect (storage, "mount-point-removed",
@@ -302,7 +300,7 @@ miner_files_initable_init (GInitable     *initable,
 	TrackerStorage *storage;
 	TrackerDirectoryFlags flags;
 	GError *inner_error = NULL;
-	GSList *mounts = NULL;
+	GSList *devices = NULL;
 	GSList *dirs;
 	GSList *m;
 
@@ -353,9 +351,9 @@ miner_files_initable_init (GInitable     *initable,
 	mf->private->index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
 	if (mf->private->index_removable_devices) {
 		/* Get list of roots for removable devices (excluding optical) */
-		mounts = tracker_storage_get_device_roots (storage,
-		                                           TRACKER_STORAGE_REMOVABLE,
-		                                           TRUE);
+		devices = tracker_storage_get_devices (storage,
+		                                       TRACKER_STORAGE_REMOVABLE,
+		                                       TRUE);
 	}
 
 	/* Setup initial flag for optical discs. Note that if removable devices not indexed,
@@ -364,11 +362,11 @@ miner_files_initable_init (GInitable     *initable,
 	                                    tracker_config_get_index_optical_discs (mf->private->config) :
 	                                    FALSE);
 	if (mf->private->index_optical_discs) {
-		/* Get list of roots for removable+optical devices */
-		m = tracker_storage_get_device_roots (storage,
-		                                      TRACKER_STORAGE_OPTICAL | TRACKER_STORAGE_REMOVABLE,
-		                                      TRUE);
-		mounts = g_slist_concat (mounts, m);
+		/* Get list of mounts for removable+optical devices */
+		m = tracker_storage_get_devices (storage,
+		                                 TRACKER_STORAGE_OPTICAL | TRACKER_STORAGE_REMOVABLE,
+		                                 TRUE);
+		devices = g_slist_concat (devices, m);
 	}
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
@@ -399,11 +397,16 @@ miner_files_initable_init (GInitable     *initable,
 		}
 
 		/* Make sure we don't crawl volumes. */
-		if (mounts) {
+		if (devices) {
+			TrackerRemovableDevice *device;
+			GFile *mount_point;
 			gboolean found = FALSE;
 
-			for (m = mounts; m && !found; m = m->next) {
-				found = strcmp (m->data, dirs->data) == 0;
+			for (m = devices; m && !found; m = m->next) {
+				device = TRACKER_REMOVABLE_DEVICE (m->data);
+				mount_point = tracker_removable_device_get_mount_point (device);
+				found = strcmp (g_file_get_path (mount_point), dirs->data) == 0;
+				g_object_unref (mount_point);
 			}
 
 			if (found) {
@@ -454,11 +457,16 @@ miner_files_initable_init (GInitable     *initable,
 		}
 
 		/* Make sure we don't crawl volumes. */
-		if (mounts) {
+		if (devices) {
+			TrackerRemovableDevice *device;
+			GFile *mount_point;
 			gboolean found = FALSE;
 
-			for (m = mounts; m && !found; m = m->next) {
-				found = strcmp (m->data, dirs->data) == 0;
+			for (m = devices; m && !found; m = m->next) {
+				device = TRACKER_REMOVABLE_DEVICE (m->data);
+				mount_point = tracker_removable_device_get_mount_point (device);
+				found = strcmp (g_file_get_path (mount_point), dirs->data) == 0;
+				g_object_unref (mount_point);
 			}
 
 			if (found) {
@@ -503,10 +511,8 @@ miner_files_initable_init (GInitable     *initable,
 		miner_files_in_removable_media_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
 	}
 
-	for (m = mounts; m; m = m->next) {
-		miner_files_add_removable_or_optical_directory (mf,
-		                                                (gchar *) m->data,
-		                                                NULL);
+	for (m = devices; m; m = m->next) {
+		miner_files_add_removable_or_optical_device (mf, TRACKER_REMOVABLE_DEVICE (m->data));
 	}
 
 	/* We want to get notified when config changes */
@@ -550,8 +556,7 @@ miner_files_initable_init (GInitable     *initable,
 
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
-	g_slist_foreach (mounts, (GFunc) g_free, NULL);
-	g_slist_free (mounts);
+	g_slist_free (devices);
 
 	disk_space_check_start (mf);
 
@@ -1142,7 +1147,6 @@ init_stale_volume_removal (TrackerMinerFiles *miner)
 		                       miner);
 }
 
-
 static void
 mount_point_removed_cb (TrackerStorage *storage,
                         const gchar    *uuid,
@@ -1175,13 +1179,14 @@ mount_point_removed_cb (TrackerStorage *storage,
 }
 
 static void
-mount_point_added_cb (TrackerStorage *storage,
-                      const gchar    *uuid,
-                      const gchar    *mount_point,
-                      const gchar    *mount_name,
-                      gboolean        removable,
-                      gboolean        optical,
-                      gpointer        user_data)
+device_added_cb (TrackerStorage         *storage,
+                 TrackerRemovableDevice *device,
+                 const gchar            *uuid,
+                 const gchar            *mount_point,
+                 const gchar            *mount_name,
+                 gboolean                removable,
+                 gboolean                optical,
+                 gpointer                user_data)
 {
 	TrackerMinerFiles *miner = user_data;
 	TrackerMinerFilesPrivate *priv;
@@ -1203,7 +1208,18 @@ mount_point_added_cb (TrackerStorage *storage,
 		GFile *mount_point_file;
 		GSList *l;
 
-		mount_point_file = g_file_new_for_path (mount_point);
+		/* If the removable device is not actually a removable device (this
+		 * is getting a bit ugly already) but it's located under a directory
+		 * that gets indexed, we index it .... is that actually what you'd ever
+		 * want?
+		 *  - eg, sftp mounts under /home/, ... but there's no way to disable
+		 *    these, and , hm... do you want it? and, if they're under a
+		 *    recursive path THEY WILL BE INDEXED ANYWAY due to the dir-created
+		 *    notification, so WHY IS THIS !!!!
+		 * I guess what we're doing is RE-CHECKING, ...
+		 */
+
+		mount_point_file = tracker_removable_device_get_mount_point (device);
 		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
 
 		/* Check if one of the recursively indexed locations is in
@@ -1273,9 +1289,7 @@ mount_point_added_cb (TrackerStorage *storage,
 		g_object_unref (mount_point_file);
 	} else {
 		g_message ("  Adding directories in removable/optical media to crawler's queue");
-		miner_files_add_removable_or_optical_directory (miner,
-		                                                mount_point,
-		                                                uuid);
+		miner_files_add_removable_or_optical_device (miner, device);
 	}
 
 	queries = g_string_new ("");
@@ -1770,8 +1784,8 @@ index_volumes_changed_idle (gpointer user_data)
 {
 	TrackerMinerFiles *mf = user_data;
 	TrackerStorage *storage;
-	GSList *mounts_removed = NULL;
-	GSList *mounts_added = NULL;
+	GSList *devices_removed = NULL;
+	GSList *devices_added = NULL;
 	gboolean new_index_removable_devices;
 	gboolean new_index_optical_discs;
 
@@ -1792,9 +1806,9 @@ index_volumes_changed_idle (gpointer user_data)
 
 		/* Get list of roots for currently mounted removable devices
 		 * (excluding optical) */
-		m = tracker_storage_get_device_roots (storage,
-		                                      TRACKER_STORAGE_REMOVABLE,
-		                                      TRUE);
+		m = tracker_storage_get_devices (storage,
+		                                 TRACKER_STORAGE_REMOVABLE,
+		                                 TRUE);
 		/* Set new config value */
 		mf->private->index_removable_devices = new_index_removable_devices;
 
@@ -1802,13 +1816,13 @@ index_volumes_changed_idle (gpointer user_data)
 			/* If previously not indexing and now indexing, need to re-check
 			 * current mounted volumes, add new monitors and index new files
 			 */
-			mounts_added = m;
+			devices_added = m;
 		} else {
 			/* If previously indexing and now not indexing, need to re-check
 			 * current mounted volumes, remove monitors and remove all resources
 			 * from the store belonging to a removable device
 			 */
-			mounts_removed = m;
+			devices_removed = m;
 
 			/* And now, single sparql update to remove all resources
 			 * corresponding to removable devices (includes those
@@ -1822,9 +1836,9 @@ index_volumes_changed_idle (gpointer user_data)
 		GSList *m;
 
 		/* Get list of roots for removable devices (excluding optical) */
-		m = tracker_storage_get_device_roots (storage,
-		                                      TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL,
-		                                      TRUE);
+		m = tracker_storage_get_devices (storage,
+		                                 TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL,
+		                                 TRUE);
 
 		/* Set new config value */
 		mf->private->index_optical_discs = new_index_optical_discs;
@@ -1833,13 +1847,13 @@ index_volumes_changed_idle (gpointer user_data)
 			/* If previously not indexing and now indexing, need to re-check
 			 * current mounted volumes, add new monitors and index new files
 			 */
-			mounts_added = g_slist_concat (mounts_added, m);
+			devices_added = g_slist_concat (devices_added, m);
 		} else {
 			/* If previously indexing and now not indexing, need to re-check
 			 * current mounted volumes, remove monitors and remove all resources
 			 * from the store belonging to a optical disc
 			 */
-			mounts_removed = g_slist_concat (mounts_removed, m);
+			devices_removed = g_slist_concat (devices_removed, m);
 
 			/* And now, single sparql update to remove all resources
 			 * corresponding to removable+optical devices (includes those
@@ -1849,37 +1863,38 @@ index_volumes_changed_idle (gpointer user_data)
 	}
 
 	/* Tell TrackerMinerFS to stop monitoring the given removed mount paths, if any */
-	if (mounts_removed) {
+	if (devices_removed) {
 		TrackerIndexingTree *indexing_tree;
 		GSList *sl;
 
 		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
 
-		for (sl = mounts_removed; sl; sl = g_slist_next (sl)) {
+		for (sl = devices_removed; sl; sl = g_slist_next (sl)) {
+			TrackerRemovableDevice *device;
 			GFile *mount_point_file;
 
-			mount_point_file = g_file_new_for_path (sl->data);
-			tracker_indexing_tree_remove (indexing_tree,
-						      mount_point_file);
+			device = TRACKER_REMOVABLE_DEVICE (sl->data);
+			mount_point_file = tracker_removable_device_get_mount_point (device);
+
+			tracker_indexing_tree_remove (indexing_tree, mount_point_file);
+
 			g_object_unref (mount_point_file);
 		}
 
-		g_slist_foreach (mounts_removed, (GFunc) g_free, NULL);
-		g_slist_free (mounts_removed);
+		//g_slist_foreach (mounts_removed, (GFunc) g_free, NULL);
+		g_slist_free (devices_removed);
 	}
 
 	/* Tell TrackerMinerFS to start monitoring the given added mount paths, if any */
-	if (mounts_added) {
+	if (devices_added) {
 		GSList *sl;
 
-		for (sl = mounts_added; sl; sl = g_slist_next (sl)) {
-			miner_files_add_removable_or_optical_directory (mf,
-			                                                (gchar *) sl->data,
-			                                                NULL);
+		for (sl = devices_added; sl; sl = g_slist_next (sl)) {
+			miner_files_add_removable_or_optical_device (mf, TRACKER_REMOVABLE_DEVICE (sl->data));
 		}
 
-		g_slist_foreach (mounts_added, (GFunc) g_free, NULL);
-		g_slist_free (mounts_added);
+		//g_slist_foreach (mounts_added, (GFunc) g_free, NULL);
+		g_slist_free (devices_added);
 	}
 
 	mf->private->volumes_changed_id = 0;
@@ -2941,26 +2956,25 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 }
 
 static void
-miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
-                                                const gchar       *mount_path,
-                                                const gchar       *uuid)
+miner_files_add_removable_or_optical_device (TrackerMinerFiles      *mf,
+                                             TrackerRemovableDevice *device)
 {
 	TrackerIndexingTree *indexing_tree;
 	TrackerDirectoryFlags flags;
 	GFile *mount_point_file;
+	const gchar *uuid;
 
-	mount_point_file = g_file_new_for_path (mount_path);
+	mount_point_file = tracker_removable_device_get_mount_point (device);
 
-	/* UUID may be NULL, and if so, get it */
+	/* FIXME: can't get from the mount, but can get more easily than this,
+	 * right? TrackerStorage should handle! */
+	uuid = tracker_storage_get_uuid_for_file (tracker_storage_get (),
+	                                          mount_point_file);
 	if (!uuid) {
-		uuid = tracker_storage_get_uuid_for_file (tracker_storage_get (),
-		                                          mount_point_file);
-		if (!uuid) {
-			g_critical ("Couldn't get UUID for mount point '%s'",
-			            mount_path);
-			g_object_unref (mount_point_file);
-			return;
-		}
+		g_critical ("Couldn't get UUID for mount point '%s'",
+		            g_file_get_path (mount_point_file));
+		g_object_unref (mount_point_file);
+		return;
 	}
 
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
@@ -2977,7 +2991,7 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 	                         g_strdup (uuid),
 	                         (GDestroyNotify) g_free);
 
-	g_message ("  Adding removable/optical: '%s'", mount_path);
+	g_message ("  Adding removable/optical: '%s'", g_file_get_path (mount_point_file));
 	tracker_indexing_tree_add (indexing_tree,
 				   mount_point_file,
 				   flags);
