@@ -200,11 +200,6 @@ struct _TrackerMinerFSPrivate {
 	guint           total_files_found;
 	guint           total_files_ignored;
 
-	guint           directories_found;
-	guint           directories_ignored;
-	guint           files_found;
-	guint           files_ignored;
-
 	guint           total_files_processed;
 	guint           total_files_notified;
 	guint           total_files_notified_error;
@@ -2672,11 +2667,6 @@ file_notifier_directory_finished (TrackerFileNotifier *notifier,
 	TrackerMinerFS *fs = user_data;
 
 	/* Update stats */
-	fs->priv->directories_found += directories_found;
-	fs->priv->directories_ignored += directories_ignored;
-	fs->priv->files_found += files_found;
-	fs->priv->files_ignored += files_ignored;
-
 	fs->priv->total_directories_found += directories_found;
 	fs->priv->total_directories_ignored += directories_ignored;
 	fs->priv->total_files_found += files_found;
