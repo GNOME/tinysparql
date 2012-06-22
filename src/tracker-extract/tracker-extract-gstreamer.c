@@ -380,7 +380,7 @@ static gchar *
 get_embedded_cue_sheet_data (GstTagList *tag_list)
 {
 	gint i, count;
-	gchar *buffer;
+	gchar *buffer = NULL;
 
 	count = gst_tag_list_get_tag_size (tag_list, GST_TAG_EXTENDED_COMMENT);
 	for (i = 0; i < count; i++) {
@@ -473,7 +473,7 @@ extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
                                       TrackerSparqlBuilder  *metadata,
                                       const gchar           *graph)
 {
-	gchar *country, *city, *sublocation;
+	gchar *country = NULL, *city = NULL, *sublocation = NULL;
 	gdouble lat, lon, alt;
 	gboolean has_coords;
 
@@ -675,7 +675,7 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
                                 gchar                **p_album_disc_uri)
 {
 	gchar *album_artist;
-	gchar *album_title;
+	gchar *album_title = NULL;
 	gchar *album_artist_temp = NULL;
 	gchar *track_artist_temp = NULL;
 	gboolean has_it;
