@@ -2306,8 +2306,10 @@ process_file_cb (GObject      *object,
 	if (error) {
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
 		process_file_data_free (data);
 		g_error_free (error);
+
 		return;
 	}
 
