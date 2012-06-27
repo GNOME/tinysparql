@@ -165,6 +165,7 @@ struct _TrackerMinerFSPrivate {
 	GTimer         *extraction_timer;
 
 	guint           item_queues_handler_id;
+	GFile          *item_queue_blocker;
 
 	gdouble         throttle;
 
@@ -650,6 +651,10 @@ fs_finalize (GObject *object)
 	if (priv->item_queues_handler_id) {
 		g_source_remove (priv->item_queues_handler_id);
 		priv->item_queues_handler_id = 0;
+
+		if (priv->item_queue_blocker) {
+			g_object_unref (priv->item_queue_blocker);
+		}
 	}
 
 	tracker_file_notifier_stop (priv->file_notifier);
@@ -986,6 +991,21 @@ item_writeback_data_free (ItemWritebackData *data)
 	g_slice_free (ItemWritebackData, data);
 }
 
+static gboolean
+item_queue_is_blocked_by_file (TrackerMinerFS *fs,
+                               GFile *file)
+{
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	if (fs->priv->item_queue_blocker != NULL &&
+	    (fs->priv->item_queue_blocker == file ||
+	     g_file_equal (fs->priv->item_queue_blocker, file))) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 sparql_buffer_task_finished_cb (GObject      *object,
                                 GAsyncResult *result,
@@ -993,6 +1013,8 @@ sparql_buffer_task_finished_cb (GObject      *object,
 {
 	TrackerMinerFS *fs;
 	TrackerMinerFSPrivate *priv;
+	TrackerTask *task;
+	GFile *task_file;
 	GError *error = NULL;
 
 	fs = user_data;
@@ -1005,7 +1027,22 @@ sparql_buffer_task_finished_cb (GObject      *object,
 		g_error_free (error);
 	}
 
-	item_queue_handlers_set_up (fs);
+	task = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+	task_file = tracker_task_get_file (task);
+
+	if (item_queue_is_blocked_by_file (fs, task_file)) {
+		g_object_unref (priv->item_queue_blocker);
+		priv->item_queue_blocker = NULL;
+	}
+
+	if (priv->item_queue_blocker != NULL) {
+		if (tracker_task_pool_get_size (TRACKER_TASK_POOL (object)) > 0) {
+			tracker_sparql_buffer_flush (TRACKER_SPARQL_BUFFER (object),
+			                             "Item queue still blocked after flush");
+		}
+	} else {
+		item_queue_handlers_set_up (fs);
+	}
 }
 
 static UpdateProcessingTaskContext *
@@ -1199,6 +1236,10 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		                            ctxt->priority,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+
+		if (item_queue_is_blocked_by_file (fs, task_file)) {
+			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Current file is blocking item queue");
+		}
 	}
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
@@ -1708,6 +1749,7 @@ should_wait (TrackerMinerFS *fs,
 	    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), file)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
+		fs->priv->item_queue_blocker = g_object_ref (file);
 		return TRUE;
 	}
 
@@ -1718,7 +1760,7 @@ should_wait (TrackerMinerFS *fs,
 		    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), parent)) {
 			/* Yes, a previous event on the parent of this item
 			 * currently being processed */
-			g_object_unref (parent);
+			fs->priv->item_queue_blocker = parent;
 			return TRUE;
 		}
 
@@ -2033,6 +2075,7 @@ item_queue_handlers_cb (gpointer user_data)
 		 * on with the queues... */
 		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 		                             "Queue handlers WAIT");
+
 		return FALSE;
 	}
 
@@ -2264,6 +2307,12 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	if (fs->priv->is_paused) {
 		trace_eq ("   cancelled: paused");
+		return;
+	}
+
+	if (fs->priv->item_queue_blocker) {
+		trace_eq ("   cancelled: item queue blocked waiting for file '%s'",
+		          g_file_get_path (fs->priv->item_queue_blocker));
 		return;
 	}
 
