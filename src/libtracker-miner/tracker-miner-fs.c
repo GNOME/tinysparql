@@ -1242,6 +1242,16 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		if (item_queue_is_blocked_by_file (fs, task_file)) {
 			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Current file is blocking item queue");
 		}
+	} else {
+		if (item_queue_is_blocked_by_file (fs, task_file)) {
+			/* Make sure that we don't stall the item queue, although we could
+			 * expect the file to be reenqueued until the loop detector makes
+			 * us drop it since we were specifically waiting for it to complete.
+			 */
+			g_object_unref (fs->priv->item_queue_blocker);
+			fs->priv->item_queue_blocker = NULL;
+			item_queue_handlers_set_up (fs);
+		}
 	}
 
 	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
@@ -3370,6 +3380,13 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 		            "signal didn't return FALSE for it",
 		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
+
+		if (item_queue_is_blocked_by_file (fs, file)) {
+			/* Ensure we don't stall, although this is a very ugly situation */
+			g_object_unref (fs->priv->item_queue_blocker);
+			fs->priv->item_queue_blocker = NULL;
+			item_queue_handlers_set_up (fs);
+		}
 
 		return;
 	}
