@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2012-06-13 13:43+0000\n"
-"PO-Revision-Date: 2012-06-15 21:36+0700\n"
+"PO-Revision-Date: 2012-07-02 03:52+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "MIME-Version: 1.0\n"
@@ -100,19 +100,19 @@ msgstr "Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu doku
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable stemmer"
-msgstr ""
+msgstr "Aktifkan stemmer"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid "Simplify the words to their root to provide more results. E.g. 'shelves' and 'shelf' to 'shel'"
-msgstr ""
+msgstr "Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. 'shelves' dan 'shelf' menjadi 'shel'."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Enable unaccent"
-msgstr ""
+msgstr "Aktifkan hapus-aksen"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
 msgid "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
-msgstr ""
+msgstr "Terjemahkan karakter berakses ke tanpa akse ekuivalennya, mis. 'Idéa' to 'Idea' untuk pencocokan yang lebih baik."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
 msgid "Ignore numbers"
@@ -120,19 +120,19 @@ msgstr "Abaikan bilangan"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid "If enabled, numbers will not be indexed."
-msgstr ""
+msgstr "Bila diaktifkan, bilangan tak akan diindeks"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
 msgid "Ignore stop words"
-msgstr ""
+msgstr "Abaikan kata henti"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
 msgid "If enabled, the words listed in the stop-words list are ignored. E.g. common words like 'the', 'yes', 'no', etc."
-msgstr ""
+msgstr "Bila diaktifkan, kata yang didaftar dalam daftar kata henti akan diabaikan. Mis. kata umum seperti 'the', 'yes', 'no', dsb."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
 msgid "Initial sleep"
-msgstr ""
+msgstr "Tidur awal"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
 msgid "Initial sleep time, in seconds."
@@ -145,7 +145,7 @@ msgstr "Throttle"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
 msgid "Indexing speed, the higher the slower."
-msgstr ""
+msgstr "Kecepatan pengindeksan, makin tinggi makin lambat."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
 #| msgid "Low disk space"
@@ -154,23 +154,23 @@ msgstr "Batas bawah sisa ruang disk"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid "Disk space threshold in MB at which to pause indexing, or -1 to disable."
-msgstr ""
+msgstr "Ambang ruang disk dalam MB yang bila dicapai akan menghentikan pengindeksan, atau -1 untuk mematikan."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
-msgstr ""
+msgstr "Interval penelusuran"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
 msgid "Interval in days to check whether the filesystem is up to date in the database. 0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2 disables it entirely."
-msgstr ""
+msgstr "Selang waktu dalam hari untuk memeriksa apakah sistem berkas mutakhir dalam basis data. 0 memaksa penelusuran kapanpun, -1 memaksa hanya setelah dimatikan tak bersih, dan -2 sepenuhnya mematikannya."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Removable devices' data permanence threshold"
-msgstr ""
+msgstr "Ambang kepermanenan data perangkat lepas pasang"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
 msgid "Threshold in days after which files from removables devices will be removed from database if not mounted. 0 means never, maximum is 365."
-msgstr ""
+msgstr "Ambang dalam hari dimana setelahnya berkas dari perangkat lepas pasang akan dibuang dari basis data bila tak dikait. 0 berarti tak pernah, maksimum adalah 365."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
 #| msgid "Would be monitored"
@@ -179,15 +179,15 @@ msgstr "Aktifkan monitor"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
 msgid "Set to false to completely disable any file monitoring"
-msgstr ""
+msgstr "Tata ke false untuk mematikan sepenuhnya semua pemantauan berkas"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
 msgid "Enable writeback"
-msgstr ""
+msgstr "Aktifkan writeback"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
 msgid "Set to false to completely disable any file writeback"
-msgstr ""
+msgstr "Tata ke false untuk mematikan sepenuhnya writeback berkas"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
 msgid "Index removable devices"
@@ -195,47 +195,47 @@ msgstr "Indeks perangkat lepas pasang"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
 msgid "Set to true to enable indexing mounted directories for removable devices."
-msgstr ""
+msgstr "Tata ke true untuk mengaktifkan pengindeksan direktori bagi perangkat lepas pasang."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 msgid "Index optical discs"
-msgstr ""
+msgstr "Indeks cakram optik"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid "Set to true to enable indexing CDs, DVDs, and generally optical media (if removable devices are not indexed, optical discs won't be either)"
-msgstr ""
+msgstr "Isi dengan true untuk mengaktifkan pengindeksan CD, DVD, dan media optis pada umumnya (bila perangkat lepas pasang tak diindeks, cakram optik juga tidak)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Index when running on battery"
-msgstr ""
+msgstr "Mengindeks ketika memakai tenaga baterai"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
 msgid "Set to true to index while running on battery"
-msgstr ""
+msgstr "Isi dengan true untuk mengindeks ketika memakai tenaga baterai"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
 msgid "Perform initial indexing when running on battery"
-msgstr ""
+msgstr "Lakukan pengindeksan awal ketika memakai tenaga baterai"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
 msgid "Set to true to index while running on battery for the first time only"
-msgstr ""
+msgstr "Isi dengan true untuk mengindeks ketika memakai tenaga baterai hanya untuk pertama kali"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
 msgid "Directories to index recursively"
-msgstr ""
+msgstr "Direktori yang diindeks secara rekursif"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid "List of directories to index recursively, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
-msgstr ""
+msgstr "Daftar direktori yang diindeks secara rekursif. Nilai khusus termasuk: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Lihat /etc/xdg/user-dirs.defaults dan $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Directories to index non-recursively"
-msgstr ""
+msgstr "Direktori yang diindeks secara non rekursif"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid "List of directories to index without inspecting subfolders, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
-msgstr ""
+msgstr "Daftar direktori yang diindex tanpa memeriksa subfolder. Nilai khusus termasuk: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Lihat /etc/xdg/user-dirs.defaults dan $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Ignored files"
@@ -243,7 +243,7 @@ msgstr "Berkas yang diabaikan"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
 msgid "List of file patterns to avoid"
-msgstr ""
+msgstr "Daftar pola berkas yang dihindari"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
 #| msgid "Directories"
@@ -252,19 +252,19 @@ msgstr "Direktori yang diabaikan"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
 msgid "List of directories to avoid"
-msgstr ""
+msgstr "Daftar direktori yang dihindari"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
 msgid "Ignored directories with content"
-msgstr ""
+msgstr "Direktori dengan isi yang diabaikan"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
 msgid "Avoid any directory containing a file blacklisted here"
-msgstr ""
+msgstr "Hindari sebarang direktori yang memuat berkas yang masuk daftar hitam disini"
 
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
 msgid "Userguides"
-msgstr ""
+msgstr "Panduan pengguna"
 
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
 #| msgid "File system data miner"
@@ -308,12 +308,11 @@ msgstr "Mengindeks album foto Flickr Anda"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "RSS/ATOM Feeds"
-msgstr ""
+msgstr "Asupan RSS/ATOM"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
-#, fuzzy
 msgid "Fetch RSS/ATOM Feeds"
-msgstr "Tracker Penambang Asupan RSS/ATOM"
+msgstr "Ambil Asupan RSS/ATOM"
 
 #: ../data/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Tracker Miner for Flickr"
@@ -328,7 +327,6 @@ msgid "Tracker File System Miner"
 msgstr "Tracker Penambang Sistem Berkas"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
-#, fuzzy
 msgid "Crawls and processes files on the file system"
 msgstr "Menelusuri dan memroses berkas pada sistem berkas"
 
@@ -337,17 +335,14 @@ msgid "Tracker RSS/ATOM Feeds Miner"
 msgstr "Tracker Penambang Asupan RSS/ATOM"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
-#, fuzzy
 msgid "Fetch RSS/ATOM feeds"
-msgstr "Tracker Penambang Asupan RSS/ATOM"
+msgstr "Mengambil asupan RSS/ATOM"
 
 #: ../data/tracker-store.desktop.in.in.h:1
-#, fuzzy
 msgid "Tracker Store"
 msgstr "Penyimpanan Tracker"
 
 #: ../data/tracker-store.desktop.in.in.h:2
-#, fuzzy
 msgid "Metadata database store and lookup manager"
 msgstr "Manajer lookup dan penyimpanan basis data metadata"
 
@@ -421,7 +416,6 @@ msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 
 #: ../src/libtracker-miner/tracker-miner-object.c:1054
-#, fuzzy
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie tak dikenali untuk melanjutkan penambang yang mengambil jeda"
 
@@ -441,10 +435,9 @@ msgstr "Waktu tidur awal dalam detik, 0->1000 (bawaan=15)"
 
 #: ../src/miners/fs/tracker-main.c:112
 msgid "Runs until all configured locations are indexed and then exits"
-msgstr ""
+msgstr "Jalankan sampai semua lokasi yang dikonfigurasi diindeks lalu keluar"
 
 #: ../src/miners/fs/tracker-main.c:116
-#, fuzzy
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Memeriksa apakah BERKAS boleh ditambang berdasar konfigurasi"
 
@@ -463,12 +456,12 @@ msgstr "BERKAS"
 
 #: ../src/miners/fs/tracker-main.c:120
 msgid "Disable miners started as part of this process, options include: '"
-msgstr ""
+msgstr "Matikan penambang yang dimulai sebagai bagian dari proses ini, opsi termasuk: '"
 
 #: ../src/miners/fs/tracker-main.c:127
 #: ../src/tracker-control/tracker-control-miners.c:75
 msgid "MINER"
-msgstr ""
+msgstr "PENAMBANG"
 
 #. Daemon options
 #: ../src/miners/fs/tracker-main.c:130
@@ -490,51 +483,51 @@ msgstr "Objek data '%s' kini belum ada"
 
 #: ../src/miners/fs/tracker-main.c:645
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Direktori boleh ditambang (berdasarkan aturan)"
 
 #: ../src/miners/fs/tracker-main.c:646
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Direktori TIDAK boleh ditambang (berdasarkan aturan)"
 
 #: ../src/miners/fs/tracker-main.c:666
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr ""
+msgstr "Direktori boleh ditambang (berdasarkan isi)"
 
 #: ../src/miners/fs/tracker-main.c:667
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr ""
+msgstr "Direktori TIDAK boleh ditambang (berdasarkan isi)"
 
 #: ../src/miners/fs/tracker-main.c:714
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Direktori boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:715
 msgid "Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Direktori TIDAK boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:719
 msgid "File is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Berkas boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:720
 msgid "File is NOT eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Berkas TIDAK boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:724
 msgid "File or Directory is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Berkas atau Direktori boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:725
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Berkas atau Direktori TIDAK boleh dipantau (berdasarkan konfig)"
 
 #: ../src/miners/fs/tracker-main.c:740
 msgid "File is eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Berkas boleh ditambang (berdasarkan aturan)"
 
 #: ../src/miners/fs/tracker-main.c:741
 msgid "File is NOT eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Berkas TIDAK boleh ditambang (berdasarkan aturan)"
 
 #: ../src/miners/fs/tracker-main.c:750
 msgid "Would be indexed"
@@ -575,15 +568,15 @@ msgstr ""
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
-msgstr ""
+msgstr "Tambah asupan (mesti dipakai dengan --title)"
 
 #: ../src/miners/rss/tracker-main.c:45
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../src/miners/rss/tracker-main.c:48
 msgid "Title to use (must be used with --add-feed)"
-msgstr ""
+msgstr "Judul yang dipakai (mesti dipakai dengan --add-feed)"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -594,7 +587,7 @@ msgstr "- jalankan pengindeks asupan"
 
 #: ../src/miners/rss/tracker-main.c:80
 msgid "Adding a feed requires --add-feed and --title"
-msgstr ""
+msgstr "Menambah asupan memerlukan --add-feed dan --title"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/tracker-utils/tracker-import.c:111
@@ -604,7 +597,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-stats.c:88
 #: ../src/tracker-utils/tracker-tag.c:940
 msgid "Could not establish a connection to Tracker"
-msgstr ""
+msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:112
@@ -626,7 +619,7 @@ msgstr "Tracker"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
 msgid "Push data to Tracker to make it queryable."
-msgstr ""
+msgstr "Mendorong data ke Pelacak untuk membuatnya agar dapat di-query."
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
@@ -672,73 +665,72 @@ msgstr " - Kelola data dan proses Tracker"
 
 #: ../src/tracker-control/tracker-control.c:97
 msgid "General and Status options cannot be used together"
-msgstr ""
+msgstr "Opsi Umum dan Status tak dapat dipakai bersama"
 
 #: ../src/tracker-control/tracker-control.c:103
 msgid "General and Miners options cannot be used together"
-msgstr ""
+msgstr "Opsi Umum dan Penambang tak dapat dipakai bersama"
 
 #: ../src/tracker-control/tracker-control.c:114
 msgid "Status and Miners options cannot be used together"
-msgstr ""
+msgstr "Opsi Status dan Penambang tak dapat dipakai bersama"
 
 #: ../src/tracker-control/tracker-control.c:131
 msgid "Unrecognized options"
-msgstr ""
+msgstr "Opsi tak dikenal"
 
 #: ../src/tracker-control/tracker-control-general.c:80
 msgid "List all Tracker processes"
-msgstr ""
+msgstr "Daftar semua proses Pelacak"
 
 #: ../src/tracker-control/tracker-control-general.c:82
 msgid "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""
-msgstr ""
+msgstr "Pakai SIGKILL untuk menghentikan semua proses yang cocok, \"store\", \"miners\", atau \"all\" boleh dipakai, tidak ada parameter yang sama dengan \"all\""
 
 #: ../src/tracker-control/tracker-control-general.c:83
 #: ../src/tracker-control/tracker-control-general.c:86
-#, fuzzy
 msgid "APPS"
-msgstr "APL"
+msgstr "APP"
 
 #: ../src/tracker-control/tracker-control-general.c:85
 msgid "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""
-msgstr ""
+msgstr "Pakai SIGTERM untuk menghentikan semua proses yang cocok, \"store\", \"miners\", atau \"all\" boleh dipakai, tidak ada parameter yang sama dengan \"all\""
 
 #: ../src/tracker-control/tracker-control-general.c:88
 msgid "Kill all Tracker processes and remove all databases"
-msgstr ""
+msgstr "Matikan semua proses Pelacak dan hapus semua basis data"
 
 #: ../src/tracker-control/tracker-control-general.c:91
 msgid "Same as --hard-reset but the backup & journal are restored after restart"
-msgstr ""
+msgstr "Sama dengan --hard-reset tapi backup & jurnal dikembalikan setelah start ulang"
 
 #: ../src/tracker-control/tracker-control-general.c:94
 msgid "Remove all configuration files so they are re-generated on next start"
-msgstr ""
+msgstr "Hapus semua berkas konfigurasi sehingga mereka dibuat ulang saat start berikutnya"
 
 #: ../src/tracker-control/tracker-control-general.c:97
 msgid "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"
-msgstr ""
+msgstr "Atur tingkat rincian log ke LEVEL ('debug', 'detailed', 'minimal', 'errors') bagi semua proses"
 
 #: ../src/tracker-control/tracker-control-general.c:98
 msgid "LEVEL"
-msgstr ""
+msgstr "LEVEL"
 
 #: ../src/tracker-control/tracker-control-general.c:100
 msgid "Show logging values in terms of log verbosity for each process"
-msgstr ""
+msgstr "Tampilkan nilai log mengacu ke tingkat rincian log bagi setiap proses"
 
 #: ../src/tracker-control/tracker-control-general.c:103
 msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr ""
+msgstr "Mulai jalankan penambang (yang secara tak langsung memulai tracker-store juga)"
 
 #: ../src/tracker-control/tracker-control-general.c:106
 msgid "Backup databases to the file provided"
-msgstr ""
+msgstr "Buat cadangan basis data ke berkas yang diberikan"
 
 #: ../src/tracker-control/tracker-control-general.c:109
 msgid "Restore databases from the file provided"
-msgstr ""
+msgstr "Kembalikan basis data dari berkas yang diberikan"
 
 #: ../src/tracker-control/tracker-control-general.c:131
 msgid "Could not open /proc"
@@ -754,27 +746,27 @@ msgstr "tak ada galat yang diberikan"
 #: ../src/tracker-control/tracker-control-general.c:324
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mendapat GSettings bagi penambang, manajer tak dapat dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:581
 msgid "You can not use the --kill and --terminate arguments together"
-msgstr ""
+msgstr "Anda tak bisa memakai argumen --kill dan --terminate bersamaan"
 
 #: ../src/tracker-control/tracker-control-general.c:587
 msgid "You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"
-msgstr ""
+msgstr "Anda tak dapat memakai --terminate dengan --hard-reset atau --soft-reset, --kill tersirat"
 
 #: ../src/tracker-control/tracker-control-general.c:593
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
-msgstr ""
+msgstr "Anda tak bisa memakai argumen --hard-reset dan --soft-reset bersamaan"
 
 #: ../src/tracker-control/tracker-control-general.c:599
 msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr ""
+msgstr "Anda tak bisa memakai argumen --get-logging dan --set-logging bersamaan"
 
 #: ../src/tracker-control/tracker-control-general.c:614
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
-msgstr ""
+msgstr "Tingkat rincian log tak valid, coba 'debug', 'detailed', 'minimal', atau 'errors'"
 
 #: ../src/tracker-control/tracker-control-general.c:681
 #, c-format
@@ -830,16 +822,16 @@ msgstr "Penambang"
 #: ../src/tracker-control/tracker-control-general.c:939
 #: ../src/tracker-control/tracker-control-general.c:981
 msgid "Only those with config listed"
-msgstr ""
+msgstr "Hanya yang konfignya ada pada daftar"
 
 #: ../src/tracker-control/tracker-control-general.c:957
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
-msgstr ""
+msgstr "Mengatur tingkat rincian log bagi semua komponen ke '%s'..."
 
 #: ../src/tracker-control/tracker-control-general.c:997
 msgid "Waiting one second before starting miners…"
-msgstr ""
+msgstr "Menunggu satu detik sebelum memulai penambang..."
 
 #: ../src/tracker-control/tracker-control-general.c:1003
 msgid "Starting miners…"
@@ -848,19 +840,19 @@ msgstr "Memulai penambang…"
 #: ../src/tracker-control/tracker-control-general.c:1009
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa memulai penambang, manajer tak dapat dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:1034
 msgid "perhaps a disabled plugin?"
-msgstr ""
+msgstr "mungkin plugin yang dimatikan?"
 
 #: ../src/tracker-control/tracker-control-general.c:1056
 msgid "Backing up database"
-msgstr ""
+msgstr "Membuat cadangan basis data"
 
 #: ../src/tracker-control/tracker-control-general.c:1128
 msgid "Restoring database from backup"
-msgstr ""
+msgstr "Mengembalikan basis data dari cadangan"
 
 #: ../src/tracker-control/tracker-control-general.c:1201
 #| msgid "General"
@@ -869,7 +861,7 @@ msgstr "Opsi umum"
 
 #: ../src/tracker-control/tracker-control-general.c:1202
 msgid "Show general options"
-msgstr ""
+msgstr "Tampilkan opsi umum"
 
 #: ../src/tracker-control/tracker-control-miners.c:56
 msgid "Tell miners to reindex files which match the mime type supplied (for new extractors), use -m MIME1 -m MIME2"
@@ -886,7 +878,7 @@ msgstr "Beritahu penambang untuk mengindeks (ulang) berkas yang diberikan"
 
 #: ../src/tracker-control/tracker-control-miners.c:62
 msgid "Pause a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Istirahatkan penambang (Anda mesti memakai ini dengan --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:63
 #: ../src/tracker-control/tracker-control-miners.c:67
@@ -895,11 +887,11 @@ msgstr "ALASAN"
 
 #: ../src/tracker-control/tracker-control-miners.c:66
 msgid "Pause a miner while the calling process is alive or until resumed (you must use this with --miner)"
-msgstr ""
+msgstr "Istirahatkan penambang ketika proses pemanggil masih hidup atau sampai dilanjutkan (Anda mesti memakai ini dengan --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:70
 msgid "Resume a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Lanjutkan penambang (Anda mesti memakai ini dengan --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:71
 msgid "COOKIE"
@@ -907,19 +899,19 @@ msgstr "COOKIE"
 
 #: ../src/tracker-control/tracker-control-miners.c:74
 msgid "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or Applications)"
-msgstr ""
+msgstr "Penambang yang dipakai dengan --resume atau --pause (Anda dapat memakai sufiks, mis. Berkas atau Aplikasi)"
 
 #: ../src/tracker-control/tracker-control-miners.c:78
 msgid "List all miners currently running"
-msgstr ""
+msgstr "Tampilkan daftar semua penambang yang sedang berjalan"
 
 #: ../src/tracker-control/tracker-control-miners.c:82
 msgid "List all miners installed"
-msgstr ""
+msgstr "Tampilkan daftar semua penambang yang terpasang"
 
 #: ../src/tracker-control/tracker-control-miners.c:86
 msgid "List pause reasons"
-msgstr ""
+msgstr "Tampilkan daftar alasan jeda"
 
 #: ../src/tracker-control/tracker-control-miners.c:111
 #, c-format
@@ -929,7 +921,7 @@ msgstr "Tak bisa mengistirahatkan penambang, pengelola tak dapat dibuat, %s"
 #: ../src/tracker-control/tracker-control-miners.c:118
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr ""
+msgstr "Mencoba mengistirahatkan penambang '%s' dengan alasan '%s'"
 
 #: ../src/tracker-control/tracker-control-miners.c:126
 #: ../src/tracker-control/tracker-control-miners.c:132
@@ -944,22 +936,22 @@ msgstr "Cookienya %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:145
 msgid "Press Ctrl+C to end pause"
-msgstr ""
+msgstr "Tekan Ctrl+C untuk mengakhiri jeda"
 
 #: ../src/tracker-control/tracker-control-miners.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Could not resume miner, manager could not be created, %s"
-msgstr "Tidak dapat mengistirahatkan penambang: %s"
+msgstr "Tak dapat melanjutkan penambang, manajer tak bisa dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:176
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
-msgstr ""
+msgstr "Mencoba melanjutkan penambang %s dengan cookie %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Could not resume miner: %s"
-msgstr "Tidak dapat mengistirahatkan penambang: %s"
+msgstr "Tak dapat melanjutkan penambang: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:138
@@ -970,55 +962,54 @@ msgstr "Selesai"
 #: ../src/tracker-control/tracker-control-miners.c:203
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mengindeks ulang tipe mime, manajer tak bisa dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:213
 msgid "Could not reindex mimetypes"
-msgstr ""
+msgstr "Tak bisa mengindeks ulang tipe mime"
 
 #: ../src/tracker-control/tracker-control-miners.c:219
 msgid "Reindexing mime types was successful"
-msgstr ""
+msgstr "Pengindeksan ulang tipe mime sukses"
 
 #: ../src/tracker-control/tracker-control-miners.c:235
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mengindeks (ulang) berkas, manajer tak bisa dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:248
-#, fuzzy
 msgid "Could not (re)index file"
-msgstr "Tidak dapat menghapus berkas indeks folder '%s': %s"
+msgstr "Tak bisa mengindeks (ulang) berkas"
 
 #: ../src/tracker-control/tracker-control-miners.c:254
 msgid "(Re)indexing file was successful"
-msgstr ""
+msgstr "Pengindeksan (ulang) berkas sukses"
 
 #: ../src/tracker-control/tracker-control-miners.c:272
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mendaftar penambang, manajer tak dapat dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:286
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
-msgstr[0] ""
+msgstr[0] "Ditemukan %d penambang terpasang"
 
 #: ../src/tracker-control/tracker-control-miners.c:309
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
-msgstr[0] ""
+msgstr[0] "Ditemukan %d penambang berjalan"
 
 #: ../src/tracker-control/tracker-control-miners.c:341
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mendapat rincian jeda, manager tak bisa dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are running"
-msgstr ""
+msgstr "Tak ada penambang yang berjalan"
 
 #: ../src/tracker-control/tracker-control-miners.c:398
 #: ../src/tracker-needle/tracker-stats.vala:112
@@ -1033,19 +1024,19 @@ msgstr "Alasan"
 
 #: ../src/tracker-control/tracker-control-miners.c:409
 msgid "No miners are paused"
-msgstr ""
+msgstr "Tak ada penambang yang diistirahatkan"
 
 #: ../src/tracker-control/tracker-control-miners.c:433
 msgid "You can not use miner pause and resume switches together"
-msgstr ""
+msgstr "Anda tak bisa memakai switch istirahat dan melanjutkan penambang bersamaan"
 
 #: ../src/tracker-control/tracker-control-miners.c:439
 msgid "You must provide the miner for pause or resume commands"
-msgstr ""
+msgstr "Anda mesti menyediakan penambang bagi perintah istirahat atau melanjutkan"
 
 #: ../src/tracker-control/tracker-control-miners.c:445
 msgid "You must provide a pause or resume command for the miner"
-msgstr ""
+msgstr "Anda mesti menyediakan perintah istirahat atau melanjutkan bagi penambang"
 
 #: ../src/tracker-control/tracker-control-miners.c:493
 #| msgid "Miners"
@@ -1054,12 +1045,12 @@ msgstr "Opsi penambang"
 
 #: ../src/tracker-control/tracker-control-miners.c:494
 msgid "Show miner options"
-msgstr ""
+msgstr "Tampilkan opsi penambang"
 
 #: ../src/tracker-control/tracker-control-status.c:50
 #: ../src/tracker-control/tracker-control-status.c:306
 msgid "Unavailable"
-msgstr ""
+msgstr "Tak tersedia"
 
 #. generic
 #: ../src/tracker-control/tracker-control-status.c:51
@@ -1067,25 +1058,23 @@ msgid "Initializing"
 msgstr "Menginisiasi"
 
 #: ../src/tracker-control/tracker-control-status.c:53
-#, fuzzy
 msgid "Fetching…"
-msgstr "Git: Mengambil…"
+msgstr "Mengambil…"
 
 #. miner/rss
 #: ../src/tracker-control/tracker-control-status.c:54
 #, c-format
 msgid "Crawling single directory '%s'"
-msgstr ""
+msgstr "Menjelajah direktori tunggal '%s'"
 
 #: ../src/tracker-control/tracker-control-status.c:55
-#, fuzzy, c-format
+#, c-format
 msgid "Crawling recursively directory '%s'"
-msgstr "Tak bisa menyalin direktori secara rekursif"
+msgstr "Menelusuri secara rekursif direktori '%s'"
 
 #: ../src/tracker-control/tracker-control-status.c:56
-#, fuzzy
 msgid "Paused"
-msgstr "Ditahan"
+msgstr "Diistirahatkan"
 
 #: ../src/tracker-control/tracker-control-status.c:57
 msgid "Idle"
@@ -1093,55 +1082,52 @@ msgstr "Menganggur"
 
 #: ../src/tracker-control/tracker-control-status.c:62
 msgid "Show current status"
-msgstr ""
+msgstr "Tampilkan status kini"
 
 #: ../src/tracker-control/tracker-control-status.c:66
 msgid "Follow status changes as they happen"
-msgstr ""
+msgstr "Ikuti perubahan status saat mereka terjadi"
 
 #: ../src/tracker-control/tracker-control-status.c:70
 msgid "List common statuses for miners and the store"
-msgstr ""
+msgstr "Tampilkan daftar status umum bagi penambang dan penyimpanan"
 
 #: ../src/tracker-control/tracker-control-status.c:141
 #, c-format
 msgid "Could not get status from miner: %s"
-msgstr ""
+msgstr "Tak bisa mendapat status dari penambang: %s"
 
 #. Translators: %s is a time string
 #: ../src/tracker-control/tracker-control-status.c:203
 #, c-format
 msgid "%s remaining"
-msgstr ""
+msgstr "%s tersisa"
 
 #: ../src/tracker-control/tracker-control-status.c:206
-#, fuzzy
 msgid "unknown time left"
-msgstr "waktu tidak diketahui"
+msgstr "sisa waktu tak diketahui"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-control/tracker-control-status.c:219
 #: ../src/tracker-control/tracker-control-status.c:551
-#, fuzzy
 msgid "PAUSED"
 msgstr "DIISTIRAHATKAN"
 
 #: ../src/tracker-control/tracker-control-status.c:236
 msgid "Not running or is a disabled plugin"
-msgstr ""
+msgstr "Plugin yang tak berjalan atau dimatikan"
 
 #: ../src/tracker-control/tracker-control-status.c:522
 msgid "Common statuses include"
-msgstr ""
+msgstr "Status umum termasuk"
 
 #: ../src/tracker-control/tracker-control-status.c:540
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
-msgstr ""
+msgstr "Tak bisa mendapat status, manajer tak dapat dibuat, %s"
 
 #. Display states
 #: ../src/tracker-control/tracker-control-status.c:561
-#, fuzzy
 msgid "Store"
 msgstr "Menyimpan"
 
@@ -1152,7 +1138,7 @@ msgstr "Opsi status"
 
 #: ../src/tracker-control/tracker-control-status.c:683
 msgid "Show status options"
-msgstr ""
+msgstr "Tampilkan opsi status"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:7
@@ -1171,32 +1157,29 @@ msgstr "Properti"
 
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
-#, fuzzy
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
 msgstr "Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan (bawaan=0)"
 
 #: ../src/tracker-extract/tracker-main.c:92
-#, fuzzy
 msgid "File to extract metadata for"
 msgstr "Berkas yang akan diekstrak metadatanya"
 
 #: ../src/tracker-extract/tracker-main.c:96
-#, fuzzy
 msgid "MIME type for file (if not provided, this will be guessed)"
-msgstr "Jenis MIME berkas (bila tidak diberikan, akan ditebak)"
+msgstr "Jenis MIME bagi berkas (bila tidak diberikan, akan ditebak)"
 
 #: ../src/tracker-extract/tracker-main.c:102
 #: ../src/tracker-writeback/tracker-main.c:62
 msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr ""
+msgstr "Menonaktifkan mematikan setelah 30 detik tanpa aktivitas"
 
 #: ../src/tracker-extract/tracker-main.c:106
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-msgstr ""
+msgstr "Memaksa pengekstrak internal daripada pihak ke-3 seperti libstreamanalyzer"
 
 #: ../src/tracker-extract/tracker-main.c:110
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
-msgstr ""
+msgstr "Memaksa modul dipakai untuk ekstraki (mis. \"foo\" untuk \"foo.so\")"
 
 #: ../src/tracker-extract/tracker-main.c:111
 msgid "MODULE"
@@ -1205,18 +1188,16 @@ msgstr "MODUL"
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:333
-#, fuzzy
 msgid "- Extract file meta data"
 msgstr "- Ekstrak meta data berkas"
 
 #: ../src/tracker-extract/tracker-main.c:342
-#, fuzzy
 msgid "Filename and mime type must be provided together"
 msgstr "Nama berkas dan jenis mime mesti diberikan bersamaan"
 
 #: ../src/tracker-extract/tracker-main.c:356
 msgid "Options --force-internal-extractors and --force-module can't be used together"
-msgstr ""
+msgstr "Opsi --force-internal-extractors dan --force-module tak bisa dipakai bersama"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
@@ -1225,7 +1206,7 @@ msgstr "Pencarian Desktop"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid "Find what you're looking for on this computer by name or content using Tracker"
-msgstr ""
+msgstr "Temukan apa yang Anda cari pada komputer ini berdasarkan nama atau isi memakai Pelacak"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display results by category, for example, Music, Videos, Applications, etc."
@@ -1256,7 +1237,7 @@ msgid "Show statistics about the data stored"
 msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:11
-#, fuzzy, no-c-format
+#, no-c-format
 #| msgid "_Set the tags you want to associate with the %d selected item:"
 #| msgid_plural ""
 #| "_Set the tags you want to associate with the %d selected items:"
@@ -1283,7 +1264,7 @@ msgstr ""
 #: ../src/tracker-needle/tracker-needle.vala:698
 #: ../src/tracker-needle/tracker-needle.vala:699
 msgid "[SEARCH-CRITERIA]"
-msgstr ""
+msgstr "[KRITERIA-PENCARIAN]"
 
 #: ../src/tracker-needle/tracker-needle.vala:704
 msgid "Desktop Search user interface using Tracker"
@@ -1655,7 +1636,7 @@ msgstr "Indeks Direktori Desktop"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "Index Documents Directory"
-msgstr ""
+msgstr "Buat Indeks Direktori Dokumen"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 #| msgid "Directory"
@@ -1669,29 +1650,31 @@ msgstr "Indeks Direktori Gambar"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "Index Videos Directory"
-msgstr ""
+msgstr "Buat Indeks Direktori Video"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "Index Download Directory"
-msgstr ""
+msgstr "Buat Indeks Direktori Unduhan"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid ""
 "One or more special locations have the same path.\n"
 "Those which are the same are disabled!"
 msgstr ""
+"Satu atau lebih lokasi khusus memiliki path yang sama.\n"
+"Mereka yang sama dimatikan!"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "Add directory to be indexed"
-msgstr ""
+msgstr "Tambah direktori yang akan diindeks"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:41
 msgid "Remove directory from being indexed"
-msgstr ""
+msgstr "Hapus direktori dari yang akan diindeks"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:42
 msgid "<b>Where is your content?</b>"
-msgstr ""
+msgstr "<b>Dimana isi Anda?</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:43
 msgid "Locations"
@@ -1768,7 +1751,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.vala:797
 msgid "Recurse"
-msgstr ""
+msgstr "Rekursi"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
@@ -1815,7 +1798,7 @@ msgstr "Judul"
 #: ../src/tracker-search-bar/tracker-results-window.c:1195
 #, c-format
 msgid "No results found for “%s”"
-msgstr ""
+msgstr "Tak ditemukan hasil bagi \"%s\""
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
 msgid "Copyright Tracker Authors 2005-2010"
@@ -1826,7 +1809,6 @@ msgid "A search bar applet for finding content stored in Tracker"
 msgstr ""
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
-#, fuzzy
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
 "\n"
@@ -1842,12 +1824,10 @@ msgstr ""
 
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:51
-#, fuzzy
 msgid "Force a re-index of all content"
 msgstr "Paksa indeks ulang semua isi"
 
 #: ../src/tracker-store/tracker-main.vala:52
-#, fuzzy
 msgid "Only allow read based actions on the database"
 msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
 
@@ -1855,9 +1835,8 @@ msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:172
-#, fuzzy
 msgid "- start the tracker daemon"
-msgstr "- jalankan daemon tracker"
+msgstr "- mulai daemon tracker"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1906,16 +1885,16 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:399
 msgid "Unable to retrieve URN for URI"
-msgstr ""
+msgstr "Tak bisa mengambil URN bagi URI"
 
 #: ../src/tracker-utils/tracker-info.c:409
 #: ../src/tracker-utils/tracker-info.c:444
 msgid "Unable to retrieve data for URI"
-msgstr ""
+msgstr "Tak bisa mengambil data bagi URI"
 
 #: ../src/tracker-utils/tracker-info.c:453
 msgid "No metadata available for that URI"
-msgstr ""
+msgstr "Tak tersedia metadata bagi URI itu"
 
 #: ../src/tracker-utils/tracker-info.c:458
 #: ../src/tracker-utils/tracker-search.c:1348
@@ -1927,7 +1906,7 @@ msgstr "Hasil"
 #: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:55
 msgid "Limit the number of results shown"
-msgstr ""
+msgstr "Batasi cacah hasil yang ditampilkan"
 
 #: ../src/tracker-utils/tracker-search.c:69
 #: ../src/tracker-utils/tracker-tag.c:56
@@ -1936,9 +1915,8 @@ msgstr "512"
 
 #: ../src/tracker-utils/tracker-search.c:72
 #: ../src/tracker-utils/tracker-tag.c:59
-#, fuzzy
 msgid "Offset the results"
-msgstr "Hasil Impor"
+msgstr "Ofsetkan hasilnya"
 
 #: ../src/tracker-utils/tracker-search.c:73
 #: ../src/tracker-utils/tracker-tag.c:60
@@ -2089,7 +2067,7 @@ msgstr "Tak ditemukan asupan"
 
 #: ../src/tracker-utils/tracker-search.c:992
 msgid "Feeds"
-msgstr ""
+msgstr "Asupan"
 
 #: ../src/tracker-utils/tracker-search.c:1068
 msgid "No software was found"
@@ -2249,7 +2227,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:333
 msgid "Prefixes"
-msgstr ""
+msgstr "Prefiks"
 
 #: ../src/tracker-utils/tracker-sparql.c:353
 msgid "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
@@ -2273,7 +2251,7 @@ msgstr "Tak ditemukan pemberitahuan"
 
 #: ../src/tracker-utils/tracker-sparql.c:436
 msgid "Notifies"
-msgstr ""
+msgstr "Memberitahu"
 
 #: ../src/tracker-utils/tracker-sparql.c:462
 msgid "Could not find indexed properties"
@@ -2285,7 +2263,7 @@ msgstr "Tak ditemukan indeks"
 
 #: ../src/tracker-utils/tracker-sparql.c:470
 msgid "Indexes"
-msgstr ""
+msgstr "Indeks"
 
 #: ../src/tracker-utils/tracker-sparql.c:488
 msgid "Could not search classes"
@@ -2388,12 +2366,12 @@ msgstr "Tak bisa mendapat URN berkas"
 
 #: ../src/tracker-utils/tracker-tag.c:363
 msgid "Could not get files related to tag"
-msgstr ""
+msgstr "Tak bisa mendapat berkas yang terkait dengan tag"
 
 #: ../src/tracker-utils/tracker-tag.c:438
 #: ../src/tracker-utils/tracker-tag.c:847
 msgid "Could not get all tags"
-msgstr ""
+msgstr "Tak bisa mendapat semua tag"
 
 #: ../src/tracker-utils/tracker-tag.c:447
 #: ../src/tracker-utils/tracker-tag.c:856
@@ -2402,7 +2380,7 @@ msgstr "Tak ditemukan tag"
 
 #: ../src/tracker-utils/tracker-tag.c:451
 msgid "Tags (shown by name)"
-msgstr ""
+msgstr "Tag (ditampilkan berdasar nama)"
 
 #: ../src/tracker-utils/tracker-tag.c:518
 msgid "No files were modified"
@@ -2446,7 +2424,7 @@ msgstr "Tak di-tag"
 
 #: ../src/tracker-utils/tracker-tag.c:815
 msgid "File not indexed or already untagged"
-msgstr ""
+msgstr "Berkas tak diindeks atau telah dihapus tagnya"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -2457,26 +2435,26 @@ msgstr "Tambah, hapus, atau daftar tag"
 
 #: ../src/tracker-utils/tracker-tag.c:910
 msgid "The --list option is required for --show-files"
-msgstr ""
+msgstr "Opsi --list diperlukan bagi --show-files"
 
 #: ../src/tracker-utils/tracker-tag.c:912
 msgid "Add and delete actions can not be used together"
-msgstr ""
+msgstr "Aksi tambah dan hapus tak dapat dipakai bersama"
 
 #: ../src/tracker-utils/tracker-tag.c:914
 msgid "No arguments were provided"
-msgstr ""
+msgstr "Argumen tak diberikan"
 
 #: ../src/tracker-utils/tracker-tag.c:916
 msgid "The --description option can only be used with --add"
-msgstr ""
+msgstr "Opsi --description hanya dapat dipakai dengan --add"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:100
 msgid "- start the tracker writeback service"
-msgstr ""
+msgstr "- mulai layanan tulis balik pelacak"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
@@ -2484,13 +2462,13 @@ msgstr "Query tersimpan"
 
 #: ../utils/tracker-sql/tracker-sql.c:66
 msgid "- Query or update using SQL"
-msgstr ""
+msgstr "- Query atau perbarui memakai SQL"
 
 #: ../utils/tracker-sql/tracker-sql.c:142
 msgid "Failed to initialize data manager"
-msgstr ""
+msgstr "Gagal menginisialisasi manajer data"
 
 #: ../utils/tracker-sql/tracker-sql.c:202
 msgid "Empty result set"
-msgstr ""
+msgstr "Set hasil kosong"
 
