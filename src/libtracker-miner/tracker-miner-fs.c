@@ -653,10 +653,10 @@ fs_finalize (GObject *object)
 	if (priv->item_queues_handler_id) {
 		g_source_remove (priv->item_queues_handler_id);
 		priv->item_queues_handler_id = 0;
+	}
 
-		if (priv->item_queue_blocker) {
-			g_object_unref (priv->item_queue_blocker);
-		}
+	if (priv->item_queue_blocker) {
+		g_object_unref (priv->item_queue_blocker);
 	}
 
 	tracker_file_notifier_stop (priv->file_notifier);
