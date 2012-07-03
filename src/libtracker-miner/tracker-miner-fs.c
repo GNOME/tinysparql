@@ -89,6 +89,11 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 #define trace_eq_pop_head_2(...)
 #endif /* EVENT_QUEUE_ENABLE_TRACE */
 
+/* Number of times a GFile can be re-queued before it's dropped for
+ * whatever reason to avoid infinite loops.
+*/
+#define REENTRY_MAX 2
+
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
 #define DEFAULT_READY_POOL_LIMIT 1
@@ -1797,7 +1802,7 @@ item_reenqueue_full (TrackerMinerFS       *fs,
 	reentry_counter = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (queue_file),
 	                                                       fs->priv->quark_reentry_counter));
 
-	if (reentry_counter < 2) {
+	if (reentry_counter < REENTRY_MAX) {
 		g_object_set_qdata (G_OBJECT (queue_file),
 		                    fs->priv->quark_reentry_counter,
 		                    GINT_TO_POINTER (reentry_counter + 1));
@@ -1806,7 +1811,7 @@ item_reenqueue_full (TrackerMinerFS       *fs,
 		should_wait = TRUE;
 	} else {
 		uri = g_file_get_uri (queue_file);
-		g_warning ("File '%s' has been reenqueued more than twice. It will not be indexed.", uri);
+		g_warning ("File '%s' has been reenqueued more than %d times. It will not be indexed.", uri, REENTRY_MAX);
 		g_free (uri);
 
 		/* We must be careful not to return QUEUE_WAIT when there's actually
