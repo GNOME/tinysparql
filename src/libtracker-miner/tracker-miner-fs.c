@@ -89,6 +89,11 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 #define trace_eq_pop_head_2(...)
 #endif /* EVENT_QUEUE_ENABLE_TRACE */
 
+/* Number of times a GFile can be re-queued before it's dropped for
+ * whatever reason to avoid infinite loops.
+*/
+#define REENTRY_MAX 2
+
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
 #define DEFAULT_READY_POOL_LIMIT 1
@@ -160,11 +165,13 @@ struct _TrackerMinerFSPrivate {
 	GQuark          quark_ignore_file;
 	GQuark          quark_attribute_updated;
 	GQuark          quark_directory_found_crawling;
+	GQuark          quark_reentry_counter;
 
 	GTimer         *timer;
 	GTimer         *extraction_timer;
 
 	guint           item_queues_handler_id;
+	GFile          *item_queue_blocker;
 
 	gdouble         throttle;
 
@@ -601,6 +608,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
+	priv->quark_reentry_counter = g_quark_from_static_string ("tracker-reentry-counter");
 
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
@@ -650,6 +658,10 @@ fs_finalize (GObject *object)
 	if (priv->item_queues_handler_id) {
 		g_source_remove (priv->item_queues_handler_id);
 		priv->item_queues_handler_id = 0;
+	}
+
+	if (priv->item_queue_blocker) {
+		g_object_unref (priv->item_queue_blocker);
 	}
 
 	tracker_file_notifier_stop (priv->file_notifier);
@@ -986,6 +998,21 @@ item_writeback_data_free (ItemWritebackData *data)
 	g_slice_free (ItemWritebackData, data);
 }
 
+static gboolean
+item_queue_is_blocked_by_file (TrackerMinerFS *fs,
+                               GFile *file)
+{
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	if (fs->priv->item_queue_blocker != NULL &&
+	    (fs->priv->item_queue_blocker == file ||
+	     g_file_equal (fs->priv->item_queue_blocker, file))) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 sparql_buffer_task_finished_cb (GObject      *object,
                                 GAsyncResult *result,
@@ -993,6 +1020,8 @@ sparql_buffer_task_finished_cb (GObject      *object,
 {
 	TrackerMinerFS *fs;
 	TrackerMinerFSPrivate *priv;
+	TrackerTask *task;
+	GFile *task_file;
 	GError *error = NULL;
 
 	fs = user_data;
@@ -1005,7 +1034,22 @@ sparql_buffer_task_finished_cb (GObject      *object,
 		g_error_free (error);
 	}
 
-	item_queue_handlers_set_up (fs);
+	task = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+	task_file = tracker_task_get_file (task);
+
+	if (item_queue_is_blocked_by_file (fs, task_file)) {
+		g_object_unref (priv->item_queue_blocker);
+		priv->item_queue_blocker = NULL;
+	}
+
+	if (priv->item_queue_blocker != NULL) {
+		if (tracker_task_pool_get_size (TRACKER_TASK_POOL (object)) > 0) {
+			tracker_sparql_buffer_flush (TRACKER_SPARQL_BUFFER (object),
+			                             "Item queue still blocked after flush");
+		}
+	} else {
+		item_queue_handlers_set_up (fs);
+	}
 }
 
 static UpdateProcessingTaskContext *
@@ -1199,9 +1243,25 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		                            ctxt->priority,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+
+		if (item_queue_is_blocked_by_file (fs, task_file)) {
+			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Current file is blocking item queue");
+		}
+	} else {
+		if (item_queue_is_blocked_by_file (fs, task_file)) {
+			/* Make sure that we don't stall the item queue, although we could
+			 * expect the file to be reenqueued until the loop detector makes
+			 * us drop it since we were specifically waiting for it to complete.
+			 */
+			g_object_unref (fs->priv->item_queue_blocker);
+			fs->priv->item_queue_blocker = NULL;
+			item_queue_handlers_set_up (fs);
+		}
 	}
 
-	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
+	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
+	    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->task_pool)) == 0) {
+		/* We need to run this one more time to trigger process_stop() */
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -1708,6 +1768,7 @@ should_wait (TrackerMinerFS *fs,
 	    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), file)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
+		fs->priv->item_queue_blocker = g_object_ref (file);
 		return TRUE;
 	}
 
@@ -1718,13 +1779,61 @@ should_wait (TrackerMinerFS *fs,
 		    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), parent)) {
 			/* Yes, a previous event on the parent of this item
 			 * currently being processed */
-			g_object_unref (parent);
+			fs->priv->item_queue_blocker = parent;
 			return TRUE;
 		}
 
 		g_object_unref (parent);
 	}
 	return FALSE;
+}
+
+static gboolean
+item_reenqueue_full (TrackerMinerFS       *fs,
+                     TrackerPriorityQueue *item_queue,
+                     GFile                *queue_file,
+                     gpointer              queue_data,
+                     gint                  priority)
+{
+	gint reentry_counter;
+	gchar *uri;
+	gboolean should_wait;
+
+	reentry_counter = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (queue_file),
+	                                                       fs->priv->quark_reentry_counter));
+
+	if (reentry_counter < REENTRY_MAX) {
+		g_object_set_qdata (G_OBJECT (queue_file),
+		                    fs->priv->quark_reentry_counter,
+		                    GINT_TO_POINTER (reentry_counter + 1));
+		tracker_priority_queue_add (item_queue, queue_data, priority);
+
+		should_wait = TRUE;
+	} else {
+		uri = g_file_get_uri (queue_file);
+		g_warning ("File '%s' has been reenqueued more than %d times. It will not be indexed.", uri, REENTRY_MAX);
+		g_free (uri);
+
+		/* We must be careful not to return QUEUE_WAIT when there's actually
+		 * nothing left to wait for, or the crawling might never complete.
+		 */
+		if (tracker_miner_fs_has_items_to_process (fs)) {
+			should_wait = TRUE;
+		} else {
+			should_wait = FALSE;
+		}
+	}
+
+	return should_wait;
+}
+
+static gboolean
+item_reenqueue (TrackerMinerFS       *fs,
+                TrackerPriorityQueue *item_queue,
+                GFile                *queue_file,
+                gint                  priority)
+{
+	return item_reenqueue_full (fs, item_queue, queue_file, queue_file, priority);
 }
 
 static QueueState
@@ -1791,9 +1900,11 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("DELETED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_deleted,
-			                            queue_file, priority - 1);
-			return QUEUE_WAIT;
+			if (item_reenqueue (fs, fs->priv->items_deleted, queue_file, priority - 1)) {
+				return QUEUE_WAIT;
+			} else {
+				return QUEUE_NONE;
+			}
 		}
 
 		*file = queue_file;
@@ -1844,9 +1955,11 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("CREATED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_created,
-			                            queue_file, priority - 1);
-			return QUEUE_WAIT;
+			if (item_reenqueue (fs, fs->priv->items_created, queue_file, priority - 1)) {
+				return QUEUE_WAIT;
+			} else {
+				return QUEUE_NONE;
+			}
 		}
 
 		*file = queue_file;
@@ -1883,9 +1996,11 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head ("UPDATED", queue_file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_updated,
-			                            queue_file, priority - 1);
-			return QUEUE_WAIT;
+			if (item_reenqueue (fs, fs->priv->items_updated, queue_file, priority - 1)) {
+				return QUEUE_WAIT;
+			} else {
+				return QUEUE_NONE;
+			}
 		}
 
 		*priority_out = priority;
@@ -1927,9 +2042,11 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			trace_eq_push_head_2 ("MOVED", data->source_file, data->file, "Should wait");
 
 			/* Need to postpone event... */
-			tracker_priority_queue_add (fs->priv->items_moved,
-			                            data, priority - 1);
-			return QUEUE_WAIT;
+			if (item_reenqueue_full (fs, fs->priv->items_moved, data->file, data, priority - 1)) {
+				return QUEUE_WAIT;
+			} else {
+				return QUEUE_NONE;
+			}
 		}
 
 		*file = g_object_ref (data->file);
@@ -2033,6 +2150,7 @@ item_queue_handlers_cb (gpointer user_data)
 		 * on with the queues... */
 		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 		                             "Queue handlers WAIT");
+
 		return FALSE;
 	}
 
@@ -2195,13 +2313,9 @@ item_queue_handlers_cb (gpointer user_data)
 			 * ensured, tasks are inserted at a higher priority so they
 			 * are processed promptly anyway.
 			 */
-			tracker_priority_queue_add (item_queue,
-			                            g_object_ref (parent),
-			                            priority - 1);
+			item_reenqueue (fs, item_queue, g_object_ref (parent), priority - 1);
+			item_reenqueue (fs, item_queue, g_object_ref (file), priority);
 
-			tracker_priority_queue_add (item_queue,
-			                            g_object_ref (file),
-			                            priority);
 			keep_processing = TRUE;
 		}
 
@@ -2264,6 +2378,12 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	if (fs->priv->is_paused) {
 		trace_eq ("   cancelled: paused");
+		return;
+	}
+
+	if (fs->priv->item_queue_blocker) {
+		trace_eq ("   cancelled: item queue blocked waiting for file '%s'",
+		          g_file_get_path (fs->priv->item_queue_blocker));
 		return;
 	}
 
@@ -3265,6 +3385,13 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 		            "signal didn't return FALSE for it",
 		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
+
+		if (item_queue_is_blocked_by_file (fs, file)) {
+			/* Ensure we don't stall, although this is a very ugly situation */
+			g_object_unref (fs->priv->item_queue_blocker);
+			fs->priv->item_queue_blocker = NULL;
+			item_queue_handlers_set_up (fs);
+		}
 
 		return;
 	}
