@@ -1,3 +1,40 @@
+NEW in 0.14.2 - 2012-07-05
+==========================
+
+The changes are:
+
+  * Fixes: GB#679313, Long options are parsed incorrectly
+  * Fixes: GB#674869, mining all the way to china
+  * Fixes: GB#676437, TrackerMinerFS: priv->extraction_timer can't be NULL when we update miner progress
+  * Fixes: GB#676516, spams xsession-errors when I bring up the tags view in nautilus
+  * Fixes: GB#676213, [PATCH] Man page syntax fixes
+  * Fixes: GB#676153, Crash on USB removal during crawling
+  * Fixes: GB#675431, Please sort the Ignored Content glob patterns and files alphabetically in the Tracker Preferences
+  * Fixes: GB#676849, Missing ‘out’ in argument of Gtk.SelectionData.get_data_with_length
+  * Fixes: GB#676433, GCancellable deadlock in tracker-extract-client.c
+  * Fixes: GB#676435, Infinite loop in miner
+  * Fixes: GB#676514, don't add Tags to nautilus content menu
+  * Fixes: GB#675437, evolution plugin: fix undefined symbol
+  * tracker-extract: Fix compilation of Qt Media Art backend
+  * tracker-extract-gstreamer: Fix invalid pointer access from gst_tag_list_get_string() use
+  * tracker-miner-fs: Remove failed extractions from queues if g_file_query_info_async() fails.
+  * tracker-miner-fs: Removed unused code for dir config root Quark
+  * functional-tests: Fix out of tree build, use $(top_srcdir) more...
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated es: Daniel Mustieles
+  * Updated fr: Alexandre Franke
+  * Updated gl: Fran Diéguez
+  * Updated id: Andika Triwidada
+  * Updated it: Luca Ferretti
+  * Updated pl: Piotr Drąg
+  * Updated sl: Matej Urbančič
+  * Updated te: Praveen Illa
+
+
 NEW in 0.14.1 - 2012-05-03
 ==========================
 
