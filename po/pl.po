@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-03 20:57+0200\n"
-"PO-Revision-Date: 2012-05-03 20:58+0200\n"
+"POT-Creation-Date: 2012-07-05 19:07+0200\n"
+"PO-Revision-Date: 2012-05-03 19:08+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -649,15 +649,15 @@ msgstr "Będzie monitorowane"
 msgid "- start the tracker indexer"
 msgstr "- uruchomia program indeksujący Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Niski poziom naładowania akumulatora"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Mało miejsca na dysku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Błąd podczas wydobywania, wykonywanie bezpiecznego wydobywania osadzonych "
@@ -718,26 +718,17 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Podaje dane programowi Tracker, aby można je było odpytywać."
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Przetwarzanie…"
 
 #. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:111
-#: ../src/plugins/nautilus/tracker-tags-extension.c:185
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Etykiety"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:158
-msgid "Tags..."
-msgstr "Etykiety..."
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:159
-msgid "Tag one or more files"
-msgstr "Nadaje etykietę jednemu lub więcej plików"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:163
@@ -755,7 +746,7 @@ msgstr[2] "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:892
+#: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:144
@@ -1572,8 +1563,8 @@ msgid "Could not remove tag"
 msgstr "Nie można usunąć etykiety"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could not toggle tags according to selection"
-msgstr "Nie można przełączyć etykiet zgodnie z zaznaczeniem"
+msgid "Could not retrieve tags for the current selection"
+msgstr "Nie można pobrać etykiet dla bieżącego zaznaczenia"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
 #: ../src/tracker-utils/tracker-tag.c:627
@@ -1989,7 +1980,7 @@ msgstr "Ten katalog został już wybrany jako położenie do indeksowania"
 msgid "Recurse"
 msgstr "Rekursywnie"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:898
+#: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
 msgstr "Preferencje wyszukiwania na pulpicie"
 
