@@ -71,7 +71,6 @@
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
 	TRACKER_DB_LOCATION_USER_DATA_DIR,
-	TRACKER_DB_LOCATION_SYS_TMP_DIR,
 } TrackerDBLocation;
 
 typedef enum {
@@ -155,7 +154,6 @@ static gboolean              initialized;
 static gboolean              locations_initialized;
 static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
-static gchar                *sys_tmp_dir = NULL;
 static gchar                *in_use_filename = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
@@ -185,8 +183,6 @@ location_to_directory (TrackerDBLocation location)
 		return data_dir;
 	case TRACKER_DB_LOCATION_USER_DATA_DIR:
 		return user_data_dir;
-	case TRACKER_DB_LOCATION_SYS_TMP_DIR:
-		return sys_tmp_dir;
 	default:
 		return NULL;
 	};
@@ -790,11 +786,6 @@ tracker_db_manager_init_locations (void)
 {
 	const gchar *dir;
 	guint i;
-	gchar *filename;
-
-	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
-	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
-	g_free (filename);
 
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
 	                                  "tracker",
@@ -862,7 +853,6 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 {
 	GType etype;
 	TrackerDBVersion version;
-	gchar *filename;
 	const gchar *dir;
 	gboolean need_reindex;
 	guint i;
@@ -899,11 +889,6 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	old_flags = flags;
 
-	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
-	g_free (sys_tmp_dir);
-	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
-	g_free (filename);
-
 	g_free (user_data_dir);
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
 	                                  "tracker",
@@ -930,7 +915,6 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 		g_mkdir_with_parents (data_dir, 00755);
 		g_mkdir_with_parents (user_data_dir, 00755);
-		g_mkdir_with_parents (sys_tmp_dir, 00755);
 
 		g_message ("Checking database version");
 
@@ -1299,8 +1283,6 @@ tracker_db_manager_shutdown (void)
 	data_dir = NULL;
 	g_free (user_data_dir);
 	user_data_dir = NULL;
-	g_free (sys_tmp_dir);
-	sys_tmp_dir = NULL;
 
 	if (global_iface) {
 		/* libtracker-direct */
