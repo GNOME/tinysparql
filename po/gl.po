@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-11 11:18+0200\n"
-"PO-Revision-Date: 2012-05-11 11:19+0200\n"
+"POT-Creation-Date: 2012-07-09 14:54+0200\n"
+"PO-Revision-Date: 2012-07-09 14:55+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <gnome-l10n-gl@gnome.org>\n"
 "Language: gl\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"X-Generator: Lokalize 0.3\n"
+"X-Generator: Gtranslator 2.91.5\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -641,15 +641,15 @@ msgstr "Monitorizarase"
 msgid "- start the tracker indexer"
 msgstr "- iniciar o indexador do tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Batería baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Espazo en disco baixo"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Erro do extractor ao realizar a extracción a proba de fallos dos metadatos "
@@ -716,20 +716,11 @@ msgid "Processing…"
 msgstr "Procesando…"
 
 #. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:111
-#: ../src/plugins/nautilus/tracker-tags-extension.c:185
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Etiquetas"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:158
-msgid "Tags..."
-msgstr "Etiquetas…"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:159
-msgid "Tag one or more files"
-msgstr "Etiquetar un ou máis ficheiros"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:163
@@ -1545,8 +1536,8 @@ msgid "Could not remove tag"
 msgstr "Non foi posíbel quitar a etiqueta"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could not toggle tags according to selection"
-msgstr "Non foi posíbel trocar as etiquetas segundo a selección"
+msgid "Could not retrieve tags for the current selection"
+msgstr "Non foi posíbel obter as etiquetas para a selección actual"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
 #: ../src/tracker-utils/tracker-tag.c:627
@@ -2736,6 +2727,12 @@ msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 #: ../utils/tracker-sql/tracker-sql.c:202
 msgid "Empty result set"
 msgstr "Conxunto de resultados baleiro"
+
+#~ msgid "Tags..."
+#~ msgstr "Etiquetas…"
+
+#~ msgid "Tag one or more files"
+#~ msgstr "Etiquetar un ou máis ficheiros"
 
 #~ msgid "%d/20"
 #~ msgstr "%d/20"
