@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 
-#include <gnome-keyring.h>
+#include <libsecret/secret.h>
 
 #include "tracker-password-provider.h"
 
@@ -75,11 +75,11 @@ static gchar*   password_provider_gnome_get              (TrackerPasswordProvide
 static gboolean password_provider_gnome_forget           (TrackerPasswordProvider       *provider,
                                                           const gchar                   *service,
                                                           GError                       **error);
-
-const GnomeKeyringPasswordSchema password_schema = {
-	GNOME_KEYRING_ITEM_GENERIC_SECRET,
-	{ { "service",  GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
-	  { "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
+static const SecretSchema password_schema = {
+	"org.gnome.Tracker.Miner",
+	SECRET_SCHEMA_DONT_MATCH_NAME,
+	{ { "service",  SECRET_SCHEMA_ATTRIBUTE_STRING },
+	  { "username", SECRET_SCHEMA_ATTRIBUTE_STRING },
 	  { NULL, 0 }
 	}
 };
@@ -173,23 +173,21 @@ password_provider_gnome_store (TrackerPasswordProvider  *provider,
                                const gchar              *password,
                                GError                  **error)
 {
-	GnomeKeyringResult result;
+	GError *secret_error = NULL;
 
-	result = gnome_keyring_store_password_sync (&password_schema,
-	                                            NULL,
-	                                            description,
-	                                            password,
-	                                            "service", service,
-	                                            "username", username,
-	                                            NULL);
+	secret_password_store_sync (&password_schema, NULL, description,
+	                            password, NULL, &secret_error,
+	                            "service", service,
+	                            "username", username,
+	                            NULL);
 
-	if (result != GNOME_KEYRING_RESULT_OK) {
+	if (secret_error != NULL) {
 		g_set_error (error,
 		             TRACKER_PASSWORD_PROVIDER_ERROR,
 		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
 		             "Could not store GNOME keyring password, %s",
-		             gnome_keyring_result_to_message (result));
-
+		             secret_error->message);
+		g_error_free (secret_error);
 		return FALSE;
 	}
 
@@ -202,64 +200,62 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
                              gchar                   **username,
                              GError                  **error)
 {
-	GnomeKeyringAttributeList *search_attributes;
-	GnomeKeyringFound *found;
-	GnomeKeyringResult result;
 	GList *found_items = NULL;
+	GHashTable *search_attributes;
+	GHashTable *attributes;
+	GError *secret_error;
+	SecretValue *secret = NULL;
+	SecretItem *found = NULL;
 	gchar *password;
-	gint i;
 
-	search_attributes = gnome_keyring_attribute_list_new ();
-	gnome_keyring_attribute_list_append_string (search_attributes,
-	                                            "service",
-	                                            service);
+	search_attributes = secret_attributes_build (&password_schema,
+	                                             "service", service,
+	                                             NULL);
 
-	result = gnome_keyring_find_items_sync (GNOME_KEYRING_ITEM_GENERIC_SECRET,
-	                                        search_attributes,
-	                                        &found_items);
+	found_items = secret_service_search_sync (NULL,
+	                                          &password_schema,
+	                                          search_attributes,
+	                                          SECRET_SEARCH_UNLOCK | SECRET_SEARCH_LOAD_SECRETS,
+	                                          NULL,
+	                                          &secret_error);
 
-	gnome_keyring_attribute_list_free (search_attributes);
+	g_hash_table_unref (search_attributes);
 
-	if (result != GNOME_KEYRING_RESULT_OK) {
-		if (result == GNOME_KEYRING_RESULT_NO_MATCH) {
-			g_set_error_literal (error,
-			                     TRACKER_PASSWORD_PROVIDER_ERROR,
-			                     TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND,
-			                     "Could not find GNOME keyring password");
-		} else {
-			g_set_error (error,
-			             TRACKER_PASSWORD_PROVIDER_ERROR,
-			             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
-			             "Could not fetch GNOME keyring password, %s",
-			             gnome_keyring_result_to_message (result));
-		}
-
-		gnome_keyring_found_list_free (found_items);
-
+	if (secret_error != NULL) {
+		g_set_error (error,
+		             TRACKER_PASSWORD_PROVIDER_ERROR,
+		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
+		             "Could not fetch GNOME keyring password, %s",
+		             secret_error->message);
+		g_error_free (secret_error);
 		return NULL;
 	}
 
-	found = found_items->data;
+	if (found_items != NULL) {
+		found = found_items->data;
+		secret = secret_item_get_secret (found);
+	}
+
+	if (secret != NULL) {
+		g_set_error_literal (error,
+		                     TRACKER_PASSWORD_PROVIDER_ERROR,
+		                     TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND,
+		                     "Could not find GNOME keyring password");
+		g_list_free_full (found_items, g_object_unref);
+		return NULL;
+	}
 
 	/* Find username if we asked for it */
 	if (username) {
 		/* Make sure it is always set */
-		*username = NULL;
-
-		for (i = 0; i < found->attributes->len; ++i) {
-			GnomeKeyringAttribute *attr;
-
-			attr = &gnome_keyring_attribute_list_index (found->attributes, i);
-
-			if (g_ascii_strcasecmp (attr->name, "username") == 0) {
-				*username = g_strdup (attr->value.string);
-			}
-		}
+		attributes = secret_item_get_attributes (found);
+		*username = g_hash_table_lookup (attributes, "user");
+		g_hash_table_unref (attributes);
 	}
 
-	password = tracker_password_provider_lock_password (found->secret);
-
-	gnome_keyring_found_list_free (found_items);
+	password = tracker_password_provider_lock_password (secret_value_get (secret, NULL));
+	secret_value_unref (secret);
+	g_list_free_full (found_items, g_object_unref);
 
 	return password;
 }
@@ -269,18 +265,21 @@ password_provider_gnome_forget (TrackerPasswordProvider  *provider,
                                 const gchar              *service,
                                 GError                  **error)
 {
-	GnomeKeyringResult result;
+	GError *secret_error = NULL;
 
-	result = gnome_keyring_delete_password_sync (&password_schema,
-	                                             "service", service,
-	                                             NULL);
+	secret_password_clear_sync (&password_schema,
+	                            NULL,
+	                            &secret_error,
+	                            "service", service,
+	                            NULL);
 
-	if (result != GNOME_KEYRING_RESULT_OK) {
+	if (secret_error != NULL) {
 		g_set_error (error,
 		             TRACKER_PASSWORD_PROVIDER_ERROR,
 		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
 		             "Coult not delete GNOME keyring password, %s",
-		             gnome_keyring_result_to_message (result));
+		             secret_error->message);
+		g_error_free (secret_error);
 		return FALSE;
 	}
 
@@ -305,4 +304,3 @@ tracker_password_provider_get (void)
 
 	return instance;
 }
-

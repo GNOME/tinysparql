@@ -192,7 +192,7 @@ CAMEL_REQUIRED=2.32.0
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 TAGLIB_REQUIRED=1.6
-GNOME_KEYRING_REQUIRED=2.26
+LIBSECRET_REQUIRED=0.5
 LIBGRSS_REQUIRED=0.5
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
@@ -924,7 +924,7 @@ AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibu
 AM_CONDITIONAL(BUILD_LIBICU_PARSER, test "x$with_unicode_support" = "xlibicu")
 
 ##################################################################
-# Check for libtracker-miner: gnome-keyring for web miner details
+# Check for libtracker-miner: libsecet for web miner details
 ##################################################################
 
 AC_ARG_ENABLE(gnome_keyring,
@@ -932,27 +932,39 @@ AC_ARG_ENABLE(gnome_keyring,
                              [enable Gnome Keyring support to store credentials [[default=auto]]]),,
               [enable_gnome_keyring=auto])
 
-if test "x$enable_gnome_keyring" != "xno"; then
-   PKG_CHECK_MODULES(GNOME_KEYRING,
-                     [gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED],
-                     [have_gnome_keyring=yes],
-                     [have_gnome_keyring=no])
+AC_ARG_ENABLE(libsecret,
+              AS_HELP_STRING([--enable-libsecret],
+                             [enable libsecret support to store login credentials [[default=auto]]]),,
+              [enable_libsecret=auto])
 
-   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $GNOME_KEYRING_CFLAGS"
-   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $GNOME_KEYRING_LIBS"
+if test "x$enable_gnome_keyring" != "xauto"; then
+   AC_MSG_WARN([The --enable-gnome-keyring option has been deprecated for --enable-libsecret])
 
-   if test "x$have_gnome_keyring" = "xyes"; then
-      AC_DEFINE(HAVE_GNOME_KEYRING, [], [Define if we have Gnome Keyring for password storage])
+   # Try to continue as normal
+   enable_libsecret="$enable_gnome_keyring"
+fi
+
+if test "x$enable_libsecret" != "xno"; then
+   PKG_CHECK_MODULES(LIBSECRET,
+                     [libsecret-unstable >= $LIBSECRET_REQUIRED],
+                     [have_libsecret=yes],
+                     [have_libsecret=no])
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $LIBSECRET_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $LIBSECRET_LIBS"
+
+   if test "x$have_libsecret" = "xyes"; then
+      AC_DEFINE(HAVE_LIBSECRET, [], [Define if we have libsecret for password storage])
    fi
 fi
 
-if test "x$enable_gnome_keyring" = "xyes"; then
-   if test "x$have_gnome_keyring" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Gnome Keyring >= $GNOME_KEYRING_REQUIRED.])
+if test "x$enable_libsecret" = "xyes"; then
+   if test "x$have_libsecret" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libsecret >= $LIBSECRET_REQUIRED.])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
+AM_CONDITIONAL(HAVE_LIBSECRET, test "x$have_libsecret" = "xyes")
 
 ##################################################################
 # Check for libtracker-miner: network-manager for web miners
@@ -2433,6 +2445,7 @@ Build Configuration:
 	Support for UPower:                     $have_upower
 	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
+        Support for keyring data (libsecret):   $have_libsecret
 	Unicode support library:                $with_unicode_support
 
 Applications:

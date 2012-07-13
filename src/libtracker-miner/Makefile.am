@@ -123,7 +123,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
 
-if HAVE_GNOME_KEYRING
+if HAVE_LIBSECRET
 password_provider_sources = tracker-password-provider-gnome.c
 else
 password_provider_sources = tracker-password-provider-keyfile.c
