@@ -676,7 +676,7 @@ tracker_parser_reset (TrackerParser *parser,
 
 		/* Open word-break iterator */
 		parser->bi = ubrk_open(UBRK_WORD,
-		                       setlocale (LC_ALL, NULL),
+		                       setlocale (LC_CTYPE, NULL),
 		                       parser->utxt,
 		                       parser->utxt_size,
 		                       &error);
