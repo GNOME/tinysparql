@@ -528,6 +528,21 @@ config_finalize (GObject *object)
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
 
+static gchar *
+get_user_special_dir_if_not_home (GUserDirectory directory)
+{
+	const gchar *path;
+
+	path = g_get_user_special_dir (directory);
+
+	if (g_strcmp0 (path, g_get_home_dir ()) == 0) {
+		/* ignore XDG directories set to $HOME */
+		return NULL;
+	} else {
+		return g_strdup (path);
+	}
+}
+
 static gboolean
 settings_get_dir_mapping (GVariant *value,
                           gpointer *result,
@@ -535,7 +550,7 @@ settings_get_dir_mapping (GVariant *value,
 {
 	gchar **strv;
 	gboolean is_recursive;
-	GSList *dirs, *l;
+	GSList *dirs, *evaluated_dirs, *l;
 	gsize len;
 
 	strv = (gchar **) g_variant_get_strv (value, &len);
@@ -555,41 +570,43 @@ settings_get_dir_mapping (GVariant *value,
 		dirs = filtered;
 	}
 
+	evaluated_dirs = NULL;
+
 	for (l = dirs; l; l = l->next) {
-		const gchar *path_to_use;
-		gchar *freeme = NULL;
+		gchar *path_to_use;
 
 		/* Must be a special dir */
 		if (strcmp (l->data, "&DESKTOP") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DESKTOP);
 		} else if (strcmp (l->data, "&DOCUMENTS") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DOCUMENTS);
 		} else if (strcmp (l->data, "&DOWNLOAD") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DOWNLOAD);
 		} else if (strcmp (l->data, "&MUSIC") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_MUSIC);
 		} else if (strcmp (l->data, "&PICTURES") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_PICTURES);
 		} else if (strcmp (l->data, "&PUBLIC_SHARE") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_PUBLIC_SHARE);
 		} else if (strcmp (l->data, "&TEMPLATES") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_TEMPLATES);
 		} else if (strcmp (l->data, "&VIDEOS") == 0) {
-			path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
+			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_VIDEOS);
 		} else {
 			path_to_use = tracker_path_evaluate_name (l->data);
-			freeme = (gchar *) path_to_use;
 		}
 
 		if (path_to_use) {
-			g_free (l->data);
-			l->data = g_strdup (path_to_use);
+			evaluated_dirs = g_slist_prepend (evaluated_dirs, path_to_use);
 		}
-
-		g_free (freeme);
 	}
 
-	*result = dirs;
+	g_slist_foreach (dirs, (GFunc) g_free, NULL);
+	g_slist_free (dirs);
+
+	evaluated_dirs = g_slist_reverse (evaluated_dirs);
+
+	*result = evaluated_dirs;
 
 	return TRUE;
 }
