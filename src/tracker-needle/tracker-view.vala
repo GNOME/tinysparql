@@ -548,7 +548,7 @@ public class Tracker.View : ScrolledWindow {
 
 		List<string> files = null;
 		files.prepend (uri);
-		VBox vbox = new TrackerTagsView (files);
+		VBox vbox = new TrackerTagsView ((owned) files);
 
 		var content = dialog.get_content_area () as Box;
 		content.pack_start (vbox, true, true, 6);

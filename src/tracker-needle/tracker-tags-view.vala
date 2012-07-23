@@ -87,18 +87,14 @@ public class TrackerTagsView : VBox {
 		TRUE = 1
 	}
 
-	public TrackerTagsView (List<string>? _files) {
+	public TrackerTagsView (owned List<string>? _files) {
 		try {
 			connection = Sparql.Connection.get ();
 		} catch (GLib.Error e) {
 			warning ("Could not get Sparql connection: %s", e.message);
 		}
 
-		if (_files != null) {
-			files = _files.copy ();
-		} else {
-			files = null;
-		}
+		files = (owned) _files;
 
 		cancellable = new Cancellable ();
 
