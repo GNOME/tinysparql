@@ -153,6 +153,8 @@ gboolean              tracker_miner_fs_directory_remove      (TrackerMinerFS  *f
                                                               GFile           *file);
 gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS  *fs,
                                                               GFile           *file);
+void                  tracker_miner_fs_mount_add             (TrackerMinerFS  *fs,
+                                                              GMount          *mount);
 void                  tracker_miner_fs_force_mtime_checking  (TrackerMinerFS  *fs,
                                                               GFile           *directory);
 
