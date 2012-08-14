@@ -184,7 +184,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 
 		switch (backend) {
-		case backend.AUTO:
+		case Backend.AUTO:
 			try {
 				direct = new Tracker.Direct.Connection ();
 			} catch (Error e) {
@@ -194,11 +194,11 @@ class Tracker.Sparql.Backend : Connection {
 			bus = new Tracker.Bus.Connection ();
 			break;
 
-		case backend.DIRECT:
+		case Backend.DIRECT:
 			direct = new Tracker.Direct.Connection ();
 			break;
 
-		case backend.BUS:
+		case Backend.BUS:
 			bus = new Tracker.Bus.Connection ();
 			break;
 

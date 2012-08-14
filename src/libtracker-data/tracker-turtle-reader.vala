@@ -330,7 +330,7 @@ public class Tracker.TurtleReader : Object {
 				}
 			case State.OBJECT:
 				if (accept (SparqlTokenType.COMMA)) {
-					state = state.PREDICATE;
+					state = State.PREDICATE;
 					continue;
 				} else if (accept (SparqlTokenType.SEMICOLON)) {
 					if (accept (SparqlTokenType.DOT)) {
@@ -338,7 +338,7 @@ public class Tracker.TurtleReader : Object {
 						state = State.BOS;
 						continue;
 					}
-					state = state.SUBJECT;
+					state = State.SUBJECT;
 					continue;
 				} else if (subject_stack.length > 0) {
 					// end of anonymous blank node
