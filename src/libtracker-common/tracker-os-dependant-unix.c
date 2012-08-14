@@ -222,7 +222,7 @@ tracker_create_permission_string (struct stat finfo)
 
 #ifndef DISABLE_MEM_LIMITS
 
-static guint
+static glong
 get_memory_total (void)
 {
 	GError      *error = NULL;
@@ -253,15 +253,10 @@ get_memory_total (void)
 
 			if (end) {
 				*end = '\0';
-				total = 1024 * atol (p);
+				total = 1024L * atol (p);
 			}
 		}
 		g_free (contents);
-	}
-
-	if (!total) {
-		/* Setting limit to an arbitary limit */
-		total = RLIM_INFINITY;
 	}
 
 	return total;
@@ -279,9 +274,15 @@ tracker_memory_setrlimits (void)
 	glong limit;
 
 	total = get_memory_total ();
+
+	if (!total) {
+		/* total amount of memory unknown */
+		return FALSE;
+	}
+
 	total_halfed = total / 2;
 
-	/* Clamp memory between 50% of total and MAXLONG (2Gb) */
+	/* Clamp memory between 50% of total and MAXLONG (2GB on 32-bit) */
 	limit = CLAMP (total_halfed, MEM_LIMIT_MIN, G_MAXLONG);
 
 	/* We want to limit the max virtual memory
