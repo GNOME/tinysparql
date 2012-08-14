@@ -655,7 +655,7 @@ public class Tracker.Sparql.Builder : Object {
 	 * Since: 0.10
 	 */
 	public void object_blank_close ()
-		requires (state == State.OBJECT && states[states.length - 3] == state.BLANK)
+		requires (state == State.OBJECT && states[states.length - 3] == State.BLANK)
 	{
 		str.append ("]");
 		states.length -= 3;
