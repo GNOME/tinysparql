@@ -189,7 +189,7 @@ public class TrackerTagsView : VBox {
 			TagData td = new TagData (id, iter, false, true, 1, this);
 			tag_data_requests.prepend (td);
 
-			remove_tag (td);
+			remove_tag.begin (td);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class TrackerTagsView : VBox {
 	public void button_add_clicked_cb (Button source) {
 		debug ("Add clicked");
 		unowned string tag = entry.get_text ();
-		add_tag (tag);
+		add_tag.begin (tag);
 	}
 
 	[CCode (instance_pos = -1)]
@@ -224,7 +224,7 @@ public class TrackerTagsView : VBox {
 	public void treeview_tags_cell_toggled_cb (CellRendererToggle source, string path_string) {
 		debug ("Treeview row cell toggled");
 		TreePath path = new TreePath.from_string (path_string);
-		model_toggle_row (path);
+		model_toggle_row.begin (path);
 	}
 
 	[CCode (instance_pos = -1)]
@@ -244,7 +244,7 @@ public class TrackerTagsView : VBox {
 	[CCode (instance_pos = -1)]
 	public void treeview_tags_row_activated_cb (TreeView source, TreePath path, TreeViewColumn column) {
 		debug ("Treeview row activated");
-		model_toggle_row (path);
+		model_toggle_row.begin (path);
 	}
 
 	[CCode (instance_pos = -1)]
@@ -365,7 +365,7 @@ public class TrackerTagsView : VBox {
 		// NOTE: This can't occur before the view is created
 		update_for_files ();
 
-		query_tags ();
+		query_tags.begin ();
 	}
 
 	private void update_for_files () {
@@ -381,7 +381,7 @@ public class TrackerTagsView : VBox {
 			vbox.sensitive = false;
 		}
 
-		query_tags_for_files ();
+		query_tags_for_files.begin ();
 	}
 
 	private async void model_toggle_row (TreePath path) {
@@ -436,7 +436,7 @@ public class TrackerTagsView : VBox {
 			td = new TagData (id, iter, false, true, 1, this);
 			tag_data_requests.prepend (td);
 
-			query_files_for_tag_id (td);
+			query_files_for_tag_id.begin (td);
 		}
 
 		filter = null;
@@ -635,14 +635,14 @@ public class TrackerTagsView : VBox {
 			store.set (td.iter, Col.SELECTION, Selection.TRUE, -1);
 
 			tag_data_requests.prepend (td);
-			query_files_for_tag_id (td);
+			query_files_for_tag_id.begin (td);
 		} else {
 			debug ("Setting tag selection state to FALSE");
 
 			store.set (td.iter, Col.SELECTION, Selection.FALSE, -1);
 
 			tag_data_requests.prepend (td);
-			query_files_for_tag_id (td);
+			query_files_for_tag_id.begin (td);
 		}
 	}
 
@@ -733,7 +733,7 @@ public class TrackerTagsView : VBox {
 				TagData td = new TagData (id, iter, false, true, 1, this);
 				tag_data_requests.prepend (td);
 
-				query_files_for_tag_id (td);
+				query_files_for_tag_id.begin (td);
 			}
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql query: %s", e.message);
