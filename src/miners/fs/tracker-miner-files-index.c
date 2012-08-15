@@ -35,6 +35,9 @@ static const gchar introspection_xml[] =
   "    <method name='IndexFile'>"
   "      <arg type='s' name='file_uri' direction='in' />"
   "    </method>"
+  "    <method name='IndexFileForProcess'>"
+  "      <arg type='s' name='file_uri' direction='in' />"
+  "    </method>"
   "  </interface>"
   "</node>";
 
@@ -51,6 +54,11 @@ typedef struct {
 	TrackerSparqlConnection *connection;
 	TrackerMinerFiles *miner_files;
 } MimeTypesData;
+
+typedef struct {
+	TrackerMinerFS *miner;
+	GFile *file;
+} IndexFileForProcessData;
 
 typedef struct {
 	TrackerMinerFiles *files_miner;
@@ -377,6 +385,113 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 }
 
 static void
+on_application_appears (GDBusConnection *connection,
+                		const gchar     *name,
+                		const gchar     *name_owner,
+                		gpointer         user_data)
+{
+	IndexFileForProcessData *data = user_data;
+	GFileInfo *file_info;
+	gboolean *is_dir;
+	gboolean *is_mount;
+
+	file_info = g_file_query_info (data->file,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	is_mount = g_file_find_enclosing_mount (data->file, NULL, NULL) ? TRUE : FALSE;
+	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
+
+	g_object_unref (file_info);
+
+	if (is_mount) {
+		tracker_miner_fs_mount_add (TRACKER_MINER_FS (data->miner), g_file_find_enclosing_mount (data->file, NULL, NULL));
+	} else if (is_dir) {
+		tracker_miner_fs_check_directory (TRACKER_MINER_FS (data->miner), data->file, FALSE);
+	} else {
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (data->miner), data->file, FALSE);
+	}
+
+	g_slice_free (IndexFileForProcessData, data);
+
+}
+
+static void
+on_application_disappears (GDBusConnection *connection,
+                           const gchar     *name,
+                           gpointer         user_data)
+{
+	IndexFileForProcessData *data = user_data;
+
+	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (data->miner), data->file);
+}
+
+static void
+handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
+                                		   GDBusMethodInvocation  *invocation,
+                                           GVariant               *parameters)
+{
+	TrackerMinerFilesIndexPrivate *priv;
+	TrackerDBusRequest *request;	
+	GFile *file;
+	GFileInfo *file_info;
+	const gchar *sender;
+	GError *internal_error;
+	IndexFileForProcessData *data;
+	const gchar *file_uri;
+
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
+
+	g_variant_get (parameters, "(&s)", &file_uri);
+
+	tracker_gdbus_async_return_if_fail (file_uri != NULL, invocation);
+
+	request = tracker_g_dbus_request_begin (invocation, "%s(uri:'%s')", __FUNCTION__, file_uri);
+
+	file = g_file_new_for_uri (file_uri);
+
+
+
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	if (!file_info) {
+		internal_error = g_error_new_literal (1, 0, "File does not exist");
+		tracker_dbus_request_end (request, internal_error);
+		g_dbus_method_invocation_return_gerror (invocation, internal_error);
+
+		g_error_free (internal_error);
+
+		g_object_unref (file);
+
+		return;
+	}
+
+	g_object_unref (file_info);
+
+	data = g_slice_new (IndexFileForProcessData);
+	data->miner = g_object_ref (TRACKER_MINER_FS (priv->files_miner));
+	data->file = g_object_ref (file);
+
+	g_object_unref (file);
+
+	sender = g_dbus_method_invocation_get_sender (invocation);
+	g_bus_watch_name (G_BUS_TYPE_SESSION,
+                      sender,
+                      G_BUS_NAME_WATCHER_FLAGS_NONE,
+                      on_application_appears,
+                      on_application_disappears,
+                      data,
+                      NULL);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation, NULL);
+}
+
+static void
 handle_method_call (GDBusConnection       *connection,
                     const gchar           *sender,
                     const gchar           *object_path,
@@ -395,6 +510,8 @@ handle_method_call (GDBusConnection       *connection,
 		tracker_miner_files_index_reindex_mime_types (miner, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "IndexFile") == 0) {
 		handle_method_call_index_file (miner, invocation, parameters);
+	} else if (g_strcmp0 (method_name, "IndexFileForProcess") == 0) {
+		handle_method_call_index_file_for_process (miner, invocation, parameters);
 	} else {
 		g_assert_not_reached ();
 	}

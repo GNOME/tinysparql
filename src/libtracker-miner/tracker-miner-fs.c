@@ -3241,7 +3241,7 @@ set_up_mount_point_cb (GObject      *source,
  **/
 void
 tracker_miner_fs_mount_add (TrackerMinerFS *fs,
-							GMount		   *mount)
+                            GMount         *mount)
 {
 	GFile *mount_point;
 	gchar *uri;
@@ -3251,7 +3251,7 @@ tracker_miner_fs_mount_add (TrackerMinerFS *fs,
 	gchar *uuid;
 	gchar *urn;
 	TrackerStorageType type;
-	
+
 	mount_point = g_mount_get_root (mount);
 	uri = g_file_get_uri (mount_point);
 
@@ -3270,48 +3270,48 @@ tracker_miner_fs_mount_add (TrackerMinerFS *fs,
 	} else {
 		/* If it doesn't exist, we need to create it */
 		g_message ("Mount point '%s' does not exist in store, need to create it",
-					uri);
+		           uri);
 		/* Create a nfo:Folder for the mount point */
 		g_string_append_printf (queries,
-								"INSERT SILENT INTO <" TRACKER_MINER_FS_GRAPH_URN "> {"
-								" _:file a nfo:FileDataObject, nie:InformationElement, nfo:Folder ; "
-								"        nie:isStoredAs _:file ; "
-								"        nie:url \"%s\" ; "
-								"        nie:mimeType \"inode/directory\" ; "
-								"        nfo:fileLastModified \"1981-06-05T02:20:00Z\" . "
-								"}",
-								uri);
+		                        "INSERT SILENT INTO <" TRACKER_MINER_FS_GRAPH_URN "> {"
+		                        " _:file a nfo:FileDataObject, nie:InformationElement, nfo:Folder ; "
+		                        "        nie:isStoredAs _:file ; "
+		                        "        nie:url \"%s\" ; "
+		                        "        nie:mimeType \"inode/directory\" ; "
+		                        "        nfo:fileLastModified \"1981-06-05T02:20:00Z\" . "
+		                        "}",
+		                        uri);
 	}
 
-	uuid = tracker_storage_get_uuid_for_file (storage, mount_point);	
+	uuid = tracker_storage_get_uuid_for_file (storage, mount_point);
 	urn = g_strconcat (TRACKER_DATASOURCE_URN_PREFIX, uuid, NULL);
 	type = tracker_storage_get_type_for_uuid (storage, uuid);
 	g_free (uuid);
 
 	g_string_append_printf (queries,
-							"DELETE { <%s> a rdfs:Resource }  "
-							"INSERT OR REPLACE { "
-							"  <%s> a tracker:Volume; "
-							"       tracker:mountPoint ?u ; "
-							"		tracker:isRemovable %s ; "
-							"		tracker:isOptical %s"
-							"} WHERE { "
-							"  ?u a nfo:FileDataObject; "
-							"     nie:url \"%s\" "
-							"} ",
-							urn, urn, 
-							TRACKER_STORAGE_TYPE_IS_REMOVABLE (type) ? "true" : "false",
-							TRACKER_STORAGE_TYPE_IS_OPTICAL (type) ? "true" : "false",
-							uri);
-	
+	                        "DELETE { <%s> a rdfs:Resource }  "
+	                        "INSERT OR REPLACE { "
+	                        "  <%s> a tracker:Volume; "
+	                        "       tracker:mountPoint ?u ; "
+	                        "		tracker:isRemovable %s ; "
+	                        "		tracker:isOptical %s"
+	                        "} WHERE { "
+	                        "  ?u a nfo:FileDataObject; "
+	                        "     nie:url \"%s\" "
+	                        "} ",
+	                        urn,
+	                        urn,
+	                        TRACKER_STORAGE_TYPE_IS_REMOVABLE (type) ? "true" : "false",
+	                        TRACKER_STORAGE_TYPE_IS_OPTICAL (type) ? "true" : "false",
+	                        uri);
 	g_free (uri);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-											queries->str,
-											G_PRIORITY_HIGH,
-											NULL,
-											set_up_mount_point_cb,
-											g_strdup (urn));
+	                                        queries->str,
+	                                        G_PRIORITY_HIGH,
+	                                        NULL,
+	                                        set_up_mount_point_cb,
+	                                        g_strdup (urn));
 
 	g_string_free (queries, TRUE);
 
