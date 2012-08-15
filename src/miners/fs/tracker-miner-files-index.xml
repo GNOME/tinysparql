@@ -10,5 +10,9 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="file_uri" direction="in" />
     </method>
+    <method name="IndexFileForProcess">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="file_uri" direction="in" />
+    </method>
   </interface>
 </node>
