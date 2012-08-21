@@ -113,6 +113,9 @@ typedef struct {
 	guint                media_art_buffer_size;
 	const gchar         *media_art_buffer_mime;
 
+	GstSample      *sample;
+	GstMapInfo      info;
+
 #if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
     defined(GSTREAMER_BACKEND_DECODEBIN2)
 	GstElement     *pipeline;
@@ -407,24 +410,23 @@ get_embedded_cue_sheet_data (GstTagList *tag_list)
 static gboolean
 get_embedded_media_art (MetadataExtractor *extractor)
 {
-	const GValue *value;
+	gboolean have_sample;
 	guint lindex;
 
 	lindex = 0;
 
 	do {
-		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, lindex);
+		have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_IMAGE, lindex, &extractor->sample);
 
-		if (value) {
+		if (have_sample) {
 			GstBuffer *buffer;
 			GstCaps *caps;
 			GstStructure *caps_struct;
 			gint type;
 
-			buffer = gst_value_get_buffer (value);
-			caps = gst_buffer_get_caps (buffer);
-			caps_struct = gst_caps_get_structure (buffer->caps, 0);
-
+			buffer = gst_sample_get_buffer (extractor->sample);
+			caps = gst_sample_get_caps (extractor->sample);
+			caps_struct = gst_caps_get_structure (caps, 0);
 			gst_structure_get_enum (caps_struct,
 			                        "image-type",
 			                        GST_TYPE_TAG_IMAGE_TYPE,
@@ -432,33 +434,38 @@ get_embedded_media_art (MetadataExtractor *extractor)
 
 			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
 			    (type == GST_TAG_IMAGE_TYPE_UNDEFINED && extractor->media_art_buffer_size == 0)) {
-				extractor->media_art_buffer = buffer->data;
-				extractor->media_art_buffer_size = buffer->size;
+				if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
+					return FALSE;
+
+				extractor->media_art_buffer = extractor->info.data;
+				extractor->media_art_buffer_size = extractor->info.size;
 				extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
-				gst_caps_unref (caps);
 
 				return TRUE;
 			}
 
-			gst_caps_unref (caps);
-
 			lindex++;
 		}
-	} while (value);
 
-	value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_PREVIEW_IMAGE, lindex);
+	} while (have_sample);
 
-	if (value) {
+	have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_IMAGE, lindex, &extractor->sample);
+
+	if (have_sample) {
 		GstBuffer *buffer;
+		GstCaps *caps;
 		GstStructure *caps_struct;
 
-		buffer = gst_value_get_buffer (value);
-		caps_struct = gst_caps_get_structure (buffer->caps, 0);
+		buffer = gst_sample_get_buffer (extractor->sample);
+		caps = gst_sample_get_caps (extractor->sample);
+		caps_struct = gst_caps_get_structure (caps, 0);
 
-		extractor->media_art_buffer = buffer->data;
-		extractor->media_art_buffer_size = buffer->size;
+		if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
+			return FALSE;
+
+		extractor->media_art_buffer = extractor->info.data;
+		extractor->media_art_buffer_size = extractor->info.size;
 		extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
-
 
 		return TRUE;
 	}
@@ -1286,6 +1293,7 @@ discoverer_shutdown (MetadataExtractor *extractor)
 	if (extractor->dlna_info)
 		g_object_unref (extractor->dlna_info);
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
+
 }
 
 static gboolean
@@ -1961,6 +1969,7 @@ tracker_extract_gstreamer (const gchar          *uri,
                            const gchar          *graph)
 {
 	MetadataExtractor *extractor;
+	GstBuffer *buffer;
 	gchar *cue_sheet;
 	gboolean success;
 
@@ -1971,7 +1980,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
-	extractor->tagcache = gst_tag_list_new ();
+	extractor->tagcache = gst_tag_list_new_empty ();
 	extractor->media_art_type = TRACKER_MEDIA_ART_NONE;
 
 	g_debug ("GStreamer backend in use:");
@@ -2024,7 +2033,11 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 	g_free (extractor->media_art_artist);
 	g_free (extractor->media_art_title);
-	/* Embedded media art buffer is owned and freed by the GstTagList */
+	if (extractor->sample) {
+		buffer = gst_sample_get_buffer (extractor->sample);
+		gst_buffer_unmap (buffer, &extractor->info);
+		gst_sample_unref (extractor->sample);
+	}
 
 	gst_tag_list_free (extractor->tagcache);
 

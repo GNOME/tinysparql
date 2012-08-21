@@ -1683,8 +1683,8 @@ AC_ARG_ENABLE(generic-media-extractor,
               [enable_generic_media_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
-                  [gstreamer-0.10 >= $GSTREAMER_REQUIRED
-                   gstreamer-tag-0.10 >= $GSTREAMER_REQUIRED],
+                  [gstreamer-1.0 >= $GSTREAMER_REQUIRED
+                   gstreamer-tag-1.0 >= $GSTREAMER_REQUIRED],
                   [have_libgstreamer=yes],
                   [have_libgstreamer=no])
 
@@ -1770,7 +1770,7 @@ else
         ;;
         "xdiscoverer")
            PKG_CHECK_MODULES(GSTREAMER_PBUTILS,
-                             [gstreamer-pbutils-0.10 >= $GSTREAMER_REQUIRED],
+                             [gstreamer-pbutils-1.0 >= $GSTREAMER_REQUIRED],
                              [have_gstreamer_pbutils=yes],
                              [have_gstreamer_pbutils=no])
            AC_SUBST(GSTREAMER_PBUTILS_CFLAGS)
