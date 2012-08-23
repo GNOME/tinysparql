@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker 0.12.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-07 09:30+0100\n"
-"PO-Revision-Date: 2012-02-07 09:37+0100\n"
+"POT-Creation-Date: 2012-08-23 09:17+0200\n"
+"PO-Revision-Date: 2012-08-23 09:18+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: \n"
@@ -66,6 +66,17 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
+"no limit on the media art width."
 msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
@@ -489,96 +500,96 @@ msgstr "GRAVER"
 msgid "Displays version information"
 msgstr "Vis versjonsinformasjon"
 
-#: ../src/miners/fs/tracker-main.c:626
+#: ../src/miners/fs/tracker-main.c:629
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Dataobjekt «%s» eksisterer allerede"
 
-#: ../src/miners/fs/tracker-main.c:627
+#: ../src/miners/fs/tracker-main.c:630
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Dataobjekt «%s» eksisterer ikke"
 
-#: ../src/miners/fs/tracker-main.c:642
+#: ../src/miners/fs/tracker-main.c:645
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:643
+#: ../src/miners/fs/tracker-main.c:646
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:663
+#: ../src/miners/fs/tracker-main.c:666
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:664
+#: ../src/miners/fs/tracker-main.c:667
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:711
+#: ../src/miners/fs/tracker-main.c:714
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:712
+#: ../src/miners/fs/tracker-main.c:715
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:716
+#: ../src/miners/fs/tracker-main.c:719
 msgid "File is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:717
+#: ../src/miners/fs/tracker-main.c:720
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:721
+#: ../src/miners/fs/tracker-main.c:724
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:722
+#: ../src/miners/fs/tracker-main.c:725
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:737
+#: ../src/miners/fs/tracker-main.c:740
 msgid "File is eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:738
+#: ../src/miners/fs/tracker-main.c:741
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:747
+#: ../src/miners/fs/tracker-main.c:750
 msgid "Would be indexed"
 msgstr "Vil bli indeksert"
 
-#: ../src/miners/fs/tracker-main.c:748 ../src/miners/fs/tracker-main.c:750
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "Yes"
 msgstr "Ja"
 
-#: ../src/miners/fs/tracker-main.c:748 ../src/miners/fs/tracker-main.c:750
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "No"
 msgstr "Nei"
 
-#: ../src/miners/fs/tracker-main.c:749
+#: ../src/miners/fs/tracker-main.c:752
 msgid "Would be monitored"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:872
+#: ../src/miners/fs/tracker-main.c:876
 msgid "- start the tracker indexer"
 msgstr ""
 
-#: ../src/miners/fs/tracker-miner-files.c:1362
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Lite batteri"
 
-#: ../src/miners/fs/tracker-miner-files.c:1489
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Lite diskplass"
 
-#: ../src/miners/fs/tracker-miner-files.c:2251
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 
@@ -637,34 +648,25 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr ""
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2559
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Prosesserer …"
 
 #. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:111
-#: ../src/plugins/nautilus/tracker-tags-extension.c:185
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Tagger"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:158
-msgid "Tags..."
-msgstr "Tagger..."
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:159
-msgid "Tag one or more files"
-msgstr "Tagg en eller flere filer"
-
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:163
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 msgid "No error was given"
 msgstr "Ingen feil ble gitt"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:378
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -673,7 +675,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:892
+#: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:144
@@ -1412,34 +1414,35 @@ msgid_plural "Bookmarks"
 msgstr[0] "Bokmerke"
 msgstr[1] "Bokmerker"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:328
+#: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
 msgstr "Navn"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:384
+#: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
 msgstr "Ingen oppføringer er valgt"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:470
-#: ../src/tracker-needle/tracker-tags-view.vala:611
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
 msgstr "Kunne ikke oppdatere merking"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:530
+#: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:803
 msgid "Could not remove tag"
 msgstr "Kunne ikke fjerne merking"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could toggle tags according to selection"
-msgstr ""
+#: ../src/tracker-needle/tracker-tags-view.vala:701
+#, fuzzy
+msgid "Could not retrieve tags for the current selection"
+msgstr "Kunne ikke oppdatere merking for fil"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:744
+#: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:627
 msgid "Could not add tag"
 msgstr "Kunne ikke legge til merking"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:801
+#: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
 msgstr "Kunne ikke oppdatere merking for fil"
 
@@ -1816,7 +1819,7 @@ msgstr "Katalogen er allerede valgt som en lokasjon som skal indekseres"
 msgid "Recurse"
 msgstr "Rekursiv"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:898
+#: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
 msgstr "Brukervalg for skrivebordssøk"
 
