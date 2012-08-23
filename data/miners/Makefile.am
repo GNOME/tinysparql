@@ -18,12 +18,17 @@ desktop_in_files =                                     \
 
 tracker_minersdir = $(datadir)/tracker/miners
 
-tracker_miners_DATA =                                  \
+tracker_miners_DATA =
+
+if HAVE_TRACKER_MINER_FS
+tracker_miners_DATA +=                                 \
 	tracker-miner-applications.desktop             \
 	tracker-miner-files.desktop
 
 if HAVE_MAEMO
+# Userguides are done in the miner-fs process
 tracker_miners_DATA += tracker-miner-userguides.desktop
+endif
 endif
 
 if HAVE_TRACKER_MINER_EVOLUTION

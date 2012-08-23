@@ -35,8 +35,11 @@ desktop_in_files =                                     \
 # Third we choose what we want installed based on config
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA =                                       \
-	tracker-store.desktop                          \
-	tracker-miner-fs.desktop
+	tracker-store.desktop
+
+if HAVE_TRACKER_MINER_FS
+autostart_DATA += tracker-miner-fs.desktop
+endif
 
 if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop
