@@ -1105,6 +1105,31 @@ fi
 AM_CONDITIONAL(HAVE_MEEGOTOUCH, test "x$have_meegotouch" = "xyes")
 
 ##################################################################
+# Check for tracker-miner-fs
+##################################################################
+
+have_tracker_miner_fs="yes"
+
+AC_ARG_ENABLE(miner_fs,
+              AS_HELP_STRING([--enable-miner-fs],
+                             [enable File System miner [[default=yes]]]),,
+                             [enable_tracker_miner_fs=yes])
+
+enable_tracker_miner_fs=$enable_miner_fs
+
+if test "x$enable_tracker_miner_fs" = "xyes"; then
+   if test "x$have_tracker_miner_fs" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-fs dependencies ($TRACKER_MINER_FS_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_fs" = "xno"; then
+      have_tracker_miner_fs="no  (disabled)"
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_FS, test "x$have_tracker_miner_fs" = "xyes")
+
+##################################################################
 # Check for tracker-miner-flickr
 ##################################################################
 
@@ -1402,6 +1427,12 @@ AC_ARG_ENABLE([tracker-preferences],
               AS_HELP_STRING([--enable-tracker-preferences],
                              [enable the tracker preferences dialog [[default=auto]]]),,
               [enable_tracker_preferences=auto])
+
+# If we don't have miner-fs enabled, the preferences are pointless
+# So we override in this case.
+if test "x$enable_tracker_miner_fs" = "xyes" ; then
+   enable_tracker_miner_fs = "no"
+fi
 
 if test "x$enable_tracker_preferences" = "xyes" ; then
    if test "x$have_tracker_preferences" != "xyes"; then
@@ -2388,7 +2419,10 @@ Metadata Extractors:
 
 Data Miners:
 
-	Applications:                           yes (MeeGo support: $have_meegotouch)
+	FS:                                     $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
+	  Includes File Systems
+	  Includes Applications
+	  Includes User Guides
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
         Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
