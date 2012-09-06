@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-04-30 14:37+0000\n"
-"PO-Revision-Date: 2012-05-06 12:06+0200\n"
+"POT-Creation-Date: 2012-06-13 13:43+0000\n"
+"PO-Revision-Date: 2012-09-06 17:25+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -703,26 +703,17 @@ msgstr "Tracker"
 msgid "Push data to Tracker to make it queryable."
 msgstr "Vkládá data do vyhledávače Tracker, aby se na ně bylo možno dotazovat."
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2577
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Zpracovává se…"
 
 #. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:111
-#: ../src/plugins/nautilus/tracker-tags-extension.c:185
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:538
 #: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Štítky"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:158
-msgid "Tags..."
-msgstr "Štítky…"
-
-#: ../src/plugins/nautilus/tracker-tags-extension.c:159
-msgid "Tag one or more files"
-msgstr "Přiřadit štítek jednomu nebo více souborům"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:163
@@ -740,7 +731,7 @@ msgstr[2] "Na_stavit štítky, které chcete přiřadit k %d vybraným položká
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:892
+#: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-search.c:144
@@ -1556,8 +1547,8 @@ msgid "Could not remove tag"
 msgstr "Nelze odstranit štítek"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:705
-msgid "Could not toggle tags according to selection"
-msgstr "Nelze přepnout štítky v souladu s výběrem"
+msgid "Could not retrieve tags for the current selection"
+msgstr "Nelze získat štítky pro aktuální výběr"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:744
 #: ../src/tracker-utils/tracker-tag.c:627
@@ -1970,7 +1961,7 @@ msgstr "Tato složka již jako umístění určené k indexování vybrána je"
 msgid "Recurse"
 msgstr "Rekurzivně"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:898
+#: ../src/tracker-preferences/tracker-preferences.vala:903
 msgid "Desktop Search preferences"
 msgstr "Předvolby prohledávání pracovního prostředí"
 
