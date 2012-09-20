@@ -461,11 +461,19 @@ parse_exif (const unsigned char *buffer,
 	if (!data->copyright) {
 		gchar *strip_off;
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
-		/* exiftool catenates this to the string, so we don't need it */
 		if (data->copyright) {
-			strip_off = strstr (data->copyright, " (Photographer) -  (Editor)");
+			/* Exif catenates this to the string, noticed the
+			 * string change from below in libexif 0.6.20 */
+			strip_off = strstr (data->copyright, " (Photographer) - [None] (Editor)");
 			if (strip_off) {
 				*strip_off = '\0';
+			} else {
+				/* Fall back to old string */
+				strip_off = strstr (data->copyright, " (Photographer) -  (Editor)");
+
+				if (strip_off) {
+					*strip_off = '\0';
+				}
 			}
 		}
 	}
