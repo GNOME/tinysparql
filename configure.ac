@@ -54,6 +54,10 @@ AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability])
 
 AM_SILENT_RULES([yes])
 
+dnl http://people.gnome.org/~walters/docs/build-api.txt
+dnl We don't support srcdir != builddir.
+echo \#buildapi-variable-no-builddir >/dev/null
+
 IDT_COMPILE_WARNINGS
 
 TRACKER_MAJOR_VERSION=tracker_major_version
