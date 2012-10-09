@@ -39,5 +39,5 @@ endif
 EXTRA_DIST = \
 	$(image_DATA) \
 	$(gifs) \
-	$(tiffs \
+	$(tiffs) \
 	$(jpegs)
