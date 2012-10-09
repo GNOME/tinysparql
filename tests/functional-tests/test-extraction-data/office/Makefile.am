@@ -1,22 +1,28 @@
 include $(top_srcdir)/Makefile.decl
 
+docs = \
+	office-doc.doc \
+	office-doc.expected \
+	powerpoint.ppt \
+	powerpoint.expected
+
+pdfs = \
+	pdf-doc.pdf \
+	pdf-doc.expected
+
 officetestdir = $(datadir)/tracker-tests/test-extraction-data/office
 
 # initialize variable for unconditional += appending
-officetest_DATA =                                      
+officetest_DATA =
 
 if HAVE_LIBGSF
-officetest_DATA +=					\
-	office-doc.doc                                 	\
-	office-doc.expected                            	\
-	powerpoint.ppt                                 	\
-	powerpoint.expected
+officetest_DATA += $(docs)
 endif
 
 if HAVE_POPPLER
-officetest_DATA +=					\
-	pdf-doc.pdf                                    	\
-	pdf-doc.expected
+officetest_DATA += $(pdfs)
 endif
 
-EXTRA_DIST = $(officetest_DATA)
+EXTRA_DIST = \
+	$(docs) \
+	$(pdfs)
