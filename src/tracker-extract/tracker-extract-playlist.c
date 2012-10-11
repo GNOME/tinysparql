@@ -57,7 +57,6 @@ entry_parsed (TotemPlParser *parser,
               GHashTable    *to_metadata,
               gpointer       user_data)
 {
-	gchar *duration;
 	PlaylistMetadata *data;
 
 	data = (PlaylistMetadata *) user_data;
@@ -86,17 +85,21 @@ entry_parsed (TotemPlParser *parser,
 
 	tracker_sparql_builder_object_blank_close (data->metadata);
 
-	duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION);
+	if (to_metadata) {
+		gchar *duration;
 
-	if (duration == NULL) {
-		duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION_MS);
-	}
+		duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION);
 
-	if (duration != NULL) {
-		gint64 secs = totem_pl_parser_parse_duration (duration, FALSE);
+		if (duration == NULL) {
+			duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION_MS);
+		}
 
-		if (secs > 0) {
-			data->total_time += secs;
+		if (duration != NULL) {
+			gint64 secs = totem_pl_parser_parse_duration (duration, FALSE);
+
+			if (secs > 0) {
+				data->total_time += secs;
+			}
 		}
 	}
 }
