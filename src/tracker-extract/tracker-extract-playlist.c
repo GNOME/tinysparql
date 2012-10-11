@@ -65,6 +65,7 @@ entry_parsed (TotemPlParser *parser,
 
 	if (data->track_counter > 1000) {
 		/* limit playlists to 1000 entries for query performance reasons */
+		g_message ("Playlist has > 1000 entries. Ignoring for performance reasons.");
 		return;
 	}
 
