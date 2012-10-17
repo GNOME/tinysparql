@@ -863,13 +863,13 @@ AC_ARG_WITH([unicode-support],
 
 # If auto, decide ourselves
 if test "x$with_unicode_support" = "xauto"; then
-   if test "x$have_libunistring" = "xyes"; then
-      with_unicode_support=libunistring
+   if test "x$have_libicu" = "xyes"; then
+      with_unicode_support=libicu
    else
-      if test "x$have_libicu" = "xyes"; then
-         with_unicode_support=libicu
+      if test "x$have_libunistring" = "xyes"; then
+         with_unicode_support=libunistring
       else
-         AC_MSG_ERROR([Couldn't find neither libunistring nor libicu])
+         AC_MSG_ERROR([Couldn't find either libunistring or libicu])
       fi
    fi
 fi
