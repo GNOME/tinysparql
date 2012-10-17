@@ -43,6 +43,7 @@
 static gchar **filenames;
 static gboolean full_namespaces;
 static gboolean print_version;
+static gboolean plain_text_content;
 static gboolean turtle;
 
 static GOptionEntry entries[] = {
@@ -52,6 +53,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "full-namespaces", 'f', 0, G_OPTION_ARG_NONE, &full_namespaces,
 	  N_("Show full namespaces (i.e. don't use nie:title, use full URLs)"),
+	  NULL,
+	},
+	{ "plain-text-content", 'c', 0, G_OPTION_ARG_NONE, &plain_text_content,
+	  N_("Show plain text content if available for resources"),
 	  NULL,
 	},
 	{ "turtle", 't', 0, G_OPTION_ARG_NONE, &turtle,
@@ -167,6 +172,22 @@ get_prefixes (TrackerSparqlConnection *connection)
 	return retval;
 }
 
+static inline void
+print_key_and_value (GHashTable  *prefixes,
+                     const gchar *key,
+                     const gchar *value)
+{
+	if (G_UNLIKELY (full_namespaces)) {
+		g_print ("  '%s' = '%s'\n", key, value);
+	} else {
+		gchar *shorthand;
+
+		shorthand = get_shorthand (prefixes, key);
+		g_print ("  '%s' = '%s'\n", shorthand, value);
+		g_free (shorthand);
+	}
+}
+
 static void
 print_plain (gchar               *urn_or_filename,
              gchar               *urn,
@@ -174,6 +195,9 @@ print_plain (gchar               *urn_or_filename,
              GHashTable          *prefixes,
              gboolean             full_namespaces)
 {
+	gchar *fts_key = NULL;
+	gchar *fts_value = NULL;
+
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *key = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		const gchar *value = tracker_sparql_cursor_get_string (cursor, 1, NULL);
@@ -184,19 +208,24 @@ print_plain (gchar               *urn_or_filename,
 
 		/* Don't display nie:plainTextContent */
 		if (strcmp (key, "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#plainTextContent") == 0) {
+			if (plain_text_content) {
+				fts_key = g_strdup (key);
+				fts_value = g_strdup (value);
+			}
+
+			/* Always print FTS data at the end because of it's length */
 			continue;
 		}
 
-		if (G_UNLIKELY (full_namespaces)) {
-			g_print ("  '%s' = '%s'\n", key, value);
-		} else {
-			gchar *shorthand;
-
-			shorthand = get_shorthand (prefixes, key);
-			g_print ("  '%s' = '%s'\n", shorthand, value);
-			g_free (shorthand);
-		}
+		print_key_and_value (prefixes, key, value);
 	}
+
+	if (fts_key && fts_value) {
+		print_key_and_value (prefixes, fts_key, fts_value);
+	}
+
+	g_free (fts_key);
+	g_free (fts_value);
 }
 
 /* print a URI prefix in Turtle format */
@@ -273,7 +302,7 @@ print_turtle (gchar               *urn,
 		}
 
 		/* Don't display nie:plainTextContent */
-		if (strcmp (key, "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#plainTextContent") == 0) {
+		if (!plain_text_content && strcmp (key, "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#plainTextContent") == 0) {
 			continue;
 		}
 
