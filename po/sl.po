@@ -1,18 +1,18 @@
-# Slovenian translation of Tracker.
+# Slovenian translation of tracker.
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
 #
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
-# Matej Urbančič <mateju@svn.gnome.org>, 2008 - 2010.
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009 - 2010.
 # Martin Srebotnjak  <miles@filmsi.net>, 2011.
+# Matej Urbančič <mateju@svn.gnome.org>, 2008 - 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker\n"
+"Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-06-15 21:09+0000\n"
-"PO-Revision-Date: 2012-06-16 08:35+0100\n"
+"POT-Creation-Date: 2012-10-17 16:49+0000\n"
+"PO-Revision-Date: 2012-10-18 07:59+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -30,7 +30,7 @@ msgstr "Največja velikost dnevnika"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Velikost dnevnika pri vrtenju v MB. Uporabite -1 za onemogočitev vrtenja."
+msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 možnost onemogoči."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
 msgid "Location of journal pieces"
@@ -62,11 +62,11 @@ msgstr "Prednost razporejevalnika med nedejavnostjo"
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
 msgid "The scheduler is the kernel component that decides which runnable application will be executed by the CPU next. Each application has an associated scheduling policy and priority."
-msgstr "Razporejevalnik je del jedra, ki nadzira vrstni red zaganjanja opravil procesorja. Vsak program ima določena pravila zaganjanja in določilo prednosti."
+msgstr "Razporejevalnik je del jedra, ki nadzira vrstni red zaganjanja opravil procesorja. Vsak program ima določena pravila zaganjanja in določilo prednosti opravil."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
 msgid "Max bytes to extract"
-msgstr "Največje število bajtov za razširjanje"
+msgstr "Največje število bajtov za razširitev"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
@@ -198,7 +198,7 @@ msgstr "Pripravi kazalo odstranljivih naprav"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
 msgid "Set to true to enable indexing mounted directories for removable devices."
-msgstr "Nastavite na prav za omogočitev priprave kazala priklopljenih map za odstranljive naprave."
+msgstr "Nastavite na prav za omogočanje priprave kazala priklopljenih map za odstranljive naprave."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 msgid "Index optical discs"
@@ -206,7 +206,7 @@ msgstr "Pripravi kazalo optičnih diskov"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid "Set to true to enable indexing CDs, DVDs, and generally optical media (if removable devices are not indexed, optical discs won't be either)"
-msgstr "Nastavite na prav za pripravo kazala CD-jev, DVD-jev in splošno optičnih medijev (če ni pripravljeno kazalo odstranljivih naprav, tudi optični diski ne bodo uporabljeni)"
+msgstr "Nastavite na prav za pripravo kazala nosilcev CD, DVD in ostalih optičnih nosilcev (če ni pripravljeno kazalo odstranljivih naprav, tudi optični diski ne bodo uporabljeni)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Index when running on battery"
@@ -461,8 +461,8 @@ msgstr "Preveri, če je DATOTEKA primerna za podatkovno rudarjenje na podlagi na
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:62
-#: ../src/tracker-utils/tracker-info.c:63
+#: ../src/tracker-utils/tracker-info.c:67
+#: ../src/tracker-utils/tracker-info.c:68
 #: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "DATOTEKA"
@@ -604,7 +604,7 @@ msgstr "Dodajanje vira zahteva --add-feed in --title"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:356
+#: ../src/tracker-utils/tracker-info.c:385
 #: ../src/tracker-utils/tracker-search.c:1525
 #: ../src/tracker-utils/tracker-sparql.c:287
 #: ../src/tracker-utils/tracker-stats.c:88
@@ -614,7 +614,7 @@ msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:357
+#: ../src/tracker-utils/tracker-info.c:386
 #: ../src/tracker-utils/tracker-search.c:1526
 #: ../src/tracker-utils/tracker-sparql.c:288
 #: ../src/tracker-utils/tracker-stats.c:89
@@ -647,12 +647,12 @@ msgid "Tags"
 msgstr "Oznake"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:163
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 msgid "No error was given"
 msgstr "Napaka ni bila podana"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:378
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -665,7 +665,7 @@ msgstr[3] "_Nastavi oznake za povezavo s %d izbranimi predmeti:"
 #: ../src/tracker-needle/tracker-needle.vala:691
 #: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:144
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
@@ -1229,8 +1229,8 @@ msgid "Find what you're looking for on this computer by name or content using Tr
 msgstr "Poiščite kar iščete na tem računalniku po imenu ali vsebini z uporabo Trackerja"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-msgid "Display results by category, for example, Music, Videos, Applications, etc."
-msgstr "Prikaži rezultate po kategoriji, na primer glasba, videoposnetki, programi, itd."
+msgid "Display results by category, for example, Music, Videos, Applications, etc. This includes searching the contents of files where applicable."
+msgstr "Prikaži rezultate po kategoriji, na primer glasba, videoposnetki, programi, itd. To vključuje tudi iskanje vsebine datotek, kjer je to na voljo."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1408,34 +1408,34 @@ msgstr[1] "Zaznamek"
 msgstr[2] "Zaznamki"
 msgstr[3] "Zaznamki"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:328
+#: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
 msgstr "Ime"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:384
+#: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
 msgstr "Ni izbranih predmetov"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:470
-#: ../src/tracker-needle/tracker-tags-view.vala:611
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
 msgstr "Oznak ni mogoče posodobiti"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:530
+#: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:803
 msgid "Could not remove tag"
 msgstr "Ni mogoče odstraniti oznake"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:705
+#: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
 msgstr "Ni mogoče pridobiti oznak za trenutni izbor"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:744
+#: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:627
 msgid "Could not add tag"
 msgstr "Ni mogoče dodati oznake"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:801
+#: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
 msgstr "Oznak datotek ni mogoče posodobiti"
 
@@ -1599,11 +1599,11 @@ msgstr "Omogoči za _začetni nabor podatkov"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid "Include _removable media"
-msgstr "Vključi _odstranljive medije"
+msgstr "Vključi _odstranljive nosilce"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:10
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
-msgstr "To vključuje VSE odstranljive medije, spominske kartice, CD-je, DVD-je, itn."
+msgstr "To vključuje VSE odstranljive nosilce, spominske kartice, nosilce CD, DVD, itn."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:11
 msgid "Include optical di_scs"
@@ -1899,7 +1899,7 @@ msgid "- Import data using Turtle files"
 msgstr "- Uvozi podatke z datotekami Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:338
+#: ../src/tracker-utils/tracker-info.c:367
 msgid "One or more files have not been specified"
 msgstr "Ena ali več datotek ni bilo navedenih"
 
@@ -1911,46 +1911,50 @@ msgstr "Uvažanje datoteke Turtle"
 msgid "Unable to import Turtle file"
 msgstr "Datoteke Turtle ni mogoče uvoziti"
 
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:55
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr "Pokaži polni imenski prostor (ne uporabi nie:naslov, uporabi polne URL-je)"
 
-#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
+msgid "Show plain text content if available for resources"
+msgstr "Pokaži besedilno vsebino, če je ta za vir na voljo."
+
+#: ../src/tracker-utils/tracker-info.c:63
 msgid "Output results as RDF in Turtle format"
 msgstr "Izpiši rezultate kot RDF v obliki Turtle"
 
-#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-info.c:141
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Ni mogoče pridobiti predpon imenskega prostora"
 
-#: ../src/tracker-utils/tracker-info.c:144
+#: ../src/tracker-utils/tracker-info.c:149
 msgid "No namespace prefixes were returned"
 msgstr "Predpone imenskega prostora niso bile vrnjene"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:320
+#: ../src/tracker-utils/tracker-info.c:349
 msgid "- Get all information about one or more files"
 msgstr "- Pridobi vse podatke o eni ali več datotekah"
 
-#: ../src/tracker-utils/tracker-info.c:378
+#: ../src/tracker-utils/tracker-info.c:407
 msgid "Querying information for entity"
 msgstr "Poizvedba podatkov za entiteto"
 
-#: ../src/tracker-utils/tracker-info.c:399
+#: ../src/tracker-utils/tracker-info.c:428
 msgid "Unable to retrieve URN for URI"
 msgstr "Ni mogoče pridobiti URN za URI"
 
-#: ../src/tracker-utils/tracker-info.c:409
-#: ../src/tracker-utils/tracker-info.c:444
+#: ../src/tracker-utils/tracker-info.c:438
+#: ../src/tracker-utils/tracker-info.c:473
 msgid "Unable to retrieve data for URI"
 msgstr "Podatkov za URI ni mogoče pridobiti"
 
-#: ../src/tracker-utils/tracker-info.c:453
+#: ../src/tracker-utils/tracker-info.c:482
 msgid "No metadata available for that URI"
 msgstr "Za URI ni razpoložljivih metapodakov"
 
-#: ../src/tracker-utils/tracker-info.c:458
+#: ../src/tracker-utils/tracker-info.c:487
 #: ../src/tracker-utils/tracker-search.c:1348
 #: ../src/tracker-utils/tracker-sparql.c:609
 #: ../utils/tracker-sql/tracker-sql.c:168
