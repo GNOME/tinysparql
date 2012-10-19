@@ -9,10 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-06-13 13:43+0000\n"
-"PO-Revision-Date: 2012-08-25 23:04+0300\n"
+"POT-Creation-Date: 2012-10-17 11:35+0000\n"
+"PO-Revision-Date: 2012-10-19 20:57+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lithuanian <gnome-lt@lists.akl.lt>\n"
+"Language: lt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -112,9 +113,6 @@ msgid "Enable unaccent"
 msgstr "Įjungti diakritinių ženklų pašalinimą"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
-#| msgid ""
-#| "Translated accented characters to the equivalent unaccented. E.g. 'Idéa' "
-#| "to 'Idea' for improved matching."
 msgid "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
 msgstr "Išversti simbolius su diakritiniais ženklais į atitikmenis be jų. Pvz. „idėja“ į „ideja“ geresniems atitikmenims."
 
@@ -267,7 +265,6 @@ msgid "Userguides"
 msgstr "Naudotojo gidai"
 
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
-#| msgid "File system data miner"
 msgid "Userguide data miner"
 msgstr "Naudotojo vadovų duomenų rinkiklis"
 
@@ -456,8 +453,8 @@ msgstr "Tikrina, ar FAILAS yra tinkamas apdorojimui pagal nustatymus"
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:62
-#: ../src/tracker-utils/tracker-info.c:63
+#: ../src/tracker-utils/tracker-info.c:67
+#: ../src/tracker-utils/tracker-info.c:68
 #: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "FAILAS"
@@ -562,15 +559,15 @@ msgstr "Bus stebimi"
 msgid "- start the tracker indexer"
 msgstr "- paleisti tracker indeksuotoją"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Senka baterija"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Mažai vietos diske"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Gavėjo klaida vykdant įkeltų meta duomenų išgavimą"
 
@@ -599,7 +596,7 @@ msgstr "Įrašo pridėjimas reikalauja --add-feed ir --title"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:356
+#: ../src/tracker-utils/tracker-info.c:385
 #: ../src/tracker-utils/tracker-search.c:1525
 #: ../src/tracker-utils/tracker-sparql.c:287
 #: ../src/tracker-utils/tracker-stats.c:88
@@ -609,7 +606,7 @@ msgstr "Nepavyko užmegzti ryšio su Tracker"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:357
+#: ../src/tracker-utils/tracker-info.c:386
 #: ../src/tracker-utils/tracker-search.c:1526
 #: ../src/tracker-utils/tracker-sparql.c:288
 #: ../src/tracker-utils/tracker-stats.c:89
@@ -642,12 +639,12 @@ msgid "Tags"
 msgstr "Žymos"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:163
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 msgid "No error was given"
 msgstr "Nenurodyta klaida"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:378
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -659,7 +656,7 @@ msgstr[2] "_Nustatyti žymas susiejimui su %d pažymėtų elementų:"
 #: ../src/tracker-needle/tracker-needle.vala:691
 #: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:144
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
@@ -1220,8 +1217,11 @@ msgid "Find what you're looking for on this computer by name or content using Tr
 msgstr "Naudodami Tracker rasite kompiuteryje dokumentus ir aplankus pagal pavadinimą arba turinį"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-msgid "Display results by category, for example, Music, Videos, Applications, etc."
-msgstr "Rodyti rezultatus pagal kategoriją, pavyzdžiui muzika, vaizdai, programos ir kiti."
+#| msgid ""
+#| "Display results by category, for example, Music, Videos, Applications, "
+#| "etc."
+msgid "Display results by category, for example, Music, Videos, Applications, etc. This includes searching the contents of files where applicable."
+msgstr "Rodyti rezultatus pagal kategoriją, pavyzdžiui muzika, vaizdai, programos ir kiti. Tai įtraukia failų turinio paiešką, kur pritaikoma."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1385,36 +1385,34 @@ msgstr[0] "Adresyno įrašas"
 msgstr[1] "Adresyno įrašai"
 msgstr[2] "Adresyno įrašų"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:328
+#: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
 msgstr "Pavadinimas"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:384
+#: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
 msgstr "Nėra šiuo metu pasirinktų elementų"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:470
-#: ../src/tracker-needle/tracker-tags-view.vala:611
-#| msgid "Could not add tag"
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
 msgstr "Nepavyko atnaujinti žymų"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:530
+#: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:803
 msgid "Could not remove tag"
 msgstr "Nepavyko pašalinti žymos"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:705
+#: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
 msgstr "Nepavyko gauti dabartinio pažymėjimo žymų"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:744
+#: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:627
 msgid "Could not add tag"
 msgstr "Nepavyko pridėti žymos"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:801
-#| msgid "Could not add tag to files"
+#: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
 msgstr "Nepavyko atnaujinti failo žymų"
 
@@ -1876,7 +1874,7 @@ msgid "- Import data using Turtle files"
 msgstr "- importuoti duomenis naudojant Turtle failus"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:338
+#: ../src/tracker-utils/tracker-info.c:367
 msgid "One or more files have not been specified"
 msgstr "Vienas ar daugiau failų nebuvo nurodyti"
 
@@ -1888,46 +1886,50 @@ msgstr "Importuojamas Turtle failas"
 msgid "Unable to import Turtle file"
 msgstr "Nepavyko importuoti Turtle failo"
 
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:55
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr "Rodyti pilnas vardų sritis (pvz. nenaudoti nie:title, naudoti pilą URL)"
 
-#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
+msgid "Show plain text content if available for resources"
+msgstr "Resursams rodyti grynojo teksto turinį, jei prieinamas"
+
+#: ../src/tracker-utils/tracker-info.c:63
 msgid "Output results as RDF in Turtle format"
 msgstr "Išvesti rezultatus kaip RDF Turtle formatu"
 
-#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-info.c:141
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nepavyko gauti vardų srities priešdėlių"
 
-#: ../src/tracker-utils/tracker-info.c:144
+#: ../src/tracker-utils/tracker-info.c:149
 msgid "No namespace prefixes were returned"
 msgstr "Nerasta vardų srities priešdėlių"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:320
+#: ../src/tracker-utils/tracker-info.c:349
 msgid "- Get all information about one or more files"
 msgstr "- gauti visą informaciją apie vieną ar daugiau failų"
 
-#: ../src/tracker-utils/tracker-info.c:378
+#: ../src/tracker-utils/tracker-info.c:407
 msgid "Querying information for entity"
 msgstr "Klausiamas informacijos apie esybę"
 
-#: ../src/tracker-utils/tracker-info.c:399
+#: ../src/tracker-utils/tracker-info.c:428
 msgid "Unable to retrieve URN for URI"
 msgstr "Nepavyko gauti URN URI adresui"
 
-#: ../src/tracker-utils/tracker-info.c:409
-#: ../src/tracker-utils/tracker-info.c:444
+#: ../src/tracker-utils/tracker-info.c:438
+#: ../src/tracker-utils/tracker-info.c:473
 msgid "Unable to retrieve data for URI"
 msgstr "Nepavyko gauti duomenų apie URI"
 
-#: ../src/tracker-utils/tracker-info.c:453
+#: ../src/tracker-utils/tracker-info.c:482
 msgid "No metadata available for that URI"
 msgstr "Nėra metaduomenų šiam URI"
 
-#: ../src/tracker-utils/tracker-info.c:458
+#: ../src/tracker-utils/tracker-info.c:487
 #: ../src/tracker-utils/tracker-search.c:1348
 #: ../src/tracker-utils/tracker-sparql.c:609
 #: ../utils/tracker-sql/tracker-sql.c:168
@@ -2055,13 +2057,11 @@ msgstr "Nerasta kontaktų"
 
 #: ../src/tracker-utils/tracker-search.c:292
 #: ../src/tracker-utils/tracker-search.c:305
-#| msgid "No Name"
 msgid "No name"
 msgstr "Nėra pavadinimo"
 
 #: ../src/tracker-utils/tracker-search.c:293
 #: ../src/tracker-utils/tracker-search.c:306
-#| msgid "Email Addresses"
 msgid "No E-mail address"
 msgstr "Nėra el. pašto adresas"
 
