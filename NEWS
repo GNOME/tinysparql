@@ -1,3 +1,53 @@
+NEW in 0.14.3 - 2012-10-24
+==========================
+
+The changes are:
+
+
+  * Fixes: GB#686071, Usability: it's not clear if searching within file names or file contents
+  * Fixes: GB#628857, Add --disable-miner-fs build option
+  * Fixes: GB#680897, PDF extraction finishes, then times out, no full text indexed
+  * Fixes: GB#680172, Tracker can end up eating >3.8 GiB of disk for meta.db
+  * Fixes: GB#680350, Repeatable SEGV in tracker-needle g_malloc on dialog close 0.14.1-1.fc17 x64
+  * Fixes: GB#675660, Any search will fail with error about libicu
+  * Fixes: GB#685253, creates /tmp/tracker-$user directory for no good reason
+  * Eased: GB#666749, Empty window in LANG=ko_KR.UTF-8
+  * build: Add SQLite3 version check and warning for crashes with complex queries
+  * build: Default to icu over unistring when automatically guessing unicode support
+  * functional-tests: office test files should always be included in dist
+  * functional-tests: include missing tiff files in dist
+  * libtracker-common: Consistently use long in get_memory_total
+  * libtracker-fts: ICU cannot handle complex locale descriptions
+  * libtracker-extract: Fixed EXIF extractor due to changes by libexif
+  * tracker-extract-pdf: Fix crash if mmap() fails
+  * tracker-extract-playlist: Don't error when to_metadata hash table is NULL
+  * tracker-extract-playlist: Log message for ignoring playlists with > 1k entries
+  * tracker-info: Added --plain-text-content || -c option
+  * tracker-miner-fs: Make building this optional
+  * tracker-miner-fs: Ignore XDG directories set to $HOME
+  * tracker-needle: Fix double free
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated el: Dimitris Spingos
+  * Updated en_GB: Chris Leonard
+  * Updated es: Daniel Mustieles
+  * Updated gl: Fran Diéguez
+  * Updated id: Andika Triwidada
+  * Updated lt: Aurimas Černius
+  * Updated nb: Kjartan Maraas
+  * Updated pl: Piotr Drąg
+  * Updated sl: Matej Urbančič
+
+NOTE:
+
+  * Now that libicu is preferred over libunistring, you may see a
+    small performance decrease, however, sorting and collation should
+    be much better than it was previously. For details see GNOME bug
+    #666749.
+
+
 NEW in 0.14.2 - 2012-07-05
 ==========================
 
