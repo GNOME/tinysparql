@@ -688,6 +688,24 @@ if test "x$ax_cv_sqlite_threadsafe" != "xyes"; then
   AC_MSG_ERROR([sqlite3 is not compiled thread-safe])
 fi
 
+# Make sure we're not using versions which cause problems.
+# Avoid versions:
+#   3.7.10 - 3.7.13
+# For details, see:
+#   https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
+AC_MSG_CHECKING(whether SQLite3 version is safe)
+
+PKG_CHECK_EXISTS([sqlite3 <= 3.7.9], sqlite_safe=yes, sqlite_safe=no)
+if test "x$sqlite_safe" != "xyes"; then
+   PKG_CHECK_EXISTS([sqlite3 >= 3.7.14], sqlite_safe=yes, sqlite_safe=no)
+fi
+
+if test "x$sqlite_safe" != "xyes"; then
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+fi
+
 ##################################################################
 # Check for tracker-fts, allow disabling FTS support
 ##################################################################
@@ -2447,4 +2465,16 @@ Frameworks / Options:
 	Support Maemo                           $enable_maemo
 	Support libmeegotouch                   $have_meegotouch
 	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
+
 "
+
+# Any warnings we need to issue...
+if test "x$sqlite_safe" = "xno"; then
+echo "
+WARNING:
+        SQLite3 version is not safe. For details see:
+        https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
+        Unsafe versions are 3.7.10 to 3.7.13.
+
+"
+fi
