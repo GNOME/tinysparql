@@ -361,9 +361,6 @@ extract_content_parent_process (PopplerDocument *document,
 		} else if (retval == 1) {
 			gsize bytes_remaining;
 			gboolean read_finished = FALSE;
-			int state = 0;
-
-			g_debug ("Parent: fd is set is %d", FD_ISSET(fd[0], &rfds));
 
 			if (g_timer_elapsed (timer, NULL) >= EXTRACTION_PROCESS_TIMEOUT) {
 				finished = TRUE;
@@ -431,23 +428,11 @@ extract_content_parent_process (PopplerDocument *document,
 					}
 				}
 			}
-
-			/* 5. Check if the process exited yet or not */
-			retval = waitpid (child_pid, &state, WNOHANG);
-			if (retval == -1) {
-				perror ("waitpid()");
-			} else if (retval == child_pid) {
-				g_debug ("Parent: Child process exited");
-				finished = TRUE;
-				continue;
-			} else {
-				/* If retval is 0 then nothing changed
-				 * and we go round again */
-			}
 		} else {
 			/* 3. We must have timed out with no data in select() */
 			finished = TRUE;
 			timed_out = TRUE;
+			g_debug ("Parent: Must have timed out with no data in select()");
 		}
 	}
 
@@ -471,6 +456,18 @@ extract_content_parent_process (PopplerDocument *document,
 	return content ? g_string_free (content, FALSE) : NULL;
 }
 
+static void
+extract_content_child_cleanup (int action)
+{
+	pid_t child_pid;
+	int status;
+
+	g_debug ("Parent: Zombies, say hello to my little friend!");
+	while ((child_pid = waitpid (-1, &status, WNOHANG)) > 0) {
+		g_debug ("Parent:   Zombie %d reaped", child_pid);
+	}
+}
+
 static gchar *
 extract_content (PopplerDocument *document,
                  gsize            n_bytes)
@@ -479,6 +476,7 @@ extract_content (PopplerDocument *document,
 	int fd[2];
 	sigset_t mask;
 	sigset_t orig_mask;
+	struct sigaction sa;
 
 	if (pipe (fd) == -1) {
 		g_warning ("Content extraction failed, call to pipe() failed");
@@ -488,6 +486,12 @@ extract_content (PopplerDocument *document,
 	/* Set sig mask before fork() to avoid race conditions */
 	sigemptyset (&mask);
 	sigaddset (&mask, SIGCHLD);
+
+	/* Add zombie handler */
+	sigfillset (&sa.sa_mask);
+	sa.sa_handler = extract_content_child_cleanup;
+	sa.sa_flags = 0;
+	sigaction (SIGCHLD, &sa, NULL);
 
 	if (sigprocmask (SIG_SETMASK, &mask, &orig_mask) == -1) {
 		g_warning ("Content extraction failed, call to sigprocmask() failed");
