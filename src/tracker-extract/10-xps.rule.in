@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-xps.so
+MimeTypes=application/oxps;application/vnd.ms-xpsdocument;
+FallbackRdfType=nfo:Document
