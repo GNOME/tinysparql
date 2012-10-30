@@ -18,6 +18,7 @@ AM_CPPFLAGS = \
 # date.
 rules_in_files = \
 	10-abw.rule.in \
+	10-dvi.rule.in \
 	10-epub.rule.in \
 	10-flac.rule.in \
 	10-gif.rule.in \
@@ -53,6 +54,7 @@ rules_in_files = \
 # against it if we directly use functions in the .so
 modules_LTLIBRARIES = \
 	libextract-abw.la \
+	libextract-dvi.la \
 	libextract-mp3.la \
 	libextract-png.la \
 	libextract-ps.la \
@@ -61,6 +63,7 @@ modules_LTLIBRARIES = \
 
 rules_DATA = \
 	10-abw.rule \
+	10-dvi.rule \
 	10-ico.rule \
 	10-mp3.rule \
 	10-png.rule \
@@ -317,6 +320,17 @@ libextract_pdf_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(POPPLER_LIBS)
+
+# DVI
+libextract_dvi_la_SOURCES = tracker-extract-dvi.c
+libextract_dvi_la_CFLAGS = \
+	$(TRACKER_EXTRACT_MODULES_CFLAGS)
+libextract_dvi_la_LDFLAGS = $(module_flags)
+libextract_dvi_la_LIBADD = \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS) \
+	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 # GStreamer
 libextract_gstreamer_la_SOURCES = \
