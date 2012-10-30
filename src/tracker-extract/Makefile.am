@@ -35,6 +35,7 @@ rules_in_files = \
 	10-tiff.rule.in \
 	10-vorbis.rule.in \
 	10-xmp.rule.in \
+	10-xps.rule.in \
 	11-iso.rule.in \
 	11-msoffice-xml.rule.in \
 	15-gstreamer-guess.rule.in \
@@ -112,6 +113,11 @@ modules_LTLIBRARIES += \
 	libextract-msoffice-xml.la \
 	libextract-oasis.la
 rules_DATA += 10-epub.rule 10-oasis.rule 10-msoffice.rule 11-msoffice-xml.rule
+endif
+
+if HAVE_LIBGXPS
+modules_LTLIBRARIES += libextract-xps.la
+rules_DATA += 10-xps.rule
 endif
 
 if HAVE_POPPLER
@@ -307,6 +313,19 @@ libextract_msoffice_xml_la_LIBADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
+
+# XPS
+libextract_xps_la_SOURCES = tracker-extract-xps.c
+libextract_xps_la_CFLAGS = \
+	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
+	$(LIBGXPS_CFLAGS)
+libextract_xps_la_LDFLAGS = $(module_flags)
+libextract_xps_la_LIBADD = \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS) \
+	$(TRACKER_EXTRACT_MODULES_LIBS) \
+	$(LIBGXPS_LIBS)
 
 # PDF
 libextract_pdf_la_SOURCES = tracker-extract-pdf.c

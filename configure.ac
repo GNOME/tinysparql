@@ -1853,6 +1853,39 @@ fi
 AM_CONDITIONAL(HAVE_POPPLER, test "x$have_poppler" = "xyes")
 
 ##################################################################
+# Check for tracker-extract: libgxps for XPS
+##################################################################
+
+AC_ARG_ENABLE(libgxps,
+              AS_HELP_STRING([--enable-libgxps],
+                             [enable extractor for PDF data [[default=auto]]]),,
+              [enable_libgxps=auto])
+
+if test "x$enable_libgxps" != "xno" ; then
+   PKG_CHECK_MODULES(LIBGXPS,
+                     [libgxps],
+                     [have_libgxps=yes],
+                     [have_libgxps=no])
+
+   AC_SUBST(LIBGXPS_CFLAGS)
+   AC_SUBST(LIBGXPS_LIBS)
+
+   if test "x$have_libgxps" = "xyes"; then
+      AC_DEFINE(HAVE_LIBGXPS, [], [Define if we have libgxps])
+   fi
+else
+   have_libgxps="no  (disabled)"
+fi
+
+if test "x$enable_libgxps" = "xyes"; then
+   if test "x$have_libgxps" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libgxps.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBGXPS, test "x$have_libgxps" = "xyes")
+
+##################################################################
 # Check for tracker-extract: libgsf
 ##################################################################
 
@@ -2425,6 +2458,7 @@ Metadata Extractors:
 	Support libstreamanalyzer:              $have_libstreamanalyzer
 	Support PNG:                            yes
 	Support PDF:                            $have_poppler
+	Support XPS:                            $have_libgxps
 	Support GIF:                            $have_libgif (xmp: $have_exempi)
 	Support JPEG:                           $have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:                           $have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
