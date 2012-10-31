@@ -257,12 +257,12 @@ dbus_send_and_splice_async (GDBusConnection       *connection,
 	                              data);
 }
 
-static inline const gchar *
+static inline gchar *
 get_metadata_fast_read (GDataInputStream *data_input_stream,
                         gsize            *remaining,
                         GError           *error)
 {
-	const gchar *output;
+	gchar *output;
 	gsize len_read;
 
 	if (error) {
@@ -275,12 +275,17 @@ get_metadata_fast_read (GDataInputStream *data_input_stream,
 	output = g_data_input_stream_read_upto (data_input_stream, "\0", 1, &len_read, NULL, &error);
 
 	if (error) {
+		g_free (output);
 		return NULL;
 	}
 
 	*remaining -= len_read;
 
-	g_return_val_if_fail (*remaining > 0, NULL);
+	if (*remaining <= 0) {
+		g_warning ("Expected remaining bytes to be > 0 when it wasn't after g_data_input_stream_read_upto() call");
+		g_free (output);
+		return NULL;
+	}
 
 	/* Read NUL terminating byte.
 	 *
@@ -292,6 +297,7 @@ get_metadata_fast_read (GDataInputStream *data_input_stream,
 	g_data_input_stream_read_byte (data_input_stream, NULL, &error);
 
 	if (error) {
+		g_free (output);
 		return NULL;
 	}
 
@@ -315,7 +321,7 @@ get_metadata_fast_cb (void     *buffer,
 	} else {
 		GInputStream *input_stream;
 		GDataInputStream *data_input_stream;
-		const gchar *preupdate, *postupdate, *sparql, *where;
+		gchar *preupdate, *postupdate, *sparql, *where;
 		TrackerSparqlBuilder *builder;
 		gssize remaining;
 
@@ -347,21 +353,25 @@ get_metadata_fast_cb (void     *buffer,
 
 		if (where) {
 			tracker_extract_info_set_where_clause (data->info, where);
+			g_free (where);
 		}
 
 		if (preupdate) {
 			builder = tracker_extract_info_get_preupdate_builder (data->info);
 			tracker_sparql_builder_prepend (builder, preupdate);
+			g_free (preupdate);
 		}
 
 		if (postupdate) {
 			builder = tracker_extract_info_get_postupdate_builder (data->info);
 			tracker_sparql_builder_prepend (builder, postupdate);
+			g_free (postupdate);
 		}
 
 		if (sparql) {
 			builder = tracker_extract_info_get_metadata_builder (data->info);
 			tracker_sparql_builder_prepend (builder, sparql);
+			g_free (sparql);
 		}
 
 		g_simple_async_result_set_op_res_gpointer (data->res,
