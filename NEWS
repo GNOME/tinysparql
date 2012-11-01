@@ -1,8 +1,24 @@
-NEW in 0.14.3 - 2012-10-24
+NEW in 0.14.4 - 2012-11-01
 ==========================
 
 The changes are:
 
+  * New Feature: Support XPS documents (GB#687160) - XML Page Specific Microsoft alternative to PDF files
+  * New Feature: Support DVI documents (GB#687162) - DeVice Independent files (printable output of TeX files)
+  * Fixes: GB#687134, tracker-miner-fs - Huge memory consumption
+  * tracker-extract-pdf: Avoid leaving hundreds of Zombie processes around
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић
+
+
+NEW in 0.14.3 - 2012-10-24
+==========================
+
+The changes are:
 
   * Fixes: GB#686071, Usability: it's not clear if searching within file names or file contents
   * Fixes: GB#628857, Add --disable-miner-fs build option
