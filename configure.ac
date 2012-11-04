@@ -1858,7 +1858,7 @@ AM_CONDITIONAL(HAVE_POPPLER, test "x$have_poppler" = "xyes")
 
 AC_ARG_ENABLE(libgxps,
               AS_HELP_STRING([--enable-libgxps],
-                             [enable extractor for PDF data [[default=auto]]]),,
+                             [enable extractor for XPS data [[default=auto]]]),,
               [enable_libgxps=auto])
 
 if test "x$enable_libgxps" != "xno" ; then
