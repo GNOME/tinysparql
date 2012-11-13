@@ -598,14 +598,6 @@ AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
 
 if test "x$enable_gtk_doc" != xno; then
-   # Check for dia if we are building gtk_doc
-   AC_PATH_PROG(DIA, dia)
-   AC_SUBST(DIA)
-
-   if test -z "$DIA"; then
-      AC_MSG_ERROR([Could not find Dia tool required to build documentation.])
-   fi
-
    # Check for graphviz if we are building gtk_doc
    AC_PATH_PROG(GRAPHVIZ_FDP, fdp)
    AC_SUBST(GRAPHVIZ_FDP)
