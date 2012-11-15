@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-06-13 13:43+0000\n"
+"POT-Creation-Date: 2012-10-17 11:35+0000\n"
 "PO-Revision-Date: 2012-09-06 17:25+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: cs\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
@@ -532,20 +532,20 @@ msgstr "Kontrola, zda je SOUBOR způsobilý k dolování dat podle nastavení"
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:62
-#: ../src/tracker-utils/tracker-info.c:63
+#: ../src/tracker-utils/tracker-info.c:67
+#: ../src/tracker-utils/tracker-info.c:68
 #: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "SOUBOR"
 
 #: ../src/miners/fs/tracker-main.c:120
 msgid "Disable miners started as part of this process, options include: '"
-msgstr ""
+msgstr "Zakázat spuštění dolovacích démonů v tomto procesu, volitelně včetně: „"
 
 #: ../src/miners/fs/tracker-main.c:127
 #: ../src/tracker-control/tracker-control-miners.c:75
 msgid "MINER"
-msgstr "DÉMON NA DOLOVÁNÍ DAT"
+msgstr "DOLOVACÍ DÉMON"
 
 #. Daemon options
 #: ../src/miners/fs/tracker-main.c:130
@@ -636,15 +636,15 @@ msgstr "Byl by sledován"
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Chyba rozbalování, provádí se zotavení rozbalování vložených metadat"
 
@@ -673,7 +673,7 @@ msgstr "Přidání kanálu vyžaduje --addfeed a --title"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:356
+#: ../src/tracker-utils/tracker-info.c:385
 #: ../src/tracker-utils/tracker-search.c:1525
 #: ../src/tracker-utils/tracker-sparql.c:287
 #: ../src/tracker-utils/tracker-stats.c:88
@@ -683,7 +683,7 @@ msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:357
+#: ../src/tracker-utils/tracker-info.c:386
 #: ../src/tracker-utils/tracker-search.c:1526
 #: ../src/tracker-utils/tracker-sparql.c:288
 #: ../src/tracker-utils/tracker-stats.c:89
@@ -716,12 +716,12 @@ msgid "Tags"
 msgstr "Štítky"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:163
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 msgid "No error was given"
 msgstr "Nebyla uvedena žádná chyba"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:378
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -733,7 +733,7 @@ msgstr[2] "Na_stavit štítky, které chcete přiřadit k %d vybraným položká
 #: ../src/tracker-needle/tracker-needle.vala:691
 #: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:144
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
@@ -1355,8 +1355,11 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid ""
-"Display results by category, for example, Music, Videos, Applications, etc."
-msgstr "Zobrazit výsledky podle kategorie, např. hudba, videa, aplikace atd."
+"Display results by category, for example, Music, Videos, Applications, etc. "
+"This includes searching the contents of files where applicable."
+msgstr ""
+"Zobrazit výsledky podle kategorie, např. hudba, videa, aplikace atd. Součástí "
+"je prohledání obsahu u souborů, kde je to možné."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1528,34 +1531,34 @@ msgstr[0] "Záložka"
 msgstr[1] "Záložky"
 msgstr[2] "Záložky"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:328
+#: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
 msgstr "Název"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:384
+#: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
 msgstr "Momentálně není vybrána žádná položka"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:470
-#: ../src/tracker-needle/tracker-tags-view.vala:611
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
 msgstr "Nelze aktualizovat štítky"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:530
+#: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:803
 msgid "Could not remove tag"
 msgstr "Nelze odstranit štítek"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:705
+#: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
 msgstr "Nelze získat štítky pro aktuální výběr"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:744
+#: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:627
 msgid "Could not add tag"
 msgstr "Nelze přidat štítek"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:801
+#: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
 msgstr "Nelze aktualizovat štítky pro soubor"
 
@@ -2071,7 +2074,7 @@ msgid "- Import data using Turtle files"
 msgstr "- importuje data za použití souborů Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:338
+#: ../src/tracker-utils/tracker-info.c:367
 msgid "One or more files have not been specified"
 msgstr "Musí být uveden jeden nebo více souborů"
 
@@ -2083,48 +2086,52 @@ msgstr "Importuje se soubor Turtle"
 msgid "Unable to import Turtle file"
 msgstr "Nelze importovat soubor Turtle"
 
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:55
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
 "Zobrazit úplné jmenné prostory (např. nepoužít nie:title, ale úplné adresy "
 "URL)"
 
-#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
+msgid "Show plain text content if available for resources"
+msgstr "Pokud je k dispozici, zobrazit obsah jako prostý text pro zdroje"
+
+#: ../src/tracker-utils/tracker-info.c:63
 msgid "Output results as RDF in Turtle format"
 msgstr "Výstupní výsledky jako RDF ve formátu Turtle"
 
-#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-info.c:141
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nelze získat předpony jmenných prostorů"
 
-#: ../src/tracker-utils/tracker-info.c:144
+#: ../src/tracker-utils/tracker-info.c:149
 msgid "No namespace prefixes were returned"
 msgstr "Nebyly vráceny žádné předpony jmenných prostorů"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:320
+#: ../src/tracker-utils/tracker-info.c:349
 msgid "- Get all information about one or more files"
 msgstr "- získá všechny informace o jednom nebo více souborech"
 
-#: ../src/tracker-utils/tracker-info.c:378
+#: ../src/tracker-utils/tracker-info.c:407
 msgid "Querying information for entity"
 msgstr "Dotazuje se na informace pro entitu"
 
-#: ../src/tracker-utils/tracker-info.c:399
+#: ../src/tracker-utils/tracker-info.c:428
 msgid "Unable to retrieve URN for URI"
 msgstr "Nelze získat název URN pro identifikátor URI"
 
-#: ../src/tracker-utils/tracker-info.c:409
-#: ../src/tracker-utils/tracker-info.c:444
+#: ../src/tracker-utils/tracker-info.c:438
+#: ../src/tracker-utils/tracker-info.c:473
 msgid "Unable to retrieve data for URI"
 msgstr "Nelze získat data pro identifikátor URI"
 
-#: ../src/tracker-utils/tracker-info.c:453
+#: ../src/tracker-utils/tracker-info.c:482
 msgid "No metadata available for that URI"
 msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 
-#: ../src/tracker-utils/tracker-info.c:458
+#: ../src/tracker-utils/tracker-info.c:487
 #: ../src/tracker-utils/tracker-search.c:1348
 #: ../src/tracker-utils/tracker-sparql.c:609
 #: ../utils/tracker-sql/tracker-sql.c:168
