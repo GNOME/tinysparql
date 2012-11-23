@@ -1,3 +1,19 @@
+NEW in 0.15.0 - 2012-11-23
+==========================
+
+The changes are:
+
+  * Require: GStreamer >= 1.0 (was 0.10) to follow upstream releases
+  * Require: libgrss >= 0.5 (was 0.3) to follow upstream releases
+  * Removed: Dia dependency for producing documentation.
+  * New Feature: Support GKqueueDirectoryMonitor API on BSD systems
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+
+
 NEW in 0.14.0 - 2012-03-08
 ==========================
 
