@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # The connection can be requested asynchronously
     conn = Tracker.SparqlConnection.get (None)
-    conn.query_async ("SELECT ?u WHERE { ?u a nie:InformationElement. }",
+    conn.query_async ("SELECT nie:url(?u) WHERE { ?u a nfo:FileDataObject }",
                       None,
                       results_ready_cb,
                       loop)
