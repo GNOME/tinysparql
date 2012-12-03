@@ -1350,7 +1350,7 @@ if test "x$have_tracker_nautilus_extension" = "xyes"; then
    if test "x$with_nautilus_extensions_dir" = "x"; then
       tracker_nautilus_extension_install_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
    else
-      tracker_nautilus_extension_install_dir="$with_nautilus_extension_install_dir"
+      tracker_nautilus_extension_install_dir="$with_nautilus_extensions_dir"
    fi
 
    TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="$tracker_nautilus_extension_install_dir"
