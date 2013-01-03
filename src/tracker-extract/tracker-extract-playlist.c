@@ -125,6 +125,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nmm:Playlist");
+	tracker_sparql_builder_object (metadata, "nfo:MediaList");
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
