@@ -50,6 +50,51 @@
 
 static GHashTable *file_locks = NULL;
 
+#ifndef LOCK_EX
+
+/* Required on Solaris */
+#define LOCK_EX 1
+#define LOCK_SH 2
+#define LOCK_UN 3
+#define LOCK_NB 4
+
+static int flock(int fd, int op)
+{
+    int rc = 0;
+
+#if defined(F_SETLK) && defined(F_SETLKW)
+    struct flock fl = {0};
+
+    switch (op & (LOCK_EX|LOCK_SH|LOCK_UN)) {
+    case LOCK_EX:
+        fl.l_type = F_WRLCK;
+        break;
+
+    case LOCK_SH:
+        fl.l_type = F_RDLCK;
+        break;
+
+    case LOCK_UN:
+        fl.l_type = F_UNLCK;
+        break;
+
+    default:
+        errno = EINVAL;
+        return -1;
+    }
+
+    fl.l_whence = SEEK_SET;
+    rc = fcntl (fd, op & LOCK_NB ? F_SETLK : F_SETLKW, &fl);
+
+    if (rc && (errno == EAGAIN))
+        errno = EWOULDBLOCK;
+#endif /* defined(F_SETLK) && defined(F_SETLKW)  */
+
+    return rc;
+}
+
+#endif /* LOCK_EX */
+
 int
 tracker_file_open_fd (const gchar *path)
 {
