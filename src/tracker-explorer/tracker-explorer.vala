@@ -98,7 +98,7 @@ public class Explorer {
 	private ListStore uris;
 	private ListStore relationships;
 	private Label current_uri_label;
-	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
+	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>();
 	private Notebook types;
 	private Button forward;
 	private Button back;

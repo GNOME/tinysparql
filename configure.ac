@@ -284,14 +284,14 @@ TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED
                            gtk+-3.0     >= $GTK_REQUIRED
-			   gee-1.0      >= $GEE_REQUIRED"
+			   gee-0.8      >= $GEE_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
                   [have_tracker_explorer=yes],
                   [have_tracker_explorer=no])
 
 TRACKER_RESDUMP_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                          gee-1.0      >= $GEE_REQUIRED"
+                          gee-0.8      >= $GEE_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_RESDUMP, [$TRACKER_RESDUMP_REQUIRED],
                   [have_tracker_resdump=yes],
@@ -487,7 +487,7 @@ TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                              gtk+-3.0       >= $GTK_REQUIRED
                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
                              pango          >= $PANGO_REQUIRED
-			     gee-1.0        >= $GEE_REQUIRED
+			     gee-0.8        >= $GEE_REQUIRED
                              libpanelapplet-4.0"
 
 PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
