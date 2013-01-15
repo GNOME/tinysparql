@@ -4,7 +4,7 @@ noinst_PROGRAMS = tracker-resdump
 
 AM_VALAFLAGS = \
 	--pkg gio-2.0 \
-	--pkg gee-1.0 \
+	--pkg gee-0.8 \
 	$(BUILD_VALAFLAGS) \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi
