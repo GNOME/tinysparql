@@ -45,7 +45,7 @@ tracker_toc_new (void)
 	TrackerToc *toc;
 
 	toc = g_slice_new (TrackerToc);
-	toc->tag_list = gst_tag_list_new ();
+	toc->tag_list = gst_tag_list_new (NULL);
 	toc->entry_list = NULL;
 
 	return toc;
@@ -259,7 +259,7 @@ parse_cue_sheet_for_file (const gchar *cue_sheet,
 		}
 
 		toc_entry = g_slice_new (TrackerTocEntry);
-		toc_entry->tag_list = gst_tag_list_new ();
+		toc_entry->tag_list = gst_tag_list_new (NULL);
 		toc_entry->start = track_get_start (track) / 75.0;
 		toc_entry->duration = track_get_length (track) / 75.0;
 
