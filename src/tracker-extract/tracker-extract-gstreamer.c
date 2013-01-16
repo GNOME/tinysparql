@@ -44,7 +44,8 @@
 #endif
 
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-#include <libgupnp-dlna/gupnp-dlna-discoverer.h>
+#include <libgupnp-dlna/gupnp-dlna.h>
+#include <libgupnp-dlna/gupnp-dlna-gst-utils.h>
 #endif
 
 #include <gst/gst.h>
@@ -135,13 +136,12 @@ typedef struct {
 	GList          *streams;
 #endif
 
-#if defined(GSTREAMER_BACKEND_DISCOVERER)
+#if defined(GSTREAMER_BACKEND_DISCOVERER) || \
+    defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	GstDiscoverer  *discoverer;
 #endif
 
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-	GUPnPDLNADiscoverer  *discoverer;
-	GUPnPDLNAInformation *dlna_info;
 	const gchar          *dlna_profile;
 	const gchar          *dlna_mime;
 #endif
@@ -1289,11 +1289,6 @@ discoverer_shutdown (MetadataExtractor *extractor)
 		gst_discoverer_stream_info_list_free (extractor->streams);
 	if (extractor->discoverer)
 		g_object_unref (extractor->discoverer);
-#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-	if (extractor->dlna_info)
-		g_object_unref (extractor->dlna_info);
-#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
-
 }
 
 static gboolean
@@ -1317,43 +1312,6 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	extractor->has_video = FALSE;
 	extractor->has_audio = FALSE;
 
-#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
-	extractor->discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
-
-#if defined(GST_TYPE_DISCOVERER_FLAGS)
-	/* Tell the discoverer to use *only* Tagreadbin backend.
-	 *  See https://bugzilla.gnome.org/show_bug.cgi?id=656345
-	 */
-	g_debug ("Using Tagreadbin backend in the GUPnP-DLNA discoverer...");
-	g_object_set (extractor->discoverer,
-	              "flags", GST_DISCOVERER_FLAGS_EXTRACT_LIGHTWEIGHT,
-	              NULL);
-#endif
-
-	/* Uri is const, the API should be const, but it isn't and it
-	 * calls gst_discoverer_discover_uri()
-	 */
-	extractor->dlna_info = gupnp_dlna_discoverer_discover_uri_sync (extractor->discoverer,
-	                                                                uri,
-	                                                                &error);
-	if (error) {
-		g_warning ("Call to gupnp_dlna_discoverer_discover_uri_sync() failed: %s",
-		           error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	if (!extractor->dlna_info) {
-		g_warning ("No DLNA info discovered, bailing out");
-		return TRUE;
-	}
-
-	/* Get DLNA profile */
-	extractor->dlna_profile = gupnp_dlna_information_get_name (extractor->dlna_info);
-	extractor->dlna_mime = gupnp_dlna_information_get_mime (extractor->dlna_info);
-
-	info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (extractor->dlna_info);
-#else  /* GSTREAMER_BACKEND_GUPNP_DLNA */
 	extractor->discoverer = gst_discoverer_new (5 * GST_SECOND, &error);
 	if (!extractor->discoverer) {
 		g_warning ("Couldn't create discoverer: %s",
@@ -1381,12 +1339,31 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 		g_error_free (error);
 		return FALSE;
 	}
-#endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 
 	if (!info) {
 		g_warning ("Nothing discovered, bailing out");
 		return TRUE;
 	}
+
+#if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
+	{
+		GUPnPDLNAProfile *profile;
+		GUPnPDLNAInformation *dlna_info;
+		GUPnPDLNAProfileGuesser *guesser;
+
+		dlna_info = gupnp_dlna_gst_utils_information_from_discoverer_info (info);
+		guesser = gupnp_dlna_profile_guesser_new (TRUE, FALSE);
+		profile = gupnp_dlna_profile_guesser_guess_profile_from_info (guesser, dlna_info);
+
+		if (profile) {
+			extractor->dlna_profile = gupnp_dlna_profile_get_name (profile);
+			extractor->dlna_mime = gupnp_dlna_profile_get_mime (profile);
+		}
+
+		g_object_unref (guesser);
+		g_object_unref (dlna_info);
+	}
+#endif
 
 	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
 

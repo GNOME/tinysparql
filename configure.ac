@@ -197,7 +197,7 @@ LIBGRSS_REQUIRED=0.5
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
-GUPNP_DLNA_REQUIRED=0.7
+GUPNP_DLNA_REQUIRED=0.9.4
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -1789,7 +1789,7 @@ else
         ;;
         "xgupnp-dlna")
            PKG_CHECK_MODULES(GUPNP_DLNA,
-                             [gupnp-dlna-1.1 >= $GUPNP_DLNA_REQUIRED],
+                             [gupnp-dlna-2.0 >= $GUPNP_DLNA_REQUIRED gupnp-dlna-gst-2.0 >= $GUPNP_DLNA_REQUIRED],
                              [have_gupnp_dlna=yes],
                              [have_gupnp_dlna=no])
            AC_SUBST(GUPNP_DLNA_CFLAGS)
