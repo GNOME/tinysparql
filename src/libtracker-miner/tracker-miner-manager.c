@@ -739,6 +739,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 
 	priv->miners = g_list_prepend (priv->miners, data);
 
+	g_key_file_free (key_file);
 	g_free (path);
 
 	return TRUE;
@@ -784,6 +785,7 @@ initialize_miners_data (TrackerMinerManager *manager)
 
 	g_main_loop_run (main_loop);
 
+	g_main_loop_unref (main_loop);
 	g_object_unref (crawler);
 }
 
