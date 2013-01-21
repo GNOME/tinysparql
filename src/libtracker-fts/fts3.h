@@ -20,9 +20,12 @@ extern "C" {
 #endif  /* __cplusplus */
 
 int sqlite3Fts3Init(sqlite3 *db);
-int fts4_extension_init(sqlite3 *db,
-                        char **pzErrMsg,
-                        void *pApi);
+
+int fts4_extension_init(
+  sqlite3 *db, 
+  char **pzErrMsg,
+  void *pApi
+);
 
 #ifdef __cplusplus
 }  /* extern "C" */

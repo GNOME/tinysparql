@@ -23,6 +23,8 @@ fts4_sources =                                         \
 	fts3_tokenizer1.c                              \
 	fts3_tokenizer.c                               \
 	fts3_tokenizer.h                               \
+	fts3_unicode.c                                 \
+	fts3_unicode2.c                                \
 	fts3_write.c
 
 libtracker_fts_la_SOURCES =                            \
