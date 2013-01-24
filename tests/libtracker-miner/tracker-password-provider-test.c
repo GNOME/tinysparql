@@ -62,6 +62,7 @@ test_password_provider_getting (void)
 	                                                   &username,
 	                                                   &error);
 
+	g_assert_no_error (error);
 	g_assert_cmpstr (username, ==, TEST_USERNAME);
 	g_assert_cmpstr (password, ==, TEST_PASSWORD);
 

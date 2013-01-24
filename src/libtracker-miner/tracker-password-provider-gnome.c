@@ -203,7 +203,7 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 	GList *found_items = NULL;
 	GHashTable *search_attributes;
 	GHashTable *attributes;
-	GError *secret_error;
+	GError *secret_error = NULL;
 	SecretValue *secret = NULL;
 	SecretItem *found = NULL;
 	gchar *password;
