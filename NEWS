@@ -1,3 +1,23 @@
+NEW in 0.15.1 - 2013-01-24
+==========================
+
+The changes are:
+
+  * build: Fixes build error when supplying nautilis extensions directory
+  * Fixes: GB#691807, Tracker should build against libgee 0.8
+  * Fixes: GB#691804, tracker-cue-sheet not ported to Gstreamer 1.0
+  * Fixes: GB#679870, libsecret migrations
+  * Fixes: GB#690170, Add nfo:MediaList type to .m3u playlist files
+  * Fixes: GB#692210, miner-manager: plug some memleaks
+  * libtracker-common: Add replacement function for flock() on Solaris
+  * libtracker-miner: Fix libsecret password provider get call using non-NULL GError
+  * tracker-miner-fs, store: Add MeeGo keys to desktop files
+
+Translations:
+
+  * Updated pt_BR: Henrique P. Machado
+
+
 NEW in 0.15.0 - 2012-11-23
 ==========================
 
