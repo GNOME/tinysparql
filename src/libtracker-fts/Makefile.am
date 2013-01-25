@@ -28,7 +28,6 @@ fts4_sources =                                         \
 	fts3_write.c
 
 libtracker_fts_la_SOURCES =                            \
-	$(fts4_sources)                                \
 	tracker-fts.c                                  \
 	tracker-fts.h                                  \
 	tracker-fts-config.c                           \
@@ -38,6 +37,10 @@ libtracker_fts_la_SOURCES =                            \
 	tracker-parser-utils.c                         \
 	tracker-parser-utils.h                         \
 	tracker-parser.h
+
+if !HAVE_BUILTIN_FTS
+  libtracker_fts_la_SOURCES += $(fts4_sources)
+endif
 
 if BUILD_LIBUNISTRING_PARSER
   libtracker_fts_la_SOURCES += tracker-parser-libunistring.c
@@ -51,3 +54,5 @@ libtracker_fts_la_LIBADD =                             \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_FTS_LIBS)
+
+EXTRA_DIST = $(fts4_sources)

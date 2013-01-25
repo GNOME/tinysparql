@@ -203,7 +203,8 @@ GUPNP_DLNA_REQUIRED=0.9.4
 # 3.6.16 to fix test failures
 # 3.6.17 for shared cache mode with virtual tables
 # 3.7.0 for WAL
-SQLITE_REQUIRED=3.7.0
+# 3.7.9 for FTS4 content= support
+SQLITE_REQUIRED=3.7.9
 
 # Needed to generate .gir files,
 # see http://live.gnome.org/GnomeGoals/AddGObjectIntrospectionSupport
@@ -715,10 +716,38 @@ fi
 
 if test "x$have_tracker_fts" = "xyes"; then
    AC_DEFINE(HAVE_TRACKER_FTS, [1], [Define to 1 if tracker FTS is compiled])
+
+   OLD_CFLAGS="$CFLAGS"
+   OLD_LIBS="$LIBS"
+   CFLAGS="$SQLITE3_CFLAGS"
+   LIBS="$SQLITE3_LIBS"
+
+   AC_MSG_CHECKING(whether SQLite3 has required FTS features)
+   AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <sqlite3.h>]],
+                                  [[sqlite3 *db;
+                                    int rc;
+                                    rc = sqlite3_open(":memory:", &db);
+                                    if (rc!=SQLITE_OK) return -1;
+                                    rc = sqlite3_exec(db, "create table a(text)", 0, 0, 0);
+                                    if (rc!=SQLITE_OK) return -1;
+                                    rc = sqlite3_exec(db, "create virtual table t using fts4(content='a',text)", 0, 0, 0);
+                                    if (rc!=SQLITE_OK) return -1;]])],
+                     [have_builtin_fts4=yes],
+                     [have_builtin_fts4=no])
+   AC_MSG_RESULT($have_builtin_fts4)
+
+   CFLAGS="$OLD_CFLAGS"
+   LIBS="$OLD_LIBS"
+
+   if test "x$have_builtin_fts4" = "xyes" ; then
+      AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS4 compiled in])
+   fi
 else
    AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
+   $have_builtin_fts4="disabled"
 fi
 
+AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts4" = "yes")
 AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
 
 ####################################################################
@@ -2451,7 +2480,7 @@ Build Configuration:
 Applications:
 
 	Build with Journal support:             $have_tracker_journal
-	Build with SQLite FTS support:          $have_tracker_fts
+	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts4)
 
 	Build tracker-preferences:              $have_tracker_preferences
 	Build tracker-explorer:                 $have_tracker_explorer

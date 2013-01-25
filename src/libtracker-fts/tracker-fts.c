@@ -19,13 +19,21 @@
  * 02110-1301  USA
  */
 
+#include "config.h"
 #include <sqlite3.h>
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts.h"
-#include "fts3.h"
+
+#ifndef HAVE_BUILTIN_FTS
+#  include "fts3.h"
+#endif
 
 gboolean
 tracker_fts_init (void) {
+#ifdef HAVE_BUILTIN_FTS
+	/* SQLite has all needed FTS4 features compiled in */
+	return TRUE;
+#else
 	static gsize module_initialized = 0;
 	int rc = SQLITE_OK;
 
@@ -35,6 +43,7 @@ tracker_fts_init (void) {
 	}
 
 	return (module_initialized != 0);
+#endif
 }
 
 static void
