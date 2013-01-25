@@ -26,6 +26,8 @@ class Tracker.Sparql.Expression : Object {
 	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
 	const string TRACKER_NS = "http://www.tracker-project.org/ontologies/tracker#";
 
+	string? fts_sql;
+
 	public Expression (Query query) {
 		this.query = query;
 	}
@@ -188,6 +190,22 @@ class Tracker.Sparql.Expression : Object {
 			}
 		}
 
+		if (pattern.fts_subject != null) {
+			if (variable == null) {
+				// FTS matches still need aliases as the outer MATCH query
+				// will fetch futher values from the joined select
+				variable = context.get_variable ("var%d".printf (variable_index + 1));
+			}
+
+			if (fts_sql == null) {
+				pattern.fts_variables += variable.sql_expression;
+				sql.append_printf (" AS %s", variable.sql_expression);
+			} else {
+				pattern.fts_variables += fts_sql;
+				pattern.queries_fts_data = true;
+			}
+		}
+
 		if (expect_close_parens) {
 			expect (SparqlTokenType.CLOSE_PARENS);
 		}
@@ -203,6 +221,8 @@ class Tracker.Sparql.Expression : Object {
 		} else {
 			((SelectContext) context).variable_names += "var%d".printf (variable_index + 1);
 		}
+
+		fts_sql = null;
 
 		return type;
 	}
@@ -647,36 +667,56 @@ class Tracker.Sparql.Expression : Object {
 		} else if (uri == FTS_NS + "offsets") {
 			bool is_var;
 			string v = pattern.parse_var_or_term (null, out is_var);
+			var variable = context.get_variable (v);
 
-			sql.append ("tracker_offsets(offsets(\"fts\"),fts_property_names())");
-
+			sql.append (variable.sql_expression);
+			fts_sql = "tracker_offsets(offsets(\"fts\"),fts_property_names())";
 			return PropertyType.STRING;
 		} else if (uri == FTS_NS + "snippet") {
 			bool is_var;
 
 			string v = pattern.parse_var_or_term (null, out is_var);
+			var variable = context.get_variable (v);
+			var fts = new StringBuilder ();
 
-			sql.append_printf ("snippet(\"fts\"");
+			fts.append_printf ("snippet(\"fts\"");
 
-			/* "start match" text */
+			// "start match" text
 			if (accept (SparqlTokenType.COMMA)) {
-			      sql.append (", ");
-			      translate_expression_as_string (sql);
+				fts.append (", ");
+				translate_expression_as_string (fts);
 
-			      /* "end match" text */
-			      expect (SparqlTokenType.COMMA);
-			      sql.append (", ");
-			      translate_expression_as_string (sql);
+				// "end match" text
+				expect (SparqlTokenType.COMMA);
+				fts.append (", ");
+				translate_expression_as_string (fts);
+			} else {
+				fts.append(",'',''");
 			}
 
-			/* "ellipses" text */
+			// "ellipsis" text
 			if (accept (SparqlTokenType.COMMA)) {
-			      sql.append (", ");
-			      translate_expression_as_string (sql);
+				fts.append (", ");
+				translate_expression_as_string (fts);
+			} else {
+				fts.append (", '...'");
 			}
 
-			sql.append (")");
+			// lookup column
+			fts.append (", -1");
 
+			// Approximate number of words in context
+			if (accept (SparqlTokenType.COMMA)) {
+				fts.append (", ");
+				translate_expression_as_string (fts);
+			} else {
+				fts.append (", 5");
+			}
+
+			fts.append (")");
+
+			fts_sql = fts.str;
+			sql.append (variable.sql_expression);
 			return PropertyType.STRING;
 		} else if (uri == TRACKER_NS + "id") {
 			var type = translate_expression (sql);
