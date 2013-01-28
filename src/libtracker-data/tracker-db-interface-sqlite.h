@@ -41,7 +41,8 @@ TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gc
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
-                                                                        const gchar             **columns,
+                                                                        GHashTable               *properties,
+                                                                        GHashTable               *multivalued,
                                                                         gboolean                  create);
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_wal_hook               (TrackerDBInterface       *interface,
@@ -49,8 +50,8 @@ void                tracker_db_interface_sqlite_wal_hook               (TrackerD
 
 #if HAVE_TRACKER_FTS
 void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
-                                                                        const gchar             **added_columns,
-                                                                        const gchar             **removed_columns);
+                                                                        GHashTable               *properties,
+                                                                        GHashTable               *multivalued);
 int                 tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *interface,
                                                                         int                       id,
                                                                         const gchar             **properties,

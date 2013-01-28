@@ -94,6 +94,8 @@ struct TrackerDBInterface {
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
 	gchar *busy_status;
+
+	gchar *fts_insert_str;
 };
 
 struct TrackerDBInterfaceClass {
@@ -991,17 +993,78 @@ close_database (TrackerDBInterface *db_interface)
 	}
 }
 
+static gchar **
+_fts_create_properties (GHashTable *properties)
+{
+	GHashTableIter iter;
+	GPtrArray *cols;
+	GList *columns;
+	gchar *table;
+
+	if (g_hash_table_size (properties) == 0) {
+		return NULL;
+	}
+
+	g_hash_table_iter_init (&iter, properties);
+	cols = g_ptr_array_new ();
+
+	while (g_hash_table_iter_next (&iter, (gpointer *) &table,
+				       (gpointer *) &columns)) {
+		while (columns) {
+			g_ptr_array_add (cols, g_strdup (columns->data));
+			columns = columns->next;
+		}
+	}
+
+	g_ptr_array_add (cols, NULL);
+
+	return (gchar **) g_ptr_array_free (cols, FALSE);
+}
+
 void
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
-                                      const gchar        **columns,
+                                      GHashTable          *properties,
+                                      GHashTable          *multivalued,
                                       gboolean             create)
 {
 #if HAVE_TRACKER_FTS
+	GStrv fts_columns = NULL;
+
 	tracker_fts_init_db (db_interface->db);
 
+	if (properties) {
+		fts_columns = _fts_create_properties (properties);
+	}
+
 	if (create &&
-	    !tracker_fts_create_table (db_interface->db, "fts", columns)) {
+	    !tracker_fts_create_table (db_interface->db, "fts",
+				       properties, multivalued)) {
 		g_warning ("FTS tables creation failed");
+	}
+
+	if (fts_columns) {
+		GString *insert, *select;
+		gint i = 0;
+
+		insert = g_string_new ("INSERT INTO fts (docid");
+		select = g_string_new ("SELECT rowid");
+
+		while (fts_columns[i]) {
+			g_string_append_printf (insert, ", \"%s\"",
+						fts_columns[i]);
+			g_string_append_printf (select, ", \"%s\"",
+						fts_columns[i]);
+			i++;
+		}
+
+		g_string_append (select, " FROM fts_view WHERE rowid=?");
+		g_string_append (insert, ") ");
+		g_string_append (insert, select->str);
+
+		g_string_free (select, TRUE);
+		db_interface->fts_insert_str = g_string_free (insert, FALSE);
+
+		g_strfreev (fts_columns);
 	}
 #endif
 }
@@ -1009,10 +1072,10 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #if HAVE_TRACKER_FTS
 void
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
-					     const gchar        **added_columns,
-					     const gchar        **removed_columns)
+					     GHashTable          *properties,
+					     GHashTable          *multivalued)
 {
-	if (!tracker_fts_alter_table (db_interface->db, "fts", added_columns, removed_columns)) {
+	if (!tracker_fts_alter_table (db_interface->db, "fts", properties, multivalued)) {
 		g_critical ("Failed to update FTS columns");
 	}
 }
@@ -1026,40 +1089,27 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	GString *query;
-	gint i;
 
-	if (create) {
-		query = g_string_new ("INSERT INTO fts (docid");
+	if (!create) {
+		stmt = tracker_db_interface_create_statement (db_interface,
+							      TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+							      &error,
+							      "DELETE FROM fts WHERE docid=?");
+		tracker_db_statement_bind_int (stmt, 0, id);
 
-		for (i = 0; properties[i] != NULL; i++) {
-			g_string_append_printf (query, ", \"%s\"", properties[i]);
+		tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
+
+		if (error) {
+			g_warning ("Could not update FTS text: %s", error->message);
+			g_error_free (error);
+			return FALSE;
 		}
-
-		g_string_append (query, ") VALUES (?");
-
-		for (i = 0; properties[i] != NULL; i++) {
-			g_string_append (query, ", ?");
-		}
-
-		g_string_append_c (query, ')');
-	} else {
-		query = g_string_new ("UPDATE fts SET ");
-
-		for (i = 0; properties[i] != NULL; i++) {
-			if (i != 0) {
-				g_string_append_c (query, ',');
-			}
-			g_string_append_printf (query, "\"%s\" = ?", properties[i]);
-		}
-
-		g_string_append (query, " WHERE docid = ?");
 	}
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error, query->str);
-	g_string_free (query, TRUE);
+	                                              &error, db_interface->fts_insert_str);
 
 	if (!stmt || error) {
 		if (error) {
@@ -1070,20 +1120,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 		return FALSE;
 	}
 
-	if (create) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-
-		for (i = 0; properties[i] != NULL; i++) {
-			tracker_db_statement_bind_text (stmt, i + 1, text[i]);
-		}
-	} else {
-		for (i = 0; properties[i] != NULL; i++) {
-			tracker_db_statement_bind_text (stmt, i, text[i]);
-		}
-
-		tracker_db_statement_bind_int (stmt, i, id);
-	}
-
+	tracker_db_statement_bind_int (stmt, 0, id);
 	tracker_db_statement_execute (stmt, &error);
 	g_object_unref (stmt);
 
@@ -1184,6 +1221,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	db_interface = TRACKER_DB_INTERFACE (object);
 
 	close_database (db_interface);
+	g_free (db_interface->fts_insert_str);
 
 	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
 

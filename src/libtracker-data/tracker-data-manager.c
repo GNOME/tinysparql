@@ -3583,52 +3583,74 @@ load_ontologies_gvdb (GError **error)
 }
 
 #if HAVE_TRACKER_FTS
-static gint
-compare_fts_property_ids (gconstpointer a,
-                          gconstpointer b)
-{
-	TrackerProperty *pa, *pb;
-
-	pa = (TrackerProperty *) a;
-	pb = (TrackerProperty *) b;
-
-	return tracker_property_get_id (pa) - tracker_property_get_id (pb);
-}
-
-static const gchar **
-ontology_get_fts_properties (gboolean only_new)
+static gboolean
+ontology_get_fts_properties (gboolean     only_new,
+			     GHashTable **fts_properties,
+			     GHashTable **multivalued)
 {
 	TrackerProperty **properties;
-	GList *fts_props = NULL, *l;
-	const gchar **prop_names;
+	gboolean has_new = FALSE;
+	GHashTable *hashtable;
 	guint i, len;
 
 	properties = tracker_ontologies_get_properties (&len);
+	hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+					   (GDestroyNotify) g_list_free);
+
+	if (multivalued) {
+		*multivalued = g_hash_table_new (g_str_hash, g_str_equal);
+	}
 
 	for (i = 0; i < len; i++) {
-		if (only_new && !tracker_property_get_is_new (properties[i])) {
+		const gchar *name, *table_name;
+		GList *list;
+
+		if (!tracker_property_get_fulltext_indexed (properties[i])) {
 			continue;
 		}
 
-		if (tracker_property_get_fulltext_indexed (properties[i])) {
-			/* Sort them by ID */
-			fts_props =
-				g_list_insert_sorted (fts_props, properties[i],
-						      (GCompareFunc) compare_fts_property_ids);
+		has_new |= tracker_property_get_is_new (properties[i]);
+
+		if (multivalued &&
+		    tracker_property_get_multiple_values (properties[i])) {
+			g_hash_table_insert (*multivalued, (gpointer) table_name,
+					     GUINT_TO_POINTER (TRUE));
+		}
+
+		table_name = tracker_property_get_table_name (properties[i]);
+		name = tracker_property_get_name (properties[i]);
+		list = g_hash_table_lookup (hashtable, table_name);
+
+		if (!list) {
+			list = g_list_prepend (NULL, (gpointer) name);
+			g_hash_table_insert (hashtable, (gpointer) table_name, list);
+		} else {
+			list = g_list_append (list, (gpointer) name);
 		}
 	}
 
-	prop_names = g_new0 (const gchar *, g_list_length (fts_props) + 1);
-
-	for (l = fts_props, i = 0; l; l = l->next, i++) {
-		prop_names[i] = tracker_property_get_name (l->data);
+	if (fts_properties) {
+		*fts_properties = hashtable;
 	}
 
-	g_list_free (fts_props);
-
-	return prop_names;
+	return has_new;
 }
 #endif
+
+gboolean
+tracker_data_manager_init_fts (TrackerDBInterface *iface,
+                               gboolean            create)
+{
+#if HAVE_TRACKER_FTS
+	GHashTable *fts_props, *multivalued;
+
+	ontology_get_fts_properties (FALSE, &fts_props, &multivalued);
+	tracker_db_interface_sqlite_fts_init (iface, fts_props,
+	                                      multivalued, create);
+	g_hash_table_destroy (fts_props);
+	g_hash_table_destroy (multivalued);
+#endif
+}
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
@@ -3807,10 +3829,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	if (is_first_time_index && !read_only) {
-#if HAVE_TRACKER_FTS
-		const gchar **fts_props;
-#endif
-
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
 #ifndef DISABLE_JOURNAL
@@ -3899,14 +3917,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-#if HAVE_TRACKER_FTS
-		fts_props = ontology_get_fts_properties (FALSE);
-		tracker_db_interface_sqlite_fts_init (iface, fts_props, TRUE);
-		g_free (fts_props);
-#endif
-
 		tracker_data_ontology_import_into_db (FALSE,
 		                                      &internal_error);
+
+#if HAVE_TRACKER_FTS
+		tracker_data_manager_init_fts (iface, TRUE);
+#endif
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -4050,10 +4066,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 
-#if HAVE_TRACKER_FTS
-		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, NULL, FALSE);
-#endif
+		tracker_data_manager_init_fts (iface, FALSE);
 	}
 
 	if (check_ontology) {
@@ -4345,14 +4358,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (update_nao) {
 #if HAVE_TRACKER_FTS
-				const gchar **new_fts_properties;
+				GHashTable *fts_properties, *multivalued;
 
-				new_fts_properties = ontology_get_fts_properties (TRUE);
-
-				if (new_fts_properties) {
-					tracker_db_interface_sqlite_fts_alter_table (iface, new_fts_properties, NULL);
-					g_free (new_fts_properties);
+				if (ontology_get_fts_properties (TRUE, &fts_properties, &multivalued)) {
+					tracker_db_interface_sqlite_fts_alter_table (iface, fts_properties, multivalued);
 				}
+
+				g_hash_table_destroy (fts_properties);
+				g_hash_table_destroy (multivalued);
 #endif
 
 				/* Update the nao:lastModified in the database */

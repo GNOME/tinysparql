@@ -23,19 +23,20 @@
 #define __TRACKER_FTS_H__
 
 #include <sqlite3.h>
-#include <glib.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
 gboolean    tracker_fts_init             (void);
 gboolean    tracker_fts_init_db          (sqlite3    *db);
 gboolean    tracker_fts_create_table     (sqlite3    *db,
-					  gchar      *table_name,
-					  gchar     **column_names);
+                                          gchar      *table_name,
+                                          GHashTable *tables,
+                                          GHashTable *grouped_columns);
 gboolean    tracker_fts_alter_table      (sqlite3    *db,
-					  gchar      *table_name,
-					  gchar     **added_columns,
-					  gchar     **removed_columns);
+                                          gchar      *table_name,
+                                          GHashTable *tables,
+                                          GHashTable *grouped_columns);
 
 
 G_END_DECLS

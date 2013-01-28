@@ -1522,8 +1522,7 @@ tracker_db_manager_get_db_interface (void)
 			return NULL;
 		}
 
-		tracker_db_interface_sqlite_fts_init (interface, NULL, FALSE);
-
+		tracker_data_manager_init_fts (interface, FALSE);
 
 		tracker_db_interface_set_max_stmt_cache_size (interface,
 		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
