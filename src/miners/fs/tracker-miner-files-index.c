@@ -130,7 +130,6 @@ index_set_property (GObject      *object,
 	}
 }
 
-
 static void
 index_get_property (GObject    *object,
                     guint       param_id,
@@ -173,6 +172,33 @@ index_finalize (GObject *object)
 	g_free (priv->full_path);
 
 	g_object_unref (priv->files_miner);
+}
+
+static IndexFileForProcessData *
+index_file_for_process_data_new (TrackerMinerFS *miner,
+                                 GFile          *file)
+{
+	IndexFileForProcessData *pd;
+
+	pd = g_slice_new0 (IndexFileForProcessData);
+
+	pd->miner = g_object_ref (miner);
+	pd->file = g_object_ref (file);
+
+	return pd;
+}
+
+static void
+index_file_for_process_data_destroy (gpointer data)
+{
+	IndexFileForProcessData *pd;
+
+	pd = data;
+
+	g_object_unref (pd->file);
+	g_object_unref (pd->miner);
+
+	g_slice_free (IndexFileForProcessData, pd);
 }
 
 static MimeTypesData *
@@ -354,7 +380,7 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 		return;
 	}
 
-	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
+	is_dir = g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY;
 	g_object_unref (file_info);
 
 #ifdef REQUIRE_LOCATION_IN_CONFIG
@@ -385,15 +411,15 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 }
 
 static void
-on_application_appears (GDBusConnection *connection,
-                		const gchar     *name,
-                		const gchar     *name_owner,
-                		gpointer         user_data)
+app_appears (GDBusConnection *connection,
+             const gchar     *name,
+             const gchar     *name_owner,
+             gpointer         user_data)
 {
 	IndexFileForProcessData *data = user_data;
 	GFileInfo *file_info;
-	gboolean *is_dir;
-	gboolean *is_mount;
+	gboolean is_dir;
+	gboolean is_mount;
 
 	file_info = g_file_query_info (data->file,
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
@@ -401,39 +427,43 @@ on_application_appears (GDBusConnection *connection,
 	                               NULL, NULL);
 
 	is_mount = g_file_find_enclosing_mount (data->file, NULL, NULL) ? TRUE : FALSE;
-	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
-
+	is_dir = g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY;
 	g_object_unref (file_info);
 
 	if (is_mount) {
-		tracker_miner_fs_mount_add (TRACKER_MINER_FS (data->miner), g_file_find_enclosing_mount (data->file, NULL, NULL));
+		tracker_miner_fs_mount_add (TRACKER_MINER_FS (data->miner),
+		                            g_file_find_enclosing_mount (data->file, NULL, NULL));
 	} else if (is_dir) {
-		tracker_miner_fs_check_directory (TRACKER_MINER_FS (data->miner), data->file, FALSE);
+		tracker_miner_fs_check_directory (TRACKER_MINER_FS (data->miner),
+		                                  data->file,
+		                                  FALSE);
 	} else {
-		tracker_miner_fs_check_file (TRACKER_MINER_FS (data->miner), data->file, FALSE);
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (data->miner),
+		                             data->file,
+		                             FALSE);
 	}
 
-	g_slice_free (IndexFileForProcessData, data);
-
+	index_file_for_process_data_destroy (data);
 }
 
 static void
-on_application_disappears (GDBusConnection *connection,
-                           const gchar     *name,
-                           gpointer         user_data)
+app_vanishes (GDBusConnection *connection,
+              const gchar     *name,
+              gpointer         user_data)
 {
 	IndexFileForProcessData *data = user_data;
 
+	/* FIXME: What if the directory was already indexed? */
 	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (data->miner), data->file);
 }
 
 static void
 handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
-                                		   GDBusMethodInvocation  *invocation,
+                                           GDBusMethodInvocation  *invocation,
                                            GVariant               *parameters)
 {
 	TrackerMinerFilesIndexPrivate *priv;
-	TrackerDBusRequest *request;	
+	TrackerDBusRequest *request;
 	GFile *file;
 	GFileInfo *file_info;
 	const gchar *sender;
@@ -450,9 +480,6 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 	request = tracker_g_dbus_request_begin (invocation, "%s(uri:'%s')", __FUNCTION__, file_uri);
 
 	file = g_file_new_for_uri (file_uri);
-
-
-
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
@@ -472,20 +499,17 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 
 	g_object_unref (file_info);
 
-	data = g_slice_new (IndexFileForProcessData);
-	data->miner = g_object_ref (TRACKER_MINER_FS (priv->files_miner));
-	data->file = g_object_ref (file);
-
+	data = index_file_for_process_data_new (TRACKER_MINER_FS (priv->files_miner), file);
 	g_object_unref (file);
 
 	sender = g_dbus_method_invocation_get_sender (invocation);
 	g_bus_watch_name (G_BUS_TYPE_SESSION,
-                      sender,
-                      G_BUS_NAME_WATCHER_FLAGS_NONE,
-                      on_application_appears,
-                      on_application_disappears,
-                      data,
-                      NULL);
+	                  sender,
+	                  G_BUS_NAME_WATCHER_FLAGS_NONE,
+	                  app_appears,
+	                  app_vanishes,
+	                  data,
+	                  index_file_for_process_data_destroy);
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation, NULL);
