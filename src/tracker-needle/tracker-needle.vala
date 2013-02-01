@@ -110,7 +110,7 @@ public class Tracker.Needle {
 		                            "nfo:duration(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.DOCUMENTS,
-		                            Tracker.Query.Match.FTS,
+		                            Tracker.Query.Match.FTS_INDIRECT,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",

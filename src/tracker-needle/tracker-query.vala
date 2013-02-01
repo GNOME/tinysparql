@@ -129,9 +129,17 @@ public class Tracker.Query {
 
 		// DOCUMENTS
 		"WHERE {
-		  ?urn a nfo:Document ;
-		         nie:url ?tooltip .
-		  %s
+		  {
+		    ?urn nco:creator ?match
+		  } UNION {
+		    ?urn nco:publisher ?match
+		  } UNION {
+		    ?urn a nfo:Document .
+		    ?match a nfo:Document
+		    FILTER (?urn = ?match)
+		  }
+		  %s .
+		  ?urn nie:url ?tooltip .
 		  OPTIONAL {
 		    ?urn nco:creator ?creator .
 		  }
@@ -252,10 +260,11 @@ public class Tracker.Query {
 			return false;
 		}
 
-		if (query_type != Type.MUSIC && !(match_type == Match.NONE ||
-		                                  match_type == Match.FTS ||
-		                                  match_type == Match.TITLES)) {
-			critical ("You can not use a non-MUSIC query (%d) with INDIRECT matching (%d)", query_type, match_type);
+		if ((query_type != Type.MUSIC && query_type != Type.DOCUMENTS) &&
+			!(match_type == Match.NONE ||
+			  match_type == Match.FTS ||
+			  match_type == Match.TITLES)) {
+			critical ("You can not use a non-MUSIC or non-DOCUMENTS query (%d) with INDIRECT matching (%d)", query_type, match_type);
 			return false;
 		}
 
