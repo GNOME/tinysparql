@@ -3647,8 +3647,8 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 	ontology_get_fts_properties (FALSE, &fts_props, &multivalued);
 	tracker_db_interface_sqlite_fts_init (iface, fts_props,
 	                                      multivalued, create);
-	g_hash_table_destroy (fts_props);
-	g_hash_table_destroy (multivalued);
+	g_hash_table_unref (fts_props);
+	g_hash_table_unref (multivalued);
 #else
 	g_message ("FTS support is disabled");
 #endif
@@ -4364,8 +4364,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_db_interface_sqlite_fts_alter_table (iface, fts_properties, multivalued);
 				}
 
-				g_hash_table_destroy (fts_properties);
-				g_hash_table_destroy (multivalued);
+				g_hash_table_unref (fts_properties);
+				g_hash_table_unref (multivalued);
 #endif
 
 				/* Update the nao:lastModified in the database */
