@@ -3649,6 +3649,8 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 	                                      multivalued, create);
 	g_hash_table_destroy (fts_props);
 	g_hash_table_destroy (multivalued);
+#else
+	g_message ("FTS support is disabled");
 #endif
 }
 
@@ -3920,9 +3922,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_data_ontology_import_into_db (FALSE,
 		                                      &internal_error);
 
-#if HAVE_TRACKER_FTS
 		tracker_data_manager_init_fts (iface, TRUE);
-#endif
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
