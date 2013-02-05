@@ -120,8 +120,8 @@ get_prefixes (TrackerSparqlConnection *connection)
 
 	retval = g_hash_table_new_full (g_str_hash,
 	                                g_str_equal,
-	                                NULL,
-	                                NULL);
+	                                g_free,
+	                                g_free);
 
 	/* FIXME: Would like to get this in the same SPARQL that we
 	 * use to get the info, but doesn't seem possible at the
