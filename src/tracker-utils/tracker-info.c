@@ -401,7 +401,7 @@ main (int argc, char **argv)
 		GError *error = NULL;
 		gchar *uri;
 		gchar *query;
-		gchar *urn;
+		gchar *urn = NULL;
 
 		if (!turtle) {
 			g_print ("%s:'%s'\n", _("Querying information for entity"), *p);
@@ -495,6 +495,8 @@ main (int argc, char **argv)
 		}
 
 		g_print ("\n");
+
+		g_free (urn);
 	}
 
 	g_hash_table_unref (prefixes);
