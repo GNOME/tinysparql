@@ -1,3 +1,26 @@
+NEW in 0.14.5 - 2013-02-06
+==========================
+
+The changes are:
+
+  * build: Fixes --with-nautilus-extensions-dir which was broken
+  * Fixes: GB#692409, playlist extractor should index playlist title if available
+  * Fixes: GB#692603, Search can not find pdf files using author names
+  * Fixes: GB#691807, Tracker should build against libgee 0.8
+  * Fixes: GB#690170, Add nfo:MediaList type to .m3u playlist files
+  * Fixes: GB#688287, build: don't build-depend on Dia
+  * Fixes: GB#692210, miner-manager: plug some memleaks
+  * Fixes: GB#688371, add support for GKqueueDirectoryMonitor
+  * libtracker-common: Add replacement function for flock() on Solaris
+  * tracker-miner-fs, store: Add MeeGo keys to desktop files (OnlyShowIn, X-Meego-Priority keys)
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated pt_BR: Henrique P. Machado
+
+
 NEW in 0.14.4 - 2012-11-01
 ==========================
 
@@ -13,8 +36,6 @@ Translations:
   * Updated pl: Piotr Drąg
   * Updated sr: Мирослав Николић
   * Updated sr@latin: Мирослав Николић
-
-
 NEW in 0.14.3 - 2012-10-24
 ==========================
 
