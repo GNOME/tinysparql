@@ -236,7 +236,7 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 		secret = secret_item_get_secret (found);
 	}
 
-	if (secret != NULL) {
+	if (secret == NULL) {
 		g_set_error_literal (error,
 		                     TRACKER_PASSWORD_PROVIDER_ERROR,
 		                     TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND,
@@ -249,7 +249,7 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 	if (username) {
 		/* Make sure it is always set */
 		attributes = secret_item_get_attributes (found);
-		*username = g_hash_table_lookup (attributes, "user");
+		*username = g_strdup (g_hash_table_lookup (attributes, "username"));
 		g_hash_table_unref (attributes);
 	}
 
