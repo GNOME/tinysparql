@@ -1,3 +1,40 @@
+NEW in 0.15.2 - 2013-02-11
+==========================
+
+The changes are:
+
+  * Build: Required SQLite 3.7.9 (was 3.7.0) for FTS4 support
+  * New Feature: Full Text Search (FTS) v4 support:
+                 New SPARQL function fts:snippet(?u)
+                 - Snippets provide context around a matched query.
+                 New SPARQL function fts:offsets(?u):
+                 - Offsets provide an index where a matched query is found in context
+                   See tracker-needle for basic use.
+  * Fixes: GB#691847, tracker-extract: Port to new gupnp-dlna API
+  * Fixes: GB#692409, playlist extractor should index playlist title if available
+  * Fixes: GB#692603, Search can not find pdf files using author names
+  * Ontology: Deprecated tracker:fulltextNoLimit and removed use in all other ontologies
+  * libtracker-fts: Removed tracker_fts_config_min_word_length() and config option
+  * libtracker-miner: Fixed GNOME password provider, libsecret expects "user" not "username"
+  * tracker-info: Fixed memory leak where urn wasn't freed.
+  * tracker-info: Fixed memory leak when using prefixes for shorthand properties
+
+Translations:
+
+  * None
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  Due to the deprecation of tracker:fulltextNoLimit and removal of
+  libtracker-fts's config option to set the minimum word length, we
+  now index ALL small words and rely on stop words to filter
+  redundant data. We still have the maximum word length checks in
+  place.
+
+
 NEW in 0.15.1 - 2013-01-24
 ==========================
 
