@@ -120,8 +120,8 @@ get_prefixes (TrackerSparqlConnection *connection)
 
 	retval = g_hash_table_new_full (g_str_hash,
 	                                g_str_equal,
-	                                NULL,
-	                                NULL);
+	                                g_free,
+	                                g_free);
 
 	/* FIXME: Would like to get this in the same SPARQL that we
 	 * use to get the info, but doesn't seem possible at the
@@ -401,7 +401,7 @@ main (int argc, char **argv)
 		GError *error = NULL;
 		gchar *uri;
 		gchar *query;
-		gchar *urn;
+		gchar *urn = NULL;
 
 		if (!turtle) {
 			g_print ("%s:'%s'\n", _("Querying information for entity"), *p);
@@ -495,6 +495,8 @@ main (int argc, char **argv)
 		}
 
 		g_print ("\n");
+
+		g_free (urn);
 	}
 
 	g_hash_table_unref (prefixes);

@@ -105,7 +105,7 @@ public class Tracker.Needle {
 		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
-		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "tracker:coalesce(fts:snippet(?urn),nie:title(?urn), nfo:fileName(?urn))",
 		                            "\"\"",
 		                            "nfo:duration(?urn)",
 		                            "nie:url(?urn)");
@@ -114,7 +114,7 @@ public class Tracker.Needle {
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-		                            "tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher))",
+		                            "tracker:coalesce(fts:snippet(?urn),nco:fullname(?creator), nco:fullname(?publisher))",
 		                            "nfo:pageCount(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.MAIL,
@@ -122,14 +122,14 @@ public class Tracker.Needle {
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "nmo:messageSubject(?urn)",
-		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
+		                            "tracker:coalesce(fts:snippet(?urn),nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
 		                            "nmo:receivedDate(?urn)",
 		                            "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
 		categories_model.add_query (Tracker.Query.Type.FOLDERS,
 		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
-		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "tracker:coalesce(fts:snippet(?urn),nie:title(?urn), nfo:fileName(?urn))",
 		                            "nie:url(?parent)",
 		                            "nfo:fileLastModified(?urn)",
 		                            "?tooltip");

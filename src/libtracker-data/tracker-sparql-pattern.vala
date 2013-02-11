@@ -169,6 +169,10 @@ class Tracker.Sparql.Pattern : Object {
 	bool current_subject_is_var;
 	string current_predicate;
 	bool current_predicate_is_var;
+	public Variable? fts_subject;
+	public string[] fts_variables;
+	internal StringBuilder? match_str;
+	public bool queries_fts_data = false;
 
 	public Pattern (Query query) {
 		this.query = query;
@@ -239,6 +243,7 @@ class Tracker.Sparql.Pattern : Object {
 
 	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws Sparql.Error {
 		SelectContext result;
+
 		if (scalar_subquery) {
 			result = new SelectContext.subquery (query, context);
 		} else {
@@ -335,6 +340,17 @@ class Tracker.Sparql.Pattern : Object {
 			}
 		}
 
+		if (queries_fts_data && fts_subject != null) {
+			// Ensure there's a docid to match on in FTS queries
+			if (!first) {
+				sql.append (", ");
+			} else {
+				first = false;
+			}
+
+			sql.append ("%s AS docid ".printf (fts_subject.sql_expression));
+		}
+
 		// literals in select expressions need to be bound before literals in the where clause
 		foreach (var binding in where_bindings) {
 			query.bindings.append (binding);
@@ -429,9 +445,30 @@ class Tracker.Sparql.Pattern : Object {
 			query.bindings.append (binding);
 		}
 
+		if (queries_fts_data && match_str != null && fts_subject != null) {
+			var str = new StringBuilder ("SELECT ");
+			first = true;
+
+			foreach (var fts_var in fts_variables) {
+				if (!first) {
+					str.append (", ");
+				} else {
+					first = false;
+				}
+
+				str.append (fts_var);
+			}
+
+			str.append (" FROM fts JOIN (");
+			sql.prepend (str.str);
+			sql.append_printf (") AS ranks USING (docid) WHERE fts %s".printf (match_str.str));
+		}
+
 		context = context.parent_context;
 
 		result.type = type;
+		match_str = null;
+		fts_subject = null;
 
 		return result;
 	}
@@ -730,6 +767,11 @@ class Tracker.Sparql.Pattern : Object {
 				// parameters do not work with fts MATCH
 				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
 				sql.append_printf (" MATCH '%s'", escaped_literal);
+
+				if (match_str == null) {
+				        match_str = new StringBuilder ();
+					match_str.append_printf (" MATCH '%s'", escaped_literal);
+				}
 			} else {
 				sql.append (" = ");
 				if (binding.data_type == PropertyType.RESOURCE) {
@@ -1288,6 +1330,7 @@ class Tracker.Sparql.Pattern : Object {
 					db_table = "fts";
 					share_table = false;
 					is_fts_match = true;
+					fts_subject = context.get_variable (current_subject);
 				} else {
 					throw new Sparql.Error.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (current_predicate));
 				}
@@ -1412,7 +1455,7 @@ class Tracker.Sparql.Pattern : Object {
 				binding.table = table;
 				binding.type = subject_type;
 				if (is_fts_match) {
-					binding.sql_db_column_name = "rowid";
+					binding.sql_db_column_name = "docid";
 				} else {
 					binding.sql_db_column_name = "ID";
 				}
@@ -1470,12 +1513,12 @@ class Tracker.Sparql.Pattern : Object {
 				binding.sql_db_column_name = "fts";
 				triple_context.bindings.append (binding);
 
-				sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
-					binding.table.sql_query_tablename,
-					context.get_variable (current_subject).name);
-				sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
-					binding.table.sql_query_tablename,
-					context.get_variable (current_subject).name);
+				sql.append_printf ("\"%s\".\"docid\" AS \"ID\", ",
+				                   binding.table.sql_query_tablename);
+				sql.append_printf ("tracker_rank(matchinfo(\"%s\".\"fts\", 'cl'),fts_column_weights()) " +
+				                   "AS \"%s_u_rank\", ",
+				                   binding.table.sql_query_tablename,
+				                   context.get_variable (current_subject).name);
 			} else {
 				var binding = new LiteralBinding ();
 				binding.literal = object;

@@ -41,19 +41,26 @@ TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gc
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
+                                                                        GHashTable               *properties,
+                                                                        GHashTable               *multivalued,
                                                                         gboolean                  create);
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_wal_hook               (TrackerDBInterface       *interface,
                                                                         TrackerDBWalCallback      callback);
 
 #if HAVE_TRACKER_FTS
-int                 tracker_db_interface_sqlite_fts_update_init        (TrackerDBInterface       *interface,
-                                                                        int                       id);
+void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
+                                                                        GHashTable               *properties,
+                                                                        GHashTable               *multivalued);
 int                 tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *interface,
                                                                         int                       id,
-                                                                        int                       column_id,
-                                                                        const char               *text,
-                                                                        gboolean                  limit_word_length);
+                                                                        const gchar             **properties,
+                                                                        const char              **text,
+                                                                        gboolean                  create);
+
+gboolean            tracker_db_interface_sqlite_fts_delete_text        (TrackerDBInterface       *db_interface,
+									int                       id,
+									const gchar              *property);
 void                tracker_db_interface_sqlite_fts_update_commit      (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_fts_update_rollback    (TrackerDBInterface       *interface);
 #endif

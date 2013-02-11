@@ -362,6 +362,7 @@ public class Tracker.View : ScrolledWindow {
 				markup = Markup.escape_text (text);
 
 				if (subtext != null) {
+					subtext = subtext.replace ("\n", " ");
 					markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
 				}
 			} else {

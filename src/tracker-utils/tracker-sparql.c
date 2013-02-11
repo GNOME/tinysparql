@@ -103,6 +103,68 @@ static GOptionEntry   entries[] = {
 	{ NULL }
 };
 
+static GHashTable *
+get_prefixes (TrackerSparqlConnection *connection)
+{
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	GHashTable *retval;
+	const gchar *query;
+
+	retval = g_hash_table_new_full (g_str_hash,
+	                                g_str_equal,
+	                                g_free,
+	                                g_free);
+
+	/* FIXME: Would like to get this in the same SPARQL that we
+	 * use to get the info, but doesn't seem possible at the
+	 * moment with the limited string manipulation features we
+	 * support in SPARQL.
+	 */
+	query = "SELECT ?ns ?prefix "
+	        "WHERE {"
+	        "  ?ns a tracker:Namespace ;"
+	        "  tracker:prefix ?prefix "
+	        "}";
+
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+			    _("Unable to retrieve namespace prefixes"),
+			    error->message);
+
+		g_error_free (error);
+		return retval;
+	}
+
+	if (!cursor) {
+		g_printerr ("%s\n", _("No namespace prefixes were returned"));
+		return retval;
+	}
+
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		const gchar *key, *value;
+
+		key = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		value = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+
+		if (!key || !value) {
+			continue;
+		}
+
+		g_hash_table_insert (retval,
+		                     g_strndup (key, strlen (key) - 1),
+		                     g_strdup (value));
+	}
+
+	if (cursor) {
+		g_object_unref (cursor);
+	}
+
+	return retval;
+}
+
 static gchar *
 get_class_from_prefix (TrackerSparqlConnection *connection,
                        const gchar             *prefix)
@@ -181,6 +243,138 @@ parse_list_indexes (const gchar  *option_name,
 	}
 
 	return TRUE;
+}
+
+inline static gchar *
+get_shorthand (GHashTable  *prefixes,
+               const gchar *namespace)
+{
+	gchar *hash;
+
+	hash = strrchr (namespace, '#');
+
+	if (hash) {
+		gchar *property;
+		const gchar *prefix;
+
+		property = hash + 1;
+		*hash = '\0';
+
+		prefix = g_hash_table_lookup (prefixes, namespace);
+
+		return g_strdup_printf ("%s:%s", prefix, property);
+	}
+
+	return g_strdup (namespace);
+}
+
+inline static gchar *
+get_shorthand_for_offsets (GHashTable  *prefixes,
+                           const gchar *str)
+{
+	GString *result = NULL;
+	gchar **properties;
+	gint i;
+
+	if (!str) {
+		return NULL;
+	}
+
+	properties = g_strsplit (str, ",", -1);
+	if (!properties) {
+		return NULL;
+	}
+
+	for (i = 0; properties[i] != NULL && properties[i + 1] != NULL; i += 2) {
+		const gchar *property;
+		const gchar *offset;
+		gchar *shorthand;
+
+		property = properties[i];
+		offset = properties[i + 1];
+
+		if (!property || !offset) {
+			g_warning ("Expected property AND offset to be valid for fts:offset results");
+			continue;
+		}
+
+		shorthand = get_shorthand (prefixes, property);
+		/* shorthand = g_hash_table_lookup (prefixes, property); */
+
+		if (!shorthand) {
+			shorthand = g_strdup (property);
+		}
+
+		if (!result) {
+			result = g_string_new ("");
+		} else {
+			result = g_string_append_c (result, ' ');
+		}
+
+		g_string_append_printf (result, "%s:%s", shorthand, offset);
+		g_free (shorthand);
+	}
+
+	g_strfreev (properties);
+
+	return result ? g_string_free (result, FALSE) : NULL;
+}
+
+static void
+print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
+                              GHashTable          *prefixes,
+                              const gchar         *none_found,
+                              const gchar         *heading,
+                              gboolean             only_first_col)
+{
+	if (!cursor) {
+		g_print ("%s\n", none_found);
+	} else {
+		gint count = 0;
+
+		g_print ("%s:\n", heading);
+
+		if (only_first_col) {
+			while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+				const gchar *str;
+				gchar *shorthand;
+
+				str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+				shorthand = get_shorthand_for_offsets (prefixes, str);
+				g_print ("  %s\n", shorthand ? shorthand : str);
+				g_free (shorthand);
+				count++;
+			}
+		} else {
+			while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+				gint col;
+
+				for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
+					const gchar *str;
+					gchar *shorthand;
+
+					str = tracker_sparql_cursor_get_string (cursor, col, NULL);
+					shorthand = get_shorthand_for_offsets (prefixes, str);
+					g_print ("%c %s",
+					         col == 0 ? ' ' : ',',
+					         shorthand ? shorthand : str);
+					g_free (shorthand);
+				}
+
+				g_print ("\n");
+
+				count++;
+			}
+		}
+
+		if (count == 0) {
+			g_print ("  %s\n", _("None"));
+		}
+
+		g_print ("\n");
+
+		g_object_unref (cursor);
+	}
 }
 
 static void
@@ -595,6 +789,12 @@ main (int argc, char **argv)
 			}
 #endif
 		} else {
+			GHashTable *prefixes = NULL;
+
+			if (strstr (query, "fts:offsets")) {
+				prefixes = get_prefixes (connection);
+			}
+
 			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 			if (error) {
@@ -603,10 +803,19 @@ main (int argc, char **argv)
 				            error->message);
 				g_error_free (error);
 
+				if (prefixes) {
+					g_hash_table_unref (prefixes);
+				}
+
 				return EXIT_FAILURE;
 			}
 
-			print_cursor (cursor, _("No results found matching your query"), _("Results"), FALSE);
+			if (G_UNLIKELY (prefixes)) {
+				print_cursor_with_ftsoffsets (cursor, prefixes, _("No results found matching your query"), _("Results"), FALSE);
+				g_hash_table_unref (prefixes);
+			} else {
+				print_cursor (cursor, _("No results found matching your query"), _("Results"), FALSE);
+			}
 		}
 	}
 

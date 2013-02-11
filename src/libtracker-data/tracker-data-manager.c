@@ -2487,7 +2487,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 	}
 }
 
-
 static void
 insert_uri_in_resource_table (TrackerDBInterface  *iface,
                               const gchar         *uri,
@@ -3583,6 +3582,78 @@ load_ontologies_gvdb (GError **error)
 	g_free (filename);
 }
 
+#if HAVE_TRACKER_FTS
+static gboolean
+ontology_get_fts_properties (gboolean     only_new,
+			     GHashTable **fts_properties,
+			     GHashTable **multivalued)
+{
+	TrackerProperty **properties;
+	gboolean has_new = FALSE;
+	GHashTable *hashtable;
+	guint i, len;
+
+	properties = tracker_ontologies_get_properties (&len);
+	hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+					   (GDestroyNotify) g_list_free);
+
+	if (multivalued) {
+		*multivalued = g_hash_table_new (g_str_hash, g_str_equal);
+	}
+
+	for (i = 0; i < len; i++) {
+		const gchar *name, *table_name;
+		GList *list;
+
+		if (!tracker_property_get_fulltext_indexed (properties[i])) {
+			continue;
+		}
+
+		has_new |= tracker_property_get_is_new (properties[i]);
+
+		if (multivalued &&
+		    tracker_property_get_multiple_values (properties[i])) {
+			g_hash_table_insert (*multivalued, (gpointer) table_name,
+					     GUINT_TO_POINTER (TRUE));
+		}
+
+		table_name = tracker_property_get_table_name (properties[i]);
+		name = tracker_property_get_name (properties[i]);
+		list = g_hash_table_lookup (hashtable, table_name);
+
+		if (!list) {
+			list = g_list_prepend (NULL, (gpointer) name);
+			g_hash_table_insert (hashtable, (gpointer) table_name, list);
+		} else {
+			list = g_list_append (list, (gpointer) name);
+		}
+	}
+
+	if (fts_properties) {
+		*fts_properties = hashtable;
+	}
+
+	return has_new;
+}
+#endif
+
+gboolean
+tracker_data_manager_init_fts (TrackerDBInterface *iface,
+                               gboolean            create)
+{
+#if HAVE_TRACKER_FTS
+	GHashTable *fts_props, *multivalued;
+
+	ontology_get_fts_properties (FALSE, &fts_props, &multivalued);
+	tracker_db_interface_sqlite_fts_init (iface, fts_props,
+	                                      multivalued, create);
+	g_hash_table_unref (fts_props);
+	g_hash_table_unref (multivalued);
+#else
+	g_message ("FTS support is disabled");
+#endif
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            const gchar           **test_schemas,
@@ -3615,6 +3686,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
 	tracker_data_update_init ();
+
+#ifdef HAVE_TRACKER_FTS
+	if (!tracker_fts_init ()) {
+		g_warning ("FTS module loading failed");
+	}
+#endif
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -3842,11 +3919,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, TRUE);
-
 		tracker_data_ontology_import_into_db (FALSE,
 		                                      &internal_error);
+
+		tracker_data_manager_init_fts (iface, TRUE);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -3990,8 +4066,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 
-		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, FALSE);
+		tracker_data_manager_init_fts (iface, FALSE);
 	}
 
 	if (check_ontology) {
@@ -4282,6 +4357,17 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 
 			if (update_nao) {
+#if HAVE_TRACKER_FTS
+				GHashTable *fts_properties, *multivalued;
+
+				if (ontology_get_fts_properties (TRUE, &fts_properties, &multivalued)) {
+					tracker_db_interface_sqlite_fts_alter_table (iface, fts_properties, multivalued);
+				}
+
+				g_hash_table_unref (fts_properties);
+				g_hash_table_unref (multivalued);
+#endif
+
 				/* Update the nao:lastModified in the database */
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &n_error,
 				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "

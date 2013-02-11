@@ -63,6 +63,9 @@ gboolean tracker_data_manager_reload                 (TrackerBusyCallback     bu
                                                       const gchar            *busy_operation,
                                                       GError                **error);
 
+gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
+						      gboolean                create);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_MANAGER_H__ */

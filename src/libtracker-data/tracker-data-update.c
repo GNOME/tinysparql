@@ -961,9 +961,10 @@ tracker_data_resource_buffer_flush (GError **error)
 	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
 		GValueArray *values;
+		gboolean create = resource_buffer->create;
+		GPtrArray *properties, *text;
 
-		tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
-
+		properties = text = NULL;
 		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
@@ -974,17 +975,29 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
-				tracker_db_interface_sqlite_fts_update_text (iface,
-					resource_buffer->id,
-					tracker_data_query_resource_id (tracker_property_get_uri (prop)),
-					fts->str,
-					!tracker_property_get_fulltext_no_limit (prop));
-				g_string_free (fts, TRUE);
 
-				/* Set that we ever updated FTS, so that tracker_db_interface_sqlite_fts_update_commit()
-				 * gets called */
-				update_buffer.fts_ever_updated = TRUE;
+				if (!properties && !text) {
+					properties = g_ptr_array_new ();
+					text = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
+				}
+
+				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
+				g_ptr_array_add (text, g_string_free (fts, FALSE));
 			}
+		}
+
+		if (properties && text) {
+			g_ptr_array_add (properties, NULL);
+			g_ptr_array_add (text, NULL);
+
+			tracker_db_interface_sqlite_fts_update_text (iface,
+			                                             resource_buffer->id,
+			                                             (gchar **) properties->pdata,
+			                                             (gchar **) text->pdata,
+			                                             create);
+			update_buffer.fts_ever_updated = TRUE;
+			g_ptr_array_free (properties, TRUE);
+			g_ptr_array_free (text, TRUE);
 		}
 	}
 #endif
@@ -1047,19 +1060,12 @@ tracker_data_update_buffer_might_flush (GError **error)
 static void
 tracker_data_update_buffer_clear (void)
 {
-#if HAVE_TRACKER_FTS
-	TrackerDBInterface *iface;
-
-	iface = tracker_db_manager_get_db_interface ();
-#endif
-
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	g_hash_table_remove_all (update_buffer.resource_cache);
 	resource_buffer = NULL;
 
 #if HAVE_TRACKER_FTS
-	tracker_db_interface_sqlite_fts_update_rollback (iface);
 	update_buffer.fts_ever_updated = FALSE;
 #endif
 
@@ -1450,8 +1456,6 @@ get_old_property_values (TrackerProperty  *property,
 				/* first fulltext indexed property to be modified
 				 * retrieve values of all fulltext indexed properties
 				 */
-				tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
-
 				properties = tracker_ontologies_get_properties (&n_props);
 
 				for (i = 0; i < n_props; i++) {
@@ -1459,17 +1463,17 @@ get_old_property_values (TrackerProperty  *property,
 
 					if (tracker_property_get_fulltext_indexed (prop)
 					    && check_property_domain (prop)) {
+						const gchar *property_name;
 						gint i;
 
 						old_values = get_property_values (prop);
+						property_name = tracker_property_get_name (prop);
 
 						/* delete old fts entries */
 						for (i = 0; i < old_values->n_values; i++) {
-							tracker_db_interface_sqlite_fts_update_text (iface,
-								resource_buffer->id,
-								-1,
-								g_value_get_string (g_value_array_get_nth (old_values, i)),
-								!tracker_property_get_fulltext_no_limit (prop));
+							tracker_db_interface_sqlite_fts_delete_text (iface,
+							                                             resource_buffer->id,
+							                                             property_name);
 						}
 					}
 				}
@@ -3379,7 +3383,6 @@ tracker_data_commit_transaction (GError **error)
 
 #if HAVE_TRACKER_FTS
 	if (update_buffer.fts_ever_updated) {
-		tracker_db_interface_sqlite_fts_update_commit (iface);
 		update_buffer.fts_ever_updated = FALSE;
 	}
 #endif

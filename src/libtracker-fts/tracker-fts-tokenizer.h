@@ -19,27 +19,13 @@
  * 02110-1301  USA
  */
 
-#ifndef __TRACKER_FTS_H__
-#define __TRACKER_FTS_H__
-
 #include <sqlite3.h>
-#include <glib-object.h>
+#include <glib.h>
+#include "fts3_tokenizer.h"
 
-G_BEGIN_DECLS
+#ifndef __TRACKER_FTS_TOKENIZER_H__
+#define __TRACKER_FTS_TOKENIZER_H__
 
-gboolean    tracker_fts_init             (void);
-gboolean    tracker_fts_init_db          (sqlite3    *db);
-gboolean    tracker_fts_create_table     (sqlite3    *db,
-                                          gchar      *table_name,
-                                          GHashTable *tables,
-                                          GHashTable *grouped_columns);
-gboolean    tracker_fts_alter_table      (sqlite3    *db,
-                                          gchar      *table_name,
-                                          GHashTable *tables,
-                                          GHashTable *grouped_columns);
+gboolean tracker_tokenizer_initialize (sqlite3 *db);
 
-
-G_END_DECLS
-
-#endif /* __TRACKER_FTS_H__ */
-
+#endif /* __TRACKER_FTS_TOKENIZER_H__ */

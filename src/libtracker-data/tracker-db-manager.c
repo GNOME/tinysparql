@@ -57,7 +57,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_38
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_15_2
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 #define TRACKER_DB_LOCALE_FILE        "db-locale.txt"
 
@@ -97,7 +97,8 @@ typedef enum {
 	TRACKER_DB_VERSION_0_9_21,  /* Fix for NB#186055 */
 	TRACKER_DB_VERSION_0_9_24,  /* nmo:PhoneMessage class */
 	TRACKER_DB_VERSION_0_9_34,  /* ontology cache */
-	TRACKER_DB_VERSION_0_9_38   /* nie:url an inverse functional property */
+	TRACKER_DB_VERSION_0_9_38,  /* nie:url an inverse functional property */
+	TRACKER_DB_VERSION_0_15_2   /* fts4 */
 } TrackerDBVersion;
 
 typedef struct {
@@ -1522,8 +1523,7 @@ tracker_db_manager_get_db_interface (void)
 			return NULL;
 		}
 
-		tracker_db_interface_sqlite_fts_init (interface, FALSE);
-
+		tracker_data_manager_init_fts (interface, FALSE);
 
 		tracker_db_interface_set_max_stmt_cache_size (interface,
 		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
