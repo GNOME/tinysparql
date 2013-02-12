@@ -34,6 +34,7 @@ typedef struct TrackerCursor TrackerCursor;
 struct TrackerTokenizer {
   sqlite3_tokenizer base;
   TrackerLanguage *language;
+  int min_word_length;
   int max_word_length;
   int max_words;
   gboolean enable_stemmer;
@@ -70,6 +71,7 @@ static int trackerCreate(
 
   config = tracker_fts_config_new ();
 
+  p->min_word_length = tracker_fts_config_get_min_word_length (config);
   p->max_word_length = tracker_fts_config_get_max_word_length (config);
   p->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
   p->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
@@ -181,7 +183,7 @@ static int trackerNext(
     if (!pToken){
       return SQLITE_DONE;
     }
-  } while (stop_word && p->ignore_stop_words);
+  } while (stop_word && p->ignore_stop_words && len < p->min_word_length);
 
   *ppToken = pToken;
   *piStartOffset = start;
