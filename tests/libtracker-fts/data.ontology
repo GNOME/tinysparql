@@ -25,5 +25,4 @@ test:o a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain test:A ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true .
+	tracker:fulltextIndexed true .
