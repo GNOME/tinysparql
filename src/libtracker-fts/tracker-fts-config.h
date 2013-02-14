@@ -64,6 +64,8 @@ void              tracker_fts_config_set_ignore_stop_words  (TrackerFTSConfig *c
                                                              gboolean          value);
 void              tracker_fts_config_set_max_words_to_index (TrackerFTSConfig *config,
                                                              gint              value);
+void              tracker_fts_config_set_max_word_length    (TrackerFTSConfig *config,
+                                                             gint              value);
 
 G_END_DECLS
 
