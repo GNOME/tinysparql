@@ -41,12 +41,24 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gint limit = 512;
+#define TITLE_BEGIN   "\033[32m"   /* Green */
+#define TITLE_END     "\033[0m"
+
+#define SNIPPET_BEGIN "\033[1;31m" /* Red */
+#define SNIPPET_END   "\033[0m"
+
+#define WARN_BEGIN    "\033[33m"   /* Yellow */
+#define WARN_END      "\033[0m"
+
+static gint limit = -1;
 static gint offset;
 static gchar **terms;
 static gboolean or_operator;
 static gboolean detailed;
 static gboolean all;
+static gboolean disable_snippets;
+static gboolean disable_fts;
+static gboolean disable_color;
 static gboolean files;
 static gboolean folders;
 static gboolean music_albums;
@@ -63,7 +75,7 @@ static gboolean software_categories;
 static gboolean bookmarks;
 static gboolean print_version;
 
-static GOptionEntry entries[] = {
+static GOptionEntry semantic_entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
 	  N_("512")
@@ -84,6 +96,26 @@ static GOptionEntry entries[] = {
 	  N_("Return all non-existing matches too (i.e. include unmounted volumes)"),
 	  NULL
 	},
+	{ "disable-snippets", 0, 0, G_OPTION_ARG_NONE, &disable_snippets,
+	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music..."),
+	  NULL,
+	},
+	{ "disable-fts", 0, 0, G_OPTION_ARG_NONE, &disable_fts,
+	  N_("Disable Full Text Search (FTS). Implies --disable-snippets"),
+	  NULL,
+	},
+	{ "disable-color", 0, 0, G_OPTION_ARG_NONE, &disable_color,
+	  N_("Disable color when printing snippets and results"),
+	  NULL,
+	},
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL
+	},
+	{ NULL }
+};
+
+static GOptionEntry category_entries[] = {
 	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
 	  N_("Search for files"),
 	  NULL
@@ -140,10 +172,6 @@ static GOptionEntry entries[] = {
 	  N_("Search for bookmarks (--all has no effect on this)"),
 	  NULL
 	},
-	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
-	  N_("Print version"),
-	  NULL
-	},
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &terms,
 	  N_("search terms"),
@@ -163,8 +191,10 @@ show_limit_warning (void)
 	/* Display warning so the user knows this is
 	 * not the WHOLE data set.
 	 */
-	g_printerr ("\n%s\n",
-	            _("NOTE: Limit was reached, there are more items in the database not listed here"));
+	g_printerr ("\n%s%s%s\n",
+	            disable_color ? "" : WARN_BEGIN,
+	            _("NOTE: Limit was reached, there are more items in the database not listed here"),
+	            disable_color ? "" : WARN_END);
 }
 
 static gchar *
@@ -175,6 +205,9 @@ get_fts_string (GStrv    search_words,
 	GString *fts;
 	gint i, len;
 
+	if (disable_fts) {
+		return NULL;
+	}
 
 	if (!search_words) {
 		return NULL;
@@ -210,6 +243,37 @@ get_fts_string (GStrv    search_words,
 #endif
 }
 
+static inline void
+print_snippet (const gchar *snippet)
+{
+	if (disable_snippets) {
+		return;
+	}
+
+	if (!snippet || *snippet == '\0') {
+		return;
+	} else {
+		gchar *compressed;
+		gchar *p;
+
+		compressed = g_strdup (snippet);
+
+		for (p = compressed;
+		     p && *p != '\0';
+		     p = g_utf8_next_char (p)) {
+			if (*p == '\r' || *p == '\n') {
+				/* inline \n and \r */
+				*p = ' ';
+			}
+		}
+
+		g_print ("  %s\n", compressed);
+		g_free (compressed);
+	}
+
+	g_print ("\n");
+}
+
 static gboolean
 get_contacts_results (TrackerSparqlConnection *connection,
                       const gchar             *query,
@@ -240,13 +304,17 @@ get_contacts_results (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  '%s', %s (%s)\n",
+				g_print ("  '%s%s%s', %s (%s)\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
-				g_print ("  '%s', %s\n",
+				g_print ("  '%s%s%s', %s\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 			}
 
@@ -345,14 +413,22 @@ get_emails_results (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  %s, %s (%s)\n",
+				g_print ("  %s%s%s, %s (%s)\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
+
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 3, NULL));
 			} else {
-				g_print ("  %s, %s\n",
+				g_print ("  %s%s%s, %s\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			}
 
 			count++;
@@ -386,7 +462,7 @@ get_emails (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) "
+		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) fts:snippet(?email, \"%s\", \"%s\") "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ;"
 		                         "  fts:match \"%s\" ."
@@ -394,6 +470,8 @@ get_emails (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nmo:messageSubject(?email)) ASC(nmo:receivedDate(?email))"
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         search_offset,
 		                         search_limit);
@@ -446,12 +524,20 @@ get_files_results (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  %s (%s)\n",
+				g_print ("  %s%s%s (%s)\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
-				g_print ("  %s\n",
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+				g_print ("  %s%s%s\n",
+		                         disable_color ? "" : TITLE_BEGIN,
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         disable_color ? "" : TITLE_END);
+
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			}
 
 			count++;
@@ -487,7 +573,7 @@ get_document_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?document nie:url(?document) "
+		query = g_strdup_printf ("SELECT ?document nie:url(?document) fts:snippet(?document, \"%s\", \"%s\") "
 		                         "WHERE { "
 		                         "  ?document a nfo:Document ;"
 		                         "  fts:match \"%s\" ."
@@ -496,6 +582,8 @@ get_document_files (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nie:url(?document)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
@@ -539,7 +627,7 @@ get_video_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?video nie:url(?video) "
+		query = g_strdup_printf ("SELECT ?video nie:url(?video) fts:snippet(?video, \"%s\", \"%s\") "
 		                         "WHERE { "
 		                         "  ?video a nfo:Video ;"
 		                         "  fts:match \"%s\" ."
@@ -548,6 +636,8 @@ get_video_files (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nie:url(?video)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
@@ -591,7 +681,7 @@ get_image_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?image nie:url(?image) "
+		query = g_strdup_printf ("SELECT ?image nie:url(?image) fts:snippet(?image, \"%s\", \"%s\") "
 		                         "WHERE { "
 		                         "  ?image a nfo:Image ;"
 		                         "  fts:match \"%s\" ."
@@ -600,6 +690,8 @@ get_image_files (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nie:url(?image)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
@@ -643,7 +735,7 @@ get_music_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?song nie:url(?song) "
+		query = g_strdup_printf ("SELECT ?song nie:url(?song) fts:snippet(?song, \"%s\", \"%s\")"
 		                         "WHERE { "
 		                         "  ?song a nmm:MusicPiece ;"
 		                         "  fts:match \"%s\" ."
@@ -652,6 +744,8 @@ get_music_files (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nie:url(?song)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
@@ -742,12 +836,16 @@ get_music_artists (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  '%s' (%s)\n",
+				g_print ("  '%s%s%s' (%s)\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			} else {
-				g_print ("  '%s'\n",
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+				g_print ("  '%s%s%s'\n",
+		                         disable_color ? "" : TITLE_BEGIN,
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         disable_color ? "" : TITLE_END);
 			}
 			count++;
 		}
@@ -827,12 +925,16 @@ get_music_albums (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  '%s' (%s)\n",
+				g_print ("  '%s%s%s' (%s)\n",
+		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			} else {
-				g_print ("  '%s'\n",
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+				g_print ("  '%s%s%s'\n",
+		                         disable_color ? "" : TITLE_BEGIN,
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         disable_color ? "" : TITLE_END);
 			}
 			count++;
 		}
@@ -912,8 +1014,10 @@ get_bookmarks (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Bookmarks"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  %s (%s)\n",
+			g_print ("  %s%s%s (%s)\n",
+			         disable_color ? "" : TITLE_BEGIN,
 			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         disable_color ? "" : TITLE_END,
 			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 
 			count++;
@@ -992,8 +1096,10 @@ get_feeds (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Feeds"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  %s (%s)\n",
+			g_print ("  %s%s%s (%s)\n",
+			         disable_color ? "" : TITLE_BEGIN,
 			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         disable_color ? "" : TITLE_END,
 			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 
 			count++;
@@ -1026,7 +1132,7 @@ get_software (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?soft nie:title(?soft) "
+		query = g_strdup_printf ("SELECT ?soft nie:title(?soft) fts:snippet(?soft, \"%s\", \"%s\") "
 		                         "WHERE {"
 		                         "  ?soft a nfo:Software ;"
 		                         "  fts:match \"%s\" . "
@@ -1034,6 +1140,8 @@ get_software (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nie:title(?soft)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         search_offset,
 		                         search_limit);
@@ -1072,10 +1180,12 @@ get_software (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Software"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  %s (%s)\n",
+			g_print ("  %s%s%s (%s)\n",
+			         disable_color ? "" : TITLE_BEGIN,
 			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         disable_color ? "" : TITLE_END,
 			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
+			print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			count++;
 		}
 
@@ -1152,8 +1262,10 @@ get_software_categories (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Software Categories"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  %s (%s)\n",
+			g_print ("  %s%s%s (%s)\n",
+			         disable_color ? "" : TITLE_BEGIN,
 			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         disable_color ? "" : TITLE_END,
 			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 
 			count++;
@@ -1298,7 +1410,7 @@ get_all_by_search (TrackerSparqlConnection *connection,
 	show_all_str = show_all ? "" : "?s tracker:available true . ";
 
 	if (details) {
-		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type "
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type fts:snippet(?document, \"%s\", \"%s\") "
 		                         "WHERE {"
 		                         "  ?s fts:match \"%s\" ;"
 		                         "  rdf:type ?type ."
@@ -1307,18 +1419,22 @@ get_all_by_search (TrackerSparqlConnection *connection,
 		                         "GROUP BY nie:url(?s) "
 		                         "ORDER BY nie:url(?s) "
 		                         "OFFSET %d LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) "
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) fts:snippet(?document, \"%s\", \"%s\") "
 		                         "WHERE {"
 		                         "  ?s fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
 		                         "ORDER BY nie:url(?s) "
 		                         "OFFSET %d LIMIT %d",
+		                         disable_color ? "" : SNIPPET_BEGIN,
+		                         disable_color ? "" : SNIPPET_END,
 		                         fts,
 		                         show_all_str,
 		                         search_offset,
@@ -1364,21 +1480,29 @@ get_all_by_search (TrackerSparqlConnection *connection,
 				}
 
 				if (mime_type) {
-					g_print ("  %s\n"
+					g_print ("  %s%s%s\n"
 					         "    %s\n"
 					         "    %s\n",
+					         disable_color ? "" : TITLE_BEGIN,
 					         urn,
+					         disable_color ? "" : TITLE_END,
 					         mime_type,
 					         class);
 				} else {
-					g_print ("  %s\n"
+					g_print ("  %s%s%s\n"
 					         "    %s\n",
+					         disable_color ? "" : TITLE_BEGIN,
 					         urn,
+					         disable_color ? "" : TITLE_END,
 					         class);
 				}
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 3, NULL));
 			} else {
-				g_print ("  %s\n",
-				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+				g_print ("  %s%s%s\n",
+		                         disable_color ? "" : TITLE_BEGIN,
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         disable_color ? "" : TITLE_END);
+				print_snippet (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 			}
 
 			count++;
@@ -1401,6 +1525,7 @@ main (int argc, char **argv)
 {
 	TrackerSparqlConnection *connection;
 	GOptionContext *context;
+	GOptionGroup *group;
 	GError *error = NULL;
 	gchar *summary;
 
@@ -1426,7 +1551,16 @@ main (int argc, char **argv)
 	                         "they must BOTH exist (unless you use --or-operator)"),
 	                       NULL);
 	g_option_context_set_summary (context, summary);
-	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_add_main_entries (context, category_entries, NULL);
+
+	group = g_option_group_new ("search",
+	                            _("Search options"),
+	                            _("Show search options"),
+	                            NULL,
+	                            NULL);
+	g_option_group_add_entries (group, semantic_entries);
+	g_option_context_add_group (context, group);
+
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	g_free (summary);
@@ -1461,6 +1595,10 @@ main (int argc, char **argv)
 		g_free (help);
 
 		return EXIT_FAILURE;
+	}
+
+	if (disable_fts) {
+		disable_snippets = TRUE;
 	}
 
 	g_type_init ();
@@ -1514,6 +1652,8 @@ main (int argc, char **argv)
 
 		g_object_unref (language);
 	}
+#else
+	disable_snippets = TRUE;
 #endif
 
 	g_option_context_free (context);
@@ -1529,7 +1669,18 @@ main (int argc, char **argv)
 	}
 
 	if (limit <= 0) {
-		limit = 512;
+		/* Default to 10 for snippets because more is not
+		 * useful on the screen. The categories are those not
+		 * using snippets yet.
+		 */
+		if (disable_snippets || !terms ||
+		    (files || folders || contacts || emails ||
+		     music_albums || music_artists || bookmarks ||
+		     feeds)) {
+			limit = 512;
+		} else {
+			limit = 10;
+		}
 	}
 
 	if (files) {

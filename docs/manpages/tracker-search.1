@@ -21,11 +21,11 @@ One or more terms to search. The default operation is a logical AND.
 For logical OR operations, see -r.
 .SH OPTIONS
 .TP
-.B \-?, \-\-help
-Give a short help message.
+.B \-?, \-\-help-all
+Display all help options available.
 .TP
 .B \-l, \-\-limit=N
-Limit search to N results. The default is 512.
+Limit search to N results. The default is 10 or 512 with \-\-disable\-snippets.
 .TP
 .B \-o, \-\-offset=N
 Offset the search results by N. For example, start at item number 10
@@ -43,6 +43,26 @@ Show results which might not be available. This might bebecause a
 removable media is not mounted for example. Without this option,
 resources are only shown if they exist. This option applies to all
 command line switches except
+.TP
+.B \-\-disable-snippets
+Results are shown with snippets. Snippets are context around the word
+that was searched for in the first place. This gives some idea of if
+the resource found is the right one. Snippets require Full Text Search
+to be compile time enabled AND to not be disabled with
+\-\-disable\-fts. Using \-\-disable\-snippets only shows the resources
+which matched, no context is provided about where the match occurred.
+.TP
+.B \-\-disable-fts
+If Full Text Search (FTS) is available, this option allows it to be
+disabled for one off searches. This returns results slightly
+using particular properties to match the search terms (like nie:title)
+instead of looking for the search terms amongst ALL properties. It is
+more limiting to do this, but sometimes searching without FTS can
+yield better results if the FTS ranking is off.
+.TP
+.B \-\-disable-color
+This disables any ANSI color use on the command line. By default this
+is enabled to make it easier to see results.
 .B \-\-music-albums
 and
 .B \-\-music-artists.
