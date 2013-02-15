@@ -71,7 +71,6 @@ nmm:artistName a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:indexed true ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
 
 nmm:musicAlbum a rdf:Property ;
@@ -189,7 +188,6 @@ nmm:albumTitle a rdf:Property ;
 	rdfs:range xsd:string ;
 	nao:deprecated true ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
 
 nmm:albumDuration a rdf:Property ;

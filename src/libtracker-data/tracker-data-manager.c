@@ -1186,39 +1186,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (strcmp (object, "true") == 0) {
 			tracker_property_set_fulltext_indexed (property, TRUE);
 		}
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextNoLimit") == 0) {
-		TrackerProperty *property;
-		gboolean is_new;
-
-		property = tracker_ontologies_get_property_by_uri (subject);
-		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
-		}
-
-		is_new = tracker_property_get_is_new (property);
-		if (is_new != in_update) {
-			/* Detect unsupported ontology change (this needs a journal replay) */
-			if (in_update == TRUE && is_new == FALSE) {
-				if (check_unsupported_property_value_change (ontology_path,
-				                                             "tracker:fulltextNoLimit",
-				                                             subject,
-				                                             predicate,
-				                                             object)) {
-					handle_unsupported_ontology_change (ontology_path,
-					                                    tracker_property_get_name (property),
-					                                    "tracker:fulltextNoLimit",
-					                                    tracker_property_get_fulltext_no_limit (property) ? "true" : "false",
-					                                    g_strcmp0 (object, "true") == 0 ? "true" : "false",
-					                                    error);
-				}
-			}
-			return;
-		}
-
-		if (strcmp (object, "true") == 0) {
-			tracker_property_set_fulltext_no_limit (property, TRUE);
-		}
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "defaultValue") == 0) {
 		TrackerProperty *property;
 
@@ -2317,7 +2284,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 	                                              "\"tracker:indexed\", "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"tracker:secondaryIndex\"), "
 	                                              "\"tracker:fulltextIndexed\", "
-	                                              "\"tracker:fulltextNoLimit\", "
 	                                              "\"tracker:transient\", "
 	                                              "\"tracker:writeback\", "
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
@@ -2336,7 +2302,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
-			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
+			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient, is_inverse_functional_property;
 			gboolean         writeback, force_journal;
 			gint             id;
@@ -2384,16 +2350,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 			tracker_db_cursor_get_value (cursor, 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				fulltext_no_limit = (g_value_get_int64 (&value) == 1);
-				g_value_unset (&value);
-			} else {
-				/* NULL */
-				fulltext_no_limit = FALSE;
-			}
-
-			tracker_db_cursor_get_value (cursor, 9, &value);
-
-			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
@@ -2402,7 +2358,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			}
 
 			/* tracker:writeback column */
-			tracker_db_cursor_get_value (cursor, 10, &value);
+			tracker_db_cursor_get_value (cursor, 9, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				writeback = (g_value_get_int64 (&value) == 1);
@@ -2413,7 +2369,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			}
 
 			/* NRL_INVERSE_FUNCTIONAL_PROPERTY column */
-			tracker_db_cursor_get_value (cursor, 11, &value);
+			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
@@ -2424,7 +2380,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			}
 
 			/* tracker:forceJournal column */
-			tracker_db_cursor_get_value (cursor, 12, &value);
+			tracker_db_cursor_get_value (cursor, 11, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				force_journal = (g_value_get_int64 (&value) == 1);
@@ -2434,7 +2390,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 				force_journal = TRUE;
 			}
 
-			default_value = tracker_db_cursor_get_string (cursor, 13, NULL);
+			default_value = tracker_db_cursor_get_string (cursor, 12, NULL);
 
 			tracker_property_set_is_new_domain_index (property, tracker_ontologies_get_class_by_uri (domain_uri), FALSE);
 			tracker_property_set_is_new (property, FALSE);
@@ -2456,7 +2412,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 			}
 
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
-			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 
 			/* super properties are only used in updates, never for queries */

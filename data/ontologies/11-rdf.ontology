@@ -97,6 +97,7 @@ tracker:fulltextIndexed a rdf:Property ;
 
 tracker:fulltextNoLimit a rdf:Property ;
 	nrl:maxCardinality 1 ;
+	rdfs:comment "tracker:fulltextNoLimit is deprecated, no word length limits are imposed on FTS" ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 

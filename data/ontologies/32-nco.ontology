@@ -189,7 +189,6 @@ nco:nameFamily a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:indexed true ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:nameGiven a rdf:Property ;
@@ -199,7 +198,6 @@ nco:nameGiven a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:nameAdditional a rdf:Property ;
@@ -209,7 +207,6 @@ nco:nameAdditional a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:fullname a rdf:Property ;
@@ -220,7 +217,6 @@ nco:fullname a rdf:Property ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
 
 nco:hasContactMedium a rdf:Property ;
@@ -310,7 +306,6 @@ nco:country a rdf:Property ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 3 .
 
 nco:nameHonorificPrefix a rdf:Property ;
@@ -360,7 +355,6 @@ nco:nickname a rdf:Property ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:containsContact a rdf:Property ;
@@ -377,7 +371,6 @@ nco:department a rdf:Property ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
@@ -501,7 +494,6 @@ nco:title a rdf:Property ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 10 .
 
 nco:voiceMail a rdf:Property ;
@@ -525,7 +517,6 @@ nco:contactGroupName a rdf:Property ;
 	rdfs:domain nco:ContactGroup ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:contactMediumComment a rdf:Property ;

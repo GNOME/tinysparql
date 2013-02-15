@@ -20,13 +20,6 @@ Boston, MA  02110-1301, USA.
 <schemalist>
   <schema id="org.freedesktop.Tracker.FTS" path="/org/freedesktop/tracker/fts/">
 
-    <key name="min-word-length" type="i">
-      <default>3</default>
-      <range min="0" max="30"/>
-      <_summary>Minimum length of a word to be indexed</_summary>
-      <_description>Words with less characters than this will be ignored by the indexer.</_description>
-    </key>
-
     <key name="max-word-length" type="i">
       <default>30</default>
       <range min="0" max="200"/>

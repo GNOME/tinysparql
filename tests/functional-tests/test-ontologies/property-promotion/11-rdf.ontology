@@ -95,11 +95,6 @@ tracker:fulltextIndexed a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
-tracker:fulltextNoLimit a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdf:Property ;
-	rdfs:range xsd:boolean .
-
 tracker:transient a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdf:Property ;
