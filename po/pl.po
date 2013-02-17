@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-16 14:59+0100\n"
-"PO-Revision-Date: 2013-02-16 15:00+0100\n"
+"POT-Creation-Date: 2013-02-17 21:16+0100\n"
+"PO-Revision-Date: 2013-02-17 21:17+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -463,33 +463,33 @@ msgstr " %2.2ds"
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
-msgstr[0] "%d dzień"
-msgstr[1] "%d dni"
-msgstr[2] "%d dni"
+msgstr[0] " %d dzień"
+msgstr[1] " %d dni"
+msgstr[2] " %d dni"
 
 #: ../src/libtracker-common/tracker-utils.c:139
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
-msgstr[0] "%2.2d godzina"
-msgstr[1] "%2.2d godziny"
-msgstr[2] "%2.2d godzin"
+msgstr[0] " %2.2d godzina"
+msgstr[1] " %2.2d godziny"
+msgstr[2] " %2.2d godzin"
 
 #: ../src/libtracker-common/tracker-utils.c:143
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
-msgstr[0] "%2.2d minuta"
-msgstr[1] "%2.2d minuty"
-msgstr[2] "%2.2d minut"
+msgstr[0] " %2.2d minuta"
+msgstr[1] " %2.2d minuty"
+msgstr[2] " %2.2d minut"
 
 #: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
-msgstr[0] "%2.2d sekunda"
-msgstr[1] "%2.2d sekundy"
-msgstr[2] "%2.2d sekund"
+msgstr[0] " %2.2d sekunda"
+msgstr[1] " %2.2d sekundy"
+msgstr[2] " %2.2d sekund"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:957
 msgid "Pause application and reason match an already existing pause request"
@@ -1347,7 +1347,7 @@ msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
 "Nie można używać jednocześnie opcji --force-internal-extractors i --force-"
-"module."
+"module"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
@@ -1704,7 +1704,7 @@ msgstr "Preferencje indeksowania"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "_Delay"
-msgstr "Opóźni_enie:"
+msgstr "Opóźni_enie"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "seconds"
@@ -1770,7 +1770,7 @@ msgstr "Indeksowanie zawartości w tle:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "O_nly when computer is not being used"
-msgstr "Tylko, kiedy komputer nie jest używany"
+msgstr "Tylko, kiedy k_omputer nie jest używany"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid ""
