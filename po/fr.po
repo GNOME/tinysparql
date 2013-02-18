@@ -15,10 +15,11 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-06-13 13:43+0000\n"
+"POT-Creation-Date: 2012-12-26 07:25+0000\n"
 "PO-Revision-Date: 2012-06-13 15:46+0200\n"
 "Last-Translator: Alain Lojewski <allomervan@gmail.com>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -544,8 +545,8 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:62
-#: ../src/tracker-utils/tracker-info.c:63
+#: ../src/tracker-utils/tracker-info.c:67
+#: ../src/tracker-utils/tracker-info.c:68
 #: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "FICHIER"
@@ -663,15 +664,15 @@ msgstr "Devrait être surveillé"
 msgid "- start the tracker indexer"
 msgstr "- démarre l'indexeur de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1366
+#: ../src/miners/fs/tracker-miner-files.c:1358
 msgid "Low battery"
 msgstr "Batterie faible"
 
-#: ../src/miners/fs/tracker-miner-files.c:1493
+#: ../src/miners/fs/tracker-miner-files.c:1485
 msgid "Low disk space"
 msgstr "Espace disque faible"
 
-#: ../src/miners/fs/tracker-miner-files.c:2255
+#: ../src/miners/fs/tracker-miner-files.c:2243
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Erreur d'extraction, une extraction des métadonnées intégrées sans échec "
@@ -702,7 +703,7 @@ msgstr "L'ajout d'un flux exige les options --add-feed et --title"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:356
+#: ../src/tracker-utils/tracker-info.c:385
 #: ../src/tracker-utils/tracker-search.c:1525
 #: ../src/tracker-utils/tracker-sparql.c:287
 #: ../src/tracker-utils/tracker-stats.c:88
@@ -712,7 +713,7 @@ msgstr "Impossible d'établir une connexion vers Tracker"
 
 #: ../src/miners/rss/tracker-main.c:115
 #: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:357
+#: ../src/tracker-utils/tracker-info.c:386
 #: ../src/tracker-utils/tracker-search.c:1526
 #: ../src/tracker-utils/tracker-sparql.c:288
 #: ../src/tracker-utils/tracker-stats.c:89
@@ -745,12 +746,12 @@ msgid "Tags"
 msgstr "Étiquettes"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:163
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 msgid "No error was given"
 msgstr "Aucune erreur indiquée"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:378
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -765,7 +766,7 @@ msgstr[1] ""
 #: ../src/tracker-needle/tracker-needle.vala:691
 #: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:144
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
@@ -983,8 +984,8 @@ msgstr "Seuls ceux qui ont une config dans la liste"
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr ""
-"Définition de la verbosité de journalisation pour tous les composants à « %"
-"s »…"
+"Définition de la verbosité de journalisation pour tous les composants à "
+"« %s »…"
 
 #: ../src/tracker-control/tracker-control-general.c:997
 msgid "Waiting one second before starting miners…"
@@ -1168,8 +1169,8 @@ msgstr "La (ré)indexation du fichier a été réalisée avec succès"
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr ""
-"Impossible d'énumérer les collecteurs, aucun gestionnaire n'a pu être créé, %"
-"s"
+"Impossible d'énumérer les collecteurs, aucun gestionnaire n'a pu être créé, "
+"%s"
 
 #: ../src/tracker-control/tracker-control-miners.c:286
 #, c-format
@@ -1371,8 +1372,8 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:110
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
-"Force l'utilisation d'un module pour l'extraction (par ex. « foo » pour « foo."
-"so »)"
+"Force l'utilisation d'un module pour l'extraction (par ex. « foo » pour "
+"« foo.so »)"
 
 #: ../src/tracker-extract/tracker-main.c:111
 msgid "MODULE"
@@ -1410,10 +1411,12 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid ""
-"Display results by category, for example, Music, Videos, Applications, etc."
+"Display results by category, for example, Music, Videos, Applications, etc. "
+"This includes searching the contents of files where applicable."
 msgstr ""
 "Afficher les résultats par catégorie, par exemple Musique, Vidéos, "
-"Applications, etc."
+"Applications, etc.Cela comprend la recherche du contenu des fichiers, le cas "
+"échéant."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1571,34 +1574,35 @@ msgid_plural "Bookmarks"
 msgstr[0] "Signet"
 msgstr[1] "Signets"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:328
+#: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:384
+#: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
 msgstr "Aucun élément actuellement sélectionné"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:470
-#: ../src/tracker-needle/tracker-tags-view.vala:611
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
 msgstr "Impossible de mettre à jour les étiquettes"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:530
+#: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:803
 msgid "Could not remove tag"
 msgstr "Impossible d'enlever l'étiquette"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:705
+#: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
-msgstr "Impossible de récupérer les étiquettes correspondant à la sélection actuelle"
+msgstr ""
+"Impossible de récupérer les étiquettes correspondant à la sélection actuelle"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:744
+#: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:627
 msgid "Could not add tag"
 msgstr "Impossible d'ajouter l'étiquette"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:801
+#: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
 msgstr "Impossible de mettre à jour les étiquettes du fichier"
 
@@ -2120,7 +2124,7 @@ msgid "- Import data using Turtle files"
 msgstr "- Importation de données à l'aide de fichiers Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:338
+#: ../src/tracker-utils/tracker-info.c:367
 msgid "One or more files have not been specified"
 msgstr "Un ou plusieurs fichiers n'ont pas été indiqués"
 
@@ -2132,48 +2136,53 @@ msgstr "Importation d'un fichier Turtle"
 msgid "Unable to import Turtle file"
 msgstr "Impossible d'importer le fichier Turtle"
 
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:55
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
 "Afficher l'espace de noms complet (ne pas utiliser nie:title, mais plutôt "
 "des URL complets)"
 
-#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
+msgid "Show plain text content if available for resources"
+msgstr ""
+"Afficher le contenu de texte brut s'il est disponible pour les ressources"
+
+#: ../src/tracker-utils/tracker-info.c:63
 msgid "Output results as RDF in Turtle format"
 msgstr "Afficher les résultats en RDF au format Turtle"
 
-#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-info.c:141
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Impossible de récupérer les préfixes d'espace de noms"
 
-#: ../src/tracker-utils/tracker-info.c:144
+#: ../src/tracker-utils/tracker-info.c:149
 msgid "No namespace prefixes were returned"
 msgstr "Aucun préfixe d'espace de noms n'a été renvoyé"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:320
+#: ../src/tracker-utils/tracker-info.c:349
 msgid "- Get all information about one or more files"
 msgstr "- Récupère tous les renseignements sur un ou plusieurs fichiers"
 
-#: ../src/tracker-utils/tracker-info.c:378
+#: ../src/tracker-utils/tracker-info.c:407
 msgid "Querying information for entity"
 msgstr "Demande d'information sur l'entité"
 
-#: ../src/tracker-utils/tracker-info.c:399
+#: ../src/tracker-utils/tracker-info.c:428
 msgid "Unable to retrieve URN for URI"
 msgstr "Impossible d'obtenir l'URN de l'URI"
 
-#: ../src/tracker-utils/tracker-info.c:409
-#: ../src/tracker-utils/tracker-info.c:444
+#: ../src/tracker-utils/tracker-info.c:438
+#: ../src/tracker-utils/tracker-info.c:473
 msgid "Unable to retrieve data for URI"
 msgstr "Impossible d'obtenir les données de l'URI"
 
-#: ../src/tracker-utils/tracker-info.c:453
+#: ../src/tracker-utils/tracker-info.c:482
 msgid "No metadata available for that URI"
 msgstr "Aucune métadonnée disponible pour cet URI"
 
-#: ../src/tracker-utils/tracker-info.c:458
+#: ../src/tracker-utils/tracker-info.c:487
 #: ../src/tracker-utils/tracker-search.c:1348
 #: ../src/tracker-utils/tracker-sparql.c:609
 #: ../utils/tracker-sql/tracker-sql.c:168
@@ -2400,8 +2409,8 @@ msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
 msgstr ""
-"Cela signifie que si vous recherchez les mots « foo » et « bar », ils doivent "
-"exister TOUS LES DEUX (sauf si vous utilisez --or-operator)"
+"Cela signifie que si vous recherchez les mots « foo » et « bar », ils "
+"doivent exister TOUS LES DEUX (sauf si vous utilisez --or-operator)"
 
 #: ../src/tracker-utils/tracker-search.c:1456
 msgid "Search terms are missing"
