@@ -47,7 +47,7 @@ namespace Tracker {
 		public unowned string get_dbus_full_path ();
 	}
 	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public class MinerFS {
+	public class MinerFS : Tracker.Miner, GLib.Initable {
 		public virtual bool check_directory (GLib.File directory);
 		public virtual bool check_directory_contents (GLib.File directory, GLib.List<GLib.File> children);
 		public virtual bool check_file (GLib.File file);
