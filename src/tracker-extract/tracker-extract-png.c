@@ -372,7 +372,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	/* TODO: add ontology and store this ed->software */
-	g_free (ed->software);
 
 	if (md.creator) {
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.creator);
