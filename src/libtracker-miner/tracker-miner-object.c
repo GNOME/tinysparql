@@ -108,6 +108,7 @@ static const gchar introspection_xml[] =
   "    <signal name='Progress'>"
   "      <arg type='s' name='status' />"
   "      <arg type='d' name='progress' />"
+  "      <arg type='i' name='remaining_time' />"
   "    </signal>"
   "  </interface>"
   "</node>";
