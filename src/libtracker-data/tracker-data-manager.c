@@ -3604,8 +3604,10 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 	                                      multivalued, create);
 	g_hash_table_unref (fts_props);
 	g_hash_table_unref (multivalued);
+	return TRUE;
 #else
 	g_message ("FTS support is disabled");
+	return FALSE;
 #endif
 }
 
