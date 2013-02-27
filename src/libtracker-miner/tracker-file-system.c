@@ -264,6 +264,16 @@ file_tree_lookup (GNode     *tree,
 			g_free (uri);
 			return NULL;
 		}
+
+		/* Second check there is no basename and if there isn't,
+		 * then this node MUST be the closest registered node
+		 * we can use for the uri. The difference here is that
+		 * we return tree not NULL.
+		 */
+		else if (ptr[0] == '\0') {
+			g_free (uri);
+			return tree;
+                }
 	}
 
 	parent = tree;
