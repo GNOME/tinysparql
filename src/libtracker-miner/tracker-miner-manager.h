@@ -134,6 +134,14 @@ gboolean             tracker_miner_manager_reindex_by_mimetype (TrackerMinerMana
 gboolean             tracker_miner_manager_index_file          (TrackerMinerManager  *manager,
                                                                 GFile                *file,
                                                                 GError              **error);
+void                 tracker_miner_manager_index_file_async    (TrackerMinerManager  *manager,
+                                                                GFile                *file,
+                                                                GCancellable         *cancellable,
+                                                                GAsyncReadyCallback   callback,
+                                                                gpointer              user_data);
+gboolean             tracker_miner_manager_index_file_finish   (TrackerMinerManager  *manager,
+                                                                GAsyncResult         *result,
+                                                                GError              **error);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
