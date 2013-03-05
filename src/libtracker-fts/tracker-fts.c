@@ -307,12 +307,11 @@ tracker_fts_alter_table (sqlite3    *db,
 			 GHashTable *grouped_columns)
 {
 	gchar *query, *tmp_name;
-	sqlite3_stmt *stmt;
 	int rc;
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 
-	query = g_strdup_printf ("DROP VIEW fts_view", table_name);
+	query = g_strdup_printf ("DROP VIEW fts_view");
 	rc = sqlite3_prepare_v2 (db, query, -1, NULL, NULL);
 
 	if (!tracker_fts_create_table (db, tmp_name, tables, grouped_columns)) {
