@@ -1756,6 +1756,8 @@ trigger_recheck_cb (GObject    *gobject,
 {
 	TrackerMinerFiles *mf = user_data;
 
+	g_message ("Ignored content related configuration changed, checking index...");
+
 	if (mf->private->force_recheck_id == 0) {
 		/* Set idle so multiple changes in the config lead to one recheck */
 		mf->private->force_recheck_id =
@@ -1772,7 +1774,7 @@ index_volumes_changed_idle (gpointer user_data)
 	gboolean new_index_removable_devices;
 	gboolean new_index_optical_discs;
 
-	g_message ("Volume-related configuration changed, updating...");
+	g_message ("Volume related configuration changed, updating...");
 
 	/* Read new config values. Note that if removable devices is FALSE,
 	 * optical discs will also always be FALSE. */
