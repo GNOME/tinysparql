@@ -525,23 +525,22 @@ tracker_indexing_tree_clear_filters (TrackerIndexingTree *tree,
                                      TrackerFilterType    type)
 {
 	TrackerIndexingTreePrivate *priv;
-	GList *filters;
+	GList *l;
 
 	g_return_if_fail (TRACKER_IS_INDEXING_TREE (tree));
 
 	priv = tree->priv;
-	filters = priv->filter_patterns;
 
-	while (filters) {
-		PatternData *data = filters->data;
-		GList *cur = filters;
-
-		filters = filters->next;
+	for (l = priv->filter_patterns; l; l = l->next) {
+		PatternData *data = l->data;
 
 		if (data->type == type) {
+			/* When we delete the link 'l', we point back
+			 * to the beginning of the list to make sure
+			 * we don't miss anything.
+			 */
+			l = priv->filter_patterns = g_list_delete_link (priv->filter_patterns, l);
 			pattern_data_free (data);
-			priv->filter_patterns = g_list_remove (priv->filter_patterns,
-			                                       cur);
 		}
 	}
 }
