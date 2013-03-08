@@ -97,6 +97,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
+	/* Command line stuff doesn't use logging, so we're using g_print*() */
 	if (add_feed && title) {
 		TrackerSparqlConnection *connection;
 		const gchar *query;
@@ -158,7 +159,7 @@ main (int argc, char **argv)
 
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
-		g_printerr ("Cannot create new RSS miner: '%s', exiting...\n",
+		g_critical ("Could not create new RSS miner: '%s', exiting...\n",
 		            error ? error->message : "unknown error");
 		return EXIT_FAILURE;
 	}
