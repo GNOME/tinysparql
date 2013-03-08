@@ -1,3 +1,35 @@
+NEW in 0.15.3 - 2013-03-08
+==========================
+
+The changes are:
+
+  * build: Require GLib 2.35.1 for GTask API (was 2.28.0)
+  * build: Remove all cases of g_type_init() now it's deprecated in GLib 2.35.x
+  * Fixes: GB#693889, E: tracker no-return-in-nonvoid-function tracker-data-manager.c:3610
+  * Fixes: GB#694146, org.freedesktop.Tracker1.Miner.Progress() - wrong number of arguments introspected
+  * Fixes: GB#660965, 100% CPU-load / segfault processing png-file
+  * Fixes: GB#693198, tracker-miner-fs does not listen for config changes
+  * Fixes: GB#695061, tracker-miner-fs, store: Add Unity to desktop files
+  * Fixes: GB#694783, libtracker-miner: don't crash when first indexing files out of /home
+  * Fixes: GB#695157, libtracker-miner: add an async version of tracker_miner_manager_index_file()
+  * libtracker-common: Don't log to file by default, only stdout/stderr. See TRACKER_USE_LOG_FILES env var for details.
+  * libtracker-miner: Fixed nasty stack corruption with TrackerIndexingTree filter rules
+  * libtracker-miner: Fixed vala bindings for TrackerMinerFS
+  * tracker-extract-msoffice: Avoid deprecated gsf_msole_metadata_read() API
+  * tracker-search: Added snippets for result hits
+  * tracker-search: Added colored output for result hits
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated es: Daniel Mustieles
+  * Updated fr: Alexandre Franke
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Enrico Nicoletto
+  * Updated sl: Matej Urbančič
+
+
 NEW in 0.15.2 - 2013-02-11
 ==========================
 
