@@ -151,8 +151,10 @@ main (int argc, char **argv)
 	}
 
 	tracker_log_init (verbosity, &log_filename);
-	g_print ("Starting log:\n  File:'%s'\n", log_filename);
-	g_free (log_filename);
+	if (log_filename != NULL) {
+		g_message ("Using log file:'%s'", log_filename);
+		g_free (log_filename);
+	}
 
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {

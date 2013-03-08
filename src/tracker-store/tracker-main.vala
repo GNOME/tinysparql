@@ -183,8 +183,6 @@ License which can be viewed at:
 			return 0;
 		}
 
-		print ("Initializing tracker-store...\n");
-
 		initialize_signal_handler ();
 
 		/* This makes sure we don't steal all the system's resources */
@@ -201,7 +199,9 @@ License which can be viewed at:
 
 		/* Initialize other subsystems */
 		Tracker.Log.init (config.verbosity, out log_filename);
-		print ("Starting log:\n  File:'%s'\n", log_filename);
+		if (log_filename != null) {
+			message ("Using log file:'%s'", log_filename);
+		}
 
 		sanity_check_option_values (config);
 

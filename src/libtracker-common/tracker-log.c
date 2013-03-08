@@ -292,7 +292,7 @@ tracker_log_init (gint    this_verbosity,
 	initialized = TRUE;
 
 	/* log binary name and version */
-	g_message ("%s %s", g_get_application_name (), PACKAGE_VERSION);
+	g_message ("Starting %s %s", g_get_application_name (), PACKAGE_VERSION);
 
 	return TRUE;
 }
@@ -303,6 +303,8 @@ tracker_log_shutdown (void)
 	if (!initialized) {
 		return;
 	}
+
+	g_message ("Stopping %s %s", g_get_application_name (), PACKAGE_VERSION);
 
 	/* Reset default log handler */
 	g_log_set_default_handler (g_log_default_handler, NULL);

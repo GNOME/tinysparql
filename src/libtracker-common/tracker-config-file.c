@@ -306,9 +306,6 @@ config_load (TrackerConfigFile *file)
 	}
 
 	if (!file->monitor) {
-		g_message ("Setting up monitor for changes to config file:'%s'",
-		           filename);
-
 		file->monitor = g_file_monitor_file (file->file,
 		                                     G_FILE_MONITOR_NONE,
 		                                     NULL,

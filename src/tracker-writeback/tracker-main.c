@@ -117,8 +117,10 @@ main (int   argc,
 
 	tracker_log_init (tracker_config_get_verbosity (config),
 	                  &log_filename);
-	g_print ("Starting log:\n  File:'%s'\n", log_filename);
-	g_free (log_filename);
+	if (log_filename != NULL) {
+		g_message ("Using log file:'%s'", log_filename);
+		g_free (log_filename);
+	}
 
 	sanity_check_option_values (config);
 

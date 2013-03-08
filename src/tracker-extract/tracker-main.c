@@ -370,13 +370,6 @@ main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	g_print ("Initializing tracker-extract...\n");
-
-	if (!filename) {
-		g_print ("  Shutdown after 30 seconds of inactivity is %s\n",
-		         disable_shutdown ? "disabled" : "enabled");
-	}
-
 	initialize_signal_handler ();
 
 	g_type_init ();
@@ -401,8 +394,13 @@ main (int argc, char *argv[])
 	}
 
 	tracker_log_init (tracker_config_get_verbosity (config), &log_filename);
-	g_print ("Starting log:\n  File:'%s'\n", log_filename);
-	g_free (log_filename);
+	if (log_filename != NULL) {
+		g_message ("Using log file:'%s'", log_filename);
+		g_free (log_filename);
+	}
+
+	g_message ("Shutdown after 30 seconds of inactivity is %s",
+	           disable_shutdown ? "disabled" : "enabled");
 
 	sanity_check_option_values (config);
 
