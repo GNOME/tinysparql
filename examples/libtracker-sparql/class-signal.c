@@ -85,7 +85,6 @@ main (gint argc, gchar *argv[])
 	GDBusConnection *connection;
 	guint signal_id;
 
-	g_type_init ();
 	loop = g_main_loop_new (NULL, FALSE);
 	con = tracker_sparql_connection_get (NULL, &error);
 	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);

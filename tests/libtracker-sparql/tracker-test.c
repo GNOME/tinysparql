@@ -357,7 +357,6 @@ main (gint argc, gchar **argv)
 {
 	int result;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 #if HAVE_TRACKER_FTS

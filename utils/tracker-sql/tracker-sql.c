@@ -91,8 +91,6 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	g_type_init ();
-
 	if (file) {
 		gchar *path_in_utf8;
 		gsize size;

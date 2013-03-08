@@ -34,8 +34,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	gchar *filename;
 	GError *error = NULL;
 
-	g_type_init ();
-
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	file = tracker_extract_info_get_file (info);
 	xps_file = gxps_file_new (file, &error);

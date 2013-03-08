@@ -146,7 +146,6 @@ main (int argc, char **argv)
 {
 	int result;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_add_func ("/html_generator/qname/qname_to_shortname",

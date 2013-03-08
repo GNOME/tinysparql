@@ -193,8 +193,6 @@ main (int argc, char *argv[])
 	TrackerMiner *miner;
 	GMainLoop *main_loop;
 
-	g_type_init ();
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	miner = tracker_miner_test_new ("test");

@@ -220,8 +220,6 @@ main (gint argc, gchar **argv)
 {
 	GTimer *array_t, *update_t;
 
-	g_type_init ();
-
 	connection = tracker_sparql_connection_get (NULL, NULL);
 
 	g_print ("First run (first update then array)\n");

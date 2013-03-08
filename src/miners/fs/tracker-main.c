@@ -859,7 +859,6 @@ main (gint argc, gchar *argv[])
 	gboolean store_available;
 
 	main_loop = NULL;
-	g_type_init ();
 
 	setlocale (LC_ALL, "");
 

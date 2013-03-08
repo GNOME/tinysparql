@@ -217,8 +217,6 @@ main (int argc, char **argv)
 	gint result;
 	gchar *current_dir;
 
-	g_type_init ();
-
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();

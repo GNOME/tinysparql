@@ -223,7 +223,6 @@ test_date_time_get_local_time ()
 gint
 main (gint argc, gchar **argv) 
 {
-        g_type_init ();
         g_test_init (&argc, &argv, NULL);
 
         g_test_add_func ("/libtracker-common/date-time/date_to_string",

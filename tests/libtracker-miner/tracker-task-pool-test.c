@@ -168,7 +168,6 @@ test_task_pool_foreach (void)
 gint
 main (gint argc, gchar **argv)
 {
-        g_type_init ();
         g_test_init (&argc, &argv, NULL);
 
         g_test_add_func ("/libtracker-miner/tracker-task-pool/limit_set",

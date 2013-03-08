@@ -529,9 +529,6 @@ check_duplicates (void)
 
 int main (int argc, char **argv)
 {
-	/* Initialize stuff */
-	g_type_init ();
-
 	/* Initialize locale support! */
 	setlocale (LC_ALL, "");
 

@@ -82,8 +82,6 @@ main (int argc, char **argv)
 	TotemPlParserResult result;
 	GError *error = NULL;
 
-	g_type_init ();
-
 	context = g_option_context_new ("- Parse a playlist and show info");
 
 	g_option_context_add_main_entries (context, entries, NULL);

@@ -181,8 +181,6 @@ main (int argc, char **argv)
 	gchar *current_dir;
 	gchar *path;
 
-	g_type_init ();
-
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();

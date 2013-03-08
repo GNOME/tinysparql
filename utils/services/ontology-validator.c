@@ -276,9 +276,6 @@ main (gint argc, gchar **argv)
 	GOptionContext *context;
 	GList *it;
 
-	g_type_init ();
-
-
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new ("- Validate the ontology consistency");

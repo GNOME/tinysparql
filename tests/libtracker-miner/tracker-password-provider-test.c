@@ -105,8 +105,6 @@ main (int argc, char **argv)
 	const gchar *current_dir;
 	gint retval;
 
-	g_type_init ();
-
 	g_test_init (&argc, &argv, NULL);
 
 	/* Set test environment up */

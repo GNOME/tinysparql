@@ -270,7 +270,6 @@ main (int argc, char **argv)
 {
 	gint result;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_add_func ("/libtracker-extract/tracker-utils/guess_date",

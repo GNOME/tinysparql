@@ -85,8 +85,6 @@ main (int   argc,
 	gchar *log_filename;
 	guint shutdown_timeout;
 
-	g_type_init ();
-
 	/* Set up locale */
 	setlocale (LC_ALL, "");
 

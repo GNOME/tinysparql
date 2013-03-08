@@ -161,7 +161,6 @@ test_albumart_location_path (void)
 gint
 main (gint argc, gchar **argv)
 {
-        g_type_init ();
         g_test_init (&argc, &argv, NULL);
 
         g_test_add_func ("/libtracker-common/albumart/stripping",

@@ -635,8 +635,6 @@ main (int argc, char *argv[])
 	FILE *f = NULL;
 	GFile *dir;
 
-	g_type_init ();
-
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
 	context = g_option_context_new ("- Generates graphviz for a TTL file");

@@ -575,8 +575,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	gsize len;
 	struct stat st;
 
-	g_type_init ();
-
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	graph = tracker_extract_info_get_graph (info);

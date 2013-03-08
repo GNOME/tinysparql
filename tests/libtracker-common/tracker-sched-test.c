@@ -53,7 +53,6 @@ test_sched_set_and_get (void)
 gint
 main (gint argc, gchar **argv)
 {
-        g_type_init ();
         g_test_init (&argc, &argv, NULL);
 
         g_test_add_func ("/libtracker-common/sched/set_and_get",

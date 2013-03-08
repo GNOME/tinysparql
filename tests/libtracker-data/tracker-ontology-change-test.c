@@ -312,8 +312,6 @@ main (int argc, char **argv)
 	gint result;
 	gchar *data_dir;
 
-	g_type_init ();
-
 	g_test_init (&argc, &argv, NULL);
 
 	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);

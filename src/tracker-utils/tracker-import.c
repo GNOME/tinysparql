@@ -102,8 +102,6 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	g_type_init ();
-
 	connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!connection) {

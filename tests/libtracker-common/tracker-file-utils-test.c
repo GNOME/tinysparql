@@ -470,7 +470,6 @@ main (int argc, char **argv)
 {
 	int result;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	tracker_locale_init ();

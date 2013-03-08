@@ -163,8 +163,6 @@ main (gint argc, gchar **argv)
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
 
-	g_type_init ();
-
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new ("- Validate a turtle file against the ontology");

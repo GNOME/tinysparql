@@ -597,7 +597,6 @@ main (int    argc,
 {
 	gint result;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing XMP");

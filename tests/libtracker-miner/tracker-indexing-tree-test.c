@@ -947,7 +947,6 @@ gint
 main (gint    argc,
       gchar **argv)
 {
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing indexing tree");

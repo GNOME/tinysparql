@@ -1601,9 +1601,6 @@ main (int argc, char **argv)
 		disable_snippets = TRUE;
 	}
 
-	g_type_init ();
-
-
 #if HAVE_TRACKER_FTS
 	/* Only check stopwords if FTS is enabled */
 	if (terms) {

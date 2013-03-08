@@ -348,7 +348,6 @@ main (int argc, char **argv)
 {
 	gint i;
 
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	/* We want the tests to properly find the stopwords dictionaries, so we

@@ -30,9 +30,6 @@ int main (int argc, char **argv)
   const gchar *query_str;
   time_t now;
 
-  /* Initialize GLib type system */
-  g_type_init ();
-
   /* Create builder */
   builder = <function><link linkend="tracker-sparql-builder-new-update">tracker_sparql_builder_new_update</link></function> ();
 
@@ -129,9 +126,6 @@ int main (int argc, const char **argv)
   <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type> *connection;
   <type><link linkend="TrackerSparqlCursor-struct">TrackerSparqlCursor</link></type> *cursor;
   const gchar *query = "SELECT nie:url(?u) WHERE { ?u a nfo:FileDataObject }";
-
-  /* Initialize GLib type system */
-  g_type_init ();
 
   /* As we know only read-only queries will be done, it's enough
    * to use a connection with only direct-access setup. The NULL
@@ -234,9 +228,6 @@ int main (int argc, const char **argv)
     "FILTER (!bound(?tag)) "
     "}";
 
-  /* Initialize GLib type system */
-  g_type_init ();
-
   /* Do NOT get a direct connection if you're going to do some write
    * operation in the Store. The NULL represents a possible
    * GCancellable.
@@ -329,9 +320,6 @@ int main (int argc, const char **argv)
   <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type> *connection;
   const gchar *query =
     "INSERT { _:foo a nie:InformationElement } WHERE { ?x a rdfs:Class }";
-
-  /* Initialize GLib type system */
-  g_type_init ();
 
   /* Do NOT get a direct connection if you're going to do some write
    * operation in the Store. The NULL represents a possible

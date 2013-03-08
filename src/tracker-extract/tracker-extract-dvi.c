@@ -219,8 +219,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	gchar *filename;
 	DviContext *context;
 
-	g_type_init ();
-
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);

@@ -324,8 +324,6 @@ main (int argc, char **argv)
 	gint i;
 	gchar *current_dir;
 
-	g_type_init ();
-
 	g_test_init (&argc, &argv, NULL);
 
 	setlocale (LC_COLLATE, "en_US.utf8");

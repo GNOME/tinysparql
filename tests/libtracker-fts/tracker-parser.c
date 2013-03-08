@@ -220,8 +220,6 @@ run_parsing (void)
 int
 main (int argc, char **argv)
 {
-	g_type_init ();
-
 	/* Setup locale */
 	setlocale (LC_ALL, "");
 

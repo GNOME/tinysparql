@@ -662,7 +662,6 @@ test_tracker_sparql_update_blank_async (void)
 gint
 main (gint argc, gchar **argv)
 {
-	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
 	/* test D-Bus backend */

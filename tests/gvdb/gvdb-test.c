@@ -234,8 +234,6 @@ test_gvdb_corrupted_file ()
 gint
 main (gint argc, gchar **argv) 
 {
-        g_type_init ();
-
         g_test_init (&argc, &argv, NULL);
 
         g_test_add_func ("/gvdb/ref_unref", test_gvdb_ref_unref);

@@ -148,8 +148,6 @@ main (gint argc, gchar *argv[])
 {
 	MyData *md;
 
-	g_type_init ();
-
 	md = g_new0 (MyData, 1);
 	md->loop = g_main_loop_new (NULL, FALSE);
 	md->timer = g_timer_new ();
