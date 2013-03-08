@@ -1567,7 +1567,7 @@ extract_summary (TrackerSparqlBuilder *metadata,
 		GError *error = NULL;
 
 		md = gsf_doc_meta_data_new ();
-		error = gsf_msole_metadata_read (stream, md);
+		error = gsf_doc_meta_data_read_from_msole (md, stream);
 
 		if (error) {
 			g_warning ("Could not extract summary information, %s",
@@ -1599,7 +1599,7 @@ extract_summary (TrackerSparqlBuilder *metadata,
 
 		md = gsf_doc_meta_data_new ();
 
-		error = gsf_msole_metadata_read (stream, md);
+		error = gsf_doc_meta_data_read_from_msole (md, stream);
 		if (error) {
 			g_warning ("Could not extract document summary information, %s",
 			           error->message ? error->message : "no error given");
