@@ -46,6 +46,7 @@
 #include "tracker-db-manager.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-interface.h"
+#include "tracker-data-manager.h"
 
 /* ZLib buffer settings */
 #define ZLIB_BUF_SIZE                 8192
