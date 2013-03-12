@@ -549,7 +549,7 @@ AC_SUBST(GCOV_LIBS)
 ####################################################################
 # General VALAFLAGS/CFLAGS/LIBS
 ####################################################################
-BUILD_VALAFLAGS="-g --target-glib=2.26"
+BUILD_VALAFLAGS="-g --target-glib=2.34"
 BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_LIBS="${GCOV_LIBS}"
 
