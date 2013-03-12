@@ -163,6 +163,7 @@ read_toc (PopplerIndexIter  *index,
 			case POPPLER_ACTION_GOTO_REMOTE:
 			case POPPLER_ACTION_RENDITION:
 			case POPPLER_ACTION_OCG_STATE:
+			case POPPLER_ACTION_JAVASCRIPT:
 				/* Do nothing */
 				break;
 		}
