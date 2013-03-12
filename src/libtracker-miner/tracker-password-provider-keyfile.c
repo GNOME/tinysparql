@@ -295,9 +295,9 @@ TrackerPasswordProvider *
 tracker_password_provider_get (void)
 {
 	static TrackerPasswordProvider *instance = NULL;
-	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+	static GMutex mutex;
 
-	g_static_mutex_lock (&mutex);
+	g_mutex_lock (&mutex);
 
 	if (instance == NULL) {
 		instance = g_object_new (TRACKER_TYPE_PASSWORD_PROVIDER_KEYFILE,
@@ -305,7 +305,7 @@ tracker_password_provider_get (void)
 		                         NULL);
 	}
 
-	g_static_mutex_unlock (&mutex);
+	g_mutex_unlock (&mutex);
 
 	return instance;
 }

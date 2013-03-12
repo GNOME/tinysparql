@@ -314,9 +314,9 @@ TrackerNetworkProvider *
 tracker_network_provider_get (void)
 {
 	static TrackerNetworkProvider *instance = NULL;
-	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+	static GMutex mutex;
 
-	g_static_mutex_lock (&mutex);
+	g_mutex_lock (&mutex);
 
 	if (!instance) {
 		instance = g_object_new (TRACKER_TYPE_NETWORK_PROVIDER_NETWORK_MANAGER,
@@ -324,7 +324,7 @@ tracker_network_provider_get (void)
 		                         NULL);
 	}
 
-	g_static_mutex_unlock (&mutex);
+	g_mutex_unlock (&mutex);
 
 	return instance;
 }

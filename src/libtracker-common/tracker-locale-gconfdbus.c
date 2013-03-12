@@ -49,7 +49,7 @@ static GDBusConnection *connection = NULL;
 static gboolean service_running = FALSE;
 static guint watch_name_id = 0;
 static guint registration_id = 0;
-static GStaticMutex subscribers_mutex = G_STATIC_MUTEX_INIT;
+static GMutex subscribers_mutex;
 GDBusNodeInfo *introspection_data = NULL;
 static gboolean meegotouch_mode = TRUE;
 static gboolean first_time = TRUE;
@@ -182,7 +182,7 @@ handle_method_call (GDBusConnection       *connection,
 
 			tracker_locale_set (i, value);
 
-			g_static_mutex_lock (&subscribers_mutex);
+			g_mutex_lock (&subscribers_mutex);
 
 			for (li = subscribers; li; li = g_slist_next (li)) {
 				TrackerLocaleNotification *data = li->data;
@@ -195,7 +195,7 @@ handle_method_call (GDBusConnection       *connection,
 				}
 			}
 
-			g_static_mutex_unlock (&subscribers_mutex);
+			g_mutex_unlock (&subscribers_mutex);
 		}
 	}
 }
@@ -515,9 +515,9 @@ tracker_locale_gconfdbus_notify_add (TrackerLocaleID         id,
 	data->user_data = user_data;
 	data->destroy_notify = destroy_notify;
 
-	g_static_mutex_lock (&subscribers_mutex);
+	g_mutex_lock (&subscribers_mutex);
 	subscribers = g_slist_prepend (subscribers, data);
-	g_static_mutex_unlock (&subscribers_mutex);
+	g_mutex_unlock (&subscribers_mutex);
 
 	return data;
 }
@@ -547,7 +547,7 @@ tracker_locale_gconfdbus_notify_remove (gpointer notification_id)
 
 	/* Can be called from a thread */
 
-	g_static_mutex_lock (&subscribers_mutex);
+	g_mutex_lock (&subscribers_mutex);
 
 	li = g_slist_find (subscribers, notification_id);
 	if (li) {
@@ -559,5 +559,5 @@ tracker_locale_gconfdbus_notify_remove (gpointer notification_id)
 		g_idle_add (destroy_locale_notify, data);
 	}
 
-	g_static_mutex_unlock (&subscribers_mutex);
+	g_mutex_unlock (&subscribers_mutex);
 }

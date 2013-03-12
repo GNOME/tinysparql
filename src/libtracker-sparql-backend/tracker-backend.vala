@@ -209,7 +209,7 @@ class Tracker.Sparql.Backend : Connection {
 
 	static weak Connection? singleton;
 	static bool log_initialized;
-	static StaticMutex door;
+	static Mutex door = Mutex ();
 
 	static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		door.lock ();
