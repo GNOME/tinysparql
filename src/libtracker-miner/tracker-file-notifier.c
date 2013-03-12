@@ -840,12 +840,10 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	                                          file, file_type, NULL);
 	g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 
-	if (is_directory) {
-		/* Remove all files underneath this dir from the cache */
-		tracker_file_system_forget_files (priv->file_system,
-						  file,
-						  G_FILE_TYPE_UNKNOWN);
-	}
+	/* Remove the file from the cache (works recursively for directories) */
+	tracker_file_system_forget_files (priv->file_system,
+	                                  file,
+	                                  G_FILE_TYPE_UNKNOWN);
 }
 
 static void
