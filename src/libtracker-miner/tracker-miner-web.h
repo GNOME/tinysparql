@@ -76,7 +76,7 @@ struct TrackerMinerWeb {
 };
 
 /**
- * TrackerMinerWebClass
+ * TrackerMinerWebClass:
  * @parent_class: parent object class
  * @authenticate: called when a miner must authenticate against a
  * remote service

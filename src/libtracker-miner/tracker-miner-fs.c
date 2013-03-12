@@ -506,7 +506,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * @miner_fs: the #TrackerMinerFS
 	 * @file: a #GFile
 	 * @rdf_types: the set of RDF types
-	 * @results: a set of results prepared by the preparation query
+	 * @results: (element-type GStrv): a set of results prepared by the preparation query
 	 * @cancellable: a #GCancellable
 	 *
 	 * The ::writeback-file signal is emitted whenever a file must be written
@@ -3153,7 +3153,7 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
  * @rdf_types: A #GStrv with rdf types
- * @results: A array of results from the preparation query
+ * @results: (element-type GStrv): A array of results from the preparation query
  *
  * Tells the filesystem miner to writeback a file.
  *
