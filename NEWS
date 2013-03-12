@@ -1,3 +1,33 @@
+NEW in 0.15.4 - 2013-03-12
+==========================
+
+The changes are:
+
+  * build: Fixed various compiler warnings
+  * build: Fixed various introspection warnings
+  * build: Switched out all uses of deprecated GStaticMutex for GMutex
+  * Fixes: GB#643388, Sqlite constraint violation
+
+Translations:
+
+  * Updated el: Dimitris Spingos
+
+Notes:
+
+  * The 0.15.3 tarball uploaded was done using the wrong version of
+    libgee for building the C sources from Vala. This is detailed in
+    these bug reports:
+
+      Tracker should build against libgee 0.8:
+      https://bugzilla.gnome.org/show_bug.cgi?id=691807#c4
+
+      tracker 0.15.3 fails to build: g_type_init is deprecated
+      https://bugzilla.gnome.org/show_bug.cgi?id=695470
+
+    This release fixes the tarball released AND includes the above
+    fixes. Apologies for any inconvenience.
+
+
 NEW in 0.15.3 - 2013-03-08
 ==========================
 
