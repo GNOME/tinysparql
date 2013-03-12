@@ -421,10 +421,9 @@ initialize_first_module (TrackerMimetypeInfo *info)
  * returned #TrackerMimetypeInfo already points to the first
  * module.
  *
- * Returns: (transfer full): (free-function: tracker_mimetype_info_free):
- *          (allow-none): A #TrackerMimetypeInfo holding the information
- *          about the different modules handling @mimetype, or %NULL if
- *          no modules handle @mimetype.
+ * Returns: (transfer full): (free-function: tracker_mimetype_info_free): (allow-none):
+ * A #TrackerMimetypeInfo holding the information about the different
+ * modules handling @mimetype, or %NULL if no modules handle @mimetype.
  *
  * Since: 0.12
  **/
