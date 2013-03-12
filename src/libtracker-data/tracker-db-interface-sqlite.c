@@ -1109,7 +1109,9 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error, db_interface->fts_insert_str);
+	                                              &error,
+	                                              "%s",
+	                                              db_interface->fts_insert_str);
 
 	if (!stmt || error) {
 		if (error) {
@@ -1140,17 +1142,12 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	gchar *query;
-
-	query = g_strdup_printf ("UPDATE fts "
-	                         "SET \"%s\" = '' "
-	                         "WHERE docid = ?",
-	                         property);
 
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error, query);
-	g_free (query);
+	                                              &error,
+	                                              "UPDATE fts SET \"%s\" = '' WHERE docid = ?",
+	                                              property);
 
 	if (!stmt || error) {
 		if (error) {
