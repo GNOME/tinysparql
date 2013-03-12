@@ -2,7 +2,7 @@
 #include "gvdb/gvdb-builder.h"
 #include "gvdb/gvdb-reader.h"
 
-void
+static void
 remove_file (const gchar *filename)
 {
         GFile *f;
@@ -10,7 +10,7 @@ remove_file (const gchar *filename)
         g_assert (g_file_delete (f, NULL, NULL));
 }
 
-void
+static void
 walk_value_cb (G_GNUC_UNUSED const gchar *name,
                G_GNUC_UNUSED gsize name_len,
                G_GNUC_UNUSED GVariant *value,
@@ -20,7 +20,7 @@ walk_value_cb (G_GNUC_UNUSED const gchar *name,
         (*counter) += 1;
 }
 
-gboolean
+static gboolean
 walk_open_cb (G_GNUC_UNUSED const gchar *name,
               G_GNUC_UNUSED gsize name_len,
               G_GNUC_UNUSED gpointer user_data)
@@ -28,14 +28,14 @@ walk_open_cb (G_GNUC_UNUSED const gchar *name,
         return TRUE;
 }
 
-void
+static void
 walk_close_cb (G_GNUC_UNUSED gsize name_len,
                G_GNUC_UNUSED gpointer user_data)
 {
 }
 
-void 
-test_gvdb_walk ()
+static void
+test_gvdb_walk (void)
 {
         GHashTable *root_table, *ns_table;
         GvdbItem   *root, *item;
@@ -76,8 +76,8 @@ test_gvdb_walk ()
         remove_file (DB_FILE);
 }
 
-void
-test_gvdb_nested_keys ()
+static void
+test_gvdb_nested_keys (void)
 {
         GHashTable *root_table, *ns_table;
         GvdbItem   *root, *item;
@@ -129,7 +129,7 @@ test_gvdb_nested_keys ()
         remove_file (DB_FILE);
 }
 
-void
+static void
 simple_test (const gchar *filename, gboolean use_byteswap) 
 {
         GHashTable *table;
@@ -157,8 +157,8 @@ simple_test (const gchar *filename, gboolean use_byteswap)
         gvdb_table_unref (read);
 }
 
-void
-test_gvdb_byteswapped ()
+static void
+test_gvdb_byteswapped (void)
 {
         const gchar *DB_FILE = "./test_byteswpped.gvdb";
 
@@ -167,8 +167,8 @@ test_gvdb_byteswapped ()
         remove_file (DB_FILE);
 }
 
-void
-test_gvdb_flat_strings ()
+static void
+test_gvdb_flat_strings (void)
 {
 
         const gchar *DB_FILE = "./test_flat_strings.gvdb";
@@ -178,8 +178,8 @@ test_gvdb_flat_strings ()
         remove_file (DB_FILE);
 }
 
-void
-test_gvdb_ref_unref ()
+static void
+test_gvdb_ref_unref (void)
 {
         GHashTable *table;
         GvdbTable  *read, *read_ref;
@@ -214,8 +214,8 @@ test_gvdb_ref_unref ()
         remove_file (DB_FILE);
 }
 
-void
-test_gvdb_corrupted_file ()
+static void
+test_gvdb_corrupted_file (void)
 {
         GError *error = NULL;
 
