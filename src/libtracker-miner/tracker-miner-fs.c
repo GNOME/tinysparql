@@ -1292,10 +1292,11 @@ item_add_or_update (TrackerMinerFS *fs,
 	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
 
-	if (!is_new) {
-		urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-		                                          file);
-	}
+	/* Always query. No matter we are notified the file was just
+	 * created, its meta data might already be in the store
+	 * (possibly inserted by other application) - in such a case
+	 * we have to UPDATE, not INSERT. */
+	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file);
 
 	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
 		parent = g_file_get_parent (file);
