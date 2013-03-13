@@ -1347,7 +1347,8 @@ if test "x$have_tracker_miner_firefox" = "xyes"; then
                               [path to Firefox plugin directory]))
    if test "x$with_firefox_plugin_dir" = "x" ; then
       # This is a symlinked to $prefix/share/xul-ext
-      tracker_miner_firefox_install_dir="${prefix}/lib/firefox-${firefox_version}/extensions"
+      # This was ${prefix}/lib/firefox-${firefox_version}/extensions
+      tracker_miner_firefox_install_dir="${prefix}/lib/firefox-addons/extensions"
    else
       tracker_miner_firefox_install_dir="$with_firefox_plugin_dir"
    fi
