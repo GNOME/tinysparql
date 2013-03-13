@@ -1297,13 +1297,13 @@ else
 fi
 
 if test "x$have_tracker_miner_thunderbird" = "xyes"; then
-
    AC_ARG_WITH([thunderbird_plugin_dir],
                AS_HELP_STRING([--with-thunderbird-plugin-dir],
                               [path to Thunderbird plugin directory]))
    if test "x$with_thunderbird_plugin_dir" = "x" ; then
       # This is a symlinked to $prefix/share/xul-ext
-      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird-${thunderbird_version}/extensions"
+      # This was ${prefix}/lib/thunderbird-${thunderbird_version}/extensions
+      tracker_miner_thunderbird_install_dir="${prefix}/lib/thunderbird-addons/extensions"
    else
       tracker_miner_thunderbird_install_dir="$with_thunderbird_plugin_dir"
    fi
