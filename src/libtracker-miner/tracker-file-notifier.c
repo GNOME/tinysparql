@@ -730,6 +730,11 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	                                          file, file_type, NULL);
 
 	g_signal_emit (notifier, signals[FILE_CREATED], 0, canonical);
+
+	if (!is_directory) {
+		tracker_file_system_forget_files (priv->file_system, canonical,
+		                                  G_FILE_TYPE_REGULAR);
+	}
 }
 
 static void
@@ -755,6 +760,11 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file, file_type, NULL);
 	g_signal_emit (notifier, signals[FILE_UPDATED], 0, canonical, FALSE);
+
+	if (!is_directory) {
+		tracker_file_system_forget_files (priv->file_system, canonical,
+		                                  G_FILE_TYPE_REGULAR);
+	}
 }
 
 static void
@@ -780,6 +790,11 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file, file_type, NULL);
 	g_signal_emit (notifier, signals[FILE_UPDATED], 0, canonical, TRUE);
+
+	if (!is_directory) {
+		tracker_file_system_forget_files (priv->file_system, canonical,
+		                                  G_FILE_TYPE_REGULAR);
+	}
 }
 
 static void
