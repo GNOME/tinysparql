@@ -82,7 +82,7 @@ static GHashTable *media_art_cache;
 static GDBusConnection *connection;
 
 static void
-albumart_queue_cb (GObject      *source_object,
+media_art_queue_cb (GObject      *source_object,
                    GAsyncResult *res,
                    gpointer      user_data);
 
@@ -371,10 +371,10 @@ classify_image_file (TrackerMediaArtSearch *search,
 }
 
 static gchar *
-tracker_media_art_process_external_images (const gchar         *uri,
-                                           TrackerMediaArtType  type,
-                                           const gchar         *artist,
-                                           const gchar         *title)
+tracker_media_art_find_by_artist_and_title (const gchar         *uri,
+                                            TrackerMediaArtType  type,
+                                            const gchar         *artist,
+                                            const gchar         *title)
 {
 	TrackerMediaArtSearch *search;
 	GDir *dir;
@@ -531,7 +531,7 @@ media_art_heuristic (const gchar         *artist,
 		g_object_unref (local_file);
 	}
 
-	art_file_path = tracker_media_art_process_external_images (filename_uri, type, artist, title);
+	art_file_path = tracker_media_art_find_by_artist_and_title (filename_uri, type, artist, title);
 
 	if (art_file_path != NULL) {
 		if (g_str_has_suffix (art_file_path, "jpeg") ||
@@ -777,12 +777,12 @@ media_art_set (const unsigned char *buffer,
 }
 
 static void
-albumart_request_download (TrackerStorage      *storage,
-                           TrackerMediaArtType  type,
-                           const gchar         *album,
-                           const gchar         *artist,
-                           const gchar         *local_uri,
-                           const gchar         *art_path)
+media_art_request_download (TrackerStorage      *storage,
+                            TrackerMediaArtType  type,
+                            const gchar         *album,
+                            const gchar         *artist,
+                            const gchar         *local_uri,
+                            const gchar         *art_path)
 {
 	if (connection) {
 		GetFileInfo *info;
@@ -816,7 +816,7 @@ albumart_request_download (TrackerStorage      *storage,
 		                        G_DBUS_CALL_FLAGS_NONE,
 		                        -1,
 		                        NULL,
-		                        albumart_queue_cb,
+		                        media_art_queue_cb,
 		                        info);
 	}
 }
@@ -892,9 +892,9 @@ media_art_copy_to_local (TrackerStorage *storage,
 }
 
 static void
-albumart_queue_cb (GObject      *source_object,
-                   GAsyncResult *res,
-                   gpointer      user_data)
+media_art_queue_cb (GObject      *source_object,
+                    GAsyncResult *res,
+                    gpointer      user_data)
 {
 	GError *error = NULL;
 	GetFileInfo *info;
@@ -1087,12 +1087,12 @@ tracker_media_art_process (const unsigned char *buffer,
 				 * media-art to the media-art
 				 * downloaders
 				 */
-				albumart_request_download (media_art_storage,
-				                           type,
-				                           artist,
-				                           title,
-				                           local_art_uri,
-				                           art_path);
+				media_art_request_download (media_art_storage,
+				                            type,
+				                            artist,
+				                            title,
+				                            local_art_uri,
+				                            art_path);
 			}
 
 			set_mtime (art_path, mtime);
