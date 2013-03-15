@@ -434,16 +434,6 @@ PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
                   [have_tracker_miner_rss=yes],
                   [have_tracker_miner_rss=no])
 
-# Check requirements for tracker-miner-flickr
-TRACKER_MINER_FLICKR_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                               rest-0.7     >= $REST_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_FLICKR, [$TRACKER_MINER_FLICKR_REQUIRED],
-                  [have_tracker_miner_flickr=yes],
-                  [have_tracker_miner_flickr=no])
-
-TRACKER_MINER_FLICKR_LIBS="$TRACKER_MINER_FLICKR_LIBS -lz -lm"
-
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED"
@@ -1158,29 +1148,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_FS, test "x$have_tracker_miner_fs" = "xyes")
-
-##################################################################
-# Check for tracker-miner-flickr
-##################################################################
-
-AC_ARG_ENABLE(miner_flickr,
-              AS_HELP_STRING([--enable-miner-flickr],
-                             [enable Flickr miner [[default=auto]]]),,
-                             [enable_tracker_miner_flickr=auto])
-
-enable_tracker_miner_flickr=$enable_miner_flickr
-
-if test "x$enable_tracker_miner_flickr" = "xyes"; then
-   if test "x$have_tracker_miner_flickr" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-flickr dependencies ($TRACKER_MINER_FLICKR_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_flickr" = "xno"; then
-      have_tracker_miner_flickr="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_FLICKR, test "x$have_tracker_miner_flickr" = "xyes")
 
 ##################################################################
 # Check for tracker-miner-rss
@@ -2273,7 +2240,6 @@ AC_CONFIG_FILES([
 	src/miners/Makefile
 	src/miners/fs/Makefile
 	src/miners/rss/Makefile
-	src/miners/flickr/Makefile
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
@@ -2445,7 +2411,6 @@ Data Miners:
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
         Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
         FireFox:                                $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
-	Flickr:                                 $have_tracker_miner_flickr
 
 Plugins:
 

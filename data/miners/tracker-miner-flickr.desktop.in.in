@@ -1,7 +1,0 @@
-[Desktop Entry]
-_Name=Flickr
-_Comment=Index your Flickr photo albums
-Icon=@datadir@/tracker/icons/tracker-miner-flickr.svg
-DBusName=org.freedesktop.Tracker1.Miner.Flickr
-DBusPath=/org/freedesktop/Tracker1/Miner/Flickr
-AuthenticationMethod=Token

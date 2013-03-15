@@ -11,10 +11,6 @@ tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|"      \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
-tracker-miner-flickr.desktop.in: tracker-miner-flickr.desktop.in.in
-	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|"   \
-	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-
 tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|"   \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
@@ -22,14 +18,12 @@ tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 desktop_in_in_files =                                  \
 	tracker-store.desktop.in.in                    \
 	tracker-miner-fs.desktop.in.in                 \
-	tracker-miner-flickr.desktop.in.in             \
 	tracker-miner-rss.desktop.in.in
 
 # Second take those new .in files and translate them
 desktop_in_files =                                     \
 	tracker-store.desktop.in                       \
 	tracker-miner-fs.desktop.in                    \
-	tracker-miner-flickr.desktop.in                \
 	tracker-miner-rss.desktop.in
 
 # Third we choose what we want installed based on config
@@ -43,10 +37,6 @@ endif
 
 if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop
-endif
-
-if HAVE_TRACKER_MINER_FLICKR
-autostart_DATA += tracker-miner-flickr.desktop
 endif
 
 @INTLTOOL_DESKTOP_RULE@
