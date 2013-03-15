@@ -1,6 +1,0 @@
-*.server
-*.server.in
-tracker-search-bar
-org.gnome.panel.SearchBar.panel-applet
-org.gnome.panel.SearchBar.panel-applet.in
-org.gnome.panel.applet.SearchBarFactory.service

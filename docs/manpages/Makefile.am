@@ -1,6 +1,5 @@
 include $(top_srcdir)/Makefile.decl
 
-tsb = tracker-search-bar.1
 tp = tracker-preferences.1
 tn = tracker-needle.1
 tmrss = tracker-miner-rss.1
@@ -29,10 +28,6 @@ if HAVE_TRACKER_NEEDLE
 man_MANS += $(tn)
 endif
 
-if HAVE_TRACKER_SEARCH_BAR
-man_MANS += $(tsb)
-endif
-
 if HAVE_TRACKER_MINER_RSS
 man_MANS += $(tmrss)
 endif
@@ -42,5 +37,4 @@ EXTRA_DIST = \
 	$(common) \
 	$(tp) \
 	$(tn) \
-	$(tsb) \
 	$(tmrss)

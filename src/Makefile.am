@@ -36,7 +36,3 @@ endif
 if HAVE_TRACKER_NEEDLE
 SUBDIRS += tracker-needle
 endif
-
-if HAVE_TRACKER_SEARCH_BAR
-SUBDIRS += tracker-search-bar
-endif

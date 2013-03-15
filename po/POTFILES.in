@@ -47,10 +47,6 @@ src/tracker-needle/tracker-view.vala
 src/tracker-preferences/tracker-preferences.desktop.in.in
 [type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
 src/tracker-preferences/tracker-preferences.vala
-src/tracker-search-bar/org.gnome.panel.SearchBar.panel-applet.in.in
-src/tracker-search-bar/tracker-applet.c
-src/tracker-search-bar/tracker-results-window.c
-[type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
 src/tracker-store/tracker-main.vala
 src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c

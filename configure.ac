@@ -470,20 +470,6 @@ PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
                   [have_tracker_preferences=no])
 
-# Check requirements for tracker-search-bar
-TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                             gio-unix-2.0   >= $GLIB_REQUIRED
-                             gmodule-2.0    >= $GLIB_REQUIRED
-                             gtk+-3.0       >= $GTK_REQUIRED
-                             gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
-                             pango          >= $PANGO_REQUIRED
-			     gee-0.8        >= $GEE_REQUIRED
-                             libpanelapplet-4.0"
-
-PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
-                  [have_tracker_search_bar=yes],
-                  [have_tracker_search_bar=no])
-
 # Check requirements for Nautilus extension
 TRACKER_NAUTILUS_EXTENSION_REQUIRED="libnautilus-extension"
 
@@ -1416,27 +1402,6 @@ fi
 
 AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
 
-#################################################################
-# Check for tracker-search-bar
-##################################################################
-
-AC_ARG_ENABLE([tracker-search-bar],
-              AS_HELP_STRING([--enable-tracker-search-bar],
-                             [enable tracker-search-bar[[default=auto]]]),,
-              [enable_tracker_search_bar=auto])
-
-if test "x$enable_tracker_search_bar" = "xyes" ; then
-   if test "x$have_tracker_search_bar" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($TRACKER_SEARCH_BAR_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_search_bar" = "xno"; then
-      have_tracker_search_bar="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
-
 ##################################################################
 # Check for tracker-needle
 ##################################################################
@@ -2314,7 +2279,6 @@ AC_CONFIG_FILES([
 	src/tracker-extract/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
-	src/tracker-search-bar/Makefile
 	src/tracker-needle/Makefile
 	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-utils/Makefile
@@ -2452,7 +2416,6 @@ Applications:
 
 	Build tracker-preferences:              $have_tracker_preferences
 	Build tracker-needle:                   $have_tracker_needle
-	Build tracker-search-bar:               $have_tracker_search_bar
 
 Metadata Extractors:
 
