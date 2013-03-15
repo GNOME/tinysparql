@@ -34,7 +34,6 @@ src/tracker-control/tracker-control.c
 src/tracker-control/tracker-control-general.c
 src/tracker-control/tracker-control-miners.c
 src/tracker-control/tracker-control-status.c
-[type: gettext/glade]src/tracker-explorer/tracker-explorer.ui
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-needle/tracker-needle.desktop.in.in

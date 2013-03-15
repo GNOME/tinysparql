@@ -280,17 +280,6 @@ TRACKER_CONTROL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])
 
-# Check requirements for tracker-explorer
-TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                           gio-unix-2.0 >= $GLIB_REQUIRED
-                           gmodule-2.0  >= $GLIB_REQUIRED
-                           gtk+-3.0     >= $GTK_REQUIRED
-			   gee-0.8      >= $GEE_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
-                  [have_tracker_explorer=yes],
-                  [have_tracker_explorer=no])
-
 TRACKER_RESDUMP_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gee-0.8      >= $GEE_REQUIRED"
 
@@ -1503,27 +1492,6 @@ fi
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
 ##################################################################
-# Check for tracker-explorer
-##################################################################
-
-AC_ARG_ENABLE([tracker-explorer],
-              AS_HELP_STRING([--enable-tracker-explorer],
-                             [enable tracker-explorer[[default=auto]]]),,
-              [enable_tracker_explorer=auto])
-
-if test "x$enable_tracker_explorer" = "xyes" ; then
-   if test "x$have_tracker_explorer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($TRACKER_EXPLORER_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_explorer" = "xno"; then
-      have_tracker_explorer="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
-
-##################################################################
 # Check for tracker-resdump
 ##################################################################
 
@@ -2347,7 +2315,6 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile
-	src/tracker-explorer/Makefile
 	src/tracker-needle/Makefile
 	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-utils/Makefile
@@ -2484,7 +2451,6 @@ Applications:
 	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts4)
 
 	Build tracker-preferences:              $have_tracker_preferences
-	Build tracker-explorer:                 $have_tracker_explorer
 	Build tracker-needle:                   $have_tracker_needle
 	Build tracker-search-bar:               $have_tracker_search_bar
 
