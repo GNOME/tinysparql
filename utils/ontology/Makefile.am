@@ -20,5 +20,3 @@ ontology_validator_SOURCES = ontology-validator.c
 
 data_validator_SOURCES = data-validator.c
 
-EXTRA_DIST = file-class.cache.test
-
