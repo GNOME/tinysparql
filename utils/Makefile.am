@@ -8,10 +8,6 @@ SUBDIRS =                                              \
 	mtp                                            \
 	tracker-sql
 
-if HAVE_TOTEM_PL_PARSER
-SUBDIRS += playlists
-endif
-
 if HAVE_TRACKER_RESDUMP
 SUBDIRS += tracker-resdump
 endif
