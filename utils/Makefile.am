@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS =                                              \
 	gtk-sparql                                     \
-	services                                       \
+	ontology                                       \
 	data-generators                                \
 	mtp                                            \
 	tracker-sql

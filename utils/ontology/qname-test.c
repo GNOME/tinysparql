@@ -25,7 +25,7 @@ srcdir_qname_init (const gchar *luri, const gchar *lprefix)
 {
 	gchar *class_location;
 
-	class_location = g_build_filename (TOP_SRCDIR, "utils", "services", "file-class.cache.test", NULL);
+	class_location = g_build_filename (TOP_SRCDIR, "utils", "ontology", "file-class.cache.test", NULL);
 
 	qname_init (luri, lprefix, class_location);
 

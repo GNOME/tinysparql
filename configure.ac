@@ -2370,7 +2370,7 @@ AC_CONFIG_FILES([
 	tests/tracker-writeback/Makefile
 	utils/Makefile
 	utils/gtk-sparql/Makefile
-	utils/services/Makefile
+	utils/ontology/Makefile
 	utils/data-generators/Makefile
 	utils/data-generators/cc/Makefile
 	utils/mtp/Makefile
