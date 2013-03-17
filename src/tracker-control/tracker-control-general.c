@@ -290,6 +290,8 @@ tracker_gsettings_set_all (GSList           *all,
 		g_settings_apply (c->settings);
 	}
 
+	g_settings_sync ();
+
 	return success;
 }
 
@@ -911,6 +913,8 @@ tracker_control_general_run (void)
 
 			g_settings_apply (c->settings);
 		}
+
+		g_settings_sync ();
 
 		tracker_gsettings_free (all);
 	}
