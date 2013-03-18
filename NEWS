@@ -1,3 +1,57 @@
+NEW in 0.16.0 - 2013-03-18
+==========================
+
+The main changes since 0.14.x are:
+
+  * Require: GStreamer >= 1.0 (was 0.10) to follow upstream releases
+  * Require: libgrss >= 0.5 (was 0.3) to follow upstream releases
+  * Require: GLib 2.35.1 for GTask API (was 2.28.0)
+  * Require: SQLite 3.7.9 (was 3.7.0) for FTS4 support
+  * Removed: Flickr miner, it will be imported to GNOME Photos later.
+  * Removed: Dia dependency for producing documentation.
+  * Removed: tracker-explorer (unused and unmaintained)
+  * Removed: tracker-search-bar (unused, useless and unmaintained)
+  * Removed: utils/playlists (replicates tracker-extract)
+  * Removed: utils/lyrics (not working any more, we don't store lyrics either)
+  * Removed: utils/webhistory (unused)
+  * Removed: utils/data-generators/deprecated/ (unused)
+  * Removed: utils/data-generators/barnum/ (unused)
+  * New Feature: Support GKqueueDirectoryMonitor API on BSD systems
+  * New Feature: Full Text Search (FTS) v4 support:
+                 New SPARQL function fts:snippet(?u)
+                 - Snippets provide context around a matched query.
+                 New SPARQL function fts:offsets(?u):
+                 - Offsets provide an index where a matched query is
+                   found in context.
+                   See tracker-needle for basic use.
+  * Build: Switched out all uses of deprecated GStaticMutex for GMutex
+  * Build: Remove all cases of g_type_init() now it's deprecated in GLib 2.35.x
+  * Ontology: Deprecated tracker:fulltextNoLimit and removed use in all other ontologies
+  * libtracker-fts: Removed tracker_fts_config_min_word_length() and config option
+  * libtracker-common: Add replacement function for flock() on Solaris
+  * libtracker-common: Don't log to file by default, only stdout/stderr. See TRACKER_USE_LOG_FILES env var for details.
+  * libtracker-miner: Fixed nasty stack corruption with TrackerIndexingTree filter rules
+  * libtracker-miner: Fixed vala bindings for TrackerMinerFS
+  * libtracker-miner: Renamed API tracker_media_art_queue_removal() to _remove()
+  * libtracker-miner: Renamed API tracker_media_art_execute_queue() to _queue_empty()
+  * libtracker-miner: Dispose regular files from the filesystem cache on monitor events
+  * tracker-control: Fixed --{get|set}-log-verbosity with g_settings_sync()
+  * tracker-miner-fs, store: Add MeeGo keys to desktop files
+  * tracker-search: Added snippets for result hits
+  * tracker-search: Added colored output for result hits
+  * Nautilus: Fixed build error when supplying nautilis extensions directory
+  * Thunderbird: Fixed extension path in configure.ac and look for correct libraries in $prefix
+  * Firefox: Fixed extension path in configure.ac and look for correct libraries in $prefix
+
+Bugs Fixed (18):
+
+  https://bugzilla.gnome.org/buglist.cgi?quicksearch=693889,694146,691847,692409,692603,691807,691804,679870,690170,695769,643388,643388,695444,693198,695061,695157,694783,660965,692210
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+
 NEW in 0.15.4 - 2013-03-12
 ==========================
 
