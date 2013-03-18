@@ -52,7 +52,7 @@ if (cfg.haveUpstart):
         """
 else:
         PRE_STEPS = """        <pre_steps>
-           <step>su - meego -c "tracker-control -t"</step>
+           <step>tracker-control -t</step>
         </pre_steps>
         """
 
