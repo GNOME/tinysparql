@@ -4,8 +4,10 @@
 tracker-tag \- Add, remove and list tags.
 
 .SH SYNOPSIS
-\fBtracker-tag\fR
-[\fIOPTION...\fR] FILE [\fIFILE...\fR]
+\fBtracker-tag\fR [\fIOPTION...\fR] FILE [\fIFILE...\fR]
+.nf
+\fBtracker-tag\fR [\fIOPTION...\fR] -t [[\fITAG\fR] [\fITAG\fR] ...\fR]
+.fi
 
 .SH DESCRIPTION
 .B tracker-tag
@@ -34,6 +36,16 @@ Use OR for search terms instead of AND (the default)
 List all tags. Results include the number of files associated with
 that tag and the tag's unique identifier. You can show the files
 associated with each tag by using --show-files.
+
+The \fITAG\fR arguments are optional. If no \fITAG\fR argument
+is specified, all tags are listed. If one or more \fITAG\fRs are
+given, all matching tags are listed. For example, this will match any
+tags named either \fIfoo\fR, \fIbar\fR or \fIbaz\fR:
+.nf
+.BR
+$ tracker-tag -t foo bar baz
+.fi
+
 .TP
 .B \-s, \-\-show-files
 Show the files associated with each tag. This option is ONLY available
