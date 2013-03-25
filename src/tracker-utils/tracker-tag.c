@@ -87,8 +87,7 @@ static GOptionEntry entries[] = {
 	  N_("Print version"),
 	  NULL
 	},
-	{ G_OPTION_REMAINING, 0,
-	  G_OPTION_FLAG_FILENAME,
+	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_FILENAME_ARRAY, &files,
 	  N_("FILE…"),
 	  N_("FILE [FILE…]")},
