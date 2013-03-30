@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2013-03-27 08:56+0000\n"
-"PO-Revision-Date: 2013-03-30 09:52+0100\n"
+"PO-Revision-Date: 2013-03-30 09:57+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -31,7 +31,7 @@ msgstr "Največja velikost dnevnika"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 možnost onemogoči."
+msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 onemogoči možnost."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
 msgid "Location of journal pieces"
