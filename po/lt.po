@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-03-15 11:25+0000\n"
-"PO-Revision-Date: 2013-03-16 22:29+0200\n"
+"POT-Creation-Date: 2013-03-25 15:01+0000\n"
+"PO-Revision-Date: 2013-04-01 19:41+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -649,7 +649,7 @@ msgstr "Įrašo pridėjimas reikalauja --add-feed ir --title"
 #: ../src/tracker-utils/tracker-search.c:1662
 #: ../src/tracker-utils/tracker-sparql.c:479
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:938
+#: ../src/tracker-utils/tracker-tag.c:899
 msgid "Could not establish a connection to Tracker"
 msgstr "Nepavyko užmegzti ryšio su Tracker"
 
@@ -659,7 +659,7 @@ msgstr "Nepavyko užmegzti ryšio su Tracker"
 #: ../src/tracker-utils/tracker-search.c:1663
 #: ../src/tracker-utils/tracker-sparql.c:480
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:939
+#: ../src/tracker-utils/tracker-tag.c:900
 msgid "No error given"
 msgstr "Nenurodyta klaida"
 
@@ -810,22 +810,22 @@ msgid "Could not open /proc"
 msgstr "Nepavyko atverti /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:684
-#: ../src/tracker-control/tracker-control-general.c:724
-#: ../src/tracker-control/tracker-control-general.c:745
+#: ../src/tracker-control/tracker-control-general.c:686
+#: ../src/tracker-control/tracker-control-general.c:726
+#: ../src/tracker-control/tracker-control-general.c:747
 msgid "no error given"
 msgstr "nepateikta klaida"
 
-#: ../src/tracker-control/tracker-control-general.c:324
+#: ../src/tracker-control/tracker-control-general.c:326
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr "Nepavyko gauti gavėjų GSettings, valdyklė negali būti sukurta, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:581
+#: ../src/tracker-control/tracker-control-general.c:583
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Negalima kartu naudoti --kill ir --terminate argumentų"
 
-#: ../src/tracker-control/tracker-control-general.c:587
+#: ../src/tracker-control/tracker-control-general.c:589
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -833,109 +833,109 @@ msgstr ""
 "Negalima kartu naudoti --terminate ir --hard-reset arba --soft-reset, "
 "iššaukiamas --kill"
 
-#: ../src/tracker-control/tracker-control-general.c:593
+#: ../src/tracker-control/tracker-control-general.c:595
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Negalima kartu naudoti --hard-reset ir --soft-reset argumentų"
 
-#: ../src/tracker-control/tracker-control-general.c:599
+#: ../src/tracker-control/tracker-control-general.c:601
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Negalima kartu naudoti --get-logging ir --set-logging argumentų"
 
-#: ../src/tracker-control/tracker-control-general.c:614
+#: ../src/tracker-control/tracker-control-general.c:616
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Netinkamas detalumas, bandykite „debug“, „detailed“, „minimal“ arba „errors“"
 
-#: ../src/tracker-control/tracker-control-general.c:681
+#: ../src/tracker-control/tracker-control-general.c:683
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Nepavyko atverti „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:706
+#: ../src/tracker-control/tracker-control-general.c:708
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Rastas proceso ID %d programai „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:721
+#: ../src/tracker-control/tracker-control-general.c:723
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Nepavyko užbaigti proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:727
+#: ../src/tracker-control/tracker-control-general.c:729
 #, c-format
 msgid "Terminated process %d"
 msgstr "Baigtas procesas %d"
 
-#: ../src/tracker-control/tracker-control-general.c:742
+#: ../src/tracker-control/tracker-control-general.c:744
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Nepavyko nutraukti proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:748
+#: ../src/tracker-control/tracker-control-general.c:750
 #, c-format
 msgid "Killed process %d"
 msgstr "Nutrauktas procesas %d"
 
-#: ../src/tracker-control/tracker-control-general.c:876
+#: ../src/tracker-control/tracker-control-general.c:878
 msgid "Removing configuration files…"
 msgstr "Šalinami konfigūracijos failai..."
 
-#: ../src/tracker-control/tracker-control-general.c:884
+#: ../src/tracker-control/tracker-control-general.c:886
 msgid "Resetting existing configuration…"
 msgstr "Šalinama esama konfigūracija..."
 
-#: ../src/tracker-control/tracker-control-general.c:932
-#: ../src/tracker-control/tracker-control-general.c:974
+#: ../src/tracker-control/tracker-control-general.c:936
+#: ../src/tracker-control/tracker-control-general.c:978
 msgid "Components"
 msgstr "Komponentai"
 
-#: ../src/tracker-control/tracker-control-general.c:938
-#: ../src/tracker-control/tracker-control-general.c:980
+#: ../src/tracker-control/tracker-control-general.c:942
+#: ../src/tracker-control/tracker-control-general.c:984
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Gavėjai"
 
-#: ../src/tracker-control/tracker-control-general.c:939
-#: ../src/tracker-control/tracker-control-general.c:981
+#: ../src/tracker-control/tracker-control-general.c:943
+#: ../src/tracker-control/tracker-control-general.c:985
 msgid "Only those with config listed"
 msgstr "Išvardinti tik su konfigūracija"
 
-#: ../src/tracker-control/tracker-control-general.c:957
+#: ../src/tracker-control/tracker-control-general.c:961
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Nustatomas žurnalo detalumas visiems komponentams į „%s“..."
 
-#: ../src/tracker-control/tracker-control-general.c:997
+#: ../src/tracker-control/tracker-control-general.c:1001
 msgid "Waiting one second before starting miners…"
 msgstr "Laukiama vieną sekundę prie paleidžiant gavėjus..."
 
-#: ../src/tracker-control/tracker-control-general.c:1003
+#: ../src/tracker-control/tracker-control-general.c:1007
 msgid "Starting miners…"
 msgstr "Paleidžiami gavėjai..."
 
-#: ../src/tracker-control/tracker-control-general.c:1009
+#: ../src/tracker-control/tracker-control-general.c:1013
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Nepavyko paleisti gavėjų, nepavyko sukurti valdyklės, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1034
+#: ../src/tracker-control/tracker-control-general.c:1038
 msgid "perhaps a disabled plugin?"
 msgstr "galbūt išjungtas įskiepis?"
 
-#: ../src/tracker-control/tracker-control-general.c:1056
+#: ../src/tracker-control/tracker-control-general.c:1060
 msgid "Backing up database"
 msgstr "Daroma duomenų bazės atsarginė kopija"
 
-#: ../src/tracker-control/tracker-control-general.c:1128
+#: ../src/tracker-control/tracker-control-general.c:1132
 msgid "Restoring database from backup"
 msgstr "Duomenų bazė atstatoma iš atsarginės kopijos"
 
-#: ../src/tracker-control/tracker-control-general.c:1201
+#: ../src/tracker-control/tracker-control-general.c:1205
 msgid "General options"
 msgstr "Bendros parinktys"
 
-#: ../src/tracker-control/tracker-control-general.c:1202
+#: ../src/tracker-control/tracker-control-general.c:1206
 msgid "Show general options"
 msgstr "Rodyti bendras parinktis"
 
@@ -1488,7 +1488,7 @@ msgid "Could not update tags"
 msgstr "Nepavyko atnaujinti žymų"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:803
+#: ../src/tracker-utils/tracker-tag.c:764
 msgid "Could not remove tag"
 msgstr "Nepavyko pašalinti žymos"
 
@@ -1497,7 +1497,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Nepavyko gauti dabartinio pažymėjimo žymų"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:627
+#: ../src/tracker-utils/tracker-tag.c:588
 msgid "Could not add tag"
 msgstr "Nepavyko pridėti žymos"
 
@@ -2114,7 +2114,7 @@ msgid "EXPRESSION"
 msgstr "IŠRAIŠKA"
 
 #: ../src/tracker-utils/tracker-search.c:196
-#: ../src/tracker-utils/tracker-tag.c:110
+#: ../src/tracker-utils/tracker-tag.c:109
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr "PASTABA: pasiekta riba, duomenų bazėje yra daugiau įrašų, nei rodoma"
@@ -2232,12 +2232,10 @@ msgstr ""
 "(nebent naudosite --or-operator)"
 
 #: ../src/tracker-utils/tracker-search.c:1557
-#| msgid "Miner options"
 msgid "Search options"
 msgstr "Paieškos parinktys"
 
 #: ../src/tracker-utils/tracker-search.c:1558
-#| msgid "Show miner options"
 msgid "Show search options"
 msgstr "Rodyti paieškos parinktis"
 
@@ -2333,9 +2331,9 @@ msgstr "Nerasti vardų srities priešdėliai"
 #: ../src/tracker-utils/tracker-sparql.c:371
 #: ../src/tracker-utils/tracker-sparql.c:415
 #: ../src/tracker-utils/tracker-stats.c:117
-#: ../src/tracker-utils/tracker-tag.c:370
-#: ../src/tracker-utils/tracker-tag.c:494
-#: ../src/tracker-utils/tracker-tag.c:866
+#: ../src/tracker-utils/tracker-tag.c:326
+#: ../src/tracker-utils/tracker-tag.c:455
+#: ../src/tracker-utils/tracker-tag.c:827
 msgid "None"
 msgstr "Joks"
 
@@ -2481,8 +2479,16 @@ msgid "Statistics:"
 msgstr "Statistika:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-msgid "List all tags (using FILTER if specified)"
-msgstr "Išvardinti visas žymas (naudojant FILTRĄ, jei nurodytas)"
+#| msgid "List all tags (using FILTER if specified)"
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+"Išvardinti visas žymas (naudojant FILTRĄ, jei nurodytas; FILTRAS visada "
+"naudoja loginį ARBA)"
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "FILTER"
+msgstr "FILTRAS"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2509,100 +2515,100 @@ msgstr "Žymos aprašymas (naudojami tik su --add)"
 msgid "STRING"
 msgstr "EILUTĖ"
 
-#: ../src/tracker-utils/tracker-tag.c:93
+#: ../src/tracker-utils/tracker-tag.c:92
 msgid "FILE…"
 msgstr "FAILAS..."
 
-#: ../src/tracker-utils/tracker-tag.c:94
+#: ../src/tracker-utils/tracker-tag.c:93
 msgid "FILE [FILE…]"
 msgstr "FAILAS [FAILAS...]"
 
-#: ../src/tracker-utils/tracker-tag.c:298
+#: ../src/tracker-utils/tracker-tag.c:254
 msgid "Could not get file URNs"
 msgstr "Nepavyko gauti URN"
 
-#: ../src/tracker-utils/tracker-tag.c:363
+#: ../src/tracker-utils/tracker-tag.c:319
 msgid "Could not get files related to tag"
 msgstr "Nepavyko gauti failų, susijusių su žyma"
 
-#: ../src/tracker-utils/tracker-tag.c:438
-#: ../src/tracker-utils/tracker-tag.c:847
+#: ../src/tracker-utils/tracker-tag.c:399
+#: ../src/tracker-utils/tracker-tag.c:808
 msgid "Could not get all tags"
 msgstr "Nepavyko gauti visų žymų"
 
-#: ../src/tracker-utils/tracker-tag.c:447
-#: ../src/tracker-utils/tracker-tag.c:856
+#: ../src/tracker-utils/tracker-tag.c:408
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "No tags were found"
 msgstr "Nerasta žymų"
 
-#: ../src/tracker-utils/tracker-tag.c:451
+#: ../src/tracker-utils/tracker-tag.c:412
 msgid "Tags (shown by name)"
 msgstr "Žymos (rodomos pagal vardą)"
 
-#: ../src/tracker-utils/tracker-tag.c:518
+#: ../src/tracker-utils/tracker-tag.c:479
 msgid "No files were modified"
 msgstr "Nebuvo pakeistų failų"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:604
 msgid "Tag was added successfully"
 msgstr "Žyma sėkmingai pridėta"
 
-#: ../src/tracker-utils/tracker-tag.c:672
+#: ../src/tracker-utils/tracker-tag.c:633
 msgid "Could not add tag to files"
 msgstr "Nepavyko pridėti žymos failams"
 
-#: ../src/tracker-utils/tracker-tag.c:682
+#: ../src/tracker-utils/tracker-tag.c:643
 msgid "Tagged"
 msgstr "Pažymėta"
 
-#: ../src/tracker-utils/tracker-tag.c:683
+#: ../src/tracker-utils/tracker-tag.c:644
 msgid "Not tagged, file is not indexed"
 msgstr "Nepažymėta, failas nėra indeksuojamas"
 
-#: ../src/tracker-utils/tracker-tag.c:729
+#: ../src/tracker-utils/tracker-tag.c:690
 msgid "Could not get tag by label"
 msgstr "Nepavyko gauti žymos pagal etiketę"
 
-#: ../src/tracker-utils/tracker-tag.c:740
+#: ../src/tracker-utils/tracker-tag.c:701
 msgid "No tags were found by that name"
 msgstr "Nerasta žymų pagal šį pavadinimą"
 
-#: ../src/tracker-utils/tracker-tag.c:757
+#: ../src/tracker-utils/tracker-tag.c:718
 msgid "None of the files had this tag set"
 msgstr "Nė vienas iš failų neturi šios žymos"
 
-#: ../src/tracker-utils/tracker-tag.c:810
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Tag was removed successfully"
 msgstr "Žyma sėkmingai pašalinta"
 
-#: ../src/tracker-utils/tracker-tag.c:814
+#: ../src/tracker-utils/tracker-tag.c:775
 msgid "Untagged"
 msgstr "Atžymėta"
 
-#: ../src/tracker-utils/tracker-tag.c:815
+#: ../src/tracker-utils/tracker-tag.c:776
 msgid "File not indexed or already untagged"
 msgstr "Failas neindeksuojamas arba jau atžymėtas"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:894
+#: ../src/tracker-utils/tracker-tag.c:855
 msgid "Add, remove or list tags"
 msgstr "Pridėti, šalinti arba išvardinti žymas"
 
-#: ../src/tracker-utils/tracker-tag.c:910
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "The --list option is required for --show-files"
 msgstr "Parinktis --list yra privaloma su --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:912
+#: ../src/tracker-utils/tracker-tag.c:873
 msgid "Add and delete actions can not be used together"
 msgstr "Pridėjimo ir trynimo veiksmai negali būti naudojami kartu"
 
-#: ../src/tracker-utils/tracker-tag.c:914
+#: ../src/tracker-utils/tracker-tag.c:875
 msgid "No arguments were provided"
 msgstr "Nepateikta argumentų"
 
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:877
 msgid "The --description option can only be used with --add"
 msgstr "Parinktis --description gali būti naudojama tik su --add"
 
@@ -2628,4 +2634,3 @@ msgstr "Nepavyko inicializuoti duomenų valdyklės"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Tuščias rezultatas"
-
