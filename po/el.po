@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracke"
 "r&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-02-15 16:42+0000\n"
-"PO-Revision-Date: 2013-03-12 22:36+0300\n"
+"POT-Creation-Date: 2013-03-25 15:07+0000\n"
+"PO-Revision-Date: 2013-04-08 09:36+0300\n"
 "Last-Translator: Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>\n"
 "Language-Team: team@gnome.gr\n"
 "Language: el\n"
@@ -342,7 +342,6 @@ msgstr "Συλλέκτης δεδομένων αρχείων συστήματο�
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
-#: ../src/tracker-search-bar/tracker-results-window.c:717
 msgid "Applications"
 msgstr "Εφαρμογές"
 
@@ -369,14 +368,6 @@ msgstr "Σύστημα αρχείων"
 msgid "File system data miner"
 msgstr "Συλλέκτης δεδομένων αρχείων συστήματος"
 
-#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:1
-msgid "Flickr"
-msgstr "Flickr"
-
-#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:2
-msgid "Index your Flickr photo albums"
-msgstr "Δεικτοδότηση των φωτογραφικών σας συλλογών Flickr"
-
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "RSS/ATOM Feeds"
 msgstr "Τροφοδοσίες RSS/ATOM"
@@ -384,14 +375,6 @@ msgstr "Τροφοδοσίες RSS/ATOM"
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Προσκόμιση τροφοδοσιών RSS/ATOM"
-
-#: ../data/tracker-miner-flickr.desktop.in.in.h:1
-msgid "Tracker Miner for Flickr"
-msgstr "Συλλέκτης Tracker για το Flickr"
-
-#: ../data/tracker-miner-flickr.desktop.in.in.h:2
-msgid "Processes images and albums on Flickr"
-msgstr "Επεξεργασία των εικόνων και των συλλογών σας στο Flickr"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -489,17 +472,17 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " σε %2.2d δευτερόλεπτο"
 msgstr[1] " σε %2.2d δευτερόλεπτα"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:957
+#: ../src/libtracker-miner/tracker-miner-object.c:958
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Η παύση της εφαρμογής και η αιτία ταιριάζουν με ένα ήδη υπάρχον αίτημα παύσης"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1054
+#: ../src/libtracker-miner/tracker-miner-object.c:1055
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Το μπισκότο δεν αναγνωρίστηκε για να ξαναρχίσει ο σταματημένος συλλέκτης"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1500
+#: ../src/libtracker-miner/tracker-miner-object.c:1501
 msgid "Data store is not available"
 msgstr "Η αποθήκευση δεδομένων δεν είναι διαθέσιμη"
 
@@ -645,7 +628,7 @@ msgstr "Θα παρακολουθείται"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:876
+#: ../src/miners/fs/tracker-main.c:875
 msgid "- start the tracker indexer"
 msgstr "- εκκίνηση του ανιχνευτή δεικτοδότησης"
 
@@ -657,7 +640,7 @@ msgstr "Χαμηλή μπαταρία"
 msgid "Low disk space"
 msgstr "Μικρός χώρος δίσκου"
 
-#: ../src/miners/fs/tracker-miner-files.c:2243
+#: ../src/miners/fs/tracker-miner-files.c:2245
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Σφάλμα εξαγωγέα, ασφαλής εξαγωγή ενσωματωμένων μεταδεδομένων θα εκτελεστεί"
@@ -677,35 +660,35 @@ msgstr "Τίτλος για χρήση (πρέπει να χρησιμοποιη
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:75
+#: ../src/miners/rss/tracker-main.c:73
 msgid "- start the feeds indexer"
 msgstr "- εκκίνηση του δεικτοδότη τροφοδοσιών"
 
-#: ../src/miners/rss/tracker-main.c:80
+#: ../src/miners/rss/tracker-main.c:78
 msgid "Adding a feed requires --add-feed and --title"
 msgstr "Η προσθήκη τροφοδοσίας απαιτεί --add-feed και --title"
 
-#: ../src/miners/rss/tracker-main.c:114
-#: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:385
-#: ../src/tracker-utils/tracker-search.c:1665
-#: ../src/tracker-utils/tracker-sparql.c:481
-#: ../src/tracker-utils/tracker-stats.c:88
-#: ../src/tracker-utils/tracker-tag.c:940
+#: ../src/miners/rss/tracker-main.c:113
+#: ../src/tracker-utils/tracker-import.c:109
+#: ../src/tracker-utils/tracker-info.c:383
+#: ../src/tracker-utils/tracker-search.c:1662
+#: ../src/tracker-utils/tracker-sparql.c:479
+#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-tag.c:899
 msgid "Could not establish a connection to Tracker"
 msgstr "Αδυναμία σύνδεσης με το Tracker"
 
-#: ../src/miners/rss/tracker-main.c:115
-#: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:386
-#: ../src/tracker-utils/tracker-search.c:1666
-#: ../src/tracker-utils/tracker-sparql.c:482
-#: ../src/tracker-utils/tracker-stats.c:89
-#: ../src/tracker-utils/tracker-tag.c:941
+#: ../src/miners/rss/tracker-main.c:114
+#: ../src/tracker-utils/tracker-import.c:110
+#: ../src/tracker-utils/tracker-info.c:384
+#: ../src/tracker-utils/tracker-search.c:1663
+#: ../src/tracker-utils/tracker-sparql.c:480
+#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-tag.c:900
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
 
-#: ../src/miners/rss/tracker-main.c:140
+#: ../src/miners/rss/tracker-main.c:139
 msgid "Could not add feed"
 msgstr "Αδυναμία προσθήκης τροφοδοσίας"
 
@@ -725,7 +708,6 @@ msgstr "Επεξεργασία…"
 #. Create dialog and embed vbox.
 #: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:539
-#: ../src/tracker-search-bar/tracker-results-window.c:714
 msgid "Tags"
 msgstr "Ετικέτες"
 
@@ -758,24 +740,24 @@ msgstr "Εμφάνιση έκδοσης"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:73
+#: ../src/tracker-control/tracker-control.c:71
 msgid " - Manage Tracker processes and data"
 msgstr " - Διαχείριση διεργασιών και δεδομένων του tracker"
 
-#: ../src/tracker-control/tracker-control.c:97
+#: ../src/tracker-control/tracker-control.c:95
 msgid "General and Status options cannot be used together"
 msgstr "Οι επιλογές γενικά και κατάσταση δεν μπορούν να χρησιμοποιηθούν μαζί"
 
-#: ../src/tracker-control/tracker-control.c:103
+#: ../src/tracker-control/tracker-control.c:101
 msgid "General and Miners options cannot be used together"
 msgstr "Οι επιλογές γενικά και συλλέκτες δεν μπορούν να χρησιμοποιηθούν μαζί"
 
-#: ../src/tracker-control/tracker-control.c:114
+#: ../src/tracker-control/tracker-control.c:112
 msgid "Status and Miners options cannot be used together"
 msgstr ""
 "Οι επιλογές κατάστασης και συλλεκτών δεν μπορούν να χρησιμοποιηθούν μαζί"
 
-#: ../src/tracker-control/tracker-control.c:131
+#: ../src/tracker-control/tracker-control.c:129
 msgid "Unrecognized options"
 msgstr "Άγνωστες επιλογές"
 
@@ -860,24 +842,24 @@ msgid "Could not open /proc"
 msgstr "Αδυναμία ανοίγματος του /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:684
-#: ../src/tracker-control/tracker-control-general.c:724
-#: ../src/tracker-control/tracker-control-general.c:745
+#: ../src/tracker-control/tracker-control-general.c:686
+#: ../src/tracker-control/tracker-control-general.c:726
+#: ../src/tracker-control/tracker-control-general.c:747
 msgid "no error given"
 msgstr "δεν προέκυψε σφάλμα"
 
-#: ../src/tracker-control/tracker-control-general.c:324
+#: ../src/tracker-control/tracker-control-general.c:326
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Αδυναμία λήψης GSettings για συλλέκτες, ο διαχειριστής δεν μπόρεσε να "
 "δημιουργηθεί, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:581
+#: ../src/tracker-control/tracker-control-general.c:583
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --kill και --terminate μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:587
+#: ../src/tracker-control/tracker-control-general.c:589
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -885,55 +867,55 @@ msgstr ""
 "Αδυναμία χρήσης του --terminate με --hard-reset ή --soft-reset, --kill "
 "υπονοείται"
 
-#: ../src/tracker-control/tracker-control-general.c:593
+#: ../src/tracker-control/tracker-control-general.c:595
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --hard-reset και --soft-reset μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:599
+#: ../src/tracker-control/tracker-control-general.c:601
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --get-logging και --set-logging μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:614
+#: ../src/tracker-control/tracker-control-general.c:616
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Άκυρη περιγραφή ημερολογίου, δοκιμάστε 'debug', 'detailed', 'minimal' ή "
 "'errors'"
 
-#: ../src/tracker-control/tracker-control-general.c:681
+#: ../src/tracker-control/tracker-control-general.c:683
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Αδυναμία ανοίγματος '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:706
+#: ../src/tracker-control/tracker-control-general.c:708
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d για το '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:721
+#: ../src/tracker-control/tracker-control-general.c:723
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Αδυναμία τερματισμού της διεργασίας %d"
 
-#: ../src/tracker-control/tracker-control-general.c:727
+#: ../src/tracker-control/tracker-control-general.c:729
 #, c-format
 msgid "Terminated process %d"
 msgstr "Ολοκληρωμένη διεργασία %d"
 
-#: ../src/tracker-control/tracker-control-general.c:742
+#: ../src/tracker-control/tracker-control-general.c:744
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Αδυναμία θανάτωσης της διεργασίας %d"
 
-#: ../src/tracker-control/tracker-control-general.c:748
+#: ../src/tracker-control/tracker-control-general.c:750
 #, c-format
 msgid "Killed process %d"
 msgstr "Σκοτωμένη διεργασία %d"
 
-#: ../src/tracker-control/tracker-control-general.c:876
+#: ../src/tracker-control/tracker-control-general.c:878
 msgid "Removing configuration files…"
 msgstr "Αφαίρεση αρχείων ρυθμίσεων…"
 
-#: ../src/tracker-control/tracker-control-general.c:884
+#: ../src/tracker-control/tracker-control-general.c:886
 msgid "Resetting existing configuration…"
 msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 
@@ -946,50 +928,50 @@ msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: ../src/tracker-control/tracker-control-general.c:932
-#: ../src/tracker-control/tracker-control-general.c:974
+#: ../src/tracker-control/tracker-control-general.c:936
+#: ../src/tracker-control/tracker-control-general.c:978
 msgid "Components"
 msgstr "Συστατικά"
 
-#: ../src/tracker-control/tracker-control-general.c:938
-#: ../src/tracker-control/tracker-control-general.c:980
+#: ../src/tracker-control/tracker-control-general.c:942
+#: ../src/tracker-control/tracker-control-general.c:984
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Συλλέκτες"
 
-#: ../src/tracker-control/tracker-control-general.c:939
-#: ../src/tracker-control/tracker-control-general.c:981
+#: ../src/tracker-control/tracker-control-general.c:943
+#: ../src/tracker-control/tracker-control-general.c:985
 msgid "Only those with config listed"
 msgstr "Μόνο αυτά που έχουν λίστα config"
 
-#: ../src/tracker-control/tracker-control-general.c:957
+#: ../src/tracker-control/tracker-control-general.c:961
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Ρύθμιση περιγραφής ημερολογίου για όλα τα συστατικά στο '%s'…"
 
-#: ../src/tracker-control/tracker-control-general.c:997
+#: ../src/tracker-control/tracker-control-general.c:1001
 msgid "Waiting one second before starting miners…"
 msgstr "Αναμονή ενός δευτερολέπτου πριν την εκκίνηση των συλλεκτών…"
 
-#: ../src/tracker-control/tracker-control-general.c:1003
+#: ../src/tracker-control/tracker-control-general.c:1007
 msgid "Starting miners…"
 msgstr "Εκκίνηση συλλεκτών…"
 
-#: ../src/tracker-control/tracker-control-general.c:1009
+#: ../src/tracker-control/tracker-control-general.c:1013
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Αδυναμία εκκίνησης συλλεκτών, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1034
+#: ../src/tracker-control/tracker-control-general.c:1038
 msgid "perhaps a disabled plugin?"
 msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
 
-#: ../src/tracker-control/tracker-control-general.c:1056
+#: ../src/tracker-control/tracker-control-general.c:1060
 msgid "Backing up database"
 msgstr "Αντίγραφα ασφαλείας βάσης δεδομένων"
 
-#: ../src/tracker-control/tracker-control-general.c:1128
+#: ../src/tracker-control/tracker-control-general.c:1132
 msgid "Restoring database from backup"
 msgstr "Επαναφορά βάσης δεδομένων από αντίγραφο ασφαλείας"
 
@@ -1016,11 +998,11 @@ msgstr "Επαναφορά βάσης δεδομένων από αντίγραφ
 # #-#-#-#-#  help.HEAD.el.po (el)  #-#-#-#-#
 # #-#-#-#-#  ekiga.gnome-2-14.el.po (el)  #-#-#-#-#
 #
-#: ../src/tracker-control/tracker-control-general.c:1201
+#: ../src/tracker-control/tracker-control-general.c:1205
 msgid "General options"
 msgstr "Γενικές επιλογές"
 
-#: ../src/tracker-control/tracker-control-general.c:1202
+#: ../src/tracker-control/tracker-control-general.c:1206
 msgid "Show general options"
 msgstr "Εμφάνιση γενικών επιλογών"
 
@@ -1128,8 +1110,8 @@ msgid "Could not resume miner: %s"
 msgstr "Αδυναμία συνέχισης του συλλέκτη: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:187
-#: ../src/tracker-utils/tracker-import.c:138
-#: ../src/tracker-utils/tracker-sparql.c:761
+#: ../src/tracker-utils/tracker-import.c:136
+#: ../src/tracker-utils/tracker-sparql.c:759
 msgid "Done"
 msgstr "Ολοκληρώθηκε"
 
@@ -1319,21 +1301,6 @@ msgstr "Επιλογές κατάστασης"
 msgid "Show status options"
 msgstr "Εμφάνιση επιλογών κατάστασης"
 
-#: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-needle/tracker-needle.ui.h:7
-msgid "_Search:"
-msgstr "Ανα_ζήτηση:"
-
-#: ../src/tracker-explorer/tracker-explorer.ui.h:2
-msgid "_URN:"
-msgstr "_URN:"
-
-#: ../src/tracker-explorer/tracker-explorer.ui.h:3
-#: ../src/tracker-utils/tracker-sparql.c:594
-#: ../src/tracker-utils/tracker-sparql.c:713
-msgid "Properties"
-msgstr "Ιδιότητες"
-
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
@@ -1402,9 +1369,6 @@ msgstr ""
 "χρησιμοποιώντας τον Tracker"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-#| msgid ""
-#| "Display results by category, for example, Music, Videos, Applications, "
-#| "etc."
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc. "
 "This includes searching the contents of files where applicable."
@@ -1428,6 +1392,10 @@ msgstr "Εύρεση κριτηρίων αναζήτησης μέσα στα α�
 #: ../src/tracker-needle/tracker-needle.ui.h:6
 msgid "Find search criteria in file titles"
 msgstr "Εύρεση κριτηρίων αναζήτησης στους τίτλους αρχείων"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "_Search:"
+msgstr "Ανα_ζήτηση:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show tagging panel which allows editing tags of selected results"
@@ -1493,7 +1461,6 @@ msgstr[0] "Επαφή"
 msgstr[1] "Επαφές"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
-#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Ήχος"
@@ -1677,7 +1644,7 @@ msgid "Could not update tags"
 msgstr "Αδυναμία ενημέρωσης ετικετών"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:803
+#: ../src/tracker-utils/tracker-tag.c:764
 msgid "Could not remove tag"
 msgstr "Αδυναμία αφαίρεσης ετικέτας"
 
@@ -1686,7 +1653,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Αδυναμία ανάκτησης ετικετών για την τρέχουσα επιλογή"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:627
+#: ../src/tracker-utils/tracker-tag.c:588
 msgid "Could not add tag"
 msgstr "Αδυναμία προσθήκης ετικέτας"
 
@@ -1764,12 +1731,10 @@ msgstr "Μουσική"
 # #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
 #
 #: ../src/tracker-needle/tracker-view.vala:337
-#: ../src/tracker-search-bar/tracker-results-window.c:718
 msgid "Images"
 msgstr "Εικόνες"
 
 #: ../src/tracker-needle/tracker-view.vala:340
-#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Videos"
 msgstr "Βίντεο"
 
@@ -1783,7 +1748,6 @@ msgstr "Βίντεο"
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:343
-#: ../src/tracker-search-bar/tracker-results-window.c:716
 msgid "Documents"
 msgstr "Έγγραφα"
 
@@ -1792,12 +1756,10 @@ msgid "Mail"
 msgstr "Αλληλογραφία"
 
 #: ../src/tracker-needle/tracker-view.vala:349
-#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Folders"
 msgstr "Φάκελοι"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-search-bar/tracker-results-window.c:724
 #: ../src/tracker-utils/tracker-search.c:1014
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
@@ -2139,102 +2101,6 @@ msgstr "Αναδρομικό"
 msgid "Desktop Search preferences"
 msgstr "Προτιμήσεις αναζήτησης επιφάνειας εργασίας"
 
-# #-#-#-#-#  libgnomeui.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  memory.el.po (abiword 1.0)  #-#-#-#-#
-# #-#-#-#-#  gnome-libs-el.po (gnome-libs 1.2.12)  #-#-#-#-#
-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  libgnomeui.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  memory.el.po (abiword 1.0)  #-#-#-#-#
-# #-#-#-#-#  gnome-libs-el.po (gnome-libs 1.2.12)  #-#-#-#-#
-#
-#: ../src/tracker-search-bar/tracker-applet.c:40
-msgid "_About"
-msgstr "_Περί"
-
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-#: ../src/tracker-search-bar/tracker-results-window.c:712
-#: ../src/tracker-search-bar/tracker-results-window.c:728
-msgid "Other"
-msgstr "Άλλα"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:713
-#: ../src/tracker-utils/tracker-search.c:303
-msgid "Contacts"
-msgstr "Επαφές"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:715
-msgid "Email Addresses"
-msgstr "Διευθύνσεις ηλ. ταχυδρομείου"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:721
-msgid "Fonts"
-msgstr "Γραμματοσειρές"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:723
-msgid "Archives"
-msgstr "Αρχεία"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:725
-msgid "Links"
-msgstr "Σύνδεσμοι"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:1101
-msgid "Category"
-msgstr "Κατηγορία"
-
-# #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
-#
-#: ../src/tracker-search-bar/tracker-results-window.c:1129
-msgid "Title"
-msgstr "Τίτλος"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:1195
-#, c-format
-msgid "No results found for “%s”"
-msgstr "Δεν βρέθηκαν αποτελέσματα για “%s”"
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
-msgid "Copyright Tracker Authors 2005-2010"
-msgstr "Πνευματικά δικαιώματα © 2005-2010 Οι συγγραφείς του Tracker"
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-msgid "A search bar applet for finding content stored in Tracker"
-msgstr ""
-"Μια μικροεφαρμογή γραμμής αναζήτησης για την εύρεση περιεχομένου, "
-"αποθηκευμένου στον Tracker"
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
-msgid ""
-"Tracker is free software; you can redistribute it and/or modify it under the "
-"terms of the GNU General Public License as published by the Free Software "
-"Foundation; either version 2 of the License, or (at your option) any later "
-"version.\n"
-"\n"
-"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
-"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details.\n"
-"\n"
-"You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA  02110-1301, USA."
-msgstr ""
-"Tracker is free software; you can redistribute it and/or modify it under the "
-"terms of the GNU General Public License as published by the Free Software "
-"Foundation; either version 2 of the License, or (at your option) any later "
-"version.\n"
-"\n"
-"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
-"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details.\n"
-"\n"
-"You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA  02110-1301, USA."
-
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:51
 msgid "Force a re-index of all content"
@@ -2263,11 +2129,11 @@ msgstr "- Εισαγωγή δεδομένων με την χρήση αρχεί�
 msgid "One or more files have not been specified"
 msgstr "Ένα ή περισσότερα αρχεία δεν έχουν προσδιοριστεί"
 
-#: ../src/tracker-utils/tracker-import.c:122
+#: ../src/tracker-utils/tracker-import.c:120
 msgid "Importing Turtle file"
 msgstr "Εισαγωγή αρχείου Turtle"
 
-#: ../src/tracker-utils/tracker-import.c:131
+#: ../src/tracker-utils/tracker-import.c:129
 msgid "Unable to import Turtle file"
 msgstr "Αδύνατη η εισαγωγή αρχείου Turtle"
 
@@ -2301,28 +2167,28 @@ msgstr "Δεν επιστράφηκαν τα προθέματα των χώρω�
 msgid "- Get all information about one or more files"
 msgstr "- Λήψη όλων των πληροφοριών για ένα ή περισσότερα αρχεία"
 
-#: ../src/tracker-utils/tracker-info.c:407
+#: ../src/tracker-utils/tracker-info.c:405
 msgid "Querying information for entity"
 msgstr "Ερώτημα για πληροφορίες για την οντότητα"
 
-#: ../src/tracker-utils/tracker-info.c:428
+#: ../src/tracker-utils/tracker-info.c:426
 msgid "Unable to retrieve URN for URI"
 msgstr "Αδυναμία ανάκτησης του URN για το URI"
 
-#: ../src/tracker-utils/tracker-info.c:438
-#: ../src/tracker-utils/tracker-info.c:473
+#: ../src/tracker-utils/tracker-info.c:436
+#: ../src/tracker-utils/tracker-info.c:471
 msgid "Unable to retrieve data for URI"
 msgstr "Αδυναμία ανάκτησης των δεδομένων για το URI"
 
-#: ../src/tracker-utils/tracker-info.c:482
+#: ../src/tracker-utils/tracker-info.c:480
 msgid "No metadata available for that URI"
 msgstr "Δεν είναι διαθέσιμα μεταδεδομένα για αυτό το URI"
 
-#: ../src/tracker-utils/tracker-info.c:487
+#: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:814
-#: ../src/tracker-utils/tracker-sparql.c:817
-#: ../utils/tracker-sql/tracker-sql.c:168
+#: ../src/tracker-utils/tracker-sparql.c:812
+#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Αποτελέσματα"
 
@@ -2447,7 +2313,7 @@ msgid "EXPRESSION"
 msgstr "ΕΚΦΡΑΣΗ"
 
 #: ../src/tracker-utils/tracker-search.c:196
-#: ../src/tracker-utils/tracker-tag.c:110
+#: ../src/tracker-utils/tracker-tag.c:109
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
@@ -2470,6 +2336,10 @@ msgstr "Αδυναμία λήψης των αποτελεσμάτων της α�
 #: ../src/tracker-utils/tracker-search.c:299
 msgid "No contacts were found"
 msgstr "Δεν βρέθηκαν επαφές"
+
+#: ../src/tracker-utils/tracker-search.c:303
+msgid "Contacts"
+msgstr "Επαφές"
 
 # #-#-#-#-#  gimp-plug-ins.gimp-2-4.el.po (el)  #-#-#-#-#
 #
@@ -2647,12 +2517,10 @@ msgstr ""
 "υπάρχουν και οι ΔΥΟ (εκτός και αν χρησιμοποιήσετε --or-operator)"
 
 #: ../src/tracker-utils/tracker-search.c:1557
-#| msgid "Miner options"
 msgid "Search options"
 msgstr "Επιλογές αναζήτησης"
 
 #: ../src/tracker-utils/tracker-search.c:1558
-#| msgid "Show miner options"
 msgid "Show search options"
 msgstr "Εμφάνιση επιλογών αναζήτησης"
 
@@ -2660,12 +2528,12 @@ msgstr "Εμφάνιση επιλογών αναζήτησης"
 msgid "Search terms are missing"
 msgstr "Απουσιάζουν οι όροι αναζήτησης"
 
-#: ../src/tracker-utils/tracker-search.c:1636
+#: ../src/tracker-utils/tracker-search.c:1633
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Ο όρος αναζήτησης '%s' είναι φιλτραρισμένη λέξη."
 
-#: ../src/tracker-utils/tracker-search.c:1647
+#: ../src/tracker-utils/tracker-search.c:1644
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2753,10 +2621,10 @@ msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτ�
 
 #: ../src/tracker-utils/tracker-sparql.c:371
 #: ../src/tracker-utils/tracker-sparql.c:415
-#: ../src/tracker-utils/tracker-stats.c:119
-#: ../src/tracker-utils/tracker-tag.c:370
-#: ../src/tracker-utils/tracker-tag.c:494
-#: ../src/tracker-utils/tracker-tag.c:866
+#: ../src/tracker-utils/tracker-stats.c:117
+#: ../src/tracker-utils/tracker-tag.c:326
+#: ../src/tracker-utils/tracker-tag.c:455
+#: ../src/tracker-utils/tracker-tag.c:827
 msgid "None"
 msgstr "Κανένα"
 
@@ -2774,108 +2642,113 @@ msgstr "Πρέπει να οριστεί ένα όρισμα"
 msgid "File and query can not be used together"
 msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
 
-#: ../src/tracker-utils/tracker-sparql.c:495
+#: ../src/tracker-utils/tracker-sparql.c:493
 msgid "Could not list classes"
 msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
 
-#: ../src/tracker-utils/tracker-sparql.c:503
+#: ../src/tracker-utils/tracker-sparql.c:501
 msgid "No classes were found"
 msgstr "Δεν βρέθηκαν κλάσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:503
-#: ../src/tracker-utils/tracker-sparql.c:690
+#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "Classes"
 msgstr "Κλάσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:519
+#: ../src/tracker-utils/tracker-sparql.c:517
 msgid "Could not list class prefixes"
 msgstr "Αδυναμία προβολής της λίστας των προθεμάτων της κλάσης"
 
-#: ../src/tracker-utils/tracker-sparql.c:527
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "No class prefixes were found"
 msgstr "Δεν βρέθηκαν προθέματα κλάσεων"
 
 # #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
-#: ../src/tracker-utils/tracker-sparql.c:527
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Prefixes"
 msgstr "Προθέματα"
 
-#: ../src/tracker-utils/tracker-sparql.c:547
+#: ../src/tracker-utils/tracker-sparql.c:545
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο 'rdfs:Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:586
+#: ../src/tracker-utils/tracker-sparql.c:584
 msgid "Could not list properties"
 msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
 
-#: ../src/tracker-utils/tracker-sparql.c:594
+#: ../src/tracker-utils/tracker-sparql.c:592
 msgid "No properties were found"
 msgstr "Δεν βρέθηκαν ιδιότητες"
 
-#: ../src/tracker-utils/tracker-sparql.c:622
+#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:711
+msgid "Properties"
+msgstr "Ιδιότητες"
+
+#: ../src/tracker-utils/tracker-sparql.c:620
 msgid "Could not find notify classes"
 msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:630
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "No notifies were found"
 msgstr "Δεν βρέθηκαν ειδοποιήσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:630
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "Notifies"
 msgstr "Ειδοποιήσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:656
+#: ../src/tracker-utils/tracker-sparql.c:654
 msgid "Could not find indexed properties"
 msgstr "Αδυναμία εύρεσης δεικτοδοτημένων ιδιοτήτων"
 
-#: ../src/tracker-utils/tracker-sparql.c:664
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "No indexes were found"
 msgstr "Δεν βρέθηκαν δείκτες"
 
-#: ../src/tracker-utils/tracker-sparql.c:664
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "Indexes"
 msgstr "Δείκτες"
 
-#: ../src/tracker-utils/tracker-sparql.c:682
+#: ../src/tracker-utils/tracker-sparql.c:680
 msgid "Could not search classes"
 msgstr "Αδυναμία αναζήτησης κλάσεων"
 
-#: ../src/tracker-utils/tracker-sparql.c:690
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "No classes were found to match search term"
 msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:705
+#: ../src/tracker-utils/tracker-sparql.c:703
 msgid "Could not search properties"
 msgstr "Αδυναμία αναζήτησης ιδιοτήτων"
 
-#: ../src/tracker-utils/tracker-sparql.c:713
+#: ../src/tracker-utils/tracker-sparql.c:711
 msgid "No properties were found to match search term"
 msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:723
-#: ../utils/tracker-sql/tracker-sql.c:103
+#: ../src/tracker-utils/tracker-sparql.c:721
+#: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
 
-#: ../src/tracker-utils/tracker-sparql.c:735
-#: ../utils/tracker-sql/tracker-sql.c:114
+#: ../src/tracker-utils/tracker-sparql.c:733
+#: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Αδυναμία ανάγνωσης του αρχείου"
 
-#: ../src/tracker-utils/tracker-sparql.c:754
+#: ../src/tracker-utils/tracker-sparql.c:752
 msgid "Could not run update"
 msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
 
-#: ../src/tracker-utils/tracker-sparql.c:802
-#: ../utils/tracker-sql/tracker-sql.c:161
-#: ../utils/tracker-sql/tracker-sql.c:194
+#: ../src/tracker-utils/tracker-sparql.c:800
+#: ../utils/tracker-sql/tracker-sql.c:159
+#: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Αδυναμία εκτέλεσης ερωτήματος"
 
-#: ../src/tracker-utils/tracker-sparql.c:814
-#: ../src/tracker-utils/tracker-sparql.c:817
+#: ../src/tracker-utils/tracker-sparql.c:812
+#: ../src/tracker-utils/tracker-sparql.c:815
 msgid "No results found matching your query"
 msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
 
@@ -2886,21 +2759,29 @@ msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
 " - Προβολή στατιστικών για όλες τις ορισμένες κλάσεις οντολογίας Nepomuk"
 
-#: ../src/tracker-utils/tracker-stats.c:98
+#: ../src/tracker-utils/tracker-stats.c:96
 msgid "Could not get Tracker statistics"
 msgstr "Αδυναμία λήψης των στατιστικών του Tracker"
 
-#: ../src/tracker-utils/tracker-stats.c:105
+#: ../src/tracker-utils/tracker-stats.c:103
 msgid "No statistics available"
 msgstr "Χωρίς διαθέσιμα στατιστικά"
 
-#: ../src/tracker-utils/tracker-stats.c:109
+#: ../src/tracker-utils/tracker-stats.c:107
 msgid "Statistics:"
 msgstr "Στατιστικά:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-msgid "List all tags (using FILTER if specified)"
-msgstr "Λίστα όλων των ετικετών (με την χρήση ΦΙΛΤΡΩΝ αν αυτό προσδιορίζεται)"
+#| msgid "List all tags (using FILTER if specified)"
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+"Λίστα όλων των ετικετών (με την χρήση ΦΙΛΤΡΩΝ αν αυτό προσδιορίζεται· τα "
+"ΦΙΛΤΡΑ χρησιμοποιούν πάντα λογικό Ή)"
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "FILTER"
+msgstr "ΦΙΛΤΡΑ"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2932,108 +2813,108 @@ msgstr "Περιγραφή ετικέτας (αυτό χρησιμοποιείτ
 msgid "STRING"
 msgstr "ΣΥΜΒΟΛΟΣΕΙΡΑ"
 
-#: ../src/tracker-utils/tracker-tag.c:93
+#: ../src/tracker-utils/tracker-tag.c:92
 msgid "FILE…"
 msgstr "ΑΡΧΕΙΟ…"
 
-#: ../src/tracker-utils/tracker-tag.c:94
+#: ../src/tracker-utils/tracker-tag.c:93
 msgid "FILE [FILE…]"
 msgstr "ΑΡΧΕΙΟ [ΑΡΧΕΙΟ…]"
 
-#: ../src/tracker-utils/tracker-tag.c:298
+#: ../src/tracker-utils/tracker-tag.c:254
 msgid "Could not get file URNs"
 msgstr "Αδυναμία λήψης των URNs του αρχείου"
 
-#: ../src/tracker-utils/tracker-tag.c:363
+#: ../src/tracker-utils/tracker-tag.c:319
 msgid "Could not get files related to tag"
 msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:438
-#: ../src/tracker-utils/tracker-tag.c:847
+#: ../src/tracker-utils/tracker-tag.c:399
+#: ../src/tracker-utils/tracker-tag.c:808
 msgid "Could not get all tags"
 msgstr "Αδυναμία λήψης όλων των ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:447
-#: ../src/tracker-utils/tracker-tag.c:856
+#: ../src/tracker-utils/tracker-tag.c:408
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "No tags were found"
 msgstr "Δεν βρέθηκαν ετικέτες"
 
-#: ../src/tracker-utils/tracker-tag.c:451
+#: ../src/tracker-utils/tracker-tag.c:412
 msgid "Tags (shown by name)"
 msgstr "Ετικέτες (εμφανίζονται κατά όνομα)"
 
-#: ../src/tracker-utils/tracker-tag.c:518
+#: ../src/tracker-utils/tracker-tag.c:479
 msgid "No files were modified"
 msgstr "Δεν έχουν τροποποιηθεί αρχεία"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:604
 msgid "Tag was added successfully"
 msgstr "Η ετικέτα προστέθηκε με επιτυχία"
 
-#: ../src/tracker-utils/tracker-tag.c:672
+#: ../src/tracker-utils/tracker-tag.c:633
 msgid "Could not add tag to files"
 msgstr "Αδυναμία προσθήκης ετικέτας στα αρχεία"
 
-#: ../src/tracker-utils/tracker-tag.c:682
+#: ../src/tracker-utils/tracker-tag.c:643
 msgid "Tagged"
 msgstr "Με ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:683
+#: ../src/tracker-utils/tracker-tag.c:644
 msgid "Not tagged, file is not indexed"
 msgstr "Χωρίς ετικέτα, το αρχείο δεν είναι με δείκτη"
 
-#: ../src/tracker-utils/tracker-tag.c:729
+#: ../src/tracker-utils/tracker-tag.c:690
 msgid "Could not get tag by label"
 msgstr "Αδυναμία λήψης των ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:740
+#: ../src/tracker-utils/tracker-tag.c:701
 msgid "No tags were found by that name"
 msgstr "Δεν βρέθηκαν ετικέτες με αυτό το όνομα"
 
-#: ../src/tracker-utils/tracker-tag.c:757
+#: ../src/tracker-utils/tracker-tag.c:718
 msgid "None of the files had this tag set"
 msgstr "Κανένα από τα αρχεία δεν έχει αυτό το σύνολο της ετικέτας"
 
-#: ../src/tracker-utils/tracker-tag.c:810
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Tag was removed successfully"
 msgstr "Η ετικέτα αφαιρέθηκε με επιτυχία"
 
-#: ../src/tracker-utils/tracker-tag.c:814
+#: ../src/tracker-utils/tracker-tag.c:775
 msgid "Untagged"
 msgstr "Χωρίς ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:815
+#: ../src/tracker-utils/tracker-tag.c:776
 msgid "File not indexed or already untagged"
 msgstr "Το αρχείο δεν έχει δείκτη ή είναι ήδη χωρίς ετικέτα"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:894
+#: ../src/tracker-utils/tracker-tag.c:855
 msgid "Add, remove or list tags"
 msgstr "Προσθήκη, αφαίρεση ή προβολή λίστας ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:910
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "The --list option is required for --show-files"
 msgstr "Η επιλογή --list είναι απαιτούμενη για το --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:912
+#: ../src/tracker-utils/tracker-tag.c:873
 msgid "Add and delete actions can not be used together"
 msgstr ""
 "Η εντολή προσθήκη και διαγραφή δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
 
-#: ../src/tracker-utils/tracker-tag.c:914
+#: ../src/tracker-utils/tracker-tag.c:875
 msgid "No arguments were provided"
 msgstr "Δεν δόθηκαν ορίσματα"
 
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:877
 msgid "The --description option can only be used with --add"
 msgstr "Η επιλογή --description μπορεί να χρησιμοποιηθεί μόνο με την --add"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-writeback/tracker-main.c:100
+#: ../src/tracker-writeback/tracker-main.c:98
 msgid "- start the tracker writeback service"
 msgstr "- εκκίνηση της υπηρεσίας επανεγγραφής του tracker"
 
@@ -3045,13 +2926,105 @@ msgstr "Αποθηκευμένα ερωτήματα"
 msgid "- Query or update using SQL"
 msgstr "- Ερώτημα ή ενημέρωση με την χρήση SQL"
 
-#: ../utils/tracker-sql/tracker-sql.c:142
+#: ../utils/tracker-sql/tracker-sql.c:140
 msgid "Failed to initialize data manager"
 msgstr "Αποτυχία αρχικοποίησης διαχειριστή δεδομένων"
 
-#: ../utils/tracker-sql/tracker-sql.c:202
+#: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Κενό σύνολο αποτελέσματος"
+
+#~ msgid "Flickr"
+#~ msgstr "Flickr"
+
+#~ msgid "Index your Flickr photo albums"
+#~ msgstr "Δεικτοδότηση των φωτογραφικών σας συλλογών Flickr"
+
+#~ msgid "Tracker Miner for Flickr"
+#~ msgstr "Συλλέκτης Tracker για το Flickr"
+
+#~ msgid "Processes images and albums on Flickr"
+#~ msgstr "Επεξεργασία των εικόνων και των συλλογών σας στο Flickr"
+
+#~ msgid "_URN:"
+#~ msgstr "_URN:"
+
+# #-#-#-#-#  libgnomeui.HEAD.el.po (el)  #-#-#-#-#
+# #-#-#-#-#  memory.el.po (abiword 1.0)  #-#-#-#-#
+# #-#-#-#-#  gnome-libs-el.po (gnome-libs 1.2.12)  #-#-#-#-#
+#
+# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
+# #-#-#-#-#  libgnomeui.HEAD.el.po (el)  #-#-#-#-#
+# #-#-#-#-#  memory.el.po (abiword 1.0)  #-#-#-#-#
+# #-#-#-#-#  gnome-libs-el.po (gnome-libs 1.2.12)  #-#-#-#-#
+#
+#~ msgid "_About"
+#~ msgstr "_Περί"
+
+# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
+#
+#~ msgid "Other"
+#~ msgstr "Άλλα"
+
+#~ msgid "Email Addresses"
+#~ msgstr "Διευθύνσεις ηλ. ταχυδρομείου"
+
+#~ msgid "Fonts"
+#~ msgstr "Γραμματοσειρές"
+
+#~ msgid "Archives"
+#~ msgstr "Αρχεία"
+
+#~ msgid "Links"
+#~ msgstr "Σύνδεσμοι"
+
+#~ msgid "Category"
+#~ msgstr "Κατηγορία"
+
+# #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
+#
+#~ msgid "Title"
+#~ msgstr "Τίτλος"
+
+#~ msgid "No results found for “%s”"
+#~ msgstr "Δεν βρέθηκαν αποτελέσματα για “%s”"
+
+#~ msgid "Copyright Tracker Authors 2005-2010"
+#~ msgstr "Πνευματικά δικαιώματα © 2005-2010 Οι συγγραφείς του Tracker"
+
+#~ msgid "A search bar applet for finding content stored in Tracker"
+#~ msgstr ""
+#~ "Μια μικροεφαρμογή γραμμής αναζήτησης για την εύρεση περιεχομένου, "
+#~ "αποθηκευμένου στον Tracker"
+
+#~ msgid ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version.\n"
+#~ "\n"
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details.\n"
+#~ "\n"
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+#~ msgstr ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version.\n"
+#~ "\n"
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details.\n"
+#~ "\n"
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 
 #~ msgid "Minimum length of a word to be indexed"
 #~ msgstr "Ελάχιστο μήκος μιας λέξης για δεικτοδότηση"
