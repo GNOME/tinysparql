@@ -126,6 +126,7 @@ class Tracker.Sparql.Expression : Object {
 	internal PropertyType translate_select_expression (StringBuilder sql, bool subquery, int variable_index) throws Sparql.Error {
 		Variable variable = null;
 		bool expect_close_parens = false;
+		bool as_handled = false;
 
 		long begin = sql.len;
 		var type = PropertyType.UNKNOWN;
@@ -180,6 +181,7 @@ class Tracker.Sparql.Expression : Object {
 				variable = context.get_variable (get_last_string ().substring (1));
 			}
 			sql.append_printf (" AS %s", variable.sql_expression);
+			as_handled = true;
 
 			if (subquery) {
 				var binding = new VariableBinding ();
@@ -199,7 +201,10 @@ class Tracker.Sparql.Expression : Object {
 
 			if (fts_sql == null) {
 				pattern.fts_variables += variable.sql_expression;
-				sql.append_printf (" AS %s", variable.sql_expression);
+
+				if (as_handled == false) {
+					sql.append_printf (" AS %s", variable.sql_expression);
+				}
 			} else {
 				pattern.fts_variables += fts_sql;
 				pattern.queries_fts_data = true;
