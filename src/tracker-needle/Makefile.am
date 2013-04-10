@@ -11,6 +11,7 @@ AM_VALAFLAGS = \
 AM_CPPFLAGS =                                      \
 	$(BUILD_CFLAGS)                                \
 	-D_XOPEN_SOURCE                                \
+	-D_XOPEN_SOURCE_EXTENDED                       \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"       \
