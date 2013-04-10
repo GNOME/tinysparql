@@ -21,6 +21,7 @@
 #include "config.h"
 
 #define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 1	/* strcasecmp is XPG4v2 */
 #include <time.h>
 
 #include <strings.h>
