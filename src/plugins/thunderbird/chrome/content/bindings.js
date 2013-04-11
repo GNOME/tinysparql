@@ -2,8 +2,8 @@ if (!org.bustany.TrackerBird.TrackerSparql || !org.bustany.TrackerBird.TrackerSp
 org.bustany.TrackerBird.TrackerSparql = {
 	__initialized: true,
 
-	_trackerSparqlPath1: "libtracker-sparql-0.14.so.0",
-	_trackerSparqlPath2: "libtracker-sparql-0.16.so.0",
+	_trackerSparqlPath1: "libtracker-sparql-0.16.so.0",
+	_trackerSparqlPath2: "libtracker-sparql-0.14.so.0",
 	_lib: null,
 
 	init: function () {
