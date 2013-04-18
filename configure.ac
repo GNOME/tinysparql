@@ -231,6 +231,12 @@ LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
+case $host in
+  *-*-openbsd*)
+    LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS -lkvm"
+    ;;
+esac
+
 # Check requirements for libtracker-data
 LIBTRACKER_DATA_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
