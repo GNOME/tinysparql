@@ -1,24 +1,23 @@
 # Translation of tracker into Indonesian
 # Copyright (C) 2011 THE tracker'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Andika Triwidada <andika@gmail.com>, 2011, 2012.
+# Andika Triwidada <andika@gmail.com>, 2011, 2012, 2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker master\n"
+"Project-Id-Version: tracker tracker-0.16\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-10-17 11:35+0000\n"
-"PO-Revision-Date: 2012-10-17 23:43+0700\n"
+"POT-Creation-Date: 2013-04-10 03:16+0000\n"
+"PO-Revision-Date: 2013-04-29 23:03+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
-"Language: \n"
+"Language: id_ID\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-Language: Indonesian\n"
-"X-Poedit-Country: INDONESIA\n"
+"X-Generator: Poedit 1.5.5\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -89,39 +88,30 @@ msgstr ""
 "art media dari berkas. Atur ke 0 agar lebar art media tak dibatasi."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
-msgid "Minimum length of a word to be indexed"
-msgstr "Panjang kata minimum yang diindeks"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
-msgid "Words with less characters than this will be ignored by the indexer."
-msgstr ""
-"Kata dengan cacah huruf kurang dari ini akan diabaikan oleh pengindeks."
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
 msgid "Maximum length of a word to be indexed"
 msgstr "Panjang kata maksimum yang diindeks"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
 msgid ""
 "Words with more characters than this length will be ignored by the indexer."
 msgstr "Kata dengan cacah huruf lebih dari ini akan diabaikan oleh pengindeks."
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
 msgid "Maximum number of words to index in a document"
 msgstr "Cacah kata maksimum yang diindeks dalam suatu dokumen"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
 msgid ""
 "Indexer will read only this maximum number of words from a single document."
 msgstr ""
 "Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu dokumen "
 "tunggal."
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
 msgid "Enable stemmer"
 msgstr "Aktifkan stemmer"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
 "Simplify the words to their root to provide more results. E.g. 'shelves' and "
 "'shelf' to 'shel'"
@@ -129,11 +119,11 @@ msgstr ""
 "Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. "
 "'shelves' dan 'shelf' menjadi 'shel'."
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
 msgstr "Aktifkan hapus-aksen"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
 "'Idea' for improved matching."
@@ -141,19 +131,19 @@ msgstr ""
 "Terjemahkan karakter berakses ke tanpa akse ekuivalennya, mis. 'Idéa' to "
 "'Idea' untuk pencocokan yang lebih baik."
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
 msgstr "Abaikan bilangan"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
 msgid "If enabled, numbers will not be indexed."
 msgstr "Bila diaktifkan, bilangan tak akan diindeks"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
 msgid "Ignore stop words"
 msgstr "Abaikan kata henti"
 
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
 "words like 'the', 'yes', 'no', etc."
@@ -340,7 +330,6 @@ msgstr "Penambang data panduan pengguna"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
-#: ../src/tracker-search-bar/tracker-results-window.c:717
 msgid "Applications"
 msgstr "Aplikasi"
 
@@ -349,7 +338,7 @@ msgid "Applications data miner"
 msgstr "Penambang data aplikasi"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
-#: ../src/tracker-utils/tracker-search.c:344
+#: ../src/tracker-utils/tracker-search.c:412
 msgid "Emails"
 msgstr "Surel"
 
@@ -365,14 +354,6 @@ msgstr "Sistem Berkas"
 msgid "File system data miner"
 msgstr "Penambang data sistem berkas"
 
-#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:1
-msgid "Flickr"
-msgstr "Flickr"
-
-#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:2
-msgid "Index your Flickr photo albums"
-msgstr "Mengindeks album foto Flickr Anda"
-
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "RSS/ATOM Feeds"
 msgstr "Asupan RSS/ATOM"
@@ -380,14 +361,6 @@ msgstr "Asupan RSS/ATOM"
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Ambil Asupan RSS/ATOM"
-
-#: ../data/tracker-miner-flickr.desktop.in.in.h:1
-msgid "Tracker Miner for Flickr"
-msgstr "Tracker Penambang bagi Flickr"
-
-#: ../data/tracker-miner-flickr.desktop.in.in.h:2
-msgid "Processes images and albums on Flickr"
-msgstr "Proses gambar dan album di Flickr"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -478,17 +451,17 @@ msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d detik"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:957
+#: ../src/libtracker-miner/tracker-miner-object.c:958
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Istirahatkan aplikasi dan alasan cocok dengan permintaan istirahat yang "
 "telah ada"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1054
+#: ../src/libtracker-miner/tracker-miner-object.c:1055
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie tak dikenali untuk melanjutkan penambang yang mengambil jeda"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1500
+#: ../src/libtracker-miner/tracker-miner-object.c:1501
 msgid "Data store is not available"
 msgstr "Penyimpanan data tidak tersedia"
 
@@ -621,7 +594,7 @@ msgstr "Akan dipantau"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:876
+#: ../src/miners/fs/tracker-main.c:875
 msgid "- start the tracker indexer"
 msgstr "- jalankan pengindeks tracker"
 
@@ -633,7 +606,7 @@ msgstr "Baterai lemah"
 msgid "Low disk space"
 msgstr "Ruang disk sedikit"
 
-#: ../src/miners/fs/tracker-miner-files.c:2243
+#: ../src/miners/fs/tracker-miner-files.c:2245
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Galat pengekstraksi, melakukan ekstraksi metadata tertanam yang failsafe"
@@ -653,35 +626,35 @@ msgstr "Judul yang dipakai (mesti dipakai dengan --add-feed)"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:75
+#: ../src/miners/rss/tracker-main.c:73
 msgid "- start the feeds indexer"
 msgstr "- jalankan pengindeks asupan"
 
-#: ../src/miners/rss/tracker-main.c:80
+#: ../src/miners/rss/tracker-main.c:78
 msgid "Adding a feed requires --add-feed and --title"
 msgstr "Menambah asupan memerlukan --add-feed dan --title"
 
-#: ../src/miners/rss/tracker-main.c:114
-#: ../src/tracker-utils/tracker-import.c:111
-#: ../src/tracker-utils/tracker-info.c:385
-#: ../src/tracker-utils/tracker-search.c:1525
-#: ../src/tracker-utils/tracker-sparql.c:287
-#: ../src/tracker-utils/tracker-stats.c:88
-#: ../src/tracker-utils/tracker-tag.c:940
+#: ../src/miners/rss/tracker-main.c:113
+#: ../src/tracker-utils/tracker-import.c:109
+#: ../src/tracker-utils/tracker-info.c:383
+#: ../src/tracker-utils/tracker-search.c:1662
+#: ../src/tracker-utils/tracker-sparql.c:479
+#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-tag.c:899
 msgid "Could not establish a connection to Tracker"
 msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
-#: ../src/miners/rss/tracker-main.c:115
-#: ../src/tracker-utils/tracker-import.c:112
-#: ../src/tracker-utils/tracker-info.c:386
-#: ../src/tracker-utils/tracker-search.c:1526
-#: ../src/tracker-utils/tracker-sparql.c:288
-#: ../src/tracker-utils/tracker-stats.c:89
-#: ../src/tracker-utils/tracker-tag.c:941
+#: ../src/miners/rss/tracker-main.c:114
+#: ../src/tracker-utils/tracker-import.c:110
+#: ../src/tracker-utils/tracker-info.c:384
+#: ../src/tracker-utils/tracker-search.c:1663
+#: ../src/tracker-utils/tracker-sparql.c:480
+#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-tag.c:900
 msgid "No error given"
 msgstr "Tak ada galat yang diberikan"
 
-#: ../src/miners/rss/tracker-main.c:140
+#: ../src/miners/rss/tracker-main.c:139
 msgid "Could not add feed"
 msgstr "Tak bisa menambah asupan"
 
@@ -700,8 +673,7 @@ msgstr "Memroses…"
 
 #. Create dialog and embed vbox.
 #: ../src/plugins/nautilus/tracker-tags-extension.c:71
-#: ../src/tracker-needle/tracker-view.vala:538
-#: ../src/tracker-search-bar/tracker-results-window.c:714
+#: ../src/tracker-needle/tracker-view.vala:539
 msgid "Tags"
 msgstr "Tag"
 
@@ -722,7 +694,7 @@ msgstr[0] "_Tata tag yang ingin Anda kaitkan dengan %d butir yang dipilih:"
 #: ../src/tracker-preferences/tracker-preferences.vala:897
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
-#: ../src/tracker-utils/tracker-search.c:144
+#: ../src/tracker-utils/tracker-search.c:112
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -731,23 +703,23 @@ msgstr "Cetak versi"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:73
+#: ../src/tracker-control/tracker-control.c:71
 msgid " - Manage Tracker processes and data"
 msgstr " - Kelola data dan proses Tracker"
 
-#: ../src/tracker-control/tracker-control.c:97
+#: ../src/tracker-control/tracker-control.c:95
 msgid "General and Status options cannot be used together"
 msgstr "Opsi Umum dan Status tak dapat dipakai bersama"
 
-#: ../src/tracker-control/tracker-control.c:103
+#: ../src/tracker-control/tracker-control.c:101
 msgid "General and Miners options cannot be used together"
 msgstr "Opsi Umum dan Penambang tak dapat dipakai bersama"
 
-#: ../src/tracker-control/tracker-control.c:114
+#: ../src/tracker-control/tracker-control.c:112
 msgid "Status and Miners options cannot be used together"
 msgstr "Opsi Status dan Penambang tak dapat dipakai bersama"
 
-#: ../src/tracker-control/tracker-control.c:131
+#: ../src/tracker-control/tracker-control.c:129
 msgid "Unrecognized options"
 msgstr "Opsi tak dikenal"
 
@@ -828,23 +800,23 @@ msgid "Could not open /proc"
 msgstr "Tak dapat membuka /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:684
-#: ../src/tracker-control/tracker-control-general.c:724
-#: ../src/tracker-control/tracker-control-general.c:745
+#: ../src/tracker-control/tracker-control-general.c:686
+#: ../src/tracker-control/tracker-control-general.c:726
+#: ../src/tracker-control/tracker-control-general.c:747
 msgid "no error given"
 msgstr "tak ada galat yang diberikan"
 
-#: ../src/tracker-control/tracker-control-general.c:324
+#: ../src/tracker-control/tracker-control-general.c:326
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Tak bisa mendapat GSettings bagi penambang, manajer tak dapat dibuat, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:581
+#: ../src/tracker-control/tracker-control-general.c:583
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Anda tak bisa memakai argumen --kill dan --terminate bersamaan"
 
-#: ../src/tracker-control/tracker-control-general.c:587
+#: ../src/tracker-control/tracker-control-general.c:589
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -852,111 +824,111 @@ msgstr ""
 "Anda tak dapat memakai --terminate dengan --hard-reset atau --soft-reset, --"
 "kill tersirat"
 
-#: ../src/tracker-control/tracker-control-general.c:593
+#: ../src/tracker-control/tracker-control-general.c:595
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Anda tak bisa memakai argumen --hard-reset dan --soft-reset bersamaan"
 
-#: ../src/tracker-control/tracker-control-general.c:599
+#: ../src/tracker-control/tracker-control-general.c:601
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr ""
 "Anda tak bisa memakai argumen --get-logging dan --set-logging bersamaan"
 
-#: ../src/tracker-control/tracker-control-general.c:614
+#: ../src/tracker-control/tracker-control-general.c:616
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Tingkat rincian log tak valid, coba 'debug', 'detailed', 'minimal', atau "
 "'errors'"
 
-#: ../src/tracker-control/tracker-control-general.c:681
+#: ../src/tracker-control/tracker-control-general.c:683
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Tak dapat membuka '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:706
+#: ../src/tracker-control/tracker-control-general.c:708
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Menemukan ID proses %d bagi '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:721
+#: ../src/tracker-control/tracker-control-general.c:723
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Tak bisa mengakhiri proses %d"
 
-#: ../src/tracker-control/tracker-control-general.c:727
+#: ../src/tracker-control/tracker-control-general.c:729
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proses %d diakhiri"
 
-#: ../src/tracker-control/tracker-control-general.c:742
+#: ../src/tracker-control/tracker-control-general.c:744
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Tak dapat mematian proses %d"
 
-#: ../src/tracker-control/tracker-control-general.c:748
+#: ../src/tracker-control/tracker-control-general.c:750
 #, c-format
 msgid "Killed process %d"
 msgstr "Proses %d dimatikan"
 
-#: ../src/tracker-control/tracker-control-general.c:876
+#: ../src/tracker-control/tracker-control-general.c:878
 msgid "Removing configuration files…"
 msgstr "Menghapus berkas konfigurasi…"
 
-#: ../src/tracker-control/tracker-control-general.c:884
+#: ../src/tracker-control/tracker-control-general.c:886
 msgid "Resetting existing configuration…"
 msgstr "Mereset konfigurasi yang ada…"
 
-#: ../src/tracker-control/tracker-control-general.c:932
-#: ../src/tracker-control/tracker-control-general.c:974
+#: ../src/tracker-control/tracker-control-general.c:936
+#: ../src/tracker-control/tracker-control-general.c:978
 msgid "Components"
 msgstr "Komponen"
 
-#: ../src/tracker-control/tracker-control-general.c:938
-#: ../src/tracker-control/tracker-control-general.c:980
+#: ../src/tracker-control/tracker-control-general.c:942
+#: ../src/tracker-control/tracker-control-general.c:984
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Penambang"
 
-#: ../src/tracker-control/tracker-control-general.c:939
-#: ../src/tracker-control/tracker-control-general.c:981
+#: ../src/tracker-control/tracker-control-general.c:943
+#: ../src/tracker-control/tracker-control-general.c:985
 msgid "Only those with config listed"
 msgstr "Hanya yang konfignya ada pada daftar"
 
-#: ../src/tracker-control/tracker-control-general.c:957
+#: ../src/tracker-control/tracker-control-general.c:961
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Mengatur tingkat rincian log bagi semua komponen ke '%s'..."
 
-#: ../src/tracker-control/tracker-control-general.c:997
+#: ../src/tracker-control/tracker-control-general.c:1001
 msgid "Waiting one second before starting miners…"
 msgstr "Menunggu satu detik sebelum memulai penambang..."
 
-#: ../src/tracker-control/tracker-control-general.c:1003
+#: ../src/tracker-control/tracker-control-general.c:1007
 msgid "Starting miners…"
 msgstr "Memulai penambang…"
 
-#: ../src/tracker-control/tracker-control-general.c:1009
+#: ../src/tracker-control/tracker-control-general.c:1013
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Tak bisa memulai penambang, manajer tak dapat dibuat, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1034
+#: ../src/tracker-control/tracker-control-general.c:1038
 msgid "perhaps a disabled plugin?"
 msgstr "mungkin plugin yang dimatikan?"
 
-#: ../src/tracker-control/tracker-control-general.c:1056
+#: ../src/tracker-control/tracker-control-general.c:1060
 msgid "Backing up database"
 msgstr "Membuat cadangan basis data"
 
-#: ../src/tracker-control/tracker-control-general.c:1128
+#: ../src/tracker-control/tracker-control-general.c:1132
 msgid "Restoring database from backup"
 msgstr "Mengembalikan basis data dari cadangan"
 
-#: ../src/tracker-control/tracker-control-general.c:1201
+#: ../src/tracker-control/tracker-control-general.c:1205
 msgid "General options"
 msgstr "Opsi umum"
 
-#: ../src/tracker-control/tracker-control-general.c:1202
+#: ../src/tracker-control/tracker-control-general.c:1206
 msgid "Show general options"
 msgstr "Tampilkan opsi umum"
 
@@ -1063,8 +1035,8 @@ msgid "Could not resume miner: %s"
 msgstr "Tak dapat melanjutkan penambang: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:187
-#: ../src/tracker-utils/tracker-import.c:138
-#: ../src/tracker-utils/tracker-sparql.c:567
+#: ../src/tracker-utils/tracker-import.c:136
+#: ../src/tracker-utils/tracker-sparql.c:759
 msgid "Done"
 msgstr "Selesai"
 
@@ -1249,21 +1221,6 @@ msgstr "Opsi status"
 msgid "Show status options"
 msgstr "Tampilkan opsi status"
 
-#: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-needle/tracker-needle.ui.h:7
-msgid "_Search:"
-msgstr "_Cari:"
-
-#: ../src/tracker-explorer/tracker-explorer.ui.h:2
-msgid "_URN:"
-msgstr "_URN:"
-
-#: ../src/tracker-explorer/tracker-explorer.ui.h:3
-#: ../src/tracker-utils/tracker-sparql.c:400
-#: ../src/tracker-utils/tracker-sparql.c:519
-msgid "Properties"
-msgstr "Properti"
-
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
@@ -1352,6 +1309,10 @@ msgstr "Temukan kriteria pencarian di dalam berkas"
 msgid "Find search criteria in file titles"
 msgstr "Temukan kriteria pencarian dalam judul berkas"
 
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "_Search:"
+msgstr "_Cari:"
+
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
@@ -1412,7 +1373,6 @@ msgid_plural "Contacts"
 msgstr[0] "Kontak"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
-#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Suara"
@@ -1489,7 +1449,7 @@ msgid "Could not update tags"
 msgstr "Tak bisa memutakhirkan tag"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:803
+#: ../src/tracker-utils/tracker-tag.c:764
 msgid "Could not remove tag"
 msgstr "Tidak dapat menghapus tag"
 
@@ -1498,7 +1458,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Tak bisa mengambil tag bagi yang kini dipilih"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:627
+#: ../src/tracker-utils/tracker-tag.c:588
 msgid "Could not add tag"
 msgstr "Tidak dapat menambah tag"
 
@@ -1572,17 +1532,14 @@ msgid "Music"
 msgstr "Music"
 
 #: ../src/tracker-needle/tracker-view.vala:337
-#: ../src/tracker-search-bar/tracker-results-window.c:718
 msgid "Images"
 msgstr "Gambar"
 
 #: ../src/tracker-needle/tracker-view.vala:340
-#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Videos"
 msgstr "Video"
 
 #: ../src/tracker-needle/tracker-view.vala:343
-#: ../src/tracker-search-bar/tracker-results-window.c:716
 msgid "Documents"
 msgstr "Dokumen"
 
@@ -1591,13 +1548,11 @@ msgid "Mail"
 msgstr "Surel"
 
 #: ../src/tracker-needle/tracker-view.vala:349
-#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Folders"
 msgstr "Folder"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-search-bar/tracker-results-window.c:724
-#: ../src/tracker-utils/tracker-search.c:912
+#: ../src/tracker-utils/tracker-search.c:1014
 msgid "Bookmarks"
 msgstr "Penanda Taut"
 
@@ -1605,20 +1560,20 @@ msgstr "Penanda Taut"
 msgid "Items"
 msgstr "Butir"
 
-#: ../src/tracker-needle/tracker-view.vala:368
+#: ../src/tracker-needle/tracker-view.vala:369
 #, c-format
 msgid "Loading..."
 msgstr "Memuat..."
 
-#: ../src/tracker-needle/tracker-view.vala:434
+#: ../src/tracker-needle/tracker-view.vala:435
 msgid "Pages"
 msgstr "Halaman"
 
-#: ../src/tracker-needle/tracker-view.vala:451
+#: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "Tampilkan _Direktori Induk"
 
-#: ../src/tracker-needle/tracker-view.vala:458
+#: ../src/tracker-needle/tracker-view.vala:459
 msgid "_Tags..."
 msgstr "_Tag..."
 
@@ -1861,7 +1816,7 @@ msgstr ""
 "dsb"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
-#: ../src/tracker-utils/tracker-search.c:445
+#: ../src/tracker-utils/tracker-search.c:523
 msgid "Files"
 msgstr "Berkas"
 
@@ -1910,86 +1865,6 @@ msgstr "Rekursi"
 msgid "Desktop Search preferences"
 msgstr "Preferensi Pencarian Desktop"
 
-#: ../src/tracker-search-bar/tracker-applet.c:40
-msgid "_About"
-msgstr "Ihw_al"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:712
-#: ../src/tracker-search-bar/tracker-results-window.c:728
-msgid "Other"
-msgstr "Lainnya"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:713
-#: ../src/tracker-utils/tracker-search.c:239
-msgid "Contacts"
-msgstr "Kontak"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:715
-msgid "Email Addresses"
-msgstr "Alamat Surel"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:721
-msgid "Fonts"
-msgstr "Fonta"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:723
-msgid "Archives"
-msgstr "Arsip"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:725
-msgid "Links"
-msgstr "Taut"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:1101
-msgid "Category"
-msgstr "Katagori"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:1129
-msgid "Title"
-msgstr "Judul"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:1195
-#, c-format
-msgid "No results found for “%s”"
-msgstr "Tak ditemukan hasil bagi \"%s\""
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
-msgid "Copyright Tracker Authors 2005-2010"
-msgstr "Hak Cipta Para Penulis Tracker 2005-2010"
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-msgid "A search bar applet for finding content stored in Tracker"
-msgstr "Aplet bilah pencarian untuk menemukan isi yang disimpan dalam Pelacak"
-
-#: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
-msgid ""
-"Tracker is free software; you can redistribute it and/or modify it under the "
-"terms of the GNU General Public License as published by the Free Software "
-"Foundation; either version 2 of the License, or (at your option) any later "
-"version.\n"
-"\n"
-"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
-"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details.\n"
-"\n"
-"You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA  02110-1301, USA."
-msgstr ""
-"Tracker adalah perangkat lunak bebas; Anda dapat menyebarluaskannya dan/atau "
-"mengubahnya di bawah syarat GNU General Public License sebagaimana "
-"dipublikasikan oleh Free Software Foundation; baik versi 2 dari Lisensi, "
-"atau (terserah pilihan Anda) versi setelahnya.\n"
-"\n"
-"Tracker didistribusikan dengan harapan akan berguna, tetapi TANPA ADANYA "
-"JAMINAN; termasuk tanpa jaminan KETERDAGANGAN atau KECOCOKAN UNTUK TUJUAN "
-"TERTENTU. Lihat GNU General Public License untuk rincian lebih lanjut.\n"
-"\n"
-"Anda seharusnya menerima salinan dari GNU General Public License bersama "
-"dengan Tracker; jika tidak, kirimkan surat Anda ke Free Software Foundation, "
-"Inc, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
-
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:51
 msgid "Force a re-index of all content"
@@ -2017,11 +1892,11 @@ msgstr "- Impor data memakai berkas Turtle"
 msgid "One or more files have not been specified"
 msgstr "Satu berkas atau lebih belum dinyatakan"
 
-#: ../src/tracker-utils/tracker-import.c:122
+#: ../src/tracker-utils/tracker-import.c:120
 msgid "Importing Turtle file"
 msgstr "Mengimpor berkas Turtle"
 
-#: ../src/tracker-utils/tracker-import.c:131
+#: ../src/tracker-utils/tracker-import.c:129
 msgid "Unable to import Turtle file"
 msgstr "Tak bisa mengimpor berkas Turtle"
 
@@ -2040,10 +1915,12 @@ msgid "Output results as RDF in Turtle format"
 msgstr "Keluarkan hasil sebagai RDF dalam format Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:141
+#: ../src/tracker-utils/tracker-sparql.c:134
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Tak bisa mengambil prefiks namespace"
 
 #: ../src/tracker-utils/tracker-info.c:149
+#: ../src/tracker-utils/tracker-sparql.c:142
 msgid "No namespace prefixes were returned"
 msgstr "Tak ada prefiks namespace yang dikembalikan"
 
@@ -2053,56 +1930,57 @@ msgstr "Tak ada prefiks namespace yang dikembalikan"
 msgid "- Get all information about one or more files"
 msgstr "- Dapatkan semua informasi tentang satu berkas atau lebih"
 
-#: ../src/tracker-utils/tracker-info.c:407
+#: ../src/tracker-utils/tracker-info.c:405
 msgid "Querying information for entity"
 msgstr "Mengquery informasi tentang entitas"
 
-#: ../src/tracker-utils/tracker-info.c:428
+#: ../src/tracker-utils/tracker-info.c:426
 msgid "Unable to retrieve URN for URI"
 msgstr "Tak bisa mengambil URN bagi URI"
 
-#: ../src/tracker-utils/tracker-info.c:438
-#: ../src/tracker-utils/tracker-info.c:473
+#: ../src/tracker-utils/tracker-info.c:436
+#: ../src/tracker-utils/tracker-info.c:471
 msgid "Unable to retrieve data for URI"
 msgstr "Tak bisa mengambil data bagi URI"
 
-#: ../src/tracker-utils/tracker-info.c:482
+#: ../src/tracker-utils/tracker-info.c:480
 msgid "No metadata available for that URI"
 msgstr "Tak tersedia metadata bagi URI itu"
 
-#: ../src/tracker-utils/tracker-info.c:487
-#: ../src/tracker-utils/tracker-search.c:1348
-#: ../src/tracker-utils/tracker-sparql.c:609
-#: ../utils/tracker-sql/tracker-sql.c:168
+#: ../src/tracker-utils/tracker-info.c:485
+#: ../src/tracker-utils/tracker-search.c:1464
+#: ../src/tracker-utils/tracker-sparql.c:812
+#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Hasil"
 
-#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-search.c:80
 #: ../src/tracker-utils/tracker-tag.c:55
 msgid "Limit the number of results shown"
 msgstr "Batasi cacah hasil yang ditampilkan"
 
-#: ../src/tracker-utils/tracker-search.c:69
+#: ../src/tracker-utils/tracker-search.c:81
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:72
+#: ../src/tracker-utils/tracker-search.c:84
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Ofsetkan hasilnya"
 
-#: ../src/tracker-utils/tracker-search.c:73
+#: ../src/tracker-utils/tracker-search.c:85
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:76
+#: ../src/tracker-utils/tracker-search.c:88
 #: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Pakai OR untuk istilah pencarian sebagai pengganti AND (baku)"
 
-#: ../src/tracker-utils/tracker-search.c:80
+#: ../src/tracker-utils/tracker-search.c:92
 msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
@@ -2110,185 +1988,207 @@ msgstr ""
 "Tunjukkan URN untuk hasil (tak berlaku pada --music-albums, --music-artists, "
 "--feeds, --software, --software-categories)"
 
-#: ../src/tracker-utils/tracker-search.c:84
+#: ../src/tracker-utils/tracker-search.c:96
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Mengembalikan semua kecocokan yang tidak hadir juga (mis. volume tak dikait "
 "yang termasuk)"
 
-#: ../src/tracker-utils/tracker-search.c:88
+#: ../src/tracker-utils/tracker-search.c:100
+msgid ""
+"Disable showing snippets with results. This is only shown for some "
+"categories, e.g. Documents, Music..."
+msgstr ""
+"Matikan menampilkan snippet dengan hasil. Ini hanya ditampilkan bagi "
+"beberapa kategori, mis. Dokumen, Musik, ..."
+
+#: ../src/tracker-utils/tracker-search.c:104
+msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+msgstr ""
+"Matikan Pencarian Teks Lengkap (Full Text Search, FTS). Mengimplikasikan --"
+"disable-snippets"
+
+#: ../src/tracker-utils/tracker-search.c:108
+msgid "Disable color when printing snippets and results"
+msgstr "Matikan warna ketika mencetak snippet dan hasil"
+
+#: ../src/tracker-utils/tracker-search.c:120
 msgid "Search for files"
 msgstr "Cari berkas"
 
-#: ../src/tracker-utils/tracker-search.c:92
+#: ../src/tracker-utils/tracker-search.c:124
 msgid "Search for folders"
 msgstr "Cari folder"
 
-#: ../src/tracker-utils/tracker-search.c:96
+#: ../src/tracker-utils/tracker-search.c:128
 msgid "Search for music files"
 msgstr "Cari berkas musik"
 
-#: ../src/tracker-utils/tracker-search.c:100
+#: ../src/tracker-utils/tracker-search.c:132
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Cari album musik (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:104
+#: ../src/tracker-utils/tracker-search.c:136
 msgid "Search for music artists (--all has no effect on this)"
 msgstr "Cari artis musik (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:108
+#: ../src/tracker-utils/tracker-search.c:140
 msgid "Search for image files"
 msgstr "Cari berkas gambar"
 
-#: ../src/tracker-utils/tracker-search.c:112
+#: ../src/tracker-utils/tracker-search.c:144
 msgid "Search for video files"
 msgstr "Cari berkas video"
 
-#: ../src/tracker-utils/tracker-search.c:116
+#: ../src/tracker-utils/tracker-search.c:148
 msgid "Search for document files"
 msgstr "Cari berkas dokumen"
 
-#: ../src/tracker-utils/tracker-search.c:120
+#: ../src/tracker-utils/tracker-search.c:152
 msgid "Search for emails"
 msgstr "Cari surel"
 
-#: ../src/tracker-utils/tracker-search.c:124
+#: ../src/tracker-utils/tracker-search.c:156
 msgid "Search for contacts"
 msgstr "Cari kontak"
 
-#: ../src/tracker-utils/tracker-search.c:128
+#: ../src/tracker-utils/tracker-search.c:160
 msgid "Search for software (--all has no effect on this)"
 msgstr "Cari perangkat lunak (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:132
+#: ../src/tracker-utils/tracker-search.c:164
 msgid "Search for software categories (--all has no effect on this)"
 msgstr "Cari kategori perangkat lunak (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:136
+#: ../src/tracker-utils/tracker-search.c:168
 msgid "Search for feeds (--all has no effect on this)"
 msgstr "Cari asupan (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:140
+#: ../src/tracker-utils/tracker-search.c:172
 msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Cari penanda taut (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker-utils/tracker-search.c:149
+#: ../src/tracker-utils/tracker-search.c:177
 msgid "search terms"
 msgstr "istilah yang dicari"
 
-#: ../src/tracker-utils/tracker-search.c:150
+#: ../src/tracker-utils/tracker-search.c:178
 msgid "EXPRESSION"
 msgstr "EKSPRESI"
 
-#: ../src/tracker-utils/tracker-search.c:167
-#: ../src/tracker-utils/tracker-tag.c:110
+#: ../src/tracker-utils/tracker-search.c:196
+#: ../src/tracker-utils/tracker-tag.c:109
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
 "CATATAN: Batas tercapai, ada lebih banyak butir dalam basis data yang tak "
 "didaftar di sini"
 
-#: ../src/tracker-utils/tracker-search.c:226
-#: ../src/tracker-utils/tracker-search.c:331
-#: ../src/tracker-utils/tracker-search.c:432
-#: ../src/tracker-utils/tracker-search.c:728
-#: ../src/tracker-utils/tracker-search.c:813
-#: ../src/tracker-utils/tracker-search.c:899
-#: ../src/tracker-utils/tracker-search.c:979
-#: ../src/tracker-utils/tracker-search.c:1059
-#: ../src/tracker-utils/tracker-search.c:1139
-#: ../src/tracker-utils/tracker-search.c:1335
+#: ../src/tracker-utils/tracker-search.c:290
+#: ../src/tracker-utils/tracker-search.c:399
+#: ../src/tracker-utils/tracker-search.c:510
+#: ../src/tracker-utils/tracker-search.c:822
+#: ../src/tracker-utils/tracker-search.c:911
+#: ../src/tracker-utils/tracker-search.c:1001
+#: ../src/tracker-utils/tracker-search.c:1083
+#: ../src/tracker-utils/tracker-search.c:1167
+#: ../src/tracker-utils/tracker-search.c:1249
+#: ../src/tracker-utils/tracker-search.c:1451
 msgid "Could not get search results"
 msgstr "Tak bisa mendapat hasil pencarian"
 
-#: ../src/tracker-utils/tracker-search.c:235
+#: ../src/tracker-utils/tracker-search.c:299
 msgid "No contacts were found"
 msgstr "Tak ditemukan kontak"
 
-#: ../src/tracker-utils/tracker-search.c:292
-#: ../src/tracker-utils/tracker-search.c:305
+#: ../src/tracker-utils/tracker-search.c:303
+msgid "Contacts"
+msgstr "Kontak"
+
+#: ../src/tracker-utils/tracker-search.c:360
+#: ../src/tracker-utils/tracker-search.c:373
 msgid "No name"
 msgstr "Tak ada nama"
 
-#: ../src/tracker-utils/tracker-search.c:293
-#: ../src/tracker-utils/tracker-search.c:306
+#: ../src/tracker-utils/tracker-search.c:361
+#: ../src/tracker-utils/tracker-search.c:374
 msgid "No E-mail address"
 msgstr "Tak ada alamat surel"
 
-#: ../src/tracker-utils/tracker-search.c:340
+#: ../src/tracker-utils/tracker-search.c:408
 msgid "No emails were found"
 msgstr "Tak ditemukan surel"
 
-#: ../src/tracker-utils/tracker-search.c:441
+#: ../src/tracker-utils/tracker-search.c:519
 msgid "No files were found"
 msgstr "Tak ditemukan berkas"
 
-#: ../src/tracker-utils/tracker-search.c:737
+#: ../src/tracker-utils/tracker-search.c:831
 msgid "No artists were found"
 msgstr "Tak ditemukan artis"
 
-#: ../src/tracker-utils/tracker-search.c:741
+#: ../src/tracker-utils/tracker-search.c:835
 msgid "Artists"
 msgstr "Artis"
 
-#: ../src/tracker-utils/tracker-search.c:822
+#: ../src/tracker-utils/tracker-search.c:920
 msgid "No music was found"
 msgstr "Tak ditemukan musik"
 
-#: ../src/tracker-utils/tracker-search.c:826
+#: ../src/tracker-utils/tracker-search.c:924
 msgid "Albums"
 msgstr "Album"
 
-#: ../src/tracker-utils/tracker-search.c:908
+#: ../src/tracker-utils/tracker-search.c:1010
 msgid "No bookmarks were found"
 msgstr "Tak ditemukan penanda taut"
 
-#: ../src/tracker-utils/tracker-search.c:988
+#: ../src/tracker-utils/tracker-search.c:1092
 msgid "No feeds were found"
 msgstr "Tak ditemukan asupan"
 
-#: ../src/tracker-utils/tracker-search.c:992
+#: ../src/tracker-utils/tracker-search.c:1096
 msgid "Feeds"
 msgstr "Asupan"
 
-#: ../src/tracker-utils/tracker-search.c:1068
+#: ../src/tracker-utils/tracker-search.c:1176
 msgid "No software was found"
 msgstr "Tak ditemukan perangkat lunak"
 
-#: ../src/tracker-utils/tracker-search.c:1072
+#: ../src/tracker-utils/tracker-search.c:1180
 msgid "Software"
 msgstr "Perangkat Lunak"
 
-#: ../src/tracker-utils/tracker-search.c:1148
+#: ../src/tracker-utils/tracker-search.c:1258
 msgid "No software categories were found"
 msgstr "Tak ditemukan kategori perangkat lunak"
 
-#: ../src/tracker-utils/tracker-search.c:1152
+#: ../src/tracker-utils/tracker-search.c:1262
 msgid "Software Categories"
 msgstr "Kategori Perangkat Lunak"
 
-#: ../src/tracker-utils/tracker-search.c:1344
+#: ../src/tracker-utils/tracker-search.c:1460
 msgid "No results were found matching your query"
 msgstr "Tak ditemukan hasil yang cocok dengan query Anda"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1416
+#: ../src/tracker-utils/tracker-search.c:1541
 msgid "- Search for terms in all data"
 msgstr "- Cari istilah dalam semua data"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1421
+#: ../src/tracker-utils/tracker-search.c:1546
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Menerapkan operator AND ke semua istilah yang dipisahkan oleh spasi (lihat --"
 "or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1425
+#: ../src/tracker-utils/tracker-search.c:1550
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -2296,16 +2196,24 @@ msgstr ""
 "Ini berarti bila Anda mencari 'foo' dan 'bar', KEDUANYA harus ada (kecuali "
 "Anda memakai --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1456
+#: ../src/tracker-utils/tracker-search.c:1557
+msgid "Search options"
+msgstr "Opsi pencarian"
+
+#: ../src/tracker-utils/tracker-search.c:1558
+msgid "Show search options"
+msgstr "Tampilkan opsi pencarian"
+
+#: ../src/tracker-utils/tracker-search.c:1590
 msgid "Search terms are missing"
 msgstr "Kurang istilah pencarian"
 
-#: ../src/tracker-utils/tracker-search.c:1498
+#: ../src/tracker-utils/tracker-search.c:1633
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Istilah pencarian '%s' adalah kata henti."
 
-#: ../src/tracker-utils/tracker-search.c:1509
+#: ../src/tracker-utils/tracker-search.c:1644
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2377,137 +2285,144 @@ msgstr ""
 msgid "CLASS/PROPERTY"
 msgstr "KELAS/PROPERTI"
 
-#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:188
 msgid "Could not get namespace prefixes"
 msgstr "Tak bisa mendapat prefiks namespace"
 
-#: ../src/tracker-utils/tracker-sparql.c:135
+#: ../src/tracker-utils/tracker-sparql.c:197
 msgid "No namespace prefixes were found"
 msgstr "Tak ditemukan prefiks namespace"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
-#: ../src/tracker-utils/tracker-stats.c:119
-#: ../src/tracker-utils/tracker-tag.c:370
-#: ../src/tracker-utils/tracker-tag.c:494
-#: ../src/tracker-utils/tracker-tag.c:866
+#: ../src/tracker-utils/tracker-sparql.c:371
+#: ../src/tracker-utils/tracker-sparql.c:415
+#: ../src/tracker-utils/tracker-stats.c:117
+#: ../src/tracker-utils/tracker-tag.c:326
+#: ../src/tracker-utils/tracker-tag.c:455
+#: ../src/tracker-utils/tracker-tag.c:827
 msgid "None"
 msgstr "Nihil"
 
-#: ../src/tracker-utils/tracker-sparql.c:245
+#: ../src/tracker-utils/tracker-sparql.c:439
 msgid "- Query or update using SPARQL"
 msgstr "- Query atau perbarui memakai SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:259
+#: ../src/tracker-utils/tracker-sparql.c:453
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Suatu argumen mesti diberikan"
 
-#: ../src/tracker-utils/tracker-sparql.c:261
+#: ../src/tracker-utils/tracker-sparql.c:455
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Berkas dan query tak dapat dipakai bersama"
 
-#: ../src/tracker-utils/tracker-sparql.c:301
+#: ../src/tracker-utils/tracker-sparql.c:493
 msgid "Could not list classes"
 msgstr "Tak bisa menyusun daftar kelas"
 
-#: ../src/tracker-utils/tracker-sparql.c:309
+#: ../src/tracker-utils/tracker-sparql.c:501
 msgid "No classes were found"
 msgstr "Tak ditemukan kelas"
 
-#: ../src/tracker-utils/tracker-sparql.c:309
-#: ../src/tracker-utils/tracker-sparql.c:496
+#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "Classes"
 msgstr "Kelas"
 
-#: ../src/tracker-utils/tracker-sparql.c:325
+#: ../src/tracker-utils/tracker-sparql.c:517
 msgid "Could not list class prefixes"
 msgstr "Tak bisa menampilkan daftar prefiks kelas"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "No class prefixes were found"
 msgstr "Tak ada prefiks kelas yang ditemukan"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Prefixes"
 msgstr "Prefiks"
 
-#: ../src/tracker-utils/tracker-sparql.c:353
+#: ../src/tracker-utils/tracker-sparql.c:545
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Tak bisa temukan properti bagi prefiks kelas, mis. :Resource dalam 'rdfs:"
 "Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:392
+#: ../src/tracker-utils/tracker-sparql.c:584
 msgid "Could not list properties"
 msgstr "Tak bisa meyusun daftar properti"
 
-#: ../src/tracker-utils/tracker-sparql.c:400
+#: ../src/tracker-utils/tracker-sparql.c:592
 msgid "No properties were found"
 msgstr "Tak ditemukan properti"
 
-#: ../src/tracker-utils/tracker-sparql.c:428
+#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:711
+msgid "Properties"
+msgstr "Properti"
+
+#: ../src/tracker-utils/tracker-sparql.c:620
 msgid "Could not find notify classes"
 msgstr "Tak bisa temukan kelas pemberitahuan"
 
-#: ../src/tracker-utils/tracker-sparql.c:436
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "No notifies were found"
 msgstr "Tak ditemukan pemberitahuan"
 
-#: ../src/tracker-utils/tracker-sparql.c:436
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "Notifies"
 msgstr "Memberitahu"
 
-#: ../src/tracker-utils/tracker-sparql.c:462
+#: ../src/tracker-utils/tracker-sparql.c:654
 msgid "Could not find indexed properties"
 msgstr "Tak bisa temukan properti terindeks"
 
-#: ../src/tracker-utils/tracker-sparql.c:470
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "No indexes were found"
 msgstr "Tak ditemukan indeks"
 
-#: ../src/tracker-utils/tracker-sparql.c:470
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "Indexes"
 msgstr "Indeks"
 
-#: ../src/tracker-utils/tracker-sparql.c:488
+#: ../src/tracker-utils/tracker-sparql.c:680
 msgid "Could not search classes"
 msgstr "Tak bisa mencari kelas"
 
-#: ../src/tracker-utils/tracker-sparql.c:496
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "No classes were found to match search term"
 msgstr "Tak ada kelas yang ditemukan agar cocok dengan istilah pencarian"
 
-#: ../src/tracker-utils/tracker-sparql.c:511
+#: ../src/tracker-utils/tracker-sparql.c:703
 msgid "Could not search properties"
 msgstr "Tak bisa mencari properti"
 
-#: ../src/tracker-utils/tracker-sparql.c:519
+#: ../src/tracker-utils/tracker-sparql.c:711
 msgid "No properties were found to match search term"
 msgstr "Tak ada properti yang ditemukan agar cocok dengan istilah pencarian"
 
-#: ../src/tracker-utils/tracker-sparql.c:529
-#: ../utils/tracker-sql/tracker-sql.c:103
+#: ../src/tracker-utils/tracker-sparql.c:721
+#: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Tak bisa mendapat path UTF-8 dari path"
 
-#: ../src/tracker-utils/tracker-sparql.c:541
-#: ../utils/tracker-sql/tracker-sql.c:114
+#: ../src/tracker-utils/tracker-sparql.c:733
+#: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Tak bisa membaca berkas"
 
-#: ../src/tracker-utils/tracker-sparql.c:560
+#: ../src/tracker-utils/tracker-sparql.c:752
 msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
-#: ../src/tracker-utils/tracker-sparql.c:602
-#: ../utils/tracker-sql/tracker-sql.c:161
-#: ../utils/tracker-sql/tracker-sql.c:194
+#: ../src/tracker-utils/tracker-sparql.c:800
+#: ../utils/tracker-sql/tracker-sql.c:159
+#: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kuiri"
 
-#: ../src/tracker-utils/tracker-sparql.c:609
+#: ../src/tracker-utils/tracker-sparql.c:812
+#: ../src/tracker-utils/tracker-sparql.c:815
 msgid "No results found matching your query"
 msgstr "Tak ada hasil yang cocok dengan query Anda"
 
@@ -2519,21 +2434,28 @@ msgstr ""
 " - Tunjukkan statistik bagi semua Nepomuk yang didefinisikan bagi kelas "
 "ontologi"
 
-#: ../src/tracker-utils/tracker-stats.c:98
+#: ../src/tracker-utils/tracker-stats.c:96
 msgid "Could not get Tracker statistics"
 msgstr "Tak bisa mendapat statistik Pelacak"
 
-#: ../src/tracker-utils/tracker-stats.c:105
+#: ../src/tracker-utils/tracker-stats.c:103
 msgid "No statistics available"
 msgstr "Statistik tidak tersedia"
 
-#: ../src/tracker-utils/tracker-stats.c:109
+#: ../src/tracker-utils/tracker-stats.c:107
 msgid "Statistics:"
 msgstr "Statistik:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-msgid "List all tags (using FILTER if specified)"
-msgstr "Tampilkan daftar semua tag (pakai FILTER bila dinyatakan)"
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+"Tampilkan daftar semua tag (pakai TAPIS bila dinyatakan; TAPIS selalu "
+"memakai logika ATAU)"
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "FILTER"
+msgstr "TAPIS"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2563,107 +2485,107 @@ msgstr "Deskripsi bagi suatu tag (ini hanya dipakai dengan --add)"
 msgid "STRING"
 msgstr "STRING"
 
-#: ../src/tracker-utils/tracker-tag.c:93
+#: ../src/tracker-utils/tracker-tag.c:92
 msgid "FILE…"
 msgstr "BERKAS…"
 
-#: ../src/tracker-utils/tracker-tag.c:94
+#: ../src/tracker-utils/tracker-tag.c:93
 msgid "FILE [FILE…]"
 msgstr "BERKAS [BERKAS...]"
 
-#: ../src/tracker-utils/tracker-tag.c:298
+#: ../src/tracker-utils/tracker-tag.c:254
 msgid "Could not get file URNs"
 msgstr "Tak bisa mendapat URN berkas"
 
-#: ../src/tracker-utils/tracker-tag.c:363
+#: ../src/tracker-utils/tracker-tag.c:319
 msgid "Could not get files related to tag"
 msgstr "Tak bisa mendapat berkas yang terkait dengan tag"
 
-#: ../src/tracker-utils/tracker-tag.c:438
-#: ../src/tracker-utils/tracker-tag.c:847
+#: ../src/tracker-utils/tracker-tag.c:399
+#: ../src/tracker-utils/tracker-tag.c:808
 msgid "Could not get all tags"
 msgstr "Tak bisa mendapat semua tag"
 
-#: ../src/tracker-utils/tracker-tag.c:447
-#: ../src/tracker-utils/tracker-tag.c:856
+#: ../src/tracker-utils/tracker-tag.c:408
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "No tags were found"
 msgstr "Tak ditemukan tag"
 
-#: ../src/tracker-utils/tracker-tag.c:451
+#: ../src/tracker-utils/tracker-tag.c:412
 msgid "Tags (shown by name)"
 msgstr "Tag (ditampilkan berdasar nama)"
 
-#: ../src/tracker-utils/tracker-tag.c:518
+#: ../src/tracker-utils/tracker-tag.c:479
 msgid "No files were modified"
 msgstr "Tidak ada berkas yang diubah"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:604
 msgid "Tag was added successfully"
 msgstr "Tag berhasil ditambahkan"
 
-#: ../src/tracker-utils/tracker-tag.c:672
+#: ../src/tracker-utils/tracker-tag.c:633
 msgid "Could not add tag to files"
 msgstr "Tidak dapat menambahkan tag ke berkas"
 
-#: ../src/tracker-utils/tracker-tag.c:682
+#: ../src/tracker-utils/tracker-tag.c:643
 msgid "Tagged"
 msgstr "Di-tag"
 
-#: ../src/tracker-utils/tracker-tag.c:683
+#: ../src/tracker-utils/tracker-tag.c:644
 msgid "Not tagged, file is not indexed"
 msgstr "Tak di-tag, berkas tak diindeks"
 
-#: ../src/tracker-utils/tracker-tag.c:729
+#: ../src/tracker-utils/tracker-tag.c:690
 msgid "Could not get tag by label"
 msgstr "Tak bisa mendapat tag berdasarkan label"
 
-#: ../src/tracker-utils/tracker-tag.c:740
+#: ../src/tracker-utils/tracker-tag.c:701
 msgid "No tags were found by that name"
 msgstr "Tak ditemukan tag bernama demikian"
 
-#: ../src/tracker-utils/tracker-tag.c:757
+#: ../src/tracker-utils/tracker-tag.c:718
 msgid "None of the files had this tag set"
 msgstr "Tak satupun berkas ini yang tagnya ditata"
 
-#: ../src/tracker-utils/tracker-tag.c:810
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Tag was removed successfully"
 msgstr "Tag berhasil dihapus"
 
-#: ../src/tracker-utils/tracker-tag.c:814
+#: ../src/tracker-utils/tracker-tag.c:775
 msgid "Untagged"
 msgstr "Tak di-tag"
 
-#: ../src/tracker-utils/tracker-tag.c:815
+#: ../src/tracker-utils/tracker-tag.c:776
 msgid "File not indexed or already untagged"
 msgstr "Berkas tak diindeks atau telah dihapus tagnya"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:894
+#: ../src/tracker-utils/tracker-tag.c:855
 msgid "Add, remove or list tags"
 msgstr "Tambah, hapus, atau daftar tag"
 
-#: ../src/tracker-utils/tracker-tag.c:910
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "The --list option is required for --show-files"
 msgstr "Opsi --list diperlukan bagi --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:912
+#: ../src/tracker-utils/tracker-tag.c:873
 msgid "Add and delete actions can not be used together"
 msgstr "Aksi tambah dan hapus tak dapat dipakai bersama"
 
-#: ../src/tracker-utils/tracker-tag.c:914
+#: ../src/tracker-utils/tracker-tag.c:875
 msgid "No arguments were provided"
 msgstr "Argumen tak diberikan"
 
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:877
 msgid "The --description option can only be used with --add"
 msgstr "Opsi --description hanya dapat dipakai dengan --add"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-writeback/tracker-main.c:100
+#: ../src/tracker-writeback/tracker-main.c:98
 msgid "- start the tracker writeback service"
 msgstr "- mulai layanan tulis balik pelacak"
 
@@ -2675,10 +2597,10 @@ msgstr "Query tersimpan"
 msgid "- Query or update using SQL"
 msgstr "- Query atau perbarui memakai SQL"
 
-#: ../utils/tracker-sql/tracker-sql.c:142
+#: ../utils/tracker-sql/tracker-sql.c:140
 msgid "Failed to initialize data manager"
 msgstr "Gagal menginisialisasi manajer data"
 
-#: ../utils/tracker-sql/tracker-sql.c:202
+#: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Set hasil kosong"
