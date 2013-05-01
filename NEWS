@@ -1,3 +1,33 @@
+NEW in 0.16.1 - 2013-05-01
+==========================
+
+The changes are:
+
+  * Fixes GB#697719, trackerfox 0.16 fails on 'upgraded' systems
+  * Fixes GB#697809, SCHED_IDLE is only avail. on linux
+  * Fixes GB#697688, OpenBSD needs _XOPEN_SOURCE_EXTENDED for strptime/strcasecmp
+  * Fixes GB#697316, abort trying to unlock an non existent mutex
+  * libtracker-common: Implemented get_memory_total() on OpenBSD
+  * libtracker-common: Added support in dbus process idenfitification for OpenBSD
+  * libtracker-data: Fixed unit tests for localtime/timezone functions
+  * libtracker-data: Fixed AS ?foo handling in FTS queries
+  * libtracker-sparql: Fixed connection singleton mutex issue
+  * tracker-tag: Fixed --list (-t) to use logical OR, not AND
+  * tracker-tag: Fixed GLib-WARNING **: goption.c:2193: ignoring no-arg..
+
+Translations:
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated fr: Alexandre Franke
+  * Updated id: Andika Triwidada
+  * Updated lt: Aurimas Černius, Žygimantas Beručka
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Rafael Ferreira
+  * Updated sl: Matej Urbančič
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић
+
+
 NEW in 0.16.0 - 2013-03-18
 ==========================
 
