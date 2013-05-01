@@ -3,3 +3,4 @@ WHERE {
 	?s a example:A ;
 	   example:p ?v
 }
+ORDER BY ASC(?s)
