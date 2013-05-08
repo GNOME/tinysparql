@@ -1049,10 +1049,10 @@ id3v2_strlen (const gchar  encoding,
 	case 0x02:
 		
 		/* UTF-16, string terminated by two NUL bytes */
-		pos = g_strstr_len (text, len, "\0\0\0");
+		pos = memmem (text, len, "\0\0\0", 3);
 
 		if (pos == NULL) {
-			pos = g_strstr_len (text, len, "\0\0");
+			pos = memmem (text, len, "\0\0", 2);
 		} else {
 			pos++;
 		}
