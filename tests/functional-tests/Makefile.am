@@ -12,6 +12,9 @@ SUBDIRS = \
 
 configdir = $(datadir)/tracker-tests
 
+config_DATA = \
+	trackertest
+
 config_SCRIPTS = \
 	__init__.py \
 	$(slow_tests) \
@@ -22,9 +25,6 @@ config_SCRIPTS += \
 	tests.xml \
 	tracker-tests.aegis
 endif
-
-dconfdir = $(sysconfdir)/dconf/profile
-dconf_DATA = trackertest
 
 standard_tests = \
 	01-insertion.py \
@@ -98,7 +98,7 @@ functional-test-slow: ${slow_tests}
 
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
-	$(dconf_DATA) \
+	$(config_DATA) \
 	create-tests-xml.py
 
 if HAVE_MAEMO
