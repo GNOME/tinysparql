@@ -21,11 +21,23 @@ class DConfClient:
 
     def reset (self):
         profile = os.environ ["DCONF_PROFILE"]
-        assert profile == "trackertest"
-        # XDG_CONFIG_HOME is useless
-        dconf_db = os.path.join (os.environ ["HOME"], ".config", "dconf", profile)
+        if not os.path.exists(profile):
+            raise Exception(
+                "Unable to find DConf profile '%s'. Check that Tracker and "
+                "the test suite have been correctly installed (you must pass "
+                "--enable-functional-tests to configure)." % profile)
+
+        assert os.path.basename(profile) == "trackertest"
+
+        # XDG_CONFIG_HOME is useless, so we use HOME. This code should not be
+        # needed unless for some reason the test is not being run via the
+        # 'test-runner.sh' script.
+        dconf_db = os.path.join (os.environ ["HOME"],
+                                 ".config",
+                                 "dconf",
+                                 "trackertest")
         if os.path.exists (dconf_db):
-            log ("[Conf] Removing dconf-profile: " + dconf_db)
+            log ("[Conf] Removing dconf database: " + dconf_db)
             os.remove (dconf_db)
 
 
@@ -33,7 +45,8 @@ if __name__ == "__main__":
 
 
     SCHEMA_MINER = "org.freedesktop.Tracker.Miner.Files"
-    os.environ ["DCONF_PROFILE"] = "trackertest"
+    os.environ ["DCONF_PROFILE"] = os.path.join (cfg.DATADIR, "tracker-tests",
+                                                 "trackertest")
 
     dconf = DConfClient ()
     value = dconf.read (DConfClient.SCHEMA_MINER, "throttle")
