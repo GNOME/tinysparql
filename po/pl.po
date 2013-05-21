@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-25 20:27+0100\n"
-"PO-Revision-Date: 2013-03-25 20:28+0100\n"
+"POT-Creation-Date: 2013-05-21 17:45+0200\n"
+"PO-Revision-Date: 2013-05-21 17:48+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -729,7 +729,7 @@ msgstr[2] "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
-msgstr "Wersja do druku"
+msgstr "Wyświetla wersję"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
