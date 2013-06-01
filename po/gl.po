@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-24 23:58+0100\n"
-"PO-Revision-Date: 2013-03-25 00:00+0200\n"
+"POT-Creation-Date: 2013-06-02 00:17+0200\n"
+"PO-Revision-Date: 2013-06-02 00:21+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -657,7 +657,7 @@ msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 #: ../src/tracker-utils/tracker-search.c:1662
 #: ../src/tracker-utils/tracker-sparql.c:479
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:938
+#: ../src/tracker-utils/tracker-tag.c:899
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
@@ -667,7 +667,7 @@ msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 #: ../src/tracker-utils/tracker-search.c:1663
 #: ../src/tracker-utils/tracker-sparql.c:480
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:939
+#: ../src/tracker-utils/tracker-tag.c:900
 msgid "No error given"
 msgstr "Non se obtivo ningún erro"
 
@@ -1493,7 +1493,7 @@ msgid "Could not update tags"
 msgstr "Non foi posíbel actualizar as etiquetas"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:803
+#: ../src/tracker-utils/tracker-tag.c:764
 msgid "Could not remove tag"
 msgstr "Non foi posíbel quitar a etiqueta"
 
@@ -1502,7 +1502,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Non foi posíbel obter as etiquetas para a selección actual"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:627
+#: ../src/tracker-utils/tracker-tag.c:588
 msgid "Could not add tag"
 msgstr "Non foi posíbel engadir a etiqueta"
 
@@ -2120,7 +2120,7 @@ msgid "EXPRESSION"
 msgstr "EXPRESIÓN"
 
 #: ../src/tracker-utils/tracker-search.c:196
-#: ../src/tracker-utils/tracker-tag.c:110
+#: ../src/tracker-utils/tracker-tag.c:109
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
@@ -2341,9 +2341,9 @@ msgstr "Non foi posíbel atopar ningún prefixo de espazo de nomes"
 #: ../src/tracker-utils/tracker-sparql.c:371
 #: ../src/tracker-utils/tracker-sparql.c:415
 #: ../src/tracker-utils/tracker-stats.c:117
-#: ../src/tracker-utils/tracker-tag.c:370
-#: ../src/tracker-utils/tracker-tag.c:494
-#: ../src/tracker-utils/tracker-tag.c:866
+#: ../src/tracker-utils/tracker-tag.c:326
+#: ../src/tracker-utils/tracker-tag.c:455
+#: ../src/tracker-utils/tracker-tag.c:827
 msgid "None"
 msgstr "Ningún"
 
@@ -2491,8 +2491,15 @@ msgid "Statistics:"
 msgstr "Estatísticas:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-msgid "List all tags (using FILTER if specified)"
-msgstr "Listar tódalas etiquetas (usando FILTRO se se especifica)"
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+"Listar tódalas etiquetas (usando FILTRO se se especifica; FILTRO sempre usa "
+"o OR lóxico)"
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "FILTER"
+msgstr "FILTRO"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2523,100 +2530,100 @@ msgstr "Descrición para unha etiqueta (só se usa con «--add»)"
 msgid "STRING"
 msgstr "CADEA"
 
-#: ../src/tracker-utils/tracker-tag.c:93
+#: ../src/tracker-utils/tracker-tag.c:92
 msgid "FILE…"
 msgstr "FICHEIRO…"
 
-#: ../src/tracker-utils/tracker-tag.c:94
+#: ../src/tracker-utils/tracker-tag.c:93
 msgid "FILE [FILE…]"
 msgstr "FICHEIRO [FICHEIRO…]"
 
-#: ../src/tracker-utils/tracker-tag.c:298
+#: ../src/tracker-utils/tracker-tag.c:254
 msgid "Could not get file URNs"
 msgstr "Non foi posíbel obter os URN do ficheiro"
 
-#: ../src/tracker-utils/tracker-tag.c:363
+#: ../src/tracker-utils/tracker-tag.c:319
 msgid "Could not get files related to tag"
 msgstr "Non foi posíbel obter ficheiros relacionados coa etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:438
-#: ../src/tracker-utils/tracker-tag.c:847
+#: ../src/tracker-utils/tracker-tag.c:399
+#: ../src/tracker-utils/tracker-tag.c:808
 msgid "Could not get all tags"
 msgstr "Non foi posíbel obter todas as etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:447
-#: ../src/tracker-utils/tracker-tag.c:856
+#: ../src/tracker-utils/tracker-tag.c:408
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "No tags were found"
 msgstr "Non se atopou ningunha etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:451
+#: ../src/tracker-utils/tracker-tag.c:412
 msgid "Tags (shown by name)"
 msgstr "Etiquetas (mostradas por nome)"
 
-#: ../src/tracker-utils/tracker-tag.c:518
+#: ../src/tracker-utils/tracker-tag.c:479
 msgid "No files were modified"
 msgstr "Non se modificou ningún ficheiro"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:604
 msgid "Tag was added successfully"
 msgstr "Etiqueta engadida correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:672
+#: ../src/tracker-utils/tracker-tag.c:633
 msgid "Could not add tag to files"
 msgstr "Non foi posíbel engadir as etiquetas aos ficheiros"
 
-#: ../src/tracker-utils/tracker-tag.c:682
+#: ../src/tracker-utils/tracker-tag.c:643
 msgid "Tagged"
 msgstr "Etiquetado"
 
-#: ../src/tracker-utils/tracker-tag.c:683
+#: ../src/tracker-utils/tracker-tag.c:644
 msgid "Not tagged, file is not indexed"
 msgstr "Sen etiquetar, o ficheiro non está indexado"
 
-#: ../src/tracker-utils/tracker-tag.c:729
+#: ../src/tracker-utils/tracker-tag.c:690
 msgid "Could not get tag by label"
 msgstr "Non foi posíbel obter a etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:740
+#: ../src/tracker-utils/tracker-tag.c:701
 msgid "No tags were found by that name"
 msgstr "Non foi posíbel atopar ningunha etiqueta con ese nome"
 
-#: ../src/tracker-utils/tracker-tag.c:757
+#: ../src/tracker-utils/tracker-tag.c:718
 msgid "None of the files had this tag set"
 msgstr "Ningún dos ficheiros ten este conxunto de etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:810
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Tag was removed successfully"
 msgstr "Etiqueta quitada correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:814
+#: ../src/tracker-utils/tracker-tag.c:775
 msgid "Untagged"
 msgstr "Sen etiquetar"
 
-#: ../src/tracker-utils/tracker-tag.c:815
+#: ../src/tracker-utils/tracker-tag.c:776
 msgid "File not indexed or already untagged"
 msgstr "O ficheiro non está indexado ou xa se desetiquetou"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:894
+#: ../src/tracker-utils/tracker-tag.c:855
 msgid "Add, remove or list tags"
 msgstr "Engadir, quitar ou listar etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:910
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "The --list option is required for --show-files"
 msgstr "Requírese a opción «--list» para «--show-files»"
 
-#: ../src/tracker-utils/tracker-tag.c:912
+#: ../src/tracker-utils/tracker-tag.c:873
 msgid "Add and delete actions can not be used together"
 msgstr "Engadir ou borrar accións que non se poden usar conxuntamente"
 
-#: ../src/tracker-utils/tracker-tag.c:914
+#: ../src/tracker-utils/tracker-tag.c:875
 msgid "No arguments were provided"
 msgstr "Non se proporcionou ningún argumento"
 
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:877
 msgid "The --description option can only be used with --add"
 msgstr "A opción «--description» só se pode usar con «--add»"
 
