@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-12-15T18:51:25Z" .
+	nao:lastModified "2013-06-21T00:29:38Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -568,6 +568,18 @@ nfo:Note a rdfs:Class ;
          rdfs:label "Note";
          rdfs:comment "Usually small document with snippets, reminders or frequenly used content.";
          rdfs:subClassOf nfo:Document .
+
+nfo:backgroundColor a rdf:Property ;
+	rdfs:comment "Textual representation of a color, respecting CSS3 rgba format" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Note ;
+	rdfs:range xsd:string .
+
+nfo:xmlContent a rdf:Property ;
+	rdfs:comment "XML/HTML or other rich representation of a document" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Document ;
+	rdfs:range xsd:string .
 
 nfo:lineCount a rdf:Property ;
 	rdfs:label "lineCount" ;
