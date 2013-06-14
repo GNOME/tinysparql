@@ -360,7 +360,7 @@ extract_content_parent_process (PopplerDocument *document,
 			perror ("select()");
 			finished = TRUE;
 		} else if (retval == 1) {
-			gsize bytes_remaining;
+			gsize bytes_remaining = bytes_expected;
 			gboolean read_finished = FALSE;
 
 			if (g_timer_elapsed (timer, NULL) >= EXTRACTION_PROCESS_TIMEOUT) {
