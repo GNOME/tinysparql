@@ -24,6 +24,10 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+#ifdef __sun
+#include <procfs.h>
+#endif
+
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-data/tracker-data.h>
 #include <libtracker-miner/tracker-miner.h>
@@ -528,7 +532,11 @@ get_uid_for_pid (const gchar  *pid_as_string,
 	gchar *fn;
 	guint uid;
 
+#ifdef __sun /* Solaris */
+	fn = g_build_filename ("/proc", pid_as_string, "psinfo", NULL);
+#else
 	fn = g_build_filename ("/proc", pid_as_string, "cmdline", NULL);
+#endif
 
 	f = g_file_new_for_path (fn);
 	info = g_file_query_info (f,
@@ -667,7 +675,11 @@ tracker_control_general_run (void)
 		for (l = pids; l; l = l->next) {
 			GError *error = NULL;
 			gchar *filename;
+#ifdef __sun /* Solaris */
+			psinfo_t psinfo = { 0 };
+#endif
 			gchar *contents = NULL;
+
 			gchar **strv;
 			guint uid;
 
@@ -691,8 +703,14 @@ tracker_control_general_run (void)
 
 				continue;
 			}
+#ifdef __sun /* Solaris */
+			memcpy (&psinfo, contents, sizeof (psinfo));
 
+			/* won't work with paths containing spaces :( */
+			strv = g_strsplit (psinfo.pr_psargs, " ", 2);
+#else
 			strv = g_strsplit (contents, "^@", 2);
+#endif
 			if (strv && strv[0]) {
 				gchar *basename;
 
