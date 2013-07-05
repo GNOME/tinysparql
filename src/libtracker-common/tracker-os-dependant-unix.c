@@ -230,7 +230,22 @@ tracker_create_permission_string (struct stat finfo)
 static glong
 get_memory_total (void)
 {
-#if !defined (__OpenBSD__)
+#if defined (__OpenBSD__)
+	glong total = 0;
+	int64_t physmem;
+	size_t len;
+	static gint mib[] = { CTL_HW, HW_PHYSMEM64 };
+
+	len = sizeof (physmem);
+
+	if (sysctl (mib, G_N_ELEMENTS (mib), &physmem, &len, NULL, 0) == -1) {
+		g_critical ("Couldn't get memory information: %d", errno);
+	} else {
+		total = physmem;
+	}
+#elif defined (__sun)
+    glong total = (glong)sysconf(_SC_PAGESIZE) * (glong)sysconf(_SC_PHYS_PAGES);
+#else
 	GError      *error = NULL;
 	const gchar *filename;
 	gchar       *contents = NULL;
@@ -264,20 +279,7 @@ get_memory_total (void)
 		}
 		g_free (contents);
 	}
-#else /* OpenBSD */
-	glong total = 0;
-	int64_t physmem;
-	size_t len;
-	static gint mib[] = { CTL_HW, HW_PHYSMEM64 };
-
-	len = sizeof (physmem);
-
-	if (sysctl (mib, G_N_ELEMENTS (mib), &physmem, &len, NULL, 0) == -1) {
-		g_critical ("Couldn't get memory information: %d", errno);
-	} else {
-		total = physmem;
-	}
-#endif /* !OpenBSD */
+#endif
 
 	return total;
 }
