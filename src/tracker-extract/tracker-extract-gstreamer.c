@@ -483,28 +483,33 @@ get_embedded_media_art (MetadataExtractor *extractor)
 
 		if (have_sample) {
 			GstBuffer *buffer;
-			GstCaps *caps;
-			GstStructure *caps_struct;
+			GstStructure *info_struct;
 			gint type;
 
 			buffer = gst_sample_get_buffer (extractor->sample);
-			caps = gst_sample_get_caps (extractor->sample);
-			caps_struct = gst_caps_get_structure (caps, 0);
-			gst_structure_get_enum (caps_struct,
-			                        "image-type",
-			                        GST_TYPE_TAG_IMAGE_TYPE,
-			                        &type);
+			info_struct = gst_sample_get_info (extractor->sample);
+			if (gst_structure_get_enum (info_struct,
+			                            "image-type",
+			                            GST_TYPE_TAG_IMAGE_TYPE,
+			                            &type)) {
+				if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
+				    (type == GST_TAG_IMAGE_TYPE_UNDEFINED &&
+				     extractor->media_art_buffer_size == 0)) {
+					GstCaps *caps;
+					GstStructure *caps_struct;
 
-			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
-			    (type == GST_TAG_IMAGE_TYPE_UNDEFINED && extractor->media_art_buffer_size == 0)) {
-				if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
-					return FALSE;
+					if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
+						return FALSE;
 
-				extractor->media_art_buffer = extractor->info.data;
-				extractor->media_art_buffer_size = extractor->info.size;
-				extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
+					caps = gst_sample_get_caps (extractor->sample);
+					caps_struct = gst_caps_get_structure (caps, 0);
 
-				return TRUE;
+					extractor->media_art_buffer = extractor->info.data;
+					extractor->media_art_buffer_size = extractor->info.size;
+					extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
+
+					return TRUE;
+				}
 			}
 
 			lindex++;
