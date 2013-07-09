@@ -2279,6 +2279,26 @@ fi
 AM_CONDITIONAL(HAVE_TEXT, test "x$have_text" = "xyes")
 
 ####################################################################
+# Check for tracker-extract: icon
+####################################################################
+
+AC_ARG_ENABLE(icon,
+              AS_HELP_STRING([--enable-icon],
+                             [enable icon support [[default=auto]]]),,
+              [enable_icon=auto])
+
+if test "x$enable_icon" != "xno"; then
+   AC_SUBST(ICON_CFLAGS)
+   AC_SUBST(ICON_LIBS)
+   AC_DEFINE(HAVE_ICON, [], [Define if we have ICON extractor])
+   have_icon=yes
+else
+   have_icon="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_ICON, test "x$have_icon" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2559,6 +2579,7 @@ Metadata Extractors:
 	Support MP3 parsing:                    $have_mp3
 	Support PS parsing:                     $have_ps
 	Support text parsing:                   $have_text
+	Support icon parsing:                   $have_icon
 
 Data Miners:
 
