@@ -2199,6 +2199,26 @@ fi
 AM_CONDITIONAL(HAVE_ABIWORD, test "x$have_abiword" = "xyes")
 
 ####################################################################
+# Check for tracker-extract: DVI
+####################################################################
+
+AC_ARG_ENABLE(dvi,
+              AS_HELP_STRING([--enable-dvi],
+                             [enable DVI support [[default=auto]]]),,
+              [enable_dvi=auto])
+
+if test "x$enable_dvi" != "xno"; then
+   AC_SUBST(DVI_CFLAGS)
+   AC_SUBST(DVI_LIBS)
+   AC_DEFINE(HAVE_DVI, [], [Define if we have DVI extractor])
+   have_dvi=yes
+else
+   have_dvi="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_DVI, test "x$have_dvi" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2475,6 +2495,7 @@ Metadata Extractors:
 	Support playlists (w/ Totem):           $have_playlist
 	Support ISO image parsing:              $have_libosinfo
 	Support AbiWord document parsing:       $have_abiword
+	Support DVI parsing:                    $have_dvi
 
 Data Miners:
 
