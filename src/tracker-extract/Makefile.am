@@ -53,11 +53,8 @@ rules_in_files = \
 # NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
-modules_LTLIBRARIES = \
-	libextract-icon.la
-
-rules_DATA = \
-	10-ico.rule
+modules_LTLIBRARIES = # Empty
+rules_DATA = # Empty
 
 if HAVE_LIBVORBIS
 modules_LTLIBRARIES += libextract-vorbis.la
@@ -172,6 +169,11 @@ endif
 if HAVE_TEXT
 modules_LTLIBRARIES += libextract-text.la
 rules_DATA += 90-text-generic.rule
+endif
+
+if HAVE_ICON
+modules_LTLIBRARIES += libextract-icon.la
+rules_DATA += 10-ico.rule
 endif
 
 # ABW
