@@ -2239,6 +2239,26 @@ fi
 AM_CONDITIONAL(HAVE_MP3, test "x$have_mp3" = "xyes")
 
 ####################################################################
+# Check for tracker-extract: ps
+####################################################################
+
+AC_ARG_ENABLE(ps,
+              AS_HELP_STRING([--enable-ps],
+                             [enable PS support [[default=auto]]]),,
+              [enable_ps=auto])
+
+if test "x$enable_ps" != "xno"; then
+   AC_SUBST(PS_CFLAGS)
+   AC_SUBST(PS_LIBS)
+   AC_DEFINE(HAVE_PS, [], [Define if we have PS extractor])
+   have_ps=yes
+else
+   have_ps="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_PS, test "x$have_ps" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2517,6 +2537,7 @@ Metadata Extractors:
 	Support AbiWord document parsing:       $have_abiword
 	Support DVI parsing:                    $have_dvi
 	Support MP3 parsing:                    $have_mp3
+	Support PS parsing:                     $have_ps
 
 Data Miners:
 
