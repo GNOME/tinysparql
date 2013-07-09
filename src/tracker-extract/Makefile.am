@@ -54,7 +54,6 @@ rules_in_files = \
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
 modules_LTLIBRARIES = \
-	libextract-abw.la \
 	libextract-dvi.la \
 	libextract-mp3.la \
 	libextract-ps.la \
@@ -62,7 +61,6 @@ modules_LTLIBRARIES = \
 	libextract-icon.la
 
 rules_DATA = \
-	10-abw.rule \
 	10-dvi.rule \
 	10-ico.rule \
 	10-mp3.rule \
@@ -157,6 +155,11 @@ endif
 if HAVE_LIBPNG
 modules_LTLIBRARIES += libextract-png.la
 rules_DATA += 10-png.rule
+endif
+
+if HAVE_ABIWORD
+modules_LTLIBRARIES += libextract-abw.la
+rules_DATA += 10-abw.rule
 endif
 
 # ABW
