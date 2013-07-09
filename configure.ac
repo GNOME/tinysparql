@@ -2363,6 +2363,25 @@ AC_PATH_PROG(INITCTL, initctl, [])
 AC_SUBST(INITCTL)
 AM_CONDITIONAL(HAVE_UPSTART, test "x$INITCTL" != "x")
 
+####################################################################
+# Check whether we should install artwork
+####################################################################
+
+AC_ARG_ENABLE(artwork,
+              AS_HELP_STRING([--enable-artwork],
+                             [install artwork, such as icons and logos [[default=auto]]]),,
+              [enable_artwork=auto])
+
+if test "x$enable_artwork" != "xno"; then
+   AC_DEFINE(HAVE_ARTWORK, [], [Define if we should install artwork])
+   have_artwork=yes
+else
+   have_artwork="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
+
+
 ##################################################################
 # Write generated files
 ##################################################################
@@ -2606,6 +2625,10 @@ Frameworks / Options:
 	Support Maemo                           $enable_maemo
 	Support libmeegotouch                   $have_meegotouch
 	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
+
+Miscellaneous:
+
+	Install artwork                         $have_artwork
 
 "
 
