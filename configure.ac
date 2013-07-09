@@ -198,6 +198,7 @@ REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
+LIBPNG_REQUIRED=0.89
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -2033,6 +2034,53 @@ CFLAGS="$OLD_CFLAGS"
 LIBS="$OLD_LIBS"
 
 ##################################################################
+# Check for tracker-extract: libpng
+##################################################################
+
+# FIXME: This should be package based. Unfortunately in several main
+# distros, it is not.
+
+OLD_CFLAGS="$CFLAGS"
+OLD_LIBS="$LIBS"
+CFLAGS=""
+LIBS=""
+
+AC_ARG_ENABLE(libpng,
+              AS_HELP_STRING([--enable-libpng],
+                             [enable extractor for PNG data [[default=auto]]]),,
+              [enable_libpng=auto])
+
+if test "x$enable_libpng" != "xno" ; then
+   AC_CHECK_HEADER(png.h,
+                   AC_CHECK_LIB(png, png_create_read_struct))
+
+   have_libpng=${ac_cv_lib_png_png_create_read_struct:-no}
+
+   LIBPNG_CFLAGS="$CFLAGS"
+   LIBPNG_LIBS="$LIBS"
+
+   AC_SUBST(LIBPNG_CFLAGS)
+   AC_SUBST(LIBPNG_LIBS)
+
+   if test "x$have_libpng" = "xyes"; then
+      AC_DEFINE(HAVE_LIBPNG, [], [Define if we have libpng])
+   fi
+else
+   have_libpng="no  (disabled)"
+fi
+
+if test "x$enable_libpng" = "xyes"; then
+   if test "x$have_libpng" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libpng >= $LIBPNG_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBPNG, test "x$have_libpng" = "xyes")
+
+CFLAGS="$OLD_CFLAGS"
+LIBS="$OLD_LIBS"
+
+##################################################################
 # Check for tracker-extract: vorbis
 ##################################################################
 
@@ -2390,7 +2438,7 @@ Applications:
 Metadata Extractors:
 
 	Support libstreamanalyzer:              $have_libstreamanalyzer
-	Support PNG:                            yes
+	Support PNG:                            $have_libpng
 	Support PDF:                            $have_poppler
 	Support XPS:                            $have_libgxps
 	Support GIF:                            $have_libgif (xmp: $have_exempi)
