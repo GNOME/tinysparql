@@ -2179,6 +2179,26 @@ fi
 AM_CONDITIONAL(HAVE_LIBCUE, test "x$have_libcue" = "xyes")
 
 ####################################################################
+# Check for tracker-extract: AbiWord
+####################################################################
+
+AC_ARG_ENABLE(abiword,
+              AS_HELP_STRING([--enable-abiword],
+                             [enable AbiWord support [[default=auto]]]),,
+              [enable_abiword=auto])
+
+if test "x$enable_abiword" != "xno" ; then
+   AC_SUBST(ABIWORD_CFLAGS)
+   AC_SUBST(ABIWORD_LIBS)
+   AC_DEFINE(HAVE_ABIWORD, [], [Define if we have AbiWord extractor])
+   have_abiword=yes
+else
+   have_abiword="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_ABIWORD, test "x$have_abiword" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2454,6 +2474,7 @@ Metadata Extractors:
 	Support cue sheet parsing:              $have_libcue
 	Support playlists (w/ Totem):           $have_playlist
 	Support ISO image parsing:              $have_libosinfo
+	Support AbiWord document parsing:       $have_abiword
 
 Data Miners:
 
