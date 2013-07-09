@@ -2219,6 +2219,26 @@ fi
 AM_CONDITIONAL(HAVE_DVI, test "x$have_dvi" = "xyes")
 
 ####################################################################
+# Check for tracker-extract: mp3
+####################################################################
+
+AC_ARG_ENABLE(mp3,
+              AS_HELP_STRING([--enable-mp3],
+                             [enable MP3 support [[default=auto]]]),,
+              [enable_mp3=auto])
+
+if test "x$enable_mp3" != "xno"; then
+   AC_SUBST(MP3_CFLAGS)
+   AC_SUBST(MP3_LIBS)
+   AC_DEFINE(HAVE_MP3, [], [Define if we have MP3 extractor])
+   have_mp3=yes
+else
+   have_mp3="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_MP3, test "x$have_mp3" = "xyes")
+
+####################################################################
 # Check for tracker-extract, tracker-writeback: totem-pl-parser
 ####################################################################
 
@@ -2496,6 +2516,7 @@ Metadata Extractors:
 	Support ISO image parsing:              $have_libosinfo
 	Support AbiWord document parsing:       $have_abiword
 	Support DVI parsing:                    $have_dvi
+	Support MP3 parsing:                    $have_mp3
 
 Data Miners:
 

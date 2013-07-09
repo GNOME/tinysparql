@@ -54,14 +54,12 @@ rules_in_files = \
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
 modules_LTLIBRARIES = \
-	libextract-mp3.la \
 	libextract-ps.la \
 	libextract-text.la \
 	libextract-icon.la
 
 rules_DATA = \
 	10-ico.rule \
-	10-mp3.rule \
 	10-ps.rule \
 	90-text-generic.rule
 
@@ -163,6 +161,11 @@ endif
 if HAVE_DVI
 modules_LTLIBRARIES += libextract-dvi.la
 rules_DATA += 10-dvi.rule
+endif
+
+if HAVE_MP3
+modules_LTLIBRARIES += libextract-mp3.la
+rules_DATA += 10-mp3.rule
 endif
 
 # ABW
