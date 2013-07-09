@@ -1,6 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 icondir = $(datadir)/icons/hicolor/48x48/apps
-icon_DATA = tracker.png
+icon_DATA = # Empty
+
+if HAVE_ARTWORK
+icon_DATA += tracker.png
+endif
 
 EXTRA_DIST = $(icon_DATA)
