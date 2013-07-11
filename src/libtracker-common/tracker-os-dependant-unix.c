@@ -244,7 +244,7 @@ get_memory_total (void)
 		total = physmem;
 	}
 #elif defined (__sun)
-    glong total = (glong)sysconf(_SC_PAGESIZE) * (glong)sysconf(_SC_PHYS_PAGES);
+	glong total = (glong)sysconf(_SC_PAGESIZE) * (glong)sysconf(_SC_PHYS_PAGES);
 #else
 	GError      *error = NULL;
 	const gchar *filename;
