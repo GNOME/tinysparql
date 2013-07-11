@@ -483,7 +483,7 @@ get_embedded_media_art (MetadataExtractor *extractor)
 
 		if (have_sample) {
 			GstBuffer *buffer;
-			GstStructure *info_struct;
+			const GstStructure *info_struct;
 			gint type;
 
 			buffer = gst_sample_get_buffer (extractor->sample);
