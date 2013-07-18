@@ -1292,6 +1292,9 @@ get_id3v24_tags (id3v24frame           frame,
 		word = id3v24_text_to_utf8 (data[pos], &data[pos + 1], csize - 1, info);
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
+		} else {
+			/* Can't do anything without word. */
+			break;
 		}
 
 #ifdef FRAME_ENABLE_TRACE
@@ -1480,7 +1483,11 @@ get_id3v23_tags (id3v24frame           frame,
 
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
+		} else {
+			/* Can't do anything without word. */
+			break;
 		}
+
 
 #ifdef FRAME_ENABLE_TRACE
 		g_debug ("ID3v2.3: Frame is %d, word is %s", frame, word);
@@ -1625,6 +1632,9 @@ get_id3v20_tags (id3v2frame            frame,
 		word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1, info);
 		if (!tracker_is_empty_string (word)) {
 			g_strstrip (word);
+		} else {
+			/* Can't do anything without word. */
+			return;
 		}
 
 #ifdef FRAME_ENABLE_TRACE
