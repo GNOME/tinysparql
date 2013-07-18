@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker 0.17.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-03 14:24+0200\n"
-"PO-Revision-Date: 2013-06-03 14:28+0200\n"
+"PO-Revision-Date: 2013-07-18 14:59+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: \n"
@@ -27,7 +27,7 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
 msgid "Location of journal pieces"
-msgstr ""
+msgstr "Lokasjon for journalbitene"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
 msgid "Where to store a journal chunk when it hits the max size."
@@ -753,28 +753,27 @@ msgid "no error given"
 msgstr "ingen feil ble gitt"
 
 #: ../src/tracker-control/tracker-control-general.c:326
-#, fuzzy, c-format
+#, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr "Kunne ikke vise gravere, håndterer kunne ikke opprettes, %s"
+msgstr "Kunne ikke finne GSettings for gravere, håndterer kunne ikke opprettes, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:583
 msgid "You can not use the --kill and --terminate arguments together"
-msgstr ""
+msgstr "Du kan ikke bruke argumentene --kill og --terminate sammen"
 
 #: ../src/tracker-control/tracker-control-general.c:589
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
-msgstr ""
+msgstr "Du kan ikke bruke argumentet --terminate sammen med --hard-reset eller --soft-reset. --kill angis implisitt"
 
 #: ../src/tracker-control/tracker-control-general.c:595
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
-msgstr ""
+msgstr "Du kan ikke bruke argumentene --hard-reset og --soft-reset sammen"
 
 #: ../src/tracker-control/tracker-control-general.c:601
-#, fuzzy
 msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr "Du kan ikke bruke pause og gjennoppta brytere for graver sammen"
+msgstr "Du kan ikke bruke argumentene --get-logging og --set-logging sammen"
 
 #: ../src/tracker-control/tracker-control-general.c:616
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
@@ -833,7 +832,7 @@ msgstr "Gravere"
 #: ../src/tracker-control/tracker-control-general.c:943
 #: ../src/tracker-control/tracker-control-general.c:985
 msgid "Only those with config listed"
-msgstr ""
+msgstr "Kun dem med konfigurasjon oppgitt"
 
 #: ../src/tracker-control/tracker-control-general.c:961
 #, c-format
@@ -885,13 +884,12 @@ msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-control/tracker-control-miners.c:59
-#, fuzzy
 msgid "Tell miners to (re)index a given file"
-msgstr "Kunne ikke lese fil"
+msgstr "Be gravere om å (re)indeksere en gitt fil"
 
 #: ../src/tracker-control/tracker-control-miners.c:62
 msgid "Pause a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Sett en graver på pause (du må bruke denne med --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:63
 #: ../src/tracker-control/tracker-control-miners.c:67
@@ -906,7 +904,7 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:70
 msgid "Resume a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Gjenoppta en graver (du må bruke denne med --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:71
 msgid "COOKIE"
@@ -1051,11 +1049,11 @@ msgstr "Du kan ikke bruke pause og gjennoppta brytere for graver sammen"
 
 #: ../src/tracker-control/tracker-control-miners.c:439
 msgid "You must provide the miner for pause or resume commands"
-msgstr ""
+msgstr "Du må oppgi graver for pause- eller gjenoppta-kommandoene"
 
 #: ../src/tracker-control/tracker-control-miners.c:445
 msgid "You must provide a pause or resume command for the miner"
-msgstr ""
+msgstr "Du må oppgi en pause- eller gjenoppta-kommando for graver"
 
 #: ../src/tracker-control/tracker-control-miners.c:493
 msgid "Miner options"
@@ -1108,7 +1106,7 @@ msgstr "Følg statusendringer mens de skjer"
 
 #: ../src/tracker-control/tracker-control-status.c:70
 msgid "List common statuses for miners and the store"
-msgstr ""
+msgstr "Vis vanlige statuser for gavere og lager"
 
 #: ../src/tracker-control/tracker-control-status.c:141
 #, c-format
@@ -1133,16 +1131,16 @@ msgstr "PAUSE"
 
 #: ../src/tracker-control/tracker-control-status.c:236
 msgid "Not running or is a disabled plugin"
-msgstr ""
+msgstr "Kjører ikke eller er et tillegg som er slått av"
 
 #: ../src/tracker-control/tracker-control-status.c:522
 msgid "Common statuses include"
 msgstr "Vanlige statuser inkluderer"
 
 #: ../src/tracker-control/tracker-control-status.c:540
-#, fuzzy, c-format
+#, c-format
 msgid "Could not get status, manager could not be created, %s"
-msgstr "Kunne ikke åpne mappe «%s»."
+msgstr "Kunne ikke hente status. Håndterer ble ikke laget, %s"
 
 #. Display states
 #: ../src/tracker-control/tracker-control-status.c:561
@@ -1162,7 +1160,7 @@ msgstr "Vis statusalternativer"
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
-msgstr ""
+msgstr "Logging, 0 = kun feil, 1 = minimal, 2 = detaljert og 3 = feilsøking (forvalg = 0)"
 
 #: ../src/tracker-extract/tracker-main.c:92
 msgid "File to extract metadata for"
@@ -1175,7 +1173,7 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:102
 #: ../src/tracker-writeback/tracker-main.c:62
 msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr ""
+msgstr "Deaktiver nedstenging etter 30 sekunder med inaktivitet"
 
 #: ../src/tracker-extract/tracker-main.c:106
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
@@ -1197,7 +1195,7 @@ msgstr "- Hent ut metadata for fil"
 
 #: ../src/tracker-extract/tracker-main.c:342
 msgid "Filename and mime type must be provided together"
-msgstr ""
+msgstr "Filnavn og MIME-type må oppgis sammen"
 
 #: ../src/tracker-extract/tracker-main.c:356
 msgid ""
@@ -1218,12 +1216,10 @@ msgstr ""
 "bruk av Tracker"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-#, fuzzy
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc. "
 "This includes searching the contents of files where applicable."
-msgstr ""
-"Vis resultater etter kategori. For eksempel Musikk, Videoer, Programmer, osv."
+msgstr "Vis resultater etter kategori. For eksempel Musikk, Videoer, Programmer, osv. Dette inkluderer søk etter innhold i filer."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1247,7 +1243,7 @@ msgstr "_Søk:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show tagging panel which allows editing tags of selected results"
-msgstr ""
+msgstr "Vis merkepanel som tillater redigering av merker for utvalgte resultater"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show statistics about the data stored"
@@ -1256,15 +1252,15 @@ msgstr "Vis statistikk om lagrede data"
 #: ../src/tracker-needle/tracker-needle.ui.h:11
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
-msgstr ""
+msgstr "_Sett merkelappene du ønsker å assosiere med %d valgte oppføringer:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:12
 msgid "Add tag"
-msgstr "Legg til tagg"
+msgstr "Legg til merkelapp"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Remove selected tag"
-msgstr ""
+msgstr "Fjern valgt merkelapp"
 
 #: ../src/tracker-needle/tracker-needle.vala:69
 #, c-format
@@ -1273,7 +1269,7 @@ msgstr "Søkekriteriet var for generisk"
 
 #: ../src/tracker-needle/tracker-needle.vala:70
 msgid "Only the first 500 items will be displayed"
-msgstr ""
+msgstr "Viser kun de første 500 oppføringene"
 
 #: ../src/tracker-needle/tracker-needle.vala:698
 #: ../src/tracker-needle/tracker-needle.vala:699
@@ -1294,8 +1290,8 @@ msgstr ""
 #: ../src/tracker-needle/tracker-stats.vala:91
 msgid "Tag"
 msgid_plural "Tags"
-msgstr[0] "Merking"
-msgstr[1] "Merking"
+msgstr[0] "Merkelapp"
+msgstr[1] "Merkelapper"
 
 #: ../src/tracker-needle/tracker-stats.vala:94
 msgid "Contact"
@@ -1397,9 +1393,8 @@ msgid "Could not remove tag"
 msgstr "Kunne ikke fjerne merking"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:701
-#, fuzzy
 msgid "Could not retrieve tags for the current selection"
-msgstr "Kunne ikke oppdatere merking for fil"
+msgstr "Kunne ikke hente merking aktivt utvalg"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:588
@@ -1461,7 +1456,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-view.vala:113
 msgid "Start to search using the entry box above"
-msgstr ""
+msgstr "Start søk ved å bruke inntastingsboksen over"
 
 #: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
@@ -1831,9 +1826,8 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:141
 #: ../src/tracker-utils/tracker-sparql.c:134
-#, fuzzy
 msgid "Unable to retrieve namespace prefixes"
-msgstr "Kunne ikke åpne mappe «%s»."
+msgstr "Kunne ikke hente prefiks for navneområder"
 
 #: ../src/tracker-utils/tracker-info.c:149
 #: ../src/tracker-utils/tracker-sparql.c:142
@@ -1844,11 +1838,11 @@ msgstr "Ingen navneområdeprefiks ble returnert"
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:349
 msgid "- Get all information about one or more files"
-msgstr ""
+msgstr "- Hent all iniformasjon om en eller flere filer"
 
 #: ../src/tracker-utils/tracker-info.c:405
 msgid "Querying information for entity"
-msgstr ""
+msgstr "Kjører spørring om informasjon for entitet"
 
 #: ../src/tracker-utils/tracker-info.c:426
 msgid "Unable to retrieve URN for URI"
@@ -2340,10 +2334,9 @@ msgid "Statistics:"
 msgstr "Statistikk:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-#, fuzzy
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
-msgstr "Vis alle merkinger (bruker FILTER hvis oppgitt)"
+msgstr "Vis alle merkinger (bruker FILTER hvis oppgitt; FILTER bruker alltid logisk ELLER)"
 
 #: ../src/tracker-utils/tracker-tag.c:68
 msgid "FILTER"
