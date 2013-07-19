@@ -2041,41 +2041,38 @@ tracker_extract_gstreamer (const gchar          *uri,
 	success = discoverer_init_and_run (extractor, uri);
 #endif
 
-	if (!success) {
-		gst_tag_list_free (extractor->tagcache);
-		g_slice_free (MetadataExtractor, extractor);
-		return;
+	if (success) {
+		cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
+
+		if (cue_sheet) {
+			g_debug ("Using embedded CUE sheet.");
+			extractor->toc = tracker_cue_sheet_parse (cue_sheet);
+			g_free (cue_sheet);
+		}
+
+		if (extractor->toc == NULL) {
+			extractor->toc = tracker_cue_sheet_parse_uri (uri);
+		}
+
+		extract_metadata (extractor,
+		                  uri,
+		                  preupdate,
+		                  postupdate,
+		                  metadata,
+		                  graph);
+
+		if (extractor->media_art_type != TRACKER_MEDIA_ART_NONE) {
+			tracker_media_art_process (extractor->media_art_buffer,
+			                           extractor->media_art_buffer_size,
+			                           extractor->media_art_buffer_mime,
+			                           extractor->media_art_type,
+			                           extractor->media_art_artist,
+			                           extractor->media_art_title,
+			                           uri);
+		}
 	}
 
-	cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
-
-	if (cue_sheet) {
-		g_debug ("Using embedded CUE sheet.");
-		extractor->toc = tracker_cue_sheet_parse (cue_sheet);
-		g_free (cue_sheet);
-	}
-
-	if (extractor->toc == NULL) {
-		extractor->toc = tracker_cue_sheet_parse_uri (uri);
-	}
-
-	extract_metadata (extractor,
-	                  uri,
-	                  preupdate,
-	                  postupdate,
-	                  metadata,
-	                  graph);
-
-	if (extractor->media_art_type != TRACKER_MEDIA_ART_NONE) {
-		tracker_media_art_process (extractor->media_art_buffer,
-		                           extractor->media_art_buffer_size,
-		                           extractor->media_art_buffer_mime,
-		                           extractor->media_art_type,
-		                           extractor->media_art_artist,
-		                           extractor->media_art_title,
-		                           uri);
-	}
-
+	/* Clean up */
 	g_free (extractor->media_art_artist);
 	g_free (extractor->media_art_title);
 	if (extractor->sample) {

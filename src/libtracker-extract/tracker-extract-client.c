@@ -419,6 +419,9 @@ get_metadata_fast_async (GDBusConnection    *connection,
 
 		g_object_unref (fd_list);
 		g_error_free (error);
+
+		/* FIXME: Close pipes? */
+
 		return;
 	}
 
