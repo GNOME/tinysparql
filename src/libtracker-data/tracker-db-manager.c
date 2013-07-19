@@ -241,7 +241,6 @@ db_set_params (TrackerDBInterface   *iface,
 #else
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 #endif /* DISABLE_JOURNAL */
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
