@@ -417,8 +417,6 @@ migrate_keyfile_to_settings (TrackerConfigMigrationEntry *entries,
 {
 	gint i;
 
-	g_message ("Migrating configuration to GSettings...");
-
 	for (i = 0; entries[i].type != G_TYPE_INVALID; i++) {
 		if (!g_key_file_has_key (file->key_file,
 		                         entries[i].file_section,
@@ -478,8 +476,6 @@ migrate_keyfile_to_settings (TrackerConfigMigrationEntry *entries,
 			break;
 		}
 	}
-
-	g_message ("Finished migration to GSettings.");
 
 	return TRUE;
 }
@@ -572,12 +568,10 @@ tracker_config_file_migrate (TrackerConfigFile           *file,
 {
 	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
 
-	if (file->key_file && file->file_exists) {
-		migrate_keyfile_to_settings (entries, file, settings);
-	}
-
-	if (g_getenv ("TRACKER_USE_CONFIG_FILES")) {
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
 		UnappliedNotifyData *data;
+
+		g_message ("Using config file, not GSettings");
 
 		/* Ensure we have the config file in place */
 		if (!file->file_exists) {
@@ -598,8 +592,18 @@ tracker_config_file_migrate (TrackerConfigFile           *file,
 		                  G_CALLBACK (settings_has_unapplied_notify),
 		                  data);
 	} else {
-		/* The config file has been migrated to GSettings, delete it */
-		g_file_delete (file->file, NULL, NULL);
+		g_message ("Using GSettings, not config file");
+
+		/* 1. Check if we have a config file */
+		if (file->key_file && file->file_exists) {
+			/* 2. If so migrate to GSettings */
+			g_message ("  Migrating settings from config file to GSettings");
+			migrate_keyfile_to_settings (entries, file, settings);
+
+			/* 3. Delete the old config file now it's migrated */
+			g_message ("  Removing old config file");
+			g_file_delete (file->file, NULL, NULL);
+		}
 	}
 
 	return TRUE;
