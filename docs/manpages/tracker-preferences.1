@@ -9,10 +9,22 @@ tracker-preferences \- Preferences editor for tracker-miner-fs
 .SH DESCRIPTION
 .B tracker-preferences
 is a graphical configuration front end for the
-.BR tracker-miner-fs (1)
+.BR tracker-miner-fs
 which crawls and mines data from the filesystem to be stored in the
 Tracker databases.
 
+Importantly, the
+.BR TRACKER_USE_CONFIG_FILES
+environment variable which
+can be used by the
+.BR tracker-miner-fs
+and other binaries for switching from GSettings to config files is not
+supported by
+.BR tracker-preferences.
+This means that configuration changes (usually stored in
+\fI$HOME/.config/tracker\fR) must be manually updated when not using
+GSettings.
 .SH SEE ALSO
-.BR tracker-search-tool (1),
+.BR tracker-miner-fs (1),
+.BR tracker-control (1),
 .BR tracker-store (1).
