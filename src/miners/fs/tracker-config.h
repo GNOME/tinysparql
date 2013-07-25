@@ -48,7 +48,6 @@ struct TrackerConfigClass {
 GType          tracker_config_get_type                             (void) G_GNUC_CONST;
 
 TrackerConfig *tracker_config_new                                  (void);
-gboolean       tracker_config_save                                 (TrackerConfig *config);
 
 gint           tracker_config_get_verbosity                        (TrackerConfig *config);
 gint           tracker_config_get_sched_idle                       (TrackerConfig *config);
@@ -72,42 +71,8 @@ gboolean       tracker_config_get_enable_writeback                 (TrackerConfi
 
 void           tracker_config_set_verbosity                        (TrackerConfig *config,
                                                                     gint           value);
-void           tracker_config_set_sched_idle                       (TrackerConfig *config,
-                                                                    gint           value);
 void           tracker_config_set_initial_sleep                    (TrackerConfig *config,
                                                                     gint           value);
-void           tracker_config_set_enable_monitors                  (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_throttle                         (TrackerConfig *config,
-                                                                    gint           value);
-void           tracker_config_set_index_on_battery                 (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_index_on_battery_first_time      (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_index_removable_devices          (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_index_optical_discs              (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_index_mounted_directories        (TrackerConfig *config,
-                                                                    gboolean       value);
-void           tracker_config_set_low_disk_space_limit             (TrackerConfig *config,
-                                                                    gint           value);
-void           tracker_config_set_index_recursive_directories      (TrackerConfig *config,
-                                                                    GSList        *files);
-void           tracker_config_set_index_single_directories         (TrackerConfig *config,
-                                                                    GSList        *files);
-void           tracker_config_set_ignored_directories              (TrackerConfig *config,
-                                                                    GSList        *files);
-void           tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
-                                                                    GSList        *files);
-void           tracker_config_set_ignored_files                    (TrackerConfig *config,
-                                                                    GSList        *files);
-void           tracker_config_set_crawling_interval                (TrackerConfig *config,
-                                                                    gint           interval);
-void           tracker_config_set_removable_days_threshold         (TrackerConfig *config,
-                                                                    gint           value);
-void           tracker_config_set_enable_writeback                 (TrackerConfig *config,
-                                                                    gboolean       value);
 
 /*
  * Convenience functions:
