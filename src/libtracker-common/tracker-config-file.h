@@ -64,14 +64,15 @@ struct _TrackerConfigMigrationEntry {
 	const gchar *settings_key;
 };
 
-GType              tracker_config_file_get_type (void) G_GNUC_CONST;
-
-TrackerConfigFile* tracker_config_file_new     (void);
-gboolean           tracker_config_file_migrate (TrackerConfigFile           *config,
-						GSettings                   *settings,
-						TrackerConfigMigrationEntry *entries);
-
-gboolean           tracker_config_file_save     (TrackerConfigFile *config);
+GType              tracker_config_file_get_type           (void) G_GNUC_CONST;
+TrackerConfigFile* tracker_config_file_new                (void);
+gboolean           tracker_config_file_migrate            (TrackerConfigFile           *file,
+                                                           GSettings                   *settings,
+                                                           TrackerConfigMigrationEntry *entries);
+gboolean           tracker_config_file_import_to_settings (TrackerConfigFile           *file,
+                                                           GSettings                   *settings,
+                                                           TrackerConfigMigrationEntry *entries);
+gboolean           tracker_config_file_save               (TrackerConfigFile           *file);
 
 G_END_DECLS
 
