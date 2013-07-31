@@ -1,3 +1,36 @@
+NEW in 0.16.2 - 2013-07-31
+==========================
+
+The changes are:
+
+  * Build: Streamline by adding: --disable-{artwork|icon|text|ps|mp3|dvi|libpng|abiword}
+  * Fixes: GB#700199, tracker-extract crashed
+  * Fixes: GB#703747, GStreamer extractor doesn't properly extract media art
+  * Fixes: GB#703759, tracker-miner-fs overrides dconf settings after login
+  * Fixes: GB#704048, Don't leak file descriptors & use up all FDs
+  * Fixes: RB#741479, Don't leak file descriptors & use up all FDs
+  * Fixes: RB#959020, Don't leak file descriptors & use up all FDs
+  * functional-tests: Update DConf profile to fix dconf-WARNING **: unknown dconf database description: trackertest
+  * libtracker-common: Added /proc/meminfo alternative for Solaris
+  * libtracker-common: Hide all config file logging without preprocessor defines turned on
+  * libtracker-common: Added function tracker_config_file_import_to_settings() for when we use GKeyFile config files.
+  * libtracker-data: Don't use the count_changes PRAGMA, it is deprecated
+  * tracker-preferences: Mention in man-pages that TRACKER_USE_CONFIG_FILES has no effect to tracker-preferences
+  * tracker-preferences: Added "system" page now to give users an easy way to reindex their data
+  * tracker-preferences: Glade file used now requires GTK+ 3.x, was 2.x
+  * tracker-preferences: Fixed optical disc checkbutton sensitivity bug
+  * tracker-extract-mp3: Fix segfault when trying to process NULL ID3 tag
+  * tracker-control: Use procfs psinfo instead of cmdline on Solaris
+
+Translations:
+
+  * Updated hu: Gabor Kelemen
+  * Updated pl: Piotr Drąg
+  * Updated ru: Yuri Myasoedov
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
 NEW in 0.16.1 - 2013-05-01
 ==========================
 
