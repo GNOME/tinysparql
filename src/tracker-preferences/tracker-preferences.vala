@@ -68,6 +68,7 @@ public class Tracker.Preferences {
 	private ToggleButton togglebutton_videos;
 	private ToggleButton togglebutton_download;
 	private HBox hbox_duplicate_warning;
+	private Button button_reindex;
 	private Notebook notebook;
 
 	public Preferences () {
@@ -136,6 +137,8 @@ public class Tracker.Preferences {
 		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
 		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as HBox;
 
+		button_reindex = builder.get_object ("button_reindex") as Button;
+
 		treeview_index = builder.get_object ("treeview_index") as TreeView;
 		treeviewcolumn_index1 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
 		treeviewcolumn_index2 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
@@ -162,6 +165,7 @@ public class Tracker.Preferences {
 		spinbutton_delay.value = (double) settings_miner_fs.get_int ("initial-sleep");
 		checkbutton_enable_monitoring.active = settings_miner_fs.get_boolean ("enable-monitors");
 		checkbutton_index_removable_media.active = settings_miner_fs.get_boolean ("index-removable-devices");
+		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
 		checkbutton_index_optical_discs.active = settings_miner_fs.get_boolean ("index-optical-discs");
 		hscale_disk_space_limit.set_value ((double) settings_miner_fs.get_int ("low-disk-space-limit"));
 		hscale_drop_device_threshold.set_value ((double) settings_miner_fs.get_int ("removable-days-threshold"));
@@ -206,10 +210,6 @@ public class Tracker.Preferences {
 		togglebutton_pictures.active = model_contains (liststore_index, "&PICTURES");
 		togglebutton_videos.active = model_contains (liststore_index, "&VIDEOS");
 		togglebutton_download.active = model_contains (liststore_index, "&DOWNLOAD");
-
-		// We hide this page because it contains the start up
-		// delay which is not necessary to display for most people.
-		notebook.remove_page (0);
 
 		// Connect signals
 		// builder.connect_signals (null);
@@ -449,6 +449,29 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public void togglebutton_download_toggled_cb (ToggleButton source) {
 		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void button_reindex_clicked_cb (Button source) {
+		stdout.printf ("Reindexing...\n");
+
+		string output, errors;
+		int status;
+
+		try {
+			Process.spawn_sync (null, /* working dir */
+			                    {"tracker-control", "--hard-reset", "--start" },
+			                    null, /* env */
+			                    SpawnFlags.SEARCH_PATH,
+			                    null,
+			                    out output,
+			                    out errors,
+			                    out status);
+		} catch (GLib.Error e) {
+			stderr.printf ("Could not reindex: %s", e.message);
+		}
+		stdout.printf ("%s\n", output);
+		stdout.printf ("Finishing...\n");
 	}
 
 	private void toggles_update (UserDirectory[] matches, bool active) {
