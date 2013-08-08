@@ -496,8 +496,10 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                       <object class="GtkLabel" id="label7">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Garbage Collection&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Garbage Collection</property>
+                        <attributes>
+                         <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -909,8 +911,10 @@ Those which are the same are disabled!</property>
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Where is your content?&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Where is your content?</property>
+                        <attributes>
+                         <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -1473,8 +1477,10 @@ Clicking this button will close the preferences too.</property>
                       <object class="GtkLabel" id="label17">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Reset Indexed Data&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Reset Indexed Data</property>
+                        <attributes>
+                         <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
