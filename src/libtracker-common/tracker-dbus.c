@@ -31,6 +31,10 @@
 #include <kvm.h>
 #endif
 
+#ifdef __sun
+#include <procfs.h>
+#endif
+
 #include "tracker-dbus.h"
 #include "tracker-log.h"
 
@@ -153,6 +157,9 @@ client_data_new (gchar *sender)
 		gchar *contents = NULL;
 		GError *error = NULL;
 		gchar **strv;
+#ifdef __sun /* Solaris */
+		psinfo_t psinfo = { 0 };
+#endif
 
 		pid_str = g_strdup_printf ("%ld", cd->pid);
 		filename = g_build_filename (G_DIR_SEPARATOR_S,
@@ -173,7 +180,13 @@ client_data_new (gchar *sender)
 
 		g_free (filename);
 
+#ifdef __sun /* Solaris */
+		memcpy (&psinfo, contents, sizeof (psinfo));
+		/* won't work with paths containing spaces :( */
+		strv = g_strsplit (psinfo.pr_psargs, " ", 2);
+#else
 		strv = g_strsplit (contents, "^@", 2);
+#endif
 		if (strv && strv[0]) {
 			cd->binary = g_path_get_basename (strv[0]);
 		}
