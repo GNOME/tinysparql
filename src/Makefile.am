@@ -26,8 +26,7 @@ SUBDIRS =                                              \
 	tracker-control                                \
 	tracker-utils                                  \
 	tracker-extract                                \
-	tracker-writeback                              \
-	vapi
+	tracker-writeback
 
 if HAVE_TRACKER_PREFERENCES
 SUBDIRS += tracker-preferences
