@@ -463,10 +463,8 @@ extract_content_child_cleanup (int action)
 	pid_t child_pid;
 	int status;
 
-	g_debug ("Parent: Zombies, say hello to my little friend!");
-	while ((child_pid = waitpid (-1, &status, WNOHANG)) > 0) {
-		g_debug ("Parent:   Zombie %d reaped", child_pid);
-	}
+	while ((child_pid = waitpid (-1, &status, WNOHANG)) > 0)
+		;
 }
 
 static gchar *
