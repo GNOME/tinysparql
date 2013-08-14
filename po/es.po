@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-04-18 14:41+0000\n"
-"PO-Revision-Date: 2013-04-25 13:03+0200\n"
+"POT-Creation-Date: 2013-08-05 06:09+0000\n"
+"PO-Revision-Date: 2013-08-14 14:06+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -500,8 +500,8 @@ msgstr ""
 "Comprueba si el ARCHIVO es elegible para ser escrutado según la configuración"
 
 #: ../src/miners/fs/tracker-main.c:117
-#: ../src/tracker-control/tracker-control-general.c:107
-#: ../src/tracker-control/tracker-control-general.c:110
+#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-general.c:114
 #: ../src/tracker-control/tracker-control-miners.c:60
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
@@ -716,7 +716,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:897
+#: ../src/tracker-preferences/tracker-preferences.vala:920
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
@@ -748,11 +748,11 @@ msgstr "Las opciones de estados y de mineros no se pueden usar juntas"
 msgid "Unrecognized options"
 msgstr "No se reconocieron las opciones"
 
-#: ../src/tracker-control/tracker-control-general.c:80
+#: ../src/tracker-control/tracker-control-general.c:84
 msgid "List all Tracker processes"
 msgstr "Listar todos los procesos de Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:82
+#: ../src/tracker-control/tracker-control-general.c:86
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -760,12 +760,12 @@ msgstr ""
 "Usar SIGKILL para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro iguala a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:83
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:87
+#: ../src/tracker-control/tracker-control-general.c:90
 msgid "APPS"
 msgstr "APLICACIONES"
 
-#: ../src/tracker-control/tracker-control-general.c:85
+#: ../src/tracker-control/tracker-control-general.c:89
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -773,24 +773,24 @@ msgstr ""
 "Usar SIGTERM para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro equivale a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:88
+#: ../src/tracker-control/tracker-control-general.c:92
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matar todos los procesos de Tracker y borrar todas las bases de datos"
 
-#: ../src/tracker-control/tracker-control-general.c:91
+#: ../src/tracker-control/tracker-control-general.c:95
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Igual que --hard-reset pero el respaldo y el diario se restauran después de "
 "reiniciar"
 
-#: ../src/tracker-control/tracker-control-general.c:94
+#: ../src/tracker-control/tracker-control-general.c:98
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Quitar todos los archivos de configuración para que se regeneren en el "
 "siguiente inicio"
 
-#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:101
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -798,51 +798,51 @@ msgstr ""
 "Establece el nivel de detalle a «NIVEL» («depuración», «detallado», «mínimo», "
 "«errores») para todos los procesos"
 
-#: ../src/tracker-control/tracker-control-general.c:98
+#: ../src/tracker-control/tracker-control-general.c:102
 msgid "LEVEL"
 msgstr "NIVEL"
 
-#: ../src/tracker-control/tracker-control-general.c:100
+#: ../src/tracker-control/tracker-control-general.c:104
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
 "Mostrar valores de registro en términos de registro detallado para cada "
 "proceso"
 
-#: ../src/tracker-control/tracker-control-general.c:103
+#: ../src/tracker-control/tracker-control-general.c:107
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Iniciar mineros (que indirectamente inicia Tracker también)"
 
-#: ../src/tracker-control/tracker-control-general.c:106
+#: ../src/tracker-control/tracker-control-general.c:110
 msgid "Backup databases to the file provided"
 msgstr "Respaldar bases de datos al archivo proporcionado"
 
-#: ../src/tracker-control/tracker-control-general.c:109
+#: ../src/tracker-control/tracker-control-general.c:113
 msgid "Restore databases from the file provided"
 msgstr "Restaurar bases de datos desde el archivo proporcionado"
 
-#: ../src/tracker-control/tracker-control-general.c:131
+#: ../src/tracker-control/tracker-control-general.c:135
 msgid "Could not open /proc"
 msgstr "No se pudo abrir /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:132
-#: ../src/tracker-control/tracker-control-general.c:686
-#: ../src/tracker-control/tracker-control-general.c:726
-#: ../src/tracker-control/tracker-control-general.c:747
+#: ../src/tracker-control/tracker-control-general.c:136
+#: ../src/tracker-control/tracker-control-general.c:698
+#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:765
 msgid "no error given"
 msgstr "no se proporcionó ningún error"
 
-#: ../src/tracker-control/tracker-control-general.c:326
+#: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "No se pudieron obtener los GSettings para los mineros, no se pudo crear el "
 "gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:583
+#: ../src/tracker-control/tracker-control-general.c:591
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos «--kill» y «--terminate» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:589
+#: ../src/tracker-control/tracker-control-general.c:597
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -850,110 +850,110 @@ msgstr ""
 "No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
 "implicado"
 
-#: ../src/tracker-control/tracker-control-general.c:595
+#: ../src/tracker-control/tracker-control-general.c:603
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "No puede usar los argumentos «--hard-reset» y «--soft-reset» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:601
+#: ../src/tracker-control/tracker-control-general.c:609
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
-#: ../src/tracker-control/tracker-control-general.c:616
+#: ../src/tracker-control/tracker-control-general.c:624
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» o "
 "«errores»"
 
-#: ../src/tracker-control/tracker-control-general.c:683
+#: ../src/tracker-control/tracker-control-general.c:695
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No se pudo abrir «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:708
+#: ../src/tracker-control/tracker-control-general.c:726
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:723
+#: ../src/tracker-control/tracker-control-general.c:741
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No se pudo terminar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:729
+#: ../src/tracker-control/tracker-control-general.c:747
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proceso %d terminado"
 
-#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:762
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No se pudo matar el proceso %d"
 
-#: ../src/tracker-control/tracker-control-general.c:750
+#: ../src/tracker-control/tracker-control-general.c:768
 #, c-format
 msgid "Killed process %d"
 msgstr "Proceso %d matado"
 
-#: ../src/tracker-control/tracker-control-general.c:878
+#: ../src/tracker-control/tracker-control-general.c:896
 msgid "Removing configuration files…"
 msgstr "Quitando archivos de configuración…"
 
-#: ../src/tracker-control/tracker-control-general.c:886
+#: ../src/tracker-control/tracker-control-general.c:904
 msgid "Resetting existing configuration…"
 msgstr "Restableciendo la configuración existente…"
 
-#: ../src/tracker-control/tracker-control-general.c:936
-#: ../src/tracker-control/tracker-control-general.c:978
+#: ../src/tracker-control/tracker-control-general.c:954
+#: ../src/tracker-control/tracker-control-general.c:996
 msgid "Components"
 msgstr "Componentes"
 
-#: ../src/tracker-control/tracker-control-general.c:942
-#: ../src/tracker-control/tracker-control-general.c:984
+#: ../src/tracker-control/tracker-control-general.c:960
+#: ../src/tracker-control/tracker-control-general.c:1002
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Mineros"
 
-#: ../src/tracker-control/tracker-control-general.c:943
-#: ../src/tracker-control/tracker-control-general.c:985
+#: ../src/tracker-control/tracker-control-general.c:961
+#: ../src/tracker-control/tracker-control-general.c:1003
 msgid "Only those with config listed"
 msgstr "Sólo aquellos con la configuración listada"
 
-#: ../src/tracker-control/tracker-control-general.c:961
+#: ../src/tracker-control/tracker-control-general.c:979
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Estableciendo el registro detallado para todos los componentes a «%s»…"
 
-#: ../src/tracker-control/tracker-control-general.c:1001
+#: ../src/tracker-control/tracker-control-general.c:1019
 msgid "Waiting one second before starting miners…"
 msgstr "Esperando un segundo antes de iniciar los mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:1007
+#: ../src/tracker-control/tracker-control-general.c:1025
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker-control/tracker-control-general.c:1013
+#: ../src/tracker-control/tracker-control-general.c:1031
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "No se pudieron iniciar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1038
+#: ../src/tracker-control/tracker-control-general.c:1056
 msgid "perhaps a disabled plugin?"
 msgstr "¿quizá es un complemento desactivado?"
 
-#: ../src/tracker-control/tracker-control-general.c:1060
+#: ../src/tracker-control/tracker-control-general.c:1078
 msgid "Backing up database"
 msgstr "Respaldando base de datos"
 
-#: ../src/tracker-control/tracker-control-general.c:1132
+#: ../src/tracker-control/tracker-control-general.c:1150
 msgid "Restoring database from backup"
 msgstr "Restaurando base de datos desde el respaldo"
 
-#: ../src/tracker-control/tracker-control-general.c:1205
+#: ../src/tracker-control/tracker-control-general.c:1223
 msgid "General options"
 msgstr "Opciones generales"
 
-#: ../src/tracker-control/tracker-control-general.c:1206
+#: ../src/tracker-control/tracker-control-general.c:1224
 msgid "Show general options"
 msgstr "Mostrar las opciones generales"
 
@@ -1423,7 +1423,7 @@ msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:103
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:149
+#: ../src/tracker-preferences/tracker-preferences.vala:152
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Archivo"
@@ -1641,51 +1641,35 @@ msgid "Indexing Preferences"
 msgstr "Preferencias del indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
-msgid "_Delay"
-msgstr "_Retardo"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:3
-msgid "seconds"
-msgstr "segundos"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:4
-msgid "Start up"
-msgstr "Inicio"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:5
-msgid "General"
-msgstr "General"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "_Monitor file and directory changes"
 msgstr "_Monitorizar cambios en archivos y carpetas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Enable when running on _battery"
 msgstr "Activar al funcionar con _batería"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "Enable for _initial data population"
 msgstr "Activa para la población _inicial de datos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "Include _removable media"
 msgstr "Incluir dispositivos _extraíbles"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr ""
 "Esto cubre todos los soportes extraíbles, tarjetas de memoria, CD, DVD, etc."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Include optical di_scs"
 msgstr "Incluir di_scos ópticos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "Semantics"
 msgstr "Semántica"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid ""
 "The  scheduler  is  the kernel component that decides which runnable "
 "application will be executed by the CPU next.  Each application has an "
@@ -1701,15 +1685,15 @@ msgstr ""
 "Esta opción le permite hacer que Tracker pase a segundo plano y no consuma "
 "mucho tiempo de CPU si tiene otras aplicaciones que lo necesiten más."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid "Index content in the background:"
 msgstr "Indexar contenido en segundo plano:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
 msgid "O_nly when computer is not being used"
 msgstr "Sól_o cuando no se está usando el equipo"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid ""
 "Indexing content will be <b>much slower</b> but other applications will have "
 "priority."
@@ -1717,14 +1701,14 @@ msgstr ""
 "El indexado del contenido será <b>mucho más lento</b>, pero otras "
 "aplicaciones tendrán prioridad"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid ""
 "_While other applications are running, except for initial data population"
 msgstr ""
 "Mientras otras aplicaciones están en ejecución, excepto para la población "
 "inicial de datos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid ""
 "Indexing content will be <b>much slower</b> but other applications will have "
 "priority. This will only be the case on the <b>first index</b> of your "
@@ -1734,11 +1718,11 @@ msgstr ""
 "aplicaciones tendrán prioridad. Esto sólo se dará en el <b>primer indexado</"
 "b> de su contenido después de iniciar el equipo tras una instalación nueva"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "While _other applications are running"
 msgstr "Mientras _otras aplicaciones se están ejecutando"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid ""
 "Indexing content will be as <b>fast</b> as possible but other applications "
 "may suffer and be slower as a result."
@@ -1746,29 +1730,29 @@ msgstr ""
 "El indexado del contenido será tan <b>rápido</b> como sea posible pero otras "
 "aplicaciones pueden ralentizarse."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
 msgid "Stop indexing when _disk space is below:"
 msgstr "Dejar de indexar cuando el espacio en _disco está bajo:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
 msgstr "Limitaciones"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
 msgid "Days before deleting removable devices / files since last mounted:"
 msgstr ""
 "Días antes de eliminar dispositivos extraíbles/archivos desde la última vez "
 "que se montaron:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "<b>Garbage Collection</b>"
 msgstr "<b>Recolección de basura</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
 msgstr "Indexando"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid ""
 "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
 "b> directory, can be easily toggled below. This will add or remove their "
@@ -1786,35 +1770,35 @@ msgstr ""
 "indexarán todas su subcarpetas. De otro modo, sólo se indexarán los archivos "
 "que estén en esa carpeta."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Index Home Directory"
 msgstr "Indexar carpeta personal"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Index Desktop Directory"
 msgstr "Indexar carpeta «Escritorio»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Index Documents Directory"
 msgstr "Indexar carpeta «Documentos»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Index Music Directory"
 msgstr "Indexar carpeta «Música»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "Index Pictures Directory"
 msgstr "Indexar carpeta «Imágenes»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "Index Videos Directory"
 msgstr "Indexar carpeta «Vídeos»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "Index Download Directory"
 msgstr "Indexar carpeta «Descargas»"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid ""
 "One or more special locations have the same path.\n"
 "Those which are the same are disabled!"
@@ -1822,43 +1806,43 @@ msgstr ""
 "Una o más ubicaciones especiales tienen la misma ruta.\n"
 "Se deben desactivar las que sean iguales."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:40
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "Add directory to be indexed"
 msgstr "Añadir carpeta al indexado"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:41
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "Remove directory from being indexed"
 msgstr "Quitar carpeta del indexado"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:42
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "<b>Where is your content?</b>"
 msgstr "<b>¿Dónde está su contenido?</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:43
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
 msgstr "Ubicaciones"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:44
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "Glob patterns to ignore:"
 msgstr "Patrones de coincidencias que ignorar:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:45
+#: ../src/tracker-preferences/tracker-preferences.ui.h:41
 msgid "Opens text entry for glob patterns"
 msgstr "Abre una entrada de texto para patrones globales"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:46
+#: ../src/tracker-preferences/tracker-preferences.ui.h:42
 msgid "Opens the filechooser dialogue"
 msgstr "Abre el diálogo del selector de archivos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:47
+#: ../src/tracker-preferences/tracker-preferences.ui.h:43
 msgid "With specific files:"
 msgstr "Con los archivos específicos:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:48
+#: ../src/tracker-preferences/tracker-preferences.ui.h:44
 msgid "Directories"
 msgstr "Carpetas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:49
+#: ../src/tracker-preferences/tracker-preferences.ui.h:45
 msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
@@ -1866,18 +1850,63 @@ msgstr ""
 "Aquí se pueden usar patrones de coincidencia, por ejemplo: «*bar*».\n"
 "Esto se suele usar para ignorar carpetas como *~, *.o, *.la, etc"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:51
+#: ../src/tracker-preferences/tracker-preferences.ui.h:47
 #: ../src/tracker-utils/tracker-search.c:523
 msgid "Files"
 msgstr "Archivos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:52
+#: ../src/tracker-preferences/tracker-preferences.ui.h:48
 msgid "Ignored Content"
 msgstr "Contenido ignorado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:146
-#: ../src/tracker-preferences/tracker-preferences.vala:147
-#: ../src/tracker-preferences/tracker-preferences.vala:148
+#: ../src/tracker-preferences/tracker-preferences.ui.h:49
+msgid ""
+"When resetting your indexed data, the databases are removed and your files "
+"will no longer be indexed. Upon next start, Tracker will then start indexing "
+"data as if it was being run for the first time.\n"
+"\n"
+"<b>Warning: All data indexed will be removed! It can not be retrieved!</b>\n"
+"\n"
+"Clicking this button will close the preferences too."
+msgstr ""
+"Al reiniciar sus datos indexados, las bases de datos se eliminan y sus "
+"archivos no estarán indexados. La siguiente vez que se inicie, Tracker "
+"empezará a indexar lo datos como si se ejecutase por primera vez.\n"
+"\n"
+"<b>Advertencia: todos los datos indexados se eliminarán y no se podrán "
+"recuperar.</b>\n"
+"\n"
+"Al pulsar este botón también se cerrarán las preferencias."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:54
+msgid "Yes, remove all of my indexed data"
+msgstr "Sí, eliminar todos los datos indexados"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:55
+#| msgid "<b>Ignored Paths</b>"
+msgid "<b>Reset Indexed Data</b>"
+msgstr "<b>Reiniciar los datos indexados</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:56
+msgid "_Delay"
+msgstr "_Retardo"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:57
+msgid "seconds"
+msgstr "segundos"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:58
+msgid "Start up"
+msgstr "Inicio"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:59
+#| msgid "File System"
+msgid "System"
+msgstr "Sistema"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:149
+#: ../src/tracker-preferences/tracker-preferences.vala:150
+#: ../src/tracker-preferences/tracker-preferences.vala:151
 msgid "Directory"
 msgstr "Carpeta"
 
@@ -1896,23 +1925,23 @@ msgstr "%d%%"
 msgid "%d"
 msgstr "%d"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:485
+#: ../src/tracker-preferences/tracker-preferences.vala:508
 msgid "Enter value"
 msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:514
+#: ../src/tracker-preferences/tracker-preferences.vala:537
 msgid "Select directory"
 msgstr "Seleccionar carpeta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:535
+#: ../src/tracker-preferences/tracker-preferences.vala:558
 msgid "That directory is already selected as a location to index"
 msgstr "La carpeta ya está seleccionada como una ubicación que indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:797
+#: ../src/tracker-preferences/tracker-preferences.vala:820
 msgid "Recurse"
 msgstr "Recurso"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:903
+#: ../src/tracker-preferences/tracker-preferences.vala:926
 msgid "Desktop Search preferences"
 msgstr "Preferencias de búsquedas del Escritorio"
 
@@ -2499,7 +2528,6 @@ msgid "Statistics:"
 msgstr "Estadísticas:"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-#| msgid "List all tags (using FILTER if specified)"
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
@@ -2658,6 +2686,9 @@ msgstr "Falló al iniciar el administrador de datos"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Conjunto de resultados vacío"
+
+#~ msgid "General"
+#~ msgstr "General"
 
 #~ msgid "Flickr"
 #~ msgstr "Flickr"
@@ -3745,9 +3776,6 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "<b>Ignored File Patterns</b>"
 #~ msgstr "<b>Patrones de archivo ignorados</b>"
-
-#~ msgid "<b>Ignored Paths</b>"
-#~ msgstr "<b>Rutas ignoradas</b>"
 
 #~ msgid "<b>Index Merging</b>"
 #~ msgstr "<b>Mezclado de índices</b>"
