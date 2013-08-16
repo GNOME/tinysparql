@@ -165,7 +165,11 @@ client_data_new (gchar *sender)
 		filename = g_build_filename (G_DIR_SEPARATOR_S,
 		                             "proc",
 		                             pid_str,
+#ifdef __sun /* Solaris */
+		                             "psinfo",
+#else
 		                             "cmdline",
+#endif
 		                             NULL);
 		g_free (pid_str);
 
