@@ -170,7 +170,8 @@ LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
-QT_REQUIRED=4.7.1
+QT5_REQUIRED=5.0.0
+QT4_REQUIRED=4.7.1
 MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.16.0
 CAIRO_REQUIRED=1.0
@@ -1591,29 +1592,53 @@ selected_for_media_art="no  (disabled)"
 ##################################################################
 
 if test "x$enable_qt" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
-   PKG_CHECK_MODULES(QT,
-                     [QtGui >= $QT_REQUIRED],
-                     [have_qt=yes],
-                     [have_qt=no])
+   PKG_CHECK_MODULES(QT5,
+                     [Qt5Gui >= $QT5_REQUIRED],
+                     [have_qt5=yes],
+                     [have_qt5=no])
 
-   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT_CFLAGS"
-   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT_LIBS"
+   PKG_CHECK_MODULES(QT4,
+                     [QtGui >= $QT4_REQUIRED],
+                     [have_qt4=yes],
+                     [have_qt4=no])
 
-   if test "x$have_qt" = "xyes"; then
+
+   if test "x$have_qt5" = "xyes"; then
+      TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT5_CFLAGS -fPIC"
+      TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT5_LIBS"
+
+      AC_DEFINE(HAVE_QT5, [], [Define if we have Qt5])
       AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
-      selected_for_media_art="yes (qt)"
+
+      selected_for_media_art="yes (qt5)"
+   else
+      if test "x$have_qt4" = "xyes"; then
+         TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT4_CFLAGS -fPIC"
+         TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT4_LIBS"
+
+         AC_DEFINE(HAVE_QT4, [], [Define if we have Qt4])
+         AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
+
+         selected_for_media_art="yes (qt4)"
+      fi
    fi
 else
-   have_qt="no  (disabled)"
+   have_qt4="no  (disabled)"
+   have_qt5="no  (disabled)"
 fi
 
 if test "x$enable_qt" = "xyes"; then
-   if test "x$have_qt" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Qt >= $QT_REQUIRED.])
+   if test "x$have_qt5" != "xyes"; then
+      if test "x$have_qt4" != "xyes"; then
+         AC_MSG_ERROR([Couldn't find Qt4 >= $QT4_REQUIRED or Qt5 >= $QT5_REQUIRED.])
+      fi
    fi
 fi
 
-AM_CONDITIONAL(HAVE_QT, test "x$have_qt" = "xyes")
+AM_CONDITIONAL(HAVE_QT4, test "x$have_qt4" = "xyes")
+AM_CONDITIONAL(HAVE_QT5, test "x$have_qt5" = "xyes")
+AM_CONDITIONAL(HAVE_QT, test "x$have_qt5" = "xyes" || test "x$have_qt4" = "xyes")
+
 
 if test "x$enable_gdkpixbuf" != "xno" && test "x$enable_quill" != "xyes"; then
    PKG_CHECK_MODULES(GDKPIXBUF,

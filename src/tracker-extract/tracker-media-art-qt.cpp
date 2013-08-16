@@ -20,13 +20,19 @@
  * Philip Van Hoof <philip@codeminded.be>
  */
 
+#include "config.h"
+
 #include "tracker-main.h"
 
 #include <QFile>
 #include <QBuffer>
 #include <QImageReader>
 #include <QImageWriter>
+#ifdef HAVE_QT5
+#include <QCoreApplication>
+#else
 #include <QApplication>
+#endif
 #include <QColor>
 #include <QPainter>
 
@@ -36,7 +42,11 @@
 
 G_BEGIN_DECLS
 
-static QApplication *app = NULL;
+#ifdef HAVE_QT5
+static QCoreApplication *app = NULL;
+#else
+static QApplication *app = NULL
+#endif
 
 void
 tracker_media_art_plugin_init (void)
@@ -44,7 +54,11 @@ tracker_media_art_plugin_init (void)
 	int argc = 0;
 	char *argv[2] = { NULL, NULL };
 
+#ifdef HAVE_QT5
+	app = new QCoreApplication (argc, argv);
+#else
 	app = new QApplication (argc, argv, QApplication::Tty);
+#endif
 }
 
 void
