@@ -82,7 +82,7 @@ struct _TrackerDataUpdateBufferResource {
 	gint id;
 	gboolean create;
 	gboolean modified;
-	/* TrackerProperty -> GValueArray */
+	/* TrackerProperty -> GArray */
 	GHashTable *predicates;
 	/* string -> TrackerDataUpdateBufferTable */
 	GHashTable *tables;
@@ -174,7 +174,7 @@ static void         cache_insert_value         (const gchar      *table_name,
                                                 gboolean          multiple_values,
                                                 gboolean          fts,
                                                 gboolean          date_time);
-static GValueArray *get_old_property_values    (TrackerProperty  *property,
+static GArray      *get_old_property_values    (TrackerProperty  *property,
                                                 GError          **error);
 static gchar*       gvalue_to_string           (TrackerPropertyType  type,
                                                 GValue           *gvalue);
@@ -960,7 +960,7 @@ tracker_data_resource_buffer_flush (GError **error)
 #if HAVE_TRACKER_FTS
 	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
-		GValueArray *values;
+		GArray *values;
 		gboolean create = resource_buffer->create;
 		GPtrArray *properties, *text;
 
@@ -971,8 +971,9 @@ tracker_data_resource_buffer_flush (GError **error)
 				GString *fts;
 
 				fts = g_string_new ("");
-				for (i = 0; i < values->n_values; i++) {
-					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
+				for (i = 0; i < values->len; i++) {
+					GValue *v = &g_array_index (values, GValue, i);
+					g_string_append (fts, g_value_get_string (v));
 					g_string_append_c (fts, ' ');
 				}
 
@@ -1230,7 +1231,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 
 	while (*domain_indexes) {
 		GError *error = NULL;
-		GValueArray *old_values;
+		GArray *old_values;
 
 		/* read existing property values */
 		old_values = get_old_property_values (*domain_indexes, &error);
@@ -1244,19 +1245,21 @@ cache_create_service_decomposed (TrackerClass *cl,
 		}
 
 		if (old_values &&
-		    old_values->n_values > 0) {
+		    old_values->len > 0) {
+			GValue *v;
 			GValue gvalue_copy = { 0 };
 
 			/* Don't expect several values for property which is a domain index */
-			g_assert_cmpint (old_values->n_values, ==, 1);
+			g_assert_cmpint (old_values->len, ==, 1);
 
 			g_debug ("Propagating '%s' property value from '%s' to domain index in '%s'",
 			         tracker_property_get_name (*domain_indexes),
 			         tracker_property_get_table_name (*domain_indexes),
 			         tracker_class_get_name (cl));
 
-			g_value_init (&gvalue_copy, G_VALUE_TYPE (old_values->values));
-			g_value_copy (old_values->values, &gvalue_copy);
+			v = &g_array_index (old_values, GValue, 0);
+			g_value_init (&gvalue_copy, G_VALUE_TYPE (v));
+			g_value_copy (v, &gvalue_copy);
 
 			cache_insert_value (tracker_class_get_name (cl),
 			                    tracker_property_get_name (*domain_indexes),
@@ -1303,38 +1306,42 @@ value_equal (GValue *value1,
 }
 
 static gboolean
-value_set_add_value (GValueArray *value_set,
-                     GValue      *value)
+value_set_add_value (GArray *value_set,
+                     GValue *value)
 {
 	gint i;
 
 	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
 
-	for (i = 0; i < value_set->n_values; i++) {
-		if (value_equal (g_value_array_get_nth (value_set, i), value)) {
+	for (i = 0; i < value_set->len; i++) {
+		GValue *v;
+
+		v = &g_array_index (value_set, GValue, i);
+		if (value_equal (v, value)) {
 			/* no change, value already in set */
 			return FALSE;
 		}
 	}
 
-	g_value_array_append (value_set, value);
+	g_array_append_val (value_set, value);
 
 	return TRUE;
 }
 
 static gboolean
-value_set_remove_value (GValueArray *value_set,
-                        GValue      *value)
+value_set_remove_value (GArray *value_set,
+                        GValue *value)
 {
 	gint i;
 
 	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
 
-	for (i = 0; i < value_set->n_values; i++) {
-		if (value_equal (g_value_array_get_nth (value_set, i), value)) {
-			/* value found, remove from set */
+	for (i = 0; i < value_set->len; i++) {
+		GValue *v = &g_array_index (value_set, GValue, i);
 
-			g_value_array_remove (value_set, i);
+		if (value_equal (v, value)) {
+			/* value found, remove from set */
+			g_array_remove_index (value_set, i);
 
 			return TRUE;
 		}
@@ -1357,15 +1364,16 @@ check_property_domain (TrackerProperty *property)
 	return FALSE;
 }
 
-static GValueArray *
+static GArray *
 get_property_values (TrackerProperty *property)
 {
 	gboolean            multiple_values;
-	GValueArray        *old_values;
+	GArray *old_values;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	old_values = g_value_array_new (multiple_values ? 4 : 1);
+	old_values = g_array_sized_new (FALSE, TRUE, sizeof (GValue*), multiple_values ? 4 : 1);
+	g_array_set_clear_func (old_values, (GDestroyNotify) g_value_unset);
 	g_hash_table_insert (resource_buffer->predicates, g_object_ref (property), old_values);
 
 	if (!resource_buffer->create) {
@@ -1399,8 +1407,12 @@ get_property_values (TrackerProperty *property)
 		if (cursor) {
 			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 				GValue gvalue = { 0 };
+
 				tracker_db_cursor_get_value (cursor, 0, &gvalue);
+
 				if (G_VALUE_TYPE (&gvalue)) {
+					GValue *v;
+
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 						gdouble time;
 
@@ -1414,7 +1426,9 @@ get_property_values (TrackerProperty *property)
 						/* UTC offset is irrelevant for comparison */
 						tracker_date_time_set (&gvalue, time, 0);
 					}
-					g_value_array_append (old_values, &gvalue);
+
+					g_value_copy (&gvalue, v);
+					g_array_append_val (old_values, v);
 					g_value_unset (&gvalue);
 				}
 			}
@@ -1425,11 +1439,11 @@ get_property_values (TrackerProperty *property)
 	return old_values;
 }
 
-static GValueArray *
+static GArray *
 get_old_property_values (TrackerProperty  *property,
                          GError          **error)
 {
-	GValueArray        *old_values;
+	GArray *old_values;
 
 	/* read existing property values */
 	old_values = g_hash_table_lookup (resource_buffer->predicates, property);
@@ -1470,7 +1484,7 @@ get_old_property_values (TrackerProperty  *property,
 						property_name = tracker_property_get_name (prop);
 
 						/* delete old fts entries */
-						for (i = 0; i < old_values->n_values; i++) {
+						for (i = 0; i < old_values->len; i++) {
 							tracker_db_interface_sqlite_fts_delete_text (iface,
 							                                             resource_buffer->id,
 							                                             property_name);
@@ -1640,7 +1654,7 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GValue              gvalue = { 0 };
-	GValueArray        *old_values;
+	GArray             *old_values;
 	GError             *new_error = NULL;
 	gboolean            change = FALSE;
 
@@ -1681,10 +1695,11 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 	if (!value_set_add_value (old_values, &gvalue)) {
 		/* value already inserted */
 		g_value_unset (&gvalue);
-	} else if (!multiple_values && old_values->n_values > 1) {
+	} else if (!multiple_values && old_values->len > 1) {
 		/* trying to add second value to single valued property */
 		GValue old_value = { 0 };
 		GValue new_value = { 0 };
+		GValue *v;
 		const gchar *old_value_str = NULL;
 		const gchar *new_value_str = NULL;
 
@@ -1693,10 +1708,13 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 
 		/* Get both old and new values as strings letting glib do
 		 * whatever transformation needed */
-		if (g_value_transform (g_value_array_get_nth (old_values, 0), &old_value)) {
+		v = &g_array_index (old_values, GValue, 0);
+		if (g_value_transform (v, &old_value)) {
 			old_value_str = g_value_get_string (&old_value);
 		}
-		if (g_value_transform (g_value_array_get_nth (old_values, 1), &new_value)) {
+
+		v = &g_array_index (old_values, GValue, 1);
+		if (g_value_transform (v, &new_value)) {
 			new_value_str = g_value_get_string (&new_value);
 		}
 
@@ -1733,7 +1751,7 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 
 static gboolean
 delete_first_object (TrackerProperty  *field,
-                     GValueArray      *old_values,
+                     GArray           *old_values,
                      const gchar      *graph,
                      GError          **error)
 {
@@ -1741,7 +1759,7 @@ delete_first_object (TrackerProperty  *field,
 	gint object_id = 0;
 	gboolean change = FALSE;
 
-	if (old_values->n_values == 0) {
+	if (old_values->len == 0) {
 		return change;
 	}
 
@@ -1750,8 +1768,10 @@ delete_first_object (TrackerProperty  *field,
 
 	if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		GError *new_error = NULL;
+		GValue *v;
 
-		object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+		v = &g_array_index (old_values, GValue, 0);
+		object_id = (gint) g_value_get_int64 (v);
 
 		/* This influences old_values, which is a reference, not a copy */
 		change = delete_metadata_decomposed (field, NULL, object_id, &new_error);
@@ -1770,12 +1790,13 @@ delete_first_object (TrackerProperty  *field,
 		}
 #endif /* DISABLE_JOURNAL */
 	} else {
+		GValue *v;
 		GError *new_error = NULL;
 		gchar *object_str = NULL;
 
 		object_id = 0;
-		object_str = gvalue_to_string (tracker_property_get_data_type (field),
-		                               g_value_array_get_nth (old_values, 0));
+		v = &g_array_index (old_values, GValue, 0);
+		object_str = gvalue_to_string (tracker_property_get_data_type (field), v);
 
 		/* This influences old_values, which is a reference, not a copy */
 		change = delete_metadata_decomposed (field, object_str, 0, &new_error);
@@ -1858,7 +1879,7 @@ cache_update_metadata_decomposed (TrackerProperty  *property,
 			gint subject_id;
 			gchar *subject;
 
-			GValueArray *old_values;
+			GArray *old_values;
 
 			/* read existing property values */
 			old_values = get_old_property_values (property, &new_error);
@@ -1944,7 +1965,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GValue gvalue = { 0 };
-	GValueArray        *old_values;
+	GArray             *old_values;
 	GError             *new_error = NULL;
 	gboolean            change = FALSE;
 
@@ -2136,7 +2157,7 @@ cache_delete_resource_type_full (TrackerClass *class,
 		gboolean            multiple_values;
 		const gchar        *table_name;
 		const gchar        *field_name;
-		GValueArray        *old_values;
+		GArray *old_values;
 		gint                y;
 
 		prop = properties[p];
@@ -2159,11 +2180,11 @@ cache_delete_resource_type_full (TrackerClass *class,
 
 		old_values = get_old_property_values (prop, NULL);
 
-		for (y = old_values->n_values - 1; y >= 0 ; y--) {
+		for (y = old_values->len - 1; y >= 0 ; y--) {
 			GValue *old_gvalue;
 			GValue  gvalue = { 0 };
 
-			old_gvalue = g_value_array_get_nth (old_values, y);
+			old_gvalue = &g_array_index (old_values, GValue, y);
 			g_value_init (&gvalue, G_VALUE_TYPE (old_gvalue));
 			g_value_copy (old_gvalue, &gvalue);
 
@@ -2306,7 +2327,7 @@ resource_buffer_switch (const gchar *graph,
 		} else {
 			resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
 		}
-		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
+		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_array_unref);
 		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) cache_table_free);
 
 		if (in_journal_replay) {
@@ -2476,7 +2497,7 @@ delete_all_objects (const gchar  *graph,
 
 	field = tracker_ontologies_get_property_by_uri (predicate);
 	if (field != NULL) {
-		GValueArray *old_values;
+		GArray *old_values;
 
 		if (!tracker_property_get_transient (field)) {
 			has_persistent = TRUE;
@@ -2488,7 +2509,7 @@ delete_all_objects (const gchar  *graph,
 			return;
 		}
 
-		while (old_values->n_values > 0) {
+		while (old_values->len > 0) {
 			GError *new_error = NULL;
 
 			change |= delete_first_object (field, old_values, graph, &new_error);
@@ -2930,7 +2951,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		change = TRUE;
 	} else {
 		gint old_object_id = 0;
-		GValueArray *old_values;
+		GArray *old_values;
 		gboolean multiple_values;
 		GError *new_error = NULL;
 		gboolean domain_unchecked = TRUE;
@@ -2943,9 +2964,12 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		old_values = get_old_property_values (property, &new_error);
 		domain_unchecked = FALSE;
 		if (!new_error) {
-			if (old_values->n_values > 0) {
+			if (old_values->len > 0) {
 				/* evel knievel cast */
-				old_object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+				GValue *v;
+
+				v = &g_array_index (old_values, GValue, 0);
+				old_object_id = (gint) g_value_get_int64 (v);
 			}
 		} else {
 			g_propagate_error (error, new_error);
