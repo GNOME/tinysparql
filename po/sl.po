@@ -3,17 +3,17 @@
 # This file is distributed under the same license as the tracker package.
 #
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
-# Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009 - 2010.
+# Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009-2010.
 # Martin Srebotnjak  <miles@filmsi.net>, 2011.
-# Matej Urbančič <mateju@svn.gnome.org>, 2008 - 2013.
+# Matej Urbančič <mateju@svn.gnome.org>, 2008-2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-08-14 16:37+0000\n"
-"PO-Revision-Date: 2013-08-17 15:10+0100\n"
+"POT-Creation-Date: 2013-08-17 13:19+0000\n"
+"PO-Revision-Date: 2013-08-18 01:47+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -31,7 +31,7 @@ msgstr "Največja velikost dnevnika"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 onemogoči možnost."
+msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 možnost onemogoči."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
 msgid "Location of journal pieces"
@@ -1796,8 +1796,8 @@ msgstr ""
 "Dnevi od zadnjega priklopa pred izbrisom odstranljivih naprav / datotek:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Zbiranje smeti</b>"
+msgid "Garbage Collection"
+msgstr "Zbiranje smeti"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1865,8 +1865,8 @@ msgid "Remove directory from being indexed"
 msgstr "Odstrani mapo s seznama ustvarjanja kazala"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Kje je vaša vsebina?</b>"
+msgid "Where is your content?"
+msgstr "Kje je vaša vsebina?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1930,11 +1930,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:54
 msgid "Yes, remove all of my indexed data"
-msgstr "Da, odstrani vse vpisane podatke"
+msgstr "Da, izbriši vse vpisane podatke"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Ponastavi vpisane podatke</b>"
+msgid "Reset Indexed Data"
+msgstr "Počisti vpisane podatke"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1949,9 +1949,8 @@ msgid "Start up"
 msgstr "Zagon"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-#| msgid "File System"
 msgid "System"
-msgstr "Datotečni sistem"
+msgstr "Sistem"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:149
 #: ../src/tracker-preferences/tracker-preferences.vala:150
@@ -2577,8 +2576,8 @@ msgstr "Statistika:"
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
-"Izpiši seznam vseh oznak (z uporabo FILTRA, če je naveden; ta vedno "
-"uporablja logični ALI)"
+"Razvrsti vse oznake (z uporabo FILTRA, če je naveden, ki uporablja logični "
+"ALI))"
 
 #: ../src/tracker-utils/tracker-tag.c:68
 msgid "FILTER"
@@ -2873,9 +2872,6 @@ msgstr "Prazen niz rezultatov"
 
 #~ msgid "Non-Recursively Indexed"
 #~ msgstr "Nerekurzivna priprava seznama"
-
-#~ msgid "Recursively Indexed"
-#~ msgstr "Rekurzivna priprava kazala"
 
 #~ msgid ""
 #~ "When toggled, this makes sure your home directory is included in the list."
