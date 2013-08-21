@@ -9,14 +9,15 @@
 # Gabriel F. Vilar <cogumm@gmail.com>, 2011.
 # Gabriel Speckhahn <gabspeck@gmail.com>, 2011.
 # Enrico Nicoletto <liverig@gmail.com>, 2013.
+# Rafael Ferreira <rafael.f.f1@gmail.com>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-07-31 22:30+0000\n"
-"PO-Revision-Date: 2013-08-05 03:05-0300\n"
+"POT-Creation-Date: 2013-08-17 13:19+0000\n"
+"PO-Revision-Date: 2013-08-18 21:36-0300\n"
 "Last-Translator: Rafael Ferreira <rafael.f.f1@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -1758,8 +1759,8 @@ msgstr ""
 "montagem:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Coleta de lixo</b>"
+msgid "Garbage Collection"
+msgstr "Coleta de lixo"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1828,8 +1829,8 @@ msgid "Remove directory from being indexed"
 msgstr "Não tornar o diretório indexável"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Onde está seu conteúdo?</b>"
+msgid "Where is your content?"
+msgstr "Onde está seu conteúdo?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1897,8 +1898,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Sim, remover todos os meus dados indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Redefinir dados indexados</b>"
+msgid "Reset Indexed Data"
+msgstr "Redefinir dados indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1913,7 +1914,6 @@ msgid "Start up"
 msgstr "Início"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-#| msgid "File System"
 msgid "System"
 msgstr "Sistema"
 
