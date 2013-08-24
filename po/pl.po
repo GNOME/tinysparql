@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-01 20:07+0200\n"
-"PO-Revision-Date: 2013-08-01 20:08+0200\n"
+"POT-Creation-Date: 2013-08-24 03:12+0200\n"
+"PO-Revision-Date: 2013-08-24 03:13+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -1773,8 +1773,8 @@ msgstr ""
 "urządzenia wymienne/pliki:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Odśmiecanie pamięci</b>"
+msgid "Garbage Collection"
+msgstr "Odśmiecanie pamięci"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1843,8 +1843,8 @@ msgid "Remove directory from being indexed"
 msgstr "Usunięcie katalogu z indeksowania"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Gdzie są dane użytkownika?</b>"
+msgid "Where is your content?"
+msgstr "Gdzie są dane użytkownika?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1902,8 +1902,8 @@ msgstr ""
 "rozpocznie indeksowanie danych tak, jakby został uruchomiony po raz "
 "pierwszy.\n"
 "\n"
-"<b>Ostrzeżenie: wszystkie zindeksowane dane zostaną usunięte i nie będą mogły "
-"zostać przywrócone.</b>\n"
+"<b>Ostrzeżenie: wszystkie zindeksowane dane zostaną usunięte i nie będą "
+"mogły zostać przywrócone.</b>\n"
 "\n"
 "Kliknięcie tego przycisku spowoduje także zamknięcie preferencji."
 
@@ -1912,8 +1912,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Tak, usuń wszystkie zindeksowane dane"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Resetowanie zindeksowanych danych</b>"
+msgid "Reset Indexed Data"
+msgstr "Resetowanie zindeksowanych danych"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
