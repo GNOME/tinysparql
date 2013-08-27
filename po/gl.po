@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-02 12:09+0200\n"
-"PO-Revision-Date: 2013-08-02 12:11+0200\n"
+"POT-Creation-Date: 2013-08-27 02:53+0200\n"
+"PO-Revision-Date: 2013-08-27 02:53+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -1739,8 +1739,8 @@ msgstr ""
 "que se montaron:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Recolección de lixo</b>"
+msgid "Garbage Collection"
+msgstr "Recolección de lixo"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1809,8 +1809,8 @@ msgid "Remove directory from being indexed"
 msgstr "Quitar cartafol do indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Onde está o seu contido?</b>"
+msgid "Where is your content?"
+msgstr "Onde está o seu contido?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1877,8 +1877,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Si, eliminar todos os meus datos indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Reiniciar datos indexados</b>"
+msgid "Reset Indexed Data"
+msgstr "Reiniciar datos indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
