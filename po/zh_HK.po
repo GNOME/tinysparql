@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-07 13:44+0800\n"
-"PO-Revision-Date: 2013-08-07 13:45+0800\n"
+"POT-Creation-Date: 2013-09-06 16:35+0800\n"
+"PO-Revision-Date: 2013-09-06 16:35+0800\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
 "Language: zh_TW\n"
@@ -1593,8 +1593,8 @@ msgid "Days before deleting removable devices / files since last mounted:"
 msgstr "自上次可移除裝置與檔案掛載後到刪除前的天數zxah"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>垃圾收集</b>"
+msgid "Garbage Collection"
+msgstr "垃圾收集"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1659,8 +1659,8 @@ msgid "Remove directory from being indexed"
 msgstr "從索引移除目錄"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>你的內容在哪裏？</b>"
+msgid "Where is your content?"
+msgstr "你的內容在哪裏？"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1724,8 +1724,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "是，移除我所有已索引的資料"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>重設已索引資料</b>"
+msgid "Reset Indexed Data"
+msgstr "重設已索引資料"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
