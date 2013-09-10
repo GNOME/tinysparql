@@ -97,7 +97,7 @@ static GOptionEntry semantic_entries[] = {
 	  NULL
 	},
 	{ "disable-snippets", 0, 0, G_OPTION_ARG_NONE, &disable_snippets,
-	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music..."),
+	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music…"),
 	  NULL,
 	},
 	{ "disable-fts", 0, 0, G_OPTION_ARG_NONE, &disable_fts,
