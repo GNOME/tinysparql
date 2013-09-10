@@ -131,9 +131,9 @@ get_pids (void)
 
 	dir = g_dir_open ("/proc", 0, &error);
 	if (error) {
-		g_printerr ("%s, %s\n",
+		g_printerr ("%s: %s\n",
 		            _("Could not open /proc"),
-		            error ? error->message : _("no error given"));
+		            error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return NULL;
 	}
@@ -693,9 +693,9 @@ tracker_control_general_run (void)
 			/* Get contents to determine basename */
 			if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 				str = g_strdup_printf (_("Could not open '%s'"), filename);
-				g_printerr ("%s, %s\n",
+				g_printerr ("%s: %s\n",
 				            str,
-				            error ? error->message : _("no error given"));
+				            error ? error->message : _("No error given"));
 				g_free (str);
 				g_clear_error (&error);
 				g_free (contents);
@@ -739,9 +739,9 @@ tracker_control_general_run (void)
 							const gchar *errstr = g_strerror (errno);
 
 							str = g_strdup_printf (_("Could not terminate process %d"), pid);
-							g_printerr ("  %s, %s\n",
+							g_printerr ("  %s: %s\n",
 							            str,
-							            errstr ? errstr : _("no error given"));
+							            errstr ? errstr : _("No error given"));
 							g_free (str);
 						} else {
 							str = g_strdup_printf (_("Terminated process %d"), pid);
@@ -760,9 +760,9 @@ tracker_control_general_run (void)
 							const gchar *errstr = g_strerror (errno);
 
 							str = g_strdup_printf (_("Could not kill process %d"), pid);
-							g_printerr ("  %s, %s\n",
+							g_printerr ("  %s: %s\n",
 							            str,
-							            errstr ? errstr : _("no error given"));
+							            errstr ? errstr : _("No error given"));
 							g_free (str);
 						} else {
 							str = g_strdup_printf (_("Killed process %d"), pid);
@@ -1081,8 +1081,8 @@ tracker_control_general_run (void)
 		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 		if (!connection) {
-			g_critical ("Could not connect to the D-Bus session bus, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not connect to the D-Bus session bus: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1099,8 +1099,8 @@ tracker_control_general_run (void)
 		                               &error);
 
 		if (error) {
-			g_critical ("Could not create proxy on the D-Bus session bus, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not create proxy on the D-Bus session bus: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1123,8 +1123,8 @@ tracker_control_general_run (void)
 		}
 
 		if (error) {
-			g_critical ("Could not backup database, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not backup database: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1153,8 +1153,8 @@ tracker_control_general_run (void)
 		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 		if (!connection) {
-			g_critical ("Could not connect to the D-Bus session bus, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not connect to the D-Bus session bus: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1171,8 +1171,8 @@ tracker_control_general_run (void)
 		                               &error);
 
 		if (error) {
-			g_critical ("Could not create proxy on the D-Bus session bus, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not create proxy on the D-Bus session bus: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1195,8 +1195,8 @@ tracker_control_general_run (void)
 		}
 
 		if (error) {
-			g_critical ("Could not restore database, %s",
-			            error ? error->message : "no error given.");
+			g_critical ("Could not restore database: %s",
+			            error ? error->message : "No error given");
 			g_clear_error (&error);
 			g_free (uri);
 
