@@ -326,19 +326,26 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public string hscale_disk_space_limit_format_value_cb (Scale source, double value) {
 		if (((int) value) == -1) {
+			/* To translators: This is a feature that is
+			 * disabled for disk space checking.
+			 */
 			return _("Disabled");
 		}
 
-		return _("%d%%").printf ((int) value);
+		return "%d%%".printf ((int) value);
 	}
 
 	[CCode (instance_pos = -1)]
 	public string hscale_drop_device_threshold_format_value_cb (Scale source, double value) {
 		if (((int) value) == 0) {
+			/* To translators: This is a feature that is
+			 * disabled for removing a device from a
+			 * database cache.
+			 */
 			return _("Disabled");
 		}
 
-		return _("%d").printf ((int) value);
+		return "%d".printf ((int) value);
 	}
 
 	[CCode (instance_pos = -1)]

@@ -114,6 +114,9 @@ main (int argc, char **argv)
 		}
 
 		if (count == 0) {
+			/* To translators: This is to say there are no
+			 * statistics found. We use a "Statistics:
+			 * None" with multiple print statements */
 			g_print ("  %s\n", _("None"));
 		}
 
