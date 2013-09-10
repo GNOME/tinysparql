@@ -53,11 +53,11 @@ static gboolean print_version;
 static GOptionEntry entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
-	  N_("512")
+	  "512"
 	},
 	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
 	  N_("Offset the results"),
-	  N_("0")
+	  "0"
 	},
 	{ "or-operator", 'r', 0, G_OPTION_ARG_NONE, &or_operator,
 	  N_("Use OR for search terms instead of AND (the default)"),
@@ -323,6 +323,8 @@ get_all_tags_show_tag_id (TrackerSparqlConnection *connection,
 	}
 
 	if (!cursor) {
+		/* To translators: This is to say there are no
+		 * tags found with a particular unique ID. */
 		g_print ("    %s\n", _("None"));
 		return;
 	}
@@ -452,6 +454,13 @@ get_all_tags (TrackerSparqlConnection *connection,
 		}
 
 		if (count == 0) {
+			/* To translators: This is to say there are no
+			 * files found associated with this tag, e.g.:
+			 *
+			 *   Tags (shown by name):
+			 *     None
+			 *
+			 */
 			g_print ("  %s\n", _("None"));
 		}
 
@@ -824,6 +833,13 @@ get_tags_by_file (TrackerSparqlConnection *connection,
 		}
 
 		if (count == 0) {
+			/* To translators: This is to say there are no
+			 * tags found for a particular file, e.g.:
+			 *
+			 *   /path/to/some/file:
+			 *     None
+			 *
+			 */
 			g_print ("  %s\n", _("None"));
 		}
 

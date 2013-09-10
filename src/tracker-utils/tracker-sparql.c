@@ -368,6 +368,10 @@ print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
 		}
 
 		if (count == 0) {
+			/* To translators: This is to say there are no
+			 * search results found. We use a "foo: None"
+			 * with multiple print statements, where "foo"
+			 * may be Music or Images, etc. */
 			g_print ("  %s\n", _("None"));
 		}
 
@@ -412,6 +416,10 @@ print_cursor (TrackerSparqlCursor *cursor,
 		}
 
 		if (count == 0) {
+			/* To translators: This is to say there are no
+			 * search results found. We use a "foo: None"
+			 * with multiple print statements, where "foo"
+			 * may be Music or Images, etc. */
 			g_print ("  %s\n", _("None"));
 		}
 

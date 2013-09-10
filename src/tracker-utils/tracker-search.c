@@ -78,11 +78,11 @@ static gboolean print_version;
 static GOptionEntry semantic_entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
-	  N_("512")
+	  "512"
 	},
 	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
 	  N_("Offset the results"),
-	  N_("0")
+	  "0"
 	},
 	{ "or-operator", 'r', 0, G_OPTION_ARG_NONE, &or_operator,
 	  N_("Use OR for search terms instead of AND (the default)"),
