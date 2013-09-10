@@ -156,7 +156,7 @@ public class TrackerTagsView : VBox {
 	}
 
 	private void show_error_dialog (string action, Error e) {
-		string str = e.message != null ? e.message : _("No error was given");
+		string str = e.message != null ? e.message : _("No error given");
 
 		var msg = new MessageDialog (null,
 		                             DialogFlags.MODAL,
