@@ -60,6 +60,57 @@ typedef struct {
 	gsize limit;
 } OPFContentData;
 
+static inline OPFData *
+opf_data_new (TrackerSparqlBuilder *preupdate,
+              TrackerSparqlBuilder *metadata)
+{
+	OPFData *data = g_new0 (OPFData, 1);
+
+	if (metadata) {
+		data->metadata = g_object_ref (metadata);
+	}
+
+	if (preupdate) {
+		data->preupdate = g_object_ref (preupdate);
+	}
+
+	return data;
+}
+
+static inline void
+opf_data_clear_saved_string (OPFData *data)
+{
+	if (!data || !data->savedstring) {
+		return;
+	}
+
+	g_free (data->savedstring);
+	data->savedstring = NULL;
+}
+
+static inline void
+opf_data_free (OPFData *data)
+{
+	if (!data) {
+		return;
+	}
+
+	g_free (data->savedstring);
+
+	g_list_foreach (data->pages, (GFunc) g_free, NULL);
+	g_list_free (data->pages);
+
+	if (data->metadata) {
+		g_object_unref (data->metadata);
+	}
+
+	if (data->preupdate) {
+		g_object_unref (data->preupdate);
+	}
+
+	g_free (data);
+}
+
 /* Methods to parse the container.xml file
  * pointing to the real metadata/content
  */
@@ -124,11 +175,8 @@ opf_xml_start_element_handler (GMarkupParseContext  *context,
 						data->element = OPF_TAG_TYPE_ILLUSTRATOR;
 					} else {
 						data->element = OPF_TAG_TYPE_UNKNOWN;
+						opf_data_clear_saved_string (data);
 						g_debug ("Unknown role, skipping");
-						if (data->savedstring) {
-							free (data->savedstring);
-							data->savedstring = NULL;
-						}
 					}
 				}
 			}
@@ -250,7 +298,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 			for (i = 0; i < len; i++) {
 				if (data->savedstring[i] == ',') {
-					fname = strndup (data->savedstring, i);
+					fname = g_strndup (data->savedstring, i);
 					g_debug ("Found family name: %s", fname);
 
 					for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
@@ -262,17 +310,17 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 			if (i == len) {
 				g_debug ("Found only one name");
-				fname = strdup (data->savedstring);
+				fname = g_strdup (data->savedstring);
 			} else {
 				for (; i <= len; i++) {
 					if (i == len || data->savedstring[i] == ' ') {
-						gname = strndup (data->savedstring + j, i-j);
+						gname = g_strndup (data->savedstring + j, i-j);
 						g_debug ("Found given name: %s", gname);
 
 						for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
 
 						if (i != len) {
-							oname = strdup (data->savedstring + i);
+							oname = g_strdup (data->savedstring + i);
 							g_debug ("Found other name: %s", oname);
 						}
 
@@ -289,7 +337,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 			for (i = 0; i < len; i++) {
 				if (text[i] == ' ') {
-					gname = strndup (text, i);
+					gname = g_strndup (text, i);
 					g_debug ("Found Given Name: %s", gname);
 					j = i+1;
 
@@ -298,12 +346,12 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			}
 
 			if (j == 0) {
-				fname = strdup (data->savedstring);
+				fname = g_strdup (data->savedstring);
 				g_debug ("Found Only One Name: %s", fname);
 			} else {
 				for (i = len - 1; i >= j - 1; i--) {
 					if (text[i] == ' ') {
-						fname = strdup (text + i+1);
+						fname = g_strdup (text + i + 1);
 						g_debug ("Found Family Name: %s", fname);
 
 						if (i > j) {
@@ -398,10 +446,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		break;
 	}
 
-	if (data->savedstring) {
-		free (data->savedstring);
-		data->savedstring = NULL;
-	}
+	opf_data_clear_saved_string (data);
 }
 
 /* Methods to extract XHTML text content */
@@ -517,7 +562,7 @@ extract_opf (const gchar          *uri,
              TrackerSparqlBuilder *metadata)
 {
 	GMarkupParseContext *context;
-	OPFData data = { 0 };
+	OPFData *data = NULL;
 	GError *error = NULL;
 	gchar *dirname, *contents;
 	GMarkupParser opf_parser = {
@@ -529,14 +574,13 @@ extract_opf (const gchar          *uri,
 
 	g_debug ("Extracting OPF file contents from EPUB '%s'", uri);
 
+	data = opf_data_new (preupdate, metadata);
+
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:TextDocument");
 
-	data.metadata = metadata;
-	data.preupdate = preupdate;
-
 	/* Create parsing context */
-	context = g_markup_parse_context_new (&opf_parser, 0, &data, NULL);
+	context = g_markup_parse_context_new (&opf_parser, 0, data, NULL);
 
 	/* Load the internal container file from the Zip archive,
 	 * and parse it to extract the .opf file to get metadata from
@@ -548,11 +592,12 @@ extract_opf (const gchar          *uri,
 		g_warning ("Could not get EPUB '%s' file: %s\n", opf_path,
 		           (error) ? error->message : "No error provided");
 		g_error_free (error);
+		opf_data_free (data);
 		return FALSE;
 	}
 
 	dirname = g_path_get_dirname (opf_path);
-	contents = extract_opf_contents (uri, dirname, data.pages);
+	contents = extract_opf_contents (uri, dirname, data->pages);
 	g_free (dirname);
 
 	if (contents && *contents) {
@@ -560,8 +605,7 @@ extract_opf (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, contents);
 	}
 
-	g_list_foreach (data.pages, (GFunc) g_free, NULL);
-	g_list_free (data.pages);
+	opf_data_free (data);
 	g_free (contents);
 
 	return TRUE;
