@@ -42,7 +42,7 @@ typedef enum {
 	OPF_TAG_TYPE_UUID,
 	OPF_TAG_TYPE_ISBN,
 	OPF_TAG_TYPE_PUBLISHER,
-	OPF_TAG_TYPE_RATING  // calibre addition, should it be indexed? how?
+	OPF_TAG_TYPE_RATING  /* calibre addition, should it be indexed? how? */
 } OPFTagType;
 
 typedef struct {
@@ -113,20 +113,20 @@ opf_xml_start_element_handler (GMarkupParseContext  *context,
 			for (i = 0; attribute_names[i] != NULL; i++) {
 				if (g_strcmp0 (attribute_names[i], "opf:file-as") == 0) {
 					g_debug ("Found creator file-as tag");
-					data->savedstring = g_strdup(attribute_values[i]);
+					data->savedstring = g_strdup (attribute_values[i]);
 				} else if (g_strcmp0 (attribute_names[i], "opf:role") == 0) {
 					has_role_attr = TRUE;
-					if(g_strcmp0 (attribute_values[i], "aut") == 0) {
+					if (g_strcmp0 (attribute_values[i], "aut") == 0) {
 						data->element = OPF_TAG_TYPE_AUTHOR;
-					} else if(g_strcmp0 (attribute_values[i], "edt") == 0) {
+					} else if (g_strcmp0 (attribute_values[i], "edt") == 0) {
 						data->element = OPF_TAG_TYPE_EDITOR;
-					} else if(g_strcmp0 (attribute_values[i], "ill") == 0) {
+					} else if (g_strcmp0 (attribute_values[i], "ill") == 0) {
 						data->element = OPF_TAG_TYPE_ILLUSTRATOR;
 					} else {
 						data->element = OPF_TAG_TYPE_UNKNOWN;
 						g_debug ("Unknown role, skipping");
-						if(data->savedstring) {
-							free(data->savedstring);
+						if (data->savedstring) {
+							free (data->savedstring);
 							data->savedstring = NULL;
 						}
 					}
@@ -158,21 +158,19 @@ opf_xml_start_element_handler (GMarkupParseContext  *context,
 					}
 				}
 			}
-			/*
-		} else if (g_strcmp0 (element_name, "meta") == 0) {
-			for (i = 0; attribute_names[i] != NULL; i++) {
-				if (g_strcmp0 (attribute_names[i], "name") == 0) {
-					if (g_strcmp0 (attribute_values[i], "calibre:rating") == 0) {
-						anybool = TRUE;
-					}
-				} else if(anybool && g_strcmp0 (attribute_names[i], "content")) {
-					data->element = OPF_TAG_TYPE_RATING;
-					data->savedstring = g_strdup(attribute_values[i]);
-				}
-			}
-		} else if (g_strcmp0 (element_name, "dc:subject") == 0) {
-			data->element = OPF_TAG_TYPE_SUBJECT;
-		*/
+		/* } else if (g_strcmp0 (element_name, "meta") == 0) { */
+		/* 	for (i = 0; attribute_names[i] != NULL; i++) { */
+		/* 		if (g_strcmp0 (attribute_names[i], "name") == 0) { */
+		/* 			if (g_strcmp0 (attribute_values[i], "calibre:rating") == 0) { */
+		/* 				anybool = TRUE; */
+		/* 			} */
+		/* 		} else if (anybool && g_strcmp0 (attribute_names[i], "content")) { */
+		/* 			data->element = OPF_TAG_TYPE_RATING; */
+		/* 			data->savedstring = g_strdup (attribute_values[i]); */
+		/* 		} */
+		/* 	} */
+		/* } else if (g_strcmp0 (element_name, "dc:subject") == 0) { */
+		/* 	data->element = OPF_TAG_TYPE_SUBJECT; */
 		}
 	} else if (data->in_manifest &&
 		   g_strcmp0 (element_name, "item") == 0) {
@@ -220,8 +218,6 @@ opf_xml_text_handler (GMarkupParseContext   *context,
                       GError               **error)
 {
 	OPFData *data = user_data;
-	gchar *date, *fname, *gname, *oname;
-	int i, j, len;
 
 	switch (data->element) {
 	case OPF_TAG_TYPE_PUBLISHER:
@@ -238,65 +234,83 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 	case OPF_TAG_TYPE_AUTHOR:
 	case OPF_TAG_TYPE_EDITOR:
 	case OPF_TAG_TYPE_ILLUSTRATOR:
-	case OPF_TAG_TYPE_CONTRIBUTOR:
+	case OPF_TAG_TYPE_CONTRIBUTOR: {
+		gchar *fname, *gname, *oname;
+		gint i, j, len;
+
 		fname = NULL;
 		gname = NULL;
 		oname = NULL;
-		// parse name.  may not work for dissimilar cultures.
-		if(data->savedstring != NULL) {
-			// <family name>, <given name> <other name>
+
+		/* parse name.  may not work for dissimilar cultures. */
+		if (data->savedstring != NULL) {
+			/* <family name>, <given name> <other name> */
 			g_debug ("EPUB Parsing opf:file-as attribute: %s", data->savedstring);
-			len = strlen(data->savedstring);
-			for (i=0; i < len; i++)
-				if(data->savedstring[i] == ',') {
+			len = strlen (data->savedstring);
+
+			for (i = 0; i < len; i++) {
+				if (data->savedstring[i] == ',') {
 					fname = strndup (data->savedstring, i);
 					g_debug ("Found family name: %s", fname);
-					for(; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
+
+					for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
 					j = i;
+
 					break;
 				}
-			if(i == len) {
+			}
+
+			if (i == len) {
 				g_debug ("Found only one name");
-				fname = strdup(data->savedstring);
+				fname = strdup (data->savedstring);
 			} else {
-				for(; i <= len; i++) {
+				for (; i <= len; i++) {
 					if (i == len || data->savedstring[i] == ' ') {
 						gname = strndup (data->savedstring + j, i-j);
 						g_debug ("Found given name: %s", gname);
-						for(; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
+
+						for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
+
 						if (i != len) {
 							oname = strdup (data->savedstring + i);
 							g_debug ("Found other name: %s", oname);
 						}
+
 						break;
 					}
 				}
 			}
 		} else {
-			// <given name> <other name> <family name>
+			/* <given name> <other name> <family name> */
 			g_debug ("Parsing name, no opf:file-as found: %s", text);
+
 			j = 0;
 			len = strlen (text);
-			for (i=0; i<len; i++) {
+
+			for (i = 0; i < len; i++) {
 				if (text[i] == ' ') {
 					gname = strndup (text, i);
 					g_debug ("Found Given Name: %s", gname);
 					j = i+1;
+
 					break;
 				}
 			}
+
 			if (j == 0) {
 				fname = strdup (data->savedstring);
 				g_debug ("Found Only One Name: %s", fname);
 			} else {
-				for (i=len-1; i>=j-1; i--) {
+				for (i = len - 1; i >= j - 1; i--) {
 					if (text[i] == ' ') {
 						fname = strdup (text + i+1);
 						g_debug ("Found Family Name: %s", fname);
+
 						if (i > j) {
 							oname = strndup (text+j, i-j);
 							g_debug ("Found Other Name: %s", oname);
 						}
+
 						break;
 					}
 				}
@@ -312,17 +326,19 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		if (fname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameFamily");
 			tracker_sparql_builder_object_unvalidated (data->metadata, fname);
-			free(fname);
+			free (fname);
 		}
+
 		if (gname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameGiven");
 			tracker_sparql_builder_object_unvalidated (data->metadata, gname);
-			free(gname);
+			free (gname);
 		}
+
 		if (oname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameOther");
 			tracker_sparql_builder_object_unvalidated (data->metadata, oname);
-			free(oname);
+			free (oname);
 		}
 
 		tracker_sparql_builder_object_blank_open (data->metadata);
@@ -330,29 +346,32 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		tracker_sparql_builder_object (data->metadata, "nco:Role");
 		tracker_sparql_builder_predicate (data->metadata, "nco:role");
 
-		if (data->element == OPF_TAG_TYPE_AUTHOR)
+		if (data->element == OPF_TAG_TYPE_AUTHOR) {
 			tracker_sparql_builder_object_unvalidated (data->metadata, "aut");
-		else if (data->element == OPF_TAG_TYPE_EDITOR)
+		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
 			tracker_sparql_builder_object_unvalidated (data->metadata, "edt");
-		else if (data->element == OPF_TAG_TYPE_EDITOR)
+		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
 			tracker_sparql_builder_object_unvalidated (data->metadata, "ill");
-		else
-			g_assert("Unknown role");
+		} else {
+			g_assert ("Unknown role");
+		}
 
 		tracker_sparql_builder_object_blank_close (data->metadata);
-
 		tracker_sparql_builder_object_blank_close (data->metadata);
 		break;
+	}
 	case OPF_TAG_TYPE_TITLE:
 		tracker_sparql_builder_predicate (data->metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (data->metadata, text);
 		break;
-	case OPF_TAG_TYPE_CREATED:
-		date = tracker_date_guess (text);
+	case OPF_TAG_TYPE_CREATED: {
+		gchar *date = tracker_date_guess (text);
+
 		tracker_sparql_builder_predicate (data->metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (data->metadata, date);
 		g_free (date);
 		break;
+	}
 	case OPF_TAG_TYPE_LANGUAGE:
 		tracker_sparql_builder_predicate (data->metadata, "nie:language");
 		tracker_sparql_builder_object_unvalidated (data->metadata, text);
@@ -373,13 +392,14 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		tracker_sparql_builder_predicate (data->metadata, "nie:identifier");
 		tracker_sparql_builder_object_unvalidated (data->metadata, text);
 		break;
-//	case OPF_TAG_TYPE_RATING:
+	/* case OPF_TAG_TYPE_RATING: */
 	case OPF_TAG_TYPE_UNKNOWN:
 	default:
 		break;
 	}
-	if(data->savedstring) {
-		free(data->savedstring);
+
+	if (data->savedstring) {
+		free (data->savedstring);
 		data->savedstring = NULL;
 	}
 }
