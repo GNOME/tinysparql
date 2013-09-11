@@ -395,11 +395,11 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		tracker_sparql_builder_predicate (data->metadata, "nco:role");
 
 		if (data->element == OPF_TAG_TYPE_AUTHOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "aut");
+			tracker_sparql_builder_object_unvalidated (data->metadata, "Author");
 		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "edt");
-		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "ill");
+			tracker_sparql_builder_object_unvalidated (data->metadata, "Editor");
+		} else if (data->element == OPF_TAG_TYPE_ILLUSTRATOR) {
+			tracker_sparql_builder_object_unvalidated (data->metadata, "Illustrator");
 		} else {
 			g_assert ("Unknown role");
 		}
