@@ -87,9 +87,12 @@ test_priority_queue_peek (void)
         TrackerPriorityQueue *queue;
         gchar                *result;
         gint                  priority;
-        
+
         queue = tracker_priority_queue_new ();
-        
+
+        result = tracker_priority_queue_peek (queue, &priority);
+        g_assert (result == NULL);
+
         tracker_priority_queue_add (queue, g_strdup ("Low prio"), 10);
         tracker_priority_queue_add (queue, g_strdup ("High prio"), 1);
 
