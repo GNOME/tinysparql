@@ -316,7 +316,7 @@ tracker_priority_queue_peek (TrackerPriorityQueue *queue,
 {
 	g_return_val_if_fail (queue != NULL, NULL);
 
-	if (priority_out) {
+	if (priority_out && queue->segments->len > 0) {
 		PrioritySegment *segment;
 
 		segment = &g_array_index (queue->segments, PrioritySegment, 0);
