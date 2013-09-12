@@ -62,7 +62,15 @@ DBUS_SESSION_BUS_PID=
 set -o errexit
 
 if [ "$SEPARATE_USER_MODE" != "true" ]; then
-	export DCONF_PROFILE=trackertest
+	export DCONF_PROFILE=$PREFIX/share/tracker-tests/trackertest
+
+	if ! [ -e $DCONF_PROFILE ]; then
+	    echo "Warning: did not find file '$DCONF_PROFILE'"
+	    echo "The DConf profile allows the sandboxed Tracker to be configured"
+	    echo "independently from the system Tracker. This file should be "
+	    echo "installed if Tracker was configured with --enable-functional-tests."
+	    echo
+	fi
 
 	TEMP_DIR=/tmp/tracker-test
 	mkdir -p $TEMP_DIR
