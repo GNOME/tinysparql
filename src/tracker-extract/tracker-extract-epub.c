@@ -293,13 +293,13 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		/* parse name.  may not work for dissimilar cultures. */
 		if (data->savedstring != NULL) {
 			/* <family name>, <given name> <other name> */
-			g_debug ("EPUB Parsing opf:file-as attribute: %s", data->savedstring);
+			g_debug ("Parsing 'opf:file-as' attribute:'%s'", data->savedstring);
 			len = strlen (data->savedstring);
 
 			for (i = 0; i < len; i++) {
 				if (data->savedstring[i] == ',') {
 					fname = g_strndup (data->savedstring, i);
-					g_debug ("Found family name: %s", fname);
+					g_debug ("Found family name:'%s'", fname);
 
 					for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
 					j = i;
@@ -309,19 +309,19 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			}
 
 			if (i == len) {
-				g_debug ("Found only one name");
 				fname = g_strdup (data->savedstring);
+				g_debug ("Found only one name");
 			} else {
 				for (; i <= len; i++) {
 					if (i == len || data->savedstring[i] == ' ') {
 						gname = g_strndup (data->savedstring + j, i-j);
-						g_debug ("Found given name: %s", gname);
+						g_debug ("Found given name:'%s'", gname);
 
 						for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
 
 						if (i != len) {
 							oname = g_strdup (data->savedstring + i);
-							g_debug ("Found other name: %s", oname);
+							g_debug ("Found other name:'%s'", oname);
 						}
 
 						break;
@@ -330,7 +330,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			}
 		} else {
 			/* <given name> <other name> <family name> */
-			g_debug ("Parsing name, no opf:file-as found: %s", text);
+			g_debug ("Parsing name, no 'opf:file-as' found: '%s'", text);
 
 			j = 0;
 			len = strlen (text);
@@ -338,7 +338,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			for (i = 0; i < len; i++) {
 				if (text[i] == ' ') {
 					gname = g_strndup (text, i);
-					g_debug ("Found Given Name: %s", gname);
+					g_debug ("Found given name:'%s'", gname);
 					j = i+1;
 
 					break;
@@ -347,16 +347,16 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 			if (j == 0) {
 				fname = g_strdup (data->savedstring);
-				g_debug ("Found Only One Name: %s", fname);
+				g_debug ("Found only one name:'%s'", fname);
 			} else {
 				for (i = len - 1; i >= j - 1; i--) {
 					if (text[i] == ' ') {
 						fname = g_strdup (text + i + 1);
-						g_debug ("Found Family Name: %s", fname);
+						g_debug ("Found family name:'%s'", fname);
 
 						if (i > j) {
 							oname = strndup (text+j, i-j);
-							g_debug ("Found Other Name: %s", oname);
+							g_debug ("Found other name:'%s'", oname);
 						}
 
 						break;
