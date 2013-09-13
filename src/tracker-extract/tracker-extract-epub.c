@@ -314,7 +314,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			} else {
 				for (; i <= len; i++) {
 					if (i == len || data->savedstring[i] == ' ') {
-						gname = g_strndup (data->savedstring + j, i-j);
+						gname = g_strndup (data->savedstring + j, i - j);
 						g_debug ("Found given name:'%s'", gname);
 
 						for (; data->savedstring[i] == ',' || data->savedstring[i] == ' '; i++);
@@ -339,7 +339,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 				if (text[i] == ' ') {
 					gname = g_strndup (text, i);
 					g_debug ("Found given name:'%s'", gname);
-					j = i+1;
+					j = i + 1;
 
 					break;
 				}
@@ -355,7 +355,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 						g_debug ("Found family name:'%s'", fname);
 
 						if (i > j) {
-							oname = strndup (text+j, i-j);
+							oname = g_strndup (text + j, i - j);
 							g_debug ("Found other name:'%s'", oname);
 						}
 
