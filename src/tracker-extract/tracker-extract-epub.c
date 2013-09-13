@@ -284,6 +284,9 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 	case OPF_TAG_TYPE_ILLUSTRATOR:
 	case OPF_TAG_TYPE_CONTRIBUTOR: {
 		gchar *fname, *gname, *oname;
+		const gchar *fullname = NULL;
+		gchar *role_uri = NULL;
+		const gchar *role_str = NULL;
 		gint i, j, len;
 
 		fname = NULL;
@@ -292,6 +295,8 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 		/* parse name.  may not work for dissimilar cultures. */
 		if (data->savedstring != NULL) {
+			fullname = data->savedstring;
+
 			/* <family name>, <given name> <other name> */
 			g_debug ("Parsing 'opf:file-as' attribute:'%s'", data->savedstring);
 			len = strlen (data->savedstring);
@@ -329,6 +334,8 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 				}
 			}
 		} else {
+			fullname = text;
+
 			/* <given name> <other name> <family name> */
 			g_debug ("Parsing name, no 'opf:file-as' found: '%s'", text);
 
@@ -365,47 +372,67 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			}
 		}
 
-		tracker_sparql_builder_predicate (data->metadata, "nco:creator");
+		/* Role details */
+		if (data->element == OPF_TAG_TYPE_AUTHOR) {
+			role_uri = tracker_sparql_escape_uri_printf ("urn:role:author");
+			role_str = "Author";
+		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
+			role_uri = tracker_sparql_escape_uri_printf ("urn:role:editor");
+			role_str = "Editor";
+		} else if (data->element == OPF_TAG_TYPE_ILLUSTRATOR) {
+			role_uri = tracker_sparql_escape_uri_printf ("urn:role:illustrator");
+			role_str = "Illustrator";
+		} else {
+			g_assert ("Unknown role");
+		}
 
+		if (role_uri) {
+			tracker_sparql_builder_insert_silent_open (data->preupdate, NULL);
+
+			tracker_sparql_builder_subject_iri (data->preupdate, role_uri);
+
+			tracker_sparql_builder_predicate (data->preupdate, "a");
+			tracker_sparql_builder_object (data->preupdate, "nco:Role");
+			tracker_sparql_builder_predicate (data->preupdate, "nco:role");
+			tracker_sparql_builder_object_unvalidated (data->preupdate, role_str);
+
+			tracker_sparql_builder_insert_close (data->preupdate);
+		}
+
+		/* Creator contact details */
+		tracker_sparql_builder_predicate (data->metadata, "nco:creator");
 		tracker_sparql_builder_object_blank_open (data->metadata);
 		tracker_sparql_builder_predicate (data->metadata, "a");
 		tracker_sparql_builder_object (data->metadata, "nco:PersonContact");
+		tracker_sparql_builder_predicate (data->metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (data->metadata, fullname);
 
 		if (fname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameFamily");
 			tracker_sparql_builder_object_unvalidated (data->metadata, fname);
-			free (fname);
+			g_free (fname);
 		}
 
 		if (gname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameGiven");
 			tracker_sparql_builder_object_unvalidated (data->metadata, gname);
-			free (gname);
+			g_free (gname);
 		}
 
 		if (oname) {
 			tracker_sparql_builder_predicate (data->metadata, "nco:nameOther");
 			tracker_sparql_builder_object_unvalidated (data->metadata, oname);
-			free (oname);
+			g_free (oname);
 		}
 
-		tracker_sparql_builder_object_blank_open (data->metadata);
-		tracker_sparql_builder_predicate (data->metadata, "a");
-		tracker_sparql_builder_object (data->metadata, "nco:Role");
-		tracker_sparql_builder_predicate (data->metadata, "nco:role");
-
-		if (data->element == OPF_TAG_TYPE_AUTHOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "Author");
-		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "Editor");
-		} else if (data->element == OPF_TAG_TYPE_ILLUSTRATOR) {
-			tracker_sparql_builder_object_unvalidated (data->metadata, "Illustrator");
-		} else {
-			g_assert ("Unknown role");
+		if (role_uri) {
+			tracker_sparql_builder_predicate (data->metadata, "nco:role");
+			tracker_sparql_builder_object_iri (data->metadata, role_uri);
+			g_free (role_uri);
 		}
 
 		tracker_sparql_builder_object_blank_close (data->metadata);
-		tracker_sparql_builder_object_blank_close (data->metadata);
+
 		break;
 	}
 	case OPF_TAG_TYPE_TITLE:
