@@ -125,7 +125,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	AVStream *video_stream = NULL;
 	int streamIndex;
 	AVDictionaryEntry *tag = NULL;
-	const char *title;
+	const char *title = NULL;
 
 	av_register_all();
 
