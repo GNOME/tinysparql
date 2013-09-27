@@ -1309,6 +1309,7 @@ static gboolean
 value_set_add_value (GArray *value_set,
                      GValue *value)
 {
+	GValue gvalue_copy = { 0 };
 	gint i;
 
 	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
@@ -1323,7 +1324,9 @@ value_set_add_value (GArray *value_set,
 		}
 	}
 
-	g_array_append_val (value_set, value);
+	g_value_init (&gvalue_copy, G_VALUE_TYPE (value));
+	g_value_copy (value, &gvalue_copy);
+	g_array_append_val (value_set, gvalue_copy);
 
 	return TRUE;
 }
@@ -1372,7 +1375,7 @@ get_property_values (TrackerProperty *property)
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	old_values = g_array_sized_new (FALSE, TRUE, sizeof (GValue*), multiple_values ? 4 : 1);
+	old_values = g_array_sized_new (FALSE, TRUE, sizeof (GValue), multiple_values ? 4 : 1);
 	g_array_set_clear_func (old_values, (GDestroyNotify) g_value_unset);
 	g_hash_table_insert (resource_buffer->predicates, g_object_ref (property), old_values);
 
@@ -1411,8 +1414,6 @@ get_property_values (TrackerProperty *property)
 				tracker_db_cursor_get_value (cursor, 0, &gvalue);
 
 				if (G_VALUE_TYPE (&gvalue)) {
-					GValue *v;
-
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 						gdouble time;
 
@@ -1427,9 +1428,7 @@ get_property_values (TrackerProperty *property)
 						tracker_date_time_set (&gvalue, time, 0);
 					}
 
-					g_value_copy (&gvalue, v);
-					g_array_append_val (old_values, v);
-					g_value_unset (&gvalue);
+					g_array_append_val (old_values, gvalue);
 				}
 			}
 			g_object_unref (cursor);
