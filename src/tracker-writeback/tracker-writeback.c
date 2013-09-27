@@ -619,7 +619,6 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		WritebackData *data;
 		GTask *task;
 
-		task = g_task_new (controller, NULL, NULL, NULL);
 		data = writeback_data_new (controller,
 		                           writeback_handlers,
 		                           priv->connection,
@@ -627,8 +626,10 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		                           results,
 		                           invocation,
 		                           request);
+		task = g_task_new (controller, data->cancellable, NULL, NULL);
 
-		g_task_set_task_data (task, data, NULL /*(GDestroyNotify) writeback_data_free */);
+		/* No need to free data here, it's done in the callback. */
+		g_task_set_task_data (task, data, NULL);
 		g_task_run_in_thread (task, io_writeback_job);
 		g_object_unref (task);
 	} else {
