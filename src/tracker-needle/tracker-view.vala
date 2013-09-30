@@ -432,7 +432,7 @@ public class Tracker.View : ScrolledWindow {
 			detail = tracker_time_format_from_seconds (detail);
 			break;
 		case Tracker.Query.Type.DOCUMENTS:
-			detail = detail + " " + _("Pages");
+			detail = ngettext ("%d Page", "%d Pages", detail.to_int()).printf (detail.to_int());
 			break;
 		case Tracker.Query.Type.IMAGES:
 			detail = GLib.format_size_for_display (int.parse (detail));
