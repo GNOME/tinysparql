@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 21:20+0200\n"
-"PO-Revision-Date: 2013-09-10 21:20+0200\n"
+"POT-Creation-Date: 2013-10-01 18:43+0200\n"
+"PO-Revision-Date: 2013-10-01 18:43+0200\n"
 "Last-Translator: Milo Casagrande <milo@ubuntu.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -1635,8 +1635,11 @@ msgid "Loading…"
 msgstr "Caricamento…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Pagine"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d pagine"
+msgstr[1] "%d pagine"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
