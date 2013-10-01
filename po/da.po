@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-29 09:21+0200\n"
-"PO-Revision-Date: 2013-09-22 17:07+0200\n"
+"POT-Creation-Date: 2013-10-01 19:13+0200\n"
+"PO-Revision-Date: 2013-10-01 19:07+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -694,9 +694,8 @@ msgstr "Mærker"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#, fuzzy
 msgid "No error was given"
-msgstr "Ingen fejlbesked givet"
+msgstr "Ingen fejlbesked blev givet"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
 #: ../src/tracker-needle/tracker-tags-view.vala:374
@@ -818,9 +817,8 @@ msgstr "Kunne ikke åbne /proc"
 #: ../src/tracker-control/tracker-control-general.c:698
 #: ../src/tracker-control/tracker-control-general.c:744
 #: ../src/tracker-control/tracker-control-general.c:765
-#, fuzzy
 msgid "no error given"
-msgstr "Ingen fejlbesked givet"
+msgstr "ingen fejlbesked givet"
 
 # Jeg tror det må være det der menes
 #: ../src/tracker-control/tracker-control-general.c:330
@@ -1607,9 +1605,9 @@ msgid "Items"
 msgstr "Elementer"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, fuzzy, c-format
+#, c-format
 msgid "Loading..."
-msgstr "Indlæser…"
+msgstr "Indlæser..."
 
 #: ../src/tracker-needle/tracker-view.vala:435
 msgid "Pages"
@@ -1620,9 +1618,8 @@ msgid "_Show Parent Directory"
 msgstr "_Vis overliggende mappe"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-#, fuzzy
 msgid "_Tags..."
-msgstr "Mærker"
+msgstr "_Mærker..."
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Search and Indexing"
@@ -1740,9 +1737,8 @@ msgstr ""
 "Dage før sletning af eksterne enheder / filer siden de sidst var monteret:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#, fuzzy
 msgid "<b>Garbage Collection</b>"
-msgstr "Affaldsindsamling"
+msgstr "<b>Affaldsindsamling</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1811,9 +1807,8 @@ msgid "Remove directory from being indexed"
 msgstr "Fjern mappe så den ikke bliver indekseret"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-#, fuzzy
 msgid "<b>Where is your content?</b>"
-msgstr "Hvor er dit indhold?"
+msgstr "<b>Hvor er dit indhold?</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1880,9 +1875,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Ja, fjern alle mine indekseringsdata"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-#, fuzzy
 msgid "<b>Reset Indexed Data</b>"
-msgstr "Nulstil indekseringsdata"
+msgstr "<b>Nulstil indekserede data</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1914,12 +1908,12 @@ msgstr "Deaktiveret"
 #: ../src/tracker-preferences/tracker-preferences.vala:332
 #, c-format
 msgid "%d%%"
-msgstr ""
+msgstr "%d%%"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:341
-#, fuzzy, c-format
+#, c-format
 msgid "%d"
-msgstr " %dd"
+msgstr "%d"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:508
 msgid "Enter value"
@@ -2037,7 +2031,7 @@ msgstr "Begræns antallet af viste resultater"
 #: ../src/tracker-utils/tracker-search.c:81
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "512"
-msgstr ""
+msgstr "512"
 
 # baseret på den svenske oversættelse
 #: ../src/tracker-utils/tracker-search.c:84
@@ -2048,7 +2042,7 @@ msgstr "Positioner resultater"
 #: ../src/tracker-utils/tracker-search.c:85
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-search.c:88
 #: ../src/tracker-utils/tracker-tag.c:63
@@ -2070,13 +2064,12 @@ msgstr ""
 "volumer, som ikke er monteret)"
 
 #: ../src/tracker-utils/tracker-search.c:100
-#, fuzzy
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music..."
 msgstr ""
 "Deaktivér visning af uddrag fra resultater. Dette bliver kun vist for nogle "
-"kategorier som f.eks. dokumenter, musik…"
+"kategorier som f.eks. dokumenter, musik..."
 
 #: ../src/tracker-utils/tracker-search.c:104
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
