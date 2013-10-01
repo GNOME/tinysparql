@@ -913,6 +913,8 @@ case "x$with_unicode_support" in
      *) AC_MSG_ERROR([Wrong value for --with-unicode-support: $with_unicode_support]) ;;
 esac
 
+AM_CONDITIONAL(HAVE_LIBICU, test "x$have_libicu" = "xyes")
+
 # Add to libtracker-fts
 LIBTRACKER_FTS_CFLAGS="$LIBTRACKER_FTS_CFLAGS $UNICODE_SUPPORT_CFLAGS"
 LIBTRACKER_FTS_LIBS="$LIBTRACKER_FTS_LIBS $UNICODE_SUPPORT_LIBS"
@@ -1464,6 +1466,12 @@ if test "x$enable_enca" != "xno" ; then
    fi
 else
    have_enca="no  (disabled)"
+fi
+
+if test "x$have_enca" = "xyes" || test "x$have_libicu" = "xyes"; then
+   have_charset_detection="yes"
+else
+   have_charset_detection="no"
 fi
 
 AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
@@ -2560,7 +2568,6 @@ Build Configuration:
 
 	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
-	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
         Support for keyring data (libsecret):   $have_libsecret
 	Unicode support library:                $with_unicode_support
@@ -2595,6 +2602,7 @@ Metadata Extractors:
 	Support AbiWord document parsing:       $have_abiword
 	Support DVI parsing:                    $have_dvi
 	Support MP3 parsing:                    $have_mp3
+	Support MP3 tag charset detection:      $have_charset_detection (icu: $have_libicu, enca: $have_enca)
 	Support PS parsing:                     $have_ps
 	Support text parsing:                   $have_text
 	Support icon parsing:                   $have_icon

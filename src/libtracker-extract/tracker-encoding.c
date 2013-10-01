@@ -30,10 +30,14 @@
 #include "tracker-encoding-meegotouch.h"
 #endif
 
+#ifdef HAVE_LIBICU
+#include "tracker-encoding-libicu.h"
+#endif
+
 gboolean
 tracker_encoding_can_guess (void)
 {
-#if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH)
+#if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH) || defined (HAVE_LIBICU)
 	return TRUE;
 #else
 	return FALSE;
@@ -50,10 +54,16 @@ tracker_encoding_guess (const gchar *buffer,
 	encoding = tracker_encoding_guess_meegotouch (buffer, size);
 #endif /* HAVE_MEEGOTOUCH */
 
+#ifdef HAVE_LIBICU
+	if (!encoding)
+		encoding = tracker_encoding_guess_icu (buffer, size);
+#endif
+
 #ifdef HAVE_ENCA
 	if (!encoding)
 		encoding = tracker_encoding_guess_enca (buffer, size);
 #endif /* HAVE_ENCA */
+
 
 	return encoding;
 }

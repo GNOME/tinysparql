@@ -58,6 +58,12 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
 	tracker-encoding-meegotouch.h
 endif
 
+if HAVE_LIBICU
+libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+	tracker-encoding-libicu.c                      \
+	tracker-encoding-libicu.h
+endif
+
 libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS =  \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 	-export-symbols-regex '^tracker_.*'
