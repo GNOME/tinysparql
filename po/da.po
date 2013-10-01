@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-22 17:09+0200\n"
-"PO-Revision-Date: 2013-09-22 17:07+0200\n"
+"POT-Creation-Date: 2013-10-01 19:13+0200\n"
+"PO-Revision-Date: 2013-10-01 19:07+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -1599,13 +1599,16 @@ msgid "Items"
 msgstr "Elementer"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, c-format
+#, fuzzy, c-format
 msgid "Loading…"
-msgstr "Indlæser…"
+msgstr "Indlæser..."
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Sider"
+#, fuzzy, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "Sider"
+msgstr[1] "Sider"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
@@ -1731,8 +1734,9 @@ msgstr ""
 "Dage før sletning af eksterne enheder / filer siden de sidst var monteret:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#, fuzzy
 msgid "Garbage Collection"
-msgstr "Affaldsindsamling"
+msgstr "<b>Affaldsindsamling</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1801,8 +1805,9 @@ msgid "Remove directory from being indexed"
 msgstr "Fjern mappe så den ikke bliver indekseret"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
+#, fuzzy
 msgid "Where is your content?"
-msgstr "Hvor er dit indhold?"
+msgstr "<b>Hvor er dit indhold?</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1869,8 +1874,9 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Ja, fjern alle mine indekseringsdata"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
+#, fuzzy
 msgid "Reset Indexed Data"
-msgstr "Nulstil indekseringsdata"
+msgstr "<b>Nulstil indekserede data</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -2045,12 +2051,13 @@ msgstr ""
 "volumer, som ikke er monteret)"
 
 #: ../src/tracker-utils/tracker-search.c:100
+#, fuzzy
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
 msgstr ""
 "Deaktivér visning af uddrag fra resultater. Dette bliver kun vist for nogle "
-"kategorier som f.eks. dokumenter, musik…"
+"kategorier som f.eks. dokumenter, musik..."
 
 #: ../src/tracker-utils/tracker-search.c:104
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
@@ -2674,3 +2681,24 @@ msgstr "Kunne ikke initialisere datahåndtering"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Tomt resultatsæt"
+
+#~ msgid "No error was given"
+#~ msgstr "Ingen fejlbesked blev givet"
+
+#~ msgid "no error given"
+#~ msgstr "ingen fejlbesked givet"
+
+#~ msgid "_Tags..."
+#~ msgstr "_Mærker..."
+
+#~ msgid "%d%%"
+#~ msgstr "%d%%"
+
+#~ msgid "%d"
+#~ msgstr "%d"
+
+#~ msgid "512"
+#~ msgstr "512"
+
+#~ msgid "0"
+#~ msgstr "0"
