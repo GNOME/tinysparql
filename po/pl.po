@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 21:24+0200\n"
-"PO-Revision-Date: 2013-09-10 21:25+0200\n"
+"POT-Creation-Date: 2013-10-02 20:13+0200\n"
+"PO-Revision-Date: 2013-10-02 20:14+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -1638,8 +1638,12 @@ msgid "Loading…"
 msgstr "Wczytywanie…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Strony"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d strona"
+msgstr[1] "%d strony"
+msgstr[2] "%d stron"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
