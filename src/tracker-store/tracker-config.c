@@ -48,7 +48,7 @@ enum {
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity" },
+	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity", FALSE, FALSE },
 	{ 0 }
 };
 

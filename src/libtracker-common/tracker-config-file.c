@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "tracker-config-file.h"
+#include "tracker-keyfile-object.h"
 
 #ifdef CONFIG_ENABLE_TRACE
 #warning Config debugging traces enabled
@@ -306,6 +307,11 @@ config_load (TrackerConfigFile *file)
 	g_free (basename);
 	g_free (directory);
 
+#ifdef CONFIG_ENABLE_TRACE
+	g_message ("Loading config file:'%s'", filename);
+#endif /* CONFIG_ENABLE_TRACE */
+
+
 	/* Add file monitoring for changes */
 	if (!file->file) {
 		file->file = g_file_new_for_path (filename);
@@ -420,6 +426,69 @@ tracker_config_file_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG_FILE,
 			     NULL);
+}
+
+static gboolean
+load_keyfile_to_gobject (TrackerConfigMigrationEntry *entries,
+                         TrackerConfigFile           *file,
+                         GObject                     *object)
+{
+	gint i;
+
+	for (i = 0; entries[i].type != G_TYPE_INVALID; i++) {
+		if (!g_key_file_has_key (file->key_file,
+		                         entries[i].file_section,
+		                         entries[i].file_key,
+		                         NULL)) {
+			/* Do nothing */
+			continue;
+		}
+
+		switch (entries[i].type) {
+		case G_TYPE_INT:
+		case G_TYPE_ENUM:
+			tracker_keyfile_object_load_int (object,
+			                                 entries[i].settings_key,
+			                                 file->key_file,
+			                                 entries[i].file_section,
+			                                 entries[i].file_key);
+			break;
+
+		case G_TYPE_BOOLEAN:
+			tracker_keyfile_object_load_boolean (object,
+			                                     entries[i].settings_key,
+			                                     file->key_file,
+			                                     entries[i].file_section,
+			                                     entries[i].file_key);
+			break;
+
+		case G_TYPE_POINTER:
+			if (entries[i].is_dir_list) {
+				tracker_keyfile_object_load_directory_list (object,
+				                                            entries[i].settings_key,
+				                                            file->key_file,
+				                                            entries[i].file_section,
+				                                            entries[i].file_key,
+				                                            entries[i].is_dir_list_recursive,
+				                                            NULL);
+			} else {
+				tracker_keyfile_object_load_string_list (object,
+				                                         entries[i].settings_key,
+				                                         file->key_file,
+				                                         entries[i].file_section,
+				                                         entries[i].file_key,
+				                                         NULL);
+			}
+
+			break;
+
+		default:
+			g_assert_not_reached ();
+			break;
+		}
+	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -639,6 +708,24 @@ tracker_config_file_import_to_settings (TrackerConfigFile           *file,
 #endif /* CONFIG_ENABLE_TRACE */
 
 		migrate_keyfile_to_settings (entries, file, settings);
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_config_file_load_from_file (TrackerConfigFile           *file,
+                                    GObject                     *object,
+                                    TrackerConfigMigrationEntry *entries)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
+
+#ifdef CONFIG_ENABLE_TRACE
+	g_message ("Loading config file into GObject");
+#endif /* CONFIG_ENABLE_TRACE */
+
+	if (file->key_file && file->file_exists) {
+		load_keyfile_to_gobject (entries, file, object);
 	}
 
 	return TRUE;
