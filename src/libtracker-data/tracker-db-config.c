@@ -56,8 +56,8 @@ enum {
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size" },
-	{ G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination" },
+	{ G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size", FALSE, FALSE },
+	{ G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination", FALSE, FALSE },
 };
 
 G_DEFINE_TYPE (TrackerDBConfig, tracker_db_config, G_TYPE_SETTINGS);

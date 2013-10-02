@@ -66,12 +66,12 @@ enum {
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordLength",   "max-word-length"    },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableStemmer" ,  "enable-stemmer"     },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableUnaccent",  "enable-unaccent"    },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreNumbers",   "ignore-numbers"     },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreStopWords", "ignore-stop-words"  },
-	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordsToIndex", "max-words-to-index" },
+	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordLength",   "max-word-length",    FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableStemmer" ,  "enable-stemmer",     FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableUnaccent",  "enable-unaccent",    FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreNumbers",   "ignore-numbers",     FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreStopWords", "ignore-stop-words",  FALSE, FALSE },
+	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordsToIndex", "max-words-to-index", FALSE, FALSE },
 };
 
 G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, G_TYPE_SETTINGS);

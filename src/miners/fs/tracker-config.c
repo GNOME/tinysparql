@@ -129,24 +129,24 @@ enum {
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM,    "General",   "Verbosity",                     "verbosity"                        },
-	{ G_TYPE_ENUM,    "General",   "SchedIdle",                     "sched-idle"                       },
-	{ G_TYPE_INT,     "General",   "InitialSleep",                  "initial-sleep"                    },
-	{ G_TYPE_BOOLEAN, "Monitors",  "EnableMonitors",                "enable-monitors"                  },
-	{ G_TYPE_INT,     "Indexing",  "Throttle",                      "throttle"                         },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBattery",                "index-on-battery"                 },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBatteryFirstTime",       "index-on-battery-first-time"      },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexRemovableMedia",           "index-removable-devices"          },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOpticalDiscs",             "index-optical-discs"              },
-	{ G_TYPE_INT,     "Indexing",  "LowDiskSpaceLimit",             "low-disk-space-limit"             },
-	{ G_TYPE_POINTER, "Indexing",  "IndexRecursiveDirectories",     "index-recursive-directories"      },
-	{ G_TYPE_POINTER, "Indexing",  "IndexSingleDirectories",        "index-single-directories"         },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectories",            "ignored-directories"              },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectoriesWithContent", "ignored-directories-with-content" },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredFiles",                  "ignored-files"                    },
-	{ G_TYPE_INT,     "Indexing",  "CrawlingInterval",              "crawling-interval"                },
-	{ G_TYPE_INT,     "Indexing",  "RemovableDaysThreshold",        "removable-days-threshold"         },
-	{ G_TYPE_BOOLEAN, "Writeback", "EnableWriteback",               "enable-writeback"                 },
+	{ G_TYPE_ENUM,    "General",   "Verbosity",                     "verbosity",                        FALSE, FALSE },
+	{ G_TYPE_ENUM,    "General",   "SchedIdle",                     "sched-idle",                       FALSE, FALSE },
+	{ G_TYPE_INT,     "General",   "InitialSleep",                  "initial-sleep",                    FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Monitors",  "EnableMonitors",                "enable-monitors",                  FALSE, FALSE },
+	{ G_TYPE_INT,     "Indexing",  "Throttle",                      "throttle",                         FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBattery",                "index-on-battery",                 FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBatteryFirstTime",       "index-on-battery-first-time",      FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexRemovableMedia",           "index-removable-devices",          FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOpticalDiscs",             "index-optical-discs",              FALSE, FALSE },
+	{ G_TYPE_INT,     "Indexing",  "LowDiskSpaceLimit",             "low-disk-space-limit",             FALSE, FALSE },
+	{ G_TYPE_POINTER, "Indexing",  "IndexRecursiveDirectories",     "index-recursive-directories",      TRUE,  TRUE },
+	{ G_TYPE_POINTER, "Indexing",  "IndexSingleDirectories",        "index-single-directories",         TRUE,  FALSE },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectories",            "ignored-directories",              FALSE, FALSE },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectoriesWithContent", "ignored-directories-with-content", FALSE, FALSE },
+	{ G_TYPE_POINTER, "Indexing",  "IgnoredFiles",                  "ignored-files",                    FALSE, FALSE },
+	{ G_TYPE_INT,     "Indexing",  "CrawlingInterval",              "crawling-interval",                FALSE, FALSE },
+	{ G_TYPE_INT,     "Indexing",  "RemovableDaysThreshold",        "removable-days-threshold",         FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Writeback", "EnableWriteback",               "enable-writeback",                 FALSE, FALSE },
 	{ 0 }
 };
 
@@ -758,6 +758,7 @@ config_constructed (GObject *object)
 		if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
 			TrackerConfigPrivate *priv;
 
+			tracker_config_file_load_from_file (config_file, G_OBJECT (config), migration);
 			g_signal_connect (config_file, "changed", G_CALLBACK (config_file_changed_cb), config);
 
 			priv = config->priv;
