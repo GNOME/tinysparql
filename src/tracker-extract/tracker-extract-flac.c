@@ -237,8 +237,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (fd.album) {
-		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", fd.album);
-
+                if (fd.albumartist) {
+                        album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s", fd.album, fd.albumartist);
+                } else {
+                        album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", fd.album);
+                }
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		if (graph) {
 			tracker_sparql_builder_graph_open (preupdate, graph);
@@ -355,10 +358,15 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if (fd.album && album_uri) {
 		gchar *album_disc_uri;
-
-		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-		                                                   fd.album,
-		                                                   fd.discno ? atoi(fd.discno) : 1);
+                if (fd.albumartist) {
+                        album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
+                                                                           fd.album, fd.albumartist,
+                                                                           fd.discno ? atoi(fd.discno) : 1);
+                } else {
+                        album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+                                                                           fd.album,
+                                                                           fd.discno ? atoi(fd.discno) : 1);
+                }
 
 		tracker_sparql_builder_delete_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);

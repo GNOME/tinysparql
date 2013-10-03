@@ -766,10 +766,12 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 
 	album_artist = g_strdup (tracker_coalesce_strip (2, album_artist_temp, track_artist_temp));
 
-	if (album_artist != NULL)
-		add_artist (extractor, preupdate, graph, album_artist, p_album_artist_uri);
-
-	*p_album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
+        if (album_artist != NULL) {
+                add_artist (extractor, preupdate, graph, album_artist, p_album_artist_uri);
+                *p_album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s", album_title, album_artist);
+        } else {
+                *p_album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
+        }
 
 	tracker_sparql_builder_insert_open (preupdate, NULL);
 	if (graph) {
@@ -826,9 +828,16 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 
 	has_it = gst_tag_list_get_uint (tag_list, GST_TAG_ALBUM_VOLUME_NUMBER, &count);
 
-	*p_album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-	                                                      album_title,
-	                                                      has_it ? count : 1);
+        if (album_artist) {
+                *p_album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
+                                                                      album_title, album_artist,
+                                                                      has_it ? count : 1);
+        } else {
+                *p_album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+                                                                      album_title,
+                                                                      has_it ? count : 1);
+        }
+
 
 	tracker_sparql_builder_delete_open (preupdate, NULL);
 	tracker_sparql_builder_subject_iri (preupdate, *p_album_disc_uri);
