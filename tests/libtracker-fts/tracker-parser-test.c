@@ -324,12 +324,12 @@ static const TestDataExpectedNWords test_data_nwords[] = {
 	{ "noextension.",                                           TRUE,   1 },
 	{ "ホモ・サピエンス",                                          TRUE,   2 }, /* katakana */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
-	{ "本州最主流的风味",                                          TRUE,   8 }, /* chinese */
+	{ "喂人类",                                                   TRUE,   2 }, /* chinese */
 #endif
 	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
-	{ "ホモ・サピエンス 本州最主流的风味 katakana, chinese, english", TRUE,  13 }, /* mixed */
+	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7 }, /* mixed */
 #endif
 	{ NULL,                                                     FALSE,  0 }
 };
