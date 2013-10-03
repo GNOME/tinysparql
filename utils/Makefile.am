@@ -5,10 +5,10 @@ SUBDIRS =                                              \
 	ontology                                       \
 	data-generators                                \
 	mtp                                            \
-	tracker-sql
+	tracker-sql				       \
+	sandbox
 
 if HAVE_TRACKER_RESDUMP
 SUBDIRS += tracker-resdump
 endif
 
-EXTRA_DIST = tracker-sandbox
