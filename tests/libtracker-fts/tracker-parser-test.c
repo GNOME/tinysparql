@@ -26,23 +26,6 @@
 
 #include <libtracker-fts/tracker-parser.h>
 
-/* Note
- *  Currently, three different types of parsers are defined in libtracker-fts:
- *    - GNU libunistring-based parser, up to 20% faster than the others, and full
- *       unicode compliant.
- *    - libicu-based parser, full unicode compliant but slower as it needs
- *       conversions to/from UChars (UTF-16 encoded strings)
- *    - glib/pango parser, not fully unicode compliant as it doesn't work properly
- *       with decomposed strings (NFD normalized), doesn't make a unicode-based
- *       word-breaking and doesn't make full-word casefolding.
- *
- * Some of the tests, thus, will be DISABLED for the GLIB/PANGO parser.
- */
-#undef FULL_UNICODE_TESTS
-#if defined HAVE_LIBUNISTRING || defined HAVE_LIBICU
-#define FULL_UNICODE_TESTS
-#endif
-
 /* -------------- COMMON FOR ALL TESTS ----------------- */
 
 /* Fixture object type */
@@ -258,11 +241,9 @@ static const TestDataExpectedWord test_data_normalization[] = {
 	{ "école",                "ecole", FALSE, TRUE  },
 	{ "ÉCOLE",                "ecole", FALSE, TRUE  },
 	{ "École",                "ecole", FALSE, TRUE  },
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
 	{ "e" "\xCC\x81" "cole",  "ecole", FALSE, TRUE  },
 	{ "E" "\xCC\x81" "COLE",  "ecole", FALSE, TRUE  },
 	{ "E" "\xCC\x81" "cole",  "ecole", FALSE, TRUE  },
-#endif
 	{ NULL,                   NULL,    FALSE, FALSE }
 };
 
@@ -277,7 +258,6 @@ static const TestDataExpectedWord test_data_unaccent[] = {
 	{ "ὶ",            "ι",          FALSE, TRUE  }, /* greek small iotta with U+0300, composed */
 	{ "Ὼ",            "ω",          FALSE, TRUE  }, /* greek capital omega with U+0300, composed */
 	{ "ὼ",            "ω",          FALSE, TRUE  }, /* greek small omega with U+0300, composed */
-#ifdef FULL_UNICODE_TESTS /* glib/pango does not like NFD strings */
 	{ "Ὰ",          "α",          FALSE, TRUE  }, /* capital alpha with U+0300, decomposed */
 	{ "ὰ",          "α",          FALSE, TRUE  }, /* small alpha with U+0300, decomposed */
 	{ "Ὶ",          "ι",          FALSE, TRUE  }, /* capital iotta with U+0300, decomposed */
@@ -286,7 +266,6 @@ static const TestDataExpectedWord test_data_unaccent[] = {
 	{ "ὼ",          "ω",          FALSE, TRUE  }, /* small omega with U+0300, decomposed */
 	{ "aN͡Ga",       "anga",       FALSE, TRUE  }, /* 0x0361 affects to two characters */
 	{ "aNG͡a",       "anga",       FALSE, TRUE  }, /* 0x0361 affects to two characters */
-#endif
 	{ "Murciélago", "murciélago", FALSE, FALSE },
 	{ "camión",     "camión",     FALSE, FALSE },
 	{ "desagüe",    "desagüe",    FALSE, FALSE },
@@ -305,32 +284,24 @@ static const TestDataExpectedWord test_data_casefolding[] = {
 	{ "gross", "gross", FALSE, TRUE  },
 	{ "GROSS", "gross", FALSE, TRUE  },
 	{ "GrOsS", "gross", FALSE, TRUE  },
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't do full-word casefolding */
 	{ "groß",  "gross", FALSE, TRUE  },
-#endif
 	{ NULL,    NULL,    FALSE, FALSE }
 };
 
 /* Number of expected words tests */
 static const TestDataExpectedNWords test_data_nwords[] = {
-#ifdef FULL_UNICODE_TESTS /* glib/pango assumes ' is a word breaker */
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8 },
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE, 10 },
-#endif
 	/* Note: as of 0.9.15, the dot is always a word breaker, even between
 	 *  numbers. */
 	{ "filename.txt",                                           TRUE,   2 },
 	{ ".hidden.txt",                                            TRUE,   2 },
 	{ "noextension.",                                           TRUE,   1 },
 	{ "ホモ・サピエンス",                                          TRUE,   2 }, /* katakana */
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "喂人类",                                                   TRUE,   2 }, /* chinese */
-#endif
 	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
 	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7 }, /* mixed */
-#endif
 	{ NULL,                                                     FALSE,  0 }
 };
 
