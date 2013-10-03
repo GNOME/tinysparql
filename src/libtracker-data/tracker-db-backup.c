@@ -77,15 +77,16 @@ backup_info_free (gpointer user_data)
 
 	g_clear_error (&info->error);
 
-	g_free (info);
+	g_slice_free (BackupInfo, info);
 }
 
-static gboolean
-backup_job (GIOSchedulerJob *job,
-            GCancellable    *cancellable,
-            gpointer         user_data)
+static void
+backup_job (GTask        *task,
+            gpointer      source_object,
+            gpointer      task_data,
+            GCancellable *cancellable)
 {
-	BackupInfo *info = user_data;
+	BackupInfo *info = task_data;
 
 	const gchar *src_path;
 	GFile *parent_file, *temp_file;
@@ -163,8 +164,6 @@ backup_job (GIOSchedulerJob *job,
 
 	g_idle_add_full (G_PRIORITY_DEFAULT, perform_callback, info,
 	                 backup_info_free);
-
-	return FALSE;
 }
 
 void
@@ -173,7 +172,10 @@ tracker_db_backup_save (GFile                   *destination,
                         gpointer                 user_data,
                         GDestroyNotify           destroy)
 {
-	BackupInfo *info = g_new0 (BackupInfo, 1);
+	GTask *task;
+	BackupInfo *info;
+
+	info = g_slice_new0 (BackupInfo);
 
 	info->destination = g_object_ref (destination);
 
@@ -181,6 +183,10 @@ tracker_db_backup_save (GFile                   *destination,
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	g_io_scheduler_push_job (backup_job, info, NULL, 0, NULL);
+	task = g_task_new (NULL, NULL, NULL, NULL);
+
+	g_task_set_task_data (task, info, NULL);
+	g_task_run_in_thread (task, backup_job);
+	g_object_unref (task);
 }
 
