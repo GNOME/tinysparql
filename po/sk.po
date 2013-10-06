@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-26 12:18+0000\n"
-"PO-Revision-Date: 2013-09-28 08:42+0100\n"
+"POT-Creation-Date: 2013-09-29 07:22+0000\n"
+"PO-Revision-Date: 2013-09-29 17:51+0100\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -699,9 +699,8 @@ msgstr "Značky"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#, fuzzy
 msgid "No error was given"
-msgstr "Chybová správa nebola poskytnutá"
+msgstr "Chyba nebola poskytnutá"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
 #: ../src/tracker-needle/tracker-tags-view.vala:374
@@ -833,13 +832,14 @@ msgstr "Obnoví databázy zo zadaného súboru"
 msgid "Could not open /proc"
 msgstr "Nepodarilo sa otvoriť /proc"
 
+# PK: preco nie malym?
 #: ../src/tracker-control/tracker-control-general.c:136
 #: ../src/tracker-control/tracker-control-general.c:698
 #: ../src/tracker-control/tracker-control-general.c:744
 #: ../src/tracker-control/tracker-control-general.c:765
 #, fuzzy
 msgid "no error given"
-msgstr "Chybová správa nebola poskytnutá"
+msgstr "Chyba nebola poskytnutá"
 
 #: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
@@ -1429,7 +1429,6 @@ msgid "Remove selected tag"
 msgstr "Odstráni vybratú značku"
 
 #: ../src/tracker-needle/tracker-needle.vala:69
-#, c-format
 msgid "Search criteria was too generic"
 msgstr "Kritérium hľadania je veľmi všeobecné"
 
@@ -1589,6 +1588,8 @@ msgstr "Nepodarilo sa pridať značku"
 msgid "Could not update tags for file"
 msgstr "Nepodarilo sa aktualizovať značky súboru"
 
+#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+#. if it's more than a week, use the default date format
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
 #: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
@@ -1689,8 +1690,8 @@ msgstr "Záložky"
 msgid "Items"
 msgstr "Položky"
 
+# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-needle/tracker-view.vala:369
-#, fuzzy, c-format
 msgid "Loading..."
 msgstr "Načítava sa…"
 
@@ -1705,10 +1706,10 @@ msgstr "Strán"
 msgid "_Show Parent Directory"
 msgstr "_Zobraziť nadradený adresár"
 
+# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-needle/tracker-view.vala:459
-#, fuzzy
 msgid "_Tags..."
-msgstr "Značky"
+msgstr "_Značky…"
 
 # desktop entry name
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
@@ -1845,9 +1846,8 @@ msgstr ""
 "pripojenia:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#, fuzzy
 msgid "<b>Garbage Collection</b>"
-msgstr "Zber smetí"
+msgstr "<b>Zber smetí</b>"
 
 # nazov karty
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
@@ -1928,9 +1928,8 @@ msgstr "Odstráni adresár z indexovania"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-#, fuzzy
 msgid "<b>Where is your content?</b>"
-msgstr "Kde je váš obsah"
+msgstr "<b>Kde je váš obsah?</b>"
 
 # nazov karty
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
@@ -2009,9 +2008,8 @@ msgstr "Áno, odstrániť všetky moje indexované údaje"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-#, fuzzy
 msgid "<b>Reset Indexed Data</b>"
-msgstr "Vymazanie indexovaných údajov"
+msgstr "<b>Vymazanie indexovaných údajov</b>"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
@@ -2049,13 +2047,12 @@ msgstr "Zakázaná"
 #: ../src/tracker-preferences/tracker-preferences.vala:332
 #, c-format
 msgid "%d%%"
-msgstr ""
+msgstr "%d%%"
 
-# PM: treba aby to bolo čo najrkatšie
 #: ../src/tracker-preferences/tracker-preferences.vala:341
-#, fuzzy, c-format
+#, c-format
 msgid "%d"
-msgstr " %dd"
+msgstr "%d"
 
 # dialog title
 #: ../src/tracker-preferences/tracker-preferences.vala:508
@@ -2184,7 +2181,7 @@ msgstr "Obmedzí počet zobrazených výsledkov"
 #: ../src/tracker-utils/tracker-search.c:81
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "512"
-msgstr ""
+msgstr "512"
 
 # cmd desc
 #: ../src/tracker-utils/tracker-search.c:84
@@ -2195,7 +2192,7 @@ msgstr "Posunutie výsledkov"
 #: ../src/tracker-utils/tracker-search.c:85
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "0"
-msgstr ""
+msgstr "0"
 
 # cmd desc
 #: ../src/tracker-utils/tracker-search.c:88
@@ -2220,8 +2217,8 @@ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr "Vráti aj všetky neexistujúce zhody (t.j. zahrnie aj odpojené zväzky)"
 
 # cmd desc
+# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-utils/tracker-search.c:100
-#, fuzzy
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music..."
