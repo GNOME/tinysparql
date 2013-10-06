@@ -1847,7 +1847,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "<b>Garbage Collection</b>"
-msgstr "<b>Premazávanie pamäti</b>"
+msgstr "<b>Zber smetí</b>"
 
 # nazov karty
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
