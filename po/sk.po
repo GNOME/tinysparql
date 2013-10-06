@@ -1,16 +1,17 @@
-# Slovak translation for Tracker.
-# Copyright (C) 2008, 2013 Free Software Foundation, Inc
+# translation of tracker to Slovak
+# Slovak translation of Tracker
+# Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 # Pavol Klačanský <pavolzetor@gmail.com>, 2008.
-# Dušan Kazik <prescott66@gmail.com>, 2013.
+#
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-29 07:22+0000\n"
-"PO-Revision-Date: 2013-09-29 17:51+0100\n"
+"POT-Creation-Date: 2013-09-30 09:18+0000\n"
+"PO-Revision-Date: 2013-09-30 11:48+0100\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -658,19 +659,25 @@ msgstr "Pridanie kanála vyžaduje voľby --add-feed a --title"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:479
+#: ../src/tracker-utils/tracker-sparql.c:487
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:899
+#: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
 msgstr "Nepodarilo sa nadviazať pripojenie k programu Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
+#: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-control/tracker-control-general.c:136
+#: ../src/tracker-control/tracker-control-general.c:698
+#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:765
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:480
+#: ../src/tracker-utils/tracker-sparql.c:488
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:900
+#: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
 msgstr "Chybová správa nebola poskytnutá"
 
@@ -697,11 +704,6 @@ msgstr "Spracováva sa…"
 msgid "Tags"
 msgstr "Značky"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:159
-msgid "No error was given"
-msgstr "Chyba nebola poskytnutá"
-
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
@@ -714,7 +716,7 @@ msgstr[2] "_Nastavte značky, ktoré chcete priradiť %d vybraným položkám:"
 # cmd desc
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:920
+#: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
@@ -831,15 +833,6 @@ msgstr "Obnoví databázy zo zadaného súboru"
 #: ../src/tracker-control/tracker-control-general.c:135
 msgid "Could not open /proc"
 msgstr "Nepodarilo sa otvoriť /proc"
-
-# PK: preco nie malym?
-#: ../src/tracker-control/tracker-control-general.c:136
-#: ../src/tracker-control/tracker-control-general.c:698
-#: ../src/tracker-control/tracker-control-general.c:744
-#: ../src/tracker-control/tracker-control-general.c:765
-#, fuzzy
-msgid "no error given"
-msgstr "Chyba nebola poskytnutá"
 
 #: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
@@ -1084,7 +1077,7 @@ msgstr "Nepodarilo sa obnoviť činnosť dolovača: %s"
 # PM: nasleduje ako výpis po chybe
 #: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:759
+#: ../src/tracker-utils/tracker-sparql.c:767
 msgid "Done"
 msgstr "Dokončené"
 
@@ -1571,7 +1564,7 @@ msgid "Could not update tags"
 msgstr "Nepodarilo sa aktualizovať značky"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:764
+#: ../src/tracker-utils/tracker-tag.c:773
 msgid "Could not remove tag"
 msgstr "Nepodarilo sa odstrániť značku"
 
@@ -1580,7 +1573,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Nepodarilo sa získať značky pre aktuálny výber"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:588
+#: ../src/tracker-utils/tracker-tag.c:597
 msgid "Could not add tag"
 msgstr "Nepodarilo sa pridať značku"
 
@@ -1690,26 +1683,27 @@ msgstr "Záložky"
 msgid "Items"
 msgstr "Položky"
 
-# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-needle/tracker-view.vala:369
-msgid "Loading..."
+msgid "Loading…"
 msgstr "Načítava sa…"
 
 # DK: https://bugzilla.gnome.org/show_bug.cgi?id=707499
 #: ../src/tracker-needle/tracker-view.vala:435
-#, fuzzy
-msgid "Pages"
-msgstr "Strán"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d strán"
+msgstr[1] "%d strana"
+msgstr[2] "%d strany"
 
 # list item
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "_Zobraziť nadradený adresár"
 
-# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-needle/tracker-view.vala:459
-msgid "_Tags..."
-msgstr "_Značky…"
+msgid "_Tags…"
+msgstr "Z_načky…"
 
 # desktop entry name
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
@@ -1846,8 +1840,8 @@ msgstr ""
 "pripojenia:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Zber smetí</b>"
+msgid "Garbage Collection"
+msgstr "Zber smetí"
 
 # nazov karty
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
@@ -1928,8 +1922,8 @@ msgstr "Odstráni adresár z indexovania"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Kde je váš obsah?</b>"
+msgid "Where is your content?"
+msgstr "Kde je váš obsah"
 
 # nazov karty
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
@@ -2008,8 +2002,8 @@ msgstr "Áno, odstrániť všetky moje indexované údaje"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Vymazanie indexovaných údajov</b>"
+msgid "Reset Indexed Data"
+msgstr "Vymazanie indexovaných údajov"
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
@@ -2038,42 +2032,39 @@ msgid "Directory"
 msgstr "Adresár"
 
 # MČ: podľa komentára mám pocit, že bude problém s rodom a treba to rozdeliť na samostatné reťazce: „kontrola“, „odstránenie“
-#: ../src/tracker-preferences/tracker-preferences.vala:329
-#: ../src/tracker-preferences/tracker-preferences.vala:338
+#. To translators: This is a feature that is
+#. * disabled for disk space checking.
+#.
+#. To translators: This is a feature that is
+#. * disabled for removing a device from a
+#. * database cache.
+#.
+#: ../src/tracker-preferences/tracker-preferences.vala:332
+#: ../src/tracker-preferences/tracker-preferences.vala:345
 #, fuzzy
 msgid "Disabled"
 msgstr "Zakázaná"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:332
-#, c-format
-msgid "%d%%"
-msgstr "%d%%"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:341
-#, c-format
-msgid "%d"
-msgstr "%d"
-
 # dialog title
-#: ../src/tracker-preferences/tracker-preferences.vala:508
+#: ../src/tracker-preferences/tracker-preferences.vala:515
 msgid "Enter value"
 msgstr "Zadanie hodnoty"
 
 # dialog title
-#: ../src/tracker-preferences/tracker-preferences.vala:537
+#: ../src/tracker-preferences/tracker-preferences.vala:544
 msgid "Select directory"
 msgstr "Výber adresára"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:558
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "That directory is already selected as a location to index"
 msgstr "Tento adresár je už vybratý ako umiestnenie na indexovanie"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:820
+#: ../src/tracker-preferences/tracker-preferences.vala:827
 msgid "Recurse"
 msgstr "Rekurzia"
 
 # OptionContext
-#: ../src/tracker-preferences/tracker-preferences.vala:926
+#: ../src/tracker-preferences/tracker-preferences.vala:933
 msgid "Desktop Search preferences"
 msgstr "Nastavenia hľadania v prostredí"
 
@@ -2166,8 +2157,8 @@ msgstr "Nie sú dostupné žiadne metaúdaje pre taký URI"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Výsledky"
@@ -2178,21 +2169,11 @@ msgstr "Výsledky"
 msgid "Limit the number of results shown"
 msgstr "Obmedzí počet zobrazených výsledkov"
 
-#: ../src/tracker-utils/tracker-search.c:81
-#: ../src/tracker-utils/tracker-tag.c:56
-msgid "512"
-msgstr "512"
-
 # cmd desc
 #: ../src/tracker-utils/tracker-search.c:84
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Posunutie výsledkov"
-
-#: ../src/tracker-utils/tracker-search.c:85
-#: ../src/tracker-utils/tracker-tag.c:60
-msgid "0"
-msgstr "0"
 
 # cmd desc
 #: ../src/tracker-utils/tracker-search.c:88
@@ -2217,11 +2198,10 @@ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr "Vráti aj všetky neexistujúce zhody (t.j. zahrnie aj odpojené zväzky)"
 
 # cmd desc
-# DK: https://bugzilla.gnome.org/show_bug.cgi?id=708986
 #: ../src/tracker-utils/tracker-search.c:100
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music..."
+"categories, e.g. Documents, Music…"
 msgstr ""
 "Zakáže zobrazovanie úryvkov s výsledkami. Tie sa zobrazia iba pri niektorých "
 "kategóriách ako Dokumenty, Hudba…"
@@ -2546,137 +2526,160 @@ msgstr "Neboli nájdené žiadne predpony menných priestorov"
 
 # DK: https://bugzilla.gnome.org/show_bug.cgi?id=707501
 # PM: treba požiadať  vývojárov o kontext aby sme vedeli či tu má byť nič alebo žiadny/a/e
-#: ../src/tracker-utils/tracker-sparql.c:371
-#: ../src/tracker-utils/tracker-sparql.c:415
-#: ../src/tracker-utils/tracker-stats.c:117
-#: ../src/tracker-utils/tracker-tag.c:326
-#: ../src/tracker-utils/tracker-tag.c:455
-#: ../src/tracker-utils/tracker-tag.c:827
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker-utils/tracker-sparql.c:375
+#: ../src/tracker-utils/tracker-sparql.c:423
+#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-tag.c:328
+#: ../src/tracker-utils/tracker-tag.c:464
+#: ../src/tracker-utils/tracker-tag.c:843
 #, fuzzy
 msgid "None"
 msgstr "Nič"
 
 # option context
-#: ../src/tracker-utils/tracker-sparql.c:439
+#: ../src/tracker-utils/tracker-sparql.c:447
 msgid "- Query or update using SPARQL"
 msgstr "- Žiada alebo aktualizuje pomocou SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:453
+#: ../src/tracker-utils/tracker-sparql.c:461
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Musí byť poskytnutý parameter"
 
-#: ../src/tracker-utils/tracker-sparql.c:455
+#: ../src/tracker-utils/tracker-sparql.c:463
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Voľby file a query nemôžu byť použité súčasne"
 
-#: ../src/tracker-utils/tracker-sparql.c:493
+#: ../src/tracker-utils/tracker-sparql.c:501
 msgid "Could not list classes"
 msgstr "Nepodarilo sa vypísať zoznam tried"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:509
 msgid "No classes were found"
 msgstr "Nenašli sa žiadne triedy"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:509
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "Classes"
 msgstr "Triedy"
 
-#: ../src/tracker-utils/tracker-sparql.c:517
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not list class prefixes"
 msgstr "Nepodarilo sa vypísať zoznam predpôn triedy"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "No class prefixes were found"
 msgstr "Nenašli sa žiadne predpony"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Prefixes"
 msgstr "Predpony"
 
-#: ../src/tracker-utils/tracker-sparql.c:545
+#: ../src/tracker-utils/tracker-sparql.c:553
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Nepodarilo sa nájsť vlastnosť pre predponu triedy, napr Zdroj v „rdfs:Zdroj“"
 
-#: ../src/tracker-utils/tracker-sparql.c:584
+#: ../src/tracker-utils/tracker-sparql.c:592
 msgid "Could not list properties"
 msgstr "Nepodarilo sa vypísať zoznam vlastností"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:600
 msgid "No properties were found"
 msgstr "Nenašli sa žiadne vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:600
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "Properties"
 msgstr "Vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:620
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "Could not find notify classes"
 msgstr "Nepodarilo sa nájsť oznamujúce triedy"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "No notifies were found"
 msgstr "Nenašli sa žiadne oznámenia"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "Notifies"
 msgstr "Oznámenia"
 
-#: ../src/tracker-utils/tracker-sparql.c:654
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "Could not find indexed properties"
 msgstr "Nepodarilo sa nájsť indexované vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "No indexes were found"
 msgstr "Nenašli sa žiadne indexy"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "Indexes"
 msgstr "Indexy"
 
-#: ../src/tracker-utils/tracker-sparql.c:680
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "Could not search classes"
 msgstr "Nepodarilo sa vyhľadať triedy"
 
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "No classes were found to match search term"
 msgstr "Nenašli sa žiadne vlastnosti zodpovedajúce hľadanému pojmu"
 
-#: ../src/tracker-utils/tracker-sparql.c:703
+#: ../src/tracker-utils/tracker-sparql.c:711
 msgid "Could not search properties"
 msgstr "Nepodarilo sa vyhľadať vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "No properties were found to match search term"
 msgstr "Nenašli sa žiadne vlastnosti zodpovedajúce hľadanému pojmu"
 
-#: ../src/tracker-utils/tracker-sparql.c:721
+#: ../src/tracker-utils/tracker-sparql.c:729
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Nepodarilo sa získať cestu v UTF-8 z cesty"
 
-#: ../src/tracker-utils/tracker-sparql.c:733
+#: ../src/tracker-utils/tracker-sparql.c:741
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Nepodarilo sa prečítať súbor"
 
-#: ../src/tracker-utils/tracker-sparql.c:752
+#: ../src/tracker-utils/tracker-sparql.c:760
 msgid "Could not run update"
 msgstr "Nepodarilo sa spustiť aktualizáciu"
 
-#: ../src/tracker-utils/tracker-sparql.c:800
+#: ../src/tracker-utils/tracker-sparql.c:808
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Nepodarilo sa spustiť požiadavku"
 
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 msgid "No results found matching your query"
 msgstr "Nájdené výsledky sa nezhodujú z vašou požiadavkou"
 
@@ -2760,84 +2763,84 @@ msgstr "Nepodarilo sa získať názvy URN súboru"
 msgid "Could not get files related to tag"
 msgstr "Nepodarilo sa získať súbory súvisiace so značkou"
 
-#: ../src/tracker-utils/tracker-tag.c:399
-#: ../src/tracker-utils/tracker-tag.c:808
+#: ../src/tracker-utils/tracker-tag.c:401
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get all tags"
 msgstr "Nepodarilo sa získať všetky značky"
 
-#: ../src/tracker-utils/tracker-tag.c:408
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:410
+#: ../src/tracker-utils/tracker-tag.c:826
 msgid "No tags were found"
 msgstr "Nenašli sa žiadne značky"
 
-#: ../src/tracker-utils/tracker-tag.c:412
+#: ../src/tracker-utils/tracker-tag.c:414
 msgid "Tags (shown by name)"
 msgstr "Značky (zobrazené podľa názvu)"
 
-#: ../src/tracker-utils/tracker-tag.c:479
+#: ../src/tracker-utils/tracker-tag.c:488
 msgid "No files were modified"
 msgstr "Neboli zmenené žiadne súbory"
 
-#: ../src/tracker-utils/tracker-tag.c:604
+#: ../src/tracker-utils/tracker-tag.c:613
 msgid "Tag was added successfully"
 msgstr "Značka bola úspešne pridaná"
 
-#: ../src/tracker-utils/tracker-tag.c:633
+#: ../src/tracker-utils/tracker-tag.c:642
 msgid "Could not add tag to files"
 msgstr "Nepodarilo sa pridať značku k súborom"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:652
 msgid "Tagged"
 msgstr "Označené"
 
-#: ../src/tracker-utils/tracker-tag.c:644
+#: ../src/tracker-utils/tracker-tag.c:653
 msgid "Not tagged, file is not indexed"
 msgstr "Neoznačené, súbor nie je indexovaný"
 
-#: ../src/tracker-utils/tracker-tag.c:690
+#: ../src/tracker-utils/tracker-tag.c:699
 msgid "Could not get tag by label"
 msgstr "Nepodarilo sa získať značku podľa menovky"
 
-#: ../src/tracker-utils/tracker-tag.c:701
+#: ../src/tracker-utils/tracker-tag.c:710
 msgid "No tags were found by that name"
 msgstr "Nenašli sa žiadne značky podľa takého názvu"
 
-#: ../src/tracker-utils/tracker-tag.c:718
+#: ../src/tracker-utils/tracker-tag.c:727
 msgid "None of the files had this tag set"
 msgstr "Žiadny súbor nemá nastavenú takúto značku"
 
-#: ../src/tracker-utils/tracker-tag.c:771
+#: ../src/tracker-utils/tracker-tag.c:780
 msgid "Tag was removed successfully"
 msgstr "Značka bola úspešne odstránená"
 
-#: ../src/tracker-utils/tracker-tag.c:775
+#: ../src/tracker-utils/tracker-tag.c:784
 msgid "Untagged"
 msgstr "Označenie zrušené"
 
-#: ../src/tracker-utils/tracker-tag.c:776
+#: ../src/tracker-utils/tracker-tag.c:785
 msgid "File not indexed or already untagged"
 msgstr "Súbor nie je indexovaný alebo je už označenie zrušené"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:855
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "Add, remove or list tags"
 msgstr "Pridá, odstráni alebo vypíše zoznam značiek"
 
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:887
 msgid "The --list option is required for --show-files"
 msgstr "Pre --show-files sa vyžaduje voľba --list"
 
-#: ../src/tracker-utils/tracker-tag.c:873
+#: ../src/tracker-utils/tracker-tag.c:889
 msgid "Add and delete actions can not be used together"
 msgstr "Akcie add (pridať) a delete (odstrániť) nemôžu byť použité súčasne"
 
-#: ../src/tracker-utils/tracker-tag.c:875
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "No arguments were provided"
 msgstr "Neboli poskytnuté žiadne parametre"
 
-#: ../src/tracker-utils/tracker-tag.c:877
+#: ../src/tracker-utils/tracker-tag.c:893
 msgid "The --description option can only be used with --add"
 msgstr "Voľbu --description je možné použiť iba spolu s voľbou --add "
 
@@ -2865,6 +2868,3 @@ msgstr "Zlyhala inicializácia správcu údajov"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Množina výsledkov prázdna"
-
-#~ msgid "_Tags…"
-#~ msgstr "Z_načky…"
