@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2011-12-15T18:51:25Z" .
+	nao:lastModified "2013-10-08T14:00:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -841,6 +841,13 @@ nfo:uri a rdf:Property ;
 	tracker:weight 5 .
 
 # Added
+
+nfo:ImageCategory a rdfs:Class ;
+        rdfs:label "Image category" ;
+        rdfs:comment "A image category" ;
+        rdfs:subClassOf nfo:DataContainer .
+
+nfo:image-category-screenshot a nfo:ImageCategory .
 
 nfo:SoftwareCategory a rdfs:Class ;
 	rdfs:label "Software" ;
