@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-mplayer.so
+ModulePath=libextract-mplayer.so
 MimeTypes=audio/*;video/*;
 

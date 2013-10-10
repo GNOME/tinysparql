@@ -1,7 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
 module_flags = -module -avoid-version -no-undefined
-modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -22,12 +21,12 @@ libextract_mockup_la_LIBADD =                          \
 rules_in_files = 01-mockup.rule.in
 
 %.rule: %.rule.in
-	@sed -e "s|@modulesdir[@]|${modulesdir}|" $< > $@
+	@sed -e "s|@extractmodulesdir[@]|${extractmodulesdir}|" $< > $@
 
 # This is noinst_ only because it's an example, normally this would be
 # "rules" (for rules_DATA and rulesdir) or whatever name you want to
 # give for your rules files.
-noinstdir = $(datadir)/tracker/extract-rules
+noinstdir = $(extractrulesdir)
 noinst_DATA = 01-mockup.rule
 
 CLEANFILES = $(noinst_DATA)

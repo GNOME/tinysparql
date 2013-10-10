@@ -8,6 +8,9 @@
 # full-report: like test-report: with -m perf and -m slow
 #
 
+extractmodulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
+extractrulesdir = $(datadir)/tracker/extract-rules
+
 GTESTER = gtester 			# for non-GLIB packages
 GTESTER_REPORT = gtester-report
 

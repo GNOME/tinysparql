@@ -1,15 +1,14 @@
 include $(top_srcdir)/Makefile.decl
 
 module_flags = -module -avoid-version -no-undefined
-modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
-rulesdir = $(datadir)/tracker/extract-rules
+rulesdir = $(extractrulesdir)
 
 AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \
 	-I$(top_srcdir)/src \
 	-I$(top_builddir)/src \
 	-DLOCALEDIR=\""$(localedir)"\" \
-	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\" \
+	-DTRACKER_EXTRACTORS_DIR=\""$(extractmodulesdir)"\" \
 	$(TRACKER_EXTRACT_CFLAGS)
 
 # NOTE: The rules are here and not in another sub-directory because we
@@ -48,51 +47,51 @@ rules_in_files = \
 	93-totem-generic.rule.in
 
 %.rule: %.rule.in
-	@sed -e "s|@modulesdir[@]|${modulesdir}|" $< > $@
+	@sed -e "s|@extractmodulesdir[@]|${extractmodulesdir}|" $< > $@
 
 # NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
-modules_LTLIBRARIES = # Empty
+extractmodules_LTLIBRARIES = # Empty
 rules_DATA = # Empty
 
 if HAVE_LIBVORBIS
-modules_LTLIBRARIES += libextract-vorbis.la
+extractmodules_LTLIBRARIES += libextract-vorbis.la
 rules_DATA += 10-vorbis.rule
 endif
 
 if HAVE_LIBFLAC
-modules_LTLIBRARIES += libextract-flac.la
+extractmodules_LTLIBRARIES += libextract-flac.la
 rules_DATA += 10-flac.rule
 endif
 
 if HAVE_EXEMPI
-modules_LTLIBRARIES += libextract-xmp.la
+extractmodules_LTLIBRARIES += libextract-xmp.la
 rules_DATA += 10-xmp.rule
 endif
 
 if HAVE_LIBGIF
-modules_LTLIBRARIES += libextract-gif.la
+extractmodules_LTLIBRARIES += libextract-gif.la
 rules_DATA += 10-gif.rule
 endif
 
 if HAVE_LIBJPEG
-modules_LTLIBRARIES += libextract-jpeg.la
+extractmodules_LTLIBRARIES += libextract-jpeg.la
 rules_DATA += 10-jpeg.rule
 endif
 
 if HAVE_LIBTIFF
-modules_LTLIBRARIES += libextract-tiff.la
+extractmodules_LTLIBRARIES += libextract-tiff.la
 rules_DATA += 10-tiff.rule
 endif
 
 if HAVE_LIBXML2
-modules_LTLIBRARIES += libextract-html.la
+extractmodules_LTLIBRARIES += libextract-html.la
 rules_DATA += 10-html.rule
 endif
 
 if HAVE_LIBGSF
-modules_LTLIBRARIES += \
+extractmodules_LTLIBRARIES += \
 	libextract-epub.la \
 	libextract-msoffice.la \
 	libextract-msoffice-xml.la \
@@ -101,17 +100,17 @@ rules_DATA += 10-epub.rule 10-oasis.rule 10-msoffice.rule 11-msoffice-xml.rule
 endif
 
 if HAVE_LIBGXPS
-modules_LTLIBRARIES += libextract-xps.la
+extractmodules_LTLIBRARIES += libextract-xps.la
 rules_DATA += 10-xps.rule
 endif
 
 if HAVE_POPPLER
-modules_LTLIBRARIES += libextract-pdf.la
+extractmodules_LTLIBRARIES += libextract-pdf.la
 rules_DATA += 10-pdf.rule
 endif
 
 if HAVE_GSTREAMER
-modules_LTLIBRARIES += libextract-gstreamer.la
+extractmodules_LTLIBRARIES += libextract-gstreamer.la
 rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-generic.rule
 endif
 
@@ -121,58 +120,58 @@ rules_DATA += 91-gstreamer-generic-dlna.rule
 endif
 
 if HAVE_LIBXINE
-modules_LTLIBRARIES += libextract-xine.la
+extractmodules_LTLIBRARIES += libextract-xine.la
 rules_DATA += 92-xine-generic.rule
 endif
 
 if USING_EXTERNAL_GENERIC_MEDIA_PLAYER
-modules_LTLIBRARIES +=	libextract-mplayer.la \
-			libextract-totem.la
+extractmodules_LTLIBRARIES +=	libextract-mplayer.la \
+				libextract-totem.la
 rules_DATA += 93-mplayer-generic.rule 93-totem-generic.rule
 endif
 
 if HAVE_TOTEM_PL_PARSER
-modules_LTLIBRARIES += libextract-playlist.la
+extractmodules_LTLIBRARIES += libextract-playlist.la
 rules_DATA += 15-playlist.rule
 endif
 
 if HAVE_LIBOSINFO
-modules_LTLIBRARIES += libextract-iso.la
+extractmodules_LTLIBRARIES += libextract-iso.la
 rules_DATA += 11-iso.rule
 endif
 
 if HAVE_LIBPNG
-modules_LTLIBRARIES += libextract-png.la
+extractmodules_LTLIBRARIES += libextract-png.la
 rules_DATA += 10-png.rule
 endif
 
 if HAVE_ABIWORD
-modules_LTLIBRARIES += libextract-abw.la
+extractmodules_LTLIBRARIES += libextract-abw.la
 rules_DATA += 10-abw.rule
 endif
 
 if HAVE_DVI
-modules_LTLIBRARIES += libextract-dvi.la
+extractmodules_LTLIBRARIES += libextract-dvi.la
 rules_DATA += 10-dvi.rule
 endif
 
 if HAVE_MP3
-modules_LTLIBRARIES += libextract-mp3.la
+extractmodules_LTLIBRARIES += libextract-mp3.la
 rules_DATA += 10-mp3.rule
 endif
 
 if HAVE_PS
-modules_LTLIBRARIES += libextract-ps.la
+extractmodules_LTLIBRARIES += libextract-ps.la
 rules_DATA += 10-ps.rule
 endif
 
 if HAVE_TEXT
-modules_LTLIBRARIES += libextract-text.la
+extractmodules_LTLIBRARIES += libextract-text.la
 rules_DATA += 90-text-generic.rule
 endif
 
 if HAVE_ICON
-modules_LTLIBRARIES += libextract-icon.la
+extractmodules_LTLIBRARIES += libextract-icon.la
 rules_DATA += 10-ico.rule
 endif
 

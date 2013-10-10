@@ -68,6 +68,14 @@ load_extractor_rule (GKeyFile  *key_file,
 		return FALSE;
 	}
 
+	if (!G_IS_DIR_SEPARATOR (module_path[0])) {
+		gchar *tmp;
+
+		tmp = g_build_filename (TRACKER_EXTRACTORS_DIR, module_path, NULL);
+		g_free (module_path);
+		module_path = tmp;
+	}
+
 	mimetypes = g_key_file_get_string_list (key_file, "ExtractorRule", "MimeTypes", &n_mimetypes, error);
 
 	if (!mimetypes) {

@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-ps.so
+ModulePath=libextract-ps.so
 MimeTypes=application/x-gzpostscript;application/postscript;
 

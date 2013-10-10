@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-jpeg.so
+ModulePath=libextract-jpeg.so
 MimeTypes=image/jpeg
 
