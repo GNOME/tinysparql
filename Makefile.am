@@ -53,7 +53,7 @@ coverage-report: coverage
 		"*.vapi"                               \
 		"tracker-marshal.*"
 	rm -rf $(top_builddir)/coverage
-	$(mkdir_p) $(top_builddir)/coverage
+	$(MKDIR_P) $(top_builddir)/coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
 #endif
 
