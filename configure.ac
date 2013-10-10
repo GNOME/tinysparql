@@ -857,14 +857,11 @@ AC_CHECK_HEADER(uniwbrk.h,
 LIBUNISTRING_CFLAGS=""
 LIBUNISTRING_LIBS="-lunistring"
 
-# Check for libicu... Note that AC_CHECK_LIB cannot be used as
-#  symbol name includes libicu library version... don't want to
-#  look for ubrk_next_4_2
-AC_CHECK_HEADER(unicode/ubrk.h,
-                [have_libicu=yes],
-                [have_libicu=no])
-LIBICU_CFLAGS=""
-LIBICU_LIBS="-licuuc -licui18n"
+# Check for libicu...
+PKG_CHECK_MODULES(LIBICU,
+                  [icu-i18n icu-uc],
+                  [have_libicu=yes],
+                  [have_libicu=no])
 
 # Configure option
 AC_ARG_WITH([unicode-support],
