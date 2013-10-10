@@ -5,7 +5,8 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
-	-DTRACKER_EXTRACTOR_RULES_DIR=\""$(datadir)/tracker/extract-rules"\" \
+	-DTRACKER_EXTRACTOR_RULES_DIR=\""$(extractrulesdir)"\" \
+	-DTRACKER_EXTRACTORS_DIR=\""$(extractmodulesdir)"\" \
 	$(LIBTRACKER_EXTRACT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la

@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-pdf.so
+ModulePath=libextract-pdf.so
 MimeTypes=application/pdf
 FallbackRdfType=nfo:Document

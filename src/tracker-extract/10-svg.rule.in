@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-gstreamer.so
+ModulePath=libextract-gstreamer.so
 MimeTypes=image/svg+xml
 

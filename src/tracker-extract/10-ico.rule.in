@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-icon.so
+ModulePath=libextract-icon.so
 MimeTypes=image/vnd.microsoft.icon
 

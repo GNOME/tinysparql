@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-xine.so
+ModulePath=libextract-xine.so
 MimeTypes=audio/*;video/*;
 

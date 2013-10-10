@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-vorbis.so
+ModulePath=libextract-vorbis.so
 MimeTypes=audio/x-vorbis+ogg;application/ogg;
 

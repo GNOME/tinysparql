@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-abw.so
+ModulePath=libextract-abw.so
 MimeTypes=application/x-abiword
 

@@ -1,3 +1,3 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-epub.so
+ModulePath=libextract-epub.so
 MimeTypes=application/epub+zip
