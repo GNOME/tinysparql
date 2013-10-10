@@ -61,11 +61,7 @@ typedef struct {
 	/* used to maintain the running tasks
 	 * and stats from different threads
 	 */
-#if GLIB_CHECK_VERSION (2,31,0)
 	GMutex task_mutex;
-#else
-	GMutex *task_mutex;
-#endif
 
 	/* Thread pool for multi-threaded extractors */
 	GThreadPool *thread_pool;
@@ -144,11 +140,7 @@ tracker_extract_init (TrackerExtract *object)
 	priv->thread_pool = g_thread_pool_new ((GFunc) get_metadata,
 	                                       NULL, 10, TRUE, NULL);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_init (&priv->task_mutex);
-#else
-	priv->task_mutex = g_mutex_new ();
-#endif
 }
 
 static void
@@ -173,11 +165,7 @@ tracker_extract_finalize (GObject *object)
 
 	g_hash_table_destroy (priv->statistics_data);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_clear (&priv->task_mutex);
-#else
-	g_mutex_free (priv->task_mutex);
-#endif
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
@@ -191,11 +179,7 @@ report_statistics (GObject *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->task_mutex);
-#else
-	g_mutex_lock (priv->task_mutex);
-#endif
 
 	g_message ("--------------------------------------------------");
 	g_message ("Statistics:");
@@ -228,11 +212,7 @@ report_statistics (GObject *object)
 
 	g_message ("--------------------------------------------------");
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_unlock (&priv->task_mutex);
-#else
-	g_mutex_unlock (priv->task_mutex);
-#endif
 }
 
 TrackerExtract *
@@ -273,11 +253,7 @@ notify_task_finish (TrackerExtractTask *task,
 	/* Reports and ongoing tasks may be
 	 * accessed from other threads.
 	 */
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->task_mutex);
-#else
-	g_mutex_lock (priv->task_mutex);
-#endif
 
 	stats_data = g_hash_table_lookup (priv->statistics_data,
 	                                  task->cur_module);
@@ -297,11 +273,7 @@ notify_task_finish (TrackerExtractTask *task,
 
 	priv->running_tasks = g_list_remove (priv->running_tasks, task);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_unlock (&priv->task_mutex);
-#else
-	g_mutex_unlock (priv->task_mutex);
-#endif
 }
 
 static gboolean
@@ -411,11 +383,7 @@ task_cancellable_cancelled_cb (GCancellable       *cancellable,
 	extract = task->extract;
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->task_mutex);
-#else
-	g_mutex_lock (priv->task_mutex);
-#endif
 
 	if (g_list_find (priv->running_tasks, task)) {
 		g_message ("Cancelled task for '%s' was currently being "
@@ -424,11 +392,7 @@ task_cancellable_cancelled_cb (GCancellable       *cancellable,
 		_exit (0);
 	}
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_unlock (&priv->task_mutex);
-#else
-	g_mutex_unlock (priv->task_mutex);
-#endif
 }
 
 static TrackerExtractTask *
@@ -695,15 +659,9 @@ dispatch_task_cb (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->task_mutex);
 	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
 	g_mutex_unlock (&priv->task_mutex);
-#else
-	g_mutex_lock (priv->task_mutex);
-	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
-	g_mutex_unlock (priv->task_mutex);
-#endif
 
 	switch (thread_awareness) {
 	case TRACKER_MODULE_NONE:
@@ -720,56 +678,38 @@ dispatch_task_cb (TrackerExtractTask *task)
 		g_message ("Dispatching '%s' in main thread", task->file);
 		get_metadata (task);
 		break;
-	case TRACKER_MODULE_SINGLE_THREAD:
-	{
+	case TRACKER_MODULE_SINGLE_THREAD: {
 		GAsyncQueue *async_queue;
 
 		async_queue = g_hash_table_lookup (priv->single_thread_extractors, module);
 
 		if (!async_queue) {
+			GThread *thread;
+
 			/* No thread created yet for this module, create it
 			 * together with the async queue used to pass data to it
 			 */
 			async_queue = g_async_queue_new ();
-
-#if GLIB_CHECK_VERSION (2,31,0)
-			{
-				GThread *thread;
-
-				thread = g_thread_try_new ("single",
-				                           (GThreadFunc) single_thread_get_metadata,
-				                           g_async_queue_ref (async_queue),
-				                           &error);
-				if (!thread) {
-					g_simple_async_result_take_error ((GSimpleAsyncResult *) task->res, error);
-					g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
-					extract_task_free (task);
-					return FALSE;
-				}
-				/* We won't join the thread, so just unref it here */
-				g_object_unref (thread);
-			}
-#else
-			g_thread_create ((GThreadFunc) single_thread_get_metadata,
-			                 g_async_queue_ref (async_queue),
-			                 FALSE, &error);
-
-			if (error) {
-				g_simple_async_result_set_from_error ((GSimpleAsyncResult *) task->res, error);
+			thread = g_thread_try_new ("single",
+			                           (GThreadFunc) single_thread_get_metadata,
+			                           g_async_queue_ref (async_queue),
+			                           &error);
+			if (!thread) {
+				g_simple_async_result_take_error ((GSimpleAsyncResult *) task->res, error);
 				g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 				extract_task_free (task);
-				g_error_free (error);
-
 				return FALSE;
 			}
-#endif
+
+			/* We won't join the thread, so just unref it here */
+			g_object_unref (thread);
 
 			g_hash_table_insert (priv->single_thread_extractors, module, async_queue);
 		}
 
 		g_async_queue_push (async_queue, task);
-	}
 		break;
+	}
 	case TRACKER_MODULE_MULTI_THREAD:
 		/* Put task in thread pool */
 		g_message ("Dispatching '%s' in thread pool", task->file);

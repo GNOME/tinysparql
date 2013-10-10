@@ -39,11 +39,7 @@ struct _TrackerLanguagePriv {
 	gboolean       enable_stemmer;
 	gchar         *language_code;
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	GMutex         stemmer_mutex;
-#else
-	GMutex        *stemmer_mutex;
-#endif
 	gpointer       stemmer;
 };
 
@@ -138,11 +134,7 @@ tracker_language_init (TrackerLanguage *language)
 	                                          g_str_equal,
 	                                          g_free,
 	                                          NULL);
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_init (&priv->stemmer_mutex);
-#else
-	priv->stemmer_mutex = g_mutex_new ();
-#endif
 
 	stem_language = tracker_language_get_name_by_code (NULL);
 	priv->stemmer = sb_stemmer_new (stem_language, NULL);
@@ -155,21 +147,12 @@ language_finalize (GObject *object)
 
 	priv = GET_PRIV (object);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	if (priv->stemmer) {
 		g_mutex_lock (&priv->stemmer_mutex);
 		sb_stemmer_delete (priv->stemmer);
 		g_mutex_unlock (&priv->stemmer_mutex);
 	}
 	g_mutex_clear (&priv->stemmer_mutex);
-#else
-	if (priv->stemmer) {
-		g_mutex_lock (priv->stemmer_mutex);
-		sb_stemmer_delete (priv->stemmer);
-		g_mutex_unlock (priv->stemmer_mutex);
-	}
-	g_mutex_free (priv->stemmer_mutex);
-#endif
 
 	if (priv->stop_words) {
 		g_hash_table_unref (priv->stop_words);
@@ -279,11 +262,7 @@ language_add_stopwords (TrackerLanguage *language,
 	content = g_mapped_file_get_contents (mapped_file);
 	words = g_strsplit_set (content, "\n" , -1);
 
-#if GLIB_CHECK_VERSION(2,22,0)
 	g_mapped_file_unref (mapped_file);
-#else
-	g_mapped_file_free (mapped_file);
-#endif
 
 	/* FIXME: Shouldn't clear the hash table first? */
 	for (p = words; *p; p++) {
@@ -326,11 +305,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	stem_language = tracker_language_get_name_by_code (language_code);
 	stem_language_lower = g_ascii_strdown (stem_language, -1);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->stemmer_mutex);
-#else
-	g_mutex_lock (priv->stemmer_mutex);
-#endif
 
 	if (priv->stemmer) {
 		sb_stemmer_delete (priv->stemmer);
@@ -342,11 +317,7 @@ language_set_stopword_list (TrackerLanguage *language,
 		           stem_language_lower);
 	}
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_unlock (&priv->stemmer_mutex);
-#else
-	g_mutex_unlock (priv->stemmer_mutex);
-#endif
 
 	g_free (stem_language_lower);
 }
@@ -542,21 +513,13 @@ tracker_language_stem_word (TrackerLanguage *language,
 		return g_strndup (word, word_length);
 	}
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_lock (&priv->stemmer_mutex);
-#else
-	g_mutex_lock (priv->stemmer_mutex);
-#endif
 
 	stem_word = (const gchar*) sb_stemmer_stem (priv->stemmer,
 	                                            (guchar*) word,
 	                                            word_length);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_mutex_unlock (&priv->stemmer_mutex);
-#else
-	g_mutex_unlock (priv->stemmer_mutex);
-#endif
 
 	return g_strdup (stem_word);
 }

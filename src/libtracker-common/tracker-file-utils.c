@@ -363,14 +363,8 @@ tracker_file_system_has_enough_space (const gchar *path,
 	enough = (remaining >= required_bytes);
 
 	if (creating_db) {
-
-#if GLIB_CHECK_VERSION (2,30,0)
 		str1 = g_format_size (required_bytes);
 		str2 = g_format_size (remaining);
-#else
-		str1 = g_format_size_for_display (required_bytes);
-		str2 = g_format_size_for_display (remaining);
-#endif
 
 		if (!enough) {
 			g_critical ("Not enough disk space to create databases, "
