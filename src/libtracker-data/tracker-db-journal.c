@@ -120,9 +120,7 @@ static JournalWriter ontology_writer = {0};
 
 static TransactionFormat current_transaction_format;
 
-#if GLIB_CHECK_VERSION (2, 24, 2)
 static gboolean tracker_db_journal_rotate (GError **error);
-#endif /* GLib check */
 
 static gboolean
 journal_eof (JournalReader *jreader)
@@ -404,7 +402,7 @@ write_all_data (int      fd,
 
 	while (len > 0) {
 		written = write (fd, data, len);
-		
+
 		if (written < 0) {
 			gint err = errno;
 
@@ -426,7 +424,7 @@ write_all_data (int      fd,
 
 			return FALSE;
 		}
-		
+
 		len -= written;
 		data += written;
 	}
@@ -1202,13 +1200,11 @@ tracker_db_journal_commit_db_transaction (GError **error)
 	} else {
 		ret = db_journal_writer_commit_db_transaction (&writer, &n_error);
 
-#if GLIB_CHECK_VERSION (2, 24, 2)
 		if (ret) {
 			if (rotating_settings.do_rotating && (writer.cur_size > rotating_settings.chunk_size)) {
 				ret = tracker_db_journal_rotate (&n_error);
 			}
 		}
-#endif /* GLib check */
 	}
 
 	if (n_error) {
@@ -1290,7 +1286,6 @@ db_journal_reader_init_file (JournalReader  *jreader,
                              const gchar    *filename,
                              GError        **error)
 {
-#if GLIB_CHECK_VERSION (2, 24, 2)
 	if (g_str_has_suffix (filename, ".gz")) {
 		GFile *file;
 		GInputStream *stream, *cstream;
@@ -1319,7 +1314,6 @@ db_journal_reader_init_file (JournalReader  *jreader,
 		jreader->stream = g_data_input_stream_new (cstream);
 		g_object_unref (cstream);
 	} else {
-#endif /* GLib check */
 		jreader->file = g_mapped_file_new (filename, FALSE, error);
 
 		if (!jreader->file) {
@@ -1330,9 +1324,7 @@ db_journal_reader_init_file (JournalReader  *jreader,
 			g_mapped_file_get_contents (jreader->file);
 
 		jreader->end = jreader->current + g_mapped_file_get_length (jreader->file);
-#if GLIB_CHECK_VERSION (2, 24, 2)
 	}
-#endif /* GLib check */
 
 	if (!journal_verify_header (jreader)) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
@@ -1509,12 +1501,7 @@ db_journal_reader_shutdown (JournalReader *jreader)
 			jreader->underlying_stream_info = NULL;
 		}
 	} else if (jreader->file) {
-#if GLIB_CHECK_VERSION(2,22,0)
 		g_mapped_file_unref (jreader->file);
-#else
-		g_mapped_file_free (jreader->file);
-#endif
-
 		jreader->file = NULL;
 	}
 
@@ -1579,7 +1566,7 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 	 *  [magic]
 	 *  [version]
 	 *  [
-	 *   [entry 
+	 *   [entry
 	 *    [size]
 	 *    [amount]
 	 *    [crc]
@@ -1884,7 +1871,7 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 
 			if (jreader.end - entry_size_check < jreader.current) {
 				g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-				             TRACKER_DB_JOURNAL_ERROR_DAMAGED_JOURNAL_ENTRY, 
+				             TRACKER_DB_JOURNAL_ERROR_DAMAGED_JOURNAL_ENTRY,
 				             "Damaged journal entry at end of journal");
 				db_journal_reader_shutdown (&jreader);
 				return FALSE;
@@ -2056,7 +2043,6 @@ tracker_db_journal_reader_get_progress (void)
 	return ret;
 }
 
-#if GLIB_CHECK_VERSION (2, 24, 2)
 static void
 on_chunk_copied_delete (GObject      *source_object,
                         GAsyncResult *res,
@@ -2121,7 +2107,7 @@ tracker_db_journal_rotate (GError **error)
 				ptr = f_name + strlen (TRACKER_DB_JOURNAL_FILENAME ".");
 				cur = atoi (ptr);
 				max = MAX (cur, max);
-			} 
+			}
 
 			f_name = g_dir_read_name (journal_dir);
 		}
@@ -2185,7 +2171,6 @@ tracker_db_journal_rotate (GError **error)
 
 	return ret;
 }
-#endif /* GLib check */
 
 #else /* DISABLE_JOURNAL */
 void

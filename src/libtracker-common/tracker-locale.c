@@ -46,11 +46,7 @@ static const gchar *locale_names[TRACKER_LOCALE_LAST] = {
 /* Already initialized? */
 static gboolean initialized;
 
-#if GLIB_CHECK_VERSION (2,31,0)
 static GRecMutex locales_mutex;
-#else
-static GStaticRecMutex locales_mutex = G_STATIC_REC_MUTEX_INIT;
-#endif
 
 const gchar*
 tracker_locale_get_name (guint i)
@@ -63,11 +59,7 @@ void
 tracker_locale_set (TrackerLocaleID  id,
                     const gchar     *value)
 {
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_rec_mutex_lock (&locales_mutex);
-#else
-	g_static_rec_mutex_lock (&locales_mutex);
-#endif
 
 	if (current_locales[id]) {
 		g_debug ("Locale '%s' was changed from '%s' to '%s'",
@@ -107,11 +99,7 @@ tracker_locale_set (TrackerLocaleID  id,
 		break;
 	}
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_rec_mutex_unlock (&locales_mutex);
-#else
-	g_static_rec_mutex_unlock (&locales_mutex);
-#endif
 }
 
 void
@@ -178,21 +166,13 @@ tracker_locale_get (TrackerLocaleID id)
 
 	g_return_val_if_fail (initialized, NULL);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_rec_mutex_lock (&locales_mutex);
-#else
-	g_static_rec_mutex_lock (&locales_mutex);
-#endif
 
 	/* Always return a duplicated string, as the locale may change at any
 	 * moment */
 	locale = g_strdup (current_locales[id]);
 
-#if GLIB_CHECK_VERSION (2,31,0)
 	g_rec_mutex_unlock (&locales_mutex);
-#else
-	g_static_rec_mutex_unlock (&locales_mutex);
-#endif
 
 	return locale;
 }

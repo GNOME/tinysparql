@@ -29,11 +29,7 @@ tracker_test_helpers_get_nonutf8 (void)
 		file = g_mapped_file_new (TEST_TEXT, FALSE, NULL);
 		nonutf8_str = g_strdup (g_mapped_file_get_contents (file));
 		nonutf8_str [g_mapped_file_get_length (file) -1] = '\0';
-#if GLIB_CHECK_VERSION(2,22,0)
 		g_mapped_file_unref (file);
-#else
-		g_mapped_file_free (file);
-#endif
 	}
 
 	return nonutf8_str;
