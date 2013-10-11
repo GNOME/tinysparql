@@ -223,7 +223,6 @@ tracker_media_art_get_path (const gchar  *artist,
                             gchar       **local_uri)
 {
 	const gchar *space_checksum = "7215ee9c7d9dc229d2921a40e899ec5f";
-	const gchar *a, *b;
 
 	gchar *art_filename;
 	gchar *dir;
