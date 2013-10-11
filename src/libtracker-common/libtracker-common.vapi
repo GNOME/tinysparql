@@ -65,6 +65,11 @@ namespace Tracker {
 		public void shutdown ();
 	}
 
+	[CCode (cheader_filename = "libtracker-common/tracker-locale.h")]
+	namespace Locale {
+		public void init ();
+	}
+
 	[Compact]
 	[CCode (ref_function = "", unref_function = "", cheader_filename = "libtracker-common/tracker-common.h")]
 	public class DBusRequest {

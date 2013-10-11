@@ -26,6 +26,13 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 
 		try {
 			if (use_count == 0) {
+				// make sure that current locale vs db locale are the same,
+				// otherwise return an error
+				Locale.init ();
+				if (DBManager.locale_changed ()) {
+					throw new Sparql.Error.INTERNAL ("Locale mismatch, cannot use direct connection");
+				}
+
 				uint select_cache_size = 100;
 				string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
