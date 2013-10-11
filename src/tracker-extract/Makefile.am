@@ -14,40 +14,38 @@ AM_CPPFLAGS = \
 # NOTE: The rules are here and not in another sub-directory because we
 # only install rules for extractors we build. If we decouple this, it
 # duplicates work and requires more maintenance to keep modules up to
-# date.
-rules_in_files = \
-	10-abw.rule.in \
-	10-dvi.rule.in \
-	10-epub.rule.in \
-	10-flac.rule.in \
-	10-gif.rule.in \
-	10-html.rule.in \
-	10-ico.rule.in \
-	10-jpeg.rule.in \
-	10-mp3.rule.in \
-	10-msoffice.rule.in \
-	10-oasis.rule.in \
-	10-pdf.rule.in \
-	10-png.rule.in \
-	10-ps.rule.in \
-	10-svg.rule.in \
-	10-tiff.rule.in \
-	10-vorbis.rule.in \
-	10-xmp.rule.in \
-	10-xps.rule.in \
-	11-iso.rule.in \
-	11-msoffice-xml.rule.in \
-	15-gstreamer-guess.rule.in \
-	15-playlist.rule.in \
-	90-gstreamer-generic.rule.in \
-	90-text-generic.rule.in \
-	91-gstreamer-generic-dlna.rule.in \
-	92-xine-generic.rule.in \
-	93-mplayer-generic.rule.in \
-	93-totem-generic.rule.in
-
-%.rule: %.rule.in
-	@sed -e "s|@extractmodulesdir[@]|${extractmodulesdir}|" $< > $@
+# date. If you are adding a new rule then add it to both rules_files
+# and then separately with the module below.
+rules_files = \
+	10-abw.rule \
+	10-dvi.rule \
+	10-epub.rule \
+	10-flac.rule \
+	10-gif.rule \
+	10-html.rule \
+	10-ico.rule \
+	10-jpeg.rule \
+	10-mp3.rule \
+	10-msoffice.rule \
+	10-oasis.rule \
+	10-pdf.rule \
+	10-png.rule \
+	10-ps.rule \
+	10-svg.rule \
+	10-tiff.rule \
+	10-vorbis.rule \
+	10-xmp.rule \
+	10-xps.rule \
+	11-iso.rule \
+	11-msoffice-xml.rule \
+	15-gstreamer-guess.rule \
+	15-playlist.rule \
+	90-gstreamer-generic.rule \
+	90-text-generic.rule \
+	91-gstreamer-generic-dlna.rule \
+	92-xine-generic.rule \
+	93-mplayer-generic.rule \
+	93-totem-generic.rule
 
 # NOTE:
 # We don't always link with libtracker-common, we only link
@@ -560,4 +558,4 @@ CLEANFILES = $(BUILT_SOURCES) $(rules_DATA)
 
 EXTRA_DIST = \
 	tracker-marshal.list \
-	$(rules_in_files)
+	$(rules_files)
