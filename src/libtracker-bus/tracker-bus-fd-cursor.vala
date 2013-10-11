@@ -86,6 +86,10 @@ class Tracker.Bus.FDCursor : Tracker.Sparql.Cursor {
 	public override bool next (Cancellable? cancellable = null) throws GLib.Error {
 		int last_offset;
 
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
 		if (buffer_index >= buffer_size) {
 			return false;
 		}
