@@ -94,6 +94,7 @@ struct TestDataExpectedNWords {
 	const gchar *str;
 	gboolean ignore_numbers;
 	guint expected_nwords;
+	gint alternate_expected_nwords;
 };
 
 /* Common expected_word test method */
@@ -130,8 +131,19 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 		nwords++;
 	}
 
-	/* Check if input is same as expected */
-	g_assert_cmpuint (nwords, == , testdata->expected_nwords);
+	/* Some tests will yield different results when using different versions of
+	 * libicu (e.g. chinese ones). Handle this by allowing an alternate number
+	 * of words expected in the test. Note that our whole purpose is to test
+	 * that we can split different words, not much about the number of words
+	 * itself (althogh we should check that as well) */
+
+	if (testdata->alternate_expected_nwords < 0)
+		/* Check if input is same as expected */
+		g_assert_cmpuint (nwords, == , testdata->expected_nwords);
+	else
+		/* We'll assert if both expected number of words fail */
+		g_assert ((nwords == testdata->expected_nwords) ||
+		          (nwords == testdata->alternate_expected_nwords));
 }
 
 /* -------------- EXPECTED WORD TESTS ----------------- */
@@ -290,19 +302,19 @@ static const TestDataExpectedWord test_data_casefolding[] = {
 
 /* Number of expected words tests */
 static const TestDataExpectedNWords test_data_nwords[] = {
-	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8 },
-	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE, 10 },
+	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8, -1 },
+	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE, 10, -1 },
 	/* Note: as of 0.9.15, the dot is always a word breaker, even between
 	 *  numbers. */
-	{ "filename.txt",                                           TRUE,   2 },
-	{ ".hidden.txt",                                            TRUE,   2 },
-	{ "noextension.",                                           TRUE,   1 },
-	{ "ホモ・サピエンス",                                          TRUE,   2 }, /* katakana */
-	{ "喂人类",                                                   TRUE,   2 }, /* chinese */
-	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
-	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
-	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7 }, /* mixed */
-	{ NULL,                                                     FALSE,  0 }
+	{ "filename.txt",                                           TRUE,   2, -1 },
+	{ ".hidden.txt",                                            TRUE,   2, -1 },
+	{ "noextension.",                                           TRUE,   1, -1 },
+	{ "ホモ・サピエンス",                                          TRUE,   2, -1 }, /* katakana */
+	{ "喂人类",                                                   TRUE,   2, 3 }, /* chinese */
+	{ "Американские суда находятся в международных водах.",     TRUE,   6, -1 }, /* russian */
+	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7, -1 }, /* vietnamese */
+	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7, 8 }, /* mixed */
+	{ NULL,                                                     FALSE,  0, 0 }
 };
 
 /* Stop-word tests (for english only) */
