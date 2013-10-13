@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 22:50+0200\n"
-"PO-Revision-Date: 2013-09-14 00:37+0200\n"
+"POT-Creation-Date: 2013-10-13 22:53+0200\n"
+"PO-Revision-Date: 2013-10-13 22:52+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca-XV\n"
@@ -705,7 +705,6 @@ msgstr "Etiquetes"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#, fuzzy
 msgid "No error was given"
 msgstr "No s'ha rebut cap error"
 
@@ -844,9 +843,8 @@ msgstr "No s'ha pogut obrir /proc"
 #: ../src/tracker-control/tracker-control-general.c:698
 #: ../src/tracker-control/tracker-control-general.c:744
 #: ../src/tracker-control/tracker-control-general.c:765
-#, fuzzy
 msgid "no error given"
-msgstr "No s'ha rebut cap error"
+msgstr "no s'ha rebut cap error"
 
 #: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
@@ -1651,23 +1649,21 @@ msgid "Items"
 msgstr "Elements"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, fuzzy, c-format
+#, c-format
 msgid "Loading..."
 msgstr "S'està carregant…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-#, fuzzy
 msgid "Pages"
-msgstr "Imatges"
+msgstr "Pàgines"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "Mostra el directori _pare"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-#, fuzzy
 msgid "_Tags..."
-msgstr "Etiquetes"
+msgstr "_Etiquetes…"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Search and Indexing"
@@ -1786,9 +1782,8 @@ msgstr ""
 "muntats l'última vegada:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#, fuzzy
 msgid "<b>Garbage Collection</b>"
-msgstr "Recollida d'escombraries"
+msgstr "<b>Recollida d'escombraries</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1857,9 +1852,8 @@ msgid "Remove directory from being indexed"
 msgstr "Suprimeix el directori de la indexació"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-#, fuzzy
 msgid "<b>Where is your content?</b>"
-msgstr "On està el contingut?"
+msgstr "<b>On està el contingut?</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1927,9 +1921,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Sí, suprimeix totes les meues dades indexades"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-#, fuzzy
 msgid "<b>Reset Indexed Data</b>"
-msgstr "Reinicia les dades indexades"
+msgstr "<b>Reinicia les dades indexades</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1961,12 +1954,12 @@ msgstr "Inhabilitat"
 #: ../src/tracker-preferences/tracker-preferences.vala:332
 #, c-format
 msgid "%d%%"
-msgstr ""
+msgstr "%d%%"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:341
-#, fuzzy, c-format
+#, c-format
 msgid "%d"
-msgstr " %dd"
+msgstr "%d"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:508
 msgid "Enter value"
@@ -2086,7 +2079,7 @@ msgstr "Limita el nombre de resultats mostrats"
 #: ../src/tracker-utils/tracker-search.c:81
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "512"
-msgstr ""
+msgstr "512"
 
 #: ../src/tracker-utils/tracker-search.c:84
 #: ../src/tracker-utils/tracker-tag.c:59
@@ -2096,7 +2089,7 @@ msgstr "Desplaça els resultats"
 #: ../src/tracker-utils/tracker-search.c:85
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-search.c:88
 #: ../src/tracker-utils/tracker-tag.c:63
@@ -2118,7 +2111,6 @@ msgstr ""
 "que no estiguen muntats)"
 
 #: ../src/tracker-utils/tracker-search.c:100
-#, fuzzy
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music..."
