@@ -26,6 +26,23 @@
 
 #include <tracker-test-helpers.h>
 
+/* Log handler to use in the trap fork tests; where we make sure to dump to
+ * stdout/stderr, regardless of G_MESSAGES_DEBUG being set or not */
+static void
+log_handler (const gchar    *domain,
+             GLogLevelFlags  log_level,
+             const gchar    *message,
+             gpointer        user_data)
+{
+	if (log_level & G_LOG_LEVEL_ERROR ||
+	    log_level & G_LOG_LEVEL_CRITICAL ||
+	    log_level & G_LOG_LEVEL_WARNING ||
+	    log_level & G_LOG_LEVEL_MESSAGE)
+		g_printerr ("%s\n", message);
+	else
+		g_print ("%s\n", message);
+}
+
 static void
 slist_to_strv (gboolean utf8)
 {
@@ -50,6 +67,7 @@ slist_to_strv (gboolean utf8)
 		g_strfreev (input_as_strv);
 	} else {
 		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+			g_log_set_default_handler (log_handler, NULL);
 			input_as_strv = tracker_dbus_slist_to_strv (input);
 			g_strfreev (input_as_strv);
 		}
@@ -105,6 +123,7 @@ test_dbus_request_failed (void)
 	/* We have already the error and want only the log line */
 	error = g_error_new (1000, -1, "The indexer founded an error");
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_end (request, error);
 	}
 
@@ -121,6 +140,7 @@ test_dbus_request ()
 
 	/* Checking the logging output */
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
 		                                      "Test request (%s))",
 		                                      "--TestNewOK--");
@@ -135,6 +155,7 @@ test_dbus_request ()
 	                                      "--TestNewOK--");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_comment (request,
 		                              "Well (%s)",
 		                              "--TestCommentOK--");
@@ -145,6 +166,7 @@ test_dbus_request ()
 	g_test_trap_assert_stderr ("*TestCommentOK*");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_end (request, NULL);
 		exit (0);
 	}
@@ -163,6 +185,7 @@ test_dbus_request_client_lookup ()
 
 	/* Checking the logging output */
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
 		                                      "Test request (%s))",
 		                                      "--TestNewOK--");
@@ -178,6 +201,7 @@ test_dbus_request_client_lookup ()
 	                                      "--TestNewOK--");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_comment (request,
 		                              "Well (%s)",
 		                              "--TestCommentOK--");
@@ -188,6 +212,7 @@ test_dbus_request_client_lookup ()
 	g_test_trap_assert_stderr ("*TestCommentOK*");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_info (request,
 		                           "Test info %s",
 		                           "--TestInfoOK--");
@@ -198,6 +223,7 @@ test_dbus_request_client_lookup ()
 	g_test_trap_assert_stdout ("*TestInfoOK*");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_debug (request,
 		                            "Test debug %s",
 		                            "--TestDebugOK--");
@@ -208,6 +234,7 @@ test_dbus_request_client_lookup ()
 	g_test_trap_assert_stdout ("*TestDebugOK*");
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_log_set_default_handler (log_handler, NULL);
 		tracker_dbus_request_end (request, NULL);
 		exit (0);
 	}
@@ -225,6 +252,8 @@ test_dbus_request_client_lookup_monothread ()
 	/* Run everything in the same fork to check the clients_shutdown code */
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
 		TrackerDBusRequest *request;
+
+		g_log_set_default_handler (log_handler, NULL);
 
 		tracker_dbus_enable_client_lookup (TRUE);
 		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
@@ -258,6 +287,8 @@ test_dbus_request_failed_coverage ()
 		GQuark tracker_quark;
 		GError *error = NULL;
 		TrackerDBusRequest *request;
+
+		g_log_set_default_handler (log_handler, NULL);
 
 		tracker_dbus_enable_client_lookup (TRUE);
 
@@ -299,7 +330,7 @@ main (int argc, char **argv) {
 	                 test_async_queue_to_strv_nonutf8);
 */
 
-	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok", 
+	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok",
 	                 test_slist_to_strv);
 	g_test_add_func ("/libtracker-common/tracker-dbus/request",
 	                 test_dbus_request);
