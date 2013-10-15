@@ -658,7 +658,7 @@ tracker_db_manager_locale_changed (void)
 	 * to check for locale mismatches for initializing the database.
 	 */
 	if (!locations_initialized) {
-		tracker_db_manager_init_locations();
+		tracker_db_manager_init_locations ();
 	}
 
 	/* Get current collation locale */
@@ -788,6 +788,10 @@ tracker_db_manager_init_locations (void)
 	const gchar *dir;
 	guint i;
 
+	if (locations_initialized) {
+		return;
+	}
+
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
 	                                  "tracker",
 	                                  "data",
@@ -890,16 +894,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	old_flags = flags;
 
-	g_free (user_data_dir);
-	user_data_dir = g_build_filename (g_get_user_data_dir (),
-	                                  "tracker",
-	                                  "data",
-	                                  NULL);
-
-	g_free (data_dir);
-	data_dir = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             NULL);
+	tracker_db_manager_init_locations ();
 
 	g_free (in_use_filename);
 	in_use_filename = g_build_filename (g_get_user_data_dir (),
@@ -935,12 +930,6 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	g_message ("Checking database files exist");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		/* Fill absolute path for the database */
-
-		dir = location_to_directory (dbs[i].location);
-		g_free (dbs[i].abs_filename);
-		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
-
 		/* Check we have each database in place, if one is
 		 * missing, we reindex.
 		 */
