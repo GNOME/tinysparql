@@ -653,6 +653,14 @@ tracker_db_manager_locale_changed (void)
 	gchar *current_locale;
 	gboolean changed;
 
+	/* As a special case, we allow calling this API function before
+	 * tracker_data_manager_init() has been called, so it can be used
+	 * to check for locale mismatches for initializing the database.
+	 */
+	if (!locations_initialized) {
+		tracker_db_manager_init_locations();
+	}
+
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
