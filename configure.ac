@@ -780,7 +780,7 @@ AC_ARG_ENABLE(upower,
                              [disable UPower support for AC power detection [[default=auto]]]),,
               [enable_upower=auto])
 
-if test "x$enable_upower" != "xno"; then
+AS_IF([test "x$enable_upower" != "xno"], [
    PKG_CHECK_MODULES(UPOWER,
                      [upower-glib >= $UPOWER_REQUIRED],
                      [have_upower=yes],
@@ -788,13 +788,17 @@ if test "x$enable_upower" != "xno"; then
 
    TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $UPOWER_CFLAGS"
    TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $UPOWER_LIBS"
+   save_LIBS=$LIBS
+   LIBS=$UPOWER_LIBS
+   AC_CHECK_FUNC(up_client_get_warning_level)
+   LIBS=$save_LIBS
 
    if test "x$have_upower" = "xyes"; then
       AC_DEFINE(HAVE_UPOWER, [], [Define if we have UPOWER])
    fi
-else
+], [
    have_upower="no  (disabled)"
-fi
+])
 
 if test "x$enable_upower" = "xyes"; then
    if test "x$have_upower" != "xyes"; then

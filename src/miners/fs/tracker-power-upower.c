@@ -95,7 +95,11 @@ tracker_power_init (TrackerPower *power)
 
 	/* coldplug */
 	priv->on_battery = up_client_get_on_battery (priv->client);
+#ifdef HAVE_UP_CLIENT_GET_WARNING_LEVEL
+	priv->on_low_battery = up_client_get_warning_level (priv->client) >= UP_DEVICE_LEVEL_LOW;
+#else
 	priv->on_low_battery = up_client_get_on_low_battery (priv->client);
+#endif
 }
 
 static void
@@ -153,7 +157,11 @@ tracker_power_client_changed_cb (UpClient *client, TrackerPower *power)
 	}
 
 	/* get the on-low-battery state */
+#ifdef HAVE_UP_CLIENT_GET_WARNING_LEVEL
+	on_low_battery = up_client_get_warning_level (priv->client) >= UP_DEVICE_LEVEL_LOW;
+#else
 	on_low_battery = up_client_get_on_low_battery (priv->client);
+#endif
 	if (on_low_battery != priv->on_low_battery) {
 		priv->on_low_battery = on_low_battery;
 		g_object_notify (G_OBJECT (power), "on-low-battery");
