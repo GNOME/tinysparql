@@ -554,7 +554,7 @@ tracker-marshal.c: tracker-marshal.list
 
 BUILT_SOURCES = $(marshal_sources)
 
-CLEANFILES = $(BUILT_SOURCES) $(rules_DATA)
+CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = \
 	tracker-marshal.list \
