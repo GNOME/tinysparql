@@ -16,7 +16,7 @@ AM_VALAFLAGS =                                         \
 	tracker-config.vapi
 
 AM_CPPFLAGS =                                          \
-	$(BUILD_CFLAGS)                                \
+	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"       \

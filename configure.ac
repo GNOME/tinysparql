@@ -520,12 +520,17 @@ AC_SUBST(GCOV_LIBS)
 
 ####################################################################
 # General VALAFLAGS/CFLAGS/LIBS
+#
+# NOTE: BUILD_VALACFLAGS are for the sources built by Vala,
+#       not for .vala files themselves.
 ####################################################################
 BUILD_VALAFLAGS="-g --target-glib=2.34"
+BUILD_VALACFLAGS="${WARN_VALACFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_LIBS="${GCOV_LIBS}"
 
 AC_SUBST(BUILD_VALAFLAGS)
+AC_SUBST(BUILD_VALACFLAGS)
 AC_SUBST(BUILD_CFLAGS)
 AC_SUBST(BUILD_LIBS)
 

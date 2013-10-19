@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 AM_CPPFLAGS =                                          \
-	$(BUILD_CFLAGS)                                \
+	$(BUILD_VALACFLAGS)                            \
 	-DSHAREDIR=\""$(datadir)"\"                    \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker-$(TRACKER_API_VERSION)/mail-modules\" \
