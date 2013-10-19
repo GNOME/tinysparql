@@ -47,7 +47,12 @@ namespace Tracker.Sparql {
 	 */
 	public string escape_string (string literal) {
 		StringBuilder str = new StringBuilder ();
-		char *p = literal;
+
+		/* Shouldn't cast from const to non-const here, but we know
+		 * the compiler is going to complain and it's just because
+		 * Vala string manipulation doesn't allow us to do this more
+		 * easily. */
+		char *p = (char*) literal;
 
 		while (*p != '\0') {
 			size_t len = Posix.strcspn ((string) p, "\t\n\r\b\f\"\\");
