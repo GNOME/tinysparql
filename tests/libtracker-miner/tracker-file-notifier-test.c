@@ -18,9 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
+
+#include "config.h"
+
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -742,6 +746,8 @@ gint
 main (gint    argc,
       gchar **argv)
 {
+	setlocale (LC_ALL, "");
+
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing file notifier");
