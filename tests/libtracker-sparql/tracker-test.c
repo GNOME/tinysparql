@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <locale.h>
+
 #include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct {
@@ -356,6 +358,8 @@ gint
 main (gint argc, gchar **argv)
 {
 	int result;
+
+	setlocale (LC_ALL, "");
 
 	g_test_init (&argc, &argv, NULL);
 
