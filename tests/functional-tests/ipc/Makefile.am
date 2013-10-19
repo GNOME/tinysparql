@@ -19,7 +19,7 @@ AM_VALAFLAGS = \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi
 
 AM_CPPFLAGS =\
-	$(BUILD_CFLAGS) \
+	$(BUILD_VALACFLAGS) \
 	-I$(top_srcdir)/src \
 	-I$(top_builddir)/src \
 	$(LIBTRACKER_SPARQL_CFLAGS)
@@ -35,21 +35,9 @@ LDADD =\
 
 test_insert_or_replace_SOURCES = \
 	test-insert-or-replace.vala
-test_insert_or_replace_CFLAGS = \
-        $(AM_CPPFLAGS)
-test_insert_or_replace_VALAFLAGS = \
-        $(AM_VALAFLAGS)
-test_insert_or_replace_LDADD = \
-        $(LDADD)
 
 test_busy_handling_SOURCES = \
 	test-busy-handling.vala
-test_busy_handling_CFLAGS = \
-	$(AM_CPPFLAGS)
-test_busy_handling_VALAFLAGS = \
-	$(AM_VALAFLAGS)
-test_busy_handling_LDADD = \
-	$(LDADD)
 
 test_direct_query_SOURCES = \
 	test-shared-query.vala \
@@ -72,31 +60,10 @@ test_bus_update_SOURCES = \
 
 test_class_signal_SOURCES = \
 	test-class-signal.vala
-test_class_signal_CFLAGS = \
-	$(AM_CPPFLAGS)
-
-test_class_signal_VALAFLAGS = \
-	$(AM_VALAFLAGS)
-test_class_signal_LDADD = \
-	$(LDADD)
 
 test_class_signal_performance_SOURCES = \
 	test-class-signal-performance.vala
-test_class_signal_performance_CFLAGS = \
-	$(AM_CPPFLAGS)
-
-test_class_signal_performance_VALAFLAGS = \
-	$(AM_VALAFLAGS)
-test_class_signal_performance_LDADD = \
-	$(LDADD)
 
 test_class_signal_performance_batch_SOURCES = \
 	test-class-signal-performance-batch.vala
-test_class_signal_performance_batch_CFLAGS = \
-	$(AM_CPPFLAGS)
-
-test_class_signal_performance_batch_VALAFLAGS = \
-	$(AM_VALAFLAGS)
-test_class_signal_performance_batch_LDADD = \
-	$(LDADD)
 

@@ -12,7 +12,7 @@ libtracker_sparql_la_VALAFLAGS =                       \
 	$(BUILD_VALAFLAGS)
 
 AM_CPPFLAGS =                                          \
-	$(BUILD_CFLAGS)                                \
+	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	$(LIBTRACKER_SPARQL_CFLAGS)

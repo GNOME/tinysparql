@@ -29,7 +29,7 @@ TEST_PROGS +=                                          \
 	tracker-indexing-tree-test
 
 AM_CPPFLAGS = \
-	$(BUILD_CFLAGS) \
+	$(BUILD_VALACFLAGS) \
 	-DTEST \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\" \
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\" \
