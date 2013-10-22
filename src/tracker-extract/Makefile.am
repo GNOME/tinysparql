@@ -506,8 +506,9 @@ libextract_libav_la_LIBADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
-        $(AVFORMAT_LIBS) \
-        $(AVUTIL_LIBS)
+	$(AVFORMAT_LIBS) \
+	$(AVUTIL_LIBS) \
+	$(AVCODEC_LIBS)
 
 
 #

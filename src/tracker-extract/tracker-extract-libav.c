@@ -123,7 +123,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	AVFormatContext *format = NULL;
 	AVStream *audio_stream = NULL;
 	AVStream *video_stream = NULL;
-	int streamIndex;
+	AVCodec *audio_codec = NULL;
+	AVCodec *video_codec = NULL;
+	int audio_stream_index;
+	int video_stream_index;
 	AVDictionaryEntry *tag = NULL;
 	const char *title = NULL;
 
@@ -143,19 +146,58 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 	g_free (absoluteFilePath);
 
-	streamIndex = av_find_best_stream (format, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
-	if (streamIndex >= 0) {
-		audio_stream = format->streams[streamIndex];
+	audio_stream_index = av_find_best_stream (format, AVMEDIA_TYPE_AUDIO, -1, -1, &audio_codec, 0);
+	if (audio_stream_index >= 0) {
+		audio_stream = format->streams[audio_stream_index];
 	}
 
-	streamIndex = av_find_best_stream (format, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-	if (streamIndex >= 0) {
-		video_stream = format->streams[streamIndex];
+	video_stream_index = av_find_best_stream (format, AVMEDIA_TYPE_VIDEO, -1, -1, &video_codec, 0);
+	if (video_stream_index >= 0) {
+		video_stream = format->streams[video_stream_index];
 	}
 
 	if (!audio_stream && !video_stream) {
 		avformat_free_context(format);
 		return FALSE;
+	}
+
+	if (audio_stream) {
+		if (audio_stream->codec->sample_rate > 0) {
+			set_value_int64 (metadata, "nfo:sampleRate", audio_stream->codec->sample_rate);
+		} else if (avcodec_open2(audio_stream->codec, audio_codec, 0) >= 0) {
+			AVFrame *frame;
+			AVPacket packet;
+			av_init_packet(&packet);
+
+			frame = avcodec_alloc_frame();
+
+			for (;;) {
+				int decoded = 0;
+				if (av_read_frame (format, &packet) < 0) {
+					break;
+				} else if (packet.stream_index != audio_stream_index) {
+				} else if (!avcodec_decode_audio4(
+					audio_stream->codec, frame, &decoded, &packet) < 0) {
+					av_free_packet(&packet);
+					break;
+				} else if (audio_stream->codec->sample_rate > 0) {
+					set_value_int64 (metadata, "nfo:sampleRate",
+							 audio_stream->codec->sample_rate);
+					break;
+				}
+				av_free_packet(&packet);
+
+				if (decoded) {
+					break;
+				}
+			}
+			av_free(frame);
+
+			avcodec_close(audio_stream->codec);
+		}
+		if (audio_stream->codec->channels > 0) {
+			set_value_int64 (metadata, "nfo:channels", audio_stream->codec->channels);
+		}
 	}
 
 	if (video_stream) {
@@ -165,6 +207,37 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		if (video_stream->codec->width > 0 && video_stream->codec->height > 0) {
 			set_value_int64 (metadata, "nfo:width", video_stream->codec->width);
 			set_value_int64 (metadata, "nfo:height", video_stream->codec->height);
+		} else if (avcodec_open2(video_stream->codec, video_codec, 0) >= 0) {
+			AVFrame *frame;
+			AVPacket packet;
+			av_init_packet(&packet);
+
+			frame = avcodec_alloc_frame();
+
+			av_seek_frame(format, video_stream_index, -1, 0);
+			for (;;) {
+				int decoded = 0;
+				if (av_read_frame(format, &packet) < 0) {
+					break;
+				} else if (packet.stream_index != video_stream_index) {
+				} else if (!avcodec_decode_video2(
+					video_stream->codec, frame, &decoded, &packet) < 0) {
+					av_free_packet(&packet);
+					break;
+				} else if (video_stream->codec->width > 0 && video_stream->codec->height > 0) {
+					set_value_int64 (metadata, "nfo:width", video_stream->codec->width);
+					set_value_int64 (metadata, "nfo:height", video_stream->codec->height);
+					break;
+				}
+				av_free_packet(&packet);
+
+				if (decoded) {
+					break;
+				}
+			}
+			av_free(frame);
+
+			avcodec_close(video_stream->codec);
 		}
 
 		if (video_stream->avg_frame_rate.num > 0) {
@@ -311,15 +384,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 					   album_artist,
 					   album_title,
 					   uri);
-	}
-
-	if (audio_stream) {
-		if (audio_stream->codec->sample_rate > 0) {
-			set_value_int64 (metadata, "nfo:sampleRate", audio_stream->codec->sample_rate);
-		}
-		if (audio_stream->codec->channels > 0) {
-			set_value_int64 (metadata, "nfo:channels", audio_stream->codec->channels);
-		}
 	}
 
 	if (format->bit_rate > 0) {
