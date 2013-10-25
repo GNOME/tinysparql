@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-10 08:50+0000\n"
-"PO-Revision-Date: 2013-09-10 14:25+0200\n"
+"POT-Creation-Date: 2013-10-18 20:30+0000\n"
+"PO-Revision-Date: 2013-10-25 16:36+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -1363,7 +1363,6 @@ msgid "Remove selected tag"
 msgstr "Quitar etiqueta seleccionada"
 
 #: ../src/tracker-needle/tracker-needle.vala:69
-#, c-format
 msgid "Search criteria was too generic"
 msgstr "El criterio de búsqueda es muy genérico"
 
@@ -1509,6 +1508,8 @@ msgstr "No se pudo añadir la etiqueta"
 msgid "Could not update tags for file"
 msgstr "No se pudieron actualizar las etiquetas de los archivos"
 
+#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+#. if it's more than a week, use the default date format
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
 #: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
@@ -1606,21 +1607,22 @@ msgid "Items"
 msgstr "Elementos"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, c-format
-#| msgid "Loading..."
 msgid "Loading…"
 msgstr "Cargando…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Páginas"
+#, c-format
+#| msgid "Pages"
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d página"
+msgstr[1] "%d páginas"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "Mo_strar la carpeta padre"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-#| msgid "Tags"
 msgid "_Tags…"
 msgstr "_Etiquetas…"
 
@@ -2055,9 +2057,6 @@ msgstr ""
 "volúmenes sin montar)"
 
 #: ../src/tracker-utils/tracker-search.c:100
-#| msgid ""
-#| "Disable showing snippets with results. This is only shown for some "
-#| "categories, e.g. Documents, Music..."
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
