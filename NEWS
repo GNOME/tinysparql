@@ -1,3 +1,73 @@
+NEW in 0.16.3 - 2013-11-01
+==========================
+
+The changes are:
+
+  * Require: libgsf version to 1.14.24 needed for gsf_doc_meta_data_read_from_msole()
+  * Build: use $(MKDIR_P) instead of $(mkdir_p)
+  * Build: use pkg-config to search for ICU and honour LIBICU flags for libtracker-extract
+  * Build: improve warnings generated from Vala generated C files
+  * Build: avoid warnings about use of old INCLUDES in Makefile.am
+  * Build: remove no longer needed glib version dependent code paths
+  * Fixes: GB#703097, Fix typos in tracker-search man page
+  * Fixes: GB#706003, should not carry a copy of gio-2.0.vapi
+  * Fixes: GB#709703, rules files not noarch
+  * Fixes: GB#699412, libtracker-fts/parser/nwords_6 test fails
+  * Fixes: GB#707499, plural form in string "Pages"
+  * Fixes: GB#707150, No error given
+  * Fixes: GB#707151, context for strings
+  * Fixes: GB#707498, ellipsis instead of three dots
+  * Part-Fixes: GB#676209, Collation breaks in C locale
+  * libtracker-common: use procfs psinfo instead of cmdline on Solaris
+  * libtracker-common: support both UPower 1.0 and pre-1.0 APIs
+  * libtracker-common: fix tests expecting stdout/stderr messages
+  * libtracker-common, tracker-miner-fs: Make sure we load config files properly when using TRACKER_USE_CONFIG_FILES
+  * libtracker-bus: allow cancellation when iterating TrackerCursor
+  * libtracker-miner, libtracker-sparql: Fixed missing setlocale() in unit tests
+  * libtracker-miner: Check segment array bounds in peek function for tracker-priority-queue, fixes crash
+  * libtracker-fts: Always do full unicode testing,
+                    e.g. NDF strings and full-word casefolding,
+                    GLib didn't support this before but we no longer support GLib.
+  * tracker-preferences: Remove markup from UI files
+  * tracker-extract-pdf: remove usage of non async-signal safe functions from signal handler, fixes crash on Solaris
+  * man-pages: Added information about TRACKER_SPARQL_BACKEND and TRACKER_PRAGMAS_FILE
+  * functional-tests: No longer need to install DConf profile in /etc
+  * utils/sandbox: Hugely improved version from Sam's original and now written in Python
+                   Allows prefixes for binaries, separate data stores and separately
+                   configured locations for content indexing
+
+Translations:
+
+  * Updated ca: Gil Forcada
+  * Updated ca@valencia: Carles Ferrando
+  * Updated cs: Marek Černocký
+  * Updated da: Kenneth Nielsen
+  * Updated de: Wolfgang Stöggl
+  * Updated eo: Kristjan SCHMIDT
+  * Updated es: Daniel Mustieles
+  * Updated fi: Ville-Pekka Vainio
+  * Updated fr: Frédéric Péters
+  * Updated gl: Fran Diéguez
+  * Updated he: Yaron Shahrabani
+  * Updated hu: Gabor Kelemen
+  * Updated id: Andika Triwidada
+  * Updated it: Milo Casagrande
+  * Updated ja: Jiro Matsuzawa
+  * Updated ko: Seong-ho Cho
+  * Updated lt: Aurimas Černius
+  * Updated lv: Rūdolfs Mazurs
+  * Updated ml: Anish A
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Enrico Nicoletto, Rafael Ferreira
+  * Updated ru: Yuri Myasoedov
+  * Updated sk: Dušan Kazik
+  * Updated sl: Matej Urbančič
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
 NEW in 0.16.2 - 2013-07-31
 ==========================
 
