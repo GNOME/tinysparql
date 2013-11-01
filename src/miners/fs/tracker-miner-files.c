@@ -327,9 +327,6 @@ miner_files_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	/* Setup mount points */
-	init_mount_points (mf);
-
 	/* We must have a configuration setup here */
 	if (G_UNLIKELY (!mf->private->config)) {
 		g_set_error (error,
@@ -340,14 +337,26 @@ miner_files_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
+	/* Setup mount points, we MUST have config set up before we
+	 * init mount points because the config is used in that
+	 * function.
+	 */
+	mf->private->index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
+
+	/* Note that if removable devices not indexed, optical discs
+	 * will also never be indexed */
+	mf->private->index_optical_discs = (mf->private->index_removable_devices ?
+	                                    tracker_config_get_index_optical_discs (mf->private->config) :
+	                                    FALSE);
+
+	init_mount_points (mf);
+
 	/* If this happened AFTER we have initialized mount points, initialize
 	 * stale volume removal now. */
 	if (mf->private->mount_points_initialized) {
 		init_stale_volume_removal (mf);
 	}
 
-	/* Setup initial flag for removable devices */
-	mf->private->index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
 	if (mf->private->index_removable_devices) {
 		/* Get list of roots for removable devices (excluding optical) */
 		mounts = tracker_storage_get_device_roots (mf->private->storage,
@@ -355,11 +364,6 @@ miner_files_initable_init (GInitable     *initable,
 		                                           TRUE);
 	}
 
-	/* Setup initial flag for optical discs. Note that if removable devices not indexed,
-	 * optical discs will also never be indexed */
-	mf->private->index_optical_discs = (mf->private->index_removable_devices ?
-	                                    tracker_config_get_index_optical_discs (mf->private->config) :
-	                                    FALSE);
 	if (mf->private->index_optical_discs) {
 		/* Get list of roots for removable+optical devices */
 		m = tracker_storage_get_device_roots (mf->private->storage,
