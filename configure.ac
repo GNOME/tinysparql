@@ -133,7 +133,7 @@ AC_CHECK_DECLS(posix_fadvise, [], [], [
 
 # Checks for functions
 AC_CHECK_FUNCS([posix_fadvise])
-AC_CHECK_FUNCS([getline])
+AC_CHECK_FUNCS([getline strnlen])
 
 CFLAGS="$CFLAGS"
 

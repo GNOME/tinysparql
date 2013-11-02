@@ -50,6 +50,10 @@ gchar *  tracker_create_permission_string  (struct stat   finfo);
 /* Memory limits */
 gboolean tracker_memory_setrlimits (void);
 
+/* Compatibility functions */
+#ifndef HAVE_STRNLEN
+size_t strnlen (const char *str, size_t max);
+#endif
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_OS_DEPENDANT_H__ */
