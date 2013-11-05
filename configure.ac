@@ -795,7 +795,7 @@ AS_IF([test "x$enable_upower" != "xno"], [
    TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $UPOWER_LIBS"
    save_LIBS=$LIBS
    LIBS=$UPOWER_LIBS
-   AC_CHECK_FUNC(up_client_get_warning_level)
+   AC_CHECK_FUNCS(up_client_get_on_low_battery)
    LIBS=$save_LIBS
 
    if test "x$have_upower" = "xyes"; then
