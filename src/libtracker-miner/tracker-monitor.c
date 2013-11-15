@@ -420,7 +420,13 @@ get_kqueue_limit (void)
 
 #ifdef TRACKER_MONITOR_KQUEUE
 	struct rlimit rl;
-	if (getrlimit (RLIMIT_NOFILE, &rl) == 0)
+	if (getrlimit (RLIMIT_NOFILE, &rl) == 0) {
+		rl.rlim_cur = rl.rlim_max;
+	} else {
+		return limit;
+	}
+
+	if (setrlimit(RLIMIT_NOFILE, &rl) == 0)
 		limit = (rl.rlim_cur * 90) / 100;
 #endif /* TRACKER_MONITOR_KQUEUE */
 
