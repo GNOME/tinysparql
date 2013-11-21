@@ -700,8 +700,6 @@ tracker_config_file_import_to_settings (TrackerConfigFile           *file,
 {
 	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
 
-	g_message ("Importing config file to GSettings");
-
 	if (file->key_file && file->file_exists) {
 #ifdef CONFIG_ENABLE_TRACE
 		g_message ("  Migrating settings from config file to GSettings");
