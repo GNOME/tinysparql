@@ -1,3 +1,10 @@
+NEW in 0.16.4 - 2013-11-22
+==========================
+
+* Fix build with newer upower
+* Silence normal bootup
+* Translation updates
+
 NEW in 0.16.3 - 2013-11-01
 ==========================
 
