@@ -2,7 +2,7 @@
 _Name=Tracker Store
 _Comment=Metadata database store and lookup manager
 Icon=
-Exec=@libexecdir@/tracker-store
+Exec=gdbus call -e -d org.freedesktop.DBus -o /org/freedesktop/DBus -m org.freedesktop.DBus.StartServiceByName org.freedesktop.Tracker1
 Terminal=false
 Type=Application
 Categories=Utility;
