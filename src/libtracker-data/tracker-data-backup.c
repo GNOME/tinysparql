@@ -147,7 +147,11 @@ read_line_of_tar_output (GIOChannel  *channel,
                          GIOCondition condition,
                          gpointer     user_data)
 {
+
 	if (condition & G_IO_ERR || condition & G_IO_HUP) {
+		ProcessContext *context = user_data;
+
+		context->stdout_watch_id = 0;
 		return FALSE;
 	}
 
@@ -186,11 +190,13 @@ read_error_of_tar_output (GIOChannel  *channel,
 
 		if (status == G_IO_STATUS_EOF ||
 		    status == G_IO_STATUS_ERROR) {
+			context->stderr_watch_id = 0;
 			return FALSE;
 		}
 	}
 
 	if (condition & G_IO_ERR || condition & G_IO_HUP) {
+		context->stderr_watch_id = 0;
 		return FALSE;
 	}
 
@@ -492,6 +498,7 @@ tracker_data_backup_save (GFile *destination,
 	context->data = info;
 	context->pid = pid;
 	context->stdin_channel = stdin_channel;
+	context->stdout_channel = stdout_channel;
 	context->stderr_channel = stderr_channel;
 	context->stdout_watch_id = g_io_add_watch (stdout_channel,
 	                                           G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP,
