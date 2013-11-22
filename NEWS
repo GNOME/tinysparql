@@ -1,3 +1,37 @@
+NEW in 0.17.0 - 2013-11-22
+==========================
+
+The main changes since 0.16.x are:
+
+  * tracker-tag: Fixed GLib-WARNING **: goption.c:2193: ignoring no-arg...
+  * tracker-tag: Fix --list (-t) to use logical OR, not AND
+  * sparql: Fix AS ?foo handling in FTS queries
+  * portability: Avoid some GNUisms and #ifdef linux specific API
+  * portability: OpenBSD improvements
+  * portability: Solaris improvements
+  * portability: kqueue fixes
+  * build: Stopped using deprecated glib functions
+  * build: Use UPower >=0.99 if available
+  * build: Improve warnings generated from Vala generated C files
+  * build: Add compile time options to enable/disable multiple extractors
+  * build: GIO vapi was updated
+  * build: Updated GSF dependency to >=1.14.24
+  * extractors: EPUB extractor has been improved, content is now more complete.
+  * extractors: Added ICU-based encoding detection
+  * extractors: improved media metadata in mp3 and gstreamer extractors.
+  * extractors: detect GNOME screenshots and these to a category
+  * utils: Added tracker-sandbox
+  * documentation: Improved utils manpages and document some envvars
+  * miner-fs: Improvements in indexing of removable media
+  * libtracker-sparql-backend: Fix connection singleton mutex issue
+  * sparql: stop using deprecated sqlite count_changes PRAGMA
+  * libtracker-bus: allow cancellation when iterating cursor
+  * libtracker-direct: don't allow connection if current and db locale mismatch
+
+Translations:
+
+  Many, thank you to everyone involved.
+
 NEW in 0.16.0 - 2013-03-18
 ==========================
 
