@@ -58,9 +58,11 @@ test_string_to_date (void)
 	result = g_date_new ();
 	g_date_set_time_t (result, result_time_t);
 
-	g_setenv ("TZ", timezone, TRUE);
 	if (timezone) {
+		g_setenv ("TZ", timezone, TRUE);
 		g_free (timezone);
+	} else {
+		g_unsetenv ("TZ");
 	}
 
 	g_assert_cmpint (g_date_get_year (expected), ==, g_date_get_year (result));
