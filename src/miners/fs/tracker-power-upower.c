@@ -45,7 +45,7 @@ static void     tracker_power_get_property      (GObject         *object,
 #ifdef HAVE_UP_CLIENT_GET_ON_LOW_BATTERY
 static void     tracker_power_client_changed_cb (UpClient        *client,
                                                  TrackerPower    *power);
-#endif
+#endif /* HAVE_UP_CLIENT_GET_ON_LOW_BATTERY */
 
 enum {
 	PROP_0,
@@ -112,7 +112,7 @@ on_warning_level_changed (UpDevice *device, GParamSpec *pspec, TrackerPower *pow
 		g_object_notify (G_OBJECT (power), "on-low-battery");
 	}
 }
-#endif
+#endif /* !HAVE_UP_CLIENT_GET_ON_LOW_BATTERY */
 
 static void
 tracker_power_init (TrackerPower *power)
@@ -137,7 +137,7 @@ tracker_power_init (TrackerPower *power)
 	g_signal_connect (priv->composite_device, "notify::warning-level",
 			  G_CALLBACK (on_warning_level_changed), power);
 	on_warning_level_changed (priv->composite_device, NULL, power);
-#endif
+#endif /* HAVE_UP_CLIENT_GET_ON_LOW_BATTERY */
 }
 
 static void
@@ -202,7 +202,7 @@ tracker_power_client_changed_cb (UpClient *client, TrackerPower *power)
 		g_object_notify (G_OBJECT (power), "on-low-battery");
 	}
 }
-#endif
+#endif /* HAVE_UP_CLIENT_GET_ON_LOW_BATTERY */
 
 /**
  * tracker_power_new:
