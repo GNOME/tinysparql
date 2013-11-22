@@ -164,7 +164,7 @@ test_date_time_from_string ()
         g_assert_cmpint (tracker_date_time_get_offset (&value), ==, -10800);
 
         /* No offset */
-        tracker_date_time_set_from_string (&value, "2011-10-28T17:43:00", &error);
+        tracker_date_time_set_from_string (&value, "2011-10-28T17:43:00Z", &error);
         g_assert (!error);
         g_assert_cmpint (tracker_date_time_get_time (&value), ==, 1319823780);
         g_assert_cmpint (tracker_date_time_get_offset (&value), ==, 0);
