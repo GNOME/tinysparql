@@ -56,6 +56,7 @@ License which can be viewed at:
 	static void sanity_check_option_values (Tracker.Config config) {
 		message ("General options:");
 		message ("  Verbosity  ............................  %d", config.verbosity);
+		message ("  graphupdated-delay ....................  %d", config.graphupdated_delay);
 
 		message ("Store options:");
 		message ("  Readonly mode  ........................  %s", readonly_mode ? "yes" : "no");
@@ -205,7 +206,7 @@ License which can be viewed at:
 
 		sanity_check_option_values (config);
 
-		if (!Tracker.DBus.init ()) {
+		if (!Tracker.DBus.init (config)) {
 			return 1;
 		}
 
