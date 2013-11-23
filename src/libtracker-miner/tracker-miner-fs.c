@@ -546,6 +546,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->timer = g_timer_new ();
 	priv->extraction_timer = g_timer_new ();
 
+	g_timer_stop (priv->timer);
+	g_timer_stop (priv->extraction_timer);
+
 	priv->timer_stopped = TRUE;
 	priv->extraction_timer_stopped = TRUE;
 
