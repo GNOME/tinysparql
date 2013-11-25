@@ -124,6 +124,7 @@ class Helper:
     def _timeout_on_idle_cb (self):
         log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
         self.loop.quit ()
+        self.timeout_id = None
         return False
 
 
@@ -157,6 +158,8 @@ class Helper:
             glib.idle_add (self._stop_process)
             self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
             self.loop.run ()
+            if self.timeout_id is not None:
+                glib.source_remove(self.timeout_id)
 
         log ("[%s] stop." % self.PROCESS_NAME)
         # Disconnect the signals of the next start we get duplicated messages
@@ -342,7 +345,8 @@ class MinerFsHelper (Helper):
         # It should step out of this loop after progress changes to "Idle"
         self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
         self.loop.run ()
-        glib.source_remove (self.timeout_id)
+        if self.timeout_id is not None:
+            glib.source_remove (self.timeout_id)
 
         bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
                                           cfg.MINERFS_OBJ_PATH)
@@ -370,7 +374,8 @@ class MinerFsHelper (Helper):
 
         self.loop.run ()
 
-        glib.source_remove (self.timeout_id)
+        if self.timeout_id is not None:
+            glib.source_remove (self.timeout_id)
         self.bus._clean_up_signal_match (self.status_match)
 
 

@@ -349,12 +349,13 @@ test_common_context_expect_results (TestCommonContext   *fixture,
 			id = g_timeout_add_seconds (max_timeout,
 						    (GSourceFunc) timeout_expired_cb,
 						    fixture);
+			fixture->expire_timeout_id = id;
 		}
 
 		g_main_loop_run (fixture->main_loop);
 
-		if (max_timeout != 0) {
-			g_source_remove (id);
+		if (max_timeout != 0 && fixture->expire_timeout_id != 0) {
+			g_source_remove (fixture->expire_timeout_id);
 		}
 	}
 
