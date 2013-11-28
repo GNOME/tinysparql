@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-28 16:15+0200\n"
-"PO-Revision-Date: 2013-09-28 16:17+0200\n"
+"POT-Creation-Date: 2013-11-29 00:02+0100\n"
+"PO-Revision-Date: 2013-11-29 00:02+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -655,19 +655,25 @@ msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:479
+#: ../src/tracker-utils/tracker-sparql.c:487
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:899
+#: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
+#: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-control/tracker-control-general.c:136
+#: ../src/tracker-control/tracker-control-general.c:698
+#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:765
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:480
+#: ../src/tracker-utils/tracker-sparql.c:488
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:900
+#: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
 msgstr "Non se obtivo ningún erro"
 
@@ -694,11 +700,6 @@ msgstr "Procesando…"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:159
-msgid "No error was given"
-msgstr "Non se forneceu ningún erro"
-
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
@@ -711,7 +712,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:920
+#: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
@@ -817,13 +818,6 @@ msgstr "Restaurar bases de datos desde o ficheiro fornecido"
 #: ../src/tracker-control/tracker-control-general.c:135
 msgid "Could not open /proc"
 msgstr "Non se puido abrir /proc"
-
-#: ../src/tracker-control/tracker-control-general.c:136
-#: ../src/tracker-control/tracker-control-general.c:698
-#: ../src/tracker-control/tracker-control-general.c:744
-#: ../src/tracker-control/tracker-control-general.c:765
-msgid "no error given"
-msgstr "non se obtivo ningún erro"
 
 #: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
@@ -1058,7 +1052,7 @@ msgstr "Non foi posíbel resumir o mineiro: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:759
+#: ../src/tracker-utils/tracker-sparql.c:767
 msgid "Done"
 msgstr "Feito"
 
@@ -1493,7 +1487,7 @@ msgid "Could not update tags"
 msgstr "Non foi posíbel actualizar as etiquetas"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:764
+#: ../src/tracker-utils/tracker-tag.c:773
 msgid "Could not remove tag"
 msgstr "Non foi posíbel quitar a etiqueta"
 
@@ -1502,7 +1496,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Non foi posíbel obter as etiquetas para a selección actual"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:588
+#: ../src/tracker-utils/tracker-tag.c:597
 msgid "Could not add tag"
 msgstr "Non foi posíbel engadir a etiqueta"
 
@@ -1608,19 +1602,22 @@ msgstr "Elementos"
 
 #: ../src/tracker-needle/tracker-view.vala:369
 #, c-format
-msgid "Loading..."
+msgid "Loading…"
 msgstr "Cargando…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Páxinas"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d páxina"
+msgstr[1] "%d páxina2"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "Mo_strar o cartafol pai"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-msgid "_Tags..."
+msgid "_Tags…"
 msgstr "_Etiquetas…"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
@@ -1739,8 +1736,8 @@ msgstr ""
 "que se montaron:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Recolección de lixo</b>"
+msgid "Garbage Collection"
+msgstr "Recolección de lixo"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1809,8 +1806,8 @@ msgid "Remove directory from being indexed"
 msgstr "Quitar cartafol do indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>Onde está o seu contido?</b>"
+msgid "Where is your content?"
+msgstr "Onde está o seu contido?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1877,8 +1874,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Si, eliminar todos os meus datos indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Reiniciar datos indexados</b>"
+msgid "Reset Indexed Data"
+msgstr "Reiniciar datos indexados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1902,38 +1899,35 @@ msgstr "Sistema"
 msgid "Directory"
 msgstr "Cartafol"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:329
-#: ../src/tracker-preferences/tracker-preferences.vala:338
+#. To translators: This is a feature that is
+#. * disabled for disk space checking.
+#.
+#. To translators: This is a feature that is
+#. * disabled for removing a device from a
+#. * database cache.
+#.
+#: ../src/tracker-preferences/tracker-preferences.vala:332
+#: ../src/tracker-preferences/tracker-preferences.vala:345
 msgid "Disabled"
 msgstr "Desactivado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:332
-#, c-format
-msgid "%d%%"
-msgstr "%d%%"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:341
-#, c-format
-msgid "%d"
-msgstr "%d"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:508
+#: ../src/tracker-preferences/tracker-preferences.vala:515
 msgid "Enter value"
 msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:537
+#: ../src/tracker-preferences/tracker-preferences.vala:544
 msgid "Select directory"
 msgstr "Seleccionar cartafol"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:558
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "That directory is already selected as a location to index"
 msgstr "O cartafol xa está seleccionado como unha localización que indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:820
+#: ../src/tracker-preferences/tracker-preferences.vala:827
 msgid "Recurse"
 msgstr "Recurso"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:926
+#: ../src/tracker-preferences/tracker-preferences.vala:933
 msgid "Desktop Search preferences"
 msgstr "Preferencias de buscas do Escritorio"
 
@@ -2021,8 +2015,8 @@ msgstr "Non existen metadatos dispoñíbeis para ese URI"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Resultados"
@@ -2032,20 +2026,10 @@ msgstr "Resultados"
 msgid "Limit the number of results shown"
 msgstr "Limitar o número de resultados mostrados"
 
-#: ../src/tracker-utils/tracker-search.c:81
-#: ../src/tracker-utils/tracker-tag.c:56
-msgid "512"
-msgstr "512"
-
 #: ../src/tracker-utils/tracker-search.c:84
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Desprazar os resultados"
-
-#: ../src/tracker-utils/tracker-search.c:85
-#: ../src/tracker-utils/tracker-tag.c:60
-msgid "0"
-msgstr "0"
 
 #: ../src/tracker-utils/tracker-search.c:88
 #: ../src/tracker-utils/tracker-tag.c:63
@@ -2069,7 +2053,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:100
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music..."
+"categories, e.g. Documents, Music…"
 msgstr ""
 "Desactivar os snippets mostrados con resultados. Isto só se mostra para "
 "algunhas categorías, p.ex. Documentos, Música…"
@@ -2365,137 +2349,160 @@ msgstr "Non foi posíbel obter os prefixos de espazos de nomes"
 msgid "No namespace prefixes were found"
 msgstr "Non foi posíbel atopar ningún prefixo de espazo de nomes"
 
-#: ../src/tracker-utils/tracker-sparql.c:371
-#: ../src/tracker-utils/tracker-sparql.c:415
-#: ../src/tracker-utils/tracker-stats.c:117
-#: ../src/tracker-utils/tracker-tag.c:326
-#: ../src/tracker-utils/tracker-tag.c:455
-#: ../src/tracker-utils/tracker-tag.c:827
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker-utils/tracker-sparql.c:375
+#: ../src/tracker-utils/tracker-sparql.c:423
+#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-tag.c:328
+#: ../src/tracker-utils/tracker-tag.c:464
+#: ../src/tracker-utils/tracker-tag.c:843
 msgid "None"
 msgstr "Ningún"
 
-#: ../src/tracker-utils/tracker-sparql.c:439
+#: ../src/tracker-utils/tracker-sparql.c:447
 msgid "- Query or update using SPARQL"
 msgstr "- Consulta ou actualiación usando SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:453
+#: ../src/tracker-utils/tracker-sparql.c:461
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Débese fornecer un argumento"
 
-#: ../src/tracker-utils/tracker-sparql.c:455
+#: ../src/tracker-utils/tracker-sparql.c:463
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Non foi posíbel usar conxuntamente o ficheiro e a consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:493
+#: ../src/tracker-utils/tracker-sparql.c:501
 msgid "Could not list classes"
 msgstr "Non foi posíbel listar as chaves"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:509
 msgid "No classes were found"
 msgstr "Non foi posíbel atopar ningunha clase"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:509
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "Classes"
 msgstr "Clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:517
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not list class prefixes"
 msgstr "Non foi posíbel listar os prefixos de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "No class prefixes were found"
 msgstr "Non se atopou ningún prefixo de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: ../src/tracker-utils/tracker-sparql.c:545
+#: ../src/tracker-utils/tracker-sparql.c:553
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Non foi posíbel atopar a propiedade para a clase do prefixo, ex. #Recurso en "
 "«rdfs:Recurso»"
 
-#: ../src/tracker-utils/tracker-sparql.c:584
+#: ../src/tracker-utils/tracker-sparql.c:592
 msgid "Could not list properties"
 msgstr "Non foi posíbel listar as propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:600
 msgid "No properties were found"
 msgstr "Non foi posíbel ningunha propiedade"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:600
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "Properties"
 msgstr "Propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:620
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "Could not find notify classes"
 msgstr "Non foi posíbel atopar as clases de notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "No notifies were found"
 msgstr "Non foi posíbel atopar ningunha notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "Notifies"
 msgstr "Notifica"
 
-#: ../src/tracker-utils/tracker-sparql.c:654
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "Could not find indexed properties"
 msgstr "Non foi posíbel atopar as propiedades dos índices"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "No indexes were found"
 msgstr "Non se atopou ningún índice"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "Indexes"
 msgstr "Índices"
 
-#: ../src/tracker-utils/tracker-sparql.c:680
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "Could not search classes"
 msgstr "Non é posíbel buscar chaves"
 
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "No classes were found to match search term"
 msgstr "Non se atopou ningunha chave que coincidira co termo de busca"
 
-#: ../src/tracker-utils/tracker-sparql.c:703
+#: ../src/tracker-utils/tracker-sparql.c:711
 msgid "Could not search properties"
 msgstr "Non se puideron buscar propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "No properties were found to match search term"
 msgstr ""
 "Non foi posíbel atopar ningunha propiedade que coincidira co termo de busca"
 
-#: ../src/tracker-utils/tracker-sparql.c:721
+#: ../src/tracker-utils/tracker-sparql.c:729
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Non se puido obter o camiño UTF-8 do camiño"
 
-#: ../src/tracker-utils/tracker-sparql.c:733
+#: ../src/tracker-utils/tracker-sparql.c:741
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Non se puido ler o ficheiro"
 
-#: ../src/tracker-utils/tracker-sparql.c:752
+#: ../src/tracker-utils/tracker-sparql.c:760
 msgid "Could not run update"
 msgstr "Non foi posíbel execuctar a actualización"
 
-#: ../src/tracker-utils/tracker-sparql.c:800
+#: ../src/tracker-utils/tracker-sparql.c:808
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Non foi posíbel executar a consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 msgid "No results found matching your query"
 msgstr "Non se encontraron resultados coincidentes coa súa consulta"
 
@@ -2573,84 +2580,84 @@ msgstr "Non foi posíbel obter os URN do ficheiro"
 msgid "Could not get files related to tag"
 msgstr "Non foi posíbel obter ficheiros relacionados coa etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:399
-#: ../src/tracker-utils/tracker-tag.c:808
+#: ../src/tracker-utils/tracker-tag.c:401
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get all tags"
 msgstr "Non foi posíbel obter todas as etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:408
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:410
+#: ../src/tracker-utils/tracker-tag.c:826
 msgid "No tags were found"
 msgstr "Non se atopou ningunha etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:412
+#: ../src/tracker-utils/tracker-tag.c:414
 msgid "Tags (shown by name)"
 msgstr "Etiquetas (mostradas por nome)"
 
-#: ../src/tracker-utils/tracker-tag.c:479
+#: ../src/tracker-utils/tracker-tag.c:488
 msgid "No files were modified"
 msgstr "Non se modificou ningún ficheiro"
 
-#: ../src/tracker-utils/tracker-tag.c:604
+#: ../src/tracker-utils/tracker-tag.c:613
 msgid "Tag was added successfully"
 msgstr "Etiqueta engadida correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:633
+#: ../src/tracker-utils/tracker-tag.c:642
 msgid "Could not add tag to files"
 msgstr "Non foi posíbel engadir as etiquetas aos ficheiros"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:652
 msgid "Tagged"
 msgstr "Etiquetado"
 
-#: ../src/tracker-utils/tracker-tag.c:644
+#: ../src/tracker-utils/tracker-tag.c:653
 msgid "Not tagged, file is not indexed"
 msgstr "Sen etiquetar, o ficheiro non está indexado"
 
-#: ../src/tracker-utils/tracker-tag.c:690
+#: ../src/tracker-utils/tracker-tag.c:699
 msgid "Could not get tag by label"
 msgstr "Non foi posíbel obter a etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:701
+#: ../src/tracker-utils/tracker-tag.c:710
 msgid "No tags were found by that name"
 msgstr "Non foi posíbel atopar ningunha etiqueta con ese nome"
 
-#: ../src/tracker-utils/tracker-tag.c:718
+#: ../src/tracker-utils/tracker-tag.c:727
 msgid "None of the files had this tag set"
 msgstr "Ningún dos ficheiros ten este conxunto de etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:771
+#: ../src/tracker-utils/tracker-tag.c:780
 msgid "Tag was removed successfully"
 msgstr "Etiqueta quitada correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:775
+#: ../src/tracker-utils/tracker-tag.c:784
 msgid "Untagged"
 msgstr "Sen etiquetar"
 
-#: ../src/tracker-utils/tracker-tag.c:776
+#: ../src/tracker-utils/tracker-tag.c:785
 msgid "File not indexed or already untagged"
 msgstr "O ficheiro non está indexado ou xa se desetiquetou"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:855
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "Add, remove or list tags"
 msgstr "Engadir, quitar ou listar etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:887
 msgid "The --list option is required for --show-files"
 msgstr "Requírese a opción «--list» para «--show-files»"
 
-#: ../src/tracker-utils/tracker-tag.c:873
+#: ../src/tracker-utils/tracker-tag.c:889
 msgid "Add and delete actions can not be used together"
 msgstr "Engadir ou borrar accións que non se poden usar conxuntamente"
 
-#: ../src/tracker-utils/tracker-tag.c:875
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "No arguments were provided"
 msgstr "Non se proporcionou ningún argumento"
 
-#: ../src/tracker-utils/tracker-tag.c:877
+#: ../src/tracker-utils/tracker-tag.c:893
 msgid "The --description option can only be used with --add"
 msgstr "A opción «--description» só se pode usar con «--add»"
 
@@ -2676,6 +2683,27 @@ msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Conxunto de resultados baleiro"
+
+#~ msgid "No error was given"
+#~ msgstr "Non se forneceu ningún erro"
+
+#~ msgid "no error given"
+#~ msgstr "non se obtivo ningún erro"
+
+#~ msgid "_Tags..."
+#~ msgstr "_Etiquetas…"
+
+#~ msgid "%d%%"
+#~ msgstr "%d%%"
+
+#~ msgid "%d"
+#~ msgstr "%d"
+
+#~ msgid "512"
+#~ msgstr "512"
+
+#~ msgid "0"
+#~ msgstr "0"
 
 #~ msgid "Minimum length of a word to be indexed"
 #~ msgstr "Lonxitude máxima dunha palabra que indexar"
