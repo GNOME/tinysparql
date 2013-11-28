@@ -46,6 +46,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 	OsinfoMedia *media;
 	OsinfoDb *db;
 	OsinfoOs *os;
+	OsinfoOsVariantList *variants;
 
 	/* Data input */
 	gboolean bootable;
@@ -95,7 +96,17 @@ tracker_extract_get_metadata (TrackerExtractInfo *info_)
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:FilesystemImage");
 
-	name = osinfo_product_get_name (OSINFO_PRODUCT (os));
+	variants = osinfo_media_get_os_variants (media);
+	if (osinfo_list_get_length (OSINFO_LIST (variants)) > 0) {
+		OsinfoEntity *variant;
+
+		/* FIXME: Assuming first variant from multivariant medias. */
+		variant = osinfo_list_get_nth (OSINFO_LIST (variants), 0);
+		name = osinfo_os_variant_get_name (OSINFO_OS_VARIANT (variant));
+	} else {
+		name = osinfo_product_get_name (OSINFO_PRODUCT (os));
+	}
+
 	if (name != NULL) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_string (metadata, name);
