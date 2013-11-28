@@ -659,15 +659,23 @@ if test "x$ax_cv_sqlite_threadsafe" != "xyes"; then
 fi
 
 # Make sure we're not using versions which cause problems.
+#
 # Avoid versions:
 #   3.7.10 - 3.7.13
-# For details, see:
-#   https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
+#   3.8.1
+#
+# For details see:
+#      https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
+#      https://mail.gnome.org/archives/tracker-list/2013-November/msg00021.html
 AC_MSG_CHECKING(whether SQLite3 version is safe)
 
 PKG_CHECK_EXISTS([sqlite3 <= 3.7.9], sqlite_safe=yes, sqlite_safe=no)
 if test "x$sqlite_safe" != "xyes"; then
    PKG_CHECK_EXISTS([sqlite3 >= 3.7.14], sqlite_safe=yes, sqlite_safe=no)
+fi
+
+if test "x$sqlite_safe" == "xyes"; then
+   PKG_CHECK_EXISTS([sqlite3 = 3.8.1], sqlite_safe=no, sqlite_safe=yes)
 fi
 
 if test "x$sqlite_safe" != "xyes"; then
@@ -2652,11 +2660,13 @@ Miscellaneous:
 
 # Any warnings we need to issue...
 if test "x$sqlite_safe" = "xno"; then
+sqlite_version=$($PKG_CONFIG --modversion sqlite3)
 echo "
 WARNING:
-        SQLite3 version is not safe. For details see:
+        SQLite3 version $sqlite_version is not safe. For details see:
         https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
-        Unsafe versions are 3.7.10 to 3.7.13.
+        https://mail.gnome.org/archives/tracker-list/2013-November/msg00021.html
+        Unsafe versions are 3.7.10 to 3.7.13, and 3.8.1.
 
 "
 fi
