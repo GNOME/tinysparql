@@ -127,13 +127,15 @@ function_weights (sqlite3_context *context,
                   sqlite3_value   *argv[])
 {
 	static guint *weights = NULL;
-	static gsize weights_initialized = 0;
+	static GMutex mutex;
+	int rc = SQLITE_DONE;
 
-	if (g_once_init_enter (&weights_initialized)) {
+	g_mutex_lock (&mutex);
+
+	if (G_UNLIKELY (weights == NULL)) {
 		GArray *weight_array;
 		sqlite3_stmt *stmt;
 		sqlite3 *db;
-		int rc;
 
 		weight_array = g_array_new (FALSE, FALSE, sizeof (guint));
 		db = sqlite3_context_db_handle (context);
@@ -149,18 +151,26 @@ function_weights (sqlite3_context *context,
 				guint weight;
 				weight = sqlite3_column_int (stmt, 0);
 				g_array_append_val (weight_array, weight);
+			} else if (rc != SQLITE_BUSY) {
+				break;
 			}
 		}
 
-		if (rc == SQLITE_DONE) {
-			rc = sqlite3_finalize (stmt);
-		}
+		sqlite3_finalize (stmt);
 
-		weights = (guint *) g_array_free (weight_array, FALSE);
-		g_once_init_leave (&weights_initialized, (rc == SQLITE_OK));
+		if (rc == SQLITE_DONE) {
+			weights = (guint *) g_array_free (weight_array, FALSE);
+		} else {
+			g_array_free (weight_array, TRUE);
+		}
 	}
 
-	sqlite3_result_blob (context, weights, sizeof (weights), NULL);
+	g_mutex_unlock (&mutex);
+
+	if (rc == SQLITE_DONE)
+		sqlite3_result_blob (context, weights, sizeof (weights), NULL);
+	else
+		sqlite3_result_error_code (context, rc);
 }
 
 static void
@@ -169,13 +179,15 @@ function_property_names (sqlite3_context *context,
                          sqlite3_value   *argv[])
 {
 	static gchar **names = NULL;
-	static gsize names_initialized = 0;
+	static GMutex mutex;
+	int rc = SQLITE_DONE;
 
-	if (g_once_init_enter (&names_initialized)) {
+	g_mutex_lock (&mutex);
+
+	if (G_UNLIKELY (names == NULL)) {
 		GPtrArray *names_array;
 		sqlite3_stmt *stmt;
 		sqlite3 *db;
-		int rc;
 
 		names_array = g_ptr_array_new ();
 		db = sqlite3_context_db_handle (context);
@@ -194,18 +206,26 @@ function_property_names (sqlite3_context *context,
 
 				name = sqlite3_column_text (stmt, 0);
 				g_ptr_array_add (names_array, g_strdup (name));
+			} else if (rc != SQLITE_BUSY) {
+				break;
 			}
 		}
 
-		if (rc == SQLITE_DONE) {
-			rc = sqlite3_finalize (stmt);
-		}
+		sqlite3_finalize (stmt);
 
-		names = (gchar **) g_ptr_array_free (names_array, FALSE);
-		g_once_init_leave (&names_initialized, (rc == SQLITE_OK));
+		if (rc == SQLITE_DONE) {
+			names = (gchar **) g_ptr_array_free (names_array, FALSE);
+		} else {
+			g_ptr_array_free (names_array, TRUE);
+		}
 	}
 
-	sqlite3_result_blob (context, names, sizeof (names), NULL);
+	g_mutex_unlock (&mutex);
+
+	if (rc == SQLITE_DONE)
+		sqlite3_result_blob (context, names, sizeof (names), NULL);
+	else
+		sqlite3_result_error_code (context, rc);
 }
 
 static void
