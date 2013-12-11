@@ -669,7 +669,7 @@ tracker_file_system_register_property (GQuark             prop,
 		properties = g_hash_table_new (NULL, NULL);
 	}
 
-	if (g_hash_table_lookup (properties, GUINT_TO_POINTER (prop))) {
+	if (g_hash_table_contains (properties, GUINT_TO_POINTER (prop))) {
 		g_warning ("FileSystem: property '%s' has been already registered",
 		           g_quark_to_string (prop));
 		return;
