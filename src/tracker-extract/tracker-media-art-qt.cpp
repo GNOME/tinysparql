@@ -29,7 +29,7 @@
 #include <QImageReader>
 #include <QImageWriter>
 #ifdef HAVE_QT5
-#include <QCoreApplication>
+#include <QGuiApplication>
 #else
 #include <QApplication>
 #endif
@@ -38,12 +38,16 @@
 
 #include <glib.h>
 
+#ifdef HAVE_NEMO
+#include <stdlib.h>
+#endif
+
 #include "tracker-media-art-generic.h"
 
 G_BEGIN_DECLS
 
 #ifdef HAVE_QT5
-static QCoreApplication *app = NULL;
+static QGuiApplication *app = NULL;
 #else
 static QApplication *app = NULL
 #endif
@@ -51,11 +55,16 @@ static QApplication *app = NULL
 void
 tracker_media_art_plugin_init (void)
 {
-	int argc = 0;
-	char *argv[2] = { NULL, NULL };
+	int argc = 1;
+	char *argv[2] = { (char*) "tracker-extract", NULL };
 
 #ifdef HAVE_QT5
-	app = new QCoreApplication (argc, argv);
+
+#ifdef HAVE_NEMO
+	setenv("QT_QPA_PLATFORM", "minimal", 1);
+#endif
+
+	app = new QGuiApplication (argc, argv);
 #else
 	app = new QApplication (argc, argv, QApplication::Tty);
 #endif
