@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 15:51+0200\n"
-"PO-Revision-Date: 2013-09-10 15:51+0200\n"
+"POT-Creation-Date: 2013-12-30 01:02+0100\n"
+"PO-Revision-Date: 2013-12-30 01:02+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -614,15 +614,15 @@ msgstr "Monitorizarase"
 msgid "- start the tracker indexer"
 msgstr "- iniciar o indexador do tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1358
+#: ../src/miners/fs/tracker-miner-files.c:1362
 msgid "Low battery"
 msgstr "Batería baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1485
+#: ../src/miners/fs/tracker-miner-files.c:1489
 msgid "Low disk space"
 msgstr "Espazo en disco baixo"
 
-#: ../src/miners/fs/tracker-miner-files.c:2245
+#: ../src/miners/fs/tracker-miner-files.c:2249
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Erro do extractor ao realizar a extracción a proba de fallos dos metadatos "
@@ -1606,8 +1606,11 @@ msgid "Loading…"
 msgstr "Cargando…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Páxinas"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d páxina"
+msgstr[1] "%d páxinas"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
