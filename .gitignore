@@ -39,5 +39,4 @@ stamp-h1
 tmpl
 tracker-*-client.h
 tracker-*-glue.h
-tracker-marshal.[ch]
 tracker-preferences.[ch]

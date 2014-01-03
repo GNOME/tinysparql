@@ -770,9 +770,6 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
-GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
-AC_SUBST(GLIB_GENMARSHAL)
-
 # Introduced with GSettings
 GLIB_MKENUMS=`$PKG_CONFIG glib-2.0 --variable=glib_mkenums`
 AC_SUBST(GLIB_MKENUMS)

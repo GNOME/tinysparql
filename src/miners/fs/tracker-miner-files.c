@@ -48,7 +48,6 @@
 #include "tracker-power.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
-#include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 #define SECONDS_PER_DAY 86400

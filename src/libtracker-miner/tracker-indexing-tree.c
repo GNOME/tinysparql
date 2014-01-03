@@ -225,7 +225,7 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
 		                               directory_added),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__OBJECT,
+		              NULL,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 	signals[DIRECTORY_REMOVED] =
 		g_signal_new ("directory-removed",
@@ -234,7 +234,7 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
 		                               directory_removed),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__OBJECT,
+		              NULL,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 	signals[DIRECTORY_UPDATED] =
 		g_signal_new ("directory-updated",
@@ -243,7 +243,7 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
 		                               directory_updated),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__OBJECT,
+		              NULL,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class,

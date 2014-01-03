@@ -65,7 +65,7 @@ tracker_network_provider_init (gpointer object_class)
 		              G_SIGNAL_RUN_LAST,
 		              0,
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__UINT,
+		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_UINT);
 		is_initialized = TRUE;

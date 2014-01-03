@@ -47,7 +47,6 @@ endif
 libexec_PROGRAMS = tracker-writeback
 
 tracker_writeback_SOURCES = \
-	$(marshal_sources) \
 	$(dbus_sources) \
 	tracker-config.c \
 	tracker-config.h \
@@ -65,22 +64,3 @@ tracker_writeback_LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_WRITEBACK_LIBS)
-
-marshal_sources = \
-	tracker-marshal.h \
-	tracker-marshal.c
-
-tracker-marshal.h: tracker-marshal.list
-	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
-		$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
-
-BUILT_SOURCES = \
-	$(marshal_sources)
-
-CLEANFILES = $(BUILT_SOURCES)
-
-EXTRA_DIST = tracker-marshal.list
-

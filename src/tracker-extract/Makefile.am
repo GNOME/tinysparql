@@ -520,7 +520,6 @@ libextract_libav_la_LIBADD = \
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = \
-	$(marshal_sources) \
 	tracker-config.c \
 	tracker-config.h \
 	tracker-controller.c \
@@ -564,21 +563,5 @@ tracker_extract_SOURCES += tracker-media-art-dummy.c
 endif
 endif
 
-marshal_sources = \
-        tracker-marshal.h \
-        tracker-marshal.c
-
-tracker-marshal.h: tracker-marshal.list
-	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
-		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
-
-BUILT_SOURCES = $(marshal_sources)
-
-CLEANFILES = $(BUILT_SOURCES)
-
 EXTRA_DIST = \
-	tracker-marshal.list \
 	$(rules_files)

@@ -27,7 +27,6 @@
 #include "tracker-crawler.h"
 #include "tracker-miner-object.h"
 #include "tracker-miner-manager.h"
-#include "tracker-marshal.h"
 #include "tracker-miner-dbus.h"
 
 /**
@@ -142,7 +141,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_progress),
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_STRING_DOUBLE_INT,
+		              NULL,
 		              G_TYPE_NONE, 4,
 		              G_TYPE_STRING,
 		              G_TYPE_STRING,
@@ -164,7 +163,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_paused),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__STRING,
+		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_STRING);
 	/**
@@ -183,7 +182,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_resumed),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__STRING,
+		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_STRING);
 	/**
@@ -203,7 +202,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_activated),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__STRING,
+		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_STRING);
 	/**
@@ -223,7 +222,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_deactivated),
 		              NULL, NULL,
-		              g_cclosure_marshal_VOID__STRING,
+		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_STRING);
 

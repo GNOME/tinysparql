@@ -28,7 +28,6 @@
 
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-marshal.h>
 
 #include "tracker-power.h"
 

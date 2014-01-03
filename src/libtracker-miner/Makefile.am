@@ -2,8 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 # Include list of shared sources:
 #  Defines:
-#    $(libtracker_miner_marshal_sources)
-#    $(libtracker_miner_marshal_headers)
 #    $(libtracker_miner_monitor_sources)
 #    $(libtracker_miner_monitor_headers)
 #    $(libtracker_miner_file_system_sources)
@@ -35,8 +33,6 @@ libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
 crawler_sources = 				       \
-	$(libtracker_miner_marshal_sources)            \
-	$(libtracker_miner_marshal_headers)            \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
 	tracker-utils.c                                \
@@ -135,13 +131,6 @@ else
 network_provider_sources = tracker-network-provider-dummy.c
 endif
 
-$(top_builddir)/src/libtracker-miner/tracker-marshal.h: tracker-marshal.list
-	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-$(top_builddir)/src/libtracker-miner/tracker-marshal.c: tracker-marshal.list
-	$(AM_V_GEN)(echo "#include \"tracker-marshal.h\""; \
-		    $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body) > $@
-
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                            \
@@ -157,8 +146,6 @@ tracker-miner-$(TRACKER_API_VERSION).deps: tracker-miner.deps
 BUILT_SOURCES =                                        \
 	tracker-miner-enum-types.c                     \
 	tracker-miner-enum-types.h                     \
-	$(libtracker_miner_marshal_sources)            \
-	$(libtracker_miner_marshal_headers)            \
 	$(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
@@ -166,7 +153,6 @@ CLEANFILES = $(BUILT_SOURCES)
 EXTRA_DIST =                                           \
 	tracker-miner-enum-types.c.template            \
 	tracker-miner-enum-types.h.template            \
-	tracker-marshal.list                           \
 	tracker-miner.vapi                             \
 	tracker-miner.deps
 

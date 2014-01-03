@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "tracker-crawler.h"
-#include "tracker-marshal.h"
 #include "tracker-utils.h"
 
 #define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))
@@ -148,7 +147,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory),
 		              tracker_accumulator_check_file,
 		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT,
+		              NULL,
 		              G_TYPE_BOOLEAN,
 		              1,
 		              G_TYPE_FILE);
@@ -159,7 +158,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_file),
 		              tracker_accumulator_check_file,
 		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT,
+		              NULL,
 		              G_TYPE_BOOLEAN,
 		              1,
 		              G_TYPE_FILE);
@@ -170,7 +169,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory_contents),
 		              tracker_accumulator_check_file,
 		              NULL,
-		              tracker_marshal_BOOLEAN__OBJECT_POINTER,
+		              NULL,
 		              G_TYPE_BOOLEAN,
 		              2, G_TYPE_FILE, G_TYPE_POINTER);
 	signals[DIRECTORY_CRAWLED] =
@@ -179,7 +178,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, directory_crawled),
 		              NULL, NULL,
-		              tracker_marshal_VOID__OBJECT_POINTER_UINT_UINT_UINT_UINT,
+		              NULL,
 		              G_TYPE_NONE,
 		              6,
 			      G_TYPE_FILE,
@@ -194,7 +193,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 		              NULL, NULL,
-			      g_cclosure_marshal_VOID__BOOLEAN,
+			      NULL,
 		              G_TYPE_NONE,
 		              1, G_TYPE_BOOLEAN);
 

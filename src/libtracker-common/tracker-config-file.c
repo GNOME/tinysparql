@@ -98,7 +98,7 @@ tracker_config_file_class_init (TrackerConfigFileClass *klass)
 		              G_STRUCT_OFFSET (TrackerConfigFileClass, changed),
 		              NULL,
 		              NULL,
-		              g_cclosure_marshal_VOID__VOID,
+		              NULL,
 		              G_TYPE_NONE,
 		              0,
 		              G_TYPE_NONE);
