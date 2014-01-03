@@ -30,7 +30,7 @@
 typedef struct {
 	const gchar *module_path; /* intern string */
 	GList *patterns;
-	gchar *fallback_rdf_type;
+	GStrv fallback_rdf_types;
 } RuleInfo;
 
 typedef struct {
@@ -83,7 +83,7 @@ load_extractor_rule (GKeyFile  *key_file,
 		return FALSE;
 	}
 
-	rule.fallback_rdf_type = g_key_file_get_string (key_file, "ExtractorRule", "FallbackRdfType", NULL);
+	rule.fallback_rdf_types = g_key_file_get_string_list (key_file, "ExtractorRule", "FallbackRdfTypes", NULL, NULL);
 
 	/* Construct the rule */
 	rule.module_path = g_intern_string (module_path);
@@ -238,20 +238,39 @@ GStrv
 tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 {
 	GList *l, *list = lookup_rules (mimetype);
-	GArray *res = g_array_new (TRUE, TRUE, sizeof (gchar *));
-	gchar **types;
+	GHashTable *rdf_types;
+	gchar **types, *type;
+	GHashTableIter iter;
+	gint i;
+
+	if (!initialized &&
+	    !tracker_extract_module_manager_init ()) {
+		return FALSE;
+	}
+
+	rdf_types = g_hash_table_new (g_str_hash, g_str_equal);
 
 	for (l = list; l; l = l->next) {
 		RuleInfo *r_info = l->data;
 
-		if (r_info->fallback_rdf_type != NULL) {
-			gchar *val = g_strdup (r_info->fallback_rdf_type);
-			g_array_append_val (res, val);
+		if (r_info->fallback_rdf_types == NULL)
+			continue;
+
+		for (i = 0; r_info->fallback_rdf_types[i]; i++) {
+			g_hash_table_insert (rdf_types,
+					     r_info->fallback_rdf_types[i],
+					     r_info->fallback_rdf_types[i]);
 		}
 	}
 
-	types = (GStrv) res->data;
-	g_array_free (res, FALSE);
+	g_hash_table_iter_init (&iter, rdf_types);
+	types = g_new0 (gchar*, g_hash_table_size (rdf_types) + 1);
+	i = 0;
+
+	while (g_hash_table_iter_next (&iter, (gpointer*) &type, NULL)) {
+		types[i] = g_strdup (type);
+		i++;
+	}
 
 	return types;
 }
