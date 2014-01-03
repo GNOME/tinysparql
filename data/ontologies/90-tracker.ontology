@@ -70,3 +70,6 @@ tracker:forceJournal a rdf:Property ;
 
 fts: a tracker:Namespace ;
 	tracker:prefix "fts" .
+
+tracker:extractor-data-source a nie:DataSource ;
+	rdfs:label "Tracker extractor data source" .
