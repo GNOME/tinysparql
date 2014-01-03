@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-gstreamer.so
 MimeTypes=audio/*;video/*;image/*;
-
+FallbackRdfTypes=nfo:Media;

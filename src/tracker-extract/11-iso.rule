@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-iso.so
 MimeTypes=application/x-cd-image
-
+FallbackRdfTypes=nfo:FilesystemImage

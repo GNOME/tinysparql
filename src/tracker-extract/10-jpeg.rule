@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-jpeg.so
 MimeTypes=image/jpeg
-
+FallbackRdfTypes=nfo:Image;nmm:Photo;
