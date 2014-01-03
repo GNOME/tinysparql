@@ -1974,6 +1974,27 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 }
 
 static void
+miner_files_add_rdf_types (TrackerSparqlBuilder *sparql,
+                           GFile                *file,
+                           const gchar          *mime_type)
+{
+	GStrv rdf_types;
+	gint i = 0;
+
+	rdf_types = tracker_extract_module_manager_get_fallback_rdf_types (mime_type);
+
+	if (!rdf_types || !rdf_types[0])
+		return;
+
+	tracker_sparql_builder_predicate (sparql, "a");
+
+	while (rdf_types[i]) {
+		tracker_sparql_builder_object (sparql, rdf_types[i]);
+		i++;
+	}
+}
+
+static void
 process_file_data_free (ProcessFileData *data)
 {
 	g_object_unref (data->miner);
@@ -2165,6 +2186,7 @@ process_file_cb (GObject      *object,
 
 	miner_files_add_to_datasource (data->miner, file, sparql);
 
+        miner_files_add_rdf_types (sparql, file, mime_type);
 
 	sparql_builder_finish (data, NULL, NULL, NULL, NULL);
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
