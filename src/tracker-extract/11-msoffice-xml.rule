@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-msoffice-xml.so
 MimeTypes=application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.openxmlformats-officedocument.presentationml.slideshow;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.openxmlformats-officedocument.wordprocessingml.document;
-
+FallbackRdfTypes=nfo:PaginatedTextDocument

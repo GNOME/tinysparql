@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-icon.so
 MimeTypes=image/vnd.microsoft.icon
-
+FallbackRdfTypes=nfo:Image;nfo:Icon;
