@@ -4,15 +4,15 @@
 #
 # Kamil Páral <ripper42@gmail.com>, 2008.
 # Petr Kovar <pknbe@volny.cz>, 2010.
-# Marek Černocký <marek@manet.cz>, 2009, 2010, 2011, 2012, 2013.
+# Marek Černocký <marek@manet.cz>, 2009, 2010, 2011, 2012, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-10 08:50+0000\n"
-"PO-Revision-Date: 2013-09-09 18:54+0200\n"
+"POT-Creation-Date: 2014-01-02 14:48+0000\n"
+"PO-Revision-Date: 2014-01-04 20:50+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -613,15 +613,15 @@ msgstr "Byl by sledován"
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1358
+#: ../src/miners/fs/tracker-miner-files.c:1362
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1485
+#: ../src/miners/fs/tracker-miner-files.c:1489
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
-#: ../src/miners/fs/tracker-miner-files.c:2245
+#: ../src/miners/fs/tracker-miner-files.c:2249
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr "Chyba rozbalování, provádí se zotavení rozbalování vložených metadat"
 
@@ -1360,7 +1360,6 @@ msgid "Remove selected tag"
 msgstr "Odebrat vybraný štítek"
 
 #: ../src/tracker-needle/tracker-needle.vala:69
-#, c-format
 msgid "Search criteria was too generic"
 msgstr "Vyhledávací kritéria jsou příliš obecná"
 
@@ -1520,6 +1519,8 @@ msgstr "Nelze přidat štítek"
 msgid "Could not update tags for file"
 msgstr "Nelze aktualizovat štítky pro soubor"
 
+#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+#. if it's more than a week, use the default date format
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
 #: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
@@ -1619,13 +1620,16 @@ msgid "Items"
 msgstr "Položky"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, c-format
 msgid "Loading…"
 msgstr "Načítá se…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Stránek"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d stránka"
+msgstr[1] "%d stránky"
+msgstr[2] "%d stránek"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
