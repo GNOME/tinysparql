@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2013-10-08T14:00:00Z" .
+	nao:lastModified "2014-01-03T02:14:35Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -161,6 +161,7 @@ nfo:PaginatedTextDocument a rdfs:Class ;
 nfo:Video a rdfs:Class ;
 	rdfs:label "Video" ;
 	rdfs:comment "A video file." ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:Visual .
 
 nfo:Spreadsheet a rdfs:Class ;
