@@ -23,6 +23,7 @@
 #define __LIBTRACKER_MINER_H_INSIDE__
 
 #include <libtracker-miner/tracker-crawler.h>
+#include <libtracker-miner/tracker-decorator.h>
 #include <libtracker-miner/tracker-storage.h>
 #include <libtracker-miner/tracker-thumbnailer.h>
 #include <libtracker-miner/tracker-media-art.h>
