@@ -526,6 +526,8 @@ tracker_extract_SOURCES = \
 	tracker-controller.h \
 	tracker-extract.c \
 	tracker-extract.h \
+	tracker-extract-decorator.c \
+	tracker-extract-decorator.h \
 	tracker-media-art.c \
 	tracker-media-art.h \
 	tracker-read.c \
