@@ -81,15 +81,6 @@ listed are files which were found and successfully removed.
 Restarting the respective processes re-creates the default
 configuration files.
 .TP
-.B \-\-get-log-verbosity
-This displays the log verbosity for ALL components using GSettings for
-this configuration. For possible values, see
-.B \-\-set-log-verbosity.
-.TP
-.B \-\-set-log-verbosity=[debug|detailed|minimal|errors]
-This sets the log verbosity for ALL components using GSettings using
-this configuration option ('verbosity').
-.TP
 .B \-s, \-\-start
 Starts all miners. This indirectly starts tracker-store too because it
 is needed for miners to operate properly.
@@ -105,6 +96,26 @@ Begins restoring a previous backup (see
 ) to the Tracker databases. The
 .B FILE
 points to the location of the backup.
+.TP
+.B \-\-get-log-verbosity
+This displays the log verbosity for ALL components using GSettings for
+this configuration. For possible values, see
+.B \-\-set-log-verbosity.
+.TP
+.B \-\-set-log-verbosity=[debug|detailed|minimal|errors]
+This sets the log verbosity for ALL components using GSettings using
+this configuration option ('verbosity').
+.TP
+.B \-\-collect-debug-info
+Useful when debugging problems to diagnose the state of Tracker on
+your system. The data is output to stdout. Useful if bugs are filed
+against the project itself.
+
+Data collected includes Tracker version in use, disk space available,
+size of the databases on the disk, the configuration in use, states of
+the index (e.g. last filesystem crawl, data set locale, etc.) and
+finally statistics about the data in the database (e.g. how many
+nfo:FileDataObject resources exist).
 
 .SH STATUS OPTIONS
 .TP

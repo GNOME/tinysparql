@@ -60,6 +60,7 @@ static gboolean get_log_verbosity;
 static gboolean start;
 static gchar *backup;
 static gchar *restore;
+static gboolean collect_debug_info;
 
 #define GENERAL_OPTIONS_ENABLED() \
 	(list_processes || \
@@ -72,7 +73,8 @@ static gchar *restore;
 	 set_log_verbosity || \
 	 start || \
 	 backup || \
-	 restore)
+	 restore || \
+	 collect_debug_info)
 
 static gboolean term_option_arg_func (const gchar  *option_value,
                                       const gchar  *value,
@@ -97,12 +99,6 @@ static GOptionEntry entries[] = {
 	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
 	  NULL },
-	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
-	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
-	  N_("LEVEL") },
-	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
-	  N_("Show logging values in terms of log verbosity for each process"),
-	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
@@ -112,6 +108,15 @@ static GOptionEntry entries[] = {
 	{ "restore", 'o', 0, G_OPTION_ARG_FILENAME, &restore,
 	  N_("Restore databases from the file provided"),
 	  N_("FILE") },
+	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
+	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
+	  N_("LEVEL") },
+	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
+	  N_("Show logging values in terms of log verbosity for each process"),
+	  NULL },
+	{ "collect-debug-info", 0, 0, G_OPTION_ARG_NONE, &collect_debug_info,
+	  N_("Collect debug information useful for problem reporting and investigation, results are output to terminal"),
+	  NULL },
 	{ NULL }
 };
 
@@ -565,6 +570,198 @@ get_uid_for_pid (const gchar  *pid_as_string,
 	return uid;
 }
 
+static void
+collect_debug (void)
+{
+	/* What to collect?
+	 * This is based on information usually requested from maintainers to users.
+	 *
+	 * 1. Package details, e.g. version.
+	 * 2. Disk size, space left, type (SSD/etc)
+	 * 3. Size of dataset (tracker-stats), size of databases
+	 * 4. Current configuration (libtracker-fts, tracker-miner-fs, tracker-extract)
+	 *    All txt files in ~/.cache/
+	 * 5. Statistics about data (tracker-stats)
+	 */
+
+	GDir *d;
+	gchar *data_dir;
+	gchar *str;
+
+	data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+
+	/* 1. Package details, e.g. version. */
+	g_print ("[Package Details]\n");
+	g_print ("version: " PACKAGE_VERSION "\n");
+	g_print ("\n\n");
+
+	/* 2. Disk size, space left, type (SSD/etc) */
+	guint64 remaining_bytes;
+	gdouble remaining;
+
+	g_print ("[Disk Information]\n");
+
+	remaining_bytes = tracker_file_system_get_remaining_space (data_dir);
+	str = g_format_size (remaining_bytes);
+
+	remaining = tracker_file_system_get_remaining_space_percentage (data_dir);
+	g_print ("remaining space on db partition: %s (%3.2lf%%)\n", str, remaining);
+	g_free (str);
+	g_print ("\n\n");
+
+	/* 3. Size of dataset (tracker-stats), size of databases */
+	g_print ("[Data Set]\n");
+
+	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
+		const gchar *f;
+		gchar *path;
+		goffset size;
+
+		f = g_dir_read_name (d);
+		if (!f) {
+			break;
+		}
+
+		if (g_str_has_suffix (f, ".txt")) {
+			continue;
+		}
+
+		path = g_build_filename (data_dir, f, NULL);
+		size = tracker_file_get_size (path);
+		str = g_format_size (size);
+
+		g_print ("%s\n%s\n\n", path, str);
+		g_free (str);
+		g_free (path);
+	}
+	g_dir_close (d);
+	g_print ("\n");
+
+	/* 4. Current configuration (libtracker-fts, tracker-miner-fs, tracker-extract)
+	 *    All txt files in ~/.cache/
+	 */
+	GSList *all, *l;
+
+	g_print ("[Configuration]\n");
+
+	all = tracker_gsettings_get_all (NULL);
+
+	if (all) {
+		for (l = all; l; l = l->next) {
+			ComponentGSettings *c = l->data;
+			gchar **keys, **p;
+
+			if (!c) {
+				continue;
+			}
+
+			keys = g_settings_list_keys (c->settings);
+			for (p = keys; p && *p; p++) {
+				GVariant *v;
+				gchar *printed;
+
+				v = g_settings_get_value (c->settings, *p);
+				printed = g_variant_print (v, FALSE);
+				g_print ("%s.%s: %s\n", c->name, *p, printed);
+				g_free (printed);
+				g_variant_unref (v);
+			}
+		}
+
+		tracker_gsettings_free (all);
+	} else {
+		g_print ("** no config found?? **\n");
+	}
+	g_print ("\n\n");
+
+	g_print ("[States]\n");
+
+	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
+		const gchar *f;
+		gchar *path;
+		gchar *content = NULL;
+
+		f = g_dir_read_name (d);
+		if (!f) {
+			break;
+		}
+
+		if (!g_str_has_suffix (f, ".txt")) {
+			continue;
+		}
+
+		path = g_build_filename (data_dir, f, NULL);
+		if (g_file_get_contents (path, &content, NULL, NULL)) {
+			/* Special case last-index.txt which is time() dump to file */
+			if (g_str_has_suffix (path, "last-crawl.txt")) {
+				guint64 then, now;
+
+				now = (guint64) time (NULL);
+				then = g_ascii_strtoull (content, NULL, 10);
+				str = tracker_seconds_to_string (now - then, FALSE);
+
+				g_print ("%s\n%s (%s)\n\n", path, content, str);
+			} else {
+				g_print ("%s\n%s\n\n", path, content);
+			}
+			g_free (content);
+		}
+		g_free (path);
+	}
+	g_dir_close (d);
+	g_print ("\n");
+
+	/* 5. Statistics about data (tracker-stats) */
+	TrackerSparqlConnection *connection;
+	GError *error = NULL;
+
+	g_print ("[Data Statistics]\n");
+
+	connection = tracker_sparql_connection_get (NULL, &error);
+
+	if (!connection) {
+		g_print ("** no connection available, %s **\n",
+		         error ? error->message : _("No error given"));
+		g_clear_error (&error);
+	} else {
+		TrackerSparqlCursor *cursor;
+
+		cursor = tracker_sparql_connection_statistics (connection, NULL, &error);
+
+		if (error) {
+			g_print ("** could not get tracker statistics, %s **\n",
+			         error ? error->message : _("No error given"));
+			g_error_free (error);
+		} else {
+			if (!cursor) {
+				g_print ("** no statistics were available **\n");
+			} else {
+				gint count = 0;
+
+				while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+					g_print ("%s: %s\n",
+					         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+					         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+					count++;
+				}
+
+				if (count == 0) {
+					g_print ("database is currently empty\n");
+				}
+
+				g_object_unref (cursor);
+			}
+		}
+	}
+
+	g_object_unref (connection);
+	g_print ("\n\n");
+
+	g_print ("\n");
+
+	g_free (data_dir);
+}
+
 void
 tracker_control_general_run_default (void)
 {
@@ -624,6 +821,11 @@ tracker_control_general_run (void)
 			            _("Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"));
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (collect_debug_info) {
+		collect_debug ();
+		return EXIT_SUCCESS;
 	}
 
 	if (hard_reset || soft_reset) {
