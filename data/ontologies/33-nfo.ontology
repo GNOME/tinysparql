@@ -161,6 +161,7 @@ nfo:PaginatedTextDocument a rdfs:Class ;
 nfo:Video a rdfs:Class ;
 	rdfs:label "Video" ;
 	rdfs:comment "A video file." ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:Visual .
 
 nfo:Spreadsheet a rdfs:Class ;
