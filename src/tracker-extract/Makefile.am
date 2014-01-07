@@ -522,8 +522,6 @@ libexec_PROGRAMS = tracker-extract
 tracker_extract_SOURCES = \
 	tracker-config.c \
 	tracker-config.h \
-	tracker-controller.c \
-	tracker-controller.h \
 	tracker-extract.c \
 	tracker-extract.h \
 	tracker-extract-decorator.c \
