@@ -24,6 +24,7 @@
 
 #include <libtracker-miner/tracker-crawler.h>
 #include <libtracker-miner/tracker-decorator.h>
+#include <libtracker-miner/tracker-decorator-fs.h>
 #include <libtracker-miner/tracker-storage.h>
 #include <libtracker-miner/tracker-thumbnailer.h>
 #include <libtracker-miner/tracker-media-art.h>
