@@ -254,20 +254,24 @@ notify_task_finish (TrackerExtractTask *task,
 	 */
 	g_mutex_lock (&priv->task_mutex);
 
-	stats_data = g_hash_table_lookup (priv->statistics_data,
-	                                  task->cur_module);
+	if (task->cur_module) {
+		stats_data = g_hash_table_lookup (priv->statistics_data,
+						  task->cur_module);
 
-	if (!stats_data) {
-		stats_data = g_slice_new0 (StatisticsData);
-		g_hash_table_insert (priv->statistics_data,
-		                     task->cur_module,
-		                     stats_data);
-	}
+		if (!stats_data) {
+			stats_data = g_slice_new0 (StatisticsData);
+			g_hash_table_insert (priv->statistics_data,
+					     task->cur_module,
+					     stats_data);
+		}
 
-	stats_data->extracted_count++;
+		stats_data->extracted_count++;
 
-	if (!success) {
-		stats_data->failed_count++;
+		if (!success) {
+			stats_data->failed_count++;
+		}
+	} else {
+		priv->unhandled_count++;
 	}
 
 	priv->running_tasks = g_list_remove (priv->running_tasks, task);
