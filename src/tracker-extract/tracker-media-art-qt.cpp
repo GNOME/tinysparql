@@ -48,7 +48,7 @@ G_BEGIN_DECLS
 
 #ifdef HAVE_QT5
 static QGuiApplication *app = NULL;
-#else
+#else /* HAVE_QT4 */
 static QApplication *app = NULL
 #endif
 
@@ -61,11 +61,11 @@ tracker_media_art_plugin_init (void)
 #ifdef HAVE_QT5
 
 #ifdef HAVE_NEMO
-	setenv("QT_QPA_PLATFORM", "minimal", 1);
+	g_setenv("QT_QPA_PLATFORM", "minimal", 1);
 #endif
 
 	app = new QGuiApplication (argc, argv);
-#else
+#else /* HAVE_QT4 */
 	app = new QApplication (argc, argv, QApplication::Tty);
 #endif
 }
