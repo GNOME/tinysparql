@@ -292,10 +292,10 @@ def environment_set():
 		content_location_abs = os.path.abspath (opts.content_location)
 
 	# Data
-	os.environ['XDG_DATA_HOME'] = '%s' % index_location_abs
-	os.environ['XDG_CONFIG_HOME'] = '%s' % index_location_abs
-	os.environ['XDG_CACHE_HOME'] = '%s' % index_location_abs
-	os.environ['XDG_RUNTIME_DIR'] = '%s' % index_location_abs
+	os.environ['XDG_DATA_HOME'] = '%s/data/' % index_location_abs
+	os.environ['XDG_CONFIG_HOME'] = '%s/config/' % index_location_abs
+	os.environ['XDG_CACHE_HOME'] = '%s/cache/' % index_location_abs
+	os.environ['XDG_RUNTIME_DIR'] = '%s/run/' % index_location_abs
 
 	# Prefix - only set if non-standard
 	if opts.prefix != default_prefix:
