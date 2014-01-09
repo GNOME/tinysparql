@@ -27,7 +27,7 @@ Boston, MA  02110-1301, USA.
     <key name="graphupdated-delay" type="i">
       <default>1000</default>
       <_summary>GraphUpdated delay</_summary>
-      <_description>Delay in ms. at which GraphUpdated will happen when signalling data is available.</_description>
+      <_description>Period in milliseconds between GraphUpdated signals being emitted when indexed data has changed inside the database.</_description>
     </key>
   </schema>
 </schemalist>

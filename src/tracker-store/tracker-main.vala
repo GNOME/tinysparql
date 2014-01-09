@@ -56,10 +56,10 @@ License which can be viewed at:
 	static void sanity_check_option_values (Tracker.Config config) {
 		message ("General options:");
 		message ("  Verbosity  ............................  %d", config.verbosity);
-		message ("  graphupdated-delay ....................  %d", config.graphupdated_delay);
 
 		message ("Store options:");
 		message ("  Readonly mode  ........................  %s", readonly_mode ? "yes" : "no");
+		message ("  GraphUpdated Delay ....................  %d", config.graphupdated_delay);
 	}
 
 	static void do_shutdown () {
