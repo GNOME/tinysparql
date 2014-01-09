@@ -18,16 +18,16 @@ import helpers
 # Add this after fixing the backup/restore and ontology changes tests
 #"G_DEBUG" : "fatal_criticals",
 
-TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home"),
-                   "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")}
+TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "data"),
+                   "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "cache")}
 
 TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
                    "LC_COLLATE": "en_GB.utf8",
                    "DCONF_PROFILE": os.path.join (cfg.DATADIR, "tracker-tests",
                                                   "trackertest") }
 
-EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
-              os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
+EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "data", "tracker"),
+              os.path.join (cfg.TEST_TMP_DIR, "cache", "tracker")]
 
 REASONABLE_TIMEOUT = 30
 
