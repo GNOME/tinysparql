@@ -28,6 +28,8 @@
 #  include "fts3.h"
 #endif
 
+static gchar **property_names;
+
 gboolean
 tracker_fts_init (void) {
 #ifdef HAVE_BUILTIN_FTS
@@ -178,54 +180,7 @@ function_property_names (sqlite3_context *context,
                          int              argc,
                          sqlite3_value   *argv[])
 {
-	static gchar **names = NULL;
-	static GMutex mutex;
-	int rc = SQLITE_DONE;
-
-	g_mutex_lock (&mutex);
-
-	if (G_UNLIKELY (names == NULL)) {
-		GPtrArray *names_array;
-		sqlite3_stmt *stmt;
-		sqlite3 *db;
-
-		names_array = g_ptr_array_new ();
-		db = sqlite3_context_db_handle (context);
-		rc = sqlite3_prepare_v2 (db,
-		                         "SELECT Uri "
-		                         "FROM Resource "
-		                         "JOIN \"rdf:Property\" "
-		                         "ON Resource.ID = \"rdf:Property\".ID "
-		                         "WHERE \"rdf:Property\".\"tracker:fulltextIndexed\" = 1 "
-		                         "ORDER BY \"rdf:Property\".ID ",
-		                         -1, &stmt, NULL);
-
-		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
-			if (rc == SQLITE_ROW) {
-				const gchar *name;
-
-				name = sqlite3_column_text (stmt, 0);
-				g_ptr_array_add (names_array, g_strdup (name));
-			} else if (rc != SQLITE_BUSY) {
-				break;
-			}
-		}
-
-		sqlite3_finalize (stmt);
-
-		if (rc == SQLITE_DONE) {
-			names = (gchar **) g_ptr_array_free (names_array, FALSE);
-		} else {
-			g_ptr_array_free (names_array, TRUE);
-		}
-	}
-
-	g_mutex_unlock (&mutex);
-
-	if (rc == SQLITE_DONE)
-		sqlite3_result_blob (context, names, sizeof (names), NULL);
-	else
-		sqlite3_result_error_code (context, rc);
+	sqlite3_result_blob (context, property_names, sizeof (property_names), NULL);
 }
 
 static void
@@ -245,11 +200,37 @@ tracker_fts_register_functions (sqlite3 *db)
 	                         NULL, NULL);
 }
 
+static void
+tracker_fts_init_property_names (GHashTable *tables)
+{
+	GHashTableIter iter;
+	GList *columns;
+	GList *table_columns;
+	gchar **ptr;
+
+	columns = NULL;
+	g_hash_table_iter_init (&iter, tables);
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &table_columns)) {
+		columns = g_list_concat (columns, g_list_copy (table_columns));
+	}
+
+	ptr = property_names = g_new0 (gchar *, g_list_length (columns));
+	while (columns) {
+		*ptr = g_strdup (columns->data);
+		ptr ++;
+		columns = columns->next;
+	}
+}
+
 gboolean
-tracker_fts_init_db (sqlite3 *db) {
+tracker_fts_init_db (sqlite3 *db,
+                     GHashTable *tables)
+{
 	if (!tracker_tokenizer_initialize (db)) {
 		return FALSE;
 	}
+
+	tracker_fts_init_property_names (tables);
 
 	tracker_fts_register_functions (db);
 	return TRUE;

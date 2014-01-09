@@ -1146,19 +1146,17 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       gboolean             create)
 {
 #if HAVE_TRACKER_FTS
-	GStrv fts_columns = NULL;
+	GStrv fts_columns;
 
-	tracker_fts_init_db (db_interface->db);
-
-	if (properties) {
-		fts_columns = _fts_create_properties (properties);
-	}
+	tracker_fts_init_db (db_interface->db, properties);
 
 	if (create &&
 	    !tracker_fts_create_table (db_interface->db, "fts",
 				       properties, multivalued)) {
 		g_warning ("FTS tables creation failed");
 	}
+
+	fts_columns = _fts_create_properties (properties);
 
 	if (fts_columns) {
 		GString *insert, *select;

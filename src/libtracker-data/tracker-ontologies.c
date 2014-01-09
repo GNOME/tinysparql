@@ -556,6 +556,10 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 			gvdb_hash_table_insert_variant (table, item, uri, "inverse-functional", g_variant_new_boolean (TRUE));
 		}
 
+		if (tracker_property_get_fulltext_indexed (property)) {
+			gvdb_hash_table_insert_variant (table, item, uri, "fulltext-indexed", g_variant_new_boolean (TRUE));
+		}
+
 		domain_indexes = tracker_property_get_domain_indexes (property);
 		if (domain_indexes) {
 			g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));

@@ -469,6 +469,21 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
+	if (priv->use_gvdb) {
+		GVariant *value;
+		gboolean result;
+
+		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "fulltext-indexed");
+		if (value != NULL) {
+			result = g_variant_get_boolean (value);
+			g_variant_unref (value);
+		} else {
+			result = FALSE;
+		}
+
+		return result;
+	}
+
 	return priv->fulltext_indexed;
 }
 

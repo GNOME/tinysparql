@@ -117,9 +117,9 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         results = self.tracker.query (query)
 
         self.assertEquals (len(results), 3)
-        self.assertEquals (len (results[0][0].split(",")), 4) # (u'151,1,161,1')
-        self.assertEquals (len (results[1][0].split(",")), 2) # (u'161,1')
-        self.assertEquals (len (results[2][0].split(",")), 6) # (u'151,1,151,2,161,1')
+        self.assertEquals (results[0][0], 'nco:fullname,0,nco:nickname,0')
+        self.assertEquals (results[1][0], 'nco:fullname,0')
+        self.assertEquals (results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
 
         delete_sparql = """
         DELETE {
