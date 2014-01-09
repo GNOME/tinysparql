@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013 Jolla Ltd.
- * Contact: Andrew den Exter <andrew.den.exter@jollamobile.com>
+ * Copyright (C) 2013-2014 Jolla Ltd. <andrew.den.exter@jollamobile.com>
+ * Author: Andrew den Exter <andrew.den.exter@jollamobile.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,11 +33,14 @@
 #include <libavutil/mathematics.h>
 
 static void
-open_insert (TrackerSparqlBuilder *preupdate, const char *graph, const gchar *iri, const gchar *type)
+open_insert (TrackerSparqlBuilder *preupdate,
+             const char           *graph,
+             const gchar          *iri,
+             const gchar          *type)
 {
 	tracker_sparql_builder_insert_open (preupdate, NULL);
 	if (graph) {
-		tracker_sparql_builder_graph_open(preupdate, graph);
+		tracker_sparql_builder_graph_open (preupdate, graph);
 	}
 
 	tracker_sparql_builder_subject_iri (preupdate, iri);
@@ -55,8 +58,10 @@ close_insert (TrackerSparqlBuilder *preupdate, const char *graph)
 }
 
 static void
-delete_value (TrackerSparqlBuilder *preupdate, const gchar *iri, const gchar *predicate,
-			  const char *value)
+delete_value (TrackerSparqlBuilder *preupdate,
+              const gchar          *iri,
+              const gchar          *predicate,
+              const char           *value)
 {
 	tracker_sparql_builder_delete_open (preupdate, NULL);
 	tracker_sparql_builder_subject_iri (preupdate, iri);
@@ -72,35 +77,45 @@ delete_value (TrackerSparqlBuilder *preupdate, const gchar *iri, const gchar *pr
 }
 
 static void
-set_value_iri (TrackerSparqlBuilder *metadata, const gchar *predicate, const gchar *iri)
+set_value_iri (TrackerSparqlBuilder *metadata,
+               const gchar          *predicate,
+               const gchar          *iri)
 {
 	tracker_sparql_builder_predicate (metadata, predicate);
 	tracker_sparql_builder_object_iri (metadata, iri);
 }
 
 static void
-set_value_double (TrackerSparqlBuilder *metadata, const gchar *predicate, gdouble value)
+set_value_double (TrackerSparqlBuilder *metadata,
+                  const gchar          *predicate,
+                  gdouble               value)
 {
 	tracker_sparql_builder_predicate (metadata, predicate);
 	tracker_sparql_builder_object_double (metadata, value);
 }
 
 static void
-set_value_int64 (TrackerSparqlBuilder *metadata, const gchar *predicate, gint64 value)
+set_value_int64 (TrackerSparqlBuilder *metadata,
+                 const gchar          *predicate,
+                 gint64                value)
 {
 	tracker_sparql_builder_predicate (metadata, predicate);
 	tracker_sparql_builder_object_int64 (metadata, value);
 }
 
 static void
-set_value_string (TrackerSparqlBuilder *metadata, const gchar *predicate, const gchar *value)
+set_value_string (TrackerSparqlBuilder *metadata,
+                  const gchar          *predicate,
+                  const gchar          *value)
 {
 	tracker_sparql_builder_predicate (metadata, predicate);
 	tracker_sparql_builder_object_unvalidated (metadata, value);
 }
 
 static gchar *
-create_artist (TrackerSparqlBuilder *preupdate, const gchar *graph, const char *name)
+create_artist (TrackerSparqlBuilder *preupdate,
+               const gchar          *graph,
+               const char           *name)
 {
 	gchar *uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", name);
 
@@ -118,7 +133,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	TrackerSparqlBuilder *metadata;
 	TrackerSparqlBuilder *preupdate;
 	const gchar *graph;
-	gchar *absoluteFilePath;
+	gchar *absolute_file_path;
 	gchar *uri;
 	AVFormatContext *format = NULL;
 	AVStream *audio_stream = NULL;
@@ -128,7 +143,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	AVDictionaryEntry *tag = NULL;
 	const char *title = NULL;
 
-	av_register_all();
+	av_register_all ();
 
 	file = tracker_extract_info_get_file (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
@@ -137,12 +152,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	uri = g_file_get_uri (file);
 
-	absoluteFilePath = g_file_get_path (file);
-	if (avformat_open_input(&format, absoluteFilePath, NULL, NULL)) {
-		g_free (absoluteFilePath);
+	absolute_file_path = g_file_get_path (file);
+	if (avformat_open_input (&format, absolute_file_path, NULL, NULL)) {
+		g_free (absolute_file_path);
+		g_free (uri);
 		return FALSE;
 	}
-	g_free (absoluteFilePath);
+	g_free (absolute_file_path);
 
 	avformat_find_stream_info (format, NULL);
 
@@ -157,7 +173,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (!audio_stream && !video_stream) {
-		avformat_free_context(format);
+		avformat_free_context (format);
+		g_free (uri);
 		return FALSE;
 	}
 
@@ -180,22 +197,20 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 
 		if (video_stream->avg_frame_rate.num > 0) {
-			gdouble frame_rate
-					= (gdouble) video_stream->avg_frame_rate.num
-					/ video_stream->avg_frame_rate.den;
+			gdouble frame_rate = (gdouble) video_stream->avg_frame_rate.num
+			                     / video_stream->avg_frame_rate.den;
 			set_value_double (metadata, "nfo:frameRate", frame_rate);
 		}
 
 		if (video_stream->duration > 0) {
 			gint64 duration = av_rescale(video_stream->duration, video_stream->time_base.num,
-						     video_stream->time_base.den);
+			                             video_stream->time_base.den);
 			set_value_int64 (metadata, "nfo:duration", duration);
 		}
 
 		if (video_stream->sample_aspect_ratio.num > 0) {
-			gdouble aspect_ratio
-					= (gdouble) video_stream->sample_aspect_ratio.num
-					/ video_stream->sample_aspect_ratio.den;
+			gdouble aspect_ratio = (gdouble) video_stream->sample_aspect_ratio.num
+			                       / video_stream->sample_aspect_ratio.den;
 			set_value_double (metadata, "nfo:aspectRatio", aspect_ratio);
 		}
 
@@ -227,7 +242,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if (audio_stream->duration > 0) {
 			gint64 duration = av_rescale(audio_stream->duration, audio_stream->time_base.num,
-						     audio_stream->time_base.den);
+			                             audio_stream->time_base.den);
 			set_value_int64 (metadata, "nfo:duration", duration);
 		}
 
@@ -263,10 +278,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if (performer_uri) {
 			set_value_iri (metadata, "nmm:performer", performer_uri);
-
-			if (album_title && album_artist_uri) {
-				g_free(performer_uri);
-			}
 		} else if (album_artist_uri) {
 			set_value_iri (metadata, "nmm:performer", album_artist_uri);
 		}
@@ -298,8 +309,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			}
 
 			disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-								     album_title,
-								     disc);
+			                                             album_title,
+			                                             disc);
 
 			delete_value (preupdate, disc_uri, "nmm:setNumber", "unknown");
 			delete_value (preupdate, disc_uri, "nmm:albumDiscAlbum", "unknown");
@@ -317,12 +328,14 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 
 		tracker_media_art_process (NULL,
-					   0,
-					   NULL,
-					   TRACKER_MEDIA_ART_ALBUM,
-					   album_artist,
-					   album_title,
-					   uri);
+		                           0,
+		                           NULL,
+		                           TRACKER_MEDIA_ART_ALBUM,
+		                           album_artist,
+		                           album_title,
+		                           uri);
+
+		g_free(performer_uri);
 	}
 
 	if (format->bit_rate > 0) {

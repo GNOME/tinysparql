@@ -1687,7 +1687,7 @@ AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
 
 AC_ARG_ENABLE(generic-media-extractor,
               AS_HELP_STRING([--enable-generic-media-extractor=ARG],
-                             [enables one of the (gstreamer, xine, libav, external, auto) generic media extractor backends [[default=auto]]]),,
+                             [enables one of the (gstreamer, libav, xine, external, auto) generic media extractor backends [[default=auto]]]),,
               [enable_generic_media_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
@@ -1735,11 +1735,11 @@ if test "x$enable_generic_media_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
       have_generic_media_handler="yes"
       have_generic_media_handler_app="GStreamer"
-   elif test "$have_libxine" = "yes"; then
-      have_generic_media_handler_app="Xine"
-      have_generic_media_handler="yes"
    elif test "$have_libav" = "yes"; then
       have_generic_media_handler_app="libav"
+      have_generic_media_handler="yes"
+   elif test "$have_libxine" = "yes"; then
+      have_generic_media_handler_app="Xine"
       have_generic_media_handler="yes"
    else
       have_generic_media_handler="?"

@@ -499,7 +499,10 @@ libextract_iso_la_LIBADD = \
 
 # libav
 libextract_libav_la_SOURCES = tracker-extract-libav.c
-libextract_libav_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS)
+libextract_libav_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS) \
+	$(AVFORMAT_CFLAGS) \
+	$(AVUTIL_CFLAGS) \
+	$(AVCODEC_CFLAGS)
 libextract_libav_la_LDFLAGS = $(module_flags)
 libextract_libav_la_LIBADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
