@@ -51,7 +51,6 @@
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-extract.h"
-#include "tracker-controller.h"
 #include "tracker-extract-decorator.h"
 
 #ifdef THREAD_ENABLE_TRACE
