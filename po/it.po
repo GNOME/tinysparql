@@ -1,5 +1,5 @@
 # Italian translation of tracker
-# Copyright (C) 2006, 2007, 2008, 2009, 2012, 2013 Free Software Foundation, Inc
+# Copyright (C) 2006, 2007, 2008, 2009, 2012, 2013, 2014 Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 #
 # Glossario:
@@ -9,14 +9,14 @@
 # pause → interrompere
 #
 # Luca Ferretti <lferrett@gnome.org>, 2006, 2007, 2008, 2009, 2012.
-# Milo Casagrande <milo@ubuntu.com>, 2013.
+# Milo Casagrande <milo@ubuntu.com>, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-01 18:43+0200\n"
-"PO-Revision-Date: 2013-10-01 18:43+0200\n"
+"POT-Creation-Date: 2014-01-10 08:57+0100\n"
+"PO-Revision-Date: 2014-01-10 08:57+0100\n"
 "Last-Translator: Milo Casagrande <milo@ubuntu.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -331,6 +331,18 @@ msgstr "Directory con contenuti da ignorare"
 msgid "Avoid any directory containing a file blacklisted here"
 msgstr "Ignora qualsiasi directory che contiene un file elencato qui"
 
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Ritardo GraphUpdated"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Periodo in millisecondi tra l'emissione di segnali GraphUpdated quando i "
+"dati indicizzati sono stati modificati nel database."
+
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
 msgid "Userguides"
 msgstr "Guide utente"
@@ -506,8 +518,8 @@ msgstr ""
 "Verifica che sia possibile estrarre dati da FILE in base alla configurazione"
 
 #: ../src/miners/fs/tracker-main.c:117
-#: ../src/tracker-control/tracker-control-general.c:111
-#: ../src/tracker-control/tracker-control-general.c:114
+#: ../src/tracker-control/tracker-control-general.c:107
+#: ../src/tracker-control/tracker-control-general.c:110
 #: ../src/tracker-control/tracker-control-miners.c:60
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
@@ -621,15 +633,15 @@ msgstr "Verrà monitorato"
 msgid "- start the tracker indexer"
 msgstr "- Avvia l'indicizzatore di Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1358
+#: ../src/miners/fs/tracker-miner-files.c:1362
 msgid "Low battery"
 msgstr "Batteria quasi scarica"
 
-#: ../src/miners/fs/tracker-miner-files.c:1485
+#: ../src/miners/fs/tracker-miner-files.c:1489
 msgid "Low disk space"
 msgstr "Spazio disco quasi esaurito"
 
-#: ../src/miners/fs/tracker-miner-files.c:2245
+#: ../src/miners/fs/tracker-miner-files.c:2249
 msgid "Extractor error, performing failsafe embedded metadata extraction"
 msgstr ""
 "Errore dell'estrattore, viene eseguita l'estrazione di ripiego dei meta-dati "
@@ -670,10 +682,12 @@ msgstr "Impossibile stabilere una connessione con Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-control/tracker-control-general.c:136
-#: ../src/tracker-control/tracker-control-general.c:698
-#: ../src/tracker-control/tracker-control-general.c:744
-#: ../src/tracker-control/tracker-control-general.c:765
+#: ../src/tracker-control/tracker-control-general.c:141
+#: ../src/tracker-control/tracker-control-general.c:724
+#: ../src/tracker-control/tracker-control-general.c:733
+#: ../src/tracker-control/tracker-control-general.c:900
+#: ../src/tracker-control/tracker-control-general.c:946
+#: ../src/tracker-control/tracker-control-general.c:967
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
@@ -751,11 +765,11 @@ msgstr ""
 msgid "Unrecognized options"
 msgstr "Opzioni non riconosciute"
 
-#: ../src/tracker-control/tracker-control-general.c:84
+#: ../src/tracker-control/tracker-control-general.c:86
 msgid "List all Tracker processes"
 msgstr "Elenca tutti i processi di Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:88
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -763,12 +777,12 @@ msgstr ""
 "Usa SIGKILL per fermare tutti i processi corrispondenti; possono essere "
 "usati «store», «miners» o «all», senza parametri equivale a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:87
-#: ../src/tracker-control/tracker-control-general.c:90
+#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:92
 msgid "APPS"
 msgstr "APP"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:91
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -776,23 +790,35 @@ msgstr ""
 "Usa SIGTERM per fermare tutti i processi corrispondenti; possono essere "
 "usati «store», «miners» o «all», senza parametri equivale a «all»"
 
-#: ../src/tracker-control/tracker-control-general.c:92
+#: ../src/tracker-control/tracker-control-general.c:94
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Uccide tutti i processi di Tracker e rimuove tutti i database"
 
-#: ../src/tracker-control/tracker-control-general.c:95
+#: ../src/tracker-control/tracker-control-general.c:97
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Come --hard-reset, ma il backup e il giornale sono ripristinati dopo il "
 "riavvio"
 
-#: ../src/tracker-control/tracker-control-general.c:98
+#: ../src/tracker-control/tracker-control-general.c:100
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Rimuove tutti i file di configurazione per rigenerarli al successivo avvio"
 
-#: ../src/tracker-control/tracker-control-general.c:101
+#: ../src/tracker-control/tracker-control-general.c:103
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr "Avvia gli estrattori (viene avviato anche tracker-store)"
+
+#: ../src/tracker-control/tracker-control-general.c:106
+msgid "Backup databases to the file provided"
+msgstr "Esegue il backup del database sul file fornito"
+
+#: ../src/tracker-control/tracker-control-general.c:109
+msgid "Restore databases from the file provided"
+msgstr "Ripristina il database dal file fornito"
+
+#: ../src/tracker-control/tracker-control-general.c:112
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -800,43 +826,39 @@ msgstr ""
 "Imposta la verbosità del registro per tutti i processi a LIVELLO («debug», "
 "«detailed», «minimal», «errors»)"
 
-#: ../src/tracker-control/tracker-control-general.c:102
+#: ../src/tracker-control/tracker-control-general.c:113
 msgid "LEVEL"
 msgstr "LIVELLO"
 
-#: ../src/tracker-control/tracker-control-general.c:104
+#: ../src/tracker-control/tracker-control-general.c:115
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
 "Mostra i valori di registrazione per ogni processo in termini della verbosità"
 
-#: ../src/tracker-control/tracker-control-general.c:107
-msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr "Avvia gli estrattori (viene avviato anche tracker-store)"
+#: ../src/tracker-control/tracker-control-general.c:118
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
+msgstr ""
+"Raccoglie informazioni di debug utili nella segnalazione e risoluzione di "
+"problemi, i risultati sono stampati sul terminale"
 
-#: ../src/tracker-control/tracker-control-general.c:110
-msgid "Backup databases to the file provided"
-msgstr "Esegue il backup del database sul file fornito"
-
-#: ../src/tracker-control/tracker-control-general.c:113
-msgid "Restore databases from the file provided"
-msgstr "Ripristina il database dal file fornito"
-
-#: ../src/tracker-control/tracker-control-general.c:135
+#: ../src/tracker-control/tracker-control-general.c:140
 msgid "Could not open /proc"
 msgstr "Impossibile aprire /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:330
+#: ../src/tracker-control/tracker-control-general.c:335
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Impossibile ottenere GSettings per gli estrattori, il gestore non può essere "
 "creato, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:591
+#: ../src/tracker-control/tracker-control-general.c:788
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Non è possibile usare insieme gli argomenti --kill e --terminate"
 
-#: ../src/tracker-control/tracker-control-general.c:597
+#: ../src/tracker-control/tracker-control-general.c:794
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -844,113 +866,113 @@ msgstr ""
 "Non è possibile usare --terminate con --hard-reset o --soft-reset, è "
 "implicito --kill"
 
-#: ../src/tracker-control/tracker-control-general.c:603
+#: ../src/tracker-control/tracker-control-general.c:800
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 "Non è possibile usare insieme gli argomenti --soft-reset e --hard-reset"
 
-#: ../src/tracker-control/tracker-control-general.c:609
+#: ../src/tracker-control/tracker-control-general.c:806
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr ""
 "Non è possibile usare insieme gli argomenti --get-logging e --set-logging"
 
-#: ../src/tracker-control/tracker-control-general.c:624
+#: ../src/tracker-control/tracker-control-general.c:821
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Verbosità del registro non valida, provare «debug», «detailed», «minimal» o "
 "«errors»"
 
-#: ../src/tracker-control/tracker-control-general.c:695
+#: ../src/tracker-control/tracker-control-general.c:897
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Impossibile aprire «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:726
+#: ../src/tracker-control/tracker-control-general.c:928
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Trovato l'ID di processo %d per «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:741
+#: ../src/tracker-control/tracker-control-general.c:943
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Impossibile terminare il processo %d"
 
-#: ../src/tracker-control/tracker-control-general.c:747
+#: ../src/tracker-control/tracker-control-general.c:949
 #, c-format
 msgid "Terminated process %d"
 msgstr "Processo %d terminato"
 
-#: ../src/tracker-control/tracker-control-general.c:762
+#: ../src/tracker-control/tracker-control-general.c:964
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Impossibile uccidere il processo %d"
 
-#: ../src/tracker-control/tracker-control-general.c:768
+#: ../src/tracker-control/tracker-control-general.c:970
 #, c-format
 msgid "Killed process %d"
 msgstr "Processo %d ucciso"
 
-#: ../src/tracker-control/tracker-control-general.c:896
+#: ../src/tracker-control/tracker-control-general.c:1098
 msgid "Removing configuration files…"
 msgstr "Rimozione file di configurazione..."
 
-#: ../src/tracker-control/tracker-control-general.c:904
+#: ../src/tracker-control/tracker-control-general.c:1106
 msgid "Resetting existing configuration…"
 msgstr "Azzeramento configurazione esistente..."
 
-#: ../src/tracker-control/tracker-control-general.c:954
-#: ../src/tracker-control/tracker-control-general.c:996
+#: ../src/tracker-control/tracker-control-general.c:1156
+#: ../src/tracker-control/tracker-control-general.c:1198
 msgid "Components"
 msgstr "Componenti"
 
-#: ../src/tracker-control/tracker-control-general.c:960
-#: ../src/tracker-control/tracker-control-general.c:1002
+#: ../src/tracker-control/tracker-control-general.c:1162
+#: ../src/tracker-control/tracker-control-general.c:1204
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Estrattori dati"
 
-#: ../src/tracker-control/tracker-control-general.c:961
-#: ../src/tracker-control/tracker-control-general.c:1003
+#: ../src/tracker-control/tracker-control-general.c:1163
+#: ../src/tracker-control/tracker-control-general.c:1205
 msgid "Only those with config listed"
 msgstr "Solo quelli con una configurazione in elenco"
 
-#: ../src/tracker-control/tracker-control-general.c:979
+#: ../src/tracker-control/tracker-control-general.c:1181
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Impostazione verbosità registro per tutti i componenti a «%s»..."
 
-#: ../src/tracker-control/tracker-control-general.c:1019
+#: ../src/tracker-control/tracker-control-general.c:1221
 msgid "Waiting one second before starting miners…"
 msgstr "Attesa di un secondo prima di avviare gli estrattori dati..."
 
-#: ../src/tracker-control/tracker-control-general.c:1025
+#: ../src/tracker-control/tracker-control-general.c:1227
 msgid "Starting miners…"
 msgstr "Avvio estrattori dati..."
 
-#: ../src/tracker-control/tracker-control-general.c:1031
+#: ../src/tracker-control/tracker-control-general.c:1233
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr ""
 "Impossibile avviare gli estrattori, il gestore non può essere creato, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1056
+#: ../src/tracker-control/tracker-control-general.c:1258
 msgid "perhaps a disabled plugin?"
 msgstr "forse un plugin disabilitato?"
 
-#: ../src/tracker-control/tracker-control-general.c:1078
+#: ../src/tracker-control/tracker-control-general.c:1280
 msgid "Backing up database"
 msgstr "Backup del database"
 
-#: ../src/tracker-control/tracker-control-general.c:1150
+#: ../src/tracker-control/tracker-control-general.c:1352
 msgid "Restoring database from backup"
 msgstr "Ripristino del database dal backup"
 
-#: ../src/tracker-control/tracker-control-general.c:1223
+#: ../src/tracker-control/tracker-control-general.c:1425
 msgid "General options"
 msgstr "Opzioni generali"
 
-#: ../src/tracker-control/tracker-control-general.c:1224
+#: ../src/tracker-control/tracker-control-general.c:1426
 msgid "Show general options"
 msgstr "Mostra le opzioni generali"
 
@@ -1976,7 +1998,7 @@ msgstr "Consente solo operazioni di lettura sul database"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:172
+#: ../src/tracker-store/tracker-main.vala:173
 msgid "- start the tracker daemon"
 msgstr "- Avvia il demone di Tracker"
 
