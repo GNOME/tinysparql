@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-08 00:04+0100\n"
-"PO-Revision-Date: 2014-01-08 00:05+0100\n"
+"POT-Creation-Date: 2014-01-10 17:54+0100\n"
+"PO-Revision-Date: 2014-01-10 17:55+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -334,6 +334,18 @@ msgstr "Ignorowane katalogi z zawartością"
 msgid "Avoid any directory containing a file blacklisted here"
 msgstr ""
 "Unikanie katalogów zawierających plik umieszczony na tej liście blokowania"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Opóźnienie GraphUpdated"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Okres w sekundach między wysyłaniem sygnałów GraphUpdated, kiedy "
+"zindeksowane dane zostały zmienione w bazie danych."
 
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
 msgid "Userguides"
@@ -1989,7 +2001,7 @@ msgstr "Zezwala tylko na odczytywanie na podstawie czynności w bazie danych"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:172
+#: ../src/tracker-store/tracker-main.vala:173
 msgid "- start the tracker daemon"
 msgstr "- uruchomia usługę programu Tracker"
 
