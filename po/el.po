@@ -2,16 +2,16 @@
 # Simos Xenitellis <simos@gnome.org>, 2008.
 # Giannis Katsampirhs <juankatsampirhs@gmail.com>, 2008.
 # Georgios Stefanakis <george.stefanakis@gmail.com>, 2010.
-# Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>, 2012, 2013.
+# Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>, 2012, 2013, 2014.
 msgid ""
 msgstr ""
 "Project-Id-Version: el\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracke"
-"r&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-11-13 22:37+0000\n"
-"PO-Revision-Date: 2013-11-14 11:31+0300\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2014-01-12 12:26+0000\n"
+"PO-Revision-Date: 2014-01-11 17:28+0300\n"
 "Last-Translator: Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>\n"
-"Language-Team: team@gnome.gr\n"
+"Language-Team: www.gnome.gr\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -332,6 +332,19 @@ msgstr "Αγνοημένοι κατάλογοι με περιεχόμενο"
 msgid "Avoid any directory containing a file blacklisted here"
 msgstr "Αποφυγή οποιουδήποτε καταλόγου περιέχει αρχείο μαύρης λίστας εδώ"
 
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Καθυστέρηση ενημέρωσης γραφήματος"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Η περίοδος σε χιλιοστά δευτερολέπτου μεταξύ σημάτων ενημέρωσης γραφήματος "
+"που εκπέμπονται όταν δεδομένα από ευρετήριο έχουν αλλάξει μέσα στη βάση "
+"δεδομένων."
+
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
 msgid "Userguides"
 msgstr "Οδηγοί χρήστη"
@@ -511,8 +524,8 @@ msgstr ""
 "ρυθμίσεις"
 
 #: ../src/miners/fs/tracker-main.c:117
-#: ../src/tracker-control/tracker-control-general.c:111
-#: ../src/tracker-control/tracker-control-general.c:114
+#: ../src/tracker-control/tracker-control-general.c:107
+#: ../src/tracker-control/tracker-control-general.c:110
 #: ../src/tracker-control/tracker-control-miners.c:60
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
@@ -680,10 +693,12 @@ msgstr "Αδυναμία σύνδεσης με το Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-control/tracker-control-general.c:136
-#: ../src/tracker-control/tracker-control-general.c:698
-#: ../src/tracker-control/tracker-control-general.c:744
-#: ../src/tracker-control/tracker-control-general.c:765
+#: ../src/tracker-control/tracker-control-general.c:141
+#: ../src/tracker-control/tracker-control-general.c:724
+#: ../src/tracker-control/tracker-control-general.c:733
+#: ../src/tracker-control/tracker-control-general.c:900
+#: ../src/tracker-control/tracker-control-general.c:946
+#: ../src/tracker-control/tracker-control-general.c:967
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
@@ -762,11 +777,11 @@ msgstr ""
 msgid "Unrecognized options"
 msgstr "Άγνωστες επιλογές"
 
-#: ../src/tracker-control/tracker-control-general.c:84
+#: ../src/tracker-control/tracker-control-general.c:86
 msgid "List all Tracker processes"
 msgstr "Προβολή όλων των διεργασιών του Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:88
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -775,12 +790,12 @@ msgstr ""
 "\" (αποθήκευση), \"miners\" (συλλέκτες) ή \"all\" (όλα) μπορεί να "
 "χρησιμοποιηθούν, καμιά παράμετρος δεν ισοδυναμεί με \"all\""
 
-#: ../src/tracker-control/tracker-control-general.c:87
-#: ../src/tracker-control/tracker-control-general.c:90
+#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:92
 msgid "APPS"
 msgstr "ΕΦΑΡΜΟΓΕΣ"
 
-#: ../src/tracker-control/tracker-control-general.c:89
+#: ../src/tracker-control/tracker-control-general.c:91
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -789,26 +804,39 @@ msgstr ""
 "\" (αποθήκευση), \"miners\" (συλλέκτες) ή \"all\" (όλα) μπορεί να "
 "χρησιμοποιηθούν, καμιά παράμετρος δεν ισοδυναμεί με \"all\""
 
-#: ../src/tracker-control/tracker-control-general.c:92
+#: ../src/tracker-control/tracker-control-general.c:94
 msgid "Kill all Tracker processes and remove all databases"
 msgstr ""
 "Τερματισμός όλων των λειτουργιών του Tracker και αφαίρεση όλων των βάσεων "
 "δεδομένων"
 
-#: ../src/tracker-control/tracker-control-general.c:95
+#: ../src/tracker-control/tracker-control-general.c:97
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Το ίδιο με --hard-reset αλλά τα αντίγραφα ασφαλείας και το ημερολόγιο "
 "επανέρχονται μετά από επανεκκίνηση"
 
-#: ../src/tracker-control/tracker-control-general.c:98
+#: ../src/tracker-control/tracker-control-general.c:100
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Αφαίρεση όλων των αρχείων ρύθμισης ώστε αυτά να ξαναδημιουργηθούν στην "
 "επόμενη εκκίνηση"
 
-#: ../src/tracker-control/tracker-control-general.c:101
+#: ../src/tracker-control/tracker-control-general.c:103
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+"Εκκινεί του συλλέκτες (το οποίο έμμεσα εκκινεί και την αποθήκη του ανιχνευτή)"
+
+#: ../src/tracker-control/tracker-control-general.c:106
+msgid "Backup databases to the file provided"
+msgstr "Αντίγραφο ασφαλείας βάσεων δεδομένων στο παρεχόμενο αρχείο"
+
+#: ../src/tracker-control/tracker-control-general.c:109
+msgid "Restore databases from the file provided"
+msgstr "Επαναφορά βάσεων δεδομένων από ρο παρεχόμενο αρχείο"
+
+#: ../src/tracker-control/tracker-control-general.c:112
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -816,44 +844,39 @@ msgstr ""
 "Ορισμός της περιγραφής σύνδεσης σε LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') για όλες τις διεργασίες"
 
-#: ../src/tracker-control/tracker-control-general.c:102
+#: ../src/tracker-control/tracker-control-general.c:113
 msgid "LEVEL"
 msgstr "ΕΠΙΠΕΔΟ"
 
-#: ../src/tracker-control/tracker-control-general.c:104
+#: ../src/tracker-control/tracker-control-general.c:115
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
 "Εμφάνιση τιμών ημερολογίου με όρους περιγραφής σύνδεσης για κάθε διεργασία"
 
-#: ../src/tracker-control/tracker-control-general.c:107
-msgid "Starts miners (which indirectly starts tracker-store too)"
+#: ../src/tracker-control/tracker-control-general.c:118
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
 msgstr ""
-"Εκκινεί του συλλέκτες (το οποίο έμμεσα εκκινεί και την αποθήκη του ανιχνευτή)"
+"Συλλέξτε χρήσιμες πληροφορίες αποσφαλμάτωσης για αναφορά προβλημάτων και "
+"έρευνα, τα αποτελέσματα είναι έξοδος στο τερματικό"
 
-#: ../src/tracker-control/tracker-control-general.c:110
-msgid "Backup databases to the file provided"
-msgstr "Αντίγραφο ασφαλείας βάσεων δεδομένων στο παρεχόμενο αρχείο"
-
-#: ../src/tracker-control/tracker-control-general.c:113
-msgid "Restore databases from the file provided"
-msgstr "Επαναφορά βάσεων δεδομένων από ρο παρεχόμενο αρχείο"
-
-#: ../src/tracker-control/tracker-control-general.c:135
+#: ../src/tracker-control/tracker-control-general.c:140
 msgid "Could not open /proc"
 msgstr "Αδυναμία ανοίγματος του /proc"
 
-#: ../src/tracker-control/tracker-control-general.c:330
+#: ../src/tracker-control/tracker-control-general.c:335
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Αδυναμία λήψης GSettings για συλλέκτες, ο διαχειριστής δεν μπόρεσε να "
 "δημιουργηθεί, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:591
+#: ../src/tracker-control/tracker-control-general.c:788
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --kill και --terminate μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:597
+#: ../src/tracker-control/tracker-control-general.c:794
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -861,55 +884,55 @@ msgstr ""
 "Αδυναμία χρήσης του --terminate με --hard-reset ή --soft-reset, --kill "
 "υπονοείται"
 
-#: ../src/tracker-control/tracker-control-general.c:603
+#: ../src/tracker-control/tracker-control-general.c:800
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --hard-reset και --soft-reset μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:609
+#: ../src/tracker-control/tracker-control-general.c:806
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --get-logging και --set-logging μαζί"
 
-#: ../src/tracker-control/tracker-control-general.c:624
+#: ../src/tracker-control/tracker-control-general.c:821
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Άκυρη περιγραφή ημερολογίου, δοκιμάστε 'debug', 'detailed', 'minimal' ή "
 "'errors'"
 
-#: ../src/tracker-control/tracker-control-general.c:695
+#: ../src/tracker-control/tracker-control-general.c:897
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Αδυναμία ανοίγματος '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:726
+#: ../src/tracker-control/tracker-control-general.c:928
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d για το '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:741
+#: ../src/tracker-control/tracker-control-general.c:943
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Αδυναμία τερματισμού της διεργασίας %d"
 
-#: ../src/tracker-control/tracker-control-general.c:747
+#: ../src/tracker-control/tracker-control-general.c:949
 #, c-format
 msgid "Terminated process %d"
 msgstr "Ολοκληρωμένη διεργασία %d"
 
-#: ../src/tracker-control/tracker-control-general.c:762
+#: ../src/tracker-control/tracker-control-general.c:964
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Αδυναμία θανάτωσης της διεργασίας %d"
 
-#: ../src/tracker-control/tracker-control-general.c:768
+#: ../src/tracker-control/tracker-control-general.c:970
 #, c-format
 msgid "Killed process %d"
 msgstr "Σκοτωμένη διεργασία %d"
 
-#: ../src/tracker-control/tracker-control-general.c:896
+#: ../src/tracker-control/tracker-control-general.c:1098
 msgid "Removing configuration files…"
 msgstr "Αφαίρεση αρχείων ρυθμίσεων…"
 
-#: ../src/tracker-control/tracker-control-general.c:904
+#: ../src/tracker-control/tracker-control-general.c:1106
 msgid "Resetting existing configuration…"
 msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 
@@ -922,50 +945,50 @@ msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: ../src/tracker-control/tracker-control-general.c:954
-#: ../src/tracker-control/tracker-control-general.c:996
+#: ../src/tracker-control/tracker-control-general.c:1156
+#: ../src/tracker-control/tracker-control-general.c:1198
 msgid "Components"
 msgstr "Συστατικά"
 
-#: ../src/tracker-control/tracker-control-general.c:960
-#: ../src/tracker-control/tracker-control-general.c:1002
+#: ../src/tracker-control/tracker-control-general.c:1162
+#: ../src/tracker-control/tracker-control-general.c:1204
 #: ../src/tracker-control/tracker-control-miners.c:391
 #: ../src/tracker-control/tracker-control-status.c:567
 msgid "Miners"
 msgstr "Συλλέκτες"
 
-#: ../src/tracker-control/tracker-control-general.c:961
-#: ../src/tracker-control/tracker-control-general.c:1003
+#: ../src/tracker-control/tracker-control-general.c:1163
+#: ../src/tracker-control/tracker-control-general.c:1205
 msgid "Only those with config listed"
 msgstr "Μόνο αυτά που έχουν λίστα config"
 
-#: ../src/tracker-control/tracker-control-general.c:979
+#: ../src/tracker-control/tracker-control-general.c:1181
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Ρύθμιση περιγραφής ημερολογίου για όλα τα συστατικά στο '%s'…"
 
-#: ../src/tracker-control/tracker-control-general.c:1019
+#: ../src/tracker-control/tracker-control-general.c:1221
 msgid "Waiting one second before starting miners…"
 msgstr "Αναμονή ενός δευτερολέπτου πριν την εκκίνηση των συλλεκτών…"
 
-#: ../src/tracker-control/tracker-control-general.c:1025
+#: ../src/tracker-control/tracker-control-general.c:1227
 msgid "Starting miners…"
 msgstr "Εκκίνηση συλλεκτών…"
 
-#: ../src/tracker-control/tracker-control-general.c:1031
+#: ../src/tracker-control/tracker-control-general.c:1233
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Αδυναμία εκκίνησης συλλεκτών, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1056
+#: ../src/tracker-control/tracker-control-general.c:1258
 msgid "perhaps a disabled plugin?"
 msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
 
-#: ../src/tracker-control/tracker-control-general.c:1078
+#: ../src/tracker-control/tracker-control-general.c:1280
 msgid "Backing up database"
 msgstr "Αντίγραφα ασφαλείας βάσης δεδομένων"
 
-#: ../src/tracker-control/tracker-control-general.c:1150
+#: ../src/tracker-control/tracker-control-general.c:1352
 msgid "Restoring database from backup"
 msgstr "Επαναφορά βάσης δεδομένων από αντίγραφο ασφαλείας"
 
@@ -992,11 +1015,11 @@ msgstr "Επαναφορά βάσης δεδομένων από αντίγραφ
 # #-#-#-#-#  help.HEAD.el.po (el)  #-#-#-#-#
 # #-#-#-#-#  ekiga.gnome-2-14.el.po (el)  #-#-#-#-#
 #
-#: ../src/tracker-control/tracker-control-general.c:1223
+#: ../src/tracker-control/tracker-control-general.c:1425
 msgid "General options"
 msgstr "Γενικές επιλογές"
 
-#: ../src/tracker-control/tracker-control-general.c:1224
+#: ../src/tracker-control/tracker-control-general.c:1426
 msgid "Show general options"
 msgstr "Εμφάνιση γενικών επιλογών"
 
@@ -1764,7 +1787,6 @@ msgid "Items"
 msgstr "Στοιχεία"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#| msgid "Loading..."
 msgid "Loading…"
 msgstr "Φόρτωση…"
 
@@ -1772,7 +1794,6 @@ msgstr "Φόρτωση…"
 #
 #: ../src/tracker-needle/tracker-view.vala:435
 #, c-format
-#| msgid "Pages"
 msgid "%d Page"
 msgid_plural "%d Pages"
 msgstr[0] "%d σελίδα"
@@ -1783,7 +1804,6 @@ msgid "_Show Parent Directory"
 msgstr "Εμ_φάνιση ανιόντος καταλόγου"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-#| msgid "Tags"
 msgid "_Tags…"
 msgstr "_Ετικέτες…"
 
@@ -1904,7 +1924,6 @@ msgstr ""
 "προσάρτηση:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#| msgid "<b>Garbage Collection</b>"
 msgid "Garbage Collection"
 msgstr "Συλλογή απορριμάτων"
 
@@ -1976,7 +1995,6 @@ msgid "Remove directory from being indexed"
 msgstr "Αφαίρεση καταλόγου από τη δεικτοδότηση"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-#| msgid "<b>Where is your content?</b>"
 msgid "Where is your content?"
 msgstr "Πού είναι τα περιεχόμενά σας;"
 
@@ -2048,7 +2066,6 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Ναι, να αφαιρεθούν όλα τα δεδομένα από ευρετήριο"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-#| msgid "Recursively Indexed"
 msgid "Reset Indexed Data"
 msgstr "Επαναφορά δεδομένων από ευρετήριο"
 
@@ -2067,7 +2084,6 @@ msgstr "Εκκίνηση"
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-#| msgid "File System"
 msgid "System"
 msgstr "Σύστημα"
 
@@ -2122,7 +2138,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:172
+#: ../src/tracker-store/tracker-main.vala:173
 msgid "- start the tracker daemon"
 msgstr "- εκκίνηση της δαίμονα ανίχνευσης"
 
@@ -2230,9 +2246,6 @@ msgstr ""
 "προσαρτημένων τόμων)"
 
 #: ../src/tracker-utils/tracker-search.c:100
-#| msgid ""
-#| "Disable showing snippets with results. This is only shown for some "
-#| "categories, e.g. Documents, Music..."
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
