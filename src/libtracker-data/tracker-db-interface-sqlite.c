@@ -33,6 +33,7 @@
 
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
+#include <libtracker-fts/tracker-parser.h>
 #endif
 
 #ifdef HAVE_LIBUNISTRING
@@ -659,6 +660,34 @@ function_sparql_normalize (sqlite3_context *context,
 	sqlite3_result_text16 (context, zOutput, written * 2, free);
 }
 
+static void
+function_sparql_unaccent (sqlite3_context *context,
+                          int              argc,
+                          sqlite3_value   *argv[])
+{
+	const gchar *zInput;
+	gchar *zOutput;
+	gsize written = 0;
+	int nInput;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes (argv[0]);
+
+	zOutput = u8_normalize (UNINORM_NFKD, zInput, nInput, NULL, &written);
+
+	/* Unaccenting is done in place */
+	tracker_parser_unaccent_nfkd_string (zOutput, &written);
+
+	sqlite3_result_text (context, zOutput, written, free);
+}
+
 #elif HAVE_LIBICU
 
 static void
@@ -805,6 +834,51 @@ function_sparql_normalize (sqlite3_context *context,
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
 
+static void
+function_sparql_unaccent (sqlite3_context *context,
+                          int              argc,
+                          sqlite3_value   *argv[])
+{
+	const gchar *nfstr;
+	const uint16_t *zInput;
+	uint16_t *zOutput;
+	int nInput;
+	gsize nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	nOutput = nInput * 2 + 2;
+	zOutput = sqlite3_malloc (nOutput);
+
+	if (!zOutput) {
+		return;
+	}
+
+	nOutput = unorm_normalize (zInput, nInput/2, UNORM_NFKD, 0, zOutput, nOutput/2, &status);
+	if (!U_SUCCESS (status)) {
+		char zBuf[128];
+		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
+		zBuf[127] = '\0';
+		sqlite3_free (zOutput);
+		sqlite3_result_error (context, zBuf, -1);
+		return;
+	}
+
+	/* Unaccenting is done in place */
+	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
+
+	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+}
+
 #endif
 
 static inline int
@@ -931,6 +1005,10 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlNormalize", 2, SQLITE_ANY,
 	                         db_interface, &function_sparql_normalize,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlUnaccent", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_unaccent,
 	                         NULL, NULL);
 
 	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1, SQLITE_ANY,

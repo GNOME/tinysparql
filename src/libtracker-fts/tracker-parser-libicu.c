@@ -141,28 +141,35 @@ get_word_info (const UChar           *word,
 	return TRUE;
 }
 
-static gboolean
-parser_unaccent_nfkd_word (UChar *word,
-			   gsize *word_length)
+/* The input word in this method MUST be normalized in NFKD form,
+ * and given in UChars, where str_length is the number of UChars
+ * (not the number of bytes) */
+gboolean
+tracker_parser_unaccent_nfkd_string (gpointer  str,
+                                     gsize    *str_length)
 {
-	/* The input word in this method MUST be normalized in NFKD form */
+	UChar *word;
+	gsize word_length;
 	gsize i;
 	gsize j;
 
-	g_return_val_if_fail (word, FALSE);
-	g_return_val_if_fail (word_length, FALSE);
-	g_return_val_if_fail (*word_length > 0, FALSE);
+	g_return_val_if_fail (str != NULL, FALSE);
+	g_return_val_if_fail (str_length != NULL, FALSE);
+	g_return_val_if_fail (*str_length > 0, FALSE);
+
+	word = (UChar *)str;
+	word_length = *str_length;
 
 	i = 0;
 	j = 0;
-	while (i < *word_length) {
+	while (i < word_length) {
 		UChar32 unichar;
 		gint utf16_len; /* given in UChars */
 		gsize aux_i;
 
 		/* Get next character of the word as UCS4 */
 		aux_i = i;
-		U16_NEXT (word, aux_i, *word_length, unichar);
+		U16_NEXT (word, aux_i, word_length, unichar);
 		utf16_len = aux_i - i;
 
 		/* Invalid UTF-16 character or end of original string. */
@@ -195,7 +202,7 @@ parser_unaccent_nfkd_word (UChar *word,
 	word[j] = (UChar) 0;
 
 	/* Set new output length */
-	*word_length = j;
+	*str_length = j;
 
 	return TRUE;
 }
@@ -331,7 +338,7 @@ process_word_uchar (TrackerParser         *parser,
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
 	if (parser->enable_unaccent &&
 	    type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC &&
-	    parser_unaccent_nfkd_word (normalized_buffer, &new_word_length)) {
+	    tracker_parser_unaccent_nfkd_string (normalized_buffer, &new_word_length)) {
 		/* Log after unaccenting */
 		tracker_parser_message_hex ("  After UNAC",
 		                            (guint8 *) normalized_buffer,

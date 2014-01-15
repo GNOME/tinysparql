@@ -496,6 +496,12 @@ class Tracker.Sparql.Expression : Object {
 			translate_expression_as_string (sql);
 			sql.append (")");
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "unaccent") {
+			// conversion to string
+			sql.append ("SparqlUnaccent (");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			return PropertyType.STRING;
 		} else if (uri == FN_NS + "contains") {
 			// fn:contains('A','B') => 'A' GLOB '*B*'
 			sql.append ("(");

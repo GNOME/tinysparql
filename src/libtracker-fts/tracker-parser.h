@@ -50,6 +50,11 @@ const gchar *  tracker_parser_next            (TrackerParser   *parser,
 
 void           tracker_parser_free            (TrackerParser   *parser);
 
+/* Other helper methods */
+
+gboolean       tracker_parser_unaccent_nfkd_string (gpointer  str,
+                                                    gsize    *str_length);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_FTS_PARSER_H__ */
