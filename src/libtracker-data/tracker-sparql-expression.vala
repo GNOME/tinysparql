@@ -487,6 +487,15 @@ class Tracker.Sparql.Expression : Object {
 			translate_expression_as_string (sql);
 			sql.append (")");
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "normalize") {
+			// conversion to string
+			sql.append ("SparqlNormalize (");
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+			sql.append (")");
+			return PropertyType.STRING;
 		} else if (uri == FN_NS + "contains") {
 			// fn:contains('A','B') => 'A' GLOB '*B*'
 			sql.append ("(");
