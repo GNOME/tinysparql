@@ -431,7 +431,7 @@ get_class_id (TrackerSparqlConnection *conn,
 	g_free (query);
 
 	if (error) {
-		g_critical ("Could not get ID of class '%s': %s\n",
+		g_critical ("Could not get class ID for '%s': %s\n",
 		            class, error->message);
 		g_error_free (error);
 		return -1;
@@ -440,7 +440,7 @@ get_class_id (TrackerSparqlConnection *conn,
 	if (tracker_sparql_cursor_next (cursor, NULL, NULL))
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
 	else
-		g_critical ("'%s' didn't resolve to a known ID", class);
+		g_critical ("'%s' didn't resolve to a known class ID", class);
 
 	g_object_unref (cursor);
 
