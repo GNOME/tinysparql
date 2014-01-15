@@ -700,67 +700,6 @@ function_sparql_case_fold (sqlite3_context *context,
 
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
-#else /* GLib based */
-
-static void
-function_sparql_lower_case (sqlite3_context *context,
-                            int              argc,
-                            sqlite3_value   *argv[])
-{
-	const gchar *zInput;
-	gchar *zOutput;
-	int nInput;
-
-	g_assert (argc == 1);
-
-	/* GLib API works with UTF-8, so use the UTF-8 functions of SQLite too */
-
-	zInput = (const gchar*) sqlite3_value_text (argv[0]);
-
-	if (!zInput) {
-		return;
-	}
-
-	nInput = sqlite3_value_bytes (argv[0]);
-
-	if (!zOutput) {
-		return;
-	}
-
-	zOutput = g_utf8_strdown (zInput, nInput);
-
-	sqlite3_result_text (context, zOutput, -1, g_free);
-}
-
-static void
-function_sparql_case_fold (sqlite3_context *context,
-                           int              argc,
-                           sqlite3_value   *argv[])
-{
-	const gchar *zInput;
-	gchar *zOutput;
-	int nInput;
-
-	g_assert (argc == 1);
-
-	/* GLib API works with UTF-8, so use the UTF-8 functions of SQLite too */
-
-	zInput = (const gchar*) sqlite3_value_text (argv[0]);
-
-	if (!zInput) {
-		return;
-	}
-
-	nInput = sqlite3_value_bytes (argv[0]);
-
-	if (!zOutput) {
-		return;
-	}
-
-	zOutput = g_utf8_casefold (zInput, nInput);
-
-	sqlite3_result_text (context, zOutput, -1, g_free);
-}
 
 #endif
 
