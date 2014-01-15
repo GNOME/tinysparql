@@ -101,7 +101,7 @@ tracker_decorator_info_new (TrackerSparqlCursor *cursor)
 {
 	TrackerDecoratorInfo *info;
 
-	info = g_new0 (TrackerDecoratorInfo, 1);
+	info = g_slice_new0 (TrackerDecoratorInfo);
 	info->urn = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	info->url = g_strdup (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 	info->mimetype = g_strdup (tracker_sparql_cursor_get_string (cursor, 3, NULL));
@@ -128,7 +128,7 @@ tracker_decorator_info_unref (TrackerDecoratorInfo *info)
 	g_free (info->urn);
 	g_free (info->url);
 	g_free (info->mimetype);
-	g_free (info);
+	g_slice_free (TrackerDecoratorInfo, info);
 }
 
 static TaskData *
@@ -138,12 +138,22 @@ task_data_new (TrackerDecorator *decorator,
 {
 	TaskData *data;
 
-	data = g_new0 (TaskData, 1);
+	data = g_slice_new0 (TaskData);
 	data->decorator = decorator;
 	data->first = first;
 	data->last = last;
 
 	return data;
+}
+
+static void
+task_data_free (TaskData *data)
+{
+	if (!data) {
+		return;
+	}
+
+	g_slice_free (TaskData, data);
 }
 
 static void
@@ -1114,7 +1124,7 @@ query_next_items (TrackerDecorator *decorator,
 	                         "}", id_string->str, priv->data_source);
 
 	data = task_data_new (decorator, priv->elem_queue->head, last);
-	g_task_set_task_data (task, data, (GDestroyNotify) g_free);
+	g_task_set_task_data (task, data, (GDestroyNotify) task_data_free);
 	tracker_sparql_connection_query_async (sparql_conn, query,
 	                                       g_task_get_cancellable (task),
 	                                       query_next_items_cb, task);
