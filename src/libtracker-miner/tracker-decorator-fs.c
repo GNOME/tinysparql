@@ -93,7 +93,7 @@ process_files_cb (GObject      *object,
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
 
         if (error) {
-                g_critical ("Could not load files missing metadata: %s", error->message);
+                g_critical ("Could not check files on mount point for missing metadata: %s", error->message);
                 g_error_free (error);
 		return;
 	}
@@ -121,7 +121,7 @@ remove_files_cb (GObject *object,
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
 
         if (error) {
-                g_critical ("Could remove files: %s", error->message);
+                g_critical ("Could not remove files on mount point with missing metadata: %s", error->message);
                 g_error_free (error);
 		return;
 	}
