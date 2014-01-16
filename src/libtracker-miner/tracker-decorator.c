@@ -23,7 +23,22 @@
 
 #define QUERY_BATCH_SIZE 100
 #define DEFAULT_BATCH_SIZE 100
+
 #define TRACKER_DECORATOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR, TrackerDecoratorPrivate))
+
+/**
+ * SECTION:tracker-decorator
+ * @short_description: A miner tasked with listening for DB resource changes and extracting metadata
+ * @include: libtracker-miner/tracker-miner.h
+ * @title: TrackerDecorator
+ * @see_also: #TrackerDecoratorFS
+ * #TrackerDecorator watches for signal updates based on file changes
+ * in the database. When new files are added initially, only simple
+ * metadata exists, for example, name, size, mtime, etc. The
+ * #TrackerDecorator queues files for extended metadata extraction
+ * (i.e. for tracker-extract to fetch metadata specific to the file
+ * type) for example 'nmm:whiteBalance' for a picture.
+**/
 
 typedef struct _TrackerDecoratorPrivate TrackerDecoratorPrivate;
 typedef struct _TaskData TaskData;
@@ -865,6 +880,16 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 	                                                   "Number of items per update batch",
 	                                                   0, G_MAXINT, DEFAULT_BATCH_SIZE,
 	                                                   G_PARAM_READWRITE));
+	/**
+	 * TrackerDecorator::items-available:
+	 * @decorator: the #TrackerDecorator
+	 *
+	 * The ::items-available signal will be emitted whenever the
+	 * #TrackerDecorator sees resources that are available for
+	 * extended metadata extraction.
+	 *
+	 * Since: 0.18
+	 **/
 	signals[ITEMS_AVAILABLE] =
 		g_signal_new ("items-available",
 		              G_OBJECT_CLASS_TYPE (object_class),
@@ -873,6 +898,16 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 		                               items_available),
 		              NULL, NULL, NULL,
 		              G_TYPE_NONE, 0);
+	/**
+	 * TrackerDecorator::finished:
+	 * @decorator: the #TrackerDecorator
+	 *
+	 * The ::finished signal will be emitted whenever the
+	 * #TrackerDecorator has finished extracted extended metadata
+	 * for resources in the database.
+	 *
+	 * Since: 0.18
+	 **/
 	signals[FINISHED] =
 		g_signal_new ("finished",
 		              G_OBJECT_CLASS_TYPE (object_class),
@@ -898,6 +933,18 @@ tracker_decorator_init (TrackerDecorator *decorator)
 	priv->timer = g_timer_new ();
 }
 
+/**
+ * tracker_decorator_get_data_source:
+ * @decorator: a #TrackerDecorator.
+ *
+ * The unique string identifying this #TrackerDecorator that has
+ * extracted the extended metadata. This is essentially an identifier
+ * so it's clear WHO has extracted this extended metadata.
+ *
+ * Returns: a const gchar* or #NULL if an error happened.
+ *
+ * Since: 0.18
+ **/
 const gchar *
 tracker_decorator_get_data_source (TrackerDecorator *decorator)
 {
@@ -909,6 +956,17 @@ tracker_decorator_get_data_source (TrackerDecorator *decorator)
 	return priv->data_source;
 }
 
+/**
+ * tracker_decorator_get_class_names:
+ * @decorator: a #TrackerDecorator.
+ *
+ * This function returns a string list of class names which are being
+ * updated with extended metadata. An example would be 'nfo:Document'.
+ *
+ * Returns: (transfer none): a const gchar** or #NULL.
+ *
+ * Since: 0.18
+ **/
 const gchar **
 tracker_decorator_get_class_names (TrackerDecorator *decorator)
 {
@@ -920,6 +978,14 @@ tracker_decorator_get_class_names (TrackerDecorator *decorator)
 	return (const gchar **) priv->class_names;
 }
 
+/**
+ * tracker_decorator_get_n_items:
+ * @decorator: a #TrackerDecorator.
+ *
+ * Returns: the number of items queued to be processed, always >= 0.
+ *
+ * Since: 0.18
+ **/
 guint
 tracker_decorator_get_n_items (TrackerDecorator *decorator)
 {
@@ -931,6 +997,19 @@ tracker_decorator_get_n_items (TrackerDecorator *decorator)
 	return g_hash_table_size (priv->elems);
 }
 
+/**
+ * tracker_decorator_prepend_ids:
+ * @decorator: a #TrackerDecorator.
+ * @ids: an array of IDs.
+ * @n_ids: size of @ids array.
+ *
+ * Adds resources needing extended metadata extraction to the queue.
+ * IDs parsed in @ids are based on the same IDs emitted by
+ * tracker-store when the database is updated for consistency. For
+ * details, see the GraphUpdated signal.
+ *
+ * Since: 0.18
+ **/
 void
 tracker_decorator_prepend_ids (TrackerDecorator *decorator,
                                gint             *ids,
@@ -947,6 +1026,19 @@ tracker_decorator_prepend_ids (TrackerDecorator *decorator,
 		element_add (decorator, ids[i], TRUE);
 }
 
+/**
+ * tracker_decorator_delete_ids:
+ * @decorator: a #TrackerDecorator.
+ * @ids: an array of IDs.
+ * @n_ids: size of @ids array.
+ *
+ * Deletes resources needing extended metadata extraction from the
+ * queue. IDs parsed in @ids are based on the same IDs emitted by
+ * tracker-store when the database is updated for consistency. For
+ * details, see the GraphUpdated signal.
+ *
+ * Since: 0.18
+ **/
 void
 tracker_decorator_delete_ids (TrackerDecorator *decorator,
                               gint             *ids,
@@ -1133,6 +1225,22 @@ query_next_items (TrackerDecorator *decorator,
 	g_free (query);
 }
 
+/**
+ * tracker_decorator_next:
+ * @decorator: a #TrackerDecorator.
+ * @cancellable: a #GCancellable.
+ * @callback: a #GAsyncReadyCallback.
+ * @user_data: user_data for @callback.
+ *
+ * Processes the next resource in the queue to have extended metadata
+ * extracted. If the item in the queue has been completed already, it
+ * signals it's completion instead.
+ *
+ * This function will give a #GError if the miner is paused at the
+ * time it is called.
+ *
+ * Since: 0.18
+ **/
 void
 tracker_decorator_next (TrackerDecorator    *decorator,
                         GCancellable        *cancellable,
@@ -1169,6 +1277,20 @@ tracker_decorator_next (TrackerDecorator    *decorator,
 		query_next_items (decorator, task);
 }
 
+/**
+ * tracker_decorator_next_finish:
+ * @decorator: a #TrackerDecorator.
+ * @result: a #GAsyncResult.
+ * @error: return location for a #GError, or NULL.
+ *
+ * Should be called in the callback function provided to
+ * tracker_decorator_next() to return the result of the task be it an
+ * error or not.
+ *
+ * Returns: (transfer full): (boxed): a #TrackerDecoratorInfo on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 TrackerDecoratorInfo *
 tracker_decorator_next_finish (TrackerDecorator  *decorator,
                                GAsyncResult      *result,
@@ -1181,6 +1303,17 @@ tracker_decorator_next_finish (TrackerDecorator  *decorator,
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
 
+/**
+ * tracker_decorator_info_get_urn:
+ * @info: a #TrackerDecoratorInfo.
+ *
+ * A URN is a Uniform Resource Name and should be a unique identifier
+ * for a resource in the database.
+ *
+ * Returns: the URN for #TrackerDecoratorInfo on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 const gchar *
 tracker_decorator_info_get_urn (TrackerDecoratorInfo *info)
 {
@@ -1188,6 +1321,17 @@ tracker_decorator_info_get_urn (TrackerDecoratorInfo *info)
 	return info->urn;
 }
 
+/**
+ * tracker_decorator_info_get_url:
+ * @info: a #TrackerDecoratorInfo.
+ *
+ * A URL is a Uniform Resource Locator and should be a location associated
+ * with a resource in the database. For example, 'file:///tmp/foo.txt'.
+ *
+ * Returns: the URL for #TrackerDecoratorInfo on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 const gchar *
 tracker_decorator_info_get_url (TrackerDecoratorInfo *info)
 {
@@ -1195,6 +1339,20 @@ tracker_decorator_info_get_url (TrackerDecoratorInfo *info)
 	return info->url;
 }
 
+/**
+ * tracker_decorator_info_get_mimetype:
+ * @info: a #TrackerDecoratorInfo.
+ *
+ * A MIME¹ type is a way of describing the content type of a file or
+ * set of data. An example would be 'text/plain' for a clear text
+ * document or file.
+ *
+ * ¹: http://en.wikipedia.org/wiki/MIME
+ *
+ * Returns: the MIME type for #TrackerDecoratorInfo on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 const gchar *
 tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info)
 {
@@ -1202,6 +1360,18 @@ tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info)
 	return info->mimetype;
 }
 
+/**
+ * tracker_decorator_info_get_task:
+ * @info: a #TrackerDecoratorInfo.
+ *
+ * When processing resource updates in the database, the #GTask APIs
+ * are used. This function returns the particular #GTask used for
+ * @info.
+ *
+ * Returns: (transfer none): the #GTask on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 GTask *
 tracker_decorator_info_get_task (TrackerDecoratorInfo *info)
 {
@@ -1209,6 +1379,21 @@ tracker_decorator_info_get_task (TrackerDecoratorInfo *info)
 	return info->task;
 }
 
+/**
+ * tracker_decorator_info_get_sparql:
+ * @info: a #TrackerDecoratorInfo.
+ *
+ * A #TrackerSparqlBuilder allows the caller to extract the final
+ * SPARQL used to insert the extracted metadata into the database for
+ * the resource being processed.
+ *
+ * This function calls g_task_get_task_data() on the return value of
+ * tracker_decorator_info_get_task().
+ *
+ * Returns: (transfer none): a #TrackerSparqlBuilder on success or #NULL on error.
+ *
+ * Since: 0.18
+ **/
 TrackerSparqlBuilder *
 tracker_decorator_info_get_sparql (TrackerDecoratorInfo *info)
 {
