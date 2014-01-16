@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+
 #include "tracker-decorator.h"
 
 #define QUERY_BATCH_SIZE 100
