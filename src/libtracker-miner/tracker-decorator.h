@@ -39,11 +39,27 @@ typedef struct _TrackerDecorator TrackerDecorator;
 typedef struct _TrackerDecoratorClass TrackerDecoratorClass;
 typedef struct _TrackerDecoratorInfo TrackerDecoratorInfo;
 
+/**
+ * TrackerDecorator:
+ *
+ * Abstract miner object.
+ **/
 struct _TrackerDecorator {
 	TrackerMiner parent_instance;
 	gpointer priv;
 };
 
+/**
+ * TrackerDecoratorClass:
+ * @parent_class: parent object class.
+ * @items_available: Called when there are resources to be processed.
+ * @finished: Called when all resources have been processed.
+ *
+ * An implementation that takes care of extracting extra metadata
+ * specific to file types by talking to tracker-extract.
+ *
+ * Based on #TrackerMinerClass.
+ **/
 struct _TrackerDecoratorClass {
 	TrackerMinerClass parent_class;
 
@@ -66,7 +82,7 @@ void          tracker_decorator_delete_ids        (TrackerDecorator     *decorat
 
 void          tracker_decorator_next              (TrackerDecorator     *decorator,
                                                    GCancellable         *cancellable,
-                                                   GAsyncReadyCallback   func,
+                                                   GAsyncReadyCallback   callback,
                                                    gpointer              user_data);
 
 TrackerDecoratorInfo *

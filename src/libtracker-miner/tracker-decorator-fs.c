@@ -27,6 +27,17 @@
 
 #define TRACKER_DECORATOR_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR_FS, TrackerDecoratorFSPrivate))
 
+/**
+ * SECTION:tracker-decorator-fs
+ * @short_description: Filesystem implementation for TrackerDecorator
+ * @include: libtracker-miner/tracker-miner.h
+ * @title: TrackerDecoratorFS
+ * @see_also: #TrackerDecorator
+ *
+ * #TrackerDecoratorFS is used to handle extended metadata extraction
+ * for resources on file systems that are mounted or unmounted.
+ **/
+
 typedef struct _TrackerDecoratorFSPrivate TrackerDecoratorFSPrivate;
 
 struct _TrackerDecoratorFSPrivate {

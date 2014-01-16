@@ -38,11 +38,23 @@ G_BEGIN_DECLS
 typedef struct _TrackerDecoratorFS TrackerDecoratorFS;
 typedef struct _TrackerDecoratorFSClass TrackerDecoratorFSClass;
 
+/**
+ * TrackerDecoratorFS:
+ *
+ * A decorator object.
+ **/
 struct _TrackerDecoratorFS {
 	TrackerDecorator parent_instance;
 	gpointer priv;
 };
 
+/**
+ * TrackerDecoratorFSClass:
+ * @parent_class: parent object class.
+ *
+ * A class that takes care of resources on mount points added or
+ * removed, this is based on #TrackerDecoratorClass.
+ **/
 struct _TrackerDecoratorFSClass {
 	TrackerDecoratorClass parent_class;
 };
