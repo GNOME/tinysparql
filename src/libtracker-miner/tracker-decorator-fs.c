@@ -17,9 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 #include "config.h"
-#include "tracker-decorator-fs.h"
+
+#include <glib.h>
+
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-miner/tracker-storage.h>
+
+#include "tracker-decorator-fs.h"
 
 #define TRACKER_DECORATOR_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR_FS, TrackerDecoratorFSPrivate))
 

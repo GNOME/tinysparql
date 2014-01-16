@@ -18,15 +18,17 @@
  */
 
 #include "config.h"
-#include "tracker-extract-decorator.h"
+
 #include <libtracker-extract/tracker-extract.h>
-#include "tracker-extract.h"
+
+#include "tracker-extract-decorator.h"
 
 enum {
 	PROP_EXTRACTOR = 1
 };
 
 #define TRACKER_EXTRACT_DATA_SOURCE "tracker:extractor-data-source"
+
 #define TRACKER_EXTRACT_DECORATOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_EXTRACT_DECORATOR, TrackerExtractDecoratorPrivate))
 
 typedef struct _TrackerExtractDecoratorPrivate TrackerExtractDecoratorPrivate;
