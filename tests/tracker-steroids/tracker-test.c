@@ -209,6 +209,26 @@ test_tracker_sparql_query_iterate_error ()
 
 /* Runs a query returning an empty set */
 static void
+test_tracker_sparql_query_iterate_empty_subprocess ()
+{
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	const gchar *query = "SELECT ?r WHERE {?r a nfo:FileDataObject; nao:identifier \"thisannotationdoesnotexist\"}";
+
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+
+	tracker_sparql_cursor_next (cursor, NULL, NULL);
+
+	/* Testing we fail with this error:
+	 *
+	 *   Tracker-CRITICAL **:
+	 *   tracker_bus_fd_cursor_real_get_string: assertion '(_tmp0_
+	 *   < _tmp2_) && (_tmp3_ != NULL)' failed
+	 */
+	tracker_sparql_cursor_get_string (cursor, 0, NULL);
+}
+
+static void
 test_tracker_sparql_query_iterate_empty ()
 {
 	TrackerSparqlCursor *cursor;
@@ -224,10 +244,8 @@ test_tracker_sparql_query_iterate_empty ()
 	/* This should be 1, the original test had it wrong: there's one column,
 	 * no matter if there are no results*/
 	g_assert (tracker_sparql_cursor_get_n_columns (cursor) == 1);
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		exit (0);
-	}
+
+	g_test_trap_subprocess ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", 0, 0);
 	g_test_trap_assert_failed ();
 
 	g_object_unref (cursor);
@@ -675,6 +693,7 @@ main (gint argc, gchar **argv)
 	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_largerow", test_tracker_sparql_query_iterate_largerow);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_error", test_tracker_sparql_query_iterate_error);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_empty", test_tracker_sparql_query_iterate_empty);
+	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", test_tracker_sparql_query_iterate_empty_subprocess);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_sigpipe", test_tracker_sparql_query_iterate_sigpipe);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_fast_small", test_tracker_sparql_update_fast_small);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_fast_large", test_tracker_sparql_update_fast_large);
