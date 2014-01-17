@@ -260,7 +260,12 @@ load_in_memory (Ontology    *ontology,
 		/*
 		 * X nao:deprecated true
 		 *
-		 * This can apply to classes OR properties!
+		 * This can apply to classes OR properties OR
+		 * namespaces!
+		 *
+		 * NOTE: there is no way to check if we're dealing
+		 * with a namespace or not, so we don't error here if
+		 * we can't verify the property of class.
 		 */
 		OntologyProperty *prop;
 		OntologyClass *klass;
@@ -273,8 +278,6 @@ load_in_memory (Ontology    *ontology,
 			klass = g_hash_table_lookup (ontology->classes, turtle_subject);
 			if (klass) {
 				klass->deprecated = string_to_boolean (turtle_object);
-			} else {
-				g_error ("'%s' is not a class nor a property!?", turtle_subject);
 			}
 		}
 
