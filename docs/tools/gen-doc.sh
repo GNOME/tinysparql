@@ -19,12 +19,19 @@
 # 02110-1301, USA.
 #
 
+if [ $# -lt 4 ]; then
+	echo "Insufficient arguments provided"
+	echo "Usage: $0 <ttl2sgml> <ontology-data-dir> <ontology-info-dir> <build-dir>"
+	exit 1;
+fi
+
 TTL2SGML=$1
 ONTOLOGIES_DATA_DIR=$2
 ONTOLOGIES_INFO_DIR=$3
 BUILD_DIR=$4
 
-echo "Preparing file full text index properties (fts-properties.xml)"
+echo "Building ontology documentation..."
+echo "- Preparing file full text index properties (fts-properties.xml)"
 
 echo "<?xml version='1.0' encoding='UTF-8'?>
 <chapter id='fts-properties'>
@@ -46,10 +53,12 @@ for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     # ../../data/ontologies/XX-aaa.description -> PREFIX=aaa
     TMPNAME=${f%.description}
     PREFIX=${TMPNAME#*-}
-    echo "Generating $PREFIX documentation"
+    echo "- Generating $PREFIX documentation"
 
     $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -f $BUILD_DIR/fts-properties.xml \
 	-e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
 done
 
 echo "</tbody></table></chapter>" >> $BUILD_DIR/fts-properties.xml
+
+echo "Done"
