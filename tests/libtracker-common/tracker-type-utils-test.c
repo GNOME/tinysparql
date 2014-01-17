@@ -103,6 +103,32 @@ test_guint32_to_string (void)
 }
 
 static void
+test_string_to_uint_failures_subprocess_1 (void)
+{
+	guint num = 10;
+
+	tracker_string_to_uint (NULL, &num);
+}
+
+static void
+test_string_to_uint_failures_subprocess_2 (void)
+{
+	tracker_string_to_uint ("199", NULL);
+}
+
+static void
+test_string_to_uint_failures (void)
+{
+	g_test_trap_subprocess ("/libtracker-common/tracker-type-utils/string_to_uint_failures/subprocess/1", 0, 0);
+	g_test_trap_assert_failed ();
+	g_test_trap_assert_stderr ("*assertion 's != NULL' failed*");
+
+	g_test_trap_subprocess ("/libtracker-common/tracker-type-utils/string_to_uint_failures/subprocess/2", 0, 0);
+	g_test_trap_assert_failed ();
+	g_test_trap_assert_stderr ("*assertion 'value != NULL' failed*");
+}
+
+static void
 test_string_to_uint (void)
 {
 	guint num_result, rc;
@@ -112,28 +138,31 @@ test_string_to_uint (void)
 	g_assert (rc);
 	g_assert_cmpint (num_result, ==, 10);
 
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		rc = tracker_string_to_uint (NULL, &num_result);
-	}
-	g_test_trap_assert_failed ();
-
-	/* ???? FIXME */
-	rc = tracker_string_to_uint ("-20", &num_result);
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_string_to_uint (NULL, &num_result);
-	}
-	g_test_trap_assert_failed ();
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_string_to_uint ("199", NULL);
-	}
-	g_test_trap_assert_failed ();
-
 	rc = tracker_string_to_uint ("i am not a number", &num_result);
 	g_assert (!rc);
 	g_assert_cmpint (rc, ==, 0);
+}
+
+static void
+test_string_in_string_list_failures_subprocess (void)
+{
+	const gchar *complete = "This is an extract of text with different terms an props like Audio:Title ...";
+	gchar **pieces;
+
+	pieces = g_strsplit (complete, " ", -1);
+
+	g_assert_cmpint (tracker_string_in_string_list (NULL, pieces), ==, -1);
+
+	g_strfreev (pieces);
+}
+
+static void
+test_string_in_string_list_failures (void)
+{
+
+	g_test_trap_subprocess ("/libtracker-common/tracker-type-utils/string_in_string_list_failures/subprocess", 0, 0);
+	g_test_trap_assert_failed ();
+	g_test_trap_assert_stderr ("*assertion 'str != NULL' failed*");
 }
 
 static void
@@ -147,15 +176,7 @@ test_string_in_string_list (void)
 	g_assert_cmpint (tracker_string_in_string_list ("is", pieces), ==, 1);
 	g_assert_cmpint (tracker_string_in_string_list ("Audio:Title", pieces), ==, 12);
 
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		g_assert_cmpint (tracker_string_in_string_list (NULL, pieces), ==, -1);
-	}
-	g_test_trap_assert_failed ();
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		g_assert_cmpint (tracker_string_in_string_list ("terms", NULL), ==, -1);
-	}
-	g_test_trap_assert_failed ();
+	g_assert_cmpint (tracker_string_in_string_list ("terms", NULL), ==, -1);
 }
 
 static void
@@ -198,12 +219,9 @@ test_gslist_to_string_list (void)
 
 	g_strfreev (result);
 
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result = tracker_gslist_to_string_list (NULL);
-		g_strfreev (result);
-	}
-
-	g_test_trap_assert_failed ();
+	result = tracker_gslist_to_string_list (NULL);
+	g_assert (result != NULL);
+	g_strfreev (result);
 }
 
 static void
@@ -253,12 +271,8 @@ test_string_list_to_string (void)
 	g_assert_cmpstr ("one_two_three", ==, result);
 	g_free (result);
 
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result = tracker_string_list_to_string (NULL, 6, 'x');
-		g_free (result);
-	}
-	g_test_trap_assert_failed ();
+	result = tracker_string_list_to_string (NULL, 6, 'x');
+	g_assert (result == NULL);
 
 	result = tracker_string_list_to_string (pieces, -1, ' ');
 	g_assert_cmpstr (input, ==, result);
@@ -280,6 +294,20 @@ test_string_to_string_list (void)
         result = tracker_string_to_string_list (input);
         g_assert_cmpint (g_strv_length (result), ==, 1);
         g_assert_cmpstr (result [0], ==, "first line");
+}
+
+static void
+test_boolean_as_text_to_number_failures_subprocess (void)
+{
+	tracker_string_boolean_to_string_gint (NULL);
+}
+
+static void
+test_boolean_as_text_to_number_failures (void)
+{
+	g_test_trap_subprocess ("/libtracker-common/tracker-type-utils/boolean_as_text_to_number_failures/subprocess", 0, 0);
+	g_test_trap_assert_failed ();
+	g_test_trap_assert_stderr ("*assertion 'value != NULL' failed*");
 }
 
 static void
@@ -326,13 +354,6 @@ test_boolean_as_text_to_number (void)
 	result = tracker_string_boolean_to_string_gint ("Other invalid value");
         g_assert_cmpstr (result, ==, "Other invalid value");
 	g_free (result);
-
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result = tracker_string_boolean_to_string_gint (NULL);
-		g_free (result);
-	}
-	g_test_trap_assert_failed ();
 }
 
 static void
@@ -401,6 +422,10 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/libtracker-common/tracker-type-utils/boolean_as_text_to_number",
 	                 test_boolean_as_text_to_number);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/boolean_as_text_to_number_failures",
+	                 test_boolean_as_text_to_number_failures);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/boolean_as_text_to_number_failures/subprocess",
+	                 test_boolean_as_text_to_number_failures_subprocess);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_list_as_list",
 	                 test_string_list_to_string);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_list_as_list",
@@ -409,12 +434,22 @@ main (int argc, char **argv)
 	                 test_gslist_to_string_list);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_in_string_list",
 	                 test_string_in_string_list);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_in_string_list_failures",
+	                 test_string_in_string_list_failures);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_in_string_list_failures/subprocess",
+	                 test_string_in_string_list_failures_subprocess);
         g_test_add_func ("/libtracker-common/tracker-type-utils/string_in_gslist",
                          test_string_in_gslist);
         g_test_add_func ("/libtracker-common/tracker-type-utils/string_list_to_gslist",
                          test_string_list_to_gslist);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_uint",
 	                 test_string_to_uint);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_uint_failures",
+	                 test_string_to_uint_failures);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_uint_failures/subprocess/1",
+	                 test_string_to_uint_failures_subprocess_1);
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_uint_failures/subprocess/2",
+	                 test_string_to_uint_failures_subprocess_2);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/guint32_to_string",
 	                 test_guint32_to_string);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/gint32_to_string",

@@ -180,19 +180,29 @@ get_example_expected (void)
 };
 
 static void
+test_parsing_xmp_invalid_file_subprocess (void)
+{
+	TrackerXmpData *data;
+
+	data = tracker_xmp_new (BROKEN_XMP, strlen (BROKEN_XMP), "test://file");
+	g_assert (data != NULL);
+
+	tracker_xmp_free (data);
+}
+
+static void
+test_parsing_xmp_invalid_file (void)
+{
+	g_test_trap_subprocess ("/libtracker-extract/tracker-xmp/parsing_xmp_invalid_file/subprocess", 0, 0);
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stderr ("*parsing failure*");
+}
+
+static void
 test_parsing_xmp (void)
 {
 	TrackerXmpData *data;
 	TrackerXmpData *expected;
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		data = tracker_xmp_new (BROKEN_XMP, strlen (BROKEN_XMP), "test://file");
-		g_assert (data != NULL);
-
-		tracker_xmp_free (data);
-	}
-
-	g_test_trap_assert_stderr ("*parsing failure*");
 
 	data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "test://file");
 	expected = get_example_expected ();
@@ -605,6 +615,11 @@ main (int    argc,
 
 	g_test_add_func ("/libtracker-extract/tracker-xmp/parsing_xmp",
 	                 test_parsing_xmp);
+
+	g_test_add_func ("/libtracker-extract/tracker-xmp/parsing_xmp_invalid_file",
+	                 test_parsing_xmp_invalid_file);
+	g_test_add_func ("/libtracker-extract/tracker-xmp/parsing_xmp_invalid_file/subprocess",
+	                 test_parsing_xmp_invalid_file_subprocess);
 
 	g_test_add_func ("/libtracker-extract/tracker-xmp/metering-mode",
 	                 test_xmp_metering_mode);

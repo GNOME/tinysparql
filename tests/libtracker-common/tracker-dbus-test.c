@@ -43,13 +43,12 @@ log_handler (const gchar    *domain,
 		g_print ("%s\n", message);
 }
 
-static void
-slist_to_strv (gboolean utf8)
+static inline GSList *
+slist_to_strv_get_source (gint     strings,
+                          gboolean utf8)
 {
 	GSList *input = NULL;
-	gint    i;
-	gchar **input_as_strv;
-	gint    strings = 5;
+	gint i;
 
 	for (i = 0; i < strings; i++) {
 		if (utf8) {
@@ -58,261 +57,105 @@ slist_to_strv (gboolean utf8)
 			input = g_slist_prepend (input, g_strdup (tracker_test_helpers_get_nonutf8 ()));
 		}
 	}
-	g_assert_cmpint (g_slist_length (input), ==, strings);
 
-	if (utf8) {
-		input_as_strv = tracker_dbus_slist_to_strv (input);
+	return input;
+}
 
-		g_assert_cmpint (g_strv_length (input_as_strv), ==, (utf8 ? strings : 0));
-		g_strfreev (input_as_strv);
-	} else {
-		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-			g_log_set_default_handler (log_handler, NULL);
-			input_as_strv = tracker_dbus_slist_to_strv (input);
-			g_strfreev (input_as_strv);
-		}
-		/* Error message:
-		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
-		 */
-		g_test_trap_assert_stderr ("*Could not add string:*");
-	}
+static void
+test_slist_to_strv_failures_subprocess (void)
+{
+	GSList *input;
+	gchar **input_as_strv;
+
+	input = slist_to_strv_get_source (5, FALSE);
+
+	g_log_set_default_handler (log_handler, NULL);
+	input_as_strv = tracker_dbus_slist_to_strv (input);
+	g_assert_cmpint (g_strv_length (input_as_strv), ==, 0);
+	g_strfreev (input_as_strv);
 
 	g_slist_foreach (input, (GFunc) g_free, NULL);
 	g_slist_free (input);
 }
 
 static void
+test_slist_to_strv_failures (void)
+{
+	g_test_trap_subprocess ("/libtracker-common/tracker-dbus/slist_to_strv_failures/subprocess", 0, 0);
+
+	/* Error message:
+	 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
+	 */
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stderr ("*Could not add string:*");
+}
+
+static void
 test_slist_to_strv (void)
 {
-	slist_to_strv (TRUE);
+	GSList *input;
+	gchar **input_as_strv;
+	gint strings = 5;
+
+	input = slist_to_strv_get_source (strings, TRUE);
+	g_assert_cmpint (g_slist_length (input), ==, strings);
+
+	input_as_strv = tracker_dbus_slist_to_strv (input);
+
+	g_assert_cmpint (g_strv_length (input_as_strv), ==, strings);
+	g_strfreev (input_as_strv);
+
+	g_slist_foreach (input, (GFunc) g_free, NULL);
+	g_slist_free (input);
 }
 
-#if 0
-
 static void
-test_slist_to_strv_nonutf8 (void)
-{
-	slist_to_strv (FALSE);
-}
-
-#endif
-
-#if 0
-
-static void
-test_async_queue_to_strv_nonutf8 (void)
-{
-	async_queue_to_strv (FALSE);
-}
-
-#endif
-
-static void
-test_dbus_request_failed (void)
+test_dbus_request_subprocess (void)
 {
 	TrackerDBusRequest *request;
 	GError *error = NULL;
 
-	/* For some (unknown) reason, this calls don't appear in the
-	 * coverage evaluation. */
+	tracker_dbus_enable_client_lookup (FALSE);
 
+	g_log_set_default_handler (log_handler, NULL);
+
+	/* New request case */
+	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+	                                      "Test request (%s))",
+	                                      "--TestNewOK--");
+	tracker_dbus_request_end (request, NULL);
+
+	/* Comment and success case */
+	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+	                                      "Test request (%s))",
+	                                      "--TestNewOK--");
+	tracker_dbus_request_comment (request,
+	                              "Well (%s)",
+	                              "--TestCommentOK--");
+	tracker_dbus_request_end (request, NULL);
+
+	/* Error case */
 	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
 	                                      "%s()",
 	                                      __PRETTY_FUNCTION__);
 
-	/* We have already the error and want only the log line */
 	error = g_error_new (1000, -1, "The indexer founded an error");
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_end (request, error);
-	}
-
-	g_test_trap_assert_stderr ("*The indexer founded an error*");
+	tracker_dbus_request_end (request, error);
 	g_error_free (error);
 }
 
 static void
-test_dbus_request ()
+test_dbus_request (void)
 {
-	TrackerDBusRequest *request;
-
-	tracker_dbus_enable_client_lookup (FALSE);
-
 	/* Checking the logging output */
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-		                                      "Test request (%s))",
-		                                      "--TestNewOK--");
-		exit (0);
-	}
+	g_test_trap_subprocess ("/libtracker-common/tracker-dbus/request/subprocess", 0, 0);
 
 	g_test_trap_assert_passed ();
 	g_test_trap_assert_stdout ("*TestNewOK*");
-
-	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-	                                      "Test request (%s))",
-	                                      "--TestNewOK--");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_comment (request,
-		                              "Well (%s)",
-		                              "--TestCommentOK--");
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
 	g_test_trap_assert_stderr ("*TestCommentOK*");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_end (request, NULL);
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
 	g_test_trap_assert_stdout ("*Success*");
+	g_test_trap_assert_stderr ("*The indexer founded an error*");
 }
-#if 0
-static void
-test_dbus_request_client_lookup ()
-{
-	TrackerDBusRequest *request;
-
-	tracker_dbus_enable_client_lookup (TRUE);
-
-
-	/* Checking the logging output */
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-		                                      "Test request (%s))",
-		                                      "--TestNewOK--");
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-	g_test_trap_assert_stdout ("*TestNewOK*");
-	g_test_trap_assert_stdout ("*lt-tracker-dbus*");
-
-	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-	                                      "Test request (%s))",
-	                                      "--TestNewOK--");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_comment (request,
-		                              "Well (%s)",
-		                              "--TestCommentOK--");
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-	g_test_trap_assert_stderr ("*TestCommentOK*");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_info (request,
-		                           "Test info %s",
-		                           "--TestInfoOK--");
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-	g_test_trap_assert_stdout ("*TestInfoOK*");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_debug (request,
-		                            "Test debug %s",
-		                            "--TestDebugOK--");
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-	g_test_trap_assert_stdout ("*TestDebugOK*");
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-		g_log_set_default_handler (log_handler, NULL);
-		tracker_dbus_request_end (request, NULL);
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-	g_test_trap_assert_stdout ("*Success*");
-
-	/* Force client shutdown */
-	tracker_dbus_enable_client_lookup (FALSE);
-}
-
-static void
-test_dbus_request_client_lookup_monothread ()
-{
-	/* Run everything in the same fork to check the clients_shutdown code */
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
-		TrackerDBusRequest *request;
-
-		g_log_set_default_handler (log_handler, NULL);
-
-		tracker_dbus_enable_client_lookup (TRUE);
-		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-		                                      "Test request (%s))",
-		                                      "--TestNewOK--");
-		tracker_dbus_request_comment (request,
-		                              "Well (%s)",
-		                              "--TestCommentOK--");
-/*
-		tracker_dbus_request_end (request, NULL,
-		                          "--TestFailedOK--");
-		tracker_quark = tracker_dbus_error_quark ();
-		error = g_error_new (tracker_quark, -1, "test_using_g_error");
-		tracker_dbus_request_end (tracker_quark, error);
-*/
-
-		tracker_dbus_request_end (request, NULL);
-		/* Force client shutdown */
-		tracker_dbus_enable_client_lookup (FALSE);
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-}
-
-static void
-test_dbus_request_failed_coverage ()
-{
-	/* Repeat the failed test case in one thread to get coverage */
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
-		GQuark tracker_quark;
-		GError *error = NULL;
-		TrackerDBusRequest *request;
-
-		g_log_set_default_handler (log_handler, NULL);
-
-		tracker_dbus_enable_client_lookup (TRUE);
-
-		/* Using GError */
-		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-		                                      "Test request (%s))",
-		                                      "--TestNewOK--");
-		tracker_quark = tracker_dbus_error_quark ();
-		error = g_error_new (tracker_quark, -1, "test_using_g_error");
-		tracker_dbus_request_end (request, error);
-
-		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
-		                                      "Test request (%s))",
-		                                      "--TestNewOK--");
-		tracker_dbus_request_end (request, NULL);
-
-		/* Force client shutdown */
-		tracker_dbus_enable_client_lookup (FALSE);
-		exit (0);
-	}
-
-	g_test_trap_assert_passed ();
-}
-#endif
 
 int
 main (int argc, char **argv) {
@@ -332,18 +175,21 @@ main (int argc, char **argv) {
 
 	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok",
 	                 test_slist_to_strv);
+	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_failures",
+	                 test_slist_to_strv_failures);
+	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_failures/subprocess",
+	                 test_slist_to_strv_failures_subprocess);
 	g_test_add_func ("/libtracker-common/tracker-dbus/request",
 	                 test_dbus_request);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request/subprocess",
+	                 test_dbus_request_subprocess);
 /* port to gdbus first
 	 g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
 	                 test_dbus_request_client_lookup);
 
 	g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
 	                 test_dbus_request_client_lookup_monothread);
-*/
-	g_test_add_func ("/libtracker-common/tracker-dbus/request_failed",
-	                 test_dbus_request_failed);
-/*	g_test_add_func ("/libtracker-common/tracker-dbus/request_failed_coverage",
+	g_test_add_func ("/libtracker-common/tracker-dbus/request_failed_coverage",
 	                 test_dbus_request_failed_coverage);
 */
 	result = g_test_run ();
