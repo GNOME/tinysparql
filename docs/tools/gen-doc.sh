@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Generates the SGML documentation from a TTL description
 # Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
