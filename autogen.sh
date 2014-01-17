@@ -48,7 +48,7 @@ test -n "$srcdir" || srcdir=.
 (
   cd "$srcdir" &&
   touch ChangeLog && # Automake requires that ChangeLog exist
-  gtkdocize &&
+  gtkdocize --flavour no-tmpl &&
   autopoint --force &&
   AUTOPOINT='intltoolize --automake --copy' autoreconf --verbose --force --install
 ) || exit
