@@ -92,11 +92,11 @@ writeback_xmp_content_types (TrackerWritebackFile *wbf)
 		"image/tiff",  /* .tiff & .tif files */
 		"video/mp4",   /* .mp4 files */
 		"video/3gpp",  /* .3gpp files */
+                "image/gif",   /* .gif files */
 		NULL
 	};
 
-	/* "image/gif"                        .gif files
-	   "application/pdf"                  .pdf files
+	/* "application/pdf"                  .pdf files
 	   "application/rdf+xml"              .xmp files
 	   "application/postscript"           .ps files
 	   "application/x-shockwave-flash"    .swf files
