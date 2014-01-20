@@ -663,10 +663,6 @@ dispatch_task_cb (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-	g_mutex_lock (&priv->task_mutex);
-	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
-	g_mutex_unlock (&priv->task_mutex);
-
 	switch (thread_awareness) {
 	case TRACKER_MODULE_NONE:
 		/* Error out */
@@ -769,6 +765,14 @@ tracker_extract_file (TrackerExtract      *extract,
 		g_simple_async_result_complete_in_idle (res);
 		g_error_free (error);
 	} else {
+		TrackerExtractPrivate *priv;
+
+		priv = TRACKER_EXTRACT_GET_PRIVATE (task->extract);
+
+		g_mutex_lock (&priv->task_mutex);
+		priv->running_tasks = g_list_prepend (priv->running_tasks, task);
+		g_mutex_unlock (&priv->task_mutex);
+
 		g_idle_add ((GSourceFunc) dispatch_task_cb, task);
 	}
 
