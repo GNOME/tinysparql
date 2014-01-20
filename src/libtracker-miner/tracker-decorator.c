@@ -197,8 +197,10 @@ decorator_update_state (TrackerDecorator *decorator,
 		/* FIXME: Quite naive calculation */
 		elapsed = g_timer_elapsed (priv->timer, NULL);
 		elems_done = priv->stats_n_elems - priv->elem_queue->length;
-		remaining_time = (priv->elem_queue->length * elapsed) /
-			elems_done;
+
+		if (elems_done > 0)
+			remaining_time = (priv->elem_queue->length * elapsed) /
+				elems_done;
 	}
 
 	g_object_set (decorator,
