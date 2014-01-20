@@ -642,6 +642,8 @@ class_signal_cb (GDBusConnection *connection,
 	g_variant_get (parameters, "(&sa(iiii)a(iiii))", NULL, &iter1, &iter2);
 	handle_deletes (user_data, iter1);
 	handle_updates (user_data, iter2);
+	g_variant_iter_free (iter1);
+	g_variant_iter_free (iter2);
 }
 
 static gboolean
