@@ -1092,7 +1092,7 @@ complete_task (GTask    *task,
 	g_assert (node->info);
 
 	element_ensure_task (node, g_task_get_source_object (task));
-	g_task_return_pointer (task, tracker_decorator_info_ref (node->info),
+	g_task_return_pointer (task, node->info,
 	                       (GDestroyNotify) tracker_decorator_info_unref);
 	g_object_unref (task);
 }
