@@ -21,6 +21,8 @@
 #ifndef __LIBTRACKER_COMMON_IOPRIO_H__
 #define __LIBTRACKER_COMMON_IOPRIO_H__
 
+#include <glib.h>
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)

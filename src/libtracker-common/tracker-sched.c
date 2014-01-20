@@ -28,8 +28,6 @@
 #include <errno.h>
 #include <sched.h>
 
-#include <glib.h>
-
 #include "tracker-sched.h"
 
 gboolean

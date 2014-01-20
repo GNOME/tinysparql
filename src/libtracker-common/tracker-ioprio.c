@@ -42,8 +42,6 @@
 
 #endif /* __linux__ */
 
-#include <libtracker-common/tracker-log.h>
-
 #include "tracker-ioprio.h"
 
 /* We assume ALL linux architectures have the syscalls defined here */
