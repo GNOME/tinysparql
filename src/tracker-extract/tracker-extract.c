@@ -659,6 +659,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 	if (!module || !task->cur_func) {
 		g_warning ("Discarding task with no module '%s'", task->file);
 		priv->unhandled_count++;
+		extract_task_free (task);
 		return FALSE;
 	}
 
