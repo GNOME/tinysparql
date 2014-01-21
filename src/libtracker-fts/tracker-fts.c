@@ -82,7 +82,8 @@ function_offsets (sqlite3_context *context,
                   int              argc,
                   sqlite3_value   *argv[])
 {
-	gchar *offsets, **names;
+	gchar *offsets;
+	const gchar * const * names;
 	gint offset_values[4];
 	GString *result = NULL;
 	gint i = 0;
@@ -94,8 +95,8 @@ function_offsets (sqlite3_context *context,
 		return;
 	}
 
-	offsets = sqlite3_value_text (argv[0]);
-	names = (unsigned int *) sqlite3_value_blob (argv[1]);
+	offsets = (gchar *) sqlite3_value_text (argv[0]);
+	names = sqlite3_value_blob (argv[1]);
 
 	while (offsets && *offsets) {
 		offset_values[i] = g_strtod (offsets, &offsets);
