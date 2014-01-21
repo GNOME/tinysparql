@@ -74,7 +74,6 @@ static GMainLoop *main_loop;
 static gint verbosity = -1;
 static gchar *filename;
 static gchar *mime_type;
-static gboolean disable_shutdown;
 static gboolean force_internal_extractors;
 static gchar *force_module;
 static gboolean version;
@@ -95,12 +94,6 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_STRING, &mime_type,
 	  N_("MIME type for file (if not provided, this will be guessed)"),
 	  N_("MIME") },
-	/* Debug run is used to avoid that the mainloop exits, so that
-	 * as a developer you can be relax when running the tool in gdb */
-	{ "disable-shutdown", 'd', 0,
-	  G_OPTION_ARG_NONE, &disable_shutdown,
-	  N_("Disable shutting down after 30 seconds of inactivity"),
-	  NULL },
 	{ "force-internal-extractors", 'i', 0,
 	  G_OPTION_ARG_NONE, &force_internal_extractors,
 	  N_("Force internal extractors over 3rd parties like libstreamanalyzer"),
@@ -183,7 +176,6 @@ signal_handler (int signo)
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
-		disable_shutdown = FALSE;
 		g_main_loop_quit (main_loop);
 
 		/* Fall through */
@@ -287,7 +279,7 @@ run_standalone (TrackerConfig *config)
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
 
-	object = tracker_extract_new (disable_shutdown,
+	object = tracker_extract_new (TRUE,
 	                              force_internal_extractors,
 	                              force_module);
 
