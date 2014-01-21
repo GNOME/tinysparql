@@ -23,7 +23,7 @@ service_in_files = \
 	org.freedesktop.Tracker1.Miner.Files.service.in \
 	org.freedesktop.Tracker1.Miner.Userguides.service.in \
 	org.freedesktop.Tracker1.Miner.RSS.service.in  \
-	org.freedesktop.Tracker1.Extract.service.in \
+	org.freedesktop.Tracker1.Miner.Extract.service.in \
 	org.freedesktop.Tracker1.Writeback.service.in
 
 %.service: %.service.in
@@ -33,11 +33,11 @@ service_in_files = \
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = \
 	org.freedesktop.Tracker1.service \
-	org.freedesktop.Tracker1.Extract.service \
 	org.freedesktop.Tracker1.Writeback.service
 
 if HAVE_TRACKER_MINER_FS
 service_DATA += \
+	org.freedesktop.Tracker1.Miner.Extract.service \
 	org.freedesktop.Tracker1.Miner.Files.service \
 	org.freedesktop.Tracker1.Miner.Applications.service
 

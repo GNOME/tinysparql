@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 desktop_in_in_files =                                  \
+	tracker-miner-extract.desktop.in.in            \
 	tracker-miner-userguides.desktop.in.in         \
 	tracker-miner-applications.desktop.in.in       \
 	tracker-miner-evolution.desktop.in.in          \
@@ -8,6 +9,7 @@ desktop_in_in_files =                                  \
 	tracker-miner-rss.desktop.in.in
 
 desktop_in_files =                                     \
+	tracker-miner-extract.desktop.in               \
 	tracker-miner-userguides.desktop.in            \
 	tracker-miner-applications.desktop.in          \
 	tracker-miner-evolution.desktop.in             \
@@ -20,6 +22,7 @@ tracker_miners_DATA =
 
 if HAVE_TRACKER_MINER_FS
 tracker_miners_DATA +=                                 \
+	tracker-miner-extract.desktop                  \
 	tracker-miner-applications.desktop             \
 	tracker-miner-files.desktop
 

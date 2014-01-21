@@ -1294,6 +1294,7 @@ get_id3v24_tags (id3v24frame           frame,
 			g_strstrip (word);
 		} else {
 			/* Can't do anything without word. */
+			g_free (word);
 			break;
 		}
 
@@ -1485,6 +1486,7 @@ get_id3v23_tags (id3v24frame           frame,
 			g_strstrip (word);
 		} else {
 			/* Can't do anything without word. */
+			g_free (word);
 			break;
 		}
 

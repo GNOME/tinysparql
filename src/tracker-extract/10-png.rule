@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-png.so
 MimeTypes=image/png;sketch/png;
-
+FallbackRdfTypes=nfo:Image;nmm:Photo;

@@ -55,6 +55,10 @@ private_sources = 				       \
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
+	tracker-decorator.c                            \
+	tracker-decorator.h                            \
+	tracker-decorator-fs.c                         \
+	tracker-decorator-fs.h                         \
 	tracker-miner-dbus.h                           \
 	tracker-miner-enum-types.c                     \
 	tracker-miner-enum-types.h                     \
@@ -87,6 +91,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \
+	tracker-decorator.h                            \
+	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.h                        \
 	tracker-media-art.h                            \
 	tracker-miner.h                                \
@@ -108,7 +114,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

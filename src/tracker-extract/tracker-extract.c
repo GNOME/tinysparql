@@ -254,20 +254,24 @@ notify_task_finish (TrackerExtractTask *task,
 	 */
 	g_mutex_lock (&priv->task_mutex);
 
-	stats_data = g_hash_table_lookup (priv->statistics_data,
-	                                  task->cur_module);
+	if (task->cur_module) {
+		stats_data = g_hash_table_lookup (priv->statistics_data,
+						  task->cur_module);
 
-	if (!stats_data) {
-		stats_data = g_slice_new0 (StatisticsData);
-		g_hash_table_insert (priv->statistics_data,
-		                     task->cur_module,
-		                     stats_data);
-	}
+		if (!stats_data) {
+			stats_data = g_slice_new0 (StatisticsData);
+			g_hash_table_insert (priv->statistics_data,
+					     task->cur_module,
+					     stats_data);
+		}
 
-	stats_data->extracted_count++;
+		stats_data->extracted_count++;
 
-	if (!success) {
-		stats_data->failed_count++;
+		if (!success) {
+			stats_data->failed_count++;
+		}
+	} else {
+		priv->unhandled_count++;
 	}
 
 	priv->running_tasks = g_list_remove (priv->running_tasks, task);
@@ -655,12 +659,9 @@ dispatch_task_cb (TrackerExtractTask *task)
 	if (!module || !task->cur_func) {
 		g_warning ("Discarding task with no module '%s'", task->file);
 		priv->unhandled_count++;
+		extract_task_free (task);
 		return FALSE;
 	}
-
-	g_mutex_lock (&priv->task_mutex);
-	priv->running_tasks = g_list_prepend (priv->running_tasks, task);
-	g_mutex_unlock (&priv->task_mutex);
 
 	switch (thread_awareness) {
 	case TRACKER_MODULE_NONE:
@@ -764,6 +765,14 @@ tracker_extract_file (TrackerExtract      *extract,
 		g_simple_async_result_complete_in_idle (res);
 		g_error_free (error);
 	} else {
+		TrackerExtractPrivate *priv;
+
+		priv = TRACKER_EXTRACT_GET_PRIVATE (task->extract);
+
+		g_mutex_lock (&priv->task_mutex);
+		priv->running_tasks = g_list_prepend (priv->running_tasks, task);
+		g_mutex_unlock (&priv->task_mutex);
+
 		g_idle_add ((GSourceFunc) dispatch_task_cb, task);
 	}
 

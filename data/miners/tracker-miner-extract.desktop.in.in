@@ -1,0 +1,6 @@
+[Desktop Entry]
+_Name=Extractor
+_Comment=Metadata extractor
+Icon=folder
+DBusName=org.freedesktop.Tracker1.Miner.Extract
+DBusPath=/org/freedesktop/Tracker1/Miner/Extract

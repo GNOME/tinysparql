@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-dvi.so
 MimeTypes=application/x-dvi
-FallbackRdfType=nfo:Document
+FallbackRdfTypes=nfo:Document

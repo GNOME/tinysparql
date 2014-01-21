@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-oasis.so
 MimeTypes=application/vnd.oasis.opendocument.*
-
+FallbackRdfTypes=nfo:PaginatedTextDocument

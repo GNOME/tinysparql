@@ -203,16 +203,19 @@ process_whole_string (GString  *s)
 		}
 	}
 
-	if (!utf8) {
+	if (utf8) {
+		n_valid_utf8_bytes = utf8_len;
+		g_string_free (s, TRUE);
+	} else {
 		utf8_len = s->len;
 		utf8 = g_string_free (s, FALSE);
-	}
 
-	/* Get number of valid UTF-8 bytes found */
-	tracker_text_validate_utf8 (utf8,
-	                            utf8_len,
-	                            NULL,
-	                            &n_valid_utf8_bytes);
+		/* Get number of valid UTF-8 bytes found */
+		tracker_text_validate_utf8 (utf8,
+					    utf8_len,
+					    NULL,
+					    &n_valid_utf8_bytes);
+	}
 
 	/* A valid UTF-8 file will be that where all read bytes are valid,
 	 *  with a margin of 3 bytes for the last UTF-8 character which might

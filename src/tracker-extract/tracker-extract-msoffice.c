@@ -290,11 +290,11 @@ summary_metadata_cb (gpointer key,
 	} else if (g_strcmp0 (key, "dc:creator") == 0) {
 		metadata_add_gvalue (info->metadata, info->uri, "nco:creator", val, "nco:Contact", "nco:fullname", FALSE);
 	} else if (g_strcmp0 (key, "dc:keywords") == 0) {
-		gchar *keywords = g_strdup_value_contents (val);
+		gchar *keywords, *str = g_strdup_value_contents (val);
 		gchar *lasts, *keyw;
 		size_t len;
 
-		keyw = keywords;
+		keyw = keywords = str;
 		keywords = strchr (keywords, '"');
 
 		if (keywords) {
@@ -314,7 +314,7 @@ summary_metadata_cb (gpointer key,
 			tracker_sparql_builder_object_unvalidated (info->metadata, keyw);
 		}
 
-		g_free (keyw);
+		g_free (str);
 	} else if (g_strcmp0 (key, "dc:description") == 0) {
 		metadata_add_gvalue (info->metadata, info->uri, "nie:comment", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "gsf:page-count") == 0) {

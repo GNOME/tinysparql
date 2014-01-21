@@ -650,6 +650,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	if ((gifFile = DGifOpenFileHandle (fd, &err)) == NULL) {
 		gif_error ("Could not open GIF file with handle", err);
 #endif /* GIFLIB_MAJOR < 5 */
+		g_free (filename);
 		close (fd);
 		return FALSE;
 	}

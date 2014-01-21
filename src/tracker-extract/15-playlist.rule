@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-playlist.so
 MimeTypes=audio/x-mpegurl;audio/mpegurl;audio/x-scpls;audio/x-pn-realaudio;application/ram;application/vnd.ms-wpl;application/smil;audio/x-ms-asx;
-
+FallbackRdfTypes=nmm:Playlist;nfo:MediaList;

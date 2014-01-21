@@ -1,3 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-text.so
 MimeTypes=text/*
+FallbackRdfTypes=nfo:PlainTextDocument

@@ -1410,16 +1410,18 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	info = gst_discoverer_discover_uri (extractor->discoverer,
 	                                    uri,
 	                                    &error);
-	if (error) {
-		g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
-		           error->message);
-		g_error_free (error);
-		return FALSE;
-	}
 
 	if (!info) {
 		g_warning ("Nothing discovered, bailing out");
 		return TRUE;
+	}
+
+	if (error) {
+		g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
+		           error->message);
+		gst_discoverer_info_unref (info);
+		g_error_free (error);
+		return FALSE;
 	}
 
 #if defined(GSTREAMER_BACKEND_GUPNP_DLNA)
@@ -1495,6 +1497,8 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 					     GST_TAG_MERGE_APPEND);
 		}
 	}
+
+	gst_discoverer_info_unref (info);
 
 	return TRUE;
 }

@@ -30,8 +30,8 @@ tracker_indexing_tree_get_type
 
 <SECTION>
 <FILE>tracker-media-art</FILE>
-tracker_media_art_execute_queue
-tracker_media_art_queue_removal
+tracker_media_art_queue_empty
+tracker_media_art_queue_remove
 </SECTION>
 
 <SECTION>
@@ -266,4 +266,47 @@ tracker_thumbnailer_move_add
 tracker_thumbnailer_remove_add
 tracker_thumbnailer_send
 tracker_thumbnailer_shutdown
+</SECTION>
+
+<SECTION>
+<FILE>tracker-decorator</FILE>
+<TITLE>TrackerDecorator</TITLE>
+TrackerDecorator
+TrackerDecoratorClass
+TrackerDecoratorInfo
+tracker_decorator_delete_ids
+tracker_decorator_get_class_names
+tracker_decorator_get_data_source
+tracker_decorator_get_n_items
+tracker_decorator_get_type
+tracker_decorator_info_get_mimetype
+tracker_decorator_info_get_sparql
+tracker_decorator_info_get_task
+tracker_decorator_info_get_url
+tracker_decorator_info_get_urn
+tracker_decorator_next
+tracker_decorator_next_finish
+tracker_decorator_prepend_ids
+<SUBSECTION Standard>
+TRACKER_DECORATOR
+TRACKER_DECORATOR_CLASS
+TRACKER_DECORATOR_GET_CLASS
+TRACKER_IS_DECORATOR
+TRACKER_IS_DECORATOR_CLASS
+TRACKER_TYPE_DECORATOR
+</SECTION>
+
+<SECTION>
+<FILE>tracker-decorator-fs</FILE>
+<TITLE>TrackerDecoratorFS</TITLE>
+TrackerDecoratorFS
+TrackerDecoratorFSClass
+tracker_decorator_fs_get_type
+<SUBSECTION Standard>
+TRACKER_DECORATOR_FS
+TRACKER_DECORATOR_FS_CLASS
+TRACKER_DECORATOR_FS_GET_CLASS
+TRACKER_IS_DECORATOR_FS
+TRACKER_IS_DECORATOR_FS_CLASS
+TRACKER_TYPE_DECORATOR_FS
 </SECTION>
