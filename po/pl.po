@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-10 17:54+0100\n"
-"PO-Revision-Date: 2014-01-10 17:55+0100\n"
+"POT-Creation-Date: 2014-01-22 02:21+0100\n"
+"PO-Revision-Date: 2014-01-22 02:22+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -347,14 +347,6 @@ msgstr ""
 "Okres w sekundach między wysyłaniem sygnałów GraphUpdated, kiedy "
 "zindeksowane dane zostały zmienione w bazie danych."
 
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
-msgid "Userguides"
-msgstr "Podręczniki użytkownika"
-
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
-msgid "Userguide data miner"
-msgstr "Przeszukiwanie danych w podręcznikach użytkownika"
-
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
 msgid "Applications"
@@ -373,6 +365,14 @@ msgstr "Wiadomości e-mail"
 msgid "Evolution Email miner"
 msgstr "Przeszukiwanie wiadomości e-mail programu Evolution"
 
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:1
+msgid "Extractor"
+msgstr "Rozpakowywanie"
+
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:2
+msgid "Metadata extractor"
+msgstr "Rozpakowywanie metadanych"
+
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:1
 msgid "File System"
 msgstr "System plików"
@@ -388,6 +388,14 @@ msgstr "Kanały RSS/Atom"
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Pobieranie kanałów RSS/Atom"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
+msgid "Userguides"
+msgstr "Podręczniki użytkownika"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
+msgid "Userguide data miner"
+msgstr "Przeszukiwanie danych w podręcznikach użytkownika"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -486,22 +494,22 @@ msgstr[0] " %2.2d sekunda"
 msgstr[1] " %2.2d sekundy"
 msgstr[2] " %2.2d sekund"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:958
+#: ../src/libtracker-miner/tracker-miner-object.c:957
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Wstrzymanie programu i dopasowanie przyczyny do już istniejącego żądania "
 "wstrzymania"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1055
+#: ../src/libtracker-miner/tracker-miner-object.c:1054
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Ciasteczko nie zostało rozpoznane, aby wznowić wstrzymane przeszukiwanie"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1501
+#: ../src/libtracker-miner/tracker-miner-object.c:1500
 msgid "Data store is not available"
 msgstr "Przechowywanie danych jest niedostępne"
 
-#: ../src/miners/fs/tracker-main.c:102 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:101 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -509,26 +517,26 @@ msgstr ""
 "Zapisywanie do dziennika, 0 = tylko błędy, 1 = minimalne, 2 = szczegółowe i "
 "3 = debugowania (domyślnie=0)"
 
-#: ../src/miners/fs/tracker-main.c:107
+#: ../src/miners/fs/tracker-main.c:106
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Początkowy czas uśpienia w sekundach, 0->1000 (domyślnie=15)"
 
-#: ../src/miners/fs/tracker-main.c:112
+#: ../src/miners/fs/tracker-main.c:111
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
 "Działa, aż wszystkie skonfigurowane położenia zostaną zindeksowane i wtedy "
 "kończy działanie"
 
-#: ../src/miners/fs/tracker-main.c:116
+#: ../src/miners/fs/tracker-main.c:115
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Sprawdza, czy PLIK nadaje się do przeszukiwania w oparciu o konfigurację"
 
-#: ../src/miners/fs/tracker-main.c:117
+#: ../src/miners/fs/tracker-main.c:116
 #: ../src/tracker-control/tracker-control-general.c:107
 #: ../src/tracker-control/tracker-control-general.c:110
 #: ../src/tracker-control/tracker-control-miners.c:60
-#: ../src/tracker-extract/tracker-main.c:93
+#: ../src/tracker-extract/tracker-main.c:92
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
@@ -537,119 +545,113 @@ msgstr ""
 msgid "FILE"
 msgstr "PLIK"
 
-#: ../src/miners/fs/tracker-main.c:120
+#: ../src/miners/fs/tracker-main.c:119
 msgid "Disable miners started as part of this process, options include: '"
 msgstr "Wyłącza przeszukiwania rozpoczęte jako część tego procesu, opcje: \""
 
-#: ../src/miners/fs/tracker-main.c:127
+#: ../src/miners/fs/tracker-main.c:126
 #: ../src/tracker-control/tracker-control-miners.c:75
 msgid "MINER"
 msgstr "PRZESZUKIWANIE"
 
 #. Daemon options
-#: ../src/miners/fs/tracker-main.c:130
-#: ../src/tracker-extract/tracker-main.c:114
+#: ../src/miners/fs/tracker-main.c:129
+#: ../src/tracker-extract/tracker-main.c:107
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Wyświetla informacje o wersji"
 
-#: ../src/miners/fs/tracker-main.c:629
+#: ../src/miners/fs/tracker-main.c:628
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Obiekt danych \"%s\" obecnie istnieje"
 
-#: ../src/miners/fs/tracker-main.c:630
+#: ../src/miners/fs/tracker-main.c:629
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Obiekt danych \"%s\" obecnie nie istnieje"
 
-#: ../src/miners/fs/tracker-main.c:645
+#: ../src/miners/fs/tracker-main.c:644
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Katalog nadaje się do przeszukiwania (w oparciu o reguły)"
 
-#: ../src/miners/fs/tracker-main.c:646
+#: ../src/miners/fs/tracker-main.c:645
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o reguły)"
 
-#: ../src/miners/fs/tracker-main.c:666
+#: ../src/miners/fs/tracker-main.c:665
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Katalog nadaje się do przeszukiwania (w oparciu o zawartość)"
 
-#: ../src/miners/fs/tracker-main.c:667
+#: ../src/miners/fs/tracker-main.c:666
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o zawartość)"
 
-#: ../src/miners/fs/tracker-main.c:714
+#: ../src/miners/fs/tracker-main.c:713
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Katalog nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:715
+#: ../src/miners/fs/tracker-main.c:714
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:719
+#: ../src/miners/fs/tracker-main.c:718
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Plik nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:720
+#: ../src/miners/fs/tracker-main.c:719
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Plik NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:724
+#: ../src/miners/fs/tracker-main.c:723
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "Plik lub katalog nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:725
+#: ../src/miners/fs/tracker-main.c:724
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "Plik lub katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:740
+#: ../src/miners/fs/tracker-main.c:739
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Plik nadaje się do przeszukiwania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:741
+#: ../src/miners/fs/tracker-main.c:740
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Plik NIE nadaje się do przeszukiwania (w oparciu o konfigurację)"
 
-#: ../src/miners/fs/tracker-main.c:750
+#: ../src/miners/fs/tracker-main.c:749
 msgid "Would be indexed"
 msgstr "Będzie indeksowane"
 
-#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
+#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
 msgid "Yes"
 msgstr "Tak"
 
-#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
+#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
 msgid "No"
 msgstr "Nie"
 
-#: ../src/miners/fs/tracker-main.c:752
+#: ../src/miners/fs/tracker-main.c:751
 msgid "Would be monitored"
 msgstr "Będzie monitorowane"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:875
+#: ../src/miners/fs/tracker-main.c:874
 msgid "- start the tracker indexer"
 msgstr "- uruchomia program indeksujący Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1362
+#: ../src/miners/fs/tracker-miner-files.c:1354
 msgid "Low battery"
 msgstr "Niski poziom naładowania akumulatora"
 
-#: ../src/miners/fs/tracker-miner-files.c:1489
+#: ../src/miners/fs/tracker-miner-files.c:1481
 msgid "Low disk space"
 msgstr "Mało miejsca na dysku"
-
-#: ../src/miners/fs/tracker-miner-files.c:2249
-msgid "Extractor error, performing failsafe embedded metadata extraction"
-msgstr ""
-"Błąd podczas wydobywania, wykonywanie bezpiecznego wydobywania osadzonych "
-"metadanych"
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
@@ -992,7 +994,7 @@ msgstr ""
 "programów rozpakowujących), należy użyć -m MIME1 -m MIME2"
 
 #: ../src/tracker-control/tracker-control-miners.c:57
-#: ../src/tracker-extract/tracker-main.c:97
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "MIME"
 msgstr "MIME"
 
@@ -1279,7 +1281,7 @@ msgstr "Opcje stanu"
 msgid "Show status options"
 msgstr "Wyświetla opcje stanu"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:86
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -1288,44 +1290,39 @@ msgstr ""
 "Zapisywanie do dziennika, 0 = tylko błędy, 1 = minimalne, 2 = szczegółowe i "
 "3 = debugowania (domyślnie = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:92
+#: ../src/tracker-extract/tracker-main.c:91
 msgid "File to extract metadata for"
 msgstr "Pliki, z których wydobyć metadane"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:95
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Typ MIME pliku (jeśli nie podano, zostanie odgadnięty)"
 
-#: ../src/tracker-extract/tracker-main.c:102
-#: ../src/tracker-writeback/tracker-main.c:62
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Wyłączenie kończenia pracy po 30 sekundach bezczynności"
-
-#: ../src/tracker-extract/tracker-main.c:106
+#: ../src/tracker-extract/tracker-main.c:99
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
 msgstr ""
 "Wymuszenie wewnętrznych modułów rozpakowujących zamiast zewnętrznych, takich "
 "jak libstreamanalyzer"
 
-#: ../src/tracker-extract/tracker-main.c:110
+#: ../src/tracker-extract/tracker-main.c:103
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "Wymuszenie użycia modułu do rozpakowania (np. \"foo\" dla \"foo.so\")"
 
-#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/tracker-extract/tracker-main.c:104
 msgid "MODULE"
 msgstr "MODUŁ"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:333
+#: ../src/tracker-extract/tracker-main.c:324
 msgid "- Extract file meta data"
 msgstr "- wydobywa metadane pliku"
 
-#: ../src/tracker-extract/tracker-main.c:342
+#: ../src/tracker-extract/tracker-main.c:333
 msgid "Filename and mime type must be provided together"
 msgstr "Nazwa pliku i typ MIME muszą zostać podane razem"
 
-#: ../src/tracker-extract/tracker-main.c:356
+#: ../src/tracker-extract/tracker-main.c:347
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -2721,6 +2718,10 @@ msgstr "Nie podano parametrów"
 #: ../src/tracker-utils/tracker-tag.c:893
 msgid "The --description option can only be used with --add"
 msgstr "Opcja --description może być używana tylko z opcją --add"
+
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Wyłączenie kończenia pracy po 30 sekundach bezczynności"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
