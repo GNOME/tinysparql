@@ -1,3 +1,63 @@
+NEW in 0.17.1 - 2013-11-22
+==========================
+
+The main changes since 0.17.1 are:
+
+  * build: Require Vala >= 0.18.0 (was 0.16.0) to avoid Vala 0.16 g_dbus_message_get_body() binding bug
+  * build: Require GLib >= 2.38 (was 2.35.1) after removing all deprecated g_test_trap_fork() calls for _subprocess()
+  * build: Require libosinfo >= 0.2.9 (was 0.0.2)
+  * build: Use gtkdocize in autogen.sh differently to avoid "-chmod command not found", see GB#701259
+  * build: Remove ALL GLib marshallers. We depend on GLib (>= 2.30) which depends on libffi enabling us to do this
+  * build: Add SQLite 3.8.1 to list of bad SQLite versions
+  * New Feature: Passive extraction:
+                 Specific metadata extraction (e.g. image orientation)
+                 is done by listening for insert signals for resource metadata
+                 (e.g. file name, size, etc) and done passively rather than being
+                 required before inserting ANY information about a resource
+                 This officially makes tracker-extract a miner of special sorts
+  * New Feature: SPARQL functions tracker:normalize() and tracker:unaccent()
+  * New Feature: libav extractor for extracting audio/video metadata
+  * New Feature: tracker-store GraphUpdated signal delay now configurable:
+                 This signal is what's used to notify of resource changes in the database (e.g. new file added),
+                 Previously it was always 1 second, now it can be configured
+  * Fixes: GB#721880, fts:offsets returns wrong values
+  * Fixes: GB#722525, #include <glib.h> is missing in src/tracker-ioprio.h
+  * Fixes: GB#722353, #!/bin/bash in docs/tools/gen-doc.sh
+  * Fixes: GB#720686, libtracker-extract: Link against libicu when using it
+  * Fixes: GB#719512, Adapt to libosinfo 0.2.9 & make use of variant API
+  * Fixes: GB#715040, Avoid starting tracker-store twice
+  * Fixes: GB#699412, libtracker-fts/parser/nwords_6 test fails
+  * Fixes: RH#1026283, Nautilus eating 100% cpu
+  * libtracker-common: Added strnlen() compatibility function
+  * libtracker-common: Fixed unit test for SCHED_IDLE expecting SCHED_OTHER by default, but jhbuild uses SCHED_IDLE as standard.
+  * libtracker-fts: Strengthen against SQLite failures. Ensure no infinite loos in sqlite3_step() and don't use g_once_init_enter() for init
+  * tracker-extract: Support Qt5
+  * tracker-extract: Removed --disable-shutdown command line option now that it is instantiated by DBus
+  * tracker-extract: Fixed memory leak with strings processed detected as UTF16
+  * tracker-extract: msoffice: Fixed memory leak, calling g_free() on wrong pointer
+  * tracker-extract: mp3: Fixed memory leak, cases where "" was found in tags were not always freed
+  * tracker-extract: gstreamer: Fixed memory leak on error for GstDiscovererInfo structs
+  * tracker-extract: gif: Fixed memory leak on error for filename
+  * functional-tests: Set up XDG data and cache directories like we do in utils/sandbox/
+  * functional-tests: Avoid invalid calls to g_source_remove(), avoids: "GLib-CRITICAL **: Source ID 130 was not found when attempting to remove it"
+  * utils/sandbox/tracker-sandbox: Use separate dirs for config and data because there may be file name conflicts
+  * docs/tools/ttl2sgml: Don't GError on nao:deprecated namespaces in the ontology, errors for mlo which is entirely deprecated
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated el: Dimitris Spingos
+  * Updated es: Daniel Mustieles
+  * Updated gl: Fran Diéguez
+  * Updated it: Milo Casagrande
+  * Updated nl: Erwin Poeze
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Enrico Nicoletto, Rafael Ferreira
+  * Updated uk: Daniel Korostil
+  * Updated zh_CN: Tong Hui, 甘露(Gan Lu)
+
+
 NEW in 0.17.0 - 2013-11-22
 ==========================
 
