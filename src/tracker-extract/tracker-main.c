@@ -38,6 +38,8 @@
 #include <sys/resource.h>
 #endif
 
+#include <libmediaart/mediaart.h>
+
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
@@ -47,7 +49,6 @@
 
 #include <libtracker-data/tracker-db-manager.h>
 
-#include "tracker-media-art.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-extract.h"
@@ -270,7 +271,10 @@ run_standalone (TrackerConfig *config)
 	}
 
 	tracker_locale_init ();
-	tracker_media_art_init ();
+
+	if (!media_art_init ()) {
+		g_warning ("Could not initialize media art, will not be available");
+	}
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
@@ -286,7 +290,7 @@ run_standalone (TrackerConfig *config)
 	if (!object) {
 		g_object_unref (file);
 		g_free (uri);
-		tracker_media_art_shutdown ();
+		media_art_shutdown ();
 		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -299,7 +303,7 @@ run_standalone (TrackerConfig *config)
 	g_object_unref (file);
 	g_free (uri);
 
-	tracker_media_art_shutdown ();
+	media_art_shutdown ();
 	tracker_locale_shutdown ();
 
 	return EXIT_SUCCESS;
@@ -420,7 +424,10 @@ main (int argc, char *argv[])
 #endif /* THREAD_ENABLE_TRACE */
 
 	tracker_locale_init ();
-	tracker_media_art_init ();
+
+	if (!media_art_init ()) {
+		g_warning ("Could not initialize media art, will not be available");
+	}
 
 	tracker_miner_start (TRACKER_MINER (decorator));
 
@@ -435,7 +442,7 @@ main (int argc, char *argv[])
 	tracker_miner_stop (TRACKER_MINER (decorator));
 
 	/* Shutdown subsystems */
-	tracker_media_art_shutdown ();
+	media_art_shutdown ();
 	tracker_locale_shutdown ();
 
 	g_object_unref (extract);

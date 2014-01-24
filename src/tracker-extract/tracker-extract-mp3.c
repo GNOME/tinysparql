@@ -40,11 +40,11 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
+#include <libmediaart/mediaart.h>
+
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
-
-#include "tracker-media-art.h"
 
 #ifdef FRAME_ENABLE_TRACE
 #warning Frame traces enabled
@@ -2487,13 +2487,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
-	tracker_media_art_process (md.media_art_data,
-	                           md.media_art_size,
-	                           md.media_art_mime,
-	                           TRACKER_MEDIA_ART_ALBUM,
-	                           md.performer,
-	                           md.album,
-	                           uri);
+	media_art_process (md.media_art_data,
+	                   md.media_art_size,
+	                   md.media_art_mime,
+	                   MEDIA_ART_ALBUM,
+	                   md.performer,
+	                   md.album,
+	                   uri);
 	g_free (md.media_art_data);
 	g_free (md.media_art_mime);
 

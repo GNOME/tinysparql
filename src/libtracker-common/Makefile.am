@@ -29,8 +29,7 @@ libtracker_common_la_SOURCES = \
 	tracker-type-utils.c \
 	tracker-utils.c \
 	tracker-crc32.c \
-	tracker-locale.c \
-	tracker-media-art.c
+	tracker-locale.c
 
 noinst_HEADERS = \
 	tracker-dbus.h \
@@ -48,8 +47,7 @@ noinst_HEADERS = \
 	tracker-type-utils.h \
 	tracker-utils.h \
 	tracker-crc32.h \
-	tracker-locale.h \
-	tracker-media-art.h
+	tracker-locale.h
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_SOURCES += tracker-language.c

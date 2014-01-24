@@ -327,13 +327,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			g_free (album_uri);
 		}
 
-		tracker_media_art_process (NULL,
-		                           0,
-		                           NULL,
-		                           TRACKER_MEDIA_ART_ALBUM,
-		                           album_artist,
-		                           album_title,
-		                           uri);
+		media_art_process (NULL,
+		                   0,
+		                   NULL,
+		                   MEDIA_ART_ALBUM,
+		                   album_artist,
+		                   album_title,
+		                   uri);
 
 		g_free(performer_uri);
 	}
