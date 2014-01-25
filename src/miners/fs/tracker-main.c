@@ -1081,8 +1081,6 @@ main (gint argc, gchar *argv[])
 	miners = g_slist_prepend (miners, miner_files);
 	miners = g_slist_prepend (miners, miner_applications);
 
-	tracker_thumbnailer_init ();
-
 	miner_handle_first (config, do_mtime_checking);
 
 	/* Go, go, go! */
@@ -1104,8 +1102,6 @@ main (gint argc, gchar *argv[])
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
 	g_object_unref (miner_files_index);
-
-	tracker_thumbnailer_shutdown ();
 
 	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);

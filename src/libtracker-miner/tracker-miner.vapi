@@ -134,16 +134,4 @@ namespace Tracker {
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public const string MINER_WEB_DBUS_INTERFACE;
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static bool thumbnailer_cleanup (string uri_prefix);
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static bool thumbnailer_init ();
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static bool thumbnailer_move_add (string from_uri, string mime_type, string to_uri);
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static bool thumbnailer_remove_add (string uri, string mime_type);
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static void thumbnailer_send ();
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public static void thumbnailer_shutdown ();
 }
