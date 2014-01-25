@@ -45,13 +45,9 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =                                       \
 	tracker-sparql-$(TRACKER_API_VERSION).pc       \
-	tracker-extract-$(TRACKER_API_VERSION).pc      \
 	tracker-miner-$(TRACKER_API_VERSION).pc
 
 tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
-	cp $< $@
-
-tracker-extract-$(TRACKER_API_VERSION).pc: tracker-extract.pc
 	cp $< $@
 
 tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc

@@ -39,8 +39,6 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
 	tracker-xmp.h
 
 noinst_HEADERS =
-
-libtracker_extractinclude_HEADERS =                    \
 	tracker-data.h                                 \
 	tracker-encoding.h                             \
 	tracker-exif.h                                 \
