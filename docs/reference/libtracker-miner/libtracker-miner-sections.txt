@@ -29,12 +29,6 @@ tracker_indexing_tree_get_type
 </SECTION>
 
 <SECTION>
-<FILE>tracker-media-art</FILE>
-tracker_media_art_queue_empty
-tracker_media_art_queue_remove
-</SECTION>
-
-<SECTION>
 <FILE>tracker-miner</FILE>
 
 </SECTION>

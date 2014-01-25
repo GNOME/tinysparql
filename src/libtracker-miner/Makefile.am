@@ -43,6 +43,8 @@ private_sources = 				       \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
 	tracker-file-system.c                          \
+	tracker-media-art.c                            \
+	tracker-media-art.h                            \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
 	tracker-task-pool.h                            \
@@ -86,16 +88,13 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-indexing-tree.c                        \
 	tracker-indexing-tree.h                        \
 	tracker-network-provider.c                     \
-	tracker-password-provider.c                    \
-	tracker-media-art.c                            \
-	tracker-media-art.h
+	tracker-password-provider.c
 
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \
 	tracker-decorator.h                            \
 	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.h                        \
-	tracker-media-art.h                            \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
 	tracker-miner-enums.h                          \

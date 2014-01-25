@@ -57,7 +57,6 @@
       <title>Utilities</title>
 	  <xi:include href="xml/tracker-miner-enums.xml"/>
       <xi:include href="xml/tracker-storage.xml"/>
-      <xi:include href="xml/tracker-media-art.xml"/>
     </chapter>
   </part>
 
