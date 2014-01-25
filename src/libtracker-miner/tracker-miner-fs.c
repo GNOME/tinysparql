@@ -144,6 +144,7 @@ typedef struct {
 	GString   *sparql;
 	const gchar *source_uri;
 	const gchar *uri;
+	TrackerMiner *miner;
 } RecursiveMoveData;
 
 struct _TrackerMinerFSPrivate {
@@ -185,6 +186,8 @@ struct _TrackerMinerFSPrivate {
 	guint sparql_buffer_limit;
 
 	TrackerIndexingTree *indexing_tree;
+
+	TrackerThumbnailer *thumbnailer;
 
 	/* Status */
 	guint           been_started : 1;     /* TRUE if miner has been started */
@@ -637,6 +640,8 @@ miner_fs_initable_init (GInitable     *initable,
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb),
 	                  initable);
 
+	priv->thumbnailer = tracker_thumbnailer_new ();
+
 	return TRUE;
 }
 
@@ -709,6 +714,9 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->indexing_tree);
 	g_object_unref (priv->file_notifier);
+
+	if (priv->thumbnailer)
+		g_object_unref (priv->thumbnailer);
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	if (priv->queue_status_timeout_id)
@@ -1352,7 +1360,7 @@ item_remove (TrackerMinerFS *fs,
 	if (!only_children) {
 		flags = TRACKER_BULK_MATCH_EQUALS;
 	} else {
-		tracker_thumbnailer_remove_add (uri, NULL);
+		tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
 		tracker_media_art_queue_remove (uri, NULL);
 	}
 
@@ -1505,6 +1513,7 @@ item_update_children_uri_cb (GObject      *object,
                              gpointer      user_data)
 {
 	RecursiveMoveData *data = user_data;
+	TrackerMinerFS *fs = TRACKER_MINER_FS (data->miner);
 	GError *error = NULL;
 
 	TrackerSparqlCursor *cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
@@ -1547,7 +1556,8 @@ item_update_children_uri_cb (GObject      *object,
 			                        "} ",
 			                        child_urn, child_urn, child_uri);
 
-			tracker_thumbnailer_move_add (child_source_uri, child_mime, child_uri);
+			tracker_thumbnailer_move_add (fs->priv->thumbnailer,
+						      child_source_uri, child_mime, child_uri);
 
 			g_free (child_uri);
 		}
@@ -1634,7 +1644,7 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	tracker_thumbnailer_move_add (source_uri,
+	tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
 	                              g_file_info_get_content_type (file_info),
 	                              uri);
 
@@ -1712,6 +1722,7 @@ item_move (TrackerMinerFS *fs,
 			move_data.sparql = sparql;
 			move_data.source_uri = source_uri;
 			move_data.uri = uri;
+			move_data.miner = TRACKER_MINER (fs);
 
 			item_update_children_uri (fs, &move_data, source_uri, uri);
 
@@ -2270,7 +2281,7 @@ item_queue_handlers_cb (gpointer user_data)
 				/* Print stats and signal finished */
 				process_stop (fs);
 
-				tracker_thumbnailer_send ();
+				tracker_thumbnailer_send (fs->priv->thumbnailer);
 				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
 			} else {
 				/* Flush any possible pending update here */

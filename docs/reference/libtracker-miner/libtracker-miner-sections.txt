@@ -259,16 +259,6 @@ tracker_storage_get_type
 </SECTION>
 
 <SECTION>
-<FILE>tracker-thumbnailer</FILE>
-tracker_thumbnailer_cleanup
-tracker_thumbnailer_init
-tracker_thumbnailer_move_add
-tracker_thumbnailer_remove_add
-tracker_thumbnailer_send
-tracker_thumbnailer_shutdown
-</SECTION>
-
-<SECTION>
 <FILE>tracker-decorator</FILE>
 <TITLE>TrackerDecorator</TITLE>
 TrackerDecorator
