@@ -43,11 +43,6 @@
     </chapter>
 
     <chapter>
-      <title>Managing miners</title>
-      <xi:include href="xml/tracker-miner-manager.xml"/>
-    </chapter>
-
-    <chapter>
       <title>Base abstract providers for network/password/etc control</title>
       <xi:include href="xml/tracker-network-provider.xml"/>
       <xi:include href="xml/tracker-password-provider.xml"/>
