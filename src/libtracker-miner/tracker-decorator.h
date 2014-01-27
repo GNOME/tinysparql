@@ -88,6 +88,9 @@ TrackerDecoratorInfo *
                                                    GAsyncResult         *result,
                                                    GError              **error);
 
+void          tracker_decorator_set_priority_rdf_types (TrackerDecorator    *decorator,
+                                                        const gchar * const *rdf_types);
+
 GType         tracker_decorator_info_get_type     (void) G_GNUC_CONST;
 
 TrackerDecoratorInfo *

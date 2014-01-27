@@ -1257,6 +1257,15 @@ tracker_decorator_next_finish (TrackerDecorator  *decorator,
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
 
+void
+tracker_decorator_set_priority_rdf_types (TrackerDecorator    *decorator,
+                                          const gchar * const *rdf_types)
+{
+	g_return_if_fail (TRACKER_DECORATOR (decorator));
+
+	/* FIXME: Not Implemented */
+}
+
 /**
  * tracker_decorator_info_get_urn:
  * @info: a #TrackerDecoratorInfo.

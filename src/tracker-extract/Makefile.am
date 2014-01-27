@@ -529,6 +529,8 @@ tracker_extract_SOURCES = \
 	tracker-extract.h \
 	tracker-extract-decorator.c \
 	tracker-extract-decorator.h \
+	tracker-extract-priority-dbus.c \
+	tracker-extract-priority-dbus.h \
 	tracker-read.c \
 	tracker-read.h \
 	tracker-main.c \
@@ -552,6 +554,28 @@ endif
 if HAVE_LIBSTREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
 endif
+
+# do nothing, output as a side-effect
+tracker-extract-priority-dbus.c: tracker-extract-priority-dbus-stamp
+	@:
+
+tracker-extract-priority-dbus.h: tracker-extract-priority-dbus-stamp
+	@:
+
+tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+	gdbus-codegen --interface-prefix org.freedesktop.Tracker1.Extract. \
+	              --generate-c-code tracker-extract-priority-dbus \
+	              --c-namespace TrackerExtractDBus \
+	              $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+	touch $@
+
+BUILT_SOURCES = \
+	tracker-extract-priority-dbus.c \
+	tracker-extract-priority-dbus.h \
+	tracker-extract-priority-dbus-stamp \
+	$(NULL)
+
+CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = \
 	$(rules_files)
