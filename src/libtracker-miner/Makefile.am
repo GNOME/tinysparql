@@ -57,6 +57,7 @@ miner_sources = 				       \
 	$(libtracker_miner_monitor_headers)            \
 	tracker-decorator.c                            \
 	tracker-decorator.h                            \
+	tracker-decorator-internal.h                   \
 	tracker-decorator-fs.c                         \
 	tracker-decorator-fs.h                         \
 	tracker-miner-dbus.h                           \

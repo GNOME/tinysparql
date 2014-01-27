@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "tracker-decorator.h"
+#include "tracker-decorator-internal.h"
 
 #define QUERY_BATCH_SIZE 100
 #define DEFAULT_BATCH_SIZE 100
@@ -736,9 +737,9 @@ tracker_decorator_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_decorator_parent_class)->finalize (object);
 }
 
-static void
-query_append_rdf_type_filter (GString          *query,
-                              TrackerDecorator *decorator)
+void
+_tracker_decorator_query_append_rdf_type_filter (TrackerDecorator *decorator,
+                                                 GString          *query)
 {
 	const gchar **class_names;
 	gint i = 0;
@@ -836,7 +837,7 @@ tracker_decorator_started (TrackerMiner *miner)
 	                        "FILTER (! EXISTS { ?urn nie:dataSource <%s> } ",
 	                        data_source);
 
-	query_append_rdf_type_filter (query, decorator);
+	_tracker_decorator_query_append_rdf_type_filter (decorator, query);
 	g_string_append (query, "&& BOUND(tracker:available(?urn)))}");
 
 	sparql_conn = tracker_miner_get_connection (miner);

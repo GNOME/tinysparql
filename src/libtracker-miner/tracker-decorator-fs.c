@@ -24,6 +24,7 @@
 #include <libtracker-miner/tracker-storage.h>
 
 #include "tracker-decorator-fs.h"
+#include "tracker-decorator-internal.h"
 
 #define TRACKER_DECORATOR_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR_FS, TrackerDecoratorFSPrivate))
 
@@ -128,32 +129,6 @@ remove_files_cb (GObject *object,
 }
 
 static void
-query_append_rdf_type_filter (GString          *query,
-                              TrackerDecorator *decorator)
-{
-	const gchar **class_names;
-	gint i = 0;
-
-	class_names = tracker_decorator_get_class_names (decorator);
-
-	if (!class_names || !*class_names)
-		return;
-
-	g_string_append (query, "&& (");
-
-	while (class_names[i]) {
-		if (i != 0)
-			g_string_append (query, "||");
-
-		g_string_append_printf (query, "EXISTS { ?urn a %s }",
-		                        class_names[i]);
-		i++;
-	}
-
-	g_string_append (query, ") ");
-}
-
-static void
 check_files (TrackerDecorator    *decorator,
              const gchar         *mount_point_urn,
              gboolean             available,
@@ -177,7 +152,7 @@ check_files (TrackerDecorator    *decorator,
 	                        "FILTER (! EXISTS { ?urn nie:dataSource <%s> } ",
 	                        data_source);
 
-	query_append_rdf_type_filter (query, decorator);
+	_tracker_decorator_query_append_rdf_type_filter (decorator, query);
 
 	if (available)
 		g_string_append (query, "&& BOUND(tracker:available(?urn))");
