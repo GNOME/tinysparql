@@ -73,12 +73,10 @@ const gchar * tracker_decorator_get_data_source   (TrackerDecorator     *decorat
 const gchar** tracker_decorator_get_class_names   (TrackerDecorator     *decorator);
 guint         tracker_decorator_get_n_items       (TrackerDecorator     *decorator);
 
-void          tracker_decorator_prepend_ids       (TrackerDecorator     *decorator,
-                                                   gint                 *ids,
-                                                   gint                  n_ids);
-void          tracker_decorator_delete_ids        (TrackerDecorator     *decorator,
-                                                   gint                 *ids,
-                                                   gint                  n_ids);
+void          tracker_decorator_prepend_id        (TrackerDecorator     *decorator,
+                                                   gint                  id);
+void          tracker_decorator_delete_id         (TrackerDecorator     *decorator,
+                                                   gint                  id);
 
 void          tracker_decorator_next              (TrackerDecorator     *decorator,
                                                    GCancellable         *cancellable,

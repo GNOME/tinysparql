@@ -75,21 +75,6 @@ tracker_decorator_fs_class_init (TrackerDecoratorFSClass *klass)
 	g_type_class_add_private (object_class, sizeof (TrackerDecoratorFSPrivate));
 }
 
-static GArray *
-cursor_to_array (TrackerSparqlCursor *cursor)
-{
-	GArray *ids;
-
-	ids = g_array_new (FALSE, FALSE, sizeof (gint));
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		gint id = tracker_sparql_cursor_get_integer (cursor, 0);
-		g_array_append_val (ids, id);
-	}
-
-	return ids;
-}
-
 static void
 process_files_cb (GObject      *object,
                   GAsyncResult *result,
@@ -98,7 +83,6 @@ process_files_cb (GObject      *object,
 	TrackerSparqlConnection *conn;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	GArray *ids;
 
 	conn = TRACKER_SPARQL_CONNECTION (object);
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
@@ -109,13 +93,12 @@ process_files_cb (GObject      *object,
 		return;
 	}
 
-	ids = cursor_to_array (cursor);
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		gint id = tracker_sparql_cursor_get_integer (cursor, 0);
+		tracker_decorator_prepend_id (TRACKER_DECORATOR (user_data), id);
+	}
 
-	if (ids->len > 0)
-		tracker_decorator_prepend_ids (TRACKER_DECORATOR (user_data),
-		                               (gint *) ids->data, ids->len);
 	g_object_unref (cursor);
-	g_array_unref (ids);
 }
 
 static void
@@ -126,7 +109,6 @@ remove_files_cb (GObject *object,
 	TrackerSparqlConnection *conn;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	GArray *ids;
 
 	conn = TRACKER_SPARQL_CONNECTION (object);
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
@@ -137,13 +119,12 @@ remove_files_cb (GObject *object,
 		return;
 	}
 
-	ids = cursor_to_array (cursor);
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		gint id = tracker_sparql_cursor_get_integer (cursor, 0);
+		tracker_decorator_delete_id (TRACKER_DECORATOR (user_data), id);
+	}
 
-	if (ids->len > 0)
-		tracker_decorator_delete_ids (TRACKER_DECORATOR (user_data),
-		                              (gint *) ids->data, ids->len);
 	g_object_unref (cursor);
-	g_array_unref (ids);
 }
 
 static void

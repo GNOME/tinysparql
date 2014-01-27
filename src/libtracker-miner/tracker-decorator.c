@@ -1002,66 +1002,43 @@ tracker_decorator_get_n_items (TrackerDecorator *decorator)
 }
 
 /**
- * tracker_decorator_prepend_ids:
+ * tracker_decorator_prepend_id:
  * @decorator: a #TrackerDecorator.
- * @ids: an array of IDs.
- * @n_ids: size of @ids array.
+ * @id: an ID.
  *
- * Adds resources needing extended metadata extraction to the queue.
- * IDs parsed in @ids are based on the same IDs emitted by
- * tracker-store when the database is updated for consistency. For
- * details, see the GraphUpdated signal.
+ * Adds resource needing extended metadata extraction to the queue.
+ * @id is the same IDs emitted by tracker-store when the database is updated for
+ * consistency. For details, see the GraphUpdated signal.
  *
  * Since: 0.18
  **/
 void
-tracker_decorator_prepend_ids (TrackerDecorator *decorator,
-                               gint             *ids,
-                               gint              n_ids)
+tracker_decorator_prepend_id (TrackerDecorator *decorator,
+                              gint              id)
 {
-	gint i;
-
 	g_return_if_fail (TRACKER_IS_DECORATOR (decorator));
-	g_return_if_fail (ids != NULL);
-	g_return_if_fail (n_ids >= 0);
 
-	/* Prepend in inverse order to preserve ordering */
-	for (i = n_ids; i >= 0; i--)
-		element_add (decorator, ids[i], TRUE);
+	element_add (decorator, id, TRUE);
 }
 
 /**
- * tracker_decorator_delete_ids:
+ * tracker_decorator_delete_id:
  * @decorator: a #TrackerDecorator.
- * @ids: an array of IDs.
- * @n_ids: size of @ids array.
+ * @id: an ID.
  *
- * Deletes resources needing extended metadata extraction from the
- * queue. IDs parsed in @ids are based on the same IDs emitted by
- * tracker-store when the database is updated for consistency. For
- * details, see the GraphUpdated signal.
+ * Deletes resource needing extended metadata extraction from the
+ * queue. @id is the same IDs emitted by tracker-store when the database is
+ * updated for consistency. For details, see the GraphUpdated signal.
  *
  * Since: 0.18
  **/
 void
-tracker_decorator_delete_ids (TrackerDecorator *decorator,
-                              gint             *ids,
-                              gint              n_ids)
+tracker_decorator_delete_id (TrackerDecorator *decorator,
+                             gint              id)
 {
-	TrackerDecoratorPrivate *priv;
-	gint i;
-
 	g_return_if_fail (TRACKER_IS_DECORATOR (decorator));
-	g_return_if_fail (ids != NULL);
-	g_return_if_fail (n_ids > 0);
 
-	priv = decorator->priv;
-
-	if (priv->elem_queue->length == 0)
-		return;
-
-	for (i = 0; i < n_ids; i++)
-		element_remove_by_id (decorator, ids[i]);
+	element_remove_by_id (decorator, id);
 }
 
 static GList *
