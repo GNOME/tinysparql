@@ -96,7 +96,8 @@ process_files_cb (GObject      *object,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		gint id = tracker_sparql_cursor_get_integer (cursor, 0);
-		tracker_decorator_prepend_id (TRACKER_DECORATOR (user_data), id);
+		gint class_name_id = tracker_sparql_cursor_get_integer (cursor, 1);
+		tracker_decorator_prepend_id (TRACKER_DECORATOR (user_data), id, class_name_id);
 	}
 
 	g_object_unref (cursor);
@@ -139,7 +140,7 @@ check_files (TrackerDecorator    *decorator,
 	GString *query;
 
 	data_source = tracker_decorator_get_data_source (decorator);
-	query = g_string_new ("SELECT tracker:id(?urn) { ?urn ");
+	query = g_string_new ("SELECT tracker:id(?urn) tracker:id(?type) { ?urn ");
 
 	if (mount_point_urn) {
 		g_string_append_printf (query,
@@ -147,7 +148,8 @@ check_files (TrackerDecorator    *decorator,
 		                        mount_point_urn);
 	}
 
-	g_string_append (query, " a nfo:FileDataObject . ");
+	g_string_append (query, " a nfo:FileDataObject ;"
+	                        " a ?type .");
 	g_string_append_printf (query,
 	                        "FILTER (! EXISTS { ?urn nie:dataSource <%s> } ",
 	                        data_source);

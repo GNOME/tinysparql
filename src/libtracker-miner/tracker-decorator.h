@@ -74,7 +74,8 @@ const gchar** tracker_decorator_get_class_names   (TrackerDecorator     *decorat
 guint         tracker_decorator_get_n_items       (TrackerDecorator     *decorator);
 
 void          tracker_decorator_prepend_id        (TrackerDecorator     *decorator,
-                                                   gint                  id);
+                                                   gint                  id,
+                                                   gint                  class_name_id);
 void          tracker_decorator_delete_id         (TrackerDecorator     *decorator,
                                                    gint                  id);
 

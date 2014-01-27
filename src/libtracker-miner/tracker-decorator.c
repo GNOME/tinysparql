@@ -55,6 +55,7 @@ struct _TrackerDecoratorInfo {
 struct _ElemNode {
 	TrackerDecoratorInfo *info;
 	gint id;
+	gint class_name_id;
 };
 
 struct _TrackerDecoratorPrivate {
@@ -188,6 +189,7 @@ decorator_update_state (TrackerDecorator *decorator,
 static void
 element_add (TrackerDecorator *decorator,
              gint              id,
+             gint              class_name_id,
              gboolean          prepend)
 {
 	TrackerDecoratorPrivate *priv;
@@ -203,6 +205,7 @@ element_add (TrackerDecorator *decorator,
 	first_elem = g_hash_table_size (priv->elems) == 0;
 	node = g_new0 (ElemNode, 1);
 	node->id = id;
+	node->class_name_id = class_name_id;
 
 	if (prepend) {
 		g_queue_push_head (priv->elem_queue, node);
@@ -566,7 +569,8 @@ handle_deletes (TrackerDecorator *decorator,
 			/* If only the decorator datasource is removed,
 			 * re-process the file from scratch.
 			 */
-			element_add (decorator, subject, FALSE);
+			/* FIXME: Can we know the class_name_id ? */
+			element_add (decorator, subject, 0, FALSE);
 		}
 	}
 }
@@ -601,7 +605,7 @@ handle_updates (TrackerDecorator *decorator,
 	                            &graph, &subject, &predicate, &object)) {
 		if (predicate == priv->rdf_type_id &&
 		    class_name_id_handled (decorator, object))
-			element_add (decorator, subject, FALSE);
+			element_add (decorator, subject, object, FALSE);
 	}
 }
 
@@ -725,14 +729,13 @@ _tracker_decorator_query_append_rdf_type_filter (TrackerDecorator *decorator,
 	if (!class_names || !*class_names)
 		return;
 
-	g_string_append (query, "&& (");
+	g_string_append (query, "&& ?type IN (");
 
 	while (class_names[i]) {
 		if (i != 0)
-			g_string_append (query, "||");
+			g_string_append (query, ",");
 
-		g_string_append_printf (query, "EXISTS { ?urn a %s }",
-		                        class_names[i]);
+		g_string_append (query, class_names[i]);
 		i++;
 	}
 
@@ -759,7 +762,8 @@ query_elements_cb (GObject      *object,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		gint id = tracker_sparql_cursor_get_integer (cursor, 0);
-		element_add (user_data, id, TRUE);
+		gint class_name_id = tracker_sparql_cursor_get_integer (cursor, 1);
+		element_add (user_data, id, class_name_id, TRUE);
 	}
 
 	g_object_unref (cursor);
@@ -806,8 +810,9 @@ tracker_decorator_started (TrackerMiner *miner)
 
 	g_timer_start (priv->timer);
 	data_source = tracker_decorator_get_data_source (decorator);
-	query = g_string_new ("SELECT tracker:id(?urn) { "
-	                      "  ?urn a rdfs:Resource . ");
+	query = g_string_new ("SELECT tracker:id(?urn) tracker:id(?type) { "
+	                      "  ?urn a rdfs:Resource ; "
+	                      "       a ?type. ");
 
 	g_string_append_printf (query,
 	                        "FILTER (! EXISTS { ?urn nie:dataSource <%s> } ",
@@ -991,11 +996,12 @@ tracker_decorator_get_n_items (TrackerDecorator *decorator)
  **/
 void
 tracker_decorator_prepend_id (TrackerDecorator *decorator,
-                              gint              id)
+                              gint              id,
+                              gint              class_name_id)
 {
 	g_return_if_fail (TRACKER_IS_DECORATOR (decorator));
 
-	element_add (decorator, id, TRUE);
+	element_add (decorator, id, class_name_id, TRUE);
 }
 
 /**
