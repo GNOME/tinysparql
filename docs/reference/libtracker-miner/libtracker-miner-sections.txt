@@ -194,6 +194,22 @@ tracker_password_provider_get_type
 </SECTION>
 
 <SECTION>
+<FILE>tracker-miner-online</FILE>
+<TITLE>TrackerMinerOnline</FILE>
+TrackerMinerOnline
+TrackerMinerOnlineClass
+tracker_miner_online_get_type
+tracker_miner_online_get_network_type
+<SUBSECTION Standard>
+TRACKER_MINER_ONLINE
+TRACKER_MINER_ONLINE_CLASS
+TRACKER_MINER_ONLINE_GET_CLASS
+TRACKER_IS_MINER_ONLINE
+TRACKER_IS_MINER_ONLINE_CLASS
+TRACKER_TYPE_MINER_ONLINE
+</SECTION>
+
+<SECTION>
 <FILE>tracker-decorator</FILE>
 <TITLE>TrackerDecorator</TITLE>
 TrackerDecorator

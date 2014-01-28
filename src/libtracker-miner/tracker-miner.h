@@ -27,6 +27,7 @@
 #include <libtracker-miner/tracker-network-provider.h>
 #include <libtracker-miner/tracker-password-provider.h>
 #include <libtracker-miner/tracker-miner-object.h>
+#include <libtracker-miner/tracker-miner-online.h>
 #include <libtracker-miner/tracker-miner-fs.h>
 #include <libtracker-miner/tracker-miner-web.h>
 #include <libtracker-miner/tracker-miner-enums.h>

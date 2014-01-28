@@ -65,6 +65,8 @@ miner_sources = 				       \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.c                         \
 	tracker-miner-object.h                         \
+	tracker-miner-online.c                         \
+	tracker-miner-online.h                         \
 	tracker-miner-fs.c                             \
 	tracker-miner-fs.h                             \
 	tracker-miner-web.c                            \
@@ -92,6 +94,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-enums.h                          \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
+	tracker-miner-online.h                         \
 	tracker-miner-fs.h                             \
 	tracker-miner-web.h                            \
 	tracker-network-provider.h                     \
@@ -103,7 +106,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
+	-export-symbols-regex '^tracker_(miner|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

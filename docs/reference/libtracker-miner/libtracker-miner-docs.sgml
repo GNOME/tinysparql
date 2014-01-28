@@ -32,6 +32,7 @@
       <title>Base abstract miner classes</title>
       <xi:include href="xml/tracker-miner-object.xml"/>
       <xi:include href="xml/tracker-miner-web.xml"/>
+      <xi:include href="xml/tracker-miner-online.xml"/>
       <xi:include href="xml/tracker-decorator.xml"/>
     </chapter>
 
