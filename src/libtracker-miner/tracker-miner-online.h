@@ -59,6 +59,9 @@ struct _TrackerMinerOnlineClass {
 	gboolean (* connected)    (TrackerMinerOnline *miner,
 	                           TrackerNetworkType  network);
 	void     (* disconnected) (TrackerMinerOnline *miner);
+
+	/* <Private> */
+	gpointer padding[10];
 };
 
 GType               tracker_miner_online_get_type         (void) G_GNUC_CONST;
