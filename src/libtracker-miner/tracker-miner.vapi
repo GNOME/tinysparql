@@ -63,6 +63,20 @@ namespace Tracker {
 		public signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
+	public class MinerOnline : Tracker.Miner, GLib.Initable {
+		public virtual bool connected (Tracker.NetworkType network_type);
+		public virtual void disconnected ();
+	}
+	[CCode (cprefix = "TRACKER_NETWORK_TYPE_", cheader_filename = "libtracker-miner/tracker-miner.h")]
+	public enum NetworkType {
+	       NONE,
+	       UNKNOWN,
+	       GPRS,
+	       EDGE,
+	       3G,
+	       LAN
+	}
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerWeb : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public MinerWeb ();
