@@ -68,22 +68,15 @@ miner_sources = 				       \
 	tracker-miner-online.c                         \
 	tracker-miner-online.h                         \
 	tracker-miner-fs.c                             \
-	tracker-miner-fs.h                             \
-	tracker-miner-web.c                            \
-	tracker-miner-web.h                            
-
+	tracker-miner-fs.h
 
 libtracker_miner_private_la_SOURCES =                  \
 	$(private_sources)
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
-	$(network_provider_sources)                    \
-	$(password_provider_sources)                   \
 	$(miner_sources)			       \
 	tracker-indexing-tree.c                        \
-	tracker-indexing-tree.h                        \
-	tracker-network-provider.c                     \
-	tracker-password-provider.c
+	tracker-indexing-tree.h
 
 libtracker_minerinclude_HEADERS =                      \
 	tracker-decorator.h                            \
@@ -95,10 +88,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
 	tracker-miner-online.h                         \
-	tracker-miner-fs.h                             \
-	tracker-miner-web.h                            \
-	tracker-network-provider.h                     \
-	tracker-password-provider.h
+	tracker-miner-fs.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -106,7 +96,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
+	-export-symbols-regex '^tracker_(miner|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
@@ -116,18 +106,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	-lm                                            \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
-
-if HAVE_LIBSECRET
-password_provider_sources = tracker-password-provider-gnome.c
-else
-password_provider_sources = tracker-password-provider-keyfile.c
-endif
-
-if HAVE_NETWORK_MANAGER
-network_provider_sources = tracker-network-provider-network-manager.c
-else
-network_provider_sources = tracker-network-provider-dummy.c
-endif
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi

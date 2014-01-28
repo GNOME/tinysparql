@@ -31,7 +31,6 @@
     <chapter>
       <title>Base abstract miner classes</title>
       <xi:include href="xml/tracker-miner-object.xml"/>
-      <xi:include href="xml/tracker-miner-web.xml"/>
       <xi:include href="xml/tracker-miner-online.xml"/>
       <xi:include href="xml/tracker-decorator.xml"/>
     </chapter>
@@ -41,12 +40,6 @@
       <xi:include href="xml/tracker-miner-fs.xml"/>
       <xi:include href="xml/tracker-indexing-tree.xml"/>
       <xi:include href="xml/tracker-decorator-fs.xml"/>
-    </chapter>
-
-    <chapter>
-      <title>Base abstract providers for network/password/etc control</title>
-      <xi:include href="xml/tracker-network-provider.xml"/>
-      <xi:include href="xml/tracker-password-provider.xml"/>
     </chapter>
 
     <chapter>
