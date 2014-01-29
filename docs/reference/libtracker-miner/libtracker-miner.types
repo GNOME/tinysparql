@@ -1,3 +1,4 @@
+tracker_decorator_get_type
 tracker_decorator_fs_get_type
 tracker_indexing_tree_get_type
 tracker_miner_get_type
