@@ -57,6 +57,7 @@ struct _ElemNode {
 	TrackerDecoratorInfo *info;
 	gint id;
 	gint class_name_id;
+	gboolean prepend;
 };
 
 struct _TrackerDecoratorPrivate {
@@ -71,6 +72,7 @@ struct _TrackerDecoratorPrivate {
 	GQueue next_elem_queue;
 
 	GArray *class_name_ids;
+	GArray *priority_class_name_ids;
 	gint rdf_type_id;
 	gint nie_data_source_id;
 	gint data_source_id;
@@ -187,6 +189,42 @@ decorator_update_state (TrackerDecorator *decorator,
 		g_object_set (decorator, "status", message, NULL);
 }
 
+static gboolean
+class_name_array_contains (GArray *array,
+                           gint    id)
+{
+	guint i;
+
+	for (i = 0; i < array->len; i++) {
+		if (id == g_array_index (array, gint, i))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gint
+elem_node_get_priority (TrackerDecorator *decorator,
+                        ElemNode         *node)
+{
+	TrackerDecoratorPrivate *priv;
+	gboolean prior;
+
+	priv = decorator->priv;
+
+	/* We want [prepend and prior, prior, prepend, the rest] */
+	prior = class_name_array_contains (priv->priority_class_name_ids,
+	                                   node->class_name_id);
+	if (prior && node->prepend)
+		return G_PRIORITY_HIGH - 1;
+	else if (prior)
+		return G_PRIORITY_HIGH;
+	else if (node->prepend)
+		return G_PRIORITY_HIGH + 1;
+
+	return G_PRIORITY_DEFAULT;
+}
+
 static void
 element_add (TrackerDecorator *decorator,
              gint              id,
@@ -207,14 +245,10 @@ element_add (TrackerDecorator *decorator,
 	node = g_new0 (ElemNode, 1);
 	node->id = id;
 	node->class_name_id = class_name_id;
+	node->prepend = prepend;
 
-	if (prepend) {
-		elem = tracker_priority_queue_add (priv->elem_queue, node,
-		                                   G_PRIORITY_HIGH);
-	} else {
-		elem = tracker_priority_queue_add (priv->elem_queue, node,
-		                                   G_PRIORITY_DEFAULT);
-	}
+	elem = tracker_priority_queue_add (priv->elem_queue, node,
+	                                   elem_node_get_priority (decorator, node));
 
 	g_hash_table_insert (priv->elems, GINT_TO_POINTER (id), elem);
 	priv->stats_n_elems++;
@@ -247,7 +281,7 @@ element_remove_link (TrackerDecorator *decorator,
 		return;
 	}
 
-	tracker_priority_queue_remove (priv->elem_queue, elem_link);
+	tracker_priority_queue_remove_node (priv->elem_queue, elem_link);
 	g_hash_table_remove (priv->elems, GINT_TO_POINTER (node->id));
 
 	if (emit && g_hash_table_size (priv->elems) == 0) {
@@ -581,16 +615,10 @@ class_name_id_handled (TrackerDecorator *decorator,
                        gint              id)
 {
 	TrackerDecoratorPrivate *priv;
-	guint i;
 
 	priv = decorator->priv;
 
-	for (i = 0; i < priv->class_name_ids->len; i++) {
-		if (id == g_array_index (priv->class_name_ids, gint, i))
-			return TRUE;
-	}
-
-	return FALSE;
+	return class_name_array_contains (priv->class_name_ids, id);
 }
 
 static void
@@ -708,6 +736,7 @@ tracker_decorator_finalize (GObject *object)
 
 	g_array_unref (priv->class_name_ids);
 	tracker_priority_queue_unref (priv->elem_queue);
+	g_array_unref (priv->priority_class_name_ids);
 	g_hash_table_unref (priv->elems);
 	g_free (priv->data_source);
 	g_strfreev (priv->class_names);
@@ -916,6 +945,7 @@ tracker_decorator_init (TrackerDecorator *decorator)
 	priv->elems = g_hash_table_new (NULL, NULL);
 	priv->elem_queue = tracker_priority_queue_new ();
 	priv->class_name_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->priority_class_name_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	priv->batch_size = DEFAULT_BATCH_SIZE;
 	priv->sparql_buffer = g_ptr_array_new_with_free_func (g_free);
 	priv->timer = g_timer_new ();
@@ -1271,9 +1301,47 @@ void
 tracker_decorator_set_priority_rdf_types (TrackerDecorator    *decorator,
                                           const gchar * const *rdf_types)
 {
-	g_return_if_fail (TRACKER_DECORATOR (decorator));
+	TrackerDecoratorPrivate *priv;
+	TrackerPriorityQueue *new_queue;
+	guint i, j;
+	GList *elem_link;
 
-	/* FIXME: Not Implemented */
+	g_return_if_fail (TRACKER_DECORATOR (decorator));
+	g_return_if_fail (rdf_types != NULL);
+
+	priv = decorator->priv;
+
+	if (priv->priority_class_name_ids->len > 0)
+		g_array_remove_range (priv->priority_class_name_ids, 0,
+		                      priv->priority_class_name_ids->len);
+
+	for (i = 0; rdf_types[i] != NULL; i++) {
+		for (j = 0; priv->class_names[j] != NULL; j++) {
+			gint id;
+
+			if (!g_str_equal (rdf_types[i], priv->class_names[j]))
+				continue;
+
+			/* priv->class_names and priv->class_name_ids are in the
+			 * same order */
+			id = g_array_index (priv->class_name_ids, gint, j);
+			g_array_append_val (priv->priority_class_name_ids, id);
+			break;
+		}
+	}
+
+	/* We have to re-evaluate the priority of each element. We also have to
+	 * keep the same elem_link because they are referenced in priv->elems.
+	 * So we create a new priority queue and transfer nodes one by one. */
+	new_queue = tracker_priority_queue_new ();
+	while ((elem_link = tracker_priority_queue_pop_node (priv->elem_queue, NULL))) {
+		ElemNode *node = elem_link->data;
+
+		tracker_priority_queue_add_node (new_queue, elem_link,
+		                                 elem_node_get_priority (decorator, node));
+	}
+	tracker_priority_queue_unref (priv->elem_queue);
+	priv->elem_queue = new_queue;
 }
 
 /**
