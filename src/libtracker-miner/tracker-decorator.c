@@ -472,7 +472,7 @@ tracker_decorator_validate_class_ids (TrackerDecorator *decorator,
 {
 	TrackerSparqlConnection *sparql_conn;
 	TrackerDecoratorPrivate *priv;
-	GArray *strings;
+	GPtrArray *strings;
 	gint i = 0;
 
 	priv = decorator->priv;
@@ -489,9 +489,8 @@ tracker_decorator_validate_class_ids (TrackerDecorator *decorator,
 		g_array_remove_range (priv->class_name_ids, 0,
 		                      priv->class_name_ids->len);
 
+	strings = g_ptr_array_new ();
 	if (class_names) {
-		strings = g_array_new (TRUE, FALSE, sizeof (gchar *));
-
 		while (class_names[i]) {
 			gchar *copy;
 			gint id;
@@ -500,23 +499,17 @@ tracker_decorator_validate_class_ids (TrackerDecorator *decorator,
 
 			if (id >= 0) {
 				copy = g_strdup (class_names[i]);
-				g_array_append_val (strings, copy);
+				g_ptr_array_add (strings, copy);
 				g_array_append_val (priv->class_name_ids, id);
 			}
 
 			i++;
 		}
 	}
+	g_ptr_array_add (strings, NULL);
 
-	if (priv->class_names) {
-		g_strfreev (priv->class_names);
-		priv->class_names = NULL;
-	}
-
-	if (priv->class_name_ids->len > 0)
-		priv->class_names = (GStrv) g_array_free (strings, FALSE);
-	else
-		g_array_free (strings, TRUE);
+	g_strfreev (priv->class_names);
+	priv->class_names = (GStrv) g_ptr_array_free (strings, FALSE);
 
 	g_object_notify (G_OBJECT (decorator), "class-names");
 }
