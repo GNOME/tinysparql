@@ -119,14 +119,14 @@ tracker_decorator_info_new (TrackerSparqlCursor *cursor)
 	return info;
 }
 
-static TrackerDecoratorInfo *
+TrackerDecoratorInfo *
 tracker_decorator_info_ref (TrackerDecoratorInfo *info)
 {
 	g_atomic_int_inc (&info->ref_count);
 	return info;
 }
 
-static void
+void
 tracker_decorator_info_unref (TrackerDecoratorInfo *info)
 {
 	if (!g_atomic_int_dec_and_test (&info->ref_count))
@@ -139,6 +139,11 @@ tracker_decorator_info_unref (TrackerDecoratorInfo *info)
 	g_free (info->mimetype);
 	g_slice_free (TrackerDecoratorInfo, info);
 }
+
+G_DEFINE_BOXED_TYPE (TrackerDecoratorInfo,
+                     tracker_decorator_info,
+                     tracker_decorator_info_ref,
+                     tracker_decorator_info_unref)
 
 static void
 decorator_update_state (TrackerDecorator *decorator,
@@ -1115,7 +1120,8 @@ complete_tasks_or_query (TrackerDecorator *decorator)
 		if (!node->info->task) {
 			task = g_queue_pop_head (&priv->next_elem_queue);
 			element_ensure_task (node, decorator);
-			g_task_return_pointer (task, node->info,
+			g_task_return_pointer (task,
+			                       tracker_decorator_info_ref (node->info),
 			                       (GDestroyNotify) tracker_decorator_info_unref);
 			g_object_unref (task);
 
@@ -1194,7 +1200,8 @@ tracker_decorator_next (TrackerDecorator    *decorator,
  * tracker_decorator_next() to return the result of the task be it an
  * error or not.
  *
- * Returns: (transfer full): (boxed): a #TrackerDecoratorInfo on success or #NULL on error.
+ * Returns: (transfer full) (boxed): a #TrackerDecoratorInfo on success or
+ *  #NULL on error. Free with tracker_decorator_info_unref().
  *
  * Since: 0.18
  **/

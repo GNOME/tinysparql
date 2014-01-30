@@ -180,6 +180,8 @@ get_metadata_cb (TrackerExtract *extract,
 	}
 
 	decorator_get_next_file (data->decorator);
+
+	tracker_decorator_info_unref (data->decorator_info);
 	g_free (data);
 }
 

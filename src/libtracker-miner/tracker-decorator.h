@@ -88,6 +88,11 @@ TrackerDecoratorInfo *
                                                    GAsyncResult         *result,
                                                    GError              **error);
 
+GType         tracker_decorator_info_get_type     (void) G_GNUC_CONST;
+
+TrackerDecoratorInfo *
+              tracker_decorator_info_ref          (TrackerDecoratorInfo *info);
+void          tracker_decorator_info_unref        (TrackerDecoratorInfo *info);
 const gchar * tracker_decorator_info_get_urn      (TrackerDecoratorInfo *info);
 const gchar * tracker_decorator_info_get_url      (TrackerDecoratorInfo *info);
 const gchar * tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info);
