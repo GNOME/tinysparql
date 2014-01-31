@@ -827,7 +827,1195 @@ msgid ""
 "details.\n"
 "\n"
 "You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, see <http://www.gnu.org/licenses/>."
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+"المُقتفي برمجية حر، يمكنك توزيعه و/أو تعديله حسب بنود رخصة جنو العمومية كما \n"
+"نشرتها مؤسسة البرامج الحرة، الإصدار الثاني أو أي إصدار أحدث (حسب رغبتك).\n"
+"\n"
+"\n"
+"\n"
+"يوزع المُقتفي على أمل أن يكون مفيدًا، ولكن دون أية ضمانات، بما في ذلك ضمانات "
+"قابلية البرنامج للتسويق أو الملاءمة لغرض معين. انظر نص رخصة جنو العمومية \n"
+"لمزيد من التفاصيل.\n"
+"\n"
+"\n"
+"\n"
+"من المفترض أنك تلقيت نسخة من رخصة جنو العمومية مع هذا البرنامج؛ إذا لم "
+"يحدث \n"
+"هذا فاكتب إلى مؤسسة البرمجيات الحرة\n"
+"\n"
+"Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA \n"
+"02111-1307, USA."
+
+#. Indexer options
+#: ../src/tracker-store/tracker-main.vala:51
+msgid "Force a re-index of all content"
+msgstr "افرض إعادة فهرسة كل المحتوى"
+
+#: ../src/tracker-store/tracker-main.vala:52
+msgid "Only allow read based actions on the database"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.vala:189
+msgid "- start the tracker daemon"
+msgstr "- ابدأ عفريت المُقتفي"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-control/tracker-control.c:77
+msgid " - Manage Tracker processes and data"
+msgstr " - أدِر عمليات وبيانات المقتفي"
+
+#: ../src/tracker-control/tracker-control.c:101
+msgid "General and Status options cannot be used together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:107
+msgid "General and Miners options cannot be used together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:118
+msgid "Status and Miners options cannot be used together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:135
+msgid "Unrecognized options"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:143
+msgid "No options specified"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:72
+msgid "List all Tracker processes"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:74
+msgid ""
+"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:75
+#: ../src/tracker-control/tracker-control-general.c:78
+msgid "APPS"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:77
+msgid ""
+"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:80
+msgid "Kill all Tracker processes and remove all databases"
+msgstr "اقتل هذا عملية المقتفي واحذف كل قواعد البيانات"
+
+#: ../src/tracker-control/tracker-control-general.c:83
+msgid ""
+"Same as --hard-reset but the backup & journal are restored after restart"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:86
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:89
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:111
+msgid "Could not open /proc"
+msgstr "تعذّر فتح ‪/proc‬"
+
+#: ../src/tracker-control/tracker-control-general.c:112
+#: ../src/tracker-control/tracker-control-general.c:297
+#: ../src/tracker-control/tracker-control-general.c:337
+#: ../src/tracker-control/tracker-control-general.c:358
+msgid "no error given"
+msgstr "لم يُعطى أي خطأ"
+
+#: ../src/tracker-control/tracker-control-general.c:251
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:257
+msgid ""
+"You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
+"implied"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:263
+msgid "You can not use the --hard-reset and --soft-reset arguments together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:294
+#, c-format
+msgid "Could not open '%s'"
+msgstr "تعذّر فتح '%s'"
+
+#: ../src/tracker-control/tracker-control-general.c:319
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:334
+#, c-format
+msgid "Could not terminate process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:340
+#, c-format
+msgid "Terminated process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:355
+#, c-format
+msgid "Could not kill process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:361
+#, c-format
+msgid "Killed process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:478
+msgid "Removing configuration files…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:492
+msgid "Waiting one second before starting miners…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:498
+msgid "Starting miners…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:516
+msgid "perhaps a disabled plugin?"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-general.c:539
+msgid "General options"
+msgstr "الخيارات العامّة"
+
+#: ../src/tracker-control/tracker-control-general.c:540
+msgid "Show general options"
+msgstr "اعرض الخيارات العامّة"
+
+#: ../src/tracker-control/tracker-control-miners.c:54
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:57
+msgid "Tell miners to (re)index a given file"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:60
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:61
+msgid "REASON"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:64
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:65
+msgid "COOKIE"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:68
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:69
+msgid "MINER"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:72
+msgid "List all miners currently running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:76
+msgid "List all miners installed"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:80
+msgid "List pause reasons"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:101
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:108
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:113
+#, c-format
+msgid "Cookie is %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:129
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:136
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:140
+#: ../src/tracker-utils/tracker-import.c:142
+#: ../src/tracker-utils/tracker-sparql.c:571
+msgid "Done"
+msgstr "تم"
+
+#: ../src/tracker-control/tracker-control-miners.c:157
+msgid "Could not reindex mimetypes"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:163
+msgid "Reindexing mime types was successful"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:183
+msgid "Could not (re)index file"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:189
+msgid "(Re)indexing file was successful"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:206
+#: ../src/tracker-control/tracker-control-miners.c:289
+#, c-format
+msgid "Could not contact the miner manager"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:217
+#, c-format
+msgid "Found %d miners installed"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:237
+#, c-format
+msgid "Found %d miners running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:268
+#: ../src/tracker-control/tracker-control-status.c:145
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:296
+msgid "No miners are running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:333
+#: ../src/tracker-control/tracker-control-status.c:508
+msgid "Miners"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:340
+msgid "Application"
+msgstr "التطبيقات"
+
+#: ../src/tracker-control/tracker-control-miners.c:342
+msgid "Reason"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:351
+msgid "No miners are paused"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:369
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:375
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:381
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:425
+msgid "Miner options"
+msgstr "خيارات المُنقِّب"
+
+#: ../src/tracker-control/tracker-control-miners.c:426
+msgid "Show miner options"
+msgstr "اعرض خيارات المُنقِّب"
+
+#: ../src/tracker-control/tracker-control-status.c:55
+msgid "Initializing"
+msgstr "يستبدأ"
+
+#: ../src/tracker-control/tracker-control-status.c:57
+msgid "Fetching…"
+msgstr "يجلب…"
+
+#. miner/rss
+#: ../src/tracker-control/tracker-control-status.c:58
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "يزحف داخل المجلد المفرد '%s'"
+
+#: ../src/tracker-control/tracker-control-status.c:59
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "يزحف تتابعيا داخل المجلد '%s'"
+
+#: ../src/tracker-control/tracker-control-status.c:60
+msgid "Paused"
+msgstr "مُلبَث"
+
+#: ../src/tracker-control/tracker-control-status.c:61
+msgid "Idle"
+msgstr "ساكن"
+
+#: ../src/tracker-control/tracker-control-status.c:66
+msgid "Show current status"
+msgstr "اعرض الحالة الحالية"
+
+#: ../src/tracker-control/tracker-control-status.c:70
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:74
+msgid "Include details with state updates (only applies to --follow)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:78
+msgid "List common statuses for miners and the store"
+msgstr ""
+
+#. Work out lengths for output spacing
+#: ../src/tracker-control/tracker-control-status.c:203
+#: ../src/tracker-control/tracker-control-status.c:492
+msgid "PAUSED"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:217
+msgid "Not running or is a disabled plugin"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:481
+msgid "Common statuses include"
+msgstr ""
+
+#. Display states
+#: ../src/tracker-control/tracker-control-status.c:502
+msgid "Store"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:615
+msgid "Status options"
+msgstr "خيارات الحالة"
+
+#: ../src/tracker-control/tracker-control-status.c:616
+msgid "Show status options"
+msgstr "اعرض خيارات الحالة"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-import.c:75
+msgid "- Import data using Turtle files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:93
+#: ../src/tracker-utils/tracker-info.c:200
+msgid "One or more files have not been specified"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:115
+#: ../src/tracker-utils/tracker-info.c:222
+#: ../src/tracker-utils/tracker-search.c:1441
+#: ../src/tracker-utils/tracker-sparql.c:291
+#: ../src/tracker-utils/tracker-stats.c:92
+#: ../src/tracker-utils/tracker-tag.c:944
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:97
+msgid "Could not establish a connection to Tracker"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:223
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:98
+msgid "No error given"
+msgstr "لم يُعطى أي خطأ"
+
+#: ../src/tracker-utils/tracker-import.c:126
+msgid "Importing Turtle file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:135
+msgid "Unable to import Turtle file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:53
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:131
+msgid "Unable to retrieve namespace prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:139
+msgid "No namespace prefixes were returned"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-info.c:182
+#, fuzzy
+msgid "- Get all information about one or more files"
+msgstr "- اجلب المعلومات من ملف بعينه"
+
+#: ../src/tracker-utils/tracker-info.c:237
+#, fuzzy
+msgid "Querying information for entity"
+msgstr "- اجلب المعلومات من ملف بعينه"
+
+#: ../src/tracker-utils/tracker-info.c:257
+#, fuzzy
+msgid "Unable to retrieve URN for URI"
+msgstr "تعذّر جلب البيانات من المسار"
+
+#: ../src/tracker-utils/tracker-info.c:267
+#: ../src/tracker-utils/tracker-info.c:294
+#, fuzzy
+msgid "Unable to retrieve data for URI"
+msgstr "تعذّر جلب البيانات من المسار"
+
+#: ../src/tracker-utils/tracker-info.c:303
+#, fuzzy
+msgid "No metadata available for that URI"
+msgstr "لا تتوفر أي بيانات فوقية"
+
+#: ../src/tracker-utils/tracker-info.c:305
+#: ../src/tracker-utils/tracker-search.c:1261
+#: ../src/tracker-utils/tracker-sparql.c:613
+#: ../utils/tracker-sql/tracker-sql.c:170
+#, fuzzy
+msgid "Results"
+msgstr "النتائج:"
+
+#: ../src/tracker-utils/tracker-search.c:67
+#: ../src/tracker-utils/tracker-tag.c:55
+msgid "Limit the number of results shown"
+msgstr "حُدّ عدد النتائج المعروضة"
+
+#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-tag.c:56
+msgid "512"
+msgstr "512"
+
+#: ../src/tracker-utils/tracker-search.c:71
+#: ../src/tracker-utils/tracker-tag.c:59
+msgid "Offset the results"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:72
+#: ../src/tracker-utils/tracker-tag.c:60
+msgid "0"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:75
+#: ../src/tracker-utils/tracker-tag.c:63
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:79
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:83
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:87
+#, fuzzy
+msgid "Search for files"
+msgstr "ابحث عن الخدمة المحددة"
+
+#: ../src/tracker-utils/tracker-search.c:91
+#, fuzzy
+msgid "Search for folders"
+msgstr "ابحث عن الخدمة المحددة"
+
+#: ../src/tracker-utils/tracker-search.c:95
+#, fuzzy
+msgid "Search for music files"
+msgstr "ابحث عن الخدمة المحددة"
+
+#: ../src/tracker-utils/tracker-search.c:99
+msgid "Search for music albums (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:103
+msgid "Search for music artists (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:107
+#, fuzzy
+msgid "Search for image files"
+msgstr "ا_بحث عن وسم"
+
+#: ../src/tracker-utils/tracker-search.c:111
+#, fuzzy
+msgid "Search for video files"
+msgstr "ابحث عن الخدمة المحددة"
+
+#: ../src/tracker-utils/tracker-search.c:115
+#, fuzzy
+msgid "Search for document files"
+msgstr ""
+"طالع المستند %s\n"
+"في %s"
+
+#: ../src/tracker-utils/tracker-search.c:119
+#, fuzzy
+msgid "Search for emails"
+msgstr "ا_بحث عن وسم"
+
+#: ../src/tracker-utils/tracker-search.c:123
+#, fuzzy
+msgid "Search for contacts"
+msgstr "ا_بحث عن وسم"
+
+#: ../src/tracker-utils/tracker-search.c:127
+msgid "Search for software (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:131
+msgid "Search for software categories (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:135
+msgid "Search for feeds (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:144
+msgid "search terms"
+msgstr "مصطلحات البحث"
+
+#: ../src/tracker-utils/tracker-search.c:145
+msgid "EXPRESSION"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:162
+#: ../src/tracker-utils/tracker-tag.c:110
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+"ملاحظة: وصلنا للحد المسموح، هناك الكثير من النتائج في قاعدة البيانات ولم "
+"تسرد هنا"
+
+#: ../src/tracker-utils/tracker-search.c:221
+#: ../src/tracker-utils/tracker-search.c:326
+#: ../src/tracker-utils/tracker-search.c:427
+#: ../src/tracker-utils/tracker-search.c:723
+#: ../src/tracker-utils/tracker-search.c:808
+#: ../src/tracker-utils/tracker-search.c:892
+#: ../src/tracker-utils/tracker-search.c:972
+#: ../src/tracker-utils/tracker-search.c:1052
+#: ../src/tracker-utils/tracker-search.c:1248
+#, fuzzy
+msgid "Could not get search results"
+msgstr "تعذّر حفظ المستند."
+
+#: ../src/tracker-utils/tracker-search.c:230
+#, fuzzy
+msgid "No contacts were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:287
+#: ../src/tracker-utils/tracker-search.c:300
+#, fuzzy
+msgid "No Name"
+msgstr "اسم"
+
+#: ../src/tracker-utils/tracker-search.c:288
+#: ../src/tracker-utils/tracker-search.c:301
+msgid "No Address"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:335
+#, fuzzy
+msgid "No emails were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:436
+#, fuzzy
+msgid "No files were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:732
+msgid "No artists were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:736
+#, fuzzy
+msgid "Artists"
+msgstr "النتائج: %Id"
+
+#: ../src/tracker-utils/tracker-search.c:817
+msgid "No music was found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:821
+msgid "Albums"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:901
+#, fuzzy
+msgid "No feeds were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:905
+msgid "Feeds"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:981
+#, fuzzy
+msgid "No software was found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:985
+msgid "Software"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:1061
+#, fuzzy
+msgid "No software categories were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-search.c:1065
+#, fuzzy
+msgid "Software Categories"
+msgstr "ال_فئات"
+
+#: ../src/tracker-utils/tracker-search.c:1257
+#, fuzzy
+msgid "No results were found matching your query"
+msgstr "لم يُعثر على نتائِج تُطابِق استعلامك"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-search.c:1329
+#, fuzzy
+msgid "- Search for terms in all data"
+msgstr "مصطلح... - ابحث عن مصطلحات معيّنة"
+
+#. Translators: this message will appear after the usage string
+#. * and before the list of options.
+#.
+#: ../src/tracker-utils/tracker-search.c:1334
+msgid ""
+"Applies an AND operator to all terms separated by a space (see --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:1338
+msgid ""
+"This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
+"you use --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:1368
+msgid "Search terms are missing"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:1414
+#, c-format
+msgid "Search term '%s' is a stop word."
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:1425
+#, c-format
+msgid ""
+"Stop words are common words which may be ignored during the indexing process."
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:68
+msgid "SPARQL query"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:69
+msgid "SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:76
+msgid "Retrieve classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:80
+msgid "Retrieve class prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:84
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:85
+#: ../src/tracker-utils/tracker-sparql.c:89
+msgid "CLASS"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:88
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:92
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional) "
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:93
+msgid "PROPERTY"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:96
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:97
+msgid "CLASS/PROPERTY"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:126
+#, fuzzy
+msgid "Could not get namespace prefixes"
+msgstr "تعذّر فتح المجلّد \"%s\"."
+
+#: ../src/tracker-utils/tracker-sparql.c:135
+msgid "No namespace prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:221
+#: ../src/tracker-utils/tracker-stats.c:123
+#: ../src/tracker-utils/tracker-tag.c:370
+#: ../src/tracker-utils/tracker-tag.c:494
+#: ../src/tracker-utils/tracker-tag.c:866
+#, fuzzy
+msgid "None"
+msgstr "لا شيء"
+
+#: ../src/tracker-utils/tracker-sparql.c:245
+msgid "- Query or update using SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:259
+#: ../utils/tracker-sql/tracker-sql.c:72
+msgid "An argument must be supplied"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:261
+#: ../utils/tracker-sql/tracker-sql.c:74
+#, fuzzy
+msgid "File and query can not be used together"
+msgstr "يجب إعطاء اسم الملف ونوع mime معا"
+
+#: ../src/tracker-utils/tracker-sparql.c:305
+#, fuzzy
+msgid "Could not list classes"
+msgstr "تعذّر حفظ المستند."
+
+#: ../src/tracker-utils/tracker-sparql.c:313
+#, fuzzy
+msgid "No classes were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:500
+#, fuzzy
+msgid "Classes"
+msgstr "النتائج: %Id"
+
+#: ../src/tracker-utils/tracker-sparql.c:329
+#, fuzzy
+msgid "Could not list class prefixes"
+msgstr "تعذّر فتح المجلّد \"%s\"."
+
+#: ../src/tracker-utils/tracker-sparql.c:337
+msgid "No class prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:337
+#, fuzzy
+msgid "Prefixes"
+msgstr "ال_تفضيلات"
+
+#: ../src/tracker-utils/tracker-sparql.c:357
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:396
+#, fuzzy
+msgid "Could not list properties"
+msgstr "تعذّر فتح المستند \"%s\"."
+
+#: ../src/tracker-utils/tracker-sparql.c:404
+msgid "No properties were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:432
+#, fuzzy
+msgid "Could not find notify classes"
+msgstr "تعذّر حفظ المستند."
+
+#: ../src/tracker-utils/tracker-sparql.c:440
+#, fuzzy
+msgid "No notifies were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-sparql.c:440
+msgid "Notifies"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:466
+#, fuzzy
+msgid "Could not find indexed properties"
+msgstr "تعذّر فتح المستند \"%s\"."
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+#, fuzzy
+msgid "No indexes were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+#, fuzzy
+msgid "Indexes"
+msgstr "يُفهرس"
+
+#: ../src/tracker-utils/tracker-sparql.c:492
+#, fuzzy
+msgid "Could not search classes"
+msgstr "تعذّر حفظ المستند."
+
+#: ../src/tracker-utils/tracker-sparql.c:500
+#, fuzzy
+msgid "No classes were found to match search term"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-sparql.c:515
+#, fuzzy
+msgid "Could not search properties"
+msgstr "تعذّر فتح المستند \"%s\"."
+
+#: ../src/tracker-utils/tracker-sparql.c:523
+#, fuzzy
+msgid "No properties were found to match search term"
+msgstr "لم يُعثر على نتائِج تُطابِق استعلامك"
+
+#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../utils/tracker-sql/tracker-sql.c:106
+msgid "Could not get UTF-8 path from path"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:545
+#: ../utils/tracker-sql/tracker-sql.c:117
+msgid "Could not read file"
+msgstr "تعذّرت قراءة الملف"
+
+#: ../src/tracker-utils/tracker-sparql.c:564
+#, fuzzy
+msgid "Could not run update"
+msgstr "تعذّرت قراءة الملف"
+
+#: ../src/tracker-utils/tracker-sparql.c:606
+#: ../utils/tracker-sql/tracker-sql.c:163
+#: ../utils/tracker-sql/tracker-sql.c:196
+#, fuzzy
+msgid "Could not run query"
+msgstr "تعذّرت قراءة الملف"
+
+#: ../src/tracker-utils/tracker-sparql.c:613
+msgid "No results found matching your query"
+msgstr "لم يُعثر على نتائِج تُطابِق استعلامك"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-stats.c:69
+msgid " - Show statistics for all Nepomuk defined ontology classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:102
+msgid "Could not get Tracker statistics"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:109
+msgid "No statistics available"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:113
+msgid "Statistics:"
+msgstr "الإحصائيّات"
+
+#: ../src/tracker-utils/tracker-tag.c:67
+msgid "List all tags (using FILTER if specified)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:71
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:75
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:76 ../src/tracker-utils/tracker-tag.c:80
+msgid "TAG"
+msgstr "وسم"
+
+#: ../src/tracker-utils/tracker-tag.c:79
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:83
+msgid "Description for a tag (this is only used with --add)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:84
+msgid "STRING"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:93
+#, fuzzy
+msgid "FILE…"
+msgstr "ملف"
+
+#: ../src/tracker-utils/tracker-tag.c:94
+#, fuzzy
+msgid "FILE [FILE…]"
+msgstr "ملف..."
+
+#: ../src/tracker-utils/tracker-tag.c:298
+#, fuzzy
+msgid "Could not get file URNs"
+msgstr "تعذّرت قراءة الملف"
+
+#: ../src/tracker-utils/tracker-tag.c:363
+#, fuzzy
+msgid "Could not get files related to tag"
+msgstr "تعذّر جلب الملف حسب نوع MIME"
+
+#: ../src/tracker-utils/tracker-tag.c:438
+#: ../src/tracker-utils/tracker-tag.c:847
+#, fuzzy
+msgid "Could not get all tags"
+msgstr "تعذّر حذف \"%s\"."
+
+#: ../src/tracker-utils/tracker-tag.c:447
+#: ../src/tracker-utils/tracker-tag.c:856
+#, fuzzy
+msgid "No tags were found"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-tag.c:451
+msgid "Tags (shown by name)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:518
+#, fuzzy
+msgid "No files were modified"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-tag.c:627
+#, fuzzy
+msgid "Could not add tag"
+msgstr "تعذّر حفظ المستند."
+
+#: ../src/tracker-utils/tracker-tag.c:643
+msgid "Tag was added successfully"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:672
+#, fuzzy
+msgid "Could not add tag to files"
+msgstr "تعذّر فتح المجلّد \"%s\"."
+
+#: ../src/tracker-utils/tracker-tag.c:682
+msgid "Tagged"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:683
+msgid "Not tagged, file is not indexed"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:729
+#, fuzzy
+msgid "Could not get tag by label"
+msgstr "تعذّر حذف \"%s\"."
+
+#: ../src/tracker-utils/tracker-tag.c:740
+#, fuzzy
+msgid "No tags were found by that name"
+msgstr "ابحث عن ملفات بالوسْم المحدد"
+
+#: ../src/tracker-utils/tracker-tag.c:757
+msgid "None of the files had this tag set"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:803
+#, fuzzy
+msgid "Could not remove tag"
+msgstr "تعذّر نقل \"%s\" إلى المهملات."
+
+#: ../src/tracker-utils/tracker-tag.c:810
+msgid "Tag was removed successfully"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:814
+msgid "Untagged"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:815
+msgid "File not indexed or already untagged"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-tag.c:894
+msgid "Add, remove or list tags"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:910
+msgid "The --list option is required for --show-files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:912
+msgid "Add and delete actions can not be used together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:914
+msgid "No arguments were provided"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:916
+msgid "The --description option can only be used with --add"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-writeback/tracker-main.c:182
+#, fuzzy
+msgid "- start the tracker writeback service"
+msgstr "- ابدأ مفهرس المُقتفي"
+
+#: ../utils/gtk-sparql/gtk-sparql.ui.h:1
+#, fuzzy
+msgid "Saved queries"
+msgstr "<b>الاستعلامات المحفوظة</b>"
+
+#: ../utils/tracker-sql/tracker-sql.c:66
+msgid "- Query or update using SQL"
+msgstr ""
+
+#: ../utils/tracker-sql/tracker-sql.c:144
+msgid "Failed to initialize data manager"
+msgstr ""
+
+#: ../utils/tracker-sql/tracker-sql.c:204
+msgid "Empty result set"
+msgstr ""
+
+#~ msgid "Tracker Status Icon"
+#~ msgstr "أيقونة حالة المُقتفي"
+
+#~ msgid "Tracker Status Notification Application"
+#~ msgstr "تطبيق تنبيهات حالة المقتفي"
+
+#~ msgid "<b>Notification area</b>"
+#~ msgstr "<b>منطقة التنبيهات</b>"
+
+#~ msgid "Al_ways display icon"
+#~ msgstr "اعرض أيقونة _دائمًا"
+
+#~ msgid "_Never display icon"
+#~ msgstr "لا _تعرض أيقونة أبدًا"
+
+#~ msgid "_Only display when indexing content"
+#~ msgstr "اعرض فقط ع_ند فهرسة المحتوى"
+
+#~ msgid "Desktop search tool using Tracker"
+#~ msgstr "أداة بحث لسطح المكتب باستخدام المُقتفي"
+
+#~ msgid "Search Bar"
+#~ msgstr "شريط البحث"
+
+#~ msgid "Paused by user"
+#~ msgstr "ألبثها المستخدم"
+
+#~ msgid ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version."
+#~ msgstr ""
+#~ "المقتفي برمجية حرة، يمكنك توزيعها و/أو تعديلها حسب بنود رخصة جنو العمومية "
+#~ "كما نشرتها مؤسسة البرامج الحرة، الإصدار الثاني أو أي إصدار أحدث (حسب "
+#~ "رغبتك)."
+
+#~ msgid ""
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details."
+#~ msgstr ""
+#~ "يوزع المقتفي على أمل أن يكون مفيداً، ولكن دون أية ضمانات، بما في ذلك "
+#~ "ضمانات قابلية البرنامج للتسويق أو الملاءمة لغرض معين. انظر نص رخصة جنو "
+#~ "العمومية لمزيد من التفاصيل"
+
+#~ msgid ""
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+#~ msgstr ""
+#~ "من المفترض أنك تلقيت نسخة من رخصة جنو العمومية مع هذا البرنامج؛ إذا لم "
+#~ "يحدث هذا فاكتب إلى:\n"
+#~ "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
+#~ "MA  02110-1301, USA."
 
 #~ msgid "translator-credits"
 #~ msgstr ""

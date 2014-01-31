@@ -3092,7 +3092,126 @@ msgstr "Κενό σύνολο αποτελέσματος"
 #~ "more details.\n"
 #~ "\n"
 #~ "You should have received a copy of the GNU General Public License along "
-#~ "with Tracker; if not, see <http://www.gnu.org/licenses/>."
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+#~ msgstr ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version.\n"
+#~ "\n"
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details.\n"
+#~ "\n"
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+
+#~ msgid "Minimum length of a word to be indexed"
+#~ msgstr "Ελάχιστο μήκος μιας λέξης για δεικτοδότηση"
+
+#~ msgid "Words with less characters than this will be ignored by the indexer."
+#~ msgstr ""
+#~ "Λέξεις με λιγότερους χαρακτήρες από αυτό θα αγνοηθούν από τον δεικτοδότη."
+
+#~ msgid "Tracker Status Icon"
+#~ msgstr "Εικονίδιο κατάστασης ανιχνευτή"
+
+#~ msgid "Tracker Status Notification Application"
+#~ msgstr "Εφαρμογή ειδοποιήσεων ανιχνευτή"
+
+#~ msgid "%d/20"
+#~ msgstr "%d/20"
+
+#~ msgid "<b>Notification area</b>"
+#~ msgstr "<b>Περιοχή ειδοποιήσεων</b>"
+
+#~ msgid "Al_ways display icon"
+#~ msgstr "Να γίνετε πάντα _προβολή των εικονιδίων "
+
+#~ msgid "Directories (no sub-directories are indexed):"
+#~ msgstr "Κατάλογοι (Δεν έχουν προστεθεί στο ευρετήριο οι υπο-κατάλογοι):"
+
+#~ msgid "Directories:"
+#~ msgstr "Κατάλογοι:"
+
+#~ msgid "Faster"
+#~ msgstr "Πιο γρήγορα"
+
+#~ msgid "Indexing s_peed (faster consumes more resources):"
+#~ msgstr ""
+#~ "Τ_αχύτητα δημιουργία ευρετηρίου (Στο γρηγορότερο θα καταναλώνονται "
+#~ "περισσότεροι πόροι):"
+
+#~ msgid "Non-Recursively Indexed"
+#~ msgstr "Μη επαναλαμβανόμενη αρχειοθέτηση"
+
+#~ msgid "Slower"
+#~ msgstr "Πιο αργά"
+
+#~ msgid ""
+#~ "When toggled, this makes sure your home directory is included in the list."
+#~ msgstr ""
+#~ "Όταν αλλαχθεί η κατάστασή του, κάνει σίγουρο ότι ο προσωπικό σας "
+#~ "κατάλογος θα συμπεριληφθεί στην λίστα."
+
+#~ msgid "_Never display icon"
+#~ msgstr "Να _μην γίνεται προβολή εικονηδίων"
+
+#~ msgid "_Only display when indexing content"
+#~ msgstr ""
+#~ "Να προβάλετε _μόνο όταν πραγματοποιείται αρχειοθέτηση του περιεχομένου"
+
+# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
+#
+#, fuzzy
+#~ msgid "Unknown"
+#~ msgstr "Άγνωστος χρόνος"
+
+#, fuzzy
+#~ msgid "No Subject"
+#~ msgstr "Θέμα:"
+
+#~ msgid "Search Bar"
+#~ msgstr "Μπάρα αναζήτησης"
+
+#~ msgid "- Miner status and control notification area icon"
+#~ msgstr "- Εικονίδιο κατάστασης και ελέγχου του εξορύκτη"
+
+#~ msgid "Miner is not running"
+#~ msgstr "Ο εξορύκτης δεν εκτελείτε"
+
+#~ msgid "Paused by user"
+#~ msgstr "έγινε παύση από τον χρήστη"
+
+#~ msgid ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version."
+#~ msgstr ""
+#~ "Η Εύρεση (Tracker) είναι ελεύθερο λογισμικό: Μπορείτε να το διανείμετε εκ "
+#~ "νέου και/ή να το τροποποιήσετε κάτω από τους όρους της GNU Γενικής "
+#~ "Δημόσιας Άδειας Χρήσης (GPL) όπως είναι δημοσιευμένη από το Free Software "
+#~ "Foundation: είτε με την έκδοση 2 της Άδειας, είτε (κατά την επιλογή σας) "
+#~ "με οποιαδήποτε νεότερη έκδοση."
+
+#~ msgid ""
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details."
+#~ msgstr ""
+#~ "Η Εύρεση (Tracker) διανέμεται με την ελπίδα ότι θα είναι χρήσιμο αλλά "
+#~ "ΧΩΡΙΣ ΚΑΜΜΙΑ ΑΠΟΛΥΤΩΣ ΕΓΓΥΗΣΗ για συγκεκριμένο σκοπό. Δείτε για "
+#~ "περισσότερες λεπτομέρειες την GNU General Public License."
+
+#~ msgid ""
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 #~ msgstr ""
 #~ "Θα·πρέπει·να·έχετε·λάβει·ένα·αντίγραφο·της· "
 #~ "GNU·General·Public·License·μαζί·με·τον ανιχνευτή (Tracker). Αν όχι γράψτε "
