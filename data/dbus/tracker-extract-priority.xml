@@ -5,6 +5,7 @@
     <method name="SetRdfTypes">
       <arg type="as" name="rdf_types" direction="in" />
     </method>
+    <method name="ClearRdfTypes" />
     <property name="SupportedRdfTypes" type="as" access="read" />
   </interface>
 </node>

@@ -429,6 +429,11 @@ handle_set_rdf_types_cb (TrackerExtractDBusPriority *iface,
 	sender = g_dbus_method_invocation_get_sender (invocation);
 	conn = g_dbus_method_invocation_get_connection (invocation);
 
+	if (rdf_types[0] == NULL) {
+		g_hash_table_remove (priv->apps, sender);
+		goto out;
+	}
+
 	/* Verify all types are supported */
 	for (i = 0; rdf_types[i] != NULL; i++) {
 		if (!strv_contains (supported_classes, rdf_types[i])) {
@@ -458,9 +463,30 @@ handle_set_rdf_types_cb (TrackerExtractDBusPriority *iface,
 	}
 
 	data->rdf_types = g_strdupv ((GStrv) rdf_types);
+
+out:
 	priority_changed (decorator);
 
 	tracker_extract_dbus_priority_complete_set_rdf_types (iface, invocation);
+
+	return TRUE;
+}
+
+static gboolean
+handle_clear_rdf_types_cb (TrackerExtractDBusPriority *iface,
+                           GDBusMethodInvocation      *invocation,
+                           TrackerExtractDecorator    *decorator)
+{
+	TrackerExtractDecoratorPrivate *priv;
+	const gchar *sender;
+
+	priv = TRACKER_EXTRACT_DECORATOR (decorator)->priv;
+	sender = g_dbus_method_invocation_get_sender (invocation);
+
+	g_hash_table_remove (priv->apps, sender);
+	priority_changed (decorator);
+
+	tracker_extract_dbus_priority_complete_clear_rdf_types (iface, invocation);
 
 	return TRUE;
 }
@@ -522,6 +548,9 @@ tracker_extract_decorator_initable_init (GInitable     *initable,
 	priv->iface = tracker_extract_dbus_priority_skeleton_new ();
 	g_signal_connect (priv->iface, "handle-set-rdf-types",
 	                  G_CALLBACK (handle_set_rdf_types_cb),
+	                  decorator);
+	g_signal_connect (priv->iface, "handle-clear-rdf-types",
+	                  G_CALLBACK (handle_clear_rdf_types_cb),
 	                  decorator);
 
 	tracker_extract_dbus_priority_set_supported_rdf_types (priv->iface,
