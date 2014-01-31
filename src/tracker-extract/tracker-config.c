@@ -41,7 +41,8 @@ enum {
 	PROP_VERBOSITY,
 	PROP_SCHED_IDLE,
 	PROP_MAX_BYTES,
-	PROP_MAX_MEDIA_ART_WIDTH
+	PROP_MAX_MEDIA_ART_WIDTH,
+	PROP_WAIT_FOR_MINER_FS,
 };
 
 static TrackerConfigMigrationEntry migration[] = {
@@ -100,6 +101,14 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   2048,
 	                                                   0,
 	                                                   G_PARAM_READWRITE));
+
+	g_object_class_install_property (object_class,
+	                                 PROP_WAIT_FOR_MINER_FS,
+	                                 g_param_spec_boolean ("wait-for-miner-fs",
+	                                                       "Wait for FS miner to be done before extracting",
+	                                                       "%TRUE to wait for tracker-miner-fs is done before extracting. %FAlSE otherwise",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 }
 
 static void
@@ -128,6 +137,7 @@ config_set_property (GObject      *object,
 	case PROP_SCHED_IDLE:
 	case PROP_MAX_BYTES:
 	case PROP_MAX_MEDIA_ART_WIDTH:
+	case PROP_WAIT_FOR_MINER_FS:
 		break;
 
 	default:
@@ -165,6 +175,11 @@ config_get_property (GObject    *object,
 		                 tracker_config_get_max_media_art_width (config));
 		break;
 
+	case PROP_WAIT_FOR_MINER_FS:
+		g_value_set_boolean (value,
+		                     tracker_config_get_wait_for_miner_fs (config));
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -198,12 +213,13 @@ config_constructed (GObject *object)
 	g_settings_bind (settings, "sched-idle", object, "sched-idle", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-bytes", object, "max-bytes", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-media-art-width", object, "max-media-art-width", G_SETTINGS_BIND_GET);
+	g_settings_bind (settings, "wait-for-miner-fs", object, "wait-for-miner-fs", G_SETTINGS_BIND_GET);
 
 	/* Migrate keyfile-based configuration */
 	config_file = tracker_config_file_new ();
 
 	if (config_file) {
-		tracker_config_file_migrate (config_file, G_SETTINGS (object), migration);
+		tracker_config_file_migrate (config_file, settings, migration);
 		g_object_unref (config_file);
 	}
 }
@@ -256,4 +272,12 @@ tracker_config_get_max_media_art_width (TrackerConfig *config)
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
 
 	return g_settings_get_int (G_SETTINGS (config), "max-media-art-width");
+}
+
+gboolean
+tracker_config_get_wait_for_miner_fs (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
+
+	return g_settings_get_boolean (G_SETTINGS (config), "wait-for-miner-fs");
 }

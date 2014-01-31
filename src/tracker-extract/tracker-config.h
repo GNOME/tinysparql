@@ -52,6 +52,7 @@ gint           tracker_config_get_verbosity           (TrackerConfig *config);
 gint           tracker_config_get_sched_idle          (TrackerConfig *config);
 gint           tracker_config_get_max_bytes           (TrackerConfig *config);
 gint           tracker_config_get_max_media_art_width (TrackerConfig *config);
+gboolean       tracker_config_get_wait_for_miner_fs   (TrackerConfig *config);
 
 void           tracker_config_set_verbosity           (TrackerConfig *config,
                                                        gint           value);
