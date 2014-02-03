@@ -52,6 +52,7 @@
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-extract.h"
+#include "tracker-extract-controller.h"
 #include "tracker-extract-decorator.h"
 
 #ifdef THREAD_ENABLE_TRACE
@@ -316,6 +317,7 @@ main (int argc, char *argv[])
 	GError *error = NULL;
 	TrackerExtract *extract;
 	TrackerDecorator *decorator;
+	TrackerExtractController *controller;
 	gchar *log_filename = NULL;
 	GMainLoop *my_main_loop;
 
@@ -429,6 +431,7 @@ main (int argc, char *argv[])
 		g_warning ("Could not initialize media art, will not be available");
 	}
 
+	controller = tracker_extract_controller_new (decorator);
 	tracker_miner_start (TRACKER_MINER (decorator));
 
 	/* Main loop */
@@ -447,6 +450,7 @@ main (int argc, char *argv[])
 
 	g_object_unref (extract);
 	g_object_unref (decorator);
+	g_object_unref (controller);
 
 	tracker_log_shutdown ();
 

@@ -527,6 +527,8 @@ tracker_extract_SOURCES = \
 	tracker-config.h \
 	tracker-extract.c \
 	tracker-extract.h \
+	tracker-extract-controller.c \
+	tracker-extract-controller.h \
 	tracker-extract-decorator.c \
 	tracker-extract-decorator.h \
 	tracker-extract-priority-dbus.c \
