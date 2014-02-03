@@ -28,6 +28,7 @@ enum {
 };
 
 #define TRACKER_EXTRACT_DATA_SOURCE TRACKER_TRACKER_PREFIX "extractor-data-source"
+#define MAX_EXTRACTING_FILES 1
 
 #define TRACKER_EXTRACT_DECORATOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_EXTRACT_DECORATOR, TrackerExtractDecoratorPrivate))
 
@@ -42,6 +43,7 @@ struct _ExtractData {
 struct _TrackerExtractDecoratorPrivate {
 	TrackerExtract *extractor;
 	GTimer *timer;
+	guint n_extracting_files;
 };
 
 static void decorator_get_next_file (TrackerDecorator *decorator);
@@ -161,9 +163,11 @@ get_metadata_cb (TrackerExtract *extract,
                  GAsyncResult   *result,
                  ExtractData    *data)
 {
+	TrackerExtractDecoratorPrivate *priv;
 	TrackerExtractInfo *info;
 	GTask *task;
 
+	priv = TRACKER_EXTRACT_DECORATOR (data->decorator)->priv;
 	task = tracker_decorator_info_get_task (data->decorator_info);
 	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 
@@ -179,6 +183,7 @@ get_metadata_cb (TrackerExtract *extract,
 		g_task_return_boolean (task, TRUE);
 	}
 
+	priv->n_extracting_files--;
 	decorator_get_next_file (data->decorator);
 
 	tracker_decorator_info_unref (data->decorator_info);
@@ -200,8 +205,8 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 	info = tracker_decorator_next_finish (decorator, result, &error);
 
 	if (!info) {
-		if (tracker_decorator_get_n_items (decorator) != 0)
-			g_warning ("Next item could not be retrieved: %s\n", error->message);
+		priv->n_extracting_files--;
+		g_warning ("Next item could not be retrieved: %s\n", error->message);
 		g_error_free (error);
 		return;
 	}
@@ -224,9 +229,24 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 static void
 decorator_get_next_file (TrackerDecorator *decorator)
 {
-	tracker_decorator_next (decorator, NULL,
-	                        (GAsyncReadyCallback) decorator_next_item_cb,
-	                        NULL);
+	TrackerExtractDecoratorPrivate *priv;
+	guint available_items;
+
+	priv = TRACKER_EXTRACT_DECORATOR (decorator)->priv;
+
+	if (!tracker_miner_is_started (TRACKER_MINER (decorator)) ||
+	    tracker_miner_is_paused (TRACKER_MINER (decorator)))
+		return;
+
+	available_items = tracker_decorator_get_n_items (decorator);
+	while (priv->n_extracting_files < MAX_EXTRACTING_FILES &&
+	       available_items > 0) {
+		priv->n_extracting_files++;
+		available_items--;
+		tracker_decorator_next (decorator, NULL,
+		                        (GAsyncReadyCallback) decorator_next_item_cb,
+		                        NULL);
+	}
 }
 
 static void
@@ -236,7 +256,9 @@ tracker_extract_decorator_paused (TrackerMiner *miner)
 
 	priv = TRACKER_EXTRACT_DECORATOR (miner)->priv;
 	g_debug ("Decorator paused\n");
-	g_timer_stop (priv->timer);
+
+	if (priv->timer)
+		g_timer_stop (priv->timer);
 }
 
 static void
@@ -247,7 +269,10 @@ tracker_extract_decorator_resumed (TrackerMiner *miner)
 	priv = TRACKER_EXTRACT_DECORATOR (miner)->priv;
 	g_debug ("Resuming processing of %d items\n",
 	         tracker_decorator_get_n_items (TRACKER_DECORATOR (miner)));
-	g_timer_continue (priv->timer);
+
+	if (priv->timer)
+		g_timer_continue (priv->timer);
+
 	decorator_get_next_file (TRACKER_DECORATOR (miner));
 }
 
@@ -259,7 +284,11 @@ tracker_extract_decorator_items_available (TrackerDecorator *decorator)
 	priv = TRACKER_EXTRACT_DECORATOR (decorator)->priv;
 	g_debug ("Starting processing of %d items\n",
 	         tracker_decorator_get_n_items (decorator));
+
 	priv->timer = g_timer_new ();
+	if (tracker_miner_is_paused (TRACKER_MINER (decorator)))
+		g_timer_stop (priv->timer);
+
 	decorator_get_next_file (decorator);
 }
 
