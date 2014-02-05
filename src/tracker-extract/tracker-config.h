@@ -52,13 +52,8 @@ gint           tracker_config_get_verbosity           (TrackerConfig *config);
 gint           tracker_config_get_sched_idle          (TrackerConfig *config);
 gint           tracker_config_get_max_bytes           (TrackerConfig *config);
 gint           tracker_config_get_max_media_art_width (TrackerConfig *config);
+
 void           tracker_config_set_verbosity           (TrackerConfig *config,
-                                                       gint           value);
-void           tracker_config_set_sched_idle          (TrackerConfig *config,
-                                                       gint           value);
-void           tracker_config_set_max_bytes           (TrackerConfig *config,
-                                                       gint           value);
-void           tracker_config_set_max_media_art_width (TrackerConfig *config,
                                                        gint           value);
 
 G_END_DECLS
