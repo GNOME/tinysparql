@@ -526,13 +526,10 @@ tracker_extract_SOURCES = \
 	tracker-extract.h \
 	tracker-extract-decorator.c \
 	tracker-extract-decorator.h \
-	tracker-media-art.c \
-	tracker-media-art.h \
 	tracker-read.c \
 	tracker-read.h \
 	tracker-main.c \
-	tracker-main.h \
-	tracker-media-art-generic.h
+	tracker-main.h
 
 tracker_extract_LDADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
@@ -551,16 +548,6 @@ endif
 
 if HAVE_LIBSTREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
-endif
-
-if HAVE_GDKPIXBUF
-tracker_extract_SOURCES += tracker-media-art-pixbuf.c
-else
-if HAVE_QT
-tracker_extract_SOURCES += tracker-media-art-qt.cpp
-else
-tracker_extract_SOURCES += tracker-media-art-dummy.c
-endif
 endif
 
 EXTRA_DIST = \

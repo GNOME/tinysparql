@@ -200,6 +200,7 @@ NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=0.89
+LIBMEDIAART_REQUIRED=0.1.0
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -228,8 +229,9 @@ LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-common
-LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED"
+LIBTRACKER_COMMON_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
+                            gio-unix-2.0    >= $GLIB_REQUIRED
+                            libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
@@ -269,8 +271,9 @@ LIBTRACKER_FTS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
 
 # Check requirements for libtracker-miner
-LIBTRACKER_MINER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                           gio-unix-2.0 >= $GLIB_REQUIRED"
+LIBTRACKER_MINER_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
+                           gio-unix-2.0    >= $GLIB_REQUIRED
+                           libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
@@ -306,9 +309,10 @@ PKG_CHECK_MODULES(TRACKER_STORE, [$TRACKER_STORE_REQUIRED])
 TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
 
 # Check requirements for tracker-extract
-TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                          gio-unix-2.0 >= $GLIB_REQUIRED
-                          gmodule-2.0  >= $GLIB_REQUIRED"
+TRACKER_EXTRACT_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
+                          gio-unix-2.0    >= $GLIB_REQUIRED
+                          gmodule-2.0     >= $GLIB_REQUIRED
+                          libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 

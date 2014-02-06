@@ -28,11 +28,11 @@
 
 #include <vorbis/vorbisfile.h>
 
+#include <libmediaart/mediaart.h>
+
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
-
-#include "tracker-media-art.h"
 
 typedef struct {
 	const gchar *creator;
@@ -512,13 +512,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	uri = g_file_get_uri (file);
-	tracker_media_art_process (NULL,
-				0,
-				NULL,
-				TRACKER_MEDIA_ART_ALBUM,
-				vd.album_artist ? vd.album_artist : vd.artist,
-				vd.album,
-				uri);
+	media_art_process (NULL,
+	                   0,
+	                   NULL,
+	                   MEDIA_ART_ALBUM,
+	                   vd.album_artist ? vd.album_artist : vd.artist,
+	                   vd.album,
+	                   uri);
 	g_free (uri);
 
 	g_free (vd.artist);
