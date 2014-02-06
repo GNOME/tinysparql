@@ -37,10 +37,9 @@ gboolean tracker_priority_queue_is_empty           (TrackerPriorityQueue *queue)
 
 guint    tracker_priority_queue_get_length         (TrackerPriorityQueue *queue);
 
-void     tracker_priority_queue_add     (TrackerPriorityQueue *queue,
+GList *  tracker_priority_queue_add     (TrackerPriorityQueue *queue,
                                          gpointer              data,
                                          gint                  priority);
-
 void     tracker_priority_queue_foreach (TrackerPriorityQueue *queue,
                                          GFunc                 func,
                                          gpointer              user_data);
@@ -59,6 +58,15 @@ gpointer tracker_priority_queue_peek    (TrackerPriorityQueue *queue,
                                          gint                 *priority_out);
 gpointer tracker_priority_queue_pop     (TrackerPriorityQueue *queue,
                                          gint                 *priority_out);
+
+GList *  tracker_priority_queue_get_head    (TrackerPriorityQueue *queue);
+void     tracker_priority_queue_add_node    (TrackerPriorityQueue *queue,
+                                             GList                *node,
+                                             gint                  priority);
+void     tracker_priority_queue_remove_node (TrackerPriorityQueue  *queue,
+                                             GList                 *node);
+GList *  tracker_priority_queue_pop_node    (TrackerPriorityQueue *queue,
+                                             gint                 *priority_out);
 
 
 G_END_DECLS
