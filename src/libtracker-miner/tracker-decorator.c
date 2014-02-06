@@ -1240,7 +1240,7 @@ tracker_decorator_next (TrackerDecorator    *decorator,
  * tracker_decorator_next() to return the result of the task be it an
  * error or not.
  *
- * Returns: (transfer full) (boxed): a #TrackerDecoratorInfo on success or
+ * Returns: (transfer full): a #TrackerDecoratorInfo on success or
  *  #NULL on error. Free with tracker_decorator_info_unref().
  *
  * Since: 0.18
