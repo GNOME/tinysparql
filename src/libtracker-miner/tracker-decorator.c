@@ -21,6 +21,7 @@
 
 #include "tracker-decorator.h"
 #include "tracker-decorator-internal.h"
+#include "tracker-priority-queue.h"
 
 #define QUERY_BATCH_SIZE 100
 #define DEFAULT_BATCH_SIZE 100
@@ -63,7 +64,7 @@ struct _TrackerDecoratorPrivate {
 	gchar *data_source;
 	GStrv class_names;
 
-	GQueue *elem_queue;
+	TrackerPriorityQueue *elem_queue;
 	GHashTable *elems;
 	GPtrArray *sparql_buffer;
 	GTimer *timer;
@@ -154,12 +155,13 @@ decorator_update_state (TrackerDecorator *decorator,
 	TrackerDecoratorPrivate *priv;
 	gint remaining_time = -1;
 	gdouble progress = 1;
+	guint length;
 
 	priv = decorator->priv;
+	length = tracker_priority_queue_get_length (priv->elem_queue);
 
-	if (priv->elem_queue->length > 0) {
-		progress = 1 - ((gdouble) priv->elem_queue->length /
-		                priv->stats_n_elems);
+	if (length > 0) {
+		progress = 1 - ((gdouble) length / priv->stats_n_elems);
 		remaining_time = 0;
 	}
 
@@ -170,11 +172,10 @@ decorator_update_state (TrackerDecorator *decorator,
 
 		/* FIXME: Quite naive calculation */
 		elapsed = g_timer_elapsed (priv->timer, NULL);
-		elems_done = priv->stats_n_elems - priv->elem_queue->length;
+		elems_done = priv->stats_n_elems - length;
 
 		if (elems_done > 0)
-			remaining_time = (priv->elem_queue->length * elapsed) /
-				elems_done;
+			remaining_time = (length * elapsed) / elems_done;
 	}
 
 	g_object_set (decorator,
@@ -208,11 +209,11 @@ element_add (TrackerDecorator *decorator,
 	node->class_name_id = class_name_id;
 
 	if (prepend) {
-		g_queue_push_head (priv->elem_queue, node);
-		elem = priv->elem_queue->head;
+		elem = tracker_priority_queue_add (priv->elem_queue, node,
+		                                   G_PRIORITY_HIGH);
 	} else {
-		g_queue_push_tail (priv->elem_queue, node);
-		elem = priv->elem_queue->tail;
+		elem = tracker_priority_queue_add (priv->elem_queue, node,
+		                                   G_PRIORITY_DEFAULT);
 	}
 
 	g_hash_table_insert (priv->elems, GINT_TO_POINTER (id), elem);
@@ -246,7 +247,7 @@ element_remove_link (TrackerDecorator *decorator,
 		return;
 	}
 
-	g_queue_delete_link (priv->elem_queue, elem_link);
+	tracker_priority_queue_remove (priv->elem_queue, elem_link);
 	g_hash_table_remove (priv->elems, GINT_TO_POINTER (node->id));
 
 	if (emit && g_hash_table_size (priv->elems) == 0) {
@@ -691,6 +692,7 @@ tracker_decorator_finalize (GObject *object)
 	TrackerDecoratorPrivate *priv;
 	TrackerDecorator *decorator;
 	GDBusConnection *conn;
+	GList *l;
 
 	decorator = TRACKER_DECORATOR (object);
 	priv = decorator->priv;
@@ -701,11 +703,11 @@ tracker_decorator_finalize (GObject *object)
 		                                      priv->graph_updated_signal_id);
 	}
 
-	while (priv->elem_queue->head)
-		element_remove_link (decorator, priv->elem_queue->head, FALSE);
+	while ((l = tracker_priority_queue_get_head (priv->elem_queue)))
+		element_remove_link (decorator, l, FALSE);
 
 	g_array_unref (priv->class_name_ids);
-	g_queue_free (priv->elem_queue);
+	tracker_priority_queue_unref (priv->elem_queue);
 	g_hash_table_unref (priv->elems);
 	g_free (priv->data_source);
 	g_strfreev (priv->class_names);
@@ -912,7 +914,7 @@ tracker_decorator_init (TrackerDecorator *decorator)
 
 	decorator->priv = priv = TRACKER_DECORATOR_GET_PRIVATE (decorator);
 	priv->elems = g_hash_table_new (NULL, NULL);
-	priv->elem_queue = g_queue_new ();
+	priv->elem_queue = tracker_priority_queue_new ();
 	priv->class_name_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	priv->batch_size = DEFAULT_BATCH_SIZE;
 	priv->sparql_buffer = g_ptr_array_new_with_free_func (g_free);
@@ -1152,7 +1154,9 @@ complete_tasks_or_query (TrackerDecorator *decorator)
 
 	priv = decorator->priv;
 
-	for (l = priv->elem_queue->head; l != NULL; l = l->next) {
+	for (l = tracker_priority_queue_get_head (priv->elem_queue);
+	     l != NULL;
+	     l = l->next) {
 		ElemNode *node = l->data;
 
 		/* The next item isn't queried yet, do it now */
