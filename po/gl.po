@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-20 23:44+0100\n"
-"PO-Revision-Date: 2014-01-20 23:47+0200\n"
+"POT-Creation-Date: 2014-02-07 01:14+0100\n"
+"PO-Revision-Date: 2014-02-07 01:14+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -337,14 +337,6 @@ msgstr ""
 "Período en milisegundos entre que os sinais GraphUpdated emitidos cando os "
 "datos indexados foron cambiados na base de datos."
 
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
-msgid "Userguides"
-msgstr "Guías de usuario"
-
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
-msgid "Userguide data miner"
-msgstr "Guía de usuario do mineiro de datos"
-
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
 msgid "Applications"
@@ -363,6 +355,14 @@ msgstr "Correos electrónicos"
 msgid "Evolution Email miner"
 msgstr "Mineiro de correos electrónicos de Evolution"
 
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:1
+msgid "Extractor"
+msgstr "Extractor"
+
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:2
+msgid "Metadata extractor"
+msgstr "Metadatos do extractor"
+
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:1
 msgid "File System"
 msgstr "Sistema de ficheiros"
@@ -378,6 +378,14 @@ msgstr "Fornecedores RSS/ATOM"
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Obter fornecedores RSS/ATOM"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
+msgid "Userguides"
+msgstr "Guías de usuario"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
+msgid "Userguide data miner"
+msgstr "Guía de usuario do mineiro de datos"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -533,7 +541,7 @@ msgstr "MINEIRO"
 
 #. Daemon options
 #: ../src/miners/fs/tracker-main.c:129
-#: ../src/tracker-extract/tracker-main.c:114
+#: ../src/tracker-extract/tracker-main.c:108
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -626,19 +634,13 @@ msgstr "Monitorizarase"
 msgid "- start the tracker indexer"
 msgstr "- iniciar o indexador do tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1361
+#: ../src/miners/fs/tracker-miner-files.c:1354
 msgid "Low battery"
 msgstr "Batería baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1488
+#: ../src/miners/fs/tracker-miner-files.c:1481
 msgid "Low disk space"
 msgstr "Espazo en disco baixo"
-
-#: ../src/miners/fs/tracker-miner-files.c:2248
-msgid "Extractor error, performing failsafe embedded metadata extraction"
-msgstr ""
-"Erro do extractor ao realizar a extracción a proba de fallos dos metadatos "
-"empotrados"
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
@@ -1281,34 +1283,29 @@ msgstr "Ficheiro do que extraer os metadatos"
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Tipo MIME do ficheiro (se non se indica será adiviñado)"
 
-#: ../src/tracker-extract/tracker-main.c:102
-#: ../src/tracker-writeback/tracker-main.c:62
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Desactivar o apagado despois de 30 segundos de inactividade"
-
-#: ../src/tracker-extract/tracker-main.c:106
+#: ../src/tracker-extract/tracker-main.c:100
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
 msgstr "Forzar extractores sobre os de terceiras partes como libstreamanalyzer"
 
-#: ../src/tracker-extract/tracker-main.c:110
+#: ../src/tracker-extract/tracker-main.c:104
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "Forzar o uso dun módulo para extracción (p.ex. «foo» para «foo.so»)"
 
-#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/tracker-extract/tracker-main.c:105
 msgid "MODULE"
 msgstr "MÓDULO"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:333
+#: ../src/tracker-extract/tracker-main.c:328
 msgid "- Extract file meta data"
 msgstr "- Extraer os metadatos do ficheiro"
 
-#: ../src/tracker-extract/tracker-main.c:342
+#: ../src/tracker-extract/tracker-main.c:337
 msgid "Filename and mime type must be provided together"
 msgstr "O nome do ficheiro de o tipo mime deben ser indicados conxuntamente"
 
-#: ../src/tracker-extract/tracker-main.c:356
+#: ../src/tracker-extract/tracker-main.c:351
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -2683,6 +2680,10 @@ msgstr "Non se proporcionou ningún argumento"
 msgid "The --description option can only be used with --add"
 msgstr "A opción «--description» só se pode usar con «--add»"
 
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Desactivar o apagado despois de 30 segundos de inactividade"
+
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
@@ -2705,6 +2706,11 @@ msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Conxunto de resultados baleiro"
+
+#~ msgid "Extractor error, performing failsafe embedded metadata extraction"
+#~ msgstr ""
+#~ "Erro do extractor ao realizar a extracción a proba de fallos dos "
+#~ "metadatos empotrados"
 
 #~ msgid "No error was given"
 #~ msgstr "Non se forneceu ningún erro"
@@ -3788,9 +3794,6 @@ msgstr "Conxunto de resultados baleiro"
 
 #~ msgid "Adds an order field"
 #~ msgstr "Engade un campo de ordenación"
-
-#~ msgid "Metadata Fields"
-#~ msgstr "Campos de metadatos"
 
 #~ msgid "- Query using RDF and return results with specified metadata fields"
 #~ msgstr ""
