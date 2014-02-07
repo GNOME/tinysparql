@@ -223,8 +223,7 @@ element_add (TrackerDecorator *decorator,
 
 static void
 element_remove_link (TrackerDecorator *decorator,
-                     GList            *elem_link,
-                     gboolean          emit)
+                     GList            *elem_link)
 {
 	TrackerDecoratorPrivate *priv;
 	ElemNode *node;
@@ -243,7 +242,7 @@ element_remove_link (TrackerDecorator *decorator,
 	g_queue_delete_link (priv->elem_queue, elem_link);
 	g_hash_table_remove (priv->elems, GINT_TO_POINTER (node->id));
 
-	if (emit && g_hash_table_size (priv->elems) == 0) {
+	if (g_hash_table_size (priv->elems) == 0) {
 		g_signal_emit (decorator, signals[FINISHED], 0);
 		decorator_update_state (decorator, "Idle", FALSE);
 		priv->stats_n_elems = 0;
@@ -268,7 +267,7 @@ element_remove_by_id (TrackerDecorator *decorator,
 	if (!elem_link)
 		return;
 
-	element_remove_link (decorator, elem_link, TRUE);
+	element_remove_link (decorator, elem_link);
 }
 
 static void
