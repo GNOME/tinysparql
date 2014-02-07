@@ -221,6 +221,9 @@ element_add (TrackerDecorator *decorator,
 	}
 }
 
+
+static void decorator_commit_info (TrackerDecorator *decorator);
+
 static void
 element_remove_link (TrackerDecorator *decorator,
                      GList            *elem_link)
@@ -243,6 +246,9 @@ element_remove_link (TrackerDecorator *decorator,
 	g_hash_table_remove (priv->elems, GINT_TO_POINTER (node->id));
 
 	if (g_hash_table_size (priv->elems) == 0) {
+		/* Flush any remaining Sparql updates */
+		decorator_commit_info (decorator);
+
 		g_signal_emit (decorator, signals[FINISHED], 0);
 		decorator_update_state (decorator, "Idle", FALSE);
 		priv->stats_n_elems = 0;
