@@ -226,7 +226,8 @@ static void decorator_commit_info (TrackerDecorator *decorator);
 
 static void
 element_remove_link (TrackerDecorator *decorator,
-                     GList            *elem_link)
+                     GList            *elem_link,
+                     gboolean          emit)
 {
 	TrackerDecoratorPrivate *priv;
 	ElemNode *node;
@@ -245,7 +246,7 @@ element_remove_link (TrackerDecorator *decorator,
 	g_queue_delete_link (priv->elem_queue, elem_link);
 	g_hash_table_remove (priv->elems, GINT_TO_POINTER (node->id));
 
-	if (g_hash_table_size (priv->elems) == 0) {
+	if (emit && g_hash_table_size (priv->elems) == 0) {
 		/* Flush any remaining Sparql updates */
 		decorator_commit_info (decorator);
 
@@ -273,7 +274,7 @@ element_remove_by_id (TrackerDecorator *decorator,
 	if (!elem_link)
 		return;
 
-	element_remove_link (decorator, elem_link);
+	element_remove_link (decorator, elem_link, TRUE);
 }
 
 static void
@@ -1070,7 +1071,7 @@ query_next_items_cb (GObject      *object,
 
 		node = elem->data;
 		if (!node->info)
-			element_remove_link (decorator, elem);
+			element_remove_link (decorator, elem, TRUE);
 	}
 
 	complete_tasks_or_query (decorator);
