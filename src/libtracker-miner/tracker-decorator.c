@@ -1008,15 +1008,25 @@ tracker_decorator_delete_id (TrackerDecorator *decorator,
 
 static void complete_tasks_or_query (TrackerDecorator *decorator);
 
+typedef struct {
+	TrackerDecorator *decorator;
+	GArray *ids;
+} QueryNextItemsData;
+
 static void
 query_next_items_cb (GObject      *object,
                      GAsyncResult *result,
                      gpointer      user_data)
 {
-	TrackerDecorator *decorator = user_data;
+	QueryNextItemsData *data = user_data;
+	TrackerDecorator *decorator = data->decorator;
 	TrackerDecoratorPrivate *priv;
 	TrackerSparqlConnection *conn;
 	TrackerSparqlCursor *cursor;
+	GList *elem;
+	ElemNode *node;
+	gint id;
+	guint i;
 	GError *error = NULL;
 
 	conn = TRACKER_SPARQL_CONNECTION (object);
@@ -1032,23 +1042,37 @@ query_next_items_cb (GObject      *object,
 		}
 
 		g_clear_error (&error);
-		return;
+		goto out;
 	}
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		GList *elem;
-		ElemNode *node;
-		gint id;
-
 		id = tracker_sparql_cursor_get_integer (cursor, 1);
 		elem = g_hash_table_lookup (priv->elems, GINT_TO_POINTER (id));
+		if (!elem)
+			continue;
+
 		node = elem->data;
 		node->info = tracker_decorator_info_new (cursor);
 	}
 
-	g_object_unref (cursor);
+	/* Remove elements that we queried but we didn't get info */
+	for (i = 0; i < data->ids->len; i++) {
+		id = g_array_index (data->ids, gint, i);
+		elem = g_hash_table_lookup (priv->elems, GINT_TO_POINTER (id));
+		if (!elem)
+			continue;
+
+		node = elem->data;
+		if (!node->info)
+			element_remove_link (decorator, elem);
+	}
 
 	complete_tasks_or_query (decorator);
+
+out:
+	g_clear_object (&cursor);
+	g_array_unref (data->ids);
+	g_slice_free (QueryNextItemsData, data);
 }
 
 static void
@@ -1059,12 +1083,18 @@ query_next_items (TrackerDecorator *decorator,
 	TrackerDecoratorPrivate *priv;
 	GString *id_string;
 	gchar *query;
-	guint count = 0;
+	QueryNextItemsData *data;
 
 	priv = decorator->priv;
 
+	data = g_slice_new0 (QueryNextItemsData);
+	data->decorator = decorator;
+	data->ids = g_array_sized_new (FALSE, FALSE,
+	                               sizeof (gint),
+	                               QUERY_BATCH_SIZE);
+
 	id_string = g_string_new (NULL);
-	for (; l != NULL && count < QUERY_BATCH_SIZE; l = l->next) {
+	for (; l != NULL && data->ids->len < QUERY_BATCH_SIZE; l = l->next) {
 		ElemNode *node = l->data;
 
 		if (node->info)
@@ -1072,12 +1102,11 @@ query_next_items (TrackerDecorator *decorator,
 
 		if (id_string->len > 0)
 			g_string_append_c (id_string, ',');
-
 		g_string_append_printf (id_string, "%d", node->id);
-		count++;
+		g_array_append_val (data->ids, node->id);
 	}
 
-	g_assert (count > 0);
+	g_assert (data->ids->len > 0);
 
 	query = g_strdup_printf ("SELECT ?urn"
 	                         "       tracker:id(?urn) "
@@ -1091,7 +1120,7 @@ query_next_items (TrackerDecorator *decorator,
 	sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
 	tracker_sparql_connection_query_async (sparql_conn, query,
 	                                       NULL,
-	                                       query_next_items_cb, decorator);
+	                                       query_next_items_cb, data);
 	g_string_free (id_string, TRUE);
 	g_free (query);
 }
