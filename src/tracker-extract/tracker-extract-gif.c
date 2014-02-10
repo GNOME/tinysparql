@@ -84,6 +84,20 @@ gif_error (const gchar *action, int err)
 		g_message ("%s, undefined error %d", action, err);
 	}
 }
+#else /* GIFLIB_MAJOR >= 5 */
+static inline void print_gif_error()
+{
+#if defined(GIFLIB_MAJOR) && defined(GIFLIB_MINOR) && ((GIFLIB_MAJOR == 4 && GIFLIB_MINOR >= 2) || GIFLIB_MAJOR > 4)
+	const char *str = GifErrorString ();
+	if (str != NULL) {
+		g_message ("GIF, error: '%s'", str);
+	} else {
+		g_message ("GIF, undefined error");
+	}
+#else
+	PrintGifError();
+#endif
+}
 #endif /* GIFLIB_MAJOR >= 5 */
 
 static void
@@ -112,7 +126,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 		if (DGifGetRecordType(gifFile, &RecordType) == GIF_ERROR) {
 #if GIFLIB_MAJOR < 5
-			PrintGifError ();
+			print_gif_error ();
 #else  /* GIFLIB_MAJOR < 5 */
 			gif_error ("Could not read next GIF record type", gifFile->Error);
 #endif /* GIFLIB_MAJOR < 5 */
@@ -123,7 +137,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			case IMAGE_DESC_RECORD_TYPE:
 			if (DGifGetImageDesc(gifFile) == GIF_ERROR) {
 #if GIFLIB_MAJOR < 5
-				PrintGifError();
+				print_gif_error();
 #else  /* GIFLIB_MAJOR < 5 */
 				gif_error ("Could not get GIF record information", gifFile->Error);
 #endif /* GIFLIB_MAJOR < 5 */
@@ -137,7 +151,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 			if (DGifGetLine(gifFile, framedata, framewidth*frameheight)==GIF_ERROR) {
 #if GIFLIB_MAJOR < 5
-				PrintGifError();
+				print_gif_error();
 #else  /* GIFLIB_MAJOR < 5 */
 				gif_error ("Could not load a block of GIF pixes", gifFile->Error);
 #endif /* GIFLIB_MAJOR < 5 */
@@ -645,7 +659,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 #if GIFLIB_MAJOR < 5
 	if ((gifFile = DGifOpenFileHandle (fd)) == NULL) {
-		PrintGifError ();
+		print_gif_error ();
 #else   /* GIFLIB_MAJOR < 5 */
 	if ((gifFile = DGifOpenFileHandle (fd, &err)) == NULL) {
 		gif_error ("Could not open GIF file with handle", err);
@@ -672,7 +686,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 #if GIFLIB_MAJOR < 5
-		PrintGifError ();
+		print_gif_error ();
 #else  /* GIFLIB_MAJOR < 5 */
 		gif_error ("Could not close GIF file", gifFile->Error);
 #endif /* GIFLIB_MAJOR < 5 */
