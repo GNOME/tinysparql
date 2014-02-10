@@ -1,6 +1,7 @@
 content   trackerbird                 chrome/content/
 skin      trackerbird   classic/1.0   chrome/skin/
 locale    trackerbird   en-US         chrome/locale/en-US/
+locale    trackerbird   de-DE         chrome/locale/de-DE/
 
 overlay   chrome://messenger/content/messenger.xul   chrome://trackerbird/content/tb-overlay.xul
 

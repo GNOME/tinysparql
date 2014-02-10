@@ -27,10 +27,10 @@ org.bustany.TrackerBird.Queue.prototype.addImmediate = function(item) {
 
 org.bustany.TrackerBird.Queue.prototype.process = function() {
 	if (this._items.length == 0) {
-		this._ui.showMessage("Indexer idle");
+		this._ui.showMessage("indexerIdle");
 		return;
 	}
-	this._ui.showMessage(this._items.length + " actions remaining");
+	this._ui.showFormattedMessage("actionsRemaining", [this._items.length]);
 
 	if (this._active) {
 		return;
