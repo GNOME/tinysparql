@@ -19,7 +19,7 @@ org.bustany.TrackerBird.TrackerStore = {
 
 	storeMessage: function(header, contents) {
 		var folder = header.folder
-		var uri = folder.getUriForMsg(header);
+		var uri = encodeURI(folder.getUriForMsg(header));
 		var fromEmailAddress;
 		var toEmailAddresses = [];
 
@@ -66,7 +66,7 @@ org.bustany.TrackerBird.TrackerStore = {
 
 	deleteMessage: function(header) {
 		var folder = header.folder
-		var uri = folder.getUriForMsg(header);
+		var uri = encodeURI(folder.getUriForMsg(header));
 
 		var query = "DELETE {<" + uri +"> a rdfs:Resource}";
 
