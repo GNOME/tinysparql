@@ -1,0 +1,4 @@
+<!ENTITY prefwindow.title "TrackerBird Einstellungen">
+<!ENTITY pane1.title "TrackerBird Einstellungen">
+<!ENTITY indexDelay.label "Drossel (ms Pause zwischen Aktivitäten)">
+<!ENTITY indexDelay.accesskey "T">

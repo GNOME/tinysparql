@@ -139,6 +139,7 @@ org.bustany.TrackerBird.TrackerSparql = {
 			ctypes.char.ptr
 		);
 
+		dump ("TrackerSparql initialized successfully\n")
 		return true;
 	},
 
@@ -146,11 +147,14 @@ org.bustany.TrackerBird.TrackerSparql = {
 		var tracker = org.bustany.TrackerBird.TrackerSparql;
 
 		if (this._connection) {
+			dump ("TrackerSparql closing connection\n")
 			tracker.object_unref(this._connection);
 		}
 
 		if (this._lib) {
+			dump ("TrackerSparql closing library\n")
 			this._lib.close ();
 		}
+		dump ("TrackerSparql shut down successfully\n")
 	}
 }

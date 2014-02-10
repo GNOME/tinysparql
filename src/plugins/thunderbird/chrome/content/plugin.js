@@ -18,7 +18,7 @@ org.bustany.TrackerBird.Plugin = {
 		}
 
 		if (!this.initTracker()) {
-			this._ui.showMessage("Cannot initialize Tracker");
+			this._ui.showMessage("cannotInit");
 			return;
 		}
 
@@ -35,6 +35,7 @@ org.bustany.TrackerBird.Plugin = {
 		if (this._mailstore) {
 			this._mailstore.shutdown();
 		}
+		dump("TrackerBird shut down\n");
 	},
 
 	initTracker: function() {
@@ -50,13 +51,15 @@ org.bustany.TrackerBird.Plugin = {
 			plugin.onTrackerReady(source_object, result, user_data);
 		}
 
-	        tracker.readyCallback = tracker.AsyncReadyCallback.ptr(callback_closure)
-	        tracker.connection_open_async(null, tracker.readyCallback, null);
+		tracker.readyCallback = tracker.AsyncReadyCallback.ptr(callback_closure);
+		tracker.connection_open_async(null, tracker.readyCallback, null);
 
+		dump ("Tracker Plugin initialized successfully\n")
 		return true;
 	},
 
 	onTrackerReady: function(source_object, result, user_data) {
+		dump ("Tracker connection opened\n")
 		var tracker = org.bustany.TrackerBird.TrackerSparql;
 
         var error = new tracker.Error.ptr;
@@ -64,17 +67,17 @@ org.bustany.TrackerBird.Plugin = {
 
         if (!error.isNull ()) {
             dump ("Could not initialize Tracker: " + error.contents.message.readString() + "\n");
-			this._ui.showMessage("Cannot connect to Tracker");
+			this._ui.showMessage("cannotConnect");
             tracker.error_free(error);
 			return;
         }
 
 		// Tracker is ready, proceed with the rest of the init
 
-		this._ui.showMessage("Initializing...");
+		this._ui.showMessage("initializing");
 
 		if (!this._persistentstore.init()) {
-			this._ui.showMessage("Cannot initialize persistent storage");
+			this._ui.showMessage("cannotInitPersistent");
 			dump("Could not initialize Persistent store\n");
 			_persistentstore = null;
 			return;
@@ -87,11 +90,13 @@ org.bustany.TrackerBird.Plugin = {
 		}
 
 		if (!this._mailstore.init()) {
-			this._ui.showMessage("Cannot initialize mail store");
+			this._ui.showMessage("cannotInitMail");
 			dump("Could not initialize mail store\n");
 			_mailstore = null;
 			return;
 		}
+
+		this._ui.showMessage("starting");
 
 		this._mailstore.listAllFolders();
 	}

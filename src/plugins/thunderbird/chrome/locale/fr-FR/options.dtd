@@ -1,0 +1,4 @@
+<!ENTITY prefwindow.title "Préférences de TrackerBird">
+<!ENTITY pane1.title "Préférences de TrackerBird">
+<!ENTITY indexDelay.label "Délai (attente entre chaque activité, en ms)">
+<!ENTITY indexDelay.accesskey "T">
