@@ -91,6 +91,8 @@ typedef struct {
 	                                       GFile                *file,
 	                                       GStrv                 rdf_types,
 	                                       GPtrArray            *results);
+	/* <Private> */
+	gpointer padding[10];
 } TrackerMinerFSClass;
 
 GType                 tracker_miner_fs_get_type             (void) G_GNUC_CONST;
