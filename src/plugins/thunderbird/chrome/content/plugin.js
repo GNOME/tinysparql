@@ -96,6 +96,8 @@ org.bustany.TrackerBird.Plugin = {
 			return;
 		}
 
+		this._ui.showMessage("Starting...");
+
 		this._mailstore.listAllFolders();
 	}
 }

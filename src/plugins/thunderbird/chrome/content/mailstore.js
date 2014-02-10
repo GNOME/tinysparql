@@ -1,11 +1,51 @@
-if (!org.bustany.TrackerBird.MailStore || !org.bustany.TrackerBird.MailStore.__initialized)
+if (!org.bustany.TrackerBird.MailStore || !org.bustany.TrackerBird.MailStore.__initialized) {
+
+Components.utils.import("resource:///modules/MailUtils.js");
+
+org.bustany.TrackerBird.ContentRetriever = function(header, callback) {
+	this._header = header;
+	this._callback = callback;
+	this._contents = "";
+}
+
+org.bustany.TrackerBird.ContentRetriever.prototype = {
+	onStartRequest: function(request, ctx) {
+	},
+
+	onDataAvailable: function(request, context, inputStream, offset, count) {
+	    var scriptableInputStream =
+			Components.classes["@mozilla.org/scriptableinputstream;1"].
+				createInstance(Components.interfaces.nsIScriptableInputStream);
+	    scriptableInputStream.init(inputStream);
+	    var data = scriptableInputStream.read(count);
+	    this._contents += data;
+	},
+
+	onStopRequest: function(request, ctx, status) {
+		// Basic html removing
+		this._contents = this._contents.replace(/<[^>]+?>/g, "");
+		this._callback(this._header, this._contents);
+	},
+
+	QueryInterface: function (aIID) {
+		if (aIID.equals(Components.interfaces.nsIStreamListener) ||
+			aIID.equals(Components.interfaces.nsISupports)) {
+			return this;
+		}
+		throw Components.results.NS_NOINTERFACE;
+	}
+}
+
 org.bustany.TrackerBird.MailStore = {
 	// Init barrier
 	__initialized: true,
+	__console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
+	_log: function(msg) {
+	   this.__console.logStringMessage(msg);
+	},
 
 	_trackerStore: org.bustany.TrackerBird.TrackerStore,
 	_persistentStore: org.bustany.TrackerBird.PersistentStore,
-	_ui: org.bustany.TrackerBird.Ui,
 
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
@@ -52,6 +92,7 @@ org.bustany.TrackerBird.MailStore = {
 	_queue: null,
 	_walkFolderCallback: null,
 	_indexMessageCallback: null,
+	_indexMessageContentsCallback: null,
 	_removeMessageCallback: null,
 
 	_prefs: null,
@@ -72,35 +113,45 @@ org.bustany.TrackerBird.MailStore = {
 		this._queue = new org.bustany.TrackerBird.Queue(this._prefs.getIntPref("indexDelay")),
 		this._walkFolderCallback = function(item) { store.walkFolder(item); }
 		this._indexMessageCallback = function(msg) { store.indexMessage(msg); }
+		this._indexMessageContentsCallback = function(msg, contents) {
+			store.indexMessageContents(msg, contents);
+		}
 		this._removeMessageCallback = function(msg) { store.removeMessage(msg); }
 
+		MailUtils.discoverFolders();
+		dump ("Trackerbird mailstore initialized...\n")
+		this._log("trackerbird: mailstore initialized");
 		return true;
 	},
 
 	listAllFolders: function() {
-		var accountManager = Components.classes["@mozilla.org/messenger/account-manager;1"].
-		                     getService(Components.interfaces.nsIMsgAccountManager);
+		var store = this;
+		var servers = MailServices.accounts.allServers;
 
-		var servers = accountManager.allServers;
+		for (var i = 0; i < servers.length; i++) {
+			var s = servers.queryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
 
-		for (var i = 0; i < servers.Count(); i++) {
-			var s = servers.QueryElementAt(i, Components.interfaces.nsIMsgIncomingServer);
+			var folders = Components.classes["@mozilla.org/array;1"].
+			              createInstance(Components.interfaces.nsIMutableArray);
+			s.rootFolder.ListDescendants(folders);
 
-			var folders = Components.classes["@mozilla.org/supports-array;1"].
-			              createInstance(Components.interfaces.nsISupportsArray);
+			for (var j = 0; j < folders.length; j++) {
+				var folder = folders.queryElementAt(j, Components.interfaces.nsIMsgFolder);
 
-			s.rootFolder.ListDescendents(folders);
-
-			for (var j = 0; j < folders.Count(); j++) {
-				var folder = folders.GetElementAt(j).QueryInterface(Components.interfaces.nsIMsgFolder);
-
-				var store = this;
 				this._queue.add({
-				                 callback: this._walkFolderCallback,
-				                 data: folder
-				                });
+					callback: store._walkFolderCallback,
+					data: folder
+				});
 			}
 		}
+
+		this._queue.add({
+			callback: function() {
+				dump("Trackerbird walked all folders\n");
+				store._log("trackerbird: walked all folders");
+			},
+			data: null
+		})
 	},
 
 	walkFolder: function(folder) {
@@ -119,15 +170,15 @@ org.bustany.TrackerBird.MailStore = {
 		knownUris = null;
 
 		while (enumerator.hasMoreElements()) {
-			var msg = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
+			var hdr = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
 
-			if (uriCache[folder.getUriForMsg(msg)]) {
+			if (uriCache[folder.getUriForMsg(hdr)]) {
 				continue;
 			}
 
 			this._queue.add({
 			                 callback: this._indexMessageCallback,
-			                 data: msg
+			                 data: hdr
 			                });
 		}
 
@@ -135,53 +186,48 @@ org.bustany.TrackerBird.MailStore = {
 		db = null;
 	},
 
-	indexMessage: function(msg) {
-		var msgContents = this.getMessageContents(msg);
-		if (this._trackerStore.storeMessage(msg, msgContents)) {
-			this._persistentStore.rememberMessage(msg);
-		}
-
-		this._ui.showMessage(this._queue.size() + " items remaining");
-	},
-
-	removeMessage: function(msg) {
-		this._trackerStore.deleteMessage(msg);
-		this._persistentStore.forgetMessage(msg);
-	},
-
-	getMessageContents: function(header) {
+	/**
+	 * This method indexes a new message. In order to do this, it has to retrieve its contents
+	 * first. The contents is only available as a stream that has to be read first.
+	 * When the contents has been read, indexMessageContents is called and the actual
+	 * indexing happens.
+	 */
+	indexMessage: function(header) {
 		var folder = header.folder;
-		var contents = "";
 
 		var messenger = Components.classes["@mozilla.org/messenger;1"].
 		                createInstance(Components.interfaces.nsIMessenger);
 		var uri = folder.getUriForMsg(header);
 		var msgService = messenger.messageServiceFromURI(uri);
-		var msgStream = Components.classes["@mozilla.org/network/sync-stream-listener;1"].
-		                createInstance();
-		var consumer = msgStream.QueryInterface(Components.interfaces.nsIInputStream);
-		var scriptInput = Components.classes["@mozilla.org/scriptableinputstream;1"].
-		                  createInstance();
-		var scriptInputStream = scriptInput.
-		                        QueryInterface(Components.interfaces.nsIScriptableInputStream);
-		scriptInputStream.init(msgStream);
 
+		// Streaming data into a nsScriptableInputStream and then reading from it here
+		// makes thunderbird hang sometimes, so continue asynchronously.
 		try {
+			var msgStream = new org.bustany.TrackerBird.ContentRetriever(header, this._indexMessageContentsCallback);
 			msgService.streamMessage(uri, msgStream, null, null, true, null);
-		} catch (e) {
-			dump("Could not get contents of message " + uri + "\n");
-			return null;
+		} catch (ex) {
+			dump("Trackerbird could not get contents of message " + ex + "\n");
 		}
+	},
 
-		scriptInputStream.available();
-		while (scriptInputStream.available()) {
-			contents += scriptInputStream.read(1024);
+	/**
+	 * Index the message by inserting it into our local store of indexed messages and
+	 * into the tracker store.
+	 */
+	indexMessageContents: function(msg, contents) {
+		try {
+			if (this._trackerStore.storeMessage(msg, contents)) {
+				this._persistentStore.rememberMessage(msg);
+			}
+		} catch (ex) {
+			dump("Trackerbird failed to index message: " + ex + "\n");
+			this._log("Trackerbird failed to index message: " + ex);
 		}
+	},
 
-		// Basic html removing
-		contents = contents.replace(/<[^>]+?>/g, "");
-
-		return contents;
+	removeMessage: function(msg) {
+		this._trackerStore.deleteMessage(msg);
+		this._persistentStore.forgetMessage(msg);
 	},
 
 	shutdown: function() {
@@ -192,4 +238,5 @@ org.bustany.TrackerBird.MailStore = {
 		mailSession.Remove(this._folderListener);
 		dump ("Trackerbird mailstore store shut down\n")
 	}
+}
 }
