@@ -65,6 +65,9 @@ struct _TrackerDecoratorClass {
 
 	void (* items_available) (TrackerDecorator *decorator);
 	void (* finished)        (TrackerDecorator *decorator);
+
+	/* <Private> */
+	gpointer padding[10];
 };
 
 GType         tracker_decorator_get_type          (void) G_GNUC_CONST;
