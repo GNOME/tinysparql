@@ -9,7 +9,7 @@ org.bustany.TrackerBird.MailStore = {
 
 	_folderListener: {
 		OnItemAdded: function(parentItem, item) {
-			dump("Item added\n");
+			dump("Trackerbird: new item to be tracked\n");
 			var store = org.bustany.TrackerBird.MailStore;
 			var hdr = item.QueryInterface(Components.interfaces.nsIMsgDBHdr);
 
@@ -20,7 +20,7 @@ org.bustany.TrackerBird.MailStore = {
 		},
 
 		OnItemRemoved: function(parentItem, item) {
-			dump("Item removed\n");
+			dump("Trackerbird: item to be untracked\n");
 			var store = org.bustany.TrackerBird.MailStore;
 			var hdr = item.QueryInterface(Components.interfaces.nsIMsgDBHdr);
 
@@ -31,27 +31,21 @@ org.bustany.TrackerBird.MailStore = {
 		},
 
 		OnItemPropertyChanged: function(item, property, oldValue, newValue) {
-			dump("Item property changed\n");
 		},
 
 		OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {
-			dump("Item property changed\n");
 		},
 
 		OnItemBoolPropertyChanged: function(item, property, oldValue, newValue) {
-			dump("Item property changed\n");
 		},
 
 		OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue) {
-			dump("Item property changed\n");
 		},
 
 		OnItemPropertyFlagChanged: function(header, property, oldValue, newValue) {
-			dump("Item flag changed\n");
 		},
 
 		OnItemEvent: function(folder, event) {
-			dump("Item event " + event + " " + folder + "\n");
 		}
 	},
 
@@ -63,6 +57,7 @@ org.bustany.TrackerBird.MailStore = {
 	_prefs: null,
 
 	init: function() {
+		dump ("Trackerbird initializing mailstore...\n")
 		// To get notifications
 		var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].
 		                  getService(Components.interfaces.nsIMsgMailSession);
@@ -190,9 +185,11 @@ org.bustany.TrackerBird.MailStore = {
 	},
 
 	shutdown: function() {
+		dump ("Trackerbird mailstore store shutting down...\n")
 		var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].
 		                  getService(Components.interfaces.nsIMsgMailSession);
 
 		mailSession.Remove(this._folderListener);
+		dump ("Trackerbird mailstore store shut down\n")
 	}
 }

@@ -6,6 +6,7 @@ org.bustany.TrackerBird.Queue = function(delay) {
 	var queue = this;
 	this._timerEvent = { notify: function(timer) { queue._active = false; queue.process(); } };
 	this._queueTimer = null;
+	dump("Trackerbird created queue with delay " + delay + "\n");
 }
 
 org.bustany.TrackerBird.Queue.prototype.add = function(item) {

@@ -2,6 +2,10 @@ if (!org.bustany.TrackerBird.PersistentStore || !org.bustany.TrackerBird.Persist
 org.bustany.TrackerBird.PersistentStore = {
 	// Init barrier
 	__initialized: true,
+	__console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
+	_log: function(msg) {
+	   this.__console.logStringMessage(msg);
+	},
 
 	_schemaVersion: 1,
 
@@ -51,11 +55,13 @@ org.bustany.TrackerBird.PersistentStore = {
 			this.insertSetting("version", this._schemaVersion, true);
 		}
 
-
+		dump ("Trackerbird persistent store initialized\n")
+		this._log("trackerbird: persistent store initialized")
 		return true;
 	},
 
 	shutdown: function() {
+		dump ("Trackerbird persistent store shutting down...\n")
 		this.endTransaction();
 		this._rememberMessageStatement.finalize();
 		this._forgetMessageStatement.finalize();
@@ -64,6 +70,7 @@ org.bustany.TrackerBird.PersistentStore = {
 		this._updateMetaStatement.finalize();
 		this._selectMetaStatement.finalize();
 		this._db.close();
+		dump ("Trackerbird persistent store shut down\n")
 	},
 
 	rememberMessage: function(msg) {

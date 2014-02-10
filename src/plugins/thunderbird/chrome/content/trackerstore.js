@@ -60,7 +60,7 @@ org.bustany.TrackerBird.TrackerStore = {
 			return false;
 		}
 
-		dump("Inserted message " + uri + "\n");
+		dump("Trackerbird inserted message " + uri + "\n");
 		return true;
 	},
 
@@ -72,11 +72,11 @@ org.bustany.TrackerBird.TrackerStore = {
 
 		if (!this.runTrackerUpdate(query,
 		                           100 /* batch */,
-		                           "Cannot delete message from Tracker")) {
+		                           "Trackerbird cannot delete message from Tracker")) {
 			return false;
 		}
 
-		dump("Deleted message " + uri + "\n");
+		dump("Trackerbird deleted message " + uri + "\n");
 		return true;
 	},
 
