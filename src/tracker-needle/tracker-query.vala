@@ -135,6 +135,7 @@ public class Tracker.Query {
 		    ?urn nco:publisher ?match
 		  } UNION {
 		    ?urn a nfo:Document .
+		    FILTER (! EXISTS { ?urn a nmo:Email } )
 		    ?match a nfo:Document
 		    FILTER (?urn = ?match)
 		  }
