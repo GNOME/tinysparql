@@ -50,6 +50,8 @@ G_BEGIN_DECLS
 #define TRACKER_MLO_PREFIX      "http://www.tracker-project.org/temp/mlo#"
 #define TRACKER_MFO_PREFIX      "http://www.tracker-project.org/temp/mfo#"
 
+#define TRACKER_TRACKER_PREFIX  "http://www.tracker-project.org/ontologies/tracker#"
+
 #define TRACKER_DATASOURCE_URN_PREFIX	  \
 	"urn:nepomuk:datasource:"
 #define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN	  \
