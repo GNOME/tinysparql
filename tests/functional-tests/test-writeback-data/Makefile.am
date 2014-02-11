@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 wbtestdir = $(datadir)/tracker-tests/test-writeback-data/
 
 wbtest_DATA =                                          \

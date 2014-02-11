@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 basicontodir = $(datadir)/tracker-tests/test-ontologies/basic
 
 basiconto_DATA =                                       \

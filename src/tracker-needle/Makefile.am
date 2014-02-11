@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 bin_PROGRAMS = tracker-needle
 
 AM_VALAFLAGS = \

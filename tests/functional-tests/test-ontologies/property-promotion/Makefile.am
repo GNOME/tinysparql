@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 proppromotiondir = $(datadir)/tracker-tests/test-ontologies/property-promotion
 
 proppromotion_DATA =                                   \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_PROGRAMS = ontology-graph ttl2sgml
 
 AM_CPPFLAGS =                                          \

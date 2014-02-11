@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	fts3limits-data.rq                             \
 	fts3limits-1.out                               \
 	fts3limits-1.rq                                \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 addclassdir = $(datadir)/tracker-tests/test-ontologies/add-class
 
 addclass_DATA =                                        \

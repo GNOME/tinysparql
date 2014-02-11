@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_LTLIBRARIES = libtracker-direct.la
 
 AM_VALAFLAGS =                                         \

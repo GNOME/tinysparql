@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	regex-data-01.ontology                         \
 	regex-data-01.ttl                              \
 	regex-query-001.out                            \

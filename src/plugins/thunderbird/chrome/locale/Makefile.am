@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 # General
 localesdir = $(datadir)/xul-ext/trackerbird/chrome/locale/
 

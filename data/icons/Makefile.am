@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 SUBDIRS = 16x16 22x22 24x24 32x32 48x48 scalable
 
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor

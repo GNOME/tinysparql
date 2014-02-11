@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 cardinalitydir = $(datadir)/tracker-tests/test-ontologies/cardinality
 
 cardinality_DATA =                                     \

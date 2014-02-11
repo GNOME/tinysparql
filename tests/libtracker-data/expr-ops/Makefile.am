@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	data.ontology                                  \
 	data.ttl                                       \
 	query-ge-1.out                                 \

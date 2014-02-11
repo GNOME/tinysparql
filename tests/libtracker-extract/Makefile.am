@@ -1,27 +1,27 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = $(TEST_PROGS)
+noinst_PROGRAMS += $(test_programs)
 
-TEST_PROGS +=                                          \
+test_programs = \
 	tracker-test-utils                             \
 	tracker-test-xmp			       \
 	tracker-extract-info-test		       \
 	tracker-guarantee-test
 
 if HAVE_EXIF
-TEST_PROGS += tracker-exif-test
+test_programs += tracker-exif-test
 endif
 
 if HAVE_IPTC
 # This test also requires libjpeg...
-TEST_PROGS += tracker-iptc-test
+test_programs += tracker-iptc-test
 endif
 
 if HAVE_ENCA
-TEST_PROGS += tracker-encoding
+test_programs += tracker-encoding
 else
 if HAVE_MEEGOTOUCH
-TEST_PROGS += tracker-encoding
+test_programs += tracker-encoding
 endif
 endif
 
@@ -58,7 +58,7 @@ tracker_iptc_test_SOURCES = tracker-iptc-test.c
 tracker_iptc_test_LDADD = $(LDADD) $(LIBJPEG_LIBS)
 tracker_iptc_test_CFLAGS = $(LIBJPEG_CFLAGS)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	encoding-detect.bin             \
 	areas.xmp 			\
 	areas-with-contacts.xmp 	\

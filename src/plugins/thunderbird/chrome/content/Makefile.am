@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 extensiondir = $(datadir)/xul-ext/trackerbird/chrome/content
 extension_DATA = \
 	mailstore.js \

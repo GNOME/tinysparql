@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 lib_LTLIBRARIES = libtracker-sparql-@TRACKER_API_VERSION@.la
 
 AM_VALAFLAGS =                                         \

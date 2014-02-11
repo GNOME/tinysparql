@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 docs = \
 	office-doc.doc \
 	office-doc.expected \

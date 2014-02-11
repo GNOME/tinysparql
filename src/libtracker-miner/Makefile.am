@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 # Include list of shared sources:
 #  Defines:
 #    $(libtracker_miner_monitor_sources)

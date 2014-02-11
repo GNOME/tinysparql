@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 utilsdir = $(datadir)/tracker-tests/common/utils
 
 utils_SCRIPTS =                                        \

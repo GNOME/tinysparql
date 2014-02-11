@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 AUTOMAKE_OPTIONS = 1.6
 
 # Generation of ontology.png using ontology-graph

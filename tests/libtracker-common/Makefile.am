@@ -1,8 +1,8 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = $(TEST_PROGS)
+noinst_PROGRAMS += $(test_programs)
 
-TEST_PROGS +=                                          \
+test_programs = \
 	tracker-type-utils                             \
 	tracker-dbus                                   \
 	tracker-file-utils                             \
@@ -40,4 +40,4 @@ tracker_crc32_test_SOURCES = tracker-crc32-test.c
 
 tracker_date_time_test_SOURCES = tracker-date-time-test.c
 
-EXTRA_DIST = non-utf8.txt
+EXTRA_DIST += non-utf8.txt

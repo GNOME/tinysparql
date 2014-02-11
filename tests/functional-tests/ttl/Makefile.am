@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 BUILT_SOURCES = gen-test-data.stamp
 
 gen-test-data.stamp:

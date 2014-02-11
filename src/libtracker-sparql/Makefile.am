@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_LTLIBRARIES = libtracker-sparql.la
 
 libtracker_sparql_la_VALAFLAGS =                       \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 SUBDIRS = manpages design tools reference
 
 # require gtk-doc when making dist

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 if HAVE_TRACKER_FTS
 libstemmer_dir = libstemmer
 endif

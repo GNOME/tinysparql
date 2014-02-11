@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 SUBDIRS = utils
 
 commondir = $(datadir)/tracker-tests/common
