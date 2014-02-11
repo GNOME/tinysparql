@@ -416,14 +416,19 @@ element_ensure_task (ElemNode         *node,
 
 static gint
 get_class_id (TrackerSparqlConnection *conn,
-              const gchar             *class)
+              const gchar             *class,
+              gboolean                 is_iri)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gchar *query;
 	gint id = -1;
 
-	query = g_strdup_printf ("select tracker:id (%s) { }", class);
+	if (is_iri)
+		query = g_strdup_printf ("select tracker:id (<%s>) { }", class);
+	else
+		query = g_strdup_printf ("select tracker:id (%s) { }", class);
+
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 	g_free (query);
 
@@ -473,7 +478,7 @@ tracker_decorator_validate_class_ids (TrackerDecorator *decorator,
 			gchar *copy;
 			gint id;
 
-			id = get_class_id (sparql_conn, class_names[i]);
+			id = get_class_id (sparql_conn, class_names[i], FALSE);
 
 			if (id >= 0) {
 				copy = g_strdup (class_names[i]);
@@ -640,9 +645,9 @@ tracker_decorator_initable_init (GInitable     *initable,
 	if (g_cancellable_is_cancelled (cancellable))
 		return FALSE;
 
-	priv->rdf_type_id = get_class_id (sparql_conn, "rdf:type");
-	priv->nie_data_source_id = get_class_id (sparql_conn, "nie:dataSource");
-	priv->data_source_id = get_class_id (sparql_conn, priv->data_source);
+	priv->rdf_type_id = get_class_id (sparql_conn, "rdf:type", FALSE);
+	priv->nie_data_source_id = get_class_id (sparql_conn, "nie:dataSource", FALSE);
+	priv->data_source_id = get_class_id (sparql_conn, priv->data_source, TRUE);
 	tracker_decorator_validate_class_ids (decorator, priv->class_names);
 
 	priv->graph_updated_signal_id =
