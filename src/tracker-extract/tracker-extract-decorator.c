@@ -20,14 +20,14 @@
 #include "config.h"
 
 #include <libtracker-extract/tracker-extract.h>
-
+#include <libtracker-common/tracker-ontologies.h>
 #include "tracker-extract-decorator.h"
 
 enum {
 	PROP_EXTRACTOR = 1
 };
 
-#define TRACKER_EXTRACT_DATA_SOURCE "tracker:extractor-data-source"
+#define TRACKER_EXTRACT_DATA_SOURCE TRACKER_TRACKER_PREFIX "extractor-data-source"
 
 #define TRACKER_EXTRACT_DECORATOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_EXTRACT_DECORATOR, TrackerExtractDecoratorPrivate))
 
