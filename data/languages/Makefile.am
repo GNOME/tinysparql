@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 configdir = $(datadir)/tracker/languages
 
 config_DATA =                                          \

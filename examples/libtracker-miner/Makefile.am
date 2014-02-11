@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_PROGRAMS = tracker-miner-test
 
 AM_CPPFLAGS =                                          \

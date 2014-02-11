@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 ut2dir = $(datadir)/tracker-tests/unittest2
 
 ut2_SCRIPTS =                                          \

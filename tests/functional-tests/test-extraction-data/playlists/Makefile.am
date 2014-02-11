@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 playlists = \
 	playlist-test-1.m3u \
 	playlist-test-1.expected

@@ -10,11 +10,11 @@ include $(top_srcdir)/Makefile.decl
 #
 include $(top_srcdir)/src/libtracker-miner/Makefile-shared-sources.decl
 
-noinst_LTLIBRARIES = libtracker-miner-tests.la
+noinst_LTLIBRARIES += libtracker-miner-tests.la
 
-noinst_PROGRAMS = $(TEST_PROGS)
+noinst_PROGRAMS += $(test_programs)
 
-TEST_PROGS +=                                          \
+test_programs = \
 	tracker-crawler-test                           \
 	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
@@ -103,12 +103,12 @@ noinst_HEADERS =                                       \
 	miners-mock.h                                  \
 	empty-gobject.h
 
-BUILT_SOURCES = \
+BUILT_SOURCES += \
 	$(libtracker_miner_file_system_sources) \
 	$(libtracker_miner_file_system_headers) \
 	libtracker_miner_tests_la_vala.stamp
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	data/empty-dir/.hidden \
 	data/file1 \
 	data/dir/empty-dir/.hidden \

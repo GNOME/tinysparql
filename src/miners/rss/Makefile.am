@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-DSHAREDIR=\""$(datadir)"\"                    \

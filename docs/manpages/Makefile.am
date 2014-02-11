@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 tp = tracker-preferences.1
 tn = tracker-needle.1
 tmrss = tracker-miner-rss.1

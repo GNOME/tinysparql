@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 AM_VALAFLAGS =                                         \
 	--includedir=libtracker-data                   \
 	--header tracker-sparql-query.h                \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_PROGRAMS = async-connection class-signal
 
 AM_CPPFLAGS = $(BUILD_CFLAGS) \

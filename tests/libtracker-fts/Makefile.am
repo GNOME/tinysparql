@@ -4,11 +4,12 @@ SUBDIRS =                                              \
 	limits                                         \
 	prefix
 
-noinst_PROGRAMS =                                      \
-	$(TEST_PROGS)                                  \
+check_PROGRAMS += \
 	tracker-parser
 
-TEST_PROGS +=                                          \
+noinst_PROGRAMS += $(test_programs)
+
+test_programs = \
 	tracker-fts-test                               \
 	tracker-parser-test
 
@@ -35,7 +36,7 @@ tracker_parser_test_SOURCES = tracker-parser-test.c
 
 tracker_parser_SOURCES = tracker-parser.c
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	data.ontology                                  \
 	fts3aa-data.rq                                 \
 	fts3aa-1.rq                                    \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 videotestdir = $(datadir)/tracker-tests/test-extraction-data/video
 
 videotest_DATA =

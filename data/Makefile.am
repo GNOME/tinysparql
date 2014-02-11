@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 SUBDIRS = dbus languages icons ontologies miners gschemas
 
 # First we fix the VERSION and libexecdir in the desktop files

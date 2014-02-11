@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 desktop_in_in_files =                                  \
 	tracker-miner-extract.desktop.in.in            \
 	tracker-miner-userguides.desktop.in.in         \

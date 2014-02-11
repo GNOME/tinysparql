@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	base-prefix-3.out                              \
 	base-prefix-3.rq                               \
 	compare-cast.rq                                \

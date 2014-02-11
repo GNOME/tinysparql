@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_LTLIBRARIES = libtracker-testcommon.la
+noinst_LTLIBRARIES += libtracker-testcommon.la
 
 AM_CPPFLAGS =                                          \
 	$(BUILD)                                       \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 noinst_PROGRAMS = ontology-validator data-validator
 
 AM_CPPFLAGS =                                          \

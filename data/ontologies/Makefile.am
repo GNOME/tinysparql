@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 maemo_ontology =                                       \
 	91-maemo.ontology   91-maemo.description
 

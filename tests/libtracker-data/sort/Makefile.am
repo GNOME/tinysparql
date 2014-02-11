@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	data-sort-1.ontology                           \
 	data-sort-1.ttl                                \
 	data-sort-3.ontology                           \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 superclassrmdir = $(datadir)/tracker-tests/test-ontologies/superclass-remove
 
 superclassrm_DATA =                                    \

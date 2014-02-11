@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST =                                           \
+EXTRA_DIST += \
 	data-1.ttl                                     \
 	filter-boundary-1.out                          \
 	filter-boundary-1.rq                           \

@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 notifydir = $(datadir)/tracker-tests/test-ontologies/notify
 
 notify_DATA =                                          \
