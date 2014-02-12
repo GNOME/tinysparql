@@ -2572,6 +2572,7 @@ AC_CONFIG_FILES([
         src/plugins/firefox/chrome/locale/en-US/Makefile
         src/plugins/firefox/chrome/locale/es-ES/Makefile
         src/plugins/firefox/chrome/locale/fr-FR/Makefile
+        src/plugins/firefox/chrome/locale/pl-PL/Makefile
         src/plugins/firefox/chrome/skin/Makefile
         src/plugins/firefox/defaults/Makefile
         src/plugins/firefox/defaults/preferences/Makefile
