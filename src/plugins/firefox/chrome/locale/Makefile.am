@@ -1,3 +1,3 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = en-US es-ES fr-FR
+SUBDIRS = en-US es-ES fr-FR pl-PL

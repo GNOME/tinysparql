@@ -1,0 +1,4 @@
+<!ENTITY prefwindow.title "Preferencje rozszerzenia TrackerBird">
+<!ENTITY pane1.title "Preferencje rozszerzenia TrackerBird">
+<!ENTITY indexDelay.label "Czas oczekiwania między wiadomościami w milisekundach">
+<!ENTITY indexDelay.accesskey "C">
