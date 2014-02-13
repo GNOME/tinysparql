@@ -529,7 +529,7 @@ AC_SUBST(GCOV_LIBS)
 # NOTE: BUILD_VALACFLAGS are for the sources built by Vala,
 #       not for .vala files themselves.
 ####################################################################
-BUILD_VALAFLAGS="-g --target-glib=2.34"
+BUILD_VALAFLAGS="-g --target-glib=${GLIB_REQUIRED}"
 BUILD_VALACFLAGS="${WARN_VALACFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_LIBS="${GCOV_LIBS}"
