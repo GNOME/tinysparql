@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-libav.so
+MimeTypes=audio/*;
+FallbackRdfTypes=nmm:MusicPiece;nfo:Audio;

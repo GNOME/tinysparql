@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-gstreamer.so
+MimeTypes=image/*;
+FallbackRdfTypes=nfo:Image;nmm:Photo;

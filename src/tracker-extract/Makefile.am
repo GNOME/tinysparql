@@ -40,9 +40,12 @@ rules_files = \
 	11-msoffice-xml.rule \
 	15-gstreamer-guess.rule \
 	15-playlist.rule \
-	90-gstreamer-generic.rule \
+	90-gstreamer-image-generic.rule \
+	90-gstreamer-audio-generic.rule \
+	90-gstreamer-video-generic.rule \
 	90-text-generic.rule \
-        90-libav-generic.rule \
+	90-libav-audio-generic.rule \
+	90-libav-video-generic.rule \
 	91-gstreamer-generic-dlna.rule \
 	92-xine-generic.rule \
 	93-mplayer-generic.rule \
@@ -110,7 +113,7 @@ endif
 
 if HAVE_GSTREAMER
 extractmodules_LTLIBRARIES += libextract-gstreamer.la
-rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-generic.rule
+rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-image-generic.rule 90-gstreamer-audio-generic.rule 90-gstreamer-video-generic.rule
 endif
 
 # Gstreamer with GUPnP-DLNA backend?
@@ -176,7 +179,7 @@ endif
 
 if HAVE_LIBAV
 extractmodules_LTLIBRARIES += libextract-libav.la
-rules_DATA += 90-libav-generic.rule
+rules_DATA += 90-libav-audio-generic.rule 90-libav-video-generic.rule
 endif
 
 # ABW

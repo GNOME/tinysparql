@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-gstreamer.so
+MimeTypes=audio/*;
+FallbackRdfTypes=nmm:MusicPiece;nfo:Audio;

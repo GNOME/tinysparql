@@ -1,3 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-libav.so
-MimeTypes=audio/*;video/*;
+MimeTypes=video/*;
+FallbackRdfTypes=nmm:Video;
