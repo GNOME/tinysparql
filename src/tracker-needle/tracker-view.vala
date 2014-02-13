@@ -130,7 +130,7 @@ public class Tracker.View : ScrolledWindow {
 		}
 
 		if (display == Display.NO_RESULTS) {
-			add_with_viewport (view);
+			add (view);
 		} else {
 			add (view);
 			setup_model ();
@@ -383,7 +383,7 @@ public class Tracker.View : ScrolledWindow {
 		tree_model.get (iter, 4, out size, -1);
 
 		if (size != null) {
-			size = GLib.format_size_for_display (int.parse (size));
+			size = GLib.format_size (int.parse (size));
 		}
 
 		cell.set ("text", size);
@@ -432,10 +432,10 @@ public class Tracker.View : ScrolledWindow {
 			detail = tracker_time_format_from_seconds (detail);
 			break;
 		case Tracker.Query.Type.DOCUMENTS:
-			detail = ngettext ("%d Page", "%d Pages", detail.to_int()).printf (detail.to_int());
+			detail = ngettext ("%d Page", "%d Pages", int.parse (detail)).printf (int.parse (detail));
 			break;
 		case Tracker.Query.Type.IMAGES:
-			detail = GLib.format_size_for_display (int.parse (detail));
+			detail = GLib.format_size (int.parse (detail));
 			break;
 		}
 

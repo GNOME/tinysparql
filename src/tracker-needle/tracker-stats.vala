@@ -138,18 +138,18 @@ public class Tracker.Stats : Dialog {
 					continue;
 				}
 
-				var hbox = new HBox (false, 12);
+				var box = new Box (Gtk.Orientation.HORIZONTAL, 12);
 				var label_key = new Label (key_used);
 				var label_val = new Label (val);
 
 				label_key.set_alignment (0.0f, 0.5f);
 				label_val.set_alignment (0.0f, 0.5f);
-				hbox.pack_start (label_key, true, true, 0);
-				hbox.pack_start (label_val, false, true, 0);
+				box.pack_start (label_key, true, true, 0);
+				box.pack_start (label_val, false, true, 0);
 
 				sizegroup.add_widget (label_key);
 
-				vbox.pack_start (hbox, true, true, 0);
+				vbox.pack_start (box, true, true, 0);
 			}
 		} catch (DBusError e) {
 			warning ("Could not get Tracker statistics: " + e.message);
