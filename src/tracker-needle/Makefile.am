@@ -4,7 +4,7 @@ bin_PROGRAMS = tracker-needle
 
 AM_VALAFLAGS = \
 	--pkg gtk+-3.0 --pkg gio-2.0 \
-	$(BUILD_fVALAFLAGS) \
+	$(BUILD_VALAFLAGS) \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	config.vapi
 
