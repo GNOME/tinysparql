@@ -1,7 +1,47 @@
-NEW in 0.17.1 - 2013-11-22
+NEW in 0.17.2 - 2014-02-14
 ==========================
 
-The main changes since 0.17.1 are:
+The main changes are:
+
+  * build: Use API version 1.0 instead of bumping it every stable release (affects .pc and .so filenames)
+  * build: Require libmediaart >= 0.1.0, code has been exported from Tracker to this library
+  * build: Make sure --target-glib used with Vala is the correct GLib (was 2.34, should be $GLIB_REQUIRED), removes Vala g_type_init() warnings.
+  * Fixes GB#696099, tracker needle always show "Loading..." in the Document category
+  * Fixes GB#723097, Select search results when pressing down
+  * Fixes GB#721455, Obsolete info in license text on multiple modules
+  * libtracker-common: Add TRACKER_TRACKER_PREFIX define for tracker: ontology prefix
+  * libtracker-miner: Ensure the decorator nie:DataSource is queried as an IRI
+  * libtracker-miner: Make sure we flush remaining TrackerDecorator SPARQL updates when finished, avoids loosing extracted data for last files
+  * libtracker-miner: Fix infinite loop TrackerDecorator
+  * libtracker-miner: Fix warning for TrackerFileSystem registering properties twice (with hash destroy function set to NULL)
+  * libtracker-miner: Improve TrackerDecoratorInfo to be a boxed type fixing a ref-count issue and a requirement for introspection.
+  * libtracker-miner: Avoid unnecessary query calls when tracker_decorator_next() is called consecutively, we now queue queries.
+  * libtracker-miner: Various improvements including moving string handling from GArray to GPtrArray and code duplication in TrackerDecorator.
+  * tracker-extract: Split generic gstreamer/libav extract rules
+  * tracker-extract: Use fully expanded name for nie:DataSource in decorator to avoid conflicts with shorthand insert IDs
+  * tracker-needle: Fixed GTK+ 3.x deprecations
+  * tracker-needle: Fixed typo in Makefile.am, VALACFLAGS was not being used, avoids warnings
+  * firefox: Added Polish translations for plugin
+  * thunderbird: Added UI localization support including translations for French, Spanish and Polish
+  * thunderbird: Escape folder names in URIs
+  * thunderbird: Port code to make sure it works for Thunderbird 24
+  * thunderbird: Add and improve debug messages
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated gl: Fran Diéguez
+  * Updated id: Andika Triwidada
+  * Updated it: Milo Casagrande
+  * Updated pt_BR: Rafael Ferreira
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
+NEW in 0.17.1 - 2014-01-24
+==========================
+
+The main changes are:
 
   * build: Require Vala >= 0.18.0 (was 0.16.0) to avoid Vala 0.16 g_dbus_message_get_body() binding bug
   * build: Require GLib >= 2.38 (was 2.35.1) after removing all deprecated g_test_trap_fork() calls for _subprocess()
