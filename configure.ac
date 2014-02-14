@@ -2560,7 +2560,6 @@ AC_CONFIG_FILES([
         src/plugins/thunderbird/chrome/Makefile
         src/plugins/thunderbird/chrome/content/Makefile
         src/plugins/thunderbird/chrome/locale/Makefile
-        src/plugins/thunderbird/chrome/locale/en-US/Makefile
         src/plugins/thunderbird/chrome/skin/Makefile
         src/plugins/thunderbird/defaults/Makefile
         src/plugins/thunderbird/defaults/preferences/Makefile
@@ -2569,10 +2568,6 @@ AC_CONFIG_FILES([
         src/plugins/firefox/chrome/Makefile
         src/plugins/firefox/chrome/content/Makefile
         src/plugins/firefox/chrome/locale/Makefile
-        src/plugins/firefox/chrome/locale/en-US/Makefile
-        src/plugins/firefox/chrome/locale/es-ES/Makefile
-        src/plugins/firefox/chrome/locale/fr-FR/Makefile
-        src/plugins/firefox/chrome/locale/pl-PL/Makefile
         src/plugins/firefox/chrome/skin/Makefile
         src/plugins/firefox/defaults/Makefile
         src/plugins/firefox/defaults/preferences/Makefile
