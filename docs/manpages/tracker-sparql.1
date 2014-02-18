@@ -85,6 +85,35 @@ filters the results according to any argument supplied. With no
 \fIPROPERTY\fR, all properties are listed.
 
 .TP
+.B \-t, \-\-tree [<CLASS>]
+Prints a tree showing all parent classes of \fICLASS\fR in the
+ontology. \fICLASS\fR can be provided in shorthand or longhand (see
+.B \-\-get\-shorthand
+and
+.B \-\-get\-longhand
+for details). For example:
+
+.nf
+$ tracker-sparql -t nmo:MMSMessage
+ROOT
+  +-- rdfs:Resource (C)
+  |  +-- nie:InformationElement (C)
+  |  |  +-- nfo:Document (C)
+  |  |  |  +-- nfo:TextDocument (C)
+  |  |  |  |  `-- nmo:Message (C)
+  |  |  |  |  |  +-- nmo:PhoneMessage (C)
+  |  |  |  |  |  |  `-- nmo:MMSMessage (C)
+.fi
+
+If no \fICLASS\fR is given, the entire tree is shown.
+
+NOTE: To make finding classes easier, you can use the
+.B \-s
+or
+.B \-\-search
+command line option to highlight parts of the tree you're looking for.
+
+.TP
 .B \-s, \-\-search=TERM
 Returns a list of classes and properties which partially match
 \fITERM\fR in the ontology. This is a case insensitive match, for
@@ -105,6 +134,33 @@ Properties: 4
   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent
   http://www.tracker-project.org/temp/scal#textLocation
 .fi
+
+NOTE: If this command line is used with
+.B \-\-tree
+it is used to highlight parts of the tree displayed. It can not be
+used to search for classes as the example above shows as well as to
+print the ontology tree.
+
+.TP
+.B \-\-get\-shorthand <CLASS>
+Returns the shorthand for a class given by a URL.
+For example:
+
+.nf
+$ tracker-sparql --get-shorthand http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent
+nmo:plainTextMessageContent
+.fi
+
+.TP
+.B \-\-get\-longhand <CLASS>
+Returns the longhand for a class given in the form of CLASS:PROPERTY.
+For example:
+
+.nf
+$ tracker-sparql --get-longhand nmm:MusicPiece
+http://www.tracker-project.org/temp/nmm#MusicPiece
+.fi
+
 .TP
 .B \-V, \-\-version
 Print version.
