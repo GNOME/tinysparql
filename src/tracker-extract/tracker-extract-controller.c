@@ -39,26 +39,27 @@ struct TrackerExtractControllerPrivate {
 G_DEFINE_TYPE (TrackerExtractController, tracker_extract_controller, G_TYPE_OBJECT)
 
 static void
-files_miner_status_changed (TrackerExtractController *self,
-                            const gchar              *status)
+files_miner_idleness_changed (TrackerExtractController *self,
+                              gboolean                  idle)
 {
-	gboolean should_be_running;
-
-	should_be_running = g_str_equal (status, "Idle");
-
-	if (should_be_running && self->priv->pause_cookie != 0) {
+	if (idle && self->priv->pause_cookie != 0) {
 		tracker_miner_resume (TRACKER_MINER (self->priv->decorator),
 		                      self->priv->pause_cookie,
 		                      NULL);
 		self->priv->pause_cookie = 0;
-	}
-
-	if (!should_be_running && self->priv->pause_cookie == 0) {
+	} else if (!idle && self->priv->pause_cookie == 0) {
 		self->priv->pause_cookie =
 			tracker_miner_pause (TRACKER_MINER (self->priv->decorator),
 			                     "Wait for files miner",
 			                     NULL);
 	}
+}
+
+static void
+files_miner_status_changed (TrackerExtractController *self,
+                            const gchar              *status)
+{
+	files_miner_idleness_changed (self, g_str_equal (status, "Idle"));
 }
 
 static void
@@ -120,7 +121,7 @@ vanished_cb (GDBusConnection *connection,
 
 	/* tracker-miner-fs vanished, we don't have anything to wait for
 	 * anymore. */
-	files_miner_status_changed (self, "Idle");
+	files_miner_idleness_changed (self, TRUE);
 }
 
 static void
@@ -194,7 +195,7 @@ update_wait_for_miner_fs (TrackerExtractController *self)
 		    self, NULL);
 	} else {
 		disconnect_all (self);
-		files_miner_status_changed (self, "Idle");
+		files_miner_idleness_changed (self, TRUE);
 	}
 }
 
