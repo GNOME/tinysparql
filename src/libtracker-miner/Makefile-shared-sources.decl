@@ -13,3 +13,9 @@ libtracker_miner_file_system_sources =                          \
 
 libtracker_miner_file_system_headers =                          \
 	$(top_srcdir)/src/libtracker-miner/tracker-file-system.h
+
+libtracker_miner_crawler_sources =                          \
+	$(top_srcdir)/src/libtracker-miner/tracker-crawler.c
+
+libtracker_miner_crawler_headers =                          \
+	$(top_srcdir)/src/libtracker-miner/tracker-crawler.h
