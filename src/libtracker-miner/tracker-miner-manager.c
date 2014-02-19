@@ -24,8 +24,6 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-crawler.h"
-#include "tracker-miner-object.h"
 #include "tracker-miner-manager.h"
 #include "tracker-miner-dbus.h"
 
@@ -683,10 +681,9 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	return list;
 }
 
-static gboolean
-crawler_check_file_cb (TrackerCrawler *crawler,
-                       GFile          *file,
-                       gpointer        user_data)
+static void
+check_file (GFile    *file,
+            gpointer  user_data)
 {
 	TrackerMinerManager *manager;
 	TrackerMinerManagerPrivate *priv;
@@ -699,10 +696,6 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	path = g_file_get_path (file);
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-	if (!g_str_has_suffix (path, ".desktop")) {
-		return FALSE;
-	}
-
 	key_file = g_key_file_new ();
 	g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
 
@@ -710,8 +703,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		g_warning ("Error parsing miner .desktop file: %s", error->message);
 		g_error_free (error);
 		g_key_file_free (key_file);
-
-		return FALSE;
+		return;
 	}
 
 	dbus_path = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_PATH_KEY, NULL);
@@ -724,8 +716,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		g_free (dbus_path);
 		g_free (display_name);
 		g_free (dbus_name);
-
-		return FALSE;
+		return;
 	}
 
 	description = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DESCRIPTION_KEY, NULL, NULL);
@@ -741,34 +732,41 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	g_key_file_free (key_file);
 	g_free (path);
 
-	return TRUE;
+	return;
 }
 
 static void
-crawler_finished_cb (TrackerCrawler *crawler,
-                     gboolean        was_interrupted,
-                     gpointer        user_data)
+directory_foreach (GFile    *file,
+                   gchar    *suffix,
+                   GFunc     func,
+                   gpointer  user_data)
 {
-	g_main_loop_quit (user_data);
+	GFileEnumerator *enumerator;
+	GFileInfo *info;
+	GFile *child;
+
+	enumerator = g_file_enumerate_children (file, G_FILE_ATTRIBUTE_STANDARD_NAME,
+	                                        G_FILE_QUERY_INFO_NONE, NULL, NULL);
+
+	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
+
+		if (!suffix || g_str_has_suffix (g_file_info_get_name (info), suffix)) {
+			child = g_file_enumerator_get_child (enumerator, info);
+			(func) (child, user_data);
+			g_object_unref (child);
+		}
+
+		g_object_unref (info);
+	}
+
+	g_object_unref (enumerator);
 }
 
 static void
 initialize_miners_data (TrackerMinerManager *manager)
 {
-	GMainLoop *main_loop;
 	GFile *file;
-	TrackerCrawler *crawler;
 	const gchar *miners_dir;
-
-	crawler = tracker_crawler_new ();
-	main_loop = g_main_loop_new (NULL, FALSE);
-
-	g_signal_connect (crawler, "check-file",
-	                  G_CALLBACK (crawler_check_file_cb),
-	                  manager);
-	g_signal_connect (crawler, "finished",
-	                  G_CALLBACK (crawler_finished_cb),
-	                  main_loop);
 
 	/* Go through service files */
 	miners_dir = g_getenv ("TRACKER_MINERS_DIR");
@@ -779,13 +777,8 @@ initialize_miners_data (TrackerMinerManager *manager)
 	}
 
 	file = g_file_new_for_path (miners_dir);
-	tracker_crawler_start (crawler, file, TRUE);
+	directory_foreach (file, ".desktop", (GFunc) check_file, manager);
 	g_object_unref (file);
-
-	g_main_loop_run (main_loop);
-
-	g_main_loop_unref (main_loop);
-	g_object_unref (crawler);
 }
 
 /**
