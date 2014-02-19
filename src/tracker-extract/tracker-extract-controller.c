@@ -189,10 +189,11 @@ update_wait_for_miner_fs (TrackerExtractController *self)
 		/* appeared_cb is guaranteed to be called even if the service
 		 * was already running, so we'll start the miner from there. */
 		self->priv->watch_id = g_bus_watch_name_on_connection (conn,
-		    "org.freedesktop.Tracker1.Miner.Files",
-		    G_BUS_NAME_WATCHER_FLAGS_NONE,
-		    appeared_cb, vanished_cb,
-		    self, NULL);
+		                                                       "org.freedesktop.Tracker1.Miner.Files",
+		                                                       G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                                       appeared_cb,
+		                                                       vanished_cb,
+		                                                       self, NULL);
 	} else {
 		disconnect_all (self);
 		files_miner_idleness_changed (self, TRUE);
