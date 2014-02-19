@@ -26,8 +26,6 @@
 
 #include <glib-object.h>
 
-#include "tracker-miner-object.h"
-
 G_BEGIN_DECLS
 
 #define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"

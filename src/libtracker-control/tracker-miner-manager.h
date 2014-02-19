@@ -20,7 +20,7 @@
 #ifndef __LIBTRACKER_MINER_MANAGER_H__
 #define __LIBTRACKER_MINER_MANAGER_H__
 
-#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
+#if !defined (__LIBTRACKER_CONTROL_H_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "Only <libtracker-miner/tracker-miner.h> can be included directly."
 #endif
 

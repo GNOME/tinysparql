@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 SUBDIRS =                                              \
+	libtracker-control                             \
 	libtracker-sparql                              \
 	libtracker-miner
 

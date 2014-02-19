@@ -67,8 +67,6 @@ miner_sources = 				       \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.c                             \
 	tracker-miner-fs.h                             \
-	tracker-miner-manager.c                        \
-	tracker-miner-manager.h                        \
 	tracker-miner-web.c                            \
 	tracker-miner-web.h                            
 
@@ -95,7 +93,6 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.h                             \
-	tracker-miner-manager.h                        \
 	tracker-miner-web.h                            \
 	tracker-network-provider.h                     \
 	tracker-password-provider.h
