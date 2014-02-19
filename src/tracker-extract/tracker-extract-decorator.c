@@ -575,7 +575,6 @@ tracker_extract_decorator_initable_init (GInitable     *initable,
 	 * won't be ready by the time the tracker-extract appear on the bus. */
 	if (!parent_initable_iface->init (initable, cancellable, error)) {
 		ret = FALSE;
-		goto out;
 	}
 
 out:
