@@ -32,13 +32,9 @@ noinst_LTLIBRARIES = libtracker-miner-private.la
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
-crawler_sources = 				       \
+private_sources = 				       \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
-	tracker-utils.c                                \
-	tracker-utils.h					
-
-private_sources = 				       \
 	tracker-file-notifier.h                        \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
@@ -52,7 +48,9 @@ private_sources = 				       \
 	tracker-sparql-buffer.h                        \
 	tracker-sparql-buffer.c                        \
 	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h
+	tracker-thumbnailer.h                          \
+	tracker-utils.c                                \
+	tracker-utils.h
 
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
@@ -81,7 +79,6 @@ libtracker_miner_private_la_SOURCES =                  \
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(network_provider_sources)                    \
 	$(password_provider_sources)                   \
-	$(crawler_sources)			       \
 	$(miner_sources)			       \
 	tracker-indexing-tree.c                        \
 	tracker-indexing-tree.h                        \
@@ -89,7 +86,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-password-provider.c
 
 libtracker_minerinclude_HEADERS =                      \
-	tracker-crawler.h                              \
 	tracker-decorator.h                            \
 	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.h                        \
@@ -110,7 +106,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|crawler|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
+	-export-symbols-regex '^tracker_(miner|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

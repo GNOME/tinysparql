@@ -22,7 +22,6 @@
 
 #define __LIBTRACKER_MINER_H_INSIDE__
 
-#include <libtracker-miner/tracker-crawler.h>
 #include <libtracker-miner/tracker-decorator.h>
 #include <libtracker-miner/tracker-decorator-fs.h>
 #include <libtracker-miner/tracker-network-provider.h>

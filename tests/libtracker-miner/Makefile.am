@@ -65,6 +65,8 @@ libtracker_miner_tests_la_LIBADD = 		       \
 	$(BUILD_LIBS)
 
 tracker_crawler_test_SOURCES = \
+	$(libtracker_miner_crawler_sources) \
+	$(libtracker_miner_crawler_headers) \
 	tracker-crawler-test.c
 
 tracker_miner_manager_test_SOURCES = \
