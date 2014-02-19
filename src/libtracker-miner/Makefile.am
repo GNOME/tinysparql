@@ -51,8 +51,6 @@ private_sources = 				       \
 	tracker-task-pool.c                            \
 	tracker-sparql-buffer.h                        \
 	tracker-sparql-buffer.c                        \
-	tracker-storage.c                              \
-	tracker-storage.h                              \
 	tracker-thumbnailer.c                          \
 	tracker-thumbnailer.h
 
@@ -104,8 +102,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-manager.h                        \
 	tracker-miner-web.h                            \
 	tracker-network-provider.h                     \
-	tracker-password-provider.h                    \
-	tracker-storage.h
+	tracker-password-provider.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -113,7 +110,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
+	-export-symbols-regex '^tracker_(miner|crawler|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

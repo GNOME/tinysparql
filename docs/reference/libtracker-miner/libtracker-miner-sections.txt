@@ -229,30 +229,6 @@ tracker_password_provider_get_type
 </SECTION>
 
 <SECTION>
-<FILE>tracker-storage</FILE>
-<TITLE>TrackerStorage</TITLE>
-TrackerStorage
-TrackerStorageClass
-TrackerStorageType
-tracker_storage_get_device_roots
-tracker_storage_get_device_uuids
-tracker_storage_get_mount_point_for_uuid
-tracker_storage_get_type_for_uuid
-tracker_storage_get_uuid_for_file
-tracker_storage_new
-<SUBSECTION Standard>
-TRACKER_IS_STORAGE
-TRACKER_IS_STORAGE_CLASS
-TRACKER_STORAGE
-TRACKER_STORAGE_CLASS
-TRACKER_STORAGE_GET_CLASS
-TRACKER_STORAGE_TYPE_IS_OPTICAL
-TRACKER_STORAGE_TYPE_IS_REMOVABLE
-TRACKER_TYPE_STORAGE
-tracker_storage_get_type
-</SECTION>
-
-<SECTION>
 <FILE>tracker-decorator</FILE>
 <TITLE>TrackerDecorator</TITLE>
 TrackerDecorator
