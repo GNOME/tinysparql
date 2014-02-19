@@ -20,12 +20,13 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <string.h>
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-miner/tracker-miner-dbus.h>
 
 #include "tracker-miner-manager.h"
-#include "tracker-miner-dbus.h"
 
 /**
  * SECTION:tracker-miner-manager

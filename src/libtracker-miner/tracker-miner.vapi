@@ -63,26 +63,6 @@ namespace Tracker {
 		public signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public class MinerManager : GLib.Object, GLib.Initable {
-		[CCode (has_construct_function = false)]
-		public MinerManager ();
-		public unowned GLib.SList get_available ();
-		public unowned string get_description (string miner);
-		public unowned string get_display_name (string miner);
-		public unowned GLib.SList get_running ();
-		public bool get_status (string miner, string status, double progress);
-		public bool ignore_next_update (string miner, string urls);
-		public bool is_active (string miner);
-		public bool is_paused (string miner, string[] applications, string[] reasons);
-		public bool pause (string miner, string reason, uint32 cookie);
-		public bool resume (string miner, uint32 cookie);
-		public virtual void miner_activated (string miner_name);
-		public virtual void miner_deactivated (string miner_name);
-		public virtual void miner_paused (string miner_name);
-		public virtual void miner_resumed (string miner_name);
-		public virtual void miner_progress (string miner_name, string status, double progress);
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerWeb : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public MinerWeb ();
