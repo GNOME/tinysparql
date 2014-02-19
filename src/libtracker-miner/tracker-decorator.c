@@ -587,6 +587,46 @@ tracker_decorator_set_property (GObject      *object,
 }
 
 static void
+query_type_and_add_element (TrackerDecorator *decorator,
+                            gint subject)
+{
+	TrackerSparqlConnection *sparql_conn;
+	TrackerSparqlCursor *cursor;
+	GString *query;
+	GError *error = NULL;
+
+	sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
+
+	query = g_string_new (NULL);
+	g_string_append_printf (query, "select tracker:id (?type) {"
+	                               "  ?urn a ?type . "
+	                               "  FILTER (tracker:id(?urn) = %d ", subject);
+	_tracker_decorator_query_append_rdf_type_filter (decorator, query);
+	g_string_append (query, ")}");
+
+	cursor = tracker_sparql_connection_query (sparql_conn, query->str,
+	                                          NULL, &error);
+	g_string_free (query, TRUE);
+
+	if (error) {
+		g_critical ("Could not get type ID for '%d': %s\n",
+		            subject, error->message);
+		g_error_free (error);
+		return;
+	}
+
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_critical ("'%d' doesn't have a known type", subject);
+	} else {
+		element_add (decorator, subject,
+		             tracker_sparql_cursor_get_integer (cursor, 0),
+		             FALSE);
+	}
+
+	g_object_unref (cursor);
+}
+
+static void
 handle_deletes (TrackerDecorator *decorator,
                 GVariantIter     *iter)
 {
@@ -602,10 +642,15 @@ handle_deletes (TrackerDecorator *decorator,
 		else if (predicate == priv->nie_data_source_id &&
 			 object == priv->data_source_id) {
 			/* If only the decorator datasource is removed,
-			 * re-process the file from scratch.
-			 */
-			/* FIXME: Can we know the class_name_id ? */
-			element_add (decorator, subject, 0, FALSE);
+			 * re-process the file from scratch if it's not already
+			 * queued. We don't know its class_name_id, so we have
+			 * to query it first. This should be rare enough that
+			 * it doesn't matter to accumulate them to query in
+			 * batches. */
+			if (!g_hash_table_contains (priv->elems,
+			                            GINT_TO_POINTER (subject))) {
+				query_type_and_add_element (decorator, subject);
+			}
 		}
 	}
 }
