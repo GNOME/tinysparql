@@ -39,6 +39,7 @@
 #include "tracker-ontologies.h"
 #include "tracker-os-dependant.h"
 #include "tracker-sched.h"
+#include "tracker-storage.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
 #include "tracker-locale.h"

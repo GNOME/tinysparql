@@ -21,7 +21,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-miner/tracker-storage.h>
+#include <libtracker-common/tracker-storage.h>
 
 #include "tracker-decorator-fs.h"
 #include "tracker-decorator-internal.h"
