@@ -24,17 +24,43 @@
 #error "Only <libtracker-miner/tracker-miner.h> can be included directly."
 #endif
 
+#include <glib-object.h>
+
 G_BEGIN_DECLS
 
-gboolean tracker_thumbnailer_init       (void);
-void     tracker_thumbnailer_shutdown   (void);
-void     tracker_thumbnailer_send       (void);
-gboolean tracker_thumbnailer_move_add   (const gchar *from_uri,
-                                         const gchar *mime_type,
-                                         const gchar *to_uri);
-gboolean tracker_thumbnailer_remove_add (const gchar *uri,
-                                         const gchar *mime_type);
-gboolean tracker_thumbnailer_cleanup    (const gchar *uri_prefix);
+#define TRACKER_TYPE_THUMBNAILER         (tracker_thumbnailer_get_type())
+#define TRACKER_THUMBNAILER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_THUMBNAILER, TrackerThumbnailer))
+#define TRACKER_THUMBNAILER_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_THUMBNAILER, TrackerThumbnailerClass))
+#define TRACKER_IS_THUMBNAILER(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_THUMBNAILER))
+#define TRACKER_IS_THUMBNAILER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_THUMBNAILER))
+#define TRACKER_THUMBNAILER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_THUMBNAILER, TrackerThumbnailerClass))
+
+typedef struct _TrackerThumbnailer TrackerThumbnailer;
+typedef struct _TrackerThumbnailerClass TrackerThumbnailerClass;
+
+struct _TrackerThumbnailer {
+	GObject parent_instance;
+};
+
+struct _TrackerThumbnailerClass {
+	GObjectClass parent_class;
+};
+
+
+GType    tracker_thumbnailer_get_type   (void) G_GNUC_CONST;
+TrackerThumbnailer *
+         tracker_thumbnailer_new        (void);
+
+void     tracker_thumbnailer_send       (TrackerThumbnailer *thumbnailer);
+gboolean tracker_thumbnailer_move_add   (TrackerThumbnailer *thumbnailer,
+					 const gchar        *from_uri,
+                                         const gchar        *mime_type,
+                                         const gchar        *to_uri);
+gboolean tracker_thumbnailer_remove_add (TrackerThumbnailer *thumbnailer,
+					 const gchar        *uri,
+                                         const gchar        *mime_type);
+gboolean tracker_thumbnailer_cleanup    (TrackerThumbnailer *thumbnailer,
+					 const gchar        *uri_prefix);
 
 G_END_DECLS
 

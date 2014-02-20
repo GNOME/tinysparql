@@ -78,7 +78,6 @@ gboolean                tracker_writeback_update_metadata   (TrackerWriteback   
                                                              TrackerSparqlConnection  *connection,
                                                              GCancellable             *cancellable,
                                                              GError                  **error);
-TrackerMinerManager*    tracker_writeback_get_miner_manager (void);
 
 /* Entry functions to be defined by modules */
 TrackerWriteback *      writeback_module_create             (GTypeModule              *module);

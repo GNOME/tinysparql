@@ -80,6 +80,34 @@ typedef enum {
 	TRACKER_FILTER_POLICY_ACCEPT
 } TrackerFilterPolicy;
 
+/**
+ * TrackerNetworkType:
+ * @TRACKER_NETWORK_TYPE_NONE: Network is disconnected
+ * @TRACKER_NETWORK_TYPE_UNKNOWN: Network status is unknown
+ * @TRACKER_NETWORK_TYPE_GPRS: Network is connected over a GPRS
+ * connection
+ * @TRACKER_NETWORK_TYPE_EDGE: Network is connected over an EDGE
+ * connection
+ * @TRACKER_NETWORK_TYPE_3G: Network is connected over a 3G or
+ * faster (HSDPA, UMTS, ...) connection
+ * @TRACKER_NETWORK_TYPE_LAN: Network is connected over a local
+ * network connection. This can be ethernet, wifi, etc.
+ *
+ * Enumerates the different types of connections that the device might
+ * use when connected to internet. Note that not all providers might
+ * provide this information.
+ *
+ * Since: 0.18
+ **/
+typedef enum {
+	TRACKER_NETWORK_TYPE_NONE,
+	TRACKER_NETWORK_TYPE_UNKNOWN,
+	TRACKER_NETWORK_TYPE_GPRS,
+	TRACKER_NETWORK_TYPE_EDGE,
+	TRACKER_NETWORK_TYPE_3G,
+	TRACKER_NETWORK_TYPE_LAN
+} TrackerNetworkType;
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_ENUMS_H__ */

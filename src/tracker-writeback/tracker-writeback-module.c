@@ -23,8 +23,6 @@
 
 #include "tracker-writeback-module.h"
 
-static TrackerMinerManager *manager = NULL;
-
 static gboolean writeback_module_load   (GTypeModule *module);
 static void     writeback_module_unload (GTypeModule *module);
 
@@ -197,14 +195,4 @@ tracker_writeback_update_metadata (TrackerWriteback         *writeback,
 	}
 
 	return FALSE;
-}
-
-TrackerMinerManager*
-tracker_writeback_get_miner_manager (void)
-{
-	if (!manager) {
-		manager = tracker_miner_manager_new ();
-	}
-
-	return manager;
 }

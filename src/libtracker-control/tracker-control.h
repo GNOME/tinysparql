@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Carlos Garnacho <carlosg@gnome.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,21 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_MINER_H__
-#define __LIBTRACKER_MINER_H__
+#ifndef __LIBTRACKER_CONTROL_H__
+#define __LIBTRACKER_CONTROL_H__
 
-#define __LIBTRACKER_MINER_H_INSIDE__
+#define __LIBTRACKER_CONTROL_H_INSIDE__
 
-#include <libtracker-miner/tracker-decorator.h>
-#include <libtracker-miner/tracker-decorator-fs.h>
-#include <libtracker-miner/tracker-miner-object.h>
-#include <libtracker-miner/tracker-miner-online.h>
-#include <libtracker-miner/tracker-miner-fs.h>
-#include <libtracker-miner/tracker-miner-enums.h>
-#include <libtracker-miner/tracker-miner-enum-types.h>
-#include <libtracker-miner/tracker-indexing-tree.h>
+#include <libtracker-control/tracker-miner-manager.h>
 
+#undef __LIBTRACKER_CONTROL_H_INSIDE__
 
-#undef __LIBTRACKER_MINER_H_INSIDE__
-
-#endif /* __LIBTRACKER_MINER_H__ */
+#endif /* __LIBTRACKER_CONTROL_H__ */

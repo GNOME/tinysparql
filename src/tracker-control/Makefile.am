@@ -17,6 +17,7 @@ tracker_control_SOURCES = \
 	tracker-control.c
 
 tracker_control_LDADD = \
+	$(top_builddir)/src/libtracker-control/libtracker-control-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \

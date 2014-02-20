@@ -2511,17 +2511,17 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/miners/Makefile
 	data/ontologies/Makefile
+	data/tracker-control.pc
 	data/tracker-sparql.pc
-	data/tracker-extract.pc
 	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
 	docs/reference/Makefile
+	docs/reference/libtracker-control/Makefile
+	docs/reference/libtracker-control/version.xml
 	docs/reference/libtracker-sparql/Makefile
 	docs/reference/libtracker-sparql/version.xml
-	docs/reference/libtracker-extract/Makefile
-	docs/reference/libtracker-extract/version.xml
 	docs/reference/libtracker-miner/Makefile
 	docs/reference/libtracker-miner/version.xml
 	docs/reference/ontology/Makefile
@@ -2534,6 +2534,7 @@ AC_CONFIG_FILES([
 	src/libtracker-common/Makefile
 	src/libtracker-sparql/Makefile
 	src/libtracker-bus/Makefile
+	src/libtracker-control/Makefile
 	src/libtracker-data/Makefile
 	src/libtracker-direct/Makefile
 	src/libtracker-sparql-backend/Makefile

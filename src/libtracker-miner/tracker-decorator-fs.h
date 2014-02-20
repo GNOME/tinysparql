@@ -57,6 +57,9 @@ struct _TrackerDecoratorFS {
  **/
 struct _TrackerDecoratorFSClass {
 	TrackerDecoratorClass parent_class;
+
+	/* <Private> */
+	gpointer padding[10];
 };
 
 GType              tracker_decorator_fs_get_type (void) G_GNUC_CONST;

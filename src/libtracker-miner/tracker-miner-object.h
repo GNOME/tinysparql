@@ -82,6 +82,9 @@ typedef struct {
 
 	void (* ignore_next_update) (TrackerMiner *miner,
 	                             const GStrv   urls);
+
+	/* <Private> */
+	gpointer padding[10];
 } TrackerMinerClass;
 
 GType                    tracker_miner_get_type            (void) G_GNUC_CONST;

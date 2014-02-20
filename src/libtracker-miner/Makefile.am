@@ -32,25 +32,25 @@ noinst_LTLIBRARIES = libtracker-miner-private.la
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
-crawler_sources = 				       \
+private_sources = 				       \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
-	tracker-utils.c                                \
-	tracker-utils.h					
-
-private_sources = 				       \
 	tracker-file-notifier.h                        \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
 	tracker-file-system.c                          \
+	tracker-media-art.c                            \
+	tracker-media-art.h                            \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
 	tracker-task-pool.h                            \
 	tracker-task-pool.c                            \
 	tracker-sparql-buffer.h                        \
 	tracker-sparql-buffer.c                        \
-	tracker-storage.c                              \
-	tracker-storage.h                              
+	tracker-thumbnailer.c                          \
+	tracker-thumbnailer.h                          \
+	tracker-utils.c                                \
+	tracker-utils.h
 
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
@@ -65,49 +65,30 @@ miner_sources = 				       \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.c                         \
 	tracker-miner-object.h                         \
+	tracker-miner-online.c                         \
+	tracker-miner-online.h                         \
 	tracker-miner-fs.c                             \
-	tracker-miner-fs.h                             \
-	tracker-miner-manager.c                        \
-	tracker-miner-manager.h                        \
-	tracker-miner-web.c                            \
-	tracker-miner-web.h                            
-
+	tracker-miner-fs.h
 
 libtracker_miner_private_la_SOURCES =                  \
 	$(private_sources)
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
-	$(network_provider_sources)                    \
-	$(password_provider_sources)                   \
-	$(crawler_sources)			       \
 	$(miner_sources)			       \
 	tracker-indexing-tree.c                        \
-	tracker-indexing-tree.h                        \
-	tracker-network-provider.c                     \
-	tracker-password-provider.c                    \
-	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h                          \
-	tracker-media-art.c                            \
-	tracker-media-art.h
+	tracker-indexing-tree.h
 
 libtracker_minerinclude_HEADERS =                      \
-	tracker-crawler.h                              \
 	tracker-decorator.h                            \
 	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.h                        \
-	tracker-media-art.h                            \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
 	tracker-miner-enums.h                          \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
-	tracker-miner-fs.h                             \
-	tracker-miner-manager.h                        \
-	tracker-miner-web.h                            \
-	tracker-network-provider.h                     \
-	tracker-password-provider.h                    \
-	tracker-storage.h                              \
-	tracker-thumbnailer.h
+	tracker-miner-online.h                         \
+	tracker-miner-fs.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -115,7 +96,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider|indexing_tree|file_system|file_notifier|directory_flags|filter_type|filter_policy|decorator)_.*'
+	-export-symbols-regex '^tracker_(miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
@@ -125,18 +106,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	-lm                                            \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
-
-if HAVE_LIBSECRET
-password_provider_sources = tracker-password-provider-gnome.c
-else
-password_provider_sources = tracker-password-provider-keyfile.c
-endif
-
-if HAVE_NETWORK_MANAGER
-network_provider_sources = tracker-network-provider-network-manager.c
-else
-network_provider_sources = tracker-network-provider-dummy.c
-endif
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi

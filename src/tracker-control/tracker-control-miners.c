@@ -23,6 +23,7 @@
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-miner/tracker-miner.h>
+#include <libtracker-control/tracker-control.h>
 
 #include "tracker-control.h"
 

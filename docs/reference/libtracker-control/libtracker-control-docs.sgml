@@ -6,18 +6,15 @@
 ]>
 <book id="index">
   <bookinfo>
-    <title>Tracker Miner Library Reference Manual</title>
+    <title>Tracker Control Library Reference Manual</title>
     <releaseinfo>
-	  for libtracker-miner &version;.
+	  for libtracker-control &version;.
 	  The latest version of this documentation can be found on-line at
 	  <ulink role="online-location" url="http://library.gnome.org/devel/libtracker-miner/unstable/">
-		http://library.gnome.org/devel/libtracker-miner/unstable
+		http://library.gnome.org/devel/libtracker-control/unstable
 	  </ulink>.
 	</releaseinfo>
   </bookinfo>
-
-  <!-- The Library Overview -->
-  <xi:include href="overview.sgml"/>
 
   <!-- The API Reference -->
   <part id="libtracker-miner-reference">
@@ -29,22 +26,8 @@
     </partintro>
 
     <chapter>
-      <title>Base abstract miner classes</title>
-      <xi:include href="xml/tracker-miner-object.xml"/>
-      <xi:include href="xml/tracker-miner-online.xml"/>
-      <xi:include href="xml/tracker-decorator.xml"/>
-    </chapter>
-
-    <chapter>
-      <title>Miner classes for file system</title>
-      <xi:include href="xml/tracker-miner-fs.xml"/>
-      <xi:include href="xml/tracker-indexing-tree.xml"/>
-      <xi:include href="xml/tracker-decorator-fs.xml"/>
-    </chapter>
-
-    <chapter>
-      <title>Utilities</title>
-      <xi:include href="xml/tracker-miner-enums.xml"/>
+      <title>Tracker control objects</title>
+      <xi:include href="xml/tracker-miner-manager.xml"/>
     </chapter>
   </part>
 

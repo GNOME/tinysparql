@@ -3,10 +3,10 @@ include $(top_srcdir)/Makefile.decl
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module.
-DOC_MODULE = libtracker-extract
+DOC_MODULE=libtracker-control
 
 # The top-level SGML file.
-DOC_MAIN_SGML_FILE = libtracker-extract-docs.sgml
+DOC_MAIN_SGML_FILE=libtracker-control-docs.sgml
 
 # Extra options to supply to gtkdoc-scan
 SCAN_OPTIONS=--deprecated-guards="TRACKER_DISABLE_DEPRECATED"
@@ -15,35 +15,35 @@ SCAN_OPTIONS=--deprecated-guards="TRACKER_DISABLE_DEPRECATED"
 # SCANGOBJ_OPTIONS=--type-init-func="gtk_type_init(0)"
 
 # The directory containing the source code. Relative to $(srcdir)
-DOC_SOURCE_DIR = ../../../src/libtracker-extract
+DOC_SOURCE_DIR=../../../src/libtracker-control
 
 # Used for dependencies
-HFILE_GLOB = $(top_srcdir)/src/libtracker-extract/*.h
-CFILE_GLOB = $(top_srcdir)/src/libtracker-extract/*.c
+HFILE_GLOB=$(top_srcdir)/src/libtracker-control/*.h
+CFILE_GLOB=$(top_srcdir)/src/libtracker-control/*.c
 
 # Header files to ignore when scanning
-IGNORE_HFILES =
+IGNORE_HFILES= 
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.
 AM_CPPFLAGS =                                          \
 	-DTRACKER_COMPILATION                          \
 	-I$(top_srcdir)/src                            \
-	$(LIBTRACKER_EXTRACT_CFLAGS)
+	$(LIBTRACKER_MINER_CFLAGS)
 
 GTKDOC_LIBS =                                          \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-control/libtracker-control-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(LIBTRACKER_EXTRACT_LIBS)
+	$(LIBTRACKER_MINER_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb
-MKDB_OPTIONS = --sgml-mode --output-format=xml
+MKDB_OPTIONS=--sgml-mode --output-format=xml
 
 # Extra options to supply to gtkdoc-mkhtml
 MKHTML_OPTIONS=--path="$(abs_builddir)"
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
-content_files = version.xml overview.sgml
+content_files = version.xml
 
 expand_content_files =
 
@@ -51,7 +51,7 @@ expand_content_files =
 HTML_IMAGES =
 
 # Extra options to supply to gtkdoc-fixref
-FIXXREF_OPTIONS =
+FIXXREF_OPTIONS=
 
 include $(top_srcdir)/gtk-doc.make
 

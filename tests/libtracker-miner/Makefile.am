@@ -18,8 +18,6 @@ TEST_PROGS +=                                          \
 	tracker-crawler-test                           \
 	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
-	tracker-miner-manager-test                     \
-	tracker-password-provider-test                 \
 	tracker-thumbnailer-test                       \
 	tracker-monitor-test			       \
 	tracker-priority-queue-test		       \
@@ -65,23 +63,9 @@ libtracker_miner_tests_la_LIBADD = 		       \
 	$(BUILD_LIBS)
 
 tracker_crawler_test_SOURCES = \
+	$(libtracker_miner_crawler_sources) \
+	$(libtracker_miner_crawler_headers) \
 	tracker-crawler-test.c
-
-tracker_miner_manager_test_SOURCES = \
-	tracker-miner-manager-test.c \
-	miners-mock.c \
-	empty-gobject.c
-
-tracker_miner_manager_test_LDADD = \
-	libtracker-miner-tests.la \
-	$(LDADD)
-
-tracker_password_provider_test_SOURCES = \
-	tracker-password-provider-test.c
-
-tracker_password_provider_test_LDADD = \
-	libtracker-miner-tests.la \
-	$(LDADD)
 
 tracker_thumbnailer_test_SOURCES = \
 	tracker-thumbnailer-test.c \
@@ -108,7 +92,8 @@ tracker_indexing_tree_test_SOURCES = \
 tracker_file_system_test_SOURCES = \
 	tracker-file-system-test.c
 
-tracker_file_notifier_test_SOURCES = \
+tracker_file_notifier_test_SOURCES =                   \
+	$(libtracker_miner_monitor_sources)            \
 	tracker-file-notifier-test.c
 
 noinst_HEADERS =                                       \
