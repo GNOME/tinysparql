@@ -54,6 +54,7 @@ struct _TrackerDecorator {
  * @parent_class: parent object class.
  * @items_available: Called when there are resources to be processed.
  * @finished: Called when all resources have been processed.
+ * @padding: Reserved for future API improvements.
  *
  * An implementation that takes care of extracting extra metadata
  * specific to file types by talking to tracker-extract.

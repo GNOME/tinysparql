@@ -27,7 +27,6 @@
 
 /**
  * SECTION:tracker-thumbnailer
- * @title: Thumbnailer management
  * @short_description: Request the thumbnailer service creates or
  * updates thumbnails.
  * @include: libtracker-miner/tracker-miner.h
@@ -265,6 +264,7 @@ tracker_thumbnailer_new (void)
 
 /**
  * tracker_thumbnailer_move_add:
+ * @thumbnailer: Thumbnailer object
  * @from_uri: URI of the file before the move
  * @mime_type: mime-type of the file
  * @to_uri: URI of the file after the move
@@ -311,6 +311,7 @@ tracker_thumbnailer_move_add (TrackerThumbnailer *thumbnailer,
 
 /**
  * tracker_thumbnailer_remove_add:
+ * @thumbnailer: Thumbnailer object
  * @uri: URI of the file
  * @mime_type: mime-type of the file
  *
@@ -351,6 +352,7 @@ tracker_thumbnailer_remove_add (TrackerThumbnailer *thumbnailer,
 
 /**
  * tracker_thumbnailer_cleanup:
+ * @thumbnailer: Thumbnailer object
  * @uri_prefix: URI prefix
  *
  * Tells thumbnailer to cleanup all thumbnails under @uri_prefix.
@@ -394,6 +396,7 @@ tracker_thumbnailer_cleanup (TrackerThumbnailer *thumbnailer,
 
 /**
  * tracker_thumbnailer_send:
+ * @thumbnailer: Thumbnailer object
  *
  * Sends to the thumbnailer all stored requests.
  *

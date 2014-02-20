@@ -51,6 +51,7 @@ struct _TrackerDecoratorFS {
 /**
  * TrackerDecoratorFSClass:
  * @parent_class: parent object class.
+ * @padding: Reserved for future API improvements.
  *
  * A class that takes care of resources on mount points added or
  * removed, this is based on #TrackerDecoratorClass.

@@ -41,6 +41,7 @@ G_BEGIN_DECLS
  * @TRACKER_DIRECTORY_FLAG_MONITOR: Should setup monitors in the items found in the directory.
  * @TRACKER_DIRECTORY_FLAG_IGNORE: Should ignore the directory contents.
  * @TRACKER_DIRECTORY_FLAG_PRESERVE: Should preserve items in the directory even if the directory gets removed.
+ * @TRACKER_DIRECTORY_FLAG_PRIORITY: Internally a priority queue is used and this flag makes sure the directory is given a priority over other directories queued.
  *
  * Flags used when adding a new directory to be indexed in the #TrackerIndexingTree.
  */

@@ -63,6 +63,7 @@ struct _TrackerMiner {
  * @resumed: Called when the miner is told to resume activity.
  * @progress: progress.
  * @ignore_next_update: Called after ignore on next update event happens.
+ * @padding: Reserved for future API improvements.
  *
  * Virtual methods left to implement.
  **/

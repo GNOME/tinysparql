@@ -1076,7 +1076,8 @@ tracker_decorator_get_n_items (TrackerDecorator *decorator)
 /**
  * tracker_decorator_prepend_id:
  * @decorator: a #TrackerDecorator.
- * @id: an ID.
+ * @id: the ID of the resource ID.
+ * @class_name_id: the ID of the resource's class.
  *
  * Adds resource needing extended metadata extraction to the queue.
  * @id is the same IDs emitted by tracker-store when the database is updated for

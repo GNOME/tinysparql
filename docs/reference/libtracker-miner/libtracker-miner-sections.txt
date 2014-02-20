@@ -129,11 +129,13 @@ tracker_miner_get_type
 
 <SECTION>
 <FILE>tracker-miner-online</FILE>
-<TITLE>TrackerMinerOnline</FILE>
+<TITLE>TrackerMinerOnline</TITLE>
 TrackerMinerOnline
 TrackerMinerOnlineClass
 tracker_miner_online_get_type
 tracker_miner_online_get_network_type
+TrackerNetworkType
+tracker_network_type_get_type
 <SUBSECTION Standard>
 TRACKER_MINER_ONLINE
 TRACKER_MINER_ONLINE_CLASS
@@ -144,16 +146,41 @@ TRACKER_TYPE_MINER_ONLINE
 </SECTION>
 
 <SECTION>
+<FILE>tracker-thumbnailer</FILE>
+<TITLE>TrackerThumbnailer</TITLE>
+TrackerThumbnailer
+TrackerThumbnailerClass
+tracker_thumbnailer_cleanup
+tracker_thumbnailer_get_type
+tracker_thumbnailer_move_add
+tracker_thumbnailer_new
+tracker_thumbnailer_remove_add
+tracker_thumbnailer_send
+<SUBSECTION Standard>
+TRACKER_THUMBNAILER
+TRACKER_THUMBNAILER_CLASS
+TRACKER_THUMBNAILER_GET_CLASS
+TRACKER_IS_THUMBNAILER
+TRACKER_IS_THUMBNAILER_CLASS
+TRACKER_TYPE_NETWORK_TYPE
+TRACKER_TYPE_THUMBNAILER
+</SECTION>
+
+<SECTION>
 <FILE>tracker-decorator</FILE>
 <TITLE>TrackerDecorator</TITLE>
 TrackerDecorator
 TrackerDecoratorClass
 TrackerDecoratorInfo
-tracker_decorator_delete_ids
+tracker_decorator_get_type
 tracker_decorator_get_class_names
 tracker_decorator_get_data_source
 tracker_decorator_get_n_items
-tracker_decorator_get_type
+tracker_decorator_set_priority_rdf_types
+tracker_decorator_prepend_id
+tracker_decorator_delete_id
+tracker_decorator_next
+tracker_decorator_next_finish
 tracker_decorator_info_get_type
 tracker_decorator_info_ref
 tracker_decorator_info_unref
@@ -162,9 +189,6 @@ tracker_decorator_info_get_sparql
 tracker_decorator_info_get_task
 tracker_decorator_info_get_url
 tracker_decorator_info_get_urn
-tracker_decorator_next
-tracker_decorator_next_finish
-tracker_decorator_prepend_ids
 <SUBSECTION Standard>
 TRACKER_DECORATOR
 TRACKER_DECORATOR_CLASS

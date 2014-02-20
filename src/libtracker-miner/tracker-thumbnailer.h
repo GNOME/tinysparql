@@ -38,12 +38,24 @@ G_BEGIN_DECLS
 typedef struct _TrackerThumbnailer TrackerThumbnailer;
 typedef struct _TrackerThumbnailerClass TrackerThumbnailerClass;
 
+/**
+ * TrackerThumbnailer:
+ * @parent: parent object
+ *
+ * A class implementation for managing thumbnails when mining content.
+ **/
 struct _TrackerThumbnailer {
-	GObject parent_instance;
+	GObject parent;
 };
 
+/**
+ * TrackerThumbnailerClass:
+ * @parent: parent object class
+ *
+ * Prototype for the class.
+ **/
 struct _TrackerThumbnailerClass {
-	GObjectClass parent_class;
+	GObjectClass parent;
 };
 
 

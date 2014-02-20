@@ -44,6 +44,7 @@
 
     <chapter>
       <title>Utilities</title>
+      <xi:include href="xml/tracker-thumbnailer.xml"/>
       <xi:include href="xml/tracker-miner-enums.xml"/>
     </chapter>
   </part>
