@@ -24,7 +24,7 @@
 #error "Only <libtracker-miner/tracker-miner.h> can be included directly."
 #endif
 
-#include <glib-object.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
