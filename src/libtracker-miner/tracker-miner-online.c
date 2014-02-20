@@ -23,12 +23,14 @@
 #include "tracker-miner-online.h"
 #include "tracker-miner-enum-types.h"
 
-#include <libnm-glib/nm-client.h>
 #include <glib/gi18n.h>
+
+#ifdef HAVE_NETWORK_MANAGER
+#include <libnm-glib/nm-client.h>
 
 #ifndef NM_CHECK_VERSION
 #define NM_CHECK_VERSION(x,y,z) (0)
-#endif
+#endif /* NM_CHECK_VERSION */
 
 #include <libnm-glib/nm-device-ethernet.h>
 #include <libnm-glib/nm-device-wifi.h>
@@ -39,6 +41,7 @@
 #include <libnm-glib/nm-gsm-device.h>
 #include <libnm-glib/nm-cdma-device.h>
 #endif
+#endif /* HAVE_NETWORK_MANAGER */
 
 /**
  * SECTION:tracker-miner-online
@@ -89,6 +92,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMinerOnline, tracker_miner_online, TRAC
 static void
 miner_online_finalize (GObject *object)
 {
+#ifdef HAVE_NETWORK_MANAGER
 	TrackerMinerOnlinePrivate *priv;
 	TrackerMinerOnline *miner;
 
@@ -97,6 +101,7 @@ miner_online_finalize (GObject *object)
 
 	if (priv->client)
 		g_object_unref (priv->client);
+#endif /* HAVE_NETWORK_MANAGER */
 
 	G_OBJECT_CLASS (tracker_miner_online_parent_class)->finalize (object);
 }
@@ -338,12 +343,15 @@ miner_online_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
                             GError       **error)
 {
+#ifdef HAVE_NETWORK_MANAGER
 	TrackerMinerOnlinePrivate *priv;
 	TrackerNetworkType network_type;
 	TrackerMinerOnline *miner;
 
 	miner = TRACKER_MINER_ONLINE (initable);
+
 	priv = tracker_miner_online_get_instance_private (miner);
+#endif /* HAVE_NETWORK_MANAGER */
 
 	if (!miner_online_initable_parent_iface->init (initable,
 	                                               cancellable, error)) {
