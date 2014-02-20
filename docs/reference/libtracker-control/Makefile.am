@@ -29,12 +29,12 @@ IGNORE_HFILES=
 AM_CPPFLAGS =                                          \
 	-DTRACKER_COMPILATION                          \
 	-I$(top_srcdir)/src                            \
-	$(LIBTRACKER_MINER_CFLAGS)
+	$(LIBTRACKER_CONTROL_CFLAGS)
 
 GTKDOC_LIBS =                                          \
 	$(top_builddir)/src/libtracker-control/libtracker-control-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(LIBTRACKER_MINER_LIBS)
+	$(LIBTRACKER_CONTROL_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb
 MKDB_OPTIONS=--sgml-mode --output-format=xml
@@ -51,7 +51,10 @@ expand_content_files =
 HTML_IMAGES =
 
 # Extra options to supply to gtkdoc-fixref
-FIXXREF_OPTIONS=
+FIXXREF_OPTIONS = \
+        --extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
+        --extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/glib \
+        --extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gio
 
 include $(top_srcdir)/gtk-doc.make
 

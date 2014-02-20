@@ -213,6 +213,9 @@ SQLITE_REQUIRED=3.7.9
 # see http://live.gnome.org/GnomeGoals/AddGObjectIntrospectionSupport
 GOBJECT_INTROSPECTION_CHECK([0.9.5])
 
+GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
+AC_SUBST(GLIB_PREFIX)
+
 # Check for libpng 1.2 or higher
 PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
 AC_SUBST(LIBPNG_CFLAGS)
