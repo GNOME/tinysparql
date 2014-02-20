@@ -48,6 +48,11 @@ tracker-control-$(TRACKER_API_VERSION).vapi: tracker-control.vapi
 tracker-control-$(TRACKER_API_VERSION).deps: tracker-control.deps
 	cp $< $@
 
+BUILT_SOURCES =                                        \
+	$(vapi_DATA)
+
+CLEANFILES = $(BUILT_SOURCES)
+
 EXTRA_DIST =                                           \
 	tracker-control.vapi                           \
 	tracker-control.deps
@@ -83,5 +88,5 @@ gir_DATA = $(INTROSPECTION_GIRS)
 typelibdir = $(libdir)/girepository-1.0
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-CLEANFILES = $(gir_DATA) $(typelib_DATA)
+CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
