@@ -92,7 +92,8 @@ tracker_indexing_tree_test_SOURCES = \
 tracker_file_system_test_SOURCES = \
 	tracker-file-system-test.c
 
-tracker_file_notifier_test_SOURCES = \
+tracker_file_notifier_test_SOURCES =                   \
+	$(libtracker_miner_monitor_sources)            \
 	tracker-file-notifier-test.c
 
 noinst_HEADERS =                                       \
