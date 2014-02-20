@@ -1,3 +1,20 @@
+NEW in 0.17.3 - 2014-02-20
+==========================
+
+The main changes are:
+
+  * tracker-extract: Prioritization of rdf:types has been implemented, so certain file types are extracted before others, on demand of applications.
+  * libtracker-extract: This library has been made private. Implementing a TrackerDecorator is the recommended way to provide additional data.
+  * libtracker-miner: Major API cleanups,
+    - TrackerMinerWeb has been removed, replaced by TrackerMinerOnline
+    - TrackerMinerManager has been splitted into a separate libtracker-control
+    - TrackerCrawler, TrackerStorage and the thumbnailer/mediaart helper functions are no longer public.
+  * libtracker-control: New library, containing TrackerMinerManager, it requires using tracker-control-1.0.pc
+  * tracker-miner-fs: optional prioritization of folders has been reimplemented, used on removable volumes and DBus requests
+  * tests: GTester Makefile rules have been updated
+  * utils: tracker-sparql gained a --tree switch to print (partial) ontology trees, and longhands/shorthands for classes/properties
+
+
 NEW in 0.17.2 - 2014-02-14
 ==========================
 
