@@ -343,7 +343,7 @@ miner_online_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
                             GError       **error)
 {
-#if HAVE_NETWORK_MANAGER
+#ifdef HAVE_NETWORK_MANAGER
 	TrackerMinerOnlinePrivate *priv;
 	TrackerNetworkType network_type;
 	TrackerMinerOnline *miner;
