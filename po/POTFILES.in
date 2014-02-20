@@ -21,6 +21,7 @@ src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-miner/tracker-miner-fs.c
 src/libtracker-miner/tracker-miner-object.c
+src/libtracker-miner/tracker-miner-online.c
 src/miners/fs/tracker-main.c
 src/miners/fs/tracker-miner-files.c
 src/miners/rss/tracker-main.c
