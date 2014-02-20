@@ -84,7 +84,8 @@ struct _TrackerDecoratorPrivate {
 enum {
 	PROP_DATA_SOURCE = 1,
 	PROP_CLASS_NAMES,
-	PROP_COMMIT_BATCH_SIZE
+	PROP_COMMIT_BATCH_SIZE,
+	PROP_PRIORITY_RDF_TYPES,
 };
 
 enum {
@@ -566,20 +567,25 @@ tracker_decorator_set_property (GObject      *object,
                                 const GValue *value,
                                 GParamSpec   *pspec)
 {
+	TrackerDecorator *decorator = TRACKER_DECORATOR (object);
 	TrackerDecoratorPrivate *priv;
 
-	priv = TRACKER_DECORATOR (object)->priv;
+	priv = decorator->priv;
 
 	switch (param_id) {
 	case PROP_DATA_SOURCE:
 		priv->data_source = g_value_dup_string (value);
 		break;
 	case PROP_CLASS_NAMES:
-		tracker_decorator_validate_class_ids (TRACKER_DECORATOR (object),
+		tracker_decorator_validate_class_ids (decorator,
 		                                      g_value_get_boxed (value));
 		break;
 	case PROP_COMMIT_BATCH_SIZE:
 		priv->batch_size = g_value_get_int (value);
+		break;
+	case PROP_PRIORITY_RDF_TYPES:
+		tracker_decorator_set_priority_rdf_types (decorator,
+		                                          g_value_get_boxed (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -942,6 +948,13 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 	                                                   "Number of items per update batch",
 	                                                   0, G_MAXINT, DEFAULT_BATCH_SIZE,
 	                                                   G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_PRIORITY_RDF_TYPES,
+	                                 g_param_spec_boxed ("priority-rdf-types",
+	                                                     "Priority RDF types",
+	                                                     "rdf:type that needs to be extracted first",
+	                                                     G_TYPE_STRV,
+	                                                     G_PARAM_WRITABLE));
 	/**
 	 * TrackerDecorator::items-available:
 	 * @decorator: the #TrackerDecorator
