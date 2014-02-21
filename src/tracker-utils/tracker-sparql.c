@@ -43,24 +43,39 @@
 #define SNIPPET_BEGIN "\033[1;31m" /* Red */
 #define SNIPPET_END   "\033[0m"
 
-typedef struct {
-	gchar *class;
-	gboolean parent_known;
-} NodeData;
+typedef struct _NodeData NodeData;
+typedef struct _NodeFindData NodeFindData;
+typedef struct _NodePrintData NodePrintData;
 
-static gboolean    parse_list_notifies (const gchar  *option_name,
-                                        const gchar  *value,
-                                        gpointer      data,
-                                        GError      **error);
-static gboolean    parse_list_indexes  (const gchar  *option_name,
-                                        const gchar  *value,
-                                        gpointer      data,
-                                        GError      **error);
-static gboolean    parse_tree          (const gchar  *option_name,
-                                        const gchar  *value,
-                                        gpointer      data,
-                                        GError      **error);
-static inline void tree_node_data_free (NodeData     *data);
+struct _NodeData {
+	gchar *class;
+	guint parent_known:1;
+};
+
+struct _NodeFindData {
+	GEqualFunc func;
+	GNode *node;
+	const gchar *class;
+};
+
+struct _NodePrintData {
+	GHashTable *prefixes;
+	GHashTable  *filter_parents;
+	const gchar *highlight_text;
+};
+
+static gboolean parse_list_notifies (const gchar  *option_name,
+                                     const gchar  *value,
+                                     gpointer      data,
+                                     GError      **error);
+static gboolean parse_list_indexes  (const gchar  *option_name,
+                                     const gchar  *value,
+                                     gpointer      data,
+                                     GError      **error);
+static gboolean parse_tree          (const gchar  *option_name,
+                                     const gchar  *value,
+                                     gpointer      data,
+                                     GError      **error);
 
 static gchar *file;
 static gchar *query;
@@ -291,7 +306,7 @@ parse_tree (const gchar  *option_name,
 }
 
 
-inline static gchar *
+static gchar *
 get_longhand_str (GHashTable  *prefixes,
                   const gchar *shorthand)
 {
@@ -327,12 +342,10 @@ get_longhand_str (GHashTable  *prefixes,
 		}
 	}
 
-	g_free (namespace);
-
-	return g_strdup (shorthand);
+	return namespace;
 }
 
-inline static gchar *
+static gchar *
 get_shorthand_str (GHashTable  *prefixes,
                    const gchar *longhand)
 {
@@ -361,7 +374,7 @@ get_shorthand_str (GHashTable  *prefixes,
 	return g_strdup (longhand);
 }
 
-inline static gchar *
+static gchar *
 get_shorthand_str_for_offsets (GHashTable  *prefixes,
                                const gchar *str)
 {
@@ -521,31 +534,6 @@ print_cursor (TrackerSparqlCursor *cursor,
 	}
 }
 
-static inline GNode *
-tree_new (void)
-{
-	return g_node_new (NULL);
-}
-
-static gboolean
-tree_free_foreach (GNode *node)
-{
-	tree_node_data_free (node->data);
-	return FALSE;
-}
-
-static inline void
-tree_free (GNode *node)
-{
-	g_node_traverse (node,
-	                 G_POST_ORDER,
-	                 G_TRAVERSE_ALL,
-	                 -1,
-	                 (GNodeTraverseFunc) tree_free_foreach,
-	                 NULL);
-	g_node_destroy (node);
-}
-
 static NodeData *
 tree_node_data_new (const gchar *class,
                     gboolean     parent_known)
@@ -562,7 +550,7 @@ tree_node_data_new (const gchar *class,
 static void
 tree_node_data_free (NodeData *data)
 {
-	if (!data) {
+	if (data == NULL) {
 		return;
 	}
 
@@ -570,15 +558,77 @@ tree_node_data_free (NodeData *data)
 	g_slice_free (NodeData, data);
 }
 
-static gboolean
-tree_node_data_equal (GNode       *node,
-                      const gchar *class)
+static GNode *
+tree_new (void)
 {
-	NodeData *data;
+	return g_node_new (NULL);
+}
 
-	data = node->data;
+static gboolean
+tree_free_foreach (GNode *node)
+{
+	tree_node_data_free (node->data);
+	return FALSE;
+}
 
-	return strcmp (class, data->class) == 0 ? TRUE : FALSE;
+static void
+tree_free (GNode *node)
+{
+	g_node_traverse (node,
+	                 G_POST_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 (GNodeTraverseFunc) tree_free_foreach,
+	                 NULL);
+	g_node_destroy (node);
+}
+
+static gboolean
+tree_node_find_foreach (GNode    *node,
+                        gpointer  user_data)
+{
+	NodeFindData *data;
+	NodeData *node_data;
+
+	if (!node) {
+		return FALSE;
+	}
+
+	node_data = node->data;
+
+	if (!node_data) {
+		return FALSE;
+	}
+
+	data = user_data;
+
+	if ((data->func) (data->class, node_data->class)) {
+		data->node = node;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static GNode *
+tree_node_find (GNode       *node,
+                const gchar *class,
+                GEqualFunc   func)
+{
+	NodeFindData data;
+
+	data.class = class;
+	data.node = NULL;
+	data.func = func;
+
+	g_node_traverse (node,
+	                 G_POST_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 tree_node_find_foreach,
+	                 &data);
+
+	return data.node;
 }
 
 static GNode *
@@ -586,46 +636,19 @@ tree_node_lookup (GNode        *tree,
                   const gchar  *class,
                   GNode       **parent_node)
 {
-	GNode *parent, *child, *node_found, *parent_found;
+	GNode *node;
 
-	node_found = parent_found = NULL;
+	node = tree_node_find (tree, class, g_str_equal);
 
 	if (parent_node) {
-		*parent_node = NULL;
-	}
-
-	if (!tree) {
-		return NULL;
-	}
-
-	parent = tree;
-
-	for (child = g_node_first_child (parent);
-	     child != NULL;
-	     child = g_node_next_sibling (child)) {
-		if (tree_node_data_equal (child, class)) {
-			node_found = child;
-		} else if (!G_NODE_IS_LEAF (child)) {
-			node_found = tree_node_lookup (child, class, parent_node);
-		}
-
-		if (node_found) {
-			break;
+		if (node) {
+			*parent_node = node->parent;
+		} else {
+			*parent_node = NULL;
 		}
 	}
 
-	if (node_found) {
-		/* Found, exit ... */
-		parent_found = parent;
-	} else {
-		/* Descent down the child */
-	}
-
-	if (parent_node) {
-		*parent_node = parent_found;
-	}
-
-	return node_found;
+	return node;
 }
 
 static GNode *
@@ -659,7 +682,6 @@ tree_add_class (GNode       *root,
 			 * and we will reorder it when we know more...
 			 */
 		} else {
-
 			/* Lookup parent node and add to that. */
 			parent_node = tree_node_lookup (root, parent, NULL);
 
@@ -700,7 +722,7 @@ tree_add_class (GNode       *root,
 	return node;
 }
 
-static inline gchar *
+static gchar *
 highlight (const gchar *text,
            const gchar *highlight_text)
 {
@@ -730,92 +752,91 @@ highlight (const gchar *text,
 
 	p += strlen (highlight_text);
 	if (p[0] != '\0')
-		s = g_string_append (s, p + 1);
+		s = g_string_append (s, p);
 
 	return g_string_free (s, FALSE);
 }
 
+static gboolean
+tree_print_foreach (GNode    *node,
+                    gpointer  user_data)
+{
+	NodeData *nd;
+	NodePrintData *pd;
+	gboolean print = TRUE;
+
+	gchar *shorthand, *highlighted;
+	const gchar *text;
+	gint depth, i;
+
+	nd = node->data;
+	pd = user_data;
+
+	if (!nd) {
+		g_print ("ROOT\n");
+		return FALSE;
+	}
+
+	/* Filter based on parent classes */
+	if (pd->filter_parents) {
+		print = g_hash_table_lookup (pd->filter_parents, nd->class) != NULL;
+	}
+
+	if (!print) {
+		return FALSE;
+	}
+
+	shorthand = NULL;
+
+	if (pd->prefixes) {
+		shorthand = get_shorthand_str (pd->prefixes, nd->class);
+	}
+
+	depth = g_node_depth (node);
+
+	for (i = 1; i < depth; i++) {
+		if (i == depth - 1) {
+			const gchar *branch = "+";
+
+			if (!node->next) {
+				branch = "`";
+			} else if (G_NODE_IS_LEAF (node)) {
+				branch = "|";
+			}
+
+			g_print ("  %s", branch);
+		} else {
+			g_print ("  |");
+		}
+	}
+
+	text = shorthand ? shorthand : nd->class;
+	highlighted = highlight (text, pd->highlight_text);
+	g_print ("-- %s (C)\n", highlighted);
+	g_free (highlighted);
+	g_free (shorthand);
+
+	return FALSE;
+}
+
 static void
-tree_print (GNode       *tree,
+tree_print (GNode       *node,
             GHashTable  *prefixes,
             GHashTable  *filter_parents,
             const gchar *highlight_text)
 {
-	GNode *parent;
+	NodePrintData data;
 
-	if (!tree) {
-		return;
-	}
+	data.prefixes = prefixes;
+	data.filter_parents = filter_parents;
+	data.highlight_text = highlight_text;
 
-	/* Print, depth first */
-
-	parent = tree;
-
-	if (!parent->data) {
-		/* Handle root */
-		g_print ("ROOT\n");
-	}
-
-	while (parent) {
-		GNode *child, *next = NULL;
-
-		for (child = g_node_first_child (parent);
-		     child != NULL;
-		     child = g_node_next_sibling (child)) {
-			NodeData *data;
-			gboolean print = TRUE;
-
-			data = child->data;
-
-			/* Filter based on parent classes */
-			if (filter_parents && data) {
-				print = g_hash_table_lookup (filter_parents, data->class) != NULL;
-			}
-
-			if (print) {
-				gchar *shorthand, *highlighted;
-				const gchar *text;
-				gint depth, i;
-
-				shorthand = NULL;
-
-				if (prefixes) {
-					shorthand = get_shorthand_str (prefixes, data->class);
-				}
-
-				depth = g_node_depth (child);
-
-				for (i = 1; i < depth; i++) {
-					if (i == depth - 1) {
-						const gchar *branch = "+";
-
-						if (!child->next) {
-							branch = "`";
-						} else if (G_NODE_IS_LEAF (child)) {
-							branch = "|";
-						}
-
-						g_print ("  %s", branch);
-					} else {
-						g_print ("  |");
-					}
-				}
-
-				text = shorthand ? shorthand : data->class;
-				highlighted = highlight (text, highlight_text);
-				g_print ("-- %s (C)\n", highlighted);
-				g_free (highlighted);
-				g_free (shorthand);
-			}
-
-			tree_print (child, prefixes, filter_parents, highlight_text);
-		}
-
-		if (!next) {
-			/* Descent down the child */
-			parent = next;
-		}
-	}
+	g_node_traverse (node,
+	                 G_PRE_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 tree_print_foreach,
+	                 &data);
 }
 
 static gint
@@ -869,7 +890,7 @@ tree_get (TrackerSparqlConnection *connection,
 		found_node = tree_node_lookup (root, class_lookup_longhand, NULL);
 		filter_parents = g_hash_table_new_full (g_str_hash,
 		                                        g_str_equal,
-		                                        g_free,
+		                                        NULL,
 		                                        NULL);
 
 		for (node = found_node; node; node = node->parent) {
@@ -880,12 +901,14 @@ tree_get (TrackerSparqlConnection *connection,
 			}
 
 			g_hash_table_insert (filter_parents,
-			                     g_strdup (data->class),
+			                     data->class,
 			                     GINT_TO_POINTER(1));
 		}
 	} else {
 		filter_parents = NULL;
 	}
+
+	g_free (class_lookup_longhand);
 
 	/* Print */
 	tree_print (root, prefixes, filter_parents, highlight_text);
