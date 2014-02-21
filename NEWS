@@ -1,3 +1,15 @@
+NEW in 0.17.4 - 2014-02-21
+==========================
+
+The main changes are:
+
+  * rss: compile fix with the RSS miner enabled
+
+Translations:
+
+  * Updated br: Rafael Ferreira
+  * Updated lt: Aurimas Černius
+
 NEW in 0.17.3 - 2014-02-20
 ==========================
 
