@@ -113,7 +113,7 @@ static gboolean
 miner_connected (TrackerMinerOnline *miner,
 		 TrackerNetworkType  network)
 {
-	return (network == NETWORK_TYPE_LAN);
+	return (network == TRACKER_NETWORK_TYPE_LAN);
 }
 
 static void
