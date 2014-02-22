@@ -1,15 +1,15 @@
 # Catalan translation of tracker.
 # Copyright © 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
-# Gil Forcada <gilforcada@guifi.net>, 2007, 2008, 2010, 2013.
+# Gil Forcada <gilforcada@guifi.net>, 2007, 2008, 2010, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-10-13 20:50+0000\n"
-"PO-Revision-Date: 2013-10-13 22:52+0200\n"
+"POT-Creation-Date: 2014-02-22 11:44+0000\n"
+"PO-Revision-Date: 2014-02-22 18:48+0100\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -667,19 +667,25 @@ msgstr "Per afegir un canal cal «--add-feed» i «--title»"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:479
+#: ../src/tracker-utils/tracker-sparql.c:487
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:899
+#: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
 msgstr "No s'ha pogut establir una connexió amb el Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
+#: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-control/tracker-control-general.c:136
+#: ../src/tracker-control/tracker-control-general.c:698
+#: ../src/tracker-control/tracker-control-general.c:744
+#: ../src/tracker-control/tracker-control-general.c:765
+#: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:480
+#: ../src/tracker-utils/tracker-sparql.c:488
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:900
+#: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
 msgstr "No s'ha rebut cap error"
 
@@ -706,11 +712,6 @@ msgstr "S'està processant…"
 msgid "Tags"
 msgstr "Etiquetes"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-needle/tracker-tags-view.vala:159
-msgid "No error was given"
-msgstr "No s'ha rebut cap error"
-
 #: ../src/plugins/nautilus/tracker-tags-view.c:1020
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
@@ -724,7 +725,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:920
+#: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
@@ -841,13 +842,6 @@ msgstr "Restaura les bases de dades des del fitxer proporcionat"
 #: ../src/tracker-control/tracker-control-general.c:135
 msgid "Could not open /proc"
 msgstr "No s'ha pogut obrir /proc"
-
-#: ../src/tracker-control/tracker-control-general.c:136
-#: ../src/tracker-control/tracker-control-general.c:698
-#: ../src/tracker-control/tracker-control-general.c:744
-#: ../src/tracker-control/tracker-control-general.c:765
-msgid "no error given"
-msgstr "no s'ha rebut cap error"
 
 #: ../src/tracker-control/tracker-control-general.c:330
 #, c-format
@@ -1093,7 +1087,7 @@ msgstr "No s'ha pogut reprendre l'extractor de dades: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:187
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:759
+#: ../src/tracker-utils/tracker-sparql.c:767
 msgid "Done"
 msgstr "Fet"
 
@@ -1537,7 +1531,7 @@ msgid "Could not update tags"
 msgstr "No s'ha pogut actualitzar les etiquetes"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:764
+#: ../src/tracker-utils/tracker-tag.c:773
 msgid "Could not remove tag"
 msgstr "No s'ha pogut suprimir l'etiqueta"
 
@@ -1546,7 +1540,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "No s'ha pogut recuperar les etiquetes per a la selecció actual"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:588
+#: ../src/tracker-utils/tracker-tag.c:597
 msgid "Could not add tag"
 msgstr "No s'ha pogut afegir l'etiqueta"
 
@@ -1653,19 +1647,22 @@ msgid "Items"
 msgstr "Elements"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-msgid "Loading..."
+msgid "Loading…"
 msgstr "S'està carregant…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Pàgines"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d pàgina"
+msgstr[1] "%d pàgines"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
 msgstr "Mostra el directori _pare"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-msgid "_Tags..."
+msgid "_Tags…"
 msgstr "_Etiquetes…"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
@@ -1785,8 +1782,8 @@ msgstr ""
 "muntats l'última vegada:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "<b>Garbage Collection</b>"
-msgstr "<b>Recollida d'escombraries</b>"
+msgid "Garbage Collection"
+msgstr "Recollida d'escombraries"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Indexing"
@@ -1855,8 +1852,8 @@ msgid "Remove directory from being indexed"
 msgstr "Suprimeix el directori de la indexació"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "<b>Where is your content?</b>"
-msgstr "<b>On està el contingut?</b>"
+msgid "Where is your content?"
+msgstr "On està el contingut?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -1924,8 +1921,8 @@ msgid "Yes, remove all of my indexed data"
 msgstr "Sí, suprimeix totes les meves dades indexades"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "<b>Reset Indexed Data</b>"
-msgstr "<b>Reinicia les dades indexades</b>"
+msgid "Reset Indexed Data"
+msgstr "Reinicia les dades indexades"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:56
 msgid "_Delay"
@@ -1949,38 +1946,35 @@ msgstr "Sistema"
 msgid "Directory"
 msgstr "Directori"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:329
-#: ../src/tracker-preferences/tracker-preferences.vala:338
+#. To translators: This is a feature that is
+#. * disabled for disk space checking.
+#.
+#. To translators: This is a feature that is
+#. * disabled for removing a device from a
+#. * database cache.
+#.
+#: ../src/tracker-preferences/tracker-preferences.vala:332
+#: ../src/tracker-preferences/tracker-preferences.vala:345
 msgid "Disabled"
 msgstr "Inhabilitat"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:332
-#, c-format
-msgid "%d%%"
-msgstr "%d%%"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:341
-#, c-format
-msgid "%d"
-msgstr "%d"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:508
+#: ../src/tracker-preferences/tracker-preferences.vala:515
 msgid "Enter value"
 msgstr "Introduïu un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:537
+#: ../src/tracker-preferences/tracker-preferences.vala:544
 msgid "Select directory"
 msgstr "Seleccioneu un directori"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:558
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "That directory is already selected as a location to index"
 msgstr "Aquest directori ja s'ha seleccionat com a localització per indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:820
+#: ../src/tracker-preferences/tracker-preferences.vala:827
 msgid "Recurse"
 msgstr "Recursiu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:926
+#: ../src/tracker-preferences/tracker-preferences.vala:933
 msgid "Desktop Search preferences"
 msgstr "Preferències de la cerca a l'escriptori"
 
@@ -2068,8 +2062,8 @@ msgstr "No hi ha metadades disponibles per aquest URI"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Resultats"
@@ -2079,20 +2073,10 @@ msgstr "Resultats"
 msgid "Limit the number of results shown"
 msgstr "Limita el nombre de resultats mostrats"
 
-#: ../src/tracker-utils/tracker-search.c:81
-#: ../src/tracker-utils/tracker-tag.c:56
-msgid "512"
-msgstr "512"
-
 #: ../src/tracker-utils/tracker-search.c:84
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Desplaça els resultats"
-
-#: ../src/tracker-utils/tracker-search.c:85
-#: ../src/tracker-utils/tracker-tag.c:60
-msgid "0"
-msgstr "0"
 
 #: ../src/tracker-utils/tracker-search.c:88
 #: ../src/tracker-utils/tracker-tag.c:63
@@ -2116,7 +2100,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:100
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music..."
+"categories, e.g. Documents, Music…"
 msgstr ""
 "No mostris el context en els resultats. Només es mostra per algunes "
 "categories, p. ex. documents, música…"
@@ -2417,136 +2401,159 @@ msgstr "No s'han pogut obtenir els prefixos d'espai de noms"
 msgid "No namespace prefixes were found"
 msgstr "No s'ha trobat prefixos d'espai de nom"
 
-#: ../src/tracker-utils/tracker-sparql.c:371
-#: ../src/tracker-utils/tracker-sparql.c:415
-#: ../src/tracker-utils/tracker-stats.c:117
-#: ../src/tracker-utils/tracker-tag.c:326
-#: ../src/tracker-utils/tracker-tag.c:455
-#: ../src/tracker-utils/tracker-tag.c:827
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker-utils/tracker-sparql.c:375
+#: ../src/tracker-utils/tracker-sparql.c:423
+#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-tag.c:328
+#: ../src/tracker-utils/tracker-tag.c:464
+#: ../src/tracker-utils/tracker-tag.c:843
 msgid "None"
 msgstr "Cap"
 
-#: ../src/tracker-utils/tracker-sparql.c:439
+#: ../src/tracker-utils/tracker-sparql.c:447
 msgid "- Query or update using SPARQL"
 msgstr "- Consulta o actualització amb SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:453
+#: ../src/tracker-utils/tracker-sparql.c:461
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "S'ha de proporcionar algun argument"
 
-#: ../src/tracker-utils/tracker-sparql.c:455
+#: ../src/tracker-utils/tracker-sparql.c:463
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "No es poden utilitzar alhora un fitxer i una consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:493
+#: ../src/tracker-utils/tracker-sparql.c:501
 msgid "Could not list classes"
 msgstr "No s'ha pogut llistar les classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:509
 msgid "No classes were found"
 msgstr "No s'ha trobat cap classe"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:509
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "Classes"
 msgstr "Classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:517
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not list class prefixes"
 msgstr "No s'ha pogut llistar els prefixos de classe"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "No class prefixes were found"
 msgstr "No s'ha trobat cap prefix de classe"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: ../src/tracker-utils/tracker-sparql.c:545
+#: ../src/tracker-utils/tracker-sparql.c:553
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "No s'ha pogut trobar la propietat per al prefix de la classe, per exemple :"
 "Resource a «rdfs:Resource»"
 
-#: ../src/tracker-utils/tracker-sparql.c:584
+#: ../src/tracker-utils/tracker-sparql.c:592
 msgid "Could not list properties"
 msgstr "No s'han pogut llistar les propietats"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:600
 msgid "No properties were found"
 msgstr "No s'ha trobat cap propietat"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:600
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "Properties"
 msgstr "Propietats"
 
-#: ../src/tracker-utils/tracker-sparql.c:620
+#: ../src/tracker-utils/tracker-sparql.c:628
 msgid "Could not find notify classes"
 msgstr "No s'ha trobat cap classe de notificació"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "No notifies were found"
 msgstr "No s'ha trobat cap notificació"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:636
 msgid "Notifies"
 msgstr "Notificacions"
 
-#: ../src/tracker-utils/tracker-sparql.c:654
+#: ../src/tracker-utils/tracker-sparql.c:662
 msgid "Could not find indexed properties"
 msgstr "No s'ha pogut trobar cap propietat indexada"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "No indexes were found"
 msgstr "No s'ha trobat cap índex"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:670
 msgid "Indexes"
 msgstr "Índexs"
 
-#: ../src/tracker-utils/tracker-sparql.c:680
+#: ../src/tracker-utils/tracker-sparql.c:688
 msgid "Could not search classes"
 msgstr "No s'ha pogut cercar les classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:696
 msgid "No classes were found to match search term"
 msgstr "No s'ha trobat cap classe que coincideixi amb el terme de cerca"
 
-#: ../src/tracker-utils/tracker-sparql.c:703
+#: ../src/tracker-utils/tracker-sparql.c:711
 msgid "Could not search properties"
 msgstr "No s'han pogut cercar les propietats"
 
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:719
 msgid "No properties were found to match search term"
 msgstr "No s'ha trobat cap propietat que coincideixi amb el terme de cerca"
 
-#: ../src/tracker-utils/tracker-sparql.c:721
+#: ../src/tracker-utils/tracker-sparql.c:729
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "No s'ha pogut obtenir el camí UTF-8 del camí"
 
-#: ../src/tracker-utils/tracker-sparql.c:733
+#: ../src/tracker-utils/tracker-sparql.c:741
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "No s'ha pogut llegir el fitxer"
 
-#: ../src/tracker-utils/tracker-sparql.c:752
+#: ../src/tracker-utils/tracker-sparql.c:760
 msgid "Could not run update"
 msgstr "No s'ha pogut executar l'actualització"
 
-#: ../src/tracker-utils/tracker-sparql.c:800
+#: ../src/tracker-utils/tracker-sparql.c:808
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "No s'ha pogut executar la consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:812
-#: ../src/tracker-utils/tracker-sparql.c:815
+#: ../src/tracker-utils/tracker-sparql.c:820
+#: ../src/tracker-utils/tracker-sparql.c:823
 msgid "No results found matching your query"
 msgstr "No s'ha trobat cap resultat que coincideixi amb la consulta"
 
@@ -2625,84 +2632,84 @@ msgstr "No s'ha pogut obtenir l'URN del fitxer"
 msgid "Could not get files related to tag"
 msgstr "No s'han pogut obtenir els fitxers relacionats amb l'etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:399
-#: ../src/tracker-utils/tracker-tag.c:808
+#: ../src/tracker-utils/tracker-tag.c:401
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get all tags"
 msgstr "No s'han pogut obtenir totes les etiquetes"
 
-#: ../src/tracker-utils/tracker-tag.c:408
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:410
+#: ../src/tracker-utils/tracker-tag.c:826
 msgid "No tags were found"
 msgstr "No s'ha trobat cap etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:412
+#: ../src/tracker-utils/tracker-tag.c:414
 msgid "Tags (shown by name)"
 msgstr "Etiquetes (se'n mostra el nom)"
 
-#: ../src/tracker-utils/tracker-tag.c:479
+#: ../src/tracker-utils/tracker-tag.c:488
 msgid "No files were modified"
 msgstr "No s'havia modificat cap fitxer"
 
-#: ../src/tracker-utils/tracker-tag.c:604
+#: ../src/tracker-utils/tracker-tag.c:613
 msgid "Tag was added successfully"
 msgstr "S'ha afegit l'etiqueta correctament"
 
-#: ../src/tracker-utils/tracker-tag.c:633
+#: ../src/tracker-utils/tracker-tag.c:642
 msgid "Could not add tag to files"
 msgstr "No s'ha pogut afegir l'etiqueta als fitxers"
 
-#: ../src/tracker-utils/tracker-tag.c:643
+#: ../src/tracker-utils/tracker-tag.c:652
 msgid "Tagged"
 msgstr "Etiquetat"
 
-#: ../src/tracker-utils/tracker-tag.c:644
+#: ../src/tracker-utils/tracker-tag.c:653
 msgid "Not tagged, file is not indexed"
 msgstr "No està etiquetat, el fitxer no està indexat"
 
-#: ../src/tracker-utils/tracker-tag.c:690
+#: ../src/tracker-utils/tracker-tag.c:699
 msgid "Could not get tag by label"
 msgstr "No s'ha pogut l'etiqueta per la marca"
 
-#: ../src/tracker-utils/tracker-tag.c:701
+#: ../src/tracker-utils/tracker-tag.c:710
 msgid "No tags were found by that name"
 msgstr "No s'ha trobat cap etiqueta amb aquest nom"
 
-#: ../src/tracker-utils/tracker-tag.c:718
+#: ../src/tracker-utils/tracker-tag.c:727
 msgid "None of the files had this tag set"
 msgstr "Cap fitxer tenia aquesta etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:771
+#: ../src/tracker-utils/tracker-tag.c:780
 msgid "Tag was removed successfully"
 msgstr "S'ha suprimit l'etiqueta correctament"
 
-#: ../src/tracker-utils/tracker-tag.c:775
+#: ../src/tracker-utils/tracker-tag.c:784
 msgid "Untagged"
 msgstr "Sense etiquetes"
 
-#: ../src/tracker-utils/tracker-tag.c:776
+#: ../src/tracker-utils/tracker-tag.c:785
 msgid "File not indexed or already untagged"
 msgstr "El fitxer, o bé no està indexat o ja no té cap etiqueta"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:855
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "Add, remove or list tags"
 msgstr "Afegeix, suprimeix o llista etiquetes"
 
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:887
 msgid "The --list option is required for --show-files"
 msgstr "L'opció «--show-files» requereix també l'opció «--list»"
 
-#: ../src/tracker-utils/tracker-tag.c:873
+#: ../src/tracker-utils/tracker-tag.c:889
 msgid "Add and delete actions can not be used together"
 msgstr "No es poden utilitzar alhora les accions d'afegir i suprimir"
 
-#: ../src/tracker-utils/tracker-tag.c:875
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "No arguments were provided"
 msgstr "No s'ha proporcionat cap argument"
 
-#: ../src/tracker-utils/tracker-tag.c:877
+#: ../src/tracker-utils/tracker-tag.c:893
 msgid "The --description option can only be used with --add"
 msgstr "L'opció «--description» només es pot utilitzar juntament amb «--add»"
 
@@ -2728,11 +2735,3 @@ msgstr "No s'ha pogut iniciar el gestor de dades"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "El conjunt de resultats és buit"
-
-#~ msgid "%d Page"
-#~ msgid_plural "%d Pages"
-#~ msgstr[0] "%d pàgina"
-#~ msgstr[1] "%d pàgines"
-
-#~ msgid "_Tags…"
-#~ msgstr "_Etiquetes…"
