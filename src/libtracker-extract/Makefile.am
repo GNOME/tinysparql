@@ -7,15 +7,16 @@ AM_CPPFLAGS =                                          \
 	-DTRACKER_EXTRACTORS_DIR=\""$(extractmodulesdir)"\" \
 	$(LIBTRACKER_EXTRACT_CFLAGS)
 
-lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la
+libtracker_extractdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
+libtracker_extract_LTLIBRARIES = libtracker-extract.la
 
-libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD =   \
+libtracker_extract_la_LIBADD =   \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_EXTRACT_LIBS)
 
-libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
+libtracker_extract_la_SOURCES =  \
 	tracker-data.h                                 \
 	tracker-encoding.c                             \
 	tracker-encoding.h                             \
@@ -51,60 +52,27 @@ noinst_HEADERS =                                       \
 	tracker-xmp.h
 
 if HAVE_ENCA
-libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+libtracker_extract_la_SOURCES += \
 	tracker-encoding-enca.c                        \
 	tracker-encoding-enca.h
 endif
 
 if HAVE_MEEGOTOUCH
-libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+libtracker_extract_la_SOURCES += \
 	tracker-encoding-meegotouch.cpp                \
 	tracker-encoding-meegotouch.h
 endif
 
 if HAVE_LIBICU
-libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+libtracker_extract_la_SOURCES += \
 	tracker-encoding-libicu.c                      \
 	tracker-encoding-libicu.h
 AM_CPPFLAGS +=                                         \
 	$(LIBICU_CFLAGS)
-libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD +=  \
+libtracker_extract_la_LIBADD +=  \
 	$(LIBICU_LIBS)
 endif
 
-libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS =  \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
-	-export-symbols-regex '^tracker_.*'
+libtracker_extract_la_LDFLAGS =  \
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-# Introspection foo
--include $(INTROSPECTION_MAKEFILE)
-INTROSPECTION_GIRS =
-INTROSPECTION_SCANNER_ARGS = \
-	--warn-all \
-	-I $(top_srcdir)/src \
-	-D TRACKER_COMPILATION \
-	--c-include="libtracker-extract/tracker-extract.h"
-
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_srcdir)/src/libtracker-sparql
-
-if HAVE_INTROSPECTION
-INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
-introspection_sources = $(libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES)
-TrackerExtract-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerExtract_@TRACKER_API_VERSION_UNDERSCORES@_gir_INCLUDES = GObject-2.0 GModule-2.0
-TrackerExtract_@TRACKER_API_VERSION_UNDERSCORES@_gir_SCANNERFLAGS = \
-	--include-uninstalled=$(top_srcdir)/src/libtracker-sparql/Tracker-$(TRACKER_API_VERSION).gir
-TrackerExtract_@TRACKER_API_VERSION_UNDERSCORES@_gir_CFLAGS = $(INCLUDES)
-TrackerExtract_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = $(lib_LTLIBRARIES)
-TrackerExtract_@TRACKER_API_VERSION_UNDERSCORES@_gir_FILES = $(introspection_sources)
-
-INTROSPECTION_GIRS += TrackerExtract-$(TRACKER_API_VERSION).gir
-
-girdir = $(datadir)/gir-1.0
-gir_DATA = $(INTROSPECTION_GIRS)
-
-typelibdir = $(libdir)/girepository-1.0
-typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
-
-CLEANFILES = $(gir_DATA) $(typelib_DATA)
-endif

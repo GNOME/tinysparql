@@ -11,7 +11,7 @@ noinst_LTLIBRARIES = libextract-mockup.la
 libextract_mockup_la_SOURCES = tracker-extract-mockup.c
 libextract_mockup_la_LDFLAGS = $(module_flags)
 libextract_mockup_la_LIBADD =                          \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract.la \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_EXTRACT_LIBS)
