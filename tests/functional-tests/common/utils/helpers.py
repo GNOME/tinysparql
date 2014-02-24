@@ -280,9 +280,12 @@ class StoreHelper (Helper):
         """
         try:
             result = self.resources.SparqlQuery (QUERY % (ontology_class))
-        except dbus.DBusException:
-            self.connect ()
-            result = self.resources.SparqlQuery (QUERY % (ontology_class))
+        except dbus.DBusException as (e):
+            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
+                self.start ()
+                result = self.resources.SparqlQuery (QUERY % (ontology_class))
+            else:
+                raise (e)
             
         if (len (result) == 1):
             return int (result [0][0])
