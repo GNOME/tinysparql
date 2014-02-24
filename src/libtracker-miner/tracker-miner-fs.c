@@ -1557,7 +1557,7 @@ item_update_children_uri_cb (GObject      *object,
 			                        "} ",
 			                        child_urn, child_urn, child_uri);
 
-			if (fs->priv->thunbnailer)
+			if (fs->priv->thumbnailer)
 				tracker_thumbnailer_move_add (fs->priv->thumbnailer,
 							      child_source_uri, child_mime, child_uri);
 
