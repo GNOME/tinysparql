@@ -158,7 +158,7 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 	                                              NULL,
 	                                              error);
 	if (!private->cache_proxy) {
-		g_object_unref (private->connection);
+		g_clear_object (&private->connection);
 		return FALSE;
 	}
 
@@ -172,8 +172,8 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 	                                                error);
 
 	if (!private->manager_proxy) {
-		g_object_unref (private->connection);
-		g_object_unref (private->cache_proxy);
+		g_clear_object (&private->connection);
+		g_clear_object (&private->cache_proxy);
 		return FALSE;
 	}
 
@@ -186,9 +186,9 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 	                            error);
 
 	if (!v) {
-		g_object_unref (private->connection);
-		g_object_unref (private->cache_proxy);
-		g_object_unref (private->manager_proxy);
+		g_clear_object (&private->connection);
+		g_clear_object (&private->cache_proxy);
+		g_clear_object (&private->manager_proxy);
 		return FALSE;
 	} else {
 		GStrv mime_types = NULL;
