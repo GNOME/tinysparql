@@ -268,6 +268,9 @@ if __name__ == "__main__":
     else:
         if os.path.exists (sys.argv[1]) and sys.argv[1].endswith (".expected"):
             run_one (sys.argv[1])
+        # FIXME: for the case when invoked by testrunner (see create-tests-xml.py)
+        elif sys.argv[1] == "ExtractionTestCase":
+            run_all ()
         else:
             print "Usage: %s [FILE.expected]" % (sys.argv[0])
         
