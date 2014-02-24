@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.extractdirs
+
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \

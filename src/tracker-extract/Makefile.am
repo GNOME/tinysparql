@@ -1,4 +1,4 @@
-extractrulesdir = $(datadir)/tracker/extract-rules
+include $(top_srcdir)/Makefile.extractdirs
 
 module_flags = -module -avoid-version -no-undefined
 rulesdir = $(extractrulesdir)
@@ -54,7 +54,6 @@ rules_files = \
 # NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
-extractmodulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 extractmodules_LTLIBRARIES = # Empty
 rules_DATA = # Empty
 
