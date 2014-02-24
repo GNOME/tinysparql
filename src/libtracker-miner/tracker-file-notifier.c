@@ -624,6 +624,7 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		}
 	}
 
+	priv->current_index_root = NULL;
 	g_signal_emit (notifier, signals[FINISHED], 0);
 
 	return FALSE;
