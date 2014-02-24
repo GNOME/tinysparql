@@ -77,7 +77,7 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
 
         # Check the value is written in the file
         metadata = self.extractor.get_metadata (self.get_test_filename_jpeg (), "")
-        self.assertIn (self.favorite, metadata ["nao:hasTag:prefLabel"],
+        self.assertIn (self.favorite, metadata ["nao:hasTag"],
                        "Tag hasn't been written in the file")
         
         # Now check the modification date of the files and it should be the same :)
