@@ -69,8 +69,6 @@ class MinerResourceRemovalTest (ut.TestCase):
         self.system.set_up_environment (CONF_OPTIONS, None)
         self.store = StoreHelper ()
         self.store.start ()
-        self.miner_fs = MinerFsHelper ()
-        self.miner_fs.start ()
 
         # GraphUpdated seems to not be emitted if the extractor isn't running
         # even though the file resource still gets inserted - maybe because
@@ -78,11 +76,14 @@ class MinerResourceRemovalTest (ut.TestCase):
         self.extractor = ExtractorHelper ()
         self.extractor.start ()
 
+        self.miner_fs = MinerFsHelper ()
+        self.miner_fs.start ()
+
     @classmethod
     def tearDownClass (self):
         self.store.bus._clean_up_signal_match (self.graph_updated_handler_id)
-        self.extractor.stop ()
         self.miner_fs.stop ()
+        self.extractor.stop ()
         self.store.stop ()
 
     def setUp (self):
