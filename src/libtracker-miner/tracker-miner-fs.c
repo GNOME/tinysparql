@@ -1360,7 +1360,8 @@ item_remove (TrackerMinerFS *fs,
 	if (!only_children) {
 		flags = TRACKER_BULK_MATCH_EQUALS;
 	} else {
-		tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
+		if (fs->priv->thumbnailer)
+			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
 		tracker_media_art_queue_remove (uri, NULL);
 	}
 
@@ -1556,8 +1557,9 @@ item_update_children_uri_cb (GObject      *object,
 			                        "} ",
 			                        child_urn, child_urn, child_uri);
 
-			tracker_thumbnailer_move_add (fs->priv->thumbnailer,
-						      child_source_uri, child_mime, child_uri);
+			if (fs->priv->thunbnailer)
+				tracker_thumbnailer_move_add (fs->priv->thumbnailer,
+							      child_source_uri, child_mime, child_uri);
 
 			g_free (child_uri);
 		}
@@ -1644,9 +1646,10 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
-	                              g_file_info_get_content_type (file_info),
-	                              uri);
+	if (fs->priv->thumbnailer)
+		tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
+					      g_file_info_get_content_type (file_info),
+					      uri);
 
 	sparql = g_string_new ("");
 
@@ -2281,7 +2284,8 @@ item_queue_handlers_cb (gpointer user_data)
 				/* Print stats and signal finished */
 				process_stop (fs);
 
-				tracker_thumbnailer_send (fs->priv->thumbnailer);
+				if (fs->priv->thumbnailer)
+					tracker_thumbnailer_send (fs->priv->thumbnailer);
 				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
 			} else {
 				/* Flush any possible pending update here */
