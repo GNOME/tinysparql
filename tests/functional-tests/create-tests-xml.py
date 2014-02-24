@@ -52,7 +52,7 @@ if (cfg.haveUpstart):
         """
 else:
         PRE_STEPS = """        <pre_steps>
-           <step>tracker-control -t</step>
+           <step>while tracker-control -p |grep -q '^Found process ID '; do tracker-control -t; sleep 1; done</step>
         </pre_steps>
         """
 
