@@ -1,14 +1,16 @@
-include $(top_srcdir)/Makefile.extractdirs
+#
+# _RULES_DIR = $(datadir)/tracker/extract-rules
+#
+rulesdir = $(TRACKER_EXTRACT_RULES_DIR)
 
 module_flags = -module -avoid-version -no-undefined
-rulesdir = $(extractrulesdir)
 
 AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \
 	-I$(top_srcdir)/src \
 	-I$(top_builddir)/src \
 	-DLOCALEDIR=\""$(localedir)"\" \
-	-DTRACKER_EXTRACTORS_DIR=\""$(extractmodulesdir)"\" \
+	-DTRACKER_EXTRACTORS_DIR=\""$(TRACKER_EXTRACT_MODULES_DIR)"\" \
 	$(TRACKER_EXTRACT_CFLAGS)
 
 # NOTE: The rules are here and not in another sub-directory because we
@@ -54,6 +56,10 @@ rules_files = \
 # NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
+#
+# _MODULES_DIR = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
+#
+extractmodulesdir = $(TRACKER_EXTRACT_MODULES_DIR)
 extractmodules_LTLIBRARIES = # Empty
 rules_DATA = # Empty
 

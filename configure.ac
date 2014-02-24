@@ -320,6 +320,14 @@ TRACKER_EXTRACT_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 
+TRACKER_EXTRACT_MODULES_DIR="${libdir}/tracker-${TRACKER_API_VERSION}/extract-modules"
+AC_SUBST(TRACKER_EXTRACT_MODULES_DIR)
+
+# NOTE: We don't use ${TRACKER_API_VERSION} because other content like
+# the ontology is installed to the same location.
+TRACKER_EXTRACT_RULES_DIR="${datadir}/tracker/extract-rules"
+AC_SUBST(TRACKER_EXTRACT_RULES_DIR)
+
 # Check requirements for tracker-extract modules
 TRACKER_EXTRACT_MODULES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED"
 
