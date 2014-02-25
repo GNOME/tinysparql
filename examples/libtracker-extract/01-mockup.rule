@@ -1,4 +1,4 @@
 [ExtractorRule]
-ModulePath=@modulesdir@/libextract-mp3.so
+ModulePath=libextract-mp3.so
 MimeTypes=audio/mpeg;audio/x-mp3;
 
