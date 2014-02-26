@@ -644,7 +644,7 @@ fi
 
 AC_ARG_ENABLE(journal,
               AS_HELP_STRING([--enable-journal],
-                             [enable journal [[default=yes]]]),
+                             [enable database journal backup mechanism [[default=yes]]]),
              [enable_journal="$enableval"],
              [enable_journal=yes])
 
@@ -994,7 +994,7 @@ AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
 
 AC_ARG_ENABLE(libexif,
               AS_HELP_STRING([--enable-libexif],
-                             [enable extractor for exif data [[default=auto]]]),,
+                             [enable extractor for exif metadata [[default=auto]]]),,
               [enable_libexif=auto])
 
 if test "x$enable_libexif" != "xno" ; then
@@ -1027,7 +1027,7 @@ AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 
 AC_ARG_ENABLE(libiptcdata,
               AS_HELP_STRING([--enable-libiptcdata],
-                             [enable extractor for iptc data [[default=auto]]]),,
+                             [enable extractor for iptc metadata [[default=auto]]]),,
               [enable_libiptcdata=auto])
 
 if test "x$enable_libiptcdata" != "xno" ; then
@@ -1060,7 +1060,7 @@ AM_CONDITIONAL(HAVE_IPTC, test "x$have_libiptcdata" = "xyes")
 
 AC_ARG_ENABLE(exempi,
               AS_HELP_STRING([--enable-exempi],
-                             [enable extractor for XMP data [[default=auto]]]),,
+                             [enable extractor for XMP metadata [[default=auto]]]),,
               [enable_exempi=auto])
 
 if test "x$enable_exempi" != "xno" ; then
@@ -1308,7 +1308,7 @@ AM_CONDITIONAL(HAVE_TRACKER_MINER_FIREFOX, test "x$have_tracker_miner_firefox" =
 
 AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
-                             [enable the nautilus extension [[default=auto]]]),,
+                             [enable tagging in nautilus with Tracker [[default=auto]]]),,
               [enable_tracker_nautilus=auto])
 
 enable_tracker_nautilus_extension=$enable_nautilus_extension
@@ -1372,7 +1372,7 @@ AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
 
 AC_ARG_ENABLE([tracker-needle],
               AS_HELP_STRING([--enable-tracker-needle],
-                             [enable tracker-needle [[default=auto]]]),,
+                             [enable GTK+ UI to search for content [[default=auto]]]),,
               [enable_tracker_needle=auto])
 
 if test "x$enable_tracker_needle" = "xyes" ; then
@@ -1399,7 +1399,7 @@ AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
 
 AC_ARG_ENABLE([tracker-preferences],
               AS_HELP_STRING([--enable-tracker-preferences],
-                             [enable the tracker preferences dialog [[default=auto]]]),,
+                             [enable GTK+ UI to configure Tracker [[default=auto]]]),,
               [enable_tracker_preferences=auto])
 
 # If we don't have miner-fs enabled, the preferences are pointless
@@ -1731,7 +1731,7 @@ fi
 
 AC_ARG_ENABLE(poppler,
               AS_HELP_STRING([--enable-poppler],
-                             [enable extractor for PDF data [[default=auto]]]),,
+                             [enable extractor for PDF metadata [[default=auto]]]),,
               [enable_poppler=auto])
 
 if test "x$enable_poppler" != "xno" ; then
@@ -1764,7 +1764,7 @@ AM_CONDITIONAL(HAVE_POPPLER, test "x$have_poppler" = "xyes")
 
 AC_ARG_ENABLE(libgxps,
               AS_HELP_STRING([--enable-libgxps],
-                             [enable extractor for XPS data [[default=auto]]]),,
+                             [enable extractor for XPS metadata [[default=auto]]]),,
               [enable_libgxps=auto])
 
 if test "x$enable_libgxps" != "xno" ; then
@@ -1797,7 +1797,7 @@ AM_CONDITIONAL(HAVE_LIBGXPS, test "x$have_libgxps" = "xyes")
 
 AC_ARG_ENABLE(libgsf,
               AS_HELP_STRING([--enable-libgsf],
-                             [enable extractor for GSF data [[default=auto]]]),,
+                             [enable extractor for GSF metadata (MSOffice, LibreOffice, EPub) [[default=auto]]]),,
               [enable_libgsf=auto])
 
 if test "x$enable_libgsf" != "xno" ; then
@@ -1830,7 +1830,7 @@ AM_CONDITIONAL(HAVE_LIBGSF, test "x$have_libgsf" = "xyes")
 
 AC_ARG_ENABLE(libosinfo,
               AS_HELP_STRING([--enable-libosinfo],
-                             [enable extractor for ISO data [[default=auto]]]),,
+                             [enable extractor for ISO metadata [[default=auto]]]),,
               [enable_libosinfo=auto])
 
 if test "x$enable_libosinfo" != "xno" ; then
@@ -1871,7 +1871,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libgif,
               AS_HELP_STRING([--enable-libgif],
-                             [enable extractor for GIF data [[default=auto]]]),,
+                             [enable extractor for GIF metadata [[default=auto]]]),,
               [enable_libgif=auto])
 
 if test "x$enable_libgif" != "xno" ; then
@@ -1918,7 +1918,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libjpeg,
               AS_HELP_STRING([--enable-libjpeg],
-                             [enable extractor for JPEG data [[default=auto]]]),,
+                             [enable extractor for JPEG metadata [[default=auto]]]),,
               [enable_libjpeg=auto])
 
 if test "x$enable_libjpeg" != "xno" ; then
@@ -1965,7 +1965,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libtiff,
               AS_HELP_STRING([--enable-libtiff],
-                             [enable extractor for TIFF data [[default=auto]]]),,
+                             [enable extractor for TIFF metadata [[default=auto]]]),,
               [enable_libtiff=auto])
 
 if test "x$enable_libtiff" != "xno" ; then
@@ -2012,7 +2012,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libpng,
               AS_HELP_STRING([--enable-libpng],
-                             [enable extractor for PNG data [[default=auto]]]),,
+                             [enable extractor for PNG metadata [[default=auto]]]),,
               [enable_libpng=auto])
 
 if test "x$enable_libpng" != "xno" ; then
@@ -2051,7 +2051,7 @@ LIBS="$OLD_LIBS"
 
 AC_ARG_ENABLE(libvorbis,
               AS_HELP_STRING([--enable-libvorbis],
-                             [enable extractor for vorbis data (ogg) [[default=no]]]),,
+                             [enable extractor for OGG metadata (Vorbis) [[default=no]]]),,
               [enable_libvorbis=no])
 
 if test "x$enable_libvorbis" != "xno" ; then
@@ -2084,7 +2084,7 @@ AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
 
 AC_ARG_ENABLE(libflac,
               AS_HELP_STRING([--enable-libflac],
-                             [enable extractor for flac data [[default=no]]]),,
+                             [enable extractor for FLAC metadata [[default=no]]]),,
               [enable_libflac=no])
 
 if test "x$enable_libflac" != "xno" ; then
@@ -2149,7 +2149,7 @@ AM_CONDITIONAL(HAVE_LIBCUE, test "x$have_libcue" = "xyes")
 
 AC_ARG_ENABLE(abiword,
               AS_HELP_STRING([--enable-abiword],
-                             [enable AbiWord support [[default=auto]]]),,
+                             [enable extractor for ABW metadata (AbiWord) [[default=auto]]]),,
               [enable_abiword=auto])
 
 if test "x$enable_abiword" != "xno" ; then
@@ -2169,7 +2169,7 @@ AM_CONDITIONAL(HAVE_ABIWORD, test "x$have_abiword" = "xyes")
 
 AC_ARG_ENABLE(dvi,
               AS_HELP_STRING([--enable-dvi],
-                             [enable DVI support [[default=auto]]]),,
+                             [enable extractor for DVI metadata [[default=auto]]]),,
               [enable_dvi=auto])
 
 if test "x$enable_dvi" != "xno"; then
@@ -2189,7 +2189,7 @@ AM_CONDITIONAL(HAVE_DVI, test "x$have_dvi" = "xyes")
 
 AC_ARG_ENABLE(mp3,
               AS_HELP_STRING([--enable-mp3],
-                             [enable MP3 support [[default=auto]]]),,
+                             [enable extractor for MP3 metadata [[default=auto]]]),,
               [enable_mp3=auto])
 
 if test "x$enable_mp3" != "xno"; then
@@ -2209,7 +2209,7 @@ AM_CONDITIONAL(HAVE_MP3, test "x$have_mp3" = "xyes")
 
 AC_ARG_ENABLE(ps,
               AS_HELP_STRING([--enable-ps],
-                             [enable PS support [[default=auto]]]),,
+                             [enable extractor for PS metadata [[default=auto]]]),,
               [enable_ps=auto])
 
 if test "x$enable_ps" != "xno"; then
@@ -2229,7 +2229,7 @@ AM_CONDITIONAL(HAVE_PS, test "x$have_ps" = "xyes")
 
 AC_ARG_ENABLE(text,
               AS_HELP_STRING([--enable-text],
-                             [enable text support [[default=auto]]]),,
+                             [enable extractor for TXT metadata [[default=auto]]]),,
               [enable_text=auto])
 
 if test "x$enable_text" != "xno"; then
@@ -2249,7 +2249,7 @@ AM_CONDITIONAL(HAVE_TEXT, test "x$have_text" = "xyes")
 
 AC_ARG_ENABLE(icon,
               AS_HELP_STRING([--enable-icon],
-                             [enable icon support [[default=auto]]]),,
+                             [enable extractor for ICO metadata [[default=auto]]]),,
               [enable_icon=auto])
 
 if test "x$enable_icon" != "xno"; then
@@ -2269,7 +2269,7 @@ AM_CONDITIONAL(HAVE_ICON, test "x$have_icon" = "xyes")
 
 AC_ARG_ENABLE(playlist,
               AS_HELP_STRING([--enable-playlist],
-                             [enable playlist support [[default=auto]]]),,
+                             [enable extractor for Playlist metadata [[default=auto]]]),,
               [enable_playlist=auto])
 
 if test "x$enable_playlist" != "xno" ; then
@@ -2311,12 +2311,12 @@ AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
 AC_ARG_ENABLE(guarantee-metadata,
              AS_HELP_STRING([--enable-guarantee-metadata],
-                            [enable guaranteed existence of some metadata [[default=no]]]),
+                            [enable guaranteed existence of some metadata, e.g. nie:title from files [[default=no]]]),
                             [enable_guarantee_metadata=yes],
                             [enable_guarantee_metadata=no])
 
 if test "x$enable_guarantee_metadata" != "xno"; then
-  AC_DEFINE(GUARANTEE_METADATA, 1, [Guarantee existence of certain metadata])
+  AC_DEFINE(GUARANTEE_METADATA, 1, [Guarantee existence of some metadata])
 fi
 
 ####################################################################
@@ -2334,7 +2334,7 @@ AM_CONDITIONAL(HAVE_UPSTART, test "x$INITCTL" != "x")
 
 AC_ARG_ENABLE(artwork,
               AS_HELP_STRING([--enable-artwork],
-                             [install artwork, such as icons and logos [[default=auto]]]),,
+                             [install artwork, e.g. data/icons/* [[default=auto]]]),,
               [enable_artwork=auto])
 
 if test "x$enable_artwork" != "xno"; then
