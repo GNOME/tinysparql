@@ -1717,8 +1717,8 @@ AM_CONDITIONAL(HAVE_GSTREAMER_PBUTILS, test "x$gstreamer_backend" = "xDiscoverer
 ####################################################################
 
 AC_ARG_ENABLE([unzip_psgz_files],
-              AS_HELP_STRING([--disable-unzip-ps-gz-files],
-                             [disable unzipping ps.gz files [[default=yes]]]),,
+              AS_HELP_STRING([--enable-unzip-ps-gz-files],
+                             [enable extractor for PS.GZ metadata [[default=yes]]]),,
               [enable_unzip_psgz_files=yes])
 
 if test x$enable_unzip_psgz_files != "xno"; then
