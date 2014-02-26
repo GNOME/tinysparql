@@ -1502,8 +1502,8 @@ AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
 ##################################################################
 
 AC_ARG_ENABLE(libxml2,
-              AS_HELP_STRING([--disable-libxml2],
-                             [disable HTML/XML extractors [[default=yes]]]),,
+              AS_HELP_STRING([--enable-libxml2],
+                             [enable extractor for HTML/XML metadata [[default=yes]]]),,
               [enable_libxml2=yes])
 
 # Force libxml requirement for HAVE_MAEMO,
