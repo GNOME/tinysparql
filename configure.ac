@@ -1536,104 +1536,6 @@ fi
 
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
-##################################################################
-# Check for tracker-extract: GdkPixbuf for MP3 album art
-##################################################################
-
-AC_ARG_ENABLE(gdkpixbuf,
-              AS_HELP_STRING([--enable-gdkpixbuf],
-                             [enable GdkPixbuf support, (MP3 album art) [[default=auto]]]),,
-              [enable_gdkpixbuf=auto])
-
-##################################################################
-# Check for tracker-extract: Qt for MP3 album art
-##################################################################
-
-AC_ARG_ENABLE(qt,
-              AS_HELP_STRING([--enable-qt],
-                             [enable Qt support, (MP3 album art) [[default=auto]]]),,
-              [enable_qt=auto])
-
-selected_for_media_art="no  (disabled)"
-
-##################################################################
-# Check for tracker-extract: Choose between GdkPixbuf/Qt
-##################################################################
-
-if test "x$enable_qt" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
-   PKG_CHECK_MODULES(QT5,
-                     [Qt5Gui >= $QT5_REQUIRED],
-                     [have_qt5=yes],
-                     [have_qt5=no])
-
-   PKG_CHECK_MODULES(QT4,
-                     [QtGui >= $QT4_REQUIRED],
-                     [have_qt4=yes],
-                     [have_qt4=no])
-
-
-   if test "x$have_qt5" = "xyes"; then
-      TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT5_CFLAGS -fPIC"
-      TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT5_LIBS"
-
-      AC_DEFINE(HAVE_QT5, [], [Define if we have Qt5])
-      AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
-
-      selected_for_media_art="yes (qt5)"
-   else
-      if test "x$have_qt4" = "xyes"; then
-         TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT4_CFLAGS -fPIC"
-         TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT4_LIBS"
-
-         AC_DEFINE(HAVE_QT4, [], [Define if we have Qt4])
-         AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
-
-         selected_for_media_art="yes (qt4)"
-      fi
-   fi
-else
-   have_qt4="no  (disabled)"
-   have_qt5="no  (disabled)"
-fi
-
-if test "x$enable_qt" = "xyes"; then
-   if test "x$have_qt5" != "xyes"; then
-      if test "x$have_qt4" != "xyes"; then
-         AC_MSG_ERROR([Couldn't find Qt4 >= $QT4_REQUIRED or Qt5 >= $QT5_REQUIRED.])
-      fi
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_QT4, test "x$have_qt4" = "xyes")
-AM_CONDITIONAL(HAVE_QT5, test "x$have_qt5" = "xyes")
-AM_CONDITIONAL(HAVE_QT, test "x$have_qt5" = "xyes" || test "x$have_qt4" = "xyes")
-
-
-if test "x$enable_gdkpixbuf" != "xno" && test "x$enable_quill" != "xyes"; then
-   PKG_CHECK_MODULES(GDKPIXBUF,
-                     [gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED],
-                     [have_gdkpixbuf=yes],
-                     [have_gdkpixbuf=no])
-
-   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $GDKPIXBUF_CFLAGS"
-   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $GDKPIXBUF_LIBS"
-
-   if test "x$have_gdkpixbuf" = "xyes"; then
-      AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
-      selected_for_media_art="yes (GdkPixbuf)"
-   fi
-else
-   have_gdkpixbuf="no  (disabled)"
-fi
-
-if test "x$enable_gdkpixbuf" = "xyes"; then
-   if test "x$have_gdkpixbuf" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find GdkPixbuf >= $GDKPIXBUF_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
-
 ####################################################################
 # Check for tracker-extract: gstreamer/xine/totem/mplayer/etc
 ####################################################################
@@ -2647,7 +2549,6 @@ Metadata Extractors:
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
 	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
-	Support media art processing:           $selected_for_media_art
 	Support cue sheet parsing:              $have_libcue
 	Support playlists (w/ Totem):           $have_playlist
 	Support ISO image parsing:              $have_libosinfo
