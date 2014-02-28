@@ -51,7 +51,7 @@ Boston, MA  02110-1301, USA.
 
     <key name="low-disk-space-limit" type="i">
       <_summary>Low disk space limit</_summary>
-      <_description>Disk space threshold in MB at which to pause indexing, or -1 to disable.</_description>
+      <_description>Disk space threshold in percent at which to pause indexing, or -1 to disable.</_description>
       <range min="-1" max="100"/>
       <default>-1</default>
     </key>
