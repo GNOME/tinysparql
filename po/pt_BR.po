@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-21 07:23+0000\n"
-"PO-Revision-Date: 2014-02-21 10:59-0300\n"
+"POT-Creation-Date: 2014-02-28 12:36+0000\n"
+"PO-Revision-Date: 2014-02-28 12:23-0300\n"
 "Last-Translator: Rafael Ferreira <rafael.f.f1@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Project-Style: gnome\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
@@ -200,11 +200,13 @@ msgid "Low disk space limit"
 msgstr "Limite mínimo de espaço em disco"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+#| msgid ""
+#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
-"Limite de espaço em disco em MB ao qual a indexação deve ser pausada, ou -1 "
-"para desabilitar."
+"Limite de espaço em disco em percentagem ao qual a indexação deve ser "
+"pausada, ou -1 para desabilitar."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -2389,9 +2391,6 @@ msgstr ""
 "é opcional)"
 
 #: ../src/tracker-utils/tracker-sparql.c:124
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2471,7 +2470,6 @@ msgid "None"
 msgstr "Nenhum"
 
 #: ../src/tracker-utils/tracker-sparql.c:873
-#| msgid "Could not update tags for file"
 msgid "Could not create tree: subclass query failed"
 msgstr "Não foi possível criar árvore: consulta da subclasse falhou"
 
