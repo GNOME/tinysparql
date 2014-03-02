@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-22 00:47+0000\n"
+"POT-Creation-Date: 2014-03-02 15:18+0000\n"
 "PO-Revision-Date: 2014-02-22 13:06+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
@@ -193,9 +193,9 @@ msgstr "Limit místa na disku"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
-"Limit volného místa na disku, v MB, při jehož dosažení se indexování "
+"Limit volného místa na disku, v procentech, při jehož dosažení se indexování "
 "pozastaví, nebo -1 pro vypnutí tohoto omezení."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
