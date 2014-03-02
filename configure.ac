@@ -1454,8 +1454,8 @@ AM_CONDITIONAL(HAVE_TRACKER_RESDUMP, test "$have_tracker_resdump" = "yes")
 # Check for tracker-extract: enca for defect Russian/Cyrillic in MP3s
 ####################################################################
 
-AC_ARG_WITH(enca,
-            AS_HELP_STRING([--with-enca],
+AC_ARG_ENABLE(enca,
+            AS_HELP_STRING([--enable-enca],
                            [enable libenca for Cyrillic language detection in MP3s [[default=auto]]]),,
             [enable_enca=auto])
 
@@ -1472,13 +1472,28 @@ else
    have_enca="no  (disabled)"
 fi
 
-if test "x$have_enca" = "xyes" || test "x$have_libicu" = "xyes"; then
+AC_ARG_ENABLE(icu-charset-detection,
+            AS_HELP_STRING([--enable-icu-charset-detection],
+                           [enable libicu for charset detection in MP3s [[default=auto]]]),,
+            [enable_icu_charset_detection=auto])
+
+if test "x$have_libicu" = "xyes"; then
+	if test "x$enable_icu_charset_detection" != "xno"; then
+		have_libicu_charset_detection="yes"
+		AC_DEFINE(HAVE_LIBICU_CHARSET_DETECTION, [], [ICU language detection aid])
+	else
+		have_libicu_charset_detection="no"
+	fi
+fi
+
+if test "x$have_enca" = "xyes" || test "x$have_libicu_charset_detection" = "xyes"; then
    have_charset_detection="yes"
 else
    have_charset_detection="no"
 fi
 
 AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
+AM_CONDITIONAL(HAVE_LIBICU_CHARSET_DETECTION, test "$have_libicu_charset_detection" = "yes")
 
 ##################################################################
 # Check for tracker-extract: libxml2 for XML/HTML extractor
@@ -2502,7 +2517,7 @@ Metadata Extractors:
 	Support AbiWord document parsing:       $have_abiword
 	Support DVI parsing:                    $have_dvi
 	Support MP3 parsing:                    $have_mp3
-	Support MP3 tag charset detection:      $have_charset_detection (icu: $have_libicu, enca: $have_enca)
+	Support MP3 tag charset detection:      $have_charset_detection (icu: $have_libicu_charset_detection, enca: $have_enca)
 	Support PS parsing:                     $have_ps
 	Support text parsing:                   $have_text
 	Support icon parsing:                   $have_icon
