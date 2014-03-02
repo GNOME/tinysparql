@@ -794,7 +794,7 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 {
 	FileNodeData *data;
 	FileNodeProperty property, *match;
-	GDestroyNotify destroy_notify;
+	GDestroyNotify destroy_notify = NULL;
 	GNode *node;
 	guint index;
 
