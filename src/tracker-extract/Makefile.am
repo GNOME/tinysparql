@@ -38,6 +38,7 @@ rules_files = \
 	10-vorbis.rule \
 	10-xmp.rule \
 	10-xps.rule \
+	10-bmp.rule \
 	11-iso.rule \
 	11-msoffice-xml.rule \
 	15-gstreamer-guess.rule \
@@ -179,6 +180,9 @@ if HAVE_LIBAV
 extractmodules_LTLIBRARIES += libextract-libav.la
 rules_DATA += 90-libav-audio-generic.rule 90-libav-video-generic.rule
 endif
+
+extractmodules_LTLIBRARIES += libextract-bmp.la
+rules_DATA += 10-bmp.rule
 
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
@@ -491,6 +495,17 @@ libextract_libav_la_LIBADD = \
 	$(AVUTIL_LIBS) \
 	$(AVCODEC_LIBS)
 
+
+# BMP
+libextract_bmp_la_SOURCES = tracker-extract-bmp.c
+libextract_bmp_la_CFLAGS = \
+	$(TRACKER_EXTRACT_MODULES_CFLAGS)
+libextract_bmp_la_LDFLAGS = $(module_flags)
+libextract_bmp_la_LIBADD = \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS) \
+	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 #
 # Binaries

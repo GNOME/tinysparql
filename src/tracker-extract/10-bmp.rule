@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-bmp.so
+MimeTypes=image/bmp
+
