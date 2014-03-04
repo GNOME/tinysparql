@@ -1,3 +1,39 @@
+NEW in 0.17.5 - 2014-03-04
+==========================
+
+The main changes are:
+
+  * build: Improve description of build switches
+  * build: Removed configure args no longer used for GdkPixbuf/Qt, Nemo and libsecret/gnome-keyring
+  * build: Make libtracker-extract a private library
+  * libtracker-miner: Possible use of uninitialized value in tracker_file_system_unset_property()
+  * libtracker-miner: Unset priv->current_index_root when the TrackerFileNotifier is finished
+  * libtracker-miner: Protect against NULL TrackerThumbnailer
+  * libtracker-miner: clear thumbnailer internal objects on init() failure
+  * libtracker-extract: Don't break compilation due to missing rules/modules dir
+  * tracker-extract: Don't leak FD on tiff extractor when opening file
+  * tracker-extract: set nfo:Document in FallbackRdfTypes for text documents
+  * tracker-miner-fs: Fix documentation for 'low-disk-space-limit', was in MB not %
+  * functional-tests: fix invalid SPARQL s/nao:hasTag:prefLabel/nao:prefLabel/
+  * functional-tests: Use GraphUpdated signal from store, not miner-fs Idle status
+  * functional-tests: Don't require miner-fs being idle for testing data inserted
+  * functional-tests: 400-extractor.py expects different arguments
+  * functional-tests: Start/stop processes in correct order, miner after extract
+  * functional-tests: Increase default timeout 90s->180s, 90s isn't long enough sometimes
+  * functional-tests: Don't rely on just tracker-control -t to kill tests in time
+  * functional-tests: Fix regression introduced in commit 690eecb1
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated gl: Fran Diéguez
+  * Updated lt: Aurimas Černius
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Rafael Ferreira
+  * Updated zh_CN: Wylmer Wang
+
+
 NEW in 0.17.4 - 2014-02-21
 ==========================
 
