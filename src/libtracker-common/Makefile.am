@@ -59,9 +59,6 @@ libtracker_common_la_SOURCES += tracker-locale-gconfdbus.c
 noinst_HEADERS += tracker-locale-gconfdbus.h
 endif
 
-libtracker_common_la_LDFLAGS = \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-
 libtracker_common_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(LIBTRACKER_COMMON_LIBS) \

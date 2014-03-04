@@ -72,7 +72,3 @@ AM_CPPFLAGS +=                                         \
 libtracker_extract_la_LIBADD +=  \
 	$(LIBICU_LIBS)
 endif
-
-libtracker_extract_la_LDFLAGS =  \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-

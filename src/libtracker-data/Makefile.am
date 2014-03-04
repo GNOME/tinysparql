@@ -54,9 +54,6 @@ libtracker_data_la_LIBADD +=                           \
 	$(top_builddir)/src/libtracker-fts/libtracker-fts.la
 endif
 
-libtracker_data_la_LDFLAGS =                           \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-
 noinst_HEADERS =                                       \
 	tracker-class.h                                \
 	tracker-data.h                                 \
