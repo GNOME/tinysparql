@@ -27,7 +27,7 @@ Use a \fIFILE\fR with SPARQL content to query or update.
 Use a \fISPARQL\fR string to query the database with.
 .TP
 .B \-u, \-\-update
-This has to be used with 
+This has to be used with
 .B \-\-query.
 This tells
 .B tracker-sparql
@@ -66,8 +66,13 @@ Properties: 2
   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameCount
 .fi
 
-These properties \fInfo:frameRate\fR and \fInfo:frameCount\fR can be
-used in more complex queries (see --query).
+These properties \fInfo:frameRate\fR and \fInfo:frameCount\fR can then
+be used in queries (see also
+.B \-\-query
+).
+
+See also
+.B \-\-tree
 
 .TP
 .B \-n, \-\-list-notifies=CLASS
@@ -107,11 +112,67 @@ ROOT
 
 If no \fICLASS\fR is given, the entire tree is shown.
 
-NOTE: To make finding classes easier, you can use the
-.B \-s
-or
+The
 .B \-\-search
-command line option to highlight parts of the tree you're looking for.
+command line option can be used to highlight parts of the tree you're
+looking for. The search is case insensitive.
+
+The
+.B \-\-properties
+command line option can be used to show properties for each class
+displayed, for example:
+
+.nf
+$ tracker-sparql -t nfo:FileDataObject -p
+ROOT
+  +-- rdfs:Resource (C)
+  |  --> http://purl.org/dc/elements/1.1/contributor (P)
+  |  --> http://purl.org/dc/elements/1.1/coverage (P)
+  |  --> http://purl.org/dc/elements/1.1/creator (P)
+  |  --> http://purl.org/dc/elements/1.1/date (P)
+  |  --> http://purl.org/dc/elements/1.1/description (P)
+  |  --> http://purl.org/dc/elements/1.1/format (P)
+  |  --> http://purl.org/dc/elements/1.1/identifier (P)
+  |  --> http://purl.org/dc/elements/1.1/language (P)
+  |  --> http://purl.org/dc/elements/1.1/publisher (P)
+  |  --> http://purl.org/dc/elements/1.1/relation (P)
+  |  --> http://purl.org/dc/elements/1.1/rights (P)
+  |  --> http://purl.org/dc/elements/1.1/source (P)
+  |  --> http://purl.org/dc/elements/1.1/subject (P)
+  |  --> http://purl.org/dc/elements/1.1/title (P)
+  |  --> http://purl.org/dc/elements/1.1/type (P)
+  |  --> nao:deprecated (P)
+  |  --> nao:hasTag (P)
+  |  --> nao:identifier (P)
+  |  --> nao:isRelated (P)
+  |  --> nao:lastModified (P)
+  |  --> nao:numericRating (P)
+  |  --> rdf:type (P)
+  |  --> rdfs:comment (P)
+  |  --> rdfs:label (P)
+  |  --> tracker:added (P)
+  |  --> tracker:damaged (P)
+  |  --> tracker:modified (P)
+  |  +-- nie:DataObject (C)
+  |  |  --> nfo:belongsToContainer (P)
+  |  |  --> nie:byteSize (P)
+  |  |  --> nie:created (P)
+  |  |  --> nie:dataSource (P)
+  |  |  --> nie:interpretedAs (P)
+  |  |  --> nie:isPartOf (P)
+  |  |  --> nie:lastRefreshed (P)
+  |  |  --> nie:url (P)
+  |  |  --> tracker:available (P)
+  |  |  +-- nfo:FileDataObject (C)
+  |  |  |  --> nfo:fileCreated (P)
+  |  |  |  --> nfo:fileLastAccessed (P)
+  |  |  |  --> nfo:fileLastModified (P)
+  |  |  |  --> nfo:fileName (P)
+  |  |  |  --> nfo:fileOwner (P)
+  |  |  |  --> nfo:fileSize (P)
+  |  |  |  --> nfo:hasHash (P)
+  |  |  |  --> nfo:permissions (P)
+.fi
 
 .TP
 .B \-s, \-\-search=TERM
@@ -135,11 +196,9 @@ Properties: 4
   http://www.tracker-project.org/temp/scal#textLocation
 .fi
 
-NOTE: If this command line is used with
+See also
 .B \-\-tree
-it is used to highlight parts of the tree displayed. It can not be
-used to search for classes as the example above shows as well as to
-print the ontology tree.
+
 
 .TP
 .B \-\-get\-shorthand <CLASS>

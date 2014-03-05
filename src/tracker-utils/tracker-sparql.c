@@ -49,6 +49,7 @@ typedef struct _NodePrintData NodePrintData;
 
 struct _NodeData {
 	gchar *class;
+	GSList *properties;
 	guint parent_known:1;
 };
 
@@ -64,18 +65,22 @@ struct _NodePrintData {
 	const gchar *highlight_text;
 };
 
-static gboolean parse_list_notifies (const gchar  *option_name,
-                                     const gchar  *value,
-                                     gpointer      data,
-                                     GError      **error);
-static gboolean parse_list_indexes  (const gchar  *option_name,
-                                     const gchar  *value,
-                                     gpointer      data,
-                                     GError      **error);
-static gboolean parse_tree          (const gchar  *option_name,
-                                     const gchar  *value,
-                                     gpointer      data,
-                                     GError      **error);
+static gboolean parse_list_properties (const gchar  *option_name,
+                                       const gchar  *value,
+                                       gpointer      data,
+                                       GError      **error);
+static gboolean parse_list_notifies   (const gchar  *option_name,
+                                       const gchar  *value,
+                                       gpointer      data,
+                                       GError      **error);
+static gboolean parse_list_indexes    (const gchar  *option_name,
+                                       const gchar  *value,
+                                       gpointer      data,
+                                       GError      **error);
+static gboolean parse_tree            (const gchar  *option_name,
+                                       const gchar  *value,
+                                       gpointer      data,
+                                       GError      **error);
 
 static gchar *file;
 static gchar *query;
@@ -112,7 +117,7 @@ static GOptionEntry   entries[] = {
 	  N_("Retrieve class prefixes"),
 	  NULL,
 	},
-	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
+	{ "list-properties", 'p', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_list_properties,
 	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
 	  N_("CLASS"),
 	},
@@ -125,7 +130,7 @@ static GOptionEntry   entries[] = {
 	  N_("PROPERTY"),
 	},
 	{ "tree", 't', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_tree,
-	  N_("Describe subclasses, superclasses (can be used with -s to highlight parts of the tree)"),
+	  N_("Describe subclasses, superclasses (can be used with -s to highlight parts of the tree and -p to show properties)"),
 	  N_("CLASS"),
 	},
 	{ "search", 's', 0, G_OPTION_ARG_STRING, &search,
@@ -258,6 +263,21 @@ get_class_from_prefix (TrackerSparqlConnection *connection,
 	g_object_unref (cursor);
 
 	return found;
+}
+
+static gboolean
+parse_list_properties (const gchar  *option_name,
+                       const gchar  *value,
+                       gpointer      data,
+                       GError      **error)
+{
+	if (!value) {
+		list_properties = g_strdup ("");
+	} else {
+		list_properties = g_strdup (value);
+	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -554,6 +574,11 @@ tree_node_data_free (NodeData *data)
 		return;
 	}
 
+	if (data->properties) {
+		g_slist_foreach (data->properties, (GFunc) g_free, NULL);
+		g_slist_free (data->properties);
+	}
+
 	g_free (data->class);
 	g_slice_free (NodeData, data);
 }
@@ -722,39 +747,93 @@ tree_add_class (GNode       *root,
 	return node;
 }
 
+static gboolean
+tree_add_property (GNode       *root,
+                   const gchar *class,
+                   const gchar *property)
+{
+	GNode *node;
+	NodeData *data;
+
+	if (!property) {
+		return FALSE;
+	}
+
+	node = tree_node_lookup (root, class, NULL);
+	if (!node) {
+		return FALSE;
+	}
+
+	data = node->data;
+
+	data->properties = g_slist_prepend (data->properties,
+	                                    g_strdup (property));
+
+	return TRUE;
+}
+
 static gchar *
 highlight (const gchar *text,
            const gchar *highlight_text)
 {
 	GString *s;
-	gchar *p;
+	gchar *text_down, *highlight_text_down, *p;
+
+	if (!text) {
+		return NULL;
+	}
 
 	if (!highlight_text) {
 		return g_strdup (text);
 	}
 
-	p = strstr (text, highlight_text);
+	s = g_string_new (text);
 
-	if (!p) {
-		return g_strdup (text);
+	text_down = g_utf8_casefold (text, -1);
+	highlight_text_down = g_utf8_casefold (highlight_text, -1);
+	p = text_down;
+
+	while ((p = strstr (p, highlight_text_down)) != NULL) {
+		gint offset_begin, offset_end;
+
+		offset_begin = p - text_down;
+		g_string_insert_len (s, offset_begin, SNIPPET_BEGIN, -1);
+
+		offset_end = (p - text_down) + strlen (highlight_text) + strlen (SNIPPET_BEGIN);
+		g_string_insert_len (s, offset_end, SNIPPET_END, -1);
+
+		p += offset_end + strlen (SNIPPET_END);
 	}
 
-	s = g_string_new ("");
-
-	if (p != text)
-		s = g_string_append_len (s, text, p - text);
-
-	g_string_append_printf (s,
-	                        "%s%s%s",
-	                        SNIPPET_BEGIN,
-	                        highlight_text,
-	                        SNIPPET_END);
-
-	p += strlen (highlight_text);
-	if (p[0] != '\0')
-		s = g_string_append (s, p);
+	g_free (highlight_text_down);
+	g_free (text_down);
 
 	return g_string_free (s, FALSE);
+}
+
+static inline void
+tree_print_properties (NodeData      *nd,
+                       NodePrintData *pd,
+                       gint           depth)
+{
+	GSList *l;
+
+	/* Sort first */
+	nd->properties = g_slist_sort (nd->properties, (GCompareFunc) g_strcmp0);
+
+	/* Print properties */
+	for (l = nd->properties; l; l = l->next) {
+		gchar *highlighted;
+		gint i;
+
+		for (i = 1; i < depth; i++) {
+			g_print ("  |");
+		}
+
+		highlighted = highlight (l->data, pd->highlight_text);
+		g_print ("  --> %s (P)\n", (gchar*) highlighted);
+		g_free (highlighted);
+	}
 }
 
 static gboolean
@@ -816,6 +895,8 @@ tree_print_foreach (GNode    *node,
 	g_free (highlighted);
 	g_free (shorthand);
 
+	tree_print_properties (nd, pd, depth);
+
 	return FALSE;
 }
 
@@ -865,7 +946,7 @@ tree_get (TrackerSparqlConnection *connection,
 	}
 
 	/* Get subclasses of classes, using longhand */
-	query = "select ?p ?c where { ?c a rdfs:Class . OPTIONAL { ?c rdfs:subClassOf ?p } }";
+	query = "SELECT ?p ?c WHERE { ?c a rdfs:Class . OPTIONAL { ?c rdfs:subClassOf ?p } }";
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	if (error) {
@@ -885,7 +966,8 @@ tree_get (TrackerSparqlConnection *connection,
 		tree_add_class (root, class, parent, TRUE);
 	}
 
-	/* Create filter */
+	/* Create filter (so we only deal with properties for classes
+	 * we care about) */
 	if (class_lookup_longhand && *class_lookup_longhand) {
 		found_node = tree_node_lookup (root, class_lookup_longhand, NULL);
 		filter_parents = g_hash_table_new_full (g_str_hash,
@@ -906,6 +988,53 @@ tree_get (TrackerSparqlConnection *connection,
 		}
 	} else {
 		filter_parents = NULL;
+	}
+
+	/* Get properties of classes */
+	if (list_properties) {
+		TrackerSparqlCursor *properties;
+
+		query = "SELECT ?c ?p WHERE { ?p rdf:type rdf:Property ; rdfs:domain ?c }";
+
+		properties = tracker_sparql_connection_query (connection, query, NULL, &error);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not create tree: class properties query failed"),
+			            error->message);
+			g_error_free (error);
+			g_object_unref (connection);
+
+			g_free (class_lookup_longhand);
+
+			if (filter_parents) {
+				g_hash_table_unref (filter_parents);
+			}
+
+			if (prefixes) {
+				g_hash_table_unref (prefixes);
+			}
+
+			if (cursor) {
+				g_object_unref (cursor);
+			}
+
+			return EXIT_FAILURE;
+		}
+
+		while (tracker_sparql_cursor_next (properties, NULL, NULL)) {
+			const gchar *class = tracker_sparql_cursor_get_string (properties, 0, NULL);
+			const gchar *property = tracker_sparql_cursor_get_string (properties, 1, NULL);
+			gchar *property_lookup_shorthand;
+
+			property_lookup_shorthand = get_shorthand_str (prefixes, property);
+			tree_add_property (root, class, property_lookup_shorthand);
+			g_free (property_lookup_shorthand);
+		}
+
+		if (properties) {
+			g_object_unref (properties);
+		}
 	}
 
 	g_free (class_lookup_longhand);
@@ -963,6 +1092,8 @@ main (int argc, char **argv)
 		error_message = _("An argument must be supplied");
 	} else if (file && query) {
 		error_message = _("File and query can not be used together");
+	} else if (list_properties && list_properties[0] == '\0' && !tree) {
+		error_message = _("The --list-properties argument can only be empty when used with the --tree argument");
 	} else {
 		error_message = NULL;
 	}
@@ -1035,7 +1166,7 @@ main (int argc, char **argv)
 		print_cursor (cursor, _("No class prefixes were found"), _("Prefixes"), FALSE);
 	}
 
-	if (list_properties) {
+	if (list_properties && list_properties[0] != '\0') {
 		gchar *query;
 		gchar *class_name;
 
