@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-24 10:08+0000\n"
-"PO-Revision-Date: 2014-02-24 17:16+0100\n"
+"POT-Creation-Date: 2014-03-02 15:18+0000\n"
+"PO-Revision-Date: 2014-03-03 14:52+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -194,11 +194,13 @@ msgid "Low disk space limit"
 msgstr "Límite de espacio en disco bajo"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+#| msgid ""
+#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
-"Umbral de espacio en disco, en MB, en el que pausar la indexación, o -1 para "
-"desactivarlo."
+"Umbral de espacio en disco, en porcentaje, en el que pausar la indexación, o "
+"-1 para desactivarla."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -2373,9 +2375,6 @@ msgstr ""
 "opcional)"
 
 #: ../src/tracker-utils/tracker-sparql.c:124
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2453,7 +2452,6 @@ msgid "None"
 msgstr "Niguno"
 
 #: ../src/tracker-utils/tracker-sparql.c:873
-#| msgid "Could not update tags for file"
 msgid "Could not create tree: subclass query failed"
 msgstr "No se pudo crear el árbol: falló la consulta de la subclase"
 
