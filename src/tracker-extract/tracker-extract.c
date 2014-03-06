@@ -529,10 +529,6 @@ static gboolean
 get_metadata (TrackerExtractTask *task)
 {
 	TrackerExtractInfo *info;
-	TrackerSparqlBuilder *preupdate, *postupdate, *statements;
-	gchar *where = NULL;
-
-	preupdate = postupdate = statements = NULL;
 
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p --> File:'%s' - Extracted",
@@ -561,20 +557,6 @@ get_metadata (TrackerExtractTask *task)
 		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
 		extract_task_free (task);
 	} else {
-		if (preupdate) {
-			g_object_unref (preupdate);
-		}
-
-		if (postupdate) {
-			g_object_unref (postupdate);
-		}
-
-		if (statements) {
-			g_object_unref (statements);
-		}
-
-		g_free (where);
-
 		/* Reinject the task into the main thread
 		 * queue, so the next module kicks in.
 		 */
