@@ -44,6 +44,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
+import locale
 import os
 import subprocess
 import optparse
@@ -124,7 +125,7 @@ def debug(message):
 # DB functions (sync for now)
 def db_query_have_files():
 	# Set this here in case we used 'bus' for an update() before this.
-	os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
+	# os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
 
 	print 'Using query to check index has data in it...'
 
@@ -137,7 +138,7 @@ def db_query_have_files():
 
 def db_query_list_files():
 	# Set this here in case we used 'bus' for an update() before this.
-	os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
+	# os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
 
 	print 'Using query to list files indexed...'
 
@@ -161,25 +162,42 @@ def db_query_files_that_match():
 # Index functions
 def index_clean():
 	#tracker-control -r
-	debug ('Cleaning index')
+	debug ('Cleaning index, FIXME: Does nothing.')
+
+def find_libexec_binaries(command):
+	binary = os.path.join(opts.prefix, 'libexec', command)
+	if not os.path.exists(binary):
+		binary = os.path.join(opts.prefix, 'libexec', command)
+		if not os.path.exists(binary):
+			return None
+
+	return binary
 
 def index_update():
 	debug('Updating index ...')
 	debug('--')
 
+	# FIXME: Need to start tracker-extract to make sure extended
+	# metadata is created, but the problem is, after miner-fs
+	# stops, we return to the prompt, so how do we handle that?
+	#
+	# We need to listen to signals from tracker-extract and then
+	# quit after some inactivity I think ... OR listen to
+	# GraphUpdated and when there are no more objects without a
+	# data-source, we know all data was indexed.
+
+	# Start tracker-miner-fs
+	binary = find_libexec_binaries ('tracker-miner-fs')
+	if binary == None:
+		print 'Could not find "tracker-miner-fs" in $prefix/lib{exec} directories'
+		print 'Is Tracker installed properly?'
+		sys.exit(1)
+
 	try:
-		binary = os.path.join(opts.prefix, 'libexec', 'tracker-miner-fs')
-		if not os.path.exists(binary):
-			binary = os.path.join(opts.prefix, 'lib', 'tracker-miner-fs')
-			if not os.path.exists(binary):
-				print 'Could not find "tracker-miner-fs" in prefix lib/libexec directories'
-				print 'Is Tracker installed properly?'
-				sys.exit(1)
-		
 		# Mine data WITHOUT being a daemon, exit when done. Ignore desktop files
 		subprocess.check_output([binary, "--no-daemon", "--disable-miner=applications"])
 	except subprocess.CalledProcessError, e:
-		print 'Could not run file system miner,' + e.output
+		print 'Could not run %s, %s' % (binary, e.output)
 		sys.exit(1)
 
 	debug('--')
@@ -310,12 +328,8 @@ def environment_set():
 	# Preferences
 	os.environ['TRACKER_USE_CONFIG_FILES'] = 'yes'
 
-	if opts.update:
-		# Updates need to use the bus
-		os.environ['TRACKER_SPARQL_BACKEND'] = 'bus'
-	else:
-		# Queries can use readonly access to the database directly
-		os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
+	#if opts.debug:
+	#	os.environ['TRACKER_USE_LOG_FILES'] = 'yes'
 
 	if opts.debug:
 		os.environ['G_MESSAGES_DEBUG'] = 'all'
@@ -360,7 +374,7 @@ def environment_set():
 	dbus_session_file = os.path.join(os.environ['XDG_RUNTIME_DIR'], 'dbus-session')
 
 	if dbus_session_file_get() == False:
-		output = subprocess.check_output(["/bin/dbus-daemon",
+		output = subprocess.check_output(["dbus-daemon",
 						  "--session",
 						  "--print-address=1",
 						  "--print-pid=1",
@@ -377,6 +391,8 @@ def environment_set():
 
 # Entry point/start
 if __name__ == "__main__":
+	locale.setlocale(locale.LC_ALL, '')
+
 	# Parse command line
 	usage_oneline  = '%s -i <DIR> -c <DIR> [OPTION...]' % (os.path.basename(sys.argv[0]))
 	usage = '\n  %s - %s' % (usage_oneline, script_about)
