@@ -2096,6 +2096,10 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
                              GCancellable    *cancellable,
                              GError         **error)
 {
+	if (!cursor) {
+		return FALSE;
+	}
+
 	return db_cursor_iter_next (cursor, cancellable, error);
 }
 
