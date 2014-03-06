@@ -329,7 +329,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 
 					g_debug ("    Sparql: %s", bulk->sparql);
 				} else {
-					const gchar *sparql;
+					const gchar *sparql = NULL;
 					gchar *uri;
 
 					uri = g_file_get_uri (tracker_task_get_file (task));
