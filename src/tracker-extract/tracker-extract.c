@@ -430,10 +430,11 @@ extract_task_new (TrackerExtract *extract,
 		}
 
 		mimetype_used = g_strdup (g_file_info_get_content_type (info));
-		g_debug ("Guessing mime type as '%s'", mimetype);
 		g_object_unref (info);
+		g_debug ("MIME type guessed as '%s' (from GIO)", mimetype_used);
 	} else {
 		mimetype_used = g_strdup (mimetype);
+		g_debug ("MIME type passed to us as '%s'", mimetype_used);
 	}
 
 	task = g_slice_new0 (TrackerExtractTask);
