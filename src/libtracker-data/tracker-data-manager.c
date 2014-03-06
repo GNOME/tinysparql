@@ -3565,6 +3565,7 @@ ontology_get_fts_properties (gboolean     only_new,
 		}
 
 		has_new |= tracker_property_get_is_new (properties[i]);
+		table_name = tracker_property_get_table_name (properties[i]);
 
 		if (multivalued &&
 		    tracker_property_get_multiple_values (properties[i])) {
@@ -3572,7 +3573,6 @@ ontology_get_fts_properties (gboolean     only_new,
 					     GUINT_TO_POINTER (TRUE));
 		}
 
-		table_name = tracker_property_get_table_name (properties[i]);
 		name = tracker_property_get_name (properties[i]);
 		list = g_hash_table_lookup (hashtable, table_name);
 
