@@ -205,6 +205,7 @@ static void
 tracker_fts_init_property_names (GHashTable *tables)
 {
 	GHashTableIter iter;
+	GList *c;
 	GList *columns;
 	GList *table_columns;
 	gchar **ptr;
@@ -216,11 +217,12 @@ tracker_fts_init_property_names (GHashTable *tables)
 	}
 
 	ptr = property_names = g_new0 (gchar *, g_list_length (columns));
-	while (columns) {
-		*ptr = g_strdup (columns->data);
+	for (c = columns; c!= NULL ; c = c->next) {
+		*ptr = g_strdup (c->data);
 		ptr ++;
-		columns = columns->next;
 	}
+
+	g_list_free (columns);
 }
 
 gboolean
