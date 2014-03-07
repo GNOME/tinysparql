@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-02 15:18+0000\n"
-"PO-Revision-Date: 2014-03-03 14:52+0100\n"
+"POT-Creation-Date: 2014-03-06 15:02+0000\n"
+"PO-Revision-Date: 2014-03-07 17:56+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -194,8 +194,6 @@ msgid "Low disk space limit"
 msgstr "Límite de espacio en disco bajo"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-#| msgid ""
-#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
 "Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
@@ -555,7 +553,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
 #: ../src/tracker-utils/tracker-info.c:68
-#: ../src/tracker-utils/tracker-sparql.c:97
+#: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "ARCHIVO"
 
@@ -700,7 +698,7 @@ msgstr "Para añadir un proveedor se requiere «--add-feed» y «--title»"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:989
+#: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
 #: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
@@ -718,7 +716,7 @@ msgstr "No se pudo establecer una conexión con Tracker"
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:990
+#: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
 #: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
@@ -764,7 +762,7 @@ msgstr[1] ""
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
-#: ../src/tracker-utils/tracker-sparql.c:145
+#: ../src/tracker-utils/tracker-sparql.c:150
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
@@ -1106,7 +1104,7 @@ msgstr "No se pudo resumir el minero: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:188
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:1299
+#: ../src/tracker-utils/tracker-sparql.c:1430
 msgid "Done"
 msgstr "Hecho"
 
@@ -2032,12 +2030,12 @@ msgid "Output results as RDF in Turtle format"
 msgstr "Mostrar los resultados como RDF en formato Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:179
+#: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "No se pudieron obtener los prefijos de espacios de nombres"
 
 #: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:187
+#: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "No se encontró ningún prefijo de espacio de nombres"
 
@@ -2066,8 +2064,8 @@ msgstr "No existen metadatos disponibles para ese URI"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Resultados"
@@ -2327,31 +2325,31 @@ msgstr ""
 "Las palabras de parada son palabras que pueden ignorarse durante el proceso "
 "de indexado."
 
-#: ../src/tracker-utils/tracker-sparql.c:96
+#: ../src/tracker-utils/tracker-sparql.c:101
 msgid "Path to use to run a query or update from file"
 msgstr "Ruta que usar para ejecutar una consulta o actualizar desde un archivo"
 
-#: ../src/tracker-utils/tracker-sparql.c:100
+#: ../src/tracker-utils/tracker-sparql.c:105
 msgid "SPARQL query"
 msgstr "Consulta SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:101
+#: ../src/tracker-utils/tracker-sparql.c:106
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:104
+#: ../src/tracker-utils/tracker-sparql.c:109
 msgid "This is used with --query and for database updates only."
 msgstr "Se usa con «--query» y sólo para actualizaciones de la base de datos."
 
-#: ../src/tracker-utils/tracker-sparql.c:108
+#: ../src/tracker-utils/tracker-sparql.c:113
 msgid "Retrieve classes"
 msgstr "Obtener clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:112
+#: ../src/tracker-utils/tracker-sparql.c:117
 msgid "Retrieve class prefixes"
 msgstr "Obtener prefijos de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:116
+#: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -2359,22 +2357,22 @@ msgstr ""
 "Obtener las propiedades para una clase, también se pueden usar prefijos (ej. "
 "rdfs:Recurso)"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
-#: ../src/tracker-utils/tracker-sparql.c:121
-#: ../src/tracker-utils/tracker-sparql.c:129
-#: ../src/tracker-utils/tracker-sparql.c:137
-#: ../src/tracker-utils/tracker-sparql.c:141
+#: ../src/tracker-utils/tracker-sparql.c:122
+#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:134
+#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker-utils/tracker-sparql.c:146
 msgid "CLASS"
 msgstr "CLASE"
 
-#: ../src/tracker-utils/tracker-sparql.c:120
+#: ../src/tracker-utils/tracker-sparql.c:125
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Obtener las clases que notifican cambios en la base de datos (CLASE es "
 "opcional)"
 
-#: ../src/tracker-utils/tracker-sparql.c:124
+#: ../src/tracker-utils/tracker-sparql.c:129
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2382,40 +2380,43 @@ msgstr ""
 "Obtener los índices usados en la base de datos para mejorar el rendimiento "
 "(PROPIEDAD es opcional)"
 
-#: ../src/tracker-utils/tracker-sparql.c:125
+#: ../src/tracker-utils/tracker-sparql.c:130
 msgid "PROPERTY"
 msgstr "PROPIEDAD"
 
-#: ../src/tracker-utils/tracker-sparql.c:128
+#: ../src/tracker-utils/tracker-sparql.c:133
+#| msgid ""
+#| "Describe subclasses, superclasses (can be used with -s to highlight parts "
+#| "of the tree)"
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree)"
+"the tree and -p to show properties)"
 msgstr ""
 "Describir subclases, superclases (se puede usar con -s para resaltar las "
-"partes del árbol)"
+"partes del árbol y con -p para mostrar las propiedades)"
 
-#: ../src/tracker-utils/tracker-sparql.c:132
+#: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "Buscar una clase o propiedad y buscar más información (ej. documento)"
 
-#: ../src/tracker-utils/tracker-sparql.c:133
+#: ../src/tracker-utils/tracker-sparql.c:138
 msgid "CLASS/PROPERTY"
 msgstr "CLASE/PROPIEDAD"
 
-#: ../src/tracker-utils/tracker-sparql.c:136
+#: ../src/tracker-utils/tracker-sparql.c:141
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Devuelve el atajo de una clase (ej. nfo:FileDataObject)."
 
-#: ../src/tracker-utils/tracker-sparql.c:140
+#: ../src/tracker-utils/tracker-sparql.c:145
 msgid "Returns the full namespace for a class."
 msgstr "Devuelve el espacio de nombres completo de una clase."
 
-#: ../src/tracker-utils/tracker-sparql.c:233
+#: ../src/tracker-utils/tracker-sparql.c:238
 msgid "Could not get namespace prefixes"
 msgstr "No se pudieron obtener los prefijos de espacios de nombres"
 
-#: ../src/tracker-utils/tracker-sparql.c:242
+#: ../src/tracker-utils/tracker-sparql.c:247
 msgid "No namespace prefixes were found"
 msgstr "No se encontró ningún prefijo de espacio de nombres"
 
@@ -2442,8 +2443,8 @@ msgstr "No se encontró ningún prefijo de espacio de nombres"
 #. *     None
 #. *
 #.
-#: ../src/tracker-utils/tracker-sparql.c:480
-#: ../src/tracker-utils/tracker-sparql.c:528
+#: ../src/tracker-utils/tracker-sparql.c:500
+#: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
 #: ../src/tracker-utils/tracker-tag.c:328
 #: ../src/tracker-utils/tracker-tag.c:464
@@ -2451,133 +2452,147 @@ msgstr "No se encontró ningún prefijo de espacio de nombres"
 msgid "None"
 msgstr "Niguno"
 
-#: ../src/tracker-utils/tracker-sparql.c:873
+#: ../src/tracker-utils/tracker-sparql.c:954
 msgid "Could not create tree: subclass query failed"
 msgstr "No se pudo crear el árbol: falló la consulta de la subclase"
 
-#: ../src/tracker-utils/tracker-sparql.c:948
+#: ../src/tracker-utils/tracker-sparql.c:1003
+#| msgid "Could not create tree: subclass query failed"
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+"No se pudo crear el árbol: falló la consulta de las propiedades de la clase"
+
+#: ../src/tracker-utils/tracker-sparql.c:1077
 msgid "- Query or update using SPARQL"
 msgstr "- Consulta o actualización usando SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:963
+#: ../src/tracker-utils/tracker-sparql.c:1092
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Se debe proporcionar un argumento"
 
-#: ../src/tracker-utils/tracker-sparql.c:965
+#: ../src/tracker-utils/tracker-sparql.c:1094
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "No se pueden usar conjuntamente el archivo y la consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:1003
+#: ../src/tracker-utils/tracker-sparql.c:1096
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"El argumento --list-properties sólo puede estar vacío cuando se usa con el "
+"argumento --tree"
+
+#: ../src/tracker-utils/tracker-sparql.c:1134
 msgid "Could not list classes"
 msgstr "No se pudieron listar las clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
+#: ../src/tracker-utils/tracker-sparql.c:1142
 msgid "No classes were found"
 msgstr "No se encontró ninguna clase"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1142
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "Classes"
 msgstr "Clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:1027
+#: ../src/tracker-utils/tracker-sparql.c:1158
 msgid "Could not list class prefixes"
 msgstr "No se pudieron listar los prefijos de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "No class prefixes were found"
 msgstr "No se encontró ningún prefijo de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "Prefixes"
 msgstr "Prefijos"
 
-#: ../src/tracker-utils/tracker-sparql.c:1055
+#: ../src/tracker-utils/tracker-sparql.c:1186
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "No se pudo encontrar la propiedad para la clase del prefijo, ej. #Recurso en "
 "«rdfs:Recurso»"
 
-#: ../src/tracker-utils/tracker-sparql.c:1094
+#: ../src/tracker-utils/tracker-sparql.c:1225
 msgid "Could not list properties"
 msgstr "No se pudieron listar las propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
+#: ../src/tracker-utils/tracker-sparql.c:1233
 msgid "No properties were found"
 msgstr "No se encontró ninguna propiedad"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1233
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "Properties"
 msgstr "Propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:1130
+#: ../src/tracker-utils/tracker-sparql.c:1261
 msgid "Could not find notify classes"
 msgstr "No se pudo encontrar las clases de notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "No notifies were found"
 msgstr "No se encontró ninguna notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "Notifies"
 msgstr "Notifica"
 
-#: ../src/tracker-utils/tracker-sparql.c:1164
+#: ../src/tracker-utils/tracker-sparql.c:1295
 msgid "Could not find indexed properties"
 msgstr "No se pudieron encontrar las propiedades de los índices"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "No indexes were found"
 msgstr "No se encontró ningún índice"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "Indexes"
 msgstr "Índices"
 
-#: ../src/tracker-utils/tracker-sparql.c:1194
+#: ../src/tracker-utils/tracker-sparql.c:1325
 msgid "Could not search classes"
 msgstr "No se pudieron buscar clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "No classes were found to match search term"
 msgstr ""
 "No se encontró ninguna clase que coincidiera con el término de búsqueda"
 
-#: ../src/tracker-utils/tracker-sparql.c:1217
+#: ../src/tracker-utils/tracker-sparql.c:1348
 msgid "Could not search properties"
 msgstr "No se pudieron buscar propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "No properties were found to match search term"
 msgstr ""
 "No se encontró ninguna propiedad que coincidiera con el término de búsqueda"
 
-#: ../src/tracker-utils/tracker-sparql.c:1261
+#: ../src/tracker-utils/tracker-sparql.c:1392
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "No se pudo obtener la ruta UTF-8 de la ruta"
 
-#: ../src/tracker-utils/tracker-sparql.c:1273
+#: ../src/tracker-utils/tracker-sparql.c:1404
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "No se pudo leer el archivo"
 
-#: ../src/tracker-utils/tracker-sparql.c:1292
+#: ../src/tracker-utils/tracker-sparql.c:1423
 msgid "Could not run update"
 msgstr "No se pudo ejecutar la actualización"
 
-#: ../src/tracker-utils/tracker-sparql.c:1340
+#: ../src/tracker-utils/tracker-sparql.c:1471
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "No se pudo ejecutar la consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 msgid "No results found matching your query"
 msgstr "No se encontraron resultados coincidentes con su consulta"
 
