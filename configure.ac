@@ -177,6 +177,7 @@ MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.16.0
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
+LIBICU_REQUIRED=52.1
 LIBJPEG_REQUIRED="any version"
 LIBGIF_REQUIRED="any version"
 LIBTIFF_REQUIRED="any version"
@@ -889,7 +890,7 @@ LIBUNISTRING_LIBS="-lunistring"
 
 # Check for libicu...
 PKG_CHECK_MODULES(LIBICU,
-                  [icu-i18n icu-uc],
+                  [icu-i18n >= $LIBICU_REQUIRED icu-uc >= $LIBICU_REQUIRED],
                   [have_libicu=yes],
                   [have_libicu=no])
 
