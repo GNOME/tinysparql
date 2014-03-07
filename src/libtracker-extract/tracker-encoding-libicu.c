@@ -35,6 +35,7 @@ tracker_encoding_guess_icu (const gchar *buffer,
 	const UCharsetMatch *match;
 	gchar *charset = NULL;
 	UErrorCode status;
+	const char *p_match = NULL;
 
 	detector = ucsdet_open (&status);
 
@@ -51,15 +52,15 @@ tracker_encoding_guess_icu (const gchar *buffer,
 
 	match = ucsdet_detect (detector, &status);
 
-	if (U_FAILURE (status))
+	if (match == NULL || U_FAILURE (status))
 		goto failure;
 
-	charset = g_strdup (ucsdet_getName (match, &status));
+	p_match = ucsdet_getName (match, &status);
 
-	if (U_FAILURE (status)) {
-		g_free (charset);
-		charset = NULL;
-	}
+	if (p_match == NULL || U_FAILURE (status))
+		goto failure;
+
+        charset = g_strdup ((const gchar *) p_match);
 
 	if (charset)
 		g_debug ("Guessing charset as '%s'", charset);
