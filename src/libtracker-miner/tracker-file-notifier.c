@@ -1118,6 +1118,7 @@ tracker_file_notifier_finalize (GObject *object)
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
 	g_object_unref (priv->cancellable);
+	g_object_unref (priv->connection);
 
 	g_list_free (priv->pending_index_roots);
 	g_timer_destroy (priv->timer);
