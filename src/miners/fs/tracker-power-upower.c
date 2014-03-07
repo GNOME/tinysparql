@@ -151,6 +151,10 @@ tracker_power_finalize (GObject *object)
 
 	priv = GET_PRIV (object);
 
+#ifndef HAVE_UP_CLIENT_GET_ON_LOW_BATTERY
+	g_object_unref (priv->composite_device);
+#endif /* HAVE_UP_CLIENT_GET_ON_LOW_BATTERY */
+
 	g_object_unref (priv->client);
 
 	(G_OBJECT_CLASS (tracker_power_parent_class)->finalize) (object);
