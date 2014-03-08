@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-02 15:18+0000\n"
-"PO-Revision-Date: 2014-02-22 13:06+0100\n"
+"POT-Creation-Date: 2014-03-08 13:08+0000\n"
+"PO-Revision-Date: 2014-03-08 22:03+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -555,7 +555,7 @@ msgstr "Kontrola, zda je SOUBOR způsobilý k dolování dat podle nastavení"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
 #: ../src/tracker-utils/tracker-info.c:68
-#: ../src/tracker-utils/tracker-sparql.c:97
+#: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "SOUBOR"
 
@@ -693,7 +693,7 @@ msgstr "Přidání kanálu vyžaduje --addfeed a --title"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:989
+#: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
 #: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
@@ -711,7 +711,7 @@ msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:990
+#: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
 #: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
@@ -740,7 +740,7 @@ msgstr "Zpracovává se…"
 msgid "Tags"
 msgstr "Štítky"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
@@ -755,7 +755,7 @@ msgstr[2] "Na_stavit štítky, které chcete přiřadit k %d vybraným položká
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
-#: ../src/tracker-utils/tracker-sparql.c:145
+#: ../src/tracker-utils/tracker-sparql.c:150
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
@@ -1099,7 +1099,7 @@ msgstr "Nelze obnovit běh démona na dolování dat: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:188
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:1299
+#: ../src/tracker-utils/tracker-sparql.c:1430
 msgid "Done"
 msgstr "Dokončeno"
 
@@ -2045,12 +2045,12 @@ msgid "Output results as RDF in Turtle format"
 msgstr "Výstupní výsledky jako RDF ve formátu Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:179
+#: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nelze získat předpony jmenných prostorů"
 
 #: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:187
+#: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "Nebyly vráceny žádné předpony jmenných prostorů"
 
@@ -2079,8 +2079,8 @@ msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Výsledky"
@@ -2340,52 +2340,52 @@ msgstr ""
 "Stop slova jsou běžná slova, která ale smí být během procesu indexace "
 "ignorována."
 
-#: ../src/tracker-utils/tracker-sparql.c:96
+#: ../src/tracker-utils/tracker-sparql.c:101
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Cesta, která se použije pro spuštění dotazu nebo aktualizace ze souboru"
 
-#: ../src/tracker-utils/tracker-sparql.c:100
+#: ../src/tracker-utils/tracker-sparql.c:105
 msgid "SPARQL query"
 msgstr "Dotaz SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:101
+#: ../src/tracker-utils/tracker-sparql.c:106
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:104
+#: ../src/tracker-utils/tracker-sparql.c:109
 msgid "This is used with --query and for database updates only."
 msgstr "Toto se používá s --query a pouze pro aktualizaci databáze."
 
-#: ../src/tracker-utils/tracker-sparql.c:108
+#: ../src/tracker-utils/tracker-sparql.c:113
 msgid "Retrieve classes"
 msgstr "Získat třídy"
 
-#: ../src/tracker-utils/tracker-sparql.c:112
+#: ../src/tracker-utils/tracker-sparql.c:117
 msgid "Retrieve class prefixes"
 msgstr "Získat předpony tříd"
 
-#: ../src/tracker-utils/tracker-sparql.c:116
+#: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
 "Získat vlastnosti pro třídu, lze rovněž použít předponu (např. rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
-#: ../src/tracker-utils/tracker-sparql.c:121
-#: ../src/tracker-utils/tracker-sparql.c:129
-#: ../src/tracker-utils/tracker-sparql.c:137
-#: ../src/tracker-utils/tracker-sparql.c:141
+#: ../src/tracker-utils/tracker-sparql.c:122
+#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:134
+#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker-utils/tracker-sparql.c:146
 msgid "CLASS"
 msgstr "TŘÍDA"
 
-#: ../src/tracker-utils/tracker-sparql.c:120
+#: ../src/tracker-utils/tracker-sparql.c:125
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "Získat třídy, které oznamují změny v databázi (CLASS je volitelné)"
 
-#: ../src/tracker-utils/tracker-sparql.c:124
+#: ../src/tracker-utils/tracker-sparql.c:129
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2393,41 +2393,41 @@ msgstr ""
 "Získat indexy, které jsou v databázi použity ke zvýšení výkonu (VLASTNOST je "
 "volitelná)"
 
-#: ../src/tracker-utils/tracker-sparql.c:125
+#: ../src/tracker-utils/tracker-sparql.c:130
 msgid "PROPERTY"
 msgstr "VLASTNOST"
 
-#: ../src/tracker-utils/tracker-sparql.c:128
+#: ../src/tracker-utils/tracker-sparql.c:133
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree)"
+"the tree and -p to show properties)"
 msgstr ""
-"Popsat podtřídu, supertřídu (lze použít spolu s -s kte zvýraznění částí "
-"stromu)"
+"Popsat podtřídu, supertřídu (lze použít spolu se -s ke zvýraznění částí "
+"stromu a s -p k zobrazení vlastností)"
 
-#: ../src/tracker-utils/tracker-sparql.c:132
+#: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Vyhledat třídy nebo vlastnosti a zobrazit více informací (např. Dokument)"
 
-#: ../src/tracker-utils/tracker-sparql.c:133
+#: ../src/tracker-utils/tracker-sparql.c:138
 msgid "CLASS/PROPERTY"
 msgstr "TŘÍDA/VLASTNOST"
 
-#: ../src/tracker-utils/tracker-sparql.c:136
+#: ../src/tracker-utils/tracker-sparql.c:141
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Vrací zkratku pro třídu (např. nfo:FileDataObject)."
 
-#: ../src/tracker-utils/tracker-sparql.c:140
+#: ../src/tracker-utils/tracker-sparql.c:145
 msgid "Returns the full namespace for a class."
 msgstr "Vrací úplný jmenný prostor pro třídu."
 
-#: ../src/tracker-utils/tracker-sparql.c:233
+#: ../src/tracker-utils/tracker-sparql.c:238
 msgid "Could not get namespace prefixes"
 msgstr "Nelze získat předpony jmenných prostorů"
 
-#: ../src/tracker-utils/tracker-sparql.c:242
+#: ../src/tracker-utils/tracker-sparql.c:247
 msgid "No namespace prefixes were found"
 msgstr "Nebyly nalezeny žádné předpony jmenných prostorů"
 
@@ -2454,8 +2454,8 @@ msgstr "Nebyly nalezeny žádné předpony jmenných prostorů"
 #. *     None
 #. *
 #.
-#: ../src/tracker-utils/tracker-sparql.c:480
-#: ../src/tracker-utils/tracker-sparql.c:528
+#: ../src/tracker-utils/tracker-sparql.c:500
+#: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
 #: ../src/tracker-utils/tracker-tag.c:328
 #: ../src/tracker-utils/tracker-tag.c:464
@@ -2463,130 +2463,142 @@ msgstr "Nebyly nalezeny žádné předpony jmenných prostorů"
 msgid "None"
 msgstr "Nic"
 
-#: ../src/tracker-utils/tracker-sparql.c:873
+#: ../src/tracker-utils/tracker-sparql.c:954
 msgid "Could not create tree: subclass query failed"
 msgstr "Nelze vytvořit strom: dotaz na podtřídu selhal"
 
-#: ../src/tracker-utils/tracker-sparql.c:948
+#: ../src/tracker-utils/tracker-sparql.c:1003
+msgid "Could not create tree: class properties query failed"
+msgstr "Nelze vytvořit strom: dotaz na vlastnosti třídy selhal"
+
+#: ../src/tracker-utils/tracker-sparql.c:1077
 msgid "- Query or update using SPARQL"
 msgstr "– dotaz nebo aktualizace pomocí SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:963
+#: ../src/tracker-utils/tracker-sparql.c:1092
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Musí být zadán argument"
 
-#: ../src/tracker-utils/tracker-sparql.c:965
+#: ../src/tracker-utils/tracker-sparql.c:1094
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Nelze použít naráz soubor a dotaz"
 
-#: ../src/tracker-utils/tracker-sparql.c:1003
+#: ../src/tracker-utils/tracker-sparql.c:1096
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Argument --list-properties může být prázdný jen ve spojení s argumentem --"
+"tree"
+
+#: ../src/tracker-utils/tracker-sparql.c:1134
 msgid "Could not list classes"
 msgstr "Nelze vytvořit seznam tříd"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
+#: ../src/tracker-utils/tracker-sparql.c:1142
 msgid "No classes were found"
 msgstr "Nebyla nalezena žádná třída"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1142
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "Classes"
 msgstr "Třídy"
 
-#: ../src/tracker-utils/tracker-sparql.c:1027
+#: ../src/tracker-utils/tracker-sparql.c:1158
 msgid "Could not list class prefixes"
 msgstr "Nelze vytvořit seznam předpon tříd"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "No class prefixes were found"
 msgstr "Nebyly nalezeny žádné předpony tříd"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "Prefixes"
 msgstr "Předpony"
 
-#: ../src/tracker-utils/tracker-sparql.c:1055
+#: ../src/tracker-utils/tracker-sparql.c:1186
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Nelze najít vlastnost pro předponu třídy, např. :Resource v „rdfs:Resource“"
 
-#: ../src/tracker-utils/tracker-sparql.c:1094
+#: ../src/tracker-utils/tracker-sparql.c:1225
 msgid "Could not list properties"
 msgstr "Nelze vytvořit seznam vlastností"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
+#: ../src/tracker-utils/tracker-sparql.c:1233
 msgid "No properties were found"
 msgstr "Nebyla nalezena žádná vlastnost"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1233
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "Properties"
 msgstr "Vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:1130
+#: ../src/tracker-utils/tracker-sparql.c:1261
 msgid "Could not find notify classes"
 msgstr "Nelze najít žádné oznamovací třídy"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "No notifies were found"
 msgstr "Nebyla nalezena žádná oznámení"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "Notifies"
 msgstr "Oznámení"
 
-#: ../src/tracker-utils/tracker-sparql.c:1164
+#: ../src/tracker-utils/tracker-sparql.c:1295
 msgid "Could not find indexed properties"
 msgstr "Nelze najít indexované vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "No indexes were found"
 msgstr "Nebyl nalezen žádný index"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "Indexes"
 msgstr "Indexy"
 
-#: ../src/tracker-utils/tracker-sparql.c:1194
+#: ../src/tracker-utils/tracker-sparql.c:1325
 msgid "Could not search classes"
 msgstr "Nelze vyhledat třídy"
 
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "No classes were found to match search term"
 msgstr "Nebyla nalezena žádná třída odpovídající hledanému termínu"
 
-#: ../src/tracker-utils/tracker-sparql.c:1217
+#: ../src/tracker-utils/tracker-sparql.c:1348
 msgid "Could not search properties"
 msgstr "Nelze vyhledat vlastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "No properties were found to match search term"
 msgstr "Nebyla nalezena žádná vlastnost odpovídající hledanému termínu"
 
-#: ../src/tracker-utils/tracker-sparql.c:1261
+#: ../src/tracker-utils/tracker-sparql.c:1392
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Nelze získat cestu v UTF-8 z cesty"
 
-#: ../src/tracker-utils/tracker-sparql.c:1273
+#: ../src/tracker-utils/tracker-sparql.c:1404
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Nelze číst soubor"
 
-#: ../src/tracker-utils/tracker-sparql.c:1292
+#: ../src/tracker-utils/tracker-sparql.c:1423
 msgid "Could not run update"
 msgstr "Nelze spustit aktualizaci"
 
-#: ../src/tracker-utils/tracker-sparql.c:1340
+#: ../src/tracker-utils/tracker-sparql.c:1471
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Nelze spustit dotaz"
 
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 msgid "No results found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 
