@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: tracker trunk\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-02-21 07:23+0000\n"
-"PO-Revision-Date: 2014-02-23 17:02+0800\n"
+"POT-Creation-Date: 2014-03-08 11:47+0000\n"
+"PO-Revision-Date: 2014-03-08 21:07+0800\n"
 "Last-Translator: Wylmer Wang <wantinghard@gmail.com>\n"
 "Language-Team: Chinese(simplified) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -101,8 +101,9 @@ msgid ""
 "crawling before extracting meta-data. This option is useful on constrained "
 "environment where it is important to list files as fast as possible and can "
 "wait to get meta-data later."
-msgstr "若为 true，tracker-extract 会在提取元数据前等待 tracker-miner-fs 完成爬取。"
-"在需要尽管列出文件，获取元数据可以稍后进行的受限环境下，此选项非常有用。"
+msgstr ""
+"若为 true，tracker-extract 会在提取元数据前等待 tracker-miner-fs 完成爬取。在"
+"需要尽管列出文件，获取元数据可以稍后进行的受限环境下，此选项非常有用。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Maximum length of a word to be indexed"
@@ -183,9 +184,11 @@ msgid "Low disk space limit"
 msgstr "磁盘空间下限"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+#| msgid ""
+#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
-msgstr "暂停索引的磁盘空间阈值，单位为 MB；或设为 -1 以禁止。"
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
+msgstr "暂停索引的磁盘空间阈值百分比；或设为 -1 以禁止。"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -516,7 +519,7 @@ msgstr "检查文件是否适宜基于配置的挖掘"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
 #: ../src/tracker-utils/tracker-info.c:68
-#: ../src/tracker-utils/tracker-sparql.c:97
+#: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "文件"
 
@@ -653,7 +656,7 @@ msgstr "添加 Feed 需要 --add-feed 和 --title 选项"
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:989
+#: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
 #: ../src/tracker-utils/tracker-tag.c:915
 msgid "Could not establish a connection to Tracker"
@@ -671,7 +674,7 @@ msgstr "无法建立到 Tracker 的连接"
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:990
+#: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
 #: ../src/tracker-utils/tracker-tag.c:916
 msgid "No error given"
@@ -700,7 +703,7 @@ msgstr "正在处理..."
 msgid "Tags"
 msgstr "标签"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
@@ -713,7 +716,7 @@ msgstr[0] "设置想要与 %d 个选中的条目关联的标签(_S)"
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
-#: ../src/tracker-utils/tracker-sparql.c:145
+#: ../src/tracker-utils/tracker-sparql.c:150
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
@@ -1039,7 +1042,7 @@ msgstr "无法恢复挖掘器：%s。"
 
 #: ../src/tracker-control/tracker-control-miners.c:188
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:1299
+#: ../src/tracker-utils/tracker-sparql.c:1430
 msgid "Done"
 msgstr "完成"
 
@@ -1906,12 +1909,12 @@ msgid "Output results as RDF in Turtle format"
 msgstr "将结果输出为 Turtle 格式 的 RDF 文件"
 
 #: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:179
+#: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "无法获取名字空间前缀"
 
 #: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:187
+#: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "没有返回名字空间前缀"
 
@@ -1940,8 +1943,8 @@ msgstr "没有那个 URI 可用的元数据"
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "结果"
@@ -2189,90 +2192,91 @@ msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr "停止词是那些在索引进程中可能被忽略的词。"
 
-#: ../src/tracker-utils/tracker-sparql.c:96
+#: ../src/tracker-utils/tracker-sparql.c:101
 msgid "Path to use to run a query or update from file"
 msgstr "从文件中查询或更新使用的路径"
 
-#: ../src/tracker-utils/tracker-sparql.c:100
+#: ../src/tracker-utils/tracker-sparql.c:105
 msgid "SPARQL query"
 msgstr "SPARQL 查询"
 
-#: ../src/tracker-utils/tracker-sparql.c:101
+#: ../src/tracker-utils/tracker-sparql.c:106
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:104
+#: ../src/tracker-utils/tracker-sparql.c:109
 msgid "This is used with --query and for database updates only."
 msgstr "这只随 --query 使用和只用于数据库更新。"
 
-#: ../src/tracker-utils/tracker-sparql.c:108
+#: ../src/tracker-utils/tracker-sparql.c:113
 msgid "Retrieve classes"
 msgstr "检索类"
 
-#: ../src/tracker-utils/tracker-sparql.c:112
+#: ../src/tracker-utils/tracker-sparql.c:117
 msgid "Retrieve class prefixes"
 msgstr "检索类前缀"
 
-#: ../src/tracker-utils/tracker-sparql.c:116
+#: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr "为一个类检索属性，可以使用前缀 (例如 rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
-#: ../src/tracker-utils/tracker-sparql.c:121
-#: ../src/tracker-utils/tracker-sparql.c:129
-#: ../src/tracker-utils/tracker-sparql.c:137
-#: ../src/tracker-utils/tracker-sparql.c:141
+#: ../src/tracker-utils/tracker-sparql.c:122
+#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:134
+#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker-utils/tracker-sparql.c:146
 msgid "CLASS"
 msgstr "类"
 
-#: ../src/tracker-utils/tracker-sparql.c:120
+#: ../src/tracker-utils/tracker-sparql.c:125
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "检索数据库中提示变化的类(类是可选的)"
 
-#: ../src/tracker-utils/tracker-sparql.c:124
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
+#: ../src/tracker-utils/tracker-sparql.c:129
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr "获取数据库中使用的索引以提升性能(属性 是可选的)"
 
-#: ../src/tracker-utils/tracker-sparql.c:125
+#: ../src/tracker-utils/tracker-sparql.c:130
 msgid "PROPERTY"
 msgstr "属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:128
+#: ../src/tracker-utils/tracker-sparql.c:133
+#| msgid ""
+#| "Describe subclasses, superclasses (can be used with -s to highlight parts "
+#| "of the tree)"
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree)"
-msgstr "描述子类(subclasses)、超类(superclasses) (可与 -s 合用以高亮树中的部分)"
+"the tree and -p to show properties)"
+msgstr ""
+"描述子类(subclasses)、超类(superclasses)(可与 -s 合用以高亮树中的部分，-p 合用显示属性)"
 
-#: ../src/tracker-utils/tracker-sparql.c:132
+#: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "搜索一个类或者属性并显示更多信息(例如文件)"
 
-#: ../src/tracker-utils/tracker-sparql.c:133
+#: ../src/tracker-utils/tracker-sparql.c:138
 msgid "CLASS/PROPERTY"
 msgstr "类或属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:136
+#: ../src/tracker-utils/tracker-sparql.c:141
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "返回某个类的简写(如 nfo:FileDataObject)"
 
-#: ../src/tracker-utils/tracker-sparql.c:140
+#: ../src/tracker-utils/tracker-sparql.c:145
 msgid "Returns the full namespace for a class."
 msgstr "返回某个类的完整名字空间。"
 
-#: ../src/tracker-utils/tracker-sparql.c:233
+#: ../src/tracker-utils/tracker-sparql.c:238
 msgid "Could not get namespace prefixes"
 msgstr "无法获取名字空间前缀"
 
-#: ../src/tracker-utils/tracker-sparql.c:242
+#: ../src/tracker-utils/tracker-sparql.c:247
 msgid "No namespace prefixes were found"
 msgstr "没有找到名字空间前缀"
 
@@ -2299,8 +2303,8 @@ msgstr "没有找到名字空间前缀"
 #. *     None
 #. *
 #.
-#: ../src/tracker-utils/tracker-sparql.c:480
-#: ../src/tracker-utils/tracker-sparql.c:528
+#: ../src/tracker-utils/tracker-sparql.c:500
+#: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
 #: ../src/tracker-utils/tracker-tag.c:328
 #: ../src/tracker-utils/tracker-tag.c:464
@@ -2308,130 +2312,140 @@ msgstr "没有找到名字空间前缀"
 msgid "None"
 msgstr "无"
 
-#: ../src/tracker-utils/tracker-sparql.c:873
-#| msgid "Could not update tags for file"
+#: ../src/tracker-utils/tracker-sparql.c:954
 msgid "Could not create tree: subclass query failed"
 msgstr "无法创建树：查询子类失败"
 
-#: ../src/tracker-utils/tracker-sparql.c:948
+#: ../src/tracker-utils/tracker-sparql.c:1003
+#| msgid "Could not create tree: subclass query failed"
+msgid "Could not create tree: class properties query failed"
+msgstr "无法创建树：查询类属性失败"
+
+#: ../src/tracker-utils/tracker-sparql.c:1077
 msgid "- Query or update using SPARQL"
 msgstr "- 使用 SPARQL 查询或更新"
 
-#: ../src/tracker-utils/tracker-sparql.c:963
+#: ../src/tracker-utils/tracker-sparql.c:1092
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "没有提供参数"
 
-#: ../src/tracker-utils/tracker-sparql.c:965
+#: ../src/tracker-utils/tracker-sparql.c:1094
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "添加和删除动作不能同时使用"
 
-#: ../src/tracker-utils/tracker-sparql.c:1003
+#: ../src/tracker-utils/tracker-sparql.c:1096
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr "在与 --tree 参数共用时，--list-properties 参数只能为空"
+
+#: ../src/tracker-utils/tracker-sparql.c:1134
 msgid "Could not list classes"
 msgstr "不能列出类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
+#: ../src/tracker-utils/tracker-sparql.c:1142
 msgid "No classes were found"
 msgstr "没有找到类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1011
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1142
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "Classes"
 msgstr "类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1027
+#: ../src/tracker-utils/tracker-sparql.c:1158
 msgid "Could not list class prefixes"
 msgstr "无法列出类前缀"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "No class prefixes were found"
 msgstr "没有找到类前缀"
 
-#: ../src/tracker-utils/tracker-sparql.c:1035
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "Prefixes"
 msgstr "前缀"
 
-#: ../src/tracker-utils/tracker-sparql.c:1055
+#: ../src/tracker-utils/tracker-sparql.c:1186
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr "无法找到类前缀的属性，例如“rdfs:Resource”中的 :Resource"
 
-#: ../src/tracker-utils/tracker-sparql.c:1094
+#: ../src/tracker-utils/tracker-sparql.c:1225
 msgid "Could not list properties"
 msgstr "无法列出属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
+#: ../src/tracker-utils/tracker-sparql.c:1233
 msgid "No properties were found"
 msgstr "没有找到属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1102
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1233
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "Properties"
 msgstr "属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1130
+#: ../src/tracker-utils/tracker-sparql.c:1261
 msgid "Could not find notify classes"
 msgstr "不能找到提示类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "No notifies were found"
 msgstr "没有找到提示"
 
-#: ../src/tracker-utils/tracker-sparql.c:1138
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "Notifies"
 msgstr "提示"
 
-#: ../src/tracker-utils/tracker-sparql.c:1164
+#: ../src/tracker-utils/tracker-sparql.c:1295
 msgid "Could not find indexed properties"
 msgstr "无法列出索引的属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "No indexes were found"
 msgstr "没有找到索引"
 
-#: ../src/tracker-utils/tracker-sparql.c:1172
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "Indexes"
 msgstr "索引"
 
-#: ../src/tracker-utils/tracker-sparql.c:1194
+#: ../src/tracker-utils/tracker-sparql.c:1325
 msgid "Could not search classes"
 msgstr "不能列出类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1202
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "No classes were found to match search term"
 msgstr "没有发现符合搜索条件的类"
 
-#: ../src/tracker-utils/tracker-sparql.c:1217
+#: ../src/tracker-utils/tracker-sparql.c:1348
 msgid "Could not search properties"
 msgstr "无法搜索属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1225
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "No properties were found to match search term"
 msgstr "没有发现匹配搜索条件的属性"
 
-#: ../src/tracker-utils/tracker-sparql.c:1261
+#: ../src/tracker-utils/tracker-sparql.c:1392
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "无法从路径中找到 UTF-8 路径"
 
-#: ../src/tracker-utils/tracker-sparql.c:1273
+#: ../src/tracker-utils/tracker-sparql.c:1404
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "不能读取文件"
 
-#: ../src/tracker-utils/tracker-sparql.c:1292
+#: ../src/tracker-utils/tracker-sparql.c:1423
 msgid "Could not run update"
 msgstr "不能运行升级"
 
-#: ../src/tracker-utils/tracker-sparql.c:1340
+#: ../src/tracker-utils/tracker-sparql.c:1471
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "无法运行查询"
 
-#: ../src/tracker-utils/tracker-sparql.c:1352
-#: ../src/tracker-utils/tracker-sparql.c:1355
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 msgid "No results found matching your query"
 msgstr "未找到满足您的查询的结果"
 
