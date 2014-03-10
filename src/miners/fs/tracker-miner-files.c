@@ -1984,15 +1984,19 @@ miner_files_add_rdf_types (TrackerSparqlBuilder *sparql,
 
 	rdf_types = tracker_extract_module_manager_get_fallback_rdf_types (mime_type);
 
-	if (!rdf_types || !rdf_types[0])
+	if (!rdf_types)
 		return;
 
-	tracker_sparql_builder_predicate (sparql, "a");
+	if (rdf_types[0]) {
+		tracker_sparql_builder_predicate (sparql, "a");
 
-	while (rdf_types[i]) {
-		tracker_sparql_builder_object (sparql, rdf_types[i]);
-		i++;
+		while (rdf_types[i]) {
+			tracker_sparql_builder_object (sparql, rdf_types[i]);
+			i++;
+		}
 	}
+
+	g_strfreev (rdf_types);
 }
 
 static void
