@@ -453,7 +453,7 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
 
-	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	priv->d_connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 	if (!priv->d_connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",

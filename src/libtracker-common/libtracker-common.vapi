@@ -71,6 +71,12 @@ namespace Tracker {
 	}
 
 	[Compact]
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	namespace IPC {
+		public GLib.BusType bus ();
+	}
+
+	[Compact]
 	[CCode (ref_function = "", unref_function = "", cheader_filename = "libtracker-common/tracker-common.h")]
 	public class DBusRequest {
 		public static DBusRequest begin (string? sender, string format,...);

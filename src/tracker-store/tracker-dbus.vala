@@ -94,7 +94,7 @@ public class Tracker.DBus {
 		}
 
 		try {
-			connection = Bus.get_sync (BusType.SESSION);
+			connection = GLib.Bus.get_sync (Tracker.IPC.bus ());
 		} catch (Error e) {
 			critical ("Could not connect to the D-Bus session bus, %s", e.message);
 			return false;

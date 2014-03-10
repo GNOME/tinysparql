@@ -26,6 +26,8 @@
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
+#include <libtracker-common/tracker-dbus.h>
+
 #include "tracker-extract-client.h"
 
 /* Size of buffers used when sending data over a pipe, using DBus FD passing */
@@ -494,7 +496,7 @@ tracker_extract_client_get_metadata (GFile               *file,
 	g_return_if_fail (callback != NULL);
 
 	if (G_UNLIKELY (!connection)) {
-		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, cancellable, &error);
+		connection = g_bus_get_sync (TRACKER_IPC_BUS, cancellable, &error);
 
 		if (error) {
 			g_simple_async_report_gerror_in_idle (G_OBJECT (file), callback, user_data, error);
@@ -556,7 +558,7 @@ tracker_extract_client_cancel_for_prefix (GFile *prefix)
 	if (G_UNLIKELY (!connection)) {
 		GError *error = NULL;
 
-		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 		if (error) {
 			g_warning ("Couldn't get session bus, cannot cancel extractor tasks: '%s'",
 			           error->message);

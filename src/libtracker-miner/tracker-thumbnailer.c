@@ -142,9 +142,9 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 	private->request_id = 1;
 	private->service_is_available = FALSE;
 
-	g_message ("Thumbnailer connections being set up...");
+	g_message ("Thumbnailer connections being set up... (using same bus as Tracker, i.e. session or system)");
 
-	private->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
+	private->connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, error);
 
 	if (!private->connection)
 		return FALSE;

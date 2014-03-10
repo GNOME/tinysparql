@@ -21,7 +21,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	DBusConnection bus;
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
-		bus = GLib.Bus.get_sync (BusType.SESSION);
+		bus = GLib.Bus.get_sync (Tracker.IPC.bus ());
 
 		// ensure that error domain is registered with GDBus
 		new Sparql.Error.INTERNAL ("");

@@ -63,11 +63,24 @@ static GDBusConnection *connection;
 static void     client_data_free    (gpointer data);
 static gboolean client_clean_up_cb (gpointer data);
 
+inline GBusType
+tracker_ipc_bus (void)
+{
+	const gchar *bus = g_getenv ("TRACKER_BUS_TYPE");
+
+	if (G_UNLIKELY (bus != NULL &&
+	                g_ascii_strcasecmp (bus, "system") == 0)) {
+		return G_BUS_TYPE_SYSTEM;
+	}
+
+	return G_BUS_TYPE_SESSION;
+}
+
 static gboolean
 clients_init (void)
 {
 	GError *error = NULL;
-	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 	if (error) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
