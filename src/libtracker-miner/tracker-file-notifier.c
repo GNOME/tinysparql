@@ -351,6 +351,7 @@ file_notifier_add_node_foreach (GNode    *node,
 		tracker_file_system_set_property (priv->file_system, canonical,
 		                                  quark_property_filesystem_mtime,
 		                                  time_ptr);
+		g_object_unref (file_info);
 	}
 
 	return FALSE;

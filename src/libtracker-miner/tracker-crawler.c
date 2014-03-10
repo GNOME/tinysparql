@@ -1031,6 +1031,6 @@ tracker_crawler_get_file_info (TrackerCrawler *crawler,
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
-	info = g_object_get_qdata (G_OBJECT (file), file_info_quark);
+	info = g_object_steal_qdata (G_OBJECT (file), file_info_quark);
 	return info;
 }
