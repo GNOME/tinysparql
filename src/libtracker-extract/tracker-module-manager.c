@@ -245,7 +245,7 @@ tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 
 	if (!initialized &&
 	    !tracker_extract_module_manager_init ()) {
-		return FALSE;
+		return NULL;
 	}
 
 	rdf_types = g_hash_table_new (g_str_hash, g_str_equal);
@@ -271,6 +271,8 @@ tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 		types[i] = g_strdup (type);
 		i++;
 	}
+
+	g_hash_table_unref (rdf_types);
 
 	return types;
 }
