@@ -26,6 +26,7 @@ class Tracker.Sparql.Backend : Connection {
 		DIRECT,
 		BUS
 	}
+	GLib.BusType bus_type = BusType.SESSION;
 
 	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
@@ -34,7 +35,7 @@ class Tracker.Sparql.Backend : Connection {
 
 			// do not use proxy to work around race condition in GDBus
 			// NB#259760
-			var bus = GLib.Bus.get_sync (BusType.SESSION);
+			var bus = GLib.Bus.get_sync (bus_type);
 			var msg = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STATUS, TRACKER_DBUS_INTERFACE_STATUS, "Wait");
 			bus.send_message_with_reply_sync (msg, 0, /* timeout */ int.MAX, null).to_gerror ();
 
@@ -164,6 +165,20 @@ class Tracker.Sparql.Backend : Connection {
 
 	// Plugin loading functions
 	private void load_plugins () throws GLib.Error {
+		string env_bus_type = Environment.get_variable ("TRACKER_BUS_TYPE");
+
+		if (env_bus_type != null) {
+			if (env_bus_type.ascii_casecmp ("system") == 0) {
+				bus_type = BusType.SYSTEM;
+				debug ("Using bus = 'SYSTEM'");
+			} else if (env_bus_type.ascii_casecmp ("session") == 0) {
+				bus_type = BusType.SESSION;
+				debug ("Using bus = 'SESSION'");
+			} else {
+				warning ("Environment variable TRACKER_BUS_TYPE set to unknown value '%s'", env_bus_type);
+			}
+		}
+
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
 		Backend backend = Backend.AUTO;
 

@@ -1262,7 +1262,7 @@ tracker_control_general_run (void)
 		g_print ("%s\n", _("Backing up database"));
 		g_print ("  %s\n", uri);
 
-		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 		if (!connection) {
 			g_critical ("Could not connect to the D-Bus session bus: %s",
@@ -1334,7 +1334,7 @@ tracker_control_general_run (void)
 		g_print ("%s\n", _("Restoring database from backup"));
 		g_print ("  %s\n", uri);
 
-		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 		if (!connection) {
 			g_critical ("Could not connect to the D-Bus session bus: %s",

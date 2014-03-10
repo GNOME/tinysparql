@@ -404,7 +404,7 @@ miner_manager_initable_init (GInitable     *initable,
 	manager = TRACKER_MINER_MANAGER (initable);
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	priv->connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &inner_error);
 	if (!priv->connection) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
@@ -475,7 +475,7 @@ miner_manager_initable_init (GInitable     *initable,
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (data->dbus_name));
 
-		data->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+		data->watch_name_id = g_bus_watch_name (TRACKER_IPC_BUS,
 		                                        data->dbus_name,
 		                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
 		                                        miner_appears,

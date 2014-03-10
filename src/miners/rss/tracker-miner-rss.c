@@ -145,7 +145,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
 
-	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	priv->connection = g_bus_get_sync (TRACKER_BUS_TYPE, NULL, &error);
 
 	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",

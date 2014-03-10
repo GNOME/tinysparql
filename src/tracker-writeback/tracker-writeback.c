@@ -728,7 +728,7 @@ tracker_controller_dbus_start (TrackerController   *controller,
 		return FALSE;
 	}
 
-	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &err);
+	priv->d_connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &err);
 
 	if (!priv->d_connection) {
 		g_propagate_error (error, err);

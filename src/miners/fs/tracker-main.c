@@ -31,6 +31,7 @@
 #include <glib-object.h>
 #include <glib/gi18n.h>
 
+#include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontologies.h>
@@ -768,7 +769,7 @@ store_is_available (void)
 	GDBusProxy *proxy;
 	gchar *name_owner;
 
-	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, NULL);
 
 	if (!connection) {
 		return FALSE;

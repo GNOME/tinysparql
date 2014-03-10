@@ -34,6 +34,7 @@
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
+#include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -313,7 +314,7 @@ miner_files_initable_init (GInitable     *initable,
 	}
 
 	/* Set up extractor and signals */
-	mf->private->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	mf->private->connection =  g_bus_get_sync (TRACKER_IPC_BUS, NULL, &inner_error);
 	if (!mf->private->connection) {
 		g_propagate_error (error, inner_error);
 		g_prefix_error (error,

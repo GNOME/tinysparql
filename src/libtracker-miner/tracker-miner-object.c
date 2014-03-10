@@ -411,7 +411,7 @@ miner_initable_init (GInitable     *initable,
 	}
 
 	/* Try to get DBus connection... */
-	miner->priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	miner->priv->d_connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &inner_error);
 	if (!miner->priv->d_connection) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
@@ -496,13 +496,13 @@ miner_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	miner->priv->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
-	                                                  TRACKER_SERVICE,
-	                                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
-	                                                  on_tracker_store_appeared,
-	                                                  on_tracker_store_disappeared,
-	                                                  miner,
-	                                                  NULL);
+	miner->priv->watch_name_id = g_bus_watch_name (TRACKER_IPC_BUS,
+	                                               TRACKER_SERVICE,
+	                                               G_BUS_NAME_WATCHER_FLAGS_NONE,
+	                                               on_tracker_store_appeared,
+	                                               on_tracker_store_disappeared,
+	                                               miner,
+	                                               NULL);
 
 	return TRUE;
 }
@@ -961,7 +961,7 @@ miner_pause_internal (TrackerMiner  *miner,
 
 	if (calling_name) {
 		g_message ("Watching process with name:'%s'", calling_name);
-		watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+		watch_name_id = g_bus_watch_name (TRACKER_IPC_BUS,
 		                                  calling_name,
 		                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
 		                                  NULL,

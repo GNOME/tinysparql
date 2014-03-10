@@ -459,7 +459,7 @@ store_init (void)
 		return TRUE;
 	}
 
-	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",

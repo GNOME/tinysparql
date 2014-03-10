@@ -556,7 +556,7 @@ tracker_extract_decorator_initable_init (GInitable     *initable,
 	tracker_extract_dbus_priority_set_supported_rdf_types (priv->iface,
 	                                                       supported_classes);
 
-	conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
+	conn = g_bus_get_sync (TRACKER_IPC_BUS, NULL, error);
 	if (conn == NULL) {
 		ret = FALSE;
 		goto out;
