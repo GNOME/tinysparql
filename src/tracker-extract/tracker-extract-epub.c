@@ -46,8 +46,10 @@ typedef enum {
 } OPFTagType;
 
 typedef struct {
+	gchar *graph;
 	TrackerSparqlBuilder *preupdate;
 	TrackerSparqlBuilder *metadata;
+
 	OPFTagType element;
 	GList *pages;
 	guint in_metadata : 1;
@@ -61,18 +63,18 @@ typedef struct {
 } OPFContentData;
 
 static inline OPFData *
-opf_data_new (TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+opf_data_new (TrackerExtractInfo *info)
 {
-	OPFData *data = g_new0 (OPFData, 1);
+	OPFData *data = g_slice_new0 (OPFData);
+	TrackerSparqlBuilder *builder;
 
-	if (metadata) {
-		data->metadata = g_object_ref (metadata);
-	}
+	builder = tracker_extract_info_get_preupdate_builder (info);
+	data->preupdate = g_object_ref (builder);
 
-	if (preupdate) {
-		data->preupdate = g_object_ref (preupdate);
-	}
+	builder = tracker_extract_info_get_metadata_builder (info);
+	data->metadata = g_object_ref (builder);
+
+	data->graph = g_strdup (tracker_extract_info_get_graph (info));
 
 	return data;
 }
@@ -100,6 +102,8 @@ opf_data_free (OPFData *data)
 	g_list_foreach (data->pages, (GFunc) g_free, NULL);
 	g_list_free (data->pages);
 
+	g_free (data->graph);
+
 	if (data->metadata) {
 		g_object_unref (data->metadata);
 	}
@@ -108,7 +112,7 @@ opf_data_free (OPFData *data)
 		g_object_unref (data->preupdate);
 	}
 
-	g_free (data);
+	g_slice_free (OPFData, data);
 }
 
 /* Methods to parse the container.xml file
@@ -373,29 +377,37 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		}
 
 		/* Role details */
+		role_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", fullname);
+
 		if (data->element == OPF_TAG_TYPE_AUTHOR) {
-			role_uri = tracker_sparql_escape_uri_printf ("urn:role:author");
-			role_str = "Author";
+			role_str = "nco:creator";
 		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
-			role_uri = tracker_sparql_escape_uri_printf ("urn:role:editor");
-			role_str = "Editor";
+			/* Should this be nco:contributor ?
+			 * 'Editor' is a bit vague here.
+			 */
+			role_str = "nco:publisher";
 		} else if (data->element == OPF_TAG_TYPE_ILLUSTRATOR) {
-			role_uri = tracker_sparql_escape_uri_printf ("urn:role:illustrator");
-			role_str = "Illustrator";
+			/* There is no illustrator class, using contributor */
+			role_str = "nco:contributor";
 		} else {
 			g_assert ("Unknown role");
 		}
 
 		if (role_uri) {
-			tracker_sparql_builder_insert_silent_open (data->preupdate, NULL);
+			tracker_sparql_builder_insert_open (data->preupdate, NULL);
+			if (data->graph) {
+				tracker_sparql_builder_graph_open (data->preupdate, data->graph);
+			}
 
 			tracker_sparql_builder_subject_iri (data->preupdate, role_uri);
-
 			tracker_sparql_builder_predicate (data->preupdate, "a");
-			tracker_sparql_builder_object (data->preupdate, "nco:Role");
-			tracker_sparql_builder_predicate (data->preupdate, "nco:role");
-			tracker_sparql_builder_object_unvalidated (data->preupdate, role_str);
+			tracker_sparql_builder_object (data->preupdate, "nmm:Artist");
+			tracker_sparql_builder_predicate (data->preupdate, "nmm:artistName");
+			tracker_sparql_builder_object_unvalidated (data->preupdate, fullname);
 
+			if (data->graph) {
+				tracker_sparql_builder_graph_close (data->preupdate);
+			}
 			tracker_sparql_builder_insert_close (data->preupdate);
 		}
 
@@ -420,13 +432,13 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		}
 
 		if (oname) {
-			tracker_sparql_builder_predicate (data->metadata, "nco:nameOther");
+			tracker_sparql_builder_predicate (data->metadata, "nco:nameAdditional");
 			tracker_sparql_builder_object_unvalidated (data->metadata, oname);
 			g_free (oname);
 		}
 
 		if (role_uri) {
-			tracker_sparql_builder_predicate (data->metadata, "nco:role");
+			tracker_sparql_builder_predicate (data->metadata, role_str);
 			tracker_sparql_builder_object_iri (data->metadata, role_uri);
 			g_free (role_uri);
 		}
@@ -585,8 +597,7 @@ extract_opf_contents (const gchar *uri,
 static gboolean
 extract_opf (const gchar          *uri,
              const gchar          *opf_path,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+             TrackerExtractInfo   *info)
 {
 	GMarkupParseContext *context;
 	OPFData *data = NULL;
@@ -601,10 +612,10 @@ extract_opf (const gchar          *uri,
 
 	g_debug ("Extracting OPF file contents from EPUB '%s'", uri);
 
-	data = opf_data_new (preupdate, metadata);
+	data = opf_data_new (info);
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:TextDocument");
+	tracker_sparql_builder_predicate (data->metadata, "a");
+	tracker_sparql_builder_object (data->metadata, "nfo:TextDocument");
 
 	/* Create parsing context */
 	context = g_markup_parse_context_new (&opf_parser, 0, data, NULL);
@@ -628,8 +639,8 @@ extract_opf (const gchar          *uri,
 	g_free (dirname);
 
 	if (contents && *contents) {
-		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (metadata, contents);
+		tracker_sparql_builder_predicate (data->metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (data->metadata, contents);
 	}
 
 	opf_data_free (data);
@@ -654,9 +665,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	extract_opf (uri, opf_path,
-	             tracker_extract_info_get_preupdate_builder (info),
-	             tracker_extract_info_get_metadata_builder (info));
+	extract_opf (uri, opf_path, info);
 	g_free (opf_path);
 	g_free (uri);
 
