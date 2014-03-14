@@ -235,7 +235,7 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 
 	if (!info) {
 		priv->n_extracting_files--;
-		g_warning ("Next item could not be retrieved: %s\n", error->message);
+		g_warning ("Next item could not be retrieved: %s", error->message);
 		g_error_free (error);
 		return;
 	}
@@ -245,7 +245,7 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 	data->decorator_info = info;
 	task = tracker_decorator_info_get_task (info);
 
-	g_debug ("Extracting metadata for: %s\n", tracker_decorator_info_get_url (info));
+	g_message ("Extracting metadata for '%s'", tracker_decorator_info_get_url (info));
 
 	tracker_extract_file (priv->extractor,
 	                      tracker_decorator_info_get_url (info),
@@ -284,7 +284,7 @@ tracker_extract_decorator_paused (TrackerMiner *miner)
 	TrackerExtractDecoratorPrivate *priv;
 
 	priv = TRACKER_EXTRACT_DECORATOR (miner)->priv;
-	g_debug ("Decorator paused\n");
+	g_message ("Decorator paused");
 
 	if (priv->timer)
 		g_timer_stop (priv->timer);
@@ -296,8 +296,8 @@ tracker_extract_decorator_resumed (TrackerMiner *miner)
 	TrackerExtractDecoratorPrivate *priv;
 
 	priv = TRACKER_EXTRACT_DECORATOR (miner)->priv;
-	g_debug ("Resuming processing of %d items\n",
-	         tracker_decorator_get_n_items (TRACKER_DECORATOR (miner)));
+	g_message ("Decorator resumed, processing remaining %d items",
+	           tracker_decorator_get_n_items (TRACKER_DECORATOR (miner)));
 
 	if (priv->timer)
 		g_timer_continue (priv->timer);
@@ -311,8 +311,8 @@ tracker_extract_decorator_items_available (TrackerDecorator *decorator)
 	TrackerExtractDecoratorPrivate *priv;
 
 	priv = TRACKER_EXTRACT_DECORATOR (decorator)->priv;
-	g_debug ("Starting processing of %d items\n",
-	         tracker_decorator_get_n_items (decorator));
+	g_message ("Starting to process %d items",
+	           tracker_decorator_get_n_items (decorator));
 
 	priv->timer = g_timer_new ();
 	if (tracker_miner_is_paused (TRACKER_MINER (decorator)))
@@ -329,7 +329,7 @@ tracker_extract_decorator_finished (TrackerDecorator *decorator)
 
 	priv = TRACKER_EXTRACT_DECORATOR (decorator)->priv;
 	time_str = tracker_seconds_to_string ((gint) g_timer_elapsed (priv->timer, NULL), TRUE);
-	g_debug ("Extraction finished in %s", time_str);
+	g_message ("Extraction finished in %s", time_str);
 	g_timer_destroy (priv->timer);
 	priv->timer = NULL;
 	g_free (time_str);

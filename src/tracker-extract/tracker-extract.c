@@ -291,8 +291,6 @@ get_file_metadata (TrackerExtractTask  *task,
 #endif
 	gint items = 0;
 
-	g_debug ("Extracting...");
-
 	*info_out = NULL;
 
 	file = g_file_new_for_uri (task->file);
@@ -305,7 +303,7 @@ get_file_metadata (TrackerExtractTask  *task,
 	 * -mr (05/09/11)
 	 */
 	if (!priv->force_internal_extractors) {
-		g_debug ("  Using libstreamanalyzer...");
+		g_debug ("Using libstreamanalyzer...");
 
 		tracker_topanalyzer_extract (task->file, statements, &content_type);
 
@@ -318,7 +316,7 @@ get_file_metadata (TrackerExtractTask  *task,
 			return TRUE;
 		}
 	} else {
-		g_debug ("  Using internal extractors ONLY...");
+		g_debug ("Using internal extractors ONLY...");
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */
 
@@ -345,7 +343,7 @@ get_file_metadata (TrackerExtractTask  *task,
 		if (task->cur_func) {
 			TrackerSparqlBuilder *statements;
 
-			g_debug ("  Using %s...", g_module_name (task->cur_module));
+			g_debug ("Using %s...", g_module_name (task->cur_module));
 
 			(task->cur_func) (info);
 
@@ -355,7 +353,7 @@ get_file_metadata (TrackerExtractTask  *task,
 			if (items > 0) {
 				tracker_sparql_builder_insert_close (statements);
 
-				g_debug ("Done (%d items)", items);
+				g_debug ("Done (%d items)\n", items);
 
 				task->success = TRUE;
 			}
@@ -431,10 +429,10 @@ extract_task_new (TrackerExtract *extract,
 
 		mimetype_used = g_strdup (g_file_info_get_content_type (info));
 		g_object_unref (info);
-		g_debug ("MIME type guessed as '%s' (from GIO)", mimetype_used);
+		g_message ("MIME type guessed as '%s' (from GIO)", mimetype_used);
 	} else {
 		mimetype_used = g_strdup (mimetype);
-		g_debug ("MIME type passed to us as '%s'", mimetype_used);
+		g_message ("MIME type passed to us as '%s'", mimetype_used);
 	}
 
 	task = g_slice_new0 (TrackerExtractTask);
@@ -531,7 +529,7 @@ get_metadata (TrackerExtractTask *task)
 	TrackerExtractInfo *info;
 
 #ifdef THREAD_ENABLE_TRACE
-	g_debug ("Thread:%p --> File:'%s' - Extracted",
+	g_debug ("Thread:%p --> '%s': Collected metadata",
 	         g_thread_self (),
 	         task->file);
 #endif /* THREAD_ENABLE_TRACE */
@@ -573,7 +571,10 @@ single_thread_get_metadata (GAsyncQueue *queue)
 		TrackerExtractTask *task;
 
 		task = g_async_queue_pop (queue);
-		g_message ("Dispatching '%s' in dedicated thread", task->file);
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p --> '%s': Dispatching in dedicated thread",
+		         g_thread_self(), task->file);
+#endif /* THREAD_ENABLE_TRACE */
 		get_metadata (task);
 	}
 }
@@ -591,7 +592,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 	GModule *module;
 
 #ifdef THREAD_ENABLE_TRACE
-	g_debug ("Thread:%p (Main) <-- File:'%s' - Dispatching\n",
+	g_debug ("Thread:%p (Main) <-- '%s': Handling task...\n",
 	         g_thread_self (),
 	         task->file);
 #endif /* THREAD_ENABLE_TRACE */
@@ -616,14 +617,14 @@ dispatch_task_cb (TrackerExtractTask *task)
 			/* Any further iteration, should happen rarely if
 			 * most specific handlers know nothing about the file
 			 */
-			g_message ("Trying next extractor for '%s'", task->file);
-
 			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {
-				g_message ("  There's no next extractor");
+				g_message ("There's no next extractor");
 
 				error = g_error_new (TRACKER_DBUS_ERROR, 0,
 				                     "Could not get any metadata for uri:'%s' and mime:'%s'",
 				                     task->file, task->mimetype);
+			} else {
+				g_message ("Trying next extractor for '%s'", task->file);
 			}
 		}
 	}
@@ -640,7 +641,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 	task->cur_module = module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, &thread_awareness);
 
 	if (!module || !task->cur_func) {
-		g_warning ("Discarding task with no module '%s'", task->file);
+		g_warning ("Discarding task, no module able to handle '%s'", task->file);
 		priv->unhandled_count++;
 		extract_task_free (task);
 		return FALSE;
@@ -658,7 +659,10 @@ dispatch_task_cb (TrackerExtractTask *task)
 		break;
 	case TRACKER_MODULE_MAIN_THREAD:
 		/* Dispatch the task right away in this thread */
-		g_message ("Dispatching '%s' in main thread", task->file);
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p (Main) <-- '%s': Dispatching in main thread",
+		         g_thread_self(), task->file);
+#endif /* THREAD_ENABLE_TRACE */
 		get_metadata (task);
 		break;
 	case TRACKER_MODULE_SINGLE_THREAD: {
@@ -695,7 +699,10 @@ dispatch_task_cb (TrackerExtractTask *task)
 	}
 	case TRACKER_MODULE_MULTI_THREAD:
 		/* Put task in thread pool */
-		g_message ("Dispatching '%s' in thread pool", task->file);
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p (Main) --> '%s': Dispatching in thread pool",
+		         g_thread_self(), task->file);
+#endif /* THREAD_ENABLE_TRACE */
 		g_thread_pool_push (priv->thread_pool, task, &error);
 
 		if (error) {
@@ -732,7 +739,7 @@ tracker_extract_file (TrackerExtract      *extract,
 	g_return_if_fail (cb != NULL);
 
 #ifdef THREAD_ENABLE_TRACE
-	g_debug ("Thread:%p <-- File:'%s' - Extracting\n",
+	g_debug ("Thread:%p <-- '%s': Processing file\n",
 	         g_thread_self (),
 	         file);
 #endif /* THREAD_ENABLE_TRACE */

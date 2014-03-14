@@ -92,8 +92,8 @@ tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
 	GsfInput *member = NULL;
 	FILE *file;
 
-	g_debug ("Parsing '%s' XML file from '%s' zip archive...",
-	         xml_filename, zip_file_uri);
+	g_debug ("Parsing '%s' XML file contained inside zip archive...",
+	         xml_filename);
 
 	/* Get filename from the given URI */
 	if ((filename = g_filename_from_uri (zip_file_uri,
