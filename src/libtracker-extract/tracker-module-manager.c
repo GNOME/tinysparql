@@ -236,7 +236,7 @@ lookup_rules (const gchar *mimetype)
 GStrv
 tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 {
-	GList *l, *list = lookup_rules (mimetype);
+	GList *l, *list;
 	GHashTable *rdf_types;
 	gchar **types, *type;
 	GHashTableIter iter;
@@ -247,6 +247,7 @@ tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 		return NULL;
 	}
 
+	list = lookup_rules (mimetype);
 	rdf_types = g_hash_table_new (g_str_hash, g_str_equal);
 
 	for (l = list; l; l = l->next) {
