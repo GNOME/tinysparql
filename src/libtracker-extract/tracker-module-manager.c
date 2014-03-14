@@ -163,10 +163,9 @@ tracker_extract_module_manager_init (void)
 		    !load_extractor_rule (key_file, &error)) {
 			g_warning ("  Could not load extractor rule file '%s': %s", name, error->message);
 			g_clear_error (&error);
-			continue;
+		} else {
+			g_debug ("  Loaded rule '%s'", name);
 		}
-
-		g_debug ("  Loaded rule '%s'", name);
 
 		g_key_file_free (key_file);
 		g_free (path);
