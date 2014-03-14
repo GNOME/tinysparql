@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-06 18:54+0100\n"
-"PO-Revision-Date: 2014-03-06 18:55+0100\n"
+"POT-Creation-Date: 2014-03-14 18:52+0100\n"
+"PO-Revision-Date: 2014-03-14 18:53+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -415,6 +415,14 @@ msgstr "Podręczniki użytkownika"
 msgid "Userguide data miner"
 msgstr "Przeszukiwanie danych w podręcznikach użytkownika"
 
+#: ../data/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Wydobywanie metadanych programu Tracker"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Wydobywanie metadanych z lokalnych plików"
+
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
 msgstr "Przeszukiwanie systemu plików programu Tracker"
@@ -753,7 +761,7 @@ msgstr "Przetwarzanie…"
 msgid "Tags"
 msgstr "Etykiety"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
