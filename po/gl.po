@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-06 12:25+0100\n"
-"PO-Revision-Date: 2014-03-06 12:26+0200\n"
+"POT-Creation-Date: 2014-03-14 19:01+0100\n"
+"PO-Revision-Date: 2014-03-14 19:02+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -402,6 +402,14 @@ msgstr "Guías de usuario"
 msgid "Userguide data miner"
 msgstr "Guía de usuario do mineiro de datos"
 
+#: ../data/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Metadatos do extractor de Tracker"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Extrae os metadatos dos ficheiros locais"
+
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
 msgstr "Mineiro do sistema de ficheiros de Tracker"
@@ -739,7 +747,7 @@ msgstr "Procesando…"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
