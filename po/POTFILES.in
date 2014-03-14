@@ -13,6 +13,7 @@ data/miners/tracker-miner-extract.desktop.in.in
 data/miners/tracker-miner-files.desktop.in.in
 data/miners/tracker-miner-rss.desktop.in.in
 data/miners/tracker-miner-userguides.desktop.in.in
+data/tracker-extract.desktop.in.in
 data/tracker-miner-fs.desktop.in.in
 data/tracker-miner-rss.desktop.in.in
 data/tracker-store.desktop.in.in
