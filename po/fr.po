@@ -1,5 +1,5 @@
 # French translation of Tracker
-# Copyright (C) 2006-2011, Free Software Foundation, Inc
+# Copyright (C) 2006-2014, Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 #
 # Laurent Aguerreche <laurent.aguerreche@free.fr>, 2006.
@@ -9,17 +9,18 @@
 # Bruno Brouard <annoa.b@gmail.com>, 2008, 2011.
 # Marc Veillet <scouigne@gmail.com>, 2008.
 # Alain Lojewski <allomervan@gmail.com>, 2011-2012.
+# Bruno Cauet <brunocauet@gmail.com>, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2013-09-12 16:30+0000\n"
-"PO-Revision-Date: 2013-09-21 17:20+0200\n"
-"Last-Translator: Alain Lojewski <allomervan@gmail.com>\n"
+"POT-Creation-Date: 2014-03-15 11:46+0000\n"
+"PO-Revision-Date: 2014-03-15 17:20+0100\n"
+"Last-Translator: Bruno Cauet <brunocauet@gmail.com>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
-"Language: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1657,13 +1658,15 @@ msgid "Items"
 msgstr "Éléments"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#, c-format
 msgid "Loading…"
 msgstr "Chargement…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-msgid "Pages"
-msgstr "Pages"
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d page"
+msgstr[1] "%d pages"
 
 # Titre de boîte de dialogue
 #: ../src/tracker-needle/tracker-view.vala:452
@@ -1865,7 +1868,7 @@ msgstr "Supprimer le dossier du processus d'indexation"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "Where is your content?"
-msgstr "Où se trouve votre contenu ?"
+msgstr "Où votre contenu se trouve-t-il ?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Locations"
@@ -2119,7 +2122,7 @@ msgid ""
 "categories, e.g. Documents, Music…"
 msgstr ""
 "Désactive l'affichage d'extraits avec les résultats. Ils ne sont affichés "
-"que pour certaines catégories, par exemple les Documents, la Musique…"
+"que pour certaines catégories, par exemple les documents, la musique…"
 
 #: ../src/tracker-utils/tracker-search.c:104
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
@@ -2759,120 +2762,3 @@ msgstr "Impossible d'initialiser le gestionnaire de données"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Ensemble résultant vide"
-
-#~ msgid "No error was given"
-#~ msgstr "Aucune erreur indiquée"
-
-#~ msgid "no error given"
-#~ msgstr "aucune erreur indiquée"
-
-#~ msgid "_Tags..."
-#~ msgstr "Étique_ttes..."
-
-#~ msgid "%d%%"
-#~ msgstr "%d %%"
-
-#~ msgid "%d"
-#~ msgstr "%d"
-
-#~ msgid "512"
-#~ msgstr "512"
-
-#~ msgid "0"
-#~ msgstr "0"
-
-#~ msgid "General"
-#~ msgstr "Général"
-
-#~ msgid "Flickr"
-#~ msgstr "Flickr"
-
-#~ msgid "Index your Flickr photo albums"
-#~ msgstr "Indexe vos albums photos Flickr"
-
-#~ msgid "Tracker Miner for Flickr"
-#~ msgstr "Collecteur Tracker pour Flickr"
-
-#~ msgid "Processes images and albums on Flickr"
-#~ msgstr "Analyse les images et les albums sur Flickr"
-
-#~ msgid "_URN:"
-#~ msgstr "_URN :"
-
-#~ msgid "_About"
-#~ msgstr "À _propos"
-
-#~ msgid "Other"
-#~ msgstr "Autre"
-
-#~ msgid "Email Addresses"
-#~ msgstr "Adresses électroniques"
-
-#~ msgid "Fonts"
-#~ msgstr "Polices"
-
-#~ msgid "Archives"
-#~ msgstr "Archives"
-
-#~ msgid "Links"
-#~ msgstr "Liens"
-
-#~ msgid "Category"
-#~ msgstr "Catégorie"
-
-#~ msgid "Title"
-#~ msgstr "Titre"
-
-#~ msgid "No results found for “%s”"
-#~ msgstr "Aucun résultat trouvé pour « %s »"
-
-#~ msgid "Copyright Tracker Authors 2005-2010"
-#~ msgstr "Copyright 2005-2010 Les auteurs de Tracker"
-
-#~ msgid "A search bar applet for finding content stored in Tracker"
-#~ msgstr ""
-#~ "Une applet barre de recherche pour trouver du contenu stocké dans Tracker"
-
-#~ msgid ""
-#~ "Tracker is free software; you can redistribute it and/or modify it under "
-#~ "the terms of the GNU General Public License as published by the Free "
-#~ "Software Foundation; either version 2 of the License, or (at your option) "
-#~ "any later version.\n"
-#~ "\n"
-#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
-#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
-#~ "more details.\n"
-#~ "\n"
-#~ "You should have received a copy of the GNU General Public License along "
-#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
-#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
-#~ msgstr ""
-#~ "Tracker est un logiciel libre ; vous pouvez le redistribuer et/ou le "
-#~ "modifier au titre des clauses de la Licence Publique Générale GNU, telle "
-#~ "que publiée par la Free Software Foundation ; soit la version 2 de la "
-#~ "Licence, ou (à votre discrétion) une version ultérieure quelconque.\n"
-#~ "\n"
-#~ "Tracker est distribué dans l'espoir qu'il sera utile, mais SANS AUCUNE "
-#~ "GARANTIE ; sans même une garantie implicite de COMMERCIABILITÉ ou DE "
-#~ "CONFORMITÉ À UNE UTILISATION PARTICULIÈRE. Voir la Licence Publique "
-#~ "Générale GNU pour plus de détails.\n"
-#~ "\n"
-#~ "Vous devriez avoir reçu un exemplaire de la Licence Publique Générale GNU "
-#~ "avec ce programme ; si ce n'est pas le cas, écrivez à la Free Software "
-#~ "Foundation Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
-#~ "USA."
-
-#~ msgid "Minimum length of a word to be indexed"
-#~ msgstr "Longueur minimale des mots à indexer"
-
-#~ msgid "Words with less characters than this will be ignored by the indexer."
-#~ msgstr ""
-#~ "Les mots contenant moins de caractères que ce nombre seront ignorés par "
-#~ "l'indexeur."
-
-#~ msgid "Tags..."
-#~ msgstr "Étiquettes..."
-
-#~ msgid "Tag one or more files"
-#~ msgstr "Étiqueter un ou plusieurs fichiers"
