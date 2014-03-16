@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-08 13:08+0000\n"
-"PO-Revision-Date: 2014-03-08 22:03+0100\n"
+"POT-Creation-Date: 2014-03-15 16:32+0000\n"
+"PO-Revision-Date: 2014-03-16 02:28+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -403,6 +403,14 @@ msgstr "Uživatelské příručky"
 #: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
 msgid "Userguide data miner"
 msgstr "Démon na dolování dat z uživatelských příruček"
+
+#: ../data/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Vytahování metadat pro Tracker"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Vytahuje metadata z místních souborů"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
