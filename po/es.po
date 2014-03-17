@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-06 15:02+0000\n"
-"PO-Revision-Date: 2014-03-07 17:56+0100\n"
+"POT-Creation-Date: 2014-03-17 12:29+0000\n"
+"PO-Revision-Date: 2014-03-17 14:19+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -407,6 +407,15 @@ msgstr "Guías de usuario"
 msgid "Userguide data miner"
 msgstr "Guía de usuario del minero de datos"
 
+#: ../data/tracker-extract.desktop.in.in.h:1
+#| msgid "Metadata extractor"
+msgid "Tracker Metadata Extractor"
+msgstr "Extractor de metadatos de Tracker"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Extrae metadatos de archivos locales"
+
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
 msgstr "Minero del sistema de archivos de Tracker"
@@ -745,7 +754,7 @@ msgstr "Procesando…"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
@@ -1290,6 +1299,17 @@ msgstr "Opciones de estado"
 #: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Mostrar las opciones de estado"
+
+#: ../src/tracker-extract/tracker-extract.c:792
+#| msgid "Metadata extractor"
+msgid "Metadata extraction failed"
+msgstr "Falló la extracción de metadatos"
+
+#: ../src/tracker-extract/tracker-extract.c:857
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+"No se han encontrado metadatos o módulos del extractor para manejar este "
+"archivo"
 
 #: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-store/tracker-main.vala:48
@@ -2385,9 +2405,6 @@ msgid "PROPERTY"
 msgstr "PROPIEDAD"
 
 #: ../src/tracker-utils/tracker-sparql.c:133
-#| msgid ""
-#| "Describe subclasses, superclasses (can be used with -s to highlight parts "
-#| "of the tree)"
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -2457,7 +2474,6 @@ msgid "Could not create tree: subclass query failed"
 msgstr "No se pudo crear el árbol: falló la consulta de la subclase"
 
 #: ../src/tracker-utils/tracker-sparql.c:1003
-#| msgid "Could not create tree: subclass query failed"
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "No se pudo crear el árbol: falló la consulta de las propiedades de la clase"
