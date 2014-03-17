@@ -16,16 +16,16 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-14 17:52+0000\n"
-"PO-Revision-Date: 2014-03-14 19:18-0300\n"
-"Last-Translator: Rafael Ferreira <rafael.f.f1@gmail.com>\n"
+"POT-Creation-Date: 2014-03-17 11:34+0000\n"
+"PO-Revision-Date: 2014-03-17 09:15-0300\n"
+"Last-Translator: Antonio Fernandes C. Neto <fernandesn@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.6.4\n"
 "X-Project-Style: gnome\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
@@ -415,7 +415,6 @@ msgid "Userguide data miner"
 msgstr "Mineração de dados dos guias de usuário"
 
 #: ../data/tracker-extract.desktop.in.in.h:1
-#| msgid "Metadata extractor"
 msgid "Tracker Metadata Extractor"
 msgstr "Extrator de metadados do Tracker"
 
@@ -1315,6 +1314,17 @@ msgstr "Opções de status"
 #: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Mostrar opções de status"
+
+#: ../src/tracker-extract/tracker-extract.c:792
+#| msgid "Metadata extractor"
+msgid "Metadata extraction failed"
+msgstr "Extrator de metadados falhou"
+
+#: ../src/tracker-extract/tracker-extract.c:857
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+"Não foram encontrados módulos de metadados ou extratores para lidar com este "
+"arquivo"
 
 #: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-store/tracker-main.vala:48
