@@ -16,9 +16,9 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-16 01:29+0000\n"
-"PO-Revision-Date: 2014-03-16 12:26+0100\n"
-"Last-Translator: Alain Lojewski <allomervan@gmail.com>\n"
+"POT-Creation-Date: 2014-03-17 12:29+0000\n"
+"PO-Revision-Date: 2014-03-17 15:28+0100\n"
+"Last-Translator: Luis Menina <liberforce@freeside.fr>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -903,8 +903,9 @@ msgid ""
 "Collect debug information useful for problem reporting and investigation, "
 "results are output to terminal"
 msgstr ""
-"Collecte des informations de débogage utiles pour faire remonter des problèmes "
-"et faciliter les investigations. Les résultats sortent sur le terminal."
+"Collecte des informations de débogage utiles pour faire remonter des "
+"problèmes et faciliter les investigations. Les résultats sortent sur le "
+"terminal."
 
 #: ../src/tracker-control/tracker-control-general.c:141
 msgid "Could not open /proc"
@@ -1349,6 +1350,14 @@ msgstr "Options d'état"
 #: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Affiche les options d'état"
+
+#: ../src/tracker-extract/tracker-extract.c:792
+msgid "Metadata extraction failed"
+msgstr "Échec de l'extraction des métadonnées"
+
+#: ../src/tracker-extract/tracker-extract.c:857
+msgid "No metadata or extractor modules found to handle this file"
+msgstr "Aucun module d'extraction ne gère ce fichier ou les métadonnées sont absentes"
 
 #: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-store/tracker-main.vala:48
