@@ -689,7 +689,7 @@ if test "x$sqlite_safe" != "xyes"; then
    PKG_CHECK_EXISTS([sqlite3 >= 3.7.14], sqlite_safe=yes, sqlite_safe=no)
 fi
 
-if test "x$sqlite_safe" == "xyes"; then
+if test "x$sqlite_safe" = "xyes"; then
    PKG_CHECK_EXISTS([sqlite3 = 3.8.1], sqlite_safe=no, sqlite_safe=yes)
 fi
 
@@ -744,7 +744,7 @@ if test "x$have_tracker_fts" = "xyes"; then
    fi
 else
    AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
-   $have_builtin_fts4="disabled"
+   have_builtin_fts4="disabled"
 fi
 
 AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts4" = "yes")
