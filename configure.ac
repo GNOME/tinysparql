@@ -1404,7 +1404,7 @@ AC_ARG_ENABLE([tracker-preferences],
 # If we don't have miner-fs enabled, the preferences are pointless
 # So we override in this case.
 if test "x$enable_tracker_miner_fs" = "xyes" ; then
-   enable_tracker_miner_fs = "no"
+   enable_tracker_miner_fs="no"
 fi
 
 if test "x$enable_tracker_preferences" = "xyes" ; then
