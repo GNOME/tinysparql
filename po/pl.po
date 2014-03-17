@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-14 18:52+0100\n"
-"PO-Revision-Date: 2014-03-14 18:53+0100\n"
+"POT-Creation-Date: 2014-03-17 15:13+0100\n"
+"PO-Revision-Date: 2014-03-17 15:15+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -1314,6 +1314,16 @@ msgstr "Opcje stanu"
 #: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Wyświetla opcje stanu"
+
+#: ../src/tracker-extract/tracker-extract.c:792
+msgid "Metadata extraction failed"
+msgstr "Rozpakowanie metadanych się nie powiodło"
+
+#: ../src/tracker-extract/tracker-extract.c:857
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+"Nie odnaleziono modułów rozpakowujących lub metadanych do obsłużenia tego "
+"pliku"
 
 #: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-store/tracker-main.vala:48
