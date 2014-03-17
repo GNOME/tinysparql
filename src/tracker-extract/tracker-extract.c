@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include <gmodule.h>
+#include <glib/gi18n.h>
 #include <gio/gio.h>
 
 #include <gio/gunixoutputstream.h>
@@ -352,9 +353,6 @@ get_file_metadata (TrackerExtractTask  *task,
 
 			if (items > 0) {
 				tracker_sparql_builder_insert_close (statements);
-
-				g_debug ("Done (%d items)\n", items);
-
 				task->success = TRUE;
 			}
 		}
@@ -362,8 +360,9 @@ get_file_metadata (TrackerExtractTask  *task,
 		g_free (mime_used);
 	}
 
+	g_debug ("Done (%d objects added)\n", items);
+
 	if (items == 0) {
-		g_debug ("No extractor or failed");
 		tracker_extract_info_unref (info);
 		info = NULL;
 	}
@@ -779,7 +778,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	TrackerExtractPrivate *priv;
 	TrackerExtractTask *task;
 	TrackerExtractInfo *info;
-	gboolean no_modules = TRUE;
+	gboolean no_data_or_modules = TRUE;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->disable_summary_on_finalize = TRUE;
@@ -789,7 +788,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	task = extract_task_new (object, uri, mime, NULL, NULL, NULL, &error);
 
 	if (error) {
-		g_printerr ("Extraction failed, %s\n", error->message);
+		g_printerr ("%s, %s\n",
+		            _("Metadata extraction failed"),
+		            error->message);
 		g_error_free (error);
 
 		return;
@@ -804,7 +805,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			const gchar *preupdate_str, *postupdate_str, *statements_str, *where;
 			TrackerSparqlBuilder *builder;
 
-			no_modules = FALSE;
+			no_data_or_modules = FALSE;
 			preupdate_str = statements_str = postupdate_str = NULL;
 
 			builder = tracker_extract_info_get_metadata_builder (info);
@@ -851,8 +852,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		}
 	}
 
-	if (no_modules) {
-		g_print ("No modules found to handle metadata extraction\n\n");
+	if (no_data_or_modules) {
+		g_print ("%s\n\n",
+		         _("No metadata or extractor modules found to handle this file"));
 	}
 
 	extract_task_free (task);
