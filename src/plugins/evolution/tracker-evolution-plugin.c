@@ -2492,7 +2492,7 @@ miner_start_watching (TrackerMiner *miner)
 {
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
-	priv->watch_name_id = g_bus_watch_name (TRACKER_BUS_TYPE,
+	priv->watch_name_id = g_bus_watch_name (TRACKER_IPC_BUS,
 	                                        TRACKER_SERVICE,
 	                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
 	                                        on_tracker_store_appeared,
