@@ -71,14 +71,11 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-#define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
-
 static GMainLoop *main_loop;
 
 static gint verbosity = -1;
 static gchar *filename;
 static gchar *mime_type;
-static gboolean force_internal_extractors;
 static gchar *force_module;
 static gboolean version;
 
@@ -98,10 +95,6 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_STRING, &mime_type,
 	  N_("MIME type for file (if not provided, this will be guessed)"),
 	  N_("MIME") },
-	{ "force-internal-extractors", 'i', 0,
-	  G_OPTION_ARG_NONE, &force_internal_extractors,
-	  N_("Force internal extractors over 3rd parties like libstreamanalyzer"),
-	  NULL },
 	{ "force-module", 'm', 0,
 	  G_OPTION_ARG_STRING, &force_module,
 	  N_("Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"),
@@ -288,9 +281,7 @@ run_standalone (TrackerConfig *config)
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
 
-	object = tracker_extract_new (TRUE,
-	                              force_internal_extractors,
-	                              force_module);
+	object = tracker_extract_new (TRUE, force_module);
 
 	if (!object) {
 		g_object_unref (file);
@@ -354,20 +345,6 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (force_internal_extractors && force_module) {
-		gchar *help;
-
-		g_printerr ("%s\n\n",
-		            _("Options --force-internal-extractors and --force-module can't be used together"));
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return EXIT_FAILURE;
-	}
-
 	g_option_context_free (context);
 
 	if (version) {
@@ -409,9 +386,7 @@ main (int argc, char *argv[])
 	                                    tracker_db_manager_get_first_index_done () == FALSE);
 	tracker_memory_setrlimits ();
 
-	extract = tracker_extract_new (TRUE,
-	                               force_internal_extractors,
-	                               force_module);
+	extract = tracker_extract_new (TRUE, force_module);
 
 	if (!extract) {
 		g_object_unref (config);

@@ -50,7 +50,6 @@ struct TrackerExtractClass {
 
 GType           tracker_extract_get_type                (void);
 TrackerExtract *tracker_extract_new                     (gboolean                disable_shutdown,
-                                                         gboolean                force_internal_extractors,
                                                          const gchar            *force_module);
 
 void            tracker_extract_file                    (TrackerExtract         *extract,

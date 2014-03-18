@@ -189,8 +189,6 @@ EVO_REQUIRED=2.32.0
 EVO_SHELL_REQUIRED=2.32.0
 EDS_REQUIRED=2.32.0
 CAMEL_REQUIRED=2.32.0
-# Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
-LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 TAGLIB_REQUIRED=1.6
 LIBGRSS_REQUIRED=0.5
@@ -1500,39 +1498,6 @@ fi
 
 AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
 
-####################################################################
-# Check for tracker-extract: libstreamanalyzer
-####################################################################
-
-AC_ARG_ENABLE(libstreamanalyzer,
-              AS_HELP_STRING([--enable-libstreamanalyzer],
-                             [enable libstreamananalyzer [[default=no]]]),,
-              [enable_libstreamanalyzer=no])
-
-if test "x$enable_libstreamanalyzer" != "xno"; then
-   PKG_CHECK_MODULES(LIBSTREAMANALYZER,
-                     [libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED],
-                     [have_libstreamanalyzer=yes],
-                     [have_libstreamanalyzer=no])
-
-   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $LIBSTREAMANALYZER_CFLAGS"
-   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $LIBSTREAMANALYZER_LIBS"
-
-   if test "x$have_libstreamanalyzer" = "xyes"; then
-      AC_DEFINE(HAVE_LIBSTREAMANALYZER, [], [Define if we have libstreamanalyzer])
-   fi
-else
-   have_libstreamanalyzer="no  (disabled)"
-fi
-
-if test "x$enable_libstreamanalyzer" = "xyes"; then
-   if test "x$have_libstreamanalyzer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED and libstreamanalyzer.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
-
 ##################################################################
 # Check for tracker-extract: libxml2 for XML/HTML extractor
 ##################################################################
@@ -2572,7 +2537,6 @@ Applications:
 
 Metadata Extractors:
 
-	Support libstreamanalyzer:              $have_libstreamanalyzer
 	Support PNG:                            $have_libpng
 	Support PDF:                            $have_poppler
 	Support XPS:                            $have_libgxps

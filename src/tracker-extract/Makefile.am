@@ -559,10 +559,6 @@ tracker_extract_CFLAGS = $(LIBGSF_CFLAGS)
 tracker_extract_LDADD += $(LIBGSF_LIBS)
 endif
 
-if HAVE_LIBSTREAMANALYZER
-tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
-endif
-
 # do nothing, output as a side-effect
 tracker-extract-priority-dbus.c: tracker-extract-priority-dbus-stamp
 	@:

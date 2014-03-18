@@ -37,10 +37,6 @@
 #include "tracker-extract.h"
 #include "tracker-main.h"
 
-#ifdef HAVE_LIBSTREAMANALYZER
-#include "tracker-topanalyzer.h"
-#endif /* HAVE_STREAMANALYZER */
-
 #ifdef THREAD_ENABLE_TRACE
 #warning Main thread traces enabled
 #endif /* THREAD_ENABLE_TRACE */
@@ -72,7 +68,6 @@ typedef struct {
 	GHashTable *single_thread_extractors;
 
 	gboolean disable_shutdown;
-	gboolean force_internal_extractors;
 	gboolean disable_summary_on_finalize;
 
 	gchar *force_module;
@@ -129,10 +124,6 @@ tracker_extract_init (TrackerExtract *object)
 {
 	TrackerExtractPrivate *priv;
 
-#ifdef HAVE_LIBSTREAMANALYZER
-	tracker_topanalyzer_init ();
-#endif /* HAVE_STREAMANALYZER */
-
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	priv->statistics_data = g_hash_table_new_full (NULL, NULL, NULL,
 	                                               (GDestroyNotify) statistics_data_free);
@@ -158,10 +149,6 @@ tracker_extract_finalize (GObject *object)
 	if (!priv->disable_summary_on_finalize) {
 		report_statistics (object);
 	}
-
-#ifdef HAVE_LIBSTREAMANALYZER
-	tracker_topanalyzer_shutdown ();
-#endif /* HAVE_STREAMANALYZER */
 
 	g_hash_table_destroy (priv->statistics_data);
 
@@ -217,7 +204,6 @@ report_statistics (GObject *object)
 
 TrackerExtract *
 tracker_extract_new (gboolean     disable_shutdown,
-                     gboolean     force_internal_extractors,
                      const gchar *force_module)
 {
 	TrackerExtract *object;
@@ -233,7 +219,6 @@ tracker_extract_new (gboolean     disable_shutdown,
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
 	priv->disable_shutdown = disable_shutdown;
-	priv->force_internal_extractors = force_internal_extractors;
 	priv->force_module = g_strdup (force_module);
 
 	return object;
@@ -287,9 +272,6 @@ get_file_metadata (TrackerExtractTask  *task,
 	TrackerExtractInfo *info;
 	GFile *file;
 	gchar *mime_used = NULL;
-#ifdef HAVE_LIBSTREAMANALYZER
-	gchar *content_type = NULL;
-#endif
 	gint items = 0;
 
 	*info_out = NULL;
@@ -298,41 +280,10 @@ get_file_metadata (TrackerExtractTask  *task,
 	info = tracker_extract_info_new (file, task->mimetype, task->graph);
 	g_object_unref (file);
 
-#ifdef HAVE_LIBSTREAMANALYZER
-	/* FIXME: This entire section is completely broken,
-	 * it doesn't even build these days. It should be removed or fixed.
-	 * -mr (05/09/11)
-	 */
-	if (!priv->force_internal_extractors) {
-		g_debug ("Using libstreamanalyzer...");
-
-		tracker_topanalyzer_extract (task->file, statements, &content_type);
-
-		if (tracker_sparql_builder_get_length (statements) > 0) {
-			g_free (content_type);
-			tracker_sparql_builder_insert_close (statements);
-
-			*info_out = info;
-
-			return TRUE;
-		}
-	} else {
-		g_debug ("Using internal extractors ONLY...");
-	}
-#endif /* HAVE_LIBSTREAMANALYZER */
-
 	if (task->mimetype && *task->mimetype) {
 		/* We know the mime */
 		mime_used = g_strdup (task->mimetype);
-	}
-#ifdef HAVE_LIBSTREAMANALYZER
-	else if (content_type && *content_type) {
-		/* We know the mime from LSA */
-		mime_used = content_type;
-		g_strstrip (mime_used);
-	}
-#endif /* HAVE_LIBSTREAMANALYZER */
-	else {
+	} else {
 		tracker_extract_info_unref (info);
 		return FALSE;
 	}
