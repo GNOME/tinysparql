@@ -51,7 +51,9 @@
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
+#ifdef HAVE_LIBMEDIAART
 #include <libmediaart/mediaart.h>
+#endif
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
@@ -107,6 +109,7 @@ typedef struct {
 
 	GSList         *artist_list;
 
+#ifdef HAVE_LIBMEDIAART
 	MediaArtType    media_art_type;
 	gchar          *media_art_artist;
 	gchar          *media_art_title;
@@ -114,6 +117,7 @@ typedef struct {
 	unsigned char  *media_art_buffer;
 	guint           media_art_buffer_size;
 	const gchar    *media_art_buffer_mime;
+#endif
 
 	GstSample      *sample;
 	GstMapInfo      info;
@@ -471,6 +475,8 @@ get_embedded_cue_sheet_data (GstTagList *tag_list)
 	return NULL;
 }
 
+#ifdef HAVE_LIBMEDIAART
+
 static gboolean
 get_embedded_media_art (MetadataExtractor *extractor)
 {
@@ -541,6 +547,8 @@ get_embedded_media_art (MetadataExtractor *extractor)
 
 	return FALSE;
 }
+
+#endif
 
 static void
 extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
@@ -728,11 +736,15 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	add_string_gst_tag (metadata, "dc:coverage", tag_list, GST_TAG_LOCATION);
 	add_string_gst_tag (metadata, "nie:comment", tag_list, GST_TAG_COMMENT);
 
+#ifdef HAVE_LIBMEDIAART
 	if (extractor->media_art_type == MEDIA_ART_VIDEO) {
 		extractor->media_art_title = title_guaranteed;
 	} else {
 		g_free (title_guaranteed);
 	}
+#else
+	g_free (title_guaranteed);
+#endif
 
 	g_free (performer_temp);
 	g_free (artist_temp);
@@ -883,8 +895,10 @@ extractor_apply_album_metadata (MetadataExtractor     *extractor,
 	replace_double_gst_tag (preupdate, *p_album_uri, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN, graph);
 	replace_double_gst_tag (preupdate, *p_album_uri, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK, graph);
 
+#ifdef HAVE_LIBMEDIAART
 	extractor->media_art_artist = album_artist;
 	extractor->media_art_title = album_title;
+#endif
 
 	g_free (album_artist_temp);
 	g_free (track_artist_temp);
@@ -1104,7 +1118,9 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (postupdate != NULL);
 	g_return_if_fail (metadata != NULL);
 
+#ifdef HAVE_LIBMEDIAART
 	extractor->media_art_type = MEDIA_ART_NONE;
+#endif
 
 	if (extractor->toc) {
 		gst_tag_list_insert (extractor->tagcache,
@@ -1149,11 +1165,15 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (extractor->toc == NULL || extractor->toc->entry_list == NULL)
 				tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 
+#ifdef HAVE_LIBMEDIAART
 			extractor->media_art_type = MEDIA_ART_ALBUM;
+#endif
 		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 
+#ifdef HAVE_LIBMEDIAART
 			extractor->media_art_type = MEDIA_ART_VIDEO;
+#endif
 		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 
@@ -1278,9 +1298,11 @@ extract_metadata (MetadataExtractor      *extractor,
 	common_extract_stream_metadata (extractor, file_url, metadata);
 #endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
+#ifdef HAVE_LIBMEDIAART
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
 		get_embedded_media_art (extractor);
 	}
+#endif
 }
 
 #if defined(GSTREAMER_BACKEND_DISCOVERER) || \
@@ -2040,7 +2062,10 @@ tracker_extract_gstreamer (const gchar          *uri,
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
 	extractor->tagcache = gst_tag_list_new_empty ();
+
+#ifdef HAVE_LIBMEDIAART
 	extractor->media_art_type = MEDIA_ART_NONE;
+#endif
 
 	g_debug ("GStreamer backend in use:");
 
@@ -2075,6 +2100,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 		                  metadata,
 		                  graph);
 
+#ifdef HAVE_LIBMEDIAART
 		if (extractor->media_art_type != MEDIA_ART_NONE) {
 			media_art_process (extractor->media_art_buffer,
 			                   extractor->media_art_buffer_size,
@@ -2084,11 +2110,15 @@ tracker_extract_gstreamer (const gchar          *uri,
 			                   extractor->media_art_title,
 			                   uri);
 		}
+#endif
 	}
 
 	/* Clean up */
+#ifdef HAVE_LIBMEDIAART
 	g_free (extractor->media_art_artist);
 	g_free (extractor->media_art_title);
+#endif
+
 	if (extractor->sample) {
 		buffer = gst_sample_get_buffer (extractor->sample);
 		gst_buffer_unmap (buffer, &extractor->info);

@@ -232,8 +232,7 @@ PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
-                            gio-unix-2.0    >= $GLIB_REQUIRED
-                            libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
+                            gio-unix-2.0    >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
@@ -274,8 +273,7 @@ PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
 
 # Check requirements for libtracker-miner
 LIBTRACKER_MINER_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
-                           gio-unix-2.0    >= $GLIB_REQUIRED
-                           libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
+                           gio-unix-2.0    >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
@@ -313,8 +311,7 @@ TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
 # Check requirements for tracker-extract
 TRACKER_EXTRACT_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
                           gio-unix-2.0    >= $GLIB_REQUIRED
-                          gmodule-2.0     >= $GLIB_REQUIRED
-                          libmediaart-1.0 >= $LIBMEDIAART_REQUIRED"
+                          gmodule-2.0     >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 
@@ -986,6 +983,46 @@ if test "x$enable_network_manager" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
+
+##################################################################
+# Check for libtracker-miner, tracker-extract: libmediaart
+##################################################################
+
+AC_ARG_ENABLE(libmediaart,
+              AS_HELP_STRING([--enable-libmediaart],
+                             [enable libmediaart for caching published video/audio art [[default=auto]]]),,
+              [enable_libmediaart=auto])
+
+if test "x$enable_libmediaart" != "xno" ; then
+   PKG_CHECK_MODULES(LIBMEDIAART,
+                     [libmediaart-1.0 >= $LIBMEDIAART_REQUIRED],
+                     [have_libmediaart=yes],
+                     [have_libmediaart=no])
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $LIBMEDIAART_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $LIBMEDIAART_LIBS"
+
+   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $LIBMEDIAART_CFLAGS"
+   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $LIBMEDIAART_LIBS"
+
+   # Used for .pc file...
+   LIBTRACKER_MINER_PC_REQUIRES="libmediaart-1.0"
+   AC_SUBST(LIBTRACKER_MINER_PC_REQUIRES)
+
+   if test "x$have_libmediaart" = "xyes"; then
+      AC_DEFINE(HAVE_LIBMEDIAART, [], [Define if we have libmediaart])
+   fi
+else
+   have_libmediaart="no  (disabled)"
+fi
+
+if test "x$enable_libmediaart" = "xyes"; then
+   if test "x$have_libmediaart" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libmediaart >= $LIBMEDIAART_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBMEDIAART, test "x$have_libmediaart" = "xyes")
 
 ##################################################################
 # Check for libtracker-extract: libexif
@@ -2587,6 +2624,7 @@ Frameworks / Options:
 
 Miscellaneous:
 
+	Cache media art                         $have_libmediaart (libmediaart)
 	Install artwork                         $have_artwork
 
 "

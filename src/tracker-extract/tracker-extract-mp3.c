@@ -40,7 +40,9 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
+#ifdef HAVE_LIBMEDIAART
 #include <libmediaart/mediaart.h>
+#endif
 
 #include <libtracker-common/tracker-common.h>
 
@@ -2487,6 +2489,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
+#ifdef HAVE_LIBMEDIAART
 	media_art_process (md.media_art_data,
 	                   md.media_art_size,
 	                   md.media_art_mime,
@@ -2494,6 +2497,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	                   md.performer,
 	                   md.album,
 	                   uri);
+#endif
 	g_free (md.media_art_data);
 	g_free (md.media_art_mime);
 

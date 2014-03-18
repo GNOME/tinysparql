@@ -1,5 +1,12 @@
 SUBDIRS = dbus languages icons ontologies miners gschemas
 
+# Set up pkg-config .pc files for exported libraries
+if HAVE_LIBMEDIAART
+requires="libmediaart-1.0"
+else
+requires=
+endif
+
 # First we fix the VERSION and libexecdir in the desktop files
 tracker-extract.desktop.in: tracker-extract.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|"      \
@@ -45,7 +52,6 @@ endif
 
 @INTLTOOL_DESKTOP_RULE@
 
-# Set up pkg-config .pc files for exported libraries
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =                                       \
 	tracker-control-$(TRACKER_API_VERSION).pc      \

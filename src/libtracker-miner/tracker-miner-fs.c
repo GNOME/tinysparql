@@ -1362,7 +1362,9 @@ item_remove (TrackerMinerFS *fs,
 	} else {
 		if (fs->priv->thumbnailer)
 			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
+#ifdef HAVE_LIBMEDIAART
 		tracker_media_art_queue_remove (uri, NULL);
+#endif
 	}
 
 	/* FIRST:
@@ -2286,7 +2288,9 @@ item_queue_handlers_cb (gpointer user_data)
 
 				if (fs->priv->thumbnailer)
 					tracker_thumbnailer_send (fs->priv->thumbnailer);
+#ifdef HAVE_LIBMEDIAART
 				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
+#endif
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,

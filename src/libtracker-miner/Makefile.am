@@ -37,8 +37,6 @@ private_sources = 				       \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
 	tracker-file-system.c                          \
-	tracker-media-art.c                            \
-	tracker-media-art.h                            \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
 	tracker-task-pool.h                            \
@@ -49,6 +47,12 @@ private_sources = 				       \
 	tracker-thumbnailer.h                          \
 	tracker-utils.c                                \
 	tracker-utils.h
+
+if HAVE_LIBMEDIAART
+private_sources += 				       \
+	tracker-media-art.c                            \
+	tracker-media-art.h
+endif
 
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \

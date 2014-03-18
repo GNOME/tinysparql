@@ -24,7 +24,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#ifdef HAVE_LIBMEDIAART
 #include <libmediaart/mediaart.h>
+#endif
 
 #include <libtracker-sparql/tracker-sparql.h>
 
@@ -47,6 +49,7 @@ on_query_finished (GObject      *source_object,
                    GAsyncResult *res,
                    gpointer      user_data)
 {
+#ifdef HAVE_LIBMEDIAART
 	GError *error = NULL;
 	TrackerSparqlCursor *cursor = NULL;
 	GDir *dir = NULL;
@@ -154,6 +157,7 @@ on_error:
 		            error->message ? error->message : "No error given");
 		g_error_free (error);
 	}
+#endif /* HAVE_LIBMEDIAART */
 }
 /**
  * tracker_media_art_queue_remove:
