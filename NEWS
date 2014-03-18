@@ -1,3 +1,65 @@
+NEW in 0.17.6 - 2014-03-18
+==========================
+
+The main changes are:
+
+  * build: Improve SQLite FTS feature checking for cross compilation
+  * build: Make libmediaart a soft dependency, not hard
+  * build: Require libicu >= 4.8.1.1, first version with pkg-config support, no version specified before
+  * Fixes GB#726421, fix crash in pdf extractor with parent/child process handling
+  * Fixes GB#726639, Remove some obsolete extactors
+  * Fixes GB#726640, tracker-extract: Add Gibest hash calculation to GStreamer
+  * Fixes GB#725689, libtracker-extract: no longer use libtool versioning
+  * Fixes GB#726552, Warning when running configure: "enable_tracker_miner_fs: command not found
+  * Fixes GB#726553, Remove QT reference in configure.ac
+  * Fixes GB#725607, Screenshots do not appear in Screenshots album
+  * Fixes GB#725890, Miscellaneous memory fixes
+  * all: Make GBusType run-time configurable with TRACKER_BUS_TYPE environment variable
+  * all: Removed dead code from coverity report
+  * libtracker-fts: Fix memory leak for GList on property names during FTS init
+  * libtracker-data: getting FTS multivalued properties used unintialised variable in ontology_get_fts_properties()
+  * libtracker-data: Protect potential NULL dereference in _db_cursor_iter_next()
+  * libtracker-{common,data,extract}: do not maintain LT versioning
+  * libtracker-miner: Do not leak the TrackerSparqlConnection in TrackerFileNotifier
+  * libtracker-miner: Don't print uninitalised sparql variable for update_array_cb
+  * libtracker-miner: Dispose GFileInfo objects ASAP when crawling (attempt to reduce memory footprint)
+  * libtracker-extract: Lookup rules after initializing in get_fallback_rdf_types() to avoid empty rules lists
+  * libtracker-extract: Fix memory leak on .rule file load errors
+  * libtracker-extract: Fix memory leak and unref rdf_types hash table in _module_manager_get_fallback_rdf_types()
+  * tracker-store: Remove the --low-memory option in the man pages, not used since 0.9.x
+  * tracker-miner-fs: Fix memory leak on rdf_types GStrv in _files_add_rdf_types()
+  * tracker-miner-fs: Fix memory leak on priv->compisite_device for UpDevice on _finalize()
+  * tracker-extract: Removed support for libstreamanalyzer, xine and totem extractors, not been used or supported in a long time
+  * tracker-extract: Removed support for obsolete GStreamer backends tagreadbin, decodebin2 in gstreamer extractor
+  * tracker-extract: Don't report < 0 nfo:width for images with GStreamer discoverer
+  * tracker-extract: Remove the need for fork() and sub-processes with PDF extraction, no longer needed
+  * tracker-extract: Make logging clearer if we fail on no modules or no metadata
+  * tracker-extract: Fixed epub extractor so it doesn't use a broken ontology
+  * tracker-extract: Improve logging, too many g_debug() calls to other log levels
+  * tracker-extract: set nfo:Video on the gstreamer guess rule for completeness
+  * tracker-extract: Add desktop file to autostart process
+  * tracker-extract: Make it clearer where MIME type came from in debug (from GIO/xdgmime or tracker-miner-fs)
+  * tracker-sparql: Support listing properties with --tree and make --search case insensitive
+  * tracker-sandbox: Set the locale properly so queries don't fail due to locale mismatch to DB
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated fr: AlainLojewski, Claude Paroz, Luis Menina
+  * Updated gl: Fran Dieguez, Fran Diéguez
+  * Updated it: Milo Casagrande
+  * Updated ko: Seong-ho Cho
+  * Updated lt: Aurimas Černius
+  * Updated lv: Rūdolfs Mazurs
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Antonio Fernandes C. Neto, Rafael Ferreira
+  * Updated ru: Yuri Myasoedov
+  * Updated zh_CN: Wylmer Wang
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
 NEW in 0.17.5 - 2014-03-04
 ==========================
 
