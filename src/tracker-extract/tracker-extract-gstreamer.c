@@ -1063,6 +1063,57 @@ delete_existing_tracks (TrackerSparqlBuilder *postupdate,
 	g_free (sparql);
 }
 
+#define CHUNK_N_BYTES (2 << 15)
+
+static guint64
+extract_gibest_hash (GFile *file)
+{
+	guint64 buffer[2][CHUNK_N_BYTES/8];
+	GInputStream *stream = NULL;
+	gssize n_bytes, file_size;
+	GError *error = NULL;
+	guint64 hash = 0;
+	gint i;
+
+	stream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
+	if (stream == NULL)
+		goto fail;
+
+	/* Extract start/end chunks of the file */
+	n_bytes = g_input_stream_read (stream, buffer[0], CHUNK_N_BYTES, NULL, &error);
+	if (n_bytes == -1)
+		goto fail;
+
+	if (!g_seekable_seek (G_SEEKABLE (stream), -CHUNK_N_BYTES, G_SEEK_END, NULL, &error))
+		goto fail;
+
+	n_bytes = g_input_stream_read (stream, buffer[1], CHUNK_N_BYTES, NULL, &error);
+	if (n_bytes == -1)
+		goto fail;
+
+	for (i = 0; i < G_N_ELEMENTS (buffer[0]); i++)
+		hash += buffer[0][i] + buffer[1][i];
+
+	file_size = g_seekable_tell (G_SEEKABLE (stream));
+
+	if (file_size < CHUNK_N_BYTES)
+		goto end;
+
+	/* Include file size */
+	hash += file_size;
+	g_object_unref (stream);
+
+	return hash;
+
+fail:
+	g_warning ("Could not get file hash: %s\n", error ? error->message : "Unknown error");
+	g_clear_error (&error);
+
+end:
+	g_clear_object (&stream);
+	return 0;
+}
+
 static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *file_url,
@@ -1237,6 +1288,37 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (album_uri);
 		g_free (album_disc_uri);
 		g_free (album_artist_uri);
+	}
+
+	/* OpenSubtitles compatible hash */
+	if (extractor->mime == EXTRACT_MIME_VIDEO) {
+		guint64 hash;
+		GFile *file;
+
+		file = g_file_new_for_uri (file_url);
+		hash = extract_gibest_hash (file);
+		g_object_unref (file);
+
+		if (hash) {
+			char *hash_str;
+
+			/* { <foo> a nfo:FileHash; nfo:hashValue "..."; nfo:hashAlgorithm "gibest" } */
+			tracker_sparql_builder_predicate (metadata, "nfo:hasHash");
+
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nfo:FileHash");
+
+			tracker_sparql_builder_predicate (metadata, "nfo:hashValue");
+			hash_str = g_strdup_printf ("%" G_GSIZE_MODIFIER "x", hash);
+			tracker_sparql_builder_object_string (metadata, hash_str);
+			g_free (hash_str);
+
+			tracker_sparql_builder_predicate (metadata, "nfo:hashAlgorithm");
+			tracker_sparql_builder_object_string (metadata, "gibest");
+
+			tracker_sparql_builder_object_blank_close (metadata);
+		}
 	}
 
 	/* If content was encrypted, set it. */
