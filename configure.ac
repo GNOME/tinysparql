@@ -712,30 +712,12 @@ fi
 if test "x$have_tracker_fts" = "xyes"; then
    AC_DEFINE(HAVE_TRACKER_FTS, [1], [Define to 1 if tracker FTS is compiled])
 
-   OLD_CFLAGS="$CFLAGS"
-   OLD_LIBS="$LIBS"
-   CFLAGS="$SQLITE3_CFLAGS"
-   LIBS="$SQLITE3_LIBS"
-
-   AC_MSG_CHECKING(whether SQLite3 has required FTS features)
-   AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <sqlite3.h>]],
-                                  [[sqlite3 *db;
-                                    int rc;
-                                    rc = sqlite3_open(":memory:", &db);
-                                    if (rc!=SQLITE_OK) return -1;
-                                    rc = sqlite3_exec(db, "create table a(text)", 0, 0, 0);
-                                    if (rc!=SQLITE_OK) return -1;
-                                    rc = sqlite3_exec(db, "create virtual table t using fts4(content='a',text)", 0, 0, 0);
-                                    if (rc!=SQLITE_OK) return -1;]])],
-                     [have_builtin_fts4=yes],
-                     [have_builtin_fts4=no])
-   AC_MSG_RESULT($have_builtin_fts4)
-
-   CFLAGS="$OLD_CFLAGS"
-   LIBS="$OLD_LIBS"
-
-   if test "x$have_builtin_fts4" = "xyes" ; then
+   AX_SQLITE_BUILTIN_FTS4
+   if test "x$ax_cv_sqlite_builtin_fts4" = "xyes" ; then
+      have_builtin_fts4="yes"
       AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS4 compiled in])
+   else
+      have_builtin_fts4="no"
    fi
 else
    AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
