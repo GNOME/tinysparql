@@ -43,7 +43,7 @@ public class Tracker.Stats : Dialog {
 		debug ("Setting up statistics D-Bus connection");
 
 		try {
-			tracker = GLib.Bus.get_proxy_sync (Tracker.Bus.type (),
+			tracker = GLib.Bus.get_proxy_sync (BusType.SESSION,
 			                                   "org.freedesktop.Tracker1",
 			                                   "/org/freedesktop/Tracker1/Statistics",
 			                                   DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
