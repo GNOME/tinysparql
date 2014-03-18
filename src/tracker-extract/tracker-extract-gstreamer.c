@@ -1320,7 +1320,7 @@ common_extract_stream_metadata (MetadataExtractor    *extractor,
 	    extractor->mime == EXTRACT_MIME_SVG ||
 	    extractor->mime == EXTRACT_MIME_VIDEO) {
 
-		if (extractor->width) {
+		if (extractor->width >= 0) {
 			tracker_sparql_builder_predicate (metadata, "nfo:width");
 			tracker_sparql_builder_object_int64 (metadata, extractor->width);
 		}
