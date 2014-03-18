@@ -1641,7 +1641,7 @@ fi
 
 AC_ARG_WITH([gstreamer-backend],
             AS_HELP_STRING([--with-gstreamer-backend],
-                           [enables one of the (gupnp-dlna, discoverer, decodebin2, tagreadbin) GStreamer backends [[default=discoverer]]]),,
+                           [enables one of the (gupnp-dlna, discoverer) GStreamer backends [[default=discoverer]]]),,
               [with_gstreamer_backend=discoverer])
 
 if test "$have_generic_media_handler_app" != "GStreamer"; then
@@ -1649,14 +1649,6 @@ if test "$have_generic_media_handler_app" != "GStreamer"; then
    gstreamer_backend="N/A"
 else
    case "x$with_gstreamer_backend" in
-        "xdecodebin2")
-           gstreamer_backend="Decodebin2"
-           AC_DEFINE(GSTREAMER_BACKEND_DECODEBIN2, [], [Define that GStreamer Decodebin2 should be used])
-        ;;
-        "xtagreadbin")
-           gstreamer_backend="Tagreadbin"
-           AC_DEFINE(GSTREAMER_BACKEND_TAGREADBIN, [], [Define that GStreamer Tagreadbin should be used])
-        ;;
         "xdiscoverer")
            PKG_CHECK_MODULES(GSTREAMER_PBUTILS,
                              [gstreamer-pbutils-1.0 >= $GSTREAMER_REQUIRED],

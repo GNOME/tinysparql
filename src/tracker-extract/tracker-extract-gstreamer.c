@@ -22,9 +22,7 @@
 #include "config.h"
 
 /* Ensure we have a valid backend enabled */
-#if !defined(GSTREAMER_BACKEND_TAGREADBIN) && \
-    !defined(GSTREAMER_BACKEND_DECODEBIN2) && \
-    !defined(GSTREAMER_BACKEND_DISCOVERER) && \
+#if !defined(GSTREAMER_BACKEND_DISCOVERER) && \
     !defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 #error Not a valid GStreamer backend defined
 #endif
@@ -122,17 +120,6 @@ typedef struct {
 	GstSample      *sample;
 	GstMapInfo      info;
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2)
-	GstElement     *pipeline;
-	GstBus         *bus;
-#endif
-
-#if defined(GSTREAMER_BACKEND_DECODEBIN2)
-	GstElement     *bin;
-	GList          *fsinks;
-#endif
-
 #if defined(GSTREAMER_BACKEND_DISCOVERER) || \
     defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	gboolean        has_image;
@@ -152,7 +139,6 @@ typedef struct {
 #endif
 
 #if defined(GSTREAMER_BACKEND_DISCOVERER) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2) || \
     defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 	gint64          duration;
 	gint            audio_channels;
@@ -164,15 +150,9 @@ typedef struct {
 #endif
 } MetadataExtractor;
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN)
-static void tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
-                                                const gchar          *uri,
-                                                TrackerSparqlBuilder *metadata);
-#else  /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 static void common_extract_stream_metadata (MetadataExtractor    *extractor,
                                             const gchar          *uri,
                                             TrackerSparqlBuilder *metadata);
-#endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 static void
 add_artist (MetadataExtractor     *extractor,
@@ -644,27 +624,6 @@ extractor_apply_geolocation_metadata (MetadataExtractor     *extractor,
 static void
 extractor_guess_content_type (MetadataExtractor *extractor)
 {
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2)
-	char *video_codec = NULL, *audio_codec = NULL;
-
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
-	gst_tag_list_get_string (extractor->tagcache, GST_TAG_AUDIO_CODEC, &audio_codec);
-
-	g_debug ("Reading codecs from the stream... audio: '%s', video: '%s'",
-	         audio_codec ? audio_codec : "none",
-	         video_codec ? video_codec : "none");
-
-	if (audio_codec && !video_codec) {
-		extractor->mime = EXTRACT_MIME_AUDIO;
-	} else {
-		/* default to video */
-		extractor->mime = EXTRACT_MIME_VIDEO;
-	}
-
-	g_free (video_codec);
-	g_free (audio_codec);
-#else  /* DISCOVERER/GUPNP-DLNA... */
 	if (extractor->has_video) {
 		extractor->mime = EXTRACT_MIME_VIDEO;
 	} else if (extractor->has_audio) {
@@ -675,7 +634,6 @@ extractor_guess_content_type (MetadataExtractor *extractor)
 		/* default to video */
 		extractor->mime = EXTRACT_MIME_VIDEO;
 	}
-#endif /* DISCOVERER/GUPNP-DLNA... */
 }
 
 static void
@@ -1282,21 +1240,9 @@ extract_metadata (MetadataExtractor      *extractor,
 	}
 
 	/* If content was encrypted, set it. */
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2)
-	if (extractor->is_content_encrypted) {
-		tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
-		tracker_sparql_builder_object_boolean (metadata, TRUE);
-	}
-#else
 /* #warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends */
-#endif
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	tagreadbin_extract_stream_metadata (extractor, file_url, metadata);
-#else  /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 	common_extract_stream_metadata (extractor, file_url, metadata);
-#endif /* DECODEBIN2/DISCOVERER/GUPnP-DLNA */
 
 #ifdef HAVE_LIBMEDIAART
 	if (extractor->mime == EXTRACT_MIME_AUDIO) {
@@ -1306,7 +1252,6 @@ extract_metadata (MetadataExtractor      *extractor,
 }
 
 #if defined(GSTREAMER_BACKEND_DISCOVERER) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2) || \
     defined(GSTREAMER_BACKEND_GUPNP_DLNA)
 static void
 common_extract_stream_metadata (MetadataExtractor    *extractor,
@@ -1529,518 +1474,6 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 #endif /* defined(GSTREAMER_BACKEND_DISCOVERER) || \
           defined(GSTREAMER_BACKEND_GUPNP_DLNA) */
 
-/* --------------- Common Tagreadbin and Decodebin2 implementation ---------- */
-
-#if defined(GSTREAMER_BACKEND_TAGREADBIN) || \
-    defined(GSTREAMER_BACKEND_DECODEBIN2)
-
-static void
-pipeline_shutdown (MetadataExtractor *extractor)
-{
-	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
-	gst_object_unref (extractor->bus);
-	gst_object_unref (GST_OBJECT (extractor->pipeline));
-}
-
-static gboolean
-pipeline_poll_for_ready (MetadataExtractor *extractor,
-                         GstState           state,
-                         gboolean           ready_with_state,
-                         gboolean           ready_with_eos)
-{
-	gint64 timeout = 5 * GST_SECOND;
-	GstBus *bus = extractor->bus;
-	GstTagList *new_tags;
-
-	gst_element_set_state (extractor->pipeline, state);
-
-	while (TRUE) {
-		GstMessage *message;
-		GstElement *src;
-
-		message = gst_bus_timed_pop (bus, timeout);
-
-		if (!message) {
-			g_warning ("Pipeline timed out");
-			return FALSE;
-		}
-
-		src = (GstElement*)GST_MESSAGE_SRC (message);
-
-		switch (GST_MESSAGE_TYPE (message)) {
-		case GST_MESSAGE_STATE_CHANGED: {
-			if (ready_with_state) {
-				GstState old, new, pending;
-
-				if (src == extractor->pipeline) {
-					gst_message_parse_state_changed (message, &old, &new, &pending);
-					if (new == state) {
-						gst_message_unref (message);
-						return TRUE;
-					}
-				}
-			}
-			break;
-		}
-		case GST_MESSAGE_ERROR: {
-			GError *lerror = NULL;
-			gchar *error_debug_message;
-
-			gst_message_parse_error (message, &lerror, &error_debug_message);
-
-			if (lerror->domain == GST_STREAM_ERROR) {
-				if (lerror->code == GST_STREAM_ERROR_DECRYPT ||
-				    lerror->code == GST_STREAM_ERROR_DECRYPT_NOKEY) {
-					/* Set content as being encrypted */
-					extractor->is_content_encrypted = TRUE;
-
-					g_message ("Encrypted stream found: '%s' (%s)",
-					           lerror ? lerror->message : "Unknown error",
-					           error_debug_message);
-
-					g_free (error_debug_message);
-					g_error_free (lerror);
-
-					/* We really need to keep on reading as tags may come
-					 * afterwards, like codec tags in DRM-ed files. */
-					break;
-				}
-			}
-
-			g_warning ("Error in GStreamer: '%s' (%s)",
-			           lerror ? lerror->message : "Unknown error",
-			           error_debug_message);
-
-			gst_message_unref (message);
-			g_free (error_debug_message);
-			g_error_free (lerror);
-
-			return FALSE;
-			break;
-		}
-		case GST_MESSAGE_EOS: {
-			gst_message_unref (message);
-
-			if (ready_with_eos) {
-				return TRUE;
-			} else {
-				g_warning ("Reached end-of-file without proper content");
-				return FALSE;
-			}
-			break;
-		}
-		case GST_MESSAGE_TAG: {
-			gst_message_parse_tag (message, &new_tags);
-			gst_tag_list_insert (extractor->tagcache, new_tags, GST_TAG_MERGE_KEEP);
-			gst_tag_list_free (new_tags);
-			break;
-		}
-		default:
-			/* Nothing to do here */
-			break;
-		}
-
-		gst_message_unref (message);
-	}
-
-	g_assert_not_reached ();
-
-	return FALSE;
-}
-
-#endif /* defined(GSTREAMER_BACKEND_TAGREADBIN) || \
-          defined(GSTREAMER_BACKEND_DECODEBIN2) */
-
-/* ----------------------- Decodebin2 specific implementation --------------- */
-
-#if defined(GSTREAMER_BACKEND_DECODEBIN2)
-
-static void
-decodebin2_unlink_fsink (void *obj,
-                         void *data)
-{
-	MetadataExtractor *extractor = (MetadataExtractor *) data;
-	GstElement *fsink = (GstElement *) obj;
-
-	gst_element_unlink (extractor->bin, fsink);
-	gst_bin_remove (GST_BIN (extractor->pipeline), fsink);
-	gst_element_set_state (fsink, GST_STATE_NULL);
-}
-
-static void
-decodebin2_dpad_cb (GstElement *e,
-                    GstPad     *pad,
-                    gboolean    cont,
-                    gpointer    data)
-{
-	MetadataExtractor *extractor = (MetadataExtractor *)data;
-	GstElement *fsink;
-	GstPad *fsinkpad;
-	GValue val = { 0, };
-
-	fsink = gst_element_factory_make ("fakesink", NULL);
-
-	/* We increase the preroll buffer so we get duration (one frame not enough)*/
-	g_value_init (&val, G_TYPE_INT);
-	g_value_set_int (&val, 51);
-	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
-	g_value_unset (&val);
-
-	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
-	gst_element_set_state (fsink, GST_STATE_PAUSED);
-
-	gst_bin_add (GST_BIN (extractor->pipeline), fsink);
-	fsinkpad = gst_element_get_static_pad (fsink, "sink");
-	gst_pad_link (pad, fsinkpad);
-	gst_object_unref (fsinkpad);
-}
-
-static guint64
-decodebin2_get_media_duration (MetadataExtractor *extractor)
-{
-	gint64 duration;
-	GstFormat fmt;
-
-	g_return_val_if_fail (extractor, -1);
-	g_return_val_if_fail (extractor->pipeline, -1);
-
-	fmt = GST_FORMAT_TIME;
-
-	duration = -1;
-
-	if (gst_element_query_duration (extractor->pipeline,
-	                                &fmt,
-	                                &duration) &&
-	    duration >= 0) {
-		return duration / GST_SECOND;
-	} else {
-		return -1;
-	}
-}
-
-static void
-decodebin2_add_stream_tag (void *obj, void *data)
-{
-	MetadataExtractor *extractor = (MetadataExtractor *) data;
-	GstElement *fsink = (GstElement *) obj;
-
-	GstStructure *s = NULL;
-	GstCaps *caps = NULL;
-
-	if ((caps = GST_PAD_CAPS (fsink))) {
-		s = gst_caps_get_structure (caps, 0);
-
-		if (s) {
-			if (g_strrstr (gst_structure_get_name (s), "audio")) {
-				if ((extractor->audio_channels != -1) &&
-				    (extractor->audio_samplerate != -1))
-					return;
-
-				if (extractor->audio_channels == -1)
-					gst_structure_get_int (s, "channels", &extractor->audio_channels);
-
-				if (extractor->audio_samplerate == -1)
-					gst_structure_get_int (s, "rate", &extractor->audio_samplerate);
-				return;
-			}
-
-			if (g_strrstr (gst_structure_get_name (s), "video")) {
-				if ((extractor->video_fps != -1) &&
-				    (extractor->width != -1) &&
-				    (extractor->height != -1) &&
-				    (extractor->aspect_ratio != -1)){
-					return;
-				}
-
-				if (extractor->video_fps == -1) {
-					gint video_fps_n;
-					gint video_fps_d;
-
-					if (gst_structure_get_fraction (s,
-					                                "framerate",
-					                                &video_fps_n,
-					                                &video_fps_d)) {
-						extractor->video_fps = (video_fps_n + video_fps_d / 2) / video_fps_d;
-					}
-				}
-
-				if (extractor->width == -1)
-					gst_structure_get_int (s, "width", &extractor->width);
-
-				if (extractor->height == -1)
-					gst_structure_get_int (s, "height", &extractor->height);
-
-				if (extractor->aspect_ratio == -1) {
-					gint aspect_ratio;
-
-					gst_structure_get_int (s, "pixel-aspect-ratio", &aspect_ratio);
-					extractor->aspect_ratio = aspect_ratio;
-				}
-
-				return;
-			}
-
-			/* TODO: Add aspect-ratio, width and height in case of images */
-		}
-	}
-}
-
-static void
-decodebin2_add_stream_tags (MetadataExtractor *extractor)
-{
-	extractor->duration = decodebin2_get_media_duration (extractor);
-	g_list_foreach (extractor->fsinks, decodebin2_add_stream_tag, extractor);
-}
-
-static GstElement *
-decodebin2_create_pipeline (MetadataExtractor *extractor,
-                            const gchar       *uri)
-{
-	GstElement *pipeline = NULL;
-	GstElement *filesrc = NULL;
-	GstElement *bin = NULL;
-
-	pipeline = gst_element_factory_make ("pipeline", NULL);
-	if (!pipeline) {
-		g_warning ("Failed to create GStreamer pipeline");
-		return NULL;
-	}
-
-	filesrc = gst_element_factory_make ("giosrc", NULL);
-	if (!filesrc) {
-		g_warning ("Failed to create GStreamer giosrc");
-		gst_object_unref (GST_OBJECT (pipeline));
-		return NULL;
-	}
-
-	bin = gst_element_factory_make ("decodebin2", "decodebin2");
-	if (!bin) {
-		g_warning ("Failed to create GStreamer decodebin");
-		gst_object_unref (GST_OBJECT (pipeline));
-		gst_object_unref (GST_OBJECT (filesrc));
-		return NULL;
-	}
-
-	g_signal_connect (G_OBJECT (bin),
-	                  "new-decoded-pad",
-	                  G_CALLBACK (decodebin2_dpad_cb),
-	                  extractor);
-
-	gst_bin_add (GST_BIN (pipeline), filesrc);
-	gst_bin_add (GST_BIN (pipeline), bin);
-
-	if (!gst_element_link_many (filesrc, bin, NULL)) {
-		g_warning ("Could not link GStreamer elements");
-		gst_object_unref (GST_OBJECT (pipeline));
-		return NULL;
-	}
-
-	g_object_set (G_OBJECT (filesrc), "location", uri, NULL);
-
-	extractor->bin = bin;
-
-	return pipeline;
-}
-
-static void
-decodebin2_shutdown (MetadataExtractor *extractor)
-{
-	pipeline_shutdown (extractor);
-}
-
-static gboolean
-decodebin2_init_and_run (MetadataExtractor *extractor,
-                         const gchar       *uri)
-{
-	extractor->bus = NULL;
-	extractor->bin = NULL;
-	extractor->fsinks = NULL;
-	extractor->duration = -1;
-	extractor->audio_channels = -1;
-	extractor->audio_samplerate = -1;
-	extractor->height = -1;
-	extractor->width = -1;
-	extractor->video_fps = -1;
-	extractor->aspect_ratio = -1;
-
-	extractor->pipeline = decodebin2_create_pipeline (extractor, uri);
-	if (!extractor->pipeline) {
-		g_warning ("No valid pipeline for uri %s", uri);
-		g_list_free (extractor->fsinks);
-		return FALSE;
-	}
-
-	/* Get bus */
-	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
-
-	/* Run! */
-	if (!pipeline_poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
-		g_warning ("Error running decodebin");
-		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-		gst_object_unref (GST_OBJECT (extractor->pipeline));
-		gst_object_unref (extractor->bus);
-		return FALSE;
-	}
-
-	decodebin2_add_stream_tags (extractor);
-
-	gst_element_set_state (extractor->pipeline, GST_STATE_READY);
-	gst_element_get_state (extractor->pipeline, NULL, NULL, 5 * GST_SECOND);
-	g_list_foreach (extractor->fsinks, decodebin2_unlink_fsink, extractor);
-	g_list_free (extractor->fsinks);
-	extractor->fsinks = NULL;
-
-	return TRUE;
-}
-
-#endif /* GSTREAMER_BACKEND_DECODEBIN2 */
-
-/* ----------------------- Tagreadbin specific implementation --------------- */
-
-#if defined(GSTREAMER_BACKEND_TAGREADBIN)
-
-static void
-add_int_gst_tag (TrackerSparqlBuilder  *metadata,
-                 const gchar           *uri,
-                 const gchar           *key,
-                 GstTagList            *tag_list,
-                 const gchar           *tag)
-{
-	gboolean ret;
-	gint n;
-
-	ret = gst_tag_list_get_int (tag_list, tag, &n);
-
-	if (ret) {
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, n);
-	}
-}
-
-static void
-add_fraction_gst_tag (TrackerSparqlBuilder  *metadata,
-                      const gchar           *uri,
-                      const gchar           *key,
-                      GstTagList            *tag_list,
-                      const gchar           *tag)
-{
-	gboolean ret;
-	GValue n = {0,};
-	gfloat f;
-
-	ret = gst_tag_list_copy_value (&n, tag_list, tag);
-
-	if (ret) {
-		f = (gfloat)gst_value_get_fraction_numerator (&n)/
-		gst_value_get_fraction_denominator (&n);
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_double (metadata, (gdouble) f);
-
-		g_value_unset (&n);
-	}
-}
-
-static void
-add_time_gst_tag (TrackerSparqlBuilder *metadata,
-                  const gchar          *uri,
-                  const gchar          *key,
-                  GstTagList           *tag_list,
-                  const gchar          *tag)
-{
-	gboolean ret;
-	guint64 n;
-
-	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
-
-	if (ret) {
-		gint64 duration;
-
-		duration = (n + (GST_SECOND / 2)) / GST_SECOND;
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, duration);
-	}
-}
-
-static void
-tagreadbin_extract_stream_metadata (MetadataExtractor    *extractor,
-                                    TrackerSparqlBuilder *metadata)
-{
-	if (extractor->mime != EXTRACT_MIME_IMAGE &&
-	    extractor->mime != EXTRACT_MIME_SVG) {
-		add_int_gst_tag (metadata, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
-		add_int_gst_tag (metadata, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
-		add_time_gst_tag (metadata, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
-	}
-
-	if (extractor->mime == EXTRACT_MIME_IMAGE ||
-	    extractor->mime == EXTRACT_MIME_SVG ||
-	    extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
-	}
-
-	add_int_gst_tag (metadata, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
-	add_int_gst_tag (metadata, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
-
-	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag (metadata, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
-	}
-}
-
-static GstElement *
-tagreadbin_create_pipeline (MetadataExtractor *extractor,
-                            const gchar       *uri)
-{
-	GstElement *pipeline = NULL;
-
-	pipeline = gst_element_factory_make ("tagreadbin", "tagreadbin");
-	if (!pipeline) {
-		g_warning ("Failed to create GStreamer tagreadbin");
-		return NULL;
-	}
-
-	g_object_set (G_OBJECT (pipeline), "uri", uri, NULL);
-	return pipeline;
-}
-
-static void
-tagreadbin_shutdown (MetadataExtractor *extractor)
-{
-	pipeline_shutdown (extractor);
-}
-
-static gboolean
-tagreadbin_init_and_run (MetadataExtractor *extractor,
-                         const gchar       *uri)
-{
-	extractor->bus = NULL;
-
-	/* Create pipeline */
-	extractor->pipeline = tagreadbin_create_pipeline (extractor, uri);
-	if (!extractor->pipeline) {
-		g_warning ("No valid pipeline for uri %s", uri);
-		return FALSE;
-	}
-
-	/* Get bus */
-	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
-
-	/* Run */
-	if (!pipeline_poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
-		g_warning ("Error running tagreadbin");
-		gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-		gst_object_unref (GST_OBJECT (extractor->pipeline));
-		gst_object_unref (extractor->bus);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-#endif /* GSTREAMER_BACKEND_TAGREADBIN */
-
 static void
 tracker_extract_gstreamer (const gchar          *uri,
                            TrackerSparqlBuilder *preupdate,
@@ -2068,17 +1501,8 @@ tracker_extract_gstreamer (const gchar          *uri,
 #endif
 
 	g_debug ("GStreamer backend in use:");
-
-#if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	g_debug ("  Tagreadbin");
-	success = tagreadbin_init_and_run (extractor, uri);
-#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-	g_debug ("  Decodebin2");
-	success = decodebin2_init_and_run (extractor, uri);
-#else /* DISCOVERER/GUPnP-DLNA */
 	g_debug ("  Discoverer/GUPnP-DLNA");
 	success = discoverer_init_and_run (extractor, uri);
-#endif
 
 	if (success) {
 		cue_sheet = get_embedded_cue_sheet_data (extractor->tagcache);
@@ -2132,13 +1556,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 	g_slist_foreach (extractor->artist_list, (GFunc)g_free, NULL);
 	g_slist_free (extractor->artist_list);
 
-#if defined(GSTREAMER_BACKEND_TAGREADBIN)
-	tagreadbin_shutdown (extractor);
-#elif defined(GSTREAMER_BACKEND_DECODEBIN2)
-	decodebin2_shutdown (extractor);
-#else /* DISCOVERER/GUPnP-DLNA */
 	discoverer_shutdown (extractor);
-#endif
 
 	g_slice_free (MetadataExtractor, extractor);
 }
