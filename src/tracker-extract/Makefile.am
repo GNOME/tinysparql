@@ -49,7 +49,6 @@ rules_files = \
 	90-libav-audio-generic.rule \
 	90-libav-video-generic.rule \
 	91-gstreamer-generic-dlna.rule \
-	92-xine-generic.rule \
 	93-mplayer-generic.rule
 
 # NOTE:
@@ -124,11 +123,6 @@ endif
 # Gstreamer with GUPnP-DLNA backend?
 if HAVE_GUPNP_DLNA
 rules_DATA += 91-gstreamer-generic-dlna.rule
-endif
-
-if HAVE_LIBXINE
-extractmodules_LTLIBRARIES += libextract-xine.la
-rules_DATA += 92-xine-generic.rule
 endif
 
 if USING_EXTERNAL_GENERIC_MEDIA_PLAYER
@@ -399,19 +393,6 @@ if HAVE_GSTREAMER_PBUTILS
 libextract_gstreamer_la_CFLAGS += $(GSTREAMER_PBUTILS_CFLAGS)
 libextract_gstreamer_la_LIBADD += $(GSTREAMER_PBUTILS_LIBS)
 endif
-
-# Xine
-libextract_xine_la_SOURCES = tracker-extract-libxine.c
-libextract_xine_la_CFLAGS = \
-	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
-	$(XINE_CFLAGS)
-libextract_xine_la_LDFLAGS = $(module_flags)
-libextract_xine_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(XINE_LIBS)
 
 # GIF
 libextract_gif_la_SOURCES = tracker-extract-gif.c

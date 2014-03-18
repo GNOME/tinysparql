@@ -8,7 +8,7 @@ videos =                                                \
 	video-2.mov                                    	\
 	video-2.expected
 
-# This should be GSTREAMER OR LIBXINE OR GSTREMER_HELIX OR USING_EXTERNAL_VIDEO_PLAYER
+# This should be GSTREAMER OR GSTREMER_HELIX OR USING_EXTERNAL_VIDEO_PLAYER
 if HAVE_GSTREAMER
 videotest_DATA += $(videos)
 endif

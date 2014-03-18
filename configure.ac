@@ -1520,12 +1520,12 @@ fi
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 ####################################################################
-# Check for tracker-extract: gstreamer/xine/mplayer/etc
+# Check for tracker-extract: gstreamer/mplayer/etc
 ####################################################################
 
 AC_ARG_ENABLE(generic-media-extractor,
               AS_HELP_STRING([--enable-generic-media-extractor=ARG],
-                             [enables one of the (gstreamer, libav, xine, external, auto) generic media extractor backends [[default=auto]]]),,
+                             [enables one of the (gstreamer, libav, external, auto) generic media extractor backends [[default=auto]]]),,
               [enable_generic_media_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
@@ -1536,14 +1536,6 @@ PKG_CHECK_MODULES(GSTREAMER,
 
 AC_SUBST(GSTREAMER_CFLAGS)
 AC_SUBST(GSTREAMER_LIBS)
-
-PKG_CHECK_MODULES(XINE,
-                  [libxine >= 1.0],
-                  [have_libxine=yes],
-                  [have_libxine=no])
-
-AC_SUBST(XINE_CFLAGS)
-AC_SUBST(XINE_LIBS)
 
 PKG_CHECK_MODULES(AVFORMAT,
                   [libavformat >= 0.8.4],
@@ -1576,9 +1568,6 @@ if test "x$enable_generic_media_extractor" = "xauto"; then
    elif test "$have_libav" = "yes"; then
       have_generic_media_handler_app="libav"
       have_generic_media_handler="yes"
-   elif test "$have_libxine" = "yes"; then
-      have_generic_media_handler_app="Xine"
-      have_generic_media_handler="yes"
    else
       have_generic_media_handler="?"
       have_generic_media_handler_app="An external generic_media player will be called"
@@ -1589,13 +1578,6 @@ elif test "x$enable_generic_media_extractor" = "xgstreamer"; then
       have_generic_media_handler="yes"
    else
       AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
-   fi
-elif test "x$enable_generic_media_extractor" = "xxine"; then
-   if test "$have_libxine" = "yes"; then
-      have_generic_media_handler_app="Xine"
-      have_generic_media_handler="yes"
-   else
-      AC_MSG_ERROR([Couldn't find libxine])
    fi
 elif test "x$enable_generic_media_extractor" = "xlibav"; then
    if test "$have_libavformat" = "yes" && test "$have_libavcodec" = "yes" && test "$have_libavutil" = "yes"; then
@@ -1612,26 +1594,17 @@ fi
 if test "$have_generic_media_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
-   AM_CONDITIONAL(HAVE_LIBXINE, false)
-   AM_CONDITIONAL(HAVE_LIBAV, false)
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
-elif test "$have_generic_media_handler_app" = "Xine"; then
-   AC_DEFINE(HAVE_LIBXINE, [], [Define if we have Libxine])
-   AM_CONDITIONAL(HAVE_LIBXINE, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(HAVE_LIBAV, false)
    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 elif test "$have_generic_media_handler_app" = "libav"; then
     AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have libav])
     AM_CONDITIONAL(HAVE_LIBAV, true)
     AM_CONDITIONAL(HAVE_GSTREAMER, false)
-    AM_CONDITIONAL(HAVE_LIBXINE, false)
     AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 else
    AC_DEFINE(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, [], [Define that Tracker will try to use external generic media players])
    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, true)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
-   AM_CONDITIONAL(HAVE_LIBXINE, false)
    AM_CONDITIONAL(HAVE_LIBAV, false)
 fi
 
