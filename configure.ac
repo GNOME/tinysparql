@@ -1520,7 +1520,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 ####################################################################
-# Check for tracker-extract: gstreamer/xine/totem/mplayer/etc
+# Check for tracker-extract: gstreamer/xine/mplayer/etc
 ####################################################################
 
 AC_ARG_ENABLE(generic-media-extractor,

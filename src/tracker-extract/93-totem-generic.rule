@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-totem.so
-MimeTypes=audio/*;video/*;
-
