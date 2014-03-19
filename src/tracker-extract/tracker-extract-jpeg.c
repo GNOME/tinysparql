@@ -401,7 +401,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (xd->identifier) {
-		tracker_sparql_builder_predicate (metadata, "dc:indentifier");
+		tracker_sparql_builder_predicate (metadata, "dc:identifier");
 		tracker_sparql_builder_object_unvalidated (metadata, xd->identifier);
 	}
 
