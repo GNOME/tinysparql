@@ -1,3 +1,17 @@
+NEW in 0.17.7 - 2014-03-19
+==========================
+
+The main changes are:
+
+  * libtracker-sparql: Fix undefined reference to symbol 'tracker_ipc_bus'
+
+Translations:
+
+  * Updated it: Milo Casagrande
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић
+
+
 NEW in 0.17.6 - 2014-03-18
 ==========================
 
