@@ -19,8 +19,6 @@
 
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-common.h>
-
 #include <libtracker-sparql/tracker-sparql.h>
 
 static TrackerSparqlConnection *con;
@@ -89,7 +87,7 @@ main (gint argc, gchar *argv[])
 
 	loop = g_main_loop_new (NULL, FALSE);
 	con = tracker_sparql_connection_get (NULL, &error);
-	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, NULL);
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
 
 	signal_id = g_dbus_connection_signal_subscribe (connection,
 	                                                TRACKER_DBUS_SERVICE,
