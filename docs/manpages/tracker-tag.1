@@ -29,8 +29,18 @@ Limit search to N results. The default is 512.
 Offset the search results by N. For example, start at item number 10
 in the results. The default is 0.
 .TP
-.B \-r, \-\-or-operator
-Use OR for search terms instead of AND (the default)
+.B \-r, \-\-and-operator
+Use AND operator for search terms instead of OR(the default). For
+example:
+
+.nf
+$ tracker-tag -s -t sliff sloff
+.fi
+
+Should show files in the database that have both the \fIsliff\fR
+.B AND
+\fIsloff\fR tags.
+
 .TP
 .B \-t, \-\-list
 List all tags. Results include the number of files associated with
@@ -39,10 +49,11 @@ associated with each tag by using --show-files.
 
 The \fITAG\fR arguments are optional. If no \fITAG\fR argument
 is specified, all tags are listed. If one or more \fITAG\fRs are
-given, all matching tags are listed. For example, this will match any
-tags named either \fIfoo\fR, \fIbar\fR or \fIbaz\fR:
+given, either matching tags are listed (OR condition). For example,
+this will match any tags named either \fIfoo\fR, \fIbar\fR or
+\fIbaz\fR:
+
 .nf
-.BR
 $ tracker-tag -t foo bar baz
 .fi
 
