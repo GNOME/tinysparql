@@ -235,8 +235,21 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 
 	if (!info) {
 		priv->n_extracting_files--;
-		g_warning ("Next item could not be retrieved: %s", error->message);
-		g_error_free (error);
+
+		if (error &&
+		    error->domain == tracker_decorator_error_quark ()) {
+			switch (error->code) {
+			case TRACKER_DECORATOR_ERROR_EMPTY:
+				g_message ("Next item does not require 2nd stage metadata extraction (e.g. resource may not be a file)");
+				break;
+			case TRACKER_DECORATOR_ERROR_PAUSED:
+				g_message ("Next item is on hold because miner is paused");
+			}
+		} else if (error) {
+			g_warning ("Next item could not be processed, %s", error->message);
+		}
+
+		g_clear_error (&error);
 		return;
 	}
 

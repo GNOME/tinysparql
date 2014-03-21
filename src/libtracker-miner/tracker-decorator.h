@@ -71,7 +71,29 @@ struct _TrackerDecoratorClass {
 	gpointer padding[10];
 };
 
+
+/**
+ * TrackerDecoratorError:
+ * @TRACKER_DECORATOR_ERROR_EMPTY: There is no item to be processed
+ * next. It is entirely possible to have a ::items_available signal
+ * emitted and then have this error when calling
+ * tracker_decorator_next_finish() because the signal may apply to a
+ * class which we're not interested in. For example, a new nmo:Email
+ * might have been added to Tracker, but we might only be interested
+ * in nfo:Document. This case would give this error.
+ * @TRACKER_DECORATOR_ERROR_PAUSED: No work was done or will be done
+ * because the miner is currently paused.
+ *
+ * Possible errors returned when calling tracker_decorator_next_finish().
+ **/
+typedef enum {
+	TRACKER_DECORATOR_ERROR_EMPTY,
+	TRACKER_DECORATOR_ERROR_PAUSED
+} TrackerDecoratorError;
+
+
 GType         tracker_decorator_get_type          (void) G_GNUC_CONST;
+GQuark        tracker_decorator_error_quark       (void);
 
 const gchar * tracker_decorator_get_data_source   (TrackerDecorator     *decorator);
 const gchar** tracker_decorator_get_class_names   (TrackerDecorator     *decorator);
