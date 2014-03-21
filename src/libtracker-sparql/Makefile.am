@@ -26,7 +26,6 @@ libtracker_sparql_la_SOURCES =   \
 	tracker-version.c
 
 libtracker_sparql_la_LIBADD =    \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)
 
