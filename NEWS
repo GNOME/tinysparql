@@ -1,3 +1,21 @@
+NEW in 0.17.8 - 2014-03-21
+==========================
+
+The main changes are:
+
+  * Fixes: GB#705315, tracker-0.16.2: configure wrongly mixes checks for enable-compile-warning while using WITH-compile-warnings
+  * Fixes: GB#726419, tracker-extract reports sparql update errors for jpeg with dc:indenfitier
+  * Fixes: DB#675198, tracker-store man page description needs minor cleanup
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated da: Ask H. Larsen
+  * Updated hu: Gábor Kelemen
+  * Updated id: Andika Triwidada
+  * Updated lv: Rūdolfs Mazurs
+
+
 NEW in 0.17.7 - 2014-03-19
 ==========================
 
