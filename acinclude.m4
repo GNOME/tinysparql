@@ -166,7 +166,7 @@ AC_DEFUN([IDT_COMPILE_WARNINGS],[
 	fi
 	;;
     *)
-	AC_MSG_ERROR(Unknown argument '$enable_compile_warnings' to --enable-compile-warnings)
+	AC_MSG_ERROR(Unknown argument '$enable_compile_warnings' to --with-compile-warnings)
 	;;
     esac
     CFLAGS="$realsave_CFLAGS"
