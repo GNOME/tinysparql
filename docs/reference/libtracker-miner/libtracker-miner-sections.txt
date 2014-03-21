@@ -171,8 +171,10 @@ TRACKER_TYPE_THUMBNAILER
 <TITLE>TrackerDecorator</TITLE>
 TrackerDecorator
 TrackerDecoratorClass
+TrackerDecoratorError
 TrackerDecoratorInfo
 tracker_decorator_get_type
+tracker_decorator_error_quark
 tracker_decorator_get_class_names
 tracker_decorator_get_data_source
 tracker_decorator_get_n_items
