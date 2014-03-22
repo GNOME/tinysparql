@@ -312,6 +312,7 @@ static void           task_pool_limit_reached_notify_cb       (GObject        *o
                                                                GParamSpec     *pspec,
                                                                gpointer        user_data);
 
+static GQuark quark_file_iri = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -534,6 +535,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_CANCELLABLE);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
+
+	quark_file_iri = g_quark_from_static_string ("tracker-miner-file-iri");
 }
 
 static void
@@ -1280,6 +1283,24 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 	g_free (uri);
 }
 
+static const gchar *
+lookup_file_urn (TrackerMinerFS *fs,
+                 GFile          *file,
+                 gboolean        force)
+{
+	const gchar *urn;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	urn = g_object_get_qdata (G_OBJECT (file), quark_file_iri);
+
+	if (!urn)
+		urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+		                                          file, force);
+	return urn;
+}
+
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
                     GFile          *file,
@@ -1306,11 +1327,11 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * created, its meta data might already be in the store
 	 * (possibly inserted by other application) - in such a case
 	 * we have to UPDATE, not INSERT. */
-	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file);
+	urn = lookup_file_urn (fs, file, FALSE);
 
 	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
 		parent = g_file_get_parent (file);
-		parent_urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent);
+		parent_urn = lookup_file_urn (fs, parent, TRUE);
 		g_object_unref (parent);
 	} else {
 		parent_urn = NULL;
@@ -1623,8 +1644,7 @@ item_move (TrackerMinerFS *fs,
 	                               NULL, NULL);
 
 	/* Get 'source' ID */
-	source_iri = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-	                                                 source_file);
+	source_iri = lookup_file_urn (fs, source_file, FALSE);
 	source_exists = (source_iri != NULL);
 
 	if (!file_info) {
@@ -1682,8 +1702,8 @@ item_move (TrackerMinerFS *fs,
 
 	/* Get new parent information */
 	new_parent = g_file_get_parent (file);
-	new_parent_iri = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-	                                                     new_parent);
+	new_parent_iri = lookup_file_urn (fs, new_parent, TRUE);
+
 	if (new_parent && new_parent_iri) {
 		g_string_append_printf (sparql,
 		                        "INSERT INTO <%s> {"
@@ -1949,8 +1969,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			uri = g_file_get_uri (queue_file);
 
-			if (tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-			                                        queue_file) != NULL) {
+			if (lookup_file_urn (fs, queue_file, FALSE) != NULL) {
 				g_debug ("CREATED event ignored on file '%s' as it already existed, "
 				         " processing as IgnoreNextUpdate...",
 				         uri);
@@ -2313,7 +2332,7 @@ item_queue_handlers_cb (gpointer user_data)
 
 		if (!parent ||
 		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
-		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent)) {
+		    lookup_file_urn (fs, parent, TRUE)) {
 			keep_processing = item_add_or_update (fs, file, priority,
 			                                      (queue == QUEUE_CREATED));
 		} else {
@@ -2545,7 +2564,13 @@ miner_fs_queue_file (TrackerMinerFS       *fs,
 		     TrackerPriorityQueue *item_queue,
 		     GFile                *file)
 {
+	const gchar *urn;
 	gint priority;
+
+	/* Store urn as qdata */
+	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file, FALSE);
+	g_object_set_qdata_full (G_OBJECT (file), quark_file_iri,
+	                         g_strdup (urn), (GDestroyNotify) g_free);
 
 	priority = miner_fs_get_queue_priority (fs, file);
 	tracker_priority_queue_add (item_queue, g_object_ref (file), priority);
@@ -3579,8 +3604,7 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
-	return g_strdup (tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-	                                                     file));
+	return g_strdup (lookup_file_urn (fs, file, TRUE));
 }
 
 /**
