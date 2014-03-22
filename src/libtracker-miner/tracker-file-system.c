@@ -901,3 +901,25 @@ tracker_file_system_forget_files (TrackerFileSystem *file_system,
 	g_list_foreach (data.list, (GFunc) forget_file, NULL);
 	g_list_free (data.list);
 }
+
+GFileType
+tracker_file_system_get_file_type (TrackerFileSystem *file_system,
+                                   GFile             *file)
+{
+	GFileType file_type = G_FILE_TYPE_UNKNOWN;
+	GNode *node;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), file_type);
+	g_return_val_if_fail (G_IS_FILE (file), file_type);
+
+	node = file_system_get_node (file_system, file);
+
+	if (node) {
+		FileNodeData *node_data;
+
+		node_data = node->data;
+		file_type = node_data->file_type;
+	}
+
+	return file_type;
+}
