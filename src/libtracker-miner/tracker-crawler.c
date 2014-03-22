@@ -55,7 +55,7 @@ struct DirectoryProcessingData {
 struct DirectoryRootInfo {
 	GFile *directory;
 	GNode *tree;
-	guint recurse : 1;
+	gint max_depth;
 
 	GQueue *directory_processing_queue;
 
@@ -78,8 +78,6 @@ struct TrackerCrawlerPrivate {
 	gdouble         throttle;
 
 	gchar          *file_attributes;
-
-	gboolean        recurse;
 
 	/* Statistics */
 	GTimer         *timer;
@@ -370,9 +368,9 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 }
 
 static DirectoryRootInfo *
-directory_root_info_new (GFile    *file,
-                         gboolean  recurse,
-                         gchar    *file_attributes)
+directory_root_info_new (GFile *file,
+                         gint   max_depth,
+                         gchar *file_attributes)
 {
 	DirectoryRootInfo *info;
 	DirectoryProcessingData *dir_info;
@@ -380,7 +378,7 @@ directory_root_info_new (GFile    *file,
 	info = g_slice_new0 (DirectoryRootInfo);
 
 	info->directory = g_object_ref (file);
-	info->recurse = recurse;
+	info->max_depth = max_depth;
 	info->directory_processing_queue = g_queue_new ();
 
 	info->tree = g_node_new (g_object_ref (file));
@@ -461,19 +459,13 @@ process_func (gpointer data)
 	}
 
 	if (dir_data) {
+		gint depth = g_node_depth (dir_data->node) - 1;
+		gboolean iterate;
+
+		iterate = (info->max_depth >= 0) ? depth < info->max_depth : TRUE;
+
 		/* One directory inside the tree hierarchy is being inspected */
 		if (!dir_data->was_inspected) {
-			gboolean iterate;
-
-			if (G_NODE_IS_ROOT (dir_data->node)) {
-				iterate = check_directory (crawler, info, dir_data->node->data);
-			} else {
-				/* Directory has been already checked in the block below, so
-				 * so obey the settings for the current directory root.
-				 */
-				iterate = info->recurse;
-			}
-
 			dir_data->was_inspected = TRUE;
 
 			/* Crawler may have been already stopped while we were waiting for the
@@ -511,7 +503,7 @@ process_func (gpointer data)
 								  g_object_ref (child_data->child));
 			}
 
-			if (info->recurse && priv->is_running &&
+			if (iterate && priv->is_running &&
 			    child_node && child_data->is_dir) {
 				DirectoryProcessingData *child_dir_data;
 
@@ -839,7 +831,7 @@ file_enumerate_children (TrackerCrawler          *crawler,
 gboolean
 tracker_crawler_start (TrackerCrawler *crawler,
                        GFile          *file,
-                       gboolean        recurse)
+                       gint            max_depth)
 {
 	TrackerCrawlerPrivate *priv;
 	DirectoryRootInfo *info;
@@ -857,7 +849,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	}
 
 	priv->was_started = TRUE;
-	priv->recurse = recurse;
 
 	/* Time the event */
 	if (priv->timer) {
@@ -874,7 +865,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
 
-	info = directory_root_info_new (file, recurse, priv->file_attributes);
+	info = directory_root_info_new (file, max_depth, priv->file_attributes);
 	g_queue_push_tail (priv->directories, info);
 
 	process_func_start (crawler);
