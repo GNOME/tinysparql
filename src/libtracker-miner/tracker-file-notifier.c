@@ -1383,7 +1383,8 @@ tracker_file_notifier_is_active (TrackerFileNotifier *notifier)
 
 const gchar *
 tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
-                                    GFile               *file)
+                                    GFile               *file,
+                                    gboolean             force)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *canonical;
@@ -1405,7 +1406,7 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	                                        canonical,
 	                                        quark_property_iri);
 
-	if (!iri) {
+	if (!iri && force) {
 		/* Fetch data for this file synchronously */
 		sparql_file_query_start (notifier, canonical,
 		                         G_FILE_TYPE_REGULAR,
