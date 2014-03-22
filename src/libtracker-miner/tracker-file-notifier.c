@@ -596,7 +596,7 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 		if ((flags & TRACKER_DIRECTORY_FLAG_IGNORE) == 0 &&
 		    tracker_crawler_start (priv->crawler,
 		                           directory,
-		                           (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)) {
+		                           (flags & TRACKER_DIRECTORY_FLAG_RECURSE) ? -1 : 1)) {
 			gchar *uri;
 
 			sparql_file_query_start (notifier, directory,
