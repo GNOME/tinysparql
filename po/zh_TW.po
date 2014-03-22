@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-05 22:49+0000\n"
-"PO-Revision-Date: 2014-03-09 13:17+0800\n"
+"POT-Creation-Date: 2014-03-19 12:28+0000\n"
+"PO-Revision-Date: 2014-03-21 20:53+0800\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (Taiwan) <chinese-l10n@googlegroups.com>\n"
 "Language: zh_TW\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.6.3\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -179,8 +179,6 @@ msgid "Low disk space limit"
 msgstr "最低磁碟空間限制"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-#| msgid ""
-#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
 "Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr "暫停索引的磁碟空間界限 (百分比)，-1 則為停用。"
@@ -379,6 +377,15 @@ msgstr "使用者指南"
 msgid "Userguide data miner"
 msgstr "使用者指南資料礦工"
 
+#: ../data/tracker-extract.desktop.in.in.h:1
+#| msgid "Metadata extractor"
+msgid "Tracker Metadata Extractor"
+msgstr "Tracker 元數據解譯器"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "從本地檔案解開元數據"
+
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
 msgstr "Tracker 檔案系統礦工"
@@ -488,29 +495,29 @@ msgstr "沒有網路連線"
 msgid "Indexing not recommended on this network connection"
 msgstr "在這個網路連線不建議進行索引"
 
-#: ../src/miners/fs/tracker-main.c:101 ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/fs/tracker-main.c:102 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr "記錄，0 = 只有錯誤， 1 = 最少，2 = 詳細，3 = 除錯 (預設=0)"
 
-#: ../src/miners/fs/tracker-main.c:106
+#: ../src/miners/fs/tracker-main.c:107
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "初始睡眠時間(秒數)，0->1000 (預設=15)"
 
-#: ../src/miners/fs/tracker-main.c:111
+#: ../src/miners/fs/tracker-main.c:112
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr "一直執行到所有設定的位置都完成索引後結束。"
 
-#: ../src/miners/fs/tracker-main.c:115
+#: ../src/miners/fs/tracker-main.c:116
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "檢查檔案是否適合組態所定探查條件"
 
-#: ../src/miners/fs/tracker-main.c:116
+#: ../src/miners/fs/tracker-main.c:117
 #: ../src/tracker-control/tracker-control-general.c:108
 #: ../src/tracker-control/tracker-control-general.c:111
 #: ../src/tracker-control/tracker-control-miners.c:61
-#: ../src/tracker-extract/tracker-main.c:94
+#: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
@@ -519,109 +526,109 @@ msgstr "檢查檔案是否適合組態所定探查條件"
 msgid "FILE"
 msgstr "檔案"
 
-#: ../src/miners/fs/tracker-main.c:119
+#: ../src/miners/fs/tracker-main.c:120
 msgid "Disable miners started as part of this process, options include: '"
 msgstr "停止礦工啟動為這個程序的一部分，選項包含：「"
 
-#: ../src/miners/fs/tracker-main.c:126
+#: ../src/miners/fs/tracker-main.c:127
 #: ../src/tracker-control/tracker-control-miners.c:76
 msgid "MINER"
 msgstr "礦工"
 
 #. Daemon options
-#: ../src/miners/fs/tracker-main.c:129
-#: ../src/tracker-extract/tracker-main.c:109
+#: ../src/miners/fs/tracker-main.c:130
+#: ../src/tracker-extract/tracker-main.c:104
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "顯示版本資訊"
 
-#: ../src/miners/fs/tracker-main.c:628
+#: ../src/miners/fs/tracker-main.c:629
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "資料物件「%s」目前存在"
 
-#: ../src/miners/fs/tracker-main.c:629
+#: ../src/miners/fs/tracker-main.c:630
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "資料物件「%s」目前不存在"
 
-#: ../src/miners/fs/tracker-main.c:644
+#: ../src/miners/fs/tracker-main.c:645
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "目錄適合探查 (基於規則)"
 
-#: ../src/miners/fs/tracker-main.c:645
+#: ../src/miners/fs/tracker-main.c:646
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "目錄不適合探查 (基於規則)"
 
-#: ../src/miners/fs/tracker-main.c:665
+#: ../src/miners/fs/tracker-main.c:666
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "目錄適合探查 (基於內容)"
 
-#: ../src/miners/fs/tracker-main.c:666
+#: ../src/miners/fs/tracker-main.c:667
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "目錄不適合探查 (基於內容)"
 
-#: ../src/miners/fs/tracker-main.c:713
+#: ../src/miners/fs/tracker-main.c:714
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "目錄適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:714
+#: ../src/miners/fs/tracker-main.c:715
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "目錄不適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:718
+#: ../src/miners/fs/tracker-main.c:719
 msgid "File is eligible to be monitored (based on config)"
 msgstr "檔案適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:719
+#: ../src/miners/fs/tracker-main.c:720
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "檔案不適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:723
+#: ../src/miners/fs/tracker-main.c:724
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "檔案或目錄適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:724
+#: ../src/miners/fs/tracker-main.c:725
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "檔案或目錄不適合監控 (基於設定)"
 
-#: ../src/miners/fs/tracker-main.c:739
+#: ../src/miners/fs/tracker-main.c:740
 msgid "File is eligible to be mined (based on rules)"
 msgstr "檔案適合探查 (基於規則)"
 
-#: ../src/miners/fs/tracker-main.c:740
+#: ../src/miners/fs/tracker-main.c:741
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "檔案不適合探查 (基於規則)"
 
-#: ../src/miners/fs/tracker-main.c:749
+#: ../src/miners/fs/tracker-main.c:750
 msgid "Would be indexed"
 msgstr "將被索引"
 
-#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "Yes"
 msgstr "是"
 
-#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "No"
 msgstr "否"
 
-#: ../src/miners/fs/tracker-main.c:751
+#: ../src/miners/fs/tracker-main.c:752
 msgid "Would be monitored"
 msgstr "不會被監控"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:874
+#: ../src/miners/fs/tracker-main.c:875
 msgid "- start the tracker indexer"
 msgstr "- 啟動 tracker 索引器"
 
-#: ../src/miners/fs/tracker-miner-files.c:1355
+#: ../src/miners/fs/tracker-miner-files.c:1356
 msgid "Low battery"
 msgstr "電池低電量"
 
-#: ../src/miners/fs/tracker-miner-files.c:1482
+#: ../src/miners/fs/tracker-miner-files.c:1483
 msgid "Low disk space"
 msgstr "磁碟空間不足"
 
@@ -699,7 +706,7 @@ msgstr "處理中…"
 msgid "Tags"
 msgstr "標籤"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
@@ -947,7 +954,7 @@ msgstr ""
 "m MIME2"
 
 #: ../src/tracker-control/tracker-control-miners.c:58
-#: ../src/tracker-extract/tracker-main.c:98
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MIME"
 msgstr "MIME"
 
@@ -1220,47 +1227,47 @@ msgstr "狀態選項"
 msgid "Show status options"
 msgstr "顯示狀態選項"
 
-#: ../src/tracker-extract/tracker-main.c:88
+#: ../src/tracker-extract/tracker-extract.c:743
+#| msgid "Metadata extractor"
+msgid "Metadata extraction failed"
+msgstr "元數據解譯失敗"
+
+#: ../src/tracker-extract/tracker-extract.c:808
+msgid "No metadata or extractor modules found to handle this file"
+msgstr "沒有元數據或是找不到能處理這個檔案的解譯模組"
+
+#: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
 msgstr "記錄，0 = 只有錯誤， 1 = 最少，2 = 詳細，3 = 除錯 (預設=0)"
 
-#: ../src/tracker-extract/tracker-main.c:93
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "File to extract metadata for"
 msgstr "檔案解開元數據用於"
 
-#: ../src/tracker-extract/tracker-main.c:97
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "檔案的 MIME 類型 (如果未提供，會使用猜測的結果)"
 
-#: ../src/tracker-extract/tracker-main.c:101
-msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-msgstr "強制內部解開器先於第三方軟體如 libstreamanalyzer"
-
-#: ../src/tracker-extract/tracker-main.c:105
+#: ../src/tracker-extract/tracker-main.c:100
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "強制用於解開的模組 (例如「foo」代表「foo.so」)"
 
-#: ../src/tracker-extract/tracker-main.c:106
+#: ../src/tracker-extract/tracker-main.c:101
 msgid "MODULE"
 msgstr "模組"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:330
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "- Extract file meta data"
 msgstr "- 解開檔案元數據"
 
-#: ../src/tracker-extract/tracker-main.c:339
+#: ../src/tracker-extract/tracker-main.c:338
 msgid "Filename and mime type must be provided together"
 msgstr "檔案名稱和 mime 類型必須一起提供"
-
-#: ../src/tracker-extract/tracker-main.c:353
-msgid ""
-"Options --force-internal-extractors and --force-module can't be used together"
-msgstr "選項 --force-internal-extractors 與 --force-module 不能同時使用"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
@@ -2235,9 +2242,6 @@ msgid ""
 msgstr "取回資料庫中通知有變更的類別 (CLASS 是選擇性的)"
 
 #: ../src/tracker-utils/tracker-sparql.c:129
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2311,12 +2315,10 @@ msgid "None"
 msgstr "沒有"
 
 #: ../src/tracker-utils/tracker-sparql.c:954
-#| msgid "Could not update tags for file"
 msgid "Could not create tree: subclass query failed"
 msgstr "無法建立樹狀圖：子類別查詢失敗"
 
 #: ../src/tracker-utils/tracker-sparql.c:1003
-#| msgid "Could not search properties"
 msgid "Could not create tree: class properties query failed"
 msgstr "無法建立樹狀圖：類別屬性查詢失敗"
 
@@ -2622,6 +2624,14 @@ msgstr "無法初始化資料管理程式"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "清空結果"
+
+#~ msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+#~ msgstr "強制內部解開器先於第三方軟體如 libstreamanalyzer"
+
+#~ msgid ""
+#~ "Options --force-internal-extractors and --force-module can't be used "
+#~ "together"
+#~ msgstr "選項 --force-internal-extractors 與 --force-module 不能同時使用"
 
 #~ msgid "Extractor error, performing failsafe embedded metadata extraction"
 #~ msgstr "解開器錯誤，進行安全式內建元數據解開程序"
