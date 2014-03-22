@@ -73,7 +73,7 @@ GType           tracker_crawler_get_type     (void);
 TrackerCrawler *tracker_crawler_new          (void);
 gboolean        tracker_crawler_start        (TrackerCrawler *crawler,
                                               GFile          *file,
-                                              gboolean        recurse);
+					      gint            max_depth);
 void            tracker_crawler_stop         (TrackerCrawler *crawler);
 void            tracker_crawler_pause        (TrackerCrawler *crawler);
 void            tracker_crawler_resume       (TrackerCrawler *crawler);
