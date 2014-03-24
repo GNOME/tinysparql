@@ -1,3 +1,76 @@
+NEW in 1.0.0 - 2014-03-24
+=========================
+
+The main changes since 0.16.x are:
+
+  * build: Require libmediaart >= 0.1.0 (soft dependency), code has been exported from Tracker to this library
+  * build: Require libicu >= 4.8.1.1, first version with pkg-config support, no version specified before
+  * build: Require Vala >= 0.18.0 (was 0.16.0) to avoid Vala 0.16 g_dbus_message_get_body() binding bug
+  * build: Require GLib >= 2.38 (was 2.35.1) after removing all deprecated g_test_trap_fork() calls for _subprocess()
+  * build: Require libosinfo >= 0.2.9 (was 0.0.2)
+  * build: Updated GSF dependency to >=1.14.24
+  * build: Improve SQLite FTS feature checking for cross compilation
+  * build: Improve description of build switches
+  * build: Remove ALL GLib marshallers. We depend on GLib (>= 2.30) which depends on libffi enabling us to do this
+  * build: Make sure --target-glib used with Vala is the correct GLib (was 2.34, should be $GLIB_REQUIRED), removes Vala g_type_init() warnings.
+  * build: Do not maintain LT versioning for internal libraries libtracker-{common,data,extract}
+  * build: GTester Makefile rules have been updated
+  * build: Improve portability, avoid some GNUisms and #ifdef linux specific API
+  * build: Improved portabiliy for OpenBSD and Solaris
+  * build: Use UPower >=0.99 if available
+  * all: Make GBusType run-time configurable with TRACKER_BUS_TYPE environment variable
+  * New Feature: Passive extraction: Specific metadata extraction (e.g. image orientation) is done by listening for insert signals for resource metadata (e.g. file name, size, etc) and done passively rather than being required before inserting ANY information about a resource. This officially makes tracker-extract a miner of special sorts
+  * New Feature: SPARQL functions tracker:normalize() and tracker:unaccent()
+  * New Feature: libav extractor for extracting audio/video metadata
+  * New Feature: tracker-store GraphUpdated signal delay now configurable: This signal is what's used to notify of resource changes in the database (e.g. new file added), previously it was always 1 second, now it can be configured
+  * libtracker-common: Added strnlen() compatibility function
+  * libtracker-data: Fix AS ?foo handling in FTS queries
+  * libtracker-direct: Don't allow connection if current and db locale mismatch
+  * libtracker-miner: Major API cleanups,
+    - TrackerMinerWeb has been removed, replaced by TrackerMinerOnline
+    - TrackerMinerManager has been splitted into a separate libtracker-control
+    - TrackerCrawler, TrackerStorage and the thumbnailer/mediaart helper functions are no longer public.
+  * libtracker-extract: This library has been made private. Implementing a TrackerDecorator is the recommended way to provide additional data.
+  * libtracker-control: New library, containing TrackerMinerManager, it requires using tracker-control-1.0.pc
+  * tracker-miner-fs: optional prioritization of folders has been reimplemented, used on removable volumes and DBus requests
+  * tracker-extract: Prioritization of rdf:types has been implemented, so certain file types are extracted before others, on demand of applications.
+  * tracker-extract: Removed support for libstreamanalyzer, xine and totem extractors, not been used or supported in a long time
+  * tracker-extract: Removed support for obsolete GStreamer backends tagreadbin, decodebin2 in gstreamer extractor
+  * tracker-extract: Removed the need for fork() and sub-processes with PDF extraction, no longer needed
+  * tracker-extract: Removed --disable-shutdown command line option now that it is instantiated by DBus
+  * tracker-extract: Fixed epub extractor so it doesn't use a broken ontology
+  * tracker-extract: Make it clearer where MIME type came from in debug (from GIO/xdgmime or tracker-miner-fs)
+  * tracker-extract: EPub extractor has been improved, content is now more complete.
+  * tracker-extract: Added ICU-based encoding detection
+  * tracker-extract: Detect GNOME screenshots and these to a category
+  * tracker-sparql: Now has a --tree switch to print ontology classes and properties as a tree
+  * tracker-tag: Fixed GLib-WARNING **: goption.c:2193: ignoring no-arg...
+  * tracker-tag: Fix --list (-t) to use logical OR, not AND
+  * tracker-needle: always show "Loading..." in the Document category
+  * tracker-sandbox: Added utility tracker-sandbox to run tracker in isolated cases
+  * docs/tools/ttl2sgml: Don't GError on nao:deprecated namespaces in the ontology, errors for mlo which is entirely deprecated
+  * functional-tests: Use GraphUpdated signal from store, not miner-fs Idle status
+  * functional-tests: Don't require miner-fs being idle for testing data inserted
+  * functional-tests: Start/stop processes in correct order, miner after extract
+  * functional-tests: Increase default timeout 90s->180s, 90s isn't long enough sometimes
+  * functional-tests: Don't rely on just tracker-control -t to kill tests in time
+  * thunderbird: Added UI localization support including translations for French, Spanish and Polish
+  * thunderbird: Escape folder names in URIs
+  * thunderbird: Port code to make sure it works for Thunderbird 24
+
+Bugs Fixed (29):
+
+  https://bugzilla.gnome.org/buglist.cgi?quicksearch=705315,726419,726639,726640,725689,726552,726553,680897,726421,685378,725607,725890,724984,719802,723097,696099,721455,721880,722254,722525,701259,722353,720686,719512,715040,699412
+
+  https://bugzilla.redhat.com/buglist.cgi?quicksearch=1026283%2C1034714
+
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675198
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+
 NEW in 0.17.8 - 2014-03-21
 ==========================
 
