@@ -30,6 +30,9 @@ class Tracker.Sparql.Backend : Connection {
 
 	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
+			// Important to make sure we check the right bus for the store
+			load_env ();
+
 			// Makes sure the sevice is available
 			debug ("Waiting for service to become available...");
 
@@ -49,6 +52,22 @@ class Tracker.Sparql.Backend : Connection {
 		}
 
 		initialized = true;
+	}
+
+	private void load_env () {
+		string env_bus_type = Environment.get_variable ("TRACKER_BUS_TYPE");
+
+		if (env_bus_type != null) {
+			if (env_bus_type.ascii_casecmp ("system") == 0) {
+				bus_type = BusType.SYSTEM;
+				debug ("Using bus = 'SYSTEM'");
+			} else if (env_bus_type.ascii_casecmp ("session") == 0) {
+				bus_type = BusType.SESSION;
+				debug ("Using bus = 'SESSION'");
+			} else {
+				warning ("Environment variable TRACKER_BUS_TYPE set to unknown value '%s'", env_bus_type);
+			}
+		}
 	}
 
 	public override void dispose () {
@@ -165,20 +184,6 @@ class Tracker.Sparql.Backend : Connection {
 
 	// Plugin loading functions
 	private void load_plugins () throws GLib.Error {
-		string env_bus_type = Environment.get_variable ("TRACKER_BUS_TYPE");
-
-		if (env_bus_type != null) {
-			if (env_bus_type.ascii_casecmp ("system") == 0) {
-				bus_type = BusType.SYSTEM;
-				debug ("Using bus = 'SYSTEM'");
-			} else if (env_bus_type.ascii_casecmp ("session") == 0) {
-				bus_type = BusType.SESSION;
-				debug ("Using bus = 'SESSION'");
-			} else {
-				warning ("Environment variable TRACKER_BUS_TYPE set to unknown value '%s'", env_bus_type);
-			}
-		}
-
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
 		Backend backend = Backend.AUTO;
 
