@@ -57,5 +57,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	/* TODO: Add actual metadata extraction for BMP files */
 
+	g_free (filename);
+
 	return TRUE;
 }
