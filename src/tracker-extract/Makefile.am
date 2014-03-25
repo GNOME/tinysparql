@@ -502,7 +502,7 @@ libextract_bmp_la_CFLAGS = \
 	$(TRACKER_EXTRACT_MODULES_CFLAGS)
 libextract_bmp_la_LDFLAGS = $(module_flags)
 libextract_bmp_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
