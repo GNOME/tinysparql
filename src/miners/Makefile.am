@@ -4,6 +4,10 @@ if HAVE_TRACKER_MINER_FS
 SUBDIRS += fs
 endif
 
+if HAVE_TRACKER_MINER_APPS
+SUBDIRS += apps
+endif
+
 if HAVE_TRACKER_MINER_RSS
 SUBDIRS += rss
 endif

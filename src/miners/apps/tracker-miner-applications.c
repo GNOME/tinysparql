@@ -19,16 +19,9 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-locale.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-miner-applications.h"
-#include "tracker-miner-locale.h"
-
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-meego.h"
-#endif
 
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
