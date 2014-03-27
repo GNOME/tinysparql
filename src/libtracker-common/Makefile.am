@@ -60,11 +60,11 @@ if HAVE_MEEGOTOUCH
 libtracker_common_la_SOURCES += 
 	tracker-locale-gconfdbus.c \
 	tracker-locale-gconfdbus.h \
-	tracker-miner-meego.cpp \
-	tracker-miner-meego.h
+	tracker-meego.cpp \
+	tracker-meego.h
 noinst_HEADERS += \
 	tracker-locale-gconfdbus.h \
-	tracker-miner-meego.h
+	tracker-meego.h
 endif
 
 libtracker_common_la_LIBADD = \
