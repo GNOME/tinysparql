@@ -148,7 +148,7 @@ miner_userguides_basedir_add (TrackerMinerFS *fs,
 #ifdef HAVE_MEEGOTOUCH
 	gchar *locale;
 
-	locale = tracker_miner_meego_get_locale ();
+	locale = tracker_meego_get_locale ();
 
 	/* Order of which we try here:
 	 * 1, make sure locale is set, otherwise default to 'en'
@@ -282,7 +282,7 @@ miner_userguides_initable_init (GInitable     *initable,
 	miner_userguides_add_directories (fs);
 
 #ifdef HAVE_MEEGOTOUCH
-	tracker_miner_applications_meego_init ();
+	tracker_meego_init ();
 #endif /* HAVE_MEEGOTOUCH */
 
 	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
@@ -303,7 +303,7 @@ miner_userguides_finalize (GObject *object)
 	tracker_locale_notify_remove (app->locale_notification_id);
 
 #ifdef HAVE_MEEGOTOUCH
-	tracker_miner_applications_meego_shutdown ();
+	tracker_meego_shutdown ();
 #endif /* HAVE_MEEGOTOUCH */
 
 	G_OBJECT_CLASS (tracker_miner_userguides_parent_class)->finalize (object);
