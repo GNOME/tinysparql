@@ -27,19 +27,15 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
-
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *preupdate, *metadata;
+	TrackerSparqlBuilder *metadata;
 	goffset size;
-	const gchar *graph;
-	gchar *filename, *uri;
+	gchar *filename;
 	GFile *file;
 
-	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
-	graph = tracker_extract_info_get_graph (info);
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
