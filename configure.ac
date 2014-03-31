@@ -1183,7 +1183,7 @@ have_tracker_miner_apps="yes"
 
 AC_ARG_ENABLE(miner_apps,
               AS_HELP_STRING([--enable-miner-apps],
-                             [enable File System miner [[default=yes]]]),,
+                             [enable Application miner [[default=yes]]]),,
                              [enable_tracker_miner_apps=yes])
 
 enable_tracker_miner_apps=$enable_miner_apps
