@@ -1544,6 +1544,8 @@ tracker_file_notifier_start (TrackerFileNotifier *notifier)
 
 		if (priv->pending_index_roots) {
 			crawl_directories_start (notifier);
+		} else {
+			g_signal_emit (notifier, signals[FINISHED], 0);
 		}
 	}
 
