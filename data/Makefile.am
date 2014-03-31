@@ -52,6 +52,10 @@ if HAVE_TRACKER_MINER_FS
 autostart_DATA += tracker-miner-fs.desktop tracker-extract.desktop
 endif
 
+if HAVE_TRACKER_MINER_APPS
+autostart_DATA += tracker-miner-apps.desktop
+endif
+
 if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop
 endif
