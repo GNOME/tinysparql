@@ -21,7 +21,7 @@
   information stored in the repository.
 
   An EU-funded project called Nepomuk was started to define some of
-  the core ontologies to be modelled on the Desktop. Tracker uses this
+  the core ontologies to be modeled on the Desktop. Tracker uses this
   to define the data's relationships in a database.
 
   All discussion related to tracker happens on the Tracker
@@ -39,26 +39,26 @@
 
   More infomation on Tracker can be found at:
 
-        http://tracker-project.org.
+        http://wiki.gnome.org/Projects/Tracker
 
-  Repository (first is readonly, second is write access):
+  Repository (first is read-only, second is write access):
 
 	git://git.gnome.org/tracker
 	ssh://<user>@git.gnome.org/git/tracker
 
   The official RoadMap (aka TODO) can be found at:
 
-    http://live.gnome.org/Tracker/Roadmap
+        http://wiki.gnome.org/Projects/Tracker/Roadmap
 
 
 2 Use Cases
 
   Tracker is the most powerful open source metadata database and
   indexer framework currently available and because it is built
-  around a combination indexer and sql database and not a
+  around a combination indexer and SQL database and not a
   dedicated indexer, it has much more powerful use cases:
 
-  * Provide search and indexing facilities similiar to those on
+  * Provide search and indexing facilities similar to those on
   other systems (Windows Vista and Mac OS X).
 
   * Common database storage for all first class objects (e.g. a
@@ -90,7 +90,7 @@
   * Non-bloated and written in C for maximum efficiency.
 
   * Small size and minimal dependencies makes it easy to bundle
-  into various distros, including live cds.
+  into various distros, including live CDs.
 
   * Provides option to disable indexing when running on battery.
 
@@ -102,7 +102,7 @@
   * Extracts embedded File, Image, Document and Audio type
   metadata from files.
 
-  * Supports the WC3's RDF Query syntax for querying metadata
+  * Supports the WC3's RDF Query syntax for querying metadata.
 
   * Provides support for both free text search (like Beagle/Google)
   as well as structured searches using RDF Query.
