@@ -780,10 +780,11 @@ initialize_miners_data (TrackerMinerManager *manager)
 	}
 
 	file = g_file_new_for_path (miners_dir);
-	tracker_crawler_start (crawler, file, TRUE);
-	g_object_unref (file);
+	if (tracker_crawler_start (crawler, file, TRUE)){
+		g_main_loop_run (main_loop);
+	}
 
-	g_main_loop_run (main_loop);
+	g_object_unref (file);
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (crawler);
