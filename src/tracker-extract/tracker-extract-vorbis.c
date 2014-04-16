@@ -28,7 +28,9 @@
 
 #include <vorbis/vorbisfile.h>
 
+#ifdef HAVE_LIBMEDIAART
 #include <libmediaart/mediaart.h>
+#endif
 
 #include <libtracker-common/tracker-common.h>
 
@@ -95,7 +97,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	VorbisData vd = { 0 };
 	MergeData md = { 0 };
 	FILE *f;
-	gchar *filename, *uri;
+	gchar *filename;
 	OggVorbis_File vf;
 	vorbis_comment *comment;
 	vorbis_info *vi;
@@ -511,15 +513,19 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_object_int64 (metadata, (gint64) time);
 	}
 
-	uri = g_file_get_uri (file);
-	media_art_process (NULL,
-	                   0,
-	                   NULL,
-	                   MEDIA_ART_ALBUM,
-	                   vd.album_artist ? vd.album_artist : vd.artist,
-	                   vd.album,
-	                   uri);
-	g_free (uri);
+#ifdef HAVE_LIBMEDIAART
+	{
+		gchar *uri = g_file_get_uri (file);
+		media_art_process (NULL,
+		                   0,
+		                   NULL,
+		                   MEDIA_ART_ALBUM,
+		                   vd.album_artist ? vd.album_artist : vd.artist,
+		                   vd.album,
+		                   uri);
+		g_free (uri);
+	}
+#endif
 
 	g_free (vd.artist);
 	g_free (vd.album);
