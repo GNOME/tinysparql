@@ -8,32 +8,31 @@ msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-01-12 12:26+0000\n"
-"PO-Revision-Date: 2014-01-11 17:28+0300\n"
-"Last-Translator: Dimitris Spingos (Δημήτρης Σπίγγος) <dmtrs32@gmail.com>\n"
+"POT-Creation-Date: 2014-03-25 10:45+0000\n"
+"PO-Revision-Date: 2014-04-20 20:40+0200\n"
+"Last-Translator: Tom Tryfonidis <tomtryf@gmail.com>\n"
 "Language-Team: www.gnome.gr\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
-"X-Poedit-Language: Greek\n"
+"X-Generator: Poedit 1.6.4\n"
 "X-Project-Style: gnome\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
-msgstr "Μέγιστο μέγεθος ημερολογίου"
+msgstr "Μέγιστο μέγεθος αρχείου καταγραφής"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
 msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
 msgstr ""
-"Μέγεθος του ημερολογίου σε περιστροφή σε MB. Χρήση του -1 για απενεργοποίηση "
-"περιστροφής."
+"Μέγεθος του αρχείου καταγραφής σε περιστροφή σε MB. Χρήση του -1 για "
+"απενεργοποίηση της περιστροφής."
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
 msgid "Location of journal pieces"
-msgstr "Θέση των κομματιών του ημερολογίου"
+msgstr "Θέση των τμημάτων του αρχείου καταγραφής (journal)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
 msgid "Where to store a journal chunk when it hits the max size."
@@ -45,19 +44,19 @@ msgstr ""
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
 msgid "Log verbosity"
-msgstr "Αναλυτική περιγραφή"
+msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
 msgid "Log verbosity."
-msgstr "Αναλυτική περιγραφή."
+msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
 msgid "Scheduler priority when idle"
-msgstr "Προτεραιότητα προγραμματισμού όταν είναι άεργο"
+msgstr "Προτεραιότητα χρονο-προγραμματισμού όταν είναι σε κατάσταση αδράνειας"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
@@ -72,11 +71,11 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
 msgid "Max bytes to extract"
-msgstr "Μέγιστες ψηφιολέξεις για εξαγωγή"
+msgstr "Μέγιστος αριθμός ψηφιολέξεων (bytes) προς εξαγωγή"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
-msgstr "Μέγιστος αριθμός ψηφιολέξεων UTF-8 για εξαγωγή."
+msgstr "Μέγιστος αριθμός ψηφιολέξεων (bytes) UTF-8 προς εξαγωγή."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
 msgid "Max media art width"
@@ -88,10 +87,30 @@ msgid ""
 "resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
 "no limit on the media art width."
 msgstr ""
-"Μέγιστο πλάτος σε εικονοστοιχεία για οποιοδήποτε εξαγόμενα μέσα τέχνης. Ο,"
-"τιδήποτε μεγαλύτερο αυξομειώνεται. Ορισμός σε -1 για απενεργοποίηση "
-"αποθήκευσης μέσων τέχνης από αρχεία. Ρύθμιση σε 0 δεν ορίζει κανένα όριο στο "
-"πλάτος των μέσων τέχνης."
+"Μέγιστο πλάτος σε εικονοστοιχεία (pixels) για οποιοδήποτε εξαγόμενα μέσα "
+"τέχνης. Ο,τιδήποτε μεγαλύτερο αναπροσαρμόζεται. Ορισμός σε -1 για "
+"απενεργοποίηση αποθήκευσης μέσων τέχνης από αρχεία. Η ρύθμιση σε 0 δεν "
+"ορίζει κανένα όριο στο πλάτος των μέσων τέχνης."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
+msgid "Wait for FS miner to be done before extracting"
+msgstr ""
+"Πριν γίνει εξαγωγή, περιμένετε πρώτα να τελειώσει το πρόγραμμα εξόρυξης FS "
+"miner"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
+msgid ""
+"When true, tracker-extract will wait for tracker-miner-fs to be done "
+"crawling before extracting meta-data. This option is useful on constrained "
+"environment where it is important to list files as fast as possible and can "
+"wait to get meta-data later."
+msgstr ""
+"Όταν είναι στην τιμή true, το πρόγραμμα tracker-extract θα περιμένει να "
+"τελειώσει πρώτα το πρόγραμμα εξόρυξης tracker-miner-fs πριν αρχίσει την "
+"εξαγωγή μεταδεδομένων. Αυτή η επιλογή είναι χρήσιμη σε περιβάλλοντα "
+"περιορισμένων δυνατοτήτων, όπου είναι σημαντικό να μπορούν τα αρχεία να "
+"μπαίνουν σε λίστα όσο πιο γρήγορα γίνεται και μπορεί να περιμένει να γίνει "
+"αργότερα η λήψη μεταδεδομένων."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Maximum length of a word to be indexed"
@@ -137,7 +156,7 @@ msgid ""
 "'Idea' for improved matching."
 msgstr ""
 "Μετάφραση τονισμένων χαρακτήρων σε ισοδύναμους άτονους. Π.χ. 'Ιδέα' σε "
-"'Ιδέα' για βελτιωμένη συμφωνία."
+"'Ιδεα' για βελτιωμένη αντιστοίχηση."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -183,10 +202,10 @@ msgstr "Όριο χώρου μικρού δίσκου"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
-"Το κατώφλι του χώρου του δίσκου σε MB στο οποίο παύει η δεικτοδότηση, ή -1 "
-"για απενεργοποίηση."
+"Το κατώφλι του χώρου του δίσκου σε MB πέραν του οποίου παύει η δεικτοδότηση, "
+"ή -1 για την απενεργοποίηση."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -198,21 +217,21 @@ msgid ""
 "database. 0 forces crawling anytime, -1 forces it only after unclean "
 "shutdowns, and -2 disables it entirely."
 msgstr ""
-"Διάστημα σε μέρες για έλεγχο ενημερότητας του συστήματος αρχείου στη βάση "
-"δεδομένων. Το 0 υποχρεώνει σάρωση οποτεδήποτε, -1 το υποχρεώνει μόνο μετά "
-"από βρόμικους τερματισμούς και -2 το απενεργοποιεί πλήρως."
+"Διάστημα σε ημέρες για τον έλεγχο ενημερότητας του συστήματος αρχείων στη "
+"βάση δεδομένων. Το 0 επιβάλλει σάρωση οποτεδήποτε, -1 το υποχρεώνει μόνο "
+"μετά από εσφαλμένους τερματισμούς και -2 το απενεργοποιεί πλήρως."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Removable devices' data permanence threshold"
-msgstr "Κατώφλι μονιμότητας δεδομένων αφαιρούμενων συσκευών"
+msgstr "Κατώφλι για την παραμονή των δεδομένων στις αφαιρούμενες συσκευές"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
 msgid ""
 "Threshold in days after which files from removables devices will be removed "
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
-"Το κατώφλι σε μέρες μετά το οποίο τα αρχεία από αφαιρούμενες συσκευές θα "
-"αφαιρεθούν από τη βάση δεδομένων εάν δεν προσαρτηθούν. 0 σημαίνει ποτέ, "
+"Το κατώφλι σε ημέρες μετά το οποίο τα αρχεία από τις αφαιρούμενες συσκευές "
+"θα αφαιρεθούν από τη βάση δεδομένων εάν δεν προσαρτηθούν. 0 σημαίνει ποτέ, "
 "μέγιστο είναι 365."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
@@ -260,7 +279,7 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Index when running on battery"
-msgstr "Δεικτοδότηση κατά την εκτέλεση σε μπαταρία"
+msgstr "Δεικτοδότηση ενόσω τρέχει με μπαταρία"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
 msgid "Set to true to index while running on battery"
@@ -322,7 +341,7 @@ msgstr "Αγνοημένοι κατάλογοι"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
 msgid "List of directories to avoid"
-msgstr "Λίστα των αποφευκτέων καταλόγων"
+msgstr "Λίστα των καταλόγων προς αποφυγή"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
 msgid "Ignored directories with content"
@@ -345,14 +364,6 @@ msgstr ""
 "που εκπέμπονται όταν δεδομένα από ευρετήριο έχουν αλλάξει μέσα στη βάση "
 "δεδομένων."
 
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
-msgid "Userguides"
-msgstr "Οδηγοί χρήστη"
-
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
-msgid "Userguide data miner"
-msgstr "Συλλέκτης δεδομένων αρχείων συστήματος"
-
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
 msgid "Applications"
@@ -360,7 +371,7 @@ msgstr "Εφαρμογές"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:2
 msgid "Applications data miner"
-msgstr "Συλλέκτης δεδομένων εφαρμογών"
+msgstr "Πρόγραμμα εξόρυξης δεδομένων εφαρμογών"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
 #: ../src/tracker-utils/tracker-search.c:412
@@ -369,7 +380,15 @@ msgstr "Αλληλογραφία"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:2
 msgid "Evolution Email miner"
-msgstr "Συλλέκτης αλληλογραφίας του Evolution"
+msgstr "Πρόγραμμα εξόρυξης αλληλογραφίας του Evolution"
+
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:1
+msgid "Extractor"
+msgstr "Πρόγραμμα εξαγωγής"
+
+#: ../data/miners/tracker-miner-extract.desktop.in.in.h:2
+msgid "Metadata extractor"
+msgstr "Πρόγραμμα εξαγωγής μεταδεδομένων"
 
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
@@ -379,7 +398,7 @@ msgstr "Σύστημα αρχείων"
 
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:2
 msgid "File system data miner"
-msgstr "Συλλέκτης δεδομένων αρχείων συστήματος"
+msgstr "Πρόγραμμα εξόρυξης δεδομένων από τα αρχεία συστήματος"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "RSS/ATOM Feeds"
@@ -387,11 +406,27 @@ msgstr "Τροφοδοσίες RSS/ATOM"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
-msgstr "Προσκόμιση τροφοδοσιών RSS/ATOM"
+msgstr "Συλλογή ροών RSS/ATOM"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
+msgid "Userguides"
+msgstr "Οδηγοί χρήστη"
+
+#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
+msgid "Userguide data miner"
+msgstr "Πρόγραμμα εξόρυξης δεδομένων από αρχεία συστήματος"
+
+#: ../data/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Πρόγραμμα παρακολούθησης της εξόρυξης μεταδεδομένων"
+
+#: ../data/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Κάνει εξαγωγή μεταδεδομένων από τοπικά αρχεία"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
-msgstr "Συλλέκτης συστήματος αρχείου Tracker"
+msgstr "Πρόγραμμα παρακολούθησης της εξόρυξης Αρχείων συστήματος"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Crawls and processes files on the file system"
@@ -399,11 +434,11 @@ msgstr "Σαρώνει και επεξεργάζεται αρχεία στο σ�
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:1
 msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Συλλέκτης τροφοδοσιών RSS/ATOM του Tracker"
+msgstr "Πρόγραμμα παρακολούθησης της εξόρυξης ροών RSS/ATOM"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM feeds"
-msgstr "Προσκόμιση τροφοδοσιών RSS/ATOM"
+msgstr "Συλλογή ροών RSS/ATOM"
 
 #: ../data/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -412,7 +447,7 @@ msgstr "Αποθήκη του Tracker"
 #: ../data/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
 msgstr ""
-"Διαχειριστής αναζήτησης και αποθήκευσης μεταδεδομένων στην βάση δεδομένων"
+"Διαχειριστής αναζήτησης και αποθήκευσης μεταδεδομένων στη βάση δεδομένων"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -420,7 +455,7 @@ msgstr "Όλες οι καταχωρίσεις"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:2
 msgid "By usage"
-msgstr "Κατά χρήση"
+msgstr "Ανά χρήση"
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
@@ -485,19 +520,28 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " σε %2.2d δευτερόλεπτο"
 msgstr[1] " σε %2.2d δευτερόλεπτα"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:958
+#: ../src/libtracker-miner/tracker-miner-object.c:957
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Η παύση της εφαρμογής και η αιτία ταιριάζουν με ένα ήδη υπάρχον αίτημα παύσης"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1055
+#: ../src/libtracker-miner/tracker-miner-object.c:1054
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
-"Το μπισκότο δεν αναγνωρίστηκε για να ξαναρχίσει ο σταματημένος συλλέκτης"
+"Το Cookie δεν αναγνωρίσθηκε για να ξαναρχίσει το πρόγραμμα εξόρυξης που "
+"είναι σε παύση"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1501
+#: ../src/libtracker-miner/tracker-miner-object.c:1500
 msgid "Data store is not available"
 msgstr "Η αποθήκευση δεδομένων δεν είναι διαθέσιμη"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:312
+msgid "No network connection"
+msgstr "Δεν υπάρχει σύνδεση δικτύου"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:313
+msgid "Indexing not recommended on this network connection"
+msgstr "Δεν συστήνεται η δεικτοδότηση σε αυτή τη σύνδεση δικτύου"
 
 #: ../src/miners/fs/tracker-main.c:102 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
@@ -524,36 +568,36 @@ msgstr ""
 "ρυθμίσεις"
 
 #: ../src/miners/fs/tracker-main.c:117
-#: ../src/tracker-control/tracker-control-general.c:107
-#: ../src/tracker-control/tracker-control-general.c:110
-#: ../src/tracker-control/tracker-control-miners.c:60
+#: ../src/tracker-control/tracker-control-general.c:108
+#: ../src/tracker-control/tracker-control-general.c:111
+#: ../src/tracker-control/tracker-control-miners.c:61
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:67
 #: ../src/tracker-utils/tracker-info.c:68
-#: ../src/tracker-utils/tracker-sparql.c:65
+#: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "ΑΡΧΕΙΟ"
 
 #: ../src/miners/fs/tracker-main.c:120
 msgid "Disable miners started as part of this process, options include: '"
 msgstr ""
-"Απενεργοποίηση αρχικών συλλεκτών ως μερών αυτής της διεργασίας, οι επιλογές "
-"συμπεριλαμβάνουν: '"
+"Απενεργοποίηση των προγραμμάτων εξόρυξης που άρχισαν ως μέρος αυτής της "
+"διεργασίας, οι επιλογές συμπεριλαμβάνουν: '"
 
 #: ../src/miners/fs/tracker-main.c:127
-#: ../src/tracker-control/tracker-control-miners.c:75
+#: ../src/tracker-control/tracker-control-miners.c:76
 msgid "MINER"
-msgstr "ΣΥΛΛΕΚΤΗΣ"
+msgstr "ΠΡΟΓΡΑΜΜΑ ΕΞΟΡΥΞΗΣ"
 
 #. Daemon options
 #: ../src/miners/fs/tracker-main.c:130
-#: ../src/tracker-extract/tracker-main.c:114
+#: ../src/tracker-extract/tracker-main.c:104
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
-msgstr "Εμφανίζει πληροφορίες για την τρέχουσα έκδοση"
+msgstr "Εμφανίζει πληροφορίες έκδοσης"
 
 #: ../src/miners/fs/tracker-main.c:629
 #, c-format
@@ -645,18 +689,13 @@ msgstr "Θα παρακολουθείται"
 msgid "- start the tracker indexer"
 msgstr "- εκκίνηση του ανιχνευτή δεικτοδότησης"
 
-#: ../src/miners/fs/tracker-miner-files.c:1362
+#: ../src/miners/fs/tracker-miner-files.c:1356
 msgid "Low battery"
 msgstr "Χαμηλή μπαταρία"
 
-#: ../src/miners/fs/tracker-miner-files.c:1489
+#: ../src/miners/fs/tracker-miner-files.c:1483
 msgid "Low disk space"
 msgstr "Μικρός χώρος δίσκου"
-
-#: ../src/miners/fs/tracker-miner-files.c:2249
-msgid "Extractor error, performing failsafe embedded metadata extraction"
-msgstr ""
-"Σφάλμα εξαγωγέα, ασφαλής εξαγωγή ενσωματωμένων μεταδεδομένων θα εκτελεστεί"
 
 #: ../src/miners/rss/tracker-main.c:44
 msgid "Add feed (must be used with --title)"
@@ -685,15 +724,15 @@ msgstr "Η προσθήκη τροφοδοσίας απαιτεί --add-feed κ�
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
 #: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:487
+#: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:915
+#: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Αδυναμία σύνδεσης με το Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-control/tracker-control-general.c:141
+#: ../src/tracker-control/tracker-control-general.c:142
 #: ../src/tracker-control/tracker-control-general.c:724
 #: ../src/tracker-control/tracker-control-general.c:733
 #: ../src/tracker-control/tracker-control-general.c:900
@@ -703,15 +742,15 @@ msgstr "Αδυναμία σύνδεσης με το Tracker"
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
 #: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:488
+#: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
 
 #: ../src/miners/rss/tracker-main.c:139
 msgid "Could not add feed"
-msgstr "Αδυναμία προσθήκης τροφοδοσίας"
+msgstr "Αδυναμία προσθήκης ροής"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Tracker"
@@ -722,7 +761,7 @@ msgid "Push data to Tracker to make it queryable."
 msgstr "Προώθηση δεδομένων στο Tracker για να γίνουν ερωτήματα."
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
-#: ../src/tracker-control/tracker-control-status.c:52
+#: ../src/tracker-control/tracker-control-status.c:53
 msgid "Processing…"
 msgstr "Επεξεργασία…"
 
@@ -732,7 +771,7 @@ msgstr "Επεξεργασία…"
 msgid "Tags"
 msgstr "Ετικέτες"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
@@ -743,12 +782,12 @@ msgstr[1] ""
 "_Θέστε τις ετικέτες που θέλετε να συσχετίσετε με τα επιλεγμένα στοιχεία %d:"
 
 #: ../src/tracker-control/tracker-control.c:53
-#: ../src/tracker-needle/tracker-needle.vala:691
+#: ../src/tracker-needle/tracker-needle.vala:710
 #: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
 #: ../src/tracker-utils/tracker-search.c:112
-#: ../src/tracker-utils/tracker-sparql.c:100
+#: ../src/tracker-utils/tracker-sparql.c:150
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
@@ -762,81 +801,85 @@ msgstr " - Διαχείριση διεργασιών και δεδομένων �
 
 #: ../src/tracker-control/tracker-control.c:95
 msgid "General and Status options cannot be used together"
-msgstr "Οι επιλογές γενικά και κατάσταση δεν μπορούν να χρησιμοποιηθούν μαζί"
+msgstr "Οι επιλογές Γενικά και Κατάσταση δεν μπορούν να χρησιμοποιηθούν μαζί"
 
 #: ../src/tracker-control/tracker-control.c:101
 msgid "General and Miners options cannot be used together"
-msgstr "Οι επιλογές γενικά και συλλέκτες δεν μπορούν να χρησιμοποιηθούν μαζί"
+msgstr ""
+"Οι επιλογές Γενικά και τα Προγράμματα εξόρυξης δεν μπορούν να "
+"χρησιμοποιηθούν μαζί"
 
 #: ../src/tracker-control/tracker-control.c:112
 msgid "Status and Miners options cannot be used together"
 msgstr ""
-"Οι επιλογές κατάστασης και συλλεκτών δεν μπορούν να χρησιμοποιηθούν μαζί"
+"Οι επιλογές κατάστασης και τα προγράμματα εξόρυξης δεν μπορούν να "
+"χρησιμοποιηθούν μαζί"
 
 #: ../src/tracker-control/tracker-control.c:129
 msgid "Unrecognized options"
 msgstr "Άγνωστες επιλογές"
 
-#: ../src/tracker-control/tracker-control-general.c:86
+#: ../src/tracker-control/tracker-control-general.c:87
 msgid "List all Tracker processes"
 msgstr "Προβολή όλων των διεργασιών του Tracker"
 
-#: ../src/tracker-control/tracker-control-general.c:88
+#: ../src/tracker-control/tracker-control-general.c:89
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Χρησιμοποιήστε SIGKILL για τερματισμό όλων των σύμφωνων διεργασιών, \"store"
-"\" (αποθήκευση), \"miners\" (συλλέκτες) ή \"all\" (όλα) μπορεί να "
+"\" (αποθήκευση), \"miners\" (προγράμματα εξόρυξης) ή \"all\" (όλα) μπορεί να "
 "χρησιμοποιηθούν, καμιά παράμετρος δεν ισοδυναμεί με \"all\""
 
-#: ../src/tracker-control/tracker-control-general.c:89
-#: ../src/tracker-control/tracker-control-general.c:92
+#: ../src/tracker-control/tracker-control-general.c:90
+#: ../src/tracker-control/tracker-control-general.c:93
 msgid "APPS"
 msgstr "ΕΦΑΡΜΟΓΕΣ"
 
-#: ../src/tracker-control/tracker-control-general.c:91
+#: ../src/tracker-control/tracker-control-general.c:92
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Χρησιμοποιήστε SIGTERM για τερματισμό όλων των σύμφωνων διεργασιών, \"store"
-"\" (αποθήκευση), \"miners\" (συλλέκτες) ή \"all\" (όλα) μπορεί να "
+"\" (αποθήκευση), \"miners\" (προγράμματα εξόρυξης) ή \"all\" (όλα) μπορεί να "
 "χρησιμοποιηθούν, καμιά παράμετρος δεν ισοδυναμεί με \"all\""
 
-#: ../src/tracker-control/tracker-control-general.c:94
+#: ../src/tracker-control/tracker-control-general.c:95
 msgid "Kill all Tracker processes and remove all databases"
 msgstr ""
 "Τερματισμός όλων των λειτουργιών του Tracker και αφαίρεση όλων των βάσεων "
 "δεδομένων"
 
-#: ../src/tracker-control/tracker-control-general.c:97
+#: ../src/tracker-control/tracker-control-general.c:98
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Το ίδιο με --hard-reset αλλά τα αντίγραφα ασφαλείας και το ημερολόγιο "
 "επανέρχονται μετά από επανεκκίνηση"
 
-#: ../src/tracker-control/tracker-control-general.c:100
+#: ../src/tracker-control/tracker-control-general.c:101
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Αφαίρεση όλων των αρχείων ρύθμισης ώστε αυτά να ξαναδημιουργηθούν στην "
 "επόμενη εκκίνηση"
 
-#: ../src/tracker-control/tracker-control-general.c:103
+#: ../src/tracker-control/tracker-control-general.c:104
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
-"Εκκινεί του συλλέκτες (το οποίο έμμεσα εκκινεί και την αποθήκη του ανιχνευτή)"
+"Εκκινεί τα προγράμματα εξόρυξης (που έμμεσα εκκινεί και την αποθήκη του "
+"ανιχνευτή)"
 
-#: ../src/tracker-control/tracker-control-general.c:106
+#: ../src/tracker-control/tracker-control-general.c:107
 msgid "Backup databases to the file provided"
 msgstr "Αντίγραφο ασφαλείας βάσεων δεδομένων στο παρεχόμενο αρχείο"
 
-#: ../src/tracker-control/tracker-control-general.c:109
+#: ../src/tracker-control/tracker-control-general.c:110
 msgid "Restore databases from the file provided"
-msgstr "Επαναφορά βάσεων δεδομένων από ρο παρεχόμενο αρχείο"
+msgstr "Επαναφορά βάσεων δεδομένων από το παρεχόμενο αρχείο"
 
-#: ../src/tracker-control/tracker-control-general.c:112
+#: ../src/tracker-control/tracker-control-general.c:113
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -844,16 +887,16 @@ msgstr ""
 "Ορισμός της περιγραφής σύνδεσης σε LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') για όλες τις διεργασίες"
 
-#: ../src/tracker-control/tracker-control-general.c:113
+#: ../src/tracker-control/tracker-control-general.c:114
 msgid "LEVEL"
 msgstr "ΕΠΙΠΕΔΟ"
 
-#: ../src/tracker-control/tracker-control-general.c:115
+#: ../src/tracker-control/tracker-control-general.c:116
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
 "Εμφάνιση τιμών ημερολογίου με όρους περιγραφής σύνδεσης για κάθε διεργασία"
 
-#: ../src/tracker-control/tracker-control-general.c:118
+#: ../src/tracker-control/tracker-control-general.c:119
 msgid ""
 "Collect debug information useful for problem reporting and investigation, "
 "results are output to terminal"
@@ -861,7 +904,7 @@ msgstr ""
 "Συλλέξτε χρήσιμες πληροφορίες αποσφαλμάτωσης για αναφορά προβλημάτων και "
 "έρευνα, τα αποτελέσματα είναι έξοδος στο τερματικό"
 
-#: ../src/tracker-control/tracker-control-general.c:140
+#: ../src/tracker-control/tracker-control-general.c:141
 msgid "Could not open /proc"
 msgstr "Αδυναμία ανοίγματος του /proc"
 
@@ -869,8 +912,8 @@ msgstr "Αδυναμία ανοίγματος του /proc"
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
-"Αδυναμία λήψης GSettings για συλλέκτες, ο διαχειριστής δεν μπόρεσε να "
-"δημιουργηθεί, %s"
+"Αδυναμία λήψης GSettings για προγράμματα εξόρυξης, ο διαχειριστής δεν "
+"μπόρεσε να δημιουργηθεί, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:788
 msgid "You can not use the --kill and --terminate arguments together"
@@ -926,13 +969,13 @@ msgstr "Αδυναμία θανάτωσης της διεργασίας %d"
 #: ../src/tracker-control/tracker-control-general.c:970
 #, c-format
 msgid "Killed process %d"
-msgstr "Σκοτωμένη διεργασία %d"
+msgstr "Τερματισμένη διεργασία %d"
 
-#: ../src/tracker-control/tracker-control-general.c:1098
+#: ../src/tracker-control/tracker-control-general.c:1083
 msgid "Removing configuration files…"
 msgstr "Αφαίρεση αρχείων ρυθμίσεων…"
 
-#: ../src/tracker-control/tracker-control-general.c:1106
+#: ../src/tracker-control/tracker-control-general.c:1088
 msgid "Resetting existing configuration…"
 msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 
@@ -945,50 +988,53 @@ msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: ../src/tracker-control/tracker-control-general.c:1156
-#: ../src/tracker-control/tracker-control-general.c:1198
+#: ../src/tracker-control/tracker-control-general.c:1138
+#: ../src/tracker-control/tracker-control-general.c:1180
 msgid "Components"
 msgstr "Συστατικά"
 
-#: ../src/tracker-control/tracker-control-general.c:1162
-#: ../src/tracker-control/tracker-control-general.c:1204
-#: ../src/tracker-control/tracker-control-miners.c:391
-#: ../src/tracker-control/tracker-control-status.c:567
+#: ../src/tracker-control/tracker-control-general.c:1144
+#: ../src/tracker-control/tracker-control-general.c:1186
+#: ../src/tracker-control/tracker-control-miners.c:392
+#: ../src/tracker-control/tracker-control-status.c:568
 msgid "Miners"
-msgstr "Συλλέκτες"
+msgstr "Προγράμματα εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-general.c:1163
-#: ../src/tracker-control/tracker-control-general.c:1205
+#: ../src/tracker-control/tracker-control-general.c:1145
+#: ../src/tracker-control/tracker-control-general.c:1187
 msgid "Only those with config listed"
 msgstr "Μόνο αυτά που έχουν λίστα config"
 
-#: ../src/tracker-control/tracker-control-general.c:1181
+#: ../src/tracker-control/tracker-control-general.c:1163
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Ρύθμιση περιγραφής ημερολογίου για όλα τα συστατικά στο '%s'…"
 
-#: ../src/tracker-control/tracker-control-general.c:1221
+#: ../src/tracker-control/tracker-control-general.c:1203
 msgid "Waiting one second before starting miners…"
-msgstr "Αναμονή ενός δευτερολέπτου πριν την εκκίνηση των συλλεκτών…"
+msgstr ""
+"Αναμονή ενός δευτερολέπτου πριν την εκκίνηση των προγραμμάτων εξόρυξης…"
 
-#: ../src/tracker-control/tracker-control-general.c:1227
+#: ../src/tracker-control/tracker-control-general.c:1209
 msgid "Starting miners…"
-msgstr "Εκκίνηση συλλεκτών…"
+msgstr "Εκκίνηση των προγραμμάτων εξόρυξης…"
 
-#: ../src/tracker-control/tracker-control-general.c:1233
+#: ../src/tracker-control/tracker-control-general.c:1215
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
-msgstr "Αδυναμία εκκίνησης συλλεκτών, αδυναμία δημιουργίας διαχειριστή, %s"
+msgstr ""
+"Αδυναμία εκκίνησης των προγραμμάτων εξόρυξης, αδυναμία δημιουργίας "
+"διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1258
+#: ../src/tracker-control/tracker-control-general.c:1240
 msgid "perhaps a disabled plugin?"
 msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
 
-#: ../src/tracker-control/tracker-control-general.c:1280
+#: ../src/tracker-control/tracker-control-general.c:1262
 msgid "Backing up database"
 msgstr "Αντίγραφα ασφαλείας βάσης δεδομένων"
 
-#: ../src/tracker-control/tracker-control-general.c:1352
+#: ../src/tracker-control/tracker-control-general.c:1334
 msgid "Restoring database from backup"
 msgstr "Επαναφορά βάσης δεδομένων από αντίγραφο ασφαλείας"
 
@@ -1015,308 +1061,329 @@ msgstr "Επαναφορά βάσης δεδομένων από αντίγραφ
 # #-#-#-#-#  help.HEAD.el.po (el)  #-#-#-#-#
 # #-#-#-#-#  ekiga.gnome-2-14.el.po (el)  #-#-#-#-#
 #
-#: ../src/tracker-control/tracker-control-general.c:1425
+#: ../src/tracker-control/tracker-control-general.c:1407
 msgid "General options"
 msgstr "Γενικές επιλογές"
 
-#: ../src/tracker-control/tracker-control-general.c:1426
+#: ../src/tracker-control/tracker-control-general.c:1408
 msgid "Show general options"
 msgstr "Εμφάνιση γενικών επιλογών"
 
-#: ../src/tracker-control/tracker-control-miners.c:56
+#: ../src/tracker-control/tracker-control-miners.c:57
 msgid ""
 "Tell miners to reindex files which match the mime type supplied (for new "
 "extractors), use -m MIME1 -m MIME2"
 msgstr ""
-"Αίτημα στους συλλέκτες για επαναδεικτοδότηση αρχείων που συμφωνούν με τον "
-"παρεχόμενο τύπο mime (για νέους εξαγωγείς), χρησιμοποιήστε -m MIME1, -m MIME2"
+"Πείτε στα προγράμματα εξόρυξης να κάνουν επαναδεικτοδότηση των αρχείων που "
+"ταιριάζουν με τον παρεχόμενο τύπο mime (για νέα Προγράμματα εξόρυξης), "
+"χρησιμοποιήστε -m MIME1, -m MIME2"
 
-#: ../src/tracker-control/tracker-control-miners.c:57
+#: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-control/tracker-control-miners.c:59
+#: ../src/tracker-control/tracker-control-miners.c:60
 msgid "Tell miners to (re)index a given file"
-msgstr "Αίτηση στους συλλέκτες για (επανα)δεικτοδότηση δοσμένου αρχείο"
-
-#: ../src/tracker-control/tracker-control-miners.c:62
-msgid "Pause a miner (you must use this with --miner)"
-msgstr "Παύση ενός συλλέκτη (θα πρέπει να γίνει χρήση του με --miner)"
+msgstr ""
+"Πείτε στα προγράμματα εξόρυξης να κάνουν (επανα)δεικτοδότηση στο δεδομένο "
+"αρχείο"
 
 #: ../src/tracker-control/tracker-control-miners.c:63
-#: ../src/tracker-control/tracker-control-miners.c:67
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+"Παύση ενός προγράμματος εξόρυξης (θα πρέπει να γίνει χρήση του με --miner)"
+
+#: ../src/tracker-control/tracker-control-miners.c:64
+#: ../src/tracker-control/tracker-control-miners.c:68
 msgid "REASON"
 msgstr "ΛΟΓΟΣ"
 
-#: ../src/tracker-control/tracker-control-miners.c:66
+#: ../src/tracker-control/tracker-control-miners.c:67
 msgid ""
 "Pause a miner while the calling process is alive or until resumed (you must "
 "use this with --miner)"
 msgstr ""
-"Παύση ενός συλλέκτη ενώ η καλούσα διεργασία είναι ζωντανή ή μέχρι τη "
-"συνέχισή της (θα πρέπει να το χρησιμοποιήσετε με --miner)"
-
-#: ../src/tracker-control/tracker-control-miners.c:70
-msgid "Resume a miner (you must use this with --miner)"
-msgstr "Συνέχιση συλλέκτη (πρέπει να το χρησιμοποιήσετε με --miner)"
+"Παύση ενός προγράμματος εξόρυξης ενώ η καλούσα διεργασία είναι ζωντανή ή "
+"μέχρι τη συνέχισή της (θα πρέπει να το χρησιμοποιήσετε με --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:71
-msgid "COOKIE"
-msgstr "ΜΠΙΣΚΟΤΟ"
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+"Συνέχιση προγράμματος εξόρυξης (πρέπει να το χρησιμοποιήσετε με --miner)"
 
-#: ../src/tracker-control/tracker-control-miners.c:74
+#: ../src/tracker-control/tracker-control-miners.c:72
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: ../src/tracker-control/tracker-control-miners.c:75
 msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
 msgstr ""
-"Χρήση συλλέκτη με --resume ή --pause (μπορείτε να χρησιμοποιήσετε "
-"καταλήξεις, π.χ. αρχεία ή εφαρμογές)"
+"Χρήση προγράμματος εξόρυξης με --resume ή --pause (μπορείτε να "
+"χρησιμοποιήσετε καταλήξεις, π.χ. αρχεία ή εφαρμογές)"
 
-#: ../src/tracker-control/tracker-control-miners.c:78
+#: ../src/tracker-control/tracker-control-miners.c:79
 msgid "List all miners currently running"
-msgstr "Λίστα όλων των συλλεκτών που εκτελούνται τώρα"
+msgstr "Λίστα όλων των προγραμμάτων εξόρυξης που εκτελούνται τώρα"
 
 #
-#: ../src/tracker-control/tracker-control-miners.c:82
+#: ../src/tracker-control/tracker-control-miners.c:83
 msgid "List all miners installed"
-msgstr "Λίστα με όλους τους εγκατεστημένους συλλέκτες"
+msgstr "Λίστα με όλα τα εγκατεστημένα προγράμματα εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-miners.c:86
+#: ../src/tracker-control/tracker-control-miners.c:87
 msgid "List pause reasons"
 msgstr "Αιτίες παύσης λίστας"
 
-#: ../src/tracker-control/tracker-control-miners.c:111
+#: ../src/tracker-control/tracker-control-miners.c:112
 #, c-format
 msgid "Could not pause miner, manager could not be created, %s"
-msgstr "Αδυναμία παύσης του συλλέκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+msgstr ""
+"Αδυναμία παύσης του προγράμματος εξόρυξης, αδυναμία δημιουργίας διαχειριστή, "
+"%s"
 
-#: ../src/tracker-control/tracker-control-miners.c:118
+#: ../src/tracker-control/tracker-control-miners.c:119
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "Προσπάθεια παύσης συλλέκτη '%s' για τον λόγο '%s'"
+msgstr "Προσπάθεια παύσης του προγράμματος εξόρυξης '%s' για τον λόγο '%s'"
 
-#: ../src/tracker-control/tracker-control-miners.c:126
-#: ../src/tracker-control/tracker-control-miners.c:132
+#: ../src/tracker-control/tracker-control-miners.c:127
+#: ../src/tracker-control/tracker-control-miners.c:133
 #, c-format
 msgid "Could not pause miner: %s"
-msgstr "Αδυναμία παύσης του συλλέκτη: %s"
+msgstr "Αδυναμία παύσης του προγράμματος εξόρυξης: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:138
+#: ../src/tracker-control/tracker-control-miners.c:139
 #, c-format
 msgid "Cookie is %d"
-msgstr "Το μπισκότο είναι %d"
+msgstr "Το Cookie είναι %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:145
+#: ../src/tracker-control/tracker-control-miners.c:146
 msgid "Press Ctrl+C to end pause"
 msgstr "Πατήστε Ctrl+C για τέλος παύσης"
 
-#: ../src/tracker-control/tracker-control-miners.c:169
+#: ../src/tracker-control/tracker-control-miners.c:170
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
-msgstr "Αδυναμία συνέχισης του συλλέκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+msgstr ""
+"Αδυναμία συνέχισης του προγράμματος εξόρυξης, αδυναμία δημιουργίας "
+"διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:176
+#: ../src/tracker-control/tracker-control-miners.c:177
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Προσπάθεια συνέχισης συλλέκτη %s με το μπισκότο %d"
+msgstr "Προσπάθεια συνέχισης του προγράμματος εξόρυξης %s με το cookie %d"
 
-#: ../src/tracker-control/tracker-control-miners.c:183
+#: ../src/tracker-control/tracker-control-miners.c:184
 #, c-format
 msgid "Could not resume miner: %s"
-msgstr "Αδυναμία συνέχισης του συλλέκτη: %s"
+msgstr "Αδυναμία συνέχισης του προγράμματος εξόρυξης: %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:187
+#: ../src/tracker-control/tracker-control-miners.c:188
 #: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:767
+#: ../src/tracker-utils/tracker-sparql.c:1430
 msgid "Done"
 msgstr "Ολοκληρώθηκε"
 
-#: ../src/tracker-control/tracker-control-miners.c:203
+#: ../src/tracker-control/tracker-control-miners.c:204
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
 msgstr ""
 "Αδυναμία επαναδεικτοδότησης τύπων mime, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:213
+#: ../src/tracker-control/tracker-control-miners.c:214
 msgid "Could not reindex mimetypes"
 msgstr "Αδυναμία επαναδεικτοδότησης των τύπων MIME"
 
-#: ../src/tracker-control/tracker-control-miners.c:219
+#: ../src/tracker-control/tracker-control-miners.c:220
 msgid "Reindexing mime types was successful"
 msgstr "Η επαναδεικτοδότηση των τύπων mime ήταν επιτυχής"
 
-#: ../src/tracker-control/tracker-control-miners.c:235
+#: ../src/tracker-control/tracker-control-miners.c:236
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
 msgstr ""
 "Αδυναμία (επανα)δεικτοδότησης αρχείου, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:248
+#: ../src/tracker-control/tracker-control-miners.c:249
 msgid "Could not (re)index file"
 msgstr "Αδυναμία (επανα)δεικτοδότησης του αρχείου"
 
-#: ../src/tracker-control/tracker-control-miners.c:254
+#: ../src/tracker-control/tracker-control-miners.c:255
 msgid "(Re)indexing file was successful"
 msgstr "Η (επανα)δεικτοδότηση του αρχείου ήταν επιτυχής"
 
-#: ../src/tracker-control/tracker-control-miners.c:272
+#: ../src/tracker-control/tracker-control-miners.c:273
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr "Αδυναμία καταχώρισης συλλεκτών, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:286
+#: ../src/tracker-control/tracker-control-miners.c:287
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
-msgstr[0] "Βρέθηκε %d εγκατεστημένος συλλέκτης"
-msgstr[1] "Βρέθηκαν %d εγκατεστημένοι συλλέκτες"
+msgstr[0] "Βρέθηκε %d εγκατεστημένο πρόγραμμα εξόρυξης"
+msgstr[1] "Βρέθηκαν %d εγκατεστημένα προγράμματα εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-miners.c:309
+#: ../src/tracker-control/tracker-control-miners.c:310
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
-msgstr[0] "Βρέθηκε %d εκτελούμενος συλλέκτης"
-msgstr[1] "Βρέθηκαν %d εκτελούμενοι συλλέκτες"
+msgstr[0] "Βρέθηκε %d εκτελούμενο πρόγραμμα εξόρυξης"
+msgstr[1] "Βρέθηκαν %d εκτελούμενα προγράμματα εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-miners.c:341
+#: ../src/tracker-control/tracker-control-miners.c:342
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
 "Αδυναμία λήψης λεπτομερειών παύσης, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:352
 msgid "No miners are running"
-msgstr "Δεν εκτελείται κανένας συλλέκτης"
+msgstr "Δεν εκτελείται κανένα πρόγραμμα εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-miners.c:398
+#: ../src/tracker-control/tracker-control-miners.c:399
 #: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Εφαρμογή"
 msgstr[1] "Εφαρμογές"
 
-#: ../src/tracker-control/tracker-control-miners.c:400
+#: ../src/tracker-control/tracker-control-miners.c:401
 msgid "Reason"
 msgstr "Αιτία"
 
-#: ../src/tracker-control/tracker-control-miners.c:409
+#: ../src/tracker-control/tracker-control-miners.c:410
 msgid "No miners are paused"
-msgstr "Χωρίς συλλέκτες σε παύση"
+msgstr "Δεν υπάρχουν προγράμματα εξόρυξης σε παύση"
 
-#: ../src/tracker-control/tracker-control-miners.c:433
+#: ../src/tracker-control/tracker-control-miners.c:434
 msgid "You can not use miner pause and resume switches together"
-msgstr "Αδυναμία χρήσης παύσης συλλέκτη και συνέχισης διακοπτών μαζί"
+msgstr ""
+"Αδύνατο να χρησιμοποιήσετε μαζί την παύση του προγράμματος εξόρυξης και την "
+"Ανάκτηση διακοπτών"
 
-#: ../src/tracker-control/tracker-control-miners.c:439
+#: ../src/tracker-control/tracker-control-miners.c:440
 msgid "You must provide the miner for pause or resume commands"
-msgstr "Πρέπει να παύσετε στον συλλέκτη ή να συνεχίσετε τις εντολές"
+msgstr "Πρέπει να παύσετε το πρόγραμμα εξόρυξης ή να συνεχίσετε τις εντολές"
 
-#: ../src/tracker-control/tracker-control-miners.c:445
+#: ../src/tracker-control/tracker-control-miners.c:446
 msgid "You must provide a pause or resume command for the miner"
-msgstr "Πρέπει να παύσετε ή να συνεχίσετε την εντολή για τον συλλέκτη"
-
-#: ../src/tracker-control/tracker-control-miners.c:493
-msgid "Miner options"
-msgstr "Επιλογές συλλέκτη"
+msgstr "Πρέπει να παύσετε ή να συνεχίσετε την εντολή για το πρόγραμμα εξόρυξης"
 
 #: ../src/tracker-control/tracker-control-miners.c:494
-msgid "Show miner options"
-msgstr "Εμφάνιση επιλογών συλλέκτη"
+msgid "Miner options"
+msgstr "Επιλογές προγράμματος εξόρυξης"
 
-#: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:306
+#: ../src/tracker-control/tracker-control-miners.c:495
+msgid "Show miner options"
+msgstr "Εμφάνιση επιλογών προγράμματος εξόρυξης"
+
+#: ../src/tracker-control/tracker-control-status.c:51
+#: ../src/tracker-control/tracker-control-status.c:307
 msgid "Unavailable"
 msgstr "Μη διαθέσιμο"
 
 #. generic
-#: ../src/tracker-control/tracker-control-status.c:51
+#: ../src/tracker-control/tracker-control-status.c:52
 msgid "Initializing"
 msgstr "Αρχικοποίηση"
 
-#: ../src/tracker-control/tracker-control-status.c:53
+#: ../src/tracker-control/tracker-control-status.c:54
 msgid "Fetching…"
 msgstr "Προσκόμιση…"
 
 #. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:54
+#: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Σάρωση μοναδικού καταλόγου '%s'"
 
-#: ../src/tracker-control/tracker-control-status.c:55
+#: ../src/tracker-control/tracker-control-status.c:56
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Αναδρομική σάρωση του καταλόγου '%s'"
 
-#: ../src/tracker-control/tracker-control-status.c:56
+#: ../src/tracker-control/tracker-control-status.c:57
 msgid "Paused"
 msgstr "Έγινε παύση"
 
-#: ../src/tracker-control/tracker-control-status.c:57
+#: ../src/tracker-control/tracker-control-status.c:58
 msgid "Idle"
 msgstr "Αδρανής"
 
-#: ../src/tracker-control/tracker-control-status.c:62
+#: ../src/tracker-control/tracker-control-status.c:63
 msgid "Show current status"
 msgstr "Εμφάνιση τρέχουσας κατάστασης"
 
-#: ../src/tracker-control/tracker-control-status.c:66
+#: ../src/tracker-control/tracker-control-status.c:67
 msgid "Follow status changes as they happen"
 msgstr "Παρακολούθηση αλλαγών κατάστασης καθώς συμβαίνουν"
 
-#: ../src/tracker-control/tracker-control-status.c:70
+#: ../src/tracker-control/tracker-control-status.c:71
 msgid "List common statuses for miners and the store"
 msgstr "Λίστα συνήθων καταστάσεων για τους συλλέκτες και την αποθήκη"
 
-#: ../src/tracker-control/tracker-control-status.c:141
+#: ../src/tracker-control/tracker-control-status.c:142
 #, c-format
 msgid "Could not get status from miner: %s"
-msgstr "Αδυναμία λήψης κατάστασης του συλλέκτη: %s"
+msgstr "Αδυναμία λήψης κατάστασης του προγράμματος εξόρυξης: %s"
 
 #. Translators: %s is a time string
-#: ../src/tracker-control/tracker-control-status.c:203
+#: ../src/tracker-control/tracker-control-status.c:204
 #, c-format
 msgid "%s remaining"
 msgstr "απομένει %s"
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
-#: ../src/tracker-control/tracker-control-status.c:206
+#: ../src/tracker-control/tracker-control-status.c:207
 msgid "unknown time left"
 msgstr "άγνωστος χρόνος απομένει"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:219
-#: ../src/tracker-control/tracker-control-status.c:551
+#: ../src/tracker-control/tracker-control-status.c:220
+#: ../src/tracker-control/tracker-control-status.c:552
 msgid "PAUSED"
 msgstr "ΣΕ ΠΑΥΣΗ"
 
-#: ../src/tracker-control/tracker-control-status.c:236
+#: ../src/tracker-control/tracker-control-status.c:237
 msgid "Not running or is a disabled plugin"
 msgstr "Το πρόσθετο δεν εκτελείται ή είναι απενεργοποιημένο"
 
-#: ../src/tracker-control/tracker-control-status.c:522
+#: ../src/tracker-control/tracker-control-status.c:523
 msgid "Common statuses include"
 msgstr "Οι συνήθεις καταστάσεις περιλαμβάνουν"
 
-#: ../src/tracker-control/tracker-control-status.c:540
+#: ../src/tracker-control/tracker-control-status.c:541
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "Αδυναμία λήψης κατάστασης, αδυναμία δημιουργίας διαχειριστή, %s"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:561
+#: ../src/tracker-control/tracker-control-status.c:562
 msgid "Store"
 msgstr "Αποθήκη"
 
-#: ../src/tracker-control/tracker-control-status.c:682
+#: ../src/tracker-control/tracker-control-status.c:683
 msgid "Status options"
 msgstr "Επιλογές κατάστασης"
 
-#: ../src/tracker-control/tracker-control-status.c:683
+#: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Εμφάνιση επιλογών κατάστασης"
+
+#: ../src/tracker-extract/tracker-extract.c:743
+msgid "Metadata extraction failed"
+msgstr "Απέτυχε η εξαγωγή μεταδεδομένων"
+
+#: ../src/tracker-extract/tracker-extract.c:808
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+"Δεν βρέθηκαν μεταδεδομένα ή αρθρώματα του προγράμματος εξαγωγής για τον "
+"χειρισμό αυτού του αρχείου"
 
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
@@ -1335,42 +1402,24 @@ msgstr "Αρχείο για το οποίο εξάγονται μεταδεδο�
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Τύπος MIME για το αρχείο (αν δεν παρασχεθεί, θα γίνει με εικασία)"
 
-#: ../src/tracker-extract/tracker-main.c:102
-#: ../src/tracker-writeback/tracker-main.c:62
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Απενεργοποίηση τερματισμού μετά από 30 δευτερόλεπτα αδράνειας"
-
-#: ../src/tracker-extract/tracker-main.c:106
-msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-msgstr ""
-"Εξαναγκασμός εσωτερικών εξαγωγέων έναντι λογισμικού 3ων όπως ο "
-"libstreamanalyzer"
-
-#: ../src/tracker-extract/tracker-main.c:110
+#: ../src/tracker-extract/tracker-main.c:100
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
 "Εξαναγκασμένη χρήση αρθρώματος για εξαγωγή (π.χ. \"foo\" για \"foo.so\")"
 
-#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/tracker-extract/tracker-main.c:101
 msgid "MODULE"
 msgstr "ΑΡΘΡΩΜΑ"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:333
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "- Extract file meta data"
 msgstr "- Εξαγωγή μεταδεδομένων από το αρχείο"
 
-#: ../src/tracker-extract/tracker-main.c:342
+#: ../src/tracker-extract/tracker-main.c:338
 msgid "Filename and mime type must be provided together"
 msgstr "Το όνομα αρχείου και ο τύπος mime θα πρέπει να παρέχονται μαζί"
-
-#: ../src/tracker-extract/tracker-main.c:356
-msgid ""
-"Options --force-internal-extractors and --force-module can't be used together"
-msgstr ""
-"Οι επιλογές --force-internal-extractors και --force-module δεν μπορούν να "
-"χρησιμοποιηθούν μαζί"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
@@ -1438,20 +1487,20 @@ msgstr "Προσθήκη ετικέτας"
 msgid "Remove selected tag"
 msgstr "Αφαίρεση επιλεγμένης ετικέτας"
 
-#: ../src/tracker-needle/tracker-needle.vala:69
+#: ../src/tracker-needle/tracker-needle.vala:70
 msgid "Search criteria was too generic"
 msgstr "Τα κριτήρια αναζήτησης ήταν πολύ γενικά"
 
-#: ../src/tracker-needle/tracker-needle.vala:70
+#: ../src/tracker-needle/tracker-needle.vala:71
 msgid "Only the first 500 items will be displayed"
-msgstr "Μόνο τα πρώτα 500 στοιχεία θα εμφανιστούν"
+msgstr "Μόνο τα πρώτα 500 στοιχεία θα εμφανισθούν"
 
-#: ../src/tracker-needle/tracker-needle.vala:698
-#: ../src/tracker-needle/tracker-needle.vala:699
+#: ../src/tracker-needle/tracker-needle.vala:717
+#: ../src/tracker-needle/tracker-needle.vala:718
 msgid "[SEARCH-CRITERIA]"
 msgstr "[ΚΡΙΤΗΡΙΑ ΑΝΑΖΗΤΗΣΗΣ]"
 
-#: ../src/tracker-needle/tracker-needle.vala:704
+#: ../src/tracker-needle/tracker-needle.vala:723
 msgid "Desktop Search user interface using Tracker"
 msgstr "Διεπαφή χρήστη αναζήτησης επιφάνειας εργασίας με χρήση Tracker"
 
@@ -1660,7 +1709,7 @@ msgid "Could not update tags"
 msgstr "Αδυναμία ενημέρωσης ετικετών"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:773
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "Could not remove tag"
 msgstr "Αδυναμία αφαίρεσης ετικέτας"
 
@@ -1669,7 +1718,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Αδυναμία ανάκτησης ετικετών για την τρέχουσα επιλογή"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:597
+#: ../src/tracker-utils/tracker-tag.c:715
 msgid "Could not add tag"
 msgstr "Αδυναμία προσθήκης ετικέτας"
 
@@ -1801,7 +1850,7 @@ msgstr[1] "%d σελίδες"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
-msgstr "Εμ_φάνιση ανιόντος καταλόγου"
+msgstr "Εμ_φάνιση γονικού καταλόγου"
 
 #: ../src/tracker-needle/tracker-view.vala:459
 msgid "_Tags…"
@@ -2034,6 +2083,7 @@ msgstr ""
 #
 #: ../src/tracker-preferences/tracker-preferences.ui.h:47
 #: ../src/tracker-utils/tracker-search.c:523
+#: ../src/tracker-utils/tracker-tag.c:445
 msgid "Files"
 msgstr "Αρχεία"
 
@@ -2176,12 +2226,12 @@ msgid "Output results as RDF in Turtle format"
 msgstr "Αποτελέσματα εξόδου ως RDF σε μορφή Turtle"
 
 #: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:134
+#: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Αδυναμία ανάκτησης προθεμάτων των χώρων ονομάτων"
 
 #: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "Δεν επιστράφηκαν τα προθέματα των χώρων ονομάτων"
 
@@ -2210,8 +2260,8 @@ msgstr "Δεν είναι διαθέσιμα μεταδεδομένα για α�
 
 #: ../src/tracker-utils/tracker-info.c:485
 #: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:820
-#: ../src/tracker-utils/tracker-sparql.c:823
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Αποτελέσματα"
@@ -2227,7 +2277,6 @@ msgid "Offset the results"
 msgstr "Μετατόπιση των αποτελεσμάτων"
 
 #: ../src/tracker-utils/tracker-search.c:88
-#: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Χρήση του OR για αναζήτηση όρων αντί για AND (η προεπιλογή)"
 
@@ -2312,7 +2361,7 @@ msgstr "Αναζήτηση για κατηγορίες λογισμικού (τ�
 
 #: ../src/tracker-utils/tracker-search.c:168
 msgid "Search for feeds (--all has no effect on this)"
-msgstr "Αναζήτηση για τροφοδοσίες (το --all δεν το επηρεάζει)"
+msgstr "Αναζήτηση για ροές (το --all δεν το επηρεάζει)"
 
 #: ../src/tracker-utils/tracker-search.c:172
 msgid "Search for bookmarks (--all has no effect on this)"
@@ -2331,7 +2380,7 @@ msgstr "ΕΚΦΡΑΣΗ"
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
-"ΣΗΜΕΙΩΣΗ: Φτάσατε το όριο, υπάρχουν περισσότερα στοιχεία στην βάση δεδομένων "
+"ΣΗΜΕΙΩΣΗ: Φτάσατε το όριο, υπάρχουν περισσότερα στοιχεία στη βάση δεδομένων "
 "που δεν εμφανίζονται στην λίστα"
 
 #: ../src/tracker-utils/tracker-search.c:290
@@ -2445,11 +2494,11 @@ msgstr "Χωρίς όνομα"
 #: ../src/tracker-utils/tracker-search.c:361
 #: ../src/tracker-utils/tracker-search.c:374
 msgid "No E-mail address"
-msgstr "Χωρίς διευθύνσεις ηλ. ταχυδρομείου"
+msgstr "Χωρίς διευθύνσεις ηλεκτρονικού ταχυδρομείου"
 
 #: ../src/tracker-utils/tracker-search.c:408
 msgid "No emails were found"
-msgstr "Δεν βρέθηκαν ηλ. μηνύματα"
+msgstr "Δεν βρέθηκαν μηνύματα ηλεκτρονικού ταχυδρομείου"
 
 #: ../src/tracker-utils/tracker-search.c:519
 msgid "No files were found"
@@ -2483,7 +2532,7 @@ msgstr "Δεν βρέθηκαν τροφοδοσίες"
 #
 #: ../src/tracker-utils/tracker-search.c:1096
 msgid "Feeds"
-msgstr "Τροφοδοσίες"
+msgstr "Ροές"
 
 #: ../src/tracker-utils/tracker-search.c:1176
 msgid "No software was found"
@@ -2555,34 +2604,34 @@ msgstr ""
 "Φιλτραρισμένες λέξεις είναι κοινές λέξεις που μπορεί να αγνοηθούν κατά τη "
 "διεργασία δεικτοδότησης."
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker-utils/tracker-sparql.c:101
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος ή ενημέρωσης από αρχείου"
 
-#: ../src/tracker-utils/tracker-sparql.c:68
+#: ../src/tracker-utils/tracker-sparql.c:105
 msgid "SPARQL query"
 msgstr "Ερώτημα SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:69
+#: ../src/tracker-utils/tracker-sparql.c:106
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:72
+#: ../src/tracker-utils/tracker-sparql.c:109
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Αυτό χρησιμοποιείται με το --query και μόνο για την ενημέρωση της βάσης "
 "δεδομένων."
 
-#: ../src/tracker-utils/tracker-sparql.c:76
+#: ../src/tracker-utils/tracker-sparql.c:113
 msgid "Retrieve classes"
 msgstr "Ανάκτηση κλάσεων"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
+#: ../src/tracker-utils/tracker-sparql.c:117
 msgid "Retrieve class prefixes"
 msgstr "Ανάκτηση προθεμάτων κλάσης"
 
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -2590,46 +2639,66 @@ msgstr ""
 "Ανάκτηση ιδιοτήτων για μια κλάση, επίσης μπορείτε να χρησιμοποιήσετε "
 "προθέματα (π.χ. rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:85
-#: ../src/tracker-utils/tracker-sparql.c:89
+#: ../src/tracker-utils/tracker-sparql.c:122
+#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:134
+#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker-utils/tracker-sparql.c:146
 msgid "CLASS"
 msgstr "ΚΛΑΣΗ"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker-utils/tracker-sparql.c:125
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Ανάκτηση κλάσεων που ενημερώνουν για αλλαγές στην βάση δεδομένων (Η ΚΛΑΣΗ "
 "είναι προαιρετική)"
 
-#: ../src/tracker-utils/tracker-sparql.c:92
+#: ../src/tracker-utils/tracker-sparql.c:129
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional) "
+"optional)"
 msgstr ""
-"Ανάκτηση δεικτών που χρησιμοποιούνται στην βάση δεδομένων για βελτίωση της "
-"απόδοσης (Η ΙΔΙΟΤΗΤΑ είναι προαιρετική) "
+"Ανάκτηση δεικτών που χρησιμοποιούνται στη βάση δεδομένων για την βελτίωση "
+"της απόδοσης (το PROPERTY είναι προαιρετικό) "
 
-#: ../src/tracker-utils/tracker-sparql.c:93
+#: ../src/tracker-utils/tracker-sparql.c:130
 msgid "PROPERTY"
 msgstr "ΙΔΙΟΤΗΤΑ"
 
-#: ../src/tracker-utils/tracker-sparql.c:96
+#: ../src/tracker-utils/tracker-sparql.c:133
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Περιγραφή υπο-κλάσεων και υπερ-κλάσεων (μπορεί να χρησιμοποιηθεί με το -s "
+"για να τονίσει κάποια τμήματα του δένδρου και με το -p για να δείξει τις "
+"ιδιότητες)"
+
+#: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Αναζήτηση για κλάση ή ιδιότητα και προβολή περισσότερων πληροφοριών (π.χ. "
 "έγγραφο)"
 
-#: ../src/tracker-utils/tracker-sparql.c:97
+#: ../src/tracker-utils/tracker-sparql.c:138
 msgid "CLASS/PROPERTY"
 msgstr "ΚΛΑΣΗ/ΙΔΙΟΤΗΤΑ"
 
-#: ../src/tracker-utils/tracker-sparql.c:188
+#: ../src/tracker-utils/tracker-sparql.c:141
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Επιστρέφει τη συντομογραφία για μια κλάση (π.χ. nfo:FileDataObject)."
+
+#: ../src/tracker-utils/tracker-sparql.c:145
+msgid "Returns the full namespace for a class."
+msgstr "Επιστρέφει το πλήρες όνομα χώρου (namespace) για μια κλάση"
+
+#: ../src/tracker-utils/tracker-sparql.c:238
 msgid "Could not get namespace prefixes"
 msgstr "Αδυναμία λήψης προθεμάτων για τον χώρο ονομάτων"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker-utils/tracker-sparql.c:247
 msgid "No namespace prefixes were found"
 msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτων"
 
@@ -2643,7 +2712,14 @@ msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτ�
 #. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
-#. * files found associated with this tag, e.g.:
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
 #. *
 #. *   Tags (shown by name):
 #. *     None
@@ -2656,136 +2732,155 @@ msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτ�
 #. *     None
 #. *
 #.
-#: ../src/tracker-utils/tracker-sparql.c:375
-#: ../src/tracker-utils/tracker-sparql.c:423
+#: ../src/tracker-utils/tracker-sparql.c:500
+#: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
-#: ../src/tracker-utils/tracker-tag.c:328
-#: ../src/tracker-utils/tracker-tag.c:464
-#: ../src/tracker-utils/tracker-tag.c:843
+#: ../src/tracker-utils/tracker-tag.c:329
+#: ../src/tracker-utils/tracker-tag.c:461
+#: ../src/tracker-utils/tracker-tag.c:583
+#: ../src/tracker-utils/tracker-tag.c:961
 msgid "None"
 msgstr "Κανένα"
 
-#: ../src/tracker-utils/tracker-sparql.c:447
+#: ../src/tracker-utils/tracker-sparql.c:954
+msgid "Could not create tree: subclass query failed"
+msgstr "Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για υποκλάση"
+
+#: ../src/tracker-utils/tracker-sparql.c:1003
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+"Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για ιδιότητες "
+"κλάσης"
+
+#: ../src/tracker-utils/tracker-sparql.c:1077
 msgid "- Query or update using SPARQL"
 msgstr "- Ερώτημα ή ενημέρωση με την χρήση SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:461
+#: ../src/tracker-utils/tracker-sparql.c:1092
 #: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Πρέπει να οριστεί ένα όρισμα"
 
-#: ../src/tracker-utils/tracker-sparql.c:463
+#: ../src/tracker-utils/tracker-sparql.c:1094
 #: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
 
-#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker-utils/tracker-sparql.c:1096
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Το όρισμα --list-properties μπορεί να είναι κενό μόνο όταν χρησιμοποιείται "
+"με το όρισμα --tree"
+
+#: ../src/tracker-utils/tracker-sparql.c:1134
 msgid "Could not list classes"
 msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
 
-#: ../src/tracker-utils/tracker-sparql.c:509
+#: ../src/tracker-utils/tracker-sparql.c:1142
 msgid "No classes were found"
 msgstr "Δεν βρέθηκαν κλάσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:509
-#: ../src/tracker-utils/tracker-sparql.c:696
+#: ../src/tracker-utils/tracker-sparql.c:1142
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "Classes"
 msgstr "Κλάσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker-utils/tracker-sparql.c:1158
 msgid "Could not list class prefixes"
 msgstr "Αδυναμία προβολής της λίστας των προθεμάτων της κλάσης"
 
-#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "No class prefixes were found"
 msgstr "Δεν βρέθηκαν προθέματα κλάσεων"
 
 # #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
-#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../src/tracker-utils/tracker-sparql.c:1166
 msgid "Prefixes"
 msgstr "Προθέματα"
 
-#: ../src/tracker-utils/tracker-sparql.c:553
+#: ../src/tracker-utils/tracker-sparql.c:1186
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο 'rdfs:Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker-utils/tracker-sparql.c:1225
 msgid "Could not list properties"
 msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
 
-#: ../src/tracker-utils/tracker-sparql.c:600
+#: ../src/tracker-utils/tracker-sparql.c:1233
 msgid "No properties were found"
 msgstr "Δεν βρέθηκαν ιδιότητες"
 
-#: ../src/tracker-utils/tracker-sparql.c:600
-#: ../src/tracker-utils/tracker-sparql.c:719
+#: ../src/tracker-utils/tracker-sparql.c:1233
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "Properties"
 msgstr "Ιδιότητες"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker-utils/tracker-sparql.c:1261
 msgid "Could not find notify classes"
 msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:636
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "No notifies were found"
 msgstr "Δεν βρέθηκαν ειδοποιήσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:636
+#: ../src/tracker-utils/tracker-sparql.c:1269
 msgid "Notifies"
 msgstr "Ειδοποιήσεις"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker-utils/tracker-sparql.c:1295
 msgid "Could not find indexed properties"
 msgstr "Αδυναμία εύρεσης δεικτοδοτημένων ιδιοτήτων"
 
-#: ../src/tracker-utils/tracker-sparql.c:670
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "No indexes were found"
 msgstr "Δεν βρέθηκαν δείκτες"
 
-#: ../src/tracker-utils/tracker-sparql.c:670
+#: ../src/tracker-utils/tracker-sparql.c:1303
 msgid "Indexes"
 msgstr "Δείκτες"
 
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker-utils/tracker-sparql.c:1325
 msgid "Could not search classes"
 msgstr "Αδυναμία αναζήτησης κλάσεων"
 
-#: ../src/tracker-utils/tracker-sparql.c:696
+#: ../src/tracker-utils/tracker-sparql.c:1333
 msgid "No classes were found to match search term"
 msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker-utils/tracker-sparql.c:1348
 msgid "Could not search properties"
 msgstr "Αδυναμία αναζήτησης ιδιοτήτων"
 
-#: ../src/tracker-utils/tracker-sparql.c:719
+#: ../src/tracker-utils/tracker-sparql.c:1356
 msgid "No properties were found to match search term"
 msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
 
-#: ../src/tracker-utils/tracker-sparql.c:729
+#: ../src/tracker-utils/tracker-sparql.c:1392
 #: ../utils/tracker-sql/tracker-sql.c:101
 msgid "Could not get UTF-8 path from path"
 msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
 
-#: ../src/tracker-utils/tracker-sparql.c:741
+#: ../src/tracker-utils/tracker-sparql.c:1404
 #: ../utils/tracker-sql/tracker-sql.c:112
 msgid "Could not read file"
 msgstr "Αδυναμία ανάγνωσης του αρχείου"
 
-#: ../src/tracker-utils/tracker-sparql.c:760
+#: ../src/tracker-utils/tracker-sparql.c:1423
 msgid "Could not run update"
 msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
 
-#: ../src/tracker-utils/tracker-sparql.c:808
+#: ../src/tracker-utils/tracker-sparql.c:1471
 #: ../utils/tracker-sql/tracker-sql.c:159
 #: ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Αδυναμία εκτέλεσης ερωτήματος"
 
-#: ../src/tracker-utils/tracker-sparql.c:820
-#: ../src/tracker-utils/tracker-sparql.c:823
+#: ../src/tracker-utils/tracker-sparql.c:1483
+#: ../src/tracker-utils/tracker-sparql.c:1486
 msgid "No results found matching your query"
 msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
 
@@ -2807,6 +2902,11 @@ msgstr "Χωρίς διαθέσιμα στατιστικά"
 #: ../src/tracker-utils/tracker-stats.c:107
 msgid "Statistics:"
 msgstr "Στατιστικά:"
+
+#: ../src/tracker-utils/tracker-tag.c:63
+#| msgid "Use OR for search terms instead of AND (the default)"
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Χρήση του AND για αναζήτηση όρων αντί για OR (η προεπιλογή)"
 
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid ""
@@ -2857,95 +2957,135 @@ msgstr "ΑΡΧΕΙΟ…"
 msgid "FILE [FILE…]"
 msgstr "ΑΡΧΕΙΟ [ΑΡΧΕΙΟ…]"
 
-#: ../src/tracker-utils/tracker-tag.c:254
+#: ../src/tracker-utils/tracker-tag.c:255
 msgid "Could not get file URNs"
 msgstr "Αδυναμία λήψης των URNs του αρχείου"
 
-#: ../src/tracker-utils/tracker-tag.c:319
+#: ../src/tracker-utils/tracker-tag.c:320
 msgid "Could not get files related to tag"
 msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:401
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:387
+#| msgid "Could not get all tags"
+msgid "Could not get all tags in the database"
+msgstr "Αδυναμία λήψης όλων των ετικετών στην βάση δεδομένων"
+
+#: ../src/tracker-utils/tracker-tag.c:397
+#, fuzzy
+#| msgid "One or more files have not been specified"
+msgid "No files have been tagged"
+msgstr "Δεν έχουν προσδιοριστεί αρχεία"
+
+#: ../src/tracker-utils/tracker-tag.c:432
+#| msgid "Could not get files related to tag"
+msgid "Could not get files for matching tags"
+msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
+
+#: ../src/tracker-utils/tracker-tag.c:441
+#| msgid "No results were found matching your query"
+msgid "No files were found matching ALL of those tags"
+msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν όλες τις ετικέτες"
+
+#: ../src/tracker-utils/tracker-tag.c:520
+#: ../src/tracker-utils/tracker-tag.c:935
 msgid "Could not get all tags"
 msgstr "Αδυναμία λήψης όλων των ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:410
-#: ../src/tracker-utils/tracker-tag.c:826
+#: ../src/tracker-utils/tracker-tag.c:529
+#: ../src/tracker-utils/tracker-tag.c:944
 msgid "No tags were found"
 msgstr "Δεν βρέθηκαν ετικέτες"
 
-#: ../src/tracker-utils/tracker-tag.c:414
+#: ../src/tracker-utils/tracker-tag.c:533
 msgid "Tags (shown by name)"
 msgstr "Ετικέτες (εμφανίζονται κατά όνομα)"
 
-#: ../src/tracker-utils/tracker-tag.c:488
+#: ../src/tracker-utils/tracker-tag.c:607
 msgid "No files were modified"
 msgstr "Δεν έχουν τροποποιηθεί αρχεία"
 
-#: ../src/tracker-utils/tracker-tag.c:613
+#: ../src/tracker-utils/tracker-tag.c:657
+#: ../src/tracker-utils/tracker-tag.c:665
+#| msgid "File not indexed or already untagged"
+msgid "Files do not exist or aren't indexed"
+msgstr "Το αρχείο δεν υπάρχει ή δεν έχει δεικτοδοτηθεί"
+
+#: ../src/tracker-utils/tracker-tag.c:731
 msgid "Tag was added successfully"
 msgstr "Η ετικέτα προστέθηκε με επιτυχία"
 
-#: ../src/tracker-utils/tracker-tag.c:642
+#: ../src/tracker-utils/tracker-tag.c:760
 msgid "Could not add tag to files"
 msgstr "Αδυναμία προσθήκης ετικέτας στα αρχεία"
 
-#: ../src/tracker-utils/tracker-tag.c:652
+#: ../src/tracker-utils/tracker-tag.c:770
 msgid "Tagged"
 msgstr "Με ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Not tagged, file is not indexed"
 msgstr "Χωρίς ετικέτα, το αρχείο δεν είναι με δείκτη"
 
-#: ../src/tracker-utils/tracker-tag.c:699
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get tag by label"
 msgstr "Αδυναμία λήψης των ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:710
+#: ../src/tracker-utils/tracker-tag.c:828
 msgid "No tags were found by that name"
 msgstr "Δεν βρέθηκαν ετικέτες με αυτό το όνομα"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:845
 msgid "None of the files had this tag set"
 msgstr "Κανένα από τα αρχεία δεν έχει αυτό το σύνολο της ετικέτας"
 
-#: ../src/tracker-utils/tracker-tag.c:780
+#: ../src/tracker-utils/tracker-tag.c:898
 msgid "Tag was removed successfully"
 msgstr "Η ετικέτα αφαιρέθηκε με επιτυχία"
 
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:902
 msgid "Untagged"
 msgstr "Χωρίς ετικέτα"
 
-#: ../src/tracker-utils/tracker-tag.c:785
+#: ../src/tracker-utils/tracker-tag.c:903
 msgid "File not indexed or already untagged"
 msgstr "Το αρχείο δεν έχει δείκτη ή είναι ήδη χωρίς ετικέτα"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:989
 msgid "Add, remove or list tags"
 msgstr "Προσθήκη, αφαίρεση ή προβολή λίστας ετικετών"
 
-#: ../src/tracker-utils/tracker-tag.c:887
+#: ../src/tracker-utils/tracker-tag.c:1005
 msgid "The --list option is required for --show-files"
 msgstr "Η επιλογή --list είναι απαιτούμενη για το --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:889
+#: ../src/tracker-utils/tracker-tag.c:1007
+#| msgid "The --description option can only be used with --add"
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Η επιλογή --and-operator μπορεί να χρησιμοποιηθεί μόνο με την --list και με "
+"ορίσματα ετικετών"
+
+#: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
 msgstr ""
 "Η εντολή προσθήκη και διαγραφή δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
 
-#: ../src/tracker-utils/tracker-tag.c:891
+#: ../src/tracker-utils/tracker-tag.c:1011
 msgid "No arguments were provided"
 msgstr "Δεν δόθηκαν ορίσματα"
 
-#: ../src/tracker-utils/tracker-tag.c:893
+#: ../src/tracker-utils/tracker-tag.c:1013
 msgid "The --description option can only be used with --add"
 msgstr "Η επιλογή --description μπορεί να χρησιμοποιηθεί μόνο με την --add"
+
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Απενεργοποίηση τερματισμού μετά από 30 δευτερόλεπτα αδράνειας"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -2969,6 +3109,22 @@ msgstr "Αποτυχία αρχικοποίησης διαχειριστή δε�
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Κενό σύνολο αποτελέσματος"
+
+#~ msgid "Extractor error, performing failsafe embedded metadata extraction"
+#~ msgstr ""
+#~ "Σφάλμα εξαγωγέα, ασφαλής εξαγωγή ενσωματωμένων μεταδεδομένων θα εκτελεστεί"
+
+#~ msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+#~ msgstr ""
+#~ "Εξαναγκασμός εσωτερικών εξαγωγέων έναντι λογισμικού 3ων όπως ο "
+#~ "libstreamanalyzer"
+
+#~ msgid ""
+#~ "Options --force-internal-extractors and --force-module can't be used "
+#~ "together"
+#~ msgstr ""
+#~ "Οι επιλογές --force-internal-extractors και --force-module δεν μπορούν να "
+#~ "χρησιμοποιηθούν μαζί"
 
 #~ msgid "No error was given"
 #~ msgstr "Δεν βρέθηκαν σφάλματα"
@@ -3116,9 +3272,6 @@ msgstr "Κενό σύνολο αποτελέσματος"
 #~ msgstr ""
 #~ "Λέξεις με λιγότερους χαρακτήρες από αυτό θα αγνοηθούν από τον δεικτοδότη."
 
-#~ msgid "Tracker Status Icon"
-#~ msgstr "Εικονίδιο κατάστασης ανιχνευτή"
-
 #~ msgid "Tracker Status Notification Application"
 #~ msgstr "Εφαρμογή ειδοποιήσεων ανιχνευτή"
 
@@ -3222,192 +3375,3 @@ msgstr "Κενό σύνολο αποτελέσματος"
 #~ msgstr ""
 #~ "Μια εφαρμογή, που εμφανίζει ένα εικονίδιο ενημερώσεων, για την "
 #~ "παρακολούθηση των εξορυκτών δεδομένων για τον ανιχνευτή"
-
-# #-#-#-#-#  accerciser.gnome-2-22.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  window-list.HEAD.el.po (window-list)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  fish.HEAD.el.po (fish)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  workspace-switcher.HEAD.el.po (workspace-switcher)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  clock.HEAD.el.po (clock)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  user-guide.HEAD.el.po (user-guide.docs)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-#
-#
-# #-#-#-#-#  stickynotes_applet.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  user-guide.HEAD.el.po (user-guide.docs)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  workspace-switcher.HEAD.el.po (workspace-switcher)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  fish.HEAD.el.po (fish)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  window-list.HEAD.el.po (window-list)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  clock.HEAD.el.po (clock)  #-#-#-#-#
-# #-#-#-#-#  accerciser.HEAD.el.po (accerciser)  #-#-#-#-#
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-system-monitor.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  gnome-power-manager.HEAD.el.po (el)  #-#-#-#-#
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-##
-# #-#-#-#-#  procman.HEAD.el.po (el)  #-#-#-#-##
-#~ msgid "translator-credits"
-#~ msgstr ""
-#~ "Ελληνική μεταφραστική ομάδα GNOME\n"
-#~ " Γιάννης Κατσαμπίρης <juankatsampirhs@gmail.com>\n"
-#~ " Σίμος Ξενιτέλλης <simos@gnome.org>\n"
-#~ "\n"
-#~ "Για περισσότερα δείτε http://www.gnome.gr/"
-
-#~ msgid "_Search"
-#~ msgstr "Ανα_ζήτηση"
-
-#~ msgid "_Pause All Indexing"
-#~ msgstr "_Παύση της ευρετηρίασης"
-
-# #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
-#~ msgid "_Preferences"
-#~ msgstr "_Προτιμήσεις"
-
-#~ msgid "Control and monitor the Tracker search and indexing service"
-#~ msgstr "Έλεγχος και παρακολούθηση της Εύρεσης και της ευρετηρίασης"
-
-#~ msgid "Tracker Applet"
-#~ msgstr "Μικροεφαρμογή εύρεσης"
-
-#~ msgid "No Address"
-#~ msgstr "Χωρίς διεύθυνση"
-
-#~ msgid "Include details with state updates (only applies to --follow)"
-#~ msgstr ""
-#~ "Να συμπεριλαμβάνονται οι λεπτομέρειες με τις ενημερώσεις κατάστασης (έχει "
-#~ "εφαρμογή μόνο με την επιλογή --follow)"
-
-#~ msgid "List pause reasons and applications for a miner"
-#~ msgstr "Λίστα με τους λόγους παύσης και τις εφαρμογές για τον εξορύκτη"
-
-#~ msgid "- Monitor and control status"
-#~ msgstr "- Κατάσταση παρακολούθησης και ελέγχου"
