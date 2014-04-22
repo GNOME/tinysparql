@@ -328,19 +328,22 @@ decorator_commit_cb (GObject      *object,
 		g_warning ("There was an error pushing metadata: %s\n", error->message);
 	}
 
-	for (i = 0; i < errors->len; i++) {
-		GError *child_error;
+	if (errors) {
+		for (i = 0; i < errors->len; i++) {
+			GError *child_error;
 
-		child_error = g_ptr_array_index (errors, i);
+			child_error = g_ptr_array_index (errors, i);
 
-		if (child_error) {
-			g_warning ("Task %d, error: %s", i, child_error->message);
-			g_warning ("Sparql update was:\n%s\n",
-			           (gchar *) g_ptr_array_index (sparql, i));
+			if (child_error) {
+				g_warning ("Task %d, error: %s", i, child_error->message);
+				g_warning ("Sparql update was:\n%s\n",
+				           (gchar *) g_ptr_array_index (sparql, i));
+			}
 		}
+
+		g_ptr_array_unref (errors);
 	}
 
-	g_ptr_array_unref (errors);
 	g_ptr_array_unref (sparql);
 }
 
