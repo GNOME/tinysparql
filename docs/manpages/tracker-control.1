@@ -127,6 +127,36 @@ miners).
 Follow status changes as they happen. This requires Ctrl+C to stop and
 return to the command line. Each new status is put on a new line.
 .TP
+.B \-w, \-\-watch=[ONTOLOGY]
+Watch changes that happen to the database in real time. This requires
+Ctrl+C to stop and return to the command line.
+
+If the
+.B ONTOLOGY
+is unspecified, all changes are shown. The
+.B ONTOLOGY
+can be a comma separated list of shorthand or long hand ontology
+properties. For example:
+
+.nf
+    $ tracker-control -w nie:url,nie:mimeType,nfo:fileSize,nie:dataSource
+    Now listening for resource updates to the database
+    All nie:plainTextContent properties are omitted
+
+    Press Ctrl+C to stop
+
+    'nfo:Document'
+       'nfo:fileSize' = '1770'
+       'nie:dataSource' = 'http://www.tracker-project.org/ontologies/tracker#extractor-data-source'
+       'nie:mimeType' = 'text/plain'
+       'nie:url' = 'file:///home/martyn/.bash_aliases'
+    'nfo:Document'
+       'nie:dataSource' = 'http://www.tracker-project.org/ontologies/tracker#extractor-data-source'
+
+    ...
+.fi
+
+.TP
 .B \-\-list-common-statuses
 This will list statuses most commonly produced by miners and the
 store. These statuses are not translated when sent over D-Bus and
