@@ -67,7 +67,7 @@ static GOptionEntry entries[] = {
 	  N_("Follow status changes as they happen"),
 	  NULL
 	},
-	{ "list-common-statuses", 'C', 0, G_OPTION_ARG_NONE, &list_common_statuses,
+	{ "list-common-statuses", 0, 0, G_OPTION_ARG_NONE, &list_common_statuses,
 	  N_("List common statuses for miners and the store"),
 	  NULL
 	},
