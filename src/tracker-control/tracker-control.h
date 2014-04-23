@@ -22,6 +22,13 @@
 #ifndef __TRACKER_CONTROL_H__
 #define __TRACKER_CONTROL_H__
 
+gboolean tracker_control_dbus_get_connection (const gchar      *name,
+                                              const gchar      *object_path,
+                                              const gchar      *interface_name,
+                                              GDBusProxyFlags   flags,
+                                              GDBusConnection **connection,
+                                              GDBusProxy      **proxy);
+
 GOptionGroup *tracker_control_general_get_option_group (void);
 gint          tracker_control_general_run              (void);
 void          tracker_control_general_run_default      (void);

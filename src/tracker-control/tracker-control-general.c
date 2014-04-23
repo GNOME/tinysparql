@@ -1264,41 +1264,19 @@ tracker_control_general_run (void)
 		GVariant *v;
 		gchar *uri;
 
+		if (!tracker_control_dbus_get_connection ("org.freedesktop.Tracker1",
+		                                          "/org/freedesktop/Tracker1/Backup",
+		                                          "org.freedesktop.Tracker1.Backup",
+		                                          G_DBUS_PROXY_FLAGS_NONE,
+		                                          &connection,
+		                                          &proxy)) {
+			return EXIT_FAILURE;
+		}
+
 		uri = get_uri_from_arg (backup);
 
 		g_print ("%s\n", _("Backing up database"));
 		g_print ("  %s\n", uri);
-
-		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
-
-		if (!connection) {
-			g_critical ("%s, %s",
-			            _("Could not get D-Bus connection"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
-
-		proxy = g_dbus_proxy_new_sync (connection,
-		                               G_DBUS_PROXY_FLAGS_NONE,
-		                               NULL,
-		                               "org.freedesktop.Tracker1",
-		                               "/org/freedesktop/Tracker1/Backup",
-		                               "org.freedesktop.Tracker1.Backup",
-		                               NULL,
-		                               &error);
-
-		if (error) {
-			g_critical ("%s, %s",
-			            _("Could not create D-Bus proxy to tracker-store"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
 
 		/* Backup/Restore can take some time */
 		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);
@@ -1339,41 +1317,19 @@ tracker_control_general_run (void)
 		GVariant *v;
 		gchar *uri;
 
+		if (!tracker_control_dbus_get_connection ("org.freedesktop.Tracker1",
+		                                          "/org/freedesktop/Tracker1/Backup",
+		                                          "org.freedesktop.Tracker1.Backup",
+		                                          G_DBUS_PROXY_FLAGS_NONE,
+		                                          &connection,
+		                                          &proxy)) {
+			return EXIT_FAILURE;
+		}
+
 		uri = get_uri_from_arg (restore);
 
 		g_print ("%s\n", _("Restoring database from backup"));
 		g_print ("  %s\n", uri);
-
-		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
-
-		if (!connection) {
-			g_critical ("%s, %s",
-			            _("Could not get D-Bus connection"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
-
-		proxy = g_dbus_proxy_new_sync (connection,
-		                               G_DBUS_PROXY_FLAGS_NONE,
-		                               NULL,
-		                               "org.freedesktop.Tracker1",
-		                               "/org/freedesktop/Tracker1/Backup",
-		                               "org.freedesktop.Tracker1.Backup",
-		                               NULL,
-		                               &error);
-
-		if (error) {
-			g_critical ("%s, %s",
-			            _("Could not create D-Bus proxy to tracker-store"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
 
 		/* Backup/Restore can take some time */
 		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);

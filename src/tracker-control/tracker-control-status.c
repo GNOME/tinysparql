@@ -452,56 +452,6 @@ store_progress (GDBusConnection *connection,
 	store_print_state (status, progress);
 }
 
-static gboolean
-store_init (void)
-{
-	GError *error = NULL;
-
-	if (connection && proxy) {
-		return TRUE;
-	}
-
-	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
-
-	if (!connection) {
-		g_critical ("%s, %s",
-		            _("Could not get D-Bus connection"),
-		            error ? error->message : _("No error given"));
-		g_clear_error (&error);
-		return FALSE;
-	}
-
-	proxy = g_dbus_proxy_new_sync (connection,
-	                               G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
-	                               NULL,
-	                               "org.freedesktop.Tracker1",
-	                               "/org/freedesktop/Tracker1/Status",
-	                               "org.freedesktop.Tracker1.Status",
-	                               NULL,
-	                               &error);
-
-	if (error) {
-		g_critical ("%s, %s",
-		            _("Could not create D-Bus proxy to tracker-store"),
-		            error ? error->message : _("No error given"));
-		g_clear_error (&error);
-		return FALSE;
-	}
-
-	g_dbus_connection_signal_subscribe (connection,
-	                                    "org.freedesktop.Tracker1",
-	                                    "org.freedesktop.Tracker1.Status",
-	                                    "Progress",
-	                                    "/org/freedesktop/Tracker1/Status",
-	                                    NULL,
-	                                    G_DBUS_SIGNAL_FLAGS_NONE,
-	                                    store_progress,
-	                                    NULL,
-	                                    NULL);
-
-	return TRUE;
-}
-
 void
 tracker_control_status_run_default (void)
 {
@@ -564,7 +514,27 @@ tracker_control_status_run (void)
 
 		/* Display states */
 		g_print ("%s:\n", _("Store"));
-		store_init ();
+
+		if (!tracker_control_dbus_get_connection ("org.freedesktop.Tracker1",
+		                                          "/org/freedesktop/Tracker1/Status",
+		                                          "org.freedesktop.Tracker1.Status",
+		                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+		                                          &connection,
+		                                          &proxy)) {
+			return EXIT_FAILURE;
+		}
+
+		g_dbus_connection_signal_subscribe (connection,
+		                                    "org.freedesktop.Tracker1",
+		                                    "org.freedesktop.Tracker1.Status",
+		                                    "Progress",
+		                                    "/org/freedesktop/Tracker1/Status",
+		                                    NULL,
+		                                    G_DBUS_SIGNAL_FLAGS_NONE,
+		                                    store_progress,
+		                                    NULL,
+		                                    NULL);
+
 		store_get_and_print_state ();
 
 		g_print ("\n");

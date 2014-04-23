@@ -31,6 +31,7 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <gio/gio.h>
 
 #include <libtracker-common/tracker-common.h>
 
@@ -54,6 +55,48 @@ static GOptionEntry common_entries[] = {
 	  NULL },
 	{ NULL }
 };
+
+gboolean
+tracker_control_dbus_get_connection (const gchar      *name,
+                                     const gchar      *object_path,
+                                     const gchar      *interface_name,
+                                     GDBusProxyFlags   flags,
+                                     GDBusConnection **connection,
+                                     GDBusProxy      **proxy)
+{
+	GError *error = NULL;
+
+	*connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+
+	if (!*connection) {
+		g_critical ("%s, %s",
+		            _("Could not get D-Bus connection"),
+		            error ? error->message : _("No error given"));
+		g_clear_error (&error);
+
+		return FALSE;
+	}
+
+	*proxy = g_dbus_proxy_new_sync (*connection,
+	                                flags,
+	                                NULL,
+	                                name,
+	                                object_path,
+	                                interface_name,
+	                                NULL,
+	                                &error);
+
+	if (error) {
+		g_critical ("%s, %s",
+		            _("Could not create D-Bus proxy to tracker-store"),
+		            error ? error->message : _("No error given"));
+		g_clear_error (&error);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 int
 main (int argc, char **argv)
