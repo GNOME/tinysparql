@@ -335,8 +335,9 @@ store_get_and_print_state (void)
 	                                   &error);
 
 	if (!v_status || error) {
-		g_critical ("Could not retrieve tracker-store status: %s",
-		            error ? error->message : "no error given");
+		g_critical ("%s, %s",
+		            _("Could not retrieve tracker-store status"),
+		            error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return;
 	}
@@ -355,8 +356,9 @@ store_get_and_print_state (void)
 	g_variant_get (v_progress, "(d)", &progress);
 
 	if (progress < 0.0 || error) {
-		g_critical ("Could not retrieve tracker-store progress: %s",
-		            error ? error->message : "no error given");
+		g_critical ("%s, %s",
+		            _("Could not retrieve tracker-store progress"),
+		            error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return;
 	}
@@ -462,8 +464,9 @@ store_init (void)
 	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
+		g_critical ("%s, %s",
+		            _("Could not get D-Bus connection"),
+		            error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return FALSE;
 	}
@@ -478,8 +481,9 @@ store_init (void)
 	                               &error);
 
 	if (error) {
-		g_critical ("Could not create proxy on the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
+		g_critical ("%s, %s",
+		            _("Could not create D-Bus proxy to tracker-store"),
+		            error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return FALSE;
 	}
@@ -539,7 +543,7 @@ tracker_control_status_run (void)
 		manager = tracker_miner_manager_new_full (FALSE, &error);
 		if (!manager) {
 			g_printerr (_("Could not get status, manager could not be created, %s"),
-			            error ? error->message : "unknown error");
+			            error ? error->message : _("No error given"));
 			g_printerr ("\n");
 			g_clear_error (&error);
 			return EXIT_FAILURE;
@@ -573,7 +577,8 @@ tracker_control_status_run (void)
 
 			name = tracker_miner_manager_get_display_name (manager, l->data);
 			if (!name) {
-				g_critical ("Could not get name for '%s'", (gchar *) l->data);
+				g_critical (_("Could not get display name for miner '%s'"),
+				            (const gchar*) l->data);
 				continue;
 			}
 
@@ -629,7 +634,7 @@ tracker_control_status_run (void)
 			return EXIT_SUCCESS;
 		}
 
-		g_print ("Press Ctrl+C to end follow of Tracker state\n");
+		g_print ("%s\n", _("Press Ctrl+C to stop"));
 
 		g_signal_connect (manager, "miner-progress",
 		                  G_CALLBACK (manager_miner_progress_cb), NULL);

@@ -110,7 +110,7 @@ miner_pause (const gchar *miner,
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
 		g_printerr (_("Could not pause miner, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;
@@ -143,7 +143,7 @@ miner_pause (const gchar *miner,
 	if (for_process) {
 		GMainLoop *main_loop;
 
-		g_print ("%s\n", _("Press Ctrl+C to end pause"));
+		g_print ("%s\n", _("Press Ctrl+C to stop"));
 
 		main_loop = g_main_loop_new (NULL, FALSE);
 		/* Block until Ctrl+C */
@@ -168,7 +168,7 @@ miner_resume (const gchar *miner,
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
 		g_printerr (_("Could not resume miner, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;
@@ -202,7 +202,7 @@ miner_reindex_mime_types (const gchar **mime_types)
 	manager = tracker_miner_manager_new_full (TRUE, &error);
 	if (!manager) {
 		g_printerr (_("Could not reindex mimetypes, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;
@@ -234,7 +234,7 @@ miner_index_file (const gchar *filepath)
 	manager = tracker_miner_manager_new_full (TRUE, &error);
 	if (!manager) {
 		g_printerr (_("Could not (re)index file, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;
@@ -271,7 +271,7 @@ miner_list (gboolean available,
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
 		g_printerr (_("Could not list miners, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;
@@ -340,7 +340,7 @@ miner_pause_details (void)
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
 		g_printerr (_("Could not get pause details, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return EXIT_FAILURE;

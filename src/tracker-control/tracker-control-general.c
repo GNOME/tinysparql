@@ -333,7 +333,7 @@ tracker_gsettings_get_all (gint *longest_name_length)
 	manager = tracker_miner_manager_new_full (FALSE, &error);
 	if (!manager) {
 		g_printerr (_("Could not get GSettings for miners, manager could not be created, %s"),
-		            error ? error->message : "unknown error");
+		            error ? error->message : _("No error given"));
 		g_printerr ("\n");
 		g_clear_error (&error);
 		return NULL;
@@ -475,7 +475,7 @@ term_option_arg_func (const gchar  *option_value,
 		option = TERM_MINERS;
 	} else {
 		g_set_error_literal (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
-		                     "Only one of 'all', 'store' and 'miners' are allowed");
+		                     _("Only one of 'all', 'store' and 'miners' options are allowed"));
 		return FALSE;
 	}
 
@@ -551,7 +551,7 @@ get_uid_for_pid (const gchar  *pid_as_string,
 	                          &error);
 
 	if (error) {
-		g_printerr ("Could not stat() file:'%s', %s", fn, error->message);
+		g_printerr ("%s '%s', %s", _("Could not stat() file"), fn, error->message);
 		g_error_free (error);
 		uid = 0;
 	} else {
@@ -592,25 +592,28 @@ collect_debug (void)
 
 	/* 1. Package details, e.g. version. */
 	g_print ("[Package Details]\n");
-	g_print ("version: " PACKAGE_VERSION "\n");
+	g_print ("%s: " PACKAGE_VERSION "\n", _("Version"));
 	g_print ("\n\n");
 
 	/* 2. Disk size, space left, type (SSD/etc) */
 	guint64 remaining_bytes;
 	gdouble remaining;
 
-	g_print ("[Disk Information]\n");
+	g_print ("[%s]\n", _("Disk Information"));
 
 	remaining_bytes = tracker_file_system_get_remaining_space (data_dir);
 	str = g_format_size (remaining_bytes);
 
 	remaining = tracker_file_system_get_remaining_space_percentage (data_dir);
-	g_print ("remaining space on db partition: %s (%3.2lf%%)\n", str, remaining);
+	g_print ("%s: %s (%3.2lf%%)\n",
+	         _("Remaining space on database partition"),
+	         str,
+	         remaining);
 	g_free (str);
 	g_print ("\n\n");
 
 	/* 3. Size of dataset (tracker-stats), size of databases */
-	g_print ("[Data Set]\n");
+	g_print ("[%s]\n", _("Data Set"));
 
 	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
 		const gchar *f;
@@ -642,7 +645,7 @@ collect_debug (void)
 	 */
 	GSList *all, *l;
 
-	g_print ("[Configuration]\n");
+	g_print ("[%s]\n", _("Configuration"));
 
 	all = tracker_gsettings_get_all (NULL);
 
@@ -670,11 +673,11 @@ collect_debug (void)
 
 		tracker_gsettings_free (all);
 	} else {
-		g_print ("** no config found?? **\n");
+		g_print ("** %s **\n", _("No configuration was found"));
 	}
 	g_print ("\n\n");
 
-	g_print ("[States]\n");
+	g_print ("[%s]\n", _("States"));
 
 	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
 		const gchar *f;
@@ -715,12 +718,13 @@ collect_debug (void)
 	TrackerSparqlConnection *connection;
 	GError *error = NULL;
 
-	g_print ("[Data Statistics]\n");
+	g_print ("[%s]\n", _("Data Statistics"));
 
 	connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!connection) {
-		g_print ("** no connection available, %s **\n",
+		g_print ("** %s, %s **\n",
+		         _("No connection available"),
 		         error ? error->message : _("No error given"));
 		g_clear_error (&error);
 	} else {
@@ -729,12 +733,14 @@ collect_debug (void)
 		cursor = tracker_sparql_connection_statistics (connection, NULL, &error);
 
 		if (error) {
-			g_print ("** could not get tracker statistics, %s **\n",
+			g_print ("** %s, %s **\n",
+			         _("Could not get statistics"),
 			         error ? error->message : _("No error given"));
 			g_error_free (error);
 		} else {
 			if (!cursor) {
-				g_print ("** no statistics were available **\n");
+				g_print ("** %s **\n",
+				         _("No statistics were available"));
 			} else {
 				gint count = 0;
 
@@ -746,7 +752,8 @@ collect_debug (void)
 				}
 
 				if (count == 0) {
-					g_print ("database is currently empty\n");
+					g_print ("%s\n",
+					         _("Database is currently empty"));
 				}
 
 				g_object_unref (cursor);
@@ -1213,7 +1220,7 @@ tracker_control_general_run (void)
 		manager = tracker_miner_manager_new_full (TRUE, &error);
 		if (!manager) {
 			g_printerr (_("Could not start miners, manager could not be created, %s"),
-			            error ? error->message : "unknown error");
+			            error ? error->message : _("No error given"));
 			g_printerr ("\n");
 			g_clear_error (&error);
 			return EXIT_FAILURE;
@@ -1265,8 +1272,9 @@ tracker_control_general_run (void)
 		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 		if (!connection) {
-			g_critical ("Could not connect to the D-Bus session bus: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not get D-Bus connection"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1283,8 +1291,9 @@ tracker_control_general_run (void)
 		                               &error);
 
 		if (error) {
-			g_critical ("Could not create proxy on the D-Bus session bus: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not create D-Bus proxy to tracker-store"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1307,8 +1316,9 @@ tracker_control_general_run (void)
 		}
 
 		if (error) {
-			g_critical ("Could not backup database: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not backup database"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1337,8 +1347,9 @@ tracker_control_general_run (void)
 		connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 
 		if (!connection) {
-			g_critical ("Could not connect to the D-Bus session bus: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not get D-Bus connection"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1355,8 +1366,9 @@ tracker_control_general_run (void)
 		                               &error);
 
 		if (error) {
-			g_critical ("Could not create proxy on the D-Bus session bus: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not create D-Bus proxy to tracker-store"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
@@ -1379,8 +1391,9 @@ tracker_control_general_run (void)
 		}
 
 		if (error) {
-			g_critical ("Could not restore database: %s",
-			            error ? error->message : "No error given");
+			g_critical ("%s, %s",
+			            _("Could not backup database"),
+			            error ? error->message : _("No error given"));
 			g_clear_error (&error);
 			g_free (uri);
 
