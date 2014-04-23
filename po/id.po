@@ -1,23 +1,24 @@
 # Translation of tracker into Indonesian
 # Copyright (C) 2011 THE tracker'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Andika Triwidada <andika@gmail.com>, 2011, 2012, 2013, 2014.
 #
+# Andika Triwidada <andika@gmail.com>, 2011, 2012, 2013, 2014.
+# Dirgita <dirgitadevina@yahoo.co.id>, 2014.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-20 23:53+0000\n"
-"PO-Revision-Date: 2014-03-21 17:17+0700\n"
-"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
-"Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
-"Language: id\n"
+"POT-Creation-Date: 2014-04-10 11:30+0000\n"
+"PO-Revision-Date: 2014-04-10 19:37+0700\n"
+"Last-Translator: Dirgita <dirgitadevina@gmail.com>\n"
+"Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
+"Language: Indonesian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Lokalize 1.5\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -965,7 +966,7 @@ msgstr "Tak bisa memulai penambang, manajer tak dapat dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:1240
 msgid "perhaps a disabled plugin?"
-msgstr "mungkin plugin yang dimatikan?"
+msgstr "mungkin pengaya yang dimatikan?"
 
 #: ../src/tracker-control/tracker-control-general.c:1262
 msgid "Backing up database"
@@ -1248,7 +1249,7 @@ msgstr "DIISTIRAHATKAN"
 
 #: ../src/tracker-control/tracker-control-status.c:237
 msgid "Not running or is a disabled plugin"
-msgstr "Plugin yang tak berjalan atau dimatikan"
+msgstr "Pengaya yang tak berjalan atau dimatikan"
 
 #: ../src/tracker-control/tracker-control-status.c:523
 msgid "Common statuses include"
@@ -1360,7 +1361,7 @@ msgstr "_Cari:"
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
-"Tunjukkan panel tag yang mengijinkan penyuntingan tag dari hasil yang dipilih"
+"Tunjukkan panel tag yang mengizinkan penyuntingan tag dari hasil yang dipilih"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show statistics about the data stored"
@@ -1394,7 +1395,7 @@ msgstr "[KRITERIA-PENCARIAN]"
 
 #: ../src/tracker-needle/tracker-needle.vala:723
 msgid "Desktop Search user interface using Tracker"
-msgstr "Antar muka pengguna Pencarian Desktop memakai Pelacak"
+msgstr "Antarmuka pengguna Pencarian Desktop memakai Pelacak"
 
 #. Label for dialog
 #: ../src/tracker-needle/tracker-stats.vala:71
@@ -1494,7 +1495,7 @@ msgstr "Tak bisa memutakhirkan tag"
 #: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker-utils/tracker-tag.c:773
 msgid "Could not remove tag"
-msgstr "Tidak dapat menghapus tag"
+msgstr "Tak dapat menghapus tag"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
@@ -1503,7 +1504,7 @@ msgstr "Tak bisa mengambil tag bagi yang kini dipilih"
 #: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker-utils/tracker-tag.c:597
 msgid "Could not add tag"
-msgstr "Tidak dapat menambah tag"
+msgstr "Tak dapat menambah tag"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
@@ -1942,7 +1943,7 @@ msgstr "Paksa indeks ulang semua isi"
 
 #: ../src/tracker-store/tracker-main.vala:52
 msgid "Only allow read based actions on the database"
-msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
+msgstr "Hanya izinkan baca berdasarkan aksi pada basis data"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -2633,7 +2634,7 @@ msgstr "Tag (ditampilkan berdasar nama)"
 
 #: ../src/tracker-utils/tracker-tag.c:488
 msgid "No files were modified"
-msgstr "Tidak ada berkas yang diubah"
+msgstr "Tak ada berkas yang diubah"
 
 #: ../src/tracker-utils/tracker-tag.c:613
 msgid "Tag was added successfully"
@@ -2641,7 +2642,7 @@ msgstr "Tag berhasil ditambahkan"
 
 #: ../src/tracker-utils/tracker-tag.c:642
 msgid "Could not add tag to files"
-msgstr "Tidak dapat menambahkan tag ke berkas"
+msgstr "Tak dapat menambahkan tag ke berkas"
 
 #: ../src/tracker-utils/tracker-tag.c:652
 msgid "Tagged"
@@ -2649,7 +2650,7 @@ msgstr "Di-tag"
 
 #: ../src/tracker-utils/tracker-tag.c:653
 msgid "Not tagged, file is not indexed"
-msgstr "Tak di-tag, berkas tak diindeks"
+msgstr "Tak ditandai, berkas tak diindeks"
 
 #: ../src/tracker-utils/tracker-tag.c:699
 msgid "Could not get tag by label"
