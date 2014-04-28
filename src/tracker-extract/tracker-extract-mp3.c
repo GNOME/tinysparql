@@ -1778,12 +1778,12 @@ parse_id3v24 (const gchar           *data,
 		}
 	}
 
-	while (pos < size) {
+	while (pos < tsize) {
 		id3v24frame frame;
 		size_t csize;
 		unsigned short flags;
 
-		if (pos + 10 > size) {
+		if (pos + 10 > tsize) {
 			return;
 		}
 
@@ -1906,12 +1906,12 @@ parse_id3v23 (const gchar          *data,
 		}
 	}
 
-	while (pos < size) {
+	while (pos < tsize) {
 		id3v24frame frame;
 		size_t csize;
 		unsigned short flags;
 
-		if (pos + 10 > size) {
+		if (pos + 10 > tsize) {
 			return;
 		}
 
@@ -1933,7 +1933,7 @@ parse_id3v23 (const gchar          *data,
 			continue;
 		}
 
-		if (pos + csize > size) {
+		if (pos + csize > tsize) {
 			break;
 		} else if (csize == 0) {
 			continue;
