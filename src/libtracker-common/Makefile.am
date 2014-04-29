@@ -28,7 +28,8 @@ libtracker_common_la_SOURCES = \
 	tracker-type-utils.c \
 	tracker-utils.c \
 	tracker-crc32.c \
-	tracker-locale.c
+	tracker-locale.c \
+	tracker-miner-locale.c
 
 noinst_HEADERS = \
 	tracker-dbus.h \
@@ -47,7 +48,8 @@ noinst_HEADERS = \
 	tracker-type-utils.h \
 	tracker-utils.h \
 	tracker-crc32.h \
-	tracker-locale.h
+	tracker-locale.h \
+	tracker-miner-locale.h
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_SOURCES += tracker-language.c
@@ -55,8 +57,14 @@ noinst_HEADERS += tracker-language.h
 endif
 
 if HAVE_MEEGOTOUCH
-libtracker_common_la_SOURCES += tracker-locale-gconfdbus.c
-noinst_HEADERS += tracker-locale-gconfdbus.h
+libtracker_common_la_SOURCES += 
+	tracker-locale-gconfdbus.c \
+	tracker-locale-gconfdbus.h \
+	tracker-meego.cpp \
+	tracker-meego.h
+noinst_HEADERS += \
+	tracker-locale-gconfdbus.h \
+	tracker-meego.h
 endif
 
 libtracker_common_la_LIBADD = \

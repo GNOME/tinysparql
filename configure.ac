@@ -342,6 +342,13 @@ PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 
 TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 
+# Check requirements for tracker-miner-apps
+TRACKER_MINER_APPS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
+
+#TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
+
 # Check requirements for tracker-miner-evolution
 evolution_plugin_name=""
 
@@ -1125,6 +1132,9 @@ if test "x$enable_meegotouch" != "xno"; then
                      [have_meegotouch=yes],
                      [have_meegotouch=no])
 
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $MEEGOTOUCH_CFLAGS"
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $MEEGOTOUCH_LIBS"
+
    LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $MEEGOTOUCH_CFLAGS"
    LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $MEEGOTOUCH_LIBS"
 
@@ -1164,6 +1174,31 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_FS, test "x$have_tracker_miner_fs" = "xyes")
+
+##################################################################
+# Check for tracker-miner-apps
+##################################################################
+
+have_tracker_miner_apps="yes"
+
+AC_ARG_ENABLE(miner_apps,
+              AS_HELP_STRING([--enable-miner-apps],
+                             [enable Application miner [[default=yes]]]),,
+                             [enable_tracker_miner_apps=yes])
+
+enable_tracker_miner_apps=$enable_miner_apps
+
+if test "x$enable_tracker_miner_apps" = "xyes"; then
+   if test "x$have_tracker_miner_apps" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-apps dependencies ($TRACKER_MINER_APPS_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_apps" = "xno"; then
+      have_tracker_miner_apps="no  (disabled)"
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_APPS, test "x$have_tracker_miner_apps" = "xyes")
 
 ##################################################################
 # Check for tracker-miner-rss
@@ -2364,6 +2399,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/miners/Makefile
 	src/miners/fs/Makefile
+	src/miners/apps/Makefile
 	src/miners/rss/Makefile
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
@@ -2529,8 +2565,8 @@ Data Miners:
 
 	FS:                                     $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
 	  Includes File Systems
-	  Includes Applications
 	  Includes User Guides
+	Applications:                           $have_tracker_miner_apps
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
         Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)

@@ -31,7 +31,7 @@ static QCoreApplication *app = NULL;
  * MeeGo application functions...
  */
 void
-tracker_miner_applications_meego_init (void)
+tracker_meego_init (void)
 {
 	char *argv[] = { "dummy", NULL };
 	int argc = 1;
@@ -41,7 +41,7 @@ tracker_miner_applications_meego_init (void)
 }
 
 void
-tracker_miner_applications_meego_shutdown (void)
+tracker_meego_shutdown (void)
 {
 	delete app;
 }
@@ -56,8 +56,8 @@ tracker_miner_applications_meego_shutdown (void)
  * layers here.
  */
 gchar *
-tracker_miner_applications_meego_translate (const gchar  *catalogue,
-                                            const gchar  *id)
+tracker_meego_translate (const gchar *catalogue,
+                         const gchar *id)
 {
 	/* Get the system default locale */
 	MLocale locale;
@@ -85,7 +85,7 @@ tracker_miner_applications_meego_translate (const gchar  *catalogue,
  * MeeGo general functions...
  */
 gchar *
-tracker_miner_meego_get_locale (void)
+tracker_meego_get_locale (void)
 {
 	/* Get the system default locale */
 	MLocale locale;

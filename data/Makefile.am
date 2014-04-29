@@ -20,6 +20,10 @@ tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|"      \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
+tracker-miner-apps.desktop.in: tracker-miner-apps.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|"      \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
 tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|"   \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
@@ -28,6 +32,7 @@ desktop_in_in_files =                                  \
 	tracker-extract.desktop.in.in                  \
 	tracker-store.desktop.in.in                    \
 	tracker-miner-fs.desktop.in.in                 \
+	tracker-miner-apps.desktop.in.in               \
 	tracker-miner-rss.desktop.in.in
 
 # Second take those new .in files and translate them
@@ -35,6 +40,7 @@ desktop_in_files =                                     \
 	tracker-extract.desktop.in                     \
 	tracker-store.desktop.in                       \
 	tracker-miner-fs.desktop.in                    \
+	tracker-miner-apps.desktop.in                  \
 	tracker-miner-rss.desktop.in
 
 # Third we choose what we want installed based on config
@@ -44,6 +50,10 @@ autostart_DATA =                                       \
 
 if HAVE_TRACKER_MINER_FS
 autostart_DATA += tracker-miner-fs.desktop tracker-extract.desktop
+endif
+
+if HAVE_TRACKER_MINER_APPS
+autostart_DATA += tracker-miner-apps.desktop
 endif
 
 if HAVE_TRACKER_MINER_RSS

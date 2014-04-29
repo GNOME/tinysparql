@@ -45,7 +45,6 @@
 
 #include "tracker-config.h"
 #include "tracker-miner-userguides.h"
-#include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
 #include "tracker-miner-files-index.h"
 #include "tracker-writeback.h"
@@ -63,13 +62,11 @@
 #define SECONDS_PER_DAY 60 * 60 * 24
 
 #define OPTION_DISABLE_FILES "files"
-#define OPTION_DISABLE_APPLICATIONS "applications"
 #define OPTION_DISABLE_USERGUIDES "userguides"
 
 typedef enum {
 	DISABLE_NONE,
 	DISABLE_FILES,
-	DISABLE_APPLICATIONS,
 #ifdef HAVE_MAEMO
 	DISABLE_USERGUIDES,
 #endif /* HAVE_MAEMO */
@@ -119,7 +116,6 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_CALLBACK, miner_disable_option_arg_func,
 	  N_("Disable miners started as part of this process, options include"
 	     ": '" OPTION_DISABLE_FILES "'"
-	     ", '" OPTION_DISABLE_APPLICATIONS "'"
 #ifdef HAVE_MAEMO
 	     ", '" OPTION_DISABLE_USERGUIDES "'"
 #endif /* HAVE_MAEMO */
@@ -151,15 +147,13 @@ miner_disable_option_arg_func (const gchar  *option_value,
 		                     G_OPTION_ERROR_FAILED,
 		                     "A value is required, either "
 		                     "'" OPTION_DISABLE_FILES "', "
-		                     "'" OPTION_DISABLE_APPLICATIONS "' or "
 		                     "'" OPTION_DISABLE_USERGUIDES "'");
 #else  /* HAVE_MAEMO */
 		g_set_error_literal (error,
 		                     G_OPTION_ERROR,
 		                     G_OPTION_ERROR_FAILED,
 		                     "A value is required, either "
-		                     "'" OPTION_DISABLE_FILES "', "
-		                     "'" OPTION_DISABLE_APPLICATIONS "'");
+		                     "'" OPTION_DISABLE_FILES "'");
 #endif /* HAVE_MAEMO */
 		return FALSE;
 	}
@@ -168,8 +162,6 @@ miner_disable_option_arg_func (const gchar  *option_value,
 
 	if (strcmp (value_casefold, OPTION_DISABLE_FILES) == 0) {
 		option = DISABLE_FILES;
-	} else if (strcmp (value_casefold, OPTION_DISABLE_APPLICATIONS) == 0) {
-		option = DISABLE_APPLICATIONS;
 #ifdef HAVE_MAEMO
 	} else if (strcmp (value_casefold, OPTION_DISABLE_USERGUIDES) == 0) {
 		option = DISABLE_USERGUIDES;
@@ -380,9 +372,6 @@ miner_disabled_check (void)
 		switch (o) {
 		case DISABLE_FILES:
 			disabled = strcmp (name_casefold, OPTION_DISABLE_FILES) == 0;
-			break;
-		case DISABLE_APPLICATIONS:
-			disabled = strcmp (name_casefold, OPTION_DISABLE_APPLICATIONS) == 0;
 			break;
 
 #ifdef HAVE_MAEMO
@@ -845,7 +834,7 @@ int
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
-	TrackerMiner *miner_applications, *miner_files;
+	TrackerMiner *miner_files;
 	TrackerMinerFilesIndex *miner_files_index;
 #ifdef HAVE_MAEMO
 	TrackerMiner *miner_userguides;
@@ -956,23 +945,9 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	/* Create miner for applications */
-	miner_applications = tracker_miner_applications_new (&error);
-	if (!miner_applications) {
-		g_critical ("Couldn't create new Applications miner: '%s'",
-		            error ? error->message : "unknown error");
-		g_object_unref (miner_files);
-		tracker_writeback_shutdown ();
-		g_object_unref (config);
-		tracker_log_shutdown ();
-		g_array_free (disable_options, TRUE);
-		return EXIT_FAILURE;
-	}
-
 	/* Create new TrackerMinerFilesIndex object */
 	miner_files_index = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
 	if (!miner_files_index) {
-		g_object_unref (miner_applications);
 		g_object_unref (miner_files);
 		tracker_writeback_shutdown ();
 		g_object_unref (config);
@@ -987,7 +962,6 @@ main (gint argc, gchar *argv[])
 	if (!miner_userguides) {
 		g_critical ("Couldn't create new User Guides miner: '%s'",
 		            error ? error->message : "unknown error");
-		g_object_unref (miner_applications);
 		g_object_unref (miner_files);
 		g_object_unref (miner_files_index);
 		tracker_writeback_shutdown ();
@@ -1035,25 +1009,10 @@ main (gint argc, gchar *argv[])
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
 
-	/* Configure applications miner */
-	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_applications), do_crawling);
-
 #ifdef HAVE_MAEMO
 	/* Configure userguides miner */
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_userguides), do_crawling);
-#endif /* HAVE_MAEMO */
 
-	/* If a locale change was detected, always do mtime checks */
-	if (tracker_miner_applications_detect_locale_changed (miner_applications)) {
-		if (!do_mtime_checking)
-			g_debug ("Forcing mtime check in applications miner as locale change was detected");
-		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), TRUE);
-	} else {
-		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
-	}
-
-
-#ifdef HAVE_MAEMO
 	/* If a locale change was detected, always do mtime checks */
 	if (tracker_miner_userguides_detect_locale_changed (miner_userguides)) {
 		if (!do_mtime_checking)
@@ -1062,25 +1021,15 @@ main (gint argc, gchar *argv[])
 	} else {
 		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_userguides), do_mtime_checking);
 	}
-#endif /* HAVE_MAEMO */
 
-	g_signal_connect (miner_applications, "finished",
-	                  G_CALLBACK (miner_finished_cb),
-	                  NULL);
-
-#ifdef HAVE_MAEMO
 	g_signal_connect (miner_userguides, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
-#endif /* HAVE_MAEMO */
 
-	/* Setup miners, applications first in list */
-#ifdef HAVE_MAEMO
 	miners = g_slist_prepend (miners, miner_userguides);
 #endif /* HAVE_MAEMO */
 
 	miners = g_slist_prepend (miners, miner_files);
-	miners = g_slist_prepend (miners, miner_applications);
 
 	miner_handle_first (config, do_mtime_checking);
 
@@ -1092,11 +1041,10 @@ main (gint argc, gchar *argv[])
 	store_available = store_is_available ();
 
 	if (miners_timeout_id == 0 &&
-	    !miner_needs_check (miner_files, store_available) &&
 #ifdef HAVE_MAEMO
 	    !miner_needs_check (miner_userguides, store_available) &&
 #endif
-	    !miner_needs_check (miner_applications, store_available)) {
+	    !miner_needs_check (miner_files, store_available)) {
 		tracker_db_manager_set_need_mtime_check (FALSE);
 	}
 

@@ -19,16 +19,9 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-locale.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-miner-applications.h"
-#include "tracker-miner-locale.h"
-
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-meego.h"
-#endif
 
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
@@ -246,7 +239,7 @@ miner_applications_initable_init (GInitable     *initable,
 	miner_applications_add_directories (fs);
 
 #ifdef HAVE_MEEGOTOUCH
-	tracker_miner_applications_meego_init ();
+	tracker_meego_init ();
 #endif /* HAVE_MEEGOTOUCH */
 
 	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
@@ -267,7 +260,7 @@ miner_applications_finalize (GObject *object)
 	tracker_locale_notify_remove (app->locale_notification_id);
 
 #ifdef HAVE_MEEGOTOUCH
-	tracker_miner_applications_meego_shutdown ();
+	tracker_meego_shutdown ();
 #endif /* HAVE_MEEGOTOUCH */
 
 	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
@@ -436,7 +429,7 @@ process_desktop_file (ProcessApplicationData  *data,
 	translation_catalog = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "X-MeeGo-Translation-Catalog", NULL);
 
 	if (logical_id && translation_catalog) {
-		name = tracker_miner_applications_meego_translate (translation_catalog, logical_id);
+		name = tracker_meego_translate (translation_catalog, logical_id);
 	}
 
 	g_free (logical_id);
