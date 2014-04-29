@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, Red Hat, Inc
+ * Copyright (C) 2011, 2014 Red Hat, Inc
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
- * Author: Christophe Fergeau <cfergeau@redhat.com>
+ * Authors: Christophe Fergeau <cfergeau@redhat.com>
+ *          Zeeshan Ali (Khattak) <zeeshanak@gnome.org>
  */
 
 #include "config.h"
