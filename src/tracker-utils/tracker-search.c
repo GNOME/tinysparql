@@ -412,24 +412,15 @@ get_emails_results (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Emails"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			if (details) {
-				g_print ("  %s%s%s, %s (%s)\n",
-		                         disable_color ? "" : TITLE_BEGIN,
-				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-		                         disable_color ? "" : TITLE_END,
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
-				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
+			g_print ("  %s%s%s\n"
+			         "  %s, %s\n",
+			         disable_color ? "" : TITLE_BEGIN,
+			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         disable_color ? "" : TITLE_END,
+			         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+			         tracker_sparql_cursor_get_string (cursor, 2, NULL));
 
-				print_snippet (tracker_sparql_cursor_get_string (cursor, 3, NULL));
-			} else {
-				g_print ("  %s%s%s, %s\n",
-		                         disable_color ? "" : TITLE_BEGIN,
-				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-		                         disable_color ? "" : TITLE_END,
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
-				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
-			}
+			print_snippet (tracker_sparql_cursor_get_string (cursor, 3, NULL));
 
 			count++;
 		}
@@ -462,7 +453,7 @@ get_emails (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) fts:snippet(?email, \"%s\", \"%s\") "
+		query = g_strdup_printf ("SELECT nie:url(?email) nmo:receivedDate(?email) nmo:messageSubject(?email) fts:snippet(?email, \"%s\", \"%s\") "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ;"
 		                         "  fts:match \"%s\" ."
@@ -476,7 +467,7 @@ get_emails (TrackerSparqlConnection *connection,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) "
+		query = g_strdup_printf ("SELECT nie:url(?email) nmo:receivedDate(?email) nmo:messageSubject(?email) "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ."
 		                         "} "
