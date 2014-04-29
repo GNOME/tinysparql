@@ -26,3 +26,9 @@ osinfo:mediaId a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
+
+osinfo:language a rdf:Property ;
+	rdfs:label "Language" ;
+	rdfs:comment "Languages supported by installer/live media." ;
+	rdfs:domain osinfo:Installer ;
+	rdfs:range xsd:string .
