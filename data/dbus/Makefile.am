@@ -39,11 +39,6 @@ service_DATA += \
 	org.freedesktop.Tracker1.Miner.Extract.service \
 	org.freedesktop.Tracker1.Miner.Files.service \
 	org.freedesktop.Tracker1.Miner.Applications.service
-
-if HAVE_MAEMO
-# Userguides are done in the miner-fs process
-service_DATA += org.freedesktop.Tracker1.Miner.Userguides.service
-endif
 endif
 
 if HAVE_TRACKER_MINER_EVOLUTION
@@ -52,6 +47,10 @@ endif
 
 if HAVE_TRACKER_MINER_RSS
 service_DATA += org.freedesktop.Tracker1.Miner.RSS.service
+endif
+
+if HAVE_TRACKER_MINER_USER_GUIDES
+service_DATA += org.freedesktop.Tracker1.Miner.Userguides.service
 endif
 
 EXTRA_DIST = \

@@ -347,7 +347,11 @@ TRACKER_MINER_APPS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
 
-#TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
+# Check requirements for tracker-miner-user-guides
+TRACKER_MINER_USER_GUIDES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                                    libxml-2.0   >= $LIBXML2_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_USER_GUIDES, [$TRACKER_MINER_USER_GUIDES_REQUIRED])
 
 # Check requirements for tracker-miner-evolution
 evolution_plugin_name=""
@@ -1201,6 +1205,31 @@ fi
 AM_CONDITIONAL(HAVE_TRACKER_MINER_APPS, test "x$have_tracker_miner_apps" = "xyes")
 
 ##################################################################
+# Check for tracker-miner-user-guides
+##################################################################
+
+have_tracker_miner_user_guides="yes"
+
+AC_ARG_ENABLE(miner_user_guides,
+              AS_HELP_STRING([--enable-miner-user-guides],
+                             [enable User guides miner [[default=yes]]]),,
+                             [enable_tracker_miner_user_guides=yes])
+
+enable_tracker_miner_user_guides=$enable_miner_user_guides
+
+if test "x$enable_tracker_miner_user_guides" = "xyes"; then
+   if test "x$have_tracker_miner_user_guides" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-user-guides dependencies ($TRACKER_MINER_USER_GUIDES_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_user_guides" = "xno"; then
+      have_tracker_miner_user_guides="no  (disabled)"
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_USER_GUIDES, test "x$have_tracker_miner_user_guides" = "xyes")
+
+##################################################################
 # Check for tracker-miner-rss
 ##################################################################
 
@@ -1541,13 +1570,6 @@ AC_ARG_ENABLE(libxml2,
               AS_HELP_STRING([--enable-libxml2],
                              [enable extractor for HTML/XML metadata [[default=yes]]]),,
               [enable_libxml2=yes])
-
-# Force libxml requirement for HAVE_MAEMO,
-# given the miner-fs needs it for the userguide extraction.
-if test "x$enable_maemo" = "xyes" ; then
-  enable_libxml2="yes"
-fi
-
 
 if test "x$enable_libxml2" != "xno"; then
    PKG_CHECK_MODULES(LIBXML2,
@@ -2401,6 +2423,7 @@ AC_CONFIG_FILES([
 	src/miners/fs/Makefile
 	src/miners/apps/Makefile
 	src/miners/rss/Makefile
+	src/miners/user-guides/Makefile
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
@@ -2563,14 +2586,15 @@ Metadata Extractors:
 
 Data Miners:
 
-	FS:                                     $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
-	  Includes File Systems
-	  Includes User Guides
+	FS (File System):                       $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
 	Applications:                           $have_tracker_miner_apps
 	RSS:                                    $have_tracker_miner_rss
-	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
-        Thunderbird:                            $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
-        FireFox:                                $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
+	User Guides:                            $have_tracker_miner_user_guides
+	Email:
+          Evolution:                            $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
+          Thunderbird:                          $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
+        Bookmarks:
+          FireFox:                              $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
 
 Plugins:
 

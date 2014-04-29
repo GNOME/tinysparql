@@ -1,0 +1,19 @@
+[Desktop Entry]
+_Name=Tracker User Guides Miner
+_Comment=Crawls and processes user guides in shared areas
+Icon=
+Exec=@libexecdir@/tracker-miner-user-guides
+Terminal=false
+Type=Application
+Categories=Utility;
+X-Meego-Priority=Late
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
+X-KDE-StartupNotify=false
+X-KDE-UniqueApplet=true
+NoDisplay=true
+OnlyShowIn=GNOME;KDE;XFCE;X-MEEGO-HS;X-MEEGO-NB;X-IVI;Unity;
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=tracker
+X-GNOME-Bugzilla-Component=Miners
+X-GNOME-Bugzilla-Version=@VERSION@
