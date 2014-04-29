@@ -2,7 +2,7 @@
 _Name=Tracker Application Miner
 _Comment=Indexes information about applications installed
 Icon=
-Exec=/opt/gnome/libexec/tracker-miner-apps
+Exec=@libexecdir@/tracker-miner-apps
 Terminal=false
 Type=Application
 Categories=Utility;
@@ -16,4 +16,4 @@ OnlyShowIn=GNOME;KDE;XFCE;X-MEEGO-HS;X-MEEGO-NB;X-IVI;Unity;
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=tracker
 X-GNOME-Bugzilla-Component=Miners
-X-GNOME-Bugzilla-Version=1.0.0
+X-GNOME-Bugzilla-Version=@VERSION@
