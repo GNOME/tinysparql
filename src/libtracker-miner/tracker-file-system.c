@@ -42,7 +42,7 @@ struct _FileNodeProperty {
 
 struct _FileNodeData {
 	GFile *file;
-	gchar *uri_suffix;
+	gchar *uri_prefix;
 	GArray *properties;
 	guint shallow   : 1;
 	guint unowned : 1;
@@ -97,7 +97,7 @@ file_node_data_free (FileNodeData *data,
 	}
 
 	data->file = NULL;
-	g_free (data->uri_suffix);
+	g_free (data->uri_prefix);
 
 	for (i = 0; i < data->properties->len; i++) {
 		FileNodeProperty *property;
@@ -163,8 +163,8 @@ file_node_data_root_new (void)
 	FileNodeData *data;
 
 	data = g_slice_new0 (FileNodeData);
-	data->uri_suffix = g_strdup ("file:///");
-	data->file = g_file_new_for_uri (data->uri_suffix);
+	data->uri_prefix = g_strdup ("file:///");
+	data->file = g_file_new_for_uri (data->uri_prefix);
 	data->properties = g_array_new (FALSE, TRUE, sizeof (FileNodeProperty));
 	data->file_type = G_FILE_TYPE_DIRECTORY;
 	data->shallow = TRUE;
@@ -174,23 +174,23 @@ file_node_data_root_new (void)
 
 static gboolean
 file_node_data_equal_or_child (GNode  *node,
-                               gchar  *uri_suffix,
+                               gchar  *uri_prefix,
                                gchar **uri_remainder)
 {
 	FileNodeData *data;
 	gsize len;
 
 	data = node->data;
-	len = strlen (data->uri_suffix);
+	len = strlen (data->uri_prefix);
 
-	if (strncmp (uri_suffix, data->uri_suffix, len) == 0) {
-		uri_suffix += len;
+	if (strncmp (uri_prefix, data->uri_prefix, len) == 0) {
+		uri_prefix += len;
 
-		if (uri_suffix[0] == '/') {
-			uri_suffix++;
-		} else if (uri_suffix[0] != '\0' &&
+		if (uri_prefix[0] == '/') {
+			uri_prefix++;
+		} else if (uri_prefix[0] != '\0' &&
 		           (len < 4 ||
-		            strcmp (data->uri_suffix + len - 4, ":///") != 0)) {
+		            strcmp (data->uri_prefix + len - 4, ":///") != 0)) {
 			/* If the first char isn't an uri separator
 			 * nor \0, node represents a similarly named
 			 * file, but not a parent after all.
@@ -199,7 +199,7 @@ file_node_data_equal_or_child (GNode  *node,
 		}
 
 		if (uri_remainder) {
-			*uri_remainder = uri_suffix;
+			*uri_remainder = uri_prefix;
 		}
 
 		return TRUE;
@@ -222,7 +222,7 @@ file_tree_lookup (GNode     *tree,
 	node_found = parent_found = NULL;
 
 	/* Run through the filesystem tree, comparing chunks of
-	 * uri with the uri suffix in the file nodes, this would
+	 * uri with the uri prefix in the file nodes, this would
 	 * get us to the closest registered parent, or the file
 	 * itself.
 	 */
@@ -287,7 +287,7 @@ file_tree_lookup (GNode     *tree,
 		     child = g_node_next_sibling (child)) {
 			data = child->data;
 
-			if (data->uri_suffix[0] != ptr[0])
+			if (data->uri_prefix[0] != ptr[0])
 				continue;
 
 			if (file_node_data_equal_or_child (child, ptr, &ret_ptr)) {
@@ -403,19 +403,19 @@ reparent_child_nodes_to_parent (GNode *node)
 
 	while (child) {
 		FileNodeData *data;
-		gchar *uri_suffix;
+		gchar *uri_prefix;
 		GNode *cur;
 
 		cur = child;
 		data = cur->data;
 		child = g_node_next_sibling (child);
 
-		uri_suffix = g_strdup_printf ("%s/%s",
-					      node_data->uri_suffix,
-					      data->uri_suffix);
+		uri_prefix = g_strdup_printf ("%s/%s",
+					      node_data->uri_prefix,
+					      data->uri_prefix);
 
-		g_free (data->uri_suffix);
-		data->uri_suffix = uri_suffix;
+		g_free (data->uri_prefix);
+		data->uri_prefix = uri_prefix;
 
 		g_node_unlink (cur);
 		g_node_prepend (parent, cur);
@@ -483,7 +483,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
 	GNode *node, *parent_node;
-	gchar *uri_suffix = NULL;
+	gchar *uri_prefix = NULL;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
@@ -495,10 +495,10 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	if (parent) {
 		parent_node = file_system_get_node (file_system, parent);
 		node = file_tree_lookup (parent_node, file,
-		                         NULL, &uri_suffix);
+		                         NULL, &uri_prefix);
 	} else {
 		node = file_tree_lookup (priv->file_tree, file,
-		                         &parent_node, &uri_suffix);
+		                         &parent_node, &uri_prefix);
 	}
 
 	if (!node) {
@@ -518,12 +518,12 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 		/* Parent was found, add file as child */
 		data = file_node_data_new (file_system, file,
 		                           file_type, node);
-		data->uri_suffix = uri_suffix;
+		data->uri_prefix = uri_prefix;
 
 		g_node_append (parent_node, node);
 	} else {
 		data = node->data;
-		g_free (uri_suffix);
+		g_free (uri_prefix);
 
 		/* Update file type if it was unknown */
 		if (data->file_type == G_FILE_TYPE_UNKNOWN) {
