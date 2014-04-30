@@ -33,6 +33,7 @@ static GHashTable *properties = NULL;
 
 struct _TrackerFileSystemPrivate {
 	GNode *file_tree;
+	GFile *root;
 };
 
 struct _FileNodeProperty {
@@ -54,10 +55,15 @@ struct _NodeLookupData {
 	GNode *node;
 };
 
+enum {
+	PROP_0,
+	PROP_ROOT,
+};
+
 static GQuark quark_file_node = 0;
 
-static void file_weak_ref_notify (gpointer  user_data,
-                                  GObject  *prev_location);
+static void file_weak_ref_notify (gpointer    user_data,
+                                  GObject    *prev_location);
 
 G_DEFINE_TYPE (TrackerFileSystem, tracker_file_system, G_TYPE_OBJECT)
 
@@ -158,13 +164,13 @@ file_node_data_new (TrackerFileSystem *file_system,
 }
 
 static FileNodeData *
-file_node_data_root_new (void)
+file_node_data_root_new (GFile *root)
 {
 	FileNodeData *data;
 
 	data = g_slice_new0 (FileNodeData);
-	data->uri_prefix = g_strdup ("file:///");
-	data->file = g_file_new_for_uri (data->uri_prefix);
+	data->uri_prefix = g_file_get_uri (root);
+	data->file = g_object_ref (root);
 	data->properties = g_array_new (FALSE, TRUE, sizeof (FileNodeProperty));
 	data->file_type = G_FILE_TYPE_DIRECTORY;
 	data->shallow = TRUE;
@@ -337,7 +343,7 @@ file_tree_free_node_foreach (GNode    *node,
 /* TrackerFileSystem implementation */
 
 static void
-tracker_file_system_finalize (GObject *object)
+file_system_finalize (GObject *object)
 {
 	TrackerFileSystemPrivate *priv;
 
@@ -350,7 +356,51 @@ tracker_file_system_finalize (GObject *object)
 	                 NULL);
 	g_node_destroy (priv->file_tree);
 
+	if (!priv->root) {
+		g_object_unref (priv->root);
+	}
+
 	G_OBJECT_CLASS (tracker_file_system_parent_class)->finalize (object);
+}
+
+static void
+file_system_get_property (GObject    *object,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+	TrackerFileSystemPrivate *priv;
+
+	priv = TRACKER_FILE_SYSTEM (object)->priv;
+
+	switch (prop_id) {
+	case PROP_ROOT:
+		g_value_set_object (value, priv->root);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+file_system_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+	TrackerFileSystemPrivate *priv;
+
+	priv = TRACKER_FILE_SYSTEM (object)->priv;
+
+	switch (prop_id) {
+	case PROP_ROOT:
+		priv->root = g_value_dup_object (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
 static void
@@ -358,7 +408,17 @@ tracker_file_system_class_init (TrackerFileSystemClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = tracker_file_system_finalize;
+	object_class->finalize = file_system_finalize;
+	object_class->get_property = file_system_get_property;
+	object_class->set_property = file_system_set_property;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_ROOT,
+	                                 g_param_spec_object ("root",
+	                                                      "Root URL",
+	                                                      "The root GFile for the indexing tree",
+	                                                      G_TYPE_FILE,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerFileSystemPrivate));
@@ -377,14 +437,20 @@ tracker_file_system_init (TrackerFileSystem *file_system)
 		                             TRACKER_TYPE_FILE_SYSTEM,
 		                             TrackerFileSystemPrivate);
 
-	root_data = file_node_data_root_new ();
+	if (priv->root == NULL) {
+		priv->root = g_file_new_for_uri ("file:///");
+	}
+
+	root_data = file_node_data_root_new (priv->root);
 	priv->file_tree = g_node_new (root_data);
 }
 
 TrackerFileSystem *
-tracker_file_system_new (void)
+tracker_file_system_new (GFile *root)
 {
-	return g_object_new (TRACKER_TYPE_FILE_SYSTEM, NULL);
+	return g_object_new (TRACKER_TYPE_FILE_SYSTEM,
+	                     "root", root,
+	                     NULL);
 }
 
 static void

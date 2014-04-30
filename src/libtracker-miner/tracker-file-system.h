@@ -54,7 +54,8 @@ typedef gboolean (* TrackerFileSystemTraverseFunc) (GFile    *file,
 
 GType      tracker_file_system_get_type      (void) G_GNUC_CONST;
 
-TrackerFileSystem * tracker_file_system_new  (void);
+TrackerFileSystem *
+              tracker_file_system_new            (GFile              *root);
 
 GFile *       tracker_file_system_get_file       (TrackerFileSystem  *file_system,
                                                   GFile              *file,

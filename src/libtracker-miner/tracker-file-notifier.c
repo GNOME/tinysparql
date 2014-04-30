@@ -1473,7 +1473,7 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 	}
 
 	/* Initialize filesystem and register properties */
-	priv->file_system = tracker_file_system_new ();
+	priv->file_system = tracker_file_system_new (NULL);
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
