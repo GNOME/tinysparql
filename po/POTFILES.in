@@ -14,8 +14,10 @@ data/miners/tracker-miner-files.desktop.in.in
 data/miners/tracker-miner-rss.desktop.in.in
 data/miners/tracker-miner-userguides.desktop.in.in
 data/tracker-extract.desktop.in.in
+data/tracker-miner-apps.desktop.in.in
 data/tracker-miner-fs.desktop.in.in
 data/tracker-miner-rss.desktop.in.in
+data/tracker-miner-user-guides.desktop.in.in
 data/tracker-store.desktop.in.in
 [type: gettext/glade]examples/rss-reader/rss_viewer.ui
 src/libtracker-common/tracker-dbus.c
@@ -23,10 +25,12 @@ src/libtracker-common/tracker-utils.c
 src/libtracker-miner/tracker-miner-fs.c
 src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-online.c
+src/miners/apps/tracker-main.c
 src/miners/fs/tracker-main.c
 src/miners/fs/tracker-miner-files.c
 src/miners/rss/tracker-main.c
 src/miners/rss/tracker-miner-rss.c
+src/miners/user-guides/tracker-main.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
 src/plugins/nautilus/tracker-tags-extension.c

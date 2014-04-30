@@ -1,8 +1,10 @@
 # List of source files that should NOT be translated.
 # Please keep this file sorted alphabetically.
 data/tracker-extract.desktop.in
+data/tracker-miner-apps.desktop.in
 data/tracker-miner-fs.desktop.in
 data/tracker-miner-rss.desktop.in
+data/tracker-miner-user-guides.desktop.in
 data/tracker-status-icon.desktop.in
 data/tracker-store.desktop.in
 src/tracker-needle/tracker-needle.c
