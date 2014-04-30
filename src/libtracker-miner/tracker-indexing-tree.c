@@ -64,11 +64,13 @@ struct _TrackerIndexingTreePrivate
 	GList *filter_patterns;
 	TrackerFilterPolicy policies[TRACKER_FILTER_PARENT_DIRECTORY + 1];
 
+	GFile *root;
 	guint filter_hidden : 1;
 };
 
 enum {
 	PROP_0,
+	PROP_ROOT,
 	PROP_FILTER_HIDDEN
 };
 
@@ -149,6 +151,9 @@ tracker_indexing_tree_get_property (GObject    *object,
 	priv = TRACKER_INDEXING_TREE (object)->priv;
 
 	switch (prop_id) {
+	case PROP_ROOT:
+		g_value_set_object (value, priv->root);
+		break;
 	case PROP_FILTER_HIDDEN:
 		g_value_set_boolean (value, priv->filter_hidden);
 		break;
@@ -165,10 +170,15 @@ tracker_indexing_tree_set_property (GObject      *object,
                                     GParamSpec   *pspec)
 {
 	TrackerIndexingTree *tree;
+	TrackerIndexingTreePrivate *priv;
 
 	tree = TRACKER_INDEXING_TREE (object);
+	priv = tree->priv;
 
 	switch (prop_id) {
+	case PROP_ROOT:
+		priv->root = g_value_dup_object (value);
+		break;
 	case PROP_FILTER_HIDDEN:
 		tracker_indexing_tree_set_filter_hidden (tree,
 		                                         g_value_get_boolean (value));
@@ -199,6 +209,10 @@ tracker_indexing_tree_finalize (GObject *object)
 	                 NULL);
 	g_node_destroy (priv->config_tree);
 
+	if (priv->root) {
+		g_object_unref (priv->root);
+	}
+
 	G_OBJECT_CLASS (tracker_indexing_tree_parent_class)->finalize (object);
 }
 
@@ -210,6 +224,14 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	object_class->finalize = tracker_indexing_tree_finalize;
 	object_class->set_property = tracker_indexing_tree_set_property;
 	object_class->get_property = tracker_indexing_tree_get_property;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_ROOT,
+	                                 g_param_spec_object ("root",
+	                                                      "Root URL",
+	                                                      "The root GFile for the indexing tree",
+	                                                      G_TYPE_FILE,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FILTER_HIDDEN,
@@ -255,19 +277,20 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 {
 	TrackerIndexingTreePrivate *priv;
 	NodeData *data;
-	GFile *root;
 	gint i;
 
 	priv = tree->priv = G_TYPE_INSTANCE_GET_PRIVATE (tree,
 	                                                 TRACKER_TYPE_INDEXING_TREE,
 	                                                 TrackerIndexingTreePrivate);
 	/* Add a shallow root node */
-	root = g_file_new_for_uri ("file:///");
-	data = node_data_new (root, 0);
+	if (priv->root == NULL) {
+		priv->root = g_file_new_for_uri ("file:///");
+	}
+
+	data = node_data_new (priv->root, 0);
 	data->shallow = TRUE;
 
 	priv->config_tree = g_node_new (data);
-	g_object_unref (root);
 
 	for (i = TRACKER_FILTER_FILE; i <= TRACKER_FILTER_PARENT_DIRECTORY; i++) {
 		priv->policies[i] = TRACKER_FILTER_POLICY_ACCEPT;
@@ -276,15 +299,18 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 
 /**
  * tracker_indexing_tree_new:
+ * @root: The top level URL
  *
- * Returns a newly created #TrackerIndexingTree
+ * If @root is %NULL, the default value is 'file:///'.
  *
  * Returns: a newly allocated #TrackerIndexingTree
  **/
 TrackerIndexingTree *
-tracker_indexing_tree_new (void)
+tracker_indexing_tree_new (GFile *root)
 {
-	return g_object_new (TRACKER_TYPE_INDEXING_TREE, NULL);
+	return g_object_new (TRACKER_TYPE_INDEXING_TREE,
+	                     "root", root,
+	                     NULL);
 }
 
 #ifdef PRINT_INDEXING_TREE

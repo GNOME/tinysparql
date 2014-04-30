@@ -96,7 +96,7 @@ test_common_context_setup (TestCommonContext *fixture,
 	for (i = 0; i < TEST_DIRECTORY_LAST; i++)
 		fixture->test_dir[i] = g_file_new_for_path (test_directories_subpaths[i]);
 
-	fixture->tree = tracker_indexing_tree_new ();
+	fixture->tree = tracker_indexing_tree_new (NULL);
 }
 
 static void

@@ -583,7 +583,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
 
 	/* Create the indexing tree */
-	priv->indexing_tree = tracker_indexing_tree_new ();
+	priv->indexing_tree = tracker_indexing_tree_new (NULL);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed),
 	                  object);
