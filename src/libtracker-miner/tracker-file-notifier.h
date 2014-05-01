@@ -75,7 +75,8 @@ struct _TrackerFileNotifierClass {
 
 GType         tracker_file_notifier_get_type      (void) G_GNUC_CONST;
 
-TrackerFileNotifier* tracker_file_notifier_new  (TrackerIndexingTree *indexing_tree);
+TrackerFileNotifier* tracker_file_notifier_new  (TrackerIndexingTree *indexing_tree,
+                                                 gboolean             external_crawler);
 
 gboolean      tracker_file_notifier_start (TrackerFileNotifier *notifier);
 void          tracker_file_notifier_stop  (TrackerFileNotifier *notifier);
@@ -84,6 +85,10 @@ gboolean      tracker_file_notifier_is_active (TrackerFileNotifier *notifier);
 const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
                                                   GFile               *file,
                                                   gboolean             force);
+gboolean      tracker_file_notifier_add_file (TrackerFileNotifier *notifier,
+                                              GFile               *file);
+gboolean      tracker_file_notifier_add_files (TrackerFileNotifier *notifier,
+                                               GList               *files);
 
 G_END_DECLS
 
