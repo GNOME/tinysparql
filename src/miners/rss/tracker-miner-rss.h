@@ -38,11 +38,11 @@ typedef struct _TrackerMinerRSS TrackerMinerRSS;
 typedef struct _TrackerMinerRSSClass TrackerMinerRSSClass;
 
 struct _TrackerMinerRSS {
-	TrackerMiner parent;
+	TrackerMinerOnline parent;
 };
 
 struct _TrackerMinerRSSClass {
-	TrackerMinerClass parent;
+	TrackerMinerOnlineClass parent;
 };
 
 GType            tracker_miner_rss_get_type (void) G_GNUC_CONST;
