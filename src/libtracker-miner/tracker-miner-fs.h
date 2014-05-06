@@ -155,6 +155,8 @@ void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
 
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
+gboolean tracker_miner_fs_manually_notify_file (TrackerMinerFS *fs,
+                                                GFile          *file);
 
 G_END_DECLS
 
