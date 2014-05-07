@@ -1668,38 +1668,42 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 }
 
 gboolean
-tracker_file_notifier_add_file (TrackerFileNotifier *notifier,
-                                GFile               *file)
+tracker_file_notifier_signal_file  (TrackerFileNotifier     *notifier,
+                                    TrackerMinerFSQueue      queue_type,
+                                    GFile                   *file,
+                                    GFileType                file_type)
 {
 	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	/* Hack, we use the created signal here from the
-	 * TrackerMonitor, this way, the file is indoctrinated into
-	 * the system nicely.
-	 */
-	/* FIXME: Get IS DIRECTORY for boolean here */
-	monitor_item_created_cb (NULL, file, FALSE, notifier);
+	switch (queue_type) {
+	case TRACKER_MINER_FS_QUEUE_CREATED:
+		monitor_item_created_cb (NULL,
+		                         file,
+		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
+		                         notifier);
+		break;
 
-	return TRUE;
-}
+	case TRACKER_MINER_FS_QUEUE_UPDATED:
+		monitor_item_updated_cb (NULL,
+		                         file,
+		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
+		                         notifier);
+		break;
 
-gboolean
-tracker_file_notifier_add_files (TrackerFileNotifier *notifier,
-                                 GList               *files)
-{
-	GList *l;
-	gboolean success = TRUE;
+	case TRACKER_MINER_FS_QUEUE_DELETED:
+		monitor_item_deleted_cb (NULL,
+		                         file,
+		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
+		                         notifier);
+	case TRACKER_MINER_FS_QUEUE_MOVED:
+		g_critical ("Currently MOVE signalling is unsupported");
+		return FALSE;
 
-	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), FALSE);
-	g_return_val_if_fail (files != NULL, FALSE);
-	g_return_val_if_fail (g_list_length (files) > 0, FALSE);
-
-	for (l = files; l; l = l->next) {
-		GFile *file = l->data;
-
-		success &= tracker_file_notifier_add_file (notifier, file);
+	default:
+		g_assert_not_reached ();
+		return FALSE;
 	}
 
-	return success;
+	return TRUE;
 }

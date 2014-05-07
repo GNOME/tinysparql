@@ -28,6 +28,7 @@
 
 #include <gio/gio.h>
 #include "tracker-indexing-tree.h"
+#include "tracker-miner-fs.h"
 
 G_BEGIN_DECLS
 
@@ -40,6 +41,7 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerFileNotifier TrackerFileNotifier;
 typedef struct _TrackerFileNotifierClass TrackerFileNotifierClass;
+typedef enum _TrackerFileNotifierType TrackerFileNotifierType;
 
 struct _TrackerFileNotifier {
 	GObject parent_instance;
@@ -73,22 +75,24 @@ struct _TrackerFileNotifierClass {
 	void (* finished)           (TrackerFileNotifier *notifier);
 };
 
-GType         tracker_file_notifier_get_type      (void) G_GNUC_CONST;
+GType         tracker_file_notifier_get_type     (void) G_GNUC_CONST;
 
-TrackerFileNotifier* tracker_file_notifier_new  (TrackerIndexingTree *indexing_tree,
-                                                 gboolean             external_crawler);
+TrackerFileNotifier *
+              tracker_file_notifier_new          (TrackerIndexingTree     *indexing_tree,
+                                                  gboolean                 external_crawler);
 
-gboolean      tracker_file_notifier_start (TrackerFileNotifier *notifier);
-void          tracker_file_notifier_stop  (TrackerFileNotifier *notifier);
-gboolean      tracker_file_notifier_is_active (TrackerFileNotifier *notifier);
+gboolean      tracker_file_notifier_start        (TrackerFileNotifier     *notifier);
+void          tracker_file_notifier_stop         (TrackerFileNotifier     *notifier);
+gboolean      tracker_file_notifier_is_active    (TrackerFileNotifier     *notifier);
 
-const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
-                                                  GFile               *file,
-                                                  gboolean             force);
-gboolean      tracker_file_notifier_add_file (TrackerFileNotifier *notifier,
-                                              GFile               *file);
-gboolean      tracker_file_notifier_add_files (TrackerFileNotifier *notifier,
-                                               GList               *files);
+const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier     *notifier,
+                                                  GFile                   *file,
+                                                  gboolean                 force);
+
+gboolean      tracker_file_notifier_signal_file  (TrackerFileNotifier     *notifier,
+                                                  TrackerMinerFSQueue      queue_type,
+                                                  GFile                   *file,
+                                                  GFileType                file_type);
 
 G_END_DECLS
 

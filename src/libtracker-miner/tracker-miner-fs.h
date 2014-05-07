@@ -118,6 +118,14 @@ typedef enum {
 	TRACKER_MINER_FS_ERROR_HAVE_CRAWLER,
 } TrackerMinerFSError;
 
+typedef enum {
+	TRACKER_MINER_FS_QUEUE_NONE,
+	TRACKER_MINER_FS_QUEUE_CREATED,
+	TRACKER_MINER_FS_QUEUE_UPDATED,
+	TRACKER_MINER_FS_QUEUE_DELETED,
+	TRACKER_MINER_FS_QUEUE_MOVED
+} TrackerMinerFSQueue;
+
 
 GType                 tracker_miner_fs_get_type             (void) G_GNUC_CONST;
 GQuark                tracker_miner_fs_error_quark          (void);
@@ -179,9 +187,11 @@ void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
 
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
-gboolean tracker_miner_fs_manually_notify_file (TrackerMinerFS  *fs,
-                                                GFile           *file,
-                                                GError         **error);
+gboolean              tracker_miner_fs_manually_notify_file (TrackerMinerFS       *fs,
+                                                             TrackerMinerFSQueue   queue_type,
+                                                             GFile                *file,
+                                                             GFileType             file_type,
+                                                             GError              **error);
 
 G_END_DECLS
 

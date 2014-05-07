@@ -3942,7 +3942,9 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 /**
  * tracker_miner_fs_manually_notify_file:
  * @fs: a #TrackerMinerFS
+ * @queue_type: the type of operation to notify
  * @file: a #GFile
+ * @file_type: a #GFileType
  * @error: a #GError
  *
  * This API is only useful where the @fs was created using the
@@ -3962,9 +3964,11 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
  * Since: 1.2.
  **/
 gboolean
-tracker_miner_fs_manually_notify_file (TrackerMinerFS  *fs,
-                                       GFile           *file,
-                                       GError         **error)
+tracker_miner_fs_manually_notify_file (TrackerMinerFS       *fs,
+                                       TrackerMinerFSQueue   queue_type,
+                                       GFile                *file,
+                                       GFileType             file_type,
+                                       GError              **error)
 {
 	TrackerMinerFSPrivate *priv;
 
@@ -3989,8 +3993,10 @@ tracker_miner_fs_manually_notify_file (TrackerMinerFS  *fs,
 		return FALSE;
 	}
 
-	/* FIXME: We need to know if this was created, updated, etc. */
-	return tracker_file_notifier_add_file (fs->priv->file_notifier, file);
+	return tracker_file_notifier_signal_file (fs->priv->file_notifier,
+	                                          queue_type,
+	                                          file,
+	                                          file_type);
 }
 
 
