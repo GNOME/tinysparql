@@ -324,6 +324,8 @@ static GQuark quark_file_iri = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
 
+G_DEFINE_QUARK (TrackerMinerFSError, tracker_miner_fs_error)
+
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMinerFS, tracker_miner_fs, TRACKER_TYPE_MINER,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          miner_fs_initable_iface_init));
@@ -632,7 +634,10 @@ miner_fs_initable_init (GInitable     *initable,
 	                                                 limit);
 
 	if (!priv->sparql_buffer) {
-		/* FIXME: error up here ... */
+		g_set_error (error,
+		             tracker_miner_fs_error_quark (),
+		             TRACKER_MINER_FS_ERROR_INIT,
+		             "Could not create TrackerSparqlBuffer needed to process resources");
 		return FALSE;
 	}
 
@@ -649,7 +654,10 @@ miner_fs_initable_init (GInitable     *initable,
 	/* Create indexing tree */
 	priv->indexing_tree = tracker_indexing_tree_new (priv->root);
 	if (!priv->indexing_tree) {
-		/* FIXME: error up here ... */
+		g_set_error (error,
+		             tracker_miner_fs_error_quark (),
+		             TRACKER_MINER_FS_ERROR_INIT,
+		             "Could not create TrackerIndexingTree needed to manage content indexed");
 		return FALSE;
 	}
 
@@ -662,7 +670,10 @@ miner_fs_initable_init (GInitable     *initable,
 	                                                 priv->external_crawler);
 
 	if (!priv->file_notifier) {
-		/* FIXME: error up here ... */
+		g_set_error (error,
+		             tracker_miner_fs_error_quark (),
+		             TRACKER_MINER_FS_ERROR_INIT,
+		             "Could not create TrackerFileNotifier needed to signal new resources to be indexed");
 		return FALSE;
 	}
 

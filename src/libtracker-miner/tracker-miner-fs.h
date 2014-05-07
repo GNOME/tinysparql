@@ -97,7 +97,25 @@ typedef struct {
 	gpointer padding[10];
 } TrackerMinerFSClass;
 
+/**
+ * TrackerMinerFSError:
+ * @TRACKER_MINER_FS_ERROR_INIT: There was an error during
+ * initialization of the object. The specific details are in the
+ * message.
+ *
+ * Possible errors returned when calling creating new objects based on
+ * the #TrackerMinerFS type and other APIs available with this class.
+ *
+ * Since: 1.2.
+ **/
+typedef enum {
+	TRACKER_MINER_FS_ERROR_INIT
+} TrackerMinerFSError;
+
+
 GType                 tracker_miner_fs_get_type             (void) G_GNUC_CONST;
+GQuark                tracker_miner_fs_error_quark          (void);
+
 void                  tracker_miner_fs_directory_add        (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              gboolean        recurse);

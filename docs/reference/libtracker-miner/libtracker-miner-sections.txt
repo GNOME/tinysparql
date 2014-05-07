@@ -61,6 +61,7 @@ TrackerFilterType
 <TITLE>TrackerMinerFS</TITLE>
 TrackerMinerFS
 TrackerMinerFSClass
+TrackerMinerFSError
 tracker_miner_fs_add_directory_without_parent
 tracker_miner_fs_check_directory
 tracker_miner_fs_check_directory_with_priority
@@ -94,6 +95,7 @@ TRACKER_MINER_FS_GET_CLASS
 TRACKER_TYPE_MINER_FS
 TrackerMinerFSPrivate
 tracker_miner_fs_get_type
+tracker_miner_fs_error_quark
 </SECTION>
 
 <SECTION>
