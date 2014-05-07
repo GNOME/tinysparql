@@ -65,8 +65,6 @@
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 
-static GQuark miner_error_quark = 0;
-
 /* Introspection data for the service we are exporting */
 static const gchar introspection_xml[] =
   "<node>"
@@ -206,6 +204,18 @@ static void       on_tracker_store_appeared    (GDBusConnection        *connecti
 static void       on_tracker_store_disappeared (GDBusConnection        *connection,
                                                 const gchar            *name,
                                                 gpointer                user_data);
+
+/**
+ * tracker_miner_error_quark:
+ *
+ * Gives the caller the #GQuark used to identify miner errors in
+ * GError structures.
+ *
+ * Returns: the error #GQuark
+ *
+ * Since: 0.8
+ **/
+G_DEFINE_QUARK (TrackerMinerError, tracker_miner_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMiner, tracker_miner, G_TYPE_OBJECT,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
@@ -378,8 +388,6 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
-
-	miner_error_quark = g_quark_from_static_string ("TrackerMiner");
 }
 
 static void
@@ -427,8 +435,8 @@ miner_initable_init (GInitable     *initable,
 	/* Check miner has a proper name */
 	if (!miner->priv->name) {
 		g_set_error (error,
-		             TRACKER_MINER_ERROR,
-		             0,
+		             tracker_miner_error_quark (),
+		             TRACKER_MINER_ERROR_NAME_MISSING,
 		             "Miner '%s' should have been given a name, bailing out",
 		             G_OBJECT_TYPE_NAME (miner));
 		return FALSE;
@@ -488,8 +496,8 @@ miner_initable_init (GInitable     *initable,
 
 	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
 		g_set_error (error,
-		             TRACKER_MINER_ERROR,
-		             0,
+		             tracker_miner_error_quark (),
+		             TRACKER_MINER_ERROR_NAME_UNAVAILABLE,
 		             "D-Bus service name:'%s' is already taken, "
 		             "perhaps the application is already running?",
 		             miner->priv->full_name);
@@ -747,21 +755,6 @@ pause_data_destroy (gpointer data)
 }
 
 /**
- * tracker_miner_error_quark:
- *
- * Returns the #GQuark used to identify miner errors in GError structures.
- *
- * Returns: the error #GQuark
- *
- * Since: 0.8
- **/
-GQuark
-tracker_miner_error_quark (void)
-{
-	return g_quark_from_static_string (TRACKER_MINER_ERROR_DOMAIN);
-}
-
-/**
  * tracker_miner_start:
  * @miner: a #TrackerMiner
  *
@@ -953,7 +946,9 @@ miner_pause_internal (TrackerMiner  *miner,
 		if (g_strcmp0 (application, pd->application) == 0 &&
 		    g_strcmp0 (reason, pd->reason) == 0) {
 			/* Can't use duplicate pauses */
-			g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
+			g_set_error_literal (error,
+			                     tracker_miner_error_quark (),
+			                     TRACKER_MINER_ERROR_PAUSED_ALREADY,
 			                     _("Pause application and reason match an already existing pause request"));
 			return -1;
 		}
@@ -1050,7 +1045,9 @@ tracker_miner_resume (TrackerMiner  *miner,
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
 
 	if (!g_hash_table_remove (miner->priv->pauses, GINT_TO_POINTER (cookie))) {
-		g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
+		g_set_error_literal (error,
+		                     tracker_miner_error_quark (),
+		                     TRACKER_MINER_ERROR_INVALID_COOKIE,
 		                     _("Cookie not recognized to resume paused miner"));
 		return FALSE;
 	}

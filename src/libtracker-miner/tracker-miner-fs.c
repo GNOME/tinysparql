@@ -3943,20 +3943,51 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
  * tracker_miner_fs_manually_notify_file:
  * @fs: a #TrackerMinerFS
  * @file: a #GFile
+ * @error: a #GError
  *
- * Returns: %TRUE if successful, %FALSE otherwise.
+ * This API is only useful where the @fs was created using the
+ * #TrackerMinerFS:external-crawler property set to %TRUE. By default
+ * this is %FALSE. This allows 3rd party developers to 'push' their
+ * data into Tracker to be processed, rather than requiring Tracker to
+ * index the content itself by crawling the file system and monitoring
+ * changes.
+ *
+ * This is also very helpful for cases where @file is not based on the
+ * local file system (for example a cloud implementation) and you want
+ * to tell Tracker about content to index more directly.
+ *
+ * Returns: %TRUE if successful, otherwise %FALSE and @error will be
+ * set if a pointer is supplied.
  *
  * Since: 1.2.
  **/
 gboolean
-tracker_miner_fs_manually_notify_file (TrackerMinerFS *fs,
-                                       GFile          *file)
+tracker_miner_fs_manually_notify_file (TrackerMinerFS  *fs,
+                                       GFile           *file,
+                                       GError         **error)
 {
+	TrackerMinerFSPrivate *priv;
+
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	/* FIXME: Add checks to disable this API unless crawling is disabled. */
-	/* FIXME: Add checks for paused, etc. */
+	priv = fs->priv;
+
+	if (!priv->external_crawler) {
+		g_set_error (error,
+		             tracker_miner_fs_error_quark (),
+		             TRACKER_MINER_FS_ERROR_HAVE_CRAWLER,
+		             "API can not be used with the internal crawler provided by Tracker");
+		return FALSE;
+	}
+
+	if (!priv->external_crawler) {
+		g_set_error (error,
+		             tracker_miner_error_quark (),
+		             TRACKER_MINER_ERROR_PAUSED,
+		             "API can not be used when paused");
+		return FALSE;
+	}
 
 	/* FIXME: We need to know if this was created, updated, etc. */
 	return tracker_file_notifier_add_file (fs->priv->file_notifier, file);

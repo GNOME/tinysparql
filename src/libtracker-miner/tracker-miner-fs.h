@@ -102,6 +102,11 @@ typedef struct {
  * @TRACKER_MINER_FS_ERROR_INIT: There was an error during
  * initialization of the object. The specific details are in the
  * message.
+ * @TRACKER_MINER_FS_ERROR_HAVE_CRAWLER: This error is given when
+ * trying to use an API that is only useful when
+ * #TrackerMinerFS:external-crawler is set to %TRUE. By default it is
+ * set to %FALSE. An example of such API is the
+ * tracker_miner_fs_manually_notify_file().
  *
  * Possible errors returned when calling creating new objects based on
  * the #TrackerMinerFS type and other APIs available with this class.
@@ -109,7 +114,8 @@ typedef struct {
  * Since: 1.2.
  **/
 typedef enum {
-	TRACKER_MINER_FS_ERROR_INIT
+	TRACKER_MINER_FS_ERROR_INIT,
+	TRACKER_MINER_FS_ERROR_HAVE_CRAWLER,
 } TrackerMinerFSError;
 
 
@@ -173,8 +179,9 @@ void                  tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                                              GFile          *directory);
 
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree    (TrackerMinerFS *fs);
-gboolean tracker_miner_fs_manually_notify_file (TrackerMinerFS *fs,
-                                                GFile          *file);
+gboolean tracker_miner_fs_manually_notify_file (TrackerMinerFS  *fs,
+                                                GFile           *file,
+                                                GError         **error);
 
 G_END_DECLS
 
