@@ -1,3 +1,46 @@
+
+NEW in 1.0.1 - 2014-05-08
+=========================
+
+The main changes since 1.0.0 are:
+
+  * build: Switch --with-enca is now --enable-enca
+  * build: Switch --enable-icu-charset-detection has been added to prefer ICU over enca for MP3 content detection
+  * Fixes: GB#729708, "Unable to insert multiple values for subject" error
+  * Fixes: GB#728252, libextract-mp3.so hangs on some mp3 files
+  * Fixes: GB#728546, crash in extractor on dbus timeout warning
+  * Fixes: GB#728370, tracker-extract-vorbis.c is missing a few #ifdef HAVE_LIBMEDIAART
+  * Fixes: GB#725717, tracker-tag is missing a command line option for AND-operations
+  * Fixes: GB#729474, miner-rss subclassing from TrackerMinerOnline
+  * libtracker-miner: Memory footprint significantly reduced:
+    * Massif reports tracker-miner-fs peaking at 24MB.
+    * Massif reported previously growing to ~180MB.
+    * Fix involves using file depth based notification internally to reduced memory build up.
+    * Querying existing data in the DB now is limited (to avoid memory use, at a small performance cost).
+    * Initial indexing performance is unaffected.
+    * Approximately 1/3 more expensive indexing updates on resources post initial index.
+    * Testing using an index of 11304 folders and 123428 files.
+  * libtracker-extract: Encoding detection with libicu handles failure better
+  * tracker-extract: giflib 4.2.x doesn't support PrintGifError, handle both situations
+  * tracker-search: Fix output when searching for emails, snippets shown in red and links in green
+
+Translations:
+
+  * Updated ca: Pau Iranzo
+  * Updated de: Christian Kirbach, Benjamin Steinwender
+  * Updated el: Tom Tryfonidis
+  * Updated eu: Inaki Larranaga Murgoitio, Iñaki Larrañaga Murgoitio
+  * Updated gl: Fran Diéguez, Fran Dieguez
+  * Updated id: Andika Triwidada, Dirgita
+  * Updated ko: Seong-ho Cho
+  * Updated lt: Aurimas Černius
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Rafael Ferreira
+  * Updated ru: Yuri Myasoedov, Stas Solovey
+  * Updated uk: Daniel Korostil
+  * Updated zh_CN: YunQiang Su, Yunqiang Su
+
+
 NEW in 1.0.0 - 2014-03-24
 =========================
 
