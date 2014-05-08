@@ -142,9 +142,9 @@ tracker_file_notifier_get_property (GObject    *object,
 
 static RootData *
 root_data_new (TrackerFileNotifier *notifier,
-               GFile               *file)
+               GFile               *file,
+               guint                flags)
 {
-	TrackerFileNotifierPrivate *priv = notifier->priv;
 	RootData *data;
 
 	data = g_new0 (RootData, 1);
@@ -152,9 +152,9 @@ root_data_new (TrackerFileNotifier *notifier,
 	data->pending_dirs = g_queue_new ();
 	data->query_files = g_ptr_array_new ();
 	data->updated_dirs = g_ptr_array_new ();
+	data->flags = flags;
 
 	g_queue_push_tail (data->pending_dirs, g_object_ref (file));
-	tracker_indexing_tree_get_root (priv->indexing_tree, file, &data->flags);
 
 	return data;
 }
@@ -856,7 +856,7 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
                      TrackerDirectoryFlags  flags)
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
-	RootData *data = root_data_new (notifier, file);
+	RootData *data = root_data_new (notifier, file, flags);
 
 	if (flags & TRACKER_DIRECTORY_FLAG_PRIORITY) {
 		priv->pending_index_roots = g_list_prepend (priv->pending_index_roots, data);
