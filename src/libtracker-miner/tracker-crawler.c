@@ -866,8 +866,20 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->is_finished = FALSE;
 
 	info = directory_root_info_new (file, max_depth, priv->file_attributes);
-	g_queue_push_tail (priv->directories, info);
 
+	if (!check_directory (crawler, info, file)) {
+		directory_root_info_free (info);
+
+		g_timer_destroy (priv->timer);
+		priv->timer = NULL;
+
+		priv->is_running = FALSE;
+		priv->is_finished = TRUE;
+
+		return FALSE;
+	}
+
+	g_queue_push_tail (priv->directories, info);
 	process_func_start (crawler);
 
 	return TRUE;
