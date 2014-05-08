@@ -67,7 +67,7 @@ public class Tracker.Preferences {
 	private ToggleButton togglebutton_pictures;
 	private ToggleButton togglebutton_videos;
 	private ToggleButton togglebutton_download;
-	private HBox hbox_duplicate_warning;
+	private Box hbox_duplicate_warning;
 	private Button button_reindex;
 	private Notebook notebook;
 
@@ -135,7 +135,7 @@ public class Tracker.Preferences {
 		togglebutton_pictures = builder.get_object ("togglebutton_pictures") as ToggleButton;
 		togglebutton_videos = builder.get_object ("togglebutton_videos") as ToggleButton;
 		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
-		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as HBox;
+		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as Box;
 
 		button_reindex = builder.get_object ("button_reindex") as Button;
 
