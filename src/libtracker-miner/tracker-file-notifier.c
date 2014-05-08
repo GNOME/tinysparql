@@ -1255,7 +1255,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 			                                &parent_flags);
 
 			if (parent_flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
-				notifier_queue_file (notifier, directory, flags);
+				notifier_queue_file (notifier, directory, parent_flags);
 				crawl_directories_start (notifier);
 			} else if (tracker_indexing_tree_file_is_root (indexing_tree,
 			                                               parent)) {
