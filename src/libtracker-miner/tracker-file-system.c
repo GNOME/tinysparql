@@ -356,7 +356,7 @@ file_system_finalize (GObject *object)
 	                 NULL);
 	g_node_destroy (priv->file_tree);
 
-	if (!priv->root) {
+	if (priv->root) {
 		g_object_unref (priv->root);
 	}
 
