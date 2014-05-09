@@ -192,7 +192,7 @@ tracker_log_init (gint    this_verbosity,
 	/* If we have debug enabled, we imply G_MESSAGES_DEBUG or we
 	 * see nothing, this came in since GLib 2.32.
 	 */
-	if (this_verbosity > 2) {
+	if (this_verbosity > 1) {
 		g_setenv ("G_MESSAGES_DEBUG", "all", TRUE);
 	}
 
