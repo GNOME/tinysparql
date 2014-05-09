@@ -813,6 +813,12 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 
 		if ((flags & TRACKER_DIRECTORY_FLAG_IGNORE) == 0 &&
 		    crawl_directory_in_current_root (notifier)) {
+			gchar *uri;
+
+			uri = g_file_get_uri (directory);
+			tracker_info ("Processing location: '%s'", uri);
+			g_free (uri);
+
 			g_timer_reset (priv->timer);
 			g_signal_emit (notifier, signals[DIRECTORY_STARTED], 0, directory);
 
