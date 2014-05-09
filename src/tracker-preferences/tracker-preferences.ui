@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
+<!-- Generated with glade 3.18.2 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gtk+" version="3.12"/>
   <object class="GtkAdjustment" id="adjustment_delay">
     <property name="upper">1000</property>
     <property name="value">10</property>
@@ -99,10 +99,6 @@
                 <property name="position">1</property>
               </packing>
             </child>
-	    <action-widgets>
-	      <action-widget response="-10">button_apply</action-widget>
-	      <action-widget response="-7">button_close</action-widget>
-	    </action-widgets>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -529,9 +525,6 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Indexing</property>
               </object>
-              <packing>
-                <property name="tab_fill">False</property>
-              </packing>
             </child>
             <child>
               <object class="GtkBox" id="vbox_locations">
@@ -952,7 +945,6 @@ Those which are the same are disabled!</property>
               </object>
               <packing>
                 <property name="position">1</property>
-                <property name="tab_fill">False</property>
               </packing>
             </child>
             <child>
@@ -1419,7 +1411,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
               </object>
               <packing>
                 <property name="position">2</property>
-                <property name="tab_fill">False</property>
               </packing>
             </child>
             <child>
@@ -1593,7 +1584,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
               </object>
               <packing>
                 <property name="position">3</property>
-                <property name="tab_fill">False</property>
               </packing>
             </child>
             <child>
@@ -1800,7 +1790,6 @@ Clicking this button will close the preferences too.</property>
               </object>
               <packing>
                 <property name="position">4</property>
-                <property name="tab_fill">False</property>
               </packing>
             </child>
           </object>
@@ -1812,5 +1801,9 @@ Clicking this button will close the preferences too.</property>
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-10">button_apply</action-widget>
+      <action-widget response="-7">button_close</action-widget>
+    </action-widgets>
   </object>
 </interface>
