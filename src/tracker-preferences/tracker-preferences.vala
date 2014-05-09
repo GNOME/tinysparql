@@ -29,6 +29,7 @@ extern static const string UIDIR;
 extern static const string SRCDIR;
 
 public class Tracker.Preferences {
+	private GLib.Settings settings_fts = null;
 	private GLib.Settings settings_miner_fs = null;
 	private GLib.Settings settings_extract = null;
 
@@ -67,6 +68,8 @@ public class Tracker.Preferences {
 	private ToggleButton togglebutton_pictures;
 	private ToggleButton togglebutton_videos;
 	private ToggleButton togglebutton_download;
+	private CheckButton checkbutton_index_file_content;
+	private CheckButton checkbutton_index_numbers;
 	private Box hbox_duplicate_warning;
 	private Button button_reindex;
 	private Notebook notebook;
@@ -76,10 +79,20 @@ public class Tracker.Preferences {
 
 		HOME_STRING_EVALUATED = dir_from_config (HOME_STRING);
 
+		settings_fts = new GLib.Settings ("org.freedesktop.Tracker.FTS");
+		/* settings_fts.delay(); */
+
 		settings_miner_fs = new GLib.Settings ("org.freedesktop.Tracker.Miner.Files");
+		/* settings_miner_fs.delay(); */
+
 		settings_extract = new GLib.Settings ("org.freedesktop.Tracker.Extract");
+		/* settings_extract.delay(); */
 
 		// Change notification for any key in the schema
+		settings_fts.changed.connect ((key) => {
+		      print ("tracker-fts: Key '%s' changed\n", key);
+		});
+
 		settings_miner_fs.changed.connect ((key) => {
 		      print ("tracker-miner-fs: Key '%s' changed\n", key);
 		});
@@ -135,6 +148,8 @@ public class Tracker.Preferences {
 		togglebutton_pictures = builder.get_object ("togglebutton_pictures") as ToggleButton;
 		togglebutton_videos = builder.get_object ("togglebutton_videos") as ToggleButton;
 		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
+		checkbutton_index_file_content = builder.get_object ("checkbutton_index_file_content") as CheckButton;
+		checkbutton_index_numbers = builder.get_object ("checkbutton_index_numbers") as CheckButton;
 		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as Box;
 
 		button_reindex = builder.get_object ("button_reindex") as Button;
@@ -211,6 +226,9 @@ public class Tracker.Preferences {
 		togglebutton_videos.active = model_contains (liststore_index, "&VIDEOS");
 		togglebutton_download.active = model_contains (liststore_index, "&DOWNLOAD");
 
+		checkbutton_index_file_content.active = settings_fts.get_int ("max-words-to-index") > 0;
+		checkbutton_index_numbers.active = settings_fts.get_boolean ("ignore-numbers") != true;
+
 		// Connect signals
 		// builder.connect_signals (null);
 		builder.connect_signals_full (connect_signals);
@@ -276,6 +294,8 @@ public class Tracker.Preferences {
 			settings_extract.set_enum ("sched-idle", sched_idle);
 
 			debug ("Saving settings...");
+			settings_fts.apply ();
+			debug ("  tracker-fts: Done");
 			settings_miner_fs.apply ();
 			debug ("  tracker-miner-fs: Done");
 			settings_extract.apply ();
@@ -456,6 +476,21 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public void togglebutton_download_toggled_cb (ToggleButton source) {
 		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void checkbutton_index_file_content_toggled_cb (CheckButton source) {
+		// FIXME: Should make number configurable, 10000 is the default.
+		if (source.active) {
+			settings_fts.reset ("max-words-to-index");
+		} else {
+			settings_fts.set_int ("max-words-to-index", 0);
+		}
+	}
+
+	[CCode (instance_pos = -1)]
+	public void checkbutton_index_numbers_toggled_cb (CheckButton source) {
+		settings_fts.set_boolean ("ignore-numbers", !source.active);
 	}
 
 	[CCode (instance_pos = -1)]
