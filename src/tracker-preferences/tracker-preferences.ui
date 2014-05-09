@@ -404,7 +404,8 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHScale" id="hscale_disk_space_limit">
+                                  <object class="GtkScale" id="hscale_disk_space_limit">
+                                    <property name="orientation">horizontal</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">adjustment_disk_space_limit</property>
@@ -482,7 +483,8 @@ This option allows you to make Tracker take a back seat and not eat up too much 
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHScale" id="hscale_drop_device_threshold">
+                              <object class="GtkScale" id="hscale_drop_device_threshold">
+                                <property name="orientation">horizontal</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">adjustment_drop_device_threshold</property>
