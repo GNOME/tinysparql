@@ -1,3 +1,3 @@
 [D-BUS Service]
 Name=org.freedesktop.Tracker1.Miner.Userguides
-Exec=@libexecdir@/tracker-user-guides
+Exec=@libexecdir@/tracker-miner-user-guides
