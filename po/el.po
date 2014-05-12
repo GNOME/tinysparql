@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2014-03-25 10:45+0000\n"
-"PO-Revision-Date: 2014-04-20 20:40+0200\n"
+"PO-Revision-Date: 2014-05-12 23:24+0200\n"
 "Last-Translator: Tom Tryfonidis <tomtryf@gmail.com>\n"
 "Language-Team: www.gnome.gr\n"
 "Language: el\n"
@@ -2971,10 +2971,9 @@ msgid "Could not get all tags in the database"
 msgstr "Αδυναμία λήψης όλων των ετικετών στην βάση δεδομένων"
 
 #: ../src/tracker-utils/tracker-tag.c:397
-#, fuzzy
 #| msgid "One or more files have not been specified"
 msgid "No files have been tagged"
-msgstr "Δεν έχουν προσδιοριστεί αρχεία"
+msgstr "Δεν υπάρχουν αρχεία με ετικέτα"
 
 #: ../src/tracker-utils/tracker-tag.c:432
 #| msgid "Could not get files related to tag"
