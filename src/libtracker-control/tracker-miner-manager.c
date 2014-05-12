@@ -31,7 +31,7 @@
 /**
  * SECTION:tracker-miner-manager
  * @short_description: External control and monitoring of miners
- * @include: libtracker-miner/tracker-miner.h
+ * @include: libtracker-control/tracker-control.h
  *
  * #TrackerMinerManager keeps track of available miners, their current
  * progress/status, and also allows basic external control on them, such

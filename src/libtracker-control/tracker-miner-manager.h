@@ -17,11 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_MINER_MANAGER_H__
-#define __LIBTRACKER_MINER_MANAGER_H__
+#ifndef __LIBTRACKER_CONTROL_MANAGER_H__
+#define __LIBTRACKER_CONTROL_MANAGER_H__
 
 #if !defined (__LIBTRACKER_CONTROL_H_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#error "Only <libtracker-control/tracker-control.h> can be included directly."
 #endif
 
 #include <gio/gio.h>
@@ -151,4 +151,4 @@ gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManag
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_MINER_MANAGER_H__ */
+#endif /* __LIBTRACKER_CONTROL_MANAGER_H__ */
