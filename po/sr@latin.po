@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracke"
 "r&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-18 16:16+0000\n"
-"PO-Revision-Date: 2014-03-19 05:22+0200\n"
+"POT-Creation-Date: 2014-05-12 10:31+0000\n"
+"PO-Revision-Date: 2014-05-12 19:52+0200\n"
 "Last-Translator: Miroslav Nikolić <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <gnom@prevod.org>\n"
 "Language: sr\n"
@@ -192,8 +192,6 @@ msgid "Low disk space limit"
 msgstr "Ograničenje nedostatka prostora na disku"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-#| msgid ""
-#| "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgid ""
 "Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
@@ -250,7 +248,7 @@ msgstr "Popisuje uklonjive uređaje"
 msgid ""
 "Set to true to enable indexing mounted directories for removable devices."
 msgstr ""
-"Izaberite da uključite popis prikačenih direktorijuma za uklonjive uređaje"
+"Izaberite da uključite popis prikačenih direktorijuma za uklonjive uređaje."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 msgid "Index optical discs"
@@ -293,8 +291,8 @@ msgid ""
 msgstr ""
 "Spisak direktorijuma koji će biti popisani dubinski. U posebne vrednosti "
 "spadaju: &amp;RADNA_POVRŠ, &amp;DOKUMENTI, &amp;PREUZIMANJA, &amp;MUZIKA, "
-"&amp;SLIKE, &amp;JAVNO_DELJENJE, &amp;ŠABLONI, &amp;VIDEO. Pogledajte „/etc/"
-"xdg/user-dirs.defaults“ i „$HOME/.config/user-dirs.default“"
+"&amp;SLIKE, &amp;JAVNO_DELJENJE, &amp;ŠABLONI, &amp;VIDEO. Pogledajte "
+"„/etc/xdg/user-dirs.defaults“ i „$HOME/.config/user-dirs.default“"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Directories to index non-recursively"
@@ -308,10 +306,10 @@ msgid ""
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
 "Spisak direktorijuma koji će biti popisani bez pregledanja podfascikli. U "
-"posebne vrednosti spadaju: &amp;RADNA_POVRŠ, &amp;DOKUMENTI, &amp;"
-"PREUZIMANJA, &amp;MUZIKA, &amp;SLIKE, &amp;JAVNO_DELJENJE, &amp;ŠABLONI, &amp;"
-"VIDEO. Pogledajte „/etc/xdg/user-dirs.defaults“ i „$HOME/.config/user-dirs."
-"default“"
+"posebne vrednosti spadaju: &amp;RADNA_POVRŠ, &amp;DOKUMENTI, "
+"&amp;PREUZIMANJA, &amp;MUZIKA, &amp;SLIKE, &amp;JAVNO_DELJENJE, &amp;ŠABLONI, "
+"&amp;VIDEO. Pogledajte „/etc/xdg/user-dirs.defaults“ i „$HOME/.config/user-"
+"dirs.default“"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Ignored files"
@@ -348,7 +346,7 @@ msgid ""
 "indexed data has changed inside the database."
 msgstr ""
 "Trajanje u milisekundama između emitovanja signala osvežavanja grafika kada se "
-"popisani podaci izmene  unutar baze podataka."
+"popisani podaci izmene unutar baze podataka."
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-view.vala:331
@@ -697,10 +695,10 @@ msgstr "Dodavanje dovoda zahteva „--add-feed“ i „--title“"
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
-#: ../src/tracker-utils/tracker-search.c:1662
+#: ../src/tracker-utils/tracker-search.c:1653
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:915
+#: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Ne mogu da uspostavim vezu sa Tragačem"
 
@@ -715,10 +713,10 @@ msgstr "Ne mogu da uspostavim vezu sa Tragačem"
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
-#: ../src/tracker-utils/tracker-search.c:1663
+#: ../src/tracker-utils/tracker-search.c:1654
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Nije data greška"
 
@@ -750,9 +748,9 @@ msgstr "Oznake"
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
-msgstr[0] "Izaberite oznake koje želite da pridružite %d izabranoj stavci:"
-msgstr[1] "Izaberite oznake koje želite da pridružite sa %d izabrane stavke:"
-msgstr[2] "Izaberite oznake koje želite da pridružite sa %d izabranih stavki:"
+msgstr[0] "_Izaberite oznake koje želite da pridružite %d izabranoj stavci:"
+msgstr[1] "_Izaberite oznake koje želite da pridružite sa %d izabrane stavke:"
+msgstr[2] "_Izaberite oznake koje želite da pridružite sa %d izabranih stavki:"
 msgstr[3] "Izaberite oznake koje želite da pridružite %d izabranoj stavci:"
 
 #: ../src/tracker-control/tracker-control.c:53
@@ -1124,8 +1122,7 @@ msgstr "Ponovno popisivanje mime vrsta je bilo uspešno"
 #: ../src/tracker-control/tracker-control-miners.c:236
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
-msgstr ""
-"Ne mogu (ponovo) da popišem datoteku, upravnik ne može biti stvoren, %s"
+msgstr "Ne mogu (ponovo) da popišem datoteku, upravnik ne može biti stvoren, %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:249
 msgid "Could not (re)index file"
@@ -1305,8 +1302,7 @@ msgstr "Izvlačenje metapodataka nije uspelo"
 #: ../src/tracker-extract/tracker-extract.c:808
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
-"Nisam pronašao module metapodataka ili izvlačivača za rukovanje ovom "
-"datotekom"
+"Nisam pronašao module metapodataka ili izvlačivača za rukovanje ovom datotekom"
 
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
@@ -1412,7 +1408,7 @@ msgstr "Uslov pretrage beše previše opšti"
 
 #: ../src/tracker-needle/tracker-needle.vala:71
 msgid "Only the first 500 items will be displayed"
-msgstr "Samo prvih 500 stavki će biti prikazano."
+msgstr "Samo prvih 500 stavki će biti prikazano"
 
 #: ../src/tracker-needle/tracker-needle.vala:717
 #: ../src/tracker-needle/tracker-needle.vala:718
@@ -1561,7 +1557,7 @@ msgid "Could not update tags"
 msgstr "Ne mogu da ažuriram oznake"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:773
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "Could not remove tag"
 msgstr "Ne mogu da uklonim oznaku"
 
@@ -1570,7 +1566,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Ne mogu da dovučem oznake za tekući izbor"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:597
+#: ../src/tracker-utils/tracker-tag.c:715
 msgid "Could not add tag"
 msgstr "Ne mogu da dodam oznaku"
 
@@ -1674,7 +1670,7 @@ msgid "Folders"
 msgstr "Fascikle"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-utils/tracker-search.c:1014
+#: ../src/tracker-utils/tracker-search.c:1005
 msgid "Bookmarks"
 msgstr "Obeleživači"
 
@@ -1683,13 +1679,11 @@ msgid "Items"
 msgstr "Stavke"
 
 #: ../src/tracker-needle/tracker-view.vala:369
-#| msgid "Loading..."
 msgid "Loading…"
 msgstr "Učitavam…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
 #, c-format
-#| msgid "Pages"
 msgid "%d Page"
 msgid_plural "%d Pages"
 msgstr[0] "%d stranica"
@@ -1702,7 +1696,6 @@ msgid "_Show Parent Directory"
 msgstr "_Prikaži roditeljsku fasciklu"
 
 #: ../src/tracker-needle/tracker-view.vala:459
-#| msgid "Tags"
 msgid "_Tags…"
 msgstr "_Oznake…"
 
@@ -1767,7 +1760,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid "Index content in the background:"
-msgstr "Popiši sadržaj u pozadini: "
+msgstr "Popiši sadržaj u pozadini:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:13
 msgid "O_nly when computer is not being used"
@@ -1929,7 +1922,8 @@ msgstr ""
 "la, itd"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:47
-#: ../src/tracker-utils/tracker-search.c:523
+#: ../src/tracker-utils/tracker-search.c:514
+#: ../src/tracker-utils/tracker-tag.c:445
 msgid "Files"
 msgstr "Datoteke"
 
@@ -2101,7 +2095,7 @@ msgid "No metadata available for that URI"
 msgstr "Nema dostupnih metapodataka za tu putanju"
 
 #: ../src/tracker-utils/tracker-info.c:485
-#: ../src/tracker-utils/tracker-search.c:1464
+#: ../src/tracker-utils/tracker-search.c:1455
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
@@ -2119,7 +2113,6 @@ msgid "Offset the results"
 msgstr "Odstupanje rezultata"
 
 #: ../src/tracker-utils/tracker-search.c:88
-#: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Koristi ILI za izraze pretrage umesto I (zadato)"
 
@@ -2139,9 +2132,6 @@ msgstr ""
 "volumene)"
 
 #: ../src/tracker-utils/tracker-search.c:100
-#| msgid ""
-#| "Disable showing snippets with results. This is only shown for some "
-#| "categories, e.g. Documents, Music..."
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
@@ -2231,14 +2221,14 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:290
 #: ../src/tracker-utils/tracker-search.c:399
-#: ../src/tracker-utils/tracker-search.c:510
-#: ../src/tracker-utils/tracker-search.c:822
-#: ../src/tracker-utils/tracker-search.c:911
-#: ../src/tracker-utils/tracker-search.c:1001
-#: ../src/tracker-utils/tracker-search.c:1083
-#: ../src/tracker-utils/tracker-search.c:1167
-#: ../src/tracker-utils/tracker-search.c:1249
-#: ../src/tracker-utils/tracker-search.c:1451
+#: ../src/tracker-utils/tracker-search.c:501
+#: ../src/tracker-utils/tracker-search.c:813
+#: ../src/tracker-utils/tracker-search.c:902
+#: ../src/tracker-utils/tracker-search.c:992
+#: ../src/tracker-utils/tracker-search.c:1074
+#: ../src/tracker-utils/tracker-search.c:1158
+#: ../src/tracker-utils/tracker-search.c:1240
+#: ../src/tracker-utils/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Ne mogu da dobavim rezultate pretrage"
 
@@ -2264,76 +2254,76 @@ msgstr "Nema adrese el. pošte"
 msgid "No emails were found"
 msgstr "Nisam pronašao el. poštu"
 
-#: ../src/tracker-utils/tracker-search.c:519
+#: ../src/tracker-utils/tracker-search.c:510
 msgid "No files were found"
 msgstr "Nisam pronašao datoteke"
 
-#: ../src/tracker-utils/tracker-search.c:831
+#: ../src/tracker-utils/tracker-search.c:822
 msgid "No artists were found"
 msgstr "Nisam pronašao izvođače"
 
-#: ../src/tracker-utils/tracker-search.c:835
+#: ../src/tracker-utils/tracker-search.c:826
 msgid "Artists"
 msgstr "Izvođači"
 
-#: ../src/tracker-utils/tracker-search.c:920
+#: ../src/tracker-utils/tracker-search.c:911
 msgid "No music was found"
 msgstr "Nisam pronašao muziku"
 
-#: ../src/tracker-utils/tracker-search.c:924
+#: ../src/tracker-utils/tracker-search.c:915
 msgid "Albums"
 msgstr "Albumi"
 
-#: ../src/tracker-utils/tracker-search.c:1010
+#: ../src/tracker-utils/tracker-search.c:1001
 msgid "No bookmarks were found"
 msgstr "Nisam pronašao obeleživače"
 
-#: ../src/tracker-utils/tracker-search.c:1092
+#: ../src/tracker-utils/tracker-search.c:1083
 msgid "No feeds were found"
 msgstr "Nisam pronašao dovode"
 
-#: ../src/tracker-utils/tracker-search.c:1096
+#: ../src/tracker-utils/tracker-search.c:1087
 msgid "Feeds"
 msgstr "Dovodi"
 
-#: ../src/tracker-utils/tracker-search.c:1176
+#: ../src/tracker-utils/tracker-search.c:1167
 msgid "No software was found"
 msgstr "Nisam pronašao softver"
 
-#: ../src/tracker-utils/tracker-search.c:1180
+#: ../src/tracker-utils/tracker-search.c:1171
 msgid "Software"
 msgstr "Softver"
 
-#: ../src/tracker-utils/tracker-search.c:1258
+#: ../src/tracker-utils/tracker-search.c:1249
 msgid "No software categories were found"
 msgstr "Nisam pronašao kategorije softvera"
 
-#: ../src/tracker-utils/tracker-search.c:1262
+#: ../src/tracker-utils/tracker-search.c:1253
 msgid "Software Categories"
 msgstr "Kategorije softvera"
 
-#: ../src/tracker-utils/tracker-search.c:1460
+#: ../src/tracker-utils/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Nisam pronašao nijedan rezultat koji odgovara vašoj pretrazi"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1541
+#: ../src/tracker-utils/tracker-search.c:1532
 msgid "- Search for terms in all data"
 msgstr "— Traži izraze u svim podacima"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1546
+#: ../src/tracker-utils/tracker-search.c:1537
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Primenjuje operator I na sve termine razdvojene razmakom (pogledajte „--or-"
 "operator“)"
 
-#: ../src/tracker-utils/tracker-search.c:1550
+#: ../src/tracker-utils/tracker-search.c:1541
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -2341,24 +2331,24 @@ msgstr ""
 "Ovo znači da ako tražite „foo“ i „bar“, OBA moraju da postoje (osim ako ne "
 "koristite „--or-operator“)"
 
-#: ../src/tracker-utils/tracker-search.c:1557
+#: ../src/tracker-utils/tracker-search.c:1548
 msgid "Search options"
 msgstr "Mogućnosti pretrage"
 
-#: ../src/tracker-utils/tracker-search.c:1558
+#: ../src/tracker-utils/tracker-search.c:1549
 msgid "Show search options"
 msgstr "Prikazuje mogućnosti pretrage"
 
-#: ../src/tracker-utils/tracker-search.c:1590
+#: ../src/tracker-utils/tracker-search.c:1581
 msgid "Search terms are missing"
 msgstr "Termini pretrage nedostaju"
 
-#: ../src/tracker-utils/tracker-search.c:1633
+#: ../src/tracker-utils/tracker-search.c:1624
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Termin pretrage „%s“ je zaustavna reč."
 
-#: ../src/tracker-utils/tracker-search.c:1644
+#: ../src/tracker-utils/tracker-search.c:1635
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2413,9 +2403,6 @@ msgstr ""
 "Dovlači razrede koji obaveštavaju izmene u bazi podataka (RAZRED je izborno)"
 
 #: ../src/tracker-utils/tracker-sparql.c:129
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2470,7 +2457,14 @@ msgstr "Nisam pronašao prefikse nazivnog prostora"
 #. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
-#. * files found associated with this tag, e.g.:
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
 #. *
 #. *   Tags (shown by name):
 #. *     None
@@ -2486,19 +2480,18 @@ msgstr "Nisam pronašao prefikse nazivnog prostora"
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
-#: ../src/tracker-utils/tracker-tag.c:328
-#: ../src/tracker-utils/tracker-tag.c:464
-#: ../src/tracker-utils/tracker-tag.c:843
+#: ../src/tracker-utils/tracker-tag.c:329
+#: ../src/tracker-utils/tracker-tag.c:461
+#: ../src/tracker-utils/tracker-tag.c:583
+#: ../src/tracker-utils/tracker-tag.c:961
 msgid "None"
 msgstr "Ništa"
 
 #: ../src/tracker-utils/tracker-sparql.c:954
-#| msgid "Could not update tags for file"
 msgid "Could not create tree: subclass query failed"
 msgstr "Ne mogu da stvorim stablo: upit podrazreda nije uspeo"
 
 #: ../src/tracker-utils/tracker-sparql.c:1003
-#| msgid "Could not search properties"
 msgid "Could not create tree: class properties query failed"
 msgstr "Ne mogu da stvorim stablo: upit svojstava razreda nije uspeo"
 
@@ -2652,6 +2645,11 @@ msgstr "Statistika nije dostupna"
 msgid "Statistics:"
 msgstr "Statistika:"
 
+#: ../src/tracker-utils/tracker-tag.c:63
+#| msgid "Use OR for search terms instead of AND (the default)"
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Koristi I za izraze pretrage umesto ILI (zadato)"
+
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
@@ -2699,92 +2697,127 @@ msgstr "DATOTEKA…"
 msgid "FILE [FILE…]"
 msgstr "DATOTEKA [DATOTEKA…]"
 
-#: ../src/tracker-utils/tracker-tag.c:254
+#: ../src/tracker-utils/tracker-tag.c:255
 msgid "Could not get file URNs"
 msgstr "Ne mogu da dobavim jednolične nazive izvorišta datoteke"
 
-#: ../src/tracker-utils/tracker-tag.c:319
+#: ../src/tracker-utils/tracker-tag.c:320
 msgid "Could not get files related to tag"
 msgstr "Ne mogu da dobavim datoteke koje se odnose na oznaku"
 
-#: ../src/tracker-utils/tracker-tag.c:401
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:387
+#| msgid "Could not get all tags"
+msgid "Could not get all tags in the database"
+msgstr "Ne mogu da dobavim sve oznake u bazi podataka"
+
+#: ../src/tracker-utils/tracker-tag.c:397
+#| msgid "One or more files have not been specified"
+msgid "No files have been tagged"
+msgstr "Nijedna datoteka nije označena"
+
+#: ../src/tracker-utils/tracker-tag.c:432
+#| msgid "Could not get files related to tag"
+msgid "Could not get files for matching tags"
+msgstr "Ne mogu da dobavim datoteke za oznake poklapanja"
+
+#: ../src/tracker-utils/tracker-tag.c:441
+#| msgid "No results were found matching your query"
+msgid "No files were found matching ALL of those tags"
+msgstr "Nema datoteka koje odgovaraju SVIM tim oznakama"
+
+#: ../src/tracker-utils/tracker-tag.c:520
+#: ../src/tracker-utils/tracker-tag.c:935
 msgid "Could not get all tags"
 msgstr "Ne mogu da dobavim sve oznake"
 
-#: ../src/tracker-utils/tracker-tag.c:410
-#: ../src/tracker-utils/tracker-tag.c:826
+#: ../src/tracker-utils/tracker-tag.c:529
+#: ../src/tracker-utils/tracker-tag.c:944
 msgid "No tags were found"
 msgstr "Nisam pronašao oznake"
 
-#: ../src/tracker-utils/tracker-tag.c:414
+#: ../src/tracker-utils/tracker-tag.c:533
 msgid "Tags (shown by name)"
 msgstr "Oznake (prikazane prema nazivu)"
 
-#: ../src/tracker-utils/tracker-tag.c:488
+#: ../src/tracker-utils/tracker-tag.c:607
 msgid "No files were modified"
 msgstr "Datoteke nisu menjane"
 
-#: ../src/tracker-utils/tracker-tag.c:613
+#: ../src/tracker-utils/tracker-tag.c:657
+#: ../src/tracker-utils/tracker-tag.c:665
+#| msgid "File not indexed or already untagged"
+msgid "Files do not exist or aren't indexed"
+msgstr "Datoteke ne postoje ili nisu popisane"
+
+#: ../src/tracker-utils/tracker-tag.c:731
 msgid "Tag was added successfully"
 msgstr "Oznaka je uspešno dodata"
 
-#: ../src/tracker-utils/tracker-tag.c:642
+#: ../src/tracker-utils/tracker-tag.c:760
 msgid "Could not add tag to files"
 msgstr "Ne mogu da dodam oznaku na datoteku"
 
-#: ../src/tracker-utils/tracker-tag.c:652
+#: ../src/tracker-utils/tracker-tag.c:770
 msgid "Tagged"
 msgstr "Označeno"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Not tagged, file is not indexed"
 msgstr "Nema oznaku, datoteka nije popisana"
 
-#: ../src/tracker-utils/tracker-tag.c:699
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get tag by label"
 msgstr "Ne mogu da dobavim oznaku prema natpisu"
 
-#: ../src/tracker-utils/tracker-tag.c:710
+#: ../src/tracker-utils/tracker-tag.c:828
 msgid "No tags were found by that name"
 msgstr "Nisam pronašao nijednu oznaku prema tom nazivu"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:845
 msgid "None of the files had this tag set"
 msgstr "Nijedna od datoteka nema ovaj skup oznaka"
 
-#: ../src/tracker-utils/tracker-tag.c:780
+#: ../src/tracker-utils/tracker-tag.c:898
 msgid "Tag was removed successfully"
 msgstr "Oznaka je uspešno uklonjena"
 
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:902
 msgid "Untagged"
 msgstr "Bez oznaka"
 
-#: ../src/tracker-utils/tracker-tag.c:785
+#: ../src/tracker-utils/tracker-tag.c:903
 msgid "File not indexed or already untagged"
 msgstr "Datoteka nije popisana ili joj je već uklonjena oznaka"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:989
 msgid "Add, remove or list tags"
 msgstr "Dodajte, uklanjajte ili ispisujte oznake"
 
-#: ../src/tracker-utils/tracker-tag.c:887
+#: ../src/tracker-utils/tracker-tag.c:1005
 msgid "The --list option is required for --show-files"
 msgstr "Opcija „--list“ je potrebna za „--show-files“"
 
-#: ../src/tracker-utils/tracker-tag.c:889
+#: ../src/tracker-utils/tracker-tag.c:1007
+#| msgid "The --description option can only be used with --add"
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Opcija „--and-operator“ može biti korišćena samo uz „--list“ i argumente "
+"natpisa oznake"
+
+#: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
 msgstr "Radnje dodavanja i brisanja ne mogu biti korišćene zajedno"
 
-#: ../src/tracker-utils/tracker-tag.c:891
+#: ../src/tracker-utils/tracker-tag.c:1011
 msgid "No arguments were provided"
 msgstr "Nisu dostavljeni argumenti"
 
-#: ../src/tracker-utils/tracker-tag.c:893
+#: ../src/tracker-utils/tracker-tag.c:1013
 msgid "The --description option can only be used with --add"
 msgstr "Opcija „--description“ može biti korišćena samo uz „--add“"
 
