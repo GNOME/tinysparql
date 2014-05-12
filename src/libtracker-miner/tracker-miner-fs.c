@@ -3985,7 +3985,7 @@ tracker_miner_fs_manually_notify_file (TrackerMinerFS       *fs,
 		return FALSE;
 	}
 
-	if (!priv->external_crawler) {
+	if (!priv->is_paused) {
 		g_set_error (error,
 		             tracker_miner_error_quark (),
 		             TRACKER_MINER_ERROR_PAUSED,
