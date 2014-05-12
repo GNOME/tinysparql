@@ -19,7 +19,7 @@
 
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
+	[CCode (cheader_filename = "libtracker-control/tracker-control.h")]
 	public class MinerManager : GLib.Object, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public MinerManager ();
