@@ -8,11 +8,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker\n"
+"Project-Id-Version: tracker tracker-1.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-03-19 12:28+0000\n"
-"PO-Revision-Date: 2014-03-19 19:08+0100\n"
+"POT-Creation-Date: 2014-05-14 10:31+0000\n"
+"PO-Revision-Date: 2014-05-14 14:05+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -700,10 +700,10 @@ msgstr "Přidání kanálu vyžaduje --addfeed a --title"
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
-#: ../src/tracker-utils/tracker-search.c:1662
+#: ../src/tracker-utils/tracker-search.c:1653
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:915
+#: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 
@@ -718,10 +718,10 @@ msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
-#: ../src/tracker-utils/tracker-search.c:1663
+#: ../src/tracker-utils/tracker-search.c:1654
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Není uvedena žádná chyba"
 
@@ -1553,7 +1553,7 @@ msgid "Could not update tags"
 msgstr "Nelze aktualizovat štítky"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:773
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "Could not remove tag"
 msgstr "Nelze odstranit štítek"
 
@@ -1562,7 +1562,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Nelze získat štítky pro aktuální výběr"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:597
+#: ../src/tracker-utils/tracker-tag.c:715
 msgid "Could not add tag"
 msgstr "Nelze přidat štítek"
 
@@ -1662,7 +1662,7 @@ msgid "Folders"
 msgstr "Složky"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-utils/tracker-search.c:1014
+#: ../src/tracker-utils/tracker-search.c:1005
 msgid "Bookmarks"
 msgstr "Záložky"
 
@@ -1911,7 +1911,8 @@ msgstr ""
 "podobně"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:47
-#: ../src/tracker-utils/tracker-search.c:523
+#: ../src/tracker-utils/tracker-search.c:514
+#: ../src/tracker-utils/tracker-tag.c:445
 msgid "Files"
 msgstr "Soubory"
 
@@ -2083,7 +2084,7 @@ msgid "No metadata available for that URI"
 msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 
 #: ../src/tracker-utils/tracker-info.c:485
-#: ../src/tracker-utils/tracker-search.c:1464
+#: ../src/tracker-utils/tracker-search.c:1455
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
@@ -2101,7 +2102,6 @@ msgid "Offset the results"
 msgstr "Výsledky zobrazit od"
 
 #: ../src/tracker-utils/tracker-search.c:88
-#: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Pro hledané výrazy použít logickou spojku OR místo AND (výchozí)"
 
@@ -2210,14 +2210,14 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:290
 #: ../src/tracker-utils/tracker-search.c:399
-#: ../src/tracker-utils/tracker-search.c:510
-#: ../src/tracker-utils/tracker-search.c:822
-#: ../src/tracker-utils/tracker-search.c:911
-#: ../src/tracker-utils/tracker-search.c:1001
-#: ../src/tracker-utils/tracker-search.c:1083
-#: ../src/tracker-utils/tracker-search.c:1167
-#: ../src/tracker-utils/tracker-search.c:1249
-#: ../src/tracker-utils/tracker-search.c:1451
+#: ../src/tracker-utils/tracker-search.c:501
+#: ../src/tracker-utils/tracker-search.c:813
+#: ../src/tracker-utils/tracker-search.c:902
+#: ../src/tracker-utils/tracker-search.c:992
+#: ../src/tracker-utils/tracker-search.c:1074
+#: ../src/tracker-utils/tracker-search.c:1158
+#: ../src/tracker-utils/tracker-search.c:1240
+#: ../src/tracker-utils/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Nelze získat výsledky hledání"
 
@@ -2243,76 +2243,76 @@ msgstr "Bez e-mailové adresy"
 msgid "No emails were found"
 msgstr "Nebyl nalezen žádný e-mail"
 
-#: ../src/tracker-utils/tracker-search.c:519
+#: ../src/tracker-utils/tracker-search.c:510
 msgid "No files were found"
 msgstr "Nebyl nalezen žádný soubor"
 
-#: ../src/tracker-utils/tracker-search.c:831
+#: ../src/tracker-utils/tracker-search.c:822
 msgid "No artists were found"
 msgstr "Nebyl nalezen žádný umělec"
 
-#: ../src/tracker-utils/tracker-search.c:835
+#: ../src/tracker-utils/tracker-search.c:826
 msgid "Artists"
 msgstr "Umělci"
 
-#: ../src/tracker-utils/tracker-search.c:920
+#: ../src/tracker-utils/tracker-search.c:911
 msgid "No music was found"
 msgstr "Nebyla nalezena žádná hudba"
 
-#: ../src/tracker-utils/tracker-search.c:924
+#: ../src/tracker-utils/tracker-search.c:915
 msgid "Albums"
 msgstr "Alba"
 
-#: ../src/tracker-utils/tracker-search.c:1010
+#: ../src/tracker-utils/tracker-search.c:1001
 msgid "No bookmarks were found"
 msgstr "Nebyla nalezena žádná záložka"
 
-#: ../src/tracker-utils/tracker-search.c:1092
+#: ../src/tracker-utils/tracker-search.c:1083
 msgid "No feeds were found"
 msgstr "Nebyl nalezen žádný kanál"
 
-#: ../src/tracker-utils/tracker-search.c:1096
+#: ../src/tracker-utils/tracker-search.c:1087
 msgid "Feeds"
 msgstr "Kanály"
 
-#: ../src/tracker-utils/tracker-search.c:1176
+#: ../src/tracker-utils/tracker-search.c:1167
 msgid "No software was found"
 msgstr "Nebyl nalezen žádný software"
 
-#: ../src/tracker-utils/tracker-search.c:1180
+#: ../src/tracker-utils/tracker-search.c:1171
 msgid "Software"
 msgstr "Software"
 
-#: ../src/tracker-utils/tracker-search.c:1258
+#: ../src/tracker-utils/tracker-search.c:1249
 msgid "No software categories were found"
 msgstr "Nebyla nalezen žádná kategorie softwaru"
 
-#: ../src/tracker-utils/tracker-search.c:1262
+#: ../src/tracker-utils/tracker-search.c:1253
 msgid "Software Categories"
 msgstr "Kategorie softwaru"
 
-#: ../src/tracker-utils/tracker-search.c:1460
+#: ../src/tracker-utils/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1541
+#: ../src/tracker-utils/tracker-search.c:1532
 msgid "- Search for terms in all data"
 msgstr "– hledat výraz ve všech datech"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1546
+#: ../src/tracker-utils/tracker-search.c:1537
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Pro všechny výrazy oddělené mezerami se použije logický operátor AND (viz "
 "také --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1550
+#: ../src/tracker-utils/tracker-search.c:1541
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -2320,24 +2320,24 @@ msgstr ""
 "To znamená, že když hledáte např. „včerejší“ a „den“, musí existovat OBOJE "
 "(jedině že byste použili --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1557
+#: ../src/tracker-utils/tracker-search.c:1548
 msgid "Search options"
 msgstr "Přepínače vyhledávání"
 
-#: ../src/tracker-utils/tracker-search.c:1558
+#: ../src/tracker-utils/tracker-search.c:1549
 msgid "Show search options"
 msgstr "Zobrazí přepínače vyhledávání"
 
-#: ../src/tracker-utils/tracker-search.c:1590
+#: ../src/tracker-utils/tracker-search.c:1581
 msgid "Search terms are missing"
 msgstr "Scházejí podmínky vyhledávání"
 
-#: ../src/tracker-utils/tracker-search.c:1633
+#: ../src/tracker-utils/tracker-search.c:1624
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Hledaný výraz „%s“ je stop slovo."
 
-#: ../src/tracker-utils/tracker-search.c:1644
+#: ../src/tracker-utils/tracker-search.c:1635
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2446,7 +2446,14 @@ msgstr "Nebyly nalezeny žádné předpony jmenných prostorů"
 #. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
-#. * files found associated with this tag, e.g.:
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
 #. *
 #. *   Tags (shown by name):
 #. *     None
@@ -2462,9 +2469,10 @@ msgstr "Nebyly nalezeny žádné předpony jmenných prostorů"
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
-#: ../src/tracker-utils/tracker-tag.c:328
-#: ../src/tracker-utils/tracker-tag.c:464
-#: ../src/tracker-utils/tracker-tag.c:843
+#: ../src/tracker-utils/tracker-tag.c:329
+#: ../src/tracker-utils/tracker-tag.c:461
+#: ../src/tracker-utils/tracker-tag.c:583
+#: ../src/tracker-utils/tracker-tag.c:961
 msgid "None"
 msgstr "Nic"
 
@@ -2627,6 +2635,10 @@ msgstr "Nejsou k dispozici žádné statistiky"
 msgid "Statistics:"
 msgstr "Statistiky:"
 
+#: ../src/tracker-utils/tracker-tag.c:63
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Pro hledané výrazy použít logickou spojku AND místo OR (výchozí)"
+
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
@@ -2675,92 +2687,121 @@ msgstr "SOUBOR…"
 msgid "FILE [FILE…]"
 msgstr "SOUBOR [SOUBOR…]"
 
-#: ../src/tracker-utils/tracker-tag.c:254
+#: ../src/tracker-utils/tracker-tag.c:255
 msgid "Could not get file URNs"
 msgstr "Nelze získat názvy URN souborů"
 
-#: ../src/tracker-utils/tracker-tag.c:319
+#: ../src/tracker-utils/tracker-tag.c:320
 msgid "Could not get files related to tag"
 msgstr "Nelze získat soubor příslušející ke štítku"
 
-#: ../src/tracker-utils/tracker-tag.c:401
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:387
+msgid "Could not get all tags in the database"
+msgstr "Nelze získat všechny štítky v databázi"
+
+#: ../src/tracker-utils/tracker-tag.c:397
+msgid "No files have been tagged"
+msgstr "K žádnému souboru nebyly přiděleny štítky"
+
+#: ../src/tracker-utils/tracker-tag.c:432
+msgid "Could not get files for matching tags"
+msgstr "Nelze získat soubory odpovídající štítkům"
+
+#: ../src/tracker-utils/tracker-tag.c:441
+msgid "No files were found matching ALL of those tags"
+msgstr "Nebyly nalezeny žádné soubory odpovídající VŠEM temto štítkům"
+
+#: ../src/tracker-utils/tracker-tag.c:520
+#: ../src/tracker-utils/tracker-tag.c:935
 msgid "Could not get all tags"
 msgstr "Nelze získat všechny štítky"
 
-#: ../src/tracker-utils/tracker-tag.c:410
-#: ../src/tracker-utils/tracker-tag.c:826
+#: ../src/tracker-utils/tracker-tag.c:529
+#: ../src/tracker-utils/tracker-tag.c:944
 msgid "No tags were found"
 msgstr "Nebyl nalezen žádný štítek"
 
-#: ../src/tracker-utils/tracker-tag.c:414
+#: ../src/tracker-utils/tracker-tag.c:533
 msgid "Tags (shown by name)"
 msgstr "Štítky (zobrazené podle názvu)"
 
-#: ../src/tracker-utils/tracker-tag.c:488
+#: ../src/tracker-utils/tracker-tag.c:607
 msgid "No files were modified"
 msgstr "Žádný soubor nebyl změněn"
 
-#: ../src/tracker-utils/tracker-tag.c:613
+#: ../src/tracker-utils/tracker-tag.c:657
+#: ../src/tracker-utils/tracker-tag.c:665
+msgid "Files do not exist or aren't indexed"
+msgstr "Soubor neexistuje nebo není zaindexován"
+
+#: ../src/tracker-utils/tracker-tag.c:731
 msgid "Tag was added successfully"
 msgstr "Štítek úspěšně přidán"
 
-#: ../src/tracker-utils/tracker-tag.c:642
+#: ../src/tracker-utils/tracker-tag.c:760
 msgid "Could not add tag to files"
 msgstr "Nelze přidat štítek do souboru"
 
-#: ../src/tracker-utils/tracker-tag.c:652
+#: ../src/tracker-utils/tracker-tag.c:770
 msgid "Tagged"
 msgstr "Označeno štítkem"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Not tagged, file is not indexed"
 msgstr "Neoznačeno štítkem, soubor není indexován"
 
-#: ../src/tracker-utils/tracker-tag.c:699
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get tag by label"
 msgstr "Nelze získat štítek podle popisku"
 
-#: ../src/tracker-utils/tracker-tag.c:710
+#: ../src/tracker-utils/tracker-tag.c:828
 msgid "No tags were found by that name"
 msgstr "Nebyla nalezen žádný štítek odpovídající tomuto názvu"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:845
 msgid "None of the files had this tag set"
 msgstr "Žádný ze souborů nemá nastavený tento štítek"
 
-#: ../src/tracker-utils/tracker-tag.c:780
+#: ../src/tracker-utils/tracker-tag.c:898
 msgid "Tag was removed successfully"
 msgstr "Štítek byl úspěšně odstraněn"
 
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:902
 msgid "Untagged"
 msgstr "Zrušeno označení štítkem"
 
-#: ../src/tracker-utils/tracker-tag.c:785
+#: ../src/tracker-utils/tracker-tag.c:903
 msgid "File not indexed or already untagged"
 msgstr "Soubor není indexován nebo již není označen štítkem"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:989
 msgid "Add, remove or list tags"
 msgstr "přidá, odebere nebo vypíše štítky"
 
-#: ../src/tracker-utils/tracker-tag.c:887
+#: ../src/tracker-utils/tracker-tag.c:1005
 msgid "The --list option is required for --show-files"
 msgstr "Pro --show-files je vyžadován přepínač --list"
 
-#: ../src/tracker-utils/tracker-tag.c:889
+#: ../src/tracker-utils/tracker-tag.c:1007
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Přepínač --and-operator je možné použít jen spolu s přepínačem --list a štítky "
+"jako argumenty"
+
+#: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
 msgstr "Přidání a smazání ikon nelze provést naráz"
 
-#: ../src/tracker-utils/tracker-tag.c:891
+#: ../src/tracker-utils/tracker-tag.c:1011
 msgid "No arguments were provided"
 msgstr "Nebyly uvedeny žádné argumenty"
 
-#: ../src/tracker-utils/tracker-tag.c:893
+#: ../src/tracker-utils/tracker-tag.c:1013
 msgid "The --description option can only be used with --add"
 msgstr "Přepínač --description je možné použít jen spolu s přepínačem --add"
 
