@@ -350,6 +350,7 @@ PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
 
 # Check requirements for tracker-miner-user-guides
 TRACKER_MINER_USER_GUIDES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                                    gio-unix-2.0 >= $GLIB_REQUIRED
                                     libxml-2.0   >= $LIBXML2_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_USER_GUIDES, [$TRACKER_MINER_USER_GUIDES_REQUIRED])
