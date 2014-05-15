@@ -167,6 +167,7 @@ struct _TrackerMinerFSPrivate {
 	GFile *root;
 	TrackerIndexingTree *indexing_tree;
 	TrackerFileNotifier *file_notifier;
+	TrackerEnumerator *enumerator;
 
 	/* Sparql insertion tasks */
 	TrackerTaskPool *task_pool;
@@ -181,9 +182,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* Properties */
 	gdouble throttle;
-	guint external_crawler : 1; /* TRUE if we're being feed files
-	                             * instead of discovering them
-	                             * ourselves */
 	guint mtime_checking : 1;   /* TRUE if mtime checks should be done
 	                             * during initial crawling. */
 	guint initial_crawling : 1; /* TRUE if initial crawling should be
@@ -250,7 +248,7 @@ enum {
 	PROP_ROOT,
 	PROP_WAIT_POOL_LIMIT,
 	PROP_READY_POOL_LIMIT,
-	PROP_EXTERNAL_CRAWLER,
+	PROP_ENUMERATOR,
 	PROP_MTIME_CHECKING,
 	PROP_INITIAL_CRAWLING
 };
@@ -377,12 +375,12 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                    1, G_MAXUINT, DEFAULT_READY_POOL_LIMIT,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-	                                 PROP_EXTERNAL_CRAWLER,
-	                                 g_param_spec_boolean ("external-crawler",
-	                                                       "External crawler",
-	                                                       "Set to TRUE when we don't use the TrackerCrawler but feed files by the API",
-	                                                       FALSE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	                                 PROP_ENUMERATOR,
+	                                 g_param_spec_object ("enumerator",
+	                                                      "Enumerator",
+	                                                      "Enumerator to use to crawl structures populating data, e.g. like GFileEnumerator",
+	                                                      TRACKER_TYPE_ENUMERATOR,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 	g_object_class_install_property (object_class,
 	                                 PROP_MTIME_CHECKING,
 	                                 g_param_spec_boolean ("mtime-checking",
@@ -667,7 +665,7 @@ miner_fs_initable_init (GInitable     *initable,
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree,
-	                                                 priv->external_crawler);
+	                                                 priv->enumerator);
 
 	if (!priv->file_notifier) {
 		g_set_error (error,
@@ -821,8 +819,8 @@ fs_set_property (GObject      *object,
 			                             fs->priv->sparql_buffer_limit);
 		}
 		break;
-	case PROP_EXTERNAL_CRAWLER:
-		fs->priv->external_crawler = g_value_get_boolean (value);
+	case PROP_ENUMERATOR:
+		fs->priv->enumerator = g_value_dup_object (value);
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->priv->mtime_checking = g_value_get_boolean (value);
@@ -862,8 +860,8 @@ fs_get_property (GObject    *object,
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->priv->mtime_checking);
 		break;
-	case PROP_EXTERNAL_CRAWLER:
-		g_value_set_boolean (value, fs->priv->external_crawler);
+	case PROP_ENUMERATOR:
+		g_value_set_object (value, fs->priv->enumerator);
 		break;
 	case PROP_INITIAL_CRAWLING:
 		g_value_set_boolean (value, fs->priv->initial_crawling);
@@ -3030,12 +3028,12 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
 	}
 
-	if (!fs->priv->external_crawler) {
+	if (!fs->priv->enumerator) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
 
-		if (fs->priv->mtime_checking) {
-			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-		}
+	if (fs->priv->mtime_checking) {
+		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 	}
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
@@ -3468,12 +3466,11 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 			return;
 		}
 
-		if (fs->priv->external_crawler) {
-			flags = TRACKER_DIRECTORY_FLAG_RECURSE;
-		} else {
-			flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-				TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-				TRACKER_DIRECTORY_FLAG_MONITOR;
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+			TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+
+		if (!fs->priv->enumerator) {
+			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 		}
 
 		/* Priorities run from positive to negative */
@@ -3852,7 +3849,7 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (directory));
 
-	if (fs->priv->external_crawler) {
+	if (fs->priv->enumerator) {
 		/* Essentially, this is a not doing anything special */
 		flags = TRACKER_DIRECTORY_FLAG_RECURSE;
 	} else {
@@ -3931,14 +3928,12 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	if (fs->priv->external_crawler) {
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_PRESERVE;
-	} else {
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_PRESERVE |
-			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-			TRACKER_DIRECTORY_FLAG_MONITOR;
+	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+		TRACKER_DIRECTORY_FLAG_PRESERVE |
+		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+
+	if (!fs->priv->enumerator) {
+		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,

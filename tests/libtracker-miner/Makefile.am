@@ -16,6 +16,7 @@ noinst_PROGRAMS += $(test_programs)
 
 test_programs = \
 	tracker-crawler-test                           \
+	tracker-file-enumerator-test		       \
 	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
 	tracker-thumbnailer-test                       \

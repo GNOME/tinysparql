@@ -31,8 +31,8 @@ libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
 private_sources = 				       \
-	tracker-enumerator.c			       \
-	tracker-enumerator.h			       \
+	tracker-crawler.c                              \
+	tracker-crawler.h                              \
 	tracker-file-enumerator.c		       \
 	tracker-file-enumerator.h		       \
 	tracker-file-notifier.h                        \
@@ -59,11 +59,15 @@ endif
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
+	tracker-enumerator.c			       \
+	tracker-enumerator.h			       \
 	tracker-decorator.c                            \
 	tracker-decorator.h                            \
 	tracker-decorator-internal.h                   \
 	tracker-decorator-fs.c                         \
 	tracker-decorator-fs.h                         \
+	tracker-indexing-tree.c                        \
+	tracker-indexing-tree.h			       \
 	tracker-miner-dbus.h                           \
 	tracker-miner-enum-types.c                     \
 	tracker-miner-enum-types.h                     \
@@ -78,11 +82,10 @@ libtracker_miner_private_la_SOURCES =                  \
 	$(private_sources)
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
-	$(miner_sources)			       \
-	tracker-indexing-tree.c                        \
-	tracker-indexing-tree.h
+	$(miner_sources)
 
 libtracker_minerinclude_HEADERS =                      \
+	tracker-enumerator.h			       \
 	tracker-decorator.h                            \
 	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.h                        \
@@ -100,7 +103,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
+	-export-symbols-regex '^tracker_(enumerator|miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

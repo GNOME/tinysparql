@@ -28,6 +28,7 @@
 
 #include <gio/gio.h>
 #include "tracker-indexing-tree.h"
+#include "tracker-enumerator.h"
 #include "tracker-miner-fs.h"
 
 G_BEGIN_DECLS
@@ -79,7 +80,7 @@ GType         tracker_file_notifier_get_type     (void) G_GNUC_CONST;
 
 TrackerFileNotifier *
               tracker_file_notifier_new          (TrackerIndexingTree     *indexing_tree,
-                                                  gboolean                 external_crawler);
+                                                  TrackerEnumerator       *enumerator);
 
 gboolean      tracker_file_notifier_start        (TrackerFileNotifier     *notifier);
 void          tracker_file_notifier_stop         (TrackerFileNotifier     *notifier);

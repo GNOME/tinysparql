@@ -27,6 +27,8 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
+#include "tracker-enumerator.h"
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_CRAWLER            (tracker_crawler_get_type ())
@@ -70,7 +72,7 @@ struct TrackerCrawlerClass {
 };
 
 GType           tracker_crawler_get_type     (void);
-TrackerCrawler *tracker_crawler_new          (void);
+TrackerCrawler *tracker_crawler_new          (TrackerEnumerator *enumerator);
 gboolean        tracker_crawler_start        (TrackerCrawler *crawler,
                                               GFile          *file,
 					      gint            max_depth);

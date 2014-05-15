@@ -38,7 +38,7 @@ static GQuark quark_property_filesystem_mtime = 0;
 enum {
 	PROP_0,
 	PROP_INDEXING_TREE,
-	PROP_EXTERNAL_CRAWLER
+	PROP_ENUMERATOR
 };
 
 enum {
@@ -75,8 +75,7 @@ typedef struct {
 
 	TrackerCrawler *crawler;
 	TrackerMonitor *monitor;
-
-	gboolean external_crawler;
+	TrackerEnumerator *enumerator;
 
 	GTimer *timer;
 
@@ -117,8 +116,8 @@ tracker_file_notifier_set_property (GObject      *object,
 		tracker_monitor_set_indexing_tree (priv->monitor,
 		                                   priv->indexing_tree);
 		break;
-	case PROP_EXTERNAL_CRAWLER:
-		priv->external_crawler = g_value_get_boolean (value);
+	case PROP_ENUMERATOR:
+		priv->enumerator = g_value_dup_object (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -140,8 +139,8 @@ tracker_file_notifier_get_property (GObject    *object,
 	case PROP_INDEXING_TREE:
 		g_value_set_object (value, priv->indexing_tree);
 		break;
-	case PROP_EXTERNAL_CRAWLER:
-		g_value_set_boolean (value, priv->external_crawler);
+	case PROP_ENUMERATOR:
+		g_value_set_object (value, priv->enumerator);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -388,12 +387,7 @@ file_notifier_add_node_foreach (GNode    *node,
 		data->cur_parent = NULL;
 	}
 
-	if (priv->external_crawler) {
-		g_signal_emit (data->notifier, signals[QUERY_INFO], 0, file, &file_info);
-		g_warning ("TRACKER_FILE_NOTIFIER --> QUERY INFO, file:%p, info:%p", file, file_info);
-	} else {
-		file_info = tracker_crawler_get_file_info (priv->crawler, file);
-	}
+	file_info = tracker_crawler_get_file_info (priv->crawler, file);
 
 	if (file_info) {
 		GFileType file_type;
@@ -452,8 +446,6 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 
 	notifier = data.notifier = user_data;
 	priv = notifier->priv;
-
-	/* FIXME: Add a call into this periodically when we have external crawlers */
 
 	g_node_traverse (tree,
 	                 G_PRE_ORDER,
@@ -572,9 +564,6 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	gboolean recurse, retval = FALSE;
 	GFile *directory;
-
-	if (priv->external_crawler)
-		return TRUE;
 
 	if (!priv->current_index_root)
 		return FALSE;
@@ -861,7 +850,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
 
-	/* FIXME: Do we need some logic here for external crawlers ? */
 	if (priv->current_index_root->query_files->len > 0 &&
 	    (directory == priv->current_index_root->root ||
 	     tracker_file_system_get_property (priv->file_system,
@@ -1311,10 +1299,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	if (priv->current_index_root &&
 	    directory == priv->current_index_root->root) {
 		/* Directory being currently processed */
-		if (!priv->external_crawler) {
-			tracker_crawler_stop (priv->crawler);
-		}
-
+		tracker_crawler_stop (priv->crawler);
 		g_cancellable_cancel (priv->cancellable);
 
 		root_data_free (priv->current_index_root);
@@ -1324,9 +1309,8 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	}
 
 	/* Remove monitors if any */
-	if (!priv->external_crawler) {
-		tracker_monitor_remove_recursively (priv->monitor, directory);
-	}
+	/* FIXME: How do we handle this with 3rd party enumerators? */
+	tracker_monitor_remove_recursively (priv->monitor, directory);
 
 	/* Remove all files from cache */
 	tracker_file_system_forget_files (priv->file_system, directory,
@@ -1466,13 +1450,13 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
 	g_object_class_install_property (object_class,
-	                                 PROP_EXTERNAL_CRAWLER,
-	                                 g_param_spec_boolean ("external-crawler",
-	                                                       "External crawler",
-	                                                       "Set to TRUE when we don't use the TrackerCrawler but feed files by the API",
-	                                                       FALSE,
-	                                                       G_PARAM_READWRITE |
-	                                                       G_PARAM_CONSTRUCT_ONLY));
+	                                 PROP_ENUMERATOR,
+	                                 g_param_spec_object ("enumerator",
+	                                                      "Enumerator",
+	                                                      "Enumerator to use to crawl structures populating data, e.g. like GFileEnumerator",
+	                                                      TRACKER_TYPE_ENUMERATOR,
+	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_CONSTRUCT_ONLY));
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerFileNotifierClass));
@@ -1519,7 +1503,7 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 	priv->stopped = TRUE;
 
 	/* Set up crawler */
-	priv->crawler = tracker_crawler_new ();
+	priv->crawler = tracker_crawler_new (priv->enumerator);
 	tracker_crawler_set_file_attributes (priv->crawler,
 	                                     G_FILE_ATTRIBUTE_TIME_MODIFIED ","
 	                                     G_FILE_ATTRIBUTE_STANDARD_TYPE);
@@ -1562,13 +1546,13 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 TrackerFileNotifier *
 tracker_file_notifier_new (TrackerIndexingTree *indexing_tree,
-                           gboolean             external_crawler)
+                           TrackerEnumerator   *enumerator)
 {
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (indexing_tree), NULL);
 
 	return g_object_new (TRACKER_TYPE_FILE_NOTIFIER,
 	                     "indexing-tree", indexing_tree,
-	                     "external-crawler", external_crawler,
+	                     "enumerator", enumerator,
 	                     NULL);
 }
 
@@ -1604,9 +1588,7 @@ tracker_file_notifier_stop (TrackerFileNotifier *notifier)
 	priv = notifier->priv;
 
 	if (!priv->stopped) {
-		if (!priv->external_crawler) {
-			tracker_crawler_stop (priv->crawler);
-		}
+		tracker_crawler_stop (priv->crawler);
 
 		g_cancellable_cancel (priv->cancellable);
 		priv->stopped = TRUE;

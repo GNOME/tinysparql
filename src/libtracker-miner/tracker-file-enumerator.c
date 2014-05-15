@@ -58,7 +58,6 @@ tracker_file_enumerator_init (TrackerFileEnumerator *fe)
 {
 }
 
-
 static StartData *
 start_data_new (GFile               *dir,
                 const gchar         *attributes,
