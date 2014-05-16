@@ -108,7 +108,7 @@ file_enumerator_start (TrackerEnumerator    *enumerator,
 
 	cancelled = g_cancellable_is_cancelled (cancellable);
 
-	if (!enumerator) {
+	if (!fe) {
 		if (local_error && !cancelled) {
 			gchar *path;
 
