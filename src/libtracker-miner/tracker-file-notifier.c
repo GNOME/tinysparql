@@ -1358,6 +1358,28 @@ tracker_file_notifier_constructed (GObject *object)
 	                  G_CALLBACK (indexing_tree_directory_added), object);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
+
+	/* Set up crawler */
+	priv->crawler = tracker_crawler_new (priv->enumerator);
+	tracker_crawler_set_file_attributes (priv->crawler,
+	                                     G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+	                                     G_FILE_ATTRIBUTE_STANDARD_TYPE);
+
+	g_signal_connect (priv->crawler, "check-file",
+	                  G_CALLBACK (crawler_check_file_cb),
+	                  object);
+	g_signal_connect (priv->crawler, "check-directory",
+	                  G_CALLBACK (crawler_check_directory_cb),
+	                  object);
+	g_signal_connect (priv->crawler, "check-directory-contents",
+	                  G_CALLBACK (crawler_check_directory_contents_cb),
+	                  object);
+	g_signal_connect (priv->crawler, "directory-crawled",
+	                  G_CALLBACK (crawler_directory_crawled_cb),
+	                  object);
+	g_signal_connect (priv->crawler, "finished",
+	                  G_CALLBACK (crawler_finished_cb),
+	                  object);
 }
 
 static void
@@ -1501,28 +1523,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
-
-	/* Set up crawler */
-	priv->crawler = tracker_crawler_new (priv->enumerator);
-	tracker_crawler_set_file_attributes (priv->crawler,
-	                                     G_FILE_ATTRIBUTE_TIME_MODIFIED ","
-	                                     G_FILE_ATTRIBUTE_STANDARD_TYPE);
-
-	g_signal_connect (priv->crawler, "check-file",
-	                  G_CALLBACK (crawler_check_file_cb),
-	                  notifier);
-	g_signal_connect (priv->crawler, "check-directory",
-	                  G_CALLBACK (crawler_check_directory_cb),
-	                  notifier);
-	g_signal_connect (priv->crawler, "check-directory-contents",
-	                  G_CALLBACK (crawler_check_directory_contents_cb),
-	                  notifier);
-	g_signal_connect (priv->crawler, "directory-crawled",
-	                  G_CALLBACK (crawler_directory_crawled_cb),
-	                  notifier);
-	g_signal_connect (priv->crawler, "finished",
-	                  G_CALLBACK (crawler_finished_cb),
-	                  notifier);
 
 	/* Set up monitor */
 	priv->monitor = tracker_monitor_new ();
