@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-05-14 08:17+0000\n"
-"PO-Revision-Date: 2014-05-14 14:06+0100\n"
+"POT-Creation-Date: 2014-05-18 10:30+0000\n"
+"PO-Revision-Date: 2014-05-18 16:15+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -413,14 +413,12 @@ msgid "Extracts metadata from local files"
 msgstr "Vytahuje metadata z místních souborů"
 
 #: ../data/tracker-miner-apps.desktop.in.in.h:1
-#, fuzzy
-#| msgid "Applications data miner"
 msgid "Tracker Application Miner"
-msgstr "Démon na dolování dat z aplikací"
+msgstr "Démon Tracker na dolování dat z aplikací"
 
 #: ../data/tracker-miner-apps.desktop.in.in.h:2
 msgid "Indexes information about applications installed"
-msgstr ""
+msgstr "Indexuje informace o nainstalovaných aplikacích"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -439,16 +437,12 @@ msgid "Fetch RSS/ATOM feeds"
 msgstr "Stáhnout kanály RSS/ATOM"
 
 #: ../data/tracker-miner-user-guides.desktop.in.in.h:1
-#, fuzzy
-#| msgid "Tracker File System Miner"
 msgid "Tracker User Guides Miner"
-msgstr "Démon Tracker na dolování dat ze souborového systému"
+msgstr "Démon Tracker na dolování dat z uživatelských příruček"
 
 #: ../data/tracker-miner-user-guides.desktop.in.in.h:2
-#, fuzzy
-#| msgid "Crawls and processes files on the file system"
 msgid "Crawls and processes user guides in shared areas"
-msgstr "Prochází a zpracovává soubory v souborovém systému"
+msgstr "Prochází a zpracovává uživatelské příručky v souborovém systému"
 
 #: ../data/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -567,11 +561,8 @@ msgstr ""
 
 #: ../src/miners/apps/tracker-main.c:61
 #: ../src/miners/user-guides/tracker-main.c:61
-#, fuzzy
-#| msgid "Runs until all configured locations are indexed and then exits"
 msgid "Runs until all applications are indexed and then exits"
-msgstr ""
-"Běžet, dokud nejsou oindexována všechna nastavená umístění, a po té skončit"
+msgstr "Běžet, dokud nejsou zaindexovány všechny aplikace, a po té skončit"
 
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:98
@@ -586,10 +577,8 @@ msgstr "Zobrazuje informace o verzi"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:192
-#, fuzzy
-#| msgid "Applications data miner"
 msgid "- start the application data miner"
-msgstr "Démon na dolování dat z aplikací"
+msgstr "– spustit démona na dolování dat z aplikací"
 
 #: ../src/miners/fs/tracker-main.c:85
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
@@ -598,7 +587,7 @@ msgstr "Počáteční doba uspání v sekundách, 0->1000 (výchozí je 15)"
 #: ../src/miners/fs/tracker-main.c:90
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
-"Běžet, dokud nejsou oindexována všechna nastavená umístění, a po té skončit"
+"Běžet, dokud nejsou zaindexována všechna nastavená umístění, a po té skončit"
 
 #: ../src/miners/fs/tracker-main.c:94
 msgid "Checks if FILE is eligible for being mined based on configuration"
@@ -783,10 +772,8 @@ msgstr "Nelze přidat kanál"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:202
-#, fuzzy
-#| msgid "Userguide data miner"
 msgid "- start the user guides data miner"
-msgstr "Démon na dolování dat z uživatelských příruček"
+msgstr "– spusit démona na dolování dat z uživatelských příruček"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Tracker"
@@ -829,20 +816,18 @@ msgid "Print version"
 msgstr "Vypsat verzi"
 
 #: ../src/tracker-control/tracker-control.c:73
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get D-Bus connection"
-msgstr "Nelze vytvořit spojení k prohledávači Tracker"
+msgstr "Nelze získat připojení k D-Bus"
 
 #: ../src/tracker-control/tracker-control.c:91
 msgid "Could not create D-Bus proxy to tracker-store"
-msgstr ""
+msgstr "Nelze vytvořit proxy sběrnice D-Bus pro tracker-store"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-control/tracker-control.c:114
 msgid " - Manage Tracker processes and data"
-msgstr " - správa procesů a dat vyhledávače Tracker"
+msgstr " – správa procesů a dat vyhledávače Tracker"
 
 #: ../src/tracker-control/tracker-control.c:138
 msgid "General and Status options cannot be used together"
@@ -954,77 +939,61 @@ msgstr ""
 #: ../src/tracker-control/tracker-control-general.c:478
 msgid "Only one of 'all', 'store' and 'miners' options are allowed"
 msgstr ""
+"Je povolená jen jedna z voleb „all“ (vše), „store“ (úložiště) a "
+"„miners“ (démoni na dolování)"
 
 #: ../src/tracker-control/tracker-control-general.c:554
-#, fuzzy
-#| msgid "Could not read file"
 msgid "Could not stat() file"
-msgstr "Nelze číst soubor"
+msgstr "Nelze zjistit stav souboru pomocí funkce stat()"
 
 #: ../src/tracker-control/tracker-control-general.c:595
-#, fuzzy
-#| msgid "Print version"
 msgid "Version"
-msgstr "Vypsat verzi"
+msgstr "Verze"
 
 #: ../src/tracker-control/tracker-control-general.c:602
-#, fuzzy
-#| msgid "Displays version information"
 msgid "Disk Information"
-msgstr "Zobrazuje informace o verzi"
+msgstr "Informace o disku"
 
 #: ../src/tracker-control/tracker-control-general.c:609
 msgid "Remaining space on database partition"
-msgstr ""
+msgstr "Zbývající místo na oddílu s databází"
 
 #. 3. Size of dataset (tracker-stats), size of databases
 #: ../src/tracker-control/tracker-control-general.c:616
 msgid "Data Set"
-msgstr ""
+msgstr "Datová sada"
 
 #: ../src/tracker-control/tracker-control-general.c:648
 msgid "Configuration"
-msgstr ""
+msgstr "Nastavení"
 
 #: ../src/tracker-control/tracker-control-general.c:676
-#, fuzzy
-#| msgid "No music was found"
 msgid "No configuration was found"
-msgstr "Nebyla nalezena žádná hudba"
+msgstr "Nebylo nalezeno žádné nastavení"
 
 #: ../src/tracker-control/tracker-control-general.c:680
 msgid "States"
-msgstr ""
+msgstr "Stavy"
 
 #: ../src/tracker-control/tracker-control-general.c:721
-#, fuzzy
-#| msgid "Statistics:"
 msgid "Data Statistics"
-msgstr "Statistiky:"
+msgstr "Statistiky dat"
 
 #: ../src/tracker-control/tracker-control-general.c:727
-#, fuzzy
-#| msgid "No statistics available"
 msgid "No connection available"
-msgstr "Nejsou k dispozici žádné statistiky"
+msgstr "Není k dispozici žádné připojení"
 
 #: ../src/tracker-control/tracker-control-general.c:737
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
 msgid "Could not get statistics"
-msgstr "Nelze získat statistiky prohledávače Tracker"
+msgstr "Nelze získat statistiky"
 
 #: ../src/tracker-control/tracker-control-general.c:743
-#, fuzzy
-#| msgid "No statistics available"
 msgid "No statistics were available"
-msgstr "Nejsou k dispozici žádné statistiky"
+msgstr "Nebyly k dispozici žádné statistiky"
 
 #: ../src/tracker-control/tracker-control-general.c:756
-#, fuzzy
-#| msgid "Data object '%s' currently exists"
 msgid "Database is currently empty"
-msgstr "Datový objekt „%s“ v současnosti existuje"
+msgstr "Databáze je v současnosti prázdná"
 
 #: ../src/tracker-control/tracker-control-general.c:795
 msgid "You can not use the --kill and --terminate arguments together"
@@ -1135,10 +1104,8 @@ msgstr "Zálohuje se databáze"
 
 #: ../src/tracker-control/tracker-control-general.c:1298
 #: ../src/tracker-control/tracker-control-general.c:1351
-#, fuzzy
-#| msgid "Could not update tags"
 msgid "Could not backup database"
-msgstr "Nelze aktualizovat štítky"
+msgstr "Nelze zazálohovat databázi"
 
 #: ../src/tracker-control/tracker-control-general.c:1331
 msgid "Restoring database from backup"
@@ -1243,10 +1210,8 @@ msgstr "Cookie je %d"
 #: ../src/tracker-control/tracker-control-miners.c:146
 #: ../src/tracker-control/tracker-control-status.c:849
 #: ../src/tracker-control/tracker-control-status.c:993
-#, fuzzy
-#| msgid "Press Ctrl+C to end pause"
 msgid "Press Ctrl+C to stop"
-msgstr "Pozastavení ukončíte zmáčknutím Ctrl+C"
+msgstr "Lze zastavit zmáčknutím Ctrl+C"
 
 #: ../src/tracker-control/tracker-control-miners.c:170
 #, c-format
@@ -1413,10 +1378,12 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
+"Sledovat změny v databázi v reálném čase (tj. přidané prostředky nebo "
+"soubory)"
 
 #: ../src/tracker-control/tracker-control-status.c:86
 msgid "ONTOLOGY"
-msgstr ""
+msgstr "ONTOLOGIE"
 
 #: ../src/tracker-control/tracker-control-status.c:89
 msgid "List common statuses for miners and the store"
@@ -1448,16 +1415,12 @@ msgid "Not running or is a disabled plugin"
 msgstr "Neběží nebo je vypnutý zásuvný modul"
 
 #: ../src/tracker-control/tracker-control-status.c:372
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
 msgid "Could not retrieve tracker-store status"
-msgstr "Nelze získat statistiky prohledávače Tracker"
+msgstr "Nelze zjistit stav pro tracker-store"
 
 #: ../src/tracker-control/tracker-control-status.c:393
-#, fuzzy
-#| msgid "Could not retrieve tags for the current selection"
 msgid "Could not retrieve tracker-store progress"
-msgstr "Nelze získat štítky pro aktuální výběr"
+msgstr "Nelze zjistit průběh pro tracker-store"
 
 #: ../src/tracker-control/tracker-control-status.c:523
 #: ../src/tracker-utils/tracker-info.c:141
@@ -1473,29 +1436,25 @@ msgstr "Nebyly vráceny žádné předpony jmenných prostorů"
 
 #: ../src/tracker-control/tracker-control-status.c:610
 #: ../src/tracker-control/tracker-control-status.c:637
-#, fuzzy
-#| msgid "Could not run query"
 msgid "Could not run SPARQL query"
-msgstr "Nelze spustit dotaz"
+msgstr "Nelze spustit dotaz SPARQL"
 
 #: ../src/tracker-control/tracker-control-status.c:618
 #: ../src/tracker-control/tracker-control-status.c:650
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr ""
+msgstr "U dotazu SPARQL nelze zavolat funci tracker_sparql_cursor_next()"
 
 #: ../src/tracker-control/tracker-control-status.c:815
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get SPARQL connection"
-msgstr "Nelze vytvořit spojení k prohledávači Tracker"
+msgstr "Nelze získat připojení SPARQL"
 
 #: ../src/tracker-control/tracker-control-status.c:847
 msgid "Now listening for resource updates to the database"
-msgstr ""
+msgstr "Nyní se sledují aktualizace prostředků v databázi"
 
 #: ../src/tracker-control/tracker-control-status.c:848
 msgid "All nie:plainTextContent properties are omitted"
-msgstr ""
+msgstr "Všechny vlastnosti nie:plainTextContent jsou vynechány"
 
 #: ../src/tracker-control/tracker-control-status.c:863
 msgid "Common statuses include"
@@ -1512,10 +1471,9 @@ msgid "Store"
 msgstr "Úložište"
 
 #: ../src/tracker-control/tracker-control-status.c:936
-#, fuzzy, c-format
-#| msgid "Could not get status from miner: %s"
+#, c-format
 msgid "Could not get display name for miner '%s'"
-msgstr "Nelze získat údaje o stavu od démona na dolování dat: %s"
+msgstr "Nelze získat zobrazovaný název pro démona na dolování dat „%s“"
 
 #: ../src/tracker-control/tracker-control-status.c:1044
 msgid "Status options"
@@ -1941,7 +1899,7 @@ msgstr "Povol_it pro počáteční sběr dat"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "Include _removable media"
-msgstr "Včetně vyměnitelných _médií"
+msgstr "Včetně výměnných _médií"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
@@ -2028,13 +1986,12 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
+"Obsah indexovaný z vyměnných zařízení, která již nějakou dobu nebyla "
+"vložena, je vymazán, aby se předešlo ukládání nepoužívaných prostředků."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#, fuzzy
-#| msgid "Days before deleting removable devices / files since last mounted:"
 msgid "Days before deleting removable devices:"
-msgstr ""
-"Počet dní před odmazáním výměnných zařízení / souborů od posledního připojení"
+msgstr "Počet dní před odmazáním výměnných zařízení:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Garbage Collection"
@@ -2154,26 +2111,20 @@ msgid "Ignored Content"
 msgstr "Ignorovaný obsah"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
-#, fuzzy
-#| msgid "Index content in the background:"
 msgid "Index content of _files found"
-msgstr "Indexovat obsah na pozadí:"
+msgstr "Indexovat obsah nalezených _souborů"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
-#, fuzzy
-#| msgid "Ignore numbers"
 msgid "Index _numbers"
-msgstr "Ignorovat čísla"
+msgstr "I_ndexovat čísla"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
-#, fuzzy
-#| msgid "Would be indexed"
 msgid "What is indexed?"
-msgstr "Byl by indexován"
+msgstr "Co je indexováno?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:53
 msgid "Control"
-msgstr ""
+msgstr "Řízení"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:54
 msgid ""
@@ -2865,8 +2816,8 @@ msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 #: ../src/tracker-utils/tracker-stats.c:69
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
-" - zobrazí statistiky pro všechny třídy, jejichž definice pochází z knihovny "
-"Nepomuk"
+" – zobrazit statistiky pro všechny třídy, jejichž definice pochází z "
+"knihovny Nepomuk"
 
 #: ../src/tracker-utils/tracker-stats.c:96
 msgid "Could not get Tracker statistics"
@@ -3035,8 +2986,8 @@ msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
 msgstr ""
-"Přepínač --and-operator je možné použít jen spolu s přepínačem --list a štítky "
-"jako argumenty"
+"Přepínač --and-operator je možné použít jen spolu s přepínačem --list a "
+"štítky jako argumenty"
 
 #: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
