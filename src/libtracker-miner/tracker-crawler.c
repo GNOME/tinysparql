@@ -776,6 +776,7 @@ file_enumerate_children_cb (GObject      *object,
 	}
 
 	g_slist_free (files);
+	enumerator_data_free (ed);
 	process_func_start (crawler);
 }
 
