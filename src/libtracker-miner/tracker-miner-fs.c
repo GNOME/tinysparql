@@ -3849,13 +3849,11 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (directory));
 
-	if (fs->priv->enumerator) {
-		/* Essentially, this is a not doing anything special */
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE;
-	} else {
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-			TRACKER_DIRECTORY_FLAG_MONITOR;
+	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+
+	if (!fs->priv->enumerator) {
+		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
