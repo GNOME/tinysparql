@@ -33,7 +33,7 @@ typedef struct {
 	GFile *dir;
 	gchar *attributes;
 	GFileQueryInfoFlags flags;
-} StartData;
+} GetChildrenData;
 
 G_DEFINE_TYPE_WITH_CODE (TrackerFileEnumerator, tracker_file_enumerator, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (TRACKER_TYPE_ENUMERATOR,
@@ -58,14 +58,14 @@ tracker_file_enumerator_init (TrackerFileEnumerator *fe)
 {
 }
 
-static StartData *
-start_data_new (GFile               *dir,
-                const gchar         *attributes,
-                GFileQueryInfoFlags  flags)
+static GetChildrenData *
+get_children_data_new (GFile               *dir,
+                       const gchar         *attributes,
+                       GFileQueryInfoFlags  flags)
 {
-	StartData *data;
+	GetChildrenData *data;
 
-	data = g_slice_new0 (StartData);
+	data = g_slice_new0 (GetChildrenData);
 	data->dir = g_object_ref (dir);
 	/* FIXME: inefficient */
 	data->attributes = g_strdup (attributes);
@@ -75,7 +75,7 @@ start_data_new (GFile               *dir,
 }
 
 static void
-start_data_free (StartData *data)
+get_children_data_free (GetChildrenData *data)
 {
 	if (!data) {
 		return;
@@ -83,16 +83,16 @@ start_data_free (StartData *data)
 
 	g_object_unref (data->dir);
 	g_free (data->attributes);
-	g_slice_free (StartData, data);
+	g_slice_free (GetChildrenData, data);
 }
 
 static GSList *
-file_enumerator_start (TrackerEnumerator    *enumerator,
-                       GFile                *dir,
-                       const gchar          *attributes,
-                       GFileQueryInfoFlags   flags,
-                       GCancellable         *cancellable,
-                       GError              **error)
+file_enumerator_get_children (TrackerEnumerator    *enumerator,
+                              GFile                *dir,
+                              const gchar          *attributes,
+                              GFileQueryInfoFlags   flags,
+                              GCancellable         *cancellable,
+                              GError              **error)
 {
 	GFileEnumerator *fe;
 	GSList *files;
@@ -170,64 +170,64 @@ file_enumerator_start (TrackerEnumerator    *enumerator,
 }
 
 static void
-start_async_thread_op_free (GSList *files)
+get_children_async_thread_op_free (GSList *files)
 {
 	g_slist_free_full (files, g_object_unref);
 }
 
 static void
-start_async_thread (GTask        *task,
-                    gpointer      source_object,
-                    gpointer      task_data,
-                    GCancellable *cancellable)
+get_children_async_thread (GTask        *task,
+                           gpointer      source_object,
+                           gpointer      task_data,
+                           GCancellable *cancellable)
 {
 	TrackerEnumerator *enumerator = source_object;
-	StartData *data = task_data;
+	GetChildrenData *data = task_data;
 	GSList *files = NULL;
 	GError *error = NULL;
 
 	if (g_cancellable_set_error_if_cancelled (cancellable, &error)) {
 		files = NULL;
 	} else {
-		files = file_enumerator_start (enumerator,
-		                               data->dir,
-		                               data->attributes,
-		                               data->flags,
-		                               cancellable,
-		                               &error);
+		files = file_enumerator_get_children (enumerator,
+		                                      data->dir,
+		                                      data->attributes,
+		                                      data->flags,
+		                                      cancellable,
+		                                      &error);
 	}
 
 	if (error) {
 		g_task_return_error (task, error);
 	} else {
-		g_task_return_pointer (task, files, (GDestroyNotify) start_async_thread_op_free);
+		g_task_return_pointer (task, files, (GDestroyNotify) get_children_async_thread_op_free);
 	}
 }
 
 static void
-file_enumerator_start_async (TrackerEnumerator    *enumerator,
-                             GFile                *dir,
-                             const gchar          *attributes,
-                             GFileQueryInfoFlags   flags,
-                             int                   io_priority,
-                             GCancellable         *cancellable,
-                             GAsyncReadyCallback   callback,
-                             gpointer              user_data)
+file_enumerator_get_children_async (TrackerEnumerator    *enumerator,
+                                    GFile                *dir,
+                                    const gchar          *attributes,
+                                    GFileQueryInfoFlags   flags,
+                                    int                   io_priority,
+                                    GCancellable         *cancellable,
+                                    GAsyncReadyCallback   callback,
+                                    gpointer              user_data)
 {
 	GTask *task;
 
 	task = g_task_new (enumerator, cancellable, callback, user_data);
-	g_task_set_task_data (task, start_data_new (dir, attributes, flags), (GDestroyNotify) start_data_free);
+	g_task_set_task_data (task, get_children_data_new (dir, attributes, flags), (GDestroyNotify) get_children_data_free);
 	g_task_set_priority (task, io_priority);
 
-	g_task_run_in_thread (task, start_async_thread);
+	g_task_run_in_thread (task, get_children_async_thread);
 	g_object_unref (task);
 }
 
 static GSList *
-file_enumerator_start_finish (TrackerEnumerator  *enumerator,
-                              GAsyncResult       *result,
-                              GError            **error)
+file_enumerator_get_children_finish (TrackerEnumerator  *enumerator,
+                                     GAsyncResult       *result,
+                                     GError            **error)
 {
 	g_return_val_if_fail (g_task_is_valid (result, enumerator), NULL);
 
@@ -238,9 +238,9 @@ file_enumerator_start_finish (TrackerEnumerator  *enumerator,
 static void
 tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *iface)
 {
-	iface->start = file_enumerator_start;
-	iface->start_async = file_enumerator_start_async;
-	iface->start_finish = file_enumerator_start_finish;
+	iface->get_children = file_enumerator_get_children;
+	iface->get_children_async = file_enumerator_get_children_async;
+	iface->get_children_finish = file_enumerator_get_children_finish;
 }
 
 TrackerEnumerator *

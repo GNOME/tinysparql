@@ -42,13 +42,13 @@ test_enumerator_crawl (void)
 	dir = g_file_new_for_path (path);
 	g_print ("'%s'\n", path);
 
-	files = tracker_enumerator_start (enumerator,
-	                                  dir,
-	                                  G_FILE_ATTRIBUTE_STANDARD_NAME "," \
-	                                  G_FILE_ATTRIBUTE_STANDARD_TYPE,
-	                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                                  NULL,
-	                                  &error);
+	files = tracker_enumerator_get_children (enumerator,
+	                                         dir,
+	                                         G_FILE_ATTRIBUTE_STANDARD_NAME "," \
+	                                         G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                         NULL,
+	                                         &error);
 	g_assert_no_error (error);
 	g_assert (files != NULL);
 	g_assert (g_slist_length (files) > 0);

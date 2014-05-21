@@ -42,44 +42,44 @@ struct _TrackerEnumeratorIface {
 	GTypeInterface g_iface;
 
 	/* Virtual Table */
-	GSList * (* start)        (TrackerEnumerator    *enumerator,
-	                           GFile                *dir,
-	                           const gchar          *attributes,
-	                           GFileQueryInfoFlags   flags,
-	                           GCancellable         *cancellable,
-	                           GError              **error);
-	void     (* start_async)  (TrackerEnumerator    *enumerator,
-	                           GFile                *dir,
-	                           const gchar          *attributes,
-	                           GFileQueryInfoFlags   flags,
-	                           int                   io_priority,
-	                           GCancellable         *cancellable,
-	                           GAsyncReadyCallback   callback,
-	                           gpointer              user_data);
-	GSList * (* start_finish) (TrackerEnumerator    *enumerator,
-	                           GAsyncResult         *result,
-	                           GError              **error);
+	GSList * (* get_children)        (TrackerEnumerator    *enumerator,
+	                                  GFile                *dir,
+	                                  const gchar          *attributes,
+	                                  GFileQueryInfoFlags   flags,
+	                                  GCancellable         *cancellable,
+	                                  GError              **error);
+	void     (* get_children_async)  (TrackerEnumerator    *enumerator,
+	                                  GFile                *dir,
+	                                  const gchar          *attributes,
+	                                  GFileQueryInfoFlags   flags,
+	                                  int                   io_priority,
+	                                  GCancellable         *cancellable,
+	                                  GAsyncReadyCallback   callback,
+	                                  gpointer              user_data);
+	GSList * (* get_children_finish) (TrackerEnumerator    *enumerator,
+	                                  GAsyncResult         *result,
+	                                  GError              **error);
 
 };
 
-GType   tracker_enumerator_get_type      (void) G_GNUC_CONST;
-GSList *tracker_enumerator_start         (TrackerEnumerator    *enumerator,
-                                          GFile                *dir,
-                                          const gchar          *attributes,
-                                          GFileQueryInfoFlags   flags,
-                                          GCancellable         *cancellable,
-                                          GError              **error);
-void    tracker_enumerator_start_async   (TrackerEnumerator    *enumerator,
-                                          GFile                *dir,
-                                          const gchar          *attributes,
-                                          GFileQueryInfoFlags   flags,
-                                          int                   io_priority,
-                                          GCancellable         *cancellable,
-                                          GAsyncReadyCallback   callback,
-                                          gpointer              user_data);
-GSList *tracker_enumerator_start_finish  (TrackerEnumerator    *enumerator,
-                                          GAsyncResult         *result,
-                                          GError              **error);
+GType   tracker_enumerator_get_type             (void) G_GNUC_CONST;
+GSList *tracker_enumerator_get_children         (TrackerEnumerator    *enumerator,
+                                                 GFile                *dir,
+                                                 const gchar          *attributes,
+                                                 GFileQueryInfoFlags   flags,
+                                                 GCancellable         *cancellable,
+                                                 GError              **error);
+void    tracker_enumerator_get_children_async   (TrackerEnumerator    *enumerator,
+                                                 GFile                *dir,
+                                                 const gchar          *attributes,
+                                                 GFileQueryInfoFlags   flags,
+                                                 int                   io_priority,
+                                                 GCancellable         *cancellable,
+                                                 GAsyncReadyCallback   callback,
+                                                 gpointer              user_data);
+GSList *tracker_enumerator_get_children_finish  (TrackerEnumerator    *enumerator,
+                                                 GAsyncResult         *result,
+                                                 GError              **error);
 
 G_END_DECLS
 

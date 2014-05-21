@@ -725,7 +725,7 @@ file_enumerate_children_cb (GObject      *object,
 	parent = ed->dir_info->node->data;
 	enumerator = TRACKER_ENUMERATOR (object);
 
-	files = tracker_enumerator_start_finish (enumerator, result, &error);
+	files = tracker_enumerator_get_children_finish (enumerator, result, &error);
 
 	if (!files) {
 		if (error && !cancelled) {
@@ -798,14 +798,14 @@ file_enumerate_children (TrackerCrawler          *crawler,
 		attrs = g_strdup (FILE_ATTRIBUTES);
 	}
 
-	tracker_enumerator_start_async (crawler->priv->enumerator,
-	                                ed->dir_file,
-	                                attrs,
-	                                G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                                G_PRIORITY_LOW,
-	                                ed->cancellable,
-	                                file_enumerate_children_cb,
-	                                ed);
+	tracker_enumerator_get_children_async (crawler->priv->enumerator,
+	                                       ed->dir_file,
+	                                       attrs,
+	                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                       G_PRIORITY_LOW,
+	                                       ed->cancellable,
+	                                       file_enumerate_children_cb,
+	                                       ed);
 	g_free (attrs);
 }
 

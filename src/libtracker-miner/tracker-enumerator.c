@@ -34,12 +34,12 @@ tracker_enumerator_default_init (TrackerEnumeratorInterface *iface)
 }
 
 GSList *
-tracker_enumerator_start (TrackerEnumerator    *enumerator,
-                          GFile                *dir,
-                          const gchar          *attributes,
-                          GFileQueryInfoFlags   flags,
-                          GCancellable         *cancellable,
-                          GError              **error)
+tracker_enumerator_get_children (TrackerEnumerator    *enumerator,
+                                 GFile                *dir,
+                                 const gchar          *attributes,
+                                 GFileQueryInfoFlags   flags,
+                                 GCancellable         *cancellable,
+                                 GError              **error)
 {
 	TrackerEnumeratorIface *iface;
 
@@ -51,7 +51,7 @@ tracker_enumerator_start (TrackerEnumerator    *enumerator,
 
 	iface = TRACKER_ENUMERATOR_GET_IFACE (enumerator);
 
-	if (iface->start == NULL) {
+	if (iface->get_children == NULL) {
 		g_set_error_literal (error,
 		                     G_IO_ERROR,
 		                     G_IO_ERROR_NOT_SUPPORTED,
@@ -59,18 +59,18 @@ tracker_enumerator_start (TrackerEnumerator    *enumerator,
 		return NULL;
 	}
 
-	return (* iface->start) (enumerator, dir, attributes, flags, cancellable, error);
+	return (* iface->get_children) (enumerator, dir, attributes, flags, cancellable, error);
 }
 
 void
-tracker_enumerator_start_async (TrackerEnumerator    *enumerator,
-                                GFile                *dir,
-                                const gchar          *attributes,
-                                GFileQueryInfoFlags   flags,
-                                int                   io_priority,
-                                GCancellable         *cancellable,
-                                GAsyncReadyCallback   callback,
-                                gpointer              user_data)
+tracker_enumerator_get_children_async (TrackerEnumerator    *enumerator,
+                                       GFile                *dir,
+                                       const gchar          *attributes,
+                                       GFileQueryInfoFlags   flags,
+                                       int                   io_priority,
+                                       GCancellable         *cancellable,
+                                       GAsyncReadyCallback   callback,
+                                       gpointer              user_data)
 {
 	TrackerEnumeratorIface *iface;
 
@@ -78,18 +78,18 @@ tracker_enumerator_start_async (TrackerEnumerator    *enumerator,
 
 	iface = TRACKER_ENUMERATOR_GET_IFACE (enumerator);
 
-	if (iface->start_async == NULL) {
+	if (iface->get_children_async == NULL) {
 		g_critical (_("Operation not supported"));
 		return;
 	}
 
-	(* iface->start_async) (enumerator, dir, attributes, flags, io_priority, cancellable, callback, user_data);
+	(* iface->get_children_async) (enumerator, dir, attributes, flags, io_priority, cancellable, callback, user_data);
 }
 
 GSList *
-tracker_enumerator_start_finish (TrackerEnumerator  *enumerator,
-                                 GAsyncResult       *result,
-                                 GError            **error)
+tracker_enumerator_get_children_finish (TrackerEnumerator  *enumerator,
+                                        GAsyncResult       *result,
+                                        GError            **error)
 {
 	TrackerEnumeratorIface *iface;
 
@@ -102,5 +102,5 @@ tracker_enumerator_start_finish (TrackerEnumerator  *enumerator,
 		return NULL;
 	}
 
-	return (* iface->start_finish) (enumerator, result, error);
+	return (* iface->get_children_finish) (enumerator, result, error);
 }
