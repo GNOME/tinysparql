@@ -573,7 +573,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 
 			uri = g_file_get_uri (file);
 			g_warning ("Could not find parent node for URI:'%s'", uri);
-			g_warning ("NOTE: URI themes other than 'file://' are not supported currently.");
+			g_warning ("NOTE: URI theme may be outside scheme expected, for example, expecting 'file://' when given 'http://' prefix.");
 			g_free (uri);
 
 			return NULL;
