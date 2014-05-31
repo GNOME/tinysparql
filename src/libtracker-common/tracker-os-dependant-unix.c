@@ -227,11 +227,11 @@ tracker_create_permission_string (struct stat finfo)
 
 #ifndef DISABLE_MEM_LIMITS
 
-static glong
+static guint64
 get_memory_total (void)
 {
 #if defined (__OpenBSD__)
-	glong total = 0;
+	guint64 total = 0;
 	int64_t physmem;
 	size_t len;
 	static gint mib[] = { CTL_HW, HW_PHYSMEM64 };
@@ -244,12 +244,12 @@ get_memory_total (void)
 		total = physmem;
 	}
 #elif defined (__sun)
-	glong total = (glong)sysconf(_SC_PAGESIZE) * (glong)sysconf(_SC_PHYS_PAGES);
+	guint64 total = (guint64)sysconf(_SC_PAGESIZE) * (guint64)sysconf(_SC_PHYS_PAGES);
 #else
 	GError      *error = NULL;
 	const gchar *filename;
 	gchar       *contents = NULL;
-	glong        total = 0;
+	guint64      total = 0;
 
 	filename = "/proc/meminfo";
 
@@ -274,7 +274,7 @@ get_memory_total (void)
 
 			if (end) {
 				*end = '\0';
-				total = 1024L * atol (p);
+				total = 1024L * (guint64)g_ascii_strtoll (p, NULL, 10);
 			}
 		}
 		g_free (contents);
@@ -291,9 +291,9 @@ tracker_memory_setrlimits (void)
 {
 #ifndef DISABLE_MEM_LIMITS
 	struct rlimit rl = { 0 };
-	glong total;
-	glong total_halfed;
-	glong limit;
+	guint64 total;
+	guint64 total_halfed;
+	guint64 limit;
 
 	total = get_memory_total ();
 
