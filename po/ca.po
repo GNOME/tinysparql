@@ -1,15 +1,15 @@
 # Catalan translation of tracker.
 # Copyright © 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
-# Gil Forcada <gilforcada@guifi.net>, 2007, 2008, 2010, 2013.
+# Gil Forcada <gilforcada@guifi.net>, 2007, 2008, 2010, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-04-30 20:07+0000\n"
-"PO-Revision-Date: 2014-03-15 08:50+0100\n"
+"POT-Creation-Date: 2014-05-08 16:32+0000\n"
+"PO-Revision-Date: 2014-05-08 23:44+0200\n"
 "Last-Translator: Pau Iranzo <paugnu@gmail.com>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -415,16 +415,6 @@ msgstr "Extractor de metadades Tracker"
 msgid "Extracts metadata from local files"
 msgstr "Extrau metadades dels fitxers locals"
 
-#: ../data/tracker-miner-apps.desktop.in.in.h:1
-#, fuzzy
-#| msgid "Applications data miner"
-msgid "Tracker Application Miner"
-msgstr "Extractor de dades d'aplicacions"
-
-#: ../data/tracker-miner-apps.desktop.in.in.h:2
-msgid "Indexes information about applications installed"
-msgstr ""
-
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
 msgstr "Extractor de dades dels fitxers del sistema del Tracker"
@@ -440,18 +430,6 @@ msgstr "Extractor de dades de canals RSS/ATOM del Tracker"
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM feeds"
 msgstr "Recull canals RSS/ATOM"
-
-#: ../data/tracker-miner-user-guides.desktop.in.in.h:1
-#, fuzzy
-#| msgid "Tracker File System Miner"
-msgid "Tracker User Guides Miner"
-msgstr "Extractor de dades dels fitxers del sistema del Tracker"
-
-#: ../data/tracker-miner-user-guides.desktop.in.in.h:2
-#, fuzzy
-#| msgid "Crawls and processes files on the file system"
-msgid "Crawls and processes user guides in shared areas"
-msgstr "Indexa i processa fitxers del sistema de fitxers"
 
 #: ../data/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -551,9 +529,7 @@ msgstr "No hi ha cap connexió de xarxa"
 msgid "Indexing not recommended on this network connection"
 msgstr "No es recomana la indexació en aquesta connexió de xarxa"
 
-#: ../src/miners/apps/tracker-main.c:56 ../src/miners/fs/tracker-main.c:80
-#: ../src/miners/rss/tracker-main.c:39
-#: ../src/miners/user-guides/tracker-main.c:56
+#: ../src/miners/fs/tracker-main.c:102 ../src/miners/rss/tracker-main.c:39
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -561,50 +537,23 @@ msgstr ""
 "Registre, 0 = només errors, 1 = mínim, 2 = detallat i 3 = depuració "
 "(predeterminat=0)"
 
-#: ../src/miners/apps/tracker-main.c:61
-#: ../src/miners/user-guides/tracker-main.c:61
-#, fuzzy
-#| msgid "Runs until all configured locations are indexed and then exits"
-msgid "Runs until all applications are indexed and then exits"
-msgstr ""
-"Executa fins que totes les localitzacions configurades s'hagin indexat i "
-"aleshores surt"
-
-#. Daemon options
-#: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:98
-#: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:104
-#: ../src/tracker-store/tracker-main.vala:47
-#: ../src/tracker-writeback/tracker-main.c:51
-msgid "Displays version information"
-msgstr "Mostra la informació de la versió"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/apps/tracker-main.c:192
-#, fuzzy
-#| msgid "Applications data miner"
-msgid "- start the application data miner"
-msgstr "Extractor de dades d'aplicacions"
-
-#: ../src/miners/fs/tracker-main.c:85
+#: ../src/miners/fs/tracker-main.c:107
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr ""
 "Temps d'espera inicial (en segons), entre 0 i 10000¡ (predeterminat = 15)"
 
-#: ../src/miners/fs/tracker-main.c:90
+#: ../src/miners/fs/tracker-main.c:112
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
 "Executa fins que totes les localitzacions configurades s'hagin indexat i "
 "aleshores surt"
 
-#: ../src/miners/fs/tracker-main.c:94
+#: ../src/miners/fs/tracker-main.c:116
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Comprova si, segons la configuració, s'han d'extreure les dades del FITXER"
 
-#: ../src/miners/fs/tracker-main.c:95
+#: ../src/miners/fs/tracker-main.c:117
 #: ../src/tracker-control/tracker-control-general.c:108
 #: ../src/tracker-control/tracker-control-general.c:111
 #: ../src/tracker-control/tracker-control-miners.c:61
@@ -617,97 +566,116 @@ msgstr ""
 msgid "FILE"
 msgstr "FITXER"
 
-#: ../src/miners/fs/tracker-main.c:468
+#: ../src/miners/fs/tracker-main.c:120
+msgid "Disable miners started as part of this process, options include: '"
+msgstr ""
+"La inhabilitació de l'extractor de dades ha començat com a part d'aquest "
+"procés, les opcions són: '"
+
+#: ../src/miners/fs/tracker-main.c:127
+#: ../src/tracker-control/tracker-control-miners.c:76
+msgid "MINER"
+msgstr "EXTRACTOR-DE-DADES"
+
+#. Daemon options
+#: ../src/miners/fs/tracker-main.c:130
+#: ../src/tracker-extract/tracker-main.c:104
+#: ../src/tracker-store/tracker-main.vala:47
+#: ../src/tracker-writeback/tracker-main.c:51
+msgid "Displays version information"
+msgstr "Mostra la informació de la versió"
+
+#: ../src/miners/fs/tracker-main.c:629
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "L'objecte de dades «%s» ja existeix"
 
-#: ../src/miners/fs/tracker-main.c:469
+#: ../src/miners/fs/tracker-main.c:630
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "L'objecte de dades «%s» encara no existeix"
 
-#: ../src/miners/fs/tracker-main.c:484
+#: ../src/miners/fs/tracker-main.c:645
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr ""
 "Es poden fer extraccions de dades del directori (basant-se en les regles)"
 
-#: ../src/miners/fs/tracker-main.c:485
+#: ../src/miners/fs/tracker-main.c:646
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
 "No es pot fer extraccions de dades del directori (basant-se en les regles)"
 
-#: ../src/miners/fs/tracker-main.c:505
+#: ../src/miners/fs/tracker-main.c:666
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr ""
 "Es poden fer extraccions de dades del directori (basant-se en els continguts)"
 
-#: ../src/miners/fs/tracker-main.c:506
+#: ../src/miners/fs/tracker-main.c:667
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
 "No es poden fer extraccions de dades del directori (basant-se en els "
 "continguts)"
 
-#: ../src/miners/fs/tracker-main.c:553
+#: ../src/miners/fs/tracker-main.c:714
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr ""
 "Es pot fer el seguiment del directori (basant-se en les configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:554
+#: ../src/miners/fs/tracker-main.c:715
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "No es pot fer el seguiment del directori (basant-se en les configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:558
+#: ../src/miners/fs/tracker-main.c:719
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Es pot fer el seguiment del fitxer (basant-se en les configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:559
+#: ../src/miners/fs/tracker-main.c:720
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr ""
 "No es pot fer el seguiment del fitxer (basant-se en les configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:563
+#: ../src/miners/fs/tracker-main.c:724
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "Es pot fer el seguiment del fitxer o del directori (basant-se en les "
 "configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:564
+#: ../src/miners/fs/tracker-main.c:725
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "No es pot fer el seguiment del fitxer o del directori (basant-se en les "
 "configuracions)"
 
-#: ../src/miners/fs/tracker-main.c:579
+#: ../src/miners/fs/tracker-main.c:740
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Es poden fer extraccions de dades del fitxer (basant-se en les regles)"
 
-#: ../src/miners/fs/tracker-main.c:580
+#: ../src/miners/fs/tracker-main.c:741
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr ""
 "No es poden fer extraccions de dades del fitxer (basant-se en les regles)"
 
-#: ../src/miners/fs/tracker-main.c:589
+#: ../src/miners/fs/tracker-main.c:750
 msgid "Would be indexed"
 msgstr "S'indexaria"
 
-#: ../src/miners/fs/tracker-main.c:590 ../src/miners/fs/tracker-main.c:592
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/miners/fs/tracker-main.c:590 ../src/miners/fs/tracker-main.c:592
+#: ../src/miners/fs/tracker-main.c:751 ../src/miners/fs/tracker-main.c:753
 msgid "No"
 msgstr "No"
 
-#: ../src/miners/fs/tracker-main.c:591
+#: ../src/miners/fs/tracker-main.c:752
 msgid "Would be monitored"
 msgstr "S'en faria un seguiment"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:711
+#: ../src/miners/fs/tracker-main.c:875
 msgid "- start the tracker indexer"
 msgstr "- inicia l'indexador del Tracker"
 
@@ -754,30 +722,12 @@ msgstr "No s'ha pogut establir una connexió amb el Tracker"
 
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-control/tracker-control.c:74
-#: ../src/tracker-control/tracker-control.c:92
 #: ../src/tracker-control/tracker-control-general.c:142
-#: ../src/tracker-control/tracker-control-general.c:336
-#: ../src/tracker-control/tracker-control-general.c:728
-#: ../src/tracker-control/tracker-control-general.c:738
-#: ../src/tracker-control/tracker-control-general.c:907
-#: ../src/tracker-control/tracker-control-general.c:953
-#: ../src/tracker-control/tracker-control-general.c:974
-#: ../src/tracker-control/tracker-control-general.c:1223
-#: ../src/tracker-control/tracker-control-general.c:1299
-#: ../src/tracker-control/tracker-control-general.c:1352
-#: ../src/tracker-control/tracker-control-miners.c:113
-#: ../src/tracker-control/tracker-control-miners.c:171
-#: ../src/tracker-control/tracker-control-miners.c:205
-#: ../src/tracker-control/tracker-control-miners.c:237
-#: ../src/tracker-control/tracker-control-miners.c:274
-#: ../src/tracker-control/tracker-control-miners.c:343
-#: ../src/tracker-control/tracker-control-status.c:373
-#: ../src/tracker-control/tracker-control-status.c:394
-#: ../src/tracker-control/tracker-control-status.c:619
-#: ../src/tracker-control/tracker-control-status.c:651
-#: ../src/tracker-control/tracker-control-status.c:816
-#: ../src/tracker-control/tracker-control-status.c:882
+#: ../src/tracker-control/tracker-control-general.c:724
+#: ../src/tracker-control/tracker-control-general.c:733
+#: ../src/tracker-control/tracker-control-general.c:900
+#: ../src/tracker-control/tracker-control-general.c:946
+#: ../src/tracker-control/tracker-control-general.c:967
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
@@ -792,15 +742,6 @@ msgstr "No s'ha rebut cap error"
 msgid "Could not add feed"
 msgstr "No s'ha pogut afegir el canal"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/user-guides/tracker-main.c:202
-#, fuzzy
-#| msgid "Userguide data miner"
-msgid "- start the user guides data miner"
-msgstr "Guia d'usuari de l'extractor de dades"
-
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Tracker"
 msgstr "Tracker"
@@ -810,7 +751,7 @@ msgid "Push data to Tracker to make it queryable."
 msgstr "Envia les dades al Tracker perquè es puguin consultar."
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
-#: ../src/tracker-control/tracker-control-status.c:67
+#: ../src/tracker-control/tracker-control-status.c:53
 msgid "Processing…"
 msgstr "S'està processant…"
 
@@ -831,7 +772,7 @@ msgstr[1] ""
 "_Establiu les etiquetes que voleu associar amb aquests %d elements "
 "seleccionats:"
 
-#: ../src/tracker-control/tracker-control.c:54
+#: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-needle/tracker-needle.vala:710
 #: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
@@ -843,39 +784,29 @@ msgstr[1] ""
 msgid "Print version"
 msgstr "Mostra la versió"
 
-#: ../src/tracker-control/tracker-control.c:73
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
-msgid "Could not get D-Bus connection"
-msgstr "No s'ha pogut establir una connexió amb el Tracker"
-
-#: ../src/tracker-control/tracker-control.c:91
-msgid "Could not create D-Bus proxy to tracker-store"
-msgstr ""
-
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:114
+#: ../src/tracker-control/tracker-control.c:71
 msgid " - Manage Tracker processes and data"
 msgstr " - Gestioneu els processos i les dades del Tracker"
 
-#: ../src/tracker-control/tracker-control.c:138
+#: ../src/tracker-control/tracker-control.c:95
 msgid "General and Status options cannot be used together"
 msgstr "No es poden utilitzar les opcions d'estat i generals alhora"
 
-#: ../src/tracker-control/tracker-control.c:144
+#: ../src/tracker-control/tracker-control.c:101
 msgid "General and Miners options cannot be used together"
 msgstr ""
 "No es poden utilitzar les opcions dels extractors de dades i les generals "
 "alhora"
 
-#: ../src/tracker-control/tracker-control.c:155
+#: ../src/tracker-control/tracker-control.c:112
 msgid "Status and Miners options cannot be used together"
 msgstr ""
 "No es poden utilitzar les opcions dels extractors de dades i les d'estat "
 "alhora"
 
-#: ../src/tracker-control/tracker-control.c:172
+#: ../src/tracker-control/tracker-control.c:129
 msgid "Unrecognized options"
 msgstr "No s'han reconegut les opcions"
 
@@ -976,86 +907,11 @@ msgstr ""
 "No s'ha pogut obtenir les GSettings de l'extractor de dades, no s'ha pogut "
 "crear el gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:478
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-general.c:554
-#, fuzzy
-#| msgid "Could not read file"
-msgid "Could not stat() file"
-msgstr "No s'ha pogut llegir el fitxer"
-
-#: ../src/tracker-control/tracker-control-general.c:595
-#, fuzzy
-#| msgid "Print version"
-msgid "Version"
-msgstr "Mostra la versió"
-
-#: ../src/tracker-control/tracker-control-general.c:602
-#, fuzzy
-#| msgid "Displays version information"
-msgid "Disk Information"
-msgstr "Mostra la informació de la versió"
-
-#: ../src/tracker-control/tracker-control-general.c:609
-msgid "Remaining space on database partition"
-msgstr ""
-
-#. 3. Size of dataset (tracker-stats), size of databases
-#: ../src/tracker-control/tracker-control-general.c:616
-msgid "Data Set"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-general.c:648
-msgid "Configuration"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-general.c:676
-#, fuzzy
-#| msgid "No music was found"
-msgid "No configuration was found"
-msgstr "No s'ha trobat música"
-
-#: ../src/tracker-control/tracker-control-general.c:680
-msgid "States"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-general.c:721
-#, fuzzy
-#| msgid "Statistics:"
-msgid "Data Statistics"
-msgstr "Estadístiques:"
-
-#: ../src/tracker-control/tracker-control-general.c:727
-#, fuzzy
-#| msgid "No statistics available"
-msgid "No connection available"
-msgstr "No hi ha estadístiques disponibles"
-
-#: ../src/tracker-control/tracker-control-general.c:737
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
-msgid "Could not get statistics"
-msgstr "No s'han pogut obtenir les estadístiques del Tracker"
-
-#: ../src/tracker-control/tracker-control-general.c:743
-#, fuzzy
-#| msgid "No statistics available"
-msgid "No statistics were available"
-msgstr "No hi ha estadístiques disponibles"
-
-#: ../src/tracker-control/tracker-control-general.c:756
-#, fuzzy
-#| msgid "Data object '%s' currently exists"
-msgid "Database is currently empty"
-msgstr "L'objecte de dades «%s» ja existeix"
-
-#: ../src/tracker-control/tracker-control-general.c:795
+#: ../src/tracker-control/tracker-control-general.c:788
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No podeu utilitzar els arguments «--kill» i «--terminate» alhora"
 
-#: ../src/tracker-control/tracker-control-general.c:801
+#: ../src/tracker-control/tracker-control-general.c:794
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -1063,122 +919,115 @@ msgstr ""
 "No podeu utilitzar l'argument «--terminate» amb «--hard-reset» o «--soft-"
 "reset» ja que impliquen l'argument «--kill»."
 
-#: ../src/tracker-control/tracker-control-general.c:807
+#: ../src/tracker-control/tracker-control-general.c:800
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 "No podeu utilitzar els arguments «--hard-reset» i «--soft-reset» alhora"
 
-#: ../src/tracker-control/tracker-control-general.c:813
+#: ../src/tracker-control/tracker-control-general.c:806
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr ""
 "No podeu utilitzar els arguments «--get-logging» i «--set-logging» alhora"
 
-#: ../src/tracker-control/tracker-control-general.c:828
+#: ../src/tracker-control/tracker-control-general.c:821
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "El detall de registre és incorrecte, proveu: «debug» (depuració), "
 "«detailed» (detallat), «minimal» (mínim) o «errors» (només errors)"
 
-#: ../src/tracker-control/tracker-control-general.c:904
+#: ../src/tracker-control/tracker-control-general.c:897
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No s'ha pogut obrir «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:935
+#: ../src/tracker-control/tracker-control-general.c:928
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "S'ha trobat l'identificador de procés %d per «%s»"
 
-#: ../src/tracker-control/tracker-control-general.c:950
+#: ../src/tracker-control/tracker-control-general.c:943
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No s'ha pogut acabar el procés %d"
 
-#: ../src/tracker-control/tracker-control-general.c:956
+#: ../src/tracker-control/tracker-control-general.c:949
 #, c-format
 msgid "Terminated process %d"
 msgstr "S'ha finalitzat el procés %d"
 
-#: ../src/tracker-control/tracker-control-general.c:971
+#: ../src/tracker-control/tracker-control-general.c:964
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No s'ha pogut matar el procés %d"
 
-#: ../src/tracker-control/tracker-control-general.c:977
+#: ../src/tracker-control/tracker-control-general.c:970
 #, c-format
 msgid "Killed process %d"
 msgstr "S'ha matat el procés %d"
 
-#: ../src/tracker-control/tracker-control-general.c:1090
+#: ../src/tracker-control/tracker-control-general.c:1083
 msgid "Removing configuration files…"
 msgstr "S'estan eliminant els fitxers de configuració…"
 
-#: ../src/tracker-control/tracker-control-general.c:1095
+#: ../src/tracker-control/tracker-control-general.c:1088
 msgid "Resetting existing configuration…"
 msgstr "S'està reiniciant la configuració existent…"
 
-#: ../src/tracker-control/tracker-control-general.c:1145
-#: ../src/tracker-control/tracker-control-general.c:1187
+#: ../src/tracker-control/tracker-control-general.c:1138
+#: ../src/tracker-control/tracker-control-general.c:1180
 msgid "Components"
 msgstr "Components"
 
-#: ../src/tracker-control/tracker-control-general.c:1151
-#: ../src/tracker-control/tracker-control-general.c:1193
+#: ../src/tracker-control/tracker-control-general.c:1144
+#: ../src/tracker-control/tracker-control-general.c:1186
 #: ../src/tracker-control/tracker-control-miners.c:392
-#: ../src/tracker-control/tracker-control-status.c:928
+#: ../src/tracker-control/tracker-control-status.c:568
 msgid "Miners"
 msgstr "Extractors de dades"
 
-#: ../src/tracker-control/tracker-control-general.c:1152
-#: ../src/tracker-control/tracker-control-general.c:1194
+#: ../src/tracker-control/tracker-control-general.c:1145
+#: ../src/tracker-control/tracker-control-general.c:1187
 msgid "Only those with config listed"
 msgstr "Només aquells amb la configuració llistada"
 
-#: ../src/tracker-control/tracker-control-general.c:1170
+#: ../src/tracker-control/tracker-control-general.c:1163
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr ""
 "S'està establint el detall de registre per a tots els components a «%s»…"
 
-#: ../src/tracker-control/tracker-control-general.c:1210
+#: ../src/tracker-control/tracker-control-general.c:1203
 msgid "Waiting one second before starting miners…"
 msgstr "S'està esperant un segon abans d'iniciar els extractors de dades…"
 
-#: ../src/tracker-control/tracker-control-general.c:1216
+#: ../src/tracker-control/tracker-control-general.c:1209
 msgid "Starting miners…"
 msgstr "S'estan iniciant els extractors de dades…"
 
-#: ../src/tracker-control/tracker-control-general.c:1222
+#: ../src/tracker-control/tracker-control-general.c:1215
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr ""
 "No s'han pogut iniciar els extractor de dades, no s'ha pogut crear el "
 "gestor, %s"
 
-#: ../src/tracker-control/tracker-control-general.c:1247
+#: ../src/tracker-control/tracker-control-general.c:1240
 msgid "perhaps a disabled plugin?"
 msgstr "potser hi ha algun connector inhabilitat?"
 
-#: ../src/tracker-control/tracker-control-general.c:1278
+#: ../src/tracker-control/tracker-control-general.c:1262
 msgid "Backing up database"
 msgstr "S'està fent una còpia de seguretat de la base de dades"
 
-#: ../src/tracker-control/tracker-control-general.c:1298
-#: ../src/tracker-control/tracker-control-general.c:1351
-#, fuzzy
-#| msgid "Could not update tags"
-msgid "Could not backup database"
-msgstr "No s'ha pogut actualitzar les etiquetes"
-
-#: ../src/tracker-control/tracker-control-general.c:1331
+#: ../src/tracker-control/tracker-control-general.c:1334
 msgid "Restoring database from backup"
 msgstr "S'esta restaurant la base de dades des de la còpia de seguretat"
 
-#: ../src/tracker-control/tracker-control-general.c:1376
+#: ../src/tracker-control/tracker-control-general.c:1407
 msgid "General options"
 msgstr "Opcions generals"
 
-#: ../src/tracker-control/tracker-control-general.c:1377
+#: ../src/tracker-control/tracker-control-general.c:1408
 msgid "Show general options"
 msgstr "Mostra les opcions generals"
 
@@ -1236,10 +1085,6 @@ msgstr ""
 "L'extractor de dades que s'utilitzarà amb «--resume» o «--pause» (podeu "
 "utilitzar sufixos, per exemple Fitxers o Aplicacions)"
 
-#: ../src/tracker-control/tracker-control-miners.c:76
-msgid "MINER"
-msgstr "EXTRACTOR-DE-DADES"
-
 #: ../src/tracker-control/tracker-control-miners.c:79
 msgid "List all miners currently running"
 msgstr "Llista tots els extractors de dades que s'estan executant"
@@ -1277,11 +1122,7 @@ msgid "Cookie is %d"
 msgstr "La galeta és %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:146
-#: ../src/tracker-control/tracker-control-status.c:849
-#: ../src/tracker-control/tracker-control-status.c:993
-#, fuzzy
-#| msgid "Press Ctrl+C to end pause"
-msgid "Press Ctrl+C to stop"
+msgid "Press Ctrl+C to end pause"
 msgstr "Premeu Ctrl+C per per posar fi a la pausa"
 
 #: ../src/tracker-control/tracker-control-miners.c:170
@@ -1407,161 +1248,95 @@ msgstr "Opcions de l'extractor de dades"
 msgid "Show miner options"
 msgstr "Mostra les opcions de l'extractor de dades"
 
-#: ../src/tracker-control/tracker-control-status.c:65
-#: ../src/tracker-control/tracker-control-status.c:340
+#: ../src/tracker-control/tracker-control-status.c:51
+#: ../src/tracker-control/tracker-control-status.c:307
 msgid "Unavailable"
 msgstr "No disponible"
 
 #. generic
-#: ../src/tracker-control/tracker-control-status.c:66
+#: ../src/tracker-control/tracker-control-status.c:52
 msgid "Initializing"
 msgstr "S'està inicialitzant"
 
-#: ../src/tracker-control/tracker-control-status.c:68
+#: ../src/tracker-control/tracker-control-status.c:54
 msgid "Fetching…"
 msgstr "S'està recollint…"
 
 #. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:69
+#: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "S'està indexant el directori «%s»"
 
-#: ../src/tracker-control/tracker-control-status.c:70
+#: ../src/tracker-control/tracker-control-status.c:56
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "S'està indexant recursivament el directori «%s»"
 
-#: ../src/tracker-control/tracker-control-status.c:71
+#: ../src/tracker-control/tracker-control-status.c:57
 msgid "Paused"
 msgstr "En pausa"
 
-#: ../src/tracker-control/tracker-control-status.c:72
+#: ../src/tracker-control/tracker-control-status.c:58
 msgid "Idle"
 msgstr "Inactiu"
 
-#: ../src/tracker-control/tracker-control-status.c:77
+#: ../src/tracker-control/tracker-control-status.c:63
 msgid "Show current status"
 msgstr "Mostra l'estat actual"
 
-#: ../src/tracker-control/tracker-control-status.c:81
+#: ../src/tracker-control/tracker-control-status.c:67
 msgid "Follow status changes as they happen"
 msgstr "Segueix els canvis d'estat a mesura que passen"
 
-#: ../src/tracker-control/tracker-control-status.c:85
-msgid ""
-"Watch changes to the database in real time (e.g. resources or files being "
-"added)"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-status.c:86
-msgid "ONTOLOGY"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-status.c:89
+#: ../src/tracker-control/tracker-control-status.c:71
 msgid "List common statuses for miners and the store"
 msgstr "Llista els estats comuns per els extractors de dades i el magatzem"
 
-#: ../src/tracker-control/tracker-control-status.c:175
+#: ../src/tracker-control/tracker-control-status.c:142
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "No s'ha pogut obtenir l'estat de l'extractor de dades: %s"
 
 #. Translators: %s is a time string
-#: ../src/tracker-control/tracker-control-status.c:237
+#: ../src/tracker-control/tracker-control-status.c:204
 #, c-format
 msgid "%s remaining"
 msgstr "restant %s"
 
-#: ../src/tracker-control/tracker-control-status.c:240
+#: ../src/tracker-control/tracker-control-status.c:207
 msgid "unknown time left"
 msgstr "es desconeix el temps per acabar"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:253
-#: ../src/tracker-control/tracker-control-status.c:892
+#: ../src/tracker-control/tracker-control-status.c:220
+#: ../src/tracker-control/tracker-control-status.c:552
 msgid "PAUSED"
 msgstr "EN PAUSA"
 
-#: ../src/tracker-control/tracker-control-status.c:270
+#: ../src/tracker-control/tracker-control-status.c:237
 msgid "Not running or is a disabled plugin"
 msgstr "No s'està executant o es un connector inhabilitat"
 
-#: ../src/tracker-control/tracker-control-status.c:372
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
-msgid "Could not retrieve tracker-store status"
-msgstr "No s'han pogut obtenir les estadístiques del Tracker"
-
-#: ../src/tracker-control/tracker-control-status.c:393
-#, fuzzy
-#| msgid "Could not retrieve tags for the current selection"
-msgid "Could not retrieve tracker-store progress"
-msgstr "No s'ha pogut recuperar les etiquetes per a la selecció actual"
-
 #: ../src/tracker-control/tracker-control-status.c:523
-#: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:184
-msgid "Unable to retrieve namespace prefixes"
-msgstr "No s'han pogut recuperar els prefixos de l'espai de noms"
-
-#: ../src/tracker-control/tracker-control-status.c:531
-#: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:192
-msgid "No namespace prefixes were returned"
-msgstr "No s'ha retornat cap prefix d'espai de noms"
-
-#: ../src/tracker-control/tracker-control-status.c:610
-#: ../src/tracker-control/tracker-control-status.c:637
-#, fuzzy
-#| msgid "Could not run query"
-msgid "Could not run SPARQL query"
-msgstr "No s'ha pogut executar la consulta"
-
-#: ../src/tracker-control/tracker-control-status.c:618
-#: ../src/tracker-control/tracker-control-status.c:650
-msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-status.c:815
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
-msgid "Could not get SPARQL connection"
-msgstr "No s'ha pogut establir una connexió amb el Tracker"
-
-#: ../src/tracker-control/tracker-control-status.c:847
-msgid "Now listening for resource updates to the database"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-status.c:848
-msgid "All nie:plainTextContent properties are omitted"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control-status.c:863
 msgid "Common statuses include"
 msgstr "Els estats més comuns són"
 
-#: ../src/tracker-control/tracker-control-status.c:881
+#: ../src/tracker-control/tracker-control-status.c:541
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "No s'ha pogut obtenir l'estat, no s'ha pogut crear el gestor, %s"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:902
+#: ../src/tracker-control/tracker-control-status.c:562
 msgid "Store"
 msgstr "Magatzem"
 
-#: ../src/tracker-control/tracker-control-status.c:936
-#, fuzzy, c-format
-#| msgid "Could not get status from miner: %s"
-msgid "Could not get display name for miner '%s'"
-msgstr "No s'ha pogut obtenir l'estat de l'extractor de dades: %s"
-
-#: ../src/tracker-control/tracker-control-status.c:1044
+#: ../src/tracker-control/tracker-control-status.c:683
 msgid "Status options"
 msgstr "Opcions d'estat"
 
-#: ../src/tracker-control/tracker-control-status.c:1045
+#: ../src/tracker-control/tracker-control-status.c:684
 msgid "Show status options"
 msgstr "Mostra les opcions d'estat"
 
@@ -1572,6 +1347,8 @@ msgstr "Ha fallat l'extractor de metadades"
 #: ../src/tracker-extract/tracker-extract.c:808
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
+"No s'han trobat mòduls de metadades o extractors per gestionar "
+"aquest fitxer"
 
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
@@ -2300,6 +2077,16 @@ msgstr "Mostra el contingut del text pla si és disponible pels recursos"
 msgid "Output results as RDF in Turtle format"
 msgstr "Dóna els resultats com a RDF en format Turtle"
 
+#: ../src/tracker-utils/tracker-info.c:141
+#: ../src/tracker-utils/tracker-sparql.c:184
+msgid "Unable to retrieve namespace prefixes"
+msgstr "No s'han pogut recuperar els prefixos de l'espai de noms"
+
+#: ../src/tracker-utils/tracker-info.c:149
+#: ../src/tracker-utils/tracker-sparql.c:192
+msgid "No namespace prefixes were returned"
+msgstr "No s'ha retornat cap prefix d'espai de noms"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:349
@@ -2884,10 +2671,9 @@ msgid "Statistics:"
 msgstr "Estadístiques:"
 
 #: ../src/tracker-utils/tracker-tag.c:63
-#, fuzzy
-#| msgid "Use OR for search terms instead of AND (the default)"
 msgid "Use AND for search terms instead of OR (the default)"
-msgstr "Utilitza «o» en comptes de «i» (predeterminat) per cercar termes"
+msgstr ""
+"Utilitzeu «AND» (i) en comptes d'«OR» (o, per defecte) per cercar termes"
 
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid ""
@@ -2946,28 +2732,20 @@ msgid "Could not get files related to tag"
 msgstr "No s'han pogut obtenir els fitxers relacionats amb l'etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:387
-#, fuzzy
-#| msgid "Could not get all tags"
 msgid "Could not get all tags in the database"
-msgstr "No s'han pogut obtenir totes les etiquetes"
+msgstr "No s'han pogut obtenir totes les etiquetes de la base de dades"
 
 #: ../src/tracker-utils/tracker-tag.c:397
-#, fuzzy
-#| msgid "One or more files have not been specified"
 msgid "No files have been tagged"
-msgstr "No s'han especificat tots els fitxers"
+msgstr "No hi ha cap fitxer etiquetat"
 
 #: ../src/tracker-utils/tracker-tag.c:432
-#, fuzzy
-#| msgid "Could not get files related to tag"
 msgid "Could not get files for matching tags"
-msgstr "No s'han pogut obtenir els fitxers relacionats amb l'etiqueta"
+msgstr "No s'ha pogut obtenir cap fitxer amb les etiquetes seleccionades"
 
 #: ../src/tracker-utils/tracker-tag.c:441
-#, fuzzy
-#| msgid "No results were found matching your query"
 msgid "No files were found matching ALL of those tags"
-msgstr "No s'ha trobat cap resultat que coincideixi amb la consulta"
+msgstr "No s'ha trobat cap fitxer que coincideixi amb totes les etiquetes"
 
 #: ../src/tracker-utils/tracker-tag.c:520
 #: ../src/tracker-utils/tracker-tag.c:935
@@ -2989,10 +2767,8 @@ msgstr "No s'havia modificat cap fitxer"
 
 #: ../src/tracker-utils/tracker-tag.c:657
 #: ../src/tracker-utils/tracker-tag.c:665
-#, fuzzy
-#| msgid "File not indexed or already untagged"
 msgid "Files do not exist or aren't indexed"
-msgstr "El fitxer, o bé no està indexat o ja no té cap etiqueta"
+msgstr "Els fitxers, o bé no existeixen o no estan indexats"
 
 #: ../src/tracker-utils/tracker-tag.c:731
 msgid "Tag was added successfully"
@@ -3046,12 +2822,12 @@ msgid "The --list option is required for --show-files"
 msgstr "L'opció «--show-files» requereix també l'opció «--list»"
 
 #: ../src/tracker-utils/tracker-tag.c:1007
-#, fuzzy
-#| msgid "The --description option can only be used with --add"
 msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
-msgstr "L'opció «--description» només es pot utilitzar juntament amb «--add»"
+msgstr ""
+"L'opció «--and-operator» només es pot utilitzar juntament amb «--list» i amb "
+"arguments d'etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
@@ -3091,8 +2867,3 @@ msgstr "No s'ha pogut iniciar el gestor de dades"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "El conjunt de resultats és buit"
-
-#~ msgid "Disable miners started as part of this process, options include: '"
-#~ msgstr ""
-#~ "La inhabilitació de l'extractor de dades ha començat com a part d'aquest "
-#~ "procés, les opcions són: '"
