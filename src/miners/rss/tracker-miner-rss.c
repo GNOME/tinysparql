@@ -410,6 +410,106 @@ feed_fetching_cb (GrssFeedsPool   *pool,
 }
 
 static void
+unread_count_updated_cb (GObject      *source,
+                         GAsyncResult *result,
+                         gpointer      user_data)
+{
+	GError *error = NULL;
+
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source), result, &error);
+	if (error != NULL) {
+		g_critical ("Could not update unread count in channel, %s", error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+update_unread_count_cb (GObject      *source,
+                        GAsyncResult *result,
+                        gpointer      user_data)
+{
+	gint64 count;
+	gchar *uri;
+	GError *error = NULL;
+	GrssFeedChannel *channel;
+	TrackerSparqlConnection *connection;
+	TrackerSparqlCursor *cursor;
+	TrackerSparqlBuilder *sparql;
+
+	connection = TRACKER_SPARQL_CONNECTION (source);
+
+	channel = user_data;
+	uri = g_object_get_data (G_OBJECT (channel), "subject");
+
+	cursor = tracker_sparql_connection_query_finish (connection, result, &error);
+	if (error != NULL) {
+		g_critical ("Could not fetch unread items count for '%s', %s",
+		            uri,
+		            error->message);
+		g_error_free (error);
+	} else {
+		if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			g_message ("No data in query response??");
+
+			if (cursor) {
+				g_object_unref (cursor);
+			}
+
+			return;
+		}
+
+		count = tracker_sparql_cursor_get_integer (cursor, 0);
+
+		sparql = tracker_sparql_builder_new_update ();
+		tracker_sparql_builder_delete_open (sparql, NULL);
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "mfo:unreadCount");
+		tracker_sparql_builder_object_variable (sparql, "unknown");
+		tracker_sparql_builder_delete_close (sparql);
+		tracker_sparql_builder_where_open (sparql);
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "mfo:unreadCount");
+		tracker_sparql_builder_object_variable (sparql, "unknown");
+		tracker_sparql_builder_where_close (sparql);
+
+		tracker_sparql_builder_insert_open (sparql, NULL);
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "mfo:unreadCount");
+		tracker_sparql_builder_object_int64 (sparql, count);
+		tracker_sparql_builder_insert_close (sparql);
+
+		tracker_sparql_connection_update_async (connection,
+			                                tracker_sparql_builder_get_result (sparql),
+			                                G_PRIORITY_DEFAULT,
+			                                NULL,
+			                                unread_count_updated_cb,
+			                                NULL);
+		g_object_unref (sparql);
+		g_object_unref (cursor);
+	}
+}
+
+static void
+count_unread_count (TrackerMinerRSS *miner,
+                    GrssFeedChannel *channel)
+{
+	gchar *uri;
+	gchar *query;
+
+	uri = g_object_get_data (G_OBJECT (channel), "subject");
+	query = g_strdup_printf ("SELECT COUNT(?i) WHERE {?i a mfo:FeedMessage . "
+	                                               "?i nmo:communicationChannel <%s> . "
+	                                               "?i nmo:isRead false}", uri);
+
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                       query,
+	                                       NULL,
+	                                       update_unread_count_cb,
+	                                       channel);
+	g_free (query);
+}
+
+static void
 feed_item_insert_cb (GObject      *source,
                      GAsyncResult *result,
                      gpointer      user_data)
@@ -654,6 +754,8 @@ feed_ready_cb (GrssFeedsPool   *pool,
 
 		feed_item_check_exists (miner, item);
 	}
+
+	count_unread_count (miner, channel);
 }
 
 static void
