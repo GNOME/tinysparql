@@ -30,7 +30,7 @@ tracker_indexing_tree_get_type
 
 <SECTION>
 <FILE>tracker-miner</FILE>
-
+TrackerMinerError
 </SECTION>
 
 <SECTION>
@@ -215,4 +215,36 @@ TRACKER_DECORATOR_FS_GET_CLASS
 TRACKER_IS_DECORATOR_FS
 TRACKER_IS_DECORATOR_FS_CLASS
 TRACKER_TYPE_DECORATOR_FS
+</SECTION>
+
+<SECTION>
+<FILE>tracker-enumerator</FILE>
+<TITLE>TrackerEnumerator</TITLE>
+TrackerEnumeratorIface
+tracker_enumerator_get_children
+tracker_enumerator_get_children_async
+tracker_enumerator_get_children_finish
+TrackerEnumerator
+<SUBSECTION Standard>
+TRACKER_ENUMERATOR
+TRACKER_ENUMERATOR_GET_IFACE
+TRACKER_IS_ENUMERATOR
+TRACKER_TYPE_ENUMERATOR
+tracker_enumerator_get_type
+</SECTION>
+
+<SECTION>
+<FILE>tracker-file-enumerator</FILE>
+<TITLE>TrackerFileEnumerator</TITLE>
+tracker_file_enumerator_new
+<SUBSECTION Standard>
+TRACKER_FILE_ENUMERATOR
+TRACKER_FILE_ENUMERATOR_CLASS
+TRACKER_FILE_ENUMERATOR_GET_CLASS
+TRACKER_IS_FILE_ENUMERATOR
+TRACKER_IS_FILE_ENUMERATOR_CLASS
+TRACKER_TYPE_FILE_ENUMERATOR
+TrackerFileEnumerator
+TrackerFileEnumeratorClass
+tracker_file_enumerator_get_type
 </SECTION>

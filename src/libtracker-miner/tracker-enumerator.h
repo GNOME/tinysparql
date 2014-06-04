@@ -35,9 +35,26 @@ G_BEGIN_DECLS
 #define TRACKER_IS_ENUMERATOR(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_ENUMERATOR))
 #define TRACKER_ENUMERATOR_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_ENUMERATOR, TrackerEnumeratorIface))
 
+/**
+ * TrackerEnumerator:
+ *
+ * An interface to enumerate URIs and feed the data to Tracker.
+ **/
 typedef struct _TrackerEnumerator TrackerEnumerator;
 typedef struct _TrackerEnumeratorIface TrackerEnumeratorIface;
 
+/**
+ * TrackerEnumeratorIface:
+ * @g_iface: Parent interface type.
+ * @get_children: Called when the enumerator is synchronously
+ * retrieving children.
+ * @get_children_async: Called when the enumerator is asynchronously
+ * retrieving children.
+ * @get_children_finish: Called when the enumerator is completing the
+ * asynchronous operation provided by @get_children_async.
+ *
+ * Virtual methods left to implement.
+ **/
 struct _TrackerEnumeratorIface {
 	GTypeInterface g_iface;
 
@@ -60,6 +77,16 @@ struct _TrackerEnumeratorIface {
 	                                  GAsyncResult         *result,
 	                                  GError              **error);
 
+	/*< private >*/
+	/* Padding for future expansion */
+	void (*_tracker_reserved1) (void);
+	void (*_tracker_reserved2) (void);
+	void (*_tracker_reserved3) (void);
+	void (*_tracker_reserved4) (void);
+	void (*_tracker_reserved5) (void);
+	void (*_tracker_reserved6) (void);
+	void (*_tracker_reserved7) (void);
+	void (*_tracker_reserved8) (void);
 };
 
 GType   tracker_enumerator_get_type             (void) G_GNUC_CONST;

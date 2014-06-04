@@ -35,6 +35,20 @@ typedef struct {
 	GFileQueryInfoFlags flags;
 } GetChildrenData;
 
+/**
+ * SECTION:tracker-file-enumerator
+ * @short_description: File based enumerator for file:// descendant URIs
+ * @include: libtracker-miner/miner.h
+ *
+ * #TrackerFileEnumerator is a local file implementation of the
+ * #TrackerEnumerator interface, charged with handling all file:// type URIs.
+ *
+ * Underneath it all, this implementation makes use of the
+ * #GFileEnumerator APIs.
+ *
+ * Since: 1.2
+ **/
+
 G_DEFINE_TYPE_WITH_CODE (TrackerFileEnumerator, tracker_file_enumerator, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (TRACKER_TYPE_ENUMERATOR,
                                                 tracker_file_enumerator_file_iface_init))
@@ -163,6 +177,11 @@ file_enumerator_get_children (TrackerEnumerator    *enumerator,
 			break;
 		}
 
+		g_message ("--> Found:'%s' (%s)",
+		           g_file_info_get_name (info),
+		           g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY ? "Dir" : "File");
+
+
 		files = g_slist_prepend (files, info);
 	}
 
@@ -243,6 +262,18 @@ tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *iface)
 	iface->get_children_finish = file_enumerator_get_children_finish;
 }
 
+/**
+ * tracker_file_enumerator_new:
+ *
+ * Creates a new TrackerEnumerator which can be used to create new
+ * #TrackerMinerFS classes. See #TrackerMinerFS for an example of how
+ * to use your #TrackerEnumerator.
+ *
+ * Returns: (transfer full): a #TrackerEnumerator which must be
+ * unreferenced with g_object_unref().
+ *
+ * Since: 1.2:
+ **/
 TrackerEnumerator *
 tracker_file_enumerator_new (void)
 {

@@ -109,9 +109,41 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  * @include: libtracker-miner/tracker-miner.h
  *
  * #TrackerMinerFS is an abstract base class for miners that collect data
- * from the filesystem, all the filesystem crawling and monitoring is
- * abstracted away, leaving to implementations the decisions of what
- * directories/files should it process, and the actual data extraction.
+ * from a filesystem where parent/child relationships need to be
+ * inserted into the database correctly with queue management.
+ *
+ * All the filesystem crawling and monitoring is abstracted away,
+ * leaving to implementations the decisions of what directories/files
+ * should it process, and the actual data extraction.
+ *
+ * Example creating a TrackerMinerFS with our own file system root and
+ * enumerator.
+ *
+ * First create our class and base it on TrackerMinerFS:
+ * |[
+ * G_DEFINE_TYPE_WITH_CODE (MyMinerFiles, my_miner_files, TRACKER_TYPE_MINER_FS,
+ *                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+ *                                                 my_miner_files_initable_iface_init))
+ * ]|
+ *
+ * Later in our class creation function, we are supplying the
+ * arguments we want. In this case, the 'root' is a #GFile pointing to
+ * a root URI location (for example 'file:///') and 'enumerator' is a
+ * #TrackerEnumerator used to enumerate 'root' and return children it
+ * finds. If 'enumerator' is %NULL (the default), then a
+ * #TrackerFileEnumerator is created automatically.
+ * |[
+ * // Note that only 'name' is mandatory
+ * miner = g_initable_new (MY_TYPE_MINER_FILES,
+ *                         NULL,
+ *                         error,
+ *                         "name", "MyMinerFiles",
+ *                         "root", root,
+ *                         "enumerator", enumerator,
+ *                         "processing-pool-wait-limit", 10,
+ *                         "processing-pool-ready-limit", 100,
+ *                         NULL);
+ * ]|
  **/
 
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))

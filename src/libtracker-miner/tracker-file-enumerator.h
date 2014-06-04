@@ -34,9 +34,20 @@ G_BEGIN_DECLS
 #define TRACKER_IS_FILE_ENUMERATOR_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_FILE_ENUMERATOR))
 #define TRACKER_FILE_ENUMERATOR_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_FILE_ENUMERATOR, TrackerFileEnumeratorClass))
 
+/**
+ * TrackerFileEnumerator:
+ *
+ * An implementation of the #TrackerEnumerator interface.
+ **/
 typedef struct _TrackerFileEnumerator        TrackerFileEnumerator;
 typedef struct _TrackerFileEnumeratorClass   TrackerFileEnumeratorClass;
 
+/**
+ * TrackerFileEnumeratorClass:
+ * @parent_class: Parent object class.
+ *
+ * Prototype for the class implementation.
+ **/
 struct _TrackerFileEnumeratorClass {
 	GObjectClass parent_class;
 };
