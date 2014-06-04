@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2014-01-03T02:14:35Z" .
+	nao:lastModified "2014-06-03T13:05:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -500,6 +500,7 @@ nfo:fileName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:FileDataObject ;
 	rdfs:range xsd:string ;
+	tracker:indexed true ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 7 .
 

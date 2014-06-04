@@ -10,7 +10,7 @@
 
 nie: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nie" ;
-	nao:lastModified "2011-02-08T16:00:00Z" .
+	nao:lastModified "2014-06-03T13:06:00Z" .
 
 nie:DataObject a rdfs:Class ;
 	rdfs:label "Data Object" ;
@@ -73,7 +73,8 @@ nie:mimeType a rdf:Property ;
 	rdfs:comment "File Mime Type" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:indexed true .
 
 nie:byteSize a rdf:Property ;
 	rdfs:label "Size" ;
