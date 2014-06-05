@@ -3939,67 +3939,6 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 	return fs->priv->indexing_tree;
 }
 
-/**
- * tracker_miner_fs_manually_notify_file:
- * @fs: a #TrackerMinerFS
- * @queue_type: the type of operation to notify
- * @file: a #GFile
- * @file_type: a #GFileType
- * @error: a #GError
- *
- * This API is only useful where the @fs was created using the
- * #TrackerMinerFS:external-crawler property set to %TRUE. By default
- * this is %FALSE. This allows 3rd party developers to 'push' their
- * data into Tracker to be processed, rather than requiring Tracker to
- * index the content itself by crawling the file system and monitoring
- * changes.
- *
- * This is also very helpful for cases where @file is not based on the
- * local file system (for example a cloud implementation) and you want
- * to tell Tracker about content to index more directly.
- *
- * Returns: %TRUE if successful, otherwise %FALSE and @error will be
- * set if a pointer is supplied.
- *
- * Since: 1.2.
- **/
-gboolean
-tracker_miner_fs_manually_notify_file (TrackerMinerFS       *fs,
-                                       TrackerMinerFSQueue   queue_type,
-                                       GFile                *file,
-                                       GFileType             file_type,
-                                       GError              **error)
-{
-	TrackerMinerFSPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	priv = fs->priv;
-
-	if (!priv->external_crawler) {
-		g_set_error (error,
-		             tracker_miner_fs_error_quark (),
-		             TRACKER_MINER_FS_ERROR_HAVE_CRAWLER,
-		             "API can not be used with the internal crawler provided by Tracker");
-		return FALSE;
-	}
-
-	if (!priv->is_paused) {
-		g_set_error (error,
-		             tracker_miner_error_quark (),
-		             TRACKER_MINER_ERROR_PAUSED,
-		             "API can not be used when paused");
-		return FALSE;
-	}
-
-	return tracker_file_notifier_signal_file (fs->priv->file_notifier,
-	                                          queue_type,
-	                                          file,
-	                                          file_type);
-}
-
-
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 
 static void

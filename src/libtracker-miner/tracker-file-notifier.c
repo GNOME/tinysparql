@@ -389,9 +389,8 @@ file_notifier_add_node_foreach (GNode    *node,
 	}
 
 	if (priv->external_crawler) {
-		file_info = NULL;
-
-		/* FIXME: get time and set property ... */
+		g_signal_emit (data->notifier, signals[QUERY_INFO], 0, file, &file_info);
+		g_warning ("TRACKER_FILE_NOTIFIER --> QUERY INFO, file:%p, info:%p", file, file_info);
 	} else {
 		file_info = tracker_crawler_get_file_info (priv->crawler, file);
 	}
@@ -1671,45 +1670,4 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	}
 
 	return iri;
-}
-
-gboolean
-tracker_file_notifier_signal_file  (TrackerFileNotifier     *notifier,
-                                    TrackerMinerFSQueue      queue_type,
-                                    GFile                   *file,
-                                    GFileType                file_type)
-{
-	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	switch (queue_type) {
-	case TRACKER_MINER_FS_QUEUE_CREATED:
-		monitor_item_created_cb (NULL,
-		                         file,
-		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
-		                         notifier);
-		break;
-
-	case TRACKER_MINER_FS_QUEUE_UPDATED:
-		monitor_item_updated_cb (NULL,
-		                         file,
-		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
-		                         notifier);
-		break;
-
-	case TRACKER_MINER_FS_QUEUE_DELETED:
-		monitor_item_deleted_cb (NULL,
-		                         file,
-		                         file_type == G_FILE_TYPE_DIRECTORY ? TRUE : FALSE,
-		                         notifier);
-	case TRACKER_MINER_FS_QUEUE_MOVED:
-		g_critical ("Currently MOVE signalling is unsupported");
-		return FALSE;
-
-	default:
-		g_assert_not_reached ();
-		return FALSE;
-	}
-
-	return TRUE;
 }

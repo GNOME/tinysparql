@@ -89,11 +89,6 @@ const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier     *notif
                                                   GFile                   *file,
                                                   gboolean                 force);
 
-gboolean      tracker_file_notifier_signal_file  (TrackerFileNotifier     *notifier,
-                                                  TrackerMinerFSQueue      queue_type,
-                                                  GFile                   *file,
-                                                  GFileType                file_type);
-
 G_END_DECLS
 
 #endif /* __TRACKER_FILE_SYSTEM_H__ */

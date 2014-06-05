@@ -67,8 +67,10 @@ struct _TrackerMinerFS {
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
  * @writeback_file: Called when a file must be written back
+ * @query_info: Called when file information is needed, only used with
+ * external crawlers when the file notifier needs information about
+ * the file to know how to cache it or to check on details like mtime.
  * @padding: Reserved for future API improvements.
-
  *
  * Prototype for the abstract class, @process_file must be implemented
  * in the deriving class in order to actually extract data.
@@ -93,6 +95,7 @@ typedef struct {
 	                                       GFile                *file,
 	                                       GStrv                 rdf_types,
 	                                       GPtrArray            *results);
+
 	/* <Private> */
 	gpointer padding[10];
 } TrackerMinerFSClass;
@@ -117,15 +120,6 @@ typedef enum {
 	TRACKER_MINER_FS_ERROR_INIT,
 	TRACKER_MINER_FS_ERROR_HAVE_CRAWLER,
 } TrackerMinerFSError;
-
-typedef enum {
-	TRACKER_MINER_FS_QUEUE_NONE,
-	TRACKER_MINER_FS_QUEUE_CREATED,
-	TRACKER_MINER_FS_QUEUE_UPDATED,
-	TRACKER_MINER_FS_QUEUE_DELETED,
-	TRACKER_MINER_FS_QUEUE_MOVED
-} TrackerMinerFSQueue;
-
 
 GType                 tracker_miner_fs_get_type              (void) G_GNUC_CONST;
 GQuark                tracker_miner_fs_error_quark           (void);
@@ -201,14 +195,6 @@ gchar                *tracker_miner_fs_query_urn             (TrackerMinerFS  *f
 
 /* Progress */
 gboolean              tracker_miner_fs_has_items_to_process  (TrackerMinerFS  *fs);
-
-
-/* When using external crawlers, to inject files manually */
-gboolean              tracker_miner_fs_manually_notify_file  (TrackerMinerFS  *fs,
-                                                              TrackerMinerFSQueue queue_type,
-                                                              GFile           *file,
-                                                              GFileType        file_type,
-                                                              GError         **error);
 
 G_END_DECLS
 
