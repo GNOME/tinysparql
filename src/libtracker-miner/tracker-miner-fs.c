@@ -3021,23 +3021,26 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
                                 gboolean        recurse)
 {
-	TrackerDirectoryFlags flags;
+	TrackerDirectoryFlags flags = TRACKER_DIRECTORY_FLAG_NONE;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
-
-	flags = TRACKER_DIRECTORY_FLAG_MONITOR;
 
 	if (recurse) {
 		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
 	}
 
-	if (fs->priv->mtime_checking) {
-		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+	if (!fs->priv->external_crawler) {
+		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+
+		if (fs->priv->mtime_checking) {
+			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+		}
 	}
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           file, flags);
+	                           file,
+	                           flags);
 }
 
 static void
@@ -3465,9 +3468,13 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 			return;
 		}
 
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-			TRACKER_DIRECTORY_FLAG_MONITOR;
+		if (fs->priv->external_crawler) {
+			flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+		} else {
+			flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+				TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+				TRACKER_DIRECTORY_FLAG_MONITOR;
+		}
 
 		/* Priorities run from positive to negative */
 		if (priority < G_PRIORITY_DEFAULT)
@@ -3840,14 +3847,23 @@ void
 tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
                                        GFile          *directory)
 {
+	TrackerDirectoryFlags flags;
+
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (directory));
 
+	if (fs->priv->external_crawler) {
+		/* Essentially, this is a not doing anything special */
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE;
+	} else {
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+			TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           directory,
-	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-	                           TRACKER_DIRECTORY_FLAG_RECURSE |
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           flags);
 }
 
 void
@@ -3910,15 +3926,24 @@ void
 tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
                                                GFile          *file)
 {
+	TrackerDirectoryFlags flags;
+
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
+	if (fs->priv->external_crawler) {
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+			TRACKER_DIRECTORY_FLAG_PRESERVE;
+	} else {
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+			TRACKER_DIRECTORY_FLAG_PRESERVE |
+			TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+			TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           file,
-	                           TRACKER_DIRECTORY_FLAG_RECURSE |
-	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-	                           TRACKER_DIRECTORY_FLAG_MONITOR |
-	                           TRACKER_DIRECTORY_FLAG_PRESERVE);
+	                           flags);
 }
 
 /**
