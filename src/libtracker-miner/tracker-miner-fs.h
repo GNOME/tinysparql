@@ -117,6 +117,7 @@ GQuark                tracker_miner_fs_error_quark           (void);
 
 /* Properties */
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree     (TrackerMinerFS  *fs);
+TrackerEnumerator *   tracker_miner_fs_get_enumerator        (TrackerMinerFS  *fs);
 gdouble               tracker_miner_fs_get_throttle          (TrackerMinerFS  *fs);
 gboolean              tracker_miner_fs_get_mtime_checking    (TrackerMinerFS  *fs);
 gboolean              tracker_miner_fs_get_initial_crawling  (TrackerMinerFS  *fs);

@@ -3989,6 +3989,25 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 	return fs->priv->indexing_tree;
 }
 
+/**
+ * tracker_miner_fs_get_enumerator:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns the #TrackerEnumerator implementation, which is being used
+ * to supply #GFile and #GFileInfo content to Tracker.
+ *
+ * Returns: (transfer none): The #TrackerEnumerator supplying content
+ *
+ * Since: 1.2
+ **/
+TrackerEnumerator *
+tracker_miner_fs_get_enumerator (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+
+	return fs->priv->enumerator;
+}
+
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 
 static void
