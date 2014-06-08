@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009/2010, Roberto Guido <madbob@users.barberaware.org>
+ * Copyright (C) 2009/2014, Roberto Guido <madbob@users.barberaware.org>
  *                          Michele Tameni <michele@amdplanet.it>
  *
  * This library is free software; you can redistribute it and/or
@@ -73,7 +73,10 @@ static void         miner_started                   (TrackerMiner          *mine
 static void         miner_stopped                   (TrackerMiner          *miner);
 static void         miner_paused                    (TrackerMiner          *miner);
 static void         miner_resumed                   (TrackerMiner          *miner);
-static void         retrieve_and_schedule_feeds     (TrackerMinerRSS       *miner);
+static void         retrieve_and_schedule_feeds     (TrackerMinerRSS       *miner,
+                                                     const gchar           *subject);
+static void         remove_scheduled_feed           (TrackerMinerRSS       *miner,
+                                                     const gchar           *subject);
 static gboolean     feed_channel_changed_timeout_cb (gpointer               user_data);
 static void         feed_channel_update_data_free   (FeedChannelUpdateData *fcud);
 static void         feed_item_insert_data_free      (FeedItemInsertData    *fiid);
@@ -182,6 +185,53 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 		                                     NULL);
 }
 
+static gboolean
+has_channel (TrackerMinerRSS *miner,
+             const gchar *subject)
+{
+	gboolean found;
+	gchar *uri;
+	GList *channels;
+	GList *iter;
+	TrackerMinerRSSPrivate *priv;
+
+	found = FALSE;
+
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
+	channels = grss_feeds_pool_get_listened (priv->pool);
+
+	for (iter = channels; iter; iter = iter->next) {
+		uri = g_object_get_data (G_OBJECT (iter->data), "subject");
+		if (strcmp (uri, subject) == 0) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	g_list_free (channels);
+	return found;
+}
+
+static const gchar*
+get_tracker_uri (TrackerMinerRSS *miner,
+                 gint subject)
+{
+	const gchar *uri;
+	gchar *sparql;
+	TrackerSparqlCursor *cursor;
+
+	sparql = g_strdup_printf ("SELECT tracker:uri(%d) {}", subject);
+	cursor = tracker_sparql_connection_query (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                          sparql,
+	                                          NULL,
+	                                          NULL);
+
+	tracker_sparql_cursor_next (cursor, NULL, NULL);
+	uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+	g_free (sparql);
+
+	return uri;
+}
 
 static void
 graph_updated_cb (GDBusConnection *connection,
@@ -192,14 +242,44 @@ graph_updated_cb (GDBusConnection *connection,
                   GVariant        *parameters,
                   gpointer         user_data)
 {
+	GVariantIter *iter1, *iter2;
+	gchar *class_name;
+	const gchar *uri;
+	gint graph = 0;
+	gint subject = 0;
+	gint predicate = 0;
+	gint object = 0;
+
 	TrackerMinerRSS *miner = TRACKER_MINER_RSS (user_data);
 
-	g_message ("%s", signal_name);
-	g_message ("  Parameters:'%s'", g_variant_print (parameters, FALSE));
+	g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 
-	g_variant_unref (parameters);
+	/*
 
-	retrieve_and_schedule_feeds (miner);
+	while (g_variant_iter_loop (iter1, "(iiii)", &graph, &subject, &predicate, &object)) {
+		uri = get_tracker_uri (miner, subject);
+
+		if (uri != NULL) {
+			remove_scheduled_feed (miner, uri);
+		}
+	}
+
+	*/
+
+	while (g_variant_iter_loop (iter2, "(iiii)", &graph, &subject, &predicate, &object)) {
+		uri = get_tracker_uri (miner, subject);
+
+		if (uri != NULL && has_channel (miner, uri) == FALSE) {
+			retrieve_and_schedule_feeds (miner, uri);
+		}
+
+		/*
+			TODO	Handle updates of nie:url and mfo:updateInterval
+		*/
+	}
+
+	g_variant_iter_free (iter1);
+	g_variant_iter_free (iter2);
 }
 
 static FeedChannelUpdateData *
@@ -783,7 +863,8 @@ feeds_retrieve_cb (GObject      *source_object,
 		return;
 	}
 
-	channels = NULL;
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
+	channels = grss_feeds_pool_get_listened (priv->pool);
 	count = 0;
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -832,10 +913,10 @@ feeds_retrieve_cb (GObject      *source_object,
 		g_message ("No feeds set up, nothing more to do");
 	}
 
-	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	grss_feeds_pool_listen (priv->pool, channels);
 
 	g_object_unref (cursor);
+	g_list_free (channels);
 
 	if (count == 0) {
 		g_object_set (user_data, "progress", 1.0, "status", "Idle", NULL);
@@ -843,26 +924,69 @@ feeds_retrieve_cb (GObject      *source_object,
 }
 
 static void
-retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
+remove_scheduled_feed (TrackerMinerRSS *miner,
+                        const gchar *subject)
 {
-	const gchar *sparql;
+	gboolean found;
+	gchar *uri;
+	GList *channels;
+	GList *iter;
+	TrackerMinerRSSPrivate *priv;
+
+	found = FALSE;
+
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
+	channels = grss_feeds_pool_get_listened (priv->pool);
+
+	for (iter = channels; iter; iter = iter->next) {
+		uri = g_object_get_data (G_OBJECT (iter->data), "subject");
+		if (strcmp (uri, subject) == 0) {
+			channels = g_list_remove_link (channels, iter);
+			g_object_unref (iter->data);
+			g_list_free (iter);
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found == TRUE) {
+		grss_feeds_pool_listen (priv->pool, channels);
+	}
+
+	g_list_free (channels);
+}
+
+static void
+retrieve_and_schedule_feeds (TrackerMinerRSS *miner, const gchar *subject)
+{
+	gchar *s;
+	gchar *sparql;
 
 	g_message ("Retrieving and scheduling feeds...");
 
-	sparql =
-		"SELECT ?url nie:title(?urn) ?interval ?urn "
+	if (subject == NULL)
+		s = g_strdup ("?urn");
+	else
+		s = g_strdup_printf ("<%s>", subject);
+
+	sparql = g_strdup_printf (
+		"SELECT ?url ?title ?interval %s "
 		"WHERE {"
-		"  ?urn a mfo:FeedChannel ; "
+		"  %s a mfo:FeedChannel ; "
 		"         mfo:feedSettings ?settings ; "
-		"         nie:url ?url . "
+		"         nie:url ?url ; "
+		"         nie:title ?title . "
 		"  ?settings mfo:updateInterval ?interval "
-		"}";
+		"}", s, s);
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                       sparql,
 	                                       NULL,
 	                                       feeds_retrieve_cb,
 	                                       miner);
+
+	g_free (sparql);
+	g_free (s);
 }
 
 static const gchar *
@@ -884,7 +1008,7 @@ miner_started (TrackerMiner *miner)
 	g_object_set (miner, "progress", 0.0, "status", "Initializing", NULL);
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
-	retrieve_and_schedule_feeds (TRACKER_MINER_RSS (miner));
+	retrieve_and_schedule_feeds (TRACKER_MINER_RSS (miner), NULL);
 	grss_feeds_pool_switch (priv->pool, TRUE);
 }
 
