@@ -5,6 +5,9 @@ bin_PROGRAMS = tracker-preferences
 desktopdir = $(datadir)/applications
 desktop_DATA =  tracker-preferences.desktop
 
+appdatadir = $(datadir)/appdata
+appdata_DATA =  tracker-preferences.appdata.xml
+
 pkgdata_DATA = tracker-preferences.ui
 
 AM_VALAFLAGS =                                         \
@@ -34,6 +37,7 @@ tracker_preferences_SOURCES =                          \
 
 EXTRA_DIST =                                           \
 	$(pkgdata_DATA)                                \
+	$(appdata_DATA)                                \
 	config.vapi                                    \
 	tracker-config.vapi
 

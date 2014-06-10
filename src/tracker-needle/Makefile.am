@@ -41,6 +41,9 @@ ui_DATA = tracker-needle.ui
 desktopdir = $(datadir)/applications
 desktop_DATA = tracker-needle.desktop
 
+appdatadir = $(datadir)/appdata
+appdata_DATA = tracker-needle.appdata.xml
+
 BUILT_SOURCES = \
 	tracker_needle_vala.stamp
 
@@ -50,5 +53,6 @@ CLEANFILES = \
 EXTRA_DIST = \
 	$(ui_DATA) \
 	$(desktop_DATA) \
+	$(appdata_DATA) \
 	config.vapi
 

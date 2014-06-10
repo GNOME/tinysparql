@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Martyn Russell <martyn@lanedo.com> -->
+<application>
+ <id type="desktop">tracker-preferences.desktop</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-2.0+</project_license>
+ <name>Search and Indexing</name>
+ <summary>Configure file indexing with Tracker</summary>
+ <description>
+  <p>The Desktop Search application (usually separately installed)
+  finds content which is indexed only. Using this application, you can
+  quickly configure what data on your system you want indexed or not
+  indexed. Not only that, you get to control how it is indexed to
+  ensure indexing does not impede daily use of your computer.</p>
+  <p>Some of the preferences you can configure using this application
+  include:</p>
+  <ul>
+   <li>What locations you index</li>
+   <li>When you index (e.g. not on laptop battery)</li>
+   <li>How you index (e.g. aggressively or in the background)</li>
+   <li>Black listing files/directories based on globbing pattern matching</li>
+   <li>Reset the database and reindex your content</li>
+  </ul>
+ </description>
+ <screenshots>
+  <screenshot type="default" width="642" height="652">https://wiki.gnome.org/Projects/Tracker?action=AttachFile&amp;do=get&amp;target=tracker-preferences.png</screenshot>
+ </screenshots>
+ <url type="homepage">https://wiki.gnome.org/Projects/Tracker</url>
+ <updatecontact>tracker-list@gnome.org</updatecontact>
+ <project_group>GNOME</project_group>
+</application>
