@@ -66,7 +66,7 @@
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 
 /* Introspection data for the service we are exporting */
-static const gchar introspection_xml[] =
+static const gchar miner_introspection_xml[] =
   "<node>"
   "  <interface name='org.freedesktop.Tracker1.Miner'>"
   "    <method name='Start'>"
@@ -109,6 +109,8 @@ static const gchar introspection_xml[] =
   "      <arg type='d' name='progress' />"
   "      <arg type='i' name='remaining_time' />"
   "    </signal>"
+  "    <!-- Additional introspection data given by other miners -->"
+  "    %s"
   "  </interface>"
   "</node>";
 
@@ -119,6 +121,7 @@ struct _TrackerMinerPrivate {
 	gchar *name;
 	gchar *status;
 	gdouble progress;
+	gchar *introspection_xml;
 	gint remaining_time;
 	gint availability_cookie;
 	GDBusConnection *d_connection;
@@ -143,7 +146,8 @@ enum {
 	PROP_NAME,
 	PROP_STATUS,
 	PROP_PROGRESS,
-	PROP_REMAINING_TIME
+	PROP_REMAINING_TIME,
+	PROP_INTROSPECTION_XML
 };
 
 enum {
@@ -388,6 +392,13 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                   G_MAXINT,
 	                                                   -1,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_INTROSPECTION_XML,
+	                                 g_param_spec_string ("introspection-xml",
+	                                                      "Introspection XML",
+	                                                      "Introspection XML to *append* to the standard miner interface provided",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 }
@@ -407,6 +418,7 @@ miner_initable_init (GInitable     *initable,
 	GError *inner_error = NULL;
 	GVariant *reply;
 	guint32 rval;
+	gchar *extra_xml, *full_xml;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
 		handle_get_property,
@@ -428,7 +440,15 @@ miner_initable_init (GInitable     *initable,
 	}
 
 	/* Setup introspection data */
-	miner->priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
+	g_object_get (initable, "introspection-xml", &extra_xml, NULL);
+
+	full_xml = g_strdup_printf (miner_introspection_xml, extra_xml ? extra_xml : "");
+	g_free (extra_xml);
+
+	g_message ("Trying to use introspection XML:\n%s\n", full_xml);
+	miner->priv->introspection_data = g_dbus_node_info_new_for_xml (full_xml, &inner_error);
+	g_free (full_xml);
+
 	if (!miner->priv->introspection_data) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
@@ -684,6 +704,11 @@ miner_set_property (GObject      *object,
 		}
 		break;
 	}
+	case PROP_INTROSPECTION_XML: {
+		/* Only set on constructor */
+		miner->priv->introspection_xml = g_value_dup_string (value);
+		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -710,6 +735,9 @@ miner_get_property (GObject    *object,
 		break;
 	case PROP_REMAINING_TIME:
 		g_value_set_int (value, miner->priv->remaining_time);
+		break;
+	case PROP_INTROSPECTION_XML:
+		g_value_set_string (value, miner->priv->introspection_xml);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
