@@ -69,6 +69,8 @@
 static const gchar introspection_xml[] =
   "<node>"
   "  <interface name='org.freedesktop.Tracker1.Miner'>"
+  "    <method name='Start'>"
+  "    </method>"
   "    <method name='GetStatus'>"
   "      <arg type='s' name='status' direction='out' />"
   "    </method>"
@@ -1178,6 +1180,23 @@ miner_finalize (GObject *object)
 }
 
 static void
+handle_method_call_start (TrackerMiner          *miner,
+                          GDBusMethodInvocation *invocation,
+                          GVariant              *parameters)
+{
+	TrackerDBusRequest *request;
+
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s",
+	                                        __PRETTY_FUNCTION__);
+
+	tracker_miner_start (miner);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation, NULL);
+}
+
+static void
 handle_method_call_ignore_next_update (TrackerMiner          *miner,
                                        GDBusMethodInvocation *invocation,
                                        GVariant              *parameters)
@@ -1405,6 +1424,8 @@ handle_method_call (GDBusConnection       *connection,
 
 	if (g_strcmp0 (method_name, "IgnoreNextUpdate") == 0) {
 		handle_method_call_ignore_next_update (miner, invocation, parameters);
+	} else if (g_strcmp0 (method_name, "Start") == 0) {
+		handle_method_call_start (miner, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "Resume") == 0) {
 		handle_method_call_resume (miner, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "Pause") == 0) {
