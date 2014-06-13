@@ -68,7 +68,6 @@ miner_sources = 				       \
 	tracker-decorator-fs.h                         \
 	tracker-indexing-tree.c                        \
 	tracker-indexing-tree.h			       \
-	tracker-miner-dbus.h                           \
 	tracker-miner-enum-types.c                     \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.c                         \

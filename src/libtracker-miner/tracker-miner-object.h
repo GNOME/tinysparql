@@ -31,6 +31,11 @@
 
 G_BEGIN_DECLS
 
+/* Common definitions for all miners */
+#define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
+#define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
+#define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
+
 #define TRACKER_TYPE_MINER         (tracker_miner_get_type())
 #define TRACKER_MINER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER, TrackerMiner))
 #define TRACKER_MINER_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_MINER, TrackerMinerClass))
