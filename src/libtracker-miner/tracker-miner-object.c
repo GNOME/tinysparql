@@ -122,6 +122,7 @@ struct _TrackerMinerPrivate {
 	gchar *status;
 	gdouble progress;
 	gchar *introspection_xml;
+	GDBusInterfaceVTable *introspection_handler;
 	gint remaining_time;
 	gint availability_cookie;
 	GDBusConnection *d_connection;
@@ -147,7 +148,8 @@ enum {
 	PROP_STATUS,
 	PROP_PROGRESS,
 	PROP_REMAINING_TIME,
-	PROP_INTROSPECTION_XML
+	PROP_INTROSPECTION_XML,
+	PROP_INTROSPECTION_HANDLER
 };
 
 enum {
@@ -399,6 +401,12 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                      "Introspection XML to *append* to the standard miner interface provided",
 	                                                      NULL,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_INTROSPECTION_HANDLER,
+	                                 g_param_spec_pointer ("introspection-handler",
+	                                                       "Introspection Handler",
+	                                                       "Introspection Method Handler function, expected to be a pointer to GDBusInterfaceVTable",
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 }
@@ -481,10 +489,10 @@ miner_initable_init (GInitable     *initable,
 	miner->priv->registration_id =
 		g_dbus_connection_register_object (miner->priv->d_connection,
 		                                   miner->priv->full_path,
-	                                       miner->priv->introspection_data->interfaces[0],
-	                                       &interface_vtable,
-	                                       miner,
-	                                       NULL,
+		                                   miner->priv->introspection_data->interfaces[0],
+		                                   &interface_vtable,
+		                                   miner,
+		                                   NULL,
 		                                   &inner_error);
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -709,6 +717,11 @@ miner_set_property (GObject      *object,
 		miner->priv->introspection_xml = g_value_dup_string (value);
 		break;
 	}
+	case PROP_INTROSPECTION_HANDLER: {
+		/* Only set on constructor */
+		miner->priv->introspection_handler = g_value_get_pointer (value);
+		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -738,6 +751,9 @@ miner_get_property (GObject    *object,
 		break;
 	case PROP_INTROSPECTION_XML:
 		g_value_set_string (value, miner->priv->introspection_xml);
+		break;
+	case PROP_INTROSPECTION_HANDLER:
+		g_value_set_pointer (value, miner->priv->introspection_handler);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1468,7 +1484,23 @@ handle_method_call (GDBusConnection       *connection,
 		handle_method_call_get_progress (miner, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "GetStatus") == 0) {
 		handle_method_call_get_status (miner, invocation, parameters);
+	} else if (miner->priv->introspection_handler != NULL) {
+		/* Call introspection-handler functions next */
+		GDBusInterfaceMethodCallFunc func = miner->priv->introspection_handler->method_call;
+
+		if (func != NULL) {
+			(func) (connection,
+			        sender,
+			        object_path,
+			        interface_name,
+			        method_name,
+			        parameters,
+			        invocation,
+			        user_data);
+			return;
+		}
 	} else {
+		/* No one to handle this function? */
 		g_assert_not_reached ();
 	}
 }
