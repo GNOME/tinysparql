@@ -761,9 +761,15 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
-# Introduced with GSettings
+####################################################################
+# GLib/GIO utilities
+####################################################################
+
 GLIB_MKENUMS=`$PKG_CONFIG glib-2.0 --variable=glib_mkenums`
 AC_SUBST(GLIB_MKENUMS)
+
+GDBUS_CODEGEN=`$PKG_CONFIG --variable=gdbus_codegen gio-2.0`
+AC_SUBST(GDBUS_CODEGEN)
 
 ####################################################################
 # Should we build GLib based unit tests
