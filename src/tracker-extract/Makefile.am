@@ -536,7 +536,8 @@ tracker-extract-priority-dbus.h: tracker-extract-priority-dbus-stamp
 	@:
 
 tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/data/dbus/tracker-extract-priority.xml
-	gdbus-codegen --interface-prefix org.freedesktop.Tracker1.Extract. \
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+	              --interface-prefix org.freedesktop.Tracker1.Extract. \
 	              --generate-c-code tracker-extract-priority-dbus \
 	              --c-namespace TrackerExtractDBus \
 	              $(top_srcdir)/data/dbus/tracker-extract-priority.xml
