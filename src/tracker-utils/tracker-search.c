@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, SoftAtHome <contact@softathome.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -1292,9 +1293,10 @@ get_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?u nie:url(?u) "
+		query = g_strdup_printf ("SELECT ?u ?url"
 		                         "WHERE { "
 		                         "  ?u a nie:InformationElement ;"
+		                         "  ?url nie:url(?u) ;"
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
@@ -1306,9 +1308,10 @@ get_files (TrackerSparqlConnection *connection,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?u nie:url(?u) "
+		query = g_strdup_printf ("SELECT ?u ?url "
 		                         "WHERE { "
-		                         "  ?u a nie:InformationElement ."
+		                         "  ?u a nie:InformationElement ;"
+		                         "     nie:url ?url ."
 		                         "  %s"
 		                         "} "
 		                         "ORDER BY ASC(nie:url(?u)) "
