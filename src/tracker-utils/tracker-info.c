@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, SoftAtHome <contact@softathome.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -44,6 +45,7 @@ static gchar **filenames;
 static gboolean full_namespaces;
 static gboolean print_version;
 static gboolean plain_text_content;
+static gboolean resource_is_iri;
 static gboolean turtle;
 
 static GOptionEntry entries[] = {
@@ -57,6 +59,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "plain-text-content", 'c', 0, G_OPTION_ARG_NONE, &plain_text_content,
 	  N_("Show plain text content if available for resources"),
+	  NULL,
+	},
+	{ "resource-is-iri", 'i', 0, G_OPTION_ARG_NONE, &resource_is_iri,
+	  N_("Instead of looking up a file name, treat the FILE arguments as actual IRIs (e.g. <file:///path/to/some/file.txt>)"),
 	  NULL,
 	},
 	{ "turtle", 't', 0, G_OPTION_ARG_NONE, &turtle,
@@ -395,18 +401,20 @@ main (int argc, char **argv)
 	}
 
 	for (p = filenames; *p; p++) {
-		TrackerSparqlCursor *cursor;
+		TrackerSparqlCursor *cursor = NULL;
 		GError *error = NULL;
-		gchar *uri;
+		gchar *uri = NULL;
 		gchar *query;
 		gchar *urn = NULL;
 
-		if (!turtle) {
+		if (!turtle && !resource_is_iri) {
 			g_print ("%s:'%s'\n", _("Querying information for entity"), *p);
 		}
 
 		/* support both, URIs and local file paths */
 		if (has_valid_uri_scheme (*p)) {
+			uri = g_strdup (*p);
+		} else if (resource_is_iri) {
 			uri = g_strdup (*p);
 		} else {
 			GFile *file;
@@ -416,26 +424,26 @@ main (int argc, char **argv)
 			g_object_unref (file);
 		}
 
-		/* First check whether there's some entity with nie:url like this */
-		query = g_strdup_printf ("SELECT ?urn WHERE { ?urn nie:url \"%s\" }", uri);
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		if (!resource_is_iri) {
+			/* First check whether there's some entity with nie:url like this */
+			query = g_strdup_printf ("SELECT ?urn WHERE { ?urn nie:url \"%s\" }", uri);
+			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+			g_free (query);
 
-		if (error) {
-			g_printerr ("  %s, %s\n",
-			            _("Unable to retrieve URN for URI"),
-			            error->message);
-
-			g_clear_error (&error);
-			continue;
+			if (error) {
+				g_printerr ("  %s, %s\n",
+				            _("Unable to retrieve URN for URI"),
+				            error->message);
+				g_clear_error (&error);
+				continue;
+			}
 		}
 
 		if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, &error)) {
 			if (error) {
 				g_printerr ("  %s, %s\n",
 				            _("Unable to retrieve data for URI"),
-					    error->message);
-
+				            error->message);
 				g_object_unref (cursor);
 				g_clear_error (&error);
 

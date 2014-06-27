@@ -39,6 +39,20 @@ information about the content of the resource, which could be the
 contents of a file on the disk), then this option displays that in the
 output.
 .TP
+.B \-i, \-\-resource-is-iri
+In most cases, the \fIFILE\fR argument supplied points to a URL or
+PATH which is queried for according to the resource associated with it
+by \fInie:url\fR. However, in cases where the \fIFILE\fR specified
+turns out to be the actual URN itself, this argument is required to
+tell \fBtracker-info\fR not to do the extra step of looking up the URN
+related by \fInie:url\fR.
+
+For example, consider that you store URNs by the actual URL itself and
+use the unique nie:url in another resource (which is quite reasonable
+when using containers and multi-resource conditions), you would need
+this argument to tell \fBtracker-info\fR that the \fIFILE\fR supplied
+is actually a URN not URL.
+.TP
 .B \-t, \-\-turtle
 Output results as Turtle RDF. If \-f is enabled, full URIs are shown
 for subjects, predicates and objects; otherwise, shortened URIs are
