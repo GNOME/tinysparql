@@ -102,7 +102,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(enumerator|miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
+	-export-symbols-regex '^tracker_(enumerator|crawl|miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

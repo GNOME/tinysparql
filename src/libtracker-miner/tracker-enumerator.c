@@ -81,6 +81,52 @@ tracker_enumerator_default_init (TrackerEnumeratorInterface *iface)
 }
 
 /**
+ * tracker_enumerator_get_crawl_flags:
+ * @enumerator: a #TrackerEnumerator
+ *
+ * Returns the #TrackerCrawlFlags used with this @enumerator.
+ *
+ * Since: 1.2
+ **/
+TrackerCrawlFlags
+tracker_enumerator_get_crawl_flags (TrackerEnumerator *enumerator)
+{
+	TrackerEnumeratorIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_ENUMERATOR (enumerator), TRACKER_CRAWL_FLAG_NONE);
+
+	iface = TRACKER_ENUMERATOR_GET_IFACE (enumerator);
+
+	g_return_val_if_fail (iface->get_crawl_flags != NULL, TRACKER_CRAWL_FLAG_NONE);
+
+	return (* iface->get_crawl_flags) (enumerator);
+}
+
+/**
+ * tracker_enumerator_set_crawl_flags:
+ * @enumerator: a #TrackerEnumerator
+ *
+ * Sets the #TrackerCrawlFlags used with this @enumerator. Each time
+ * tracker_enumerator_get_children() is called, these flags are used.
+ *
+ * Since: 1.2
+ **/
+void
+tracker_enumerator_set_crawl_flags (TrackerEnumerator *enumerator,
+                                    TrackerCrawlFlags  flags)
+{
+	TrackerEnumeratorIface *iface;
+
+	g_return_if_fail (TRACKER_IS_ENUMERATOR (enumerator));
+
+	iface = TRACKER_ENUMERATOR_GET_IFACE (enumerator);
+
+	g_return_if_fail (iface->set_crawl_flags != NULL);
+
+	(* iface->set_crawl_flags) (enumerator, flags);
+}
+
+/**
  * tracker_enumerator_get_children:
  * @enumerator: a #TrackerEnumerator
  * @dir: a #GFile to enumerate

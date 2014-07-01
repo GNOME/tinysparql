@@ -21,6 +21,8 @@
 
 #include "tracker-crawler.h"
 #include "tracker-file-enumerator.h"
+#include "tracker-miner-enums.h"
+#include "tracker-miner-enum-types.h"
 #include "tracker-utils.h"
 
 #define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))
@@ -111,7 +113,7 @@ enum {
 
 enum {
 	PROP_0,
-	PROP_ENUMERATOR
+	PROP_ENUMERATOR,
 };
 
 static void     crawler_get_property     (GObject         *object,
@@ -436,12 +438,14 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 }
 
 static DirectoryRootInfo *
-directory_root_info_new (GFile *file,
-                         gint   max_depth,
-                         gchar *file_attributes)
+directory_root_info_new (GFile             *file,
+                         gint               max_depth,
+                         gchar             *file_attributes,
+                         TrackerCrawlFlags  flags)
 {
 	DirectoryRootInfo *info;
 	DirectoryProcessingData *dir_info;
+	gboolean enable_stat;
 
 	info = g_slice_new0 (DirectoryRootInfo);
 
@@ -451,7 +455,9 @@ directory_root_info_new (GFile *file,
 
 	info->tree = g_node_new (g_object_ref (file));
 
-	if (file_attributes) {
+	enable_stat = (flags & TRACKER_CRAWL_FLAG_NO_STAT) == 0;
+
+	if (enable_stat && file_attributes) {
 		GFileInfo *file_info;
 
 		file_info = g_file_query_info (file,
@@ -815,14 +821,19 @@ tracker_crawler_start (TrackerCrawler *crawler,
                        gint            max_depth)
 {
 	TrackerCrawlerPrivate *priv;
+	TrackerCrawlFlags flags;
 	DirectoryRootInfo *info;
+	gboolean enable_stat;
 
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = crawler->priv;
 
-	if (!g_file_query_exists (file, NULL)) {
+	flags = tracker_enumerator_get_crawl_flags (priv->enumerator);
+	enable_stat = (flags & TRACKER_CRAWL_FLAG_NO_STAT) == 0;
+
+	if (enable_stat && !g_file_query_exists (file, NULL)) {
 		/* This shouldn't happen, unless the removal/unmount notification
 		 * didn't yet reach the TrackerFileNotifier.
 		 */
@@ -846,7 +857,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
 
-	info = directory_root_info_new (file, max_depth, priv->file_attributes);
+	info = directory_root_info_new (file, max_depth, priv->file_attributes, flags);
 
 	if (!check_directory (crawler, info, file)) {
 		directory_root_info_free (info);

@@ -27,6 +27,7 @@ static void tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *ifa
 
 struct _TrackerFileEnumerator {
 	GObject parent_instance;
+	TrackerCrawlFlags crawl_flags;
 };
 
 typedef struct {
@@ -70,6 +71,28 @@ tracker_file_enumerator_class_init (TrackerFileEnumeratorClass *klass)
 static void
 tracker_file_enumerator_init (TrackerFileEnumerator *fe)
 {
+	fe->crawl_flags = TRACKER_CRAWL_FLAG_NONE;
+}
+
+static TrackerCrawlFlags
+file_enumerator_get_crawl_flags (TrackerEnumerator *enumerator)
+{
+	TrackerFileEnumerator *fe;
+
+	fe = TRACKER_FILE_ENUMERATOR (enumerator);
+
+	return fe->crawl_flags;
+}
+
+static void
+file_enumerator_set_crawl_flags (TrackerEnumerator *enumerator,
+                                 TrackerCrawlFlags  flags)
+{
+	TrackerFileEnumerator *fe;
+
+	fe = TRACKER_FILE_ENUMERATOR (enumerator);
+
+	fe->crawl_flags = flags;
 }
 
 static GetChildrenData *
@@ -257,6 +280,8 @@ file_enumerator_get_children_finish (TrackerEnumerator  *enumerator,
 static void
 tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *iface)
 {
+	iface->get_crawl_flags = file_enumerator_get_crawl_flags;
+	iface->set_crawl_flags = file_enumerator_set_crawl_flags;
 	iface->get_children = file_enumerator_get_children;
 	iface->get_children_async = file_enumerator_get_children_async;
 	iface->get_children_finish = file_enumerator_get_children_finish;
