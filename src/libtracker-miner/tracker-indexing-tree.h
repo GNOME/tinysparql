@@ -114,6 +114,8 @@ void                tracker_indexing_tree_set_default_policy (TrackerIndexingTre
 GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tree,
                                                       GFile                 *file,
                                                       TrackerDirectoryFlags *directory_flags);
+GFile *   tracker_indexing_tree_get_master_root      (TrackerIndexingTree   *tree);
+
 gboolean  tracker_indexing_tree_file_is_root         (TrackerIndexingTree   *tree,
                                                       GFile                 *file);
 

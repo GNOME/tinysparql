@@ -190,6 +190,29 @@ tracker_indexing_tree_set_property (GObject      *object,
 }
 
 static void
+tracker_indexing_tree_constructed (GObject *object)
+{
+	TrackerIndexingTree *tree;
+	TrackerIndexingTreePrivate *priv;
+	NodeData *data;
+
+	G_OBJECT_CLASS (tracker_indexing_tree_parent_class)->constructed (object);
+
+	tree = TRACKER_INDEXING_TREE (object);
+	priv = tree->priv;
+
+	/* Add a shallow root node */
+	if (priv->root == NULL) {
+		priv->root = g_file_new_for_uri ("file:///");
+	}
+
+	data = node_data_new (priv->root, 0);
+	data->shallow = TRUE;
+
+	priv->config_tree = g_node_new (data);
+}
+
+static void
 tracker_indexing_tree_finalize (GObject *object)
 {
 	TrackerIndexingTreePrivate *priv;
@@ -222,6 +245,7 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_indexing_tree_finalize;
+	object_class->constructed = tracker_indexing_tree_constructed;
 	object_class->set_property = tracker_indexing_tree_set_property;
 	object_class->get_property = tracker_indexing_tree_get_property;
 
@@ -276,21 +300,11 @@ static void
 tracker_indexing_tree_init (TrackerIndexingTree *tree)
 {
 	TrackerIndexingTreePrivate *priv;
-	NodeData *data;
 	gint i;
 
 	priv = tree->priv = G_TYPE_INSTANCE_GET_PRIVATE (tree,
 	                                                 TRACKER_TYPE_INDEXING_TREE,
 	                                                 TrackerIndexingTreePrivate);
-	/* Add a shallow root node */
-	if (priv->root == NULL) {
-		priv->root = g_file_new_for_uri ("file:///");
-	}
-
-	data = node_data_new (priv->root, 0);
-	data->shallow = TRUE;
-
-	priv->config_tree = g_node_new (data);
 
 	for (i = TRACKER_FILTER_FILE; i <= TRACKER_FILTER_PARENT_DIRECTORY; i++) {
 		priv->policies[i] = TRACKER_FILTER_POLICY_ACCEPT;
@@ -864,6 +878,40 @@ tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
 	}
 
 	return NULL;
+}
+
+/**
+ * tracker_indexing_tree_get_master_root:
+ * @tree: a #TrackerIndexingTree
+ *
+ * Returns the #GFile that represents the master root location for all
+ * indexing locations. For example, if
+ * <filename>file:///etc</filename> is an indexed path and so was
+ * <filename>file:///home/user</filename>, the master root is
+ * <filename>file:///</filename>. Only one scheme per @tree can be
+ * used, so you can not mix <filename>http</filename> and
+ * <filename>file</filename> roots in @tree.
+ *
+ * The return value should <emphasis>NEVER</emphasis> be %NULL. In
+ * cases where no root is given, we fallback to
+ * <filename>file:///</filename>.
+ *
+ * Returns: (transfer none): the effective root for all locations, or
+ * %NULL on error. The root is owned by @tree and should not be freed.
+ * It can be referenced using g_object_ref().
+ *
+ * Since: 1.2.
+ **/
+GFile *
+tracker_indexing_tree_get_master_root (TrackerIndexingTree *tree)
+{
+	TrackerIndexingTreePrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), NULL);
+
+	priv = tree->priv;
+
+	return priv->root;
 }
 
 gboolean
