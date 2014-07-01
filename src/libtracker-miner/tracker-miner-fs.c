@@ -2553,7 +2553,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	if (fs->priv->item_queue_blocker) {
 		trace_eq ("   cancelled: item queue blocked waiting for file '%s'",
-		          g_file_get_path (fs->priv->item_queue_blocker));
+		          g_file_get_uri (fs->priv->item_queue_blocker));
 		return;
 	}
 
@@ -3319,7 +3319,7 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
                                            gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
-	gchar *path;
+	gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
@@ -3328,11 +3328,11 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
 		should_process = should_check_file (fs, file, FALSE);
 	}
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
 	g_debug ("%s:'%s' (FILE) (requested by application)",
 	         should_process ? "Found " : "Ignored",
-	         path);
+	         uri);
 
 	if (should_process) {
 		if (check_parents && !check_file_parents (fs, file)) {
@@ -3348,7 +3348,7 @@ tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
 		item_queue_handlers_set_up (fs);
 	}
 
-	g_free (path);
+	g_free (uri);
 }
 
 
@@ -3369,15 +3369,15 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
                                  GStrv           rdf_types,
                                  GPtrArray      *results)
 {
-	gchar *path;
+	gchar *uri;
 	ItemWritebackData *data;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
-	g_debug ("Performing write-back:'%s' (requested by application)", path);
+	g_debug ("Performing write-back:'%s' (requested by application)", uri);
 
 	trace_eq_push_tail ("WRITEBACK", file, "Requested by application");
 
@@ -3387,7 +3387,7 @@ tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
 
 	item_queue_handlers_set_up (fs);
 
-	g_free (path);
+	g_free (uri);
 }
 
 /**
@@ -3499,7 +3499,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
                                                 gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
-	gchar *path;
+	gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
@@ -3508,11 +3508,11 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 		should_process = should_check_file (fs, file, TRUE);
 	}
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
 	g_debug ("%s:'%s' (DIR) (requested by application)",
 	         should_process ? "Found " : "Ignored",
-	         path);
+	         uri);
 
 	if (should_process) {
 		TrackerDirectoryFlags flags;
@@ -3536,7 +3536,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 		                           file, flags);
 	}
 
-	g_free (path);
+	g_free (uri);
 }
 
 /**

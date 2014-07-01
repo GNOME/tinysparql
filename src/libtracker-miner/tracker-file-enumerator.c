@@ -124,15 +124,15 @@ file_enumerator_get_children (TrackerEnumerator    *enumerator,
 
 	if (!fe) {
 		if (local_error && !cancelled) {
-			gchar *path;
+			gchar *uri;
 
-			path = g_file_get_path (dir);
+			uri = g_file_get_uri (dir);
 
 			g_warning ("Could not open directory '%s': %s",
-			           path, local_error->message);
+			           uri, local_error->message);
 
 			g_propagate_error (error, local_error);
-			g_free (path);
+			g_free (uri);
 		}
 
 		return NULL;

@@ -729,15 +729,15 @@ file_enumerate_children_cb (GObject      *object,
 
 	if (!files) {
 		if (error && !cancelled) {
-			gchar *path;
+			gchar *uri;
 
-			path = g_file_get_path (parent);
+			uri = g_file_get_uri (parent);
 
-			g_warning ("Could not open directory '%s': %s",
-			           path, error->message);
+			g_warning ("Could not enumerate container / directory '%s', %s",
+			           uri, error->message);
 
 			g_error_free (error);
-			g_free (path);
+			g_free (uri);
 		}
 
 		enumerator_data_free (ed);
