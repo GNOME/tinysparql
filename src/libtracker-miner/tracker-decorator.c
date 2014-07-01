@@ -758,6 +758,8 @@ tracker_decorator_constructed (GObject *object)
 {
 	TrackerDecoratorPrivate *priv;
 
+	G_OBJECT_CLASS (tracker_decorator_parent_class)->constructed (object);
+
 	priv = TRACKER_DECORATOR (object)->priv;
 	g_assert (priv->data_source);
 }
