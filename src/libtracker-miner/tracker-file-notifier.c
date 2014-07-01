@@ -1348,9 +1348,16 @@ static void
 tracker_file_notifier_constructed (GObject *object)
 {
 	TrackerFileNotifierPrivate *priv;
+	GFile *root;
+
+	G_OBJECT_CLASS (tracker_file_notifier_parent_class)->constructed (object);
 
 	priv = TRACKER_FILE_NOTIFIER (object)->priv;
 	g_assert (priv->indexing_tree);
+
+	/* Initialize filesystem and register properties */
+	root = tracker_indexing_tree_get_master_root (priv->indexing_tree);
+	priv->file_system = tracker_file_system_new (root);
 
 	g_signal_connect (priv->indexing_tree, "directory-added",
 	                  G_CALLBACK (indexing_tree_directory_added), object);
@@ -1517,9 +1524,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 		g_assert_not_reached ();
 	}
-
-	/* Initialize filesystem and register properties */
-	priv->file_system = tracker_file_system_new (NULL);
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
