@@ -288,6 +288,7 @@ enum {
 static void           miner_fs_initable_iface_init        (GInitableIface       *iface);
 
 static void           fs_finalize                         (GObject              *object);
+static void           fs_constructed                      (GObject              *object);
 static void           fs_set_property                     (GObject              *object,
                                                            guint                 prop_id,
                                                            const GValue         *value,
@@ -367,6 +368,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
 
 	object_class->finalize = fs_finalize;
+	object_class->constructed = fs_constructed;
 	object_class->set_property = fs_set_property;
 	object_class->get_property = fs_get_property;
 
@@ -675,14 +677,6 @@ miner_fs_initable_init (GInitable     *initable,
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb),
 	                  initable);
 
-	/* Create root if one didn't exist */
-	if (priv->root == NULL) {
-		/* We default to file:/// */
-		priv->root = g_file_new_for_uri ("file:///");
-	}
-
-	/* Create indexing tree */
-	priv->indexing_tree = tracker_indexing_tree_new (priv->root);
 	if (!priv->indexing_tree) {
 		g_set_error (error,
 		             tracker_miner_fs_error_quark (),
@@ -820,6 +814,35 @@ fs_finalize (GObject *object)
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
+}
+
+static void
+fs_constructed (GObject *object)
+{
+	TrackerMinerFSPrivate *priv;
+
+	/* NOTE: We have to do this in this order because initables
+	 * are called _AFTER_ constructed and for subclasses that are
+	 * not initables we don't have any other way than to chain
+	 * constructed and root/indexing tree must exist at that
+	 * point.
+	 *
+	 * If priv->indexing_tree is NULL after this function, the
+	 * initiable functions will fail and this class will not be
+	 * created anyway.
+	 */
+	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->constructed (object);
+
+	priv = TRACKER_MINER_FS_GET_PRIVATE (object);
+
+	/* Create root if one didn't exist */
+	if (priv->root == NULL) {
+		/* We default to file:/// */
+		priv->root = g_file_new_for_uri ("file:///");
+	}
+
+	/* Create indexing tree */
+	priv->indexing_tree = tracker_indexing_tree_new (priv->root);
 }
 
 static void
