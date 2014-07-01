@@ -364,6 +364,24 @@ file_system_finalize (GObject *object)
 }
 
 static void
+file_system_constructed (GObject *object)
+{
+	TrackerFileSystemPrivate *priv;
+	FileNodeData *root_data;
+
+	G_OBJECT_CLASS (tracker_file_system_parent_class)->constructed (object);
+
+	priv = TRACKER_FILE_SYSTEM (object)->priv;
+
+	if (priv->root == NULL) {
+		priv->root = g_file_new_for_uri ("file:///");
+	}
+
+	root_data = file_node_data_root_new (priv->root);
+	priv->file_tree = g_node_new (root_data);
+}
+
+static void
 file_system_get_property (GObject    *object,
                           guint       prop_id,
                           GValue     *value,
@@ -409,6 +427,7 @@ tracker_file_system_class_init (TrackerFileSystemClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = file_system_finalize;
+	object_class->constructed = file_system_constructed;
 	object_class->get_property = file_system_get_property;
 	object_class->set_property = file_system_set_property;
 
@@ -430,19 +449,11 @@ static void
 tracker_file_system_init (TrackerFileSystem *file_system)
 {
 	TrackerFileSystemPrivate *priv;
-	FileNodeData *root_data;
 
 	file_system->priv = priv =
 		G_TYPE_INSTANCE_GET_PRIVATE (file_system,
 		                             TRACKER_TYPE_FILE_SYSTEM,
 		                             TrackerFileSystemPrivate);
-
-	if (priv->root == NULL) {
-		priv->root = g_file_new_for_uri ("file:///");
-	}
-
-	root_data = file_node_data_root_new (priv->root);
-	priv->file_tree = g_node_new (root_data);
 }
 
 TrackerFileSystem *
