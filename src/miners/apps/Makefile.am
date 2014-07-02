@@ -20,9 +20,3 @@ tracker_miner_apps_LDADD =                             \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_APPS_LIBS)
-
-if HAVE_MEEGOTOUCH
-tracker_miner_apps_SOURCES += \
-	tracker-miner-meego.cpp \
-	tracker-miner-meego.h
-endif
