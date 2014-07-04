@@ -601,7 +601,7 @@ finish_current_directory (TrackerFileNotifier *notifier)
 		 * root, jump to the next one.
 		 */
 		g_signal_emit (notifier, signals[DIRECTORY_FINISHED], 0,
-		               directory,
+		               priv->current_index_root->root,
 		               priv->current_index_root->directories_found,
 		               priv->current_index_root->directories_ignored,
 		               priv->current_index_root->files_found,
