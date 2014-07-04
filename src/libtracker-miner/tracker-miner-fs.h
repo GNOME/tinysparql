@@ -67,6 +67,8 @@ struct _TrackerMinerFS {
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
  * @writeback_file: Called when a file must be written back
+ * @finished_root: Called when all resources on a particular root URI
+ * have been processed.
  * @padding: Reserved for future API improvements.
  *
  * Prototype for the abstract class, @process_file must be implemented
@@ -83,7 +85,12 @@ typedef struct {
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);
-	void     (* finished)                 (TrackerMinerFS       *fs);
+	void     (* finished)                 (TrackerMinerFS       *fs,
+	                                       gdouble               elapsed,
+	                                       gint                  directories_found,
+	                                       gint                  directories_ignored,
+	                                       gint                  files_found,
+	                                       gint                  files_ignored);
 	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
@@ -92,9 +99,15 @@ typedef struct {
 	                                       GFile                *file,
 	                                       GStrv                 rdf_types,
 	                                       GPtrArray            *results);
+	void     (* finished_root)            (TrackerMinerFS       *fs,
+	                                       GFile                *root,
+	                                       gint                  directories_found,
+	                                       gint                  directories_ignored,
+	                                       gint                  files_found,
+	                                       gint                  files_ignored);
 
 	/* <Private> */
-	gpointer padding[10];
+	gpointer padding[9];
 } TrackerMinerFSClass;
 
 /**

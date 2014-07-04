@@ -238,17 +238,21 @@ struct _TrackerMinerFSPrivate {
 	guint extraction_timer_stopped : 1; /* TRUE if the extraction
 	                                     * timer is stopped */
 
-	/* Statistics */
+	GHashTable *roots_to_notify;        /* Used to signal indexing
+	                                     * trees finished */
+
+	/*
+	 * Statistics
+	 */
+
+	/* How many we found during crawling and how many were black
+	 * listed (ignored). Reset to 0 when processing stops. */
 	guint total_directories_found;
 	guint total_directories_ignored;
 	guint total_files_found;
 	guint total_files_ignored;
 
-	guint directories_found;
-	guint directories_ignored;
-	guint files_found;
-	guint files_ignored;
-
+	/* How many we indexed and how many had errors indexing. */
 	guint total_files_processed;
 	guint total_files_notified;
 	guint total_files_notified_error;
@@ -271,6 +275,7 @@ enum {
 	IGNORE_NEXT_UPDATE_FILE,
 	FINISHED,
 	WRITEBACK_FILE,
+	FINISHED_ROOT,
 	LAST_SIGNAL
 };
 
@@ -590,6 +595,31 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_PTR_ARRAY,
 		              G_TYPE_CANCELLABLE);
 
+	/**
+	 * TrackerMinerFS::finished-root:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 *
+	 * The ::finished-crawl signal is emitted when @miner_fs has
+	 * finished finding all resources that need to be indexed
+	 * with the root location of @file. At this point, it's likely
+	 * many are still in the queue to be added to the database,
+	 * but this gives some indication that a location is
+	 * processed.
+	 *
+	 * Since: 1.2
+	 **/
+	signals[FINISHED_ROOT] =
+		g_signal_new ("finished-root",
+		              G_TYPE_FROM_CLASS (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, finished_root),
+		              NULL, NULL,
+		              NULL,
+		              G_TYPE_NONE,
+		              1,
+		              G_TYPE_FILE);
+
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
 	quark_file_iri = g_quark_from_static_string ("tracker-miner-file-iri");
@@ -645,6 +675,11 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
+
+	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
+	                                               (GEqualFunc) g_file_equal,
+	                                               g_object_unref,
+	                                               NULL);
 }
 
 static gboolean
@@ -805,8 +840,13 @@ fs_finalize (GObject *object)
 		g_object_unref (priv->file_notifier);
 	}
 
-	if (priv->thumbnailer)
+	if (priv->thumbnailer) {
 		g_object_unref (priv->thumbnailer);
+	}
+
+	if (priv->roots_to_notify) {
+		g_hash_table_unref (priv->roots_to_notify);
+	}
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	if (priv->queue_status_timeout_id)
@@ -1024,6 +1064,50 @@ miner_ignore_next_update (TrackerMiner *miner, const GStrv urls)
 }
 
 static void
+notify_roots_finished (TrackerMinerFS *fs,
+                       gboolean        check_queues)
+{
+	GHashTableIter iter;
+	gpointer key, value;
+
+	if (check_queues && g_hash_table_size (fs->priv->roots_to_notify) < 2) {
+		/* Technically, if there is only one root, it's
+		 * pointless to do anything before the FINISHED (not
+		 * FINISHED_ROOT) signal is emitted. In that
+		 * situation we calls function first anyway with
+		 * check_queues=FALSE so we still notify roots. This
+		 * is really just for efficiency.
+		 */
+		return;
+	}
+
+	g_hash_table_iter_init (&iter, fs->priv->roots_to_notify);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		GFile *root = key;
+
+		/* Check if any content for root is still in the queue
+		 * to be processed. This is only called each time a
+		 * container/folder has been added to Tracker (so not
+		 * too frequently)
+		 */
+		if (check_queues &&
+		    (tracker_priority_queue_find (fs->priv->items_created, NULL, (GEqualFunc) g_file_has_prefix, root) ||
+		     tracker_priority_queue_find (fs->priv->items_updated, NULL, (GEqualFunc) g_file_has_prefix, root) ||
+		     tracker_priority_queue_find (fs->priv->items_deleted, NULL, (GEqualFunc) g_file_has_prefix, root) ||
+		     tracker_priority_queue_find (fs->priv->items_moved, NULL, (GEqualFunc) g_file_has_prefix, root) ||
+		     tracker_priority_queue_find (fs->priv->items_writeback, NULL, (GEqualFunc) g_file_has_prefix, root))) {
+			continue;
+		}
+
+		/* Signal root is finished */
+		g_signal_emit (fs, signals[FINISHED_ROOT], 0, root);
+
+		/* Remove from hash table */
+		g_hash_table_iter_remove (&iter);
+	}
+}
+
+static void
 process_print_stats (TrackerMinerFS *fs)
 {
 	/* Only do this the first time, otherwise the results are
@@ -1071,6 +1155,11 @@ process_stop (TrackerMinerFS *fs)
 	              "status", "Idle",
 	              "remaining-time", 0,
 	              NULL);
+
+	/* Make sure we signal _ALL_ roots as finished before the
+	 * main FINISHED signal
+	 */
+	notify_roots_finished (fs, FALSE);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
 	               g_timer_elapsed (fs->priv->timer, NULL),
@@ -1187,6 +1276,9 @@ sparql_buffer_task_finished_cb (GObject      *object,
 		if (tracker_task_pool_get_size (TRACKER_TASK_POOL (object)) > 0) {
 			tracker_sparql_buffer_flush (TRACKER_SPARQL_BUFFER (object),
 			                             "Item queue still blocked after flush");
+
+			/* Check if we've finished inserting for given prefixes ... */
+			notify_roots_finished (fs, TRUE);
 		}
 	} else {
 		item_queue_handlers_set_up (fs);
@@ -1387,6 +1479,9 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 		if (item_queue_is_blocked_by_file (fs, task_file)) {
 			tracker_sparql_buffer_flush (fs->priv->sparql_buffer, "Current file is blocking item queue");
+
+			/* Check if we've finished inserting for given prefixes ... */
+			notify_roots_finished (fs, TRUE);
 		}
 	} else {
 		if (item_queue_is_blocked_by_file (fs, task_file)) {
@@ -2318,6 +2413,9 @@ item_queue_handlers_cb (gpointer user_data)
 		tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 		                             "Queue handlers WAIT");
 
+		/* Check if we've finished inserting for given prefixes ... */
+		notify_roots_finished (fs, TRUE);
+
 		return FALSE;
 	}
 
@@ -2443,6 +2541,9 @@ item_queue_handlers_cb (gpointer user_data)
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
 				                             "Queue handlers NONE");
+
+				/* Check if we've finished inserting for given prefixes ... */
+				notify_roots_finished (fs, TRUE);
 			}
 		}
 
@@ -2994,17 +3095,37 @@ file_notifier_directory_finished (TrackerFileNotifier *notifier,
                                   gpointer             user_data)
 {
 	TrackerMinerFS *fs = user_data;
+	gchar *str, *uri;
 
 	/* Update stats */
-	fs->priv->directories_found += directories_found;
-	fs->priv->directories_ignored += directories_ignored;
-	fs->priv->files_found += files_found;
-	fs->priv->files_ignored += files_ignored;
-
 	fs->priv->total_directories_found += directories_found;
 	fs->priv->total_directories_ignored += directories_ignored;
 	fs->priv->total_files_found += files_found;
 	fs->priv->total_files_ignored += files_ignored;
+
+	uri = g_file_get_uri (directory);
+	str = g_strdup_printf ("Crawl finished for directory '%s'", uri);
+
+        g_object_set (fs,
+                      "progress", 0.01,
+                      "status", str,
+                      "remaining-time", -1,
+                      NULL);
+
+	g_free (str);
+	g_free (uri);
+
+	if (directories_found == 0 &&
+	    files_found == 0) {
+		/* Signal now because we have nothing to index */
+		g_signal_emit (fs, signals[FINISHED_ROOT], 0, directory);
+	} else {
+		/* Add root to list we want to be notified about when
+		 * finished indexing! */
+		g_hash_table_replace (fs->priv->roots_to_notify,
+		                      g_object_ref (directory),
+		                      GUINT_TO_POINTER(time(NULL)));
+	}
 }
 
 static void
