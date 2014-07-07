@@ -210,3 +210,29 @@ tracker_strhex (const guint8 *data,
 	return new_str;
 }
 
+/**
+ * tracker_utf8_truncate:
+ * @str: Nul-terminated input string
+ * @max_size: Maximum length of the output string
+ *
+ * Returns up to @max_size characters long substring of @str, followed
+ * with "[…]" when actually truncated.
+ *
+ * Returns: A newly allocated string which should be disposed with g_free()
+ */
+gchar *
+tracker_utf8_truncate (const gchar  *str,
+                       gsize         max_size)
+{
+	gchar *retv = NULL;
+
+	if (g_utf8_strlen (str, -1) > max_size) {
+		gchar *substring = g_utf8_substring (str, 0, max_size - 3);
+		retv = g_strdup_printf ("%s[…]", substring);
+		g_free (substring);
+	} else {
+		retv = g_strdup (str);
+	}
+
+	return retv;
+}

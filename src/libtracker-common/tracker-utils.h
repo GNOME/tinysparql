@@ -43,6 +43,8 @@ gchar *  tracker_seconds_to_string          (gdouble       seconds,
 gchar *  tracker_strhex                     (const guint8 *data,
                                              gsize         size,
                                              gchar         delimiter);
+gchar *  tracker_utf8_truncate              (const gchar  *str,
+                                             gsize         max_size);
 
 G_END_DECLS
 
