@@ -1699,8 +1699,8 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 		GValue old_value = { 0 };
 		GValue new_value = { 0 };
 		GValue *v;
-		const gchar *old_value_str = NULL;
-		const gchar *new_value_str = NULL;
+		gchar *old_value_str = NULL;
+		gchar *new_value_str = NULL;
 
 		g_value_init (&old_value, G_TYPE_STRING);
 		g_value_init (&new_value, G_TYPE_STRING);
@@ -1709,12 +1709,12 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 		 * whatever transformation needed */
 		v = &g_array_index (old_values, GValue, 0);
 		if (g_value_transform (v, &old_value)) {
-			old_value_str = g_value_get_string (&old_value);
+			old_value_str = tracker_utf8_truncate (g_value_get_string (&old_value), 255);
 		}
 
 		v = &g_array_index (old_values, GValue, 1);
 		if (g_value_transform (v, &new_value)) {
-			new_value_str = g_value_get_string (&new_value);
+			new_value_str = tracker_utf8_truncate (g_value_get_string (&new_value), 255);
 		}
 
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -1725,6 +1725,8 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 		             old_value_str ? old_value_str : "<untransformable>",
 		             new_value_str ? new_value_str : "<untransformable>");
 
+		g_free (old_value_str);
+		g_free (new_value_str);
 		g_value_unset (&old_value);
 		g_value_unset (&new_value);
 		g_value_unset (&gvalue);
