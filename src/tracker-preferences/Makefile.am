@@ -1,5 +1,3 @@
-AUTOMAKE_OPTIONS = subdir-objects
-
 @INTLTOOL_DESKTOP_RULE@
 
 bin_PROGRAMS = tracker-preferences

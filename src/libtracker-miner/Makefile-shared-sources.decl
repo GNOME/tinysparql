@@ -1,4 +1,3 @@
-AUTOMAKE_OPTIONS = subdir-objects
 
 # Includes sources that will be shared with the
 # testers in test/libtracker-miner
