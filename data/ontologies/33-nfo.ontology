@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2014-06-03T13:05:00Z" .
+	nao:lastModified "2014-07-09T11:05:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -757,6 +757,20 @@ nfo:deletionDate a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:DeletedResource ;
 	rdfs:range xsd:dateTime .
+
+nfo:depiction a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
+	rdfs:label "depiction" ;
+	rdfs:comment "Relates an information element to an image which depicts said element." ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range nfo:Image .
+
+nfo:depicts a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
+	rdfs:label "depicts" ;
+	rdfs:comment "Relates an image to the information elements it depicts." ;
+	rdfs:domain rdfs:Image ;
+	rdfs:range nfo:Resource .
 
 nfo:bookmarks a rdf:Property ;
 	rdfs:label "link" ;
