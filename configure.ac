@@ -2552,6 +2552,8 @@ Build Configuration:
 	Source code location:                   ${srcdir}
 	Compiler:                               ${CC}
 	Compiler Warnings:                      $enable_compile_warnings
+          C    Flags:                             $warning_cflags
+          VALA Flags:                             $warning_valaflags
 
 	Win32:                                  $native_win32
 
