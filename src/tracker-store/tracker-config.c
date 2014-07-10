@@ -169,7 +169,7 @@ TrackerConfig *
 tracker_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema", "org.freedesktop.Tracker.Store",
+	                     "schema-id", "org.freedesktop.Tracker.Store",
 	                     "path", "/org/freedesktop/tracker/store/",
 	                     NULL);
 }

@@ -246,7 +246,7 @@ TrackerFTSConfig *
 tracker_fts_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_FTS_CONFIG,
-                             "schema", "org.freedesktop.Tracker.FTS",
+                             "schema-id", "org.freedesktop.Tracker.FTS",
                              "path", "/org/freedesktop/tracker/fts/",
 	                     NULL);
 }

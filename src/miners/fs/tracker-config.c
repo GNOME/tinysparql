@@ -786,7 +786,7 @@ TrackerConfig *
 tracker_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema", "org.freedesktop.Tracker.Miner.Files",
+	                     "schema-id", "org.freedesktop.Tracker.Miner.Files",
 	                     "path", "/org/freedesktop/tracker/miner/files/",
 	                     NULL);
 }
