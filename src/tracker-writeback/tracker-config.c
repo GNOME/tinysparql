@@ -142,7 +142,7 @@ TrackerConfig *
 tracker_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG,
-			     "schema", "org.freedesktop.Tracker.Writeback",
+			     "schema-id", "org.freedesktop.Tracker.Writeback",
 			     "path", "/org/freedesktop/tracker/writeback/",
 			     NULL);
 }
