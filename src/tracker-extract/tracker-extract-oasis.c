@@ -395,7 +395,10 @@ xml_start_element_handler_content (GMarkupParseContext  *context,
 		    (g_ascii_strcasecmp (element_name, "text:h") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:a") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:span") == 0) ||
-		    (g_ascii_strcasecmp (element_name, "table:table-cell")) == 0) {
+		    (g_ascii_strcasecmp (element_name, "table:table-cell") == 0) ||
+		    (g_ascii_strcasecmp (element_name, "text:s") == 0) ||
+		    (g_ascii_strcasecmp (element_name, "text:tab") == 0) ||
+		    (g_ascii_strcasecmp (element_name, "text:line-break") == 0)) {
 			data->current = ODT_TAG_TYPE_WORD_TEXT;
 		} else {
 			data->current = -1;
@@ -436,7 +439,13 @@ xml_end_element_handler_content (GMarkupParseContext  *context,
 {
 	ODTContentParseInfo *data = user_data;
 
-	data->current = -1;
+	/* Don't stop processing if it was a so-called 'empty' tag (e.g. <text:tab/>) */
+	if (!((g_ascii_strcasecmp (element_name, "text:s") == 0)   ||
+	      (g_ascii_strcasecmp (element_name, "text:tab") == 0) ||
+	      (g_ascii_strcasecmp (element_name, "text:line-break") == 0))) {
+		data->current = -1;
+	}
+
 }
 
 static void
