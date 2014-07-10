@@ -1,3 +1,14 @@
+NEW in 1.1.1 - 2014-07-10
+=========================
+
+The main changes since 1.1.0 are:
+
+  * build: Use major version only PkgConfig files. Previously, we had
+    $library-$major-$minor (e.g. tracker-sparql-1.2, when it should be
+    tracker-sparql-1.0) to avoid creating unnecessary work for
+    developers using Tracker. This release corrects this and it was
+    planned originally.
+
 NEW in 1.1.0 - 2014-07-10
 =========================
 
