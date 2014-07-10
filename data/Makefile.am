@@ -90,9 +90,9 @@ tracker-miner-$(TRACKER_MAJOR_VERSION).0.pc: tracker-miner.pc
 CLEANFILES = \
 	$(autostart_DATA) \
 	$(desktop_in_files) \
-	tracker-control-$(TRACKER_API_VERSION).0.pc \
-	tracker-sparql-$(TRACKER_API_VERSION).0.pc \
-	tracker-extract-$(TRACKER_API_VERSION).0.pc \
-	tracker-miner-$(TRACKER_API_VERSION).0.pc
+	tracker-control-$(TRACKER_MAJOR_VERSION).0.pc \
+	tracker-sparql-$(TRACKER_MAJOR_VERSION).0.pc \
+	tracker-extract-$(TRACKER_MAJOR_VERSION).0.pc \
+	tracker-miner-$(TRACKER_MAJOR_VERSION).0.pc
 
 EXTRA_DIST = $(desktop_in_in_files)
