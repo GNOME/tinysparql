@@ -1,3 +1,45 @@
+NEW in 1.1.0 - 2014-07-10
+=========================
+
+The main changes since 1.0.0 are:
+
+  * build: Added CC_CHECK_FLAGS_APPEND m4 macros from xinelib/systemd projects to check GCC compiler flags we can use
+  * tracker-miner-apps: New process to mine data about applications, previously part of tracker-miner-fs. Can be disabled with --disable-miner-apps
+  * tracker-miner-user-guides: New process to mine data about user guides and help content, previously part of tracker-miner-fs. Can be disabled with --disable-user-guides
+  * tracker-extract: [BMP] Added an new extractor
+  * tracker-extract: [ISO] Extract language, copyright and author information about ISO images using new ontology
+  * tracker-extract: [ODT] Improved extraction of content so we don't stop on embedded tabs and line breaks
+  * tracker-control: Added a lot of strings previsouly untranslated
+  * tracker-control: Removed shorthand command line switches for less common arguments (--list-*, --pause-details)
+  * tracker-control: Added --watch command line option to watch changes to the database.
+  * tracker-info: Add --resource-is-iri or -i to avoid filename to URN lookups
+  * tracker-info: Don't show "(null)" for nie:InformationElements with no nie:url
+  * tracker-preferences: General UI clean up and modernization fixing many deprecations where old GTK+ widgets were used
+  * tracker-preferences: Added 'control' tab to allow users to enable finer control of what's indexed (e.g. numbers - which are normally disabled)
+  * tracker-preferences: Add AppData with screenshots for app stores
+  * tracker-needle: Add AppData with screenshots for app stores
+
+Translations:
+
+  * Updated ca: Gil Forcada, Pau Iranzo
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach, Benjamin Steinwender
+  * Updated el: Dimitris Spingos, marablack3, Dimitris Spingos (Δημήτρης Σπίγγος)
+  * Updated es: Daniel Mustieles
+  * Updated eu: Inaki Larranaga Murgoitio, Iñaki Larrañaga Murgoitio
+  * Updated gl: Fran Diéguez, Fran Dieguez
+  * Updated it: Milo Casagrande
+  * Updated ko: Seong-ho Cho
+  * Updated lt: Aurimas Černius
+  * Updated pl: Piotr Drąg
+  * Updated ru: Yuri Myasoedov
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић, Miroslav Nikolić
+  * Updated tr: Muhammet Kara
+  * Updated uk: Daniel Korostil
+  * Updated zh_CN: YunQiang Su, Yunqiang Su
+
+
 NEW in 1.0.0 - 2014-03-24
 =========================
 
