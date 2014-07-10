@@ -1,3 +1,31 @@
+NEW in 1.0.2 - 2014-07-10
+=========================
+
+The main changes since 1.0.1 are:
+
+  * Fixes: GB#732839, Long error messages cause DBus to abort() process
+  * Fixes: GB#728370, Some extractors are missing #ifdef HAVE_LIBMEDIAART
+  * Fixes: GB#729968, GLib-GIO-CRITICAL **: g_file_enumerator_next_file: assertion 'G_IS_FILE_ENUMERATOR (enumerator)' failed
+  * build: use pkg-config to look for which gdbus-codegen to use
+  * all: Switch out GSettings "schema" property for "schema-id", was causing distcheck to fail
+  * docs/reference: Use $(top_srcdir) for DOC_SOURCE_DIR instead of relative paths
+  * libtracker-common: memory limits on systems with large amounts of RAM
+  * libtracker-control: Added CFLAGS/LIBS required for reference documentation to succeed
+  * libtracker-control: Fix remnants of libtracker-miner in sources
+  * tracker-extract: [ODT] Continue extracting if we find embedded tabs + line breaks
+  * tracker-search: Don't show "(null)" for nie:InformationElements with no nie:url
+
+Translations:
+
+  * Updated ca: Gil Forcada, Pau Iranzo
+  * Updated cs: Marek Černocký
+  * Updated el: Tom Tryfonidis
+  * Updated es: Daniel Mustieles
+  * Updated it: Milo Casagrande
+  * Updated sl: Matej Urbančič
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић, Miroslav Nikolić
+
 
 NEW in 1.0.1 - 2014-05-08
 =========================
