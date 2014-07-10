@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2014-07-09T11:05:00Z" .
+	nao:lastModified "2014-07-10T14:05:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -769,8 +769,8 @@ nfo:depicts a rdf:Property ;
 	a nrl:InverseFunctionalProperty ;
 	rdfs:label "depicts" ;
 	rdfs:comment "Relates an image to the information elements it depicts." ;
-	rdfs:domain rdfs:Image ;
-	rdfs:range nfo:Resource .
+	rdfs:domain nfo:Image ;
+	rdfs:range rdfs:Resource .
 
 nfo:bookmarks a rdf:Property ;
 	rdfs:label "link" ;
@@ -928,11 +928,6 @@ poi: a tracker:Namespace ;
 # TDB
 poi:ObjectOfInterest a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
-
-nfo:depicts a rdf:Property ;
-	rdfs:domain nfo:Image ;
-	rdfs:range poi:ObjectOfInterest .
-
 
 # Ivan's magic proposal for happy media lists
 nfo:mediaListEntry a rdf:Property ;
