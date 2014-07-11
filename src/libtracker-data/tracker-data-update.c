@@ -28,6 +28,7 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-miner/tracker-miner-common.h>
 
