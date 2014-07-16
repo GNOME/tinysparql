@@ -56,16 +56,24 @@ coverage-report: coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
 #endif
 
-dist-hook: gen-ChangeLog
+distclean-local:
+	if test "x$(srcdir)" = "x."; then :; else \
+		rm -f ChangeLog; \
+	fi
 
+.PHONY: ChangeLog
 gen_start_date = 2009-04-10
-.PHONY: gen-ChangeLog
-gen-ChangeLog:
-	if test -d .git; then                          \
-	  $(top_srcdir)/gitlog-to-changelog            \
-	    --since=$(gen_start_date) > $(distdir)/cl-t; \
-	  rm -f $(distdir)/ChangeLog;                  \
-	  mv $(distdir)/cl-t $(distdir)/ChangeLog;     \
+ChangeLog:
+	$(AM_V_GEN) if test -d "$(srcdir)/.git"; then \
+	  $(top_srcdir)/gitlog-to-changelog --since=$(gen_start_date) > $@.tmp \
+	  && mv -f $@.tmp $@ \
+	  || ($(RM) $@.tmp; \
+	      echo Failed to generate ChangeLog, your ChangeLog may be outdated >&2; \
+	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
+	else \
+	  test -f $@ || \
+	  (echo A git checkout and git-log is required to generate ChangeLog >&2 && \
+	  echo A git checkout and git-log is required to generate this file >> $@); \
 	fi
 
 functional-test:

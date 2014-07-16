@@ -90,3 +90,6 @@ EXTRA_DIST += \
 	ontologies/20-dc.ontology                      \
 	ontologies/31-nao.ontology                     \
 	ontologies/90-tracker.ontology
+
+clean-local:
+	rm -rf $(abs_builddir)/test-cache
