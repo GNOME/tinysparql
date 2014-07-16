@@ -47,6 +47,7 @@ AC_INIT([tracker],
         [http://www.tracker-project.org])
 
 AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
+AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
@@ -491,24 +492,19 @@ PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUI
                   [have_tracker_nautilus_extension=no])
 
 # Check we have Vala valac command we need
-AC_PATH_PROG(VALAC, valac, valac)
-if test -z $VALAC; then
-   AC_MSG_ERROR([Could not find 'valac'])
+VALA_MIN_VERSION=0.18.0
+AM_PROG_VALAC([$VALA_MIN_VERSION])
+if test "x$VALAC" = "x"; then
+    AC_MSG_ERROR([Vala requested but valac >= $VALA_MIN_VERSION is not installed])
 fi
-
-AC_SUBST(VALAC)
 
 ####################################################################
 # Check gettext/intltool support
 ####################################################################
-IT_PROG_INTLTOOL([0.40.0])
-
-AM_GNU_GETTEXT_VERSION([0.17])
-AM_GNU_GETTEXT([external])
-
 GETTEXT_PACKAGE=AC_PACKAGE_NAME
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [The gettext translation domain])
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, ["$GETTEXT_PACKAGE"], [Define the gettext package to be used])
+IT_PROG_INTLTOOL([0.40.0])
 
 ####################################################################
 # Check if we should enable GCOV coverage reporting support
