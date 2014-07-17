@@ -1699,7 +1699,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_extract_gstreamer (uri, info, EXTRACT_MIME_SVG, graph);
 	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
 	           strcmp (mimetype, "video/mp4") == 0 ||
-	           strcmp (mimetype, "video/x-ms-asf") == 0 ||
+                   strcmp (mimetype, "video/x-ms-asf") == 0 ||
+                   strcmp (mimetype, "application/vnd.ms-asf") == 0 ||
 	           strcmp (mimetype, "application/vnd.rn-realmedia") == 0) {
 		tracker_extract_gstreamer (uri, info, EXTRACT_MIME_GUESS, graph);
 	} else if (g_str_has_prefix (mimetype, "audio/")) {
