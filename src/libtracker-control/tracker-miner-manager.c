@@ -683,6 +683,41 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 }
 
 static void
+load_running_miners_only (TrackerMinerManager *manager)
+{
+	TrackerMinerManagerPrivate *priv;
+	GSList *running, *l;
+	gint prefix_len;
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	running = tracker_miner_manager_get_running (manager);
+	prefix_len = strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+
+	for (l = running; l; l = l->next) {
+		MinerData *data;
+		const gchar *dbus_name;
+		gchar *p;
+
+		dbus_name = l->data;
+		data = g_slice_new0 (MinerData);
+		data->dbus_path = g_strdup_printf ("/%s", dbus_name);
+
+		p = data->dbus_path;
+		while ((p = strchr (p, '.')) != NULL) {
+			*p++ = '/';
+		}
+
+		data->dbus_name = l->data;
+		data->display_name = g_strdup (dbus_name + prefix_len);
+		data->description = g_strdup (data->display_name);
+		priv->miners = g_list_prepend (priv->miners, data);
+	}
+
+	g_slist_free (running);
+}
+
+static void
 check_file (GFile    *file,
             gpointer  user_data)
 {
@@ -774,7 +809,16 @@ static void
 initialize_miners_data (TrackerMinerManager *manager)
 {
 	GFile *file;
-	const gchar *miners_dir;
+	const gchar *miners_dir, *miners_dir_disabled;
+
+	miners_dir_disabled = g_getenv ("TRACKER_MINERS_DIR_DISABLED");
+	if (G_UNLIKELY (miners_dir_disabled != NULL)) {
+		miners_dir = TRACKER_MINERS_DIR;
+		g_message ("Crawling miners found on DBus not from .desktop files (set in env)");
+
+		load_running_miners_only (manager);
+		return;
+	}
 
 	/* Go through service files */
 	miners_dir = g_getenv ("TRACKER_MINERS_DIR");
