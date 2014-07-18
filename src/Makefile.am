@@ -23,9 +23,15 @@ SUBDIRS =                                              \
 	plugins                                        \
 	tracker-store                                  \
 	tracker-control                                \
-	tracker-utils                                  \
-	tracker-extract                                \
-	tracker-writeback
+	tracker-utils
+
+if HAVE_TRACKER_EXTRACT
+SUBDIRS += tracker-extract
+endif
+
+if HAVE_TRACKER_WRITEBACK
+SUBDIRS += tracker-writeback
+endif
 
 if HAVE_TRACKER_PREFERENCES
 SUBDIRS += tracker-preferences
