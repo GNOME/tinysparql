@@ -22,14 +22,15 @@ For a collection of files, call the extractor and check that the expected
 metadata is extracted. Load dynamically the test information from a data
 directory (containing xxx.expected files)
 """
+
 from common.utils import configuration as cfg
-from common.utils.helpers import ExtractorHelper, NoMetadataException
+from common.utils.extractor import get_tracker_extract_output
 import unittest2 as ut
 import os
-import types
 import sys
 
 import ConfigParser
+
 
 class ExtractionTestCase (ut.TestCase):
     """
@@ -91,15 +92,6 @@ class ExtractionTestCase (ut.TestCase):
         else:
             return None
 
-
-
-    def setUp (self):
-        self.extractor = ExtractorHelper ()
-        self.extractor.start ()
-
-    def tearDown (self):
-        self.extractor.stop ()
-
     def expected_failure_test_extraction (self):
         try:
             self.generic_test_extraction ()
@@ -116,20 +108,12 @@ class ExtractionTestCase (ut.TestCase):
 
         # Filename contains the file to extract, in a relative path to the description file
         desc_root, desc_file = os.path.split (abs_description)
-        self.file_to_extract = ""
-        try:
-            self.file_to_extract = os.path.join (desc_root, self.configParser.get ("TestFile", "Filename"))
-        except Exception, e:
-            self.fail ("%s in %s"
-                       % (e, abs_description))
 
-        try:
-            result = self.extractor.get_metadata ("file://" + self.file_to_extract, "")
+        filename_to_extract = self.configParser.get ("TestFile", "Filename")
+        self.file_to_extract = os.path.join (desc_root, filename_to_extract)
 
-            self.__assert_extraction_ok (result)
-        except NoMetadataException, e:
-            self.fail ("Probably a missing gstreamer plugin (or crash in the extractor?)")
-
+        result = get_tracker_extract_output(self.file_to_extract)
+        self.__assert_extraction_ok (result)
 
     def assertDictHasKey (self, d, key, msg=None):
         if not d.has_key (key):
