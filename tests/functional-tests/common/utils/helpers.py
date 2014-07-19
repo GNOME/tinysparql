@@ -572,6 +572,11 @@ class MinerFsHelper (Helper):
         """
         Block until the miner has finished crawling and its status becomes "Idle"
         """
+        status = self.miner_fs.GetStatus()
+        log ('Current miner FS status: %s' % status)
+
+        if status == 'Idle':
+            return
 
         self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
                                                           signal_name="Progress",

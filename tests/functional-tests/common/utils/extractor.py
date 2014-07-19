@@ -253,13 +253,15 @@ class ExtractorParser(object):
         return clean.strip ()
 
 
-def get_tracker_extract_output(filename):
+def get_tracker_extract_output(filename, mime_type=None):
     """
     Runs `tracker-extract --file` to extract metadata from a file.
     """
 
     tracker_extract = os.path.join (cfg.EXEC_PREFIX, 'tracker-extract')
     command = [tracker_extract, '--file', filename]
+    if mime_type is not None:
+        command.extend(['--mime', mime_type])
 
     try:
         log ('Running: %s' % ' '.join(command))
