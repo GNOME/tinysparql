@@ -39,9 +39,8 @@ STATS_IFACE = "org.freedesktop.Tracker1.Statistics"
 TRACKER_STATUS_OBJ_PATH = "/org/freedesktop/Tracker1/Status"
 STATUS_IFACE = "org.freedesktop.Tracker1.Status"
 
-TRACKER_EXTRACT_BUSNAME = "org.freedesktop.Tracker1.Extract"
-TRACKER_EXTRACT_OBJ_PATH = "/org/freedesktop/Tracker1/Extract"
-TRACKER_EXTRACT_IFACE = "org.freedesktop.Tracker1.Extract"
+TRACKER_EXTRACT_BUSNAME = "org.freedesktop.Tracker1.Miner.Extract"
+TRACKER_EXTRACT_OBJ_PATH = "/org/freedesktop/Tracker1/Miner/Extract"
 
 WRITEBACK_BUSNAME = "org.freedesktop.Tracker1.Writeback"
 
