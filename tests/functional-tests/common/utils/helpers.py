@@ -282,17 +282,27 @@ class StoreHelper (Helper):
         """
         Process notifications from tracker-store on resource changes.
         """
-        matched = False
+        exit_loop = False
+
         if inserts_list is not None:
             if self.inserts_match_function is not None:
                 # The match function will remove matched entries from the list
-                (matched, inserts_list) = self.inserts_match_function (inserts_list)
+                (exit_loop, inserts_list) = self.inserts_match_function (inserts_list)
             self.inserts_list += inserts_list
 
         if deletes_list is not None:
             if self.deletes_match_function is not None:
-                (matched, deletes_list) = self.deletes_match_function (deletes_list)
+                (exit_loop, deletes_list) = self.deletes_match_function (deletes_list)
             self.deletes_list += deletes_list
+
+        if exit_loop:
+            GLib.source_remove(self.graph_updated_timeout_id)
+            self.graph_updated_timeout_id = 0
+            self.loop.quit ()
+
+    def _enable_await_timeout (self):
+        self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
+                                                                  self._graph_updated_timeout_cb)
 
     def await_resource_inserted (self, rdf_class, url = None, title = None):
         """
@@ -300,9 +310,9 @@ class StoreHelper (Helper):
         """
         assert (self.inserts_match_function == None)
 
-        def match_cb (inserts_list, in_main_loop = True):
+        def find_resource_insertion (inserts_list):
             matched = False
-            filtered_list = []
+            remaining_events = []
             known_subjects = set ()
 
             #print "Got inserts: ", inserts_list, "\n"
@@ -335,16 +345,14 @@ class StoreHelper (Helper):
                         self.matched_resource_id = insert[1]
 
                 if not matched or id != self.matched_resource_id:
-                    filtered_list += [insert]
+                    remaining_events += [insert]
 
-            if matched and in_main_loop:
-                GLib.source_remove (self.graph_updated_timeout_id)
-                self.graph_updated_timeout_id = 0
-                self.inserts_match_function = None
-                self.loop.quit ()
+            return matched, remaining_events
 
-            return (matched, filtered_list)
-
+        def match_cb (inserts_list):
+            matched, remaining_events = find_resource_insertion (inserts_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
 
         self.matched_resource_urn = None
         self.matched_resource_id = None
@@ -352,21 +360,19 @@ class StoreHelper (Helper):
         log ("Await new %s (%i existing inserts)" % (rdf_class, len (self.inserts_list)))
 
         # Check the list of previously received events for matches
-        (existing_match, self.inserts_list) = match_cb (self.inserts_list, False)
+        (existing_match, self.inserts_list) = find_resource_insertion (self.inserts_list)
 
         if not existing_match:
-            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
-                                                                      self._graph_updated_timeout_cb)
+            self._enable_await_timeout ()
             self.inserts_match_function = match_cb
-
             # Run the event loop until the correct notification arrives
             self.loop.run ()
+            self.inserts_match_function = None
 
         if self.graph_updated_timed_out:
             raise Exception ("Timeout waiting for resource: class %s, URL %s, title %s" % (rdf_class, url, title))
 
         return (self.matched_resource_id, self.matched_resource_urn)
-
 
     def await_resource_deleted (self, id, fail_message = None):
         """
@@ -374,38 +380,35 @@ class StoreHelper (Helper):
         """
         assert (self.deletes_match_function == None)
 
-        def match_cb (deletes_list, in_main_loop = True):
-            matched = False
-            filtered_list = []
+        def find_resource_deletion (deletes_list):
+            log ("find_resource_deletion: looking for %i in %s" % (id, deletes_list))
 
-            #print "Looking for %i in " % id, deletes_list, "\n"
+            matched = False
+            remaining_events = []
 
             for delete in deletes_list:
                 if delete[1] == id:
                     matched = True
                 else:
-                    filtered_list += [delete]
+                    remaining_events += [delete]
 
-            if matched and in_main_loop:
-                GLib.source_remove (self.graph_updated_timeout_id)
-                self.graph_updated_timeout_id = 0
-                self.deletes_match_function = None
+            return matched, remaining_events
 
-            self.loop.quit ()
-
-            return (matched, filtered_list)
+        def match_cb (deletes_list):
+            matched, remaining_events = find_resource_deletion(deletes_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
 
         log ("Await deletion of %i (%i existing)" % (id, len (self.deletes_list)))
 
-        (existing_match, self.deletes_list) = match_cb (self.deletes_list, False)
+        (existing_match, self.deletes_list) = find_resource_deletion (self.deletes_list)
 
         if not existing_match:
-            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
-                                                                      self._graph_updated_timeout_cb)
+            self._enable_await_timeout ()
             self.deletes_match_function = match_cb
-
             # Run the event loop until the correct notification arrives
             self.loop.run ()
+            self.deletes_match_function = None
 
         if self.graph_updated_timed_out:
             if fail_message is not None:
@@ -496,6 +499,18 @@ class StoreHelper (Helper):
         else:
             return -1
 
+    def get_resource_id(self, url):
+        """
+        Get the internal ID for a given resource, identified by URL.
+        """
+        result = self.query(
+            'SELECT tracker:id(?r) WHERE { ?r nie:url "%s" }' % url)
+        if len(result) == 1:
+            return int (result [0][0])
+        elif len(result) == 0:
+            raise Exception ("No entry for resource %s" % url)
+        else:
+            raise Exception ("Multiple entries for resource %s" % url)
 
     def ask (self, ask_query):
         assert ask_query.strip ().startswith ("ASK")
