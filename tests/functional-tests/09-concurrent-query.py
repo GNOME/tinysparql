@@ -26,7 +26,7 @@ import time
 import random
 import commands
 import signal
-import gobject
+from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
@@ -43,7 +43,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
     holding those queries
     """
     def setUp (self):
-        self.main_loop = gobject.MainLoop ()
+        self.main_loop = GObject.MainLoop ()
         
         self.mock_data_insert ()
         self.finish_counter = 0
@@ -81,7 +81,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
                                                             error_handler=self.error_handler)
             
         # Safeguard of 50 seconds. The last reply should quit the loop
-        gobject.timeout_add_seconds (60, self.timeout_cb)
+        GObject.timeout_add_seconds (60, self.timeout_cb)
         self.main_loop.run ()
         
     def reply_cb (self, results):

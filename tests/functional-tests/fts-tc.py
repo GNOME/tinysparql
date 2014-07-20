@@ -27,7 +27,7 @@ import random
 import commands
 import configuration
 from dbus.mainloop.glib import DBusGMainLoop
-import gobject
+from gi.repository import GObject
 import shutil
 from subprocess import Popen,PIPE
 
@@ -115,7 +115,7 @@ class TestUpdate (unittest.TestCase):
         self.miner=dbus.Interface (miner_obj,dbus_interface=MINER_IFACE)
 
 
-        self.loop = gobject.MainLoop()
+        self.loop = GObject.MainLoop()
         self.dbus_loop = DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SessionBus (self.dbus_loop)
 

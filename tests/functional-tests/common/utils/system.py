@@ -4,8 +4,8 @@ import subprocess
 import shutil
 import configuration as cfg
 
-import gobject
-import glib
+from gi.repository import GObject
+from gi.repository import GLib
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 import time
@@ -231,14 +231,14 @@ if __name__ == "__main__":
     def destroy_the_world (a):
         a.tracker_store_testing_stop ()
         print "   stopped"
-        gtk.main_quit()
+        Gtk.main_quit()
 
     print "-- Starting store --"
     a = TrackerSystemAbstraction ()
     a.tracker_store_testing_start ()
     print "   started, waiting 5 sec. to stop it"
-    glib.timeout_add_seconds (5, destroy_the_world, a)
-    gtk.main ()
+    GLib.timeout_add_seconds (5, destroy_the_world, a)
+    Gtk.main ()
 
     print "-- Starting miner-fs --"
     b = TrackerMinerFsLifeCycle ()
