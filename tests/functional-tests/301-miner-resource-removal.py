@@ -28,7 +28,7 @@ from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, lo
 from common.utils.system import TrackerSystemAbstraction
 
 import dbus
-import glib
+from gi.repository import GLib
 import os
 import shutil
 import unittest2 as ut

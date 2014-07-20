@@ -18,8 +18,8 @@
 # 02110-1301, USA.
 #
 import dbus
-import glib
-import gobject
+from gi.repository import GLib
+from gi.repository import GObject
 import commands
 import os
 import signal
@@ -62,7 +62,7 @@ class Helper:
         if self.bus is not None:
             return
 
-        self.loop = gobject.MainLoop ()
+        self.loop = GObject.MainLoop ()
 
         dbus_loop = DBusGMainLoop (set_as_default=True)
         self.bus = dbus.SessionBus (dbus_loop)
@@ -146,20 +146,20 @@ class Helper:
         self.process = self._start_process ()
 
         # Run the loop until the bus name appears, or the process dies.
-        self.process_watch_timeout = glib.timeout_add (200, self._process_watch_cb)
+        self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
 
         self.loop.run ()
 
-        glib.source_remove (self.process_watch_timeout)
+        GLib.source_remove (self.process_watch_timeout)
 
     def stop (self):
         if self.available:
             # It should step out of this loop when the miner disappear from the bus
-            glib.idle_add (self._stop_process)
-            self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+            GLib.idle_add (self._stop_process)
+            self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
             self.loop.run ()
             if self.timeout_id is not None:
-                glib.source_remove(self.timeout_id)
+                GLib.source_remove(self.timeout_id)
 
         log ("[%s] stop." % self.PROCESS_NAME)
         # Disconnect the signals of the next start we get duplicated messages
@@ -302,7 +302,7 @@ class StoreHelper (Helper):
                     filtered_list += [insert]
 
             if matched and in_main_loop:
-                glib.source_remove (self.graph_updated_timeout_id)
+                GLib.source_remove (self.graph_updated_timeout_id)
                 self.graph_updated_timeout_id = 0
                 self.inserts_match_function = None
                 self.loop.quit ()
@@ -319,7 +319,7 @@ class StoreHelper (Helper):
         (existing_match, self.inserts_list) = match_cb (self.inserts_list, False)
 
         if not existing_match:
-            self.graph_updated_timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT,
+            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
                                                                       self._graph_updated_timeout_cb)
             self.inserts_match_function = match_cb
 
@@ -351,7 +351,7 @@ class StoreHelper (Helper):
                     filtered_list += [delete]
 
             if matched and in_main_loop:
-                glib.source_remove (self.graph_updated_timeout_id)
+                GLib.source_remove (self.graph_updated_timeout_id)
                 self.graph_updated_timeout_id = 0
                 self.deletes_match_function = None
 
@@ -364,7 +364,7 @@ class StoreHelper (Helper):
         (existing_match, self.deletes_list) = match_cb (self.deletes_list, False)
 
         if not existing_match:
-            self.graph_updated_timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT,
+            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
                                                                       self._graph_updated_timeout_cb)
             self.deletes_match_function = match_cb
 
@@ -514,10 +514,10 @@ class MinerFsHelper (Helper):
                                                           dbus_interface=cfg.MINER_IFACE)
 
         # It should step out of this loop after progress changes to "Idle"
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
         self.loop.run ()
         if self.timeout_id is not None:
-            glib.source_remove (self.timeout_id)
+            GLib.source_remove (self.timeout_id)
 
         bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
                                           cfg.MINERFS_OBJ_PATH)
@@ -541,12 +541,12 @@ class MinerFsHelper (Helper):
                                                           signal_name="Progress",
                                                           path=cfg.MINERFS_OBJ_PATH,
                                                           dbus_interface=cfg.MINER_IFACE)
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
+        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
 
         self.loop.run ()
 
         if self.timeout_id is not None:
-            glib.source_remove (self.timeout_id)
+            GLib.source_remove (self.timeout_id)
         self.bus._clean_up_signal_match (self.status_match)
 
 

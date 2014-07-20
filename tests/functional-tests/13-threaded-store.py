@@ -22,8 +22,8 @@ Test that the threads in the daemon are working:
  A very long query shouldn't block smaller queries.
 """
 import os, dbus
-import gobject
-import glib
+from gi.repository import GObject
+from gi.repository import GLib
 import time
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -46,7 +46,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
     Reported in bug NB#183499
     """
     def setUp (self):
-        self.main_loop = gobject.MainLoop ()
+        self.main_loop = GObject.MainLoop ()
         self.simple_queries_counter = AMOUNT_SIMPLE_QUERIES
         self.simple_queries_answers = 0
 
@@ -101,8 +101,8 @@ class TestThreadedStore (CommonTrackerStoreTest):
                                                        reply_handler=self.reply_complex,
                                                        error_handler=self.error_handler_complex)
 
-        self.timeout_id = glib.timeout_add_seconds (MAX_TEST_TIME, self.__timeout_on_idle)
-        glib.timeout_add_seconds (SIMPLE_QUERY_FREQ, self.__simple_query)
+        self.timeout_id = GLib.timeout_add_seconds (MAX_TEST_TIME, self.__timeout_on_idle)
+        GLib.timeout_add_seconds (SIMPLE_QUERY_FREQ, self.__simple_query)
         self.main_loop.run ()
 
     def __simple_query (self):

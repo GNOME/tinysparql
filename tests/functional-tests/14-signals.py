@@ -27,8 +27,8 @@ import unittest2 as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 from common.utils import configuration as cfg
 
-import gobject
-import glib
+from gi.repository import GObject
+from gi.repository import GLib
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 import time
@@ -49,7 +49,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     """
     def setUp (self):
         self.clean_up_list = []
-        self.loop = gobject.MainLoop()
+        self.loop = GObject.MainLoop()
         dbus_loop = DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SessionBus (dbus_loop)
         self.timeout_id = 0
@@ -79,7 +79,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         """
         In the callback of the signals, there should be a self.loop.quit ()
         """
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
+        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
         self.loop.run ()
 
     def __timeout_on_idle (self):
@@ -100,7 +100,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.results_inserts = inserts
 
         if (self.timeout_id != 0):
-            glib.source_remove (self.timeout_id )
+            GLib.source_remove (self.timeout_id )
             self.timeout_id = 0
         self.loop.quit ()
         self.bus._clean_up_signal_match (self.cb_id)

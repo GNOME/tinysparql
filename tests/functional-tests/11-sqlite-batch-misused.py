@@ -22,7 +22,7 @@ Test the query while running BatchSparqlUpdate at the same time. This was raisin
 some SQLITE_MISUSED errors before.
 """
 import os, dbus
-import gobject
+from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
@@ -40,7 +40,7 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
     to configure properly the environment
     """
     def setUp (self):
-        self.main_loop = gobject.MainLoop ()
+        self.main_loop = GObject.MainLoop ()
         self.batch_counter = 0
         
     def test_queries_while_batch_insert (self):
@@ -72,9 +72,9 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
                         self.batch_counter += 1
                         
         
-        gobject.timeout_add_seconds (2, self.run_a_query)
+        GObject.timeout_add_seconds (2, self.run_a_query)
         # Safeguard of 60 seconds. The last reply should quit the loop
-        gobject.timeout_add_seconds (60, self.timeout_cb)
+        GObject.timeout_add_seconds (60, self.timeout_cb)
         self.main_loop.run ()
 
     def run_a_query (self):
