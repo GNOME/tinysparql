@@ -47,6 +47,19 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         2. Write the file
         3. Wait for miner-fs to index it
         4. Ensure no duplicates are found
+
+        During stage 3 you should see the following error from the FS miner, if
+        viewing its logs:
+
+            (tracker-miner-fs:16008): Tracker-CRITICAL **:   (Sparql buffer)
+                Error in task 0 of the array-update: UNIQUE constraint failed:
+                nie:DataObject.nie:url (strerror of errno ...)
+
+            (tracker-miner-fs:16008): Tracker-CRITICAL **: Could not execute
+                sparql: UNIQUE constraint failed: nie:DataObject.nie:url
+                (strerror of errno ...)
+
+        This is because the test already inserted the resource in the store.
         """
 
         origin_filepath = os.path.join (self.get_data_dir (), self.get_test_music ())
@@ -73,7 +86,8 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
                      nfo:averageAudioBitrate '32000' ;
                      nfo:genre               'Pop' ;
                      nfo:isContentEncrypted  'false' ;
-                     nie:title               'Simply Juvenile'
+                     nie:title               'Simply Juvenile' ;
+                     nie:isStoredAs          _:x
         }
 
         INSERT { <urn:album:SinCos> a              nmm:MusicAlbum;
@@ -87,15 +101,19 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
+        resource_id = self.tracker.get_resource_id(dest_fileuri)
+
         # Copy the image to the dest path
         self.slowcopy_file (origin_filepath, dest_filepath)
         assert os.path.exists (dest_filepath)
         self.tracker.await_resource_inserted ('nmm:MusicPiece', url=dest_fileuri)
+
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         log ("Remove and wait")
         os.remove (dest_filepath)
+        self.tracker.await_resource_deleted (resource_id)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 if __name__ == "__main__":
