@@ -22,18 +22,23 @@ from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import log
 import unittest2 as ut
 
+from gi.repository import GLib
+
 import shutil
 import os
 import time
 
 APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_MONITORED_TMP_DIR, "test-applications-monitored")
 
-CONF_OPTIONS = [
-    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [APPLICATIONS_TMP_DIR]),
-    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
-    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false")
-    ]
+index_dirs = [APPLICATIONS_TMP_DIR]
+CONF_OPTIONS = {
+    cfg.DCONF_MINER_SCHEMA: {
+        'index-recursive-directories': GLib.Variant.new_strv(index_dirs),
+        'index-single-directories': GLib.Variant.new_strv([]),
+        'index-optical-discs': GLib.Variant.new_boolean(False),
+        'index-removable-devices': GLib.Variant.new_boolean(False),
+    }
+}
 
 # Copy rate, 10KBps (1024b/100ms)
 SLOWCOPY_RATE = 1024

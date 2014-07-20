@@ -27,6 +27,8 @@ from common.utils.dconf import DConfClient
 from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, log
 from common.utils.system import TrackerSystemAbstraction
 
+from gi.repository import GLib
+
 import dbus
 from gi.repository import GLib
 import os
@@ -42,14 +44,16 @@ def get_test_uri (filename):
     return "file://" + os.path.join (MINER_TMP_DIR, filename)
 
 
-CONF_OPTIONS = [
-    (cfg.DCONF_MINER_SCHEMA, "enable-writeback", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [MINER_TMP_DIR]),
-    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
-    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "true"),
-    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "throttle", 5)
-    ]
+CONF_OPTIONS = {
+    cfg.DCONF_MINER_SCHEMA: {
+        'enable-writeback': GLib.Variant.new_boolean(False),
+        'index-recursive-directories': GLib.Variant.new_strv([MINER_TMP_DIR]),
+        'index-single-directories': GLib.Variant.new_strv([]),
+        'index-optical-discs': GLib.Variant.new_boolean(False),
+        'index-removable-devices': GLib.Variant.new_boolean(False),
+        'throttle': GLib.Variant.new_int32(5),
+    }
+}
 
 REASONABLE_TIMEOUT = 30
 
