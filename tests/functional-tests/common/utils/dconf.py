@@ -1,26 +1,41 @@
-import subprocess
+from gi.repository import GLib
+from gi.repository import Gio
+
 import os
+
 from helpers import log
 
-class DConfClient:
+class DConfClient(object):
     """
-    Shamefull implementation until we get GobjectIntrospection on libdconf
+    Allow changing Tracker configuration in DConf.
+
+    Tests should be run with a separate DConf profile so that these changes do
+    not affect the user's configuration. The 'trackertest' profile exists for
+    this reason, and the constructor will fail if this isn't the profile in
+    use, to avoid any risk of modifying or removing your real configuration.
+
+    The constructor will fail if DConf is not the default backend, because this
+    probably indicates that the memory backend is in use. Without DConf the
+    required configuration changes will not take effect, causing many tests to
+    break.
     """
-    def write (self, schema, key, value):
-        command = ["gsettings", "set", schema, key, str(value)]
-        FNULL = open('/dev/null', 'w')
-        cmd = subprocess.Popen (command, stdout=subprocess.PIPE) #, stdout=FNULL, stderr=FNULL)
-        cmd.wait ()
 
-        
-    def read (self, schema, key):
-        command = ["gsettings", "get", schema, key]
-        FNULL = open('/dev/null', 'w')
-        cmd = subprocess.Popen (command, stdout=subprocess.PIPE) #, stdout=FNULL, stderr=FNULL)
-        return cmd.stdout.readline ()
+    def __init__ (self, schema):
+        self._settings = Gio.Settings.new(schema)
 
-    def reset (self):
-        profile = os.environ ["DCONF_PROFILE"]
+        backend = self._settings.get_property('backend')
+        self._check_settings_backend_is_dconf(backend)
+        self._check_using_correct_dconf_profile()
+
+    def _check_settings_backend_is_dconf(self, backend):
+        typename = type(backend).__name__.split('.')[-1]
+        if typename != 'DConfSettingsBackend':
+            raise Exception(
+                "The functional tests require DConf to be the default "
+                "GSettings backend. Got %s instead." % typename)
+
+    def _check_using_correct_dconf_profile(self):
+        profile = os.environ["DCONF_PROFILE"]
         if not os.path.exists(profile):
             raise Exception(
                 "Unable to find DConf profile '%s'. Check that Tracker and "
@@ -28,6 +43,28 @@ class DConfClient:
                 "--enable-functional-tests to configure)." % profile)
 
         assert os.path.basename(profile) == "trackertest"
+
+    def write(self, key, value):
+        """
+        Write a settings value.
+        """
+        self._settings.set_value(key, value)
+
+    def read(self, schema, key):
+        """
+        Read a settings value.
+        """
+        return self._settings.get_value(key)
+
+    def reset(self):
+        """
+        Remove all stored values, resetting configuration to the default.
+
+        This can be done by removing the entire 'trackertest' configuration
+        database.
+        """
+
+        self._check_using_correct_dconf_profile()
 
         # XDG_CONFIG_HOME is useless, so we use HOME. This code should not be
         # needed unless for some reason the test is not being run via the
@@ -39,29 +76,3 @@ class DConfClient:
         if os.path.exists (dconf_db):
             log ("[Conf] Removing dconf database: " + dconf_db)
             os.remove (dconf_db)
-
-
-if __name__ == "__main__":
-
-
-    SCHEMA_MINER = "org.freedesktop.Tracker.Miner.Files"
-    os.environ ["DCONF_PROFILE"] = os.path.join (cfg.DATADIR, "tracker-tests",
-                                                 "trackertest")
-
-    dconf = DConfClient ()
-    value = dconf.read (DConfClient.SCHEMA_MINER, "throttle")
-    print "Original value:", int (value)
-    print "Setting 5"
-    dconf.write (DConfClient.SCHEMA_MINER, "throttle", "5")
-    value = dconf.read (DConfClient.SCHEMA_MINER, "throttle")
-    assert int(value) == 5
-    
-    print "Setting 3"
-    dconf.write (DConfClient.SCHEMA_MINER, "throttle", "3")
-    value = dconf.read (DConfClient.SCHEMA_MINER, "throttle")
-    assert int (value) == 3
-
-    print "Now with lists"
-    dconf.write (DConfClient.SCHEMA_MINER, "index-recursive-directories", ['$HOME/set-with-python'])
-    value = dconf.read (DConfClient.SCHEMA_MINER, "index-recursive-directories")
-    print "result", value

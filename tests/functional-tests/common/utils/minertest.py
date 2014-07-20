@@ -22,6 +22,8 @@ from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper
 import unittest2 as ut
 
+from gi.repository import GLib
+
 import shutil
 import os
 
@@ -36,13 +38,16 @@ def uri (filename):
 
 DEFAULT_TEXT = "Some stupid content, to have a test file"
 
-CONF_OPTIONS = [
-    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [os.path.join (MINER_TMP_DIR, "test-monitored")]),
-    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
-    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "throttle", 5)
-    ]
+index_dirs = [os.path.join (MINER_TMP_DIR, "test-monitored")]
+CONF_OPTIONS = {
+    cfg.DCONF_MINER_SCHEMA: {
+        'index-recursive-directories': GLib.Variant.new_strv(index_dirs),
+        'index-single-directories': GLib.Variant.new_strv([]),
+        'index-optical-discs': GLib.Variant.new_boolean(False),
+        'index-removable-devices': GLib.Variant.new_boolean(False),
+        'throttle': GLib.Variant.new_int32(5),
+    }
+}
 
 
 class CommonTrackerMinerTest (ut.TestCase):

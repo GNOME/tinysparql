@@ -17,6 +17,9 @@
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
 #
+
+from gi.repository import GLib
+
 from common.utils.system import TrackerSystemAbstraction
 import shutil
 import unittest2 as ut
@@ -31,12 +34,16 @@ TEST_FILE_PNG = "writeback-test-4.png"
 
 WRITEBACK_TMP_DIR = os.path.join (cfg.TEST_MONITORED_TMP_DIR, "writeback")
 
-CONF_OPTIONS = [
-    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [WRITEBACK_TMP_DIR]),
-    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
-    (cfg.DCONF_MINER_SCHEMA, "index-optical-discs", "false"),
-    (cfg.DCONF_MINER_SCHEMA, "index-removable-devices", "false")
-    ]
+index_dirs = [WRITEBACK_TMP_DIR]
+CONF_OPTIONS = {
+    cfg.DCONF_MINER_SCHEMA: {
+        'index-recursive-directories': GLib.Variant.new_strv(index_dirs),
+        'index-single-directories': GLib.Variant.new_strv([]),
+        'index-optical-discs': GLib.Variant.new_boolean(False),
+        'index-removable-devices': GLib.Variant.new_boolean(False),
+    }
+}
+
 
 def uri (filename):
     return "file://" + os.path.join (WRITEBACK_TMP_DIR, filename)
