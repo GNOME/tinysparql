@@ -88,6 +88,18 @@ class CommonTrackerWritebackTest (ut.TestCase):
         self.system = TrackerSystemAbstraction ()
 
         self.system.tracker_writeback_testing_start (CONF_OPTIONS)
+
+        def await_resource_extraction(url):
+            # Make sure a resource has been crawled by the FS miner and by
+            # tracker-extract. The extractor adds nie:contentCreated for
+            # image resources, so know once this property is set the
+            # extraction is complete.
+            self.system.store.await_resource_inserted('nfo:Image', url=url, required_property='nie:contentCreated')
+
+        await_resource_extraction (self.get_test_filename_jpeg())
+        await_resource_extraction (self.get_test_filename_tiff())
+        await_resource_extraction (self.get_test_filename_png())
+
         # Returns when ready
         log ("Ready to go!")
         
@@ -97,13 +109,16 @@ class CommonTrackerWritebackTest (ut.TestCase):
         self.system.tracker_writeback_testing_stop ()
     
 
-    def get_test_filename_jpeg (self):
+    @staticmethod
+    def get_test_filename_jpeg ():
         return uri (TEST_FILE_JPEG)
 
-    def get_test_filename_tiff (self):
+    @staticmethod
+    def get_test_filename_tiff ():
         return uri (TEST_FILE_TIFF)
 
-    def get_test_filename_png (self):
+    @staticmethod
+    def get_test_filename_png ():
         return uri (TEST_FILE_PNG)
 
     def get_mtime (self, filename):

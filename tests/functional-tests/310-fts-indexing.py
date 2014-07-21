@@ -59,7 +59,8 @@ class CommonMinerFTS (CommonTrackerMinerTest):
         f.write (text)
         f.close ()
         self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
-                                              url = uri (self.testfile))
+                                              url = uri (self.testfile),
+                                              required_property = 'nie:plainTextContent')
         self.tracker.reset_graph_updates_tracking ()
 
     def search_word (self, word):
