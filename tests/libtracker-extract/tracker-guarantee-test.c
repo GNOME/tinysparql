@@ -30,13 +30,11 @@ typedef struct {
 TestCase test_cases_title [] = {
         { "file:///a/b/a_video_with_metadata.avi", "extracted title", "extracted title" },
 
-#ifdef GUARANTEE_METADATA 
         { "file:///a/b/a_video_with_no_metadata.avi", NULL, "a video with no metadata" },
         { "file:///a/b/a_video_with_no_metadata.avi", "", "a video with no metadata" },
         { "file:///a/b/a.video.with.no.metadata.avi", NULL, "a.video.with.no.metadata" },
         { "file:///a/b/a video without extension", NULL, "a video without extension" },
         { "file:///a/b/.hidden_file", NULL, "hidden file" },
-#endif
 
         { NULL, NULL, NULL}
 };
@@ -110,33 +108,25 @@ test_guarantee_title (void)
                                      test_cases_title[i].expected_title);
         }
 
-#ifdef GUARANTEE_METADATA        
         g_print ("%d test cases (guarantee metadata enabled) ", i);
-#else
-        g_print ("%d test cases (guarantee metadata disabled) ", i);
-#endif
 }
 
 static void
 test_guarantee_date (void)
 {
-#ifdef GUARANTEE_METADATA
         GFile *f;
         gchar *uri;
-#endif
 
         internal_test_date ("file:///does/not/matter/here", "2011-10-10T12:13:14Z0300");
 
-#ifdef GUARANTEE_METADATA        
         f = g_file_new_for_path (TOP_SRCDIR "/tests/libtracker-extract/guarantee-mtime-test.txt");
         uri = g_file_get_uri (f);
-        
+
         internal_test_date (uri, NULL);
         internal_test_date (uri, "");
 
         g_free (uri);
         g_object_unref (f);
-#endif
 }
 
 
