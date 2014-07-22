@@ -55,7 +55,11 @@ autostart_DATA =                                       \
 	tracker-store.desktop
 
 if HAVE_TRACKER_MINER_FS
-autostart_DATA += tracker-miner-fs.desktop tracker-extract.desktop
+autostart_DATA += tracker-miner-fs.desktop
+endif
+
+if HAVE_TRACKER_EXTRACT
+autostart_DATA += tracker-extract.desktop
 endif
 
 if HAVE_TRACKER_MINER_APPS
@@ -73,25 +77,25 @@ endif
 @INTLTOOL_DESKTOP_RULE@
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = \
-	tracker-control-$(TRACKER_MAJOR_VERSION).0.pc \
-	tracker-sparql-$(TRACKER_MAJOR_VERSION).0.pc \
-	tracker-miner-$(TRACKER_MAJOR_VERSION).0.pc
+pkgconfig_DATA =                                       \
+	tracker-control-$(TRACKER_API_VERSION).pc      \
+	tracker-sparql-$(TRACKER_API_VERSION).pc       \
+	tracker-miner-$(TRACKER_API_VERSION).pc
 
-tracker-control-$(TRACKER_MAJOR_VERSION).0.pc: tracker-control.pc
+tracker-control-$(TRACKER_API_VERSION).pc: tracker-control.pc
 	cp $< $@
 
-tracker-sparql-$(TRACKER_MAJOR_VERSION).0.pc: tracker-sparql.pc
+tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
 	cp $< $@
 
-tracker-miner-$(TRACKER_MAJOR_VERSION).0.pc: tracker-miner.pc
+tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 	cp $< $@
 
-CLEANFILES = \
-	$(autostart_DATA) \
-	$(desktop_in_files) \
-	tracker-control-$(TRACKER_MAJOR_VERSION).0.pc \
-	tracker-sparql-$(TRACKER_MAJOR_VERSION).0.pc \
-	tracker-miner-$(TRACKER_MAJOR_VERSION).0.pc
+CLEANFILES =                                           \
+	$(autostart_DATA)                              \
+	$(desktop_in_files)                            \
+	tracker-control-$(TRACKER_API_VERSION).pc      \
+	tracker-sparql-$(TRACKER_API_VERSION).pc       \
+	tracker-miner-$(TRACKER_API_VERSION).pc
 
 EXTRA_DIST = $(desktop_in_in_files)
