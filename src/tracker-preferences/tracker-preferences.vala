@@ -33,6 +33,9 @@ public class Tracker.Preferences {
 	private GLib.Settings settings_miner_fs = null;
 	private GLib.Settings settings_extract = null;
 
+	private bool suggest_reindex = false;
+	private bool suggest_restart = false;
+
 	private const string UI_FILE = "tracker-preferences.ui";
 	private const string HOME_STRING = "$HOME";
 	private string HOME_STRING_EVALUATED;
@@ -240,6 +243,50 @@ public class Tracker.Preferences {
 		window.show ();
 	}
 
+	void reindex () {
+		stdout.printf ("Reindexing...\n");
+
+		string output, errors;
+		int status;
+
+		try {
+			Process.spawn_sync (null, /* working dir */
+			                    {"tracker-control", "--hard-reset", "--start" },
+			                    null, /* env */
+			                    SpawnFlags.SEARCH_PATH,
+			                    null,
+			                    out output,
+			                    out errors,
+			                    out status);
+		} catch (GLib.Error e) {
+			stderr.printf ("Could not reindex: %s", e.message);
+		}
+		stdout.printf ("%s\n", output);
+		stdout.printf ("Finishing...\n");
+	}
+
+	void restart () {
+		stdout.printf ("Restarting...\n");
+
+		string output, errors;
+		int status;
+
+		try {
+			Process.spawn_sync (null, /* working dir */
+			                    {"tracker-control", "--terminate=miners", "--terminate=store", "--start" },
+			                    null, /* env */
+			                    SpawnFlags.SEARCH_PATH,
+			                    null,
+			                    out output,
+			                    out errors,
+			                    out status);
+		} catch (GLib.Error e) {
+			stderr.printf ("Could not restart: %s", e.message);
+		}
+		stdout.printf ("%s\n", output);
+		stdout.printf ("Finishing...\n");
+	}
+
 	// This function is used to fix up the parameter ordering for callbacks
 	// from the .ui file which has the callback names.
 	[CCode (instance_pos = -1)]
@@ -301,7 +348,55 @@ public class Tracker.Preferences {
 			settings_extract.apply ();
 			debug ("  tracker-extract: Done");
 
-			// TODO: restart the Application and Files miner (no idea how to cleanly do this atm)
+			if (suggest_reindex) {
+				Dialog dialog = new MessageDialog (window,
+				                                   DialogFlags.DESTROY_WITH_PARENT,
+				                                   MessageType.QUESTION,
+				                                   ButtonsType.NONE,
+				                                   "%s\n\n%s\n\n%s",
+				                                   _("The changes you have made to your preferences here require a reindex to ensure all your data is correctly indexed as you have requested."),
+				                                   _("This will close this dialog!"),
+				                                   _("Would you like to reindex now?"),
+				                                   null);
+				dialog.add_buttons (_("Reindex"), ResponseType.YES,
+				                    _("Do nothing"), ResponseType.NO,
+				                    null);
+
+				dialog.set_default_response(ResponseType.NO);
+
+				if (dialog.run () == ResponseType.YES) {
+					reindex ();
+				} else {
+					/* Reset this suggestion */
+					suggest_reindex = false;
+				}
+
+				dialog.destroy ();
+			} else if (suggest_restart) {
+				Dialog dialog = new MessageDialog (window,
+				                                   DialogFlags.DESTROY_WITH_PARENT,
+				                                   MessageType.QUESTION,
+				                                   ButtonsType.NONE,
+				                                   "%s\n\n%s",
+				                                   _("The changes you have made to your preferences require restarting tracker processes."),
+				                                   _("Would you like to restart now?"),
+				                                   null);
+				dialog.add_buttons (_("Restart Tracker"), ResponseType.YES,
+				                    _("Do nothing"), ResponseType.NO,
+				                    null);
+
+				dialog.set_default_response(ResponseType.NO);
+
+				if (dialog.run () == ResponseType.YES) {
+					restart ();
+				} else {
+					/* Reset this suggestion */
+					suggest_restart = false;
+				}
+
+				dialog.destroy ();
+			}
+
 			return;
 
 		default:
@@ -319,17 +414,20 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_monitoring_toggled_cb (CheckButton source) {
 		settings_miner_fs.set_boolean ("enable-monitors", source.active);
+		suggest_restart = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_toggled_cb (CheckButton source) {
 		settings_miner_fs.set_boolean ("index-on-battery", source.active);
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!source.active);
+		suggest_restart = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_first_time_toggled_cb (CheckButton source) {
 		settings_miner_fs.set_boolean ("index-on-battery-first-time", source.active);
+		suggest_restart = true;
 	}
 
 	[CCode (instance_pos = -1)]
@@ -381,36 +479,43 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_globs_add_clicked_cb (Button source) {
 		store_add_value_dialog (liststore_ignored_directories);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_add_clicked_cb (Button source) {
 		store_add_dir (liststore_ignored_directories);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_remove_clicked_cb (Button source) {
 		store_del_dir (treeview_ignored_directories);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_with_content_add_clicked_cb (Button source) {
 		store_add_value_dialog (liststore_ignored_directories_with_content);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_directories_with_content_remove_clicked_cb (Button source) {
 		store_del_dir (treeview_ignored_directories_with_content);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_files_add_clicked_cb (Button source) {
 		store_add_value_dialog (liststore_ignored_files);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_ignored_files_remove_clicked_cb (Button source) {
 		store_del_dir (treeview_ignored_files);
+		suggest_reindex = true;
 	}
 
 	private void togglebutton_directory_update_model (ToggleButton source, ListStore store, string to_check) {
@@ -486,34 +591,19 @@ public class Tracker.Preferences {
 		} else {
 			settings_fts.set_int ("max-words-to-index", 0);
 		}
+
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_index_numbers_toggled_cb (CheckButton source) {
 		settings_fts.set_boolean ("ignore-numbers", !source.active);
+		suggest_reindex = true;
 	}
 
 	[CCode (instance_pos = -1)]
 	public void button_reindex_clicked_cb (Button source) {
-		stdout.printf ("Reindexing...\n");
-
-		string output, errors;
-		int status;
-
-		try {
-			Process.spawn_sync (null, /* working dir */
-			                    {"tracker-control", "--hard-reset", "--start" },
-			                    null, /* env */
-			                    SpawnFlags.SEARCH_PATH,
-			                    null,
-			                    out output,
-			                    out errors,
-			                    out status);
-		} catch (GLib.Error e) {
-			stderr.printf ("Could not reindex: %s", e.message);
-		}
-		stdout.printf ("%s\n", output);
-		stdout.printf ("Finishing...\n");
+		reindex ();
 	}
 
 	private void toggles_update (UserDirectory[] matches, bool active) {
