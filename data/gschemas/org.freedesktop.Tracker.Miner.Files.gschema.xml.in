@@ -90,6 +90,12 @@ Boston, MA  02110-1301, USA.
       <default>true</default>
     </key>
 
+    <key name="follow-symlinks" type="b">
+      <_summary>Follow symlinks</_summary>
+      <_description>Set to true to follow any symlinks found, disabled by default because this can be dangerous</_description>
+      <default>false</default>
+    </key>
+
     <key name="index-removable-devices" type="b">
       <_summary>Index removable devices</_summary>
       <_description>Set to true to enable indexing mounted directories for removable devices.</_description>

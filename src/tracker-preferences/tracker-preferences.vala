@@ -71,6 +71,7 @@ public class Tracker.Preferences {
 	private ToggleButton togglebutton_pictures;
 	private ToggleButton togglebutton_videos;
 	private ToggleButton togglebutton_download;
+	private CheckButton checkbutton_follow_symlinks;
 	private CheckButton checkbutton_index_file_content;
 	private CheckButton checkbutton_index_numbers;
 	private Box hbox_duplicate_warning;
@@ -151,6 +152,7 @@ public class Tracker.Preferences {
 		togglebutton_pictures = builder.get_object ("togglebutton_pictures") as ToggleButton;
 		togglebutton_videos = builder.get_object ("togglebutton_videos") as ToggleButton;
 		togglebutton_download = builder.get_object ("togglebutton_download") as ToggleButton;
+		checkbutton_follow_symlinks = builder.get_object ("checkbutton_follow_symlinks") as CheckButton;
 		checkbutton_index_file_content = builder.get_object ("checkbutton_index_file_content") as CheckButton;
 		checkbutton_index_numbers = builder.get_object ("checkbutton_index_numbers") as CheckButton;
 		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as Box;
@@ -228,6 +230,8 @@ public class Tracker.Preferences {
 		togglebutton_pictures.active = model_contains (liststore_index, "&PICTURES");
 		togglebutton_videos.active = model_contains (liststore_index, "&VIDEOS");
 		togglebutton_download.active = model_contains (liststore_index, "&DOWNLOAD");
+
+		checkbutton_follow_symlinks.active = settings_miner_fs.get_boolean ("follow-symlinks");
 
 		checkbutton_index_file_content.active = settings_fts.get_int ("max-words-to-index") > 0;
 		checkbutton_index_numbers.active = settings_fts.get_boolean ("ignore-numbers") != true;
@@ -581,6 +585,12 @@ public class Tracker.Preferences {
 	[CCode (instance_pos = -1)]
 	public void togglebutton_download_toggled_cb (ToggleButton source) {
 		togglebutton_directory_update_model (source, liststore_index, Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+	}
+
+	[CCode (instance_pos = -1)]
+	public void checkbutton_follow_symlinks_toggled_cb (CheckButton source) {
+		settings_miner_fs.set_boolean ("follow-symlinks", source.active);
+		suggest_restart = true;
 	}
 
 	[CCode (instance_pos = -1)]
