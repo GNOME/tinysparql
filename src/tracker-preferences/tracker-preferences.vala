@@ -640,8 +640,8 @@ public class Tracker.Preferences {
 		dialog = new Dialog.with_buttons (_("Enter value"),
 		                                  window,
 		                                  DialogFlags.DESTROY_WITH_PARENT,
-		                                  Stock.CANCEL, ResponseType.CANCEL,
-		                                  Stock.OK, ResponseType.ACCEPT);
+		                                  "_Cancel", ResponseType.CANCEL,
+		                                  "_OK", ResponseType.ACCEPT);
 
 		dialog.set_default_response(ResponseType.ACCEPT);
 		content_area = (Container) dialog.get_content_area ();
@@ -669,9 +669,9 @@ public class Tracker.Preferences {
 		FileChooserDialog dialog = new FileChooserDialog (_("Select directory"),
 		                                                  window,
 		                                                  FileChooserAction.SELECT_FOLDER,
-		                                                  Stock.CANCEL,
+		                                                  "_Cancel",
 		                                                  ResponseType.CANCEL,
-		                                                  Stock.OK,
+		                                                  "_OK",
 		                                                  ResponseType.ACCEPT);
 
 		while (true) {
