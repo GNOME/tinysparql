@@ -265,10 +265,16 @@ tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 			continue;
 
 		for (i = 0; r_info->fallback_rdf_types[i]; i++) {
+                        g_debug ("Adding RDF type: %s, for module: %s",
+                                 r_info->fallback_rdf_types[i],
+                                 r_info->module_path);
 			g_hash_table_insert (rdf_types,
 					     r_info->fallback_rdf_types[i],
 					     r_info->fallback_rdf_types[i]);
 		}
+
+                /* We only want the first RDF types matching */
+                break;
 	}
 
 	g_hash_table_iter_init (&iter, rdf_types);
