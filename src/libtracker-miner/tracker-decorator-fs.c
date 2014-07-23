@@ -227,3 +227,53 @@ tracker_decorator_fs_init (TrackerDecoratorFS *decorator)
 {
 	decorator->priv = TRACKER_DECORATOR_FS_GET_PRIVATE (decorator);
 }
+
+/**
+ * tracker_decorator_fs_prepend_file:
+ * @decorator: a #TrackerDecoratorFS
+ * @file: a #GFile to process
+ *
+ * Prepends a file for processing.
+ *
+ * Returns: the tracker:id of the element corresponding to the file
+ *
+ * Since: 1.2
+ **/
+gint
+tracker_decorator_fs_prepend_file (TrackerDecoratorFS *decorator,
+                                   GFile              *file)
+{
+	TrackerSparqlConnection *sparql_conn;
+	TrackerSparqlCursor *cursor;
+	gchar *query, *uri;
+	gint id, class_id;
+
+	g_return_val_if_fail (TRACKER_IS_DECORATOR_FS (decorator), 0);
+	g_return_val_if_fail (G_IS_FILE (file), 0);
+
+	uri = g_file_get_uri (file);
+	query = g_strdup_printf ("SELECT tracker:id(?urn) tracker:id(?type) {"
+	                         "  ?urn a ?type; nie:url \"%s\" "
+	                         "}", uri);
+	g_free (uri);
+
+	sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
+	cursor = tracker_sparql_connection_query (sparql_conn, query,
+	                                          NULL, NULL);
+	g_free (query);
+
+	if (!cursor)
+		return 0;
+
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL))
+		return 0;
+
+	id = tracker_sparql_cursor_get_integer (cursor, 0);
+	class_id = tracker_sparql_cursor_get_integer (cursor, 1);
+
+	tracker_decorator_prepend_id (TRACKER_DECORATOR (decorator),
+	                              id, class_id);
+	g_object_unref (cursor);
+
+	return id;
+}

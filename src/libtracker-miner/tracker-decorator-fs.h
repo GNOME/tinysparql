@@ -65,6 +65,9 @@ struct _TrackerDecoratorFSClass {
 
 GType              tracker_decorator_fs_get_type (void) G_GNUC_CONST;
 
+gint               tracker_decorator_fs_prepend_file (TrackerDecoratorFS *decorator,
+                                                      GFile              *file);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_MINER_DECORATOR_FS_H__ */

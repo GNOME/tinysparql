@@ -58,6 +58,7 @@ tracker_decorator_info_get_type
 <TITLE>TrackerDecoratorFS</TITLE>
 TrackerDecoratorFS
 TrackerDecoratorFSClass
+tracker_decorator_fs_prepend_file
 <SUBSECTION Standard>
 TRACKER_DECORATOR_FS
 TRACKER_DECORATOR_FS_CLASS
