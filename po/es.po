@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-06-29 22:40+0000\n"
-"PO-Revision-Date: 2014-06-30 13:19+0200\n"
+"POT-Creation-Date: 2014-07-24 10:46+0000\n"
+"PO-Revision-Date: 2014-07-24 14:31+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -812,7 +812,7 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:962
+#: ../src/tracker-preferences/tracker-preferences.vala:1052
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
@@ -1647,7 +1647,7 @@ msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:103
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:167
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Archivo"
@@ -2151,11 +2151,54 @@ msgstr "Inicio"
 msgid "System"
 msgstr "Sistema"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:164
-#: ../src/tracker-preferences/tracker-preferences.vala:165
-#: ../src/tracker-preferences/tracker-preferences.vala:166
+#: ../src/tracker-preferences/tracker-preferences.vala:167
+#: ../src/tracker-preferences/tracker-preferences.vala:168
+#: ../src/tracker-preferences/tracker-preferences.vala:169
 msgid "Directory"
 msgstr "Carpeta"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:357
+msgid ""
+"The changes you have made to your preferences here require a reindex to "
+"ensure all your data is correctly indexed as you have requested."
+msgstr ""
+"Los cambios que ha hecho en sus preferencias necesitan una reindexación para "
+"asegurar que todos los datos se indexan correctamente tal como ha solicitado."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:358
+msgid "This will close this dialog!"
+msgstr "Esto cerrará este diálogo."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:359
+msgid "Would you like to reindex now?"
+msgstr "¿Quiere reindexar ahora?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:361
+#| msgid "_Reindex"
+msgid "Reindex"
+msgstr "Reindexar"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:362
+#: ../src/tracker-preferences/tracker-preferences.vala:385
+msgid "Do nothing"
+msgstr "No hacer nada"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:381
+msgid ""
+"The changes you have made to your preferences require restarting tracker "
+"processes."
+msgstr ""
+"Los cambios que ha hecho en sus preferencias necesitan reiniciar los "
+"procesos de Tracker."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:382
+msgid "Would you like to restart now?"
+msgstr "¿Quiere reiniciar ahora?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:384
+#| msgid "Tracker"
+msgid "Restart Tracker"
+msgstr "Reiniciar Tracker"
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -2164,28 +2207,38 @@ msgstr "Carpeta"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:352
-#: ../src/tracker-preferences/tracker-preferences.vala:365
+#: ../src/tracker-preferences/tracker-preferences.vala:450
+#: ../src/tracker-preferences/tracker-preferences.vala:463
 msgid "Disabled"
 msgstr "Desactivado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:550
+#: ../src/tracker-preferences/tracker-preferences.vala:640
 msgid "Enter value"
 msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:579
+#: ../src/tracker-preferences/tracker-preferences.vala:643
+#: ../src/tracker-preferences/tracker-preferences.vala:672
+msgid "_Cancel"
+msgstr "_Cancelar"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:644
+#: ../src/tracker-preferences/tracker-preferences.vala:674
+msgid "_OK"
+msgstr "_Aceptar"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:669
 msgid "Select directory"
 msgstr "Seleccionar carpeta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:600
+#: ../src/tracker-preferences/tracker-preferences.vala:690
 msgid "That directory is already selected as a location to index"
 msgstr "La carpeta ya está seleccionada como una ubicación que indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:862
+#: ../src/tracker-preferences/tracker-preferences.vala:952
 msgid "Recurse"
 msgstr "Recurso"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:968
+#: ../src/tracker-preferences/tracker-preferences.vala:1058
 msgid "Desktop Search preferences"
 msgstr "Preferencias de búsquedas del Escritorio"
 
@@ -4121,9 +4174,6 @@ msgstr "Conjunto de resultados vacío"
 #~ "Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
 #~ "esta acción se realizará la próxima vez que se inicie el demonio de "
 #~ "Tracker."
-
-#~ msgid "_Reindex"
-#~ msgstr "_Reindexar"
 
 #~ msgid "Tracker daemon must be restarted"
 #~ msgstr "Se debe reiniciar el demonio de Tracker"
