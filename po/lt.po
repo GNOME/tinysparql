@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-07-02 10:37+0000\n"
-"PO-Revision-Date: 2014-07-05 22:32+0300\n"
+"POT-Creation-Date: 2014-07-26 14:05+0000\n"
+"PO-Revision-Date: 2014-07-27 00:53+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -412,7 +412,6 @@ msgid "Extracts metadata from local files"
 msgstr "Išgauna metaduomenis iš vietinių failų"
 
 #: ../data/tracker-miner-apps.desktop.in.in.h:1
-#| msgid "Applications data miner"
 msgid "Tracker Application Miner"
 msgstr "Tracker programų rinkiklis"
 
@@ -437,12 +436,10 @@ msgid "Fetch RSS/ATOM feeds"
 msgstr "Parsiųsti RSS/ATOM įrašus"
 
 #: ../data/tracker-miner-user-guides.desktop.in.in.h:1
-#| msgid "Tracker File System Miner"
 msgid "Tracker User Guides Miner"
 msgstr "Tracker naudotojo žinynų rinkiklis"
 
 #: ../data/tracker-miner-user-guides.desktop.in.in.h:2
-#| msgid "Crawls and processes files on the file system"
 msgid "Crawls and processes user guides in shared areas"
 msgstr "Naršo ir apdoroja bendrose vietose esančius naudotojo gidus"
 
@@ -559,7 +556,6 @@ msgstr ""
 
 #: ../src/miners/apps/tracker-main.c:61
 #: ../src/miners/user-guides/tracker-main.c:61
-#| msgid "Runs until all configured locations are indexed and then exits"
 msgid "Runs until all applications are indexed and then exits"
 msgstr ""
 "Veikia iki kol visos programos yra suindeksuotos ir tuomet baigia darbą"
@@ -577,7 +573,6 @@ msgstr "Rodo versijos informaciją"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:192
-#| msgid "Applications data miner"
 msgid "- start the application data miner"
 msgstr "- paleisti programų duomenų rinkiklis"
 
@@ -774,7 +769,6 @@ msgstr "Nepavyko pridėti sklaidos kanalo"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:202
-#| msgid "Userguide data miner"
 msgid "- start the user guides data miner"
 msgstr "- paleisti naudotojo žinynų duomenų rinkiklį"
 
@@ -809,7 +803,7 @@ msgstr[2] "_Nustatyti žymas, kurias norite susieti su %d pažymėtų elementų:
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:962
+#: ../src/tracker-preferences/tracker-preferences.vala:1052
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
@@ -1637,7 +1631,7 @@ msgstr[2] "Dokumentų"
 
 #: ../src/tracker-needle/tracker-stats.vala:103
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:167
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Failas"
@@ -1975,7 +1969,6 @@ msgstr ""
 "yra išvalomas, siekiant išvengti nenaudojamų išteklių prikaupimo."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#| msgid "Days before deleting removable devices / files since last mounted:"
 msgid "Days before deleting removable devices:"
 msgstr "Dienų skaičius prieš ištrinant išimamus įrenginius:"
 
@@ -2097,17 +2090,14 @@ msgid "Ignored Content"
 msgstr "Nepaisomas turinys"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
-#| msgid "Index content in the background:"
 msgid "Index content of _files found"
 msgstr "Indeksuoti rastų _failų turinį:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
-#| msgid "Ignore numbers"
 msgid "Index _numbers"
 msgstr "I_ndeksuoti skaičius"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
-#| msgid "Would be indexed"
 msgid "What is indexed?"
 msgstr "Kas indeksuojama?"
 
@@ -2158,11 +2148,53 @@ msgstr "Paleidimas"
 msgid "System"
 msgstr "Sistema"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:164
-#: ../src/tracker-preferences/tracker-preferences.vala:165
-#: ../src/tracker-preferences/tracker-preferences.vala:166
+#: ../src/tracker-preferences/tracker-preferences.vala:167
+#: ../src/tracker-preferences/tracker-preferences.vala:168
+#: ../src/tracker-preferences/tracker-preferences.vala:169
 msgid "Directory"
 msgstr "Katalogas"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:357
+msgid ""
+"The changes you have made to your preferences here require a reindex to "
+"ensure all your data is correctly indexed as you have requested."
+msgstr ""
+"Jūsų atlikti nustatymų pakeitimai reikalauja perindeksuoti, siekiant "
+"užtikrinti, kad visi jūsų duomenys yra suindeksuoti taip, kaip prašoma."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:358
+msgid "This will close this dialog!"
+msgstr "Tai užvers šį dialogą!"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:359
+msgid "Would you like to reindex now?"
+msgstr "Ar norite perindeksuoti dabar?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:361
+msgid "Reindex"
+msgstr "Perindeksuoti"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:362
+#: ../src/tracker-preferences/tracker-preferences.vala:385
+msgid "Do nothing"
+msgstr "Nieko nedaryti"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:381
+msgid ""
+"The changes you have made to your preferences require restarting tracker "
+"processes."
+msgstr ""
+"Jūsų atlikti nustatymų pakeitimai reikalauja iš naujo paleisti tracker "
+"procesus."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:382
+msgid "Would you like to restart now?"
+msgstr "Ar norite juos paleisti iš naujo dabar?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:384
+#| msgid "Tracker"
+msgid "Restart Tracker"
+msgstr "Iš naujo paleisti Tracker"
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -2171,28 +2203,38 @@ msgstr "Katalogas"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:352
-#: ../src/tracker-preferences/tracker-preferences.vala:365
+#: ../src/tracker-preferences/tracker-preferences.vala:450
+#: ../src/tracker-preferences/tracker-preferences.vala:463
 msgid "Disabled"
 msgstr "Išjungta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:550
+#: ../src/tracker-preferences/tracker-preferences.vala:640
 msgid "Enter value"
 msgstr "Įveskite reikšmę"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:579
+#: ../src/tracker-preferences/tracker-preferences.vala:643
+#: ../src/tracker-preferences/tracker-preferences.vala:672
+msgid "_Cancel"
+msgstr "_Atsisakyti"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:644
+#: ../src/tracker-preferences/tracker-preferences.vala:674
+msgid "_OK"
+msgstr "_Gerai"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:669
 msgid "Select directory"
 msgstr "Pasirinkite katalogą"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:600
+#: ../src/tracker-preferences/tracker-preferences.vala:690
 msgid "That directory is already selected as a location to index"
 msgstr "Šis katalogas jau pasirinktas kaip indeksavimo vieta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:862
+#: ../src/tracker-preferences/tracker-preferences.vala:952
 msgid "Recurse"
 msgstr "Rekursyviai"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:968
+#: ../src/tracker-preferences/tracker-preferences.vala:1058
 msgid "Desktop Search preferences"
 msgstr "Darbo aplinkos paieškos nustatymai"
 
