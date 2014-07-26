@@ -257,18 +257,12 @@ tracker_writeback_file_update_metadata (TrackerWriteback         *writeback,
 		/* Delete the temporary file and preserve original */
 		g_file_delete (tmp_file, NULL, NULL);
 	} else {
-		GError *m_error = NULL;
-		/* Move back the modified file to the original location */
+		/* Move back the modified file to the original location. Correct UNIX
+		 * mode has been set for tmp_file in create_temporary_file() already.
+		 */
 		g_file_move (tmp_file, file,
 		             G_FILE_COPY_OVERWRITE,
 		             NULL, NULL, NULL, NULL);
-		/* Set file attributes on tmp_file using file_info of original file */
-		g_file_set_attributes_from_info (tmp_file, file_info, 0, NULL, &m_error);
-		if (m_error) {
-			g_warning ("Can't restore permissions of original file for %s",
-			           row[0]);
-			g_error_free (m_error);
-		}
 	}
 
 	g_object_unref (file_info);
