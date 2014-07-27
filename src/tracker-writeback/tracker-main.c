@@ -92,7 +92,7 @@ main (int   argc,
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	/* Translators: this messagge will apper immediately after the
+	/* Translators: this message will appear immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
 	context = g_option_context_new (_("- start the tracker writeback service"));
