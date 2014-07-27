@@ -20,9 +20,8 @@
 import dbus
 from gi.repository import GLib
 from gi.repository import GObject
-import commands
 import os
-import signal
+import sys
 import subprocess
 import time
 from dbus.mainloop.glib import DBusGMainLoop
@@ -48,6 +47,12 @@ class Helper:
     The helper will fail if the process is already running. Use
     test-runner.sh to ensure the processes run inside a separate DBus
     session bus.
+
+    The process is watched using a timed GLib main loop source. If the process
+    exits with an error code, the test will abort the next time the main loop
+    is entered (or straight away if currently running the main loop). Tests
+    that block waiting for results in time.sleep() won't benefit from this, but
+    it works for those that use await_resource_inserted()/deleted() and others.
     """
 
     BUS_NAME = None
@@ -58,11 +63,24 @@ class Helper:
         self.bus = None
         self.bus_admin = None
 
+    def install_glib_excepthook(self, loop):
+        """
+        Handler to abort test if an exception occurs inside the GLib main loop.
+        """
+        old_hook = sys.excepthook
+        def new_hook(etype, evalue, etb):
+            old_hook(etype, evalue, etb)
+            GLib.MainLoop.quit(loop)
+            sys.exit()
+        sys.excepthook = new_hook
+
     def _get_bus (self):
         if self.bus is not None:
             return
 
         self.loop = GObject.MainLoop ()
+
+        self.install_glib_excepthook(self.loop)
 
         dbus_loop = DBusGMainLoop (set_as_default=True)
         self.bus = dbus.SessionBus (dbus_loop)
@@ -119,6 +137,9 @@ class Helper:
         if status is None:
             return True
 
+        if status == 0 and not self.abort_if_process_exits_with_status_0:
+            return True
+
         raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
 
     def _timeout_on_idle_cb (self):
@@ -145,16 +166,20 @@ class Helper:
 
         self.process = self._start_process ()
 
-        # Run the loop until the bus name appears, or the process dies.
         self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
 
+        self.abort_if_process_exits_with_status_0 = True
+
+        # Run the loop until the bus name appears, or the process dies.
         self.loop.run ()
 
-        GLib.source_remove (self.process_watch_timeout)
+        self.abort_if_process_exits_with_status_0 = False
 
     def stop (self):
         if self.available:
             # It should step out of this loop when the miner disappear from the bus
+            GLib.source_remove(self.process_watch_timeout)
+
             GLib.idle_add (self._stop_process)
             self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
             self.loop.run ()
