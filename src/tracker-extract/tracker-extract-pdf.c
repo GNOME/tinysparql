@@ -21,10 +21,6 @@
 
 #include "config.h"
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>

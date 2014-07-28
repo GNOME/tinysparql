@@ -23,10 +23,6 @@
 #include <stdio.h>
 #include <setjmp.h>
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE /* strcasestr() */
-#endif
-
 #include <jpeglib.h>
 
 #include <libtracker-common/tracker-common.h>

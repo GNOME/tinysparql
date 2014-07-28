@@ -20,10 +20,9 @@
 
 #include "config.h"
 
-/* For timegm usage on __GLIBC__ */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
+/* For timegm usage on __GLIBC__ we need _GNU_SOURCE, should be
+ * defined in config.h based on configure checks...
+ */
 
 #include <strings.h>
 #include <string.h>

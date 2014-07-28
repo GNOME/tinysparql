@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#define _GNU_SOURCE
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
