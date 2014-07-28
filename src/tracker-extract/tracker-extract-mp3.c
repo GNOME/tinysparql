@@ -2490,13 +2490,41 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
 #ifdef HAVE_LIBMEDIAART
-	media_art_process (md.media_art_data,
-	                   md.media_art_size,
-	                   md.media_art_mime,
-	                   MEDIA_ART_ALBUM,
-	                   md.performer,
-	                   md.album,
-	                   uri);
+	if (md.performer || md.title) {
+		MediaArtProcess *media_art_process;
+		GError *error = NULL;
+		gboolean success = TRUE;
+
+		media_art_process = tracker_extract_info_get_media_art_process (info);
+
+		if (md.media_art_data) {
+			success = media_art_process_buffer (media_art_process,
+			                                    MEDIA_ART_ALBUM,
+			                                    MEDIA_ART_PROCESS_FLAGS_NONE,
+			                                    file,
+			                                    md.media_art_data,
+			                                    md.media_art_size,
+			                                    md.media_art_mime,
+			                                    md.performer,
+			                                    md.title,
+			                                    &error);
+		} else {
+			success = media_art_process_file (media_art_process,
+			                                  MEDIA_ART_ALBUM,
+			                                  MEDIA_ART_PROCESS_FLAGS_NONE,
+			                                  file,
+			                                  md.performer,
+			                                  md.title,
+			                                  &error);
+		}
+
+		if (!success || error) {
+			g_warning ("Could not process media art for '%s', %s",
+			           uri,
+			           error ? error->message : "No error given");
+			g_clear_error (&error);
+		}
+	}
 #endif
 	g_free (md.media_art_data);
 	g_free (md.media_art_mime);

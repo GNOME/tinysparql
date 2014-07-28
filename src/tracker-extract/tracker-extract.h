@@ -60,6 +60,11 @@ void            tracker_extract_file                    (TrackerExtract         
                                                          GAsyncReadyCallback     cb,
                                                          gpointer                user_data);
 
+#ifdef HAVE_LIBMEDIAART
+MediaArtProcess *
+                tracker_extract_get_media_art_process   (TrackerExtract         *extract);
+#endif
+
 void            tracker_extract_dbus_start              (TrackerExtract         *extract);
 void            tracker_extract_dbus_stop               (TrackerExtract         *extract);
 

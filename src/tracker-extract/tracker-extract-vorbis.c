@@ -514,16 +514,31 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 #ifdef HAVE_LIBMEDIAART
-	{
-		gchar *uri = g_file_get_uri (file);
-		media_art_process (NULL,
-		                   0,
-		                   NULL,
-		                   MEDIA_ART_ALBUM,
-		                   vd.album_artist ? vd.album_artist : vd.artist,
-		                   vd.album,
-		                   uri);
-		g_free (uri);
+	if ((vd.album_artist || vd.artist) || vd.album) {
+		MediaArtProcess *media_art_process;
+		GError *error = NULL;
+		gboolean success;
+
+		media_art_process = tracker_extract_info_get_media_art_process (info);
+
+		success = media_art_process_file (media_art_process,
+		                                  MEDIA_ART_ALBUM,
+		                                  MEDIA_ART_PROCESS_FLAGS_NONE,
+		                                  file,
+		                                  vd.album_artist ? vd.album_artist : vd.artist,
+		                                  vd.album,
+		                                  &error);
+
+		if (!success || error) {
+			gchar *uri;
+
+			uri = g_file_get_uri (file);
+			g_warning ("Could not process media art for '%s', %s",
+			           uri,
+			           error ? error->message : "No error given");
+			g_free (uri);
+			g_clear_error (&error);
+		}
 	}
 #endif
 

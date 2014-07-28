@@ -268,12 +268,6 @@ run_standalone (TrackerConfig *config)
 
 	tracker_locale_init ();
 
-#ifdef HAVE_LIBMEDIAART
-	if (!media_art_init ()) {
-		g_warning ("Could not initialize media art, will not be available");
-	}
-#endif
-
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
 	                                    tracker_db_manager_get_first_index_done () == FALSE);
@@ -286,9 +280,6 @@ run_standalone (TrackerConfig *config)
 	if (!object) {
 		g_object_unref (file);
 		g_free (uri);
-#ifdef HAVE_LIBMEDIAART
-		media_art_shutdown ();
-#endif
 		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -301,9 +292,6 @@ run_standalone (TrackerConfig *config)
 	g_object_unref (file);
 	g_free (uri);
 
-#ifdef HAVE_LIBMEDIAART
-	media_art_shutdown ();
-#endif
 	tracker_locale_shutdown ();
 
 	return EXIT_SUCCESS;
@@ -410,12 +398,6 @@ main (int argc, char *argv[])
 
 	tracker_locale_init ();
 
-#ifdef HAVE_LIBMEDIAART
-	if (!media_art_init ()) {
-		g_warning ("Could not initialize media art, will not be available");
-	}
-#endif
-
 	controller = tracker_extract_controller_new (decorator);
 	tracker_miner_start (TRACKER_MINER (decorator));
 
@@ -430,9 +412,6 @@ main (int argc, char *argv[])
 	tracker_miner_stop (TRACKER_MINER (decorator));
 
 	/* Shutdown subsystems */
-#ifdef HAVE_LIBMEDIAART
-	media_art_shutdown ();
-#endif
 	tracker_locale_shutdown ();
 
 	g_object_unref (extract);
