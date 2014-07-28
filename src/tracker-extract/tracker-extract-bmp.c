@@ -20,10 +20,6 @@
 
 #include "config.h"
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 

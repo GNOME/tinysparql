@@ -22,10 +22,6 @@
 #define _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 1	/* strptime is XPG4v2 */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
