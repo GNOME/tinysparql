@@ -51,22 +51,11 @@ def uri (filename):
 class CommonTrackerWritebackTest (ut.TestCase):
     """
     Superclass to share methods. Shouldn't be run by itself.
-    Start all processes including writeback, miner pointing to HOME/test-writeback-monitored
+    Start all processes including writeback, miner pointing to WRITEBACK_TMP_DIR
     """
 	     
     @classmethod
     def __prepare_directories (self):
-        #
-        #     ~/test-writeback-monitored/
-        #
-        
-        for d in ["test-writeback-monitored"]:
-            directory = os.path.join (WRITEBACK_TMP_DIR, d)
-            if (os.path.exists (directory)):
-                shutil.rmtree (directory)
-            os.makedirs (directory)
-
-
         if (os.path.exists (os.getcwd() + "/test-writeback-data")):
             # Use local directory if available
             datadir = os.getcwd() + "/test-writeback-data"
