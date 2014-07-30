@@ -322,7 +322,7 @@ tracker_extract_info_set_where_clause (TrackerExtractInfo *info,
 MediaArtProcess *
 tracker_extract_info_get_media_art_process (TrackerExtractInfo *info)
 {
-	g_return_if_fail (info != NULL);
+	g_return_val_if_fail (info != NULL, NULL);
 	return info->media_art_process;
 }
 
