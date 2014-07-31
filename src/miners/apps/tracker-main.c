@@ -206,8 +206,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	initialize_signal_handler ();
-
 	tracker_log_init (verbosity, &log_filename);
 	if (log_filename) {
 		g_message ("Using log file:'%s'", log_filename);
@@ -236,6 +234,8 @@ main (gint argc, gchar *argv[])
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
+
+	initialize_signal_handler ();
 
 	/* Go, go, go! */
 	tracker_miner_start (miner_applications);

@@ -172,6 +172,8 @@ miner_start_cb (gpointer user_data)
 {
 	TrackerMiner *miner = user_data;
 
+	initialize_signal_handler ();
+
 	tracker_miner_start (miner);
 
 	return FALSE;
@@ -215,8 +217,6 @@ main (gint argc, gchar *argv[])
 		g_print ("\n" ABOUT "\n" LICENSE "\n");
 		return EXIT_SUCCESS;
 	}
-
-	initialize_signal_handler ();
 
 	tracker_log_init (verbosity, &log_filename);
 	if (log_filename) {

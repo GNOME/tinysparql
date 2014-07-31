@@ -184,8 +184,6 @@ License which can be viewed at:
 			return 0;
 		}
 
-		initialize_signal_handler ();
-
 		/* This makes sure we don't steal all the system's resources */
 		initialize_priority ();
 
@@ -303,6 +301,8 @@ License which can be viewed at:
 		 * doing what they do and shutdown.
 		 */
 		if (!shutdown) {
+			initialize_signal_handler ();
+
 			main_loop = new MainLoop ();
 			main_loop.run ();
 		}

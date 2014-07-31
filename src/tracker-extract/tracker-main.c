@@ -334,8 +334,6 @@ main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	initialize_signal_handler ();
-
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
@@ -394,6 +392,8 @@ main (int argc, char *argv[])
 
 	controller = tracker_extract_controller_new (decorator);
 	tracker_miner_start (TRACKER_MINER (decorator));
+
+	initialize_signal_handler ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
