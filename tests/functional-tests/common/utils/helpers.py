@@ -106,6 +106,8 @@ class Helper:
                 FNULL = open ('/dev/null', 'w')
                 kws = { 'stdout': FNULL, 'stderr': FNULL }
 
+            command = [path] + flags
+            log ("Starting %s" % ' '.join(command))
             return subprocess.Popen ([path] + flags, **kws)
 
     def _stop_process (self):
@@ -114,6 +116,14 @@ class Helper:
                 print ("Kill %s manually" % self.PROCESS_NAME)
                 self.loop.run ()
         else:
+            # FIXME: this can hang if the we try to terminate the
+            # process too early in its lifetime ... if you see:
+            #
+            #   GLib-CRITICAL **: g_main_loop_quit: assertion 'loop != NULL' failed
+            #
+            # This means that the signal_handler() function was called
+            # before the main loop was started and the process failed to
+            # terminate.
             self.process.terminate ()
             self.process.wait ()
         return False
@@ -165,6 +175,7 @@ class Helper:
                                                               dbus_interface="org.freedesktop.DBus")
 
         self.process = self._start_process ()
+        log ('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
 
         self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
 
