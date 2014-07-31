@@ -53,6 +53,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability])
 
+AC_PROG_LIBTOOL
+
 AM_SILENT_RULES([yes])
 
 dnl http://people.gnome.org/~walters/docs/build-api.txt
@@ -577,6 +579,20 @@ AC_SUBST(BUILD_VALAFLAGS)
 AC_SUBST(BUILD_VALACFLAGS)
 AC_SUBST(BUILD_CFLAGS)
 AC_SUBST(BUILD_LIBS)
+
+####################################################################
+# Check if linker supports --enable-new-dtags
+####################################################################
+AC_MSG_CHECKING([whether $CC supports -Wl,--enable-new-dtags])
+save_LDFLAGS=$LDFLAGS
+LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
+
+AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+             [enable_new_dtags=yes; AC_MSG_RESULT(yes)], [enable_new_dtags=no; AC_MSG_RESULT(no)])
+LDFLAGS=$save_LDFLAGS
+if test "x$enable_new_dtags" = "xyes"; then
+    LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
+fi
 
 ####################################################################
 # Check for minimal
