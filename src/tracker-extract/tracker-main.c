@@ -166,10 +166,6 @@ signal_handler (int signo)
 	}
 
 	switch (signo) {
-	case SIGABRT:
-	case SIGALRM:
-		_exit (EXIT_FAILURE);
-		break;
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
@@ -202,8 +198,6 @@ initialize_signal_handler (void)
 	sigaction (SIGTERM, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
 	sigaction (SIGHUP,  &act, NULL);
-	sigaction (SIGALRM,  &act, NULL);
-	sigaction (SIGABRT, &act, NULL);
 #endif /* G_OS_WIN32 */
 }
 
