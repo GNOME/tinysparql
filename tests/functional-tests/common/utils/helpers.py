@@ -431,6 +431,46 @@ class StoreHelper (Helper):
 
         return
 
+    def await_property_changed (self, subject_id, property_uri):
+        """
+        Block until a property of a resource is updated or inserted.
+        """
+        assert (self.inserts_match_function == None)
+
+        property_id = self.get_resource_id_by_uri(property_uri)
+
+        def find_property_change (inserts_list):
+            matched = False
+            remaining_events = []
+
+            for insert in inserts_list:
+                if insert[1] == subject_id and insert[2] == property_id:
+                    log("Matched property change: %s" % str(insert))
+                    matched = True
+                else:
+                    remaining_events += [insert]
+
+            return matched, remaining_events
+
+        def match_cb (inserts_list):
+            matched, remaining_events = find_property_change (inserts_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
+
+        # Check the list of previously received events for matches
+        (existing_match, self.inserts_list) = find_property_change (self.inserts_list)
+
+        if not existing_match:
+            self._enable_await_timeout ()
+            self.inserts_match_function = match_cb
+            # Run the event loop until the correct notification arrives
+            self.loop.run ()
+            self.inserts_match_function = None
+
+        if self.graph_updated_timed_out:
+            raise Exception ("Timeout waiting for property change, subject %i "
+                             "property %s" % (subject_id, property_uri))
+
     def query (self, query, timeout=5000):
         try:
             return self.resources.SparqlQuery (query, timeout=timeout)
