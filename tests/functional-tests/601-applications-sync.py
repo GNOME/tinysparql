@@ -36,7 +36,6 @@ import unittest2 as ut
 from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest
 from common.utils.helpers import log
 
-MINER_FS_IDLE_TIMEOUT = 30
 
 class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
 
@@ -91,13 +90,12 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         # Copy the image to the dest path
         self.slowcopy_file (origin_filepath, dest_filepath)
         assert os.path.exists (dest_filepath)
-        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.tracker.await_resource_inserted ('nmm:MusicPiece', url=dest_fileuri)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         log ("Remove and wait")
         os.remove (dest_filepath)
-        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 if __name__ == "__main__":

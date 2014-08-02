@@ -178,13 +178,6 @@ class TrackerSystemAbstraction:
         self.miner_fs = helpers.MinerFsHelper ()
         self.miner_fs.start ()
 
-    def tracker_miner_fs_wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
-        """
-        Copy the files physically in the filesyste and wait for the miner to complete the work
-        """
-        self.miner_fs.wait_for_idle (timeout)
-
-
     def tracker_miner_fs_testing_stop (self):
         """
         Stops the miner-fs and store running and unset all the XDG_*_HOME vars

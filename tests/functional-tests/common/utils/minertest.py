@@ -102,7 +102,6 @@ class CommonTrackerMinerTest (ut.TestCase):
             confdir = os.path.join (cfg.DATADIR, "tracker-tests",
                                     "test-configurations", "miner-basic-ops")
         self.system.tracker_miner_fs_testing_start (CONF_OPTIONS)
-        self.system.tracker_miner_fs_wait_for_idle ()
         self.tracker = self.system.store
         
     @classmethod
