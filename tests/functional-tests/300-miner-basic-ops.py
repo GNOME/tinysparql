@@ -295,11 +295,8 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         self.assertIn ( uri ("test-monitored/file1.txt"), unpacked_result)
 
         # Restore the dirs
-        #  Wait after each operation to be sure of the results
         os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1"))
-        self.system.tracker_miner_fs_wait_for_idle ()
         os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "dir2"))
-        self.system.tracker_miner_fs_wait_for_idle ()
         for f in ["test-monitored/dir1/file2.txt",
                   "test-monitored/dir1/dir2/file3.txt"]:
             filename = os.path.join (MINER_TMP_DIR, f)

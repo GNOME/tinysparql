@@ -579,23 +579,8 @@ class MinerFsHelper (Helper):
 
         return False
 
-    def _minerfs_status_cb (self, status, progress, remaining_time):
-        if (status == "Idle"):
-            self.loop.quit ()
-
     def start (self):
         Helper.start (self)
-
-        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
-                                                          signal_name="Progress",
-                                                          path=cfg.MINERFS_OBJ_PATH,
-                                                          dbus_interface=cfg.MINER_IFACE)
-
-        # It should step out of this loop after progress changes to "Idle"
-        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-        self.loop.run ()
-        if self.timeout_id is not None:
-            GLib.source_remove (self.timeout_id)
 
         bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
                                           cfg.MINERFS_OBJ_PATH)
@@ -605,32 +590,8 @@ class MinerFsHelper (Helper):
     def stop (self):
         Helper.stop (self)
 
-        self.bus._clean_up_signal_match (self.status_match)
-
     def ignore (self, filelist):
         self.miner_fs.IgnoreNextUpdate (filelist)
-
-    def wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
-        """
-        Block until the miner has finished crawling and its status becomes "Idle"
-        """
-        status = self.miner_fs.GetStatus()
-        log ('Current miner FS status: %s' % status)
-
-        if status == 'Idle':
-            return
-
-        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
-                                                          signal_name="Progress",
-                                                          path=cfg.MINERFS_OBJ_PATH,
-                                                          dbus_interface=cfg.MINER_IFACE)
-        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-
-        self.loop.run ()
-
-        if self.timeout_id is not None:
-            GLib.source_remove (self.timeout_id)
-        self.bus._clean_up_signal_match (self.status_match)
 
 
 class ExtractorHelper (Helper):
