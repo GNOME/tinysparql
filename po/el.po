@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-08-01 22:45+0000\n"
-"PO-Revision-Date: 2014-08-02 16:04+0200\n"
-"Last-Translator: Tom Tryfonidis <tomtryf@gmail.com>\n"
+"POT-Creation-Date: 2014-08-03 10:43+0000\n"
+"PO-Revision-Date: 2014-08-03 20:41+0200\n"
+"Last-Translator: Maria Mavridou <mavridou@gmail.com>\n"
 "Language-Team: team@lists.gnome.gr\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.6.4\n"
 "X-Project-Style: gnome\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
@@ -187,7 +187,6 @@ msgstr "Αρχικός χρόνος αδράνειας, σε δευτερόλε�
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
-#, fuzzy
 msgid "Throttle"
 msgstr "Στραγγαλιστής"
 
@@ -196,9 +195,8 @@ msgid "Indexing speed, the higher the slower."
 msgstr "Ταχύτητα ευρετηριοποίησης, όσο μεγαλύτερος ο αριθμός τόσο πιο αργή."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
-#, fuzzy
 msgid "Low disk space limit"
-msgstr "Όριο χώρου μικρού δίσκου"
+msgstr "Χαμηλό όριο χώρου στο δίσκο"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid ""
@@ -2370,7 +2368,6 @@ msgid "Would you like to restart now?"
 msgstr "Θα θέλατε να επανεκκινήσετε τώρα;"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
-#| msgid "Tracker"
 msgid "Restart Tracker"
 msgstr "Επανεκκίνηση Tracker"
 
