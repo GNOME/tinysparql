@@ -85,7 +85,9 @@ EXTRA_DIST +=                                          \
 	intltool-extract.in                            \
 	intltool-merge.in                              \
 	intltool-update.in			       \
-	tracker.doap
+	tracker.doap \
+	tap-driver.sh \
+	tap-test
 
 DISTCLEANFILES +=                                      \
 	intltool-extract                               \
