@@ -1,9 +1,12 @@
-# Stolen from: https://git.gnome.org/browse/glib/tree/glib.mk
+TESTS_ENVIRONMENT= \
+	G_TEST_SRCDIR="$(abs_srcdir)" 		\
+	G_TEST_BUILDDIR="$(abs_builddir)" 	\
+	G_DEBUG=gc-friendly 			\
+	MALLOC_CHECK_=2 			\
+	MALLOC_PERTURB_=$$(($${RANDOM:-256} % 256))
+LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) $(top_srcdir)/tap-driver.sh
+LOG_COMPILER = $(top_srcdir)/tap-test
 
-GTESTER = gtester 			# for non-GLIB packages
-GTESTER_REPORT = gtester-report        # for non-GLIB packages
-#GTESTER = $(top_builddir)/glib/gtester			# for the GLIB package
-#GTESTER_REPORT = $(top_builddir)/glib/gtester-report	# for the GLIB package
 NULL =
 
 # initialize variables for unconditional += appending
@@ -13,7 +16,7 @@ CLEANFILES = *.log *.trs
 DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 EXTRA_DIST =
-TEST_PROGS =
+TESTS =
 
 installed_test_LTLIBRARIES =
 installed_test_PROGRAMS =
@@ -29,42 +32,6 @@ check_LTLIBRARIES =
 check_PROGRAMS =
 check_SCRIPTS =
 check_DATA =
-
-TESTS =
-
-# test-nonrecursive: run tests only in cwd
-#if OS_UNIX
-test-nonrecursive: ${TEST_PROGS}
-	@test -z "${TEST_PROGS}" || G_TEST_SRCDIR="$(abs_srcdir)" G_TEST_BUILDDIR="$(abs_builddir)" G_DEBUG=gc-friendly MALLOC_CHECK_=2 MALLOC_PERTURB_=$$(($${RANDOM:-256} % 256)) ${GTESTER} --verbose ${TEST_PROGS}
-#else
-test-nonrecursive:
-#endif
-
-.PHONY: test-nonrecursive
-
-.PHONY: lcov genlcov lcov-clean
-# use recursive makes in order to ignore errors during check
-lcov:
-	-$(MAKE) $(AM_MAKEFLAGS) -k check
-	$(MAKE) $(AM_MAKEFLAGS) genlcov
-
-# we have to massage the lcov.info file slightly to hide the effect of libtool
-# placing the objects files in the .libs/ directory separate from the *.c
-# we also have to delete tests/.libs/libmoduletestplugin_*.gcda
-genlcov:
-	$(AM_V_GEN) rm -f $(top_builddir)/tests/.libs/libmoduletestplugin_*.gcda; \
-	  $(LTP) --quiet --directory $(top_builddir) --capture --output-file glib-lcov.info --test-name GLIB_PERF --no-checksum --compat-libtool --ignore-errors source; \
-	  $(LTP) --quiet --output-file glib-lcov.info --remove glib-lcov.info docs/reference/\* /tmp/\*  gio/tests/gdbus-object-manager-example/\* ; \
-	  LANG=C $(LTP_GENHTML) --quiet --prefix $(top_builddir) --output-directory glib-lcov --title "GLib Code Coverage" --legend --frames --show-details glib-lcov.info --ignore-errors source
-	@echo "file://$(abs_top_builddir)/glib-lcov/index.html"
-
-lcov-clean:
-	if test -n "$(LTP)"; then \
-	  $(LTP) --quiet --directory $(top_builddir) -z; \
-	fi
-
-# run tests in cwd as part of make check
-check-local: test-nonrecursive
 
 # We support a fairly large range of possible variables.  It is expected that all types of files in a test suite
 # will belong in exactly one of the following variables.
@@ -106,14 +73,8 @@ check-local: test-nonrecursive
 # variants) will be run as part of the in-tree 'make check'.  These are all assumed to be runnable under
 # gtester.  That's a bit strange for scripts, but it's possible.
 
-# we use test -z "$(TEST_PROGS)" above, so make sure we have no extra whitespace...
-TEST_PROGS += $(strip $(test_programs) $(test_scripts) $(uninstalled_test_programs) $(uninstalled_test_scripts) \
-                      $(dist_test_scripts) $(dist_uninstalled_test_scripts))
-
-#if OS_WIN32
-#TESTS += $(test_programs) $(test_scripts) $(uninstalled_test_programs) $(uninstalled_test_scripts) \
-#         $(dist_test_scripts) $(dist_uninstalled_test_scripts)
-#endif
+TESTS += $(test_programs) $(test_scripts) $(uninstalled_test_programs) $(uninstalled_test_scripts) \
+         $(dist_test_scripts) $(dist_uninstalled_test_scripts)
 
 # Note: build even the installed-only targets during 'make check' to ensure that they still work.
 # We need to do a bit of trickery here and manage disting via EXTRA_DIST instead of using dist_ prefixes to
@@ -164,7 +125,8 @@ installed_test_meta_DATA = $(installed_testcases:=.test)
 %.test: %$(EXEEXT) Makefile
 	$(AM_V_GEN) (echo '[Test]' > $@.tmp; \
 	echo 'Type=session' >> $@.tmp; \
-	echo 'Exec=$(installed_testdir)/$(notdir $<)' >> $@.tmp; \
+	echo 'Exec=$(installed_testdir)/$(notdir $<) --tap' >> $@.tmp; \
+	echo 'Output=TAP' >> $@.tmp; \
 	mv $@.tmp $@)
 
 CLEANFILES += $(installed_test_meta_DATA)
