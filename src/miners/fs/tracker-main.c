@@ -730,8 +730,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	initialize_signal_handler ();
-
 	/* Initialize logging */
 	config = tracker_config_new ();
 
@@ -836,6 +834,8 @@ main (gint argc, gchar *argv[])
 	miners = g_slist_prepend (miners, miner_files);
 
 	miner_handle_first (config, do_mtime_checking);
+
+	initialize_signal_handler ();
 
 	/* Go, go, go! */
 	g_main_loop_run (main_loop);
