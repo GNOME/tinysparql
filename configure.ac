@@ -472,7 +472,7 @@ have_tracker_miner_thunderbird="no "
 
 AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
 if test -n $THUNDERBIRD; then
-   thunderbird_version=`$THUNDERBIRD --version | cut -d" " -f3`
+   thunderbird_version=`$THUNDERBIRD --version 2>/dev/null | awk '{print $NF}'`
 
    AX_COMPARE_VERSION([$thunderbird_version], ge, [$TRACKER_MINER_THUNDERBIRD_REQUIRED],
                       have_tracker_miner_thunderbird="yes",
@@ -486,7 +486,7 @@ have_tracker_miner_firefox="no "
 
 AC_PATH_PROG(FIREFOX, firefox, firefox)
 if test -n $FIREFOX; then
-   firefox_version=`$FIREFOX --version | cut -d" " -f3`
+   firefox_version=`$FIREFOX --version 2>/dev/null | awk '{print $NF}'`
 
    AX_COMPARE_VERSION([$firefox_version], ge, [$TRACKER_MINER_FIREFOX_REQUIRED],
                       have_tracker_miner_firefox="yes",
