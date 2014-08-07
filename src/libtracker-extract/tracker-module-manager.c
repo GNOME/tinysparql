@@ -70,8 +70,16 @@ load_extractor_rule (GKeyFile  *key_file,
 
 	if (!G_IS_DIR_SEPARATOR (module_path[0])) {
 		gchar *tmp;
+		const gchar *extractors_dir;
 
-		tmp = g_build_filename (TRACKER_EXTRACTORS_DIR, module_path, NULL);
+		extractors_dir = g_getenv ("TRACKER_EXTRACTORS_DIR");
+		if (G_LIKELY (extractors_dir == NULL)) {
+			extractors_dir = TRACKER_EXTRACTORS_DIR;
+		} else {
+			g_message ("Extractor rules directory is '%s' (set in env)", extractors_dir);
+		}
+
+		tmp = g_build_filename (extractors_dir, module_path, NULL);
 		g_free (module_path);
 		module_path = tmp;
 	}
