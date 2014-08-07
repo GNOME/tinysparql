@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -30,8 +31,13 @@
 #include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
+typedef struct {
+	gchar *xdg_location;
+} TestInfo;
+
 static void
-test_blank (void)
+test_blank (TestInfo      *info,
+            gconstpointer  context)
 {
 	GError *error;
 	GVariant *updates;
@@ -119,29 +125,54 @@ test_blank (void)
 	tracker_data_manager_shutdown ();
 }
 
+static void
+setup (TestInfo      *info,
+       gconstpointer  context)
+{
+	gchar *current_dir, *basename;
+	gint i;
+
+	i = GPOINTER_TO_INT (context);
+
+	basename = g_strdup_printf ("%d-%d", i, g_test_rand_int_range (0, G_MAXINT));
+	current_dir = g_get_current_dir ();
+	info->xdg_location = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", basename, NULL);
+	g_free (current_dir);
+	g_free (basename);
+
+	g_setenv ("XDG_DATA_HOME", info->xdg_location, TRUE);
+	g_setenv ("XDG_CACHE_HOME", info->xdg_location, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+}
+
+static void
+teardown (TestInfo      *info,
+          gconstpointer  context)
+{
+	gchar *cleanup_command;
+
+	/* clean up */
+	g_print ("Removing temporary data (%s)\n", info->xdg_location);
+
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->xdg_location);
+	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
+	g_free (cleanup_command);
+
+	g_free (info->xdg_location);
+}
+
 int
 main (int argc, char **argv)
 {
 	gint result;
-	gchar *current_dir;
+
+	setlocale (LC_COLLATE, "en_US.utf8");
 
 	g_test_init (&argc, &argv, NULL);
-
-	current_dir = g_get_current_dir ();
-
-	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
-
-	g_test_add_func ("/libtracker-data/sparql-blank", test_blank);
+	g_test_add ("/libtracker-data/sparql-blank", TestInfo, GINT_TO_POINTER(0), setup, test_blank, teardown);
 
 	/* run tests */
-
 	result = g_test_run ();
-
-	/* clean up */
-	g_print ("Removing temporary data\n");
-	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
 
 	return result;
 }

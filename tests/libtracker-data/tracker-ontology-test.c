@@ -37,6 +37,7 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
+	gchar *xdg_location;
 };
 
 typedef struct _ChangeInfo ChangeInfo;
@@ -214,17 +215,14 @@ test_ontology_init (void)
 }
 
 static void
-test_query (gconstpointer test_data)
+test_query (TestInfo      *test_info,
+            gconstpointer  context)
 {
-	const TestInfo *test_info;
-	GError *error;
+	GError *error = NULL;
 	gchar *data_filename;
 	gchar *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
-
-	error = NULL;
-	test_info = test_data;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 
@@ -269,27 +267,74 @@ test_query (gconstpointer test_data)
 	tracker_data_manager_shutdown ();
 }
 
+static inline void
+setup (TestInfo *info,
+       gint      i)
+{
+	gchar *basename;
+	gchar *current_dir;
+
+	basename = g_strdup_printf ("%d-%d", i, g_test_rand_int_range (0, G_MAXINT));
+	current_dir = g_get_current_dir ();
+	info->xdg_location = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", basename, NULL);
+	g_free (current_dir);
+	g_free (basename);
+
+	g_setenv ("XDG_DATA_HOME", info->xdg_location, TRUE);
+	g_setenv ("XDG_CACHE_HOME", info->xdg_location, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+}
+
+
+static void
+setup_nie (TestInfo      *info,
+           gconstpointer  context)
+{
+	gint i = GPOINTER_TO_INT (context);
+
+	*info = nie_tests[i];
+	setup (info, i);
+}
+
+static void
+setup_nmo (TestInfo      *info,
+           gconstpointer  context)
+{
+	gint i = GPOINTER_TO_INT (context);
+
+	*info = nmo_tests[i];
+	setup (info, i);
+}
+
+static void
+teardown (TestInfo      *info,
+          gconstpointer  context)
+{
+	gchar *cleanup_command;
+
+	/* clean up */
+	g_print ("Removing temporary data (%s)\n", info->xdg_location);
+
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->xdg_location);
+	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
+	g_free (cleanup_command);
+
+	g_free (info->xdg_location);
+}
+
 int
 main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *data_dir;
-
-	g_test_init (&argc, &argv, NULL);
-
-	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
 
 	/* Warning warning!!! We need to impose a proper LC_COLLATE here, so
 	 * that the expected order in the test results is always the same! */
 	setlocale (LC_COLLATE, "en_US.utf8");
 
-	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+	g_test_init (&argc, &argv, NULL);
 
 	/* add test cases */
-
 	g_test_add_func ("/libtracker-data/ontology-init", test_ontology_init);
 
 	for (i = 0; nie_tests[i].test_name; i++) {
@@ -298,7 +343,7 @@ main (int argc, char **argv)
 		g_message ("%d", i);
 
 		testpath = g_strconcat ("/libtracker-data/nie/", nie_tests[i].test_name, NULL);
-		g_test_add_data_func (testpath, &nie_tests[i], test_query);
+		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup_nie, test_query, teardown);
 		g_free (testpath);
 	}
 
@@ -308,20 +353,12 @@ main (int argc, char **argv)
 		g_message ("%d", i);
 
 		testpath = g_strconcat ("/libtracker-data/nmo/", nmo_tests[i].test_name, NULL);
-		g_test_add_data_func (testpath, &nmo_tests[i], test_query);
+		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup_nmo, test_query, teardown);
 		g_free (testpath);
 	}
 
 	/* run tests */
-
 	result = g_test_run ();
-
-	/* clean up */
-	g_print ("Removing temporary data\n");
-	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
-	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
-
-	g_free (data_dir);
 
 	return result;
 }

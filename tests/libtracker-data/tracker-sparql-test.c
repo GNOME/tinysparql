@@ -40,6 +40,7 @@ struct _TestInfo {
 	const gchar *data;
 	gboolean expect_query_error;
 	gboolean expect_update_error;
+	gchar *xdg_location;
 };
 
 const TestInfo tests[] = {
@@ -216,19 +217,16 @@ check_result (TrackerDBCursor *cursor,
 }
 
 static void
-test_sparql_query (gconstpointer test_data)
+test_sparql_query (TestInfo      *test_info,
+                   gconstpointer  context)
 {
 	TrackerDBCursor *cursor;
-	const TestInfo *test_info;
-	GError *error;
+	GError *error = NULL;
 	gchar *data_filename;
 	gchar *query, *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	const gchar *test_schemas[2] = { NULL, NULL };
-
-	error = NULL;
-	test_info = test_data;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -317,24 +315,52 @@ test_sparql_query (gconstpointer test_data)
 	tracker_data_manager_shutdown ();
 }
 
+static void
+setup (TestInfo      *info,
+       gconstpointer  context)
+{
+	gchar *current_dir, *basename;
+	gint i;
+
+	i = GPOINTER_TO_INT (context);
+	*info = tests[i];
+
+	basename = g_strdup_printf ("%d-%d", i, g_test_rand_int_range (0, G_MAXINT));
+	current_dir = g_get_current_dir ();
+	info->xdg_location = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", basename, NULL);
+	g_free (current_dir);
+	g_free (basename);
+
+	g_setenv ("XDG_DATA_HOME", info->xdg_location, TRUE);
+	g_setenv ("XDG_CACHE_HOME", info->xdg_location, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+}
+
+static void
+teardown (TestInfo      *info,
+          gconstpointer  context)
+{
+	gchar *cleanup_command;
+
+	/* clean up */
+	g_print ("Removing temporary data (%s)\n", info->xdg_location);
+
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->xdg_location);
+	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
+	g_free (cleanup_command);
+
+	g_free (info->xdg_location);
+}
+
 int
 main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *current_dir;
-
-	g_test_init (&argc, &argv, NULL);
 
 	setlocale (LC_COLLATE, "en_US.utf8");
 
-	current_dir = g_get_current_dir ();
-
-	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
-
-	g_free (current_dir);
+	g_test_init (&argc, &argv, NULL);
 
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {
@@ -352,16 +378,12 @@ main (int argc, char **argv)
 #endif
 
 		testpath = g_strconcat ("/libtracker-data/sparql/", tests[i].test_name, NULL);
-		g_test_add_data_func (testpath, &tests[i], test_sparql_query);
+		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup, test_sparql_query, teardown);
 		g_free (testpath);
 	}
 
 	/* run tests */
 	result = g_test_run ();
-
-	/* clean up */
-	g_print ("Removing temporary data\n");
-	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
 
 	return result;
 }
