@@ -108,7 +108,7 @@ test_guarantee_title (void)
                                      test_cases_title[i].expected_title);
         }
 
-        g_print ("%d test cases (guarantee metadata enabled) ", i);
+        g_print ("%d test cases (guarantee metadata enabled)\n", i);
 }
 
 static void
