@@ -111,9 +111,9 @@ test_guarantee_title (void)
         }
 
 #ifdef GUARANTEE_METADATA        
-        g_print ("%d test cases (guarantee metadata enabled) ", i);
+        g_print ("%d test cases (guarantee metadata enabled)\n", i);
 #else
-        g_print ("%d test cases (guarantee metadata disabled) ", i);
+        g_print ("%d test cases (guarantee metadata disabled)\n", i);
 #endif
 }
 
