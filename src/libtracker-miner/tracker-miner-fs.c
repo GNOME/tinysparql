@@ -846,6 +846,9 @@ fs_finalize (GObject *object)
 
 	if (priv->roots_to_notify) {
 		g_hash_table_unref (priv->roots_to_notify);
+
+		/* Just in case we end up using this AFTER finalize, not expected */
+		priv->roots_to_notify = NULL;
 	}
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
@@ -1070,7 +1073,9 @@ notify_roots_finished (TrackerMinerFS *fs,
 	GHashTableIter iter;
 	gpointer key, value;
 
-	if (check_queues && g_hash_table_size (fs->priv->roots_to_notify) < 2) {
+	if (check_queues &&
+	    fs->priv->roots_to_notify &&
+	    g_hash_table_size (fs->priv->roots_to_notify) < 2) {
 		/* Technically, if there is only one root, it's
 		 * pointless to do anything before the FINISHED (not
 		 * FINISHED_ROOT) signal is emitted. In that
@@ -1078,6 +1083,10 @@ notify_roots_finished (TrackerMinerFS *fs,
 		 * check_queues=FALSE so we still notify roots. This
 		 * is really just for efficiency.
 		 */
+		return;
+	} else if (fs->priv->roots_to_notify == NULL ||
+	           g_hash_table_size (fs->priv->roots_to_notify) < 1) {
+		/* Nothing to do */
 		return;
 	}
 
