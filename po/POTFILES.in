@@ -23,6 +23,7 @@ data/tracker-store.desktop.in.in
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-miner/tracker-enumerator.c
+src/libtracker-miner/tracker-data-provider.c
 src/libtracker-miner/tracker-miner-fs.c
 src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-online.c
