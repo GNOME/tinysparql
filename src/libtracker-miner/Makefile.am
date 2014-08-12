@@ -33,6 +33,10 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 private_sources = 				       \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
+	tracker-file-data-provider.c		       \
+	tracker-file-data-provider.h		       \
+	tracker-file-enumerator.c		       \
+	tracker-file-enumerator.h		       \
 	tracker-file-notifier.h                        \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
@@ -57,12 +61,17 @@ endif
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
+	tracker-data-provider.c                        \
+	tracker-data-provider.h                        \
 	tracker-decorator.c                            \
 	tracker-decorator.h                            \
 	tracker-decorator-internal.h                   \
 	tracker-decorator-fs.c                         \
 	tracker-decorator-fs.h                         \
-	tracker-miner-dbus.h                           \
+	tracker-enumerator.c			       \
+	tracker-enumerator.h			       \
+	tracker-indexing-tree.c                        \
+	tracker-indexing-tree.h			       \
 	tracker-miner-enum-types.c                     \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.c                         \
@@ -76,13 +85,13 @@ libtracker_miner_private_la_SOURCES =                  \
 	$(private_sources)
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
-	$(miner_sources)			       \
-	tracker-indexing-tree.c                        \
-	tracker-indexing-tree.h
+	$(miner_sources)
 
 libtracker_minerinclude_HEADERS =                      \
+	tracker-data-provider.h                        \
 	tracker-decorator.h                            \
 	tracker-decorator-fs.h                         \
+	tracker-enumerator.h			       \
 	tracker-indexing-tree.h                        \
 	tracker-miner.h                                \
 	tracker-miner-common.h                         \
@@ -98,7 +107,7 @@ if !ENABLE_GCOV
 # Using enable_gcov instead of have_unit_test because when doing a release
 #  we disable gcov but NOT the unit tests
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS +=    \
-	-export-symbols-regex '^tracker_(miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
+	-export-symbols-regex '^tracker_(data_provider|enumerator|crawl|miner|indexing_tree|directory_flags|filter_type|filter_policy|network_type|decorator)_.*'
 endif
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \

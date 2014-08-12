@@ -22,15 +22,16 @@
 
 #define __LIBTRACKER_MINER_H_INSIDE__
 
+#include <libtracker-miner/tracker-data-provider.h>
 #include <libtracker-miner/tracker-decorator.h>
 #include <libtracker-miner/tracker-decorator-fs.h>
+#include <libtracker-miner/tracker-enumerator.h>
 #include <libtracker-miner/tracker-miner-object.h>
 #include <libtracker-miner/tracker-miner-online.h>
 #include <libtracker-miner/tracker-miner-fs.h>
 #include <libtracker-miner/tracker-miner-enums.h>
 #include <libtracker-miner/tracker-miner-enum-types.h>
 #include <libtracker-miner/tracker-indexing-tree.h>
-
 
 #undef __LIBTRACKER_MINER_H_INSIDE__
 

@@ -28,6 +28,8 @@
 
 #include <gio/gio.h>
 #include "tracker-indexing-tree.h"
+#include "tracker-enumerator.h"
+#include "tracker-miner-fs.h"
 
 G_BEGIN_DECLS
 
@@ -40,6 +42,7 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerFileNotifier TrackerFileNotifier;
 typedef struct _TrackerFileNotifierClass TrackerFileNotifierClass;
+typedef enum _TrackerFileNotifierType TrackerFileNotifierType;
 
 struct _TrackerFileNotifier {
 	GObject parent_instance;
@@ -73,17 +76,19 @@ struct _TrackerFileNotifierClass {
 	void (* finished)           (TrackerFileNotifier *notifier);
 };
 
-GType         tracker_file_notifier_get_type      (void) G_GNUC_CONST;
+GType         tracker_file_notifier_get_type     (void) G_GNUC_CONST;
 
-TrackerFileNotifier* tracker_file_notifier_new  (TrackerIndexingTree *indexing_tree);
+TrackerFileNotifier *
+              tracker_file_notifier_new          (TrackerIndexingTree     *indexing_tree,
+                                                  TrackerDataProvider     *data_provider);
 
-gboolean      tracker_file_notifier_start (TrackerFileNotifier *notifier);
-void          tracker_file_notifier_stop  (TrackerFileNotifier *notifier);
-gboolean      tracker_file_notifier_is_active (TrackerFileNotifier *notifier);
+gboolean      tracker_file_notifier_start        (TrackerFileNotifier     *notifier);
+void          tracker_file_notifier_stop         (TrackerFileNotifier     *notifier);
+gboolean      tracker_file_notifier_is_active    (TrackerFileNotifier     *notifier);
 
-const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
-                                                  GFile               *file,
-                                                  gboolean             force);
+const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier     *notifier,
+                                                  GFile                   *file,
+                                                  gboolean                 force);
 
 G_END_DECLS
 

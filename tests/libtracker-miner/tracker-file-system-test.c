@@ -42,7 +42,7 @@ static void
 test_common_context_setup (TestCommonContext *fixture,
                            gconstpointer      data)
 {
-	fixture->file_system = tracker_file_system_new ();
+	fixture->file_system = tracker_file_system_new (NULL);
 }
 
 static void

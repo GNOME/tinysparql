@@ -26,7 +26,6 @@ IGNORE_HFILES=                                         \
 	tracker-file-notifier.h                        \
 	tracker-file-system.h                          \
 	tracker-miner-client.h                         \
-	tracker-miner-dbus.h                           \
 	tracker-miner-glue.h                           \
 	tracker-miner-files-index-client.h             \
 	tracker-miner-fs-processing-pool.h             \

@@ -13,12 +13,12 @@ SUBDIRS =                                              \
 	libtracker-sparql                              \
 	$(libtrackerfts_dir)                           \
 	libtracker-bus                                 \
-	libtracker-control                             \
 	libtracker-data                                \
 	libtracker-direct                              \
 	libtracker-sparql-backend                      \
 	libtracker-extract                             \
 	libtracker-miner                               \
+	libtracker-control                             \
 	miners                                         \
 	plugins                                        \
 	tracker-store                                  \

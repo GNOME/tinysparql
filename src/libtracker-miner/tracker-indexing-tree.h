@@ -46,8 +46,7 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerIndexingTree TrackerIndexingTree;
 
-struct _TrackerIndexingTree
-{
+struct _TrackerIndexingTree {
 	GObject parent_instance;
 	gpointer priv;
 };
@@ -78,7 +77,7 @@ typedef struct {
 
 GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
 
-TrackerIndexingTree * tracker_indexing_tree_new      (void);
+TrackerIndexingTree * tracker_indexing_tree_new      (GFile                 *root);
 
 void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tree,
                                                       GFile                 *directory,
@@ -115,6 +114,8 @@ void                tracker_indexing_tree_set_default_policy (TrackerIndexingTre
 GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tree,
                                                       GFile                 *file,
                                                       TrackerDirectoryFlags *directory_flags);
+GFile *   tracker_indexing_tree_get_master_root      (TrackerIndexingTree   *tree);
+
 gboolean  tracker_indexing_tree_file_is_root         (TrackerIndexingTree   *tree,
                                                       GFile                 *file);
 

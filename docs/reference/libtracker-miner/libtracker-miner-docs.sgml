@@ -29,23 +29,33 @@
     </partintro>
 
     <chapter>
+      <title>Basics and foundations</title>
+      <xi:include href="xml/tracker-miner-enums.xml"/>
+      <xi:include href="xml/tracker-miner-common.xml"/>
+    </chapter>
+
+    <chapter>
       <title>Base abstract miner classes</title>
       <xi:include href="xml/tracker-miner-object.xml"/>
       <xi:include href="xml/tracker-miner-online.xml"/>
+      <xi:include href="xml/tracker-data-provider.xml"/>
+      <xi:include href="xml/tracker-enumerator.xml"/>
       <xi:include href="xml/tracker-decorator.xml"/>
+      <xi:include href="xml/tracker-indexing-tree.xml"/>
     </chapter>
 
     <chapter>
       <title>Miner classes for file system</title>
       <xi:include href="xml/tracker-miner-fs.xml"/>
-      <xi:include href="xml/tracker-indexing-tree.xml"/>
+      <xi:include href="xml/tracker-file-data-provider.xml"/>
+      <xi:include href="xml/tracker-file-enumerator.xml"/>
       <xi:include href="xml/tracker-decorator-fs.xml"/>
     </chapter>
 
     <chapter>
       <title>Utilities</title>
       <xi:include href="xml/tracker-thumbnailer.xml"/>
-      <xi:include href="xml/tracker-miner-enums.xml"/>
+      <xi:include href="xml/tracker-media-art.xml"/>
     </chapter>
   </part>
 

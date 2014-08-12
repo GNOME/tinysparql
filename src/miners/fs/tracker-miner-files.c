@@ -183,8 +183,12 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
-static void        miner_files_finished                 (TrackerMinerFS       *fs);
-
+static void        miner_files_finished                 (TrackerMinerFS       *fs,
+                                                         gdouble               elapsed,
+                                                         gint                  directories_found,
+                                                         gint                  directories_ignored,
+                                                         gint                  files_found,
+                                                         gint                  files_ignored);
 static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          gdouble         seconds_elapsed,
                                                          guint           total_directories_found,
@@ -300,18 +304,18 @@ miner_files_initable_init (GInitable     *initable,
 	GSList *dirs;
 	GSList *m;
 
+	/* Chain up parent's initable callback before calling child's one */
+	if (!miner_files_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
 	mf = TRACKER_MINER_FILES (initable);
 	fs = TRACKER_MINER_FS (initable);
 	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 	tracker_indexing_tree_set_filter_hidden (indexing_tree, TRUE);
 
 	miner_files_update_filters (mf);
-
-	/* Chain up parent's initable callback before calling child's one */
-	if (!miner_files_initable_parent_iface->init (initable, cancellable, &inner_error)) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
 
 	/* Set up extractor and signals */
 	mf->private->connection =  g_bus_get_sync (TRACKER_IPC_BUS, NULL, &inner_error);
@@ -2437,7 +2441,12 @@ miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
 }
 
 static void
-miner_files_finished (TrackerMinerFS *fs)
+miner_files_finished (TrackerMinerFS *fs,
+                      gdouble         elapsed,
+                      gint            directories_found,
+                      gint            directories_ignored,
+                      gint            files_found,
+                      gint            files_ignored)
 {
 	tracker_db_manager_set_last_crawl_done (TRUE);
 }
@@ -2450,6 +2459,7 @@ tracker_miner_files_new (TrackerConfig  *config,
 	                       NULL,
 	                       error,
 	                       "name", "Files",
+	                       "root", NULL,
 	                       "config", config,
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,

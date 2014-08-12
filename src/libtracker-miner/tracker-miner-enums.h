@@ -109,6 +109,28 @@ typedef enum {
 	TRACKER_NETWORK_TYPE_LAN
 } TrackerNetworkType;
 
+/**
+ * TrackerCrawlFlags:
+ * @TRACKER_CRAWL_FLAG_NONE: No flags.
+ * @TRACKER_CRAWL_FLAG_NO_STAT: For cases where the content being crawled by the
+ * #TrackerEnumerator is not local (e.g. it's on a server somewhere),
+ * use the #TRACKER_CRAWL_FLAG_NO_STAT flag. The default is to use
+ * stat() and assume we're mining a local or mounted file system.
+ * @TRACKER_CRAWL_FLAG_FOLLOW_SYMLINKS: The enumerator should follow
+ * symlinks. This is disabled by default because it's easy for Tracker
+ * to get into recursive loop situations with symlinks. For those
+ * using interesting scenarios like git-annex or software heavily
+ * using symlinks (and properly) this is for you.
+ *
+ * Flags used when crawling directory structures. This can be
+ * dependent on the #TrackerEnumerator employed at the time of course.
+ */
+typedef enum {
+	TRACKER_CRAWL_FLAG_NONE            = 0,
+	TRACKER_CRAWL_FLAG_NO_STAT         = 1 << 1,
+	TRACKER_CRAWL_FLAG_FOLLOW_SYMLINKS = 1 << 2,
+} TrackerCrawlFlags;
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_ENUMS_H__ */
