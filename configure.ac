@@ -46,6 +46,10 @@ AC_INIT([tracker],
         [tracker],
         [http://www.tracker-project.org])
 
+# Available since autoconf 2.60, implies _GNU_SOURCE and extensions if available.
+# See: https://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Posix-Variants.html
+AC_USE_SYSTEM_EXTENSIONS
+
 AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -106,10 +110,6 @@ AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 AC_SUBST(LT_CURRENT_MINUS_AGE)
-
-# Available since autoconf 2.60, implies _GNU_SOURCE and extensions if available.
-# See: https://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Posix-Variants.html
-AC_USE_SYSTEM_EXTENSIONS
 
 # Checks for programs.
 AC_PROG_CXX
