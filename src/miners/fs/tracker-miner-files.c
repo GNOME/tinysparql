@@ -183,8 +183,12 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
-static void        miner_files_finished                 (TrackerMinerFS       *fs);
-
+static void        miner_files_finished                 (TrackerMinerFS       *fs,
+                                                         gdouble               elapsed,
+                                                         gint                  directories_found,
+                                                         gint                  directories_ignored,
+                                                         gint                  files_found,
+                                                         gint                  files_ignored);
 static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          gdouble         seconds_elapsed,
                                                          guint           total_directories_found,
@@ -2437,7 +2441,12 @@ miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
 }
 
 static void
-miner_files_finished (TrackerMinerFS *fs)
+miner_files_finished (TrackerMinerFS *fs,
+                      gdouble         elapsed,
+                      gint            directories_found,
+                      gint            directories_ignored,
+                      gint            files_found,
+                      gint            files_ignored)
 {
 	tracker_db_manager_set_last_crawl_done (TRUE);
 }
