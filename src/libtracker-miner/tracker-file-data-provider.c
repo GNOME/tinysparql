@@ -160,6 +160,7 @@ file_data_provider_begin (TrackerDataProvider  *data_provider,
 	}
 
 	enumerator = tracker_file_enumerator_new (fe);
+	g_object_unref (fe);
 
 	return TRACKER_ENUMERATOR (enumerator);
 }

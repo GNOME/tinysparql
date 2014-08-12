@@ -1328,6 +1328,10 @@ tracker_file_notifier_finalize (GObject *object)
 		g_object_unref (priv->indexing_tree);
 	}
 
+	if (priv->data_provider) {
+		g_object_unref (priv->data_provider);
+	}
+
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);

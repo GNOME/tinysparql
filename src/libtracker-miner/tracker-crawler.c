@@ -303,6 +303,10 @@ crawler_finalize (GObject *object)
 
 	g_free (priv->file_attributes);
 
+	if (priv->data_provider) {
+		g_object_unref (priv->data_provider);
+	}
+
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
 }
 
@@ -324,14 +328,29 @@ check_contents_defaults (TrackerCrawler  *crawler,
 TrackerCrawler *
 tracker_crawler_new (TrackerDataProvider *data_provider)
 {
-	if (!data_provider) {
+	TrackerCrawler *crawler;
+	TrackerDataProvider *default_data_provider = NULL;
+
+	if (G_LIKELY (!data_provider)) {
 		/* Default to the file data_provider if none is passed */
-		data_provider = tracker_file_data_provider_new ();
+		data_provider = default_data_provider = tracker_file_data_provider_new ();
 	}
 
-	return g_object_new (TRACKER_TYPE_CRAWLER,
-	                     "data-provider", data_provider,
-	                     NULL);
+	crawler = g_object_new (TRACKER_TYPE_CRAWLER,
+	                        "data-provider", data_provider,
+	                        NULL);
+
+	/* When a data provider is passed to us, we add a reference in
+	 * the set_properties() function for this class, however, if
+	 * we create the data provider, we also have the original
+	 * reference for the created object which needs to be cleared
+	 * up here.
+	 */
+	if (default_data_provider) {
+		g_object_unref (default_data_provider);
+	}
+
+	return crawler;
 }
 
 static gboolean
@@ -822,8 +841,8 @@ enumerate_next_cb (GObject      *object,
 		process_func_start (dpd->crawler);
 		data_provider_data_free (dpd);
 	} else {
-		/* More work to do */
-		dpd->files = g_slist_prepend (dpd->files, g_object_ref (info));
+		/* More work to do, we keep reference given to us */
+		dpd->files = g_slist_prepend (dpd->files, info);
 
 		tracker_enumerator_next_async (TRACKER_ENUMERATOR (object),
 		                               G_PRIORITY_LOW,
