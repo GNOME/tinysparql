@@ -28,13 +28,8 @@ static void tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *ifa
 struct _TrackerFileEnumerator {
 	GObject parent_instance;
 	TrackerCrawlFlags crawl_flags;
+	GFileEnumerator *file_enumerator;
 };
-
-typedef struct {
-	GFile *dir;
-	gchar *attributes;
-	GFileQueryInfoFlags flags;
-} GetChildrenData;
 
 /**
  * SECTION:tracker-file-enumerator
@@ -57,6 +52,12 @@ G_DEFINE_TYPE_WITH_CODE (TrackerFileEnumerator, tracker_file_enumerator, G_TYPE_
 static void
 tracker_file_enumerator_finalize (GObject *object)
 {
+	TrackerFileEnumerator *tfe = TRACKER_FILE_ENUMERATOR (object);
+
+	if (tfe->file_enumerator) {
+		g_object_unref (tfe->file_enumerator);
+	}
+
 	G_OBJECT_CLASS (tracker_file_enumerator_parent_class)->finalize (object);
 }
 
@@ -74,221 +75,105 @@ tracker_file_enumerator_init (TrackerFileEnumerator *fe)
 	fe->crawl_flags = TRACKER_CRAWL_FLAG_NONE;
 }
 
-static TrackerCrawlFlags
-file_enumerator_get_crawl_flags (TrackerEnumerator *enumerator)
+static gpointer
+file_enumerator_next (TrackerEnumerator  *enumerator,
+                      GCancellable       *cancellable,
+                      GError            **error)
 {
-	TrackerFileEnumerator *fe;
+	TrackerFileEnumerator *tfe;
+	GFileInfo *info = NULL;
+	GError *local_error = NULL;
 
-	fe = TRACKER_FILE_ENUMERATOR (enumerator);
-
-	return fe->crawl_flags;
-}
-
-static void
-file_enumerator_set_crawl_flags (TrackerEnumerator *enumerator,
-                                 TrackerCrawlFlags  flags)
-{
-	TrackerFileEnumerator *fe;
-
-	fe = TRACKER_FILE_ENUMERATOR (enumerator);
-
-	fe->crawl_flags = flags;
-}
-
-static GetChildrenData *
-get_children_data_new (GFile               *dir,
-                       const gchar         *attributes,
-                       GFileQueryInfoFlags  flags)
-{
-	GetChildrenData *data;
-
-	data = g_slice_new0 (GetChildrenData);
-	data->dir = g_object_ref (dir);
-	/* FIXME: inefficient */
-	data->attributes = g_strdup (attributes);
-	data->flags = flags;
-
-	return data;
-}
-
-static void
-get_children_data_free (GetChildrenData *data)
-{
-	if (!data) {
-		return;
+	if (g_cancellable_set_error_if_cancelled (cancellable, error)) {
+		return NULL;
 	}
 
-	g_object_unref (data->dir);
-	g_free (data->attributes);
-	g_slice_free (GetChildrenData, data);
-}
+	tfe = TRACKER_FILE_ENUMERATOR (enumerator);
+	info = g_file_enumerator_next_file (tfe->file_enumerator, cancellable, &local_error);
 
-static GSList *
-file_enumerator_get_children (TrackerEnumerator    *enumerator,
-                              GFile                *dir,
-                              const gchar          *attributes,
-                              GFileQueryInfoFlags   flags,
-                              GCancellable         *cancellable,
-                              GError              **error)
-{
-	GFileEnumerator *fe;
-	GSList *files;
-	GError *local_error = NULL;
-	gboolean cancelled;
-
-	fe = g_file_enumerate_children (dir,
-	                                attributes,
-	                                flags,
-	                                cancellable,
-	                                &local_error);
-
-
-	cancelled = g_cancellable_is_cancelled (cancellable);
-
-	if (!fe) {
-		if (local_error && !cancelled) {
-			gchar *uri;
-
-			uri = g_file_get_uri (dir);
-
-			g_warning ("Could not open directory '%s': %s",
-			           uri, local_error->message);
-
+	/* FIXME: Do we need a ->is_running check here like before? */
+	if (local_error || !info) {
+		if (local_error) {
+			g_critical ("Could not crawl through directory: %s", local_error->message);
 			g_propagate_error (error, local_error);
-			g_free (uri);
+		}
+
+		/* No more files or we are stopping anyway, so clean
+		 * up and close all file enumerators.
+		 */
+		if (info) {
+			g_object_unref (info);
 		}
 
 		return NULL;
 	}
 
-	files = NULL;
+	/* FIXME: We need some check here to call
+	 * enumerator_data_process which signals
+	 * CHECK_DIRECTORY_CONTENTS
+	 */
+	g_debug ("--> Found:'%s' (%s)",
+	         g_file_info_get_name (info),
+	         g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY ? "Dir" : "File");
 
-	/* May as well be while TRUE ... */
-	while (!cancelled) {
-		GFileInfo *info;
-
-		info = g_file_enumerator_next_file (fe, cancellable, &local_error);
-
-		/* FIXME: Do we need a ->is_running check here like before? */
-		if (local_error || !info) {
-			if (local_error && !cancelled) {
-				g_critical ("Could not crawl through directory: %s", local_error->message);
-				g_propagate_error (error, local_error);
-			}
-
-			/* No more files or we are stopping anyway, so clean
-			 * up and close all file enumerators.
-			 */
-			if (info) {
-				g_object_unref (info);
-			}
-
-			/* FIXME: We need some check here to call
-			 * enumerator_data_process which signals
-			 * CHECK_DIRECTORY_CONTENTS
-			 */
-			g_file_enumerator_close (fe, NULL, &local_error);
-
-			if (local_error) {
-				g_warning ("Couldn't close GFileEnumerator (%p): %s", fe,
-				           local_error ? local_error->message : "No reason");
-				g_propagate_error (error, local_error);
-			}
-
-			g_object_unref (fe);
-
-			break;
-		}
-
-		g_message ("--> Found:'%s' (%s)",
-		           g_file_info_get_name (info),
-		           g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY ? "Dir" : "File");
-
-
-		files = g_slist_prepend (files, info);
-	}
-
-	return g_slist_reverse (files);
+	return info;
 }
 
 static void
-get_children_async_thread_op_free (GSList *files)
-{
-	g_slist_free_full (files, g_object_unref);
-}
-
-static void
-get_children_async_thread (GTask        *task,
-                           gpointer      source_object,
-                           gpointer      task_data,
-                           GCancellable *cancellable)
+file_enumerator_next_thread (GTask        *task,
+                             gpointer      source_object,
+                             gpointer      task_data,
+                             GCancellable *cancellable)
 {
 	TrackerEnumerator *enumerator = source_object;
-	GetChildrenData *data = task_data;
-	GSList *files = NULL;
+	GFileInfo *info;
 	GError *error = NULL;
 
-	if (g_cancellable_set_error_if_cancelled (cancellable, &error)) {
-		files = NULL;
-	} else {
-		files = file_enumerator_get_children (enumerator,
-		                                      data->dir,
-		                                      data->attributes,
-		                                      data->flags,
-		                                      cancellable,
-		                                      &error);
-	}
+	info = file_enumerator_next (enumerator, cancellable, &error);
 
 	if (error) {
 		g_task_return_error (task, error);
 	} else {
-		g_task_return_pointer (task, files, (GDestroyNotify) get_children_async_thread_op_free);
+		g_task_return_pointer (task, info, (GDestroyNotify) g_object_unref);
 	}
 }
 
 static void
-file_enumerator_get_children_async (TrackerEnumerator    *enumerator,
-                                    GFile                *dir,
-                                    const gchar          *attributes,
-                                    GFileQueryInfoFlags   flags,
-                                    int                   io_priority,
-                                    GCancellable         *cancellable,
-                                    GAsyncReadyCallback   callback,
-                                    gpointer              user_data)
+file_enumerator_next_async (TrackerEnumerator    *enumerator,
+                            gint                  io_priority,
+                            GCancellable         *cancellable,
+                            GAsyncReadyCallback   callback,
+                            gpointer              user_data)
 {
 	GTask *task;
 
 	task = g_task_new (enumerator, cancellable, callback, user_data);
-	g_task_set_task_data (task, get_children_data_new (dir, attributes, flags), (GDestroyNotify) get_children_data_free);
 	g_task_set_priority (task, io_priority);
-
-	g_task_run_in_thread (task, get_children_async_thread);
+	g_task_run_in_thread (task, file_enumerator_next_thread);
 	g_object_unref (task);
 }
 
-static GSList *
-file_enumerator_get_children_finish (TrackerEnumerator  *enumerator,
-                                     GAsyncResult       *result,
-                                     GError            **error)
+static gpointer
+file_enumerator_next_finish (TrackerEnumerator  *enumerator,
+                             GAsyncResult       *result,
+                             GError            **error)
 {
 	g_return_val_if_fail (g_task_is_valid (result, enumerator), NULL);
 
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
 
-
 static void
 tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *iface)
 {
-	iface->get_crawl_flags = file_enumerator_get_crawl_flags;
-	iface->set_crawl_flags = file_enumerator_set_crawl_flags;
-	iface->get_children = file_enumerator_get_children;
-	iface->get_children_async = file_enumerator_get_children_async;
-	iface->get_children_finish = file_enumerator_get_children_finish;
+	iface->next = file_enumerator_next;
+	iface->next_async = file_enumerator_next_async;
+	iface->next_finish = file_enumerator_next_finish;
 }
 
 /**
  * tracker_file_enumerator_new:
+ * @file_enumerator: the #GFileEnumerator used to enumerate with
  *
  * Creates a new TrackerEnumerator which can be used to create new
  * #TrackerMinerFS classes. See #TrackerMinerFS for an example of how
@@ -297,14 +182,21 @@ tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *iface)
  * Returns: (transfer full): a #TrackerEnumerator which must be
  * unreferenced with g_object_unref().
  *
- * Since: 1.2:
+ * Since: 1.2
  **/
 TrackerEnumerator *
-tracker_file_enumerator_new (void)
+tracker_file_enumerator_new (GFileEnumerator *file_enumerator)
 {
 	TrackerFileEnumerator *tfe;
 
+	g_return_val_if_fail (G_IS_FILE_ENUMERATOR (file_enumerator), NULL);
+
 	tfe = g_object_new (TRACKER_TYPE_FILE_ENUMERATOR, NULL);
+	if (!tfe) {
+		return NULL;
+	}
+
+	tfe->file_enumerator = g_object_ref (file_enumerator);
 
 	return TRACKER_ENUMERATOR (tfe);
 }

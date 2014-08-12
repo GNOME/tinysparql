@@ -53,7 +53,7 @@ struct _TrackerFileEnumeratorClass {
 };
 
 GType               tracker_file_enumerator_get_type (void) G_GNUC_CONST;
-TrackerEnumerator * tracker_file_enumerator_new      (void);
+TrackerEnumerator * tracker_file_enumerator_new      (GFileEnumerator *file_enumerator);
 
 G_END_DECLS
 

@@ -117,7 +117,7 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  * should it process, and the actual data extraction.
  *
  * Example creating a TrackerMinerFS with our own file system root and
- * enumerator.
+ * data provider.
  *
  * First create our class and base it on TrackerMinerFS:
  * |[
@@ -128,10 +128,10 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  *
  * Later in our class creation function, we are supplying the
  * arguments we want. In this case, the 'root' is a #GFile pointing to
- * a root URI location (for example 'file:///') and 'enumerator' is a
- * #TrackerEnumerator used to enumerate 'root' and return children it
- * finds. If 'enumerator' is %NULL (the default), then a
- * #TrackerFileEnumerator is created automatically.
+ * a root URI location (for example 'file:///') and 'data_provider' is a
+ * #TrackerDataProvider used to enumerate 'root' and return children it
+ * finds. If 'data_provider' is %NULL (the default), then a
+ * #TrackerFileDataProvider is created automatically.
  * |[
  * // Note that only 'name' is mandatory
  * miner = g_initable_new (MY_TYPE_MINER_FILES,
@@ -139,7 +139,7 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  *                         error,
  *                         "name", "MyMinerFiles",
  *                         "root", root,
- *                         "enumerator", enumerator,
+ *                         "data-provider", data_provider,
  *                         "processing-pool-wait-limit", 10,
  *                         "processing-pool-ready-limit", 100,
  *                         NULL);
@@ -199,7 +199,7 @@ struct _TrackerMinerFSPrivate {
 	GFile *root;
 	TrackerIndexingTree *indexing_tree;
 	TrackerFileNotifier *file_notifier;
-	TrackerEnumerator *enumerator;
+	TrackerDataProvider *data_provider;
 
 	/* Sparql insertion tasks */
 	TrackerTaskPool *task_pool;
@@ -285,7 +285,7 @@ enum {
 	PROP_ROOT,
 	PROP_WAIT_POOL_LIMIT,
 	PROP_READY_POOL_LIMIT,
-	PROP_ENUMERATOR,
+	PROP_DATA_PROVIDER,
 	PROP_MTIME_CHECKING,
 	PROP_INITIAL_CRAWLING
 };
@@ -414,11 +414,11 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                    1, G_MAXUINT, DEFAULT_READY_POOL_LIMIT,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-	                                 PROP_ENUMERATOR,
-	                                 g_param_spec_object ("enumerator",
-	                                                      "Enumerator",
-	                                                      "Enumerator to use to crawl structures populating data, e.g. like GFileEnumerator",
-	                                                      TRACKER_TYPE_ENUMERATOR,
+	                                 PROP_DATA_PROVIDER,
+	                                 g_param_spec_object ("data-provider",
+	                                                      "Data provider",
+	                                                      "Data provider populating data, e.g. like GFileEnumerator",
+	                                                      TRACKER_TYPE_DATA_PROVIDER,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 	g_object_class_install_property (object_class,
 	                                 PROP_MTIME_CHECKING,
@@ -726,7 +726,7 @@ miner_fs_initable_init (GInitable     *initable,
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree,
-	                                                 priv->enumerator);
+	                                                 priv->data_provider);
 
 	if (!priv->file_notifier) {
 		g_set_error (error,
@@ -914,8 +914,8 @@ fs_set_property (GObject      *object,
 			                             fs->priv->sparql_buffer_limit);
 		}
 		break;
-	case PROP_ENUMERATOR:
-		fs->priv->enumerator = g_value_dup_object (value);
+	case PROP_DATA_PROVIDER:
+		fs->priv->data_provider = g_value_dup_object (value);
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->priv->mtime_checking = g_value_get_boolean (value);
@@ -955,8 +955,8 @@ fs_get_property (GObject    *object,
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->priv->mtime_checking);
 		break;
-	case PROP_ENUMERATOR:
-		g_value_set_object (value, fs->priv->enumerator);
+	case PROP_DATA_PROVIDER:
+		g_value_set_object (value, fs->priv->data_provider);
 		break;
 	case PROP_INITIAL_CRAWLING:
 		g_value_set_boolean (value, fs->priv->initial_crawling);
@@ -3204,7 +3204,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
 	}
 
-	if (!fs->priv->enumerator) {
+	if (!fs->priv->data_provider) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
@@ -3645,7 +3645,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
 			TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 
-		if (!fs->priv->enumerator) {
+		if (!fs->priv->data_provider) {
 			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 		}
 
@@ -4028,7 +4028,7 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
 		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 
-	if (!fs->priv->enumerator) {
+	if (!fs->priv->data_provider) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
@@ -4106,7 +4106,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 		TRACKER_DIRECTORY_FLAG_PRESERVE |
 		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 
-	if (!fs->priv->enumerator) {
+	if (!fs->priv->data_provider) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
@@ -4134,22 +4134,22 @@ tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 }
 
 /**
- * tracker_miner_fs_get_enumerator:
+ * tracker_miner_fs_get_data_provider:
  * @fs: a #TrackerMinerFS
  *
- * Returns the #TrackerEnumerator implementation, which is being used
+ * Returns the #TrackerDataProvider implementation, which is being used
  * to supply #GFile and #GFileInfo content to Tracker.
  *
- * Returns: (transfer none): The #TrackerEnumerator supplying content
+ * Returns: (transfer none): The #TrackerDataProvider supplying content
  *
  * Since: 1.2
  **/
-TrackerEnumerator *
-tracker_miner_fs_get_enumerator (TrackerMinerFS *fs)
+TrackerDataProvider *
+tracker_miner_fs_get_data_provider (TrackerMinerFS *fs)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 
-	return fs->priv->enumerator;
+	return fs->priv->data_provider;
 }
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "tracker-crawler.h"
-#include "tracker-file-enumerator.h"
+#include "tracker-file-data-provider.h"
 #include "tracker-miner-enums.h"
 #include "tracker-miner-enum-types.h"
 #include "tracker-utils.h"
@@ -70,7 +70,7 @@ struct DirectoryRootInfo {
 };
 
 struct TrackerCrawlerPrivate {
-	TrackerEnumerator *enumerator;
+	TrackerDataProvider *data_provider;
 
 	/* Directories to crawl */
 	GQueue         *directories;
@@ -96,11 +96,13 @@ struct TrackerCrawlerPrivate {
 
 typedef struct {
 	TrackerCrawler *crawler;
+	TrackerEnumerator *enumerator;
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
 	GFile *dir_file;
 	GCancellable *cancellable;
-} EnumeratorData;
+	GSList *files;
+} DataProviderData;
 
 enum {
 	CHECK_DIRECTORY,
@@ -113,7 +115,7 @@ enum {
 
 enum {
 	PROP_0,
-	PROP_ENUMERATOR,
+	PROP_DATA_PROVIDER,
 };
 
 static void     crawler_get_property     (GObject         *object,
@@ -130,7 +132,7 @@ static gboolean check_defaults           (TrackerCrawler  *crawler,
 static gboolean check_contents_defaults  (TrackerCrawler  *crawler,
                                           GFile           *file,
                                           GList           *contents);
-static void     file_enumerate_children  (TrackerCrawler          *crawler,
+static void     data_provider_begin      (TrackerCrawler          *crawler,
 					  DirectoryRootInfo       *info,
 					  DirectoryProcessingData *dir_data);
 
@@ -214,11 +216,11 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              1, G_TYPE_BOOLEAN);
 
 	g_object_class_install_property (object_class,
-	                                 PROP_ENUMERATOR,
-	                                 g_param_spec_object ("enumerator",
-	                                                      "Enumerator",
-	                                                      "Enumerator to use to crawl structures populating data, e.g. like GFileEnumerator",
-	                                                      TRACKER_TYPE_ENUMERATOR,
+	                                 PROP_DATA_PROVIDER,
+	                                 g_param_spec_object ("data-provider",
+	                                                      "Data provider",
+	                                                      "Data provider to use to crawl structures populating data, e.g. like GFileEnumerator",
+	                                                      TRACKER_TYPE_DATA_PROVIDER,
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
 
@@ -250,8 +252,8 @@ crawler_set_property (GObject      *object,
 	priv = TRACKER_CRAWLER (object)->priv;
 
 	switch (prop_id) {
-	case PROP_ENUMERATOR:
-		priv->enumerator = g_value_dup_object (value);
+	case PROP_DATA_PROVIDER:
+		priv->data_provider = g_value_dup_object (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -270,8 +272,8 @@ crawler_get_property (GObject    *object,
 	priv = TRACKER_CRAWLER (object)->priv;
 
 	switch (prop_id) {
-	case PROP_ENUMERATOR:
-		g_value_set_object (value, priv->enumerator);
+	case PROP_DATA_PROVIDER:
+		g_value_set_object (value, priv->data_provider);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -320,15 +322,15 @@ check_contents_defaults (TrackerCrawler  *crawler,
 }
 
 TrackerCrawler *
-tracker_crawler_new (TrackerEnumerator *enumerator)
+tracker_crawler_new (TrackerDataProvider *data_provider)
 {
-	if (!enumerator) {
-		/* Default to the file enumerator if none is passed */
-		enumerator = tracker_file_enumerator_new ();
+	if (!data_provider) {
+		/* Default to the file data_provider if none is passed */
+		data_provider = tracker_file_data_provider_new ();
 	}
 
 	return g_object_new (TRACKER_TYPE_CRAWLER,
-	                     "enumerator", enumerator,
+	                     "data-provider", data_provider,
 	                     NULL);
 }
 
@@ -549,7 +551,7 @@ process_func (gpointer data)
 				/* Directory contents haven't been inspected yet,
 				 * stop this idle function while it's being iterated
 				 */
-				file_enumerate_children (crawler, info, dir_data);
+				data_provider_begin (crawler, info, dir_data);
 				stop_idle = TRUE;
 			}
 		} else if (dir_data->was_inspected &&
@@ -649,113 +651,66 @@ process_func_stop (TrackerCrawler *crawler)
 	}
 }
 
-static EnumeratorData *
-enumerator_data_new (TrackerCrawler          *crawler,
-		     DirectoryRootInfo       *root_info,
-		     DirectoryProcessingData *dir_info)
+static DataProviderData *
+data_provider_data_new (TrackerCrawler          *crawler,
+                        DirectoryRootInfo       *root_info,
+                        DirectoryProcessingData *dir_info)
 {
-	EnumeratorData *ed;
+	DataProviderData *dpd;
 
-	ed = g_slice_new (EnumeratorData);
+	dpd = g_slice_new0 (DataProviderData);
 
-	ed->crawler = g_object_ref (crawler);
-	ed->root_info = root_info;
-	ed->dir_info = dir_info;
+	dpd->crawler = g_object_ref (crawler);
+	dpd->root_info = root_info;
+	dpd->dir_info = dir_info;
 	/* Make sure there's always a ref of the GFile while we're
 	 * iterating it */
-	ed->dir_file = g_object_ref (G_FILE (dir_info->node->data));
-	ed->cancellable = g_cancellable_new ();
+	dpd->dir_file = g_object_ref (G_FILE (dir_info->node->data));
+	dpd->cancellable = g_cancellable_new ();
 
 	crawler->priv->cancellables = g_list_prepend (crawler->priv->cancellables,
-						      ed->cancellable);
-	return ed;
+						      dpd->cancellable);
+	return dpd;
 }
 
 static void
-enumerator_data_process (EnumeratorData *ed)
+data_provider_data_process (DataProviderData *dpd)
 {
 	TrackerCrawler *crawler;
 	GSList *l;
 	GList *children = NULL;
 	gboolean use;
 
-	crawler = ed->crawler;
+	crawler = dpd->crawler;
 
-	for (l = ed->dir_info->children; l; l = l->next) {
+	for (l = dpd->dir_info->children; l; l = l->next) {
 		DirectoryChildData *child_data;
 
 		child_data = l->data;
 		children = g_list_prepend (children, child_data->child);
 	}
 
-	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->dir_info->node->data, children, &use);
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, dpd->dir_info->node->data, children, &use);
 	g_list_free (children);
 
 	if (!use) {
-		ed->dir_info->ignored_by_content = TRUE;
+		dpd->dir_info->ignored_by_content = TRUE;
 		/* FIXME: Update stats */
 		return;
 	}
 }
 
 static void
-enumerator_data_free (EnumeratorData *ed)
-{
-	ed->crawler->priv->cancellables =
-		g_list_remove (ed->crawler->priv->cancellables,
-			       ed->cancellable);
-
-	g_object_unref (ed->dir_file);
-	g_object_unref (ed->crawler);
-	g_object_unref (ed->cancellable);
-	g_slice_free (EnumeratorData, ed);
-}
-
-static void
-file_enumerate_children_cb (GObject      *object,
-                            GAsyncResult *result,
-                            gpointer      user_data)
+data_provider_data_add (DataProviderData *dpd)
 {
 	TrackerCrawler *crawler;
-	TrackerEnumerator *enumerator;
-	GSList *l;
-	EnumeratorData *ed;
 	GFile *parent;
-	GError *error = NULL;
-	GSList *files = NULL;
-	gboolean cancelled;
+	GSList *l;
 
-	ed = (EnumeratorData*) user_data;
-	crawler = ed->crawler;
-	cancelled = g_cancellable_is_cancelled (ed->cancellable);
-	parent = ed->dir_info->node->data;
-	enumerator = TRACKER_ENUMERATOR (object);
+	crawler = dpd->crawler;
+	parent = dpd->dir_info->node->data;
 
-	files = tracker_enumerator_get_children_finish (enumerator, result, &error);
-
-	if (!files) {
-		if (error && !cancelled) {
-			gchar *uri;
-
-			uri = g_file_get_uri (parent);
-
-			g_warning ("Could not enumerate container / directory '%s', %s",
-			           uri, error->message);
-
-			g_error_free (error);
-			g_free (uri);
-		}
-
-		enumerator_data_free (ed);
-		process_func_start (crawler);
-		return;
-	}
-
-	if (!cancelled) {
-		enumerator_data_process (ed);
-	}
-
-	for (l = files; l; l = l->next) {
+	for (l = dpd->files; l; l = l->next) {
 		GFileInfo *info;
 		GFile *child;
 		const gchar *child_name;
@@ -775,26 +730,165 @@ file_enumerate_children_cb (GObject      *object,
 			                         (GDestroyNotify) g_object_unref);
 		}
 
-		directory_processing_data_add_child (ed->dir_info, child, is_dir);
+		directory_processing_data_add_child (dpd->dir_info, child, is_dir);
 
 		g_object_unref (child);
 		g_object_unref (info);
 	}
 
-	g_slist_free (files);
-	enumerator_data_free (ed);
-	process_func_start (crawler);
+	g_slist_free (dpd->files);
+	dpd->files = NULL;
 }
 
 static void
-file_enumerate_children (TrackerCrawler          *crawler,
-			 DirectoryRootInfo       *info,
-			 DirectoryProcessingData *dir_data)
+data_provider_data_free (DataProviderData *dpd)
 {
-	EnumeratorData *ed;
+	dpd->crawler->priv->cancellables =
+		g_list_remove (dpd->crawler->priv->cancellables,
+			       dpd->cancellable);
+
+	g_object_unref (dpd->dir_file);
+	g_object_unref (dpd->crawler);
+	g_object_unref (dpd->cancellable);
+
+	if (dpd->files) {
+		g_slist_free_full (dpd->files, g_object_unref);
+	}
+
+	if (dpd->enumerator) {
+		g_object_unref (dpd->enumerator);
+	}
+
+	g_slice_free (DataProviderData, dpd);
+}
+
+static void
+enumerate_next_cb (GObject      *object,
+                   GAsyncResult *result,
+                   gpointer      user_data)
+{
+	DataProviderData *dpd;
+	GFileInfo *info;
+	GError *error = NULL;
+	gboolean cancelled;
+
+	dpd = user_data;
+	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
+	info = tracker_enumerator_next_finish (TRACKER_ENUMERATOR (object), result, &error);
+
+	/* If cancelled, process what we have so far only... */
+	if (cancelled) {
+		data_provider_data_process (dpd);
+		data_provider_data_add (dpd);
+
+		process_func_start (dpd->crawler);
+		data_provider_data_free (dpd);
+		return;
+	}
+
+	if (!info) {
+		/* Could be due to:
+		 * a) error,
+		 * b) cancellation,
+		 * c) no more items
+		 */
+
+		/* We don't consider cancellation an error, so we only
+		 * log errors which are not cancellations.
+		 */
+		if (error) {
+			/* condition a) */
+
+			if (!cancelled) {
+				GFile *parent;
+				gchar *uri;
+
+				/* condition b) */
+				parent = dpd->dir_info->node->data;
+				uri = g_file_get_uri (parent);
+				g_warning ("Could not enumerate next item in container / directory '%s', %s",
+				           uri, error ? error->message : "no error given");
+				g_free (uri);
+			}
+
+			g_clear_error (&error);
+		} else {
+			/* condition c) */
+			/* Done enumerating, start processing what we got ... */
+			data_provider_data_process (dpd);
+			data_provider_data_add (dpd);
+		}
+
+		process_func_start (dpd->crawler);
+		data_provider_data_free (dpd);
+	} else {
+		/* More work to do */
+		dpd->files = g_slist_prepend (dpd->files, g_object_ref (info));
+
+		tracker_enumerator_next_async (TRACKER_ENUMERATOR (object),
+		                               G_PRIORITY_LOW,
+		                               dpd->cancellable,
+		                               enumerate_next_cb,
+		                               dpd);
+	}
+}
+
+static void
+data_provider_begin_cb (GObject      *object,
+                        GAsyncResult *result,
+                        gpointer      user_data)
+{
+	DataProviderData *dpd;
+	GError *error = NULL;
+	gboolean cancelled;
+
+	dpd = user_data;
+	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
+
+	dpd->enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
+
+	if (!dpd->enumerator) {
+		if (error && !cancelled) {
+			GFile *parent;
+			gchar *uri;
+
+			parent = dpd->dir_info->node->data;
+			uri = g_file_get_uri (parent);
+
+			g_warning ("Could not enumerate container / directory '%s', %s",
+			           uri, error ? error->message : "no error given");
+
+			g_free (uri);
+			g_clear_error (&error);
+		}
+
+		process_func_start (dpd->crawler);
+		data_provider_data_free (dpd);
+		return;
+	}
+
+	if (cancelled) {
+		process_func_start (dpd->crawler);
+		data_provider_data_free (dpd);
+		return;
+	}
+
+	tracker_enumerator_next_async (dpd->enumerator,
+	                               G_PRIORITY_LOW,
+	                               dpd->cancellable,
+	                               enumerate_next_cb,
+	                               dpd);
+}
+
+static void
+data_provider_begin (TrackerCrawler          *crawler,
+                     DirectoryRootInfo       *info,
+                     DirectoryProcessingData *dir_data)
+{
+	DataProviderData *dpd;
 	gchar *attrs;
 
-	ed = enumerator_data_new (crawler, info, dir_data);
+	dpd = data_provider_data_new (crawler, info, dir_data);
 
 	if (crawler->priv->file_attributes) {
 		attrs = g_strconcat (FILE_ATTRIBUTES ",",
@@ -804,14 +898,15 @@ file_enumerate_children (TrackerCrawler          *crawler,
 		attrs = g_strdup (FILE_ATTRIBUTES);
 	}
 
-	tracker_enumerator_get_children_async (crawler->priv->enumerator,
-	                                       ed->dir_file,
-	                                       attrs,
-	                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                                       G_PRIORITY_LOW,
-	                                       ed->cancellable,
-	                                       file_enumerate_children_cb,
-	                                       ed);
+
+	tracker_data_provider_begin_async (crawler->priv->data_provider,
+	                                   dpd->dir_file,
+	                                   attrs,
+	                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                   G_PRIORITY_LOW,
+	                                   dpd->cancellable,
+	                                   data_provider_begin_cb,
+	                                   dpd);
 	g_free (attrs);
 }
 
@@ -830,7 +925,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	priv = crawler->priv;
 
-	flags = tracker_enumerator_get_crawl_flags (priv->enumerator);
+	flags = tracker_data_provider_get_crawl_flags (priv->data_provider);
 	enable_stat = (flags & TRACKER_CRAWL_FLAG_NO_STAT) == 0;
 
 	if (enable_stat && !g_file_query_exists (file, NULL)) {

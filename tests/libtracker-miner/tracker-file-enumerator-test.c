@@ -21,57 +21,74 @@
 
 #include <locale.h>
 
-#include <libtracker-miner/tracker-file-enumerator.h>
+#include <libtracker-miner/tracker-miner.h>
+/* Normally private */
+#include <libtracker-miner/tracker-file-data-provider.h>
 
 static void
-test_enumerator_crawl (void)
+test_enumerator_and_provider (void)
 {
+	GFileEnumerator *fe;
+	TrackerDataProvider *data_provider;
 	TrackerEnumerator *enumerator;
-	GFile *dir;
+	GFileInfo *info;
+	GFile *url;
 	GSList *files, *l;
 	GError *error = NULL;
+	gint count = 0;
 	const gchar *path;
 
-	setlocale (LC_ALL, "");
-
-	enumerator = tracker_file_enumerator_new ();
-	g_assert (enumerator != NULL);
+	data_provider = tracker_file_data_provider_new ();
+	g_assert_nonnull (data_provider);
 
 	/* FIXME: Use better tmp data structure */
-	path = "/tmp";
-	dir = g_file_new_for_path (path);
-	g_print ("'%s'\n", path);
+	url = g_file_new_for_path (g_get_tmp_dir ());
+	g_assert_nonnull (url);
 
-	files = tracker_enumerator_get_children (enumerator,
-	                                         dir,
-	                                         G_FILE_ATTRIBUTE_STANDARD_NAME "," \
-	                                         G_FILE_ATTRIBUTE_STANDARD_TYPE,
-	                                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                                         NULL,
-	                                         &error);
+	/* fe = g_file_enumerate_children ( */
+	/*                                 0, */
+	/*                                 NULL, */
+	/*                                 &error); */
+
+	/* g_assert_no_error (error); */
+	/* g_assert_nonnull (fe); */
+
+	/* enumerator = tracker_file_enumerator_new (fe); */
+	/* g_assert_nonnull (enumerator); */
+
+	enumerator = tracker_data_provider_begin (data_provider,
+	                                          url,
+	                                          G_FILE_ATTRIBUTE_STANDARD_NAME "," \
+	                                          G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                                          G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                          NULL,
+	                                          &error);
 	g_assert_no_error (error);
-	g_assert (files != NULL);
-	g_assert (g_slist_length (files) > 0);
+	g_assert_nonnull (enumerator);
 
-	for (l = files; l; l = l->next) {
-		GFileInfo *info = l->data;
-
-		g_print ("-> '%s'\n", g_file_info_get_name (info));
+	while ((info = tracker_enumerator_next (enumerator, NULL, &error)) != NULL) {
+		g_assert_no_error (error);
+		count++;
 	}
 
-	g_object_unref (dir);
+	g_assert_no_error (error);
+	g_assert (count > 0);
+
+	g_object_unref (enumerator);
+	g_object_unref (data_provider);
 }
 
 int
-main (int    argc,
-      char **argv)
+main (int argc, char **argv)
 {
+	setlocale (LC_ALL, "");
+
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing file enumerator");
 
-	g_test_add_func ("/libtracker-miner/tracker-enumerator/crawl",
-	                 test_enumerator_crawl);
+	g_test_add_func ("/libtracker-miner/tracker-enumerator-and-provider",
+	                 test_enumerator_and_provider);
 
 	return g_test_run ();
 }
