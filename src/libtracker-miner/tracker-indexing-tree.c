@@ -896,6 +896,18 @@ tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
  * cases where no root is given, we fallback to
  * <filename>file:///</filename>.
  *
+ * Roots explained:
+ *
+ * - master root = top most level root node,
+ *   e.g. file:///
+ *
+ * - config root = a root node from GSettings,
+ *   e.g. file:///home/martyn/Documents
+ *
+ * - root = ANY root, normally config root, but it can also apply to
+ *   roots added for devices, which technically are not a config root or a
+ *   master root.
+ *
  * Returns: (transfer none): the effective root for all locations, or
  * %NULL on error. The root is owned by @tree and should not be freed.
  * It can be referenced using g_object_ref().
