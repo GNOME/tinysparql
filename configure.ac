@@ -46,14 +46,14 @@ AC_INIT([tracker],
         [tracker],
         [http://www.tracker-project.org])
 
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADERS([config.h])
+
 # Available since autoconf 2.60, implies _GNU_SOURCE and extensions if available.
 # See: https://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Posix-Variants.html
 AC_USE_SYSTEM_EXTENSIONS
-
-AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
-AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability])
 
