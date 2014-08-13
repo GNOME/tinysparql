@@ -44,7 +44,7 @@ AC_INIT([tracker],
         [tracker_version],
         [http://bugzilla.gnome.org/],
         [tracker],
-        [http://www.tracker-project.org])
+        [https://wiki.gnome.org/Projects/Tracker])
 
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
