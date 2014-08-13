@@ -1,3 +1,47 @@
+NEW in 1.1.2 - 2014-08-12
+=========================
+
+The main changes since 1.1.1 are:
+
+  * New Feature: Data Provider: Now there are TrackerDataProvider and
+    TrackerEnumerator interfaces to allow 3rd parties to supply their own
+    data to Tracker to be indexed, for example for an online or
+    proprietary service.
+  * Fixes: GB#734464, tracker-guarantee-tests failure
+  * Fixes: GB#733857, rpath is being set on tracker libraries
+  * Fixes: GB#734089, testsuite summaries fail to report results
+  * Fixes: GB#734144, Tracker processes fail to respond to INT or TERM while initialising
+  * Fixes: GB#733316, writeback: support saving metadata for GIFs
+  * Fixes: GB#733948, src/libtracker-extract/tracker-extract-info.c: Non-void function should return a value
+  * Fixes: GB#733863, 0.5 (commit 880d09fbff1f89f4ce5ed9ee5b1d23ccc6e20da2 ) breaks tracker compilation
+  * Fixes: GB#733536, Remove --enable-guarantee metadata, always guarantee nie:title and nie:contentCreated
+  * Fixes: GB#733439, tracker should include COPYING.LGPL
+  * build: Updated doap file (added programming language and category is now "core")
+  * build: Improve firefox and thunderbird detection to avoid warnings in console
+  * build: Removed all GNU_SOURCE additions in sources, use AC_USE_SYSTEM_EXTENSIONS instead
+  * build: Fixed many unit tests that were not properly isolated
+  * build: configure now has an --enable-minimal option to ONLY build tracker-store.
+  * ontology: nfo:hasMediaStream no longer has a max cardinality of 1, this may mean a reindex is needed
+  * libtracker-miner: PkgConfig file now requires libmediaart (when dependent) privately
+  * libtracker-miner: Many documentation updates and fixes
+  * libtracker-extract: There is no longer an example in the examples/ directory as this library is now private
+  * tracker-extract-mp3: Fixed mp3 parsing for ID3v24 or ID3v23 tags
+  * tracker-extract: Fixed missing TRACKER_EXTRACTORS_DIR env var that was removed at some stage
+  * tracker-extract: Cleaned up signal handling, SIGALRM and SIGABRT no longer used
+  * tracker-extract: When built with libmediaart, requires version 0.5.0 or higher.
+  * tracker-preferences: Don't use Stock.* deprecated since Gtk+ 3.10
+  * tracker-preferences: Added suggestion to reindex OR restart depending on configuration changes applied
+  * functional-tests: Improved and updated in places
+
+Translations:
+
+  * Updated el: MarMav, Maria Mavridou
+  * Updated es: Daniel Mustieles
+  * Updated lt: Aurimas Černius
+  * Updated pt_BR: Rafael Ferreira, Enrico Nicoletto
+  * Updated zh_CN: YunQiang Su, Yunqiang Su
+
+
 NEW in 1.1.1 - 2014-07-10
 =========================
 
@@ -8,6 +52,7 @@ The main changes since 1.1.0 are:
     tracker-sparql-1.0) to avoid creating unnecessary work for
     developers using Tracker. This release corrects this and it was
     planned originally.
+
 
 NEW in 1.1.0 - 2014-07-10
 =========================
