@@ -33,6 +33,9 @@
 #include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
+static gchar *tests_data_dir = NULL;
+static gchar *xdg_location = NULL;
+
 typedef struct _TestInfo TestInfo;
 
 struct _TestInfo {
@@ -40,7 +43,6 @@ struct _TestInfo {
 	const gchar *data;
 	gboolean expect_query_error;
 	gboolean expect_update_error;
-	gchar *xdg_location;
 };
 
 const TestInfo tests[] = {
@@ -319,21 +321,27 @@ static void
 setup (TestInfo      *info,
        gconstpointer  context)
 {
-	gchar *current_dir, *basename;
 	gint i;
 
 	i = GPOINTER_TO_INT (context);
 	*info = tests[i];
 
-	basename = g_strdup_printf ("%d-%d", i, g_test_rand_int_range (0, G_MAXINT));
-	current_dir = g_get_current_dir ();
-	info->xdg_location = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", basename, NULL);
-	g_free (current_dir);
-	g_free (basename);
+	/* Sadly, we can't use ONE location per test because GLib
+	 * caches XDG env vars, so g_get_*dir() will not change if we
+	 * update the environment, this sucks majorly.
+	 */
+	if (!xdg_location) {
+		gchar *basename;
 
-	g_setenv ("XDG_DATA_HOME", info->xdg_location, TRUE);
-	g_setenv ("XDG_CACHE_HOME", info->xdg_location, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+		/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
+		basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
+		xdg_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
+		g_free (basename);
+
+		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
+		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
+		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE));
+	}
 }
 
 static void
@@ -343,22 +351,28 @@ teardown (TestInfo      *info,
 	gchar *cleanup_command;
 
 	/* clean up */
-	g_print ("Removing temporary data (%s)\n", info->xdg_location);
+	g_print ("Removing temporary data (%s)\n", xdg_location);
 
-	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->xdg_location);
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", xdg_location);
 	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
 	g_free (cleanup_command);
 
-	g_free (info->xdg_location);
+	g_free (xdg_location);
+	xdg_location = NULL;
 }
 
 int
 main (int argc, char **argv)
 {
+	gchar *current_dir;
 	gint result;
 	gint i;
 
 	setlocale (LC_COLLATE, "en_US.utf8");
+
+	current_dir = g_get_current_dir ();
+	tests_data_dir = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", NULL);
+	g_free (current_dir);
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -384,6 +398,9 @@ main (int argc, char **argv)
 
 	/* run tests */
 	result = g_test_run ();
+
+	g_remove (tests_data_dir);
+	g_free (tests_data_dir);
 
 	return result;
 }
