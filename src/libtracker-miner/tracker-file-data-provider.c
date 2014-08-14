@@ -157,6 +157,8 @@ file_data_provider_begin (TrackerDataProvider  *data_provider,
 
 		g_propagate_error (error, local_error);
 		g_free (uri);
+
+		return NULL;
 	}
 
 	enumerator = tracker_file_enumerator_new (fe);
