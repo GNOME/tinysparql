@@ -3646,7 +3646,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 #ifdef HAVE_TRACKER_FTS
 	if (!tracker_fts_init ()) {
-		g_warning ("FTS module loading failed");
+		g_warning ("FTS module initialization failed");
 	}
 #endif
 
@@ -4614,6 +4614,13 @@ tracker_data_manager_shutdown (void)
 	if (!reloading) {
 		tracker_locale_shutdown ();
 	}
+
+#ifdef HAVE_TRACKER_FTS
+	if (!tracker_fts_shutdown ()) {
+		g_warning ("FTS module shutdown failed");
+	}
+#endif
+
 	tracker_data_update_shutdown ();
 
 	initialized = FALSE;

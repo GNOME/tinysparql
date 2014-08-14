@@ -31,7 +31,7 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#if HAVE_TRACKER_FTS
+#ifdef HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
 #include <libtracker-fts/tracker-parser.h>
 #endif
@@ -1145,7 +1145,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       GHashTable          *multivalued,
                                       gboolean             create)
 {
-#if HAVE_TRACKER_FTS
+#ifdef HAVE_TRACKER_FTS
 	GStrv fts_columns;
 
 	tracker_fts_init_db (db_interface->db, properties);
@@ -1185,7 +1185,8 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #endif
 }
 
-#if HAVE_TRACKER_FTS
+#ifdef HAVE_TRACKER_FTS
+
 void
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 					     GHashTable          *properties,
@@ -1332,6 +1333,10 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	TrackerDBInterface *db_interface;
 
 	db_interface = TRACKER_DB_INTERFACE (object);
+
+#ifdef HAVE_TRACKER_FTS
+	tracker_fts_shutdown_db (db_interface->db);
+#endif
 
 	close_database (db_interface);
 	g_free (db_interface->fts_insert_str);
