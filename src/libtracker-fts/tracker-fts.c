@@ -20,23 +20,36 @@
  */
 
 #include "config.h"
-#include <sqlite3.h>
+
+#include <libtracker-common/tracker-common.h>
+
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts.h"
 
 #ifndef HAVE_BUILTIN_FTS
-#  include "fts3.h"
+
+#include "fts3.h"
+static gsize      module_initialized = 0;
+
 #endif
 
-static gchar **property_names;
+static gchar    **property_names = NULL;
+static gboolean   initialized = FALSE;
+
 
 gboolean
-tracker_fts_init (void) {
+tracker_fts_init (void)
+{
+	if (initialized) {
+		return TRUE;
+	}
+
 #ifdef HAVE_BUILTIN_FTS
+	initialized = TRUE;
+
 	/* SQLite has all needed FTS4 features compiled in */
 	return TRUE;
 #else
-	static gsize module_initialized = 0;
 	int rc = SQLITE_OK;
 
 	if (g_once_init_enter (&module_initialized)) {
@@ -44,8 +57,23 @@ tracker_fts_init (void) {
 		g_once_init_leave (&module_initialized, (rc == SQLITE_OK));
 	}
 
-	return (module_initialized != 0);
+	initialized = module_initialized != 0;
+
+	return initialized;
 #endif
+}
+
+gboolean
+tracker_fts_shutdown (void)
+{
+	if (!initialized) {
+		return TRUE;
+	}
+
+	/* Nothing to do, there is no fts4_extension_shutdown() */
+	initialized = FALSE;
+
+	return TRUE;
 }
 
 static void
@@ -201,40 +229,45 @@ fts_register_functions (sqlite3 *db)
 	                         NULL, NULL);
 }
 
-static void
-fts_init_property_names (GHashTable *tables)
+gboolean
+tracker_fts_init_db (sqlite3    *db,
+                     GHashTable *tables)
 {
 	GHashTableIter iter;
-	GList *c;
 	GList *columns;
 	GList *table_columns;
-	gchar **ptr;
 
+	g_return_val_if_fail (initialized == TRUE, FALSE);
+
+	if (!tracker_tokenizer_initialize (db)) {
+		return FALSE;
+	}
+
+	/* Set up GStrv 'property_names' */
 	columns = NULL;
 	g_hash_table_iter_init (&iter, tables);
 	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &table_columns)) {
 		columns = g_list_concat (columns, g_list_copy (table_columns));
 	}
 
-	ptr = property_names = g_new0 (gchar *, g_list_length (columns));
-	for (c = columns; c!= NULL ; c = c->next) {
-		*ptr = g_strdup (c->data);
-		ptr ++;
-	}
-
+	property_names = tracker_glist_to_string_list (columns);
 	g_list_free (columns);
+
+	/* Register functions with the database, including one to get property names */
+	fts_register_functions (db);
+
+	return TRUE;
 }
 
 gboolean
-tracker_fts_init_db (sqlite3 *db,
-                     GHashTable *tables)
+tracker_fts_shutdown_db (sqlite3 *db)
 {
-	if (!tracker_tokenizer_initialize (db)) {
-		return FALSE;
-	}
+	g_return_val_if_fail (initialized == TRUE, FALSE);
 
-	fts_init_property_names (tables);
-	fts_register_functions (db);
+	if (property_names != NULL) {
+		g_strfreev (property_names);
+		property_names = NULL;
+	}
 
 	return TRUE;
 }
@@ -250,6 +283,8 @@ tracker_fts_create_table (sqlite3    *db,
 	gchar *index_table;
 	GList *columns;
 	gint rc;
+
+	g_return_val_if_fail (initialized == TRUE, FALSE);
 
 	/* Create view on tables/columns marked as FTS-indexed */
 	g_hash_table_iter_init (&iter, tables);
@@ -312,6 +347,8 @@ tracker_fts_alter_table (sqlite3    *db,
 {
 	gchar *query, *tmp_name;
 	int rc;
+
+	g_return_val_if_fail (initialized == TRUE, FALSE);
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 

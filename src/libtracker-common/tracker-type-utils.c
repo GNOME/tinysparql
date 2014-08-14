@@ -210,14 +210,14 @@ tracker_string_to_string_list (const gchar *str)
 	return result;
 }
 
-gchar **
-tracker_gslist_to_string_list (GSList *list)
+static gchar **
+list_to_string_list (GSList *list, gint length)
 {
 	GSList  *l;
 	gchar  **strv;
 	gint     i;
 
-	strv = g_new0 (gchar*, g_slist_length (list) + 1);
+	strv = g_new0 (gchar*, length + 1);
 
 	for (l = list, i = 0; l; l = l->next) {
 		if (!l->data) {
@@ -230,6 +230,18 @@ tracker_gslist_to_string_list (GSList *list)
 	strv[i] = NULL;
 
 	return strv;
+}
+
+gchar **
+tracker_gslist_to_string_list (GSList *list)
+{
+	return list_to_string_list (list, g_slist_length (list));
+}
+
+gchar **
+tracker_glist_to_string_list (GList *list)
+{
+	return list_to_string_list ((GSList*) list, g_list_length (list));
 }
 
 gboolean
