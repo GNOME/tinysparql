@@ -185,7 +185,7 @@ function_property_names (sqlite3_context *context,
 }
 
 static void
-tracker_fts_register_functions (sqlite3 *db)
+fts_register_functions (sqlite3 *db)
 {
 	sqlite3_create_function (db, "tracker_rank", 2, SQLITE_ANY,
 	                         NULL, &function_rank,
@@ -202,7 +202,7 @@ tracker_fts_register_functions (sqlite3 *db)
 }
 
 static void
-tracker_fts_init_property_names (GHashTable *tables)
+fts_init_property_names (GHashTable *tables)
 {
 	GHashTableIter iter;
 	GList *c;
@@ -233,9 +233,9 @@ tracker_fts_init_db (sqlite3 *db,
 		return FALSE;
 	}
 
-	tracker_fts_init_property_names (tables);
+	fts_init_property_names (tables);
+	fts_register_functions (db);
 
-	tracker_fts_register_functions (db);
 	return TRUE;
 }
 
