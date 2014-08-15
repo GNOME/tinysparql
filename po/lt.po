@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-07-26 14:05+0000\n"
-"PO-Revision-Date: 2014-07-27 00:53+0300\n"
+"POT-Creation-Date: 2014-08-15 10:49+0000\n"
+"PO-Revision-Date: 2014-08-15 23:48+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -524,15 +524,24 @@ msgstr[0] " %2.2d sekundę"
 msgstr[1] " %2.2d sekundes"
 msgstr[2] " %2.2d sekundžių"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:957
+#: ../src/libtracker-miner/tracker-enumerator.c:114
+#: ../src/libtracker-miner/tracker-enumerator.c:165
+#: ../src/libtracker-miner/tracker-data-provider.c:159
+#: ../src/libtracker-miner/tracker-data-provider.c:219
+#: ../src/libtracker-miner/tracker-data-provider.c:307
+#: ../src/libtracker-miner/tracker-data-provider.c:365
+msgid "Operation not supported"
+msgstr "Veiksmas nepalaikomas"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:997
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Stabdyti programą dėl tos pačios priežasties, kaip jau esama pauzė"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1054
+#: ../src/libtracker-miner/tracker-miner-object.c:1096
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Neatpažintas slapukas neatpažintas sustabdyto rinkiklio pratęsimui"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1500
+#: ../src/libtracker-miner/tracker-miner-object.c:1577
 msgid "Data store is not available"
 msgstr "Duomenų saugykla nepasiekiama"
 
@@ -684,11 +693,11 @@ msgstr "Bus stebimi"
 msgid "- start the tracker indexer"
 msgstr "– paleisti „Tracker“ indeksavimo programą"
 
-#: ../src/miners/fs/tracker-miner-files.c:1356
+#: ../src/miners/fs/tracker-miner-files.c:1360
 msgid "Low battery"
 msgstr "Akumuliatorius išsikrauna"
 
-#: ../src/miners/fs/tracker-miner-files.c:1483
+#: ../src/miners/fs/tracker-miner-files.c:1487
 msgid "Low disk space"
 msgstr "Mažai vietos diske"
 
@@ -751,6 +760,7 @@ msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
 #: ../src/tracker-control/tracker-control-status.c:651
 #: ../src/tracker-control/tracker-control-status.c:816
 #: ../src/tracker-control/tracker-control-status.c:882
+#: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:390
@@ -768,7 +778,7 @@ msgstr "Nepavyko pridėti sklaidos kanalo"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/user-guides/tracker-main.c:202
+#: ../src/miners/user-guides/tracker-main.c:204
 msgid "- start the user guides data miner"
 msgstr "- paleisti naudotojo žinynų duomenų rinkiklį"
 
@@ -1470,11 +1480,11 @@ msgstr "Būsenos parinktys"
 msgid "Show status options"
 msgstr "Rodyti būsenos parinktis"
 
-#: ../src/tracker-extract/tracker-extract.c:743
+#: ../src/tracker-extract/tracker-extract.c:784
 msgid "Metadata extraction failed"
 msgstr "Metaduomenų išgavavimas nepavyko"
 
-#: ../src/tracker-extract/tracker-extract.c:808
+#: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Nerasta metaduomenų išgavėjo modulių šio failo apdorojimui"
 
@@ -1505,11 +1515,11 @@ msgstr "MODULIS"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:329
+#: ../src/tracker-extract/tracker-main.c:311
 msgid "- Extract file meta data"
 msgstr "– gauti failo metaduomenis"
 
-#: ../src/tracker-extract/tracker-main.c:338
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "Filename and mime type must be provided together"
 msgstr "Failas ir mime tipas turi būti pateikti kartu"
 
@@ -2192,7 +2202,6 @@ msgid "Would you like to restart now?"
 msgstr "Ar norite juos paleisti iš naujo dabar?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
-#| msgid "Tracker"
 msgid "Restart Tracker"
 msgstr "Iš naujo paleisti Tracker"
 
@@ -3032,7 +3041,7 @@ msgstr "Parinktis --description gali būti naudojama tik su --add"
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr "Uždrausti išjungimą po 30 sekundžių neaktyvumo"
 
-#. Translators: this messagge will apper immediately after the
+#. Translators: this message will appear immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
