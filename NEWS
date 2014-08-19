@@ -1,3 +1,25 @@
+NEW in 1.1.3 - 2014-08-19
+=========================
+
+  * New Feature: Extractor is now 'crash-aware' that being, we have a
+    separate data source for content that can't be extracted to avoid
+    repeated failures from tracker-extract. This also survives through
+    crashes that may occur due to attempted extractions.
+  * build: Reduce vala generated source warnings from GCC.
+  * libtracker-fts: Make private functions static
+  * libtracker-miner: Make sure we return NULL on FileDataProvider
+    begin() errors
+  * libtracker-miner: Add new API tracker_decorator_fs_prepend_file()
+    as part of 'crash-aware' feature.
+
+Translations:
+
+  * Updated el: Tom Tryfonidis
+  * Updated es: Daniel Mustieles
+  * Updated fi: Lasse Liehu, Jiri Grönroos
+  * Updated lt: Aurimas Černius
+
+
 NEW in 1.1.2 - 2014-08-12
 =========================
 
