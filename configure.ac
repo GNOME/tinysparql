@@ -2690,7 +2690,7 @@ Build Configuration:
 	Compiler:                               ${CC}
 	Compiler Warnings:                      $enable_compile_warnings
           C    Flags:                            $warning_cflags
-          VALA Flags:                            $warning_valaflags
+          VALA Flags:                            $warning_valacflags
 
 	Win32:                                  $native_win32
 

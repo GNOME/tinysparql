@@ -153,10 +153,19 @@ AC_DEFUN([IDT_COMPILE_WARNINGS],[
         -Wvolatile-register-var \
         ])
 
+    CC_CHECK_FLAGS_APPEND([no_warning_cflags], [CFLAGS], [\
+	-Wno-unused-variable \
+	-Wno-unused-function \
+	-Wno-shadow \
+	-Wno-format-nonliteral \
+	-Wno-sign-compare \
+	-Wno-strict-prototypes \
+        ])
+
     case "$enable_compile_warnings" in
     no)
 	warning_cflags=
-	warning_valaflags=
+        warning_valacflags="$no_warning_cflags"
 	;;
     yes)
         CC_CHECK_FLAGS_APPEND([additional_cflags], [CFLAGS], [\
@@ -166,14 +175,9 @@ AC_DEFUN([IDT_COMPILE_WARNINGS],[
             -Wmissing-declarations \
         ])
 
-        CC_CHECK_FLAGS_APPEND([additional_valaflags], [CFLAGS], [\
-            -Wmissing-prototypes \
-            -Wmissing-declarations \
-        ])
-
         dnl -Wall includes the $common_cflags already.
 	warning_cflags="$additional_cflags"
-	warning_valaflags="$common_cflags $additional_valaflags"
+	warning_valacflags="$no_warning_cflags"
 	;;
     maximum|error)
         CC_CHECK_FLAGS_APPEND([additional_cflags], [CFLAGS], [\
@@ -188,22 +192,13 @@ AC_DEFUN([IDT_COMPILE_WARNINGS],[
             -Wno-pointer-sign \
         ])
 
-        CC_CHECK_FLAGS_APPEND([additional_valaflags], [CFLAGS], [\
-            -Wmissing-prototypes \
-            -Wmissing-declarations \
-            -Wnested-externs \
-            -Wpointer-arith \
-            -Wno-sign-compare \
-            -Wno-pointer-sign \
-        ])
-
         dnl -Wall includes the $common_cflags already.
 	warning_cflags="$additional_cflags"
-	warning_valaflags="$common_cflags $additional_valaflags"
+	warning_valacflags="$no_warning_cflags"
 
 	if test "$enable_compile_warnings" = "error" ; then
 	    warning_cflags="$warning_cflags -Werror"
-	    warning_valaflags="$warning_valaflags -Werror"
+	    warning_valacflags="$warning_valacflags -Werror"
 	fi
 	;;
     *)
@@ -215,12 +210,12 @@ AC_DEFUN([IDT_COMPILE_WARNINGS],[
     AC_MSG_RESULT($warning_cflags)
 
     AC_MSG_CHECKING(what warning flags to pass to the C compiler for Vala built sources)
-    AC_MSG_RESULT($warning_valaflags)
+    AC_MSG_RESULT($warning_valacflags)
 
     WARN_CFLAGS="$warning_cflags"
     AC_SUBST(WARN_CFLAGS)
 
-    WARN_VALACFLAGS="$warning_valaflags"
+    WARN_VALACFLAGS="$warning_valacflags"
     AC_SUBST(WARN_VALACFLAGS)
 ]) dnl IDT_COMPILE_WARNINGS
 
