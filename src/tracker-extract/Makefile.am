@@ -43,6 +43,7 @@ rules_files = \
 	11-msoffice-xml.rule \
 	15-gstreamer-guess.rule \
 	15-playlist.rule \
+	15-source-code.rule \
 	90-gstreamer-image-generic.rule \
 	90-gstreamer-audio-generic.rule \
 	90-gstreamer-video-generic.rule \
@@ -168,7 +169,7 @@ endif
 
 if HAVE_TEXT
 extractmodules_LTLIBRARIES += libextract-text.la
-rules_DATA += 90-text-generic.rule
+rules_DATA += 15-source-code.rule 90-text-generic.rule
 endif
 
 if HAVE_ICON
