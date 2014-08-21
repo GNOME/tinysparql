@@ -590,9 +590,6 @@ class MinerFsHelper (Helper):
     def stop (self):
         Helper.stop (self)
 
-    def ignore (self, filelist):
-        self.miner_fs.IgnoreNextUpdate (filelist)
-
 
 class ExtractorHelper (Helper):
 
