@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-text.so
+MimeTypes=text/x-csrc;text/x-c++src;text/x-chdr;text/x-vala;text/x-java;application/javascript;application/x-php;text/x-python;application/x-perl;application/x-shellscript;text/x-fortran;text/x-pascal;
+FallbackRdfTypes=nfo:SourceCode;nfo:PlainTextDocument;
