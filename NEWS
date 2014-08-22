@@ -1,3 +1,57 @@
+NEW in 1.0.3 - 2014-08-22
+=========================
+
+  * Fixes: GB#734464, tracker-guarantee-tests failure
+  * Fixes: GB#733573, playlists are given RDF type nmm:MusicPiece and nfo:Audio
+  * Fixes: GB#733317, tracker-extract: remove application/vnd.ms-* catchall from msoffice
+  * Fixes: GB#733857, rpath is being set on tracker libraries
+  * Fixes: GB#734089, testsuite summaries fail to report results
+  * Fixes: GB#734144, Tracker processes fail to respond to INT or TERM while initialising
+  * Fixes: GB#733316, writeback: support saving metadata for GIFs
+  * Fixes: GB#733439, tracker should include COPYING.LGPL
+  * Fixes: GB#733317, New: tracker-extract: remove application/vnd.ms-* catchall from msoffice
+  * license: clean up COPYING
+  * license: Move COPYING to COPYING.GPL and provide a general overview of Licenses in COPYING
+  * license: add COPYING.LGPL since there are LGPL licensed files in the tree
+  * build: Use CC_CHECK_FLAGS_APPEND m4 macro to make sure GCC supports flags
+  * build: Updated official website in AC_INIT
+  * build: Reorder AutoConf directives to avoid build failures
+  * build: link with --enable-new-dtags if available, this replaces the hardcoded RPATH with RUNPATH
+  * build: update firefox and thunderbird detection, omit any warnings
+  * build: new --enable-minimal option
+  * build: require gnome-common and build a proper Changelog
+  * doap: add <programming-language> and change category to 'core'
+  * all: Remove GNU_SOURCE definitions now we use AC_USE_SYSTEM_EXTENSIONS
+  * libtracker-fts: Make private functions static
+  * libtracker-data: Fixed unit tests so files are not left around failing distcheck
+  * libtracker-data: Fix tracker-backup unit test failures
+  * libtracker-common: Enable G_MESSAGES_DEBUG for verbosity > 1, not 2
+  * libtracker-extract: Fixed TRACKER_EXTRACTORS_DIR env var
+  * libtracker-extract: Remove from examples/ this library is now private
+  * libtracker-miner: Chain parent constructed() in TrackerDecorator
+  * libtracker-miner: Document TRACKER_MINER_DBUS_* defines
+  * libtracker-miner: .pc Requires.priv libmediaart (if built with it)
+  * libtracker-control: Added .gitignore for VAPI and other generated content
+  * libtracker-control: Added missing sections.txt for documentation
+  * tracker-extract: Added rule for source code files to add nfo:SourceCode rdf-type
+  * tracker-extract: MP3 id3v23, id3v24 functions documented and v23 fixed
+  * tracker-extract: Use default signal handler for SIGALRM and SIGABRT
+  * writeback: support saving metadata for GIFs
+  * tests: Use tap automake testing scripts, fixes output summaries
+  * functional-tests: Rework 400-extractor.py test
+  * functional-tests: Fix tests that use ExtractorHelper
+  * functional-tests: Watch for Tracker processes crashing
+  * functional-tests: Rewrite DConf code to use GObject introspection
+  * functional-tests: Replace use of PyGObject and PyGTK with PyGI
+
+Translations:
+
+  * Updated fi: Lasse Liehu, Jiri Grönroos
+  * Updated zh_CN: YunQiang Su, Yunqiang Su
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
 NEW in 1.0.2 - 2014-07-10
 =========================
 
