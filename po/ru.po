@@ -12,8 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2014-07-02 10:37+0000\n"
-"PO-Revision-Date: 2014-07-02 18:18+0400\n"
-"Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
+"PO-Revision-Date: 2014-08-23 12:50+0300\n"
+"Last-Translator: Yuri Myasoedov <omerta13@yandex.ru>\n"
 "Language-Team: русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -126,7 +126,7 @@ msgstr "Максимальное количество индексируемых
 msgid ""
 "Indexer will read only this maximum number of words from a single document."
 msgstr ""
-"Из одного документа индексатор прочитает только это максимальное колчество "
+"Из одного документа индексатор прочитает только это максимальное количество "
 "слов."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
@@ -306,7 +306,7 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Directories to index non-recursively"
-msgstr "Каталоги, индексируемые нерекурсивно"
+msgstr "Каталоги, индексируемые не рекурсивно"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid ""
@@ -355,7 +355,7 @@ msgid ""
 "Period in milliseconds between GraphUpdated signals being emitted when "
 "indexed data has changed inside the database."
 msgstr ""
-"Период в милисекундах между сигналами GraphUpdated, отправляемых при "
+"Период в миллисекундах между сигналами GraphUpdated, отправляемых при "
 "изменении в базе данных проиндексированных данных."
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
@@ -1043,7 +1043,7 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"Нелья использовать параметры --terminate с --hard-reset или --soft-reset, "
+"Нельзя использовать параметры --terminate с --hard-reset или --soft-reset, "
 "подразумевается параметр --kill"
 
 #: ../src/tracker-control/tracker-control-general.c:807
@@ -1137,7 +1137,7 @@ msgstr "Не удалось запустить индексатор, не уда
 
 #: ../src/tracker-control/tracker-control-general.c:1247
 msgid "perhaps a disabled plugin?"
-msgstr "возможно отключенный модуль?"
+msgstr "возможно отключённый модуль?"
 
 #: ../src/tracker-control/tracker-control-general.c:1278
 msgid "Backing up database"
@@ -2371,7 +2371,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:97
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
-"Вернуть также все несуществующие совпадения (т. е. включить неподключённые "
+"Вернуть также все несуществующие совпадения (т. е. включить не подключённые "
 "тома)"
 
 #: ../src/tracker-utils/tracker-search.c:101
@@ -2662,7 +2662,7 @@ msgid ""
 "the tree and -p to show properties)"
 msgstr ""
 "Описать подклассы, суперклассы (можно использовать с -s, чтобы выделить "
-"части дерева, и -p, чтобы показать свойста)"
+"части дерева, и -p, чтобы показать свойства)"
 
 #: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
@@ -3019,7 +3019,7 @@ msgstr "Ни один файл не имеет такой метки"
 
 #: ../src/tracker-utils/tracker-tag.c:898
 msgid "Tag was removed successfully"
-msgstr "Метка успешено удалена"
+msgstr "Метка успешно удалена"
 
 #: ../src/tracker-utils/tracker-tag.c:902
 msgid "Untagged"
@@ -3027,7 +3027,7 @@ msgstr "Без меток"
 
 #: ../src/tracker-utils/tracker-tag.c:903
 msgid "File not indexed or already untagged"
-msgstr "Файл неиндексирован или с него уже снята метка"
+msgstr "Файл не индексирован или с него уже снята метка"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
