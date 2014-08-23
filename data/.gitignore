@@ -1,6 +1,2 @@
 *.pc
-tracker-miner-fs.desktop.in
-tracker-status-icon.desktop.in
-tracker-store.desktop.in
-tracker-miner-rss.desktop.in
-
+*.desktop.in
