@@ -3544,7 +3544,7 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
  * If @file is not being currently processed by @fs, or doesn't
  * exist in the store yet, %NULL will be returned.
  *
- * Returns: (transfer none): The URN containing the data associated to @file,
+ * Returns: (transfer none) (nullable): The URN containing the data associated to @file,
  *          or %NULL.
  *
  * Since: 0.8
@@ -3630,7 +3630,7 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
  * children is processed, so most usually this function should
  * return non-%NULL.
  *
- * Returns: (transfer none): The parent folder URN, or %NULL.
+ * Returns: (transfer none) (nullable): The parent folder URN, or %NULL.
  *
  * Since: 0.8
  **/
