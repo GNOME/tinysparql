@@ -11,17 +11,17 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-04-10 11:30+0000\n"
-"PO-Revision-Date: 2014-04-10 23:11+0400\n"
-"Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
+"POT-Creation-Date: 2014-08-22 11:51+0000\n"
+"PO-Revision-Date: 2014-08-23 12:46+0300\n"
+"Last-Translator: Yuri Myasoedov <omerta13@yandex.ru>\n"
 "Language-Team: русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Gtranslator 2.91.6\n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -126,7 +126,7 @@ msgstr "Максимальное количество индексируемых
 msgid ""
 "Indexer will read only this maximum number of words from a single document."
 msgstr ""
-"Из одного документа индексатор прочитает только это максимальное колчество "
+"Из одного документа индексатор прочитает только это максимальное количество "
 "слов."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
@@ -355,7 +355,7 @@ msgid ""
 "Period in milliseconds between GraphUpdated signals being emitted when "
 "indexed data has changed inside the database."
 msgstr ""
-"Период в милисекундах между сигналами GraphUpdated, отправляемых при "
+"Период в миллисекундах между сигналами GraphUpdated, отправляемых при "
 "изменении в базе данных проиндексированных данных."
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
@@ -368,7 +368,7 @@ msgid "Applications data miner"
 msgstr "Индексатор данных приложений"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
-#: ../src/tracker-utils/tracker-search.c:412
+#: ../src/tracker-utils/tracker-search.c:413
 msgid "Emails"
 msgstr "Электронная почта"
 
@@ -705,10 +705,10 @@ msgstr "Добавление ленты требует параметров --ad
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:383
-#: ../src/tracker-utils/tracker-search.c:1662
+#: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:915
+#: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Не удалось установить соединение с Tracker"
 
@@ -723,10 +723,10 @@ msgstr "Не удалось установить соединение с Tracker
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:384
-#: ../src/tracker-utils/tracker-search.c:1663
+#: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:916
+#: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Сообщение об ошибке не указано"
 
@@ -770,7 +770,7 @@ msgstr[2] ""
 #: ../src/tracker-preferences/tracker-preferences.vala:927
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:51
-#: ../src/tracker-utils/tracker-search.c:112
+#: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -905,7 +905,7 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"Нелья использовать параметры --terminate с --hard-reset или --soft-reset, "
+"Нельзя использовать параметры --terminate с --hard-reset или --soft-reset, "
 "подразумевается параметр --kill"
 
 #: ../src/tracker-control/tracker-control-general.c:800
@@ -999,7 +999,7 @@ msgstr "Не удалось запустить индексатор, не уда
 
 #: ../src/tracker-control/tracker-control-general.c:1240
 msgid "perhaps a disabled plugin?"
-msgstr "возможно отключенный модуль?"
+msgstr "возможно отключённый модуль?"
 
 #: ../src/tracker-control/tracker-control-general.c:1262
 msgid "Backing up database"
@@ -1356,11 +1356,11 @@ msgstr "МОДУЛЬ"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:329
+#: ../src/tracker-extract/tracker-main.c:323
 msgid "- Extract file meta data"
 msgstr "— Извлечь метаданные файла"
 
-#: ../src/tracker-extract/tracker-main.c:338
+#: ../src/tracker-extract/tracker-main.c:332
 msgid "Filename and mime type must be provided together"
 msgstr "Имя файла и тип MIME должны быть указаны одновременно"
 
@@ -1566,7 +1566,7 @@ msgid "Could not update tags"
 msgstr "Не удалось обновить метки"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:773
+#: ../src/tracker-utils/tracker-tag.c:891
 msgid "Could not remove tag"
 msgstr "Не удалось удалить метку"
 
@@ -1575,7 +1575,7 @@ msgid "Could not retrieve tags for the current selection"
 msgstr "Не удалось получить метки для текущей выборки"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:597
+#: ../src/tracker-utils/tracker-tag.c:715
 msgid "Could not add tag"
 msgstr "Не удалось добавить метку"
 
@@ -1675,7 +1675,7 @@ msgid "Folders"
 msgstr "Папки"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-utils/tracker-search.c:1014
+#: ../src/tracker-utils/tracker-search.c:1006
 msgid "Bookmarks"
 msgstr "Закладки"
 
@@ -1930,7 +1930,8 @@ msgstr ""
 "д."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:47
-#: ../src/tracker-utils/tracker-search.c:523
+#: ../src/tracker-utils/tracker-search.c:515
+#: ../src/tracker-utils/tracker-tag.c:445
 msgid "Files"
 msgstr "Файлы"
 
@@ -2102,29 +2103,28 @@ msgid "No metadata available for that URI"
 msgstr "Для этого URI нет доступных метаданных"
 
 #: ../src/tracker-utils/tracker-info.c:485
-#: ../src/tracker-utils/tracker-search.c:1464
+#: ../src/tracker-utils/tracker-search.c:1458
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
 #: ../utils/tracker-sql/tracker-sql.c:166
 msgid "Results"
 msgstr "Результаты"
 
-#: ../src/tracker-utils/tracker-search.c:80
+#: ../src/tracker-utils/tracker-search.c:81
 #: ../src/tracker-utils/tracker-tag.c:55
 msgid "Limit the number of results shown"
 msgstr "Ограничить количество показываемых результатов"
 
-#: ../src/tracker-utils/tracker-search.c:84
+#: ../src/tracker-utils/tracker-search.c:85
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Сдвиг результатов"
 
-#: ../src/tracker-utils/tracker-search.c:88
-#: ../src/tracker-utils/tracker-tag.c:63
+#: ../src/tracker-utils/tracker-search.c:89
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Использовать при поиске ИЛИ вместо И (по умолчанию)"
 
-#: ../src/tracker-utils/tracker-search.c:92
+#: ../src/tracker-utils/tracker-search.c:93
 msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
@@ -2132,13 +2132,13 @@ msgstr ""
 "Показать URN для результатов (не применять к --music-albums, --music-"
 "artists, --feeds, --software, --software-categories)"
 
-#: ../src/tracker-utils/tracker-search.c:96
+#: ../src/tracker-utils/tracker-search.c:97
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
-"Вернуть также все несуществующие совпадения (т. е. включить неподключённые "
+"Вернуть также все несуществующие совпадения (т. е. включить не подключённые "
 "тома)"
 
-#: ../src/tracker-utils/tracker-search.c:100
+#: ../src/tracker-utils/tracker-search.c:101
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
@@ -2146,189 +2146,189 @@ msgstr ""
 "Не показывать сниппеты в результатах. Это касается только некоторых "
 "категорий: «Документы», «Музыка» и т. д."
 
-#: ../src/tracker-utils/tracker-search.c:104
+#: ../src/tracker-utils/tracker-search.c:105
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
 msgstr "Отключить полнотекстовый поиск. Предполагается --disable-snippets"
 
-#: ../src/tracker-utils/tracker-search.c:108
+#: ../src/tracker-utils/tracker-search.c:109
 msgid "Disable color when printing snippets and results"
 msgstr "Не использовать цвета при печати фрагментов и результатов"
 
-#: ../src/tracker-utils/tracker-search.c:120
+#: ../src/tracker-utils/tracker-search.c:121
 msgid "Search for files"
 msgstr "Найти файлы"
 
-#: ../src/tracker-utils/tracker-search.c:124
+#: ../src/tracker-utils/tracker-search.c:125
 msgid "Search for folders"
 msgstr "Найти папки"
 
-#: ../src/tracker-utils/tracker-search.c:128
+#: ../src/tracker-utils/tracker-search.c:129
 msgid "Search for music files"
 msgstr "Найти музыку"
 
-#: ../src/tracker-utils/tracker-search.c:132
+#: ../src/tracker-utils/tracker-search.c:133
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Поиск музыкальных альбомов (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:136
+#: ../src/tracker-utils/tracker-search.c:137
 msgid "Search for music artists (--all has no effect on this)"
 msgstr "Поиск музыкальных исполнителей (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:140
+#: ../src/tracker-utils/tracker-search.c:141
 msgid "Search for image files"
 msgstr "Найти изображения"
 
-#: ../src/tracker-utils/tracker-search.c:144
+#: ../src/tracker-utils/tracker-search.c:145
 msgid "Search for video files"
 msgstr "Поиск видеофайлов"
 
-#: ../src/tracker-utils/tracker-search.c:148
+#: ../src/tracker-utils/tracker-search.c:149
 msgid "Search for document files"
 msgstr "Поиск документов"
 
-#: ../src/tracker-utils/tracker-search.c:152
+#: ../src/tracker-utils/tracker-search.c:153
 msgid "Search for emails"
 msgstr "Найти сообщения эл. почты"
 
-#: ../src/tracker-utils/tracker-search.c:156
+#: ../src/tracker-utils/tracker-search.c:157
 msgid "Search for contacts"
 msgstr "Найти контакты"
 
-#: ../src/tracker-utils/tracker-search.c:160
+#: ../src/tracker-utils/tracker-search.c:161
 msgid "Search for software (--all has no effect on this)"
 msgstr "Поиск приложений (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:164
+#: ../src/tracker-utils/tracker-search.c:165
 msgid "Search for software categories (--all has no effect on this)"
 msgstr "Поиск категорий приложений (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:168
+#: ../src/tracker-utils/tracker-search.c:169
 msgid "Search for feeds (--all has no effect on this)"
 msgstr "Поиск лент (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:172
+#: ../src/tracker-utils/tracker-search.c:173
 msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Поиск закладок (--all не оказывает влияния)"
 
-#: ../src/tracker-utils/tracker-search.c:177
+#: ../src/tracker-utils/tracker-search.c:178
 msgid "search terms"
 msgstr "поиск термов"
 
-#: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-search.c:179
 msgid "EXPRESSION"
 msgstr "ВЫРАЖЕНИЕ"
 
-#: ../src/tracker-utils/tracker-search.c:196
+#: ../src/tracker-utils/tracker-search.c:197
 #: ../src/tracker-utils/tracker-tag.c:109
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
 "ПРИМЕЧАНИЕ: превышен лимит, есть элементы базы данных, не перечисленные здесь"
 
-#: ../src/tracker-utils/tracker-search.c:290
-#: ../src/tracker-utils/tracker-search.c:399
-#: ../src/tracker-utils/tracker-search.c:510
-#: ../src/tracker-utils/tracker-search.c:822
-#: ../src/tracker-utils/tracker-search.c:911
-#: ../src/tracker-utils/tracker-search.c:1001
-#: ../src/tracker-utils/tracker-search.c:1083
-#: ../src/tracker-utils/tracker-search.c:1167
-#: ../src/tracker-utils/tracker-search.c:1249
-#: ../src/tracker-utils/tracker-search.c:1451
+#: ../src/tracker-utils/tracker-search.c:291
+#: ../src/tracker-utils/tracker-search.c:400
+#: ../src/tracker-utils/tracker-search.c:502
+#: ../src/tracker-utils/tracker-search.c:814
+#: ../src/tracker-utils/tracker-search.c:903
+#: ../src/tracker-utils/tracker-search.c:993
+#: ../src/tracker-utils/tracker-search.c:1075
+#: ../src/tracker-utils/tracker-search.c:1159
+#: ../src/tracker-utils/tracker-search.c:1241
+#: ../src/tracker-utils/tracker-search.c:1445
 msgid "Could not get search results"
 msgstr "Не удалось получить результаты поиска"
 
-#: ../src/tracker-utils/tracker-search.c:299
+#: ../src/tracker-utils/tracker-search.c:300
 msgid "No contacts were found"
 msgstr "Контакты не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:303
+#: ../src/tracker-utils/tracker-search.c:304
 msgid "Contacts"
 msgstr "Контакты"
 
-#: ../src/tracker-utils/tracker-search.c:360
-#: ../src/tracker-utils/tracker-search.c:373
+#: ../src/tracker-utils/tracker-search.c:361
+#: ../src/tracker-utils/tracker-search.c:374
 msgid "No name"
 msgstr "Без имени"
 
-#: ../src/tracker-utils/tracker-search.c:361
-#: ../src/tracker-utils/tracker-search.c:374
+#: ../src/tracker-utils/tracker-search.c:362
+#: ../src/tracker-utils/tracker-search.c:375
 msgid "No E-mail address"
 msgstr "Адреса эл. почты отсутствуют"
 
-#: ../src/tracker-utils/tracker-search.c:408
+#: ../src/tracker-utils/tracker-search.c:409
 msgid "No emails were found"
 msgstr "Сообщения эл. почты не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:519
+#: ../src/tracker-utils/tracker-search.c:511
 msgid "No files were found"
 msgstr "Файлы не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:831
+#: ../src/tracker-utils/tracker-search.c:823
 msgid "No artists were found"
 msgstr "Исполнители не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:835
+#: ../src/tracker-utils/tracker-search.c:827
 msgid "Artists"
 msgstr "Исполнители"
 
-#: ../src/tracker-utils/tracker-search.c:920
+#: ../src/tracker-utils/tracker-search.c:912
 msgid "No music was found"
 msgstr "Музыка не найдена"
 
-#: ../src/tracker-utils/tracker-search.c:924
+#: ../src/tracker-utils/tracker-search.c:916
 msgid "Albums"
 msgstr "Альбомы"
 
-#: ../src/tracker-utils/tracker-search.c:1010
+#: ../src/tracker-utils/tracker-search.c:1002
 msgid "No bookmarks were found"
 msgstr "Закладки не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:1092
+#: ../src/tracker-utils/tracker-search.c:1084
 msgid "No feeds were found"
 msgstr "Ленты не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:1096
+#: ../src/tracker-utils/tracker-search.c:1088
 msgid "Feeds"
 msgstr "Ленты"
 
-#: ../src/tracker-utils/tracker-search.c:1176
+#: ../src/tracker-utils/tracker-search.c:1168
 msgid "No software was found"
 msgstr "Приложения не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:1180
+#: ../src/tracker-utils/tracker-search.c:1172
 msgid "Software"
 msgstr "Приложения"
 
-#: ../src/tracker-utils/tracker-search.c:1258
+#: ../src/tracker-utils/tracker-search.c:1250
 msgid "No software categories were found"
 msgstr "Категории приложений не найдены"
 
-#: ../src/tracker-utils/tracker-search.c:1262
+#: ../src/tracker-utils/tracker-search.c:1254
 msgid "Software Categories"
 msgstr "Категории приложений"
 
-#: ../src/tracker-utils/tracker-search.c:1460
+#: ../src/tracker-utils/tracker-search.c:1454
 msgid "No results were found matching your query"
 msgstr "По запросу ничего не найдено"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1541
+#: ../src/tracker-utils/tracker-search.c:1535
 msgid "- Search for terms in all data"
 msgstr "— Поиск по всем данным"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1546
+#: ../src/tracker-utils/tracker-search.c:1540
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Применяет оператор И ко всем термам, разделённым пробелом (см. --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1550
+#: ../src/tracker-utils/tracker-search.c:1544
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -2336,24 +2336,24 @@ msgstr ""
 "Это означает, что если вы ищите «foo» и «bar», она ОБА должны существовать "
 "(только если не используется параметр --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1557
+#: ../src/tracker-utils/tracker-search.c:1551
 msgid "Search options"
 msgstr "Параметры поиска"
 
-#: ../src/tracker-utils/tracker-search.c:1558
+#: ../src/tracker-utils/tracker-search.c:1552
 msgid "Show search options"
 msgstr "Показать параметры поиска"
 
-#: ../src/tracker-utils/tracker-search.c:1590
+#: ../src/tracker-utils/tracker-search.c:1584
 msgid "Search terms are missing"
 msgstr "Отсутствуют термы поиска"
 
-#: ../src/tracker-utils/tracker-search.c:1633
+#: ../src/tracker-utils/tracker-search.c:1627
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Терм поиска «%s» является стоповым словом."
 
-#: ../src/tracker-utils/tracker-search.c:1644
+#: ../src/tracker-utils/tracker-search.c:1638
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2426,7 +2426,7 @@ msgid ""
 "the tree and -p to show properties)"
 msgstr ""
 "Описать подклассы, суперклассы (можно использовать с -s, чтобы выделить "
-"части дерева, и -p, чтобы показать свойста)"
+"части дерева, и -p, чтобы показать свойства)"
 
 #: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
@@ -2465,7 +2465,14 @@ msgstr "Префиксы пространств имён не найдены"
 #. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
-#. * files found associated with this tag, e.g.:
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
 #. *
 #. *   Tags (shown by name):
 #. *     None
@@ -2481,9 +2488,10 @@ msgstr "Префиксы пространств имён не найдены"
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:120
-#: ../src/tracker-utils/tracker-tag.c:328
-#: ../src/tracker-utils/tracker-tag.c:464
-#: ../src/tracker-utils/tracker-tag.c:843
+#: ../src/tracker-utils/tracker-tag.c:329
+#: ../src/tracker-utils/tracker-tag.c:461
+#: ../src/tracker-utils/tracker-tag.c:583
+#: ../src/tracker-utils/tracker-tag.c:961
 msgid "None"
 msgstr "Нет"
 
@@ -2646,6 +2654,10 @@ msgstr "Статистика недоступна"
 msgid "Statistics:"
 msgstr "Статистика:"
 
+#: ../src/tracker-utils/tracker-tag.c:63
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Использовать при поиске И вместо ИЛИ (по умолчанию)"
+
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
@@ -2694,92 +2706,121 @@ msgstr "ФАЙЛ…"
 msgid "FILE [FILE…]"
 msgstr "ФАЙЛ… [ФАЙЛ…]"
 
-#: ../src/tracker-utils/tracker-tag.c:254
+#: ../src/tracker-utils/tracker-tag.c:255
 msgid "Could not get file URNs"
 msgstr "Не удалось получить URN файлов"
 
-#: ../src/tracker-utils/tracker-tag.c:319
+#: ../src/tracker-utils/tracker-tag.c:320
 msgid "Could not get files related to tag"
 msgstr "Не удалось получить файлы, связанные с меткой"
 
-#: ../src/tracker-utils/tracker-tag.c:401
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker-utils/tracker-tag.c:387
+msgid "Could not get all tags in the database"
+msgstr "Не удалось получить все метки из базы данных"
+
+#: ../src/tracker-utils/tracker-tag.c:397
+msgid "No files have been tagged"
+msgstr "Файлы не были отмечены меткой"
+
+#: ../src/tracker-utils/tracker-tag.c:432
+msgid "Could not get files for matching tags"
+msgstr "Не удалось получить файлы, соответствующие меткам"
+
+#: ../src/tracker-utils/tracker-tag.c:441
+msgid "No files were found matching ALL of those tags"
+msgstr "Файлы соответствующие ВСЕМ указанным меткам не найдены"
+
+#: ../src/tracker-utils/tracker-tag.c:520
+#: ../src/tracker-utils/tracker-tag.c:935
 msgid "Could not get all tags"
 msgstr "Не удалось получить все метки"
 
-#: ../src/tracker-utils/tracker-tag.c:410
-#: ../src/tracker-utils/tracker-tag.c:826
+#: ../src/tracker-utils/tracker-tag.c:529
+#: ../src/tracker-utils/tracker-tag.c:944
 msgid "No tags were found"
 msgstr "Метки не найдены"
 
-#: ../src/tracker-utils/tracker-tag.c:414
+#: ../src/tracker-utils/tracker-tag.c:533
 msgid "Tags (shown by name)"
 msgstr "Метки (показаны по имени)"
 
-#: ../src/tracker-utils/tracker-tag.c:488
+#: ../src/tracker-utils/tracker-tag.c:607
 msgid "No files were modified"
 msgstr "Нет изменённых файлов"
 
-#: ../src/tracker-utils/tracker-tag.c:613
+#: ../src/tracker-utils/tracker-tag.c:657
+#: ../src/tracker-utils/tracker-tag.c:665
+msgid "Files do not exist or aren't indexed"
+msgstr "Файл не существует или не индексирован"
+
+#: ../src/tracker-utils/tracker-tag.c:731
 msgid "Tag was added successfully"
 msgstr "Метка успешно добавлена"
 
-#: ../src/tracker-utils/tracker-tag.c:642
+#: ../src/tracker-utils/tracker-tag.c:760
 msgid "Could not add tag to files"
 msgstr "Не удалось добавить метку к файлам"
 
-#: ../src/tracker-utils/tracker-tag.c:652
+#: ../src/tracker-utils/tracker-tag.c:770
 msgid "Tagged"
 msgstr "Имеет метки"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Not tagged, file is not indexed"
 msgstr "Без меток, файл не индексировался"
 
-#: ../src/tracker-utils/tracker-tag.c:699
+#: ../src/tracker-utils/tracker-tag.c:817
 msgid "Could not get tag by label"
 msgstr "Не удалось получить метку по названию"
 
-#: ../src/tracker-utils/tracker-tag.c:710
+#: ../src/tracker-utils/tracker-tag.c:828
 msgid "No tags were found by that name"
 msgstr "Не найдено меток с таким именем"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:845
 msgid "None of the files had this tag set"
 msgstr "Ни один файл не имеет такой метки"
 
-#: ../src/tracker-utils/tracker-tag.c:780
+#: ../src/tracker-utils/tracker-tag.c:898
 msgid "Tag was removed successfully"
-msgstr "Метка успешено удалена"
+msgstr "Метка успешно удалена"
 
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:902
 msgid "Untagged"
 msgstr "Без меток"
 
-#: ../src/tracker-utils/tracker-tag.c:785
+#: ../src/tracker-utils/tracker-tag.c:903
 msgid "File not indexed or already untagged"
-msgstr "Файл неиндексирован или с него уже снята метка"
+msgstr "Файл не индексирован или с него уже снята метка"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:989
 msgid "Add, remove or list tags"
 msgstr "Добавить, удалить или вывести список меток"
 
-#: ../src/tracker-utils/tracker-tag.c:887
+#: ../src/tracker-utils/tracker-tag.c:1005
 msgid "The --list option is required for --show-files"
 msgstr "Для параметра --show-files необходимо указать параметр --list"
 
-#: ../src/tracker-utils/tracker-tag.c:889
+#: ../src/tracker-utils/tracker-tag.c:1007
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Ключ --and-operator можно использовать только с ключом --list и аргументами "
+"меток"
+
+#: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
 msgstr "Действия по добавлению и удалению нельзя использовать вместе"
 
-#: ../src/tracker-utils/tracker-tag.c:891
+#: ../src/tracker-utils/tracker-tag.c:1011
 msgid "No arguments were provided"
 msgstr "Не указаны аргументы"
 
-#: ../src/tracker-utils/tracker-tag.c:893
+#: ../src/tracker-utils/tracker-tag.c:1013
 msgid "The --description option can only be used with --add"
 msgstr "Ключ --description можно использовать только с ключом --add"
 
@@ -2787,7 +2828,7 @@ msgstr "Ключ --description можно использовать только 
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr "Не выключать после 30 секунд простоя"
 
-#. Translators: this messagge will apper immediately after the
+#. Translators: this message will appear immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
