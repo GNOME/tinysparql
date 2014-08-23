@@ -155,13 +155,13 @@ introspection_sources = \
 		     $(private_sources),  \
 	  $(libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES))
 
-TrackerMiner-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerMiner-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libtracker-miner-$(TRACKER_API_VERSION).la Makefile
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_SCANNERFLAGS = \
 	--include-uninstalled=$(top_srcdir)/src/libtracker-sparql/Tracker-$(TRACKER_API_VERSION).gir
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_CFLAGS = $(INCLUDES)
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_NAMESPACE = "TrackerMiner"
-TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = libtracker-miner-$(TRACKER_API_VERSION).la
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_FILES = $(introspection_sources)
 
 INTROSPECTION_GIRS += TrackerMiner-$(TRACKER_API_VERSION).gir
@@ -173,4 +173,8 @@ typelibdir = $(libdir)/girepository-1.0
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
+
+build-vapi: TrackerMiner-$(TRACKER_API_VERSION).gir
+	@vapigen --library tracker-miner --metadatadir $(top_srcdir) --pkg gio-2.0 --vapidir $(top_builddir)/src/libtracker-sparql --pkg tracker-sparql-$(TRACKER_API_VERSION) TrackerMiner-$(TRACKER_API_VERSION).gir
+
 endif
