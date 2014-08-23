@@ -71,11 +71,11 @@ INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = \
 	$(libtracker_control_@TRACKER_API_VERSION@_la_SOURCES)
 
-TrackerControl-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerControl-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libtracker-control-$(TRACKER_API_VERSION).la Makefile
 TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_INCLUDES = Gio-2.0
 TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_CFLAGS = $(INCLUDES)
 TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_NAMESPACE = "TrackerControl"
-TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = libtracker-control-$(TRACKER_API_VERSION).la
 TrackerControl_@TRACKER_API_VERSION_UNDERSCORES@_gir_FILES = $(introspection_sources)
 
 INTROSPECTION_GIRS += TrackerControl-$(TRACKER_API_VERSION).gir
@@ -87,4 +87,8 @@ typelibdir = $(libdir)/girepository-1.0
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
+
+build-vapi: TrackerControl-$(TRACKER_API_VERSION).gir
+	@vapigen --library tracker-control --metadatadir $(top_srcdir) --pkg gio-2.0 TrackerControl-$(TRACKER_API_VERSION).gir
+
 endif
