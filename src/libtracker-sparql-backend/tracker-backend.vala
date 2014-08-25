@@ -39,7 +39,7 @@ class Tracker.Sparql.Backend : Connection {
 			// do not use proxy to work around race condition in GDBus
 			// NB#259760
 			var bus = GLib.Bus.get_sync (bus_type);
-			var msg = new DBusMessage.method_call (TRACKER_DBUS_SERVICE, TRACKER_DBUS_OBJECT_STATUS, TRACKER_DBUS_INTERFACE_STATUS, "Wait");
+			var msg = new DBusMessage.method_call (Tracker.DBUS_SERVICE, Tracker.DBUS_OBJECT_STATUS, Tracker.DBUS_INTERFACE_STATUS, "Wait");
 			bus.send_message_with_reply_sync (msg, 0, /* timeout */ int.MAX, null).to_gerror ();
 
 			debug ("Service is ready");
