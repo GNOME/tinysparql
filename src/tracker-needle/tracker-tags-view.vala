@@ -53,7 +53,7 @@ private class TagData {
 	}
 }
 
-public class TrackerTagsView : VBox {
+public class TrackerTagsView : Box {
 	private Sparql.Connection connection;
 	private Cancellable cancellable;
 
@@ -64,7 +64,7 @@ public class TrackerTagsView : VBox {
 
 	private const string UI_FILE = "tracker-needle.ui";
 
-	private VBox vbox;
+	private Box vbox;
 	private Label label;
 	private Entry entry;
 	private Button button_add;
@@ -280,7 +280,7 @@ public class TrackerTagsView : VBox {
 		}
 
 		// Get widgets from .ui file
-		vbox = builder.get_object ("vbox_tags") as VBox;
+		vbox = builder.get_object ("vbox_tags") as Box;
 		label = builder.get_object ("label_tag") as Label;
 		entry = builder.get_object ("entry_tag") as Entry;
 		button_add = builder.get_object ("button_add") as Button;
