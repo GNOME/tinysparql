@@ -55,7 +55,7 @@ void                tracker_db_interface_sqlite_fts_alter_table        (TrackerD
 int                 tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *interface,
                                                                         int                       id,
                                                                         const gchar             **properties,
-                                                                        const char              **text,
+                                                                        const gchar             **text,
                                                                         gboolean                  create);
 
 gboolean            tracker_db_interface_sqlite_fts_delete_text        (TrackerDBInterface       *db_interface,
