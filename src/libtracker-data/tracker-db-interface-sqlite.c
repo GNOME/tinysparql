@@ -1200,7 +1200,7 @@ gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              int                  id,
                                              const gchar        **properties,
-                                             const char         **text,
+                                             const gchar        **text,
                                              gboolean             create)
 {
 	TrackerDBStatement *stmt;

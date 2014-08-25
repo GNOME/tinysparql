@@ -994,8 +994,8 @@ tracker_data_resource_buffer_flush (GError **error)
 
 			tracker_db_interface_sqlite_fts_update_text (iface,
 			                                             resource_buffer->id,
-			                                             (gchar **) properties->pdata,
-			                                             (gchar **) text->pdata,
+			                                             (const gchar **) properties->pdata,
+			                                             (const gchar **) text->pdata,
 			                                             create);
 			update_buffer.fts_ever_updated = TRUE;
 			g_ptr_array_free (properties, TRUE);
