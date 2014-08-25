@@ -797,8 +797,8 @@ enumerate_next_cb (GObject      *object,
 
 	/* If cancelled, process what we have so far only... */
 	if (cancelled) {
-		data_provider_data_process (dpd);
 		data_provider_data_add (dpd);
+		data_provider_data_process (dpd);
 
 		process_func_start (dpd->crawler);
 		data_provider_data_free (dpd);
@@ -834,8 +834,8 @@ enumerate_next_cb (GObject      *object,
 		} else {
 			/* condition c) */
 			/* Done enumerating, start processing what we got ... */
-			data_provider_data_process (dpd);
 			data_provider_data_add (dpd);
+			data_provider_data_process (dpd);
 		}
 
 		process_func_start (dpd->crawler);
