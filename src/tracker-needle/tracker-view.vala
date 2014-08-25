@@ -539,7 +539,7 @@ public class Tracker.View : ScrolledWindow {
 		Dialog dialog = new Dialog.with_buttons (_("Tags"),
 		                                         (Window) this.get_toplevel (),
 		                                         DialogFlags.MODAL | DialogFlags.DESTROY_WITH_PARENT,
-		                                         Stock.CLOSE, ResponseType.CLOSE,
+		                                         "_Close", ResponseType.CLOSE,
 		                                         null);
 		dialog.set_default_size (400, 300);
 		dialog.border_width = 12;
@@ -549,7 +549,7 @@ public class Tracker.View : ScrolledWindow {
 
 		List<string> files = null;
 		files.prepend (uri);
-		VBox vbox = new TrackerTagsView ((owned) files);
+		Box vbox = new TrackerTagsView ((owned) files);
 
 		var content = dialog.get_content_area () as Box;
 		content.pack_start (vbox, true, true, 6);

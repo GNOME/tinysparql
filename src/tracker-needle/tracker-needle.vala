@@ -43,7 +43,7 @@ public class Tracker.Needle {
 	private ToolItem spinner_shell;
 	private ToggleToolButton show_tags;
 	private ToolButton show_stats;
-	private HBox view;
+	private Box view;
 	private Tracker.View sw_noresults;
 	private Tracker.View sw_categories;
 	private Tracker.View sw_filelist;
@@ -318,7 +318,7 @@ public class Tracker.Needle {
 		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
 		show_stats.clicked.connect (show_stats_clicked);
 
-		view = builder.get_object ("hbox_view") as HBox;
+		view = builder.get_object ("hbox_view") as Box;
 
 		// Set up views
 		TreeView treeview;
