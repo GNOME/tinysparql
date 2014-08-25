@@ -951,10 +951,9 @@ public class Tracker.Preferences {
 
 			column = new TreeViewColumn.with_attributes (_("Recurse"),
 			                                             cell,
-			                                             "active", 1,
+			                                             "active", true,
 			                                             null);
 			column.set_expand (false);
-			column.set_fixed_width (50);
 			view.append_column (column);
 
 			cell.toggled.connect ((toggle, path) => {
