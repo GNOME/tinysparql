@@ -53,7 +53,7 @@ tracker_task_pool_finalize (GObject *object)
 	TrackerTaskPoolPrivate *priv;
 
 	priv = TRACKER_TASK_POOL (object)->priv;
-	g_hash_table_destroy (priv->tasks);
+	g_hash_table_unref (priv->tasks);
 
 	G_OBJECT_CLASS (tracker_task_pool_parent_class)->finalize (object);
 }
@@ -146,7 +146,8 @@ tracker_task_pool_init (TrackerTaskPool *pool)
 	                                                 TRACKER_TYPE_TASK_POOL,
 	                                                 TrackerTaskPoolPrivate);
 	priv->tasks = g_hash_table_new_full (g_file_hash,
-	                                     (GEqualFunc) file_equal, NULL,
+	                                     (GEqualFunc) file_equal,
+	                                     NULL,
 	                                     (GDestroyNotify) tracker_task_unref);
 	priv->limit = 0;
 }
