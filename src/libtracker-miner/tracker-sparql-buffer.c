@@ -693,14 +693,16 @@ sparql_buffer_push_to_pool (TrackerSparqlBuffer *buffer,
 		reset_flush_timeout (buffer);
 	}
 
-	/* Task pool addition adds a reference (below) */
+	/* Task pool addition increments reference */
 	tracker_task_pool_add (TRACKER_TASK_POOL (buffer), task);
 
 	if (!priv->tasks) {
 		priv->tasks = g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_task_unref);
 	}
 
-	g_ptr_array_add (priv->tasks, task);
+	/* We add a reference here because we unref when removed from
+	 * the GPtrArray. */
+	g_ptr_array_add (priv->tasks, tracker_task_ref (task));
 
 	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (buffer))) {
 		tracker_sparql_buffer_flush (buffer, "SPARQL buffer limit reached");
@@ -722,6 +724,10 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 	g_return_if_fail (TRACKER_IS_SPARQL_BUFFER (buffer));
 	g_return_if_fail (task != NULL);
 
+	/* NOTE: We don't own the task and if we want it we have to
+	 * reference it, each function below references task in
+	 * different ways.
+	 */
 	data = tracker_task_get_data (task);
 
 	if (!data->result) {
