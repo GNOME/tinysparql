@@ -43,6 +43,16 @@ typedef struct DirectoryChildData DirectoryChildData;
 typedef struct DirectoryProcessingData DirectoryProcessingData;
 typedef struct DirectoryRootInfo DirectoryRootInfo;
 
+typedef struct {
+	TrackerCrawler *crawler;
+	TrackerEnumerator *enumerator;
+	DirectoryRootInfo  *root_info;
+	DirectoryProcessingData *dir_info;
+	GFile *dir_file;
+	GCancellable *cancellable;
+	GSList *files;
+} DataProviderData;
+
 struct DirectoryChildData {
 	GFile          *child;
 	gboolean        is_dir;
@@ -61,6 +71,8 @@ struct DirectoryRootInfo {
 	gint max_depth;
 
 	GQueue *directory_processing_queue;
+
+	DataProviderData *dpd;
 
 	/* Directory stats */
 	guint directories_found;
@@ -94,16 +106,6 @@ struct TrackerCrawlerPrivate {
 	gboolean        was_started;
 };
 
-typedef struct {
-	TrackerCrawler *crawler;
-	TrackerEnumerator *enumerator;
-	DirectoryRootInfo  *root_info;
-	DirectoryProcessingData *dir_info;
-	GFile *dir_file;
-	GCancellable *cancellable;
-	GSList *files;
-} DataProviderData;
-
 enum {
 	CHECK_DIRECTORY,
 	CHECK_FILE,
@@ -132,10 +134,13 @@ static gboolean check_defaults           (TrackerCrawler  *crawler,
 static gboolean check_contents_defaults  (TrackerCrawler  *crawler,
                                           GFile           *file,
                                           GList           *contents);
+static void     data_provider_data_free  (DataProviderData        *dpd);
+
 static void     data_provider_begin      (TrackerCrawler          *crawler,
 					  DirectoryRootInfo       *info,
 					  DirectoryProcessingData *dir_data);
-
+static void     data_provider_end        (TrackerCrawler          *crawler,
+                                          DirectoryRootInfo       *info);
 static void     directory_root_info_free (DirectoryRootInfo *info);
 
 
@@ -510,6 +515,11 @@ directory_tree_free_foreach (GNode    *node,
 static void
 directory_root_info_free (DirectoryRootInfo *info)
 {
+	if (info->dpd)  {
+		data_provider_data_free (info->dpd);
+		info->dpd = NULL;
+	}
+
 	g_object_unref (info->directory);
 
 	g_node_traverse (info->tree,
@@ -624,6 +634,7 @@ process_func (gpointer data)
 			       info->files_found,
 			       info->files_ignored);
 
+		data_provider_end (crawler, info);
 		g_queue_pop_head (priv->directories);
 		directory_root_info_free (info);
 	}
@@ -782,6 +793,79 @@ data_provider_data_free (DataProviderData *dpd)
 }
 
 static void
+data_provider_end_cb (GObject      *object,
+                      GAsyncResult *result,
+                      gpointer      user_data)
+{
+	DataProviderData *dpd;
+	GError *error = NULL;
+	gboolean cancelled;
+
+	dpd = user_data;
+
+	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
+
+	tracker_data_provider_end_finish (TRACKER_DATA_PROVIDER (object), result, &error);
+
+	if (error) {
+		if (!cancelled) {
+			GFile *parent;
+			gchar *uri;
+
+			parent = dpd->dir_info->node->data;
+			uri = g_file_get_uri (parent);
+
+			g_warning ("Could not end data provider for container / directory '%s', %s",
+			           uri, error ? error->message : "no error given");
+
+			g_free (uri);
+		}
+
+		g_clear_error (&error);
+	}
+
+	data_provider_data_free (dpd);
+}
+
+static void
+data_provider_end (TrackerCrawler    *crawler,
+                   DirectoryRootInfo *info)
+{
+	DataProviderData *dpd;
+
+	g_return_if_fail (info != NULL);
+
+	if (info->dpd == NULL) {
+		/* Nothing to do */
+		return;
+	}
+
+	/* We detach the DataProviderData from the DirectoryRootInfo
+	 * here so it's not freed early. We can't use
+	 * DirectoryRootInfo as user data for the async function below
+	 * because it's freed before that callback will be called.
+	 */
+	dpd = info->dpd;
+	info->dpd = NULL;
+
+	if (dpd->enumerator) {
+		/* Reset cancellation, we need to perform this even
+		 * if we were cancelled previously.
+		 */
+		g_cancellable_reset (dpd->cancellable);
+
+		tracker_data_provider_end_async (crawler->priv->data_provider,
+		                                 dpd->enumerator,
+		                                 G_PRIORITY_LOW,
+		                                 dpd->cancellable,
+		                                 data_provider_end_cb,
+		                                 dpd);
+	} else {
+		data_provider_data_free (dpd);
+	}
+}
+
+static void
 enumerate_next_cb (GObject      *object,
                    GAsyncResult *result,
                    gpointer      user_data)
@@ -801,7 +885,7 @@ enumerate_next_cb (GObject      *object,
 		data_provider_data_process (dpd);
 
 		process_func_start (dpd->crawler);
-		data_provider_data_free (dpd);
+
 		return;
 	}
 
@@ -839,7 +923,6 @@ enumerate_next_cb (GObject      *object,
 		}
 
 		process_func_start (dpd->crawler);
-		data_provider_data_free (dpd);
 	} else {
 		/* More work to do, we keep reference given to us */
 		dpd->files = g_slist_prepend (dpd->files, info);
@@ -857,11 +940,14 @@ data_provider_begin_cb (GObject      *object,
                         GAsyncResult *result,
                         gpointer      user_data)
 {
+	DirectoryRootInfo *info;
 	DataProviderData *dpd;
 	GError *error = NULL;
 	gboolean cancelled;
 
-	dpd = user_data;
+	info = user_data;
+	dpd = info->dpd;
+
 	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
 
 	dpd->enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
@@ -882,13 +968,13 @@ data_provider_begin_cb (GObject      *object,
 		}
 
 		process_func_start (dpd->crawler);
-		data_provider_data_free (dpd);
+
 		return;
 	}
 
 	if (cancelled) {
 		process_func_start (dpd->crawler);
-		data_provider_data_free (dpd);
+
 		return;
 	}
 
@@ -907,7 +993,13 @@ data_provider_begin (TrackerCrawler          *crawler,
 	DataProviderData *dpd;
 	gchar *attrs;
 
+	/* DataProviderData is freed in data_provider_end() call. This
+	 * call must _ALWAYS_ be reached even on cancellation or
+	 * failure, this is normally the case when we return to the
+	 * process_func() and finish a directory.
+	 */
 	dpd = data_provider_data_new (crawler, info, dir_data);
+	info->dpd = dpd;
 
 	if (crawler->priv->file_attributes) {
 		attrs = g_strconcat (FILE_ATTRIBUTES ",",
@@ -917,7 +1009,6 @@ data_provider_begin (TrackerCrawler          *crawler,
 		attrs = g_strdup (FILE_ATTRIBUTES);
 	}
 
-
 	tracker_data_provider_begin_async (crawler->priv->data_provider,
 	                                   dpd->dir_file,
 	                                   attrs,
@@ -925,7 +1016,7 @@ data_provider_begin (TrackerCrawler          *crawler,
 	                                   G_PRIORITY_LOW,
 	                                   dpd->cancellable,
 	                                   data_provider_begin_cb,
-	                                   dpd);
+	                                   info);
 	g_free (attrs);
 }
 
