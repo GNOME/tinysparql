@@ -195,7 +195,7 @@ def index_update():
 
 	try:
 		# Mine data WITHOUT being a daemon, exit when done. Ignore desktop files
-		subprocess.check_output([binary, "--no-daemon", "--disable-miner=applications"])
+		subprocess.check_output([binary, "--no-daemon"])
 	except subprocess.CalledProcessError, e:
 		print 'Could not run %s, %s' % (binary, e.output)
 		sys.exit(1)
