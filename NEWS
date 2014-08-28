@@ -1,3 +1,25 @@
+NEW in 1.04 - 2014-09-02
+=========================
+
+  * Fixes: GB#735339, undefined symbol: tracker_enumerator_get_type
+  * Fixes: GB#735567, build: include COPYING*GPL files in tarball
+  * build: include COPYING*GPL files in tarball
+  * libtracker-data: Fixed compiler warning with tracker_db_interface_sqlite_fts_update_text()
+  * libtracker-miner: Don't use g_hash_table_destroy() in TrackerTaskPool
+  * libtracker-miner: Add make target to generate vala-bindings from GIR
+  * libtracker-miner: Add some nullable annotations
+  * libtracker-control: Add make target to generate vala-bindings from GIR
+  * libtracker-control: Add some nullable annotations
+  * tracker-preferences: Remove fixed column width for indexed locations
+  * tracker-needle: Fixed deprecations where possible
+
+Translations:
+
+  * Updated as: Nilamdyuti Goswami
+  * Updated fr: Alexandre Franke, Alain Lojewski
+  * Updated ru: Yuri Myasoedov
+
+
 NEW in 1.0.3 - 2014-08-22
 =========================
 
