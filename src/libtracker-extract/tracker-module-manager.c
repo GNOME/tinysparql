@@ -58,17 +58,21 @@ static gboolean
 load_extractor_rule (GKeyFile  *key_file,
                      GError   **error)
 {
+	GError *local_error = NULL;
 	gchar *module_path, **mimetypes;
 	gsize n_mimetypes, i;
 	RuleInfo rule = { 0 };
 
-	module_path = g_key_file_get_string (key_file, "ExtractorRule", "ModulePath", error);
+	module_path = g_key_file_get_string (key_file, "ExtractorRule", "ModulePath", &local_error);
 
-	if (!module_path) {
+	if (local_error &&
+	    local_error->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND) {
+		g_propagate_error (error, local_error);
 		return FALSE;
 	}
 
-	if (!G_IS_DIR_SEPARATOR (module_path[0])) {
+	if (module_path &&
+	    !G_IS_DIR_SEPARATOR (module_path[0])) {
 		gchar *tmp;
 		const gchar *extractors_dir;
 
@@ -84,10 +88,15 @@ load_extractor_rule (GKeyFile  *key_file,
 		module_path = tmp;
 	}
 
-	mimetypes = g_key_file_get_string_list (key_file, "ExtractorRule", "MimeTypes", &n_mimetypes, error);
+	mimetypes = g_key_file_get_string_list (key_file, "ExtractorRule", "MimeTypes", &n_mimetypes, &local_error);
 
 	if (!mimetypes) {
 		g_free (module_path);
+
+		if (local_error) {
+			g_propagate_error (error, local_error);
+		}
+
 		return FALSE;
 	}
 
@@ -296,6 +305,10 @@ load_module (RuleInfo *info,
              gboolean  initialize)
 {
 	ModuleInfo *module_info = NULL;
+
+	if (!info->module_path) {
+		return NULL;
+	}
 
 	if (modules) {
 		module_info = g_hash_table_lookup (modules, info->module_path);
