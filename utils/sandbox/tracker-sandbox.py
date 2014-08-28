@@ -108,6 +108,18 @@ RemovableDaysThreshold=3
 EnableWriteback=false
 """
 
+# XDG user-dirs template
+user_dirs_config_template = """
+XDG_DESKTOP_DIR="@PATH@/"
+XDG_DOWNLOAD_DIR="@PATH@/"
+XDG_TEMPLATES_DIR="@PATH@/"
+XDG_PUBLICSHARE_DIR="@PATH@/"
+XDG_DOCUMENTS_DIR="@PATH@/"
+XDG_MUSIC_DIR="@PATH@/"
+XDG_PICTURES_DIR="@PATH@/"
+XDG_VIDEOS_DIR="@PATH@/"
+"""
+
 # Utilities
 def mkdir_p(path):
 	try:
@@ -305,15 +317,29 @@ def environment_set():
 
 	index_location_abs = os.path.abspath (opts.index_location)
 
-	if opts.update:
-		# Only needed for updating index
-		content_location_abs = os.path.abspath (opts.content_location)
+	# Only needed for updating index
+	content_location_abs = os.path.abspath (opts.content_location)
 
 	# Data
 	os.environ['XDG_DATA_HOME'] = '%s/data/' % index_location_abs
 	os.environ['XDG_CONFIG_HOME'] = '%s/config/' % index_location_abs
 	os.environ['XDG_CACHE_HOME'] = '%s/cache/' % index_location_abs
 	os.environ['XDG_RUNTIME_DIR'] = '%s/run/' % index_location_abs
+
+	# Make sure the XDG dirs are configured correctly
+	config_dir = os.path.join(os.environ['XDG_CONFIG_HOME'])
+	config_filename = os.path.join(config_dir, 'user-dirs.dirs')
+
+	debug('Using XDG user-dirs config file "%s"' % config_filename)
+	mkdir_p(config_dir)
+
+	if not os.path.exists(config_filename):
+		f = open(config_filename, 'w')
+		user_dirs_config = user_dirs_config_template.replace('@PATH@', content_location_abs)
+		f.write(user_dirs_config)
+		f.close()
+
+		debug('  XDG user-dirs config file written')
 
 	# Prefix - only set if non-standard
 	if opts.prefix != default_prefix:
@@ -345,7 +371,6 @@ def environment_set():
 		debug('Using content location "%s"' % content_location_abs)
 
 		# Make sure File System miner is configured correctly
-		config_dir = os.path.join(os.environ['XDG_CONFIG_HOME'], 'tracker')
 		config_filename = os.path.join(config_dir, 'tracker-miner-fs.cfg')
 
 		debug('Using config file "%s"' % config_filename)
@@ -358,7 +383,7 @@ def environment_set():
 			f.write(config_template)
 			f.close()
 
-			debug('  New file written')
+			debug('  Miner config file written')
 
 		# Set content path
 		config = ConfigParser.ConfigParser()
