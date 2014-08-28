@@ -575,13 +575,14 @@ extract_opf_contents (const gchar *uri,
 		/* Page file is relative to OPF file location */
 		path = g_build_filename (content_prefix, l->data, NULL);
 		tracker_gsf_parse_xml_in_zip (uri, path, context, &error);
-		g_free (path);
 
 		if (error) {
-			g_warning ("Error extracting EPUB contents: %s\n",
-			           error->message);
+			g_warning ("Error extracting EPUB contents (%s): %s\n",
+			           path, error->message);
+			g_free (path);
 			break;
 		}
+		g_free (path);
 
 		if (content_data.limit <= 0) {
 			/* Reached plain text extraction limit */
