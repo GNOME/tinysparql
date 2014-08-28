@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2014-07-30T13:05:00Z" .
+	nao:lastModified "2014-08-28T14:15:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -992,6 +992,11 @@ nfo:HelpDocument a rdfs:Class ;
 	rdfs:comment "User guides and similar to assist the user" ;
 	rdfs:subClassOf nfo:Document .
 
+# This class needs to be submitted to NEPOMUK
+nfo:EBook a rdfs:Class ;
+	rdfs:label "Electronic book" ;
+	rdfs:comment "Books which can be electronically viewed" ;
+	rdfs:subClassOf nfo:PaginatedTextDocument .
 
 # This property needs to be submitted to NEPOMUK
 nfo:lastPlayedPosition a rdf:Property ;
