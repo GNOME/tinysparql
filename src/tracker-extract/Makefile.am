@@ -188,6 +188,7 @@ rules_DATA += 10-bmp.rule
 extractmodules_LTLIBRARIES += libextract-dummy.la
 # Rule files using the dummy extractor
 rules_DATA += 10-comics.rule
+rules_DATA += 10-ebooks.rule
 
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
