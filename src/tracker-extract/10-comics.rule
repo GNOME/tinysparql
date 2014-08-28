@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=libextract-dummy.so
+MimeTypes=application/x-cbr;application/x-cbz;application/x-cbt;application/x-cb7;
+FallbackRdfTypes=nfo:EBook;
