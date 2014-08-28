@@ -615,7 +615,7 @@ extract_opf (const gchar          *uri,
 	data = opf_data_new (info);
 
 	tracker_sparql_builder_predicate (data->metadata, "a");
-	tracker_sparql_builder_object (data->metadata, "nfo:TextDocument");
+	tracker_sparql_builder_object (data->metadata, "nfo:EBook");
 
 	/* Create parsing context */
 	context = g_markup_parse_context_new (&opf_parser, 0, data, NULL);
