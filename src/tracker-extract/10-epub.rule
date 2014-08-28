@@ -1,4 +1,4 @@
 [ExtractorRule]
 ModulePath=libextract-epub.so
 MimeTypes=application/epub+zip
-FallbackRdfTypes=nfo:TextDocument
+FallbackRdfTypes=nfo:EBook;nfo:TextDocument;
