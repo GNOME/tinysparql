@@ -81,6 +81,8 @@ functional-test:
 
 EXTRA_DIST +=                                          \
 	ChangeLog.pre-0-6-93                           \
+	COPYING.GPL                                    \
+	COPYING.LGPL                                   \
 	gitlog-to-changelog                            \
 	intltool-extract.in                            \
 	intltool-merge.in                              \
