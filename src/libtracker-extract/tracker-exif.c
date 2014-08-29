@@ -288,32 +288,56 @@ get_gps_coordinate (ExifData *exif,
 
 	if (entry && refentry) {
 		ExifByteOrder order;
-		ExifRational c1,c2,c3;
+		ExifRational degrees, minutes, seconds;
 		gfloat f;
 		gchar ref;
 
-		order = exif_data_get_byte_order (exif);
-		c1 = exif_get_rational (entry->data, order);
-		c2 = exif_get_rational (entry->data+8, order);
-		c3 = exif_get_rational (entry->data+16, order);
-		ref = exif_get_short (refentry->data, order);
+		if (entry->size == 24) {
+			order = exif_data_get_byte_order (exif);
+			degrees = exif_get_rational (entry->data, order);
+			minutes = exif_get_rational (entry->data + 8, order);
+			seconds = exif_get_rational (entry->data + 16, order);
+			ref = exif_get_short (refentry->data, order);
 
-		/* Avoid ridiculous values */
-		if (c1.denominator == 0 ||
-		    c2.denominator == 0 ||
-		    c3.denominator == 0) {
-			return NULL;
+			/* Avoid ridiculous values */
+			if (degrees.denominator == 0 ||
+			    minutes.denominator == 0 ||
+			    seconds.denominator == 0) {
+				return NULL;
+			}
+
+			f = (gdouble) degrees.numerator / degrees.denominator +
+				(gdouble) minutes.numerator / (minutes.denominator * 60) +
+				(gdouble) seconds.numerator / (seconds.denominator * 60 * 60);
+
+			if (ref == 'S' || ref == 'W') {
+				f = -1 * f;
+			}
+
+			return g_strdup_printf ("%f", f);
+		} else {
+			gchar buf[25] = { 0 };
+
+			/* Incomplete data or it doesn't exist, fall
+			 * back to exif_entry_get_value() for safety.
+			 */
+			exif_entry_get_value (entry, buf, sizeof (buf) - 1);
+
+			if (buf[0] == '\0') {
+				g_message ("EXIF GPS coordinate information is non-existent but EXIF tag '%s' was found, "
+				           "possible broken EXIF data?",
+				           exif_tag_get_name (tag));
+			} else {
+				g_message ("EXIF GPS coordinate information is partial, "
+				           "got EXIF tag '%s' with value '%s', "
+				           "expected with degrees, minutes and seconds",
+				           exif_tag_get_name (tag),
+				           buf);
+			}
+
+			g_message ("EXIF GPS coordinate information could not be extracted with tag '%s'",
+			           exif_tag_get_name (tag));
 		}
-
-		f = (double)c1.numerator/c1.denominator+
-		    (double)c2.numerator/(c2.denominator*60)+
-		    (double)c3.numerator/(c3.denominator*60*60);
-
-		if (ref == 'S' || ref == 'W') {
-			f = -1 * f;
-		}
-
-		return g_strdup_printf ("%f", f);
 	}
 
 	return NULL;
