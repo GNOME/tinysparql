@@ -39,6 +39,8 @@ rules_files = \
 	10-xmp.rule \
 	10-xps.rule \
 	10-bmp.rule \
+	10-ebooks.rule \
+	10-comics.rule \
 	11-iso.rule \
 	11-msoffice-xml.rule \
 	15-gstreamer-guess.rule \
