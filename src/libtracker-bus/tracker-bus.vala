@@ -300,9 +300,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		types[0] = Sparql.ValueType.STRING;
 		types[1] = Sparql.ValueType.INTEGER;
 
+		int rows = results.length[0];
+		int cols = results.length[1];
 		return new Tracker.Bus.ArrayCursor ((owned) results,
-		                                    results.length[0],
-		                                    results.length[1],
+		                                    rows,
+		                                    cols,
 		                                    var_names,
 		                                    types);
 	}
@@ -322,9 +324,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		types[0] = Sparql.ValueType.STRING;
 		types[1] = Sparql.ValueType.INTEGER;
 
+		int rows = results.length[0];
+		int cols = results.length[1];
 		return new Tracker.Bus.ArrayCursor ((owned) results,
-		                                    results.length[0],
-		                                    results.length[1],
+		                                    rows,
+		                                    cols,
 		                                    var_names,
 		                                    types);
 	}
