@@ -41,14 +41,123 @@
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static gboolean print_version;
+static gboolean show_all;
+static gchar **terms;
+
+static GHashTable *common_rdf_types;
 
 static GOptionEntry entries[] = {
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL
 	},
+	{ "all", 'a', 0, G_OPTION_ARG_NONE, &show_all,
+	  N_("Show statistics about ALL RDF classes, not just common ones which is the default (implied by search terms)"),
+	  NULL
+	},
+	{ G_OPTION_REMAINING, 0, 0,
+	  G_OPTION_ARG_STRING_ARRAY, &terms,
+	  N_("search terms"),
+	  N_("EXPRESSION")
+	},
 	{ NULL }
 };
+
+static gboolean
+get_common_rdf_types (void)
+{
+	const gchar *extractors_dir, *name;
+	GList *files = NULL, *l;
+	GError *error = NULL;
+	GDir *dir;
+
+	if (common_rdf_types) {
+		return TRUE;
+	}
+
+	extractors_dir = g_getenv ("TRACKER_EXTRACTOR_RULES_DIR");
+	if (G_LIKELY (extractors_dir == NULL)) {
+		extractors_dir = TRACKER_EXTRACTOR_RULES_DIR;
+	}
+
+	dir = g_dir_open (extractors_dir, 0, &error);
+
+	if (!dir) {
+		g_error ("Error opening extractor rules directory: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	common_rdf_types = g_hash_table_new_full (g_str_hash,
+	                                          g_str_equal,
+	                                          g_free,
+	                                          NULL);
+
+	while ((name = g_dir_read_name (dir)) != NULL) {
+		files = g_list_insert_sorted (files, (gpointer) name, (GCompareFunc) g_strcmp0);
+	}
+
+	for (l = files; l; l = l->next) {
+		GKeyFile *key_file;
+		const gchar *name;
+		gchar *path;
+
+		name = l->data;
+
+		if (!g_str_has_suffix (l->data, ".rule")) {
+			continue;
+		}
+
+		path = g_build_filename (extractors_dir, name, NULL);
+		key_file = g_key_file_new ();
+
+		g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
+
+		if (G_UNLIKELY (error)) {
+			g_clear_error (&error);
+		} else {
+			gchar **rdf_types;
+			gsize n_rdf_types;
+
+			rdf_types = g_key_file_get_string_list (key_file, "ExtractorRule", "FallbackRdfTypes", &n_rdf_types, &error);
+
+			if (G_UNLIKELY (error)) {
+				g_clear_error (&error);
+			} else if (rdf_types != NULL) {
+				gint i;
+
+				for (i = 0; i < n_rdf_types; i++) {
+					const gchar *rdf_type = rdf_types[i];
+
+					g_hash_table_insert (common_rdf_types, g_strdup (rdf_type), GINT_TO_POINTER(TRUE));
+				}
+			}
+
+			g_strfreev (rdf_types);
+		}
+
+		g_key_file_free (key_file);
+		g_free (path);
+	}
+
+	g_list_free (files);
+	g_dir_close (dir);
+
+	/* Make sure some additional RDF types are shown which are not
+	 * fall backs.
+	 */
+	g_hash_table_insert (common_rdf_types, g_strdup ("rdfs:Resource"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("rdfs:Class"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:FileDataObject"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:Folder"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:Executable"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("nco:Contact"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("nao:Tag"), GINT_TO_POINTER(TRUE));
+	g_hash_table_insert (common_rdf_types, g_strdup ("tracker:Volume"), GINT_TO_POINTER(TRUE));
+
+	return TRUE;
+}
+
 
 int
 main (int argc, char **argv)
@@ -77,6 +186,11 @@ main (int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
+	/* We use search terms on ALL ontologies not just common ones */
+	if (terms && g_strv_length (terms) > 0) {
+		show_all = TRUE;
+	}
+
 	g_option_context_free (context);
 
 	connection = tracker_sparql_connection_get (NULL, &error);
@@ -102,25 +216,65 @@ main (int argc, char **argv)
 	if (!cursor) {
 		g_print ("%s\n", _("No statistics available"));
 	} else {
-		gint count = 0;
+		GString *output;
 
-		g_print ("%s\n", _("Statistics:"));
+		output = g_string_new ("");
 
-		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  %s = %s\n",
-			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-			count++;
+		if (!show_all) {
+			get_common_rdf_types ();
 		}
 
-		if (count == 0) {
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			const gchar *rdf_type;
+			const gchar *rdf_type_count;
+
+			rdf_type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			rdf_type_count = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+
+			if (!show_all && !g_hash_table_contains (common_rdf_types, rdf_type)) {
+				continue;
+			}
+
+			if (terms) {
+				gint i, n_terms;
+				gboolean show_rdf_type = FALSE;
+
+				n_terms = g_strv_length (terms);
+
+				for (i = 0;
+				     i < n_terms && !show_rdf_type;
+				     i++) {
+					show_rdf_type = g_str_match_string (terms[i], rdf_type, TRUE);
+				}
+
+				if (!show_rdf_type) {
+					continue;
+				}
+			}
+
+			g_string_append_printf (output,
+			                        "  %s = %s\n",
+			                        rdf_type,
+			                        rdf_type_count);
+		}
+
+		if (output->len > 0) {
 			/* To translators: This is to say there are no
 			 * statistics found. We use a "Statistics:
 			 * None" with multiple print statements */
-			g_print ("  %s\n", _("None"));
+			g_string_prepend (output, "\n");
+			g_string_prepend (output, _("Statistics:"));
+		} else {
+			g_string_append_printf (output,
+			                        "  %s\n", _("None"));
 		}
 
-		g_print ("\n");
+		g_print ("%s\n", output->str);
+		g_string_free (output, TRUE);
+
+		if (common_rdf_types) {
+			g_hash_table_unref (common_rdf_types);
+		}
 
 		g_object_unref (cursor);
 	}
