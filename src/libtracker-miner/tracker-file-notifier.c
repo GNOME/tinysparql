@@ -562,7 +562,7 @@ static gboolean
 crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
-	gboolean recurse, retval = FALSE;
+	gint depth;
 	GFile *directory;
 
 	if (!priv->current_index_root)
@@ -574,10 +574,19 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 		return FALSE;
 
 	g_cancellable_reset (priv->cancellable);
-	recurse = (priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
-	retval = tracker_crawler_start (priv->crawler, directory,
-	                                (recurse) ? MAX_DEPTH : 1);
-	return retval;
+
+	if ((priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) == 0) {
+		/* Don't recurse */
+		depth = 1;
+	} else {
+		/* Recurse */
+		depth = MAX_DEPTH;
+	}
+
+	return tracker_crawler_start (priv->crawler,
+	                              directory,
+	                              priv->current_index_root->flags,
+	                              depth);
 }
 
 static void

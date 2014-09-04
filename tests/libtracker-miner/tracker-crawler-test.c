@@ -126,7 +126,7 @@ test_crawler_crawl (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	started = tracker_crawler_start (crawler, file, -1);
+	started = tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
 	g_assert_cmpint (started, ==, 1);
 
@@ -153,7 +153,7 @@ test_crawler_crawl_interrupted (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	started = tracker_crawler_start (crawler, file, -1);
+	started = tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
 	g_assert_cmpint (started, ==, 1);
 
@@ -175,7 +175,7 @@ test_crawler_crawl_nonexisting (void)
 	crawler = tracker_crawler_new (NULL);
 	file = g_file_new_for_path (TEST_DATA_DIR "-idontexist");
 
-	started = tracker_crawler_start (crawler, file, -1);
+	started = tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
 	g_assert_cmpint (started, ==, 0);
 
@@ -200,7 +200,7 @@ test_crawler_crawl_recursive (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	tracker_crawler_start (crawler, file, -1);
+	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
 	g_main_loop_run (test.main_loop);
 
@@ -232,7 +232,7 @@ test_crawler_crawl_non_recursive (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	tracker_crawler_start (crawler, file, 1);
+	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, 1);
 
 	g_main_loop_run (test.main_loop);
 
@@ -270,7 +270,7 @@ test_crawler_crawl_n_signals (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	tracker_crawler_start (crawler, file, -1);
+	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
 	g_main_loop_run (test.main_loop);
 
@@ -308,7 +308,7 @@ test_crawler_crawl_n_signals_non_recursive (void)
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
-	tracker_crawler_start (crawler, file, 1);
+	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, 1);
 
 	g_main_loop_run (test.main_loop);
 

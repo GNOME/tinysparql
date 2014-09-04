@@ -27,7 +27,6 @@ static void tracker_file_enumerator_file_iface_init (TrackerEnumeratorIface *ifa
 
 struct _TrackerFileEnumerator {
 	GObject parent_instance;
-	TrackerCrawlFlags crawl_flags;
 	GFileEnumerator *file_enumerator;
 };
 
@@ -72,7 +71,6 @@ tracker_file_enumerator_class_init (TrackerFileEnumeratorClass *klass)
 static void
 tracker_file_enumerator_init (TrackerFileEnumerator *fe)
 {
-	fe->crawl_flags = TRACKER_CRAWL_FLAG_NONE;
 }
 
 static gpointer

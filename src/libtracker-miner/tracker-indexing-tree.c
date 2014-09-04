@@ -40,7 +40,7 @@ typedef struct _FindNodeData FindNodeData;
 struct _NodeData
 {
 	GFile *file;
-	guint flags : 7;
+	guint flags;
 	guint shallow : 1;
 };
 
@@ -698,24 +698,37 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (file_type == G_FILE_TYPE_UNKNOWN)
-		file_type = g_file_query_file_type (file,
-		                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-		                                    NULL);
-
-	filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
-		TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
-
-	if (indexing_tree_file_is_filtered (tree, filter, file)) {
-		return FALSE;
-	}
-
-	config_file = tracker_indexing_tree_get_root (tree,file, &config_flags);
+	config_file = tracker_indexing_tree_get_root (tree, file, &config_flags);
 	if (!config_file) {
 		/* Not under an added dir */
 		return FALSE;
 	}
 
+	/* Don't check file type if _NO_STAT is given in flags */
+	if (file_type == G_FILE_TYPE_UNKNOWN &&
+	    (config_flags & TRACKER_DIRECTORY_FLAG_NO_STAT) != 0) {
+		GFileQueryInfoFlags file_flags;
+
+		file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+
+		file_type = g_file_query_file_type (file, file_flags, NULL);
+
+		filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
+			TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
+
+		if (indexing_tree_file_is_filtered (tree, filter, file)) {
+			return FALSE;
+		}
+	} else if (file_type != G_FILE_TYPE_UNKNOWN) {
+		filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
+			TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
+
+		if (indexing_tree_file_is_filtered (tree, filter, file)) {
+			return FALSE;
+		}
+	}
+
+	/* FIXME: Shouldn't we only do this for file_type == G_FILE_TYPE_DIRECTORY ? */
 	if (config_flags & TRACKER_DIRECTORY_FLAG_IGNORE) {
 		return FALSE;
 	}

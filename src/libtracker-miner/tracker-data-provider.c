@@ -58,60 +58,11 @@ tracker_data_provider_default_init (TrackerDataProviderInterface *iface)
 }
 
 /**
- * tracker_data_provider_get_crawl_flags:
- * @data_provider: a #TrackerDataProvider
- *
- * Get the conditions used to provide data, for example, following symlinks.
- *
- * Returns: the #TrackerCrawlFlags used with this @data_provider.
- *
- * Since: 1.2
- **/
-TrackerCrawlFlags
-tracker_data_provider_get_crawl_flags (TrackerDataProvider *data_provider)
-{
-	TrackerDataProviderIface *iface;
-
-	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), TRACKER_CRAWL_FLAG_NONE);
-
-	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
-
-	g_return_val_if_fail (iface->get_crawl_flags != NULL, TRACKER_CRAWL_FLAG_NONE);
-
-	return (* iface->get_crawl_flags) (data_provider);
-}
-
-/**
- * tracker_data_provider_set_crawl_flags:
- * @data_provider: a #TrackerDataProvider
- * @flags: the #TrackerCrawlFlags to use
- *
- * Sets the #TrackerCrawlFlags used with this @data_provider. Each time
- * tracker_data_provider_begin() is called, these flags are used.
- *
- * Since: 1.2
- **/
-void
-tracker_data_provider_set_crawl_flags (TrackerDataProvider *data_provider,
-                                       TrackerCrawlFlags    flags)
-{
-	TrackerDataProviderIface *iface;
-
-	g_return_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider));
-
-	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
-
-	g_return_if_fail (iface->set_crawl_flags != NULL);
-
-	(* iface->set_crawl_flags) (data_provider, flags);
-}
-
-/**
  * tracker_data_provider_begin:
  * @data_provider: a #TrackerDataProvider
  * @url: a #GFile to enumerate
  * @attributes: an attribute query string
- * @flags: a set of GFileQueryInfoFlags
+ * @flags: a set of #TrackerDirectoryFlags
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
  * @error: location to store the error occurring, or %NULL to ignore
  *
@@ -135,12 +86,12 @@ tracker_data_provider_set_crawl_flags (TrackerDataProvider *data_provider,
  * Since: 1.2
  **/
 TrackerEnumerator *
-tracker_data_provider_begin (TrackerDataProvider  *data_provider,
-                             GFile                *url,
-                             const gchar          *attributes,
-                             GFileQueryInfoFlags   flags,
-                             GCancellable         *cancellable,
-                             GError              **error)
+tracker_data_provider_begin (TrackerDataProvider    *data_provider,
+                             GFile                  *url,
+                             const gchar            *attributes,
+                             TrackerDirectoryFlags   flags,
+                             GCancellable           *cancellable,
+                             GError                **error)
 {
 	TrackerDataProviderIface *iface;
 
@@ -168,7 +119,7 @@ tracker_data_provider_begin (TrackerDataProvider  *data_provider,
  * @data_provider: a #TrackerDataProvider.
  * @url: a #GFile to enumerate
  * @attributes: an attribute query string
- * @flags: a set of GFileQueryInfoFlags
+ * @flags: a set of #TrackerDirectoryFlags
  * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to
  * ignore
@@ -200,14 +151,14 @@ tracker_data_provider_begin (TrackerDataProvider  *data_provider,
  * Since: 1.2
  **/
 void
-tracker_data_provider_begin_async (TrackerDataProvider  *data_provider,
-                                   GFile                *url,
-                                   const gchar          *attributes,
-                                   GFileQueryInfoFlags   flags,
-                                   int                   io_priority,
-                                   GCancellable         *cancellable,
-                                   GAsyncReadyCallback   callback,
-                                   gpointer              user_data)
+tracker_data_provider_begin_async (TrackerDataProvider   *data_provider,
+                                   GFile                 *url,
+                                   const gchar           *attributes,
+                                   TrackerDirectoryFlags  flags,
+                                   int                    io_priority,
+                                   GCancellable          *cancellable,
+                                   GAsyncReadyCallback    callback,
+                                   gpointer               user_data)
 {
 	TrackerDataProviderIface *iface;
 

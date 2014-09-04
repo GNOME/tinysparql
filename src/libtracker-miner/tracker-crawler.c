@@ -72,6 +72,8 @@ struct DirectoryRootInfo {
 
 	GQueue *directory_processing_queue;
 
+	TrackerDirectoryFlags flags;
+
 	DataProviderData *dpd;
 
 	/* Directory stats */
@@ -464,14 +466,14 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 }
 
 static DirectoryRootInfo *
-directory_root_info_new (GFile             *file,
-                         gint               max_depth,
-                         gchar             *file_attributes,
-                         TrackerCrawlFlags  flags)
+directory_root_info_new (GFile                 *file,
+                         gint                   max_depth,
+                         gchar                 *file_attributes,
+                         TrackerDirectoryFlags  flags)
 {
 	DirectoryRootInfo *info;
 	DirectoryProcessingData *dir_info;
-	gboolean enable_stat;
+	gboolean allow_stat = TRUE;
 
 	info = g_slice_new0 (DirectoryRootInfo);
 
@@ -481,14 +483,21 @@ directory_root_info_new (GFile             *file,
 
 	info->tree = g_node_new (g_object_ref (file));
 
-	enable_stat = (flags & TRACKER_CRAWL_FLAG_NO_STAT) == 0;
+	info->flags = flags;
 
-	if (enable_stat && file_attributes) {
+	if ((info->flags & TRACKER_DIRECTORY_FLAG_NO_STAT) != 0) {
+		allow_stat = FALSE;
+	}
+
+	if (allow_stat && file_attributes) {
 		GFileInfo *file_info;
+		GFileQueryInfoFlags file_flags;
+
+		file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
 
 		file_info = g_file_query_info (file,
 		                               file_attributes,
-		                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+		                               file_flags,
 		                               NULL,
 		                               NULL);
 		g_object_set_qdata_full (G_OBJECT (file),
@@ -1012,7 +1021,7 @@ data_provider_begin (TrackerCrawler          *crawler,
 	tracker_data_provider_begin_async (crawler->priv->data_provider,
 	                                   dpd->dir_file,
 	                                   attrs,
-	                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                   info->flags,
 	                                   G_PRIORITY_LOW,
 	                                   dpd->cancellable,
 	                                   data_provider_begin_cb,
@@ -1021,12 +1030,12 @@ data_provider_begin (TrackerCrawler          *crawler,
 }
 
 gboolean
-tracker_crawler_start (TrackerCrawler *crawler,
-                       GFile          *file,
-                       gint            max_depth)
+tracker_crawler_start (TrackerCrawler        *crawler,
+                       GFile                 *file,
+                       TrackerDirectoryFlags  flags,
+                       gint                   max_depth)
 {
 	TrackerCrawlerPrivate *priv;
-	TrackerCrawlFlags flags;
 	DirectoryRootInfo *info;
 	gboolean enable_stat;
 
@@ -1035,8 +1044,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	priv = crawler->priv;
 
-	flags = tracker_data_provider_get_crawl_flags (priv->data_provider);
-	enable_stat = (flags & TRACKER_CRAWL_FLAG_NO_STAT) == 0;
+	enable_stat = (flags & TRACKER_DIRECTORY_FLAG_NO_STAT) == 0;
 
 	if (enable_stat && !g_file_query_exists (file, NULL)) {
 		/* This shouldn't happen, unless the removal/unmount notification

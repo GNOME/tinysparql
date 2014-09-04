@@ -1862,6 +1862,7 @@ item_move (TrackerMinerFS *fs,
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
 
+	/* FIXME: Should check the _NO_STAT on TrackerDirectoryFlags first! */
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
 	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","

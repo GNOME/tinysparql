@@ -28,13 +28,12 @@ static void tracker_file_data_provider_file_iface_init (TrackerDataProviderIface
 
 struct _TrackerFileDataProvider {
 	GObject parent_instance;
-	TrackerCrawlFlags crawl_flags;
 };
 
 typedef struct {
 	GFile *url;
 	gchar *attributes;
-	GFileQueryInfoFlags flags;
+	TrackerDirectoryFlags flags;
 } BeginData;
 
 /**
@@ -72,34 +71,12 @@ tracker_file_data_provider_class_init (TrackerFileDataProviderClass *klass)
 static void
 tracker_file_data_provider_init (TrackerFileDataProvider *fe)
 {
-	fe->crawl_flags = TRACKER_CRAWL_FLAG_NONE;
-}
-
-static TrackerCrawlFlags
-file_data_provider_get_crawl_flags (TrackerDataProvider *data_provider)
-{
-	TrackerFileDataProvider *fe;
-
-	fe = TRACKER_FILE_DATA_PROVIDER (data_provider);
-
-	return fe->crawl_flags;
-}
-
-static void
-file_data_provider_set_crawl_flags (TrackerDataProvider *data_provider,
-                                    TrackerCrawlFlags  flags)
-{
-	TrackerFileDataProvider *fe;
-
-	fe = TRACKER_FILE_DATA_PROVIDER (data_provider);
-
-	fe->crawl_flags = flags;
 }
 
 static BeginData *
-begin_data_new (GFile               *url,
-                const gchar         *attributes,
-                GFileQueryInfoFlags  flags)
+begin_data_new (GFile                 *url,
+                const gchar           *attributes,
+                TrackerDirectoryFlags  flags)
 {
 	BeginData *data;
 
@@ -125,14 +102,15 @@ begin_data_free (BeginData *data)
 }
 
 static TrackerEnumerator *
-file_data_provider_begin (TrackerDataProvider  *data_provider,
-                          GFile                *url,
-                          const gchar          *attributes,
-                          GFileQueryInfoFlags   flags,
-                          GCancellable         *cancellable,
-                          GError              **error)
+file_data_provider_begin (TrackerDataProvider    *data_provider,
+                          GFile                  *url,
+                          const gchar            *attributes,
+                          TrackerDirectoryFlags   flags,
+                          GCancellable           *cancellable,
+                          GError                **error)
 {
 	TrackerEnumerator *enumerator;
+	GFileQueryInfoFlags file_flags;
 	GFileEnumerator *fe;
 	GError *local_error = NULL;
 
@@ -140,12 +118,23 @@ file_data_provider_begin (TrackerDataProvider  *data_provider,
 		return NULL;
 	}
 
+	/* We ignore the TRACKER_DIRECTORY_FLAG_NO_STAT here, it makes
+	 * no sense to be at this point with that flag. So we warn
+	 * about it...
+	 */
+	if ((flags & TRACKER_DIRECTORY_FLAG_NO_STAT) != 0) {
+		g_warning ("Did not expect to have TRACKER_DIRECTORY_FLAG_NO_STAT "
+		           "flag in %s(), continuing anyway...",
+		           __FUNCTION__);
+	}
+
+	file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+
 	fe = g_file_enumerate_children (url,
 	                                attributes,
-	                                flags,
+	                                file_flags,
 	                                cancellable,
 	                                &local_error);
-
 
 	if (local_error) {
 		gchar *uri;
@@ -197,14 +186,14 @@ file_data_provider_begin_thread (GTask        *task,
 }
 
 static void
-file_data_provider_begin_async (TrackerDataProvider  *data_provider,
-                                GFile                *dir,
-                                const gchar          *attributes,
-                                GFileQueryInfoFlags   flags,
-                                int                   io_priority,
-                                GCancellable         *cancellable,
-                                GAsyncReadyCallback   callback,
-                                gpointer              user_data)
+file_data_provider_begin_async (TrackerDataProvider   *data_provider,
+                                GFile                 *dir,
+                                const gchar           *attributes,
+                                TrackerDirectoryFlags  flags,
+                                int                    io_priority,
+                                GCancellable          *cancellable,
+                                GAsyncReadyCallback    callback,
+                                gpointer               user_data)
 {
 	GTask *task;
 
@@ -293,8 +282,6 @@ file_data_provider_end_finish (TrackerDataProvider  *data_provider,
 static void
 tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface)
 {
-	iface->get_crawl_flags = file_data_provider_get_crawl_flags;
-	iface->set_crawl_flags = file_data_provider_set_crawl_flags;
 	iface->begin = file_data_provider_begin;
 	iface->begin_async = file_data_provider_begin_async;
 	iface->begin_finish = file_data_provider_begin_finish;
