@@ -34,6 +34,15 @@ libtracker_control_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(BUILD_LIBS)                                    \
 	$(LIBTRACKER_MINER_LIBS)
 
+# PkgConfig
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tracker-control-$(TRACKER_API_VERSION).pc
+
+tracker-control-$(TRACKER_API_VERSION).pc: tracker-control.pc
+	cp $< $@
+
+CLEANFILES = tracker-control-$(TRACKER_API_VERSION).pc
+
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                              \
@@ -49,7 +58,7 @@ tracker-control-$(TRACKER_API_VERSION).deps: tracker-control.deps
 BUILT_SOURCES =                                        \
 	$(vapi_DATA)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
 	tracker-control.vapi                           \

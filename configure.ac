@@ -2569,9 +2569,6 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/miners/Makefile
 	data/ontologies/Makefile
-	data/tracker-control.pc
-	data/tracker-sparql.pc
-	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
@@ -2590,14 +2587,17 @@ AC_CONFIG_FILES([
 	src/gvdb/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-sparql/Makefile
+	src/libtracker-sparql/tracker-sparql.pc
 	src/libtracker-bus/Makefile
 	src/libtracker-control/Makefile
+	src/libtracker-control/tracker-control.pc
 	src/libtracker-data/Makefile
 	src/libtracker-direct/Makefile
 	src/libtracker-sparql-backend/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
 	src/libtracker-miner/Makefile
+	src/libtracker-miner/tracker-miner.pc
 	src/Makefile
 	src/miners/Makefile
 	src/miners/fs/Makefile

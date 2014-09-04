@@ -51,6 +51,15 @@ libtracker_sparqlinclude_HEADERS =                     \
 tracker-sparql-$(TRACKER_API_VERSION).deps: tracker-sparql.deps
 	$(AM_V_GEN)cp $^ $@
 
+# PkgConfig
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tracker-sparql-$(TRACKER_API_VERSION).pc
+
+tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
+	cp $< $@
+
+CLEANFILES = tracker-sparql-$(TRACKER_API_VERSION).pc
+
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                            \
@@ -65,8 +74,7 @@ MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	$(vala_header:.h=-no-checks.h)
 
-CLEANFILES =                                           \
-	tracker-sparql-$(TRACKER_API_VERSION).vapi
+CLEANFILES += tracker-sparql-$(TRACKER_API_VERSION).vapi
 
 EXTRA_DIST =                                           \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \

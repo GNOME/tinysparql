@@ -118,6 +118,15 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
 
+# PkgConfig
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tracker-miner-$(TRACKER_API_VERSION).pc
+
+tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
+	cp $< $@
+
+CLEANFILES = tracker-miner-$(TRACKER_API_VERSION).pc
+
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                            \
@@ -135,7 +144,7 @@ BUILT_SOURCES =                                        \
 	tracker-miner-enum-types.h                     \
 	$(vapi_DATA)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
 	tracker-miner-enum-types.c.template            \

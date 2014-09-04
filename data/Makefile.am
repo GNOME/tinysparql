@@ -76,26 +76,11 @@ endif
 
 @INTLTOOL_DESKTOP_RULE@
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA =                                       \
-	tracker-control-$(TRACKER_API_VERSION).pc      \
-	tracker-sparql-$(TRACKER_API_VERSION).pc       \
-	tracker-miner-$(TRACKER_API_VERSION).pc
-
-tracker-control-$(TRACKER_API_VERSION).pc: tracker-control.pc
-	cp $< $@
-
-tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
-	cp $< $@
-
 tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 	cp $< $@
 
-CLEANFILES =                                           \
-	$(autostart_DATA)                              \
-	$(desktop_in_files)                            \
-	tracker-control-$(TRACKER_API_VERSION).pc      \
-	tracker-sparql-$(TRACKER_API_VERSION).pc       \
-	tracker-miner-$(TRACKER_API_VERSION).pc
+CLEANFILES = \
+	$(autostart_DATA) \
+	$(desktop_in_files)
 
 EXTRA_DIST = $(desktop_in_in_files)
