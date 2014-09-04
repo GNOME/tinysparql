@@ -20,3 +20,19 @@ tracker_miner_user_guides_LDADD =                      \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_USER_GUIDES_LIBS)
+
+# Desktop files: First we fix the VERSION and libexecdir
+tracker-miner-user-guides.desktop.in: tracker-miner-user-guides.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
+desktop_in_in_files = tracker-miner-user-guides.desktop.in.in
+desktop_in_files = tracker-miner-user-guides.desktop.in
+
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = tracker-miner-user-guides.desktop
+
+@INTLTOOL_DESKTOP_RULE@
+
+CLEANFILES = $(autostart_DATA) $(desktop_in_files)
+EXTRA_DIST = $(desktop_in_in_files)

@@ -587,5 +587,20 @@ BUILT_SOURCES = \
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = \
-	$(rules_files)
+EXTRA_DIST = $(rules_files)
+
+# Desktop files: First we fix the VERSION and libexecdir
+tracker-extract.desktop.in: tracker-extract.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
+desktop_in_in_files = tracker-extract.desktop.in.in
+desktop_in_files = tracker-extract.desktop.in
+
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = tracker-extract.desktop
+
+@INTLTOOL_DESKTOP_RULE@
+
+CLEANFILES += $(autostart_DATA) $(desktop_in_files)
+EXTRA_DIST += $(desktop_in_in_files)

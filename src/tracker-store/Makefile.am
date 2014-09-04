@@ -65,3 +65,20 @@ EXTRA_DIST = \
 	tracker-events.vapi \
 	tracker-locale-change.vapi \
 	tracker-writeback.vapi
+
+# Desktop files: First we fix the VERSION and libexecdir
+tracker-store.desktop.in: tracker-store.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
+desktop_in_in_files = tracker-store.desktop.in.in
+desktop_in_files = tracker-store.desktop.in
+
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = tracker-store.desktop
+
+@INTLTOOL_DESKTOP_RULE@
+
+CLEANFILES = $(autostart_DATA) $(desktop_in_files)
+EXTRA_DIST += $(desktop_in_in_files)
+
