@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-25 21:44+0200\n"
-"PO-Revision-Date: 2014-08-25 21:51+0200\n"
+"POT-Creation-Date: 2014-09-04 21:29+0200\n"
+"PO-Revision-Date: 2014-09-04 21:30+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -731,7 +731,7 @@ msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 #: ../src/tracker-utils/tracker-info.c:389
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
-#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-stats.c:200
 #: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
@@ -768,7 +768,7 @@ msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 #: ../src/tracker-utils/tracker-info.c:390
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
-#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-stats.c:201
 #: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Non se obtivo ningún erro"
@@ -820,7 +820,7 @@ msgstr[1] ""
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-stats.c:51
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "Imprimir versión"
@@ -2434,10 +2434,12 @@ msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Buscar marcadores («--all» non ten efecto sobre isto) "
 
 #: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-stats.c:60
 msgid "search terms"
 msgstr "termos de busca"
 
 #: ../src/tracker-utils/tracker-search.c:179
+#: ../src/tracker-utils/tracker-stats.c:61
 msgid "EXPRESSION"
 msgstr "EXPRESIÓN"
 
@@ -2684,9 +2686,6 @@ msgstr "Non foi posíbel atopar ningún prefixo de espazo de nomes"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
 #. * files found associated with multiple tags, e.g.:
@@ -2711,7 +2710,7 @@ msgstr "Non foi posíbel atopar ningún prefixo de espazo de nomes"
 #.
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
-#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-stats.c:269
 #: ../src/tracker-utils/tracker-tag.c:329
 #: ../src/tracker-utils/tracker-tag.c:461
 #: ../src/tracker-utils/tracker-tag.c:583
@@ -2861,21 +2860,29 @@ msgstr "Non foi posíbel executar a consulta"
 msgid "No results found matching your query"
 msgstr "Non se encontraron resultados coincidentes coa súa consulta"
 
+#: ../src/tracker-utils/tracker-stats.c:55
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+"Mostra estatísticas sobre TODAS as clases RDF, non só as comúns que son as "
+"predeterminadas (implicadas polos termos de busca)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
+#: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr " - Mostrar estatísticas para as clases ontolóxicas Nepomuk definidas"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
 msgstr "Non se puideron obter as estatísticas do Tracker"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker-utils/tracker-stats.c:217
 msgid "No statistics available"
 msgstr "Non hai estatísticas dispoñíbeis"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-stats.c:266
 msgid "Statistics:"
 msgstr "Estatísticas:"
 
