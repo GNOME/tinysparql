@@ -47,6 +47,7 @@
 #define DEFAULT_CRAWLING_INTERVAL                -1       /* 0->365 / -1 / -2 */
 #define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
 #define DEFAULT_ENABLE_WRITEBACK                 FALSE
+#define DEFAULT_FOLLOW_SYMLINKS                  FALSE
 
 typedef struct {
 	/* NOTE: Only used with TRACKER_USE_CONFIG_FILES env var. */
@@ -121,6 +122,7 @@ enum {
 	PROP_IGNORED_DIRECTORIES_WITH_CONTENT,
 	PROP_IGNORED_FILES,
 	PROP_CRAWLING_INTERVAL,
+	PROP_FOLLOW_SYMLINKS,
 	PROP_REMOVABLE_DAYS_THRESHOLD,
 
 	/* Writeback */
@@ -145,6 +147,7 @@ static TrackerConfigMigrationEntry migration[] = {
 	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectoriesWithContent", "ignored-directories-with-content", FALSE, FALSE },
 	{ G_TYPE_POINTER, "Indexing",  "IgnoredFiles",                  "ignored-files",                    FALSE, FALSE },
 	{ G_TYPE_INT,     "Indexing",  "CrawlingInterval",              "crawling-interval",                FALSE, FALSE },
+	{ G_TYPE_BOOLEAN, "Indexing",  "FollowSymlinks",                "follow-symlinks",                  FALSE, FALSE },
 	{ G_TYPE_INT,     "Indexing",  "RemovableDaysThreshold",        "removable-days-threshold",         FALSE, FALSE },
 	{ G_TYPE_BOOLEAN, "Writeback", "EnableWriteback",               "enable-writeback",                 FALSE, FALSE },
 	{ 0 }
@@ -307,6 +310,13 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   365,
 	                                                   DEFAULT_CRAWLING_INTERVAL,
 	                                                   G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_FOLLOW_SYMLINKS,
+	                                 g_param_spec_boolean ("follow-symlinks",
+	                                                       "Follow symlinks",
+	                                                       "Set to true to follow file system symlinks",
+	                                                       DEFAULT_FOLLOW_SYMLINKS,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_REMOVABLE_DAYS_THRESHOLD,
 	                                 g_param_spec_int ("removable-days-threshold",
@@ -480,6 +490,9 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_CRAWLING_INTERVAL:
 		g_value_set_int (value, tracker_config_get_crawling_interval (config));
+		break;
+	case PROP_FOLLOW_SYMLINKS:
+		g_value_set_boolean (value, tracker_config_get_follow_symlinks (config));
 		break;
 	case PROP_REMOVABLE_DAYS_THRESHOLD:
 		g_value_set_int (value, tracker_config_get_removable_days_threshold (config));
@@ -734,6 +747,7 @@ config_constructed (GObject *object)
 	g_settings_bind (settings, "throttle", object, "throttle", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "low-disk-space-limit", object, "low-disk-space-limit", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "crawling-interval", object, "crawling-interval", G_SETTINGS_BIND_GET);
+	g_settings_bind (settings, "follow-symlinks", object, "follow-symlinks", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "low-disk-space-limit", object, "low-disk-space-limit", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "removable-days-threshold", object, "removable-days-threshold", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "enable-monitors", object, "enable-monitors", G_SETTINGS_BIND_GET);
@@ -945,6 +959,14 @@ tracker_config_get_crawling_interval (TrackerConfig *config)
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
 
 	return g_settings_get_int (G_SETTINGS (config), "crawling-interval");
+}
+
+gboolean
+tracker_config_get_follow_symlinks (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_FOLLOW_SYMLINKS);
+
+	return g_settings_get_boolean (G_SETTINGS (config), "follow-symlinks");
 }
 
 gint

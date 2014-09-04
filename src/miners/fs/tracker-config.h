@@ -66,6 +66,7 @@ GSList *       tracker_config_get_ignored_directories              (TrackerConfi
 GSList *       tracker_config_get_ignored_directories_with_content (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_files                    (TrackerConfig *config);
 gint           tracker_config_get_crawling_interval                (TrackerConfig *config);
+gboolean       tracker_config_get_follow_symlinks                  (TrackerConfig *config);
 gint           tracker_config_get_removable_days_threshold         (TrackerConfig *config);
 gboolean       tracker_config_get_enable_writeback                 (TrackerConfig *config);
 

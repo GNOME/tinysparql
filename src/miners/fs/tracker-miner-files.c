@@ -427,6 +427,10 @@ miner_files_initable_init (GInitable     *initable,
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
+		if (tracker_config_get_follow_symlinks (mf->private->config)) {
+			flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
+		}
+
 		tracker_indexing_tree_add (indexing_tree, file, flags);
 		g_object_unref (file);
 	}
@@ -480,6 +484,10 @@ miner_files_initable_init (GInitable     *initable,
 
 		if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+		}
+
+		if (tracker_config_get_follow_symlinks (mf->private->config)) {
+			flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
 		}
 
 		tracker_indexing_tree_add (indexing_tree, file, flags);
@@ -1049,6 +1057,10 @@ init_mount_points (TrackerMinerFiles *miner_files)
 						flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 					}
 
+					if (tracker_config_get_follow_symlinks (miner_files->private->config)) {
+						flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
+					}
+
 					/* Add the current mount point as reported to have incorrect
 					 * state. We will force mtime checks on this mount points,
 					 * even if no-mtime-check-needed was set. */
@@ -1223,6 +1235,10 @@ mount_point_added_cb (TrackerStorage *storage,
 				flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 			}
 
+			if (tracker_config_get_follow_symlinks (miner->private->config)) {
+				flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
+			}
+
 			if (g_file_equal (config_file, mount_point_file) ||
 			    g_file_has_prefix (config_file, mount_point_file)) {
 				/* If the config path is contained inside the mount path,
@@ -1256,6 +1272,10 @@ mount_point_added_cb (TrackerStorage *storage,
 
 			if (tracker_config_get_enable_monitors (miner->private->config)) {
 				flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+			}
+
+			if (tracker_config_get_follow_symlinks (miner->private->config)) {
+				flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
 			}
 
 			config_file = g_file_new_for_path (l->data);
@@ -1652,6 +1672,10 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 
 	if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
 		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
+	}
+
+	if (tracker_config_get_follow_symlinks (priv->config)) {
+		flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
 	}
 
 	/* Second add directories which are new */
@@ -2785,6 +2809,10 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 
 	if (tracker_config_get_enable_monitors (mf->private->config)) {
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
+	}
+
+	if (tracker_config_get_follow_symlinks (mf->private->config)) {
+		flags |= TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS;
 	}
 
 	g_object_set_qdata_full (G_OBJECT (mount_point_file),
