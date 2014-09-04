@@ -8,7 +8,7 @@
 	dsc:editor "David C. Fallside, IBM &lt;fallside@us.ibm.com&gt;";
 	dsc:editor "Priscilla Walmsley &lt;pwalmsley@datypic.com&gt; - Second Edition";
 	dsc:editor "Tracker developers (translation into turtle)" ;
-	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/10-xsd.ontology";
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/10-xsd.ontology";
 
 	dsc:localPrefix "xsd" ;
 	dsc:baseUrl "http://www.w3.org/2001/XMLSchema#" ;

@@ -1,1 +1,1 @@
-SUBDIRS = dbus languages icons ontologies miners gschemas
+SUBDIRS = dbus languages icons miners gschemas

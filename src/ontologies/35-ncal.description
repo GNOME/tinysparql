@@ -15,7 +15,7 @@
 	dsc:contributor "Evgeny 'phreedom' Egorochkin, KDE Strigi Developer, &lt;stexx@mail.ru&gt;";
 	dsc:contributor "Christiaan Fluit, Aduna, &lt;christiaan.fluit@aduna-software.com&gt;";
 
-	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/35-ncal.ontology";
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/35-ncal.ontology";
 	dsc:upstream "http://www.semanticdesktop.org/ontologies/ncal/";
 
 	dsc:localPrefix "ncal" ;

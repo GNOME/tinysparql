@@ -2568,7 +2568,6 @@ AC_CONFIG_FILES([
 	data/languages/Makefile
 	data/Makefile
 	data/miners/Makefile
-	data/ontologies/Makefile
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
@@ -2604,6 +2603,7 @@ AC_CONFIG_FILES([
 	src/miners/apps/Makefile
 	src/miners/rss/Makefile
 	src/miners/user-guides/Makefile
+	src/ontologies/Makefile
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile

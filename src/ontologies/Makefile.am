@@ -26,11 +26,10 @@ config_DATA =                                          \
 	93-libosinfo.ontology 93-libosinfo.description
 
 if HAVE_MAEMO
-config_DATA +=                                         \
-	$(maemo_ontology)
+config_DATA += $(maemo_ontology)
 endif
 
-EXTRA_DIST =                                           \
-	$(maemo_ontology)                              \
+EXTRA_DIST = \
+	$(maemo_ontology) \
 	$(config_DATA)
 

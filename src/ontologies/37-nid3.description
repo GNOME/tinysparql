@@ -5,7 +5,7 @@
 	dsc:description "Deprecated ontology to describe music. Please check NMM." ;
 	dsc:author "Nepomuk people" ;
 	dsc:editor "Tracker Developers (turtle translation)" ;
-	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/37-nid3.ontology";
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/37-nid3.ontology";
 
 	dsc:localPrefix "nid3" ;
 	dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#" ;

@@ -6,7 +6,7 @@
 
 	dsc:author "Dublin Core consortium" ;
 	dsc:editor "Tracker developers (translation into turtle)" ;
-	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/20-dc.ontology";
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/20-dc.ontology";
 
 	dsc:localPrefix "dc" ;
 	dsc:baseUrl "http://purl.org/dc/elements/1.1/";

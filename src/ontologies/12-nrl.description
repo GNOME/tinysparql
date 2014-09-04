@@ -5,7 +5,7 @@
 	dsc:description "Properties describing the ontologies.";
 	dsc:author "Nepomuk People" ;
 	dsc:editor "Tracker developers (translation into turtle)" ;
-	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/12-nrl.ontology";
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/12-nrl.ontology";
 
 	dsc:localPrefix "nrl" ;
 	dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#" ;

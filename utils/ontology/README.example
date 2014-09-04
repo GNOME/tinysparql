@@ -9,7 +9,7 @@
 
    E.g.
 
- ./ttl2html -f ../../data/ontologies/39-mto.ontology -u http://www.tracker-project.org/temp/mto#
+   ./ttl2html -f ../../src/ontologies/39-mto.ontology -u http://www.tracker-project.org/temp/mto#
 
 
 == ontology-validator ==
@@ -20,7 +20,7 @@
 
    It receives as parameter the ontology files directory. Usually:
 
- ./ontology-validator -o ../../data/ontologies
+   ./ontology-validator -o ../../src/ontologies
 
 
 == Deprecated ==
