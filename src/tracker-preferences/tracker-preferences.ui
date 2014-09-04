@@ -63,22 +63,22 @@
     <signal name="response" handler="tracker_preferences_response_cb" swapped="no"/>
     <child type="action">
       <object class="GtkButton" id="button_close">
-        <property name="label">gtk-close</property>
+        <property name="label">_Close</property>
+        <property name="use_underline">True</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
-        <property name="use_stock">True</property>
       </object>
     </child>
     <child type="action">
       <object class="GtkButton" id="button_apply">
 	<property name="visible">True</property>
-	<property name="label">gtk-apply</property>
+	<property name="label">_Apply</property>
+        <property name="use_underline">True</property>
 	<property name="visible">True</property>
 	<property name="can-default">True</property>
 	<property name="can_focus">True</property>
 	<property name="receives_default">True</property>
-	<property name="use_stock">True</property>
       </object>
     </child>
     <action-widgets>
@@ -686,7 +686,6 @@ Those which are the same are disabled!</property>
                                             <property name="can_focus">True</property>
                                             <property name="model">liststore_index</property>
                                             <property name="headers_clickable">False</property>
-                                            <property name="rules_hint">True</property>
                                             <property name="search_column">0</property>
                                             <child internal-child="selection">
                                               <object class="GtkTreeSelection" id="treeview-selection1"/>
@@ -869,7 +868,6 @@ Those which are the same are disabled!</property>
                                             <property name="can_focus">True</property>
                                             <property name="model">liststore_ignored_directories</property>
                                             <property name="headers_visible">False</property>
-                                            <property name="rules_hint">True</property>
                                             <property name="search_column">0</property>
                                             <child internal-child="selection">
                                               <object class="GtkTreeSelection" id="treeview-selection2"/>
@@ -1007,7 +1005,6 @@ Those which are the same are disabled!</property>
                                             <property name="can_focus">True</property>
                                             <property name="model">liststore_ignored_directories_with_content</property>
                                             <property name="headers_visible">False</property>
-                                            <property name="rules_hint">True</property>
                                             <property name="search_column">0</property>
                                             <child internal-child="selection">
                                               <object class="GtkTreeSelection" id="treeview-selection3"/>
@@ -1162,7 +1159,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                                         <property name="model">liststore_ignored_files</property>
                                         <property name="headers_visible">False</property>
                                         <property name="headers_clickable">False</property>
-                                        <property name="rules_hint">True</property>
                                         <property name="search_column">0</property>
                                         <child internal-child="selection">
                                           <object class="GtkTreeSelection" id="treeview-selection4"/>
