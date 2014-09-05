@@ -493,7 +493,11 @@ directory_root_info_new (GFile                 *file,
 		GFileInfo *file_info;
 		GFileQueryInfoFlags file_flags;
 
-		file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+		file_flags = G_FILE_QUERY_INFO_NONE;
+
+		if ((info->flags & TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS) == 0) {
+			file_flags |= G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+		}
 
 		file_info = g_file_query_info (file,
 		                               file_attributes,

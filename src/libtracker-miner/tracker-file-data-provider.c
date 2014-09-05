@@ -118,6 +118,8 @@ file_data_provider_begin (TrackerDataProvider    *data_provider,
 		return NULL;
 	}
 
+	file_flags = G_FILE_QUERY_INFO_NONE;
+
 	/* We ignore the TRACKER_DIRECTORY_FLAG_NO_STAT here, it makes
 	 * no sense to be at this point with that flag. So we warn
 	 * about it...
@@ -128,7 +130,9 @@ file_data_provider_begin (TrackerDataProvider    *data_provider,
 		           __FUNCTION__);
 	}
 
-	file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+	if ((flags & TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS) == 0) {
+		file_flags |= G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+	}
 
 	fe = g_file_enumerate_children (url,
 	                                attributes,

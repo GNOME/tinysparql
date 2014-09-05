@@ -53,6 +53,11 @@ G_BEGIN_DECLS
  * server somewhere), use the #TRACKER_DIRECTORY_FLAG_NO_STAT flag.
  * The default is to use stat() and assume we're mining a local or
  * mounted file system.
+ * @TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS: The #TrackerEnumerator
+ * should follow symlinks. This is disabled by default because it is
+ * easy for Tracker to get into recursive loop situations with
+ * symlinks. For those using interesting scenarios like git-annex or
+ * software heavily using symlinks (and properly) this is for you.
  *
  * Flags used when adding a new directory to be indexed in the
  * #TrackerIndexingTree, #TrackerDataProvider and #TrackerEnumerator.
@@ -65,7 +70,8 @@ typedef enum {
 	TRACKER_DIRECTORY_FLAG_IGNORE          = 1 << 4,
 	TRACKER_DIRECTORY_FLAG_PRESERVE        = 1 << 5,
 	TRACKER_DIRECTORY_FLAG_PRIORITY        = 1 << 6,
-	TRACKER_DIRECTORY_FLAG_NO_STAT         = 1 << 7
+	TRACKER_DIRECTORY_FLAG_NO_STAT         = 1 << 7,
+	TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS = 1 << 8,
 } TrackerDirectoryFlags;
 
 /**

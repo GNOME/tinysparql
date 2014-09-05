@@ -709,7 +709,11 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 	    (config_flags & TRACKER_DIRECTORY_FLAG_NO_STAT) != 0) {
 		GFileQueryInfoFlags file_flags;
 
-		file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+		file_flags = G_FILE_QUERY_INFO_NONE;
+
+		if ((config_flags & TRACKER_DIRECTORY_FLAG_FOLLOW_SYMLINKS) == 0) {
+			file_flags |= G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+		}
 
 		file_type = g_file_query_file_type (file, file_flags, NULL);
 
