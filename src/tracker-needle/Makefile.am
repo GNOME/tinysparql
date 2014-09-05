@@ -1,3 +1,5 @@
+SUBDIRS = icons
+
 bin_PROGRAMS = tracker-needle
 
 AM_VALAFLAGS = \

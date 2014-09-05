@@ -2558,13 +2558,6 @@ AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
 AC_CONFIG_FILES([
 	data/dbus/Makefile
 	data/gschemas/Makefile
-	data/icons/16x16/Makefile
-	data/icons/22x22/Makefile
-	data/icons/24x24/Makefile
-	data/icons/32x32/Makefile
-	data/icons/48x48/Makefile
-	data/icons/Makefile
-	data/icons/scalable/Makefile
 	data/languages/Makefile
 	data/Makefile
 	data/miners/Makefile
@@ -2611,6 +2604,13 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-needle/Makefile
 	src/tracker-needle/tracker-needle.desktop.in
+	src/tracker-needle/icons/Makefile
+	src/tracker-needle/icons/16x16/Makefile
+	src/tracker-needle/icons/22x22/Makefile
+	src/tracker-needle/icons/24x24/Makefile
+	src/tracker-needle/icons/32x32/Makefile
+	src/tracker-needle/icons/48x48/Makefile
+	src/tracker-needle/icons/scalable/Makefile
 	src/tracker-utils/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
