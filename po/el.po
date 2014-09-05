@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-08-15 10:49+0000\n"
-"PO-Revision-Date: 2014-08-15 15:14+0200\n"
+"POT-Creation-Date: 2014-09-04 15:20+0000\n"
+"PO-Revision-Date: 2014-09-05 12:09+0200\n"
 "Last-Translator: Tom Tryfonidis <tomtryf@gmail.com>\n"
 "Language-Team: team@lists.gnome.gr\n"
 "Language: el\n"
@@ -752,7 +752,7 @@ msgstr "Η προσθήκη ροής απαιτεί --add-feed και --title"
 #: ../src/tracker-utils/tracker-info.c:389
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
-#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-stats.c:200
 #: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Αδυναμία σύνδεσης με το Tracker"
@@ -789,7 +789,7 @@ msgstr "Αδυναμία σύνδεσης με το Tracker"
 #: ../src/tracker-utils/tracker-info.c:390
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
-#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-stats.c:201
 #: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
@@ -836,12 +836,12 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:1052
+#: ../src/tracker-preferences/tracker-preferences.vala:1051
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-stats.c:51
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "Εμφάνιση έκδοσης"
@@ -1362,7 +1362,7 @@ msgid "No miners are running"
 msgstr "Δεν εκτελείται κανένας εξορύκτης"
 
 #: ../src/tracker-control/tracker-control-miners.c:399
-#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-needle/tracker-stats.vala:118
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Εφαρμογή"
@@ -1688,19 +1688,19 @@ msgstr ""
 "Τα αναπαριστόμενα στατιστικά εδώ δεν αντανακλούν τη διαθεσιμότητά τους, αλλά "
 "τα συνολικά αποθηκευμένα δεδομένα:"
 
-#: ../src/tracker-needle/tracker-stats.vala:91
+#: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
 msgid_plural "Tags"
 msgstr[0] "Ετικέτα"
 msgstr[1] "Ετικέτες"
 
-#: ../src/tracker-needle/tracker-stats.vala:94
+#: ../src/tracker-needle/tracker-stats.vala:100
 msgid "Contact"
 msgid_plural "Contacts"
 msgstr[0] "Επαφή"
 msgstr[1] "Επαφές"
 
-#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Ήχος"
@@ -1715,7 +1715,7 @@ msgstr[1] "Ήχοι"
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: ../src/tracker-needle/tracker-stats.vala:100
+#: ../src/tracker-needle/tracker-stats.vala:106
 msgid "Document"
 msgid_plural "Documents"
 msgstr[0] "Έγγραφο"
@@ -1723,7 +1723,7 @@ msgstr[1] "Έγγραφα"
 
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
-#: ../src/tracker-needle/tracker-stats.vala:103
+#: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
@@ -1731,7 +1731,7 @@ msgid_plural "Files"
 msgstr[0] "Αρχείο"
 msgstr[1] "Αρχεία"
 
-#: ../src/tracker-needle/tracker-stats.vala:106
+#: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Folder"
 msgid_plural "Folders"
 msgstr[0] "Φάκελος"
@@ -1739,50 +1739,50 @@ msgstr[1] "Φάκελοι"
 
 # #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
 #
-#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
 msgstr[0] "Εικόνα"
 msgstr[1] "Εικόνες"
 
 #. case "nmm:Video":
-#: ../src/tracker-needle/tracker-stats.vala:116
+#: ../src/tracker-needle/tracker-stats.vala:122
 msgid "Video"
 msgid_plural "Videos"
 msgstr[0] "Βίντεο"
 msgstr[1] "Βίντεο"
 
-#: ../src/tracker-needle/tracker-stats.vala:119
+#: ../src/tracker-needle/tracker-stats.vala:125
 msgid "Album"
 msgid_plural "Albums"
 msgstr[0] "Συλλογή"
 msgstr[1] "Συλλογές"
 
-#: ../src/tracker-needle/tracker-stats.vala:122
+#: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
 msgstr[0] "Κομμάτι ήχου"
 msgstr[1] "Κομμάτια ήχου"
 
-#: ../src/tracker-needle/tracker-stats.vala:125
+#: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
 msgid_plural "Photos"
 msgstr[0] "Φωτογραφία"
 msgstr[1] "Φωτογραφίες"
 
-#: ../src/tracker-needle/tracker-stats.vala:128
+#: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Λίστα αναπαραγωγής"
 msgstr[1] "Λίστες αναπαραγωγής"
 
-#: ../src/tracker-needle/tracker-stats.vala:131
+#: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
 msgid_plural "Emails"
 msgstr[0] "Αλληλογραφία"
 msgstr[1] "Αλληλογραφίες"
 
-#: ../src/tracker-needle/tracker-stats.vala:134
+#: ../src/tracker-needle/tracker-stats.vala:140
 msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "Σελιδοδείκτης"
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "Recurse"
 msgstr "Αναδρομικά"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1058
+#: ../src/tracker-preferences/tracker-preferences.vala:1057
 msgid "Desktop Search preferences"
 msgstr "Προτιμήσεις αναζήτησης της επιφάνειας εργασίας"
 
@@ -2614,10 +2614,12 @@ msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Αναζήτηση για σελιδοδείκτες (το --all δεν το επηρεάζει)"
 
 #: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-stats.c:60
 msgid "search terms"
 msgstr "όροι αναζήτησης"
 
 #: ../src/tracker-utils/tracker-search.c:179
+#: ../src/tracker-utils/tracker-stats.c:61
 msgid "EXPRESSION"
 msgstr "ΕΚΦΡΑΣΗ"
 
@@ -2953,9 +2955,6 @@ msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτ�
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
 #. * files found associated with multiple tags, e.g.:
@@ -2980,7 +2979,7 @@ msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτ�
 #.
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
-#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-stats.c:269
 #: ../src/tracker-utils/tracker-tag.c:329
 #: ../src/tracker-utils/tracker-tag.c:461
 #: ../src/tracker-utils/tracker-tag.c:583
@@ -3130,22 +3129,30 @@ msgstr "Αδυναμία εκτέλεσης ερωτήματος"
 msgid "No results found matching your query"
 msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
 
+#: ../src/tracker-utils/tracker-stats.c:55
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+"Εμφάνιση στατιστικών για όλες τις κλάσεις RDF, όχι μόνο οι κοινές όπου είναι "
+"προεπιλεγμένο (υπονοείται από τους όρους αναζήτησης)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
+#: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
-" - Προβολή στατιστικών για όλες τις ορισμένες κλάσεις οντολογίας Nepomuk"
+" - Εμφάνιση στατιστικών για όλες τις ορισμένες κλάσεις οντολογίας Nepomuk"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
 msgstr "Αδυναμία λήψης των στατιστικών του Tracker"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker-utils/tracker-stats.c:217
 msgid "No statistics available"
 msgstr "Χωρίς διαθέσιμα στατιστικά"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-stats.c:266
 msgid "Statistics:"
 msgstr "Στατιστικά:"
 
