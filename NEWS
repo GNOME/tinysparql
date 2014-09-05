@@ -1,3 +1,54 @@
+NEW in 1.1.4 - 2014-09-05
+=========================
+
+  * New Feature: Extractor now supports eBook and Comic book formats
+  * Fixes: GB#735645, EPub extractor bug fixes
+  * Fixes: GB#735636, tracker-sandbox: Setup xdg-user-dirs
+  * Fixes: GB#735460, ePub/eBooks indexing bugs
+  * Fixes: GB#735610, Remove requirement on ModulePath for extractor .rule files
+  * Fixes: GB#735567, build: include COPYING*GPL files in tarball
+  * Fixes: GB#735317, Tracker no longer honours my 'ignore files' put on the disks
+  * Fixes: GB#735339, undefined symbol: tracker_enumerator_get_type
+  * Fixes: GB#733573, playlists are given RDF type nmm:MusicPiece and nfo:Audio
+  * Fixes: GB#733317, tracker-extract: remove application/vnd.ms-* catchall from msoffice
+  * ontology: Added new RDF type nfo:EBook for electronic books, this is not in Nepomuk yet
+  * libtracker-fts: Fixed a memory leak for property_names variable
+  * libtracker-data: Fixed compiler warning with tracker_db_interface_sqlite_fts_update_text()
+  * libtracker-bus: Fixed a bug where tracker-stats showed no information with Vala 0.24+
+  * libtracker-bus: Fixed all TRACKER_DBUS* to Tracker.DBUS
+  * libtracker-sparql: All TrackerSparqlConnection APIs throw GLib.Error due to GUnixFDList _append() API
+  * libtracker-sparql: Move TRACKER_ const definitions to Tracker namespace, i.e. Tracker.DBUS_*
+  * libtracker-miner: Generate Vala bindings from GIR
+  * libtracker-miner: Improve GIR annotations for some nullable cases
+  * libtracker-miner: Removed TrackerCrawlFlags and use TrackerDirectoryFlags instead
+  * libtracker-miner: Call tracker_data_provider_end_async() when dir has been crawled
+  * libtracker-miner: Fixed reference leak with TrackerTaskPool when using external data miners
+  * libtracker-extract: Fixed broken EXIF GPS coordinate extraction
+  * libtracker-control: Generate Vala bindings from GIR
+  * libtracker-control: Improve GIR annotations for some nullable cases
+  * tracker-stats: Now EXPRESSIONS can be used to filter stats shown
+  * tracker-stats: Now only common and fallback RDF types are shown by default, --all can be used to old behaviour
+  * tracker-extract: Improved error parsing and content extraction for EPub contents
+  * tracker-extract: Now EPub files are marked as new RDF type nfo:EBook
+  * tracker-miner-fs: By default, ignore directories with '.trackerignore' file inside
+  * tracker-preferences: Removed fixed column for indexed locations, column header text was cut off
+  * tracker-sandbox: Setup xdg-user-dirs too
+
+Translations:
+
+  * Updated as: Nilamdyuti Goswami
+  * Updated cs: Marek Černocký
+  * Updated el: Tom Tryfonidis
+  * Updated es: Daniel Mustieles
+  * Updated fr: Alexandre Franke, Alain Lojewski
+  * Updated gl: Fran Diéguez, Fran Dieguez
+  * Updated id: Andika Triwidada
+  * Updated pt_BR: Enrico Nicoletto
+  * Updated ru: Yuri Myasoedov
+  * Updated zh_HK: Chao-Hsiung Liao
+  * Updated zh_TW: Chao-Hsiung Liao
+
+
 NEW in 1.1.3 - 2014-08-19
 =========================
 
