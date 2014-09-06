@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-06 03:53+0200\n"
-"PO-Revision-Date: 2014-09-06 03:54+0200\n"
+"POT-Creation-Date: 2014-09-07 01:52+0200\n"
+"PO-Revision-Date: 2014-09-07 01:54+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -1916,7 +1916,7 @@ msgstr "_Monitorowanie zmian plików i katalogów"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Enable when running on _battery"
-msgstr "Wyłączenie podczas zasilania z a_kumulatora"
+msgstr "Działanie podczas zasilania z a_kumulatora"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "Enable for _initial data population"
@@ -1924,16 +1924,16 @@ msgstr "Włączenie dla p_oczątkowego zebrania danych"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "Include _removable media"
-msgstr "Dołączenie nośników _wymiennych"
+msgstr "Także nośniki _wymienne"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr ""
-"Pokrywa to WSZYSTKIE nośniki wymienne, karty pamięci, płyty CD i DVD itp."
+"Obejmuje to WSZYSTKIE nośniki wymienne, karty pamięci, płyty CD, DVD itp."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Include optical di_scs"
-msgstr "Dołączenie płyt _optycznych"
+msgstr "Także płyty _optyczne"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "Semantics"
@@ -2140,11 +2140,11 @@ msgstr "Ignorowana treść"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
 msgid "Index content of _files found"
-msgstr "_Indeksowanie treści odnalezionych plików"
+msgstr "_Treść odnalezionych plików"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
 msgid "Index _numbers"
-msgstr "Ig_norowanie liczb"
+msgstr "_Liczby"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
 msgid "What is indexed?"
