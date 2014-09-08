@@ -25,7 +25,7 @@ mixing contacts with files, locations, activities and etc.).</description>
   <maintainer>
     <foaf:Person>
       <foaf:name>Aleksander Morgado</foaf:name>
-      <foaf:mbox rdf:resource="mailto:aleksander@lanedo.com" />
+      <foaf:mbox rdf:resource="mailto:aleksander@aleksander.es" />
       <gnome:userid>aleksm</gnome:userid>
     </foaf:Person>
   </maintainer>
@@ -33,7 +33,7 @@ mixing contacts with files, locations, activities and etc.).</description>
   <maintainer>
     <foaf:Person>
       <foaf:name>Carlos Garnacho</foaf:name>
-      <foaf:mbox rdf:resource="mailto:carlos@lanedo.com" />
+      <foaf:mbox rdf:resource="mailto:carlosg@gnome.org" />
       <gnome:userid>carlosg</gnome:userid>
     </foaf:Person>
   </maintainer>
