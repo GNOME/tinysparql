@@ -96,6 +96,12 @@ static inline void print_gif_error()
 }
 #endif /* GIFLIB_MAJOR >= 5 */
 
+/* giflib 5.1 changed the API of DGifCloseFile to take two arguments */
+#if !defined(GIFLIB_MAJOR) || \
+    !(GIFLIB_MAJOR > 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR >= 1))
+#define DGifCloseFile(a, b) DGifCloseFile(a)
+#endif
+
 static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
@@ -680,7 +686,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	g_free (uri);
 
-	if (DGifCloseFile (gifFile) != GIF_OK) {
+	if (DGifCloseFile (gifFile, NULL) != GIF_OK) {
 #if GIFLIB_MAJOR < 5
 		print_gif_error ();
 #else  /* GIFLIB_MAJOR < 5 */
