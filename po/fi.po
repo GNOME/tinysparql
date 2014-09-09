@@ -6,15 +6,15 @@
 #
 # Ilkka Tuohela <hile@iki.fi>, 2006-2008.
 # Timo Jyrinki <timo.jyrinki@iki.fi>, 2007-2008.
-# Jiri Grönroos <jiri.gronroos+l10n@iki.fi>, 2009, 2012, 2013.
+# Jiri Grönroos <jiri.gronroos+l10n@iki.fi>, 2009, 2012, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug."
-"cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-07-22 16:13+0000\n"
-"PO-Revision-Date: 2013-09-11 19:30+0300\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2014-09-07 11:57+0000\n"
+"PO-Revision-Date: 2014-09-07 19:20+0300\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos+l10n@iki.fi>\n"
 "Language-Team: suomi <gnome-fi-laatu@lists.sourceforge.net>\n"
 "Language: \n"
@@ -122,7 +122,7 @@ msgstr ""
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
 msgid "Enable stemmer"
-msgstr ""
+msgstr "Käytä karsintaa (stemmausta)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
@@ -494,26 +494,35 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d sekunti"
 msgstr[1] " %2.2d sekuntia"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:957
+#: ../src/libtracker-miner/tracker-enumerator.c:114
+#: ../src/libtracker-miner/tracker-enumerator.c:165
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
+msgid "Operation not supported"
+msgstr "Toiminto ei ole tuettu"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:997
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1054
+#: ../src/libtracker-miner/tracker-miner-object.c:1096
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1500
+#: ../src/libtracker-miner/tracker-miner-object.c:1577
 #, fuzzy
 msgid "Data store is not available"
 msgstr "Tilastoja ei saatavilla"
 
 #: ../src/libtracker-miner/tracker-miner-online.c:312
 msgid "No network connection"
-msgstr ""
+msgstr "Ei verkkoyhteyttä"
 
 #: ../src/libtracker-miner/tracker-miner-online.c:313
 msgid "Indexing not recommended on this network connection"
-msgstr ""
+msgstr "Indeksointia ei suositella tällä verkkoyhteydellä"
 
 #: ../src/miners/apps/tracker-main.c:56 ../src/miners/fs/tracker-main.c:80
 #: ../src/miners/rss/tracker-main.c:39
@@ -522,6 +531,8 @@ msgstr ""
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr ""
+"Lokikeräys, 0 = vain virheet, 1 = vähäinen, 2 = yksityiskohtainen ja 3 = "
+"vianjäljitys (oletus=0)"
 
 #: ../src/miners/apps/tracker-main.c:61
 #: ../src/miners/user-guides/tracker-main.c:61
@@ -652,11 +663,11 @@ msgstr ""
 msgid "- start the tracker indexer"
 msgstr ""
 
-#: ../src/miners/fs/tracker-miner-files.c:1356
+#: ../src/miners/fs/tracker-miner-files.c:1360
 msgid "Low battery"
 msgstr "Akku vähissä"
 
-#: ../src/miners/fs/tracker-miner-files.c:1483
+#: ../src/miners/fs/tracker-miner-files.c:1487
 msgid "Low disk space"
 msgstr "Levytila vähissä"
 
@@ -689,7 +700,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-info.c:389
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
-#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-stats.c:200
 #: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Yhteys Trackeriin epäonnistui"
@@ -720,12 +731,13 @@ msgstr "Yhteys Trackeriin epäonnistui"
 #: ../src/tracker-control/tracker-control-status.c:651
 #: ../src/tracker-control/tracker-control-status.c:816
 #: ../src/tracker-control/tracker-control-status.c:882
+#: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
 #: ../src/tracker-utils/tracker-info.c:390
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
-#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-stats.c:201
 #: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Syytä ei määritelty"
@@ -737,7 +749,7 @@ msgstr "Syötteen lisäys epäonnistui"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/user-guides/tracker-main.c:202
+#: ../src/miners/user-guides/tracker-main.c:204
 #, fuzzy
 msgid "- start the user guides data miner"
 msgstr "- käynnistä tracker-seurantapalvelin"
@@ -771,20 +783,19 @@ msgstr[1] "_Aseta %d valitulle kohteelle haluamasi tunnisteet:"
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:1052
+#: ../src/tracker-preferences/tracker-preferences.vala:1051
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-stats.c:51
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
-msgstr ""
+msgstr "Tulosta versio"
 
 #: ../src/tracker-control/tracker-control.c:73
-#, fuzzy
 msgid "Could not get D-Bus connection"
-msgstr "DBus-yhteyttä Trackeriin ei voitu muodostaa"
+msgstr "D-Bus-yhteys ei onnistunut"
 
 #: ../src/tracker-control/tracker-control.c:91
 #, fuzzy
@@ -900,7 +911,7 @@ msgstr "Tiedoston lukeminen ei onnistunut"
 
 #: ../src/tracker-control/tracker-control-general.c:595
 msgid "Version"
-msgstr ""
+msgstr "Versio"
 
 #: ../src/tracker-control/tracker-control-general.c:602
 #, fuzzy
@@ -940,10 +951,9 @@ msgid "Data Statistics"
 msgstr "Tilastot:"
 
 #: ../src/tracker-control/tracker-control-general.c:727
-#, fuzzy
 #| msgid "No services available"
 msgid "No connection available"
-msgstr "Palveluita ei ole saatavilla"
+msgstr "Yhteyttä ei ole saatavilla"
 
 #: ../src/tracker-control/tracker-control-general.c:737
 #, fuzzy
@@ -952,15 +962,13 @@ msgid "Could not get statistics"
 msgstr "Tracker-tilastoja ei saatavilla"
 
 #: ../src/tracker-control/tracker-control-general.c:743
-#, fuzzy
 #| msgid "No statistics available"
 msgid "No statistics were available"
-msgstr "Tilastoja ei saatavilla"
+msgstr "Tilastoja ei ollut saatavilla"
 
 #: ../src/tracker-control/tracker-control-general.c:756
-#, fuzzy
 msgid "Database is currently empty"
-msgstr "Asiakirja ei ole olemassa."
+msgstr "Tietokanta on juuri nyt tyhjä"
 
 #: ../src/tracker-control/tracker-control-general.c:795
 msgid "You can not use the --kill and --terminate arguments together"
@@ -1064,18 +1072,17 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-general.c:1278
 msgid "Backing up database"
-msgstr ""
+msgstr "Varmuuskopioidaan tietokantaa"
 
 #: ../src/tracker-control/tracker-control-general.c:1298
 #: ../src/tracker-control/tracker-control-general.c:1351
-#, fuzzy
 #| msgid "Could not update tags"
 msgid "Could not backup database"
-msgstr "Tunnisteiden päivitys epäonnistui"
+msgstr "Tietokannan varmuuskopiointi epäonnistui"
 
 #: ../src/tracker-control/tracker-control-general.c:1331
 msgid "Restoring database from backup"
-msgstr ""
+msgstr "Palautetaan tietokantaa varmuuskopiosta"
 
 #: ../src/tracker-control/tracker-control-general.c:1376
 msgid "General options"
@@ -1165,13 +1172,13 @@ msgstr "Kansiota \"%s\" ei voi avata."
 #: ../src/tracker-control/tracker-control-miners.c:139
 #, c-format
 msgid "Cookie is %d"
-msgstr ""
+msgstr "Eväste on %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:146
 #: ../src/tracker-control/tracker-control-status.c:849
 #: ../src/tracker-control/tracker-control-status.c:993
 msgid "Press Ctrl+C to stop"
-msgstr ""
+msgstr "Paina Ctrl+C lopettaaksesi"
 
 #: ../src/tracker-control/tracker-control-miners.c:170
 #, fuzzy, c-format
@@ -1251,7 +1258,7 @@ msgid "No miners are running"
 msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:399
-#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-needle/tracker-stats.vala:118
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Sovellus"
@@ -1314,7 +1321,7 @@ msgstr "Indeksoidaan rekursiivisesti hakemistoa '%s'"
 
 #: ../src/tracker-control/tracker-control-status.c:71
 msgid "Paused"
-msgstr ""
+msgstr "Keskeytetty"
 
 #: ../src/tracker-control/tracker-control-status.c:72
 msgid "Idle"
@@ -1446,11 +1453,11 @@ msgstr "Tilavalinnat"
 msgid "Show status options"
 msgstr ""
 
-#: ../src/tracker-extract/tracker-extract.c:743
+#: ../src/tracker-extract/tracker-extract.c:784
 msgid "Metadata extraction failed"
 msgstr ""
 
-#: ../src/tracker-extract/tracker-extract.c:808
+#: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 
@@ -1460,6 +1467,8 @@ msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
 msgstr ""
+"Lokikeräys, 0 = vain virheet, 1 = vähäinen, 2 = yksityiskohtainen ja 3 = "
+"vianjäljitys (oletus = 0)"
 
 #: ../src/tracker-extract/tracker-main.c:92
 msgid "File to extract metadata for"
@@ -1479,11 +1488,11 @@ msgstr "MODUULI"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:329
+#: ../src/tracker-extract/tracker-main.c:311
 msgid "- Extract file meta data"
 msgstr ""
 
-#: ../src/tracker-extract/tracker-main.c:338
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "Filename and mime type must be provided together"
 msgstr ""
 
@@ -1575,31 +1584,31 @@ msgstr ""
 "Nämä tilastot eivät esitä varsinaista saatavuutta, vaan tietokantaan "
 "tallennetut tiedot:"
 
-#: ../src/tracker-needle/tracker-stats.vala:91
+#: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
 msgid_plural "Tags"
 msgstr[0] "Tunniste"
 msgstr[1] "Tunnisteet"
 
-#: ../src/tracker-needle/tracker-stats.vala:94
+#: ../src/tracker-needle/tracker-stats.vala:100
 msgid "Contact"
 msgid_plural "Contacts"
 msgstr[0] "Yhteystieto"
 msgstr[1] "Yhteystiedot"
 
-#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Ääni"
 msgstr[1] "Ääni"
 
-#: ../src/tracker-needle/tracker-stats.vala:100
+#: ../src/tracker-needle/tracker-stats.vala:106
 msgid "Document"
 msgid_plural "Documents"
 msgstr[0] "Asiakirja"
 msgstr[1] "Asiakirjat"
 
-#: ../src/tracker-needle/tracker-stats.vala:103
+#: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
@@ -1607,56 +1616,56 @@ msgid_plural "Files"
 msgstr[0] "Tiedosto"
 msgstr[1] "Tiedostot"
 
-#: ../src/tracker-needle/tracker-stats.vala:106
+#: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Folder"
 msgid_plural "Folders"
 msgstr[0] "Kansio"
 msgstr[1] "Kansiot"
 
-#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
 msgstr[0] "Kuva"
 msgstr[1] "Kuvat"
 
 #. case "nmm:Video":
-#: ../src/tracker-needle/tracker-stats.vala:116
+#: ../src/tracker-needle/tracker-stats.vala:122
 msgid "Video"
 msgid_plural "Videos"
 msgstr[0] "Video"
 msgstr[1] "Videot"
 
-#: ../src/tracker-needle/tracker-stats.vala:119
+#: ../src/tracker-needle/tracker-stats.vala:125
 msgid "Album"
 msgid_plural "Albums"
 msgstr[0] "Albumi"
 msgstr[1] "Albumit"
 
-#: ../src/tracker-needle/tracker-stats.vala:122
+#: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
 msgstr[0] "Musiikkikappale"
 msgstr[1] "Musiikkikappaleet"
 
-#: ../src/tracker-needle/tracker-stats.vala:125
+#: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
 msgid_plural "Photos"
 msgstr[0] "Valokuva"
 msgstr[1] "Valokuvat"
 
-#: ../src/tracker-needle/tracker-stats.vala:128
+#: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Soittolista"
 msgstr[1] "Soittolistat"
 
-#: ../src/tracker-needle/tracker-stats.vala:131
+#: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
 msgid_plural "Emails"
 msgstr[0] "Sähköposti"
 msgstr[1] "Sähköpostit"
 
-#: ../src/tracker-needle/tracker-stats.vala:134
+#: ../src/tracker-needle/tracker-stats.vala:140
 msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "Kirjanmerkki"
@@ -1796,12 +1805,12 @@ msgid "Loading…"
 msgstr "Ladataan…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
-#, fuzzy, c-format
+#, c-format
 #| msgid "Pages"
 msgid "%d Page"
 msgid_plural "%d Pages"
-msgstr[0] "Sivut"
-msgstr[1] "Sivut"
+msgstr[0] "%d sivu"
+msgstr[1] "%d sivua"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
@@ -2131,23 +2140,23 @@ msgstr "_Indeksoi uudelleen"
 #: ../src/tracker-preferences/tracker-preferences.vala:362
 #: ../src/tracker-preferences/tracker-preferences.vala:385
 msgid "Do nothing"
-msgstr ""
+msgstr "Älä tee mitään"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:381
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
 msgstr ""
+"Tekemäsi asetusmuutokset vaativat tracker-prosessien uudelleenkäynnistyksen."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:382
 msgid "Would you like to restart now?"
-msgstr ""
+msgstr "Käynnistetäänkö uudelleen nyt?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
-#, fuzzy
 #| msgid "Tracker"
 msgid "Restart Tracker"
-msgstr "Tracker"
+msgstr "Käynnistä Tracker uudelleen"
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -2168,12 +2177,12 @@ msgstr "Anna arvo"
 #: ../src/tracker-preferences/tracker-preferences.vala:643
 #: ../src/tracker-preferences/tracker-preferences.vala:672
 msgid "_Cancel"
-msgstr ""
+msgstr "_Peru"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:644
 #: ../src/tracker-preferences/tracker-preferences.vala:674
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:669
 msgid "Select directory"
@@ -2187,7 +2196,7 @@ msgstr "Tämä kansio on jo valittu indeksoitavaksi sijainniksi"
 msgid "Recurse"
 msgstr "Myös alikansiot"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1058
+#: ../src/tracker-preferences/tracker-preferences.vala:1057
 msgid "Desktop Search preferences"
 msgstr "Työpöytähaun asetukset"
 
@@ -2198,7 +2207,7 @@ msgstr "Pakota kaiken sisällön uudelleenindeksointi"
 
 #: ../src/tracker-store/tracker-main.vala:52
 msgid "Only allow read based actions on the database"
-msgstr ""
+msgstr "Salli vain lukumuotoiset toiminnot tietokantaan"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -2372,10 +2381,12 @@ msgid "Search for bookmarks (--all has no effect on this)"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-stats.c:60
 msgid "search terms"
 msgstr "hakuehdot"
 
 #: ../src/tracker-utils/tracker-search.c:179
+#: ../src/tracker-utils/tracker-stats.c:61
 msgid "EXPRESSION"
 msgstr ""
 
@@ -2545,8 +2556,8 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. "
-"rdfs:Resource)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:122
@@ -2609,9 +2620,6 @@ msgstr ""
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
 #. * files found associated with multiple tags, e.g.:
@@ -2636,7 +2644,7 @@ msgstr ""
 #.
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
-#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-stats.c:269
 #: ../src/tracker-utils/tracker-tag.c:329
 #: ../src/tracker-utils/tracker-tag.c:461
 #: ../src/tracker-utils/tracker-tag.c:583
@@ -2796,21 +2804,27 @@ msgstr "Kyselyn suoritus ei onnistunut"
 msgid "No results found matching your query"
 msgstr "Hakuehtoja vastaavia tuloksia ei löytynyt"
 
+#: ../src/tracker-utils/tracker-stats.c:55
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
+#: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
 msgstr "Tracker-tilastoja ei saatavilla"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker-utils/tracker-stats.c:217
 msgid "No statistics available"
 msgstr "Tilastoja ei saatavilla"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-stats.c:266
 msgid "Statistics:"
 msgstr "Tilastot:"
 
@@ -2990,7 +3004,7 @@ msgstr ""
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr ""
 
-#. Translators: this messagge will apper immediately after the
+#. Translators: this message will appear immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
