@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-08-15 10:49+0000\n"
-"PO-Revision-Date: 2014-08-15 23:48+0300\n"
+"POT-Creation-Date: 2014-09-10 10:47+0000\n"
+"PO-Revision-Date: 2014-09-10 20:35+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -526,10 +526,10 @@ msgstr[2] " %2.2d sekundžių"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
-#: ../src/libtracker-miner/tracker-data-provider.c:159
-#: ../src/libtracker-miner/tracker-data-provider.c:219
-#: ../src/libtracker-miner/tracker-data-provider.c:307
-#: ../src/libtracker-miner/tracker-data-provider.c:365
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
 msgid "Operation not supported"
 msgstr "Veiksmas nepalaikomas"
 
@@ -729,7 +729,7 @@ msgstr "Norint pridėti sklaidos kanalą reikia naudoti --add-feed ir --title"
 #: ../src/tracker-utils/tracker-info.c:389
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
-#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-stats.c:200
 #: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
@@ -766,7 +766,7 @@ msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
 #: ../src/tracker-utils/tracker-info.c:390
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
-#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-stats.c:201
 #: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Nenurodyta klaida"
@@ -813,12 +813,12 @@ msgstr[2] "_Nustatyti žymas, kurias norite susieti su %d pažymėtų elementų:
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:1052
+#: ../src/tracker-preferences/tracker-preferences.vala:1051
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-stats.c:51
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "Parodyti versijos numerį"
@@ -1294,7 +1294,7 @@ msgid "No miners are running"
 msgstr "Nėra veikiančių gavėjų"
 
 #: ../src/tracker-control/tracker-control-miners.c:399
-#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-needle/tracker-stats.vala:118
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Programa"
@@ -1611,35 +1611,35 @@ msgstr ""
 "Šie statistiniai duomenys neatspindi jų prieinamumo, tik bendrąjį įrašytų "
 "duomenų kiekį:"
 
-#: ../src/tracker-needle/tracker-stats.vala:91
+#: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
 msgid_plural "Tags"
 msgstr[0] "Žyma"
 msgstr[1] "Žymos"
 msgstr[2] "Žymų"
 
-#: ../src/tracker-needle/tracker-stats.vala:94
+#: ../src/tracker-needle/tracker-stats.vala:100
 msgid "Contact"
 msgid_plural "Contacts"
 msgstr[0] "Kontaktas"
 msgstr[1] "Kontaktai"
 msgstr[2] "Kontaktų"
 
-#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Garsas"
 msgstr[1] "Garsai"
 msgstr[2] "Garsų"
 
-#: ../src/tracker-needle/tracker-stats.vala:100
+#: ../src/tracker-needle/tracker-stats.vala:106
 msgid "Document"
 msgid_plural "Documents"
 msgstr[0] "Dokumentas"
 msgstr[1] "Dokumentai"
 msgstr[2] "Dokumentų"
 
-#: ../src/tracker-needle/tracker-stats.vala:103
+#: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
@@ -1648,14 +1648,14 @@ msgstr[0] "Failas"
 msgstr[1] "Failai"
 msgstr[2] "Failų"
 
-#: ../src/tracker-needle/tracker-stats.vala:106
+#: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Folder"
 msgid_plural "Folders"
 msgstr[0] "Aplankas"
 msgstr[1] "Aplankai"
 msgstr[2] "Aplankų"
 
-#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
 msgstr[0] "Paveikslėlis"
@@ -1663,49 +1663,49 @@ msgstr[1] "Paveikslėliai"
 msgstr[2] "Paveikslėlių"
 
 #. case "nmm:Video":
-#: ../src/tracker-needle/tracker-stats.vala:116
+#: ../src/tracker-needle/tracker-stats.vala:122
 msgid "Video"
 msgid_plural "Videos"
 msgstr[0] "Vaizdo įrašas"
 msgstr[1] "Vaizdo įrašai"
 msgstr[2] "Vaizdo įrašų"
 
-#: ../src/tracker-needle/tracker-stats.vala:119
+#: ../src/tracker-needle/tracker-stats.vala:125
 msgid "Album"
 msgid_plural "Albums"
 msgstr[0] "Albumas"
 msgstr[1] "Albumai"
 msgstr[2] "Albumų"
 
-#: ../src/tracker-needle/tracker-stats.vala:122
+#: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
 msgstr[0] "Muzikos takelis"
 msgstr[1] "Muzikos takeliai"
 msgstr[2] "Muzikos takelių"
 
-#: ../src/tracker-needle/tracker-stats.vala:125
+#: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
 msgid_plural "Photos"
 msgstr[0] "Nuotrauka"
 msgstr[1] "Nuotraukos"
 msgstr[2] "Nuotraukų"
 
-#: ../src/tracker-needle/tracker-stats.vala:128
+#: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Grojaraštis"
 msgstr[1] "Grojaraščiai"
 msgstr[2] "Grojaraščių"
 
-#: ../src/tracker-needle/tracker-stats.vala:131
+#: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
 msgid_plural "Emails"
 msgstr[0] "El. laiškas"
 msgstr[1] "El. laiškai"
 msgstr[2] "El. laiškų"
 
-#: ../src/tracker-needle/tracker-stats.vala:134
+#: ../src/tracker-needle/tracker-stats.vala:140
 msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "Adresyno įrašas"
@@ -2243,7 +2243,7 @@ msgstr "Šis katalogas jau pasirinktas kaip indeksavimo vieta"
 msgid "Recurse"
 msgstr "Rekursyviai"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1058
+#: ../src/tracker-preferences/tracker-preferences.vala:1057
 msgid "Desktop Search preferences"
 msgstr "Darbo aplinkos paieškos nustatymai"
 
@@ -2435,10 +2435,12 @@ msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Ieškoti adresyno įrašų (--all neturi poveikio)"
 
 #: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-stats.c:60
 msgid "search terms"
 msgstr "paieškos terminai"
 
 #: ../src/tracker-utils/tracker-search.c:179
+#: ../src/tracker-utils/tracker-stats.c:61
 msgid "EXPRESSION"
 msgstr "IŠRAIŠKA"
 
@@ -2680,9 +2682,6 @@ msgstr "Nerasti vardų srities priešdėliai"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
 #. * files found associated with multiple tags, e.g.:
@@ -2707,7 +2706,7 @@ msgstr "Nerasti vardų srities priešdėliai"
 #.
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
-#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-stats.c:269
 #: ../src/tracker-utils/tracker-tag.c:329
 #: ../src/tracker-utils/tracker-tag.c:461
 #: ../src/tracker-utils/tracker-tag.c:583
@@ -2854,21 +2853,29 @@ msgstr "Nepavyko įvykdyti užklausos"
 msgid "No results found matching your query"
 msgstr "Užklausos atitinkančių rezultatų nerasta"
 
+#: ../src/tracker-utils/tracker-stats.c:55
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+"Rodyti statistiką apie VISAS RDF klases, ne vien tik dažnas, kaip numatyta "
+"(pagal paieškos parametrus)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
+#: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr " - rodyti statistiką visoms Nepomuk apibrėžtoms ontologijos klasėms"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
 msgstr "Nepavyko gauti Tracker statistikos"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker-utils/tracker-stats.c:217
 msgid "No statistics available"
 msgstr "Nėra statistikos"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-stats.c:266
 msgid "Statistics:"
 msgstr "Statistika:"
 
