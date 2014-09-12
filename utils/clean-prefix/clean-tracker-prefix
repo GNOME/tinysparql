@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# Copyright (C) 2012-2014 Martyn Russell <martyn@lanedo.com>
+#
+# This script cleans a prefix of all installed Tracker files.
+#
+# Usage:
+#  - Clean system's prefix (not recommended):
+#      ./clean-tracker-prefix
+#  - Clean sandboxed prefix (recommended way to use this):
+#      ./clean-tracker-prefix /opt/gnome
+#  ...
+#
+# Changes:
+#  - If you make _ANY_ changes, please send them in so I can incorporate them.
+#
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
+prefix=/usr
+
+if [ -n "$1" ]; then
+	prefix=$1
+fi
+
+if [ -e $prefix/bin/tracker-control ]; then
+	$prefix/bin/tracker-control -r
+fi
+
+
+sudo rm -rfv \
+$prefix/bin/tracker-* \
+$prefix/libexec/tracker-* \
+$prefix/include/tracker-* \
+$prefix/lib/libtracker-* \
+$prefix/lib/girepository-1.0/Tracker* \
+$prefix/lib/pkgconfig/tracker-* \
+$prefix/lib/tracker \
+$prefix/lib/tracker-* \
+$prefix/share/applications/tracker-* \
+$prefix/share/dbus-1/services/org.freedesktop.Tracker1.* \
+$prefix/share/doc/libtracker* \
+$prefix/share/doc/tracker* \
+$prefix/share/gir-1.0/Tracker* \
+$prefix/share/glib-2.0/schemas/org.freedesktop.Tracker.* \
+$prefix/share/gtk-doc/html/libtracker-* \
+$prefix/share/gtk-doc/html/ontology/tracker-* \
+$prefix/share/man/man1/tracker-* \
+$prefix/share/tracker \
+$prefix/share/tracker-tests \
+$prefix/share/vala/vapi/tracker-* 
+
+#find $prefix -name '*tracker*'
+#find $prefix -name '*Tracker*'
+
+sudo ldconfig
