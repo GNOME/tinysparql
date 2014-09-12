@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the tracker package.
 #
 # Laurent Aguerreche <laurent.aguerreche@free.fr>, 2006.
-# Claude Paroz <claude@2xlibre.net>, 2007-2011.
+# Claude Paroz <claude@2xlibre.net>, 2007-2014.
 # Robert-André Mauchin <zebob.m@pengzone.org>, 2007.
 # Stéphane Raimbault <stephane.raimbault@gmail.com>, 2008.
 # Bruno Brouard <annoa.b@gmail.com>, 2008, 2011.
@@ -16,9 +16,9 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-08-12 20:09+0000\n"
-"PO-Revision-Date: 2014-08-21 20:28+0200\n"
-"Last-Translator: Alain Lojewski <allomervan@gmail.com>\n"
+"POT-Creation-Date: 2014-09-11 10:52+0000\n"
+"PO-Revision-Date: 2014-09-12 08:17+0200\n"
+"Last-Translator: Claude Paroz <claude@2xlibre.net>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -536,10 +536,10 @@ msgstr[1] " %2.2d secondes"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
-#: ../src/libtracker-miner/tracker-data-provider.c:159
-#: ../src/libtracker-miner/tracker-data-provider.c:219
-#: ../src/libtracker-miner/tracker-data-provider.c:307
-#: ../src/libtracker-miner/tracker-data-provider.c:365
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
 msgid "Operation not supported"
 msgstr "Opération non prise en charge"
 
@@ -758,7 +758,7 @@ msgstr "L'ajout d'un flux exige les options --add-feed et --title"
 #: ../src/tracker-utils/tracker-info.c:389
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
-#: ../src/tracker-utils/tracker-stats.c:86
+#: ../src/tracker-utils/tracker-stats.c:200
 #: ../src/tracker-utils/tracker-tag.c:1035
 msgid "Could not establish a connection to Tracker"
 msgstr "Impossible d'établir une connexion vers Tracker"
@@ -795,7 +795,7 @@ msgstr "Impossible d'établir une connexion vers Tracker"
 #: ../src/tracker-utils/tracker-info.c:390
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
-#: ../src/tracker-utils/tracker-stats.c:87
+#: ../src/tracker-utils/tracker-stats.c:201
 #: ../src/tracker-utils/tracker-tag.c:1036
 msgid "No error given"
 msgstr "Aucune erreur indiquée"
@@ -844,12 +844,12 @@ msgstr[1] ""
 
 #: ../src/tracker-control/tracker-control.c:54
 #: ../src/tracker-needle/tracker-needle.vala:710
-#: ../src/tracker-preferences/tracker-preferences.vala:1052
+#: ../src/tracker-preferences/tracker-preferences.vala:1051
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-stats.c:51
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "Affiche la version"
@@ -1356,7 +1356,7 @@ msgid "No miners are running"
 msgstr "Aucun collecteur n'est actuellement lancé"
 
 #: ../src/tracker-control/tracker-control-miners.c:399
-#: ../src/tracker-needle/tracker-stats.vala:112
+#: ../src/tracker-needle/tracker-stats.vala:118
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Application"
@@ -1683,31 +1683,31 @@ msgstr ""
 "Les statistiques affichées ici ne représentent pas leur disponibilité, mais "
 "plutôt la totalité des données stockées :"
 
-#: ../src/tracker-needle/tracker-stats.vala:91
+#: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
 msgid_plural "Tags"
 msgstr[0] "Étiquette"
 msgstr[1] "Étiquettes"
 
-#: ../src/tracker-needle/tracker-stats.vala:94
+#: ../src/tracker-needle/tracker-stats.vala:100
 msgid "Contact"
 msgid_plural "Contacts"
 msgstr[0] "Contact"
 msgstr[1] "Contacts"
 
-#: ../src/tracker-needle/tracker-stats.vala:97
+#: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
 msgid_plural "Audios"
 msgstr[0] "Son"
 msgstr[1] "Sons"
 
-#: ../src/tracker-needle/tracker-stats.vala:100
+#: ../src/tracker-needle/tracker-stats.vala:106
 msgid "Document"
 msgid_plural "Documents"
 msgstr[0] "Document"
 msgstr[1] "Documents"
 
-#: ../src/tracker-needle/tracker-stats.vala:103
+#: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "File"
@@ -1715,56 +1715,56 @@ msgid_plural "Files"
 msgstr[0] "Fichier"
 msgstr[1] "Fichiers"
 
-#: ../src/tracker-needle/tracker-stats.vala:106
+#: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Folder"
 msgid_plural "Folders"
 msgstr[0] "Dossier"
 msgstr[1] "Dossiers"
 
-#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
 msgstr[0] "Image"
 msgstr[1] "Images"
 
 #. case "nmm:Video":
-#: ../src/tracker-needle/tracker-stats.vala:116
+#: ../src/tracker-needle/tracker-stats.vala:122
 msgid "Video"
 msgid_plural "Videos"
 msgstr[0] "Vidéo"
 msgstr[1] "Vidéos"
 
-#: ../src/tracker-needle/tracker-stats.vala:119
+#: ../src/tracker-needle/tracker-stats.vala:125
 msgid "Album"
 msgid_plural "Albums"
 msgstr[0] "Album"
 msgstr[1] "Albums"
 
-#: ../src/tracker-needle/tracker-stats.vala:122
+#: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
 msgstr[0] "Piste musicale"
 msgstr[1] "Pistes musicales"
 
-#: ../src/tracker-needle/tracker-stats.vala:125
+#: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
 msgid_plural "Photos"
 msgstr[0] "Photo"
 msgstr[1] "Photos"
 
-#: ../src/tracker-needle/tracker-stats.vala:128
+#: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Liste de lecture"
 msgstr[1] "Listes de lecture"
 
-#: ../src/tracker-needle/tracker-stats.vala:131
+#: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
 msgid_plural "Emails"
 msgstr[0] "Courriel"
 msgstr[1] "Courriels"
 
-#: ../src/tracker-needle/tracker-stats.vala:134
+#: ../src/tracker-needle/tracker-stats.vala:140
 msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "Signet"
@@ -2235,33 +2235,38 @@ msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
 msgstr ""
+"Les modifications effectuées dans les préférences exigent une "
+"réindexation afin de s'assurer que toutes les données sont correctement "
+"indexées comme vous l'avez demandé."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:358
 msgid "This will close this dialog!"
-msgstr ""
+msgstr "Ceci va fermer cette boîte de dialogue !"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:359
 msgid "Would you like to reindex now?"
-msgstr ""
+msgstr "Souhaitez-vous lancer la réindexation maintenant ?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:361
 msgid "Reindex"
-msgstr ""
+msgstr "Réindexer"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:362
 #: ../src/tracker-preferences/tracker-preferences.vala:385
 msgid "Do nothing"
-msgstr ""
+msgstr "Ne rien faire"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:381
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
 msgstr ""
+"Les modifications effectuées dans les préférences exigent le redémarrage "
+"des processus de tracker."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:382
 msgid "Would you like to restart now?"
-msgstr ""
+msgstr "Souhaitez-vous les redémarrer maintenant ?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
 msgid "Restart Tracker"
@@ -2286,12 +2291,12 @@ msgstr "Saisissez une valeur"
 #: ../src/tracker-preferences/tracker-preferences.vala:643
 #: ../src/tracker-preferences/tracker-preferences.vala:672
 msgid "_Cancel"
-msgstr ""
+msgstr "_Annuler"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:644
 #: ../src/tracker-preferences/tracker-preferences.vala:674
 msgid "_OK"
-msgstr ""
+msgstr "_Valider"
 
 # Titre de boîte de dialogue
 #: ../src/tracker-preferences/tracker-preferences.vala:669
@@ -2306,7 +2311,7 @@ msgstr "Ce dossier est déjà sélectionné comme un emplacement à indexer"
 msgid "Recurse"
 msgstr "Récursif"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1058
+#: ../src/tracker-preferences/tracker-preferences.vala:1057
 msgid "Desktop Search preferences"
 msgstr "Préférences de la recherche"
 
@@ -2504,10 +2509,12 @@ msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Recherche des signets (--all n'a pas d'effet sur cette commande)"
 
 #: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-stats.c:60
 msgid "search terms"
 msgstr "termes à rechercher"
 
 #: ../src/tracker-utils/tracker-search.c:179
+#: ../src/tracker-utils/tracker-stats.c:61
 msgid "EXPRESSION"
 msgstr "EXPRESSION"
 
@@ -2760,9 +2767,6 @@ msgstr "Aucun préfixe d'espace de noms n'a été trouvé"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
 #. * files found associated with multiple tags, e.g.:
@@ -2787,7 +2791,7 @@ msgstr "Aucun préfixe d'espace de noms n'a été trouvé"
 #.
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
-#: ../src/tracker-utils/tracker-stats.c:120
+#: ../src/tracker-utils/tracker-stats.c:269
 #: ../src/tracker-utils/tracker-tag.c:329
 #: ../src/tracker-utils/tracker-tag.c:461
 #: ../src/tracker-utils/tracker-tag.c:583
@@ -2939,23 +2943,32 @@ msgstr "Impossible de lancer la requête"
 msgid "No results found matching your query"
 msgstr "Aucun résultat ne correspond à votre requête"
 
+#: ../src/tracker-utils/tracker-stats.c:55
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+"Afficher des statistiques au sujet de TOUTES les classes RDF, et pas "
+"seulement pour les plus répandues, comme cela se fait par défaut (induit "
+"par les termes de recherche)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
+#: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
 " - affiche des statistiques pour toutes les classes d'ontologie définies par "
 "Nepomuk"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
 msgstr "Impossible d'obtenir les statistiques de Tracker"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker-utils/tracker-stats.c:217
 msgid "No statistics available"
 msgstr "Aucune statistique disponible"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-stats.c:266
 msgid "Statistics:"
 msgstr "Statistiques :"
 
@@ -3158,25 +3171,3 @@ msgstr "Impossible d'initialiser le gestionnaire de données"
 #: ../utils/tracker-sql/tracker-sql.c:200
 msgid "Empty result set"
 msgstr "Ensemble résultant vide"
-
-#~ msgid "Disable miners started as part of this process, options include: '"
-#~ msgstr ""
-#~ "Désactive les collecteurs lancés conjointement à ce processus, les "
-#~ "options incluent :"
-
-#~ msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-#~ msgstr ""
-#~ "Force les extracteurs internes par rapport aux outils tiers tels que "
-#~ "libstreamanalyzer"
-
-#~ msgid ""
-#~ "Options --force-internal-extractors and --force-module can't be used "
-#~ "together"
-#~ msgstr ""
-#~ "Les options --force-internal-extractors et --force-module ne peuvent pas "
-#~ "être utilisées en même temps"
-
-#~ msgid "Extractor error, performing failsafe embedded metadata extraction"
-#~ msgstr ""
-#~ "Erreur d'extraction, une extraction des métadonnées intégrées sans échec "
-#~ "sera effectuée"
