@@ -24,7 +24,9 @@
 
 #include <glib.h>
 
-#include <libstemmer/libstemmer.h>
+#ifdef HAVE_LIBSTEMMER
+#include <libstemmer.h>
+#endif /* HAVE_LIBSTEMMER */
 
 #include "tracker-log.h"
 #include "tracker-language.h"
@@ -126,7 +128,10 @@ static void
 tracker_language_init (TrackerLanguage *language)
 {
 	TrackerLanguagePriv *priv;
-	const gchar         *stem_language;
+
+#ifdef HAVE_LIBSTEMMER
+	const gchar *stem_language;
+#endif /* HAVE_LIBSTEMMER */
 
 	priv = GET_PRIV (language);
 
@@ -134,10 +139,12 @@ tracker_language_init (TrackerLanguage *language)
 	                                          g_str_equal,
 	                                          g_free,
 	                                          NULL);
+#ifdef HAVE_LIBSTEMMER
 	g_mutex_init (&priv->stemmer_mutex);
 
 	stem_language = tracker_language_get_name_by_code (NULL);
 	priv->stemmer = sb_stemmer_new (stem_language, NULL);
+#endif /* HAVE_LIBSTEMMER */
 }
 
 static void
@@ -147,12 +154,14 @@ language_finalize (GObject *object)
 
 	priv = GET_PRIV (object);
 
+#ifdef HAVE_LIBSTEMMER
 	if (priv->stemmer) {
 		g_mutex_lock (&priv->stemmer_mutex);
 		sb_stemmer_delete (priv->stemmer);
 		g_mutex_unlock (&priv->stemmer_mutex);
 	}
 	g_mutex_clear (&priv->stemmer_mutex);
+#endif /* HAVE_LIBSTEMMER */
 
 	if (priv->stop_words) {
 		g_hash_table_unref (priv->stop_words);
@@ -278,14 +287,15 @@ static void
 language_set_stopword_list (TrackerLanguage *language,
                             const gchar     *language_code)
 {
+#ifdef HAVE_LIBSTEMMER
 	TrackerLanguagePriv *priv;
-	gchar               *stopword_filename;
-	gchar               *stem_language_lower;
-	const gchar         *stem_language;
+	gchar *stem_language_lower;
+	const gchar *stem_language;
+#endif /* HAVE_LIBSTEMMER */
+
+	gchar *stopword_filename;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
-
-	priv = GET_PRIV (language);
 
 	/* Set up stopwords list */
 	/* g_message ("Setting up stopword list for language code:'%s'", language_code); */
@@ -299,6 +309,9 @@ language_set_stopword_list (TrackerLanguage *language,
 		language_add_stopwords (language, stopword_filename);
 		g_free (stopword_filename);
 	}
+
+#ifdef HAVE_LIBSTEMMER
+	priv = GET_PRIV (language);
 
 	/* g_message ("Setting up stemmer for language code:'%s'", language_code); */
 
@@ -320,6 +333,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	g_mutex_unlock (&priv->stemmer_mutex);
 
 	g_free (stem_language_lower);
+#endif /* HAVE_LIBSTEMMER */
 }
 
 /**
@@ -498,8 +512,10 @@ tracker_language_stem_word (TrackerLanguage *language,
                             const gchar     *word,
                             gint             word_length)
 {
+#ifdef HAVE_LIBSTEMMER
 	TrackerLanguagePriv *priv;
-	const gchar         *stem_word;
+	const gchar *stem_word;
+#endif /* HAVE_LIBSTEMMER */
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
@@ -507,6 +523,7 @@ tracker_language_stem_word (TrackerLanguage *language,
 		word_length = strlen (word);
 	}
 
+#ifdef HAVE_LIBSTEMMER
 	priv = GET_PRIV (language);
 
 	if (!priv->enable_stemmer) {
@@ -522,6 +539,9 @@ tracker_language_stem_word (TrackerLanguage *language,
 	g_mutex_unlock (&priv->stemmer_mutex);
 
 	return g_strdup (stem_word);
+#else  /* HAVE_LIBSTEMMER */
+	return g_strndup (word, word_length);
+#endif /* HAVE_LIBSTEMMER */
 }
 
 /**
