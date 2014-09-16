@@ -90,6 +90,11 @@ static Conversion allowed_boolean_conversions[] = {
 	{ NULL, NULL }
 };
 
+static Conversion allowed_cardinality_conversions[] = {
+	{ "1", "false" },
+	{ NULL, NULL }
+};
+
 static Conversion allowed_range_conversions[] = {
 	{ XSD_PREFIX "integer", XSD_PREFIX "string" },
 	{ XSD_PREFIX "integer", XSD_PREFIX "double" },
@@ -576,6 +581,7 @@ fix_indexed (TrackerProperty  *property,
 		g_propagate_error (error, internal_error);
 	}
 }
+
 
 static void
 tracker_data_ontology_load_statement (const gchar *ontology_path,
@@ -1067,6 +1073,8 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (is_new != in_update) {
 			/* Detect unsupported ontology change (this needs a journal replay) */
 			if (in_update == TRUE && is_new == FALSE) {
+
+				/* Any change in value is unsupported, only change from 1 to many is supported */
 				if (check_unsupported_property_value_change (ontology_path,
 				                                             "nrl:maxCardinality",
 				                                             subject,
@@ -1477,7 +1485,8 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 			}
 
 			if (tracker_property_get_is_new (property) == FALSE &&
-			    last_multiple_values != tracker_property_get_multiple_values (property)) {
+			    (last_multiple_values != tracker_property_get_multiple_values (property) &&
+				 last_multiple_values == TRUE)) {
 				const gchar *ontology_path = "Unknown";
 				const gchar *subject = tracker_property_get_uri (property);
 
@@ -1593,6 +1602,33 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                       TRACKER_PREFIX "writeback",
 				                       "false", allowed_boolean_conversions,
 				                       NULL, property, &n_error);
+			}
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
+			if (tracker_property_get_multiple_values (property)) {
+				update_property_value (ontology_path,
+				                       "nrl:maxCardinality",
+				                       subject,
+				                       NRL_PREFIX "maxCardinality",
+				                       "true", allowed_cardinality_conversions,
+				                       NULL, property, &n_error);
+				tracker_property_set_db_schema_changed (property, TRUE);
+				tracker_property_set_cardinality_changed (property, TRUE);
+			} else {
+				handle_unsupported_ontology_change (ontology_path,
+				                                    subject,
+				                                    "nrl:maxCardinality", "-", "-",
+				                                    &n_error);
+
+				if (n_error) {
+					g_object_unref (cursor);
+					g_propagate_error (error, n_error);
+					return;
+				}
 			}
 
 			if (n_error) {
@@ -2658,7 +2694,8 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				}
 			}
 
-			if (in_change && !tracker_property_get_is_new (property) && in_col_sql && sel_col_sql) {
+			if (in_change && !tracker_property_get_is_new (property) &&
+			    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
 				gchar *query;
 
 				query = g_strdup_printf ("INSERT INTO \"%s_%s\"(%s) "
@@ -3148,6 +3185,7 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 	}
 
 	if (in_change && sel_col_sql && in_col_sql) {
+		guint i;
 		gchar *query;
 
 		query = g_strdup_printf ("INSERT INTO \"%s\"(%s) "
@@ -3163,8 +3201,45 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			g_propagate_error (error, internal_error);
 			goto error_out;
 		}
-
+		
 		g_free (query);
+
+		for (i = 0; i < n_props; i++) {
+			property = properties[i];
+
+			if (tracker_property_get_domain (property) == service && tracker_property_get_cardinality_changed (property)) {
+				GString *n_sel_col_sql, *n_in_col_sql;
+				const gchar *field_name = tracker_property_get_name (property);
+
+				n_in_col_sql = g_string_new ("ID");
+				n_sel_col_sql = g_string_new ("ID");
+
+				/* Function does what it must do, so reusable atm */
+				range_change_for (property, n_in_col_sql, n_sel_col_sql, field_name);
+			
+			    /* Columns happen to be the same for decomposed multi-value and single value atm */
+				query = g_strdup_printf ("INSERT INTO \"%s_%s\"(%s) "
+				                         "SELECT %s FROM \"%s_TEMP\"",
+				                         service_name, field_name,
+										 n_in_col_sql, n_sel_col_sql,
+				                         service_name);
+
+				g_string_free (n_in_col_sql, TRUE);
+				g_string_free (n_sel_col_sql, TRUE);
+
+				g_debug ("Copy supported nlr:maxCardinality change: %s", query);
+
+				tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
+		
+				g_free (query);
+			}
+		}
+
 		g_debug ("Rename (drop): DROP TABLE \"%s_TEMP\"", service_name);
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "DROP TABLE \"%s_TEMP\"", service_name);

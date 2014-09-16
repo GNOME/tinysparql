@@ -70,6 +70,7 @@ struct _TrackerPropertyPrivate {
 	GArray        *super_properties;
 	GArray        *domain_indexes;
 	GArray        *last_super_properties;
+	gboolean       cardinality_changed;
 };
 
 static void property_finalize     (GObject      *object);
@@ -141,6 +142,7 @@ tracker_property_init (TrackerProperty *property)
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 	priv->last_super_properties = NULL;
+	priv->cardinality_changed = FALSE;
 
 	/* Make GET_PRIV working */
 	property->priv = priv;
@@ -546,6 +548,18 @@ tracker_property_get_db_schema_changed (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	return priv->db_schema_changed;
+}
+
+gboolean
+tracker_property_get_cardinality_changed (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->cardinality_changed;
 }
 
 gboolean
@@ -956,6 +970,19 @@ tracker_property_set_db_schema_changed (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->db_schema_changed = value;
+}
+
+void
+tracker_property_set_cardinality_changed (TrackerProperty *property,
+                                          gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->cardinality_changed = value;
 }
 
 void
