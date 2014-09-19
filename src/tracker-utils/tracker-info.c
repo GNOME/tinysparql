@@ -62,6 +62,12 @@ static GOptionEntry entries[] = {
 	  NULL,
 	},
 	{ "resource-is-iri", 'i', 0, G_OPTION_ARG_NONE, &resource_is_iri,
+	  /* To translators:
+	   * IRI (International Resource Identifier) is a generalization
+	   * of the URI. While URI supports only ASCI encoding, IRI
+	   * fully supports international characters. In practice, UTF-8
+	   * is the most popular encoding used for IRI.
+	   */
 	  N_("Instead of looking up a file name, treat the FILE arguments as actual IRIs (e.g. <file:///path/to/some/file.txt>)"),
 	  NULL,
 	},
