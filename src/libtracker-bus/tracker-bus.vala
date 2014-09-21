@@ -93,12 +93,15 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 		// receive query results via FD
 		var mem_stream = new MemoryOutputStream (null, GLib.realloc, GLib.free);
-		yield mem_stream.splice_async (input, OutputStreamSpliceFlags.CLOSE_SOURCE | OutputStreamSpliceFlags.CLOSE_TARGET, Priority.DEFAULT, cancellable);
 
-		// wait for D-Bus reply
-		received_result = true;
-		if (dbus_res == null) {
-			yield;
+		try {
+			yield mem_stream.splice_async (input, OutputStreamSpliceFlags.CLOSE_SOURCE | OutputStreamSpliceFlags.CLOSE_TARGET, Priority.DEFAULT, cancellable);
+		} finally {
+			// wait for D-Bus reply
+			received_result = true;
+			if (dbus_res == null) {
+				yield;
+			}
 		}
 
 		var reply = bus.send_message_with_reply.end (dbus_res);
