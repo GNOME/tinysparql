@@ -2,8 +2,6 @@
 <FILE>tracker-data-provider</FILE>
 <TITLE>TrackerDataProvider</TITLE>
 TrackerDataProviderIface
-tracker_data_provider_get_crawl_flags
-tracker_data_provider_set_crawl_flags
 tracker_data_provider_begin
 tracker_data_provider_begin_async
 tracker_data_provider_begin_finish
@@ -163,12 +161,10 @@ TRACKER_MINER_FS_GRAPH_URN
 <SECTION>
 <FILE>tracker-miner-enum-types</FILE>
 <SUBSECTION Standard>
-TRACKER_TYPE_CRAWL_FLAGS
 TRACKER_TYPE_DIRECTORY_FLAGS
 TRACKER_TYPE_FILTER_POLICY
 TRACKER_TYPE_FILTER_TYPE
 TRACKER_TYPE_NETWORK_TYPE
-tracker_crawl_flags_get_type
 tracker_directory_flags_get_type
 tracker_filter_policy_get_type
 tracker_filter_type_get_type
@@ -181,7 +177,6 @@ TrackerDirectoryFlags
 TrackerFilterType
 TrackerFilterPolicy
 TrackerNetworkType
-TrackerCrawlFlags
 </SECTION>
 
 <SECTION>
