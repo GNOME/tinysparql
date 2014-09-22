@@ -2,7 +2,9 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS += $(test_programs)
 
-test_programs = tracker-test
+test_programs = \
+	tracker-test                                   \
+	tracker-gb-737023
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -17,3 +19,5 @@ LDADD =                                                \
 	$(LIBTRACKER_SPARQL_LIBS)
 
 tracker_test_SOURCES = tracker-test.c
+
+tracker_gb_737023_test_SOURCES = tracker-gb-737023.c
