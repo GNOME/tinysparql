@@ -17,6 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <locale.h>
+
 #include <gio/gio.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
@@ -94,6 +96,8 @@ gint
 main (gint argc, gchar **argv)
 {
 	gint result;
+
+	setlocale (LC_ALL, "");
 
 	g_test_init (&argc, &argv, NULL);
 
