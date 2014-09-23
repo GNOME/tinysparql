@@ -8,12 +8,10 @@ Miner
 	.progress#virtual_method skip
 
 MinerFS
-	.finished_root#virtual_method skip
+	.finished#virtual_method skip
 	.ignore_next_update_file.builder type="Tracker.Sparql.Builder"
 	.process_file.builder type="Tracker.Sparql.Builder"
 	.process_file_attributes.builder type="Tracker.Sparql.Builder"
 	.writeback_file#method skip
 
 DecoratorError errordomain
-MinerError errordomain
-MinerFSError errordomain

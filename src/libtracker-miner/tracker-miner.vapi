@@ -30,7 +30,6 @@ namespace Tracker {
 	public abstract class DecoratorFS : Tracker.Decorator, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		protected DecoratorFS ();
-		public int prepend_file (GLib.File file);
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", ref_function = "tracker_decorator_info_ref", type_id = "tracker_decorator_info_get_type ()", unref_function = "tracker_decorator_info_unref")]
 	[Compact]
@@ -46,7 +45,7 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", type_id = "tracker_indexing_tree_get_type ()")]
 	public class IndexingTree : GLib.Object {
 		[CCode (has_construct_function = false)]
-		public IndexingTree (GLib.File root);
+		public IndexingTree ();
 		public void add (GLib.File directory, Tracker.DirectoryFlags flags);
 		public void add_filter (Tracker.FilterType filter, string glob_string);
 		public void clear_filters (Tracker.FilterType type);
@@ -55,7 +54,6 @@ namespace Tracker {
 		public bool file_matches_filter (Tracker.FilterType type, GLib.File file);
 		public Tracker.FilterPolicy get_default_policy (Tracker.FilterType filter);
 		public bool get_filter_hidden ();
-		public unowned GLib.File get_master_root ();
 		public unowned GLib.File get_root (GLib.File file, out Tracker.DirectoryFlags directory_flags);
 		public GLib.List<weak GLib.File> list_roots ();
 		public bool parent_is_indexable (GLib.File parent, GLib.List<GLib.File> children);
@@ -63,8 +61,6 @@ namespace Tracker {
 		public void set_default_policy (Tracker.FilterType filter, Tracker.FilterPolicy policy);
 		public void set_filter_hidden (bool filter_hidden);
 		public bool filter_hidden { get; set; }
-		[NoAccessorMethod]
-		public GLib.File root { owned get; construct; }
 		public virtual signal void directory_added (GLib.File directory);
 		public virtual signal void directory_removed (GLib.File directory);
 		public virtual signal void directory_updated (GLib.File directory);
@@ -85,10 +81,6 @@ namespace Tracker {
 		public bool resume (int cookie) throws GLib.Error;
 		public void start ();
 		public void stop ();
-		[NoAccessorMethod]
-		public void* introspection_handler { get; set construct; }
-		[NoAccessorMethod]
-		public string introspection_xml { owned get; set construct; }
 		[NoAccessorMethod]
 		public string name { owned get; construct; }
 		[NoAccessorMethod]
@@ -116,11 +108,9 @@ namespace Tracker {
 		public void directory_add (GLib.File file, bool recurse);
 		public bool directory_remove (GLib.File file);
 		public bool directory_remove_full (GLib.File file);
-		public static GLib.Quark error_quark ();
 		public void file_notify (GLib.File file, GLib.Error error);
 		public void force_mtime_checking (GLib.File directory);
 		public void force_recheck ();
-		public unowned Tracker.DataProvider get_data_provider ();
 		public unowned Tracker.IndexingTree get_indexing_tree ();
 		public bool get_initial_crawling ();
 		public bool get_mtime_checking ();
@@ -133,18 +123,14 @@ namespace Tracker {
 		public void set_mtime_checking (bool mtime_checking);
 		public void set_throttle (double throttle);
 		public void writeback_notify (GLib.File file, GLib.Error error);
-		public Tracker.DataProvider data_provider { get; construct; }
 		public bool initial_crawling { get; set; }
 		public bool mtime_checking { get; set construct; }
 		[NoAccessorMethod]
 		public uint processing_pool_ready_limit { get; set construct; }
 		[NoAccessorMethod]
 		public uint processing_pool_wait_limit { get; set construct; }
-		[NoAccessorMethod]
-		public GLib.File root { owned get; construct; }
 		public double throttle { get; set; }
 		public virtual signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
-		public virtual signal void finished_root (GLib.File root);
 		[Deprecated (since = "0.12")]
 		public virtual signal bool ignore_next_update_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public virtual signal bool process_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
@@ -159,27 +145,6 @@ namespace Tracker {
 		public Tracker.NetworkType network_type { get; }
 		public virtual signal bool connected (Tracker.NetworkType network);
 		public virtual signal void disconnected ();
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", type_id = "tracker_data_provider_get_type ()")]
-	public interface DataProvider : GLib.Object {
-		public abstract Tracker.Enumerator begin (GLib.File url, string attributes, GLib.FileQueryInfoFlags flags, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public abstract async Tracker.Enumerator begin_async (GLib.File url, string attributes, GLib.FileQueryInfoFlags flags, int io_priority, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public abstract bool end (Tracker.Enumerator enumerator, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public abstract async bool end_async (Tracker.Enumerator enumerator, int io_priority, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public abstract Tracker.CrawlFlags get_crawl_flags ();
-		public abstract void set_crawl_flags (Tracker.CrawlFlags flags);
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", type_id = "tracker_enumerator_get_type ()")]
-	public interface Enumerator : GLib.Object {
-		public abstract void* next (GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public abstract async void* next_async (int io_priority, GLib.Cancellable? cancellable = null) throws GLib.Error;
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", cprefix = "TRACKER_CRAWL_FLAG_", type_id = "tracker_crawl_flags_get_type ()")]
-	[Flags]
-	public enum CrawlFlags {
-		NONE,
-		NO_STAT,
-		FOLLOW_SYMLINKS
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", cprefix = "TRACKER_DIRECTORY_FLAG_", type_id = "tracker_directory_flags_get_type ()")]
 	[Flags]
@@ -216,19 +181,6 @@ namespace Tracker {
 	public errordomain DecoratorError {
 		EMPTY,
 		PAUSED
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", cprefix = "TRACKER_MINER_ERROR_")]
-	public errordomain MinerError {
-		NAME_MISSING,
-		NAME_UNAVAILABLE,
-		PAUSED,
-		PAUSED_ALREADY,
-		INVALID_COOKIE
-	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", cprefix = "TRACKER_MINER_FS_ERROR_")]
-	public errordomain MinerFSError {
-		[CCode (cname = "TRACKER_MINER_FS_ERROR_INIT")]
-		MINER_FS_ERROR_INIT
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h", cname = "TRACKER_MINER_DBUS_INTERFACE")]
 	public const string MINER_DBUS_INTERFACE;
