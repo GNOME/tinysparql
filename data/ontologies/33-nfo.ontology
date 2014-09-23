@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2014-08-28T14:15:00Z" .
+	nao:lastModified "2014-09-23T18:55:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -536,6 +536,7 @@ nfo:hasMediaStream a rdf:Property ;
 	rdfs:label "hasMediaStream" ;
 	rdfs:comment "Connects a media container with a single media stream contained within." ;
 	rdfs:subPropertyOf nie:hasPart ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nie:DataObject .
 
