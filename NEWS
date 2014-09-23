@@ -1,3 +1,18 @@
+NEW in 1.2.1 - 2014-09-23
+=========================
+
+The main changes since 1.2.0 are:
+
+  * ontology: Revert nfo:hasMediaStream max cardinality change until
+    Philip merges his feature branch to allow database migration and
+    coping for it. This won't be in the 1.2.x releases but likely in
+    1.4. and master branch.
+
+    For packagers, skipping 1.2.0 and using 1.2.1 should avoid data
+    loss by way of a reindex that may be forced when users upgrade.
+    This is highly important and something we want to avoid.
+
+
 NEW in 1.2.0 - 2014-09-22
 =========================
 
