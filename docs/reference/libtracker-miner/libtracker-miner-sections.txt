@@ -122,6 +122,7 @@ tracker_file_enumerator_get_type
 TrackerIndexingTree
 TrackerIndexingTreeClass
 tracker_indexing_tree_new
+tracker_indexing_tree_new_with_root
 tracker_indexing_tree_add
 tracker_indexing_tree_remove
 tracker_indexing_tree_add_filter

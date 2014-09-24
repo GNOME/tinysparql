@@ -77,7 +77,9 @@ typedef struct {
 
 GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
 
-TrackerIndexingTree * tracker_indexing_tree_new      (GFile                 *root);
+TrackerIndexingTree * tracker_indexing_tree_new      (void);
+
+TrackerIndexingTree * tracker_indexing_tree_new_with_root (GFile            *root);
 
 void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tree,
                                                       GFile                 *directory,

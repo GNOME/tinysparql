@@ -313,14 +313,33 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 
 /**
  * tracker_indexing_tree_new:
- * @root: The top level URL
  *
- * If @root is %NULL, the default value is 'file:///'.
+ * Returns a newly created #TrackerIndexingTree
  *
  * Returns: a newly allocated #TrackerIndexingTree
+ *
+ * Since: 0.14.0
  **/
 TrackerIndexingTree *
-tracker_indexing_tree_new (GFile *root)
+tracker_indexing_tree_new (void)
+{
+	return g_object_new (TRACKER_TYPE_INDEXING_TREE, NULL);
+}
+
+/**
+ * tracker_indexing_tree_new_with_root:
+ * @root: The top level URL
+ *
+ * If @root is %NULL, the default value is 'file:///'. Using %NULL
+ * here is the equivalent to calling tracker_indexing_tree_new() which
+ * takes no @root argument.
+ *
+ * Returns: a newly allocated #TrackerIndexingTree
+ *
+ * Since: 1.2.2
+ **/
+TrackerIndexingTree *
+tracker_indexing_tree_new_with_root (GFile *root)
 {
 	return g_object_new (TRACKER_TYPE_INDEXING_TREE,
 	                     "root", root,
