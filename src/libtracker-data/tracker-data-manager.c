@@ -91,7 +91,7 @@ static Conversion allowed_boolean_conversions[] = {
 };
 
 static Conversion allowed_cardinality_conversions[] = {
-	{ "1", "false" },
+	{ "1", NULL }, /* Not filled in apparently also gives 1 */
 	{ NULL, NULL }
 };
 
@@ -1064,33 +1064,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		/* This doesn't detect removed nrl:maxCardinality situations, it
-		 * only checks whether the existing one got changed. For
-		 * detecting the removal of a nrl:maxCardinality, please check the
-		 * tracker_data_ontology_process_changes_pre_db stuff */
-
-		is_new = tracker_property_get_is_new (property);
-		if (is_new != in_update) {
-			/* Detect unsupported ontology change (this needs a journal replay) */
-			if (in_update == TRUE && is_new == FALSE) {
-
-				/* Any change in value is unsupported, only change from 1 to many is supported */
-				if (check_unsupported_property_value_change (ontology_path,
-				                                             "nrl:maxCardinality",
-				                                             subject,
-				                                             predicate,
-				                                             object)) {
-					handle_unsupported_ontology_change (ontology_path,
-					                                    tracker_property_get_name (property),
-					                                    "nrl:maxCardinality",
-					                                    tracker_property_get_multiple_values (property) ? "1" : "0",
-					                                    (atoi (object) == 1)  ? "1" : "0",
-					                                    error);
-					return;
-				}
-			}
-		}
-
 		if (atoi (object) == 1) {
 			tracker_property_set_multiple_values (property, FALSE);
 			tracker_property_set_last_multiple_values (property, FALSE);
@@ -1486,13 +1459,13 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 
 			if (tracker_property_get_is_new (property) == FALSE &&
 			    (last_multiple_values != tracker_property_get_multiple_values (property) &&
-				 last_multiple_values == TRUE)) {
+				 last_multiple_values == FALSE)) {
 				const gchar *ontology_path = "Unknown";
 				const gchar *subject = tracker_property_get_uri (property);
 
 				handle_unsupported_ontology_change (ontology_path,
 				                                    subject,
-				                                    "nrl:maxCardinality", "1", "0",
+				                                    "nrl:maxCardinality", "none", "1",
 				                                    error);
 				return;
 			}
@@ -1609,12 +1582,12 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				return;
 			}
 
-			if (tracker_property_get_multiple_values (property)) {
+			if (!tracker_property_get_multiple_values (property)) {
 				update_property_value (ontology_path,
 				                       "nrl:maxCardinality",
 				                       subject,
 				                       NRL_PREFIX "maxCardinality",
-				                       "true", allowed_cardinality_conversions,
+				                       NULL, allowed_cardinality_conversions,
 				                       NULL, property, &n_error);
 				tracker_property_set_db_schema_changed (property, TRUE);
 				tracker_property_set_cardinality_changed (property, TRUE);
