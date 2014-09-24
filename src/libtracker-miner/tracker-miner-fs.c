@@ -885,7 +885,7 @@ fs_constructed (GObject *object)
 	}
 
 	/* Create indexing tree */
-	priv->indexing_tree = tracker_indexing_tree_new (priv->root);
+	priv->indexing_tree = tracker_indexing_tree_new_with_root (priv->root);
 }
 
 static void

@@ -274,7 +274,7 @@ test_common_context_setup (TestCommonContext *fixture,
 	CREATE_FOLDER (fixture, "non-recursive");
 	CREATE_FOLDER (fixture, "non-indexed");
 
-	fixture->indexing_tree = tracker_indexing_tree_new (NULL);
+	fixture->indexing_tree = tracker_indexing_tree_new ();
 	tracker_indexing_tree_set_filter_hidden (fixture->indexing_tree, TRUE);
 
 	fixture->main_loop = g_main_loop_new (NULL, FALSE);
