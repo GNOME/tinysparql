@@ -1,3 +1,12 @@
+NEW in 1.2.2 - 2014-09-24
+=========================
+
+The main changes since 1.2.1 are:
+
+  * Fixes: GB#737243, API break with tracker_indexing_tree_new()
+  * libtracker-miner: Fixed missing Vala bindings for new DirectoryFlags.{PRIORITY|NO_STAT} enums
+
+
 NEW in 1.2.1 - 2014-09-23
 =========================
 
