@@ -1,2 +1,4 @@
 tracker-miner-fs
 *.service
+*.xml
+*.valid

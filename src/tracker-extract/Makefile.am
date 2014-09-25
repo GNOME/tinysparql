@@ -616,5 +616,16 @@ autostart_DATA = tracker-extract.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA)
-EXTRA_DIST += $(desktop_in_in_files) $(config_DATA) $(service_in_files)
+# Configuration / GSettings
+gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
+gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
+
+gsettings_SCHEMAS = org.freedesktop.Tracker.Extract.gschema.xml
+
+@INTLTOOL_XML_NOMERGE_RULE@
+
+@GSETTINGS_RULES@
+
+# Dist / Clean rules for all data
+CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA) $(gsettings_SCHEMAS)
+EXTRA_DIST += $(desktop_in_in_files) $(config_DATA) $(service_in_files) $(gsettings_SCHEMAS:.xml=.xml.in)

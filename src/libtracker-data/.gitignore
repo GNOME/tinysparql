@@ -4,3 +4,5 @@ tracker-sparql-query.[ch]
 tracker-sparql-query.vapi
 tracker-sparql-scanner.c
 tracker-turtle-reader.c
+*.xml
+*.valid

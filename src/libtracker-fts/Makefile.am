@@ -54,3 +54,17 @@ libtracker_fts_la_LIBADD =                             \
 	$(LIBTRACKER_FTS_LIBS)
 
 EXTRA_DIST = $(fts4_sources)
+
+# Configuration / GSettings
+gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
+gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
+
+gsettings_SCHEMAS = org.freedesktop.Tracker.FTS.gschema.xml
+
+@INTLTOOL_XML_NOMERGE_RULE@
+
+@GSETTINGS_RULES@
+
+# Dist / Clean rules for all data
+CLEANFILES = $(gsettings_SCHEMAS)
+EXTRA_DIST += $(gsettings_SCHEMAS:.xml=.xml.in)

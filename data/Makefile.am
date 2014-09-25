@@ -1,1 +1,1 @@
-SUBDIRS = miners gschemas
+SUBDIRS = miners
