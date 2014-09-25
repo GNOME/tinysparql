@@ -66,6 +66,21 @@ EXTRA_DIST = \
 	tracker-locale-change.vapi \
 	tracker-writeback.vapi
 
+
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = \
+	tracker-backup.xml \
+	tracker-resources.xml \
+	tracker-statistics.xml \
+	tracker-status.xml
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.service
+
 # Desktop files: First we fix the VERSION and libexecdir
 tracker-store.desktop.in: tracker-store.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
@@ -79,6 +94,7 @@ autostart_DATA = tracker-store.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES = $(autostart_DATA) $(desktop_in_files)
-EXTRA_DIST += $(desktop_in_in_files)
+CLEANFILES = $(autostart_DATA) $(desktop_in_files) $(service_DATA)
+EXTRA_DIST += $(desktop_in_in_files) $(service_in_files) $(config_DATA)
+
 

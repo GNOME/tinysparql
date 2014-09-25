@@ -62,3 +62,19 @@ tracker_writeback_LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_WRITEBACK_LIBS)
+
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = tracker-writeback.xml
+
+service_in_files = org.freedesktop.Tracker1.Writeback.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Writeback.service
+
+EXTRA_DIST = $(service_in_files) $(config_DATA)
+
+CLEANFILES = $(service_DATA)

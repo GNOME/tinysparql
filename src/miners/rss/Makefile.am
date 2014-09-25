@@ -21,6 +21,15 @@ tracker_miner_rss_LDADD =                              \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_RSS_LIBS)
 
+# DBus interfaces (XML files) and services
+service_in_files = org.freedesktop.Tracker1.Miner.RSS.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.RSS.service
+
 # Desktop files: First we fix the VERSION and libexecdir
 tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
@@ -34,5 +43,5 @@ autostart_DATA = tracker-miner-rss.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES = $(autostart_DATA) $(desktop_in_files)
-EXTRA_DIST = $(desktop_in_in_files)
+CLEANFILES = $(autostart_DATA) $(desktop_in_files) $(service_DATA)
+EXTRA_DIST = $(desktop_in_in_files) $(service_in_files)

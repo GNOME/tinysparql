@@ -35,14 +35,24 @@ liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_EVOLUTION_LIBS)
 
+BUILT_SOURCES = $(eplugin_DATA)
+
+CLEANFILES = \
+	$(BUILT_SOURCES) \
+	$(eplugin_DATA)
+
+EXTRA_DIST = org-freedesktop-Tracker-evolution-plugin.eplug.xml
+
+# DBus interfaces (XML files) and services
+service_in_files = org.freedesktop.Tracker1.Miner.EMails.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.EMails.service
+
 @INTLTOOL_DESKTOP_RULE@
 
-BUILT_SOURCES =                                        \
-	$(eplugin_DATA)
-
-CLEANFILES =                                           \
-	$(BUILT_SOURCES)                               \
-	$(eplugin_DATA)
-
-EXTRA_DIST =                                           \
-	org-freedesktop-Tracker-evolution-plugin.eplug.xml
+CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA)
+EXTRA_DIST += $(desktop_in_in_files) $(service_in_files)

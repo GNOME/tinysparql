@@ -196,3 +196,9 @@ build-vapi: TrackerMiner-$(TRACKER_API_VERSION).gir
 	@vapigen --library tracker-miner --metadatadir $(top_srcdir) --pkg gio-2.0 --vapidir $(top_builddir)/src/libtracker-sparql --pkg tracker-sparql-$(TRACKER_API_VERSION) TrackerMiner-$(TRACKER_API_VERSION).gir
 
 endif
+
+# DBus interfaces (XML files)
+configdir = $(datadir)/tracker
+config_DATA = tracker-miner.xml
+
+EXTRA_DIST += $(config_DATA)

@@ -2556,7 +2556,6 @@ AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
 ##################################################################
 
 AC_CONFIG_FILES([
-	data/dbus/Makefile
 	data/gschemas/Makefile
 	data/languages/Makefile
 	data/Makefile

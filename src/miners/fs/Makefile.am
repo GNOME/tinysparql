@@ -50,6 +50,18 @@ tracker_miner_fs_LDADD =                               \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_FS_LIBS)
 
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = tracker-miner-files-index.xml
+
+service_in_files = org.freedesktop.Tracker1.Miner.Files.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.Files.service
+
 # Desktop files: First we fix the VERSION and libexecdir
 if HAVE_LIBMEDIAART
 requires="libmediaart-1.0"
@@ -69,5 +81,5 @@ autostart_DATA = tracker-miner-fs.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES = $(autostart_DATA) $(desktop_in_files)
-EXTRA_DIST = $(desktop_in_in_files)
+CLEANFILES = $(autostart_DATA) $(desktop_in_files) $(service_DATA)
+EXTRA_DIST = $(desktop_in_in_files) $(config_DATA) $(service_in_files)

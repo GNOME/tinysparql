@@ -571,12 +571,12 @@ tracker-extract-priority-dbus.c: tracker-extract-priority-dbus-stamp
 tracker-extract-priority-dbus.h: tracker-extract-priority-dbus-stamp
 	@:
 
-tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/src/tracker-extract/tracker-extract-priority.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 	              --interface-prefix org.freedesktop.Tracker1.Extract. \
 	              --generate-c-code tracker-extract-priority-dbus \
 	              --c-namespace TrackerExtractDBus \
-	              $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+	              $(top_srcdir)/src/tracker-extract/tracker-extract-priority.xml
 	touch $@
 
 BUILT_SOURCES = \
@@ -588,6 +588,20 @@ BUILT_SOURCES = \
 CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = $(rules_files)
+
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = \
+	tracker-extract.xml \
+	tracker-extract-priority.xml
+
+service_in_files = org.freedesktop.Tracker1.Miner.Extract.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.Extract.service
 
 # Desktop files: First we fix the VERSION and libexecdir
 tracker-extract.desktop.in: tracker-extract.desktop.in.in
@@ -602,5 +616,5 @@ autostart_DATA = tracker-extract.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES += $(autostart_DATA) $(desktop_in_files)
-EXTRA_DIST += $(desktop_in_in_files)
+CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA)
+EXTRA_DIST += $(desktop_in_in_files) $(config_DATA) $(service_in_files)

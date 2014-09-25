@@ -1,1 +1,1 @@
-SUBDIRS = dbus languages miners gschemas
+SUBDIRS = languages miners gschemas
