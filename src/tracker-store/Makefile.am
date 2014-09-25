@@ -82,12 +82,9 @@ servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.service
 
 # Desktop files: First we fix the VERSION and libexecdir
-tracker-store.desktop.in: tracker-store.desktop.in.in
+%.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-
-desktop_in_in_files = tracker-store.desktop.in.in
-desktop_in_files = tracker-store.desktop.in
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = tracker-store.desktop
@@ -107,7 +104,16 @@ gsettings_SCHEMAS = \
 @GSETTINGS_RULES@
 
 # Dist / Clean rules for all data
-CLEANFILES = $(autostart_DATA) $(desktop_in_files) $(service_DATA) $(gsettings_SCHEMAS)
-EXTRA_DIST += $(desktop_in_in_files) $(service_in_files) $(config_DATA) $(gsettings_SCHEMAS:.xml=.xml.in)
+CLEANFILES = \
+	$(autostart_DATA) \
+	$(autostart_DATA:.desktop=.desktop.in) \
+	$(service_DATA) \
+	$(gsettings_SCHEMAS)
+
+EXTRA_DIST += \
+	$(autostart_DATA:.desktop=.desktop.in.in) \
+	$(service_DATA:.service=.service.in) \
+	$(config_DATA) \
+	$(gsettings_SCHEMAS:.xml=.xml.in)
 
 

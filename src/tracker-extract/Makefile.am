@@ -595,8 +595,6 @@ config_DATA = \
 	tracker-extract.xml \
 	tracker-extract-priority.xml
 
-service_in_files = org.freedesktop.Tracker1.Miner.Extract.service.in
-
 %.service: %.service.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
@@ -604,12 +602,9 @@ servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.Miner.Extract.service
 
 # Desktop files: First we fix the VERSION and libexecdir
-tracker-extract.desktop.in: tracker-extract.desktop.in.in
+%.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-
-desktop_in_in_files = tracker-extract.desktop.in.in
-desktop_in_files = tracker-extract.desktop.in
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = tracker-extract.desktop
@@ -627,5 +622,14 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Extract.gschema.xml
 @GSETTINGS_RULES@
 
 # Dist / Clean rules for all data
-CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA) $(gsettings_SCHEMAS)
-EXTRA_DIST += $(desktop_in_in_files) $(config_DATA) $(service_in_files) $(gsettings_SCHEMAS:.xml=.xml.in)
+CLEANFILES += \
+	$(autostart_DATA) \
+	$(autostart_DATA:.desktop=.desktop.in) \
+	$(service_DATA) \
+	$(gsettings_SCHEMAS)
+
+EXTRA_DIST += \
+	$(autostart_DATA:.desktop=.desktop.in.in) \
+	$(service_DATA:.service=.service.in) \
+	$(config_DATA) \
+	$(gsettings_SCHEMAS:.xml=.xml.in)

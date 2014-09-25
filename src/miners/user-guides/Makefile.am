@@ -31,17 +31,21 @@ servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.Miner.Userguides.service
 
 # Desktop files: First we fix the VERSION and libexecdir
-tracker-miner-user-guides.desktop.in: tracker-miner-user-guides.desktop.in.in
+%.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-
-desktop_in_in_files = tracker-miner-user-guides.desktop.in.in
-desktop_in_files = tracker-miner-user-guides.desktop.in
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = tracker-miner-user-guides.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-CLEANFILES = $(autostart_DATA) $(desktop_in_files) $(service_DATA)
-EXTRA_DIST = $(desktop_in_in_files) $(service_in_files)
+# Dist / Clean rules for all data
+CLEANFILES = \
+	$(autostart_DATA) \
+	$(autostart_DATA:.desktop=.desktop.in) \
+	$(service_DATA)
+
+EXTRA_DIST = \
+	$(autostart_DATA:.desktop=.desktop.in.in) \
+	$(service_in_files)
