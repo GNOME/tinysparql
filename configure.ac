@@ -2588,7 +2588,6 @@ AC_CONFIG_FILES([
 	Makefile
 	po/Makefile.in
 	src/gvdb/Makefile
-	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-sparql/Makefile
 	src/libtracker-bus/Makefile
