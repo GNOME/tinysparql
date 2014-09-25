@@ -288,7 +288,7 @@ class MinerFTSStopwordsTest (CommonMinerFTS):
         if "_" in langcode:
             langcode = langcode.split ("_")[0]
 
-        stopwordsfile = os.path.join (cfg.DATADIR, "tracker", "languages", "stopwords." + langcode)
+        stopwordsfile = os.path.join (cfg.DATADIR, "tracker", "stop-words", "stopwords." + langcode)
 
         if not os.path.exists (stopwordsfile):
             self.skipTest ("No stopwords for the current locale ('%s' doesn't exist)" % (stopwordsfile))

@@ -1,1 +1,1 @@
-SUBDIRS = languages miners gschemas
+SUBDIRS = miners gschemas

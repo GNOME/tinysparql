@@ -2557,7 +2557,6 @@ AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
 
 AC_CONFIG_FILES([
 	data/gschemas/Makefile
-	data/languages/Makefile
 	data/Makefile
 	data/miners/Makefile
 	docs/Makefile
@@ -2577,6 +2576,7 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	src/gvdb/Makefile
 	src/libtracker-common/Makefile
+	src/libtracker-common/stop-words/Makefile
 	src/libtracker-sparql/Makefile
 	src/libtracker-sparql/tracker-sparql.pc
 	src/libtracker-bus/Makefile
