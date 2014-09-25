@@ -651,6 +651,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					tracker_property_reset_domain_indexes (property);
 					tracker_property_reset_super_properties (property);
 					tracker_property_set_indexed (property, FALSE);
+					tracker_property_set_cardinality_changed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
 					tracker_property_set_is_inverse_functional_property (property, FALSE);
@@ -1354,6 +1355,62 @@ check_for_deleted_super_classes (TrackerClass  *class,
 	}
 }
 
+static void
+check_for_max_cardinality_change (TrackerProperty  *property,
+                                  GError          **error)
+{
+	TrackerClass *class;
+	gchar *query = NULL;
+	TrackerDBCursor *cursor;
+	gboolean changed = TRUE;
+	gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
+	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
+	GError *n_error = NULL;
+	const gchar *ontology_path = "Unknown";
+
+	if (tracker_property_get_is_new (property) == FALSE &&
+	    (last_multiple_values != new_multiple_values &&
+		 last_multiple_values == FALSE)) {
+		const gchar *ontology_path = "Unknown";
+		const gchar *subject = tracker_property_get_uri (property);
+
+		handle_unsupported_ontology_change (ontology_path,
+		                                    subject,
+		                                    "nrl:maxCardinality", "none", "1",
+		                                    &n_error);
+		if (n_error) {
+			g_propagate_error (error, n_error);
+			return;
+		}
+	} else if (tracker_property_get_is_new (property) == FALSE &&
+	           last_multiple_values != new_multiple_values &&
+	           last_multiple_values == TRUE) {
+		const gchar *subject = tracker_property_get_uri (property);
+
+		if (update_property_value (ontology_path,
+			                       "nrl:maxCardinality",
+			                       subject,
+			                       NRL_PREFIX "maxCardinality",
+			                       NULL, allowed_cardinality_conversions,
+					               NULL, property, &n_error)) {
+			TrackerClass *class;
+			class = tracker_property_get_domain(property);
+
+			g_debug("Dealth with allowed nrl:maxCardinality change for %s's %s",
+				tracker_class_get_name(class),
+				tracker_property_get_name(property));
+
+			tracker_property_set_db_schema_changed (property, TRUE);
+			tracker_property_set_cardinality_changed (property, TRUE);
+			tracker_class_set_db_schema_changed (class, TRUE);
+		}
+
+		if (n_error) {
+			g_propagate_error (error, n_error);
+			return;
+		}
+	}
+}
 
 static void
 check_for_deleted_super_properties (TrackerProperty  *property,
@@ -1446,27 +1503,19 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 	if (seen_properties) {
 		for (i = 0; i < seen_properties->len; i++) {
 			GError *n_error = NULL;
-
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
-			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
 
-			check_for_deleted_super_properties (property, &n_error);
+			check_for_max_cardinality_change (property, &n_error);
 
 			if (n_error) {
 				g_propagate_error (error, n_error);
 				return;
 			}
 
-			if (tracker_property_get_is_new (property) == FALSE &&
-			    (last_multiple_values != tracker_property_get_multiple_values (property) &&
-				 last_multiple_values == FALSE)) {
-				const gchar *ontology_path = "Unknown";
-				const gchar *subject = tracker_property_get_uri (property);
+			check_for_deleted_super_properties (property, &n_error);
 
-				handle_unsupported_ontology_change (ontology_path,
-				                                    subject,
-				                                    "nrl:maxCardinality", "none", "1",
-				                                    error);
+			if (n_error) {
+				g_propagate_error (error, n_error);
 				return;
 			}
 		}
@@ -1575,33 +1624,6 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                       TRACKER_PREFIX "writeback",
 				                       "false", allowed_boolean_conversions,
 				                       NULL, property, &n_error);
-			}
-
-			if (n_error) {
-				g_propagate_error (error, n_error);
-				return;
-			}
-
-			if (!tracker_property_get_multiple_values (property)) {
-				update_property_value (ontology_path,
-				                       "nrl:maxCardinality",
-				                       subject,
-				                       NRL_PREFIX "maxCardinality",
-				                       NULL, allowed_cardinality_conversions,
-				                       NULL, property, &n_error);
-				tracker_property_set_db_schema_changed (property, TRUE);
-				tracker_property_set_cardinality_changed (property, TRUE);
-			} else {
-				handle_unsupported_ontology_change (ontology_path,
-				                                    subject,
-				                                    "nrl:maxCardinality", "-", "-",
-				                                    &n_error);
-
-				if (n_error) {
-					g_object_unref (cursor);
-					g_propagate_error (error, n_error);
-					return;
-				}
 			}
 
 			if (n_error) {
@@ -1931,7 +1953,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0          ||
 	           g_strcmp0 (predicate, RDFS_DOMAIN) == 0                   ||
 	           g_strcmp0 (predicate, RDFS_RANGE) == 0                    ||
-	           g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0           ||
+	           /* g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0        || */
 	           g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0      ||
 	           g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0    ||
 	           g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
@@ -2403,6 +2425,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 
 			tracker_property_set_is_new_domain_index (property, tracker_ontologies_get_class_by_uri (domain_uri), FALSE);
 			tracker_property_set_is_new (property, FALSE);
+			tracker_property_set_cardinality_changed (property, FALSE);
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
 			tracker_property_set_id (property, id);
@@ -2570,8 +2593,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		break;
 	}
 
+if (strstr(tracker_property_get_name (property), "hasThing") != NULL)
+{
+	printf("breakpoint\n");
+}
+
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
+	                                 tracker_property_get_cardinality_changed (property) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
 		if (not_single || tracker_property_get_multiple_values (property)) {
 			GString *sql = NULL;
@@ -2585,7 +2614,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				         service_name, field_name);
 			}
 
-			if (in_change && !tracker_property_get_is_new (property)) {
+			if (in_change && !tracker_property_get_is_new (property) && !tracker_property_get_cardinality_changed (property)) {
 				g_debug ("Drop index: DROP INDEX IF EXISTS \"%s_%s_ID\"\nRename: ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
 				         service_name, field_name, service_name, field_name,
 				         service_name, field_name);
@@ -3191,10 +3220,11 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 				range_change_for (property, n_in_col_sql, n_sel_col_sql, field_name);
 			
 			    /* Columns happen to be the same for decomposed multi-value and single value atm */
+
 				query = g_strdup_printf ("INSERT INTO \"%s_%s\"(%s) "
 				                         "SELECT %s FROM \"%s_TEMP\"",
 				                         service_name, field_name,
-										 n_in_col_sql, n_sel_col_sql,
+										 n_in_col_sql->str, n_sel_col_sql->str,
 				                         service_name);
 
 				g_string_free (n_in_col_sql, TRUE);
@@ -3324,6 +3354,7 @@ tracker_data_ontology_import_finished (void)
 		tracker_property_set_is_new_domain_index (properties[i], NULL, FALSE);
 		tracker_property_set_is_new (properties[i], FALSE);
 		tracker_property_set_db_schema_changed (properties[i], FALSE);
+		tracker_property_set_cardinality_changed (properties[i], FALSE);
 	}
 }
 
