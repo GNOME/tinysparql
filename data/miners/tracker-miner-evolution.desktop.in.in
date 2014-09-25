@@ -1,5 +1,0 @@
-[Desktop Entry]
-_Name=Emails
-_Comment=Evolution Email miner
-DBusName=org.freedesktop.Tracker1.Miner.Emails
-DBusPath=/org/freedesktop/Tracker1/Miner/Emails

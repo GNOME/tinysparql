@@ -67,8 +67,6 @@ tracker_writeback_LDADD = \
 configdir = $(datadir)/tracker
 config_DATA = tracker-writeback.xml
 
-service_in_files = org.freedesktop.Tracker1.Writeback.service.in
-
 %.service: %.service.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
@@ -86,5 +84,11 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Writeback.gschema.xml
 @GSETTINGS_RULES@
 
 # Dist / Clean rules for all data
-CLEANFILES = $(service_DATA) $(gsettings_SCHEMA)
-EXTRA_DIST = $(service_in_files) $(config_DATA) $(gsettings_SCHEMAS:.xml=.xml.in)
+CLEANFILES = \
+	$(service_DATA) \
+	$(gsettings_SCHEMAS)
+
+EXTRA_DIST = \
+	$(service_DATA:.service=.service.in) \
+	$(config_DATA) \
+	$(gsettings_SCHEMAS:.xml=.xml.in)

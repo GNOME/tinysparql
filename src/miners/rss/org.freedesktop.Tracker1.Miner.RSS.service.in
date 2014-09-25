@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.freedesktop.Tracker1.Miner.RSS
-Exec=@libexecdir@/tracker-miner-rss

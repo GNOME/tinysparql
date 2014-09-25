@@ -22,6 +22,7 @@ src/miners/apps/tracker-miner-apps.desktop.in.in
 src/miners/fs/tracker-main.c
 src/miners/fs/tracker-miner-files.c
 src/miners/fs/tracker-miner-fs.desktop.in.in
+src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in
 src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in
 src/miners/rss/tracker-main.c
 src/miners/rss/tracker-miner-rss.c

@@ -44,15 +44,29 @@ CLEANFILES = \
 EXTRA_DIST = org-freedesktop-Tracker-evolution-plugin.eplug.xml
 
 # DBus interfaces (XML files) and services
-service_in_files = org.freedesktop.Tracker1.Miner.EMails.service.in
-
-%.service: %.service.in
+%.service.in: %.service.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.Miner.EMails.service
 
-@INTLTOOL_DESKTOP_RULE@
+INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< [$]@ -d -u'
+@INTLTOOL_SERVICE_RULE@
 
-CLEANFILES += $(autostart_DATA) $(desktop_in_files) $(service_DATA)
-EXTRA_DIST += $(desktop_in_in_files) $(service_in_files)
+install-data-hook:
+	cd $(DESTDIR)$(datadir)/tracker/miners && \
+		$(LN_S) -f $(servicedir)/$(service_DATA)
+uninstall-local:
+	cd $(DESTDIR)$(datadir)/tracker/miners && \
+		$(RM) $(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)
+
+# Dist / Clean rules for all data
+CLEANFILES += \
+	$(autostart_DATA) \
+	$(desktop_in_files) \
+	$(service_DATA) \
+	$(service_DATA:.service=.service.in)
+
+EXTRA_DIST += \
+	$(desktop_in_in_files) \
+	$(service_DATA:.service=.service.in.in)

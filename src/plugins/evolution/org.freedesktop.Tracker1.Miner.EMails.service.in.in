@@ -1,0 +1,7 @@
+[D-BUS Service]
+Name=org.freedesktop.Tracker1.Miner.Emails
+
+# Miner details needed for tracker-control
+Path=/org/freedesktop/Tracker1/Miner/Emails
+_DisplayName=Emails
+_Comment=Evolution Email miner

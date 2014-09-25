@@ -22,13 +22,21 @@ tracker_miner_user_guides_LDADD =                      \
 	$(TRACKER_MINER_USER_GUIDES_LIBS)
 
 # DBus interfaces (XML files) and services
-service_in_files = org.freedesktop.Tracker1.Miner.Userguides.service.in
-
-%.service: %.service.in
+%.service.in: %.service.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.Miner.Userguides.service
+
+INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< [$]@ -d -u'
+@INTLTOOL_SERVICE_RULE@
+
+install-data-hook:
+	cd $(DESTDIR)$(datadir)/tracker/miners && \
+		$(LN_S) -f $(servicedir)/$(service_DATA)
+uninstall-local:
+	cd $(DESTDIR)$(datadir)/tracker/miners && \
+		$(RM) $(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)
 
 # Desktop files: First we fix the VERSION and libexecdir
 %.desktop.in: %.desktop.in.in
@@ -44,8 +52,9 @@ autostart_DATA = tracker-miner-user-guides.desktop
 CLEANFILES = \
 	$(autostart_DATA) \
 	$(autostart_DATA:.desktop=.desktop.in) \
-	$(service_DATA)
+	$(service_DATA) \
+	$(service_DATA:.service=.service.in)
 
 EXTRA_DIST = \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
-	$(service_in_files)
+	$(service_DATA:.service=.service.in.in)

@@ -1,5 +1,0 @@
-[Desktop Entry]
-_Name=RSS/ATOM Feeds
-_Comment=Fetch RSS/ATOM Feeds
-DBusName=org.freedesktop.Tracker1.Miner.RSS
-DBusPath=/org/freedesktop/Tracker1/Miner/RSS
