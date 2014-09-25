@@ -1,8 +1,4 @@
 if HAVE_TRACKER_FTS
-libstemmer_dir = libstemmer
-endif
-
-if HAVE_TRACKER_FTS
 libtrackerfts_dir = libtracker-fts
 endif
 

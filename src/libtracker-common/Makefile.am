@@ -72,10 +72,6 @@ libtracker_common_la_LIBADD = \
 	$(LIBTRACKER_COMMON_LIBS) \
 	-lm
 
-if HAVE_TRACKER_FTS
-libtracker_common_la_LIBADD += $(top_builddir)/src/libstemmer/libstemmer.la
-endif
-
 tracker-enum-types.h: tracker-enum-types.h.template $(NOINST_H_FILES)
 	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-enum-types.h.template $(noinst_HEADERS)) > $@
 
