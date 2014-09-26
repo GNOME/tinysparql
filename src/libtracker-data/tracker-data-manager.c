@@ -1067,10 +1067,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-if (strstr(tracker_property_get_name(property), "hasThing") != NULL) {
-printf ("breakpoint\n");
-}
-
 		if (atoi (object) == 1) {
 			tracker_property_set_multiple_values (property, FALSE);
 			tracker_property_set_last_multiple_values (property, FALSE);
