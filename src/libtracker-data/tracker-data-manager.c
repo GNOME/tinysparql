@@ -2347,11 +2347,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 			domain_uri = tracker_db_cursor_get_string (cursor, 2, NULL);
 			range_uri = tracker_db_cursor_get_string (cursor, 3, NULL);
 
-if (strstr(uri, "hasThing") != NULL) {
-printf ("breakpoint\n");
-}
-
-
 			tracker_db_cursor_get_value (cursor, 4, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
