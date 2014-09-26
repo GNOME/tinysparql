@@ -45,7 +45,7 @@ typedef struct {
 /* Common setup for all tests */
 static void
 test_common_setup (TrackerParserTestFixture *fixture,
-                   gconstpointer data)
+                   gconstpointer             data)
 {
 	TrackerLanguage  *language;
 
@@ -79,7 +79,7 @@ test_common_setup (TrackerParserTestFixture *fixture,
 /* Common teardown for all tests */
 static void
 test_common_teardown (TrackerParserTestFixture *fixture,
-                      gconstpointer data)
+                      gconstpointer             data)
 {
 	if (fixture->parser) {
 		tracker_parser_free (fixture->parser);
@@ -100,7 +100,7 @@ struct TestDataExpectedNWords {
 /* Common expected_word test method */
 static void
 expected_nwords_check (TrackerParserTestFixture *fixture,
-                       gconstpointer data)
+                       gconstpointer             data)
 {
 	const TestDataExpectedNWords *testdata = data;
 	gint position;
@@ -160,7 +160,7 @@ struct TestDataExpectedWord {
 /* Common expected_word test method */
 static void
 expected_word_check (TrackerParserTestFixture *fixture,
-                     gconstpointer data)
+                     gconstpointer             data)
 {
 	const TestDataExpectedWord *testdata = data;
 	const gchar *word;
@@ -201,6 +201,28 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	g_free (expected_nfkd);
 }
 
+static void
+test_stemmer (TrackerParserTestFixture *fixture,
+              gconstpointer             data)
+{
+#ifdef HAVE_LIBSTEMMER
+       expected_word_check (fixture, data);
+#else
+       g_test_skip ("Built without libstemmer");
+#endif
+}
+
+static void
+test_unac (TrackerParserTestFixture *fixture,
+           gconstpointer             data)
+{
+#ifdef HAVE_UNAC
+       expected_word_check (fixture, data);
+#else
+       g_test_skip ("Built without UNAC");
+#endif
+}
+
 /* -------------- STOP WORD TESTS ----------------- */
 
 /* Test struct for the stop-word tests */
@@ -214,7 +236,7 @@ struct TestDataStopWord {
 /* Common stop__word test method */
 static void
 stop_word_check (TrackerParserTestFixture *fixture,
-                 gconstpointer data)
+                 gconstpointer             data)
 {
 	const TestDataStopWord *testdata = data;
 	gint position;
@@ -354,7 +376,6 @@ main (int argc, char **argv)
 		g_free (testpath);
 	}
 
-#ifdef HAVE_UNAC
 	/* Add unaccent checks */
 	for (i = 0; test_data_unaccent[i].str != NULL; i++) {
 		gchar *testpath;
@@ -364,11 +385,10 @@ main (int argc, char **argv)
 		            TrackerParserTestFixture,
 		            &test_data_unaccent[i],
 		            test_common_setup,
-		            expected_word_check,
+		            test_unac,
 		            test_common_teardown);
 		g_free (testpath);
 	}
-#endif
 
 	/* Add casefolding checks */
 	for (i = 0; test_data_casefolding[i].str != NULL; i++) {
@@ -393,7 +413,7 @@ main (int argc, char **argv)
 		            TrackerParserTestFixture,
 		            &test_data_stemming[i],
 		            test_common_setup,
-		            expected_word_check,
+		            test_stemmer,
 		            test_common_teardown);
 		g_free (testpath);
 	}
