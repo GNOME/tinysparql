@@ -54,11 +54,12 @@ INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard 
 @INTLTOOL_SERVICE_RULE@
 
 install-data-hook:
-	cd $(DESTDIR)$(datadir)/tracker/miners && \
-		$(LN_S) -f $(servicedir)/$(service_DATA)
+	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
+	$(LN_S) -f "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)" \
+	           "$(DESTDIR)$(servicedir)/$(service_DATA)"
+
 uninstall-local:
-	cd $(DESTDIR)$(datadir)/tracker/miners && \
-		$(RM) $(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)
+	$(RM) "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)"
 
 # Dist / Clean rules for all data
 CLEANFILES += \
