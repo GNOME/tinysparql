@@ -91,7 +91,7 @@ static Conversion allowed_boolean_conversions[] = {
 };
 
 static Conversion allowed_cardinality_conversions[] = {
-	{ "1", NULL }, /* Not filled in apparently also gives 1 */
+	{ "1", NULL },
 	{ NULL, NULL }
 };
 
