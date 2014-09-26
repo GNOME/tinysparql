@@ -656,6 +656,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					tracker_property_set_writeback (property, FALSE);
 					tracker_property_set_is_inverse_functional_property (property, FALSE);
 					tracker_property_set_default_value (property, NULL);
+					tracker_property_set_multiple_values (property, TRUE);
 				}
 				return;
 			}
@@ -668,6 +669,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_property_set_is_new (property, in_update);
 			tracker_property_set_uri (property, subject);
 			tracker_property_set_id (property, subject_id);
+			tracker_property_set_multiple_values (property, TRUE);
 			tracker_ontologies_add_property (property);
 			tracker_ontologies_add_id_uri_pair (subject_id, subject);
 
@@ -1065,6 +1067,10 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
+if (strstr(tracker_property_get_name(property), "hasThing") != NULL) {
+printf ("breakpoint\n");
+}
+
 		if (atoi (object) == 1) {
 			tracker_property_set_multiple_values (property, FALSE);
 			tracker_property_set_last_multiple_values (property, FALSE);
@@ -1363,14 +1369,14 @@ check_for_max_cardinality_change (TrackerProperty  *property,
 	gchar *query = NULL;
 	TrackerDBCursor *cursor;
 	gboolean changed = TRUE;
-	gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
+	gboolean orig_multiple_values = tracker_property_get_orig_multiple_values (property);
 	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
 	GError *n_error = NULL;
 	const gchar *ontology_path = "Unknown";
 
 	if (tracker_property_get_is_new (property) == FALSE &&
-	    (last_multiple_values != new_multiple_values &&
-		 last_multiple_values == FALSE)) {
+	    (orig_multiple_values != new_multiple_values &&
+		 orig_multiple_values == TRUE)) {
 		const gchar *ontology_path = "Unknown";
 		const gchar *subject = tracker_property_get_uri (property);
 
@@ -1383,8 +1389,8 @@ check_for_max_cardinality_change (TrackerProperty  *property,
 			return;
 		}
 	} else if (tracker_property_get_is_new (property) == FALSE &&
-	           last_multiple_values != new_multiple_values &&
-	           last_multiple_values == TRUE) {
+	           orig_multiple_values != new_multiple_values &&
+	           orig_multiple_values == FALSE) {
 		const gchar *subject = tracker_property_get_uri (property);
 
 		if (update_property_value (ontology_path,
@@ -2345,6 +2351,11 @@ db_get_static_data (TrackerDBInterface  *iface,
 			domain_uri = tracker_db_cursor_get_string (cursor, 2, NULL);
 			range_uri = tracker_db_cursor_get_string (cursor, 3, NULL);
 
+if (strstr(uri, "hasThing") != NULL) {
+printf ("breakpoint\n");
+}
+
+
 			tracker_db_cursor_get_value (cursor, 4, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
@@ -2432,6 +2443,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			tracker_property_set_domain (property, tracker_ontologies_get_class_by_uri (domain_uri));
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
+			tracker_property_set_orig_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_default_value (property, default_value);
 			tracker_property_set_force_journal (property, force_journal);
@@ -2592,11 +2604,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		sql_type = "";
 		break;
 	}
-
-if (strstr(tracker_property_get_name (property), "hasThing") != NULL)
-{
-	printf("breakpoint\n");
-}
 
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
