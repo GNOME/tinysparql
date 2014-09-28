@@ -16,10 +16,12 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
+
+#include "config.h"
+
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-crc32.h>
+#include <libtracker-data/tracker-crc32.h>
 
 // Using http://crc32-checksum.waraxe.us/ to check the result
 static void

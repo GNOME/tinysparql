@@ -44,7 +44,7 @@
  *
  */
 
-#include <libtracker-common/tracker-crc32.h>
+#include "tracker-crc32.h"
 
 static const guint32 crcTable[256] = {
   0x00000000UL, 0x77073096UL, 0xEE0E612CUL, 0x990951BAUL, 0x076DC419UL, 0x706AF48FUL, 0xE963A535UL, 0x9E6495A3UL,

@@ -27,6 +27,7 @@ libtracker_data_la_SOURCES =                           \
 	tracker-turtle-reader.vala                     \
 	tracker-class.c                                \
 	tracker-collation.c                            \
+	tracker-crc32.c \
 	tracker-data-backup.c                          \
 	tracker-data-manager.c                         \
 	tracker-data-query.c                           \
@@ -56,6 +57,7 @@ endif
 
 noinst_HEADERS =                                       \
 	tracker-class.h                                \
+	tracker-crc32.h \
 	tracker-data.h                                 \
 	tracker-collation.h                            \
 	tracker-data-backup.h                          \

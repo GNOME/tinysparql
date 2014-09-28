@@ -37,8 +37,7 @@
 # define O_LARGEFILE 0
 #endif
 
-#include <libtracker-common/tracker-crc32.h>
-
+#include "tracker-crc32.h"
 #include "tracker-db-journal.h"
 
 #ifndef DISABLE_JOURNAL

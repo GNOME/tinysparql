@@ -29,7 +29,6 @@ libtracker_common_la_SOURCES = \
 	tracker-storage.c \
 	tracker-type-utils.c \
 	tracker-utils.c \
-	tracker-crc32.c \
 	tracker-locale.c \
 	tracker-miner-locale.c
 
@@ -49,7 +48,6 @@ noinst_HEADERS = \
 	tracker-storage.h \
 	tracker-type-utils.h \
 	tracker-utils.h \
-	tracker-crc32.h \
 	tracker-locale.h \
 	tracker-miner-locale.h
 

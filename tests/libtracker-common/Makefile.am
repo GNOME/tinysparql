@@ -8,7 +8,6 @@ test_programs = \
 	tracker-file-utils                             \
 	tracker-utils				       \
 	tracker-sched-test			       \
-	tracker-crc32-test			       \
 	tracker-date-time-test
 
 AM_CPPFLAGS =                                      \
@@ -35,8 +34,6 @@ tracker_file_utils_SOURCES = tracker-file-utils-test.c
 tracker_utils_SOURCES = tracker-utils-test.c
 
 tracker_sched_test_SOURCES = tracker-sched-test.c
-
-tracker_crc32_test_SOURCES = tracker-crc32-test.c
 
 tracker_date_time_test_SOURCES = tracker-date-time-test.c
 
