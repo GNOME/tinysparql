@@ -34,63 +34,6 @@
 #include "tracker-utils.h"
 #include "tracker-type-utils.h"
 
-gchar *
-tracker_glong_to_string (glong i)
-{
-	return g_strdup_printf ("%ld", i);
-}
-
-gchar *
-tracker_gint_to_string (gint i)
-{
-	return g_strdup_printf ("%d", i);
-}
-
-gchar *
-tracker_guint_to_string (guint i)
-{
-	return g_strdup_printf ("%u", i);
-}
-
-gchar *
-tracker_gint32_to_string (gint32 i)
-{
-	return g_strdup_printf ("%" G_GINT32_FORMAT, i);
-}
-
-gchar *
-tracker_guint32_to_string (guint32 i)
-{
-	return g_strdup_printf ("%" G_GUINT32_FORMAT, i);
-}
-
-gboolean
-tracker_string_to_uint (const gchar *s,
-                        guint       *value)
-{
-	unsigned long int  n;
-	gchar             *end;
-
-	g_return_val_if_fail (s != NULL, FALSE);
-	g_return_val_if_fail (value != NULL, FALSE);
-
-	n = (guint) strtoul (s, &end, 10);
-
-	if (end == s) {
-		*value = 0;
-		return FALSE;
-	}
-
-	if (n > G_MAXUINT) {
-		*value = 0;
-		return FALSE;
-
-	} else {
-		*value = (guint) n;
-		return TRUE;
-	}
-}
-
 gint
 tracker_string_in_string_list (const gchar  *str,
                                gchar       **strv)
@@ -161,41 +104,6 @@ tracker_string_list_to_gslist (gchar **strv,
 	return g_slist_reverse (list);
 }
 
-gchar *
-tracker_string_list_to_string (gchar **strv,
-                               gsize   size,
-                               gchar   sep)
-{
-	GString *string;
-	gsize    i;
-	gsize    size_used;
-
-	if (!strv) {
-		return NULL;
-	}
-
-	if (size < 1) {
-		size_used = g_strv_length (strv);
-	} else {
-		size_used = size;
-	}
-
-	string = g_string_new ("");
-
-	for (i = 0; i < size_used; i++) {
-		if (strv[i]) {
-			if (i > 0) {
-				g_string_append_c (string, sep);
-			}
-
-			string = g_string_append (string, strv[i]);
-		} else {
-			break;
-		}
-	}
-
-	return g_string_free (string, FALSE);
-}
 
 gchar **
 tracker_string_to_string_list (const gchar *str)
@@ -308,39 +216,4 @@ tracker_gslist_copy_with_string_data (GSList *list)
 	new_list = g_slist_reverse (new_list);
 
 	return new_list;
-}
-
-GList *
-tracker_glist_copy_with_string_data (GList *list)
-{
-	GList *l;
-	GList *new_list;
-
-	if (!list) {
-		return NULL;
-	}
-
-	new_list = NULL;
-
-	for (l = list; l; l = l->next) {
-		new_list = g_list_prepend (new_list, g_strdup (l->data));
-	}
-
-	new_list = g_list_reverse (new_list);
-
-	return new_list;
-}
-
-gchar *
-tracker_string_boolean_to_string_gint (const gchar *value)
-{
-	g_return_val_if_fail (value != NULL, NULL);
-
-	if (g_ascii_strcasecmp (value, "true") == 0) {
-		return g_strdup ("1");
-	} else if (g_ascii_strcasecmp (value, "false") == 0) {
-		return g_strdup ("0");
-	} else {
-		return g_strdup (value);
-	}
 }
