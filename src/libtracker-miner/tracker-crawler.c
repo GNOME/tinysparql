@@ -102,7 +102,6 @@ typedef struct {
 	TrackerCrawler *crawler;
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
-	GFile *dir_file;
 	GCancellable *cancellable;
 } EnumeratorData;
 
@@ -587,9 +586,6 @@ enumerator_data_new (TrackerCrawler          *crawler,
 	ed->crawler = g_object_ref (crawler);
 	ed->root_info = root_info;
 	ed->dir_info = dir_info;
-	/* Make sure there's always a ref of the GFile while we're
-	 * iterating it */
-	ed->dir_file = g_object_ref (G_FILE (dir_info->node->data));
 	ed->cancellable = g_cancellable_new ();
 
 	crawler->priv->cancellables = g_list_prepend (crawler->priv->cancellables,
@@ -598,7 +594,7 @@ enumerator_data_new (TrackerCrawler          *crawler,
 }
 
 static void
-enumerator_data_process (EnumeratorData *ed)
+enumerator_data_process (GFile *parent, EnumeratorData *ed)
 {
 	TrackerCrawler *crawler;
 	GSList *l;
@@ -614,7 +610,7 @@ enumerator_data_process (EnumeratorData *ed)
 		children = g_list_prepend (children, child_data->child);
 	}
 
-	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->dir_info->node->data, children, &use);
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, parent, children, &use);
 	g_list_free (children);
 
 	if (!use) {
@@ -631,7 +627,6 @@ enumerator_data_free (EnumeratorData *ed)
 		g_list_remove (ed->crawler->priv->cancellables,
 			       ed->cancellable);
 
-	g_object_unref (ed->dir_file);
 	g_object_unref (ed->crawler);
 	g_object_unref (ed->cancellable);
 	g_slice_free (EnumeratorData, ed);
@@ -681,6 +676,7 @@ file_enumerate_next_cb (GObject      *object,
 	ed = user_data;
 	crawler = ed->crawler;
 	cancelled = g_cancellable_is_cancelled (ed->cancellable);
+	parent = g_file_enumerator_get_container (enumerator);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
 	                                             result,
@@ -701,7 +697,7 @@ file_enumerate_next_cb (GObject      *object,
 		}
 
 		if (!cancelled) {
-			enumerator_data_process (ed);
+			enumerator_data_process (parent, ed);
 		}
 
 		enumerator_data_free (ed);
@@ -714,8 +710,6 @@ file_enumerate_next_cb (GObject      *object,
 
 		return;
 	}
-
-	parent = ed->dir_info->node->data;
 
 	for (l = files; l; l = l->next) {
 		const gchar *child_name;
@@ -805,6 +799,7 @@ file_enumerate_children (TrackerCrawler          *crawler,
 			 DirectoryProcessingData *dir_data)
 {
 	EnumeratorData *ed;
+	GFile *dir_file;
 	gchar *attrs;
 
 	ed = enumerator_data_new (crawler, info, dir_data);
@@ -817,7 +812,8 @@ file_enumerate_children (TrackerCrawler          *crawler,
 		attrs = g_strdup (FILE_ATTRIBUTES);
 	}
 
-	g_file_enumerate_children_async (ed->dir_file,
+	dir_file = G_FILE (dir_data->node->data);
+	g_file_enumerate_children_async (dir_file,
 	                                 attrs,
 	                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                 G_PRIORITY_LOW,
