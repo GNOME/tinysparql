@@ -1,0 +1,35 @@
+.TH tracker-reset 1 "September 2014" GNU "User Commands"
+
+.SH NAME
+tracker-reset \- Reset the index, configuration or replay journal
+
+.SH SYNOPSIS
+\fBtracker reset\fR [\fIOPTION\fR...]
+
+.SH DESCRIPTION
+
+.SH OPTIONS
+.TP
+.B \-r, \-\-hard-reset
+This kills all processes in the same way that
+.B \-\-kill
+does but it also removes all databases. Restarting
+.B tracker-store
+re-creates the databases.
+.TP
+.B \-e, \-\-soft-reset
+A soft reset works exactly the same way that
+.B \-\-hard-reset
+does, with the exception that the backup and journal are not removed.
+These are restored when
+.B tracker-store
+is restarted.
+.TP
+.B \-c, \-\-remove-config
+This removes all config files in $HOME/.config/tracker. All files
+listed are files which were found and successfully removed.
+Restarting the respective processes re-creates the default
+configuration files.
+
+.SH SEE ALSO
+.BR tracker (1).

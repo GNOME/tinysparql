@@ -4,13 +4,13 @@
 tracker-tag \- Add, remove and list tags.
 
 .SH SYNOPSIS
-\fBtracker-tag\fR [\fIOPTION...\fR] FILE [\fIFILE...\fR]
+\fBtracker tag\fR [\fIOPTION...\fR] FILE [\fIFILE...\fR]
 .nf
-\fBtracker-tag\fR [\fIOPTION...\fR] -t [[\fITAG\fR] [\fITAG\fR] ...\fR]
+\fBtracker tag\fR [\fIOPTION...\fR] -t [[\fITAG\fR] [\fITAG\fR] ...\fR]
 .fi
 
 .SH DESCRIPTION
-.B tracker-tag
+.B tracker tag
 allows the caller add tags, remove tags and list tags by URN or to
 list all tags and the files associated with them.
 
@@ -18,9 +18,6 @@ The \fIFILE\fR argument can be either a local path or a URI. It also
 does not have to be an absolute path.
 
 .SH OPTIONS
-.TP
-.B \-?, \-\-help
-Show summary of options.
 .TP
 .B \-l, \-\-limit=N
 Limit search to N results. The default is 512.
@@ -80,9 +77,6 @@ This option ONLY applies when using
 .B \-\-add
 and provides a description to go with the tag label according to
 \fISTRING\fR.
-.TP
-.B \-V, \-\-version
-Print version.
 
 .SH ENVIRONMENT
 .TP

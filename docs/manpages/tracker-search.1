@@ -4,10 +4,10 @@
 tracker-search \- Search all content for keywords
 
 .SH SYNOPSIS
-\fBtracker-search\fR [\fIOPTION\fR...] \fIEXPRESSION\fR [\fIEXPRESSION\fR...]
+\fBtracker search\fR [\fIOPTION\fR...] \fIEXPRESSION\fR [\fIEXPRESSION\fR...]
 
 .SH DESCRIPTION
-.B tracker-search
+.B tracker search
 searches all indexed content for \fIEXPRESSION\fR. The resource in
 which \fIEXPRESSION\fR matches must exist (see 
 .B \-\-all
@@ -21,9 +21,6 @@ One or more terms to search. The default operation is a logical AND.
 For logical OR operations, see -r.
 
 .SH OPTIONS
-.TP
-.B \-?, \-\-help-all
-Display all help options available.
 .TP
 .B \-l, \-\-limit=N
 Limit search to N results. The default is 10 or 512 with \-\-disable\-snippets.
@@ -115,9 +112,6 @@ of those found.
 .B \-b, \-\-bookmarks
 Search through bookmarks matching \fIEXPRESSION\fR (optional). Returns a list
 titles and links for each bookmark found.
-.TP
-.B \-V, \-\-version
-Print version.
 
 .SH ENVIRONMENT
 .TP
