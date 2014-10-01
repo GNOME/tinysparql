@@ -664,6 +664,7 @@ file_enumerator_close_cb (GObject      *enumerator,
 	 * continue with queued files/directories.
 	 */
 	process_func_start (crawler);
+	g_object_unref (crawler);
 }
 
 static void
@@ -709,12 +710,12 @@ file_enumerate_next_cb (GObject      *object,
 			enumerator_data_process (parent, ed);
 		}
 
-		enumerator_data_free (ed);
 		g_file_enumerator_close_async (enumerator,
 		                               G_PRIORITY_DEFAULT,
 		                               NULL,
 		                               file_enumerator_close_cb,
-		                               crawler);
+		                               g_object_ref (crawler));
+		enumerator_data_free (ed);
 		g_object_unref (enumerator);
 
 		return;
