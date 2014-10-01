@@ -4,10 +4,10 @@
 tracker-sparql \- Use SparQL to query the Tracker databases.
 
 .SH SYNOPSIS
-\fBtracker-sparql\fR [\fIOPTION\fR...] [-q \fIQUERY\fR] | [-f \fIFILE\fR]
+\fBtracker sparql\fR [\fIOPTION\fR...] [-q \fIQUERY\fR] | [-f \fIFILE\fR]
 
 .SH DESCRIPTION
-.B tracker-sparql
+.B tracker sparql
 allows the caller to run an RDF query on the database. This can be
 done two ways. Either by providing a \fIFILE\fR with the query or by
 providing a string with the \fIQUERY\fR string.
@@ -16,9 +16,6 @@ The \fIFILE\fR argument can be either a local path or a URI. It also
 does not have to be an absolute path.
 
 .SH OPTIONS
-.TP
-.B \-?, \-\-help
-Show summary of options.
 .TP
 .B \-f, \-\-file=FILE
 Use a \fIFILE\fR with SPARQL content to query or update.
@@ -219,10 +216,6 @@ For example:
 $ tracker-sparql --get-longhand nmm:MusicPiece
 http://www.tracker-project.org/temp/nmm#MusicPiece
 .fi
-
-.TP
-.B \-V, \-\-version
-Print version.
 
 .SH ENVIRONMENT
 .TP

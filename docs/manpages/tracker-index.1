@@ -1,0 +1,28 @@
+.TH tracker-control 1 "September 2009" GNU "User Commands"
+
+.SH NAME
+tracker-index \- List, pause, resume and command data miners indexing content
+
+.SH SYNOPSIS
+\fBtracker index\fR [\fIOPTION\fR...]
+
+.SH DESCRIPTION
+Control the indexing process with pausing and resuming and add content
+to be indexed. In addition it is possible to reindex entire MIME
+types, which may be useful in cases where a new extractor or GStreamer
+backend is available and providing support.
+.SH OPTIONS
+.TP
+.B \-m, \-\-reindex-mime-type=MIME
+Re-index files which match the \fIMIME\fR type supplied. This is
+usually used when installing new extractors which support \fIMIME\fR
+types previously unsupported. This forces Tracker to re-index those
+files. You can use
+.B \-\-reindex-mime-type
+more than once per \fIMIME\fR type.
+.TP
+.B \-f, \-\-index-file=FILE
+(Re)index a file matching the \fIFILE\fR type supplied.
+
+.SH SEE ALSO
+.BR tracker (1).

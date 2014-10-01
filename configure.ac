@@ -323,12 +323,13 @@ LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 
 # Check requirements for tracker-control
-TRACKER_CONTROL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                          gio-unix-2.0 >= $GLIB_REQUIRED
-                          uuid"
+TRACKER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                  gio-unix-2.0 >= $GLIB_REQUIRED
+                  uuid"
 
-PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])
+PKG_CHECK_MODULES(TRACKER, [$TRACKER_REQUIRED])
 
+# Check requirements for tracker-resdump
 TRACKER_RESDUMP_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gee-0.8      >= $GEE_REQUIRED"
 
@@ -503,12 +504,6 @@ TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
                   [have_tracker_miner_rss=yes],
                   [have_tracker_miner_rss=no])
-
-# Check requirements for tracker-utils
-TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                        gio-unix-2.0 >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
 
 # Check requirements for tracker-needle
 TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
@@ -2635,12 +2630,11 @@ AC_CONFIG_FILES([
 	src/miners/user-guides/Makefile
 	src/ontologies/Makefile
 	src/tracker-store/Makefile
-	src/tracker-control/Makefile
+	src/tracker/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-needle/Makefile
-	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-needle/icons/Makefile
 	src/tracker-needle/icons/16x16/Makefile
 	src/tracker-needle/icons/22x22/Makefile
@@ -2648,7 +2642,7 @@ AC_CONFIG_FILES([
 	src/tracker-needle/icons/32x32/Makefile
 	src/tracker-needle/icons/48x48/Makefile
 	src/tracker-needle/icons/scalable/Makefile
-	src/tracker-utils/Makefile
+	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile

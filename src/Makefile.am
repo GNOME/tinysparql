@@ -15,11 +15,10 @@ SUBDIRS =                                              \
 	libtracker-extract                             \
 	libtracker-miner                               \
 	libtracker-control                             \
+	tracker                                        \
 	miners                                         \
 	plugins                                        \
-	tracker-store                                  \
-	tracker-control                                \
-	tracker-utils
+	tracker-store
 
 if HAVE_TRACKER_EXTRACT
 SUBDIRS += tracker-extract

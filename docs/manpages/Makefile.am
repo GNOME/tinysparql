@@ -7,12 +7,14 @@ common = \
 	tracker-import.1 \
 	tracker-info.1 \
 	tracker-miner-fs.1 \
-	tracker-control.1 \
+	tracker-daemon.1 \
 	tracker-search.1 \
 	tracker-sparql.1 \
 	tracker-stats.1 \
 	tracker-store.1 \
 	tracker-tag.1 \
+	tracker-reset.1 \
+	tracker-index.1 \
 	tracker-writeback.1
 
 # Require only common and enabled manpages
