@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, Lanedo GmbH <martyn@lanedo.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,11 +28,15 @@
 
 #include <libtracker-common/tracker-common.h>
 
-#include "tracker-control.h"
 #include "tracker-daemon.h"
-#include "tracker-index.h"
-#include "tracker-reset.h"
 #include "tracker-help.h"
+#include "tracker-index.h"
+#include "tracker-info.h"
+#include "tracker-reset.h"
+#include "tracker-search.h"
+#include "tracker-sparql.h"
+#include "tracker-status.h"
+#include "tracker-tag.h"
 
 const char usage_string[] =
 	"tracker [--version] [--help]\n"
@@ -54,51 +58,7 @@ const char about[] =
 static void print_usage (void);
 
 static int
-cmd_backup (int argc, const char **argv, const char *prefix)
-{
-	
-
-	return 0;
-}
-
-static int
-cmd_daemon (int argc, const char **argv, const char *prefix)
-{
-	GOptionContext *context;
-	GError *error = NULL;
-
-	context = g_option_context_new (NULL);
-	g_option_context_add_group (context, tracker_daemon_get_option_group ());
-
-	/* Common options */
-	/* g_option_context_add_main_entries (context, common_entries, NULL); */
-
-	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
-		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
-		g_error_free (error);
-		g_option_context_free (context);
-		return 1;
-	}
-
-	g_option_context_free (context);
-
-	if (tracker_daemon_options_enabled ()) {
-		return tracker_daemon_run ();
-	}
-
-	tracker_daemon_run_default ();
-
-	return 0;
-}
-
-static int
-cmd_import (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_help (int argc, const char **argv, const char *prefix)
+tracker_help (int argc, const char **argv)
 {
 	if (!argv[0] || !argv[1]) {
 		print_usage ();
@@ -111,114 +71,11 @@ cmd_help (int argc, const char **argv, const char *prefix)
 }
 
 static int
-cmd_info (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_index (int argc, const char **argv, const char *prefix)
-{
-	GOptionContext *context;
-	GError *error = NULL;
-
-	context = g_option_context_new (NULL);
-	g_option_context_add_group (context, tracker_index_get_option_group ());
-
-	/* Common options */
-	/* g_option_context_add_main_entries (context, common_entries, NULL); */
-
-	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
-		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
-		g_error_free (error);
-		g_option_context_free (context);
-		return 1;
-	}
-
-	g_option_context_free (context);
-
-	if (tracker_index_options_enabled ()) {
-		return tracker_index_run ();
-	}
-
-	tracker_index_run_default ();
-
-	return 0;
-}
-
-static int
-cmd_reset (int argc, const char **argv, const char *prefix)
-{
-	GOptionContext *context;
-	GError *error = NULL;
-
-	context = g_option_context_new (NULL);
-	g_option_context_add_group (context, tracker_reset_get_option_group ());
-
-	/* Common options */
-	/* g_option_context_add_main_entries (context, common_entries, NULL); */
-
-	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
-		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
-		g_error_free (error);
-		g_option_context_free (context);
-		return 1;
-	}
-
-	g_option_context_free (context);
-
-	if (tracker_reset_options_enabled ()) {
-		return tracker_reset_run ();
-	}
-
-	tracker_reset_run_default ();
-
-	return 0;
-}
-
-static int
-cmd_restore (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_search (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_sparql (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_stats (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_status (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_tag (int argc, const char **argv, const char *prefix)
-{
-	return 0;
-}
-
-static int
-cmd_version (int argc, const char **argv, const char *prefix)
+tracker_version (int argc, const char **argv)
 {
 	puts (about);
 	return 0;
 }
-
 
 /*
  * require working tree to be present -- anything uses this needs
@@ -229,35 +86,29 @@ cmd_version (int argc, const char **argv, const char *prefix)
 
 struct cmd_struct {
 	const char *cmd;
-	int (*fn)(int, const char **, const char *);
+	int (*fn)(int, const char **);
 	int option;
 	const char *help;
 };
 
 static struct cmd_struct commands[] = {
-	{ "backup", cmd_backup, NEED_WORK_TREE, N_("Backup indexed content") },
-	{ "daemon", cmd_daemon, NEED_WORK_TREE, N_("Start, stop, restart and list daemons responsible for indexing content") },
-	{ "import", cmd_import, NEED_WORK_TREE, N_("Import a data set into the index") },
-	{ "help", cmd_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
-	{ "info", cmd_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
-	{ "index", cmd_index, NEED_NOTHING, N_("List, pause, resume and command data miners indexing content") },
-	{ "reset", cmd_reset, NEED_NOTHING,  N_("Reset the index, configuration or replay journal") },
-	{ "restore", cmd_restore, NEED_NOTHING, N_("Restore the index from a previous backup") },
-	{ "search", cmd_search, NEED_WORK_TREE, N_("Search the index by RDF class") },
-	{ "sparql", cmd_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search and list ontology in use") },
-	{ "stats", cmd_stats, NEED_WORK_TREE, N_("Show statistical information about indexed content") },
-	{ "status", cmd_status, NEED_NOTHING, N_("Show the index status for the working tree") },
-	{ "tag", cmd_tag, NEED_WORK_TREE, N_("Create, list or delete tags and related content") },
-	{ "version", cmd_version, NEED_NOTHING, N_("Show the license and version in use") },
+	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, restart and list daemons responsible for indexing content") },
+	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
+	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
+	{ "index", tracker_index, NEED_NOTHING, N_("List, pause, resume and command data miners indexing content") },
+	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset the index, configuration or replay journal") },
+	{ "search", tracker_search, NEED_WORK_TREE, N_("Search the index by RDF class") },
+	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search and list ontology in use") },
+	{ "status", tracker_status, NEED_NOTHING, N_("Show the index status for the working tree") },
+	{ "tag", tracker_tag, NEED_WORK_TREE, N_("Create, list or delete tags and related content") },
+	{ "version", tracker_version, NEED_NOTHING, N_("Show the license and version in use") },
 };
 
 static int
 run_builtin (struct cmd_struct *p, int argc, const char **argv)
 {
 	int status, help;
-	const char *prefix;
 
-	prefix = NULL;
 	help = argc == 2 && !strcmp (argv[1], "-h");
 
 	if (!help && p->option & NEED_WORK_TREE) {
@@ -265,7 +116,7 @@ run_builtin (struct cmd_struct *p, int argc, const char **argv)
 		/* FIXME: Finish */
 	}
 
-	status = p->fn (argc, argv, prefix);
+	status = p->fn (argc, argv);
 	if (status) {
 		return status;
 	}
@@ -294,6 +145,10 @@ handle_command (int argc, const char **argv)
 
 		exit (run_builtin (p, argc, argv));
 	}
+
+	g_printerr (_("'%s' is not a tracker command. See 'tracker --help'"), argv[0]);
+	g_printerr ("\n");
+	exit (EXIT_FAILURE);
 }
 
 static inline void
@@ -315,6 +170,7 @@ print_usage_list_cmds (void)
 	}
 
 	puts (_("Available tracker commands are:"));
+
 	for (i = 0; i < G_N_ELEMENTS(commands); i++) {
 		/* Don't list version in commands */
 		if (!strcmp (commands[i].cmd, "version") ||
@@ -322,18 +178,18 @@ print_usage_list_cmds (void)
 			continue;
 		}
 
-		g_print("   %s   ", commands[i].cmd);
+		g_print ("   %s   ", commands[i].cmd);
 		mput_char (' ', longest - strlen (commands[i].cmd));
-		puts(_(commands[i].help));
+		puts (_(commands[i].help));
 	}
 }
 
 static void
 print_usage (void)
 {
-	g_print("usage: %s\n\n", usage_string);
+	g_print ("usage: %s\n\n", usage_string);
 	print_usage_list_cmds ();
-	g_print("\n%s\n", _(usage_more_info_string));
+	g_print ("\n%s\n", _(usage_more_info_string));
 }
 
 int
@@ -363,5 +219,5 @@ main (int argc, char **av)
 
 	handle_command (argc, argv);
 
-	return 1;
+	return EXIT_FAILURE;
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,8 +90,6 @@ static gboolean get_log_verbosity;
 static gboolean start;
 static gchar *backup;
 static gchar *restore;
-static gboolean collect_debug_info;
-
 
 #define DAEMON_OPTIONS_ENABLED() \
 	((status || follow || watch || list_common_statuses) || \
@@ -108,8 +107,7 @@ static gboolean collect_debug_info;
 	  set_log_verbosity || \
 	  start || \
 	  backup || \
-	  restore || \
-	  collect_debug_info))
+	  restore));
 
 static gboolean term_option_arg_func (const gchar  *option_value,
                                       const gchar  *value,
@@ -131,10 +129,6 @@ static const gchar *statuses[8] = {
 
 static GOptionEntry entries[] = {
 	/* Status */
-	{ "status", 'S', 0, G_OPTION_ARG_NONE, &status,
-	  N_("Show current status"),
-	  NULL
-	},
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
 	  N_("Follow status changes as they happen"),
 	  NULL
@@ -188,20 +182,11 @@ static GOptionEntry entries[] = {
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
-	{ "backup", 'b', 0, G_OPTION_ARG_FILENAME, &backup,
-	  N_("Backup databases to the file provided"),
-	  N_("FILE") },
-	{ "restore", 'o', 0, G_OPTION_ARG_FILENAME, &restore,
-	  N_("Restore databases from the file provided"),
-	  N_("FILE") },
 	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
 	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
 	  N_("LEVEL") },
 	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
 	  N_("Show logging values in terms of log verbosity for each process"),
-	  NULL },
-	{ "collect-debug-info", 0, 0, G_OPTION_ARG_NONE, &collect_debug_info,
-	  N_("Collect debug information useful for problem reporting and investigation, results are output to terminal"),
 	  NULL },
 	{ NULL }
 };
@@ -1238,253 +1223,8 @@ term_option_arg_func (const gchar  *option_value,
 	return TRUE;
 }
 
-static gboolean
-has_valid_uri_scheme (const gchar *uri)
-{
-	const gchar *s;
-
-	s = uri;
-
-	if (!g_ascii_isalpha (*s)) {
-		return FALSE;
-	}
-
-	do {
-		s++;
-	} while (g_ascii_isalnum (*s) || *s == '+' || *s == '.' || *s == '-');
-
-	return (*s == ':');
-}
-
-static gchar *
-get_uri_from_arg (const gchar *arg)
-{
-	gchar *uri;
-
-	/* support both, URIs and local file paths */
-	if (has_valid_uri_scheme (arg)) {
-		uri = g_strdup (arg);
-	} else {
-		GFile *file;
-
-		file = g_file_new_for_commandline_arg (arg);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
-	}
-
-	return uri;
-}
-
-static void
-collect_debug (void)
-{
-	/* What to collect?
-	 * This is based on information usually requested from maintainers to users.
-	 *
-	 * 1. Package details, e.g. version.
-	 * 2. Disk size, space left, type (SSD/etc)
-	 * 3. Size of dataset (tracker-stats), size of databases
-	 * 4. Current configuration (libtracker-fts, tracker-miner-fs, tracker-extract)
-	 *    All txt files in ~/.cache/
-	 * 5. Statistics about data (tracker-stats)
-	 */
-
-	GDir *d;
-	gchar *data_dir;
-	gchar *str;
-
-	data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
-
-	/* 1. Package details, e.g. version. */
-	g_print ("[Package Details]\n");
-	g_print ("%s: " PACKAGE_VERSION "\n", _("Version"));
-	g_print ("\n\n");
-
-	/* 2. Disk size, space left, type (SSD/etc) */
-	guint64 remaining_bytes;
-	gdouble remaining;
-
-	g_print ("[%s]\n", _("Disk Information"));
-
-	remaining_bytes = tracker_file_system_get_remaining_space (data_dir);
-	str = g_format_size (remaining_bytes);
-
-	remaining = tracker_file_system_get_remaining_space_percentage (data_dir);
-	g_print ("%s: %s (%3.2lf%%)\n",
-	         _("Remaining space on database partition"),
-	         str,
-	         remaining);
-	g_free (str);
-	g_print ("\n\n");
-
-	/* 3. Size of dataset (tracker-stats), size of databases */
-	g_print ("[%s]\n", _("Data Set"));
-
-	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
-		const gchar *f;
-		gchar *path;
-		goffset size;
-
-		f = g_dir_read_name (d);
-		if (!f) {
-			break;
-		}
-
-		if (g_str_has_suffix (f, ".txt")) {
-			continue;
-		}
-
-		path = g_build_filename (data_dir, f, NULL);
-		size = tracker_file_get_size (path);
-		str = g_format_size (size);
-
-		g_print ("%s\n%s\n\n", path, str);
-		g_free (str);
-		g_free (path);
-	}
-	g_dir_close (d);
-	g_print ("\n");
-
-	/* 4. Current configuration (libtracker-fts, tracker-miner-fs, tracker-extract)
-	 *    All txt files in ~/.cache/
-	 */
-	GSList *all, *l;
-
-	g_print ("[%s]\n", _("Configuration"));
-
-	all = tracker_gsettings_get_all (NULL);
-
-	if (all) {
-		for (l = all; l; l = l->next) {
-			ComponentGSettings *c = l->data;
-			gchar **keys, **p;
-
-			if (!c) {
-				continue;
-			}
-
-			keys = g_settings_list_keys (c->settings);
-			for (p = keys; p && *p; p++) {
-				GVariant *v;
-				gchar *printed;
-
-				v = g_settings_get_value (c->settings, *p);
-				printed = g_variant_print (v, FALSE);
-				g_print ("%s.%s: %s\n", c->name, *p, printed);
-				g_free (printed);
-				g_variant_unref (v);
-			}
-		}
-
-		tracker_gsettings_free (all);
-	} else {
-		g_print ("** %s **\n", _("No configuration was found"));
-	}
-	g_print ("\n\n");
-
-	g_print ("[%s]\n", _("States"));
-
-	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
-		const gchar *f;
-		gchar *path;
-		gchar *content = NULL;
-
-		f = g_dir_read_name (d);
-		if (!f) {
-			break;
-		}
-
-		if (!g_str_has_suffix (f, ".txt")) {
-			continue;
-		}
-
-		path = g_build_filename (data_dir, f, NULL);
-		if (g_file_get_contents (path, &content, NULL, NULL)) {
-			/* Special case last-index.txt which is time() dump to file */
-			if (g_str_has_suffix (path, "last-crawl.txt")) {
-				guint64 then, now;
-
-				now = (guint64) time (NULL);
-				then = g_ascii_strtoull (content, NULL, 10);
-				str = tracker_seconds_to_string (now - then, FALSE);
-
-				g_print ("%s\n%s (%s)\n\n", path, content, str);
-			} else {
-				g_print ("%s\n%s\n\n", path, content);
-			}
-			g_free (content);
-		}
-		g_free (path);
-	}
-	g_dir_close (d);
-	g_print ("\n");
-
-	/* 5. Statistics about data (tracker-stats) */
-	TrackerSparqlConnection *connection;
-	GError *error = NULL;
-
-	g_print ("[%s]\n", _("Data Statistics"));
-
-	connection = tracker_sparql_connection_get (NULL, &error);
-
-	if (!connection) {
-		g_print ("** %s, %s **\n",
-		         _("No connection available"),
-		         error ? error->message : _("No error given"));
-		g_clear_error (&error);
-	} else {
-		TrackerSparqlCursor *cursor;
-
-		cursor = tracker_sparql_connection_statistics (connection, NULL, &error);
-
-		if (error) {
-			g_print ("** %s, %s **\n",
-			         _("Could not get statistics"),
-			         error ? error->message : _("No error given"));
-			g_error_free (error);
-		} else {
-			if (!cursor) {
-				g_print ("** %s **\n",
-				         _("No statistics were available"));
-			} else {
-				gint count = 0;
-
-				while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-					g_print ("%s: %s\n",
-					         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-					         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-					count++;
-				}
-
-				if (count == 0) {
-					g_print ("%s\n",
-					         _("Database is currently empty"));
-				}
-
-				g_object_unref (cursor);
-			}
-		}
-	}
-
-	g_object_unref (connection);
-	g_print ("\n\n");
-
-	g_print ("\n");
-
-	g_free (data_dir);
-}
-
-void
-tracker_daemon_run_default (void)
-{
-	/* Enable status output in the default run */
-	status = TRUE;
-
-	tracker_daemon_run ();
-}
-
-gint
-tracker_daemon_run (void)
+static gint
+daemon_run (void)
 {
 	TrackerMinerManager *manager;
 
@@ -1796,11 +1536,6 @@ tracker_daemon_run (void)
 		}
 	}
 
-	if (collect_debug_info) {
-		collect_debug ();
-		return EXIT_SUCCESS;
-	}
-
 	if (get_log_verbosity || set_log_verbosity) {
 		GType etype;
 
@@ -1973,136 +1708,51 @@ tracker_daemon_run (void)
 		return EXIT_SUCCESS;
 	}
 
-	if (backup) {
-		GDBusConnection *connection;
-		GDBusProxy *proxy;
-		GError *error = NULL;
-		GVariant *v;
-		gchar *uri;
-
-		if (!tracker_dbus_get_connection ("org.freedesktop.Tracker1",
-		                                  "/org/freedesktop/Tracker1/Backup",
-		                                  "org.freedesktop.Tracker1.Backup",
-		                                  G_DBUS_PROXY_FLAGS_NONE,
-		                                  &connection,
-		                                  &proxy)) {
-			return EXIT_FAILURE;
-		}
-
-		uri = get_uri_from_arg (backup);
-
-		g_print ("%s\n", _("Backing up database"));
-		g_print ("  %s\n", uri);
-
-		/* Backup/Restore can take some time */
-		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);
-
-		v = g_dbus_proxy_call_sync (proxy,
-		                            "Save",
-		                            g_variant_new ("(s)", uri),
-		                            G_DBUS_CALL_FLAGS_NONE,
-		                            -1,
-		                            NULL,
-		                            &error);
-
-		if (proxy) {
-			g_object_unref (proxy);
-		}
-
-		if (error) {
-			g_critical ("%s, %s",
-			            _("Could not backup database"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
-
-		if (v) {
-			g_variant_unref (v);
-		}
-
-		g_free (uri);
-	}
-
-	if (restore) {
-		GDBusConnection *connection;
-		GDBusProxy *proxy;
-		GError *error = NULL;
-		GVariant *v;
-		gchar *uri;
-
-		if (!tracker_dbus_get_connection ("org.freedesktop.Tracker1",
-		                                  "/org/freedesktop/Tracker1/Backup",
-		                                  "org.freedesktop.Tracker1.Backup",
-		                                  G_DBUS_PROXY_FLAGS_NONE,
-		                                  &connection,
-		                                  &proxy)) {
-			return EXIT_FAILURE;
-		}
-
-		uri = get_uri_from_arg (restore);
-
-		g_print ("%s\n", _("Restoring database from backup"));
-		g_print ("  %s\n", uri);
-
-		/* Backup/Restore can take some time */
-		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);
-
-		v = g_dbus_proxy_call_sync (proxy,
-		                            "Restore",
-		                            g_variant_new ("(s)", uri),
-		                            G_DBUS_CALL_FLAGS_NONE,
-		                            -1,
-		                            NULL,
-		                            &error);
-
-		if (proxy) {
-			g_object_unref (proxy);
-		}
-
-		if (error) {
-			g_critical ("%s, %s",
-			            _("Could not backup database"),
-			            error ? error->message : _("No error given"));
-			g_clear_error (&error);
-			g_free (uri);
-
-			return EXIT_FAILURE;
-		}
-
-		if (v) {
-			g_variant_unref (v);
-		}
-
-		g_free (uri);
-	}
-
 	/* All known options have their own exit points */
 	g_warn_if_reached ();
 
 	return EXIT_FAILURE;
 }
 
-GOptionGroup *
-tracker_daemon_get_option_group (void)
+static int
+daemon_run_default (void)
 {
-	GOptionGroup *group;
+	/* Enable status output in the default run */
+	status = TRUE;
 
-	/* Status options */
-	group = g_option_group_new ("Daemon",
-	                            _("Daemon options"),
-	                            _("Show daemon options"),
-	                            NULL,
-	                            NULL);
-	g_option_group_add_entries (group, entries);
-
-	return group;
+	return daemon_run ();
 }
 
-gboolean
-tracker_daemon_options_enabled (void)
+static gboolean
+daemon_options_enabled (void)
 {
 	return DAEMON_OPTIONS_ENABLED ();
+}
+
+int
+tracker_daemon (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_set_summary (context, _("If no arguments are given, the status of the store and data miners is shown"));
+
+	argv[0] = "tracker daemon";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (daemon_options_enabled ()) {
+		return daemon_run ();
+	}
+
+	return daemon_run_default ();
 }

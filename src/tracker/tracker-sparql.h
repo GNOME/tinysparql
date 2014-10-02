@@ -17,9 +17,20 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_RESET_H__
-#define __TRACKER_RESET_H__
+#ifndef __TRACKER_SPARQL_H__
+#define __TRACKER_SPARQL_H__
 
-int tracker_reset (int argc, const char **argv);
+#include <glib.h>
 
-#endif /* __TRACKER_RESET_H__ */
+#include <libtracker-sparql/tracker-sparql.h>
+
+int         tracker_sparql               (int                       argc,
+                                          const char              **argv);
+
+GHashTable *tracker_sparql_get_prefixes  (void);
+gchar *     tracker_sparql_get_longhand  (GHashTable               *prefixes,
+                                          const gchar              *shorthand);
+gchar *     tracker_sparql_get_shorthand (GHashTable               *prefixes,
+                                          const gchar              *longhand);
+
+#endif /* __TRACKER_SPARQL_H__ */

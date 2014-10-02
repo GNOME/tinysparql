@@ -4,40 +4,22 @@
 tracker-tag \- Add, remove and list tags.
 
 .SH SYNOPSIS
-\fBtracker tag\fR [\fIOPTION...\fR] FILE [\fIFILE...\fR]
 .nf
-\fBtracker tag\fR [\fIOPTION...\fR] -t [[\fITAG\fR] [\fITAG\fR] ...\fR]
+\fBtracker tag\fR \fIFILE1\fR [\fIFILE2\fR ...] [\-l <limit>] [\-o <offset>] [\-r]
+\fBtracker tag\fR \-t [[\fITAG1\fR] [\fITAG2\fR] ...] [\-s] [\-r]
+\fBtracker tag\fR \-a <\fITAG\fR> [-e <description>] 
+\fBtracker tag\fR \-d <\fITAG\fR>
 .fi
 
 .SH DESCRIPTION
-.B tracker tag
-allows the caller add tags, remove tags and list tags by URN or to
-list all tags and the files associated with them.
+List tags for local files or by the tag labels themselves if \-t is used.
+
+It's also possible to manage tags with the \-a and and \-d options.
 
 The \fIFILE\fR argument can be either a local path or a URI. It also
 does not have to be an absolute path.
 
 .SH OPTIONS
-.TP
-.B \-l, \-\-limit=N
-Limit search to N results. The default is 512.
-.TP
-.B \-o, \-\-offset=N
-Offset the search results by N. For example, start at item number 10
-in the results. The default is 0.
-.TP
-.B \-r, \-\-and-operator
-Use AND operator for search terms instead of OR(the default). For
-example:
-
-.nf
-$ tracker-tag -s -t sliff sloff
-.fi
-
-Should show files in the database that have both the \fIsliff\fR
-.B AND
-\fIsloff\fR tags.
-
 .TP
 .B \-t, \-\-list
 List all tags. Results include the number of files associated with
@@ -77,6 +59,24 @@ This option ONLY applies when using
 .B \-\-add
 and provides a description to go with the tag label according to
 \fISTRING\fR.
+.TP
+.B \-l, \-\-limit=N
+Limit search to N results. The default is 512.
+.TP
+.B \-o, \-\-offset=N
+Offset the search results by N. For example, start at item number 10
+in the results. The default is 0.
+.TP
+.B \-r, \-\-and-operator
+Use AND operator for search terms instead of OR (the default). For
+example:
+
+.nf
+$ tracker-tag -s -t sliff sloff
+.fi
+
+Should show files in the database that have both the \fIsliff\fR and
+\fIsloff\fR tags.
 
 .SH ENVIRONMENT
 .TP
@@ -102,7 +102,7 @@ be if this environment variable was undefined.
 Tracker has a fixed set of PRAGMA settings for creating its SQLite connection.
 With this environment variable pointing to a text file you can override these
 settings. The file is a \\n separated list of SQLite queries to execute on any
-newly created SQLite connection in tracker-store.
+newly created SQLite connection in \fBtracker-store\fR.
 
 .SH SEE ALSO
 .BR tracker-store (1),

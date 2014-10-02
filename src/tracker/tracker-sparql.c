@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2014, Softathome <philippe.judge@softathome.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -30,18 +31,21 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define ABOUT \
-	"Tracker " PACKAGE_VERSION "\n"
+#include "tracker-sparql.h"
+#include "tracker-color.h"
 
-#define LICENSE \
-	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public " \
-	"License which can be viewed at:\n" \
-	"\n" \
-	"  http://www.gnu.org/licenses/gpl.txt\n"
-
-#define SNIPPET_BEGIN "\033[1;31m" /* Red */
-#define SNIPPET_END   "\033[0m"
+#define SPARQL_OPTIONS_ENABLED() \
+	(list_classes || \
+	 list_class_prefixes || \
+	 list_properties || \
+	 list_notifies || \
+	 list_indexes || \
+	 tree || \
+	 search || \
+	 get_shorthand || \
+	 get_longhand || \
+	 file || \
+	 query)
 
 typedef struct _NodeData NodeData;
 typedef struct _NodeFindData NodeFindData;
@@ -91,12 +95,11 @@ static gchar *list_properties;
 static gchar *list_notifies;
 static gchar *list_indexes;
 static gchar *tree;
-static gboolean print_version;
 static gchar *get_shorthand;
 static gchar *get_longhand;
 static gchar *search;
 
-static GOptionEntry   entries[] = {
+static GOptionEntry entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
 	  N_("Path to use to run a query or update from file"),
 	  N_("FILE"),
@@ -145,21 +148,27 @@ static GOptionEntry   entries[] = {
 	  N_("Returns the full namespace for a class."),
 	  N_("CLASS"),
 	},
-
-	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
-	  N_("Print version"),
-	  NULL,
-	},
 	{ NULL }
 };
 
-static GHashTable *
-get_prefixes (TrackerSparqlConnection *connection)
+GHashTable *
+tracker_sparql_get_prefixes (void)
 {
+	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	GHashTable *retval;
 	const gchar *query;
+
+	connection = tracker_sparql_connection_get (NULL, &error);
+
+	if (!connection) {
+		g_printerr ("%s: %s\n",
+		            _("Could not establish a connection to Tracker"),
+		            error ? error->message : _("No error given"));
+		g_clear_error (&error);
+		return NULL;
+	}
 
 	retval = g_hash_table_new_full (g_str_hash,
 	                                g_str_equal,
@@ -178,6 +187,8 @@ get_prefixes (TrackerSparqlConnection *connection)
 	        "}";
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+
+	g_object_unref (connection);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -325,10 +336,9 @@ parse_tree (const gchar  *option_name,
 	return TRUE;
 }
 
-
-static gchar *
-get_longhand_str (GHashTable  *prefixes,
-                  const gchar *shorthand)
+gchar *
+tracker_sparql_get_longhand (GHashTable  *prefixes,
+                             const gchar *shorthand)
 {
 	gchar *colon, *namespace;
 
@@ -365,31 +375,25 @@ get_longhand_str (GHashTable  *prefixes,
 	return namespace;
 }
 
-static gchar *
-get_shorthand_str (GHashTable  *prefixes,
-                   const gchar *longhand)
+gchar *
+tracker_sparql_get_shorthand (GHashTable  *prefixes,
+                              const gchar *longhand)
 {
-	gchar *hash, *namespace;
+	gchar *hash;
 
-	namespace = g_strdup (longhand);
-	hash = strrchr (namespace, '#');
+	hash = strrchr (longhand, '#');
 
 	if (hash) {
-		gchar *shorthand;
 		gchar *property;
 		const gchar *prefix;
 
 		property = hash + 1;
 		*hash = '\0';
 
-		prefix = g_hash_table_lookup (prefixes, namespace);
-		shorthand = g_strdup_printf ("%s:%s", prefix, property);
-		g_free (namespace);
+		prefix = g_hash_table_lookup (prefixes, longhand);
 
-		return shorthand;
+		return g_strdup_printf ("%s:%s", prefix, property);
 	}
-
-	g_free (namespace);
 
 	return g_strdup (longhand);
 }
@@ -424,7 +428,7 @@ get_shorthand_str_for_offsets (GHashTable  *prefixes,
 			continue;
 		}
 
-		shorthand = get_shorthand_str (prefixes, property);
+		shorthand = tracker_sparql_get_shorthand (prefixes, property);
 
 		if (!shorthand) {
 			shorthand = g_strdup (property);
@@ -868,7 +872,7 @@ tree_print_foreach (GNode    *node,
 	shorthand = NULL;
 
 	if (pd->prefixes) {
-		shorthand = get_shorthand_str (pd->prefixes, nd->class);
+		shorthand = tracker_sparql_get_shorthand (pd->prefixes, nd->class);
 	}
 
 	depth = g_node_depth (node);
@@ -936,11 +940,11 @@ tree_get (TrackerSparqlConnection *connection,
 	root = tree_new ();
 
 	/* Get shorthand prefixes for printing / filtering */
-	prefixes = get_prefixes (connection);
+	prefixes = tracker_sparql_get_prefixes ();
 
 	/* Is class_lookup a shothand string, e.g. nfo:FileDataObject? */
 	if (class_lookup && *class_lookup && strchr (class_lookup, ':')) {
-		class_lookup_longhand = get_longhand_str (prefixes, class_lookup);
+		class_lookup_longhand = tracker_sparql_get_longhand (prefixes, class_lookup);
 	} else {
 		class_lookup_longhand = g_strdup (class_lookup);
 	}
@@ -1027,7 +1031,7 @@ tree_get (TrackerSparqlConnection *connection,
 			const gchar *property = tracker_sparql_cursor_get_string (properties, 1, NULL);
 			gchar *property_lookup_shorthand;
 
-			property_lookup_shorthand = get_shorthand_str (prefixes, property);
+			property_lookup_shorthand = tracker_sparql_get_shorthand (prefixes, property);
 			tree_add_property (root, class, property_lookup_shorthand);
 			g_free (property_lookup_shorthand);
 		}
@@ -1059,59 +1063,12 @@ tree_get (TrackerSparqlConnection *connection,
 	return EXIT_SUCCESS;
 }
 
-int
-main (int argc, char **argv)
+static int
+sparql_run (void)
 {
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
-	GOptionContext *context;
 	GError *error = NULL;
-	const gchar *error_message;
-
-	setlocale (LC_ALL, "");
-
-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-
-	context = g_option_context_new (_("- Query or update using SPARQL"));
-
-	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
-
-	if (print_version) {
-		g_print ("\n" ABOUT "\n" LICENSE "\n");
-		g_option_context_free (context);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (!list_classes && !list_class_prefixes && !list_properties &&
-	    !list_notifies && !list_indexes && !tree && !search &&
-	    !get_shorthand && !get_longhand && !file && !query) {
-		error_message = _("An argument must be supplied");
-	} else if (file && query) {
-		error_message = _("File and query can not be used together");
-	} else if (list_properties && list_properties[0] == '\0' && !tree) {
-		error_message = _("The --list-properties argument can only be empty when used with the --tree argument");
-	} else {
-		error_message = NULL;
-	}
-
-	if (error_message) {
-		gchar *help;
-
-		g_printerr ("%s\n\n", error_message);
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return EXIT_FAILURE;
-	}
-
-	g_option_context_free (context);
 
 	connection = tracker_sparql_connection_get (NULL, &error);
 
@@ -1357,10 +1314,10 @@ main (int argc, char **argv)
 	}
 
 	if (get_shorthand) {
-		GHashTable *prefixes = get_prefixes (connection);
+		GHashTable *prefixes = tracker_sparql_get_prefixes ();
 		gchar *result;
 
-		result = get_shorthand_str (prefixes, get_shorthand);
+		result = tracker_sparql_get_shorthand (prefixes, get_shorthand);
 		g_print ("%s\n", result);
 		g_free (result);
 
@@ -1370,10 +1327,10 @@ main (int argc, char **argv)
 	}
 
 	if (get_longhand) {
-		GHashTable *prefixes = get_prefixes (connection);
+		GHashTable *prefixes = tracker_sparql_get_prefixes ();
 		gchar *result;
 
-		result = get_longhand_str (prefixes, get_longhand);
+		result = tracker_sparql_get_longhand (prefixes, get_longhand);
 		g_print ("%s\n", result);
 		g_free (result);
 
@@ -1461,7 +1418,7 @@ main (int argc, char **argv)
 			GHashTable *prefixes = NULL;
 
 			if (strstr (query, "fts:offsets")) {
-				prefixes = get_prefixes (connection);
+				prefixes = tracker_sparql_get_prefixes ();
 			}
 
 			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
@@ -1493,3 +1450,65 @@ main (int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
+static int
+sparql_run_default (void)
+{
+	GOptionContext *context;
+	gchar *help;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	help = g_option_context_get_help (context, FALSE, NULL);
+	g_option_context_free (context);
+	g_printerr ("%s\n", help);
+	g_free (help);
+
+	return EXIT_FAILURE;
+}
+
+static gboolean
+sparql_options_enabled (void)
+{
+	return SPARQL_OPTIONS_ENABLED ();
+}
+
+int
+tracker_sparql (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+	const gchar *failed;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+
+	argv[0] = "tracker sparql";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (file && query) {
+		failed = _("File and query can not be used together");
+	} else if (list_properties && list_properties[0] == '\0' && !tree) {
+		failed = _("The --list-properties argument can only be empty when used with the --tree argument");
+	} else {
+		failed = NULL;
+	}
+
+	if (failed) {
+		g_printerr ("%s\n\n", failed);
+		return EXIT_FAILURE;
+	}
+
+	if (sparql_options_enabled ()) {
+		return sparql_run ();
+	}
+
+	return sparql_run_default ();
+}

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2014, SoftAtHome <contact@softathome.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -28,28 +29,11 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
-#include <libtracker-common/tracker-common.h>
-
-#define ABOUT	  \
-	"Tracker " PACKAGE_VERSION "\n"
-
-#define LICENSE	  \
-	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public " \
-	"License which can be viewed at:\n" \
-	"\n" \
-	"  http://www.gnu.org/licenses/gpl.txt\n"
-
-#define TITLE_BEGIN   "\033[32m"   /* Green */
-#define TITLE_END     "\033[0m"
-
-#define SNIPPET_BEGIN "\033[1;31m" /* Red */
-#define SNIPPET_END   "\033[0m"
-
-#define WARN_BEGIN    "\033[33m"   /* Yellow */
-#define WARN_END      "\033[0m"
+#include "tracker-color.h"
+#include "tracker-search.h"
 
 static gint limit = -1;
 static gint offset;
@@ -74,49 +58,24 @@ static gboolean feeds;
 static gboolean software;
 static gboolean software_categories;
 static gboolean bookmarks;
-static gboolean print_version;
 
-static GOptionEntry semantic_entries[] = {
-	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
-	  N_("Limit the number of results shown"),
-	  "512"
-	},
-	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
-	  N_("Offset the results"),
-	  "0"
-	},
-	{ "or-operator", 'r', 0, G_OPTION_ARG_NONE, &or_operator,
-	  N_("Use OR for search terms instead of AND (the default)"),
-	  NULL
-	},
-	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
-	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists, --feeds, --software, --software-categories)"),
-	  NULL
-	},
-	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
-	  N_("Return all non-existing matches too (i.e. include unmounted volumes)"),
-	  NULL
-	},
-	{ "disable-snippets", 0, 0, G_OPTION_ARG_NONE, &disable_snippets,
-	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music…"),
-	  NULL,
-	},
-	{ "disable-fts", 0, 0, G_OPTION_ARG_NONE, &disable_fts,
-	  N_("Disable Full Text Search (FTS). Implies --disable-snippets"),
-	  NULL,
-	},
-	{ "disable-color", 0, 0, G_OPTION_ARG_NONE, &disable_color,
-	  N_("Disable color when printing snippets and results"),
-	  NULL,
-	},
-	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
-	  N_("Print version"),
-	  NULL
-	},
-	{ NULL }
-};
+#define SEARCH_OPTIONS_ENABLED() \
+	(music_albums || music_artists || music_files || \
+	 bookmarks || \
+	 feeds || \
+	 software || \
+	 software_categories || \
+	 image_files || \
+	 video_files || \
+	 document_files || \
+	 emails || \
+	 contacts || \
+	 files || \
+	 folders || \
+	 (terms && g_strv_length (terms) > 0))
 
-static GOptionEntry category_entries[] = {
+static GOptionEntry entries[] = {
+	/* Search types */
 	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
 	  N_("Search for files"),
 	  NULL
@@ -173,6 +132,42 @@ static GOptionEntry category_entries[] = {
 	  N_("Search for bookmarks (--all has no effect on this)"),
 	  NULL
 	},
+
+	/* Semantic options */
+	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
+	  N_("Limit the number of results shown"),
+	  "512"
+	},
+	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
+	  N_("Offset the results"),
+	  "0"
+	},
+	{ "or-operator", 'r', 0, G_OPTION_ARG_NONE, &or_operator,
+	  N_("Use OR for search terms instead of AND (the default)"),
+	  NULL
+	},
+	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
+	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists, --feeds, --software, --software-categories)"),
+	  NULL
+	},
+	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
+	  N_("Return all non-existing matches too (i.e. include unmounted volumes)"),
+	  NULL
+	},
+	{ "disable-snippets", 0, 0, G_OPTION_ARG_NONE, &disable_snippets,
+	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music…"),
+	  NULL,
+	},
+	{ "disable-fts", 0, 0, G_OPTION_ARG_NONE, &disable_fts,
+	  N_("Disable Full Text Search (FTS). Implies --disable-snippets"),
+	  NULL,
+	},
+	{ "disable-color", 0, 0, G_OPTION_ARG_NONE, &disable_color,
+	  N_("Disable color when printing snippets and results"),
+	  NULL,
+	},
+
+	/* Main arguments, the search terms */
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &terms,
 	  N_("search terms"),
@@ -1514,82 +1509,11 @@ get_all_by_search (TrackerSparqlConnection *connection,
 	return TRUE;
 }
 
-int
-main (int argc, char **argv)
+static gint
+search_run (void)
 {
 	TrackerSparqlConnection *connection;
-	GOptionContext *context;
-	GOptionGroup *group;
 	GError *error = NULL;
-	gchar *summary;
-
-	setlocale (LC_ALL, "");
-
-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-
-	/* Translators: this messagge will apper immediately after the
-	 * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-	 */
-	context = g_option_context_new (_("- Search for terms in all data"));
-
-	/* Translators: this message will appear after the usage string
-	 * and before the list of options.
-	 */
-	summary = g_strconcat (_("Applies an AND operator to all terms separated "
-	                         "by a space (see --or-operator)"),
-	                       "\n",
-	                       "\n",
-	                       _("This means if you search for 'foo' and 'bar', "
-	                         "they must BOTH exist (unless you use --or-operator)"),
-	                       NULL);
-	g_option_context_set_summary (context, summary);
-	g_option_context_add_main_entries (context, category_entries, NULL);
-
-	group = g_option_group_new ("search",
-	                            _("Search options"),
-	                            _("Show search options"),
-	                            NULL,
-	                            NULL);
-	g_option_group_add_entries (group, semantic_entries);
-	g_option_context_add_group (context, group);
-
-	g_option_context_parse (context, &argc, &argv, NULL);
-
-	g_free (summary);
-
-	if (print_version) {
-		g_print ("\n" ABOUT "\n" LICENSE "\n");
-		g_option_context_free (context);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (!music_albums && !music_artists && !music_files &&
-	    !bookmarks &&
-	    !feeds &&
-	    !software &&
-	    !software_categories &&
-	    !image_files &&
-	    !video_files &&
-	    !document_files &&
-	    !emails &&
-	    !contacts &&
-	    !files && !folders &&
-	    !terms) {
-		gchar *help;
-
-		g_printerr ("%s\n\n",
-		            _("Search terms are missing"));
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return EXIT_FAILURE;
-	}
 
 	if (disable_fts) {
 		disable_snippets = TRUE;
@@ -1646,8 +1570,6 @@ main (int argc, char **argv)
 #else
 	disable_snippets = TRUE;
 #endif
-
-	g_option_context_free (context);
 
 	connection = tracker_sparql_connection_get (NULL, &error);
 
@@ -1811,5 +1733,57 @@ main (int argc, char **argv)
 
 	g_object_unref (connection);
 
-	return EXIT_SUCCESS;
+	/* All known options have their own exit points */
+	g_warn_if_reached ();
+
+	return EXIT_FAILURE;
+}
+
+static int
+search_run_default (void)
+{
+	GOptionContext *context;
+	gchar *help;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	help = g_option_context_get_help (context, FALSE, NULL);
+	g_option_context_free (context);
+	g_printerr ("%s\n", help);
+	g_free (help);
+
+	return EXIT_FAILURE;
+}
+
+static gboolean
+search_options_enabled (void)
+{
+	return SEARCH_OPTIONS_ENABLED ();
+}
+
+int
+tracker_search (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+
+	argv[0] = "tracker search";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (search_options_enabled ()) {
+		return search_run ();
+	}
+
+	return search_run_default ();
 }

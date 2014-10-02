@@ -159,7 +159,7 @@ class copy (TestUpdate):
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied image file is not shown as indexed')
 
@@ -188,7 +188,7 @@ class copy (TestUpdate):
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied music file is not shown as indexed')
 
@@ -219,7 +219,7 @@ class copy (TestUpdate):
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
 	print result
         self.assert_(result == '1' , 'copied video file is not shown as indexed')
 
@@ -242,7 +242,7 @@ class move (TestUpdate):
         """copy the test files """                                              
         self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_src)      
                                                                                 
-        result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_src + ' |wc -l' )      
+        result =  commands.getoutput(' tracker search -i -l 10000 | grep  ' + file_path_src + ' |wc -l' )
         self.assert_(result == '1' , 'copied image file is not shown as indexed')                                     
                                                                                                          
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )                       
@@ -259,10 +259,10 @@ class move (TestUpdate):
         self.loop.run()                                                                                  
                                                                                                          
         """ verify if miner indexed these file.  """                                                     
-        result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
+        result =  commands.getoutput(' tracker search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
                                                                                                          
         self.assert_(result == '1'  , 'moved file is not listed in tracker search')                      
-        result1 = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
+        result1 = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' and result1 == '0' , 'Both the  original and moved files are listed in tracker search')
                                                                                                                           
         os.remove(file_path_dst)                                                                                          
@@ -281,7 +281,7 @@ class move (TestUpdate):
         """copy the test files """                                                                                        
         self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_src)                                             
                                                                                                                           
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')            
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' , 'copied music file is not shown as indexed')                                         
                                                                                                                           
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
@@ -299,12 +299,12 @@ class move (TestUpdate):
                                                                                                                           
         """ verify if miner indexed these file.  """                                                                      
                                                                                                                           
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')            
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')
         print result                                                                                                      
         self.assert_(result == '1' , 'moved music file is not shown as indexed')                                          
                                                                                                                           
-        result1 = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')           
-        self.assert_(result == '1' and result1 == '0' , 'Both original and moved files are listed in tracker search ')    
+        result1 = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
+        self.assert_(result == '1' and result1 == '0' , 'Both original and moved files are listed in tracker search ')
                                                                                                                           
         os.remove(file_path_dst)                                                                                      
                                                                                                                           
@@ -320,7 +320,7 @@ class move (TestUpdate):
 	"""copy the test files """                                                                                        
         self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_src)                                             
                                                                                                                           
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')            
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' , 'copied video file is not shown as indexed')                                         
                                                                                                                           
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
@@ -336,11 +336,11 @@ class move (TestUpdate):
         self.loop.run()                                                                                                   
         """ verify if miner indexed these file.  """                                                                      
                                                                                                                           
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')            
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')
                                                                                                                       
-        self.assert_(result == '1' , 'moved file is not listed in tracker search ')                                       
+        self.assert_(result == '1' , 'moved file is not listed in tracker search ')
                                                                                                                           
-        result1 = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')           
+        result1 = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' and result1 == '0' , 'Both original and moved files are listed in tracker search ')    
                                                                                                                       
         os.remove(file_path_dst)                                                                                          
@@ -361,7 +361,7 @@ class rename (TestUpdate):
 	"""copy the test files """
 	self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_src)
 
-	result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_src + ' |wc -l' )
+	result =  commands.getoutput(' tracker search -i -l 10000 | grep  ' + file_path_src + ' |wc -l' )
         self.assert_(result == '1' , 'copied image file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
@@ -378,10 +378,10 @@ class rename (TestUpdate):
 	self.loop.run()
 
 	""" verify if miner indexed these file.  """
-	result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
+	result =  commands.getoutput(' tracker search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
 
         self.assert_(result == '1'  , 'renamed file s not listed in tracker search')
-	result1 = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
+	result1 = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' and result1 == '0' , 'Both the  original and renamed files are listed in tracker search')
 
 	os.remove(file_path_dst)
@@ -399,7 +399,7 @@ class rename (TestUpdate):
 	"""copy the test files """
 	self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_src)
 
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' , 'copied music file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
@@ -417,11 +417,11 @@ class rename (TestUpdate):
 
 	""" verify if miner indexed these file.  """
 
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')
         print result
         self.assert_(result == '1' , 'renamed music file is not shown as indexed')
 
-        result1 = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
+        result1 = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' and result1 == '0' , 'Both original and renamed files are listed in tracker search ')
 
 	os.remove(file_path_dst)
@@ -439,7 +439,7 @@ class rename (TestUpdate):
 	"""copy the test files """
 	self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_src)
 
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' , 'copied video file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
@@ -455,11 +455,11 @@ class rename (TestUpdate):
 	self.loop.run()
 	""" verify if miner indexed these file.  """
 
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')
 
         self.assert_(result == '1' , 'renamed file is not listed in tracker search ')
 
-        result1 = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
+        result1 = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
         self.assert_(result == '1' and result1 == '0' , 'Both original and renamed files are listed in tracker search ')
 
 	os.remove(file_path_dst)
@@ -498,7 +498,7 @@ class subfolder (TestUpdate):
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied image file is not shown as indexed')
 
@@ -520,7 +520,7 @@ class subfolder (TestUpdate):
         self.loop.run ()
 
         """ 2. verify if miner indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied file is not shown as indexed')
 
@@ -543,7 +543,7 @@ class subfolder (TestUpdate):
         self.loop.run ()
 
         """ verify if miner un-indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '0' , 'deleted image file is shown as indexed')
 
@@ -561,7 +561,7 @@ class delete (TestUpdate):
         self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path)
 
         """ 2. verify if miner indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied file is not shown as indexed')
 
@@ -585,7 +585,7 @@ class delete (TestUpdate):
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '0' , 'deleted image file is shown as indexed')
 
@@ -599,7 +599,7 @@ class delete (TestUpdate):
         self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path)
 
         """ 2. verify if miner indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied file is not shown as indexed')
 
@@ -623,7 +623,7 @@ class delete (TestUpdate):
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '0' , 'deleted music file is shown as indexed')
 
@@ -637,7 +637,7 @@ class delete (TestUpdate):
         self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path)
 
         """ 2. verify if miner indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
 
 	print result
         self.assert_(result == '1' , 'copied file is not shown as indexed')
@@ -663,7 +663,7 @@ class delete (TestUpdate):
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '0' , 'deleted video file is shown as indexed')
 
@@ -699,7 +699,7 @@ class text (TestUpdate) :
 
 	""" verify if miner indexed these file.  """
 
-        result = commands.getoutput ('tracker-search  -t  massstorage | grep ' + file_path + ' | wc -l')
+        result = commands.getoutput ('tracker search  -t  massstorage | grep ' + file_path + ' | wc -l')
         print result
         self.assert_(result == '1' , 'copied text file is not shown as indexed')
 
@@ -723,12 +723,12 @@ class no_file_op(TestUpdate):
             """
 	    1. unmount the MyDocs
 
-            2. check if tracker-search -i is retrieving result """
+            2. check if tracker search -i is retrieving result """
 
 	    check_mount()
 	    commands.getoutput ('umount /dev/mmcblk0p1')
 	      
-	    result = commands.getoutput ('tracker-search -f -l 10000 | grep ' + MYDOCS + '  |wc -l ')
+	    result = commands.getoutput ('tracker search -f -l 10000 | grep ' + MYDOCS + '  |wc -l ')
 	    print result
 	    self.assert_(result == '0' , 'Tracker is listing the files when the device is connected in mass storage mode')
 
@@ -737,12 +737,12 @@ class no_file_op(TestUpdate):
 
             """1. unmount the MyDocs
 
-               2. check if tracker-search -ia is retrieving result """
+               2. check if tracker search -ia is retrieving result """
 
 	    check_mount()
             commands.getoutput ('umount /dev/mmcblk0p1')
 	      
-            result = commands.getoutput ('tracker-search -f -l 10000 |wc -l ')
+            result = commands.getoutput ('tracker search -f -l 10000 |wc -l ')
             self.assert_(result != 0 , 'Tracker(checked with -a) is not listing the files when the device is connected in mass storage mode')
 
 if __name__ == "__main__":

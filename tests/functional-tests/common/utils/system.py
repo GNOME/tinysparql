@@ -212,9 +212,9 @@ class TrackerSystemAbstraction:
     # Private API
     #
     def __stop_tracker_processes (self):
-        control_binary = os.path.join (cfg.BINDIR, "tracker-control")
+        control_binary = os.path.join (cfg.BINDIR, "tracker")
         FNULL = open('/dev/null', 'w')
-        subprocess.call ([control_binary, "-t"], stdout=FNULL)
+        subprocess.call ([control_binary, "daemon -t"], stdout=FNULL)
         time.sleep (1)
 
     def __recreate_directory (self, directory):

@@ -567,7 +567,7 @@ class MinerFsHelper (Helper):
                 log ("Kill %s manually" % self.PROCESS_NAME)
                 self.loop.run ()
         else:
-            control_binary = os.path.join (cfg.BINDIR, "tracker-control")
+            control_binary = os.path.join (cfg.BINDIR, "tracker")
 
             kws = {}
 
@@ -575,7 +575,7 @@ class MinerFsHelper (Helper):
                 FNULL = open ('/dev/null', 'w')
                 kws = { 'stdout': FNULL }
 
-            subprocess.call ([control_binary, "--kill=miners"], **kws)
+            subprocess.call ([control_binary, "daemon --kill=miners"], **kws)
 
         return False
 

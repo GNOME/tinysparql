@@ -2,6 +2,7 @@
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2014, SoftAtHome <contact@softathome.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -31,28 +32,19 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define ABOUT \
-	"Tracker " PACKAGE_VERSION "\n"
+#include "tracker-info.h"
+#include "tracker-sparql.h"
 
-#define LICENSE \
-	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public " \
-	"License which can be viewed at:\n" \
-	"\n" \
-	"  http://www.gnu.org/licenses/gpl.txt\n"
+#define INFO_OPTIONS_ENABLED() \
+	(filenames && g_strv_length (filenames) > 0);
 
 static gchar **filenames;
 static gboolean full_namespaces;
-static gboolean print_version;
 static gboolean plain_text_content;
 static gboolean resource_is_iri;
 static gboolean turtle;
 
 static GOptionEntry entries[] = {
-	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
-	  N_("Print version"),
-	  NULL,
-	},
 	{ "full-namespaces", 'f', 0, G_OPTION_ARG_NONE, &full_namespaces,
 	  N_("Show full namespaces (i.e. don't use nie:title, use full URLs)"),
 	  NULL,
@@ -81,29 +73,6 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
-static gchar *
-get_shorthand (GHashTable  *prefixes,
-               const gchar *namespace)
-{
-	gchar *hash;
-
-	hash = strrchr (namespace, '#');
-
-	if (hash) {
-		gchar *property;
-		const gchar *prefix;
-
-		property = hash + 1;
-		*hash = '\0';
-
-		prefix = g_hash_table_lookup (prefixes, namespace);
-
-		return g_strdup_printf ("%s:%s", prefix, property);
-	}
-
-	return g_strdup (namespace);
-}
-
 static gboolean
 has_valid_uri_scheme (const gchar *uri)
 {
@@ -122,68 +91,6 @@ has_valid_uri_scheme (const gchar *uri)
 	return (*s == ':');
 }
 
-static GHashTable *
-get_prefixes (TrackerSparqlConnection *connection)
-{
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	GHashTable *retval;
-	const gchar *query;
-
-	retval = g_hash_table_new_full (g_str_hash,
-	                                g_str_equal,
-	                                g_free,
-	                                g_free);
-
-	/* FIXME: Would like to get this in the same SPARQL that we
-	 * use to get the info, but doesn't seem possible at the
-	 * moment with the limited string manipulation features we
-	 * support in SPARQL.
-	 */
-	query = "SELECT ?ns ?prefix "
-	        "WHERE {"
-	        "  ?ns a tracker:Namespace ;"
-	        "  tracker:prefix ?prefix "
-	        "}";
-
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve namespace prefixes"),
-			    error->message);
-
-		g_error_free (error);
-		return retval;
-	}
-
-	if (!cursor) {
-		g_printerr ("%s\n", _("No namespace prefixes were returned"));
-		return retval;
-	}
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		const gchar *key, *value;
-
-		key = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		value = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-
-		if (!key || !value) {
-			continue;
-		}
-
-		g_hash_table_insert (retval,
-		                     g_strndup (key, strlen (key) - 1),
-		                     g_strdup (value));
-	}
-
-	if (cursor) {
-		g_object_unref (cursor);
-	}
-
-	return retval;
-}
-
 static inline void
 print_key_and_value (GHashTable  *prefixes,
                      const gchar *key,
@@ -194,7 +101,7 @@ print_key_and_value (GHashTable  *prefixes,
 	} else {
 		gchar *shorthand;
 
-		shorthand = get_shorthand (prefixes, key);
+		shorthand = tracker_sparql_get_shorthand (prefixes, key);
 		g_print ("  '%s' = '%s'\n", shorthand, value);
 		g_free (shorthand);
 	}
@@ -262,7 +169,7 @@ format_urn (GHashTable  *prefixes,
 	if (full_namespaces) {
 		urn_out = g_strdup_printf ("<%s>", urn);
 	} else {
-		gchar *shorthand = get_shorthand (prefixes, urn);
+		gchar *shorthand = tracker_sparql_get_shorthand (prefixes, urn);
 
 		/* If the shorthand is the same as the urn passed, we
 		 * assume it is a resource and pass it in as one,
@@ -301,7 +208,7 @@ print_turtle (gchar               *urn,
 		subject = g_strdup (urn);
 	} else {
 		/* truncate subject */
-		subject = get_shorthand (prefixes, urn);
+		subject = tracker_sparql_get_shorthand (prefixes, urn);
 	}
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -341,52 +248,13 @@ print_turtle (gchar               *urn,
 	g_free (subject);
 }
 
-int
-main (int argc, char **argv)
+static int
+info_run (void)
 {
 	TrackerSparqlConnection *connection;
-	GOptionContext *context;
 	GError *error = NULL;
 	GHashTable *prefixes;
 	gchar **p;
-
-	setlocale (LC_ALL, "");
-
-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-
-	/* Translators: this messagge will apper immediately after the  */
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
-	context = g_option_context_new (_("- Get all information about one or more files"));
-
-	/* Translators: this message will appear after the usage string */
-	/* and before the list of options.                              */
-	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
-
-	if (print_version) {
-		g_print ("\n" ABOUT "\n" LICENSE "\n");
-		g_option_context_free (context);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (!filenames) {
-		gchar *help;
-
-		g_printerr ("%s\n\n",
-		            _("One or more files have not been specified"));
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return EXIT_FAILURE;
-	}
-
-	g_option_context_free (context);
 
 	connection = tracker_sparql_connection_get (NULL, &error);
 
@@ -398,7 +266,7 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	prefixes = get_prefixes (connection);
+	prefixes = tracker_sparql_get_prefixes ();
 
 	/* print all prefixes if using turtle format and not showing full namespaces */
 	if (turtle && !full_namespaces) {
@@ -515,4 +383,53 @@ main (int argc, char **argv)
 	g_object_unref (connection);
 
 	return EXIT_SUCCESS;
+}
+
+static int
+info_run_default (void)
+{
+	GOptionContext *context;
+	gchar *help;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	help = g_option_context_get_help (context, TRUE, NULL);
+	g_option_context_free (context);
+	g_printerr ("%s\n", help);
+	g_free (help);
+
+	return EXIT_FAILURE;
+}
+
+static gboolean
+info_options_enabled (void)
+{
+	return INFO_OPTIONS_ENABLED ();
+}
+
+int
+tracker_info (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+
+	argv[0] = "tracker info";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (info_options_enabled ()) {
+		return info_run ();
+	}
+
+	return info_run_default ();
 }

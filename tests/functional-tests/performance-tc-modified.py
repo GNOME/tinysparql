@@ -36,7 +36,7 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 """import .ttl files """
 """
 def stats() :
-    a1=commands.getoutput("tracker-stats |grep  %s " %(stats[i]))
+    a1=commands.getoutput("tracker status --stat |grep  %s " %(stats[i]))
     b1=a1.split()
     after=b1[2]
     return after
@@ -44,7 +44,7 @@ def stats() :
 def import_ttl (music_ttl):
        1. Checking the tracker stats before importing the ttl file .
        2. Importing the ttl file .
-       3. Check the tracker-stats after importing the ttl file.
+       3. Check the tracker status --stat after importing the ttl file.
        4. Check if the stats got changed.
     bus= dbus.SessionBus()
     imp_obj = bus.get_object('org.freedesktop.Tracker1','/org/freedesktop/Tracker1/Resources')
@@ -56,10 +56,10 @@ def import_ttl (music_ttl):
     stats=['nmm:Artist','nmm:MusicAlbum']
     for i in range(len(ttl)) :
          file_ttl='file://' +music_ttl+'/'+ttl[i]
-         a=commands.getoutput("tracker-stats | grep  %s " %(stats[i]) )
+         a=commands.getoutput("tracker status --stat | grep  %s " %(stats[i]))
 	 b=a.split()
          imp_iface.Load(file_ttl)
- 	 a1=commands.getoutput("tracker-stats |grep  %s " %(stats[i]))
+         a1=commands.getoutput("tracker status --stat |grep  %s " %(stats[i]))
          b1=a1.split()
          after=b1[2]
 	 while (t < 2):

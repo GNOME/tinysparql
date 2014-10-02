@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,13 +44,13 @@ static gboolean remove_config;
 	 remove_config)
 
 static GOptionEntry entries[] = {
-	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
+	{ "hard", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("Kill all Tracker processes and remove all databases"),
 	  NULL },
-	{ "soft-reset", 'e', 0, G_OPTION_ARG_NONE, &soft_reset,
-	  N_("Same as --hard-reset but the backup & journal are restored after restart"),
+	{ "soft", 'e', 0, G_OPTION_ARG_NONE, &soft_reset,
+	  N_("Same as --hard but the backup & journal are restored after restart"),
 	  NULL },
-	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
+	{ "config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
 	  NULL },
 	{ NULL }
@@ -122,30 +122,20 @@ directory_foreach (GFile    *file,
 	g_object_unref (enumerator);
 }
 
-void
-tracker_reset_run_default (void)
+static gint
+reset_run (void)
 {
-	/* Set options in here we want to run by default with no args */
-
-	tracker_reset_run ();
-}
-
-gint
-tracker_reset_run (void)
-{
-	TrackerProcessTypes kill_option = TRACKER_PROCESS_TYPE_NONE;
 	GError *error = NULL;
 
 	if (hard_reset && soft_reset) {
 		g_printerr ("%s\n",
-		            _("You can not use the --hard-reset and --soft-reset arguments together"));
+		            _("You can not use the --hard and --soft arguments together"));
 		return EXIT_FAILURE;
 	}
 
+	/* KILL processes first... */
 	if (hard_reset || soft_reset) {
-		/* Imply --kill */
-		kill_option = TRACKER_PROCESS_TYPE_ALL;
-		/* FIXME: Kill all before doing reset ... */
+		tracker_process_stop (TRACKER_PROCESS_TYPE_NONE, TRACKER_PROCESS_TYPE_ALL);
 	}
 
 	if (hard_reset || soft_reset) {
@@ -282,24 +272,51 @@ tracker_reset_run (void)
 	return EXIT_FAILURE;
 }
 
-GOptionGroup *
-tracker_reset_get_option_group (void)
+static int
+reset_run_default (void)
 {
-	GOptionGroup *group;
+	GOptionContext *context;
+	gchar *help;
 
-	/* Status options */
-	group = g_option_group_new ("Reset",
-	                            _("Reset options"),
-	                            _("Show reset options"),
-	                            NULL,
-	                            NULL);
-	g_option_group_add_entries (group, entries);
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	help = g_option_context_get_help (context, FALSE, NULL);
+	g_option_context_free (context);
+	g_printerr ("%s\n", help);
+	g_free (help);
 
-	return group;
+	return EXIT_FAILURE;
 }
 
-gboolean
-tracker_reset_options_enabled (void)
+static gboolean
+reset_options_enabled (void)
 {
 	return RESET_OPTIONS_ENABLED ();
+}
+
+int
+tracker_reset (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+
+	argv[0] = "tracker reset";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (reset_options_enabled ()) {
+		return reset_run ();
+	}
+
+	return reset_run_default ();
 }

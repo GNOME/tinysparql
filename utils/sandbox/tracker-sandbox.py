@@ -173,7 +173,7 @@ def db_query_files_that_match():
 
 # Index functions
 def index_clean():
-	#tracker-control -r
+	#tracker reset --hard
 	debug ('Cleaning index, FIXME: Does nothing.')
 
 def find_libexec_binaries(command):
@@ -289,7 +289,7 @@ def environment_unset():
 	if not opts.update:
 		return
 
-	# FIXME: clean up tracker-store, can't use tracker-control for this,
+	# FIXME: clean up tracker-store, can't use 'tracker daemon ...' for this,
 	#        that kills everything it finds in /proc sadly.
 	if store_pid > 0:
 		debug('  Killing Tracker store')
