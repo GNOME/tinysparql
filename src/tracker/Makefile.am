@@ -14,37 +14,13 @@ libs =                                                 \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_LIBS)
 
-bin_PROGRAMS =                                         \
-	tracker \
-	tracker-import                                 \
-	tracker-info                                   \
-	tracker-search                                 \
-	tracker-sparql                                 \
-	tracker-stats                                  \
-	tracker-tag
-
-tracker_search_SOURCES = tracker-search.c
-tracker_search_LDADD = $(libs)
-
-tracker_stats_SOURCES = tracker-stats.c
-tracker_stats_LDADD = $(libs)
-
-tracker_tag_SOURCES = tracker-tag.c
-tracker_tag_LDADD = $(libs)
-
-tracker_info_SOURCES = tracker-info.c
-tracker_info_LDADD = $(libs)
-
-tracker_sparql_SOURCES = tracker-sparql.c
-tracker_sparql_LDADD = $(libs)
-
-tracker_import_SOURCES = tracker-import.c
-tracker_import_LDADD = $(libs)
+bin_PROGRAMS = tracker
 
 tracker_SOURCES = \
 	tracker-main.c \
 	tracker-config.c \
 	tracker-config.h \
+	tracker-color.h \
 	tracker-daemon.c \
 	tracker-daemon.h \
 	tracker-dbus.c \
@@ -53,10 +29,20 @@ tracker_SOURCES = \
 	tracker-help.h \
 	tracker-index.c \
 	tracker-index.h \
+	tracker-info.c \
+	tracker-info.h \
 	tracker-process.c \
 	tracker-process.h \
 	tracker-reset.c \
-	tracker-reset.h
+	tracker-reset.h \
+	tracker-search.c \
+	tracker-search.h \
+	tracker-sparql.c \
+	tracker-sparql.h \
+	tracker-status.c \
+	tracker-status.h \
+	tracker-tag.c \
+	tracker-tag.h
 
 tracker_LDADD = \
 	$(top_builddir)/src/libtracker-control/libtracker-control-@TRACKER_API_VERSION@.la \

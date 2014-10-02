@@ -36,8 +36,8 @@ if [ -n "$1" ]; then
 	prefix=$1
 fi
 
-if [ -e $prefix/bin/tracker-control ]; then
-	$prefix/bin/tracker-control -r
+if [ -e $prefix/bin/tracker ]; then
+	$prefix/bin/tracker reset --hard
 fi
 
 

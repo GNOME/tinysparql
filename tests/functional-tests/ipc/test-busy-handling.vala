@@ -20,7 +20,7 @@
 // To run this test:
 // -===-------------
 //
-// tracker-control -k
+// tracker daemon -k
 // rm ~/.cache/tracker/meta.db
 // export TRACKER_DEBUG_MAKE_JOURNAL_READER_GO_VERY_SLOW=yes
 // tracker-store

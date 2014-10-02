@@ -1,35 +1,83 @@
 .TH tracker-search 1 "July 2009" GNU "User Commands"
 
 .SH NAME
-tracker-search \- Search all content for keywords
+tracker-search \- Search for content by type or across all types
 
 .SH SYNOPSIS
-\fBtracker search\fR [\fIOPTION\fR...] \fIEXPRESSION\fR [\fIEXPRESSION\fR...]
+\fBtracker search\fR [\fIoptions\fR...] [[\fIexpression1\fR] ...]
 
 .SH DESCRIPTION
 .B tracker search
-searches all indexed content for \fIEXPRESSION\fR. The resource in
-which \fIEXPRESSION\fR matches must exist (see 
+searches all indexed content for \fIexpression\fR. The resource in
+which \fIexpression\fR matches must exist (see 
 .B \-\-all
 for more information). All results are returned in ascending order. In
-all cases, if no \fIEXPRESSION\fR is given for an argument (like 
+all cases, if no \fIexpression\fR is given for an argument (like 
 .B \-\-folders
 for example) then ALL items in that category are returned instead.
 .TP
-\fIEXPRESSION\fR
+\fIexpression\fR
 One or more terms to search. The default operation is a logical AND.
 For logical OR operations, see -r.
 
 .SH OPTIONS
 .TP
-.B \-l, \-\-limit=N
-Limit search to N results. The default is 10 or 512 with \-\-disable\-snippets.
+.B \-f, \-\-files
+Search for files of any type matching \fIexpression\fR (optional).
 .TP
-.B \-o, \-\-offset=N
-Offset the search results by N. For example, start at item number 10
+.B \-s, \-\-folders
+Search for folders matching \fIexpression\fR (optional).
+.TP
+.B \-m, \-\-music
+Search for music files matching \fIexpression\fR (optional).
+.TP
+.B \-\-music\-albums
+Search for music albums matching \fIexpression\fR (optional).
+.TP
+.B \-\-music\-artists
+Search for music artists matching \fIexpression\fR (optional).
+.TP
+.B \-i, \-\-images
+Search for images matching \fIexpression\fR (optional).
+.TP
+.B \-v, \-\-videos
+Search for videos matching \fIexpression\fR (optional).
+.TP
+.B \-t, \-\-documents
+Search for documents matching \fIexpression\fR (optional).
+.TP
+.B \-e, \-\-emails
+Search for emails matching \fIexpression\fR (optional). Returns a list
+of subjects for emails found.
+.TP
+.B \-c, \-\-contacts
+Search for contacts matching \fIexpression\fR (optional). Returns a list
+of names and email addresses found.
+.TP
+.B \-\-software
+Search for software installed matching \fIexpression\fR (optional). Returns a list
+of desktop files and application titles found.
+.TP
+.B \-\-software\-categories
+Search for software categories matching \fIexpression\fR (optional). Returns a list
+of urns and their categories (e.g. Settings, Video, Utility, etc).
+.TP
+.B \-\-feeds
+Search through RSS feed information matching \fIexpression\fR (optional). Returns a list
+of those found.
+.TP
+.B \-b, \-\-bookmarks
+Search through bookmarks matching \fIexpression\fR (optional). Returns a list
+titles and links for each bookmark found.
+.TP
+.B \-l, \-\-limit\fR=<\fIlimit\fR>
+Limit search to \fIlimit\fR results. The default is 10 or 512 with \-\-disable\-snippets.
+.TP
+.B \-o, \-\-offset\fR=<\fIoffset\fR>
+Offset the search results by \fIoffset\fR. For example, start at item number 10
 in the results. The default is 0.
 .TP
-.B \-r, \-\-or-operator
+.B \-r, \-\-or\-operator
 Use OR for search terms instead of AND (the default)
 .TP
 .B \-d, \-\-detailed
@@ -42,7 +90,7 @@ removable media is not mounted for example. Without this option,
 resources are only shown if they exist. This option applies to all
 command line switches except
 .TP
-.B \-\-disable-snippets
+.B \-\-disable\-snippets
 Results are shown with snippets. Snippets are context around the word
 that was searched for in the first place. This gives some idea of if
 the resource found is the right one. Snippets require Full Text Search
@@ -50,68 +98,17 @@ to be compile time enabled AND to not be disabled with
 \-\-disable\-fts. Using \-\-disable\-snippets only shows the resources
 which matched, no context is provided about where the match occurred.
 .TP
-.B \-\-disable-fts
+.B \-\-disable\-fts
 If Full Text Search (FTS) is available, this option allows it to be
 disabled for one off searches. This returns results slightly
-using particular properties to match the search terms (like nie:title)
+using particular properties to match the search terms (like "nie:title")
 instead of looking for the search terms amongst ALL properties. It is
 more limiting to do this, but sometimes searching without FTS can
 yield better results if the FTS ranking is off.
 .TP
-.B \-\-disable-color
+.B \-\-disable\-color
 This disables any ANSI color use on the command line. By default this
 is enabled to make it easier to see results.
-.B \-\-music-albums
-and
-.B \-\-music-artists.
-.TP
-.B \-f, \-\-files
-Search for files of any type matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-s, \-\-folders
-Search for folders matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-m, \-\-music
-Search for music files matching \fIEXPRESSION\fR (optional).
-.TP
-.B      \-\-music\-albums
-Search for music albums matching \fIEXPRESSION\fR (optional).
-.TP
-.B      \-\-music\-artists
-Search for music artists matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-i, \-\-images
-Search for images matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-v, \-\-videos
-Search for videos matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-t, \-\-documents
-Search for documents matching \fIEXPRESSION\fR (optional).
-.TP
-.B \-e, \-\-emails
-Search for emails matching \fIEXPRESSION\fR (optional). Returns a list
-of subjects for emails found.
-.TP
-.B \-c, \-\-contacts
-Search for contacts matching \fIEXPRESSION\fR (optional). Returns a list
-of names and email addresses found.
-.TP
-.B \-\-software
-Search for software installed matching \fIEXPRESSION\fR (optional). Returns a list
-of desktop files and application titles found.
-.TP
-.B \-\-software-categories
-Search for software categories matching \fIEXPRESSION\fR (optional). Returns a list
-of urns and their categories (e.g. Settings, Video, Utility, etc).
-.TP
-.B \-\-feeds
-Search through RSS feed information matching \fIEXPRESSION\fR (optional). Returns a list
-of those found.
-.TP
-.B \-b, \-\-bookmarks
-Search through bookmarks matching \fIEXPRESSION\fR (optional). Returns a list
-titles and links for each bookmark found.
 
 .SH ENVIRONMENT
 .TP

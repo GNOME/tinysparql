@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,14 +17,9 @@
  * 02110-1301, USA.
  */
 
-#include <glib.h>
-
 #ifndef __TRACKER_INDEX_H__
 #define __TRACKER_INDEX_H__
 
-gint          tracker_index_run               (void);
-void          tracker_index_run_default       (void);
-GOptionGroup *tracker_index_get_option_group  (void);
-gboolean      tracker_index_options_enabled   (void);
+int tracker_index (int argc, const char **argv);
 
 #endif /* __TRACKER_INDEX_H__ */

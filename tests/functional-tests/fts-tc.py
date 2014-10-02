@@ -169,7 +169,7 @@ class basic (TestUpdate) :
 
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + word + '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' + word + '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='1','search for the word is not giving results')
 	os.remove(file_path)
@@ -188,7 +188,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,word)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + search_word+ '|grep  '+file_path+ '|wc -l ' )
+	result=commands.getoutput ('tracker search  ' + search_word+ '|grep  '+file_path+ '|wc -l ' )
 	print result
 	self.assert_(result=='1','search for the word is not giving results')
 
@@ -208,7 +208,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,word)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + search_word + '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' + search_word + '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='0','search for the non existing  word is giving results')
 
@@ -228,7 +228,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,sentence)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + search_word + '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' + search_word + '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='1','search for the word  not giving results')
 
@@ -247,7 +247,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,sentence)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -268,7 +268,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,sentence)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + search_sentence+ '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' + search_sentence+ '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -277,7 +277,7 @@ class basic (TestUpdate) :
 
       def test_text_07 (self) :
 
-	""" To check if tracker search for  sentenece gives results """	
+	""" To check if tracker search for  sentenece gives results """
         file_path =  configuration.MYDOCS + TEST_TEXT
                     
         """copy the test files """          
@@ -287,7 +287,7 @@ class basic (TestUpdate) :
 	self.edit_text(file_path,sentence)
 	self.loop.run()
 
-	result=commands.getoutput ('tracker-search  ' + sentence+ '|grep  '+file_path+ '|wc -l ')
+	result=commands.getoutput ('tracker search  ' + sentence+ '|grep  '+file_path+ '|wc -l ')
 	print result
 	self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -296,7 +296,7 @@ class basic (TestUpdate) :
 
       def test_text_08 (self) :
 
-	""" To check if tracker search for  sentenece gives results """ 
+	""" To check if tracker search for  sentenece gives results """
 
 	file_path =  configuration.MYDOCS + TEST_TEXT                   
                                                                         
@@ -308,7 +308,7 @@ class basic (TestUpdate) :
         self.edit_text(file_path,sentence)                              
         self.loop.run()                                                 
 
-        result=commands.getoutput ('tracker-search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')    
+        result=commands.getoutput ('tracker search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                    
 	self.assert_(result=='0','search for the word is not giving results')
 
@@ -327,7 +327,7 @@ class basic (TestUpdate) :
         self.edit_text(file_path,word)                              
         self.loop.run()                                                 
 
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')    
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                    
 	self.assert_(result=='1','search for the word is not giving results')
 
@@ -346,7 +346,7 @@ class basic (TestUpdate) :
         self.edit_text(file_path,search_word)                              
         self.loop.run()                                                 
 
-        result=commands.getoutput ('tracker-search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')    
+        result=commands.getoutput ('tracker search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                    
 	self.assert_(result=='0','search for the word is not giving results')
 
@@ -354,7 +354,7 @@ class basic (TestUpdate) :
 
       def test_text_12 (self) :
 
-	""" To check if tracker-search for a word(file which contains this file is removed) gives result"""
+	""" To check if tracker search for a word(file which contains this file is removed) gives result"""
 
 	file_path =  configuration.MYDOCS + TEST_TEXT                   
                                                                         
@@ -364,22 +364,22 @@ class basic (TestUpdate) :
         self.edit_text(file_path,word)                              
         self.loop.run()                                                 
 
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')    
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                    
 	self.assert_(result=='1','search for the word is not giving results')
 
         self.wait_for_fileop('rm' , file_path)
 
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')    
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
 	
-        result1=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path)    
+        result1=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path)
 	print result1
         print result                                                    
 	self.assert_(result=='0','search for the non existing files giving results')
 
       def test_text_13 (self) :                                                                                              
                                                                                                                              
-        """ To check if tracker-search for a word in different text files with similar 3 letter words and search for the word gives result """
+        """ To check if tracker search for a word in different text files with similar 3 letter words and search for the word gives result """
                                                                                                                              
         file_path =  configuration.MYDOCS + TEST_TEXT                                                                        
         file_path_02 =  configuration.MYDOCS + TEST_TEXT_02                                                                  
@@ -401,7 +401,7 @@ class basic (TestUpdate) :
         self.loop.run()                                                                                                      
                                                                                                                              
         search_word = 'feet'                                                                                                 
-        result=commands.getoutput ('tracker-search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')                         
+        result=commands.getoutput ('tracker search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='1','search for the word is not giving results')                                                
                                                                                                                              
@@ -411,7 +411,7 @@ class basic (TestUpdate) :
 
       def test_text_14 (self) :                                                                                              
                                                                                                                              
-        """ To check if tracker-search for a word in unwatched directory and gives result"""                                 
+        """ To check if tracker search for a word in unwatched directory and gives result"""
                                                                                                                              
         file_path =  "/root/" + TEST_TEXT                                                                                    
                                                                                                                              
@@ -419,7 +419,7 @@ class basic (TestUpdate) :
         self.wait_for_fileop('cp', SRC_TEXT_DIR + TEST_TEXT, file_path)                                                      
         word = "framework"                                                                                                   
                                                                                                                              
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')                                
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='0','search for the word is not giving results')                                                
                                                                                                                              
@@ -427,7 +427,7 @@ class basic (TestUpdate) :
                                                                                                                              
       def test_text_15 (self) :                                                                                              
                                                                                                                              
-        """ To check if tracker-search for a word(file which is copied from no watch directories to watched directories) gives results """
+        """ To check if tracker search for a word(file which is copied from no watch directories to watched directories) gives results """
                                                                                                                              
         FILE_NAME =  "/root/" + TEST_TEXT                                                                                    
         file_path =  configuration.MYDOCS + TEST_TEXT                                                                        
@@ -441,7 +441,7 @@ class basic (TestUpdate) :
                                                                                                                              
         word = "framework"                                                                                                   
                                                                                                                              
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')                                
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='1','search for the word is giving results')                                                    
                                                                                                                              
@@ -449,14 +449,14 @@ class basic (TestUpdate) :
 
       def test_text_16 (self) :                                                                                              
                                                                                                                              
-        """ To check if tracker-search for a word(file which is in hidden directory) gives result"""                         
+        """ To check if tracker search for a word(file which is in hidden directory) gives result"""
         file_path =  HIDDEN_DIR+TEST_TEXT                                                                                   
                                                                                                                              
         """copy the test files """                                                                                           
         self.wait_for_fileop('cp', SRC_TEXT_DIR + TEST_TEXT , file_path)                                                     
         word = "framework"                                                                                                   
                                                                                                                              
-        result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')                                
+        result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='0','search for the word is giving results')                                                    
                                                                                                                              
@@ -494,12 +494,12 @@ class db_text ( TestUpdate ) :
         word = "summer"                                     
         self.edit_text(file_path,word)
 	time.sleep(2)
-	result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')                         
+	result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='1','search for the word is not giving results')   
 	commands.getoutput('cp  '+SRC_IMAGE_DIR+TEST_IMAGE+ '  '+TEXT_DB)
 	time.sleep(1)
-	result=commands.getoutput ('tracker-search  ' + word+ '|grep  '+file_path+ '|wc -l ')                         
+	result=commands.getoutput ('tracker search  ' + word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='1','search for the word is not giving results')   
 
@@ -523,7 +523,7 @@ class msm (TestUpdate) :
 	commands.getoutput ('mount -t vfat -o rw ' +MOUNT_PARTITION+'  '+MYDOCS)
 	time.sleep(10)
         search_word = "information"                                     
-	result=commands.getoutput ('tracker-search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')                         
+	result=commands.getoutput ('tracker search  ' + search_word+ '|grep  '+file_path+ '|wc -l ')
         print result                                                                                                         
         self.assert_(result=='1','search for the word is not giving results')   
 
@@ -541,7 +541,7 @@ class specialchar (TestUpdate) :
         self.edit_text(file_path,sentence)
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -560,7 +560,7 @@ class specialchar (TestUpdate) :
 
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -579,7 +579,7 @@ class specialchar (TestUpdate) :
         self.edit_text(file_path,sentence)
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -598,7 +598,7 @@ class specialchar (TestUpdate) :
         self.edit_text(file_path,sentence)
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -617,7 +617,7 @@ class specialchar (TestUpdate) :
         self.edit_text(file_path,sentence)
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +sentence+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -637,7 +637,7 @@ class specialchar (TestUpdate) :
         self.edit_text(file_path,sentence)
         self.loop.run()
 
-        result=commands.getoutput ('tracker-search  ' +word+ '|grep  '+file_path+ '|wc -l ')
+        result=commands.getoutput ('tracker search  ' +word+ '|grep  '+file_path+ '|wc -l ')
         print result
         self.assert_(result=='1','search for the sentence is not giving results')
 
@@ -647,35 +647,35 @@ class applications (TestUpdate) :
 
 	def test_app_Images (self) :
 
-	    result= commands.getoutput ('tracker-search -i ' + TEST_IMAGE+ '|wc -l')
+	    result= commands.getoutput ('tracker search -i ' + TEST_IMAGE+ '|wc -l')
 	    self.assert_(result!=0 , 'tracker search for images is not giving results')
 
 
 	def test_app_Music (self) :
 
-	    result= commands.getoutput ('tracker-search -m ' + TEST_MUSIC+ '|wc -l')
+	    result= commands.getoutput ('tracker search -m ' + TEST_MUSIC+ '|wc -l')
 	    self.assert_(result!=0 , 'tracker search for music is not giving results')
 
 	def test_app_Vidoes (self) :
 
-	    result= commands.getoutput ('tracker-search -v ' + TEST_VIDEO+ '|wc -l')
+	    result= commands.getoutput ('tracker search -v ' + TEST_VIDEO+ '|wc -l')
 	    self.assert_(result!=0 , 'tracker search for Videos is not giving results')
 
 
 	def test_app_music_albums (self) :
 
-	    result= commands.getoutput ('tracker-search --music-albums SinCos  | wc -l')
+	    result= commands.getoutput ('tracker search --music-albums SinCos  | wc -l')
 	    self.assert_(result!=0 , 'tracker search for music albums is not giving results')
 
 	
 	def test_app_music_artists (self) :
 
-	    result= commands.getoutput ('tracker-search --music-artists AbBaby  | wc -l')
+	    result= commands.getoutput ('tracker search --music-artists AbBaby  | wc -l')
 	    self.assert_(result!=0 , 'tracker search for music artists is not giving results')
 
 	def test_app_folders (self) :
 
-	    result= commands.getoutput ('tracker-search -s '+TEST_DIR_1 + '| wc -l')
+	    result= commands.getoutput ('tracker search -s '+TEST_DIR_1 + '| wc -l')
 	    self.assert_(result!=0 , 'tracker search for folders is not giving results')
 
 	
@@ -687,7 +687,7 @@ class applications (TestUpdate) :
                       """
 	    self.resources_new.SparqlUpdate (INSERT)
 	    
-	    result = commands.getoutput ('tracker-search -ea searching_for_Email |wc -l ')
+	    result = commands.getoutput ('tracker search -ea searching_for_Email |wc -l ')
 	    self.assert_(result!=0 , 'tracker search for files is not giving results')
 
 	def test_app_email (self) :
@@ -699,7 +699,7 @@ class applications (TestUpdate) :
 	    #self.resources.SparqlUpdate (INSERT)
             self.resources.SparqlUpdate  (INSERT)
 	    
-	    result = commands.getoutput ('tracker-search -ea searching_for_Email |wc -l ')
+	    result = commands.getoutput ('tracker search -ea searching_for_Email |wc -l ')
 	    self.assert_(result!=0 , 'tracker search for files is not giving results')
 
 

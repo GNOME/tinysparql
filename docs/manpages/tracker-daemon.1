@@ -4,27 +4,38 @@
 tracker-daemon \- Start, stop, restart and list daemons responsible for indexing content
 
 .SH SYNOPSIS
-\fBtracker daemon\fR [\fIOPTION\fR...]
+.nf
+\fBtracker daemon\fR [\fIoptions\fR...]
+\fBtracker daemon\fR \-s | \-t [\fIdaemons\fR] | \-k [\fIdaemons\fR] | \-l
+\fBtracker daemon\fR \-f | \-w [\fIontology\fR]
+\fBtracker daemon\fR \-\-miner <\fIminer\fR> \-\-pause[-for-process] <\fIreason\fR>
+\fBtracker daemon\fR \-\-miner <\fIminer\fR> \-\-resume <\fIcookie\fR> 
+
+.fi
 
 .SH DESCRIPTION
-.B Manages and checks status of all Tracker processes and data.
+Tracker has many components to it including a "store" for handling data
+set updates and "miners" for handling data mining in their respective
+areas.
 
-Controls Tracker both at process level, and at entity level (store, miners).
+The \fBtracker daemon\fR command allows for control of these components.
+This ranges from starting, stopping and killing processes to pausing
+and resuming them. 
 
-To start or stop miners, you can use
-.B \-\-start.
-The store is started automatically by the D-Bus calls from the miners.
+In addition to all this, there are ways to change the log verbsity for
+all processes that generate logs and to follow or watch what is
+happening in real time from a top level and right down where the
+SPARQL commits are happening too.
 
-It also allows checking the status of the Tracker store and all data miners.
-For
-.B tracker-store
-, the status is always
-.B Idle
-unless it is restoring a backup and/or replaying a journal (regardless of
-load from applications or miners). For a list of common statuses, see
-.B \-\-list\-common\-statuses.
+If no arguments are provided this command will show the current status
+of all Tracker entities (store and all available data miners).
 
-The miners can be paused or resumed using this command and you can
+For \fBtracker-store\fR, the status is always "Idle" unless it is
+restoring a backup and/or replaying a journal (see also \fBtracker reset
+--soft\fR). For a list of common statuses, see
+\fB\-\-list\-common\-statuses\fR.
+
+The data miners can be paused or resumed using this command and you can
 also list miners running and available.
 
 .SH OPTIONS
@@ -32,76 +43,131 @@ also list miners running and available.
 .B \-p, \-\-list\-processes
 This lists all Tracker processes in the system.
 .TP
-.B \-k, \-\-kill=[all|store|miners]
+.B \-k, \-\-kill\fR=[\fIdaemons\fR]
 This uses SIGKILL to stop all Tracker processes found matching the
-parameter, if no extra parameter is passed,
-.B all
-will be assumed. This is not advised unless you are having problems
-stopping Tracker in the first place. This
-.B GUARANTEES
-death.
+parameter, if no extra parameter is passed, "all" will be assumed.
+This is not advised unless you are having problems stopping Tracker in
+the first place. This \fBGUARANTEES\fR death.
+
+The possible \fIdaemons\fR options are:
+.sp
+.RS 12
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIall\fR
+\- All daemons.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.IP \(bu 2.3
+.\}
+\fIstore\fR
+\- Only the \fBtracker-store\fR.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIminers\fR
+\- Only data miners.
+.sp
+.RE
+
 .TP
-.B \-t, \-\-terminate=[all|store|miners]
+.B \-t, \-\-terminate\fR=[daemons]
 This uses SIGTERM to stop all Tracker processes found matching the
-parameter, if no extra parameter is passed,
-.B all
-will be assumed. This is recommended over \-\-kill because it gives
-the processes time to shutdown cleanly.
+parameter, if no extra parameter is passed, "all" will be assumed.
+This is recommended over \-\-kill because it gives the processes time
+to shutdown cleanly.
+
+For a list of possible \fIdaemons\fR, see \-\-kill.
 .TP
 .B \-s, \-\-start
-Starts all miners. This indirectly starts tracker-store too because it
-is needed for miners to operate properly.
+Starts all miners. This indirectly starts \fBtracker-store\fR too
+because it is needed for miners to operate properly. The store is
+started from D-Bus.
 .TP
-.B \-b, \-\-backup=FILE
-Begins backing up the Tracker databases to the
-.B FILE
-given.
-.TP
-.B \-o, \-\-restore=FILE
-Begins restoring a previous backup (see
-.B \-\-backup
-) to the Tracker databases. The
-.B FILE
-points to the location of the backup.
-.TP
-.B \-\-get-log-verbosity
+.B \-\-get\-log\-verbosity
 This displays the log verbosity for ALL components using GSettings for
 this configuration. For possible values, see
-.B \-\-set-log-verbosity.
+.B \-\-set\-log\-verbosity.
 .TP
-.B \-\-set-log-verbosity=[debug|detailed|minimal|errors]
-This sets the log verbosity for ALL components using GSettings using
-this configuration option ('verbosity').
-.TP
-.B \-\-collect-debug-info
-Useful when debugging problems to diagnose the state of Tracker on
-your system. The data is output to stdout. Useful if bugs are filed
-against the project itself.
+.B \-\-set\-log\-verbosity\fR=<\fIverbosity\fR>
+This sets the log verbosity for ALL daemons using GSettings to store
+their "verbosity" configuration.
 
-Data collected includes Tracker version in use, disk space available,
-size of the databases on the disk, the configuration in use, states of
-the index (e.g. last filesystem crawl, data set locale, etc.) and
-finally statistics about the data in the database (e.g. how many
-nfo:FileDataObject resources exist).
+The possible \fIverbosity\fR options are:
+.sp
+.RS 12
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIdebug\fR
+\- Show EVERYTHING, from debug messages to errors. This often includes
+actual SQL being executed.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.IP \(bu 2.3
+.\}
+\fIdetailed\fR
+\- Show enough detail to understand what is happening.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIminimal\fR
+\- Show an overview of what is going on, e.g. stats and when things
+start or stop.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIerrors\fR
+\- Show only warnings, criticals, errors or fatal events.
+.RE
+
 .TP
-.B \-S, \-\-status
-Show the current status of all Tracker entities (store and all available
-miners).
+.B \-f, \-\-follow
+Follow status changes to daemons as they happen. This is a top level
+view of what is happening. You will see the name for each daemon and a
+state with the progress in that state.
+
+This requires Ctrl+C to stop and return to the command line. Each new
+status is put on a new line.
+
 .TP
-.B \-F, \-\-follow
-Follow status changes as they happen. This requires Ctrl+C to stop and
-return to the command line. Each new status is put on a new line.
-.TP
-.B \-w, \-\-watch=[ONTOLOGY]
+.B \-w, \-\-watch\fR=[\fIontology\fR]
 Watch changes that happen to the database in real time. This requires
 Ctrl+C to stop and return to the command line.
 
-If the
-.B ONTOLOGY
-is unspecified, all changes are shown. The
-.B ONTOLOGY
-can be a comma separated list of shorthand or long hand ontology
-properties. For example:
+If \fIontology\fR is unspecified, all updates are shown. The
+\fIontology\fR can be a comma separated list of shorthand or long hand
+ontology properties. For example:
 
 .nf
     $ tracker-control -w nie:url,nie:mimeType,nfo:fileSize,nie:dataSource
@@ -132,50 +198,42 @@ Additionally, these statuses are not the only ones which may be
 reported by a miner. There may be other states pertaining to the
 specific roles of the miner in question.
 .TP
-.B \-\-list-miners-running
+.B \-\-list\-miners\-running
 This will list all miners which have responded to a D-Bus call.
 Sometimes it is helpful to use this command with
-.B \-\-list-miners-available.
+.B \-\-list\-miners\-available.
 .TP
 .B \-\-list-miners-available
 This will list all miners which are available even if they are not
 running at the moment.
 .TP
-.B \-\-pause-details
+.B \-\-pause\-details
 For listing all miners which are paused and the reasons for being
 paused, you can use this. It will also display the application that
 requested the pause too.
 .TP
-.B \-\-miner=MINER
-This argument is used with
-.B \-\-pause
-or
-.B \-\-resume
-to say which miner you want to pause or resume. You can use the full
-D-Bus name, e.g.
-.B org.freedesktop.Tracker1.Miner.Files
-OR you can use the suffix, e.g.
-.B Files
+.B \-\-miner\fR=<\fIminer\fR>
+This argument is used with \fB\-\-pause\fR or \fB\-\-resume\fR to say
+which miner you want to pause or resume. You can use the full D-Bus
+name, e.g. "org.freedesktop.Tracker1.Miner.Files" OR you can use
+the suffix, e.g. "Files".
 .TP
-.B \-\-pause=REASON
-The REASON here is useful to know WHY the miner should be paused. A
+.B \-\-pause\fR=<\fIreason\fR>
+The \fIreason\fR here is useful to know WHY the miner should be paused. A
 miner can be paused many times by multiple applications. Only when all
 pauses have been resumed will it continue. If successful, a cookie
 will be given to uniquely identify the request. This cookie is used to
 resume the pause at a later stage.
 .TP
-.B \-\-pause-for-process=REASON
-This works exactly the same way as
-.B \-\-pause
-with the exception that it only keeps the pause active while the
-calling process is alive. As soon as you press Ctrl+C the pause is
-resumed automatically.
+.B \-\-pause\-for\-process\fR=<\fIreason\fR>
+This works exactly the same way as \fB\-\-pause\fR with the exception
+that it only keeps the pause active while the calling process is
+alive. As soon as you press Ctrl+C the pause is resumed automatically.
 .TP
-.B \-\-resume=COOKIE
-The COOKIE is given by a successful
-.B \-\-pause
-command. It is a number which identifies each pause request. When all
-pauses have been resumed, the miner will resume working.
+.B \-\-resume\fR=<\fIcookie\fR>
+The \fIcookie\fR is given by a successful \fB\-\-pause\fR command. It
+is a number which identifies each pause request. When all pauses have
+been resumed, the miner will resume working.
 
 .SH ENVIRONMENT
 .TP

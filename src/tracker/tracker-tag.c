@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,15 +30,13 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define ABOUT \
-	"Tracker " PACKAGE_VERSION "\n"
+#include "tracker-tag.h"
 
-#define LICENSE \
-	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public " \
-	"License which can be viewed at:\n" \
-	"\n" \
-	"  http://www.gnu.org/licenses/gpl.txt\n"
+#define TAG_OPTIONS_ENABLED() \
+	(resources || \
+	 add_tag || \
+	 remove_tag || \
+	 list)
 
 static gint limit = 512;
 static gint offset;
@@ -48,21 +47,8 @@ static gchar *remove_tag;
 static gchar *description;
 static gboolean *list;
 static gboolean show_resources;
-static gboolean print_version;
 
 static GOptionEntry entries[] = {
-	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
-	  N_("Limit the number of results shown"),
-	  "512"
-	},
-	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
-	  N_("Offset the results"),
-	  "0"
-	},
-	{ "and-operator", 'n', 0, G_OPTION_ARG_NONE, &and_operator,
-	  N_("Use AND for search terms instead of OR (the default)"),
-	  NULL
-	},
 	{ "list", 't', 0, G_OPTION_ARG_NONE, &list,
 	  N_("List all tags (using FILTER if specified; FILTER always uses logical OR)"),
 	  N_("FILTER"),
@@ -83,8 +69,16 @@ static GOptionEntry entries[] = {
 	  N_("Description for a tag (this is only used with --add)"),
 	  N_("STRING")
 	},
-	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
-	  N_("Print version"),
+	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
+	  N_("Limit the number of results shown"),
+	  "512"
+	},
+	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
+	  N_("Offset the results"),
+	  "0"
+	},
+	{ "and-operator", 'n', 0, G_OPTION_ARG_NONE, &and_operator,
+	  N_("Use AND for search terms instead of OR (the default)"),
 	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0,
@@ -969,64 +963,11 @@ get_tags_by_file (TrackerSparqlConnection *connection,
 	return TRUE;
 }
 
-int
-main (int argc, char **argv)
+static int
+tag_run (void)
 {
 	TrackerSparqlConnection *connection;
-	GOptionContext *context;
 	GError *error = NULL;
-	const gchar *failed = NULL;
-
-	setlocale (LC_ALL, "");
-
-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-
-	/* Translators: this messagge will apper immediately after the
-	 * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-	 */
-	context = g_option_context_new (_("Add, remove or list tags"));
-
-	/* Translators: this message will appear after the usage string
-	 * and before the list of options, showing an usage example.
-	 */
-	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
-
-	if (print_version) {
-		g_print ("\n" ABOUT "\n" LICENSE "\n");
-		g_option_context_free (context);
-
-		return EXIT_SUCCESS;
-	}
-
-	if (!list && show_resources) {
-		failed = _("The --list option is required for --show-files");
-	} else if (and_operator && (!list || !resources)) {
-		failed = _("The --and-operator option can only be used with --list and tag label arguments");
-	} else if (add_tag && remove_tag) {
-		failed = _("Add and delete actions can not be used together");
-	} else if (!list && !add_tag && !remove_tag && !resources) {
-		failed = _("No arguments were provided");
-	} else if (description && !add_tag) {
-		failed = _("The --description option can only be used with --add");
-	}
-
-	if (failed) {
-		gchar *help;
-
-		g_printerr ("%s\n\n", failed);
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return EXIT_FAILURE;
-	}
-
-	g_option_context_free (context);
 
 	connection = tracker_sparql_connection_get (NULL, &error);
 
@@ -1098,4 +1039,71 @@ main (int argc, char **argv)
 	 * This code should never be reached in practise.
 	 */
 	return EXIT_FAILURE;
+}
+
+static int
+tag_run_default (void)
+{
+	GOptionContext *context;
+	gchar *help;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	help = g_option_context_get_help (context, TRUE, NULL);
+	g_option_context_free (context);
+	g_printerr ("%s\n", help);
+	g_free (help);
+
+	return EXIT_FAILURE;
+}
+
+static gboolean
+tag_options_enabled (void)
+{
+	return TAG_OPTIONS_ENABLED ();
+}
+
+int
+tracker_tag (int argc, const char **argv)
+{
+	GOptionContext *context;
+	GError *error = NULL;
+	const gchar *failed;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+
+	argv[0] = "tracker tag";
+
+	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
+		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
+		g_error_free (error);
+		g_option_context_free (context);
+		return EXIT_FAILURE;
+	}
+
+	g_option_context_free (context);
+
+	if (!list && show_resources) {
+		failed = _("The --list option is required for --show-files");
+	} else if (and_operator && (!list || !resources)) {
+		failed = _("The --and-operator option can only be used with --list and tag label arguments");
+	} else if (add_tag && remove_tag) {
+		failed = _("Add and delete actions can not be used together");
+	} else if (description && !add_tag) {
+		failed = _("The --description option can only be used with --add");
+	} else {
+		failed = NULL;
+	}
+
+	if (failed) {
+		g_printerr ("%s\n\n", failed);
+		return EXIT_FAILURE;
+	}
+
+	if (tag_options_enabled ()) {
+		return tag_run ();
+	}
+
+	return tag_run_default ();
 }

@@ -17,9 +17,9 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_RESET_H__
-#define __TRACKER_RESET_H__
+#ifndef __TRACKER_SEARCH_H__
+#define __TRACKER_SEARCH_H__
 
-int tracker_reset (int argc, const char **argv);
+int tracker_search (int argc, const char **argv);
 
-#endif /* __TRACKER_RESET_H__ */
+#endif /* __TRACKER_SEARCH_H__ */
