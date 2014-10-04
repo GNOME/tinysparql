@@ -35,6 +35,7 @@
 #include "tracker-reset.h"
 #include "tracker-search.h"
 #include "tracker-sparql.h"
+#include "tracker-sql.h"
 #include "tracker-status.h"
 #include "tracker-tag.h"
 
@@ -99,6 +100,7 @@ static struct cmd_struct commands[] = {
 	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset the index, configuration or replay journal") },
 	{ "search", tracker_search, NEED_WORK_TREE, N_("Search the index by RDF class") },
 	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search and list ontology in use") },
+	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database using SQL at the lowest level") },
 	{ "status", tracker_status, NEED_NOTHING, N_("Show the index status for the working tree") },
 	{ "tag", tracker_tag, NEED_WORK_TREE, N_("Create, list or delete tags and related content") },
 	{ "version", tracker_version, NEED_NOTHING, N_("Show the license and version in use") },
