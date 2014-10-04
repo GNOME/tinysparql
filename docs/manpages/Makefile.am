@@ -9,6 +9,7 @@ common = \
 	tracker-daemon.1 \
 	tracker-search.1 \
 	tracker-sparql.1 \
+	tracker-sql.1 \
 	tracker-status.1 \
 	tracker-store.1 \
 	tracker-tag.1 \

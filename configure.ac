@@ -2709,7 +2709,6 @@ AC_CONFIG_FILES([
 	utils/data-generators/cc/Makefile
 	utils/mtp/Makefile
 	utils/sandbox/Makefile
-	utils/tracker-sql/Makefile
 	utils/tracker-resdump/Makefile
 	examples/Makefile
 	examples/libtracker-miner/Makefile

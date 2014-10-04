@@ -39,6 +39,8 @@ tracker_SOURCES = \
 	tracker-search.h \
 	tracker-sparql.c \
 	tracker-sparql.h \
+	tracker-sql.c \
+	tracker-sql.h \
 	tracker-status.c \
 	tracker-status.h \
 	tracker-tag.c \

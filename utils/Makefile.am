@@ -3,7 +3,6 @@ SUBDIRS =                                              \
 	ontology                                       \
 	data-generators                                \
 	mtp                                            \
-	tracker-sql				       \
 	sandbox
 
 if HAVE_TRACKER_RESDUMP
