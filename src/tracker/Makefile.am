@@ -54,3 +54,9 @@ tracker_LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_LIBS)
+
+# Bash completion
+completiondir = $(sysconfdir)/bash_completion.d
+completion_DATA = tracker-prompt.sh
+
+EXTRA_DIST = $(completion_DATA)
