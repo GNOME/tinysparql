@@ -412,12 +412,12 @@ tracker_dbus_request_info (TrackerDBusRequest    *request,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	tracker_info ("---- [%d%s%s|%lu] %s",
-	              request->request_id,
-	              request->cd ? "|" : "",
-	              request->cd ? request->cd->binary : "",
-	              request->cd ? request->cd->pid : 0,
-	              str);
+	g_info ("---- [%d%s%s|%lu] %s",
+	        request->request_id,
+	        request->cd ? "|" : "",
+	        request->cd ? request->cd->binary : "",
+	        request->cd ? request->cd->pid : 0,
+	        str);
 	g_free (str);
 }
 

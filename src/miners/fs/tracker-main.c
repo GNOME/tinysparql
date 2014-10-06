@@ -330,10 +330,10 @@ miner_finished_cb (TrackerMinerFS *fs,
                    guint           total_files_ignored,
                    gpointer        user_data)
 {
-	tracker_info ("Finished mining in seconds:%f, total directories:%d, total files:%d",
-	              seconds_elapsed,
-	              total_directories_found,
-	              total_files_found);
+	g_info ("Finished mining in seconds:%f, total directories:%d, total files:%d",
+	        seconds_elapsed,
+	        total_directories_found,
+	        total_files_found);
 
 	if (TRACKER_IS_MINER_FILES (fs) &&
 	    tracker_miner_fs_get_initial_crawling (fs)) {

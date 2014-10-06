@@ -989,7 +989,7 @@ miner_started (TrackerMiner *miner)
 
 	fs->priv->been_started = TRUE;
 
-	tracker_info ("Initializing");
+	g_info ("Initializing");
 
 	g_object_set (miner,
 	              "progress", 0.0,
@@ -1003,7 +1003,7 @@ miner_started (TrackerMiner *miner)
 static void
 miner_stopped (TrackerMiner *miner)
 {
-	tracker_info ("Idle");
+	g_info ("Idle");
 
 	g_object_set (miner,
 	              "progress", 1.0,
@@ -1126,22 +1126,22 @@ process_print_stats (TrackerMinerFS *fs)
 	if (!fs->priv->shown_totals) {
 		fs->priv->shown_totals = TRUE;
 
-		tracker_info ("--------------------------------------------------");
-		tracker_info ("Total directories : %d (%d ignored)",
-		              fs->priv->total_directories_found,
-		              fs->priv->total_directories_ignored);
-		tracker_info ("Total files       : %d (%d ignored)",
-		              fs->priv->total_files_found,
-		              fs->priv->total_files_ignored);
+		g_info ("--------------------------------------------------");
+		g_info ("Total directories : %d (%d ignored)",
+		        fs->priv->total_directories_found,
+		        fs->priv->total_directories_ignored);
+		g_info ("Total files       : %d (%d ignored)",
+		        fs->priv->total_files_found,
+		        fs->priv->total_files_ignored);
 #if 0
-		tracker_info ("Total monitors    : %d",
-		              tracker_monitor_get_count (fs->priv->monitor));
+		g_info ("Total monitors    : %d",
+		        tracker_monitor_get_count (fs->priv->monitor));
 #endif
-		tracker_info ("Total processed   : %d (%d notified, %d with error)",
-		              fs->priv->total_files_processed,
-		              fs->priv->total_files_notified,
-		              fs->priv->total_files_notified_error);
-		tracker_info ("--------------------------------------------------\n");
+		g_info ("Total processed   : %d (%d notified, %d with error)",
+		        fs->priv->total_files_processed,
+		        fs->priv->total_files_notified,
+		        fs->priv->total_files_notified_error);
+		g_info ("--------------------------------------------------\n");
 	}
 }
 
@@ -1157,7 +1157,7 @@ process_stop (TrackerMinerFS *fs)
 	fs->priv->timer_stopped = TRUE;
 	fs->priv->extraction_timer_stopped = TRUE;
 
-	tracker_info ("Idle");
+	g_info ("Idle");
 
 	g_object_set (fs,
 	              "progress", 1.0,
@@ -2465,7 +2465,7 @@ item_queue_handlers_cb (gpointer user_data)
 			 */
 			if (g_strcmp0 (status, "Processing…") != 0) {
 				/* Don't spam this */
-				tracker_info ("Processing…");
+				g_info ("Processing…");
 				g_object_set (fs,
 				              "status", "Processing…",
 				              "progress", CLAMP (progress_now, 0.02, 1.00),
@@ -2495,11 +2495,11 @@ item_queue_handlers_cb (gpointer user_data)
 			                                           items_remaining);
 			str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
 
-			tracker_info ("Processed %u/%u, estimated %s left, %s elapsed",
-			              items_processed,
-			              items_processed + items_remaining,
-			              str1,
-			              str2);
+			g_info ("Processed %u/%u, estimated %s left, %s elapsed",
+			        items_processed,
+			        items_processed + items_remaining,
+			        str1,
+			        str2);
 
 			g_free (str2);
 			g_free (str1);
@@ -2669,7 +2669,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 		/* Don't spam this */
 		if (progress > 0.01 && g_strcmp0 (status, "Processing…") != 0) {
-			tracker_info ("Processing…");
+			g_info ("Processing…");
 			g_object_set (fs, "status", "Processing…", NULL);
 		}
 
@@ -3118,7 +3118,7 @@ file_notifier_finished (TrackerFileNotifier *notifier,
 	TrackerMinerFS *fs = user_data;
 
 	if (!tracker_miner_fs_has_items_to_process (fs)) {
-		tracker_info ("Finished all tasks");
+		g_info ("Finished all tasks");
 		process_stop (fs);
 	}
 }

@@ -157,10 +157,10 @@ miner_finished_cb (TrackerMinerFS *fs,
                    guint           total_files_ignored,
                    gpointer        user_data)
 {
-	tracker_info ("Finished mining in seconds:%f, total directories:%d, total files:%d",
-	              seconds_elapsed,
-	              total_directories_found,
-	              total_files_found);
+	g_info ("Finished mining in seconds:%f, total directories:%d, total files:%d",
+	        seconds_elapsed,
+	        total_directories_found,
+	        total_files_found);
 
 	if (no_daemon && main_loop) {
 		g_main_loop_quit (main_loop);
