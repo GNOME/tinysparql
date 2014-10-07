@@ -1871,7 +1871,7 @@ item_move (TrackerMinerFS *fs,
 	                               NULL, NULL);
 
 	/* Get 'source' ID */
-	source_iri = lookup_file_urn (fs, source_file, FALSE);
+	source_iri = lookup_file_urn (fs, source_file, TRUE);
 	source_exists = (source_iri != NULL);
 
 	if (!file_info) {
