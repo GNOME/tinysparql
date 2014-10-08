@@ -18,12 +18,10 @@ endif
 libtracker_common_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	$(os_sources) \
-	tracker-config-file.c \
 	tracker-date-time.c \
 	tracker-dbus.c \
 	tracker-file-utils.c \
 	tracker-ioprio.c \
-	tracker-keyfile-object.c \
 	tracker-log.c \
 	tracker-sched.c \
 	tracker-storage.c \
@@ -38,11 +36,9 @@ noinst_HEADERS = \
 	tracker-ioprio.h \
 	tracker-log.h \
 	tracker-os-dependant.h \
-	tracker-config-file.h \
 	tracker-common.h \
 	tracker-date-time.h \
 	tracker-file-utils.h \
-	tracker-keyfile-object.h \
 	tracker-ontologies.h \
 	tracker-sched.h \
 	tracker-storage.h \

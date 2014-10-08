@@ -25,13 +25,15 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-keyfile-object.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-enum-types.h>
-#include <libtracker-common/tracker-log.h>
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
+
+#define CONFIG_SCHEMA "org.freedesktop.Tracker.Miner.Files"
+#define CONFIG_PATH   "/org/freedesktop/tracker/miner/files/"
 
 /* Default values */
 #define DEFAULT_VERBOSITY                        0
@@ -49,9 +51,6 @@
 #define DEFAULT_ENABLE_WRITEBACK                 FALSE
 
 typedef struct {
-	/* NOTE: Only used with TRACKER_USE_CONFIG_FILES env var. */
-	gpointer config_file;
-
 	/* IMPORTANT: There are 3 versions of the directories:
 	 * 1. a GStrv stored in GSettings
 	 * 2. a GSList stored here which is the GStrv without any
@@ -59,19 +58,19 @@ typedef struct {
 	 * 3. a GSList stored here which has duplicates and aliases
 	 *    resolved.
 	 */
-	GSList   *index_recursive_directories;
-	GSList	 *index_recursive_directories_unfiltered;
-	GSList   *index_single_directories;
-	GSList	 *index_single_directories_unfiltered;
-	GSList   *ignored_directories;
-	GSList   *ignored_directories_with_content;
-	GSList   *ignored_files;
+	GSList *index_recursive_directories;
+	GSList *index_recursive_directories_unfiltered;
+	GSList *index_single_directories;
+	GSList *index_single_directories_unfiltered;
+	GSList *ignored_directories;
+	GSList *ignored_directories_with_content;
+	GSList *ignored_files;
 
 	/* Convenience data */
-	GSList   *ignored_directory_patterns;
-	GSList   *ignored_directory_paths;
-	GSList   *ignored_file_patterns;
-	GSList   *ignored_file_paths;
+	GSList *ignored_directory_patterns;
+	GSList *ignored_directory_paths;
+	GSList *ignored_file_patterns;
+	GSList *ignored_file_paths;
 } TrackerConfigPrivate;
 
 static void config_set_property                         (GObject           *object,
@@ -84,8 +83,6 @@ static void config_get_property                         (GObject           *obje
                                                          GParamSpec        *pspec);
 static void config_finalize                             (GObject           *object);
 static void config_constructed                          (GObject           *object);
-static void config_file_changed_cb                      (TrackerConfigFile *config,
-                                                         gpointer           user_data);
 static void config_set_index_recursive_directories      (TrackerConfig     *config,
                                                          GSList            *roots);
 static void config_set_index_single_directories         (TrackerConfig     *config,
@@ -126,28 +123,6 @@ enum {
 	/* Writeback */
 	PROP_ENABLE_WRITEBACK
 
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM,    "General",   "Verbosity",                     "verbosity",                        FALSE, FALSE },
-	{ G_TYPE_ENUM,    "General",   "SchedIdle",                     "sched-idle",                       FALSE, FALSE },
-	{ G_TYPE_INT,     "General",   "InitialSleep",                  "initial-sleep",                    FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Monitors",  "EnableMonitors",                "enable-monitors",                  FALSE, FALSE },
-	{ G_TYPE_INT,     "Indexing",  "Throttle",                      "throttle",                         FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBattery",                "index-on-battery",                 FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOnBatteryFirstTime",       "index-on-battery-first-time",      FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexRemovableMedia",           "index-removable-devices",          FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Indexing",  "IndexOpticalDiscs",             "index-optical-discs",              FALSE, FALSE },
-	{ G_TYPE_INT,     "Indexing",  "LowDiskSpaceLimit",             "low-disk-space-limit",             FALSE, FALSE },
-	{ G_TYPE_POINTER, "Indexing",  "IndexRecursiveDirectories",     "index-recursive-directories",      TRUE,  TRUE },
-	{ G_TYPE_POINTER, "Indexing",  "IndexSingleDirectories",        "index-single-directories",         TRUE,  FALSE },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectories",            "ignored-directories",              FALSE, FALSE },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredDirectoriesWithContent", "ignored-directories-with-content", FALSE, FALSE },
-	{ G_TYPE_POINTER, "Indexing",  "IgnoredFiles",                  "ignored-files",                    FALSE, FALSE },
-	{ G_TYPE_INT,     "Indexing",  "CrawlingInterval",              "crawling-interval",                FALSE, FALSE },
-	{ G_TYPE_INT,     "Indexing",  "RemovableDaysThreshold",        "removable-days-threshold",         FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, "Writeback", "EnableWriteback",               "enable-writeback",                 FALSE, FALSE },
-	{ 0 }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_SETTINGS)
@@ -343,18 +318,18 @@ config_set_property (GObject      *object,
                      const GValue *value,
                      GParamSpec   *pspec)
 {
+	TrackerConfig *config = TRACKER_CONFIG (object);
+
 	switch (param_id) {
 		/* General */
 		/* NOTE: We handle these because we have to be able
 		 * to save these based on command line overrides.
 		 */
 	case PROP_VERBOSITY:
-		tracker_config_set_verbosity (TRACKER_CONFIG (object),
-		                              g_value_get_enum (value));
+		tracker_config_set_verbosity (config, g_value_get_enum (value));
 		break;
 	case PROP_INITIAL_SLEEP:
-		tracker_config_set_initial_sleep (TRACKER_CONFIG (object),
-		                                  g_value_get_int (value));
+		tracker_config_set_initial_sleep (config, g_value_get_int (value));
 		break;
 
 		/* Indexing */
@@ -365,7 +340,7 @@ config_set_property (GObject      *object,
 		GStrv strv = g_value_get_boxed (value);
 		GSList *dirs = tracker_string_list_to_gslist (strv, -1);
 
-		config_set_index_recursive_directories (TRACKER_CONFIG (object), dirs);
+		config_set_index_recursive_directories (config, dirs);
 
 		g_slist_foreach (dirs, (GFunc) g_free, NULL);
 		g_slist_free (dirs);
@@ -376,7 +351,7 @@ config_set_property (GObject      *object,
 		GStrv strv = g_value_get_boxed (value);
 		GSList *dirs = tracker_string_list_to_gslist (strv, -1);
 
-		config_set_index_single_directories (TRACKER_CONFIG (object), dirs);
+		config_set_index_single_directories (config, dirs);
 
 		g_slist_foreach (dirs, (GFunc) g_free, NULL);
 		g_slist_free (dirs);
@@ -386,7 +361,7 @@ config_set_property (GObject      *object,
 		GStrv strv = g_value_get_boxed (value);
 		GSList *dirs = tracker_string_list_to_gslist (strv, -1);
 
-		config_set_ignored_directories (TRACKER_CONFIG (object), dirs);
+		config_set_ignored_directories (config, dirs);
 
 		g_slist_foreach (dirs, (GFunc) g_free, NULL);
 		g_slist_free (dirs);
@@ -396,7 +371,7 @@ config_set_property (GObject      *object,
 		GStrv strv = g_value_get_boxed (value);
 		GSList *dirs = tracker_string_list_to_gslist (strv, -1);
 
-		config_set_ignored_directories_with_content (TRACKER_CONFIG (object), dirs);
+		config_set_ignored_directories_with_content (config, dirs);
 
 		g_slist_foreach (dirs, (GFunc) g_free, NULL);
 		g_slist_free (dirs);
@@ -406,7 +381,7 @@ config_set_property (GObject      *object,
 		GStrv strv = g_value_get_boxed (value);
 		GSList *files = tracker_string_list_to_gslist (strv, -1);
 
-		config_set_ignored_files (TRACKER_CONFIG (object), files);
+		config_set_ignored_files (config, files);
 
 		g_slist_foreach (files, (GFunc) g_free, NULL);
 		g_slist_free (files);
@@ -544,14 +519,6 @@ config_finalize (GObject *object)
 
 	g_slist_foreach (priv->index_recursive_directories_unfiltered, (GFunc) g_free, NULL);
 	g_slist_free (priv->index_recursive_directories_unfiltered);
-
-	if (priv->config_file) {
-		g_signal_handlers_disconnect_by_func (priv->config_file,
-		                                      config_file_changed_cb,
-		                                      TRACKER_CONFIG (object));
-		g_object_unref (priv->config_file);
-		priv->config_file = NULL;
-	}
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
@@ -704,13 +671,10 @@ config_set_ignored_directory_conveniences (TrackerConfig *config)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfig *config;
-	TrackerConfigFile *config_file;
 	GSettings *settings;
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
-	config = TRACKER_CONFIG (object);
 	settings = G_SETTINGS (object);
 
 	/* NOTE: Without the _delay() call the updates to settings
@@ -725,7 +689,9 @@ config_constructed (GObject *object)
 	 * We need this for overriding things like verbosity on start
 	 * up.
 	 */
-	g_settings_delay (settings);
+	if (G_LIKELY (!g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		g_settings_delay (settings);
+	}
 
 	/* Set up bindings */
 	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET_NO_CHANGES);
@@ -748,47 +714,52 @@ config_constructed (GObject *object)
 	g_settings_bind (settings, "ignored-directories", object, "ignored-directories", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "ignored-directories-with-content", object, "ignored-directories-with-content", G_SETTINGS_BIND_GET);
 
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-
-	if (config_file) {
-		/* NOTE: Migration works both ways... */
-		tracker_config_file_migrate (config_file, settings, migration);
-
-		if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
-			TrackerConfigPrivate *priv;
-
-			tracker_config_file_load_from_file (config_file, G_OBJECT (config), migration);
-			g_signal_connect (config_file, "changed", G_CALLBACK (config_file_changed_cb), config);
-
-			priv = config->priv;
-			priv->config_file = config_file;
-		} else {
-			g_object_unref (config_file);
-		}
-	}
-
 	config_set_ignored_file_conveniences (TRACKER_CONFIG (object));
 	config_set_ignored_directory_conveniences (TRACKER_CONFIG (object));
-}
-
-static void
-config_file_changed_cb (TrackerConfigFile *config_file,
-                        gpointer           user_data)
-{
-	GSettings *settings = G_SETTINGS (user_data);
-
-	tracker_info ("Settings have changed in INI file, we need to restart to take advantage of those changes!");
-	tracker_config_file_import_to_settings (config_file, settings, migration);
 }
 
 TrackerConfig *
 tracker_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema-id", "org.freedesktop.Tracker.Miner.Files",
-	                     "path", "/org/freedesktop/tracker/miner/files/",
-	                     NULL);
+	TrackerConfig *config = NULL;
+
+	/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		GSettingsBackend *backend;
+		gchar *filename, *basename;
+		gboolean need_to_save;
+
+		basename = g_strdup_printf ("%s.cfg", g_get_prgname ());
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", basename, NULL);
+		g_free (basename);
+
+		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, NULL);
+		g_info ("Using config file '%s'", filename);
+		g_free (filename);
+
+		/* settings = g_settings_new_with_backend (CONFIG_SCHEME, backend); */
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "backend", backend,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+		g_object_unref (backend);
+
+		if (need_to_save) {
+			g_info ("  Config file did not exist, creating...");
+			g_settings_apply (G_SETTINGS (config));
+		}
+	} else {
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+	}
+
+	return config;
 }
 
 gint

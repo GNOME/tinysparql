@@ -22,8 +22,6 @@
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-config-file.h>
-
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_CONFIG         (tracker_config_get_type ())
@@ -37,12 +35,12 @@ typedef struct TrackerConfig      TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
-	GSettings parent;
+	GObject parent;
 	gpointer priv;
 };
 
 struct TrackerConfigClass {
-	GSettingsClass parent_class;
+	GObjectClass parent_class;
 };
 
 GType          tracker_config_get_type                (void) G_GNUC_CONST;

@@ -25,8 +25,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-keyfile-object.h>
-
 #include "tracker-db-config.h"
 
 /* GKeyFile defines */
@@ -53,11 +51,6 @@ enum {
 	/* Journal */
 	PROP_JOURNAL_CHUNK_SIZE,
 	PROP_JOURNAL_ROTATE_DESTINATION
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size", FALSE, FALSE },
-	{ G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination", FALSE, FALSE },
 };
 
 G_DEFINE_TYPE (TrackerDBConfig, tracker_db_config, G_TYPE_SETTINGS);
@@ -150,19 +143,9 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfigFile *config_file;
-
 	(G_OBJECT_CLASS (tracker_db_config_parent_class)->constructed) (object);
 
 	g_settings_delay (G_SETTINGS (object));
-
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-	if (config_file) {
-		tracker_config_file_migrate (config_file,
-		                             G_SETTINGS (object), migration);
-		g_object_unref (config_file);
-	}
 }
 
 TrackerDBConfig *

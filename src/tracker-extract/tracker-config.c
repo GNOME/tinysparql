@@ -19,11 +19,19 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-keyfile-object.h>
-#include <libtracker-common/tracker-enum-types.h>
-#include <libtracker-common/tracker-enums.h>
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
+
+#define CONFIG_SCHEME "org.freedesktop.Tracker.Extract"
+#define CONFIG_PATH   "/org/freedesktop/tracker/extract/"
+
+typedef struct {
+	GSettings *settings;
+} TrackerConfigPrivate;
 
 static void     config_set_property         (GObject       *object,
                                              guint          param_id,
@@ -38,6 +46,7 @@ static void     config_constructed          (GObject       *object);
 
 enum {
 	PROP_0,
+	PROP_SETTINGS,
 	PROP_VERBOSITY,
 	PROP_SCHED_IDLE,
 	PROP_MAX_BYTES,
@@ -45,15 +54,7 @@ enum {
 	PROP_WAIT_FOR_MINER_FS,
 };
 
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity" },
-	{ G_TYPE_ENUM, "General", "SchedIdle", "sched-idle" },
-	{ G_TYPE_INT, "General", "MaxBytes", "max-bytes" },
-	{ G_TYPE_INT, "General", "MaxMediaArtWidth", "max-media-art-width" },
-	{ 0 }
-};
-
-G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_SETTINGS);
+G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_OBJECT);
 
 static void
 tracker_config_class_init (TrackerConfigClass *klass)
@@ -64,6 +65,14 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	object_class->get_property = config_get_property;
 	object_class->finalize     = config_finalize;
 	object_class->constructed  = config_constructed;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_SETTINGS,
+	                                 g_param_spec_object ("settings",
+	                                                      "GSettings",
+	                                                      "GSettings GObject used",
+	                                                      G_TYPE_SETTINGS,
+	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 
 	/* General */
 	g_object_class_install_property (object_class,
@@ -109,11 +118,14 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       "%TRUE to wait for tracker-miner-fs is done before extracting. %FAlSE otherwise",
 	                                                       FALSE,
 	                                                       G_PARAM_READWRITE));
+
+	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
 static void
 tracker_config_init (TrackerConfig *object)
 {
+	object->priv = G_TYPE_INSTANCE_GET_PRIVATE (object, TRACKER_TYPE_CONFIG, TrackerConfigPrivate);
 }
 
 static void
@@ -125,6 +137,14 @@ config_set_property (GObject      *object,
 	TrackerConfig *config = TRACKER_CONFIG (object);
 
 	switch (param_id) {
+	case PROP_SETTINGS: {
+		TrackerConfigPrivate *priv;
+
+		priv = config->priv;
+		priv->settings = g_value_get_object (value);
+		break;
+	}
+
 	/* General */
 	/* NOTE: We handle these because we have to be able
 	 * to save these based on command line overrides.
@@ -199,12 +219,17 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfigFile *config_file;
+	TrackerConfigPrivate *priv;
 	GSettings *settings;
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
-	settings = G_SETTINGS (object);
+	priv = TRACKER_CONFIG (object)->priv;
+	settings = priv->settings;
+
+	if (!settings) {
+		priv->settings = settings = g_settings_new_with_path (CONFIG_SCHEME, CONFIG_PATH);
+	}
 
 	g_settings_delay (settings);
 
@@ -214,23 +239,30 @@ config_constructed (GObject *object)
 	g_settings_bind (settings, "max-bytes", object, "max-bytes", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-media-art-width", object, "max-media-art-width", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "wait-for-miner-fs", object, "wait-for-miner-fs", G_SETTINGS_BIND_GET);
-
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-
-	if (config_file) {
-		tracker_config_file_migrate (config_file, settings, migration);
-		g_object_unref (config_file);
-	}
 }
 
 TrackerConfig *
 tracker_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema-id", "org.freedesktop.Tracker.Extract",
-	                     "path", "/org/freedesktop/tracker/extract/",
-	                     NULL);
+	GSettings *settings = NULL;
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+		GSettingsBackend *backend;
+		gchar *filename, *basename;
+
+		basename = g_strdup_printf ("%s.cfg", g_get_prgname ());
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", basename, NULL);
+		g_free (basename);
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, NULL);
+		g_free (filename);
+
+		settings = g_settings_new_with_backend (CONFIG_SCHEME, backend);
+		g_object_unref (backend);
+	}
+
+	return g_object_new (TRACKER_TYPE_CONFIG, "settings", settings, NULL);
 }
 
 gint

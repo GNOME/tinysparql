@@ -25,8 +25,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-keyfile-object.h>
-
 #include "tracker-fts-config.h"
 
 /* GKeyFile defines */
@@ -63,15 +61,6 @@ enum {
 
 	/* Performance */
 	PROP_MAX_WORDS_TO_INDEX,
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordLength",   "max-word-length",    FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableStemmer" ,  "enable-stemmer",     FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableUnaccent",  "enable-unaccent",    FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreNumbers",   "ignore-numbers",     FALSE, FALSE },
-	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreStopWords", "ignore-stop-words",  FALSE, FALSE },
-	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordsToIndex", "max-words-to-index", FALSE, FALSE },
 };
 
 G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, G_TYPE_SETTINGS);
@@ -228,18 +217,9 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-        TrackerConfigFile *config_file;
-
 	(G_OBJECT_CLASS (tracker_fts_config_parent_class)->constructed) (object);
 
         g_settings_delay (G_SETTINGS (object));
-
-        /* migrate keyfile-based configuration */
-        config_file = tracker_config_file_new ();
-        if (config_file) {
-                tracker_config_file_migrate (config_file, G_SETTINGS (object), migration);
-                g_object_unref (config_file);
-        }
 }
 
 TrackerFTSConfig *

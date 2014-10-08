@@ -25,9 +25,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-enum-types.h>
-#include <libtracker-common/tracker-config-file.h>
-#include <libtracker-common/tracker-keyfile-object.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
 
@@ -48,12 +46,6 @@ enum {
 	PROP_0,
 	PROP_VERBOSITY,
 	PROP_GRAPHUPDATED_DELAY,
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity", FALSE, FALSE },
-	{ G_TYPE_INT, "General", "GraphUpdatedDelay", "graphupdated-delay" },
-	{ 0 }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_SETTINGS);
@@ -150,19 +142,9 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfigFile *config_file;
-
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
 	g_settings_delay (G_SETTINGS (object));
-
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-
-	if (config_file) {
-		tracker_config_file_migrate (config_file, G_SETTINGS (object), migration);
-		g_object_unref (config_file);
-	}
 }
 
 TrackerConfig *
