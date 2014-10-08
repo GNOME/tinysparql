@@ -542,7 +542,20 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 	priv = notifier->priv;
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+		const gchar *uri;
+
+		/* Sometimes URI can be NULL when nie:url and
+		 * nfo:belongsToContainer does not have a strictly 1:1
+		 * relationship, e.g. data containers where there is
+		 * only one nie:url but many nfo:belongsToContainer
+		 * cases.
+		 */
+		uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		if (!uri) {
+			continue;
+		}
+
+		file = g_file_new_for_uri (uri);
 		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 
 		if (!tracker_file_system_peek_file (priv->file_system, file)) {
