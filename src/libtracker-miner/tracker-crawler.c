@@ -489,6 +489,17 @@ directory_root_info_new (GFile                 *file,
 		allow_stat = FALSE;
 	}
 
+	/* NOTE: GFileInfo is ABSOLUTELY required here, without it the
+	 * TrackerFileNotifier will think that top level roots have
+	 * been deleted because the GFileInfo GQuark does not exist.
+	 *
+	 * This is seen easily by mounting a removable device,
+	 * indexing, then removing, then re-inserting that same
+	 * device.
+	 *
+	 * The check is done later in the TrackerFileNotifier by
+	 * looking up the qdata that we set in both conditions below.
+	 */
 	if (allow_stat && file_attributes) {
 		GFileInfo *file_info;
 		GFileQueryInfoFlags file_flags;
@@ -500,6 +511,30 @@ directory_root_info_new (GFile                 *file,
 		                               file_flags,
 		                               NULL,
 		                               NULL);
+		g_object_set_qdata_full (G_OBJECT (file),
+		                         file_info_quark,
+		                         file_info,
+		                         (GDestroyNotify) g_object_unref);
+	} else {
+		GFileInfo *file_info;
+		gchar *basename;
+
+		file_info = g_file_info_new ();
+		g_file_info_set_file_type (file_info, G_FILE_TYPE_DIRECTORY);
+
+		basename = g_file_get_basename (file);
+		g_file_info_set_name (file_info, basename);
+		g_free (basename);
+
+		/* Only thing missing is mtime, we can't know this.
+		 * Not setting it means 0 is assumed, but if we set it
+		 * to 'now' then the state machines above us will
+		 * assume the directory is always newer when it may
+		 * not be.
+		 */
+
+		g_file_info_set_content_type (file_info, "inode/directory");
+
 		g_object_set_qdata_full (G_OBJECT (file),
 		                         file_info_quark,
 		                         file_info,
