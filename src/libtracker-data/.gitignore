@@ -6,3 +6,4 @@ tracker-sparql-scanner.c
 tracker-turtle-reader.c
 *.xml
 *.valid
+*.cfg.5

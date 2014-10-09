@@ -4,6 +4,8 @@ AM_CPPFLAGS =                                          \
 	-DNDEBUG                                       \
 	$(LIBTRACKER_FTS_CFLAGS)
 
+all: $(noinst_LTLIBRARIES) $(man_MANS)
+
 noinst_LTLIBRARIES = libtracker-fts.la
 
 fts4_sources =                                         \
@@ -65,6 +67,25 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.FTS.gschema.xml
 
 @GSETTINGS_RULES@
 
+if HAVE_XSLTPROC
+DATE=`date +'%B %Y'`
+man_MANS = tracker-fts.cfg.5
+else
+man_MANS =
+endif
+
+%.cfg.5: $(gsettings_SCHEMAS)
+	$(AM_V_GEN)$(XSLTPROC) \
+	  --stringparam version "${VERSION}" \
+	  --stringparam current-date "${DATE}" \
+	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
+	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
+
 # Dist / Clean rules for all data
-CLEANFILES = $(gsettings_SCHEMAS)
-EXTRA_DIST += $(gsettings_SCHEMAS:.xml=.xml.in)
+CLEANFILES = \
+	$(gsettings_SCHEMAS) \
+	$(man_MANS)
+
+EXTRA_DIST += \
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	$(man_MANS)

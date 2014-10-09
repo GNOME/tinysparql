@@ -35,12 +35,12 @@ typedef struct TrackerConfig      TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
-	GObject parent;
+	GSettings parent;
 	gpointer priv;
 };
 
 struct TrackerConfigClass {
-	GObjectClass parent_class;
+	GSettingsClass parent_class;
 };
 
 GType          tracker_config_get_type                (void) G_GNUC_CONST;

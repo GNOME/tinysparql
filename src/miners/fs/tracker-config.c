@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -693,10 +694,27 @@ config_constructed (GObject *object)
 		g_settings_delay (settings);
 	}
 
-	/* Set up bindings */
-	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET_NO_CHANGES);
+	/* Set up bindings:
+	 *
+	 * What's interesting here is that 'verbosity' and
+	 * 'initial-sleep' are command line arguments that can be
+	 * overridden, so we don't update the config when we set them
+	 * from main() because it's a session configuration only, not
+	 * a permanent one. To do this we use the flag
+	 * G_SETTINGS_BIND_GET_NO_CHANGES.
+	 *
+	 * For the other settings, we don't bind the
+	 * G_SETTINGS_BIND_SET because we don't want to save anything,
+	 * ever, we only want to know about updates to the settings as
+	 * they're changed externally. The only time this may be
+	 * different is where we use the environment variable
+	 * TRACKER_USE_CONFIG_FILES and we want to write a config
+	 * file for convenience. But this is only necessary if the
+	 * config is different to the default.
+	 */
+	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 	g_settings_bind (settings, "sched-idle", object, "sched-idle", G_SETTINGS_BIND_GET);
-	g_settings_bind (settings, "initial-sleep", object, "initial-sleep", G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "initial-sleep", object, "initial-sleep", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 	g_settings_bind (settings, "throttle", object, "throttle", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "low-disk-space-limit", object, "low-disk-space-limit", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "crawling-interval", object, "crawling-interval", G_SETTINGS_BIND_GET);
@@ -736,11 +754,10 @@ tracker_config_new (void)
 
 		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
 
-		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, NULL);
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, "General");
 		g_info ("Using config file '%s'", filename);
 		g_free (filename);
 
-		/* settings = g_settings_new_with_backend (CONFIG_SCHEME, backend); */
 		config = g_object_new (TRACKER_TYPE_CONFIG,
 		                       "backend", backend,
 		                       "schema-id", CONFIG_SCHEMA,
@@ -749,8 +766,7 @@ tracker_config_new (void)
 		g_object_unref (backend);
 
 		if (need_to_save) {
-			g_info ("  Config file did not exist, creating...");
-			g_settings_apply (G_SETTINGS (config));
+			g_info ("  Config file does not exist, using default values...");
 		}
 	} else {
 		config = g_object_new (TRACKER_TYPE_CONFIG,
@@ -932,7 +948,6 @@ tracker_config_set_verbosity (TrackerConfig *config,
 {
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	/* g_object_set (G_OBJECT (config), "verbosity", value, NULL); */
 	g_settings_set_enum (G_SETTINGS (config), "verbosity", value);
 	g_object_notify (G_OBJECT (config), "verbosity");
 }
@@ -943,7 +958,6 @@ tracker_config_set_initial_sleep (TrackerConfig *config,
 {
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	/* g_object_set (G_OBJECT (config), "initial-sleep", value, NULL); */
 	g_settings_set_int (G_SETTINGS (config), "initial-sleep", value);
 	g_object_notify (G_OBJECT (config), "initial-sleep");
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,9 +26,15 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
+
+#define CONFIG_SCHEMA "org.freedesktop.Tracker.Store"
+#define CONFIG_PATH   "/org/freedesktop/tracker/store/"
 
 #define GRAPHUPDATED_DELAY_DEFAULT	1000
 
@@ -142,18 +149,78 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
+	GSettings *settings;
+
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
-	g_settings_delay (G_SETTINGS (object));
+	settings = G_SETTINGS (object);
+
+	if (G_LIKELY (!g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		g_settings_delay (settings);
+	}
+
+	/* Set up bindings:
+	 *
+	 * What's interesting here is that 'verbosity' and
+	 * 'initial-sleep' are command line arguments that can be
+	 * overridden, so we don't update the config when we set them
+	 * from main() because it's a session configuration only, not
+	 * a permanent one. To do this we use the flag
+	 * G_SETTINGS_BIND_GET_NO_CHANGES.
+	 *
+	 * For the other settings, we don't bind the
+	 * G_SETTINGS_BIND_SET because we don't want to save anything,
+	 * ever, we only want to know about updates to the settings as
+	 * they're changed externally. The only time this may be
+	 * different is where we use the environment variable
+	 * TRACKER_USE_CONFIG_FILES and we want to write a config
+	 * file for convenience. But this is only necessary if the
+	 * config is different to the default.
+	 */
+	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "graphupdated-delay", object, "graphupdated-delay", G_SETTINGS_BIND_GET);
 }
 
 TrackerConfig *
 tracker_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema-id", "org.freedesktop.Tracker.Store",
-	                     "path", "/org/freedesktop/tracker/store/",
-	                     NULL);
+	TrackerConfig *config = NULL;
+
+	/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		GSettingsBackend *backend;
+		gchar *filename, *basename;
+		gboolean need_to_save;
+
+		basename = g_strdup_printf ("%s.cfg", g_get_prgname ());
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", basename, NULL);
+		g_free (basename);
+
+		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, "General");
+		g_info ("Using config file '%s'", filename);
+		g_free (filename);
+
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "backend", backend,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+		g_object_unref (backend);
+
+		if (need_to_save) {
+			g_info ("  Config file does not exist, using default values...");
+		}
+	} else {
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+	}
+
+	return config;
 }
 
 gint
@@ -185,7 +252,7 @@ tracker_config_get_graphupdated_delay (TrackerConfig *config)
 
 void
 tracker_config_set_graphupdated_delay (TrackerConfig *config,
-                                           gint           value)
+                                       gint           value)
 {
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 

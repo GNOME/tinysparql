@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,10 +26,15 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
+#include <libtracker-common/tracker-common.h>
+
 #include "tracker-fts-config.h"
 
-/* GKeyFile defines */
-#define GROUP_INDEXING             "Indexing"
+#define CONFIG_SCHEMA "org.freedesktop.Tracker.FTS"
+#define CONFIG_PATH   "/org/freedesktop/tracker/fts/"
 
 /* Default values */
 #define DEFAULT_MAX_WORD_LENGTH      30     /* 0->200 */
@@ -217,18 +223,62 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
+	GSettings *settings;
+
 	(G_OBJECT_CLASS (tracker_fts_config_parent_class)->constructed) (object);
 
-        g_settings_delay (G_SETTINGS (object));
+	settings = G_SETTINGS (object);
+
+	if (G_LIKELY (!g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		g_settings_delay (settings);
+	}
+
+	g_settings_bind (settings, "max-word-length", object, "max-word-length", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "enable-stemmer", object, "enable-stemmer", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "enable-unaccent", object, "enable-unaccent", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "ignore-numbers", object, "ignore-numbers", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "ignore-stop-words", object, "ignore-stop-words", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
+	g_settings_bind (settings, "max-words-to-index", object, "max-words-to-index", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 }
 
 TrackerFTSConfig *
 tracker_fts_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_FTS_CONFIG,
-                             "schema-id", "org.freedesktop.Tracker.FTS",
-                             "path", "/org/freedesktop/tracker/fts/",
-	                     NULL);
+	TrackerFTSConfig *config = NULL;
+
+	/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		GSettingsBackend *backend;
+		gchar *filename;
+		gboolean need_to_save;
+
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", "tracker-fts.cfg", NULL);
+
+		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, "General");
+		g_info ("Using config file '%s'", filename);
+		g_free (filename);
+
+		config = g_object_new (TRACKER_TYPE_FTS_CONFIG,
+		                       "backend", backend,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+		g_object_unref (backend);
+
+		if (need_to_save) {
+			g_info ("  Config file does not exist, using default values...");
+		}
+	} else {
+		config = g_object_new (TRACKER_TYPE_FTS_CONFIG,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+	}
+
+	return config;
 }
 
 gboolean

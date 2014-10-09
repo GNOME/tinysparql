@@ -11,3 +11,4 @@ tracker-store.h
 *.service
 *.xml
 *.valid
+*.cfg.5
