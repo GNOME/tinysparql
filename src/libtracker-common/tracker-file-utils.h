@@ -40,8 +40,6 @@ goffset  tracker_file_get_size                              (const gchar *path);
 guint64  tracker_file_get_mtime                             (const gchar *path);
 guint64  tracker_file_get_mtime_uri                         (const gchar *uri);
 gchar *  tracker_file_get_mime_type                         (GFile       *file);
-gboolean tracker_file_lock                                  (GFile       *file);
-gboolean tracker_file_unlock                                (GFile       *file);
 gboolean tracker_file_is_locked                             (GFile       *file);
 gboolean tracker_file_is_hidden                             (GFile       *file);
 gint     tracker_file_cmp                                   (GFile       *file_a,
