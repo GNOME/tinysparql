@@ -23,6 +23,8 @@
 
 #include "tracker-miner-applications.h"
 
+#define LOCALE_FILENAME              "locale-for-miner-apps.txt"
+
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
 #define APPLICATION_DATASOURCE_URN   "urn:nepomuk:datasource:84f20000-1241-11de-8c30-0800200c9a66"
@@ -170,10 +172,28 @@ miner_finished_cb (TrackerMinerFS *fs,
                    guint           total_files_ignored,
                    gpointer        user_data)
 {
-	/* Update locale file if necessary */
-	if (tracker_miner_locale_changed ()) {
-		tracker_miner_locale_set_current ();
+	/* Save locale, if it changes the variation in the desktop
+	 * file languages needs to be re-indexed.
+	 */
+	GError *error = NULL;
+	gchar *locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+	gchar *locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	g_message ("Saving locale used to index applications");
+	g_message ("  Creating locale file '%s'", locale_file);
+
+	if (locale == NULL) {
+		locale = g_strdup ("");
 	}
+
+	if (!g_file_set_contents (locale_file, locale, -1, &error)) {
+		g_message ("  Could not set file contents, %s",
+		           error ? error->message : "no error given");
+		g_clear_error (&error);
+	}
+
+	g_free (locale);
+	g_free (locale_file);
 }
 
 static gboolean
@@ -927,28 +947,78 @@ miner_applications_reset (TrackerMiner *miner)
 	g_object_unref (sparql);
 }
 
-gboolean
-tracker_miner_applications_detect_locale_changed (TrackerMiner *miner)
+static gboolean
+detect_locale_changed (TrackerMiner *miner)
 {
+	gchar *locale_file;
+	gchar *previous_locale = NULL;
+	gchar *current_locale;
 	gboolean changed;
 
-	changed = tracker_miner_locale_changed ();
+	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
+		gchar *contents;
+
+		/* Check locale is correct */
+		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
+			if (contents &&
+			    contents[0] == '\0') {
+				g_critical ("  Empty locale file found at '%s'", locale_file);
+				g_free (contents);
+			} else {
+				/* Re-use contents */
+				previous_locale = contents;
+			}
+		} else {
+			g_critical ("  Could not get content of file '%s'", locale_file);
+		}
+	} else {
+		g_message ("  Could not find locale file:'%s'", locale_file);
+	}
+
+	g_free (locale_file);
+
+	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+
+	/* Note that having both to NULL is actually valid, they would default
+	 * to the unicode collation without locale-specific stuff. */
+	if (g_strcmp0 (previous_locale, current_locale) != 0) {
+		g_message ("Locale change detected from '%s' to '%s'...",
+		           previous_locale, current_locale);
+		changed = TRUE;
+	} else {
+		g_message ("Current and previous locales match: '%s'", previous_locale);
+		changed = FALSE;
+	}
+
+	g_free (current_locale);
+	g_free (previous_locale);
+
 	if (changed) {
 		g_message ("Locale change detected, so resetting miner to "
 		           "remove all previously created items...");
 		miner_applications_reset (miner);
 	}
+
 	return changed;
 }
 
 TrackerMiner *
 tracker_miner_applications_new (GError **error)
 {
-	return g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
-	                       NULL,
-	                       error,
-	                       "name", "Applications",
-	                       "processing-pool-wait-limit", 10,
-	                       "processing-pool-ready-limit", 100,
-	                       NULL);
+	TrackerMiner *miner;
+
+	miner = g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
+	                        NULL,
+	                        error,
+	                        "name", "Applications",
+	                        "processing-pool-wait-limit", 10,
+	                        "processing-pool-ready-limit", 100,
+	                        NULL);
+
+	/* If the locales changed, we need to reset things first */
+	detect_locale_changed (miner);
+
+	return miner;
 }
