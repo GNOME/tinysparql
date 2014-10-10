@@ -22,7 +22,6 @@ tracker_store_SOURCES =                                \
 	tracker-config.c                               \
 	tracker-dbus.vala                              \
 	tracker-events.c                               \
-	tracker-locale-change.c                        \
 	tracker-main.vala                              \
 	tracker-resources.vala                         \
 	tracker-statistics.vala                        \
@@ -34,7 +33,6 @@ tracker_store_SOURCES =                                \
 noinst_HEADERS =                                       \
 	tracker-config.h                               \
 	tracker-events.h                               \
-	tracker-locale-change.h                        \
 	tracker-store.h                                \
 	tracker-writeback.h
 

@@ -44,10 +44,6 @@
 #include "tracker-miner-locale.h"
 #include "tracker-enum-types.h"
 
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-meego.h"
-#endif /* HAVE_MEEGOTOUCH */
-
 #undef __LIBTRACKER_COMMON_INSIDE__
 
 #endif /* __LIBTRACKER_COMMON_H__ */

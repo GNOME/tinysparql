@@ -42,8 +42,6 @@ static gboolean miner_applications_process_file_attributes (TrackerMinerFS      
                                                             GFile                *file,
                                                             TrackerSparqlBuilder *sparql,
                                                             GCancellable         *cancellable);
-static void     miner_applications_finalize                (GObject              *object);
-
 
 static GQuark miner_applications_error_quark = 0;
 
@@ -67,10 +65,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerApplications, tracker_miner_applications, T
 static void
 tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
-
-	object_class->finalize = miner_applications_finalize;
 
 	miner_fs_class->process_file = miner_applications_process_file;
 	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
@@ -127,11 +122,6 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 static void
 miner_applications_add_directories (TrackerMinerFS *fs)
 {
-#ifdef HAVE_MEEGOTOUCH
-	TrackerIndexingTree *indexing_tree;
-	GFile *file;
-	const gchar *path;
-#endif /* HAVE_MEEGOTOUCH */
 	const gchar * const *xdg_dirs;
 	const gchar *user_data_dir;
 	gint i;
@@ -172,19 +162,6 @@ miner_applications_add_directories (TrackerMinerFS *fs)
 }
 
 static void
-tracker_locale_notify_cb (TrackerLocaleID id,
-                          gpointer        user_data)
-{
-	TrackerMiner *miner = user_data;
-
-	if (tracker_miner_applications_detect_locale_changed (miner)) {
-		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner), TRUE);
-
-		miner_applications_add_directories (TRACKER_MINER_FS (miner));
-	}
-}
-
-static void
 miner_finished_cb (TrackerMinerFS *fs,
                    gdouble         seconds_elapsed,
                    guint           total_directories_found,
@@ -205,12 +182,10 @@ miner_applications_initable_init (GInitable     *initable,
                                   GError       **error)
 {
 	TrackerMinerFS *fs;
-	TrackerMinerApplications *app;
 	GError *inner_error = NULL;
 	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
-	app = TRACKER_MINER_APPLICATIONS (initable);
 	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	/* Set up files filter, deny every file, but
@@ -238,32 +213,7 @@ miner_applications_initable_init (GInitable     *initable,
 
 	miner_applications_add_directories (fs);
 
-#ifdef HAVE_MEEGOTOUCH
-	tracker_meego_init ();
-#endif /* HAVE_MEEGOTOUCH */
-
-	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
-	                                                         tracker_locale_notify_cb,
-	                                                         app,
-	                                                         NULL);
-
 	return TRUE;
-}
-
-static void
-miner_applications_finalize (GObject *object)
-{
-	TrackerMinerApplications *app;
-
-	app = TRACKER_MINER_APPLICATIONS (object);
-
-	tracker_locale_notify_remove (app->locale_notification_id);
-
-#ifdef HAVE_MEEGOTOUCH
-	tracker_meego_shutdown ();
-#endif /* HAVE_MEEGOTOUCH */
-
-	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
 }
 
 static void

@@ -285,9 +285,6 @@ License which can be viewed at:
 		notifier = null;
 
 		if (!shutdown) {
-			/* Setup subscription to get notified of locale changes */
-			Tracker.locale_change_initialize_subscription ();
-
 			Tracker.DBus.register_prepare_class_signal ();
 
 			Tracker.Events.init ();
@@ -321,8 +318,6 @@ License which can be viewed at:
 		/* Shutdown major subsystems */
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
-
-		Tracker.locale_change_shutdown_subscription ();
 
 		Tracker.DBus.shutdown ();
 		Tracker.Data.Manager.shutdown ();

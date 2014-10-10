@@ -20,12 +20,8 @@
 #include "config.h"
 #include <string.h>
 
-#include <libtracker-common/tracker-locale.h>
-
+#include "tracker-locale.h"
 #include "tracker-miner-locale.h"
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-miner-meego.h"
-#endif
 
 /* NOTE: This applies to more miners than just the application miner,
  * it's kept this way to avoid breaking things.
@@ -35,18 +31,8 @@
 static gchar *
 miner_locale_get_filename (void)
 {
-	gchar *data_dir;
-	gchar *filename;
-
 	/* Locate locale file */
-	data_dir = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             NULL);
-	filename = g_build_filename (data_dir, TRACKER_MINER_LOCALE_FILE, NULL);
-
-	g_free (data_dir);
-
-	return filename;
+	return g_build_filename (g_get_user_cache_dir (), "tracker", TRACKER_MINER_LOCALE_FILE, NULL);
 }
 
 static gchar *
@@ -86,14 +72,8 @@ miner_locale_get_current (void)
 {
 	gchar *current_locale;
 
-#ifdef HAVE_MEEGOTOUCH
-	/* If we have meegotouch enabled, take the correct locale as the one from
-	 * meegotouch. */
-	current_locale = tracker_miner_meego_get_locale ();
-#else
 	/* Get current tracker LANG locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-#endif
 
 	return current_locale;
 }

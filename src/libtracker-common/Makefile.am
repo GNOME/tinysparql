@@ -52,17 +52,6 @@ libtracker_common_la_SOURCES += tracker-language.c
 noinst_HEADERS += tracker-language.h
 endif
 
-if HAVE_MEEGOTOUCH
-libtracker_common_la_SOURCES += 
-	tracker-locale-gconfdbus.c \
-	tracker-locale-gconfdbus.h \
-	tracker-meego.cpp \
-	tracker-meego.h
-noinst_HEADERS += \
-	tracker-locale-gconfdbus.h \
-	tracker-meego.h
-endif
-
 libtracker_common_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(LIBTRACKER_COMMON_LIBS) \
