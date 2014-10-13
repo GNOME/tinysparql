@@ -9,15 +9,8 @@ AM_CPPFLAGS = \
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
-if OS_WIN32
-os_sources = tracker-os-dependant-win.c
-else
-os_sources = tracker-os-dependant-unix.c
-endif
-
 libtracker_common_la_SOURCES = \
 	$(BUILT_SOURCES) \
-	$(os_sources) \
 	tracker-date-time.c \
 	tracker-dbus.c \
 	tracker-file-utils.c \
@@ -34,7 +27,6 @@ noinst_HEADERS = \
 	tracker-enums.h \
 	tracker-ioprio.h \
 	tracker-log.h \
-	tracker-os-dependant.h \
 	tracker-common.h \
 	tracker-date-time.h \
 	tracker-file-utils.h \

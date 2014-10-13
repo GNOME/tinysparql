@@ -52,8 +52,7 @@ rules_files = \
 	90-text-generic.rule \
 	90-libav-audio-generic.rule \
 	90-libav-video-generic.rule \
-	91-gstreamer-generic-dlna.rule \
-	93-mplayer-generic.rule
+	91-gstreamer-generic-dlna.rule
 
 # NOTE:
 # We don't always link with libtracker-common, we only link
@@ -127,11 +126,6 @@ endif
 # Gstreamer with GUPnP-DLNA backend?
 if HAVE_GUPNP_DLNA
 rules_DATA += 91-gstreamer-generic-dlna.rule
-endif
-
-if USING_EXTERNAL_GENERIC_MEDIA_PLAYER
-extractmodules_LTLIBRARIES +=	libextract-mplayer.la
-rules_DATA += 93-mplayer-generic.rule
 endif
 
 if HAVE_TOTEM_PL_PARSER
@@ -233,16 +227,6 @@ libextract_flac_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(LIBFLAC_LIBS)
-
-# MPlayer
-libextract_mplayer_la_SOURCES = tracker-extract-mplayer.c
-libextract_mplayer_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS)
-libextract_mplayer_la_LDFLAGS = $(module_flags)
-libextract_mplayer_la_LIBADD = \
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 # Oasis
 libextract_oasis_la_SOURCES = tracker-extract-oasis.c

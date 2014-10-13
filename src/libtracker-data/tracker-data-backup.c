@@ -24,8 +24,7 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
-
-#include <libtracker-common/tracker-os-dependant.h>
+#include <glib/gi18n.h>
 
 #include "tracker-data-backup.h"
 #include "tracker-data-manager.h"
@@ -413,22 +412,24 @@ restore_from_temp (void)
 }
 
 void
-tracker_data_backup_save (GFile *destination,
-                          TrackerDataBackupFinished callback,
-                          gpointer user_data,
-                          GDestroyNotify destroy)
+tracker_data_backup_save (GFile                     *destination,
+                          TrackerDataBackupFinished  callback,
+                          gpointer                   user_data,
+                          GDestroyNotify             destroy)
 {
 #ifndef DISABLE_JOURNAL
 	BackupSaveInfo *info;
 	ProcessContext *context;
 	gchar **argv;
 	gchar *path, *directory;
+	GError *local_error = NULL;
 	GDir *journal_dir;
 	GFile *parent;
-	GIOChannel *stdin_channel, *stdout_channel, *stderr_channel;
 	GPid pid;
 	GPtrArray *files;
 	const gchar *f_name;
+	gboolean result;
+	gint stdin_fd, stdout_fd, stderr_fd;
 	guint i;
 
 	info = g_new0 (BackupSaveInfo, 1);
@@ -477,19 +478,35 @@ tracker_data_backup_save (GFile *destination,
 	/* It's fine to untar this asynchronous: the journal replay code can or
 	 * should cope with unfinished entries at the end of the file, while
 	 * restoring a backup made this way. */
+	result = g_spawn_async_with_pipes (NULL, /* working dir */
+	                                   (gchar **) argv,
+	                                   NULL, /* env */
+	                                   G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+	                                   NULL, /* func to call before exec() */
+	                                   0,
+	                                   &pid,
+	                                   &stdin_fd,
+	                                   &stdout_fd,
+	                                   &stderr_fd,
+	                                   &local_error);
 
-	if (!tracker_spawn_async_with_channels ((const gchar **) argv,
-	                                        0, &pid,
-	                                        &stdin_channel,
-	                                        &stdout_channel,
-	                                        &stderr_channel)) {
+	if (!result || local_error) {
 		GError *error = NULL;
-		g_set_error (&error, TRACKER_DATA_BACKUP_ERROR,
+
+		g_set_error (&error,
+		             TRACKER_DATA_BACKUP_ERROR,
 		             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
-		             "Error starting tar program");
+		             "%s, %s",
+		             _("Error starting 'tar' program"),
+		             local_error ? local_error->message : _("No error given"));
+
+		g_warning ("%s", error->message);
+
 		on_journal_copied (info, error);
+
 		g_strfreev (argv);
-		g_error_free (error);
+		g_clear_error (&local_error);
+
 		return;
 	}
 
@@ -497,14 +514,14 @@ tracker_data_backup_save (GFile *destination,
 	context->lines = NULL;
 	context->data = info;
 	context->pid = pid;
-	context->stdin_channel = stdin_channel;
-	context->stdout_channel = stdout_channel;
-	context->stderr_channel = stderr_channel;
-	context->stdout_watch_id = g_io_add_watch (stdout_channel,
+	context->stdin_channel = g_io_channel_unix_new (stdin_fd);
+	context->stdout_channel = g_io_channel_unix_new (stdout_fd);
+	context->stderr_channel = g_io_channel_unix_new (stderr_fd);
+	context->stdout_watch_id = g_io_add_watch (context->stdout_channel,
 	                                           G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP,
 	                                           read_line_of_tar_output,
 	                                           context);
-	context->stderr_watch_id = g_io_add_watch (stderr_channel,
+	context->stderr_watch_id = g_io_add_watch (context->stderr_channel,
 	                                           G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP,
 	                                           read_error_of_tar_output,
 	                                           context);
@@ -560,6 +577,7 @@ tracker_data_backup_restore (GFile                *journal,
 		gchar *tmp_stdout = NULL;
 		gchar *tmp_stderr = NULL;
 		gchar **argv;
+		gboolean result;
 		gint exit_status;
 #endif /* DISABLE_JOURNAL */
 
@@ -581,26 +599,40 @@ tracker_data_backup_restore (GFile                *journal,
 		g_object_unref (parent);
 
 		/* Synchronous: we don't want the mainloop to run while copying the
-		 * journal, as nobody should be writing anything at this point */
+		 * journal, as nobody should be writing anything at this point
+		 */
+		result = g_spawn_sync (NULL, /* working dir */
+		                       argv,
+		                       NULL, /* env */
+		                       G_SPAWN_SEARCH_PATH,
+		                       NULL,
+		                       0,    /* timeout */
+		                       &tmp_stdout,
+		                       &tmp_stderr,
+		                       &exit_status,
+		                       &n_error);
 
-		if (!tracker_spawn (argv, 0, &tmp_stdout, &tmp_stderr, &exit_status)) {
-			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+		if (!result || n_error) {
+			g_set_error (&info->error,
+			             TRACKER_DATA_BACKUP_ERROR,
 			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
-			             "Error starting tar program");
-		}
-
-		if (!info->error && tmp_stderr) {
-			if (strlen (tmp_stderr) > 0) {
-				g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
-				             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
-				             "%s", tmp_stderr);
-			}
-		}
-
-		if (!info->error && exit_status != 0) {
-			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+			             "%s, %s",
+			             _("Error starting 'tar' program"),
+			             n_error ? n_error->message : _("No error given"));
+			g_warning ("%s", info->error->message);
+			g_clear_error (&n_error);
+		} else if (tmp_stderr && strlen (tmp_stderr) > 0) {
+			g_set_error (&info->error,
+			             TRACKER_DATA_BACKUP_ERROR,
 			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
-			             "Unknown error, tar exited with exit status %d", exit_status);
+			             "%s",
+			             tmp_stderr);
+		} else if (exit_status != 0) {
+			g_set_error (&info->error,
+			             TRACKER_DATA_BACKUP_ERROR,
+			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
+			             _("Unknown error, 'tar' exited with status %d"),
+			             exit_status);
 		}
 
 		g_free (tmp_stderr);

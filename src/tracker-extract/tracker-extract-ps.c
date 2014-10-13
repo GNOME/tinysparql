@@ -29,9 +29,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-file-utils.h>
-
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
 static gchar *
@@ -217,6 +215,45 @@ extract_ps (const gchar          *uri,
 
 #ifdef USING_UNZIPPSFILES
 
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+static void
+spawn_child_func (gpointer user_data)
+{
+	struct rlimit cpu_limit;
+	gint timeout = GPOINTER_TO_INT (user_data);
+
+	if (timeout > 0) {
+		/* set cpu limit */
+		getrlimit (RLIMIT_CPU, &cpu_limit);
+		cpu_limit.rlim_cur = timeout;
+		cpu_limit.rlim_max = timeout + 1;
+
+		if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
+			g_critical ("Failed to set resource limit for CPU");
+		}
+
+		/* Have this as a precaution in cases where cpu limit has not
+		 * been reached due to spawned app sleeping.
+		 */
+		alarm (timeout + 2);
+	}
+
+	/* Set child's niceness to 19 */
+	errno = 0;
+
+	/* nice() uses attribute "warn_unused_result" and so complains
+	 * if we do not check its returned value. But it seems that
+	 * since glibc 2.2.4, nice() can return -1 on a successful call
+	 * so we have to check value of errno too. Stupid...
+	 */
+	if (nice (19) == -1 && errno) {
+		g_warning ("Failed to set nice value");
+	}
+}
+
 static void
 extract_ps_gz (const gchar          *uri,
                TrackerSparqlBuilder *preupdate,
@@ -242,7 +279,7 @@ extract_ps_gz (const gchar          *uri,
 	                               (gchar **) argv,
 	                               NULL,
 	                               G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-	                               tracker_spawn_child_func,
+	                               spawn_child_func,
 	                               GINT_TO_POINTER (10),
 	                               NULL,
 	                               NULL,

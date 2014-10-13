@@ -6,6 +6,7 @@ src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in
 src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in
+src/libtracker-data/tracker-data-backup.c
 src/libtracker-miner/tracker-enumerator.c
 src/libtracker-miner/tracker-data-provider.c
 src/libtracker-miner/tracker-miner-fs.c

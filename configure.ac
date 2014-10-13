@@ -1798,7 +1798,7 @@ fi
 AM_CONDITIONAL(HAVE_XSLTPROC, test -n "$XSLTPROC")
 
 ####################################################################
-# Check for tracker-extract: gstreamer/mplayer/etc
+# Check for tracker-extract: gstreamer/etc
 ####################################################################
 
 AC_ARG_ENABLE(generic-media-extractor,
@@ -1874,17 +1874,10 @@ if test "$have_generic_media_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
    AM_CONDITIONAL(HAVE_LIBAV, false)
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 elif test "$have_generic_media_handler_app" = "libav"; then
     AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have libav])
     AM_CONDITIONAL(HAVE_LIBAV, true)
     AM_CONDITIONAL(HAVE_GSTREAMER, false)
-    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
-else
-   AC_DEFINE(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, [], [Define that Tracker will try to use external generic media players])
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, false)
-   AM_CONDITIONAL(HAVE_LIBAV, false)
 fi
 
 ###########################################################################
