@@ -326,7 +326,7 @@ process_item (ProcessUserguideData  *data,
 	urn = get_file_urn (data->miner, data->file, &is_iri);
 
 	tracker_sparql_builder_insert_silent_open (sparql, NULL);
-	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 	if (is_iri) {
 		tracker_sparql_builder_subject_iri (sparql, urn);
@@ -671,7 +671,7 @@ miner_userguides_reset (TrackerMiner *miner)
 	sparql = tracker_sparql_builder_new_update ();
 
 	/* (a) Remove all resources which are a nfo:HelpDocument */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "userguide");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");

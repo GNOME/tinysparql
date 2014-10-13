@@ -49,26 +49,19 @@
 #include "tracker-sparql-query.h"
 #include "tracker-data-query.h"
 
-#define XSD_PREFIX TRACKER_XSD_PREFIX
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_PROPERTY RDF_PREFIX "Property"
-#define RDF_TYPE RDF_PREFIX "type"
+#define RDF_PROPERTY                    TRACKER_PREFIX_RDF "Property"
+#define RDF_TYPE                        TRACKER_PREFIX_RDF "type"
 
-#define RDFS_PREFIX TRACKER_RDFS_PREFIX
-#define RDFS_CLASS RDFS_PREFIX "Class"
-#define RDFS_DOMAIN RDFS_PREFIX "domain"
-#define RDFS_RANGE RDFS_PREFIX "range"
-#define RDFS_SUB_CLASS_OF RDFS_PREFIX "subClassOf"
-#define RDFS_SUB_PROPERTY_OF RDFS_PREFIX "subPropertyOf"
+#define RDFS_CLASS                      TRACKER_PREFIX_RDFS "Class"
+#define RDFS_DOMAIN                     TRACKER_PREFIX_RDFS "domain"
+#define RDFS_RANGE                      TRACKER_PREFIX_RDFS "range"
+#define RDFS_SUB_CLASS_OF               TRACKER_PREFIX_RDFS "subClassOf"
+#define RDFS_SUB_PROPERTY_OF            TRACKER_PREFIX_RDFS "subPropertyOf"
 
-#define NRL_PREFIX TRACKER_NRL_PREFIX
-#define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_NRL_PREFIX "InverseFunctionalProperty"
-#define NRL_MAX_CARDINALITY NRL_PREFIX "maxCardinality"
+#define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_PREFIX_NRL "InverseFunctionalProperty"
+#define NRL_MAX_CARDINALITY             TRACKER_PREFIX_NRL "maxCardinality"
 
-#define NAO_PREFIX TRACKER_NAO_PREFIX
-#define NAO_LAST_MODIFIED NAO_PREFIX "lastModified"
-
-#define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
+#define NAO_LAST_MODIFIED               TRACKER_PREFIX_NAO "lastModified"
 
 #define ZLIBBUFSIZ 8192
 
@@ -96,17 +89,17 @@ static Conversion allowed_cardinality_conversions[] = {
 };
 
 static Conversion allowed_range_conversions[] = {
-	{ XSD_PREFIX "integer", XSD_PREFIX "string" },
-	{ XSD_PREFIX "integer", XSD_PREFIX "double" },
-	{ XSD_PREFIX "integer", XSD_PREFIX "boolean" },
+	{ TRACKER_PREFIX_XSD "integer", TRACKER_PREFIX_XSD "string" },
+	{ TRACKER_PREFIX_XSD "integer", TRACKER_PREFIX_XSD "double" },
+	{ TRACKER_PREFIX_XSD "integer", TRACKER_PREFIX_XSD "boolean" },
 
-	{ XSD_PREFIX "string", XSD_PREFIX "integer" },
-	{ XSD_PREFIX "string", XSD_PREFIX "double" },
-	{ XSD_PREFIX "string", XSD_PREFIX "boolean" },
+	{ TRACKER_PREFIX_XSD "string", TRACKER_PREFIX_XSD "integer" },
+	{ TRACKER_PREFIX_XSD "string", TRACKER_PREFIX_XSD "double" },
+	{ TRACKER_PREFIX_XSD "string", TRACKER_PREFIX_XSD "boolean" },
 
-	{ XSD_PREFIX "double", XSD_PREFIX "integer" },
-	{ XSD_PREFIX "double", XSD_PREFIX "string" },
-	{ XSD_PREFIX "double", XSD_PREFIX "boolean" },
+	{ TRACKER_PREFIX_XSD "double", TRACKER_PREFIX_XSD "integer" },
+	{ TRACKER_PREFIX_XSD "double", TRACKER_PREFIX_XSD "string" },
+	{ TRACKER_PREFIX_XSD "double", TRACKER_PREFIX_XSD "boolean" },
 
 	{ NULL, NULL }
 };
@@ -692,7 +685,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			}
 
 			tracker_property_set_is_inverse_functional_property (property, TRUE);
-		} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
+		} else if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Namespace") == 0) {
 			TrackerNamespace *namespace;
 
 			if (tracker_ontologies_get_namespace_by_uri (subject) != NULL) {
@@ -707,7 +700,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_ontologies_add_namespace (namespace);
 			g_object_unref (namespace);
 
-		} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
+		} else if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Ontology") == 0) {
 			TrackerOntology *ontology;
 
 			if (tracker_ontologies_get_ontology_by_uri (subject) != NULL) {
@@ -737,7 +730,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (is_new != in_update) {
 			gboolean ignore = FALSE;
 			/* Detect unsupported ontology change (this needs a journal replay) */
-			if (in_update == TRUE && is_new == FALSE && g_strcmp0 (object, RDFS_PREFIX "Resource") != 0) {
+			if (in_update == TRUE && is_new == FALSE && g_strcmp0 (object, TRACKER_PREFIX_RDFS "Resource") != 0) {
 				TrackerClass **super_classes = tracker_class_get_super_classes (class);
 				gboolean had = FALSE;
 
@@ -799,7 +792,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		tracker_class_add_super_class (class, super_class);
 
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "notify") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "notify") == 0) {
 		TrackerClass *class;
 
 		class = tracker_ontologies_get_class_by_uri (subject);
@@ -810,7 +803,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "domainIndex") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "domainIndex") == 0) {
 		TrackerClass *class;
 		TrackerProperty *property;
 		TrackerProperty **properties;
@@ -896,7 +889,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_property_add_domain_index (property, class);
 		}
 
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "writeback") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "writeback") == 0) {
 		TrackerProperty *property;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
@@ -907,7 +900,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_writeback (property, (strcmp (object, "true") == 0));
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "forceJournal") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "forceJournal") == 0) {
 		TrackerProperty *property;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
@@ -1075,7 +1068,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_property_set_last_multiple_values (property, TRUE);
 		}
 
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "indexed") == 0) {
 		TrackerProperty *property;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
@@ -1085,7 +1078,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_indexed (property, (strcmp (object, "true") == 0));
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "secondaryIndex") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "secondaryIndex") == 0) {
 		TrackerProperty *property, *secondary_index;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
@@ -1101,7 +1094,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_secondary_index (property, secondary_index);
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "transient") == 0) {
 		TrackerProperty *property;
 		gboolean is_new;
 
@@ -1137,7 +1130,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (g_strcmp0 (object, "true") == 0) {
 			tracker_property_set_transient (property, TRUE);
 		}
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "fulltextIndexed") == 0) {
 		TrackerProperty *property;
 		gboolean is_new;
 
@@ -1170,7 +1163,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (strcmp (object, "true") == 0) {
 			tracker_property_set_fulltext_indexed (property, TRUE);
 		}
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "defaultValue") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "defaultValue") == 0) {
 		TrackerProperty *property;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
@@ -1180,7 +1173,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_default_value (property, object);
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "prefix") == 0) {
 		TrackerNamespace *namespace;
 
 		namespace = tracker_ontologies_get_namespace_by_uri (subject);
@@ -1286,7 +1279,7 @@ check_for_deleted_domain_index (TrackerClass *class)
 			tracker_class_del_domain_index (class, prop);
 
 			tracker_data_delete_statement (NULL, tracker_class_get_uri (class),
-			                               TRACKER_PREFIX "domainIndex",
+			                               TRACKER_PREFIX_TRACKER "domainIndex",
 			                               tracker_property_get_uri (prop),
 			                               &error);
 
@@ -1325,7 +1318,7 @@ check_for_deleted_super_classes (TrackerClass  *class,
 		gboolean found = FALSE;
 		TrackerClass **super_classes;
 
-		if (g_strcmp0 (tracker_class_get_uri (last_super_class), RDFS_PREFIX "Resource") == 0) {
+		if (g_strcmp0 (tracker_class_get_uri (last_super_class), TRACKER_PREFIX_RDFS "Resource") == 0) {
 			last_super_classes++;
 			continue;
 		}
@@ -1390,11 +1383,12 @@ check_for_max_cardinality_change (TrackerProperty  *property,
 		const gchar *subject = tracker_property_get_uri (property);
 
 		if (update_property_value (ontology_path,
-			                       "nrl:maxCardinality",
-			                       subject,
-			                       NRL_PREFIX "maxCardinality",
-			                       NULL, allowed_cardinality_conversions,
-					               NULL, property, &n_error)) {
+		                           "nrl:maxCardinality",
+		                           subject,
+		                           TRACKER_PREFIX_NRL "maxCardinality",
+		                           NULL, allowed_cardinality_conversions,
+		                           NULL, property,
+		                           &n_error)) {
 			TrackerClass *class;
 			class = tracker_property_get_domain(property);
 
@@ -1459,7 +1453,7 @@ check_for_deleted_super_properties (TrackerProperty  *property,
 			tracker_property_del_super_property (property, prop_to_remove);
 
 			tracker_data_delete_statement (NULL, subject,
-			                               RDFS_PREFIX "subPropertyOf",
+			                               TRACKER_PREFIX_RDFS "subPropertyOf",
 			                               object, &n_error);
 
 			if (!n_error) {
@@ -1545,14 +1539,14 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				update_property_value (ontology_path,
 				                       "tracker:notify",
 				                       subject,
-				                       TRACKER_PREFIX "notify",
+				                       TRACKER_PREFIX_TRACKER "notify",
 				                       "true", allowed_boolean_conversions,
 				                       class, NULL, &n_error);
 			} else {
 				update_property_value (ontology_path,
 				                       "tracker:notify",
 				                       subject,
-				                       TRACKER_PREFIX "notify",
+				                       TRACKER_PREFIX_TRACKER "notify",
 				                       "false", allowed_boolean_conversions,
 				                       class, NULL, &n_error);
 			}
@@ -1612,14 +1606,14 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				update_property_value (ontology_path,
 				                       "tracker:writeback",
 				                       subject,
-				                       TRACKER_PREFIX "writeback",
+				                       TRACKER_PREFIX_TRACKER "writeback",
 				                       "true", allowed_boolean_conversions,
 				                       NULL, property, &n_error);
 			} else {
 				update_property_value (ontology_path,
 				                       "tracker:writeback",
 				                       subject,
-				                       TRACKER_PREFIX "writeback",
+				                       TRACKER_PREFIX_TRACKER "writeback",
 				                       "false", allowed_boolean_conversions,
 				                       NULL, property, &n_error);
 			}
@@ -1633,7 +1627,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				if (update_property_value (ontology_path,
 				                           "tracker:indexed",
 				                           subject,
-				                           TRACKER_PREFIX "indexed",
+				                           TRACKER_PREFIX_TRACKER "indexed",
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
 					fix_indexed (property, TRUE, &n_error);
@@ -1643,7 +1637,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				if (update_property_value (ontology_path,
 				                           "tracker:indexed",
 				                           subject,
-				                           TRACKER_PREFIX "indexed",
+				                           TRACKER_PREFIX_TRACKER "indexed",
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
 					fix_indexed (property, TRUE, &n_error);
@@ -1662,7 +1656,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				if (update_property_value (ontology_path,
 				                           "tracker:secondaryIndex",
 				                           subject,
-				                           TRACKER_PREFIX "secondaryIndex",
+				                           TRACKER_PREFIX_TRACKER "secondaryIndex",
 				                           tracker_property_get_uri (secondary_index), NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
@@ -1673,7 +1667,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				if (update_property_value (ontology_path,
 				                           "tracker:secondaryIndex",
 				                           subject,
-				                           TRACKER_PREFIX "secondaryIndex",
+				                           TRACKER_PREFIX_TRACKER "secondaryIndex",
 				                           NULL, NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
@@ -1688,7 +1682,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 			}
 
 			if (update_property_value (ontology_path,
-			                           "rdfs:range", subject, RDFS_PREFIX "range",
+			                           "rdfs:range", subject, TRACKER_PREFIX_RDFS "range",
 			                           tracker_class_get_uri (tracker_property_get_range (property)),
 			                           allowed_range_conversions,
 			                           NULL, property, &n_error)) {
@@ -1705,7 +1699,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 			}
 
 			if (update_property_value (ontology_path,
-			                           "tracker:defaultValue", subject, TRACKER_PREFIX "defaultValue",
+			                           "tracker:defaultValue", subject, TRACKER_PREFIX_TRACKER "defaultValue",
 			                           tracker_property_get_default_value (property),
 			                           NULL, NULL, property, &n_error)) {
 				TrackerClass *class;
@@ -1820,7 +1814,7 @@ get_ontology_from_path (const gchar *ontology_path)
 		object = tracker_turtle_reader_get_object (reader);
 
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
-			if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
+			if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Ontology") == 0) {
 				TrackerOntology *ontology;
 
 				ontology = tracker_ontology_new ();
@@ -1923,7 +1917,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 			if (prop && tracker_property_get_is_new (prop) != in_update) {
 				return;
 			}
-		} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
+		} else if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Namespace") == 0) {
 			TrackerNamespace *namespace;
 
 			namespace = tracker_ontologies_get_namespace_by_uri (subject);
@@ -1931,7 +1925,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 			if (namespace && tracker_namespace_get_is_new (namespace) != in_update) {
 				return;
 			}
-		} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
+		} else if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Ontology") == 0) {
 			TrackerOntology *ontology;
 
 			ontology = tracker_ontologies_get_ontology_by_uri (subject);
@@ -1952,9 +1946,9 @@ tracker_data_ontology_process_statement (const gchar *graph,
 	           g_strcmp0 (predicate, RDFS_DOMAIN) == 0                   ||
 	           g_strcmp0 (predicate, RDFS_RANGE) == 0                    ||
 	           /* g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0        || */
-	           g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0      ||
-	           g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0    ||
-	           g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+	           g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "indexed") == 0      ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "transient") == 0    ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "fulltextIndexed") == 0) {
 		TrackerProperty *prop;
 
 		prop = tracker_ontologies_get_property_by_uri (subject);
@@ -1962,7 +1956,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 		if (prop && tracker_property_get_is_new (prop) != in_update) {
 			return;
 		}
-	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "prefix") == 0) {
 		TrackerNamespace *namespace;
 
 		namespace = tracker_ontologies_get_namespace_by_uri (subject);

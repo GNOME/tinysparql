@@ -26,11 +26,8 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-data-update.h>
-#include <libtracker-data/tracker-sparql-query.h>
+#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 static gchar *file;
 static gchar *query;

@@ -23,22 +23,17 @@
 
 #include <libtracker-data/tracker-data.h>
 
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_PROPERTY RDF_PREFIX "Property"
-#define RDF_TYPE RDF_PREFIX "type"
+#define RDF_PROPERTY TRACKER_PREFIX_RDF "Property"
+#define RDF_TYPE TRACKER_PREFIX_RDF "type"
 
-#define RDFS_PREFIX TRACKER_RDFS_PREFIX
-#define RDFS_CLASS RDFS_PREFIX "Class"
-#define RDFS_DOMAIN RDFS_PREFIX "domain"
-#define RDFS_RANGE RDFS_PREFIX "range"
-#define RDFS_SUB_CLASS_OF RDFS_PREFIX "subClassOf"
-#define RDFS_SUB_PROPERTY_OF RDFS_PREFIX "subPropertyOf"
+#define RDFS_CLASS TRACKER_PREFIX_RDFS "Class"
+#define RDFS_DOMAIN TRACKER_PREFIX_RDFS "domain"
+#define RDFS_RANGE TRACKER_PREFIX_RDFS "range"
+#define RDFS_SUB_CLASS_OF TRACKER_PREFIX_RDFS "subClassOf"
+#define RDFS_SUB_PROPERTY_OF TRACKER_PREFIX_RDFS "subPropertyOf"
 
-#define NRL_PREFIX TRACKER_NRL_PREFIX
-#define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_NRL_PREFIX "InverseFunctionalProperty"
-#define NRL_MAX_CARDINALITY NRL_PREFIX "maxCardinality"
-
-#define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
+#define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_PREFIX_NRL "InverseFunctionalProperty"
+#define NRL_MAX_CARDINALITY TRACKER_PREFIX_NRL "maxCardinality"
 
 static gchar *ontology_dir = NULL;
 static gchar *output_file = NULL;
@@ -137,7 +132,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				}
 
 				tracker_property_set_is_inverse_functional_property (property, TRUE);
-			} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
+			} else if (g_strcmp0 (object, TRACKER_PREFIX_TRACKER "Namespace") == 0) {
 				TrackerNamespace *namespace;
 
 				if (tracker_ontologies_get_namespace_by_uri (subject) != NULL) {
@@ -228,7 +223,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (atoi (object) == 1) {
 				tracker_property_set_multiple_values (property, FALSE);
 			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "indexed") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontologies_get_property_by_uri (subject);
@@ -240,7 +235,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (strcmp (object, "true") == 0) {
 				tracker_property_set_indexed (property, TRUE);
 			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "transient") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontologies_get_property_by_uri (subject);
@@ -252,7 +247,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (g_strcmp0 (object, "true") == 0) {
 				tracker_property_set_transient (property, TRUE);
 			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "fulltextIndexed") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontologies_get_property_by_uri (subject);
@@ -264,7 +259,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (strcmp (object, "true") == 0) {
 				tracker_property_set_fulltext_indexed (property, TRUE);
 			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "prefix") == 0) {
 			TrackerNamespace *namespace;
 
 			namespace = tracker_ontologies_get_namespace_by_uri (subject);

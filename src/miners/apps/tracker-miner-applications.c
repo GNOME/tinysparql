@@ -319,7 +319,7 @@ process_directory (ProcessApplicationData  *data,
 	uri = g_file_get_uri (data->file);
 	urn = tracker_sparql_escape_uri_printf ("urn:applications-dir:%s", path);
 
-	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 	tracker_sparql_builder_subject_iri (sparql, urn);
 
@@ -426,7 +426,7 @@ process_desktop_file (ProcessApplicationData  *data,
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		uri = canonical_uri;
-		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
 		tracker_sparql_builder_subject_iri (sparql, uri);
 
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -459,7 +459,7 @@ process_desktop_file (ProcessApplicationData  *data,
 		is_software = FALSE;
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -478,7 +478,7 @@ process_desktop_file (ProcessApplicationData  *data,
 
 		if (url) {
 			uri = g_file_get_uri (data->file);
-			tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+			tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 			tracker_sparql_builder_subject_iri (sparql, uri);
 			tracker_sparql_builder_predicate (sparql, "a");
@@ -557,7 +557,7 @@ process_desktop_file (ProcessApplicationData  *data,
 	} else {
 		/* Invalid type, all valid types are already listed above */
 		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -620,13 +620,13 @@ process_desktop_file (ProcessApplicationData  *data,
 
 			insert_data_from_desktop_file (sparql,
 			                               uri,
-			                               TRACKER_NIE_PREFIX "comment",
+			                               TRACKER_PREFIX_NIE "comment",
 			                               key_file,
 			                               "Comment",
 			                               lang);
 			insert_data_from_desktop_file (sparql,
 			                               uri,
-			                               TRACKER_NFO_PREFIX "softwareCmdLine",
+			                               TRACKER_PREFIX_NFO "softwareCmdLine",
 			                               key_file,
 			                               "Exec",
 			                               lang);
@@ -872,7 +872,7 @@ miner_applications_reset (TrackerMiner *miner)
 	sparql = tracker_sparql_builder_new_update ();
 
 	/* (a) all elements which are nfo:softwareIcon of a given nfo:Software */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "icon");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");
@@ -888,7 +888,7 @@ miner_applications_reset (TrackerMiner *miner)
 	tracker_sparql_builder_where_close (sparql);
 
 	/* (b) all nfo:Software in our graph (includes both applications and maemo applets) */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "software");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");
@@ -901,7 +901,7 @@ miner_applications_reset (TrackerMiner *miner)
 	tracker_sparql_builder_where_close (sparql);
 
 	/* (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "icon");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");
@@ -917,7 +917,7 @@ miner_applications_reset (TrackerMiner *miner)
 	tracker_sparql_builder_where_close (sparql);
 
 	/* (d) all nfo:SoftwareCategory in our graph */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "category");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");

@@ -21,11 +21,9 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-date-time.h>
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
-#include "tracker-miner-common.h"
 #include "tracker-file-notifier.h"
 #include "tracker-file-system.h"
 #include "tracker-crawler.h"

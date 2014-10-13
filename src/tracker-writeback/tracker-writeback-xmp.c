@@ -31,8 +31,8 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-writeback-file.h"
 
@@ -159,14 +159,14 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 
 		urn = row[1]; /* The urn is at 1 */
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "title") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "title") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Title");
 			xmp_set_property (xmp, NS_EXIF, "Title", row[3], 0);
 			xmp_delete_property (xmp, NS_DC, "title");
 			xmp_set_property (xmp, NS_DC, "title", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NCO_PREFIX "creator") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NCO "creator") == 0) {
 			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
@@ -188,7 +188,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 			g_clear_error (&error);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NCO_PREFIX "contributor") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NCO "contributor") == 0) {
 			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
@@ -209,22 +209,22 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 			g_clear_error (&error);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "description") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "description") == 0) {
 			xmp_delete_property (xmp, NS_DC, "description");
 			xmp_set_property (xmp, NS_DC, "description", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "copyright") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "copyright") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Copyright");
 			xmp_set_property (xmp, NS_EXIF, "Copyright", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "comment") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "comment") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "UserComment");
 			xmp_set_property (xmp, NS_EXIF, "UserComment", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "keyword") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "keyword") == 0) {
 			if (!keywords) {
 				keywords = g_string_new (row[3]);
 			} else {
@@ -233,7 +233,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 		}
 
 
-		if (g_strcmp0 (row[2], TRACKER_NAO_PREFIX "hasTag") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NAO "hasTag") == 0) {
 			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
@@ -257,32 +257,32 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 			g_clear_error (&error);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "contentCreated") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "contentCreated") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Date");
 			xmp_set_property (xmp, NS_EXIF, "Date", row[3], 0);
 			xmp_delete_property (xmp,  NS_DC, "date");
 			xmp_set_property (xmp,  NS_DC, "date", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NFO "orientation") == 0) {
 
 			xmp_delete_property (xmp, NS_EXIF, "Orientation");
 
-			if        (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-top") == 0) {
+			if        (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-top") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "top - left", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-top-mirror") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-top-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "top - right", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-bottom") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-bottom") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - left", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-bottom-mirror") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-bottom-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-left-mirror") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-left-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "left - top", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-right") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-right") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "right - top", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-right-mirror") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-right-mirror") == 0) {
 					xmp_set_property (xmp, NS_EXIF, "Orientation", "right - bottom", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-left") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NFO "orientation-left") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "left - bottom", 0);
 			}
 		}
@@ -398,7 +398,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 		}
 #endif /* SET_TYPICAL_CAMERA_FIELDS */
 
-		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "heading") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NFO "heading") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "GPSImgDirection");
 			xmp_set_property (xmp, NS_EXIF, "GPSImgDirection", row[3], 0);
 		}
@@ -588,9 +588,9 @@ const gchar * const *
 writeback_module_get_rdf_types (void)
 {
 	static const gchar *rdf_types[] = {
-		TRACKER_NFO_PREFIX "Image",
-		TRACKER_NFO_PREFIX "Audio",
-		TRACKER_NFO_PREFIX "Video",
+		TRACKER_PREFIX_NFO "Image",
+		TRACKER_PREFIX_NFO "Audio",
+		TRACKER_PREFIX_NFO "Video",
 		NULL
 	};
 

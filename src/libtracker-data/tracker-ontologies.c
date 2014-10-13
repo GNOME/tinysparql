@@ -27,7 +27,8 @@
 
 #include <gvdb/gvdb-builder.h>
 #include <gvdb/gvdb-reader.h>
-#include <libtracker-common/tracker-ontologies.h>
+
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-ontologies.h"
 
@@ -330,7 +331,7 @@ tracker_ontologies_add_property (TrackerProperty *field)
 
 	uri = tracker_property_get_uri (field);
 
-	if (g_strcmp0 (uri, TRACKER_RDF_PREFIX "type") == 0) {
+	if (g_strcmp0 (uri, TRACKER_PREFIX_RDF "type") == 0) {
 		if (rdf_type) {
 			g_object_unref (rdf_type);
 		}

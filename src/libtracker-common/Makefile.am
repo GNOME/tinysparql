@@ -38,7 +38,6 @@ noinst_HEADERS = \
 	tracker-common.h \
 	tracker-date-time.h \
 	tracker-file-utils.h \
-	tracker-ontologies.h \
 	tracker-sched.h \
 	tracker-storage.h \
 	tracker-type-utils.h \

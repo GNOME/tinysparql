@@ -94,7 +94,6 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-enumerator.h			       \
 	tracker-indexing-tree.h                        \
 	tracker-miner.h                                \
-	tracker-miner-common.h                         \
 	tracker-miner-enums.h                          \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \

@@ -24,18 +24,18 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
 
-#define XSD_BOOLEAN  TRACKER_XSD_PREFIX "boolean"
-#define XSD_DATE     TRACKER_XSD_PREFIX "date"
-#define XSD_DATETIME TRACKER_XSD_PREFIX "dateTime"
-#define XSD_DOUBLE   TRACKER_XSD_PREFIX "double"
-#define XSD_INTEGER  TRACKER_XSD_PREFIX "integer"
-#define XSD_STRING   TRACKER_XSD_PREFIX "string"
+#define XSD_BOOLEAN  TRACKER_PREFIX_XSD "boolean"
+#define XSD_DATE     TRACKER_PREFIX_XSD "date"
+#define XSD_DATETIME TRACKER_PREFIX_XSD "dateTime"
+#define XSD_DOUBLE   TRACKER_PREFIX_XSD "double"
+#define XSD_INTEGER  TRACKER_PREFIX_XSD "integer"
+#define XSD_STRING   TRACKER_PREFIX_XSD "string"
 
 #define GET_PRIV(obj) (((TrackerProperty*) obj)->priv)
 #define TRACKER_PROPERTY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PROPERTY, TrackerPropertyPrivate))

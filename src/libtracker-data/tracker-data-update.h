@@ -24,7 +24,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-db-interface.h"
 

@@ -20,8 +20,8 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-storage.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-decorator-fs.h"
 #include "tracker-decorator-internal.h"
@@ -178,7 +178,7 @@ mount_point_added_cb (TrackerStorage *storage,
 {
 	gchar *urn;
 
-	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	urn = g_strdup_printf (TRACKER_PREFIX_DATASOURCE_URN "%s", uuid);
 	check_files (user_data, urn, TRUE, process_files_cb);
 	g_free (urn);
 }
@@ -191,7 +191,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 {
 	gchar *urn;
 
-	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	urn = g_strdup_printf (TRACKER_PREFIX_DATASOURCE_URN "%s", uuid);
 	check_files (user_data, urn, FALSE, remove_files_cb);
 	g_free (urn);
 }
