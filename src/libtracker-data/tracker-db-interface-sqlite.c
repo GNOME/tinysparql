@@ -2329,6 +2329,7 @@ void
 tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 	g_return_if_fail (!stmt->stmt_is_sunk);
 
 	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
@@ -2338,6 +2339,7 @@ TrackerDBCursor *
 tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
                                    GError             **error)
 {
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
 	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, NULL, 0, NULL, 0, FALSE);
@@ -2352,6 +2354,7 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
                                           gboolean              threadsafe,
                                           GError              **error)
 {
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
 	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, types, n_types, variable_names, n_variable_names, threadsafe);
