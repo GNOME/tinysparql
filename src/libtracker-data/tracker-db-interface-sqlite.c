@@ -937,6 +937,7 @@ open_database (TrackerDBInterface  *db_interface,
                GError             **error)
 {
 	int mode;
+	int result;
 
 	g_assert (db_interface->filename != NULL);
 
@@ -946,11 +947,15 @@ open_database (TrackerDBInterface  *db_interface,
 		mode = SQLITE_OPEN_READONLY;
 	}
 
-	if (sqlite3_open_v2 (db_interface->filename, &db_interface->db, mode | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK) {
+	result = sqlite3_open_v2 (db_interface->filename, &db_interface->db, mode | SQLITE_OPEN_NOMUTEX, NULL);
+	if (result != SQLITE_OK) {
+		const gchar *str;
+
+		str = sqlite3_errstr (result);
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,
 		             TRACKER_DB_OPEN_ERROR,
-		             "Could not open sqlite3 database:'%s'", db_interface->filename);
+		             "Could not open sqlite3 database:'%s': %s", db_interface->filename, str);
 		return;
 	} else {
 		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
