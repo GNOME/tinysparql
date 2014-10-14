@@ -729,7 +729,7 @@ data_provider_data_process (DataProviderData *dpd)
 		children = g_list_prepend (children, child_data->child);
 	}
 
-	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, dpd->dir_info->node->data, children, &use);
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, dpd->dir_file, children, &use);
 	g_list_free (children);
 
 	if (!use) {
@@ -747,7 +747,7 @@ data_provider_data_add (DataProviderData *dpd)
 	GSList *l;
 
 	crawler = dpd->crawler;
-	parent = dpd->dir_info->node->data;
+	parent = dpd->dir_file;
 
 	for (l = dpd->files; l; l = l->next) {
 		GFileInfo *info;
@@ -818,11 +818,9 @@ data_provider_end_cb (GObject      *object,
 
 	if (error) {
 		if (!cancelled) {
-			GFile *parent;
 			gchar *uri;
 
-			parent = dpd->dir_info->node->data;
-			uri = g_file_get_uri (parent);
+			uri = g_file_get_uri (dpd->dir_file);
 
 			g_warning ("Could not end data provider for container / directory '%s', %s",
 			           uri, error ? error->message : "no error given");
@@ -912,12 +910,10 @@ enumerate_next_cb (GObject      *object,
 			/* condition a) */
 
 			if (!cancelled) {
-				GFile *parent;
 				gchar *uri;
 
 				/* condition b) */
-				parent = dpd->dir_info->node->data;
-				uri = g_file_get_uri (parent);
+				uri = g_file_get_uri (dpd->dir_file);
 				g_warning ("Could not enumerate next item in container / directory '%s', %s",
 				           uri, error ? error->message : "no error given");
 				g_free (uri);
@@ -963,11 +959,9 @@ data_provider_begin_cb (GObject      *object,
 
 	if (!dpd->enumerator) {
 		if (error && !cancelled) {
-			GFile *parent;
 			gchar *uri;
 
-			parent = dpd->dir_info->node->data;
-			uri = g_file_get_uri (parent);
+			uri = g_file_get_uri (dpd->dir_file);
 
 			g_warning ("Could not enumerate container / directory '%s', %s",
 			           uri, error ? error->message : "no error given");
