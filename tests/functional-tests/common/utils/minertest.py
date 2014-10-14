@@ -19,13 +19,14 @@
 #
 from common.utils import configuration as cfg
 from common.utils.system import TrackerSystemAbstraction
-from common.utils.helpers import StoreHelper
 import unittest2 as ut
 
 from gi.repository import GLib
 
 import shutil
 import os
+import warnings
+from itertools import chain
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
 
@@ -66,47 +67,46 @@ class CommonTrackerMinerTest (ut.TestCase):
         #     ~/test-no-monitored/
         #                        /file0.txt
         #
-        
-        for d in ["test-monitored",
-                  "test-monitored/dir1",
-                  "test-monitored/dir1/dir2",
-                  "test-no-monitored"]:
-            directory = os.path.join (MINER_TMP_DIR, d)
-            if (os.path.exists (directory)):
-                shutil.rmtree (directory)
-            os.makedirs (directory)
 
-        for tf in ["test-monitored/file1.txt",
-                   "test-monitored/dir1/file2.txt",
-                   "test-monitored/dir1/dir2/file3.txt",
-                   "test-no-monitored/file0.txt"]:
-            testfile = os.path.join (MINER_TMP_DIR, tf)
-            if (os.path.exists (testfile)):
-                os.remove (testfile)
-            f = open (testfile, 'w')
-            f.write (DEFAULT_TEXT)
-            f.close ()
+        monitored_files = [
+            'test-monitored/file1.txt',
+            'test-monitored/dir1/file2.txt',
+            'test-monitored/dir1/dir2/file3.txt'
+        ]
 
-    
+        unmonitored_files = [
+            'test-no-monitored/file0.txt'
+        ]
+
+        def ensure_dir_exists(dirname):
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+
+        for tf in chain(monitored_files, unmonitored_files):
+            testfile = path(tf)
+            ensure_dir_exists(os.path.dirname(testfile))
+            with open (testfile, 'w') as f:
+                f.write (DEFAULT_TEXT)
+
+        for tf in monitored_files:
+            self.tracker.await_resource_inserted(
+                'nfo:TextDocument', url=uri(tf))
+
     @classmethod 
     def setUpClass (self):
-        #print "Starting the daemon in test mode"
-        self.__prepare_directories ()
-        
+        for d in ['test-monitored', 'test-no-monitored']:
+            dirname = path(d)
+            if os.path.exists (dirname):
+                shutil.rmtree(dirname)
+            os.makedirs(dirname)
+
         self.system = TrackerSystemAbstraction ()
 
-        if (os.path.exists (os.getcwd() + "/test-configurations/miner-basic-ops")):
-            # Use local directory if available
-            confdir = os.getcwd() + "/test-configurations/miner-basic-ops"
-        else:
-            confdir = os.path.join (cfg.DATADIR, "tracker-tests",
-                                    "test-configurations", "miner-basic-ops")
         self.system.tracker_miner_fs_testing_start (CONF_OPTIONS)
-        self.system.tracker_miner_fs_wait_for_idle ()
         self.tracker = self.system.store
-        
+
+        self.__prepare_directories ()
+
     @classmethod
     def tearDownClass (self):
-        #print "Stopping the daemon in test mode (Doing nothing now)"
         self.system.tracker_miner_fs_testing_stop ()
-

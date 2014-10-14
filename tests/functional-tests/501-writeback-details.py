@@ -18,12 +18,15 @@
 # Boston, MA  02110-1301, USA.
 #
 from common.utils.writebacktest import CommonTrackerWritebackTest as CommonTrackerWritebackTest
+from common.utils.extractor import get_tracker_extract_output
 from common.utils.helpers import log
 import unittest2 as ut
 from common.utils.expectedFailure import expectedFailureBug
+import os
 import time
 
 REASONABLE_TIMEOUT = 5 # Seconds we wait for tracker-writeback to do the work
+
 
 class WritebackKeepDateTest (CommonTrackerWritebackTest):
 
@@ -62,7 +65,12 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
 
         log ("Waiting 2 seconds to ensure there is a noticiable difference in the timestamp")
         time.sleep (2)
-    
+
+        url = self.get_test_filename_jpeg ()
+
+        filename = url[len('file://'):]
+        initial_mtime = os.stat(filename).st_mtime
+
         # This triggers the writeback
         mark_as_favorite = """
          INSERT {
@@ -70,13 +78,14 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
          } WHERE {
            ?u nie:url <%s> .
          }
-        """ % (self.get_test_filename_jpeg ())
+        """ % url
         self.tracker.update (mark_as_favorite)
-        log ("Setting favorite in <%s>" % (self.get_test_filename_jpeg ()))
-        time.sleep (REASONABLE_TIMEOUT)
+        log ("Setting favorite in <%s>" % url)
+
+        self.wait_for_file_change (filename, initial_mtime)
 
         # Check the value is written in the file
-        metadata = self.extractor.get_metadata (self.get_test_filename_jpeg (), "")
+        metadata = get_tracker_extract_output (filename, "")
         self.assertIn (self.favorite, metadata ["nao:hasTag"],
                        "Tag hasn't been written in the file")
         

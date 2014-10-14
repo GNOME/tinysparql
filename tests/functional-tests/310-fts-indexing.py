@@ -48,8 +48,7 @@ class CommonMinerFTS (CommonTrackerMinerTest):
             os.remove (path (self.testfile))
             self.tracker.await_resource_deleted (id)
             self.tracker.reset_graph_updates_tracking ()
-        # Shouldn't we wait here for the miner to idle? (it works without it)
-            
+
     def tearDown (self):
         #if os.path.exists (path (self.testfile)):
         #    os.remove (path (self.testfile))
@@ -60,7 +59,8 @@ class CommonMinerFTS (CommonTrackerMinerTest):
         f.write (text)
         f.close ()
         self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
-                                              url = uri (self.testfile))
+                                              url = uri (self.testfile),
+                                              required_property = 'nie:plainTextContent')
         self.tracker.reset_graph_updates_tracking ()
 
     def search_word (self, word):
@@ -251,9 +251,6 @@ class MinerFTSFileOperationsTest (CommonMinerFTS):
         Move file from unmonitored location to monitored location and index should be updated
         """
 
-        # Maybe the miner hasn't finished yet with the setUp deletion!
-        self.system.tracker_miner_fs_wait_for_idle ()
-        
         TEXT = "airplane is beautiful"
         TEST_16_SOURCE = "test-no-monitored/fts-indexing-text-16.txt"
         TEST_16_DEST = "test-monitored/fts-indexing-text-16.txt"

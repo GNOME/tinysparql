@@ -282,30 +282,48 @@ class StoreHelper (Helper):
         """
         Process notifications from tracker-store on resource changes.
         """
-        matched = False
+        exit_loop = False
+
         if inserts_list is not None:
             if self.inserts_match_function is not None:
                 # The match function will remove matched entries from the list
-                (matched, inserts_list) = self.inserts_match_function (inserts_list)
+                (exit_loop, inserts_list) = self.inserts_match_function (inserts_list)
             self.inserts_list += inserts_list
 
         if deletes_list is not None:
             if self.deletes_match_function is not None:
-                (matched, deletes_list) = self.deletes_match_function (deletes_list)
+                (exit_loop, deletes_list) = self.deletes_match_function (deletes_list)
             self.deletes_list += deletes_list
 
-    def await_resource_inserted (self, rdf_class, url = None, title = None):
+        if exit_loop:
+            GLib.source_remove(self.graph_updated_timeout_id)
+            self.graph_updated_timeout_id = 0
+            self.loop.quit ()
+
+    def _enable_await_timeout (self):
+        self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
+                                                                  self._graph_updated_timeout_cb)
+
+    def await_resource_inserted (self, rdf_class, url = None, title = None, required_property = None):
         """
         Block until a resource matching the parameters becomes available
         """
         assert (self.inserts_match_function == None)
 
-        def match_cb (inserts_list, in_main_loop = True):
-            matched = False
-            filtered_list = []
-            known_subjects = set ()
+        self.matched_resource_urn = None
+        self.matched_resource_id = None
 
-            #print "Got inserts: ", inserts_list, "\n"
+        log ("Await new %s (%i existing inserts)" % (rdf_class, len (self.inserts_list)))
+
+        if required_property is not None:
+            required_property_id = self.get_resource_id_by_uri(required_property)
+            log ("Required property %s id %i" % (required_property, required_property_id))
+
+        known_subjects = set ()
+        def find_resource_insertion (inserts_list):
+            matched_creation = (self.matched_resource_id is not None)
+            matched_required_property = False
+            remaining_events = []
 
             # FIXME: this could be done in an easier way: build one query that filters
             # based on every subject id in inserts_list, and returns the id of the one
@@ -313,7 +331,7 @@ class StoreHelper (Helper):
             for insert in inserts_list:
                 id = insert[1]
 
-                if not matched and id not in known_subjects:
+                if not matched_creation and id not in known_subjects:
                     known_subjects.add (id)
 
                     where = "  ?urn a %s " % rdf_class
@@ -325,48 +343,49 @@ class StoreHelper (Helper):
                         where += "; nie:title \"%s\"" % title
 
                     query = "SELECT ?urn WHERE { %s FILTER (tracker:id(?urn) = %s)}" % (where, insert[1])
-                    #print "%s\n" % query
                     result_set = self.query (query)
-                    #print result_set, "\n\n"
 
                     if len (result_set) > 0:
-                        matched = True
+                        matched_creation = True
                         self.matched_resource_urn = result_set[0][0]
                         self.matched_resource_id = insert[1]
+                        log ("Matched creation of resource %s (%i)" %
+                             (self.matched_resource_urn,
+                              self.matched_resource_id))
+                        if required_property is not None:
+                            log ("Waiting for property %s (%i) to be set" %
+                                 (required_property, required_property_id))
 
-                if not matched or id != self.matched_resource_id:
-                    filtered_list += [insert]
+                if required_property is not None and matched_creation and not matched_required_property:
+                    if id == self.matched_resource_id and insert[2] == required_property_id:
+                        matched_required_property = True
+                        log ("Matched %s %s" % (self.matched_resource_urn, required_property))
 
-            if matched and in_main_loop:
-                GLib.source_remove (self.graph_updated_timeout_id)
-                self.graph_updated_timeout_id = 0
-                self.inserts_match_function = None
-                self.loop.quit ()
+                if not matched_creation or id != self.matched_resource_id:
+                    remaining_events += [insert]
 
-            return (matched, filtered_list)
+            matched = matched_creation if required_property is None else matched_required_property
+            return matched, remaining_events
 
-
-        self.matched_resource_urn = None
-        self.matched_resource_id = None
-
-        log ("Await new %s (%i existing inserts)" % (rdf_class, len (self.inserts_list)))
+        def match_cb (inserts_list):
+            matched, remaining_events = find_resource_insertion (inserts_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
 
         # Check the list of previously received events for matches
-        (existing_match, self.inserts_list) = match_cb (self.inserts_list, False)
+        (existing_match, self.inserts_list) = find_resource_insertion (self.inserts_list)
 
         if not existing_match:
-            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
-                                                                      self._graph_updated_timeout_cb)
+            self._enable_await_timeout ()
             self.inserts_match_function = match_cb
-
             # Run the event loop until the correct notification arrives
             self.loop.run ()
+            self.inserts_match_function = None
 
         if self.graph_updated_timed_out:
             raise Exception ("Timeout waiting for resource: class %s, URL %s, title %s" % (rdf_class, url, title))
 
         return (self.matched_resource_id, self.matched_resource_urn)
-
 
     def await_resource_deleted (self, id, fail_message = None):
         """
@@ -374,38 +393,35 @@ class StoreHelper (Helper):
         """
         assert (self.deletes_match_function == None)
 
-        def match_cb (deletes_list, in_main_loop = True):
-            matched = False
-            filtered_list = []
+        def find_resource_deletion (deletes_list):
+            log ("find_resource_deletion: looking for %i in %s" % (id, deletes_list))
 
-            #print "Looking for %i in " % id, deletes_list, "\n"
+            matched = False
+            remaining_events = []
 
             for delete in deletes_list:
                 if delete[1] == id:
                     matched = True
                 else:
-                    filtered_list += [delete]
+                    remaining_events += [delete]
 
-            if matched and in_main_loop:
-                GLib.source_remove (self.graph_updated_timeout_id)
-                self.graph_updated_timeout_id = 0
-                self.deletes_match_function = None
+            return matched, remaining_events
 
-            self.loop.quit ()
-
-            return (matched, filtered_list)
+        def match_cb (deletes_list):
+            matched, remaining_events = find_resource_deletion(deletes_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
 
         log ("Await deletion of %i (%i existing)" % (id, len (self.deletes_list)))
 
-        (existing_match, self.deletes_list) = match_cb (self.deletes_list, False)
+        (existing_match, self.deletes_list) = find_resource_deletion (self.deletes_list)
 
         if not existing_match:
-            self.graph_updated_timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT,
-                                                                      self._graph_updated_timeout_cb)
+            self._enable_await_timeout ()
             self.deletes_match_function = match_cb
-
             # Run the event loop until the correct notification arrives
             self.loop.run ()
+            self.deletes_match_function = None
 
         if self.graph_updated_timed_out:
             if fail_message is not None:
@@ -496,6 +512,32 @@ class StoreHelper (Helper):
         else:
             return -1
 
+    def get_resource_id_by_uri(self, uri):
+        """
+        Get the internal ID for a given resource, identified by URI.
+        """
+        result = self.query(
+            'SELECT tracker:id(%s) WHERE { }' % uri)
+        if len(result) == 1:
+            return int (result [0][0])
+        elif len(result) == 0:
+            raise Exception ("No entry for resource %s" % uri)
+        else:
+            raise Exception ("Multiple entries for resource %s" % uri)
+
+    # FIXME: rename to get_resource_id_by_nepomuk_url !!
+    def get_resource_id(self, url):
+        """
+        Get the internal ID for a given resource, identified by URL.
+        """
+        result = self.query(
+            'SELECT tracker:id(?r) WHERE { ?r nie:url "%s" }' % url)
+        if len(result) == 1:
+            return int (result [0][0])
+        elif len(result) == 0:
+            raise Exception ("No entry for resource %s" % url)
+        else:
+            raise Exception ("Multiple entries for resource %s" % url)
 
     def ask (self, ask_query):
         assert ask_query.strip ().startswith ("ASK")
@@ -537,23 +579,8 @@ class MinerFsHelper (Helper):
 
         return False
 
-    def _minerfs_status_cb (self, status, progress, remaining_time):
-        if (status == "Idle"):
-            self.loop.quit ()
-
     def start (self):
         Helper.start (self)
-
-        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
-                                                          signal_name="Progress",
-                                                          path=cfg.MINERFS_OBJ_PATH,
-                                                          dbus_interface=cfg.MINER_IFACE)
-
-        # It should step out of this loop after progress changes to "Idle"
-        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-        self.loop.run ()
-        if self.timeout_id is not None:
-            GLib.source_remove (self.timeout_id)
 
         bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
                                           cfg.MINERFS_OBJ_PATH)
@@ -562,28 +589,6 @@ class MinerFsHelper (Helper):
 
     def stop (self):
         Helper.stop (self)
-
-        self.bus._clean_up_signal_match (self.status_match)
-
-    def ignore (self, filelist):
-        self.miner_fs.IgnoreNextUpdate (filelist)
-
-    def wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
-        """
-        Block until the miner has finished crawling and its status becomes "Idle"
-        """
-
-        self.status_match = self.bus.add_signal_receiver (self._minerfs_status_cb,
-                                                          signal_name="Progress",
-                                                          path=cfg.MINERFS_OBJ_PATH,
-                                                          dbus_interface=cfg.MINER_IFACE)
-        self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-
-        self.loop.run ()
-
-        if self.timeout_id is not None:
-            GLib.source_remove (self.timeout_id)
-        self.bus._clean_up_signal_match (self.status_match)
 
 
 class ExtractorHelper (Helper):
