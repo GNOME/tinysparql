@@ -1217,8 +1217,17 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 							      TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 							      &error,
 							      "DELETE FROM fts WHERE docid=?");
-		tracker_db_statement_bind_int (stmt, 0, id);
 
+		if (!stmt || error) {
+			if (error) {
+				g_warning ("Could not create FTS update statement: %s",
+				           error->message);
+				g_error_free (error);
+			}
+			return FALSE;
+		}
+
+		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_execute (stmt, &error);
 		g_object_unref (stmt);
 
