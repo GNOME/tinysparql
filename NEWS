@@ -1,3 +1,31 @@
+NEW in 0.16.5:
+==============
+
+The changes are:
+
+  * Fixes: GB#699412, libtracker-fts/parser/nwords_6 test fails
+  * Fixes: GB#680897, PDF extraction finishes, then times out, no full text indexed
+  * Fixes: GB#726421, fix crash in pdf extractor with parent/child process handling
+  * Fixes: GB#685378, Failure to index the content of many files
+  * Fixes: GB#738522, libtracker-data: Guard against failure to create a FTS update statement
+  * Fixes: GB#738450, libtracker-data: Guard against failure to open the database
+  * Fixes: GB#737769, fs: Keep TrackerCrawler alive across async calls
+  * Fixes: GB#737768, fs: TrackerCrawler can crash due to invalid container pointers
+  * Fixes: GB#729449, tracker-control just hangs
+  * Fixes: RH#1026283, Nautilus eating 100% cpu
+  * Fixes: RH#1034714, Regression in 3.8.1 causes breakage in Tracker's SPARQL queries
+  * Use GSettings "schema-id" instead of deprecated "schema", unit tests failing with newer GLib versions
+
+Translations:
+  * Updated ca: Gil Forcada
+  * Updated cs: Marek Černocký
+  * Updated de: Christian Kirbach
+  * Updated el: Dimitris Spingos, Dimitris Spingos (Δημήτρης Σπίγγος)
+  * Updated fr: Claude Paroz, Bruno Cauet
+  * Updated gl: Fran Diéguez, Fran Dieguez
+  * Updated zh_CN: Wylmer Wang, 甘露(Gan Lu)
+
+
 NEW in 0.16.4 - 2013-11-22
 ==========================
 
