@@ -1,3 +1,18 @@
+NEW in 1.0.5 - 2014-09-02
+=========================
+
+  * Fixes: GB#738522, libtracker-data: Guard against failure to create a FTS update statement
+  * Fixes: GB#738450, libtracker-data: Guard against failure to open the database
+  * Fixes: GB#737769, fs: Keep TrackerCrawler alive across async calls
+  * Fixes: GB#737768, fs: TrackerCrawler can crash due to invalid container pointers
+  * Fixes: GB#737023, tracker-bus: tracker_sparql_connection_query_async can crash if cancelled
+
+Translations:
+
+  * Updated sk: Dušan Kazik
+  * Updated sl: Matej Urbančič
+
+
 NEW in 1.04 - 2014-09-02
 =========================
 
