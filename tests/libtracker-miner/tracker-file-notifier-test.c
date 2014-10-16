@@ -51,6 +51,7 @@ typedef struct {
 
 	guint expire_timeout_id;
 	gboolean expect_finished;
+	gboolean timeout_removed;
 
 	FilesystemOperation *expect_results;
 	guint expect_n_results;
@@ -331,6 +332,14 @@ timeout_expired_cb (gpointer user_data)
 }
 
 static void
+timeout_expired_notify_cb (gpointer user_data)
+{
+	TestCommonContext *fixture = user_data;
+
+	fixture->timeout_removed = TRUE;
+}
+
+static void
 test_common_context_expect_results (TestCommonContext   *fixture,
                                     FilesystemOperation *results,
                                     guint                n_results,
@@ -343,17 +352,20 @@ test_common_context_expect_results (TestCommonContext   *fixture,
 	fixture->expect_finished = expect_finished;
 	fixture->expect_n_results = n_results;
 	fixture->expect_results = results;
+	fixture->timeout_removed = FALSE;
 
 	if (fixture->expect_n_results != g_list_length (fixture->ops)) {
 		if (max_timeout != 0) {
-			id = g_timeout_add_seconds (max_timeout,
-						    (GSourceFunc) timeout_expired_cb,
-						    fixture);
+			id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+			                                 max_timeout,
+			                                 (GSourceFunc) timeout_expired_cb,
+			                                 fixture,
+			                                 timeout_expired_notify_cb);
 		}
 
 		g_main_loop_run (fixture->main_loop);
 
-		if (max_timeout != 0) {
+		if (max_timeout != 0 && !fixture->timeout_removed) {
 			g_source_remove (id);
 		}
 	}
