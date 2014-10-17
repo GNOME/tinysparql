@@ -1,3 +1,29 @@
+
+NEW in 1.2.3: 2014-10-17
+========================
+
+  * Fixes: GB#737768, fs: TrackerCrawler can crash due to invalid container pointers
+  * Fixes: GB#738522, libtracker-data: Guard against failure to create a FTS update statement
+  * Fixes: GB#738450, libtracker-data: Guard against failure to open the database
+  * libtracker-miner: _NO_STAT breaks in FileNotifier without a GFileInfo
+  * libtracker-miner: Handle multiple nfo:belongsToContainer properties to 1 nie:url
+  * tracker-writeback: Remove broken code to set file attributes
+  * functional-tests: Clean up writebacktest base class
+  * functional-tests: Clean up minertest base class
+  * functional-tests: Remove IgnoreNextUpdate wrapper, nobody should be using this
+  * functional-tests: Remove all remaining 'wait for miner to be idle' calls
+  * functional-tests: Allow waiting on a specific property, and fix tests that need this
+  * functional-tests: Await resource addition / removal properly in 300, 310, 600
+  * functional-tests: Improve the wait-for-change code in helpers.StoreHelper
+  * functional-tests: Partially fix writeback tests
+
+Translations:
+
+  * Updated it: Milo Casagrande
+  * Updated sr: Мирослав Николић
+  * Updated sr@latin: Мирослав Николић, Miroslav Nikolić
+
+
 NEW in 1.2.2 - 2014-09-24
 =========================
 
