@@ -469,7 +469,7 @@ class stopwords (TestUpdate):
 	file_path =  configuration.MYDOCS + TEST_TEXT                   
                                                                         
         """copy the test files """                                      
-	test_file='/usr/share/tracker/languages/stopwords.en'
+	test_file='/usr/share/tracker/stop-words/stopwords.en'
 	f1=open(test_file,'r')
 	lines = f1.readlines()
 	f1.close()

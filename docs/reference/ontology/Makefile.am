@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = 1.6
 
 # Generation of ontology.png using ontology-graph
 ontology.png:
-	$(top_builddir)/docs/tools/ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
+	$(top_builddir)/docs/tools/ontology-graph -d $(top_srcdir)/src/ontologies -o ontology.dot
 	$(AM_V_GEN) $(GRAPHVIZ_FDP) -Tpng -o $@ ontology.dot
 	rm ontology.dot
 
@@ -64,7 +64,7 @@ ONTOLOGY_INFOS_XML =                                   \
 
 # Generation of the ontology XML files.
 gen-doc.stamp: $(ONTOLOGY_EXPLANATIONS)
-	$(top_srcdir)/docs/tools/gen-doc.sh $(top_builddir)/docs/tools/ttl2sgml $(top_srcdir)/data/ontologies $(top_srcdir)/docs/ontologies .
+	$(top_srcdir)/docs/tools/gen-doc.sh $(top_builddir)/docs/tools/ttl2sgml $(top_srcdir)/src/ontologies $(top_srcdir)/docs/ontologies .
 	$(AM_V_GEN) touch $@
 
 # Make the final XML files depend on the stamp

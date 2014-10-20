@@ -1,1 +1,4 @@
 tracker-writeback
+*.service
+*.xml
+*.valid

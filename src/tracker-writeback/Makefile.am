@@ -62,3 +62,33 @@ tracker_writeback_LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_WRITEBACK_LIBS)
+
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = tracker-writeback.xml
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Writeback.service
+
+# Configuration / GSettings
+gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
+gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
+
+gsettings_SCHEMAS = org.freedesktop.Tracker.Writeback.gschema.xml
+
+@INTLTOOL_XML_NOMERGE_RULE@
+
+@GSETTINGS_RULES@
+
+# Dist / Clean rules for all data
+CLEANFILES = \
+	$(service_DATA) \
+	$(gsettings_SCHEMAS)
+
+EXTRA_DIST = \
+	$(service_DATA:.service=.service.in) \
+	$(config_DATA) \
+	$(gsettings_SCHEMAS:.xml=.xml.in)

@@ -1,0 +1,17 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:10-xsd.ontology> a dsc:Ontology ;
+	dsc:title "XML schema (XSD)" ;
+	dsc:description "Basic types definitions (int, double,...)" ;
+
+	dsc:author "W3C XML Schema Working group" ;
+	dsc:editor "David C. Fallside, IBM &lt;fallside@us.ibm.com&gt;";
+	dsc:editor "Priscilla Walmsley &lt;pwalmsley@datypic.com&gt; - Second Edition";
+	dsc:editor "Tracker developers (translation into turtle)" ;
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/10-xsd.ontology";
+
+	dsc:localPrefix "xsd" ;
+	dsc:baseUrl "http://www.w3.org/2001/XMLSchema#" ;
+	dsc:relativePath "./10-xsd.ontology" ;
+
+	dsc:copyright "&copy; 2004 <ulink url=\"http://www.w3.org/\">W3C</ulink><superscript>&#xae;</superscript> (<ulink url=\"http://www.csail.mit.edu/\">MIT</ulink>, <ulink url=\"http://www.ercim.org/\">ERCIM</ulink>, <ulink url=\"http://www.keio.ac.jp/\">Keio</ulink>), All Rights Reserved. W3C <ulink url=\"http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer\">liability</ulink>, <ulink url=\"http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks\">trademark</ulink> and <ulink url=\"http://www.w3.org/Consortium/Legal/copyright-documents\">document use</ulink>" .

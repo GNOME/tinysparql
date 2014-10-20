@@ -18,6 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA. 
 
-./ontology-graph -d ../../data/ontologies -o ontology.dot
+./ontology-graph -d ../../src/ontologies -o ontology.dot
 fdp -Tpng -o ontology.png ontology.dot
 rm ontology.dot

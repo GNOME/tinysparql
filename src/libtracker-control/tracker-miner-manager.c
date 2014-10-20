@@ -40,10 +40,10 @@
 
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
-#define DESKTOP_ENTRY_GROUP "Desktop Entry"
-#define DBUS_NAME_KEY "DBusName"
-#define DBUS_PATH_KEY "DBusPath"
-#define DISPLAY_NAME_KEY "Name"
+#define DESKTOP_ENTRY_GROUP "D-BUS Service"
+#define DBUS_NAME_KEY "Name"
+#define DBUS_PATH_KEY "Path"
+#define DISPLAY_NAME_KEY "DisplayName"
 #define DESCRIPTION_KEY "Comment"
 
 typedef struct TrackerMinerManagerPrivate TrackerMinerManagerPrivate;
@@ -759,9 +759,9 @@ check_file (GFile    *file,
 
 	data = g_slice_new0 (MinerData);
 	data->dbus_path = dbus_path;
-	data->dbus_name = dbus_name;
+	data->dbus_name = dbus_name;        /* In .service file as Name */
 	data->display_name = display_name;
-	data->description = description;
+	data->description = description;    /* In .desktop file as _comment */
 
 	priv->miners = g_list_prepend (priv->miners, data);
 
@@ -829,7 +829,7 @@ initialize_miners_data (TrackerMinerManager *manager)
 	}
 
 	file = g_file_new_for_path (miners_dir);
-	directory_foreach (file, ".desktop", (GFunc) check_file, manager);
+	directory_foreach (file, ".service", (GFunc) check_file, manager);
 	g_object_unref (file);
 }
 

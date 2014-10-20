@@ -1,0 +1,8 @@
+[D-BUS Service]
+Name=org.freedesktop.Tracker1.Miner.Extract
+Exec=@libexecdir@/tracker-extract
+
+# Miner details needed for tracker-control
+Path=/org/freedesktop/Tracker1/Miner/Extract
+_DisplayName=Extractor
+_Comment=Metadata extractor

@@ -235,7 +235,7 @@ language_get_stopword_filename (const gchar *language_code)
 	if (!testpath) {
 		filename = g_build_filename (SHAREDIR,
 		                             "tracker",
-		                             "languages",
+		                             "stop-words",
 		                             str,
 		                             NULL);
 	} else {

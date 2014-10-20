@@ -50,7 +50,7 @@ echo "<?xml version='1.0' encoding='UTF-8'?>
 <tbody>" > $BUILD_DIR/fts-properties.xml
 
 for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
-    # ../../data/ontologies/XX-aaa.description -> PREFIX=aaa
+    # ../../src/ontologies/XX-aaa.description -> PREFIX=aaa
     TMPNAME=${f%.description}
     PREFIX=${TMPNAME#*-}
     echo "- Generating $PREFIX documentation"

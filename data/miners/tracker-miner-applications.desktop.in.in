@@ -1,6 +1,0 @@
-[Desktop Entry]
-_Name=Applications
-_Comment=Applications data miner
-Icon=system-installer
-DBusName=org.freedesktop.Tracker1.Miner.Applications
-DBusPath=/org/freedesktop/Tracker1/Miner/Applications

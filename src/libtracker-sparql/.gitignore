@@ -8,3 +8,4 @@ tracker-sparql-*.deps
 tracker-sparql*.vapi
 tracker-generated*.h
 tracker-utils.c
+*.pc

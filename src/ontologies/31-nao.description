@@ -1,0 +1,29 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:31-nao.ontology> a dsc:Ontology ;
+	dsc:title "Nepomuk Annotation Ontology (NAO)" ;
+	dsc:description "Tags, ratings and other common annotations to all classes" ;
+
+	dsc:author "Simon Scerri, DERI/NUIG, &lt;simon.scerri@deri.org&gt;";
+	dsc:author "Michael Sintek, DFKI, &lt;michael.sintek@dfki.de&gt;";
+	dsc:author "Ludger van Elst, DFKI, &lt;elst@dfki.uni-kl.de&gt;";
+	dsc:author "Siegfried Handschuh, DERI/NUIG, &lt;siegfried.handschuh@deri.org&gt;";
+	
+	dsc:editor "Simon Scerri, DERI/NUIG, &lt;simon.scerri@deri.org&gt;";
+	dsc:editor "Tracker developers (translation into turtle)" ;
+
+	dsc:contributor "Leo Sauermann, DFKI, &lt;leo.sauermann@dfki.de&gt;";
+	dsc:contributor "Max V&ouml;lkel, FZI, &lt;voelkel@fzi.de&gt;";
+	dsc:contributor "Sebastian Tr&uuml;g, EDGE-IT, &lt;strueg@mandriva.com&gt;";
+	dsc:contributor "Knud M&ouml;ller, DERI/NUIG, &lt;knud.moeller@deri.org&gt;";
+	dsc:contributor "Julien Gaugaz, L3S, &lt;gaugaz@l3s.de&gt;";
+	dsc:contributor "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
+
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/31-nao.ontology";
+	dsc:upstream "http://www.semanticdesktop.org/ontologies/nao/";
+
+	dsc:localPrefix "nao" ;
+	dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#" ;
+	dsc:relativePath "./31-nao.ontology" ;
+
+	dsc:copyright "&copy; 2007 <ulink url=\"http://nepomuk.semanticdesktop.org\">NEPOMUK Consortium</ulink>&reg;. This work is made available under the terms of NEPOMUK <ulink url=\"http://www.semanticdesktop.org/ontologies/nfo/LICENSE.txt\">software license</ulink>" .

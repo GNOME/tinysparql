@@ -359,7 +359,7 @@ main (int argc, char **argv)
 	 *  need to set the following envvar with the path where the
 	 *  dictionaries are. */
 	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR",
-	          TOP_SRCDIR "/data/languages",
+	          TOP_SRCDIR "/src/libtracker-common/stop-words",
 	          TRUE);
 
 	/* Add normalization checks */

@@ -349,7 +349,7 @@ def environment_set():
 
 		os.environ['TRACKER_DB_ONTOLOGIES_DIR'] = os.path.join(opts.prefix, 'share', 'tracker', 'ontologies')
 		os.environ['TRACKER_EXTRACTOR_RULES_DIR'] = os.path.join(opts.prefix, 'share', 'tracker', 'extract-rules')
-		os.environ['TRACKER_LANGUAGE_STOPWORDS_DIR'] = os.path.join(opts.prefix, 'share', 'tracker', 'languages')
+		os.environ['TRACKER_LANGUAGE_STOPWORDS_DIR'] = os.path.join(opts.prefix, 'share', 'tracker', 'stop-words')
 
 	# Preferences
 	os.environ['TRACKER_USE_CONFIG_FILES'] = 'yes'

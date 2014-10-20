@@ -571,12 +571,12 @@ tracker-extract-priority-dbus.c: tracker-extract-priority-dbus-stamp
 tracker-extract-priority-dbus.h: tracker-extract-priority-dbus-stamp
 	@:
 
-tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+tracker-extract-priority-dbus-stamp: Makefile.am $(top_srcdir)/src/tracker-extract/tracker-extract-priority.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 	              --interface-prefix org.freedesktop.Tracker1.Extract. \
 	              --generate-c-code tracker-extract-priority-dbus \
 	              --c-namespace TrackerExtractDBus \
-	              $(top_srcdir)/data/dbus/tracker-extract-priority.xml
+	              $(top_srcdir)/src/tracker-extract/tracker-extract-priority.xml
 	touch $@
 
 BUILT_SOURCES = \
@@ -587,5 +587,61 @@ BUILT_SOURCES = \
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = \
-	$(rules_files)
+EXTRA_DIST = $(rules_files)
+
+# DBus interfaces (XML files) and services
+configdir = $(datadir)/tracker
+config_DATA = \
+	tracker-extract.xml \
+	tracker-extract-priority.xml
+
+%.service.in: %.service.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.Extract.service
+
+INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< [$]@ -d -u'
+@INTLTOOL_SERVICE_RULE@
+
+install-data-hook:
+	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
+	$(LN_S) -f "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)" \
+	           "$(DESTDIR)$(servicedir)/$(service_DATA)"
+
+uninstall-local:
+	$(RM) "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)"
+
+# Desktop files: First we fix the VERSION and libexecdir
+%.desktop.in: %.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_DATA = tracker-extract.desktop
+
+@INTLTOOL_DESKTOP_RULE@
+
+# Configuration / GSettings
+gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
+gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
+
+gsettings_SCHEMAS = org.freedesktop.Tracker.Extract.gschema.xml
+
+@INTLTOOL_XML_NOMERGE_RULE@
+
+@GSETTINGS_RULES@
+
+# Dist / Clean rules for all data
+CLEANFILES += \
+	$(autostart_DATA) \
+	$(autostart_DATA:.desktop=.desktop.in) \
+	$(service_DATA) \
+	$(service_DATA:.service=.service.in) \
+	$(gsettings_SCHEMAS)
+
+EXTRA_DIST += \
+	$(autostart_DATA:.desktop=.desktop.in.in) \
+	$(config_DATA) \
+	$(service_DATA:.service=.service.in.in) \
+	$(gsettings_SCHEMAS:.xml=.xml.in)

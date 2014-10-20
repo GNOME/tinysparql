@@ -1,2 +1,3 @@
 tracker-control-*.deps
 tracker-control-*.vapi
+*.pc

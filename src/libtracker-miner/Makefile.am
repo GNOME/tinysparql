@@ -118,6 +118,15 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
 
+# PkgConfig
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tracker-miner-$(TRACKER_API_VERSION).pc
+
+tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
+	cp $< $@
+
+CLEANFILES = tracker-miner-$(TRACKER_API_VERSION).pc
+
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                            \
@@ -135,7 +144,7 @@ BUILT_SOURCES =                                        \
 	tracker-miner-enum-types.h                     \
 	$(vapi_DATA)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES += $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
 	tracker-miner-enum-types.c.template            \
@@ -187,3 +196,9 @@ build-vapi: TrackerMiner-$(TRACKER_API_VERSION).gir
 	@vapigen --library tracker-miner --metadatadir $(top_srcdir) --pkg gio-2.0 --vapidir $(top_builddir)/src/libtracker-sparql --pkg tracker-sparql-$(TRACKER_API_VERSION) TrackerMiner-$(TRACKER_API_VERSION).gir
 
 endif
+
+# DBus interfaces (XML files)
+configdir = $(datadir)/tracker
+config_DATA = tracker-miner.xml
+
+EXTRA_DIST += $(config_DATA)

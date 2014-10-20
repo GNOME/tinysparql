@@ -1,0 +1,12 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:11-rdf.ontology> a dsc:Ontology ;
+	dsc:title "Resource Description Framework (RDF)" ;
+	dsc:description "Core RDF classes to keep the internal consistency of the ontology" ;
+	dsc:author "W3C" ;
+	dsc:editor "Tracker developers (translation into turtle)" ;
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/11-rdf.ontology";
+
+	dsc:localPrefix "rdf" ;
+	dsc:baseUrl "http://www.w3.org/2000/01/rdf-schema#" ;
+	dsc:relativePath "./11-rdf.ontology" .

@@ -1,0 +1,12 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:12-nrl.ontology> a dsc:Ontology ;
+	dsc:title "Nepomuk Resource Language (NRL)" ;
+	dsc:description "Properties describing the ontologies.";
+	dsc:author "Nepomuk People" ;
+	dsc:editor "Tracker developers (translation into turtle)" ;
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/12-nrl.ontology";
+
+	dsc:localPrefix "nrl" ;
+	dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#" ;
+	dsc:relativePath "./12-nrl.ontology" .

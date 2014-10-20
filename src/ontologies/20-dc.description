@@ -1,0 +1,13 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:20-dc.description> a dsc:Ontology ;
+	dsc:title "Dublin Core metadata (DC)" ;
+	dsc:description "Common superproperties for documents" ;
+
+	dsc:author "Dublin Core consortium" ;
+	dsc:editor "Tracker developers (translation into turtle)" ;
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/20-dc.ontology";
+
+	dsc:localPrefix "dc" ;
+	dsc:baseUrl "http://purl.org/dc/elements/1.1/";
+	dsc:relativePath "./20-dc.ontology" .

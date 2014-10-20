@@ -1,0 +1,8 @@
+[D-BUS Service]
+Name=org.freedesktop.Tracker1.Miner.Applications
+Exec=@libexecdir@/tracker-miner-apps
+
+# Miner details needed for tracker-control
+Path=/org/freedesktop/Tracker1/Miner/Applications
+_DisplayName=Applications
+_Comment=Applications data miner

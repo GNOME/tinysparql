@@ -2556,22 +2556,6 @@ AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
 ##################################################################
 
 AC_CONFIG_FILES([
-	data/dbus/Makefile
-	data/gschemas/Makefile
-	data/icons/16x16/Makefile
-	data/icons/22x22/Makefile
-	data/icons/24x24/Makefile
-	data/icons/32x32/Makefile
-	data/icons/48x48/Makefile
-	data/icons/Makefile
-	data/icons/scalable/Makefile
-	data/languages/Makefile
-	data/Makefile
-	data/miners/Makefile
-	data/ontologies/Makefile
-	data/tracker-control.pc
-	data/tracker-sparql.pc
-	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
@@ -2589,21 +2573,26 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	src/gvdb/Makefile
 	src/libtracker-common/Makefile
+	src/libtracker-common/stop-words/Makefile
 	src/libtracker-sparql/Makefile
+	src/libtracker-sparql/tracker-sparql.pc
 	src/libtracker-bus/Makefile
 	src/libtracker-control/Makefile
+	src/libtracker-control/tracker-control.pc
 	src/libtracker-data/Makefile
 	src/libtracker-direct/Makefile
 	src/libtracker-sparql-backend/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
 	src/libtracker-miner/Makefile
+	src/libtracker-miner/tracker-miner.pc
 	src/Makefile
 	src/miners/Makefile
 	src/miners/fs/Makefile
 	src/miners/apps/Makefile
 	src/miners/rss/Makefile
 	src/miners/user-guides/Makefile
+	src/ontologies/Makefile
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
@@ -2611,6 +2600,13 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-needle/Makefile
 	src/tracker-needle/tracker-needle.desktop.in
+	src/tracker-needle/icons/Makefile
+	src/tracker-needle/icons/16x16/Makefile
+	src/tracker-needle/icons/22x22/Makefile
+	src/tracker-needle/icons/24x24/Makefile
+	src/tracker-needle/icons/32x32/Makefile
+	src/tracker-needle/icons/48x48/Makefile
+	src/tracker-needle/icons/scalable/Makefile
 	src/tracker-utils/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile

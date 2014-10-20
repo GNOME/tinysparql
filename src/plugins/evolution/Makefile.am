@@ -35,14 +35,39 @@ liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_EVOLUTION_LIBS)
 
-@INTLTOOL_DESKTOP_RULE@
+BUILT_SOURCES = $(eplugin_DATA)
 
-BUILT_SOURCES =                                        \
+CLEANFILES = \
+	$(BUILT_SOURCES) \
 	$(eplugin_DATA)
 
-CLEANFILES =                                           \
-	$(BUILT_SOURCES)                               \
-	$(eplugin_DATA)
+EXTRA_DIST = org-freedesktop-Tracker-evolution-plugin.eplug.xml
 
-EXTRA_DIST =                                           \
-	org-freedesktop-Tracker-evolution-plugin.eplug.xml
+# DBus interfaces (XML files) and services
+%.service.in: %.service.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.EMails.service
+
+INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< [$]@ -d -u'
+@INTLTOOL_SERVICE_RULE@
+
+install-data-hook:
+	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
+	$(LN_S) -f "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)" \
+	           "$(DESTDIR)$(servicedir)/$(service_DATA)"
+
+uninstall-local:
+	$(RM) "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)"
+
+# Dist / Clean rules for all data
+CLEANFILES += \
+	$(autostart_DATA) \
+	$(desktop_in_files) \
+	$(service_DATA) \
+	$(service_DATA:.service=.service.in)
+
+EXTRA_DIST += \
+	$(desktop_in_in_files) \
+	$(service_DATA:.service=.service.in.in)
