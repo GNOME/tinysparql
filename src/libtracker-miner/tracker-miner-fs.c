@@ -1894,6 +1894,23 @@ item_move (TrackerMinerFS *fs,
 		g_free (uri);
 
 		return retval;
+	} else if (!source_exists) {
+		gboolean retval;
+
+		/* The source file might not be indexed yet (eg. temporary save
+		 * files that are immediately renamed to the definitive path).
+		 * Deal with those as newly added items.
+		 */
+		g_debug ("Source file '%s' not yet in store, indexing '%s' "
+		         "from scratch", source_uri, uri);
+
+		retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT);
+
+		g_free (source_uri);
+		g_free (uri);
+		g_object_unref (file_info);
+
+		return retval;
 	}
 
 	g_debug ("Moving item from '%s' to '%s'",
