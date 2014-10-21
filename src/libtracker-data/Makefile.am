@@ -85,6 +85,9 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.DB.gschema.xml
 @GSETTINGS_RULES@
 
 # Dist / Clean rules for all data
+BUILT_SOURCES = \
+	libtracker_data_la_vala.stamp
+
 CLEANFILES = \
 	libtracker_data_la_vala.stamp \
 	$(gsettings_SCHEMAS)

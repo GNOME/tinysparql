@@ -19,6 +19,8 @@
  * Author: Carlos Garnacho  <carlos@lanedo.com>
  */
 
+#include "config.h"
+
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-sparql/tracker-sparql.h>
