@@ -17,6 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include "tracker-writeback.h"
 #include "tracker-writeback-module.h"
 
@@ -51,7 +53,7 @@ typedef struct {
 	GMainContext *context;
 	GMainLoop *main_loop;
 
-	TrackerStorage *storage;
+	GVolumeMonitor *volume_monitor;
 
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
@@ -141,7 +143,7 @@ tracker_controller_finalize (GObject *object)
 
 	tracker_controller_dbus_stop (controller);
 
-	g_object_unref (priv->storage);
+	g_object_unref (priv->volume_monitor);
 	g_hash_table_unref (priv->modules);
 
 	g_main_loop_unref (priv->main_loop);
@@ -315,14 +317,13 @@ cancel_tasks (TrackerController *controller,
 }
 
 static void
-mount_point_removed_cb (TrackerStorage *storage,
-                        const gchar    *uuid,
-                        const gchar    *mount_point,
+mount_point_removed_cb (GVolumeMonitor *monitor,
+                        GMount         *mount,
                         gpointer        user_data)
 {
 	GFile *mount_file;
 
-	mount_file = g_file_new_for_path (mount_point);
+	mount_file = g_mount_get_root (mount);
 	cancel_tasks (TRACKER_CONTROLLER (user_data), NULL, mount_file);
 	g_object_unref (mount_file);
 }
@@ -386,9 +387,9 @@ tracker_controller_init (TrackerController *controller)
 	priv->context = g_main_context_new ();
 	priv->main_loop = g_main_loop_new (priv->context, FALSE);
 
-	priv->storage = tracker_storage_new ();
-	g_signal_connect (priv->storage, "mount-point-removed",
-	                  G_CALLBACK (mount_point_removed_cb), controller);
+	priv->volume_monitor = g_volume_monitor_get ();
+	g_signal_connect_object (priv->volume_monitor, "mount-removed",
+	                         G_CALLBACK (mount_point_removed_cb), controller, 0);
 
 	g_cond_init (&priv->initialization_cond);
 	g_mutex_init (&priv->initialization_mutex);

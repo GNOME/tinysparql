@@ -27,7 +27,6 @@
 #include <libtracker-common/tracker-log.h>
 
 #include "tracker-storage.h"
-#include "tracker-utils.h"
 
 /**
  * SECTION:tracker-storage
