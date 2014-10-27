@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,13 +26,15 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-enum-types.h>
-#include <libtracker-common/tracker-config-file.h>
-#include <libtracker-common/tracker-keyfile-object.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-type-utils.h>
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
+
+#define CONFIG_SCHEMA "org.freedesktop.Tracker.Writeback"
+#define CONFIG_PATH   "/org/freedesktop/tracker/writeback/"
 
 static void     config_set_property         (GObject           *object,
                                              guint              param_id,
@@ -47,11 +50,6 @@ static void     config_constructed          (GObject           *object);
 enum {
 	PROP_0,
 	PROP_VERBOSITY,
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity", FALSE, FALSE },
-	{ 0 }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_SETTINGS);
@@ -85,7 +83,7 @@ static void
 config_set_property (GObject      *object,
                      guint         param_id,
                      const GValue *value,
-                     GParamSpec           *pspec)
+                     GParamSpec   *pspec)
 {
 	switch (param_id) {
 	case PROP_VERBOSITY:
@@ -123,28 +121,59 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfigFile *config_file;
+	GSettings *settings;
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
-	g_settings_delay (G_SETTINGS (object));
+	settings = G_SETTINGS (object);
 
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-
-	if (config_file) {
-		tracker_config_file_migrate (config_file, G_SETTINGS (object), migration);
-		g_object_unref (config_file);
+	if (G_LIKELY (!g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		g_settings_delay (settings);
 	}
+
+	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 }
 
 TrackerConfig *
 tracker_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_CONFIG,
-			     "schema-id", "org.freedesktop.Tracker.Writeback",
-			     "path", "/org/freedesktop/tracker/writeback/",
-			     NULL);
+	TrackerConfig *config = NULL;
+
+	/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		GSettingsBackend *backend;
+		gchar *filename, *basename;
+		gboolean need_to_save;
+
+		basename = g_strdup_printf ("%s.cfg", g_get_prgname ());
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", basename, NULL);
+		g_free (basename);
+
+		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, "General");
+		g_info ("Using config file '%s'", filename);
+		g_free (filename);
+
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "backend", backend,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+		g_object_unref (backend);
+
+		if (need_to_save) {
+			g_info ("  Config file does not exist, using default values...");
+		}
+	} else {
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+	}
+
+	return config;
 }
 
 gint

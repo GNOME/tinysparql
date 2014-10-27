@@ -17,11 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <config.h>
+#include "config.h"
 
 #include <glib/gstdio.h>
-
-#include <libtracker-common/tracker-crc32.h>
 
 #include <libtracker-data/tracker-db-journal.h>
 

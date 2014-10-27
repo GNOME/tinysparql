@@ -1771,8 +1771,34 @@ fi
 
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
+##################################################################
+# Check for xsltproc, used to generate cfg man pages (5)
+##################################################################
+
+AC_ARG_ENABLE([cfg-man-pages],
+              AS_HELP_STRING([--enable-cfg-man-pages],
+                             [enable man pages for config (.cfg) files [[default=yes]]]),
+              [enable_cfg_man_pages=$enableval],
+              [enable_cfg_man_pages=yes])
+
+if test "x$enable_cfg_man_pages" != "xno" ; then
+   # Check for graphviz if we are building gtk_doc
+   AC_PATH_PROG(XSLTPROC, xsltproc)
+   AC_SUBST(XSLTPROC)
+else
+   have_xsltproc="no  (disabled)"
+fi
+
+if test "x$enable_cfg_man_pages" = "xyes"; then
+   if test -z "$XSLTPROC"; then
+      AC_MSG_ERROR([Couldn't find xsltproc, try installing libxslt.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_XSLTPROC, test -n "$XSLTPROC")
+
 ####################################################################
-# Check for tracker-extract: gstreamer/mplayer/etc
+# Check for tracker-extract: gstreamer/etc
 ####################################################################
 
 AC_ARG_ENABLE(generic-media-extractor,
@@ -1848,17 +1874,10 @@ if test "$have_generic_media_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
    AM_CONDITIONAL(HAVE_LIBAV, false)
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
 elif test "$have_generic_media_handler_app" = "libav"; then
     AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have libav])
     AM_CONDITIONAL(HAVE_LIBAV, true)
     AM_CONDITIONAL(HAVE_GSTREAMER, false)
-    AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, false)
-else
-   AC_DEFINE(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, [], [Define that Tracker will try to use external generic media players])
-   AM_CONDITIONAL(USING_EXTERNAL_GENERIC_MEDIA_PLAYER, true)
-   AM_CONDITIONAL(HAVE_GSTREAMER, false)
-   AM_CONDITIONAL(HAVE_LIBAV, false)
 fi
 
 ###########################################################################
@@ -2719,6 +2738,7 @@ Build Configuration:
 	Win32:                                  $native_win32
 
 	Enable gtk doc (for documentation):     $enable_gtk_doc
+	Enable man pages for GSettings:         $enable_cfg_man_pages
 
 	Enable functional tests:                $enable_functional_tests
 	Enable unit tests:                      $have_unit_tests

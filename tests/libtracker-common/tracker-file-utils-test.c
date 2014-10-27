@@ -394,47 +394,6 @@ test_file_exists_and_writable ()
 }
 
 static void
-test_file_utils_lock ()
-{
-        GFile *f, *no_f, *no_native_f;
-
-        f = g_file_new_for_path (TEST_FILENAME);
-        no_f = g_file_new_for_path ("./file-does-NOT-exist");
-        no_native_f = g_file_new_for_uri ("http://cgit.gnome.org/projects.tracker");
-
-        /* Nothing locked */
-        g_assert (tracker_file_unlock (f));
-
-        /* Locking a regular file */
-        g_assert (!tracker_file_is_locked (f));
-
-        g_assert (tracker_file_lock (f));
-        g_assert (tracker_file_is_locked (f));
-
-        /* Try to lock twice */
-        g_assert (tracker_file_lock (f));
-        g_assert (tracker_file_is_locked (f));
-
-        g_assert (tracker_file_unlock (f));
-        g_assert (!tracker_file_is_locked (f));
-
-        /* Unlock not-locked file */
-        g_assert (tracker_file_unlock (no_f));
-
-        /* Lock a non-existent file */
-        /* This causes a warning aborting the test */
-        //g_assert (!tracker_file_lock (no_f));
-
-        /* Lock a non-native file */
-        g_assert (!tracker_file_lock (no_native_f));
-        g_assert (!tracker_file_is_locked (no_native_f));
-
-        g_object_unref (f);
-        g_object_unref (no_f);
-        g_object_unref (no_native_f);
-}
-
-static void
 test_file_utils_is_hidden ()
 {
         GFile *f;
@@ -501,8 +460,6 @@ main (int argc, char **argv)
                          test_file_system_has_enough_space);
         g_test_add_func ("/libtracker-common/file-utils/has_write_access_or_was_created",
                          test_file_exists_and_writable);
-        g_test_add_func ("/libtracker-common/file-utils/lock",
-                         test_file_utils_lock);
         g_test_add_func ("/libtracker-common/file-utils/is_hidden",
                          test_file_utils_is_hidden);
         g_test_add_func ("/libtracker-common/file-utils/cmp",

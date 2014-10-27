@@ -25,12 +25,8 @@
 #include <math.h>
 #include <time.h>
 
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-utils.h>
-
-#include <libtracker-miner/tracker-miner-common.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
@@ -42,15 +38,6 @@
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
 #include "tracker-sparql-query.h"
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDFS_PREFIX TRACKER_RDFS_PREFIX
-#define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
-#define NAO_PREFIX TRACKER_NAO_PREFIX
-#define NAO_LAST_MODIFIED NAO_PREFIX "lastModified"
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_PROPERTY RDF_PREFIX "Property"
-#define RDF_TYPE RDF_PREFIX "type"
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferResource TrackerDataUpdateBufferResource;
@@ -1811,11 +1798,11 @@ delete_first_object (TrackerProperty  *field,
 #ifndef DISABLE_JOURNAL
 		if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
 			if (!tracker_property_get_force_journal (field) &&
-				g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+				g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
 				/* do not journal this statement extracted from filesystem */
 				TrackerProperty *damaged;
 
-				damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+				damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 
 				tracker_db_journal_append_insert_statement (graph_id,
 				                                            resource_buffer->id,
@@ -2082,7 +2069,7 @@ cache_delete_resource_type_full (TrackerClass *class,
 
 	if (!single_type) {
 		if (!HAVE_TRACKER_FTS &&
-		    strcmp (tracker_class_get_uri (class), RDFS_PREFIX "Resource") == 0 &&
+		    strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
 		    g_hash_table_size (resource_buffer->tables) == 0) {
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
@@ -2369,7 +2356,7 @@ tracker_data_delete_statement (const gchar  *graph,
 
 	resource_buffer_switch (graph, 0, subject, subject_id);
 
-	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
+	if (object && g_strcmp0 (predicate, TRACKER_PREFIX_RDF "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
 			has_persistent = TRUE;
@@ -2423,11 +2410,11 @@ tracker_data_delete_statement (const gchar  *graph,
 
 #ifndef DISABLE_JOURNAL
 					if (!tracker_property_get_force_journal (field) &&
-					    g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+					    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
 						/* do not journal this statement extracted from filesystem */
 						TrackerProperty *damaged;
 
-						damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+						damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 
 						tracker_db_journal_append_insert_statement (graph_id,
 						                                            resource_buffer->id,
@@ -2854,11 +2841,11 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
 		}
 		if (!tracker_property_get_force_journal (property) &&
-		    g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+		    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
 			/* do not journal this statement extracted from filesystem */
 			TrackerProperty *damaged;
 
-			damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+			damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 			tracker_db_journal_append_insert_statement (graph_id,
 				                                    resource_buffer->id,
 				                                    tracker_property_get_id (damaged),
@@ -3199,11 +3186,11 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
 		}
 		if (!tracker_property_get_force_journal (property) &&
-		    g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+		    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
 			/* do not journal this statement extracted from filesystem */
 			TrackerProperty *damaged;
 
-			damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+			damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 			tracker_db_journal_append_update_statement (graph_id,
 			                                            resource_buffer->id,
 			                                            tracker_property_get_id (damaged),

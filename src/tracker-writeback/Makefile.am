@@ -42,6 +42,8 @@ endif
 #
 # Binaries
 #
+all: $(libexec_PROGRAMS) $(man_MANS)
+
 libexec_PROGRAMS = tracker-writeback
 
 tracker_writeback_SOURCES = \
@@ -83,12 +85,28 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Writeback.gschema.xml
 
 @GSETTINGS_RULES@
 
+if HAVE_XSLTPROC
+DATE=`date +'%B %Y'`
+man_MANS = $(libexec_PROGRAMS).cfg.5
+else
+man_MANS =
+endif
+
+%.cfg.5: $(gsettings_SCHEMAS)
+	$(AM_V_GEN)$(XSLTPROC) \
+	  --stringparam version "${VERSION}" \
+	  --stringparam current-date "${DATE}" \
+	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
+	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
+
 # Dist / Clean rules for all data
 CLEANFILES = \
 	$(service_DATA) \
-	$(gsettings_SCHEMAS)
+	$(gsettings_SCHEMAS) \
+	$(man_MANS)
 
 EXTRA_DIST = \
 	$(service_DATA:.service=.service.in) \
 	$(config_DATA) \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	$(man_MANS)

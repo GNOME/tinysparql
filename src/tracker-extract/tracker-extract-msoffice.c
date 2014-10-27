@@ -25,7 +25,6 @@
 #include <string.h>
 
 #include <glib.h>
-
 #include <gsf/gsf.h>
 #include <gsf/gsf-doc-meta-data.h>
 #include <gsf/gsf-infile.h>
@@ -35,10 +34,7 @@
 #include <gsf/gsf-utils.h>
 #include <gsf/gsf-infile-zip.h>
 
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-os-dependant.h>
-
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"

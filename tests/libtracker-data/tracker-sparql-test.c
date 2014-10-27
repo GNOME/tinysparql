@@ -22,7 +22,7 @@
 #include <string.h>
 #include <locale.h>
 
-#include <glib.h>
+#include <glib/gstdio.h>
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-common.h>

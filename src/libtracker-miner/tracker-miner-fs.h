@@ -30,7 +30,6 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-object.h"
-#include "tracker-miner-common.h"
 #include "tracker-data-provider.h"
 #include "tracker-indexing-tree.h"
 

@@ -5,3 +5,4 @@ tracker-extract-priority-dbus.h
 *.service
 *.xml
 *.valid
+*.cfg.5

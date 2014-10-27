@@ -31,14 +31,8 @@
 #include <glib-object.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-ioprio.h>
-#include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-sched.h>
-#include <libtracker-common/tracker-enums.h>
-
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include <libtracker-data/tracker-db-manager.h>

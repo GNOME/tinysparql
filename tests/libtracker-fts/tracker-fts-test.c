@@ -25,13 +25,8 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-
-#include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data.h>
-#include <libtracker-data/tracker-sparql-query.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct _TestInfo TestInfo;
 

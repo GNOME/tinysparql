@@ -33,10 +33,7 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-locale.h>
+#include <libtracker-common/tracker-common.h>
 
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
@@ -681,6 +678,7 @@ tracker_db_manager_locale_changed (void)
 
 	g_free (db_locale);
 	g_free (current_locale);
+
 	return changed;
 }
 
@@ -691,7 +689,7 @@ tracker_db_manager_set_current_locale (void)
 
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
-	g_message ("Changing db locale to: '%s'", current_locale);
+	g_message ("Saving DB locale as: '%s'", current_locale);
 	db_set_locale (current_locale);
 	g_free (current_locale);
 }

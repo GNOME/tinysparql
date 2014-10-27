@@ -26,10 +26,6 @@
 
 #include "tracker-locale.h"
 
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-locale-gconfdbus.h"
-#endif /* HAVE_MEEGOTOUCH */
-
 /* Current locales in use. They will be stored in heap and available throughout
  * the whole program execution, so will be reported as still reachable by Valgrind.
  */
@@ -103,21 +99,9 @@ tracker_locale_set (TrackerLocaleID  id,
 }
 
 void
-tracker_locale_shutdown (void)
-{
-#ifdef HAVE_MEEGOTOUCH
-	tracker_locale_gconfdbus_shutdown ();
-#endif /* HAVE_MEEGOTOUCH */
-}
-
-void
 tracker_locale_init (void)
 {
 	guint i;
-
-#ifdef HAVE_MEEGOTOUCH
-	tracker_locale_gconfdbus_init ();
-#endif /* HAVE_MEEGOTOUCH */
 
 	/* Initialize those not retrieved from gconf, or if not in meegotouch */
 	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
@@ -159,6 +143,19 @@ tracker_locale_init (void)
 	initialized = TRUE;
 }
 
+void
+tracker_locale_shutdown (void)
+{
+	gint i;
+
+	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
+		g_free (current_locales[i]);
+		current_locales[i] = NULL;
+	}
+
+	initialized = FALSE;
+}
+
 gchar *
 tracker_locale_get (TrackerLocaleID id)
 {
@@ -175,28 +172,4 @@ tracker_locale_get (TrackerLocaleID id)
 	g_rec_mutex_unlock (&locales_mutex);
 
 	return locale;
-}
-
-gpointer
-tracker_locale_notify_add (TrackerLocaleID         id,
-                           TrackerLocaleNotifyFunc func,
-                           gpointer                user_data,
-                           GFreeFunc               destroy_notify)
-{
-#ifdef HAVE_MEEGOTOUCH
-	return tracker_locale_gconfdbus_notify_add (id, func, user_data, destroy_notify);
-#else
-	/* If not using gconf locales, this is a no-op... */
-	return NULL;
-#endif /* HAVE_MEEGOTOUCH */
-}
-
-void
-tracker_locale_notify_remove (gpointer notification_id)
-{
-#ifdef HAVE_MEEGOTOUCH
-	return tracker_locale_gconfdbus_notify_remove (notification_id);
-#else
-	/* If not using gconf locales, this is a no-op... */
-#endif /* HAVE_MEEGOTOUCH */
 }

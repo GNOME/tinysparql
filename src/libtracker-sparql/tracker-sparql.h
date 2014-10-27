@@ -23,6 +23,7 @@
 #define __LIBTRACKER_SPARQL_INSIDE__
 
 #include <libtracker-sparql/tracker-version.h>
+#include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-sparql/tracker-generated.h>
 
 #undef __LIBTRACKER_SPARQL_INSIDE__

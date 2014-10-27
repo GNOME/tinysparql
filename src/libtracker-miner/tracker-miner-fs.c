@@ -1398,8 +1398,8 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 				                               "  <%s> nie:url ?o"
 				                               "}"
 				                               "%s",
-				                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
-				                               TRACKER_MINER_FS_GRAPH_URN, ctxt->urn,
+				                               TRACKER_OWN_GRAPH_URN, ctxt->urn,
+				                               TRACKER_OWN_GRAPH_URN, ctxt->urn,
 				                               ctxt->urn, ctxt->urn,
 				                               tracker_sparql_builder_get_result (ctxt->builder));
 
@@ -1732,8 +1732,8 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         "     nfo:fileLastAccessed ?unknown3 ; "
 		                         "     nie:mimeType ?unknown4 ; "
 		                         "     nie:url \"%s\" } "
-		                         "} %s", TRACKER_MINER_FS_GRAPH_URN,
-		                         TRACKER_MINER_FS_GRAPH_URN, uri,
+		                         "} %s", TRACKER_OWN_GRAPH_URN,
+		                         TRACKER_OWN_GRAPH_URN, uri,
 		                         tracker_sparql_builder_get_result (sparql));
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
@@ -2420,26 +2420,6 @@ item_queue_handlers_cb (gpointer user_data)
 		notify_roots_finished (fs, TRUE);
 
 		return FALSE;
-	}
-
-	if (file && queue != QUEUE_DELETED &&
-	    tracker_file_is_locked (file)) {
-		gchar *uri;
-
-		/* File is locked, ignore any updates on it */
-
-		uri = g_file_get_uri (file);
-		g_debug ("File '%s' is currently locked, ignoring updates on it",
-		         uri);
-		g_free (uri);
-
-		g_object_unref (file);
-
-		if (source_file) {
-			g_object_unref (source_file);
-		}
-
-		return TRUE;
 	}
 
 	if (queue == QUEUE_NONE) {

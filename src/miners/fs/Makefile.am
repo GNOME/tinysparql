@@ -7,6 +7,8 @@ AM_CPPFLAGS =                                          \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"             \
 	$(TRACKER_MINER_FS_CFLAGS)
 
+all: $(libexec_PROGRAMS) $(man_MANS)
+
 libexec_PROGRAMS = tracker-miner-fs
 
 # Prefer UPower for the power data if it's available, else fall back to HAL
@@ -34,6 +36,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-miner-files.h                          \
 	tracker-miner-files-index.c                    \
 	tracker-miner-files-index.h                    \
+	tracker-storage.c                              \
+	tracker-storage.h                              \
 	tracker-writeback-listener.c                   \
 	tracker-writeback-listener.h                   \
 	tracker-writeback-dispatcher.c                 \
@@ -97,17 +101,33 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Miner.Files.gschema.xml
 
 @GSETTINGS_RULES@
 
+if HAVE_XSLTPROC
+DATE=`date +'%B %Y'`
+man_MANS = $(libexec_PROGRAMS).cfg.5
+else
+man_MANS =
+endif
+
+%.cfg.5: $(gsettings_SCHEMAS)
+	$(AM_V_GEN)$(XSLTPROC) \
+	  --stringparam version "${VERSION}" \
+	  --stringparam current-date "${DATE}" \
+	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
+	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
+
 # Dist / Clean rules for all data
 CLEANFILES = \
 	$(autostart_DATA) \
 	$(autostart_DATA:.desktop=.desktop.in) \
 	$(service_DATA) \
 	$(service_DATA:.service=.service.in) \
-	$(gsettings_SCHEMAS)
+	$(gsettings_SCHEMAS) \
+	$(man_MANS)
 
 EXTRA_DIST = \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(config_DATA) \
 	$(service_DATA:.service=.service.in.in) \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	$(man_MANS)
 

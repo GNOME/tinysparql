@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +20,15 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-keyfile-object.h>
-#include <libtracker-common/tracker-enum-types.h>
-#include <libtracker-common/tracker-enums.h>
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
+
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-config.h"
+
+#define CONFIG_SCHEMA "org.freedesktop.Tracker.Extract"
+#define CONFIG_PATH   "/org/freedesktop/tracker/extract/"
 
 static void     config_set_property         (GObject       *object,
                                              guint          param_id,
@@ -43,14 +48,6 @@ enum {
 	PROP_MAX_BYTES,
 	PROP_MAX_MEDIA_ART_WIDTH,
 	PROP_WAIT_FOR_MINER_FS,
-};
-
-static TrackerConfigMigrationEntry migration[] = {
-	{ G_TYPE_ENUM, "General", "Verbosity", "verbosity" },
-	{ G_TYPE_ENUM, "General", "SchedIdle", "sched-idle" },
-	{ G_TYPE_INT, "General", "MaxBytes", "max-bytes" },
-	{ G_TYPE_INT, "General", "MaxMediaArtWidth", "max-media-art-width" },
-	{ 0 }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_SETTINGS);
@@ -199,38 +196,81 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-	TrackerConfigFile *config_file;
 	GSettings *settings;
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
 	settings = G_SETTINGS (object);
 
-	g_settings_delay (settings);
+	if (G_LIKELY (!g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		g_settings_delay (settings);
+	}
 
-	/* Set up bindings */
-	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET_NO_CHANGES);
+	/* Set up bindings:
+	 *
+	 * What's interesting here is that 'verbosity' and
+	 * 'initial-sleep' are command line arguments that can be
+	 * overridden, so we don't update the config when we set them
+	 * from main() because it's a session configuration only, not
+	 * a permanent one. To do this we use the flag
+	 * G_SETTINGS_BIND_GET_NO_CHANGES.
+	 *
+	 * For the other settings, we don't bind the
+	 * G_SETTINGS_BIND_SET because we don't want to save anything,
+	 * ever, we only want to know about updates to the settings as
+	 * they're changed externally. The only time this may be
+	 * different is where we use the environment variable
+	 * TRACKER_USE_CONFIG_FILES and we want to write a config
+	 * file for convenience. But this is only necessary if the
+	 * config is different to the default.
+	 */
+	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 	g_settings_bind (settings, "sched-idle", object, "sched-idle", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-bytes", object, "max-bytes", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-media-art-width", object, "max-media-art-width", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "wait-for-miner-fs", object, "wait-for-miner-fs", G_SETTINGS_BIND_GET);
-
-	/* Migrate keyfile-based configuration */
-	config_file = tracker_config_file_new ();
-
-	if (config_file) {
-		tracker_config_file_migrate (config_file, settings, migration);
-		g_object_unref (config_file);
-	}
 }
 
 TrackerConfig *
 tracker_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_CONFIG,
-	                     "schema-id", "org.freedesktop.Tracker.Extract",
-	                     "path", "/org/freedesktop/tracker/extract/",
-	                     NULL);
+	TrackerConfig *config = NULL;
+
+	/* FIXME: should we unset GSETTINGS_BACKEND env var? */
+
+	if (G_UNLIKELY (g_getenv ("TRACKER_USE_CONFIG_FILES"))) {
+		GSettingsBackend *backend;
+		gchar *filename, *basename;
+		gboolean need_to_save;
+
+		basename = g_strdup_printf ("%s.cfg", g_get_prgname ());
+		filename = g_build_filename (g_get_user_config_dir (), "tracker", basename, NULL);
+		g_free (basename);
+
+		need_to_save = g_file_test (filename, G_FILE_TEST_EXISTS) == FALSE;
+
+		backend = g_keyfile_settings_backend_new (filename, CONFIG_PATH, "General");
+		g_info ("Using config file '%s'", filename);
+		g_free (filename);
+
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "backend", backend,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+		g_object_unref (backend);
+
+		if (need_to_save) {
+			g_info ("  Config file does not exist, using default values...");
+		}
+	} else {
+		config = g_object_new (TRACKER_TYPE_CONFIG,
+		                       "schema-id", CONFIG_SCHEMA,
+		                       "path", CONFIG_PATH,
+		                       NULL);
+	}
+
+	return config;
 }
 
 gint

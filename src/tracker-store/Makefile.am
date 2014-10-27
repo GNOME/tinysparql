@@ -13,6 +13,8 @@ AM_CPPFLAGS =                                          \
 #
 # Daemon sources
 #
+all: $(libexec_PROGRAMS) $(man_MANS)
+
 libexec_PROGRAMS = tracker-store
 
 tracker_store_SOURCES =                                \
@@ -20,7 +22,6 @@ tracker_store_SOURCES =                                \
 	tracker-config.c                               \
 	tracker-dbus.vala                              \
 	tracker-events.c                               \
-	tracker-locale-change.c                        \
 	tracker-main.vala                              \
 	tracker-resources.vala                         \
 	tracker-statistics.vala                        \
@@ -32,7 +33,6 @@ tracker_store_SOURCES =                                \
 noinst_HEADERS =                                       \
 	tracker-config.h                               \
 	tracker-events.h                               \
-	tracker-locale-change.h                        \
 	tracker-store.h                                \
 	tracker-writeback.h
 
@@ -95,25 +95,41 @@ autostart_DATA = tracker-store.desktop
 gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
 gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
 
-gsettings_SCHEMAS = \
-	org.freedesktop.Tracker.gschema.xml \
-	org.freedesktop.Tracker.Store.gschema.xml
+gsettings_SCHEMAS = $(schemalist) $(config)
+
+config = org.freedesktop.Tracker.Store.gschema.xml
+schemalist = org.freedesktop.Tracker.gschema.xml
 
 @INTLTOOL_XML_NOMERGE_RULE@
 
 @GSETTINGS_RULES@
+
+if HAVE_XSLTPROC
+DATE=`date +'%B %Y'`
+man_MANS = $(libexec_PROGRAMS).cfg.5
+else
+man_MANS =
+endif
+
+%.cfg.5: $(config)
+	$(AM_V_GEN)$(XSLTPROC) \
+	  --stringparam version "${VERSION}" \
+	  --stringparam current-date "${DATE}" \
+	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
+	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
 
 # Dist / Clean rules for all data
 CLEANFILES = \
 	$(autostart_DATA) \
 	$(autostart_DATA:.desktop=.desktop.in) \
 	$(service_DATA) \
-	$(gsettings_SCHEMAS)
+	$(gsettings_SCHEMAS) \
+	$(man_MANS)
 
 EXTRA_DIST += \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(service_DATA:.service=.service.in) \
 	$(config_DATA) \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
-
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	$(man_MANS)
 

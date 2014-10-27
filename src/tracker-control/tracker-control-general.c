@@ -21,7 +21,7 @@
 
 #include <errno.h>
 
-#include <glib.h>
+#include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
 #ifdef __sun

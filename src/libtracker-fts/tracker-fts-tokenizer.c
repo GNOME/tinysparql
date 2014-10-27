@@ -21,8 +21,11 @@
 
 /* FTS3/4 Tokenizer using TrackerParser */
 
+#include "config.h"
+
 #include <assert.h>
 #include <string.h>
+
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts-config.h"
 #include "tracker-parser.h"

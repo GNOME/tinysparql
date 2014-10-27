@@ -27,6 +27,8 @@
 
 #include "tracker-miner-user-guides.h"
 
+#define LOCALE_FILENAME "locale-for-miner-user-guides.txt"
+
 // FIXME: get this value from tracker conf
 #define MAX_EXTRACT_SIZE 1024 * 1024 // 1 MiB
 #define MAX_TITLE_LENGTH 1000
@@ -60,7 +62,6 @@ static gboolean miner_userguides_process_file_attributes (TrackerMinerFS       *
                                                           GFile                *file,
                                                           TrackerSparqlBuilder *sparql,
                                                           GCancellable         *cancellable);
-static void     miner_userguides_finalize                (GObject              *object);
 static void     parser_get_file_content                  (const gchar          *uri,
                                                           gssize                max_extract_size,
                                                           gchar               **content,
@@ -77,10 +78,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerUserguides, tracker_miner_userguides, TRACK
 static void
 tracker_miner_userguides_class_init (TrackerMinerUserguidesClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
-
-	object_class->finalize = miner_userguides_finalize;
 
 	miner_fs_class->process_file = miner_userguides_process_file;
 	miner_fs_class->process_file_attributes = miner_userguides_process_file_attributes;
@@ -218,19 +216,6 @@ miner_userguides_add_directories (TrackerMinerFS *fs)
 }
 
 static void
-tracker_locale_notify_cb (TrackerLocaleID id,
-                          gpointer        user_data)
-{
-	TrackerMiner *miner = user_data;
-
-	if (tracker_miner_userguides_detect_locale_changed (miner)) {
-		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner), TRUE);
-
-		miner_userguides_add_directories (TRACKER_MINER_FS (miner));
-	}
-}
-
-static void
 miner_finished_cb (TrackerMinerFS *fs,
                    gdouble         seconds_elapsed,
                    guint           total_directories_found,
@@ -239,10 +224,28 @@ miner_finished_cb (TrackerMinerFS *fs,
                    guint           total_files_ignored,
                    gpointer        user_data)
 {
-	/* Update locale file if necessary */
-	if (tracker_miner_locale_changed ()) {
-		tracker_miner_locale_set_current ();
+	/* Save locale, if it changes the variation in the desktop
+	 * file languages needs to be re-indexed.
+	 */
+	GError *error = NULL;
+	gchar *locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+	gchar *locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	g_message ("Saving locale used to index applications");
+	g_message ("  Creating locale file '%s'", locale_file);
+
+	if (locale == NULL) {
+		locale = g_strdup ("");
 	}
+
+	if (!g_file_set_contents (locale_file, locale, -1, &error)) {
+		g_message ("  Could not set file contents, %s",
+		           error ? error->message : "no error given");
+		g_clear_error (&error);
+	}
+
+	g_free (locale);
+	g_free (locale_file);
 }
 
 static gboolean
@@ -251,12 +254,10 @@ miner_userguides_initable_init (GInitable     *initable,
                                 GError       **error)
 {
 	TrackerMinerFS *fs;
-	TrackerMinerUserguides *app;
 	GError *inner_error = NULL;
 	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
-	app = TRACKER_MINER_USERGUIDES (initable);
 	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 
 	/* Set up files filter, deny every file, but
@@ -281,32 +282,7 @@ miner_userguides_initable_init (GInitable     *initable,
 
 	miner_userguides_add_directories (fs);
 
-#ifdef HAVE_MEEGOTOUCH
-	tracker_meego_init ();
-#endif /* HAVE_MEEGOTOUCH */
-
-	app->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_LANGUAGE,
-	                                                         tracker_locale_notify_cb,
-	                                                         app,
-	                                                         NULL);
-
 	return TRUE;
-}
-
-static void
-miner_userguides_finalize (GObject *object)
-{
-	TrackerMinerUserguides *app;
-
-	app = TRACKER_MINER_USERGUIDES (object);
-
-	tracker_locale_notify_remove (app->locale_notification_id);
-
-#ifdef HAVE_MEEGOTOUCH
-	tracker_meego_shutdown ();
-#endif /* HAVE_MEEGOTOUCH */
-
-	G_OBJECT_CLASS (tracker_miner_userguides_parent_class)->finalize (object);
 }
 
 static const gchar *
@@ -350,7 +326,7 @@ process_item (ProcessUserguideData  *data,
 	urn = get_file_urn (data->miner, data->file, &is_iri);
 
 	tracker_sparql_builder_insert_silent_open (sparql, NULL);
-	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 	if (is_iri) {
 		tracker_sparql_builder_subject_iri (sparql, urn);
@@ -695,7 +671,7 @@ miner_userguides_reset (TrackerMiner *miner)
 	sparql = tracker_sparql_builder_new_update ();
 
 	/* (a) Remove all resources which are a nfo:HelpDocument */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
 	tracker_sparql_builder_subject_variable (sparql, "userguide");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "rdfs:Resource");
@@ -729,28 +705,78 @@ miner_userguides_reset (TrackerMiner *miner)
 	g_object_unref (sparql);
 }
 
-gboolean
-tracker_miner_userguides_detect_locale_changed (TrackerMiner *miner)
+static gboolean
+detect_locale_changed (TrackerMiner *miner)
 {
+	gchar *locale_file;
+	gchar *previous_locale = NULL;
+	gchar *current_locale;
 	gboolean changed;
 
-	changed = tracker_miner_locale_changed ();
+	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
+		gchar *contents;
+
+		/* Check locale is correct */
+		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
+			if (contents &&
+			    contents[0] == '\0') {
+				g_critical ("  Empty locale file found at '%s'", locale_file);
+				g_free (contents);
+			} else {
+				/* Re-use contents */
+				previous_locale = contents;
+			}
+		} else {
+			g_critical ("  Could not get content of file '%s'", locale_file);
+		}
+	} else {
+		g_message ("  Could not find locale file:'%s'", locale_file);
+	}
+
+	g_free (locale_file);
+
+	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+
+	/* Note that having both to NULL is actually valid, they would default
+	 * to the unicode collation without locale-specific stuff. */
+	if (g_strcmp0 (previous_locale, current_locale) != 0) {
+		g_message ("Locale change detected from '%s' to '%s'...",
+		           previous_locale, current_locale);
+		changed = TRUE;
+	} else {
+		g_message ("Current and previous locales match: '%s'", previous_locale);
+		changed = FALSE;
+	}
+
+	g_free (current_locale);
+	g_free (previous_locale);
+
 	if (changed) {
 		g_message ("Locale change detected, so resetting miner to "
 		           "remove all previously created items...");
 		miner_userguides_reset (miner);
 	}
+
 	return changed;
 }
 
 TrackerMiner *
 tracker_miner_userguides_new (GError **error)
 {
-	return g_initable_new (TRACKER_TYPE_MINER_USERGUIDES,
-	                       NULL,
-	                       error,
-	                       "name", "Userguides",
-	                       "processing-pool-wait-limit", 10,
-	                       "processing-pool-ready-limit", 100,
-	                       NULL);
+	TrackerMiner *miner;
+
+	miner = g_initable_new (TRACKER_TYPE_MINER_USERGUIDES,
+	                        NULL,
+	                        error,
+	                        "name", "Userguides",
+	                        "processing-pool-wait-limit", 10,
+	                        "processing-pool-ready-limit", 100,
+	                        NULL);
+
+	/* If the locales changed, we need to reset things first */
+	detect_locale_changed (miner);
+
+	return miner;
 }

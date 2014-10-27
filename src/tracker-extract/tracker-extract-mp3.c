@@ -435,6 +435,17 @@ static gint spf_table[6] = {
 	48, 144, 144, 48, 144,  72
 };
 
+#ifndef HAVE_STRNLEN
+
+size_t
+strnlen (const char *str, size_t max)
+{
+	const char *end = memchr (str, 0, max);
+	return end ? (size_t)(end - str) : max;
+}
+
+#endif /* HAVE_STRNLEN */
+
 static void
 id3tag_free (id3tag *tags)
 {

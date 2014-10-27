@@ -16,6 +16,8 @@ AM_CPPFLAGS =                                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
 	$(LIBTRACKER_DATA_CFLAGS)
 
+all: $(libtracker_data_LTLIBRARIES) $(man_MANS)
+
 libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
@@ -27,6 +29,7 @@ libtracker_data_la_SOURCES =                           \
 	tracker-turtle-reader.vala                     \
 	tracker-class.c                                \
 	tracker-collation.c                            \
+	tracker-crc32.c \
 	tracker-data-backup.c                          \
 	tracker-data-manager.c                         \
 	tracker-data-query.c                           \
@@ -56,6 +59,7 @@ endif
 
 noinst_HEADERS =                                       \
 	tracker-class.h                                \
+	tracker-crc32.h \
 	tracker-data.h                                 \
 	tracker-collation.h                            \
 	tracker-data-backup.h                          \
@@ -84,14 +88,30 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.DB.gschema.xml
 
 @GSETTINGS_RULES@
 
+if HAVE_XSLTPROC
+DATE=`date +'%B %Y'`
+man_MANS = tracker-db.cfg.5
+else
+man_MANS =
+endif
+
+%.cfg.5: $(gsettings_SCHEMAS)
+	$(AM_V_GEN)$(XSLTPROC) \
+	  --stringparam version "${VERSION}" \
+	  --stringparam current-date "${DATE}" \
+	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
+	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
+
 # Dist / Clean rules for all data
 BUILT_SOURCES = \
 	libtracker_data_la_vala.stamp
 
 CLEANFILES = \
 	libtracker_data_la_vala.stamp \
-	$(gsettings_SCHEMAS)
+	$(gsettings_SCHEMAS) \
+	$(man_MANS)
 
 EXTRA_DIST = \
 	libtracker-data.vapi \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	$(man_MANS)

@@ -1,5 +1,6 @@
 tracker
 tracker-backup
+tracker-crc32-test
 tracker-ontology
 tracker-ontology-change
 tracker-sparql
