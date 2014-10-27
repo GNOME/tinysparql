@@ -158,7 +158,7 @@ root_data_new (TrackerFileNotifier *notifier,
 	data = g_new0 (RootData, 1);
 	data->root = g_object_ref (file);
 	data->pending_dirs = g_queue_new ();
-	data->query_files = g_ptr_array_new ();
+	data->query_files = g_ptr_array_new_with_free_func (g_object_unref);
 	data->updated_dirs = g_ptr_array_new ();
 	data->flags = flags;
 
@@ -424,7 +424,7 @@ file_notifier_add_node_foreach (GNode    *node,
 
 		if (depth != 0 || file == priv->current_index_root->root)
 			g_ptr_array_add (priv->current_index_root->query_files,
-					 canonical);
+					 g_object_ref (canonical));
 	}
 
 	return FALSE;
