@@ -77,7 +77,7 @@ License which can be viewed at:
 
 	static bool in_loop = false;
 
-	static void signal_handler (int signo) {
+	static bool signal_handler (int signo) {
 		/* Die if we get re-entrant signals handler calls */
 		if (in_loop) {
 			Process.exit (1);
@@ -101,20 +101,13 @@ License which can be viewed at:
 			}
 			break;
 		}
+
+		return true;
 	}
 
 	static void initialize_signal_handler () {
-		var empty_mask = Posix.sigset_t ();
-		Posix.sigemptyset (empty_mask);
-
-		var act = Posix.sigaction_t ();
-		act.sa_handler = signal_handler;
-		act.sa_mask = empty_mask;
-		act.sa_flags = 0;
-
-		Posix.sigaction (Posix.SIGTERM, act, null);
-		Posix.sigaction (Posix.SIGINT, act, null);
-		Posix.sigaction (Posix.SIGHUP, act, null);
+		Unix.signal_add (Posix.SIGTERM, () => signal_handler (Posix.SIGTERM));
+		Unix.signal_add (Posix.SIGINT, () => signal_handler (Posix.SIGINT));
 	}
 
 	static void initialize_priority () {
@@ -298,9 +291,10 @@ License which can be viewed at:
 		 * doing what they do and shutdown.
 		 */
 		if (!shutdown) {
+			main_loop = new MainLoop ();
+
 			initialize_signal_handler ();
 
-			main_loop = new MainLoop ();
 			main_loop.run ();
 		}
 

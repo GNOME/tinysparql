@@ -27,6 +27,7 @@
 #endif
 
 #include <glib.h>
+#include <glib-unix.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
@@ -206,9 +207,11 @@ parse_watch (const gchar  *option_name,
 	return TRUE;
 }
 
-static void
-signal_handler (int signo)
+static gboolean
+signal_handler (gpointer user_data)
 {
+	int signo = GPOINTER_TO_INT (user_data);
+
 	static gboolean in_loop = FALSE;
 
 	/* Die if we get re-entrant signals handler calls */
@@ -232,22 +235,15 @@ signal_handler (int signo)
 		}
 		break;
 	}
+
+	return G_SOURCE_CONTINUE;
 }
 
 static void
 initialize_signal_handler (void)
 {
-	struct sigaction act;
-	sigset_t empty_mask;
-
-	sigemptyset (&empty_mask);
-	act.sa_handler = signal_handler;
-	act.sa_mask = empty_mask;
-	act.sa_flags = 0;
-
-	sigaction (SIGTERM, &act, NULL);
-	sigaction (SIGINT, &act, NULL);
-	sigaction (SIGHUP, &act, NULL);
+	g_unix_signal_add (SIGTERM, signal_handler, GINT_TO_POINTER (SIGTERM));
+	g_unix_signal_add (SIGINT, signal_handler, GINT_TO_POINTER (SIGINT));
 }
 
 static gboolean
