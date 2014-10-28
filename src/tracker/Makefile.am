@@ -18,6 +18,8 @@ bin_PROGRAMS = tracker
 
 tracker_SOURCES = \
 	tracker-main.c \
+	tracker-compatible.c \
+	tracker-compatible.h \
 	tracker-config.c \
 	tracker-config.h \
 	tracker-color.h \
@@ -54,6 +56,15 @@ tracker_LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(TRACKER_LIBS)
+
+install-data-hook: tracker-compat
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-control"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-import"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-info"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-search"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-sparql"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-stats"
+	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-tag"
 
 # Bash completion
 completiondir = $(sysconfdir)/bash_completion.d
