@@ -200,6 +200,10 @@ reset_run (void)
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);
+
+		if (!remove_config) {
+			return EXIT_SUCCESS;
+		}
 	}
 
 	if (remove_config) {
@@ -264,6 +268,8 @@ reset_run (void)
 		g_settings_sync ();
 
 		tracker_gsettings_free (all);
+
+		return EXIT_SUCCESS;
 	}
 
 	/* All known options have their own exit points */
