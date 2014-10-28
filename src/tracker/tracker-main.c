@@ -29,6 +29,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-daemon.h"
+#include "tracker-compatible.h"
 #include "tracker-help.h"
 #include "tracker-index.h"
 #include "tracker-info.h"
@@ -195,15 +196,24 @@ print_usage (void)
 }
 
 int
-main (int argc, char **av)
+main (int original_argc, char **original_argv)
 {
-	const char **argv = (const char **) av;
+	int new_argc = 0;
+	char **new_argv = NULL;
+	const char **argv = (const char **) original_argv;
+	int argc = original_argc;
 
 	setlocale (LC_ALL, "");
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
+
+	/* Handle old commands symlinked */
+	if (tracker_compatible_commands (argc, argv, &new_argc, &new_argv)) {
+		argv = (const char **) new_argv;
+		argc = new_argc;
+	}
 
 	argv++;
 	argc--;
@@ -212,6 +222,12 @@ main (int argc, char **av)
 		/* For cases like --version */
 		if (g_str_has_prefix (argv[0], "--")) {
 			argv[0] += 2;
+		} else {
+			/* Check for compatibility changes necessary before continuing */
+			if (tracker_compatible (argc, argv, &new_argc, &new_argv)) {
+				argv = (const char **) new_argv;
+				argc = new_argc;
+			}
 		}
 	} else {
 		/* The user didn't specify a command; give them help */
@@ -220,6 +236,10 @@ main (int argc, char **av)
 	}
 
 	handle_command (argc, argv);
+
+	if ((char **) argv != original_argv) {
+		g_strfreev ((char **) argv);
+	}
 
 	return EXIT_FAILURE;
 }
