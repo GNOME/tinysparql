@@ -16,8 +16,6 @@ AM_CPPFLAGS =                                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
 	$(LIBTRACKER_DATA_CFLAGS)
 
-all: $(libtracker_data_LTLIBRARIES) $(man_MANS)
-
 libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
