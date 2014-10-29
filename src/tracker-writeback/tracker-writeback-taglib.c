@@ -26,7 +26,7 @@
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-sparql/tracker-ontologies.h>
 
 #include "tracker-writeback-file.h"
 
@@ -159,11 +159,11 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
 	for (n = 0; n < values->len; n++) {
 		const GStrv row = g_ptr_array_index (values, n);
 
-		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "title") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NIE "title") == 0) {
 			taglib_tag_set_title (tag, row[3]);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "performer") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "performer") == 0) {
 			gchar *artist_name = writeback_taglib_get_artist_name (connection, row[3]);
 
 			if (artist_name) {
@@ -172,7 +172,7 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
 			}
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "musicAlbum") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "musicAlbum") == 0) {
 			gchar *album_name = writeback_taglib_get_album_name (connection, row[3]);
 
 			if (album_name) {
@@ -181,15 +181,15 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
 			}
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_RDFS_PREFIX "comment") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_RDFS "comment") == 0) {
 			taglib_tag_set_comment (tag, row[3]);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "genre") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "genre") == 0) {
 			taglib_tag_set_genre (tag, row[3]);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "trackNumber") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "trackNumber") == 0) {
 			taglib_tag_set_track (tag, atoi (row[3]));
 		}
 	}
@@ -281,7 +281,7 @@ const gchar * const *
 writeback_module_get_rdf_types (void)
 {
 	static const gchar *rdftypes[] = {
-		TRACKER_NFO_PREFIX "Audio",
+		TRACKER_PREFIX_NFO "Audio",
 		NULL
 	};
 

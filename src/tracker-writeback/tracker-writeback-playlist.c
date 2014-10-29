@@ -25,7 +25,7 @@
 
 #include <totem-pl-parser.h>
 
-#include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-sparql/tracker-ontologies.h>
 
 #include "tracker-writeback-file.h"
 
@@ -216,7 +216,7 @@ writeback_playlist_update_file_metadata (TrackerWritebackFile     *writeback_fil
 
 	for (n = 0; n < values->len; n++) {
 		const GStrv row = g_ptr_array_index (values, n);
-		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "entryCounter") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NFO "entryCounter") == 0) {
 			rewrite_playlist (connection, file, row[0]);
 			break;
 		}
@@ -237,8 +237,8 @@ const gchar * const *
 writeback_module_get_rdf_types (void)
 {
 	static const gchar *rdftypes[] = {
-		TRACKER_NFO_PREFIX "MediaList",
-		TRACKER_NFO_PREFIX "MediaFileListEntry",
+		TRACKER_PREFIX_NFO "MediaList",
+		TRACKER_PREFIX_NFO "MediaFileListEntry",
 		NULL
 	};
 

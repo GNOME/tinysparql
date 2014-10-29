@@ -25,7 +25,7 @@
 #include <libgrss.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-sparql/tracker-ontologies.h>
 
 #include <glib/gi18n.h>
 
@@ -167,7 +167,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	priv->now_fetching = 0;
 
 	g_message ("Listening for GraphUpdated changes on D-Bus interface...");
-	g_message ("  arg0:'%s'", TRACKER_MFO_PREFIX "FeedChannel");
+	g_message ("  arg0:'%s'", TRACKER_PREFIX_MFO "FeedChannel");
 
 	priv->graph_updated_id =
 		g_dbus_connection_signal_subscribe  (priv->connection,
@@ -175,7 +175,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 		                                     "org.freedesktop.Tracker1.Resources",
 		                                     "GraphUpdated",
 		                                     "/org/freedesktop/Tracker1/Resources",
-		                                     TRACKER_MFO_PREFIX "FeedChannel",
+		                                     TRACKER_PREFIX_MFO "FeedChannel",
 		                                     G_DBUS_SIGNAL_FLAGS_NONE,
 		                                     graph_updated_cb,
 		                                     object,

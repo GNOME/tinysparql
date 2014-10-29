@@ -80,10 +80,10 @@
 #include <libedataserver/eds-version.h>
 
 /* Back to sanity */
+#include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 

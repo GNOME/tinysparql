@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-writeback-file.h"
@@ -293,7 +294,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 		 * the actual camera did, anyway? Even if the user overwrites them in
 		 * the RDF store ... (does he know what he's doing anyway?) */
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "meteringMode") == 0) {
 
 			xmp_delete_property (xmp, NS_EXIF, "MeteringMode");
 
@@ -306,28 +307,28 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 			   6 = Partial
 			   255 = other  */
 
-			if        (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-center-weighted-average") == 0) {
+			if        (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-center-weighted-average") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "0", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-average") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-average") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "1", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-spot") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-spot") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "3", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-multispot") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-multispot") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "4", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-pattern") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-pattern") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "5", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "metering-mode-partial") == 0) {
+			} else if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "metering-mode-partial") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "6", 0);
 			} else {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "255", 0);
 			}
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "whiteBalance") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "whiteBalance") == 0) {
 
 			xmp_delete_property (xmp, NS_EXIF, "WhiteBalance");
 
-			if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "white-balance-auto") == 0) {
+			if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "white-balance-auto") == 0) {
 				/* 0 = Auto white balance
 				 * 1 = Manual white balance */
 				xmp_set_property (xmp, NS_EXIF, "WhiteBalance", "0", 0);
@@ -336,11 +337,11 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 			}
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "flash") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "flash") == 0) {
 
 			xmp_delete_property (xmp, NS_EXIF, "Flash");
 
-			if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "flash-on") == 0) {
+			if (g_strcmp0 (row[3], TRACKER_PREFIX_NMM "flash-on") == 0) {
 				/* 0 = Flash did not fire
 				 * 1 = Flash fired */
 				xmp_set_property (xmp, NS_EXIF, "Flash", "1", 0);
@@ -353,29 +354,29 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile     *wbf,
 		/* TODO: Don't write row[3] as-is here, read xmp_specification.pdf,
 		   page 84 (bottom). */
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "focalLength") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "focalLength") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "FocalLength");
 			xmp_set_property (xmp, NS_EXIF, "FocalLength", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "exposureTime") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "exposureTime") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "ExposureTime");
 			xmp_set_property (xmp, NS_EXIF, "ExposureTime", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "isoSpeed") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "isoSpeed") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "ISOSpeedRatings");
 			xmp_set_property (xmp, NS_EXIF, "ISOSpeedRatings", row[3], 0);
 		}
 
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "fnumber") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "fnumber") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "FNumber");
 			xmp_set_property (xmp, NS_EXIF, "FNumber", row[3], 0);
 		}
 
 
 		/* Totally deprecated: this uses nfo:Equipment nowadays */
-		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "camera") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_PREFIX_NMM "camera") == 0) {
 			gchar *work_on = g_strdup (row[3]);
 			gchar *ptr = strchr (work_on, ' ');
 
