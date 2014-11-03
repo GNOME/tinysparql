@@ -2,7 +2,7 @@
 # Copyright (C) 2006-2008 Free Software Foundation, Inc.
 # Copyright (C) 2007-2008 Timo Jyrinki.
 #
-# Gnomen suomennosryhmä: http://www.gnome.fi/
+# Gnomen suomennosryhmä: https://l10n.gnome.org/teams/fi/
 #
 # Ilkka Tuohela <hile@iki.fi>, 2006-2008.
 # Timo Jyrinki <timo.jyrinki@iki.fi>, 2007-2008.
