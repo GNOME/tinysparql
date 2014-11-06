@@ -1,3 +1,13 @@
+NEW in 1.0.6: 2014-11-06
+========================
+
+  * Fixes: GB#739237, Ownership reference not added in tracker-file-notifier.c
+
+Translations:
+
+  None
+
+
 NEW in 1.0.5 - 2014-09-02
 =========================
 
