@@ -1,3 +1,45 @@
+NEW in 1.3.0 - 2014-11-06
+=========================
+
+The main changes since 1.2.x are:
+
+  * build: Require GLib >= 2.4.0, for g_str_match_string() and g_info()
+  * all: Migrate to GKeyfileSettingsBackend, including:
+   * Now when using TRACKER_USE_CONFIG_FILES env var, we use this backend
+   * MAN pages which previously didn't exist for configurations are generated from xml gschemas
+  * libstemmer: Removed imported code and depend on external version
+  * libtracker-miner: Major update to Vala bindings
+  * libtracker-common: Major clean up and removal of unused internal APIs, including:
+    * Removed os-dependent APIs (mainly process spawning GLib does now anyway)
+    * Removed tracker_file_(un)lock() API which was unused
+    * Removed all run-time locale management, GNOME handles this between logins, so do we
+    * Removed TrackerConfigFile and TrackerKeyfileObject classes, use GSettings instead
+    * Removed unused type utils functions (e.g. tracker_*_to_string() and more)
+    * Moved tracker-ontologies.h (with prefix, etc definitions) into libtracker-sparql
+    * Moved CRC32 API into libtracker-data (the only place it's used)
+    * Moved TrackerStorage class to tracker-miner-fs (only place it's used)
+  * data: Now moved into their respective binary dirs, including:
+    * .desktop: Desktop files (moved from data/ into src/tracker-store, etc)
+    * .pc: Pkgconfig files (moved from data/ into src/libtracker-miner, etc)
+    * .service: DBus files (moved from data/dbus/* to src/tracker-store, etc)
+    * .png, .svg: Moved artwork into src/tracker-needle)
+    * .gschema.xml: GSettings files (moved from data/gschemas into src, tracker-store, etc)
+    * .ontology: Ontologies are now in src/ontologies
+    * stopwords.*: Stop words per language (moved from data/stopwords into src/libtracker-common for TrackerLanguage)
+  * data: Merged all data miner .desktop files with existing DBus .service files
+  * functional-tests: Many updates to fix broken functional tests, including:
+    * Writeback and miner base class clean ups
+    * Removing IgnoreNextUpdate wrapper and 'wait for miner to be idle' calls
+    * Waiting properly for resource addition / removal
+  * Fixes GB#737663, Avoid the use of setrlimit() causing SIGABRT in tracker-extract
+
+Translations:
+
+  * Updated fi: Timo Jyrinki, Jiri Grönroos
+  * Updated hu: Gábor Kelemen, Gabor Kelemen
+  * Updated it: Milo Casagrande
+
+
 NEW in 1.2.0 - 2014-09-22
 =========================
 
