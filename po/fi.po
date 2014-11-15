@@ -2,7 +2,7 @@
 # Copyright (C) 2006-2008 Free Software Foundation, Inc.
 # Copyright (C) 2007-2008 Timo Jyrinki.
 #
-# Gnomen suomennosryhmä: http://www.gnome.fi/
+# Gnomen suomennosryhmä: https://l10n.gnome.org/teams/fi/
 #
 # Ilkka Tuohela <hile@iki.fi>, 2006-2008.
 # Timo Jyrinki <timo.jyrinki@iki.fi>, 2007-2008.
@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-09-07 11:57+0000\n"
+"POT-Creation-Date: 2014-11-07 11:52+0000\n"
 "PO-Revision-Date: 2014-09-07 19:20+0300\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos+l10n@iki.fi>\n"
 "Language-Team: suomi <gnome-fi-laatu@lists.sourceforge.net>\n"
@@ -575,8 +575,8 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:73
-#: ../src/tracker-utils/tracker-info.c:74
+#: ../src/tracker-utils/tracker-info.c:79
+#: ../src/tracker-utils/tracker-info.c:80
 #: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "TIEDOSTO"
@@ -697,7 +697,7 @@ msgstr ""
 
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:389
+#: ../src/tracker-utils/tracker-info.c:395
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:200
@@ -734,7 +734,7 @@ msgstr "Yhteys Trackeriin epäonnistui"
 #: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
-#: ../src/tracker-utils/tracker-info.c:390
+#: ../src/tracker-utils/tracker-info.c:396
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:201
@@ -951,7 +951,6 @@ msgid "Data Statistics"
 msgstr "Tilastot:"
 
 #: ../src/tracker-control/tracker-control-general.c:727
-#| msgid "No services available"
 msgid "No connection available"
 msgstr "Yhteyttä ei ole saatavilla"
 
@@ -962,7 +961,6 @@ msgid "Could not get statistics"
 msgstr "Tracker-tilastoja ei saatavilla"
 
 #: ../src/tracker-control/tracker-control-general.c:743
-#| msgid "No statistics available"
 msgid "No statistics were available"
 msgstr "Tilastoja ei ollut saatavilla"
 
@@ -1076,7 +1074,6 @@ msgstr "Varmuuskopioidaan tietokantaa"
 
 #: ../src/tracker-control/tracker-control-general.c:1298
 #: ../src/tracker-control/tracker-control-general.c:1351
-#| msgid "Could not update tags"
 msgid "Could not backup database"
 msgstr "Tietokannan varmuuskopiointi epäonnistui"
 
@@ -1387,14 +1384,14 @@ msgid "Could not retrieve tracker-store progress"
 msgstr "Nykyisen valinnan tunnisteiden noutaminen ei onnistunut"
 
 #: ../src/tracker-control/tracker-control-status.c:523
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:153
 #: ../src/tracker-utils/tracker-sparql.c:184
 #, fuzzy
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Tunnistelistaa ei saatavilla"
 
 #: ../src/tracker-control/tracker-control-status.c:531
-#: ../src/tracker-utils/tracker-info.c:155
+#: ../src/tracker-utils/tracker-info.c:161
 #: ../src/tracker-utils/tracker-sparql.c:192
 #, fuzzy
 msgid "No namespace prefixes were returned"
@@ -1806,7 +1803,6 @@ msgstr "Ladataan…"
 
 #: ../src/tracker-needle/tracker-view.vala:435
 #, c-format
-#| msgid "Pages"
 msgid "%d Page"
 msgid_plural "%d Pages"
 msgstr[0] "%d sivu"
@@ -2154,7 +2150,6 @@ msgid "Would you like to restart now?"
 msgstr "Käynnistetäänkö uudelleen nyt?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:384
-#| msgid "Tracker"
 msgid "Restart Tracker"
 msgstr "Käynnistä Tracker uudelleen"
 
@@ -2223,7 +2218,7 @@ msgid "- Import data using Turtle files"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:373
+#: ../src/tracker-utils/tracker-info.c:379
 #, fuzzy
 msgid "One or more files have not been specified"
 msgstr "Tiedostoja ei valittu"
@@ -2244,40 +2239,46 @@ msgstr ""
 msgid "Show plain text content if available for resources"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:65
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker-utils/tracker-info.c:71
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:69
+#: ../src/tracker-utils/tracker-info.c:75
 msgid "Output results as RDF in Turtle format"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:355
+#: ../src/tracker-utils/tracker-info.c:361
 msgid "- Get all information about one or more files"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:411
+#: ../src/tracker-utils/tracker-info.c:417
 msgid "Querying information for entity"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:435
+#: ../src/tracker-utils/tracker-info.c:441
 msgid "Unable to retrieve URN for URI"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:445
-#: ../src/tracker-utils/tracker-info.c:479
+#: ../src/tracker-utils/tracker-info.c:451
+#: ../src/tracker-utils/tracker-info.c:485
 msgid "Unable to retrieve data for URI"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:488
+#: ../src/tracker-utils/tracker-info.c:494
 msgid "No metadata available for that URI"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:493
+#: ../src/tracker-utils/tracker-info.c:499
 #: ../src/tracker-utils/tracker-search.c:1458
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
