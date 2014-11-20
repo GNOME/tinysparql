@@ -35,18 +35,26 @@ typedef struct {
 
 TestInfo title_tests [] = {
 	{ "normal-extraction", "file:///a/b/a_video_with_metadata.avi", "extracted title", "extracted title" },
+
+#ifdef GUARANTEE_METADATA
 	{ "empty-extraction", "file:///a/b/a_video_with_no_metadata.avi", NULL, "a video with no metadata" },
 	{ "underscore-separators", "file:///a/b/a_video_with_no_metadata.avi", "", "a video with no metadata" },
 	{ "dot-separators", "file:///a/b/a.video.with.no.metadata.avi", NULL, "a.video.with.no.metadata" },
 	{ "no-extension", "file:///a/b/a video without extension", NULL, "a video without extension" },
 	{ "hidden-files", "file:///a/b/.hidden_file", NULL, "hidden file" },
+#endif
+
 	{ NULL, NULL, NULL }
 };
 
 TestInfo date_tests [] = {
 	{ "date-normal", "file:///does/not/matter/here", NULL, "2011-10-10T12:13:14Z0300" },
+
+#ifdef GUARANTEE_METADATA
 	{ "date-is-null", NULL, NULL, NULL },
 	{ "date-is-empty-string", NULL, NULL, NULL },
+#endif
+
 	{ NULL, NULL, NULL }
 };
 

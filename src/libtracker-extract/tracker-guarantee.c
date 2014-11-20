@@ -28,6 +28,8 @@
 
 #include "tracker-guarantee.h"
 
+#ifdef GUARANTEE_METADATA
+
 static gchar *
 get_title_from_file (const gchar *uri)
 {
@@ -66,6 +68,8 @@ get_date_from_file_mtime (const gchar *uri)
 	return date;
 }
 
+#endif /* GUARANTEE_METADATA */
+
 /**
  * tracker_guarantee_title_from_file:
  * @metadata: the metadata object to insert the data into
@@ -94,6 +98,7 @@ tracker_guarantee_title_from_file (TrackerSparqlBuilder  *metadata,
                                    const gchar           *uri,
                                    gchar                **p_new_value)
 {
+#ifdef GUARANTEE_METADATA
 	g_return_val_if_fail (metadata != NULL, FALSE);
 	g_return_val_if_fail (key != NULL, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -118,6 +123,16 @@ tracker_guarantee_title_from_file (TrackerSparqlBuilder  *metadata,
 			g_free (value);
 		}
 	}
+#else  /* GUARANTEE_METADATA */
+	if (current_value && *current_value != '\0') {
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_unvalidated (metadata, current_value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = g_strdup (current_value);
+		}
+	}
+#endif /* GUARANTEE_METADATA */
 
 	return TRUE;
 }
@@ -146,6 +161,7 @@ tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
                                         const gchar          *current_value,
                                         const gchar          *uri)
 {
+#ifdef GUARANTEE_METADATA
 	g_return_val_if_fail (metadata != NULL, FALSE);
 	g_return_val_if_fail (key != NULL, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -161,6 +177,12 @@ tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
 		tracker_sparql_builder_object_unvalidated (metadata, value);
 		g_free (value);
 	}
+#else  /* GUARANTEE_METADATA */
+	if (current_value && *current_value != '\0') {
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_unvalidated (metadata, current_value);
+	}
+#endif /* GUARANTEE_METADATA */
 
 	return TRUE;
 }
