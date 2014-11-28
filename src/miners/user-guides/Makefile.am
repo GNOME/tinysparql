@@ -33,7 +33,7 @@ INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard 
 
 install-data-hook:
 	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
-	$(LN_S) -f "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)" \
+	$(LN_S) -f "$(datadir)/tracker/miners/$(service_DATA)" \
 	           "$(DESTDIR)$(servicedir)/$(service_DATA)"
 
 uninstall-local:
