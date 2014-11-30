@@ -24,7 +24,6 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-decorator-fs.h"
-#include "tracker-decorator-internal.h"
 
 #define TRACKER_DECORATOR_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR_FS, TrackerDecoratorFSPrivate))
 
@@ -127,6 +126,31 @@ remove_files_cb (GObject *object,
 	}
 
 	g_object_unref (cursor);
+}
+
+static void
+_tracker_decorator_query_append_rdf_type_filter (TrackerDecorator *decorator,
+                                                 GString          *query)
+{
+       const gchar **class_names;
+       gint i = 0;
+
+       class_names = tracker_decorator_get_class_names (decorator);
+
+       if (!class_names || !*class_names)
+               return;
+
+       g_string_append (query, "&& ?type IN (");
+
+       while (class_names[i]) {
+               if (i != 0)
+                       g_string_append (query, ",");
+
+               g_string_append (query, class_names[i]);
+               i++;
+       }
+
+       g_string_append (query, ") ");
 }
 
 static void

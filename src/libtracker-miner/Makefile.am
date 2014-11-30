@@ -65,7 +65,6 @@ miner_sources = 				       \
 	tracker-data-provider.h                        \
 	tracker-decorator.c                            \
 	tracker-decorator.h                            \
-	tracker-decorator-internal.h                   \
 	tracker-decorator-fs.c                         \
 	tracker-decorator-fs.h                         \
 	tracker-enumerator.c			       \
