@@ -2983,7 +2983,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 					old_values = get_old_property_values (property, &new_error);
 					domain_unchecked = FALSE;
 					if (!new_error) {
-						if (old_values->n_values > 0) {
+						if (old_values->len > 0) {
 							/* evel knievel cast */
 							old_object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 						}
