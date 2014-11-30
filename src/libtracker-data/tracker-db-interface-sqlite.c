@@ -31,7 +31,7 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#ifdef HAVE_TRACKER_FTS
+#if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
 #include <libtracker-fts/tracker-parser.h>
 #endif
@@ -682,8 +682,10 @@ function_sparql_unaccent (sqlite3_context *context,
 
 	zOutput = u8_normalize (UNINORM_NFKD, zInput, nInput, NULL, &written);
 
+#if HAVE_TRACKER_FTS
 	/* Unaccenting is done in place */
 	tracker_parser_unaccent_nfkd_string (zOutput, &written);
+#endif
 
 	sqlite3_result_text (context, zOutput, written, free);
 }
@@ -873,8 +875,10 @@ function_sparql_unaccent (sqlite3_context *context,
 		return;
 	}
 
+#if HAVE_TRACKER_FTS
 	/* Unaccenting is done in place */
 	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
+#endif
 
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
@@ -1150,7 +1154,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       GHashTable          *multivalued,
                                       gboolean             create)
 {
-#ifdef HAVE_TRACKER_FTS
+#if HAVE_TRACKER_FTS
 	GStrv fts_columns;
 
 	tracker_fts_init_db (db_interface->db, properties);
@@ -1190,7 +1194,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #endif
 }
 
-#ifdef HAVE_TRACKER_FTS
+#if HAVE_TRACKER_FTS
 
 void
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
@@ -1348,7 +1352,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	db_interface = TRACKER_DB_INTERFACE (object);
 
-#ifdef HAVE_TRACKER_FTS
+#if HAVE_TRACKER_FTS
 	tracker_fts_shutdown_db (db_interface->db);
 #endif
 
