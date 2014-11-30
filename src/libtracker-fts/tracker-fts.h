@@ -32,7 +32,6 @@ gboolean    tracker_fts_init             (void);
 gboolean    tracker_fts_shutdown         (void);
 gboolean    tracker_fts_init_db          (sqlite3    *db,
                                           GHashTable *tables);
-gboolean    tracker_fts_shutdown_db      (sqlite3    *db);
 gboolean    tracker_fts_create_table     (sqlite3    *db,
                                           gchar      *table_name,
                                           GHashTable *tables,
