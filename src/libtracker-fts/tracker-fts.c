@@ -33,8 +33,8 @@ static gsize      module_initialized = 0;
 
 #endif
 
-static gchar    **property_names = NULL;
 static gboolean   initialized = FALSE;
+static GPrivate   property_names_key = G_PRIVATE_INIT ((GDestroyNotify) g_strfreev);
 
 
 gboolean
@@ -209,6 +209,9 @@ function_property_names (sqlite3_context *context,
                          int              argc,
                          sqlite3_value   *argv[])
 {
+	gchar **property_names;
+
+	property_names = g_private_get (&property_names_key);
 	sqlite3_result_blob (context, property_names, sizeof (property_names), NULL);
 }
 
@@ -236,6 +239,7 @@ tracker_fts_init_db (sqlite3    *db,
 	GHashTableIter iter;
 	GList *columns;
 	GList *table_columns;
+	gchar **property_names;
 
 	g_return_val_if_fail (initialized == TRUE, FALSE);
 
@@ -251,23 +255,11 @@ tracker_fts_init_db (sqlite3    *db,
 	}
 
 	property_names = tracker_glist_to_string_list (columns);
+	g_private_replace (&property_names_key, property_names);
 	g_list_free (columns);
 
 	/* Register functions with the database, including one to get property names */
 	fts_register_functions (db);
-
-	return TRUE;
-}
-
-gboolean
-tracker_fts_shutdown_db (sqlite3 *db)
-{
-	g_return_val_if_fail (initialized == TRUE, FALSE);
-
-	if (property_names != NULL) {
-		g_strfreev (property_names);
-		property_names = NULL;
-	}
 
 	return TRUE;
 }
