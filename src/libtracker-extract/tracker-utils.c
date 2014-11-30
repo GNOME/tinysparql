@@ -936,7 +936,7 @@ tracker_keywords_parse (GPtrArray   *store,
 	}
 
 	len = strlen (keywords_d);
-	if (keywords_d[len - 1] == '"') {
+	if (len > 0 && keywords_d[len - 1] == '"') {
 		keywords_d[len - 1] = '\0';
 	}
 
