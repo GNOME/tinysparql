@@ -272,7 +272,7 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 		    error->domain == tracker_decorator_error_quark ()) {
 			switch (error->code) {
 			case TRACKER_DECORATOR_ERROR_EMPTY:
-				g_message ("Next item does not require 2nd stage metadata extraction (e.g. resource may not be a file)");
+				g_message ("There are no further items to extract");
 				break;
 			case TRACKER_DECORATOR_ERROR_PAUSED:
 				g_message ("Next item is on hold because miner is paused");
