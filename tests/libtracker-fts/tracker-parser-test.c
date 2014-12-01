@@ -24,7 +24,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-fts/tracker-parser.h>
+#include <libtracker-common/tracker-parser.h>
 
 /* -------------- COMMON FOR ALL TESTS ----------------- */
 
