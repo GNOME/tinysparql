@@ -33,21 +33,10 @@ libtracker_fts_la_SOURCES =                            \
 	tracker-fts-config.c                           \
 	tracker-fts-config.h                           \
 	tracker-fts-tokenizer.c                        \
-	tracker-fts-tokenizer.h                        \
-	tracker-parser-utils.c                         \
-	tracker-parser-utils.h                         \
-	tracker-parser.h
+	tracker-fts-tokenizer.h
 
 if !HAVE_BUILTIN_FTS
   libtracker_fts_la_SOURCES += $(fts4_sources)
-endif
-
-if BUILD_LIBUNISTRING_PARSER
-  libtracker_fts_la_SOURCES += tracker-parser-libunistring.c
-endif
-
-if BUILD_LIBICU_PARSER
-  libtracker_fts_la_SOURCES += tracker-parser-libicu.c
 endif
 
 libtracker_fts_la_LIBADD =                             \

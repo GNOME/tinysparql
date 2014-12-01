@@ -19,7 +19,9 @@ libtracker_common_la_SOURCES = \
 	tracker-sched.c \
 	tracker-type-utils.c \
 	tracker-utils.c \
-	tracker-locale.c
+	tracker-locale.c \
+	tracker-parser-utils.c \
+	tracker-language.c
 
 noinst_HEADERS = \
 	tracker-dbus.h \
@@ -32,11 +34,18 @@ noinst_HEADERS = \
 	tracker-sched.h \
 	tracker-type-utils.h \
 	tracker-utils.h \
-	tracker-locale.h
+	tracker-locale.h \
+	tracker-parser.h \
+	tracker-parser-utils.h \
+	tracker-language.h
 
-if HAVE_TRACKER_FTS
-libtracker_common_la_SOURCES += tracker-language.c
-noinst_HEADERS += tracker-language.h
+
+if BUILD_LIBUNISTRING_PARSER
+  libtracker_common_la_SOURCES += tracker-parser-libunistring.c
+endif
+
+if BUILD_LIBICU_PARSER
+  libtracker_common_la_SOURCES += tracker-parser-libicu.c
 endif
 
 libtracker_common_la_LIBADD = \

@@ -28,13 +28,14 @@
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-locale.h>
+#include <libtracker-common/tracker-parser.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
 
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
-#include <libtracker-fts/tracker-parser.h>
 #endif
+
 
 #ifdef HAVE_LIBUNISTRING
 /* libunistring versions prior to 9.1.2 need this hack */
@@ -682,10 +683,8 @@ function_sparql_unaccent (sqlite3_context *context,
 
 	zOutput = u8_normalize (UNINORM_NFKD, zInput, nInput, NULL, &written);
 
-#if HAVE_TRACKER_FTS
 	/* Unaccenting is done in place */
 	tracker_parser_unaccent_nfkd_string (zOutput, &written);
-#endif
 
 	sqlite3_result_text (context, zOutput, written, free);
 }
@@ -875,10 +874,8 @@ function_sparql_unaccent (sqlite3_context *context,
 		return;
 	}
 
-#if HAVE_TRACKER_FTS
 	/* Unaccenting is done in place */
 	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
-#endif
 
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
