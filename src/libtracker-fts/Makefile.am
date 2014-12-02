@@ -4,8 +4,6 @@ AM_CPPFLAGS =                                          \
 	-DNDEBUG                                       \
 	$(LIBTRACKER_FTS_CFLAGS)
 
-all: $(noinst_LTLIBRARIES) $(man_MANS)
-
 noinst_LTLIBRARIES = libtracker-fts.la
 
 fts4_sources =                                         \

@@ -510,11 +510,6 @@ libextract_dummy_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
 
-#
-# Binaries
-#
-all: $(libexec_PROGRAMS) $(man_MANS)
-
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = \

@@ -10,11 +10,6 @@ AM_CPPFLAGS =                                          \
 	-include config.h                              \
 	-DNO_LIBDBUS
 
-#
-# Daemon sources
-#
-all: $(libexec_PROGRAMS) $(man_MANS)
-
 libexec_PROGRAMS = tracker-store
 
 tracker_store_SOURCES =                                \

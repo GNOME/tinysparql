@@ -7,8 +7,6 @@ AM_CPPFLAGS =                                          \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"             \
 	$(TRACKER_MINER_FS_CFLAGS)
 
-all: $(libexec_PROGRAMS) $(man_MANS)
-
 libexec_PROGRAMS = tracker-miner-fs
 
 # Prefer UPower for the power data if it's available, else fall back to HAL

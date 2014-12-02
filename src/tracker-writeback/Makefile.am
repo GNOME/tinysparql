@@ -39,11 +39,6 @@ endif
 #libwriteback_playlist_la_LIBADD = $(BUILD_LIBS) $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS)
 #endif
 
-#
-# Binaries
-#
-all: $(libexec_PROGRAMS) $(man_MANS)
-
 libexec_PROGRAMS = tracker-writeback
 
 tracker_writeback_SOURCES = \
