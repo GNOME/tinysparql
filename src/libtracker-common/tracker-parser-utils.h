@@ -17,8 +17,8 @@
  * 02110-1301  USA
  */
 
-#ifndef __TRACKER_PARSER_UTILS_H__
-#define __TRACKER_PARSER_UTILS_H__
+#ifndef __LIBTRACKER_COMMON_PARSER_UTILS_H__
+#define __LIBTRACKER_COMMON_PARSER_UTILS_H__
 
 #include "config.h"
 
@@ -79,4 +79,4 @@ void    tracker_parser_message_hex (const gchar  *message,
 
 G_END_DECLS
 
-#endif /* __TRACKER_PARSER_UTILS_H__ */
+#endif /* __LIBTRACKER_COMMON_PARSER_UTILS_H__ */

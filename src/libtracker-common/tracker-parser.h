@@ -18,8 +18,8 @@
  * 02110-1301  USA
  */
 
-#ifndef __LIBTRACKER_FTS_PARSER_H__
-#define __LIBTRACKER_FTS_PARSER_H__
+#ifndef __LIBTRACKER_COMMON_PARSER_H__
+#define __LIBTRACKER_COMMON_PARSER_H__
 
 #include <glib.h>
 
@@ -57,4 +57,4 @@ gboolean       tracker_parser_unaccent_nfkd_string (gpointer  str,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_FTS_PARSER_H__ */
+#endif /* __LIBTRACKER_COMMON_PARSER_H__ */

@@ -25,9 +25,14 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-fts/tracker-parser.h>
-#include <libtracker-fts/tracker-fts-config.h>
 #include <libtracker-common/tracker-common.h>
+
+/* Normally this would be in the libtracker-fts config */
+#define DEFAULT_MAX_WORD_LENGTH   30
+#define DEFAULT_ENABLE_STEMMER    FALSE
+#define DEFAULT_ENABLE_UNACCENT   TRUE
+#define DEFAULT_IGNORE_STOP_WORDS TRUE
+#define DEFAULT_IGNORE_NUMBERS    TRUE
 
 static gchar    *text;
 static gchar    *filename;
@@ -109,16 +114,12 @@ load_file_contents (void)
 static gboolean
 run_parsing (void)
 {
-	TrackerFTSConfig *config;
 	TrackerLanguage *language;
 	TrackerParser *parser;
 	GTimer *timer;
 
 	/* Initialize timing */
 	timer = g_timer_new ();
-
-	/* Read config file */
-	config = tracker_fts_config_new ();
 
 	/* Setup language for parser */
 	language = tracker_language_new (NULL);
@@ -136,15 +137,16 @@ run_parsing (void)
 	}
 
 	/* Reset the parser with our string, reading the current FTS config */
+
 	tracker_parser_reset (parser,
 	                      text,
 	                      strlen (text),
-	                      tracker_fts_config_get_max_word_length (config),
-	                      tracker_fts_config_get_enable_stemmer (config),
-	                      tracker_fts_config_get_enable_unaccent (config),
-	                      tracker_fts_config_get_ignore_stop_words (config),
+	                      DEFAULT_MAX_WORD_LENGTH,
+	                      DEFAULT_ENABLE_STEMMER,
+	                      DEFAULT_ENABLE_UNACCENT,
+	                      DEFAULT_IGNORE_STOP_WORDS,
 	                      TRUE,
-	                      tracker_fts_config_get_ignore_numbers (config));
+	                      DEFAULT_IGNORE_NUMBERS);
 
 	/* Loop through all words! */
 	while (1) {
