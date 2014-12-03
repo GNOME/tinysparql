@@ -1,3 +1,21 @@
+NEW in 1.3.1 - 2014-12-03
+=========================
+
+  * Fixes: GB#733536, Remove --enable-guarantee metadata, always guarantee nie:title and nie:contentCreated
+  * Fixes: GB#739260, srcdir != builddir issue with latest git
+  * Fixes: GB#741012, should not override "all" target
+  * Fixes: GB#740268, System tab - very ambiguous about what is being removed
+  * Fixes: GB#740864, Symlink target for D-Bus service files includes DESTDIR
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated hu: Balázs Úr
+  * Updated nb: Kjartan Maraas
+  * Updated pt: Duarte Loreto, Pedro Albuquerque
+
+
 NEW in 1.3.0 - 2014-11-06
 =========================
 
