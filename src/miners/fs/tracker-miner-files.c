@@ -2322,6 +2322,18 @@ process_file_attributes_cb (GObject      *object,
 	tracker_sparql_builder_graph_close (sparql);
 	tracker_sparql_builder_insert_close (sparql);
 
+	/* Delete data sources from other miners/decorators */
+	tracker_sparql_builder_delete_open (sparql, NULL);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+	tracker_sparql_builder_object_variable (sparql, "datasource");
+	tracker_sparql_builder_delete_close (sparql);
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+	tracker_sparql_builder_object_variable (sparql, "datasource");
+	tracker_sparql_builder_where_close (sparql);
+
 	g_object_unref (file_info);
 	g_free (uri);
 
