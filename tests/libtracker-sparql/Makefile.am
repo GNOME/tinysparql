@@ -4,7 +4,7 @@ noinst_PROGRAMS += $(test_programs)
 
 test_programs = \
 	tracker-test                                   \
-	tracker-gb-737023
+	tracker-gb-737023-test
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
