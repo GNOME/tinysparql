@@ -68,10 +68,10 @@ INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard 
 install-data-hook:
 	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
 	$(LN_S) -f "$(servicedir)/$(service_DATA)" \
-                   "$(datadir)/tracker/miners/$(service_DATA)"
+                   "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)"
 
 uninstall-local:
-	$(RM) "$(datadir)/tracker/miners/$(service_DATA)" && \
+	$(RM) "$(DESTDIR)$(datadir)/tracker/miners/$(service_DATA)" && \
 	$(RM) "$(servicedir)/$(service_DATA)"
 
 # Desktop files: First we fix the VERSION and libexecdir
