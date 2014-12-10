@@ -1,3 +1,23 @@
+NEW in 1.2.5: 2014-12-10
+========================
+
+  * Fixes: GB#741141, Tracker crashes every 5-10 minutes
+  * Fixes: GB#733536, Remove --enable-guarantee metadata, always guarantee nie:title and nie:contentCreated
+  * Fixes: GB#740268, System tab - very ambiguous about what is being removed
+  * Fixes: GB#739149, Bump glib version (g_str_match_string is only in glib >= 2.40)
+  * Fixes: RH#1133042, [abrt] tracker: persistence_store_file(): tracker-extract killed by SIGSEGV
+  * libtracker-fts: Make property list per-thread data to fix uninitialisation issues
+  * libtracker-fts: Fixed compilation errors when --disable-tracker-fts is used
+  * tracker-extract: Fixed potential use of uninitialised hash table in persistence_invalidate()
+  * tracker-extract: Fixed possible invalid memory read/write in tracker_keywords_parse()
+  * tracker-extract: Fixed memory leak of MediaArt object for TrackerExtractInfo
+  * clean-tracker-prefix: Should consider lib64 as well as lib directories
+
+Translations:
+
+  * Updated fi: Lasse Liehu, Jiri Grönroos
+  * Updated pt: Duarte Loreto, Pedro Albuquerque
+
 
 NEW in 1.2.4: 2014-11-06
 ========================
