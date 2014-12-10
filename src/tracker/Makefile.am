@@ -66,6 +66,15 @@ install-data-hook: tracker-compat
 	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-stats"
 	$(AM_V_GEN) cp -f ./$^ "$(DESTDIR)${bindir}/tracker-tag"
 
+uninstall-hook:
+	$(RM) "$(DESTDIR)$(bindir)/tracker-control" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-import" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-info" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-search" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-sparql" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-stats" && \
+	$(RM) "$(DESTDIR)$(bindir)/tracker-tag"
+
 # Bash completion
 completiondir = $(sysconfdir)/bash_completion.d
 completion_DATA = tracker-prompt.sh
