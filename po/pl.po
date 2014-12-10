@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-07 01:52+0200\n"
-"PO-Revision-Date: 2014-09-07 01:54+0200\n"
+"POT-Creation-Date: 2014-12-10 16:10+0100\n"
+"PO-Revision-Date: 2014-12-10 16:12+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -623,8 +623,8 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:73
-#: ../src/tracker-utils/tracker-info.c:74
+#: ../src/tracker-utils/tracker-info.c:79
+#: ../src/tracker-utils/tracker-info.c:80
 #: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "PLIK"
@@ -745,7 +745,7 @@ msgstr "Dodawanie kanału wymaga opcji --add-feed i --title"
 
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:389
+#: ../src/tracker-utils/tracker-info.c:395
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:200
@@ -782,7 +782,7 @@ msgstr "Nie można nawiązać połączenia z programem Tracker"
 #: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
-#: ../src/tracker-utils/tracker-info.c:390
+#: ../src/tracker-utils/tracker-info.c:396
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:201
@@ -1449,13 +1449,13 @@ msgid "Could not retrieve tracker-store progress"
 msgstr "Nie można uzyskać postępu usługi tracker-store"
 
 #: ../src/tracker-control/tracker-control-status.c:523
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:153
 #: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nie można uzyskać przedrostków przestrzeni nazw"
 
 #: ../src/tracker-control/tracker-control-status.c:531
-#: ../src/tracker-utils/tracker-info.c:155
+#: ../src/tracker-utils/tracker-info.c:161
 #: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "Nie zwrócono przedrostków przestrzeni nazw"
@@ -2160,7 +2160,8 @@ msgid ""
 "will no longer be indexed. Upon next start, Tracker will then start indexing "
 "data as if it was being run for the first time.\n"
 "\n"
-"<b>Warning: All data indexed will be removed! It can not be retrieved!</b>\n"
+"<b>Warning: All indexes and caches for your data will be removed! They can "
+"not be retrieved! Your REAL data and files will not be touched.</b>\n"
 "\n"
 "Clicking this button will close the preferences too."
 msgstr ""
@@ -2169,32 +2170,41 @@ msgstr ""
 "rozpocznie indeksowanie danych tak, jakby został uruchomiony po raz "
 "pierwszy.\n"
 "\n"
-"<b>Ostrzeżenie: wszystkie zindeksowane dane zostaną usunięte i nie będą "
-"mogły zostać przywrócone.</b>\n"
+"<b>Ostrzeżenie: wszystkie indeksy i pamięć podręczna dla danych zostaną "
+"usunięte i nie będą mogły zostać przywrócone. Prawdziwe dane i pliki nie "
+"zostaną zmodyfikowane ani usunięte.</b>\n"
 "\n"
 "Kliknięcie tego przycisku spowoduje także zamknięcie preferencji."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all of my indexed data"
-msgstr "Tak, usuń wszystkie zindeksowane dane"
+msgid "Yes, remove all indexes"
+msgstr "Tak, usuń wszystkie indeksy"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:60
+msgid ""
+"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
+"able to quickly find your information and content."
+msgstr ""
+"\"Indeks\" jest uporządkowanym odwołaniem do konkretnych danych. Indeksy są "
+"używane w celu szybkiego wyszukiwania informacji i treści."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:61
 msgid "Reset Indexed Data"
 msgstr "Resetowanie zindeksowanych danych"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
+#: ../src/tracker-preferences/tracker-preferences.ui.h:62
 msgid "_Delay"
 msgstr "Opóźni_enie"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
+#: ../src/tracker-preferences/tracker-preferences.ui.h:63
 msgid "seconds"
 msgstr "s"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
+#: ../src/tracker-preferences/tracker-preferences.ui.h:64
 msgid "Start up"
 msgstr "Uruchamianie"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
+#: ../src/tracker-preferences/tracker-preferences.ui.h:65
 msgid "System"
 msgstr "Systemowe"
 
@@ -2310,7 +2320,7 @@ msgid "- Import data using Turtle files"
 msgstr "- importuje dane używając plików Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:373
+#: ../src/tracker-utils/tracker-info.c:379
 msgid "One or more files have not been specified"
 msgstr "Nie podano jednego lub więcej plików"
 
@@ -2332,7 +2342,13 @@ msgstr ""
 msgid "Show plain text content if available for resources"
 msgstr "Wyświetla treść w zwykłym tekście, jeśli jest dostępna dla zasobów"
 
-#: ../src/tracker-utils/tracker-info.c:65
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker-utils/tracker-info.c:71
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
@@ -2340,34 +2356,34 @@ msgstr ""
 "Zamiast wyszukiwać nazwę pliku, traktuje parametry PLIKU jako właściwe IRI "
 "(np. <file:///ścieżka/do/jakiegoś/pliku.txt>)"
 
-#: ../src/tracker-utils/tracker-info.c:69
+#: ../src/tracker-utils/tracker-info.c:75
 msgid "Output results as RDF in Turtle format"
 msgstr "Wyświetla wyniki jako RDF w formacie Turtle"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:355
+#: ../src/tracker-utils/tracker-info.c:361
 msgid "- Get all information about one or more files"
 msgstr "- uzyskuje wszystkie informacje o jednym lub więcej plików"
 
-#: ../src/tracker-utils/tracker-info.c:411
+#: ../src/tracker-utils/tracker-info.c:417
 msgid "Querying information for entity"
 msgstr "Odpytywanie informacji o jednostce"
 
-#: ../src/tracker-utils/tracker-info.c:435
+#: ../src/tracker-utils/tracker-info.c:441
 msgid "Unable to retrieve URN for URI"
 msgstr "Nie można pobrać URN dla adresu URI"
 
-#: ../src/tracker-utils/tracker-info.c:445
-#: ../src/tracker-utils/tracker-info.c:479
+#: ../src/tracker-utils/tracker-info.c:451
+#: ../src/tracker-utils/tracker-info.c:485
 msgid "Unable to retrieve data for URI"
 msgstr "Nie można pobrać danych dla adresu URI"
 
-#: ../src/tracker-utils/tracker-info.c:488
+#: ../src/tracker-utils/tracker-info.c:494
 msgid "No metadata available for that URI"
 msgstr "Brak dostępnych metadanych dla tego adresu URI"
 
-#: ../src/tracker-utils/tracker-info.c:493
+#: ../src/tracker-utils/tracker-info.c:499
 #: ../src/tracker-utils/tracker-search.c:1458
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
