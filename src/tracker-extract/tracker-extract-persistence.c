@@ -144,8 +144,8 @@ persistence_store_file (TrackerExtractPersistence *persistence,
 
 	if (!success) {
 		g_warning ("Could not save '%s' into failsafe persistence store: %s",
-		           path, error->message);
-		g_error_free (error);
+		           path, error ? error->message : "no error given");
+		g_clear_error (&error);
 	}
 
 	g_object_unref (link_file);
