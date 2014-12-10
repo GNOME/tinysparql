@@ -528,10 +528,18 @@ static gchar *
 get_user_special_dir_if_not_home (GUserDirectory directory)
 {
 	const gchar *path;
+	GFile *home, *file;
+	gboolean res;
 
 	path = g_get_user_special_dir (directory);
+	file = g_file_new_for_path (path);
+	home = g_file_new_for_path (g_get_home_dir ());
 
-	if (g_strcmp0 (path, g_get_home_dir ()) == 0) {
+	res = g_file_equal (file, home);
+	g_object_unref (file);
+	g_object_unref (home);
+
+	if (res) {
 		/* ignore XDG directories set to $HOME */
 		return NULL;
 	} else {
