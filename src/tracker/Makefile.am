@@ -70,4 +70,4 @@ install-data-hook: tracker-compat
 completiondir = $(sysconfdir)/bash_completion.d
 completion_DATA = tracker-prompt.sh
 
-EXTRA_DIST = $(completion_DATA)
+EXTRA_DIST = $(completion_DATA) tracker-compat
