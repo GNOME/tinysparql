@@ -52,6 +52,7 @@ src/tracker-store/tracker-main.vala
 src/tracker-store/tracker-store.desktop.in.in
 src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in
 src/tracker/tracker-config.c
+src/tracker/tracker-compatible.c
 src/tracker/tracker-daemon.c
 src/tracker/tracker-dbus.c
 src/tracker/tracker-help.c
