@@ -112,7 +112,7 @@ public class Tracker.Store {
 
 			n_queries_running++;
 			try {
-				query_pool.push (task);
+				query_pool.add (task);
 			} catch (Error e) {
 				// ignore harmless thread creation error
 			}
@@ -128,7 +128,7 @@ public class Tracker.Store {
 			if (task != null) {
 				update_running = true;
 				try {
-					update_pool.push (task);
+					update_pool.add (task);
 				} catch (Error e) {
 					// ignore harmless thread creation error
 				}
@@ -205,7 +205,7 @@ public class Tracker.Store {
 		return false;
 	}
 
-	static void pool_dispatch_cb (Task task) {
+	static void pool_dispatch_cb (owned Task task) {
 		try {
 			if (task.type == TaskType.QUERY) {
 				var query_task = (QueryTask) task;
@@ -306,9 +306,9 @@ public class Tracker.Store {
 		}
 
 		try {
-			update_pool = new ThreadPool<Task> (pool_dispatch_cb, 1, true);
-			query_pool = new ThreadPool<Task> (pool_dispatch_cb, MAX_CONCURRENT_QUERIES, true);
-			checkpoint_pool = new ThreadPool<bool> (checkpoint_dispatch_cb, 1, true);
+			update_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, 1, true);
+			query_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, MAX_CONCURRENT_QUERIES, true);
+			checkpoint_pool = new ThreadPool<bool>.with_owned_data (checkpoint_dispatch_cb, 1, true);
 		} catch (Error e) {
 			warning (e.message);
 		}
