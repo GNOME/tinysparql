@@ -1,3 +1,25 @@
+NEW in 1.3.2 - 2014-12-11
+=========================
+
+  * New Feature: 'tracker' binary: All pre-existing tracker-* command line tools have been merged into this new binary. Man pages are shown for 'help' sub-commands. This brings more of a "git" feel to the tracker's command line tools. There is a backwards compatible 'tracker-command' script and compatibility layer provided to ensure existing commands still work for a limited time. The old 'tracker-control' actions are now part of 'tracker daemon', 'tracker reset' and 'tracker index'. Additionally, the 'tracker-sql' utility has been integrated to allow SQL operations directly on the DB.
+  * Fixes: GB#741317, miner-fs: use GFile to check for homedir
+  * Fixes: GB#741141, Tracker crashes every 5-10 minutes
+  * Fixes: RH#1133042, [abrt] tracker: persistence_store_file(): tracker-extract killed by SIGSEGV
+  * all: Move all code from tracker_info() to g_info() new in GLib 2.40.
+  * gvdb: Fixed LDFLAGS and CFLAGS, was using unused variables
+  * gvdb: Move away from g_file_delete() to unlink() to avoid GIO dep for one line in unit tests
+  * libtracker-fts: Make property list per-thread data to fix uninitialisation issues
+  * libtracker-fts: Fixed compilation errors when --disable-tracker-fts is used
+  * tracker-extract: Fixed potential use of uninitialised hash table in persistence_invalidate()
+  * tracker-extract: Fixed possible invalid memory read/write in tracker_keywords_parse()
+  * tracker-extract: Fixed memory leak of MediaArt object for TrackerExtractInfo
+  * clean-tracker-prefix: Should consider lib64 as well as lib directories
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+
 NEW in 1.3.1 - 2014-12-03
 =========================
 
