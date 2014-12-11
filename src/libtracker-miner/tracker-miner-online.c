@@ -57,6 +57,8 @@
  * <literal>connected</literal> vmethod in order to tell the miner whether
  * a connection is valid to retrieve data or not. The miner data extraction
  * still must be dictated through the #TrackerMiner vmethods.
+ *
+ * Since: 0.18.
  **/
 
 typedef struct _TrackerMinerOnlinePrivate TrackerMinerOnlinePrivate;
@@ -158,6 +160,20 @@ tracker_miner_online_class_init (TrackerMinerOnlineClass *klass)
 	                                                    TRACKER_TYPE_NETWORK_TYPE,
 	                                                    TRACKER_NETWORK_TYPE_NONE,
 	                                                    G_PARAM_READABLE));
+
+	/**
+	 * TrackerMinerOnline::connected:
+	 * @miner: a #TrackerMinerOnline
+	 * @type: a #TrackerNetworkType
+	 *
+	 * the ::connected signal is emitted when a specific @type of
+	 * network becomes connected.
+	 *
+	 * Return values of #TRUE from this signal indicate whether a
+	 * #TrackerMiner should resume indexing or not upon ::connected.
+	 *
+	 * Since: 0.18.0
+	 **/
 	signals[CONNECTED] =
 		g_signal_new ("connected",
 		              G_OBJECT_CLASS_TYPE (object_class),
@@ -165,6 +181,17 @@ tracker_miner_online_class_init (TrackerMinerOnlineClass *klass)
 		              G_STRUCT_OFFSET (TrackerMinerOnlineClass, connected),
 		              NULL, NULL, NULL,
 		              G_TYPE_BOOLEAN, 1, TRACKER_TYPE_NETWORK_TYPE);
+
+	/**
+	 * TrackerMinerOnline::disconnected:
+	 * @miner: a #TrackerMinerOnline
+	 * @type: a #TrackerNetworkType
+	 *
+	 * the ::disconnected signal is emitted when a specific @type of
+	 * network becomes disconnected.
+	 *
+	 * Since: 0.18.0
+	 **/
 	signals[DISCONNECTED] =
 		g_signal_new ("disconnected",
 		              G_OBJECT_CLASS_TYPE (object_class),
@@ -376,10 +403,22 @@ miner_online_initable_iface_init (GInitableIface *iface)
 	iface->init = miner_online_initable_init;
 }
 
+/**
+ * tracker_miner_online_get_network_type:
+ * @miner: a #TrackerMinerOnline.
+ *
+ * Get the type of network this data @miner uses to index content.
+ *
+ * Returns: a #TrackerNetworkType on success or #TRACKER_NETWORK_TYPE_NONE on error.
+ *
+ * Since: 0.18.
+ **/
 TrackerNetworkType
 tracker_miner_online_get_network_type (TrackerMinerOnline *miner)
 {
 	TrackerMinerOnlinePrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_ONLINE (miner), TRACKER_NETWORK_TYPE_NONE);
 
 	priv = tracker_miner_online_get_instance_private (miner);
 

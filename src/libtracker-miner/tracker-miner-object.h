@@ -32,8 +32,38 @@
 G_BEGIN_DECLS
 
 /* Common definitions for all miners */
+/**
+ * TRACKER_MINER_DBUS_INTERFACE:
+ *
+ * The name of the D-Bus interface to use for all data miners that
+ * inter-operate with Tracker.
+ *
+ * Since: 0.8.
+ **/
 #define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
+
+/**
+ * TRACKER_MINER_DBUS_NAME_PREFIX:
+ *
+ * D-Bus name prefix to use for all data miners. This allows custom
+ * miners to be written using @TRACKER_MINER_DBUS_NAME_PREFIX + "Files" for
+ * example and would show up on D-Bus under
+ * &quot;org.freedesktop.Tracker1.Miner.Files&quot;.
+ *
+ * Since: 0.8.
+ **/
 #define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
+
+/**
+ * TRACKER_MINER_DBUS_PATH_PREFIX:
+ *
+ * D-Bus path prefix to use for all data miners. This allows custom
+ * miners to be written using @TRACKER_MINER_DBUS_PATH_PREFIX + "Files" for
+ * example and would show up on D-Bus under
+ * &quot;/org/freedesktop/Tracker1/Miner/Files&quot;.
+ *
+ * Since: 0.8.
+ **/
 #define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
 
 #define TRACKER_TYPE_MINER         (tracker_miner_get_type())
@@ -43,7 +73,23 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER))
 #define TRACKER_MINER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER, TrackerMinerClass))
 
+/**
+ * TRACKER_MINER_ERROR_DOMAIN:
+ *
+ * Used as the domain for any #GErrors reported by @TrackerMiner objects.
+ *
+ * Since: 0.8.
+ **/
 #define TRACKER_MINER_ERROR_DOMAIN "TrackerMiner"
+
+/**
+ * TRACKER_MINER_ERROR:
+ *
+ * Returns the @GQuark used for #GErrors and for @TrackerMiner
+ * implementations. This calls tracker_miner_error_quark().
+ *
+ * Since: 0.8.
+ **/
 #define TRACKER_MINER_ERROR        tracker_miner_error_quark()
 
 typedef struct _TrackerMiner TrackerMiner;

@@ -155,11 +155,6 @@ tracker_media_art_queue_empty
 </SECTION>
 
 <SECTION>
-<FILE>tracker-miner-common</FILE>
-TRACKER_MINER_FS_GRAPH_URN
-</SECTION>
-
-<SECTION>
 <FILE>tracker-miner-enum-types</FILE>
 <SUBSECTION Standard>
 TRACKER_TYPE_DIRECTORY_FLAGS
@@ -261,6 +256,7 @@ tracker_miner_get_type
 <SECTION>
 <FILE>tracker-miner-online</FILE>
 <TITLE>TrackerMinerOnline</TITLE>
+TrackerMinerOnline
 TrackerMinerOnlineClass
 tracker_miner_online_get_network_type
 <SUBSECTION Standard>
@@ -270,7 +266,6 @@ TRACKER_MINER_ONLINE
 TRACKER_MINER_ONLINE_CLASS
 TRACKER_MINER_ONLINE_GET_CLASS
 TRACKER_TYPE_MINER_ONLINE
-TrackerMinerOnline
 tracker_miner_online_get_type
 </SECTION>
 
@@ -293,3 +288,4 @@ TRACKER_THUMBNAILER_GET_CLASS
 TRACKER_TYPE_THUMBNAILER
 tracker_thumbnailer_get_type
 </SECTION>
+

@@ -39,17 +39,24 @@ G_BEGIN_DECLS
 typedef struct _TrackerMinerOnline TrackerMinerOnline;
 typedef struct _TrackerMinerOnlineClass TrackerMinerOnlineClass;
 
+/**
+ * TrackerMinerOnline:
+ *
+ * Abstract miner object for data requiring connectivity.
+ **/
 struct _TrackerMinerOnline {
 	TrackerMiner parent_instance;
 };
 
 /**
  * TrackerMinerOnlineClass:
- * @parent_class: parent object class
+ * @parent_class: a #TrackerMinerClass
  * @connected: called when there is a network connection, or a new
  *   default route, returning #TRUE starts/resumes indexing.
  * @disconnected: called when there is no network connection.
  * @padding: Reserved for future API improvements.
+ *
+ * Virtual methods that can be overridden.
  *
  * Since: 0.18.
  **/

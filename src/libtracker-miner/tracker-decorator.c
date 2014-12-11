@@ -99,6 +99,17 @@ static GInitableIface *parent_initable_iface;
 
 static void   tracker_decorator_initable_iface_init (GInitableIface   *iface);
 
+/**
+ * tracker_decorator_error_quark:
+ *
+ * Quarks are used as the domain for a #GError. For all errors relating
+ * to @TrackerDecorator, you can compare the domain to the return
+ * value of this function.
+ *
+ * Returns: the @GQuark used for #GErrors related to @TrackerDecorator implementations.
+ *
+ * Since: 0.18.
+ **/
 G_DEFINE_QUARK (TrackerDecoratorError, tracker_decorator_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerDecorator, tracker_decorator, TRACKER_TYPE_MINER,
@@ -118,6 +129,16 @@ tracker_decorator_info_new (TrackerSparqlCursor *cursor)
 	return info;
 }
 
+/**
+ * tracker_decorator_info_ref:
+ * @info: a #TrackerDecoratorInfo
+ *
+ * Increases the reference count of @info by 1.
+ *
+ * Returns: the same @info passed in, or %NULL on error.
+ *
+ * Since: 0.18.
+ **/
 TrackerDecoratorInfo *
 tracker_decorator_info_ref (TrackerDecoratorInfo *info)
 {
@@ -125,6 +146,15 @@ tracker_decorator_info_ref (TrackerDecoratorInfo *info)
 	return info;
 }
 
+/**
+ * tracker_decorator_info_unref:
+ * @info: a #TrackerDecoratorInfo
+ *
+ * Decreases the reference count of @info by 1 and frees it when the
+ * reference count reaches 0.
+ *
+ * Since: 0.18.
+ **/
 void
 tracker_decorator_info_unref (TrackerDecoratorInfo *info)
 {
@@ -962,7 +992,7 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 	 * #TrackerDecorator sees resources that are available for
 	 * extended metadata extraction.
 	 *
-	 * Since: 0.18
+	 * Since: 0.18.
 	 **/
 	signals[ITEMS_AVAILABLE] =
 		g_signal_new ("items-available",
@@ -980,7 +1010,7 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 	 * #TrackerDecorator has finished extracted extended metadata
 	 * for resources in the database.
 	 *
-	 * Since: 0.18
+	 * Since: 0.18.
 	 **/
 	signals[FINISHED] =
 		g_signal_new ("finished",
@@ -1018,7 +1048,7 @@ tracker_decorator_init (TrackerDecorator *decorator)
  *
  * Returns: a const gchar* or #NULL if an error happened.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 const gchar *
 tracker_decorator_get_data_source (TrackerDecorator *decorator)
@@ -1040,7 +1070,7 @@ tracker_decorator_get_data_source (TrackerDecorator *decorator)
  *
  * Returns: (transfer none): a const gchar** or #NULL.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 const gchar **
 tracker_decorator_get_class_names (TrackerDecorator *decorator)
@@ -1055,11 +1085,16 @@ tracker_decorator_get_class_names (TrackerDecorator *decorator)
 
 /**
  * tracker_decorator_get_n_items:
- * @decorator: a #TrackerDecorator.
+ * @decorator: a #TrackerDecorator
+ *
+ * Get the number of items left in the queue to be processed. This
+ * indicates content that may already exist in Tracker but is waiting
+ * to be further flurished with metadata with a 2nd pass extraction or
+ * index.
  *
  * Returns: the number of items queued to be processed, always >= 0.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 guint
 tracker_decorator_get_n_items (TrackerDecorator *decorator)
@@ -1082,7 +1117,7 @@ tracker_decorator_get_n_items (TrackerDecorator *decorator)
  * @id is the same IDs emitted by tracker-store when the database is updated for
  * consistency. For details, see the GraphUpdated signal.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 void
 tracker_decorator_prepend_id (TrackerDecorator *decorator,
@@ -1103,7 +1138,7 @@ tracker_decorator_prepend_id (TrackerDecorator *decorator,
  * queue. @id is the same IDs emitted by tracker-store when the database is
  * updated for consistency. For details, see the GraphUpdated signal.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 void
 tracker_decorator_delete_id (TrackerDecorator *decorator,
@@ -1292,7 +1327,7 @@ complete_tasks_or_query (TrackerDecorator *decorator)
  * This function will give a #GError if the miner is paused at the
  * time it is called.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 void
 tracker_decorator_next (TrackerDecorator    *decorator,
@@ -1341,7 +1376,7 @@ tracker_decorator_next (TrackerDecorator    *decorator,
  * Returns: (transfer full): a #TrackerDecoratorInfo on success or
  *  #NULL on error. Free with tracker_decorator_info_unref().
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 TrackerDecoratorInfo *
 tracker_decorator_next_finish (TrackerDecorator  *decorator,
@@ -1355,6 +1390,18 @@ tracker_decorator_next_finish (TrackerDecorator  *decorator,
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
 
+/**
+ * tracker_decorator_set_priority_rdf_types:
+ * @decorator: a #TrackerDecorator
+ * @rdf_types: a string array of rdf types
+ *
+ * Re-evaluate the priority queues internally to ensure that
+ * @rdf_types are handled before all other content. This is useful for
+ * applications that need their content available sooner than the
+ * standard time it would take to index content.
+ *
+ * Since: 0.18.
+ **/
 void
 tracker_decorator_set_priority_rdf_types (TrackerDecorator    *decorator,
                                           const gchar * const *rdf_types)
@@ -1411,7 +1458,7 @@ tracker_decorator_set_priority_rdf_types (TrackerDecorator    *decorator,
  *
  * Returns: the URN for #TrackerDecoratorInfo on success or #NULL on error.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 const gchar *
 tracker_decorator_info_get_urn (TrackerDecoratorInfo *info)
@@ -1429,7 +1476,7 @@ tracker_decorator_info_get_urn (TrackerDecoratorInfo *info)
  *
  * Returns: the URL for #TrackerDecoratorInfo on success or #NULL on error.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 const gchar *
 tracker_decorator_info_get_url (TrackerDecoratorInfo *info)
@@ -1450,26 +1497,27 @@ tracker_decorator_info_get_url (TrackerDecoratorInfo *info)
  *
  * Returns: the MIME type for #TrackerDecoratorInfo on success or #NULL on error.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 const gchar *
 tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info)
 {
-	g_return_val_if_fail (info != NULL, NULL);
-	return info->mimetype;
+       g_return_val_if_fail (info != NULL, NULL);
+       return info->mimetype;
 }
+
 
 /**
  * tracker_decorator_info_get_task:
  * @info: a #TrackerDecoratorInfo.
  *
- * When processing resource updates in the database, the #GTask APIs
- * are used. This function returns the particular #GTask used for
- * @info.
+ * Get the #GTask associated with retrieving extended metadata and
+ * information for a URN in Tracker.
  *
- * Returns: (transfer none): the #GTask on success or #NULL on error.
+ * Returns: (transfer none): the #GTask for #TrackerDecoratorInfo on
+ * success or #NULL if there is no existing #GTask.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 GTask *
 tracker_decorator_info_get_task (TrackerDecoratorInfo *info)
@@ -1491,7 +1539,7 @@ tracker_decorator_info_get_task (TrackerDecoratorInfo *info)
  *
  * Returns: (transfer none): a #TrackerSparqlBuilder on success or #NULL on error.
  *
- * Since: 0.18
+ * Since: 0.18.
  **/
 TrackerSparqlBuilder *
 tracker_decorator_info_get_sparql (TrackerDecoratorInfo *info)

@@ -31,7 +31,6 @@
     <chapter>
       <title>Basics and foundations</title>
       <xi:include href="xml/tracker-miner-enums.xml"/>
-      <xi:include href="xml/tracker-miner-common.xml"/>
     </chapter>
 
     <chapter>
