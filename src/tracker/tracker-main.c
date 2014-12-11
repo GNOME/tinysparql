@@ -94,16 +94,16 @@ struct cmd_struct {
 };
 
 static struct cmd_struct commands[] = {
-	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, restart and list daemons responsible for indexing content") },
+	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, pause and list processes responsible for indexing content") },
 	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
 	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
-	{ "index", tracker_index, NEED_NOTHING, N_("List, pause, resume and command data miners indexing content") },
-	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset the index, configuration or replay journal") },
-	{ "search", tracker_search, NEED_WORK_TREE, N_("Search the index by RDF class") },
-	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search and list ontology in use") },
-	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database using SQL at the lowest level") },
-	{ "status", tracker_status, NEED_NOTHING, N_("Show the index status for the working tree") },
-	{ "tag", tracker_tag, NEED_WORK_TREE, N_("Create, list or delete tags and related content") },
+	{ "index", tracker_index, NEED_NOTHING, N_("Backup, restore, import and (re)index by MIME type or file name") },
+	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset or remove index and revert configurations to defaults") },
+	{ "search", tracker_search, NEED_WORK_TREE, N_("Search for content indexed or show content by type") },
+	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
+	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database at the lowest level using SQL") },
+	{ "status", tracker_status, NEED_NOTHING, N_("Show the indexing progress, content statistics and index state") },
+	{ "tag", tracker_tag, NEED_WORK_TREE, N_("Create, list or delete tags for indexed content") },
 	{ "version", tracker_version, NEED_NOTHING, N_("Show the license and version in use") },
 };
 
