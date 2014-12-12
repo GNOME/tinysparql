@@ -21,4 +21,40 @@ if ! which gnome-autogen.sh ; then
   exit 1
 fi
 
+# If no arguments are given, use those used with distcheck
+# equally, use the JHBuild prefix if it is available otherwise fall
+# back to the default (/usr/local)
+if [ $# -eq 0 ] ; then
+  echo "Using distcheck arguments, none were supplied..."
+
+  if test -n "$JHBUILD_PREFIX" ; then
+    echo "Using JHBuild prefix ('$JHBUILD_PREFIX')"
+    NEW_PREFIX="--prefix $JHBUILD_PREFIX"
+  fi
+
+  NEW_ARGS="\
+	--disable-nautilus-extension \
+	--enable-unit-tests \
+	--enable-functional-tests \
+	--enable-gtk-doc \
+	--enable-introspection \
+	--disable-miner-rss \
+	--disable-miner-evolution \
+	--disable-miner-thunderbird \
+	--disable-miner-firefox \
+	--enable-poppler \
+	--enable-exempi \
+	--enable-libiptcdata \
+	--enable-libjpeg \
+	--enable-libtiff \
+	--enable-libvorbis \
+	--enable-libflac \
+	--enable-libgsf \
+	--enable-playlist \
+	--enable-tracker-preferences \
+	--enable-enca"
+
+  set -- $NEW_PREFIX $NEW_ARGS
+fi
+
 . gnome-autogen.sh
