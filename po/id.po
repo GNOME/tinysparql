@@ -5,11 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker master\n"
+"Project-Id-Version: tracker tracker-1.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-09-03 16:18+0000\n"
-"PO-Revision-Date: 2014-09-04 22:18+0700\n"
+"POT-Creation-Date: 2014-12-12 11:52+0000\n"
+"PO-Revision-Date: 2014-12-12 22:35+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.7.1\n"
 
 #: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -57,9 +57,9 @@ msgstr "Prioritas scheduler ketika menganggur"
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
 msgid ""
-"The scheduler is the kernel component that decides which runnable "
-"application will be executed by the CPU next. Each application has an "
-"associated scheduling policy and priority."
+"The scheduler is the kernel component that decides which runnable application "
+"will be executed by the CPU next. Each application has an associated scheduling "
+"policy and priority."
 msgstr ""
 "Scheduler adalah komponen kernel yang menentukan aplikasi runnable mana yang "
 "selanjutnya akan dieksekusi oleh CPU. Setiap aplikasi memiliki kebijakan dan "
@@ -80,8 +80,8 @@ msgstr "Lebar art media maks"
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
 msgid ""
 "Maximum width in pixels for any media art extracted. Anything bigger is "
-"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
-"no limit on the media art width."
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets no "
+"limit on the media art width."
 msgstr ""
 "Lebar maksimum dalam piksel untuk sebarang art media yang diekstrak. Apapun "
 "yang lebih besar akan diubah ukurannya. Tata ke -1 untuk mematikan menyimpan "
@@ -93,15 +93,15 @@ msgstr "Tunggu penambang FS selesai sebelum mengekstrak"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
 msgid ""
-"When true, tracker-extract will wait for tracker-miner-fs to be done "
-"crawling before extracting meta-data. This option is useful on constrained "
-"environment where it is important to list files as fast as possible and can "
-"wait to get meta-data later."
+"When true, tracker-extract will wait for tracker-miner-fs to be done crawling "
+"before extracting meta-data. This option is useful on constrained environment "
+"where it is important to list files as fast as possible and can wait to get "
+"meta-data later."
 msgstr ""
 "Bila berisi true, tracker-extract akan menunggu tracker-miner-fs selesai "
 "bekerja sebelum mengekstra metadata. Opsi ini berguna pada lingkungan yang "
-"terkendala dimana penting untuk membuat daftar berkas secepat mungkin dan "
-"bisa menunggu untuk mendapatkan metadata belakangan."
+"terkendala dimana penting untuk membuat daftar berkas secepat mungkin dan bisa "
+"menunggu untuk mendapatkan metadata belakangan."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
 msgid "Maximum length of a word to be indexed"
@@ -144,8 +144,8 @@ msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
 "'Idea' for improved matching."
 msgstr ""
-"Terjemahkan karakter berakses ke tanpa akse ekuivalennya, mis. ‘Idéa’ to "
-"‘Idea’ untuk pencocokan yang lebih baik."
+"Terjemahkan karakter berakses ke tanpa akse ekuivalennya, mis. ‘Idéa’ to ‘Idea’ "
+"untuk pencocokan yang lebih baik."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -200,13 +200,13 @@ msgstr "Interval penelusuran"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
 msgid ""
-"Interval in days to check whether the filesystem is up to date in the "
-"database. 0 forces crawling anytime, -1 forces it only after unclean "
-"shutdowns, and -2 disables it entirely."
+"Interval in days to check whether the filesystem is up to date in the database. "
+"0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2 "
+"disables it entirely."
 msgstr ""
 "Selang waktu dalam hari untuk memeriksa apakah sistem berkas mutakhir dalam "
-"basis data. 0 memaksa penelusuran kapanpun, -1 memaksa hanya setelah "
-"dimatikan tak bersih, dan -2 sepenuhnya mematikannya."
+"basis data. 0 memaksa penelusuran kapanpun, -1 memaksa hanya setelah dimatikan "
+"tak bersih, dan -2 sepenuhnya mematikannya."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Removable devices' data permanence threshold"
@@ -218,8 +218,8 @@ msgid ""
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
 "Ambang dalam hari dimana setelahnya berkas dari perangkat lepas pasang akan "
-"dibuang dari basis data bila tak dikait. 0 berarti tak pernah, maksimum "
-"adalah 365."
+"dibuang dari basis data bila tak dikait. 0 berarti tak pernah, maksimum adalah "
+"365."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
 msgid "Enable monitors"
@@ -242,8 +242,7 @@ msgid "Index removable devices"
 msgstr "Indeks perangkat lepas pasang"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
-msgid ""
-"Set to true to enable indexing mounted directories for removable devices."
+msgid "Set to true to enable indexing mounted directories for removable devices."
 msgstr ""
 "Tata ke true untuk mengaktifkan pengindeksan direktori bagi perangkat lepas "
 "pasang."
@@ -257,9 +256,8 @@ msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
 "removable devices are not indexed, optical discs won't be either)"
 msgstr ""
-"Isi dengan true untuk mengaktifkan pengindeksan CD, DVD, dan media optis "
-"pada umumnya (bila perangkat lepas pasang tak diindeks, cakram optik juga "
-"tidak)"
+"Isi dengan true untuk mengaktifkan pengindeksan CD, DVD, dan media optis pada "
+"umumnya (bila perangkat lepas pasang tak diindeks, cakram optik juga tidak)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Index when running on battery"
@@ -285,10 +283,10 @@ msgstr "Direktori yang diindeks secara rekursif"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid ""
-"List of directories to index recursively, Special values include: &amp;"
-"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
-"and $HOME/.config/user-dirs.default"
+"List of directories to index recursively, Special values include: &amp;DESKTOP, "
+"&amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, "
+"&amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/"
+"user-dirs.default"
 msgstr ""
 "Daftar direktori yang diindeks secara rekursif. Nilai khusus termasuk: &amp;"
 "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
@@ -306,10 +304,10 @@ msgid ""
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
-"Daftar direktori yang diindex tanpa memeriksa subfolder. Nilai khusus "
-"termasuk: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Lihat /etc/xdg/"
-"user-dirs.defaults dan $HOME/.config/user-dirs.default"
+"Daftar direktori yang diindex tanpa memeriksa subfolder. Nilai khusus termasuk: "
+"&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Lihat /etc/xdg/user-dirs.defaults "
+"dan $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Ignored files"
@@ -342,8 +340,8 @@ msgstr "Tundaan GraphUpdated"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
 msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
+"Period in milliseconds between GraphUpdated signals being emitted when indexed "
+"data has changed inside the database."
 msgstr ""
 "Periode dalam milidetik antara sinyal GraphUpdated dipancarkan ketika data "
 "terindeks telah berubah di dalam basis data."
@@ -513,18 +511,18 @@ msgstr[0] " %2.2d detik"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
-#: ../src/libtracker-miner/tracker-data-provider.c:159
-#: ../src/libtracker-miner/tracker-data-provider.c:219
-#: ../src/libtracker-miner/tracker-data-provider.c:307
-#: ../src/libtracker-miner/tracker-data-provider.c:365
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
 msgid "Operation not supported"
 msgstr "Operasi tak didukung"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:997
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
-"Istirahatkan aplikasi dan alasan cocok dengan permintaan istirahat yang "
-"telah ada"
+"Istirahatkan aplikasi dan alasan cocok dengan permintaan istirahat yang telah "
+"ada"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:1096
 msgid "Cookie not recognized to resume paused miner"
@@ -592,8 +590,7 @@ msgstr "Memeriksa apakah BERKAS boleh ditambang berdasar konfigurasi"
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:73
-#: ../src/tracker-utils/tracker-info.c:74
+#: ../src/tracker-utils/tracker-info.c:79 ../src/tracker-utils/tracker-info.c:80
 #: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "BERKAS"
@@ -710,9 +707,8 @@ msgstr "- jalankan pengindeks asupan"
 msgid "Adding a feed requires --add-feed and --title"
 msgstr "Menambah asupan memerlukan --add-feed dan --title"
 
-#: ../src/miners/rss/tracker-main.c:113
-#: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:389
+#: ../src/miners/rss/tracker-main.c:113 ../src/tracker-utils/tracker-import.c:109
+#: ../src/tracker-utils/tracker-info.c:395
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:200
@@ -749,7 +745,7 @@ msgstr "Tak bisa membentuk koneksi ke Pelacak"
 #: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
-#: ../src/tracker-utils/tracker-info.c:390
+#: ../src/tracker-utils/tracker-info.c:396
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:201
@@ -801,8 +797,7 @@ msgstr[0] "_Tata tag yang ingin Anda kaitkan dengan %d butir yang dipilih:"
 #: ../src/tracker-utils/tracker-info.c:53
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:150
-#: ../src/tracker-utils/tracker-stats.c:51
-#: ../src/tracker-utils/tracker-tag.c:87
+#: ../src/tracker-utils/tracker-stats.c:51 ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "Cetak versi"
 
@@ -866,11 +861,9 @@ msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matikan semua proses Pelacak dan hapus semua basis data"
 
 #: ../src/tracker-control/tracker-control-general.c:98
-msgid ""
-"Same as --hard-reset but the backup & journal are restored after restart"
+msgid "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
-"Sama dengan --hard-reset tapi backup & jurnal dikembalikan setelah start "
-"ulang"
+"Sama dengan --hard-reset tapi backup & jurnal dikembalikan setelah start ulang"
 
 #: ../src/tracker-control/tracker-control-general.c:101
 msgid "Remove all configuration files so they are re-generated on next start"
@@ -881,8 +874,7 @@ msgstr ""
 #: ../src/tracker-control/tracker-control-general.c:104
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
-"Mulai jalankan penambang (yang secara tak langsung memulai tracker-store "
-"juga)"
+"Mulai jalankan penambang (yang secara tak langsung memulai tracker-store juga)"
 
 #: ../src/tracker-control/tracker-control-general.c:107
 msgid "Backup databases to the file provided"
@@ -894,8 +886,8 @@ msgstr "Kembalikan basis data dari berkas yang diberikan"
 
 #: ../src/tracker-control/tracker-control-general.c:113
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') "
+"for all processes"
 msgstr ""
 "Atur tingkat rincian log ke LEVEL ('debug', 'detailed', 'minimal', 'errors') "
 "bagi semua proses"
@@ -923,8 +915,7 @@ msgstr "Tak dapat membuka /proc"
 #: ../src/tracker-control/tracker-control-general.c:335
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr ""
-"Tak bisa mendapat GSettings bagi penambang, manajer tak dapat dibuat, %s"
+msgstr "Tak bisa mendapat GSettings bagi penambang, manajer tak dapat dibuat, %s"
 
 #: ../src/tracker-control/tracker-control-general.c:478
 msgid "Only one of 'all', 'store' and 'miners' options are allowed"
@@ -1112,8 +1103,8 @@ msgid ""
 "Tell miners to reindex files which match the mime type supplied (for new "
 "extractors), use -m MIME1 -m MIME2"
 msgstr ""
-"Memberitahu penambang untuk mengindeks ulang berkas yang cocok dengan tipe "
-"mime yang diberikan (bagi pengekstrak bar), pakai -m MIME1 -m MIME2"
+"Memberitahu penambang untuk mengindeks ulang berkas yang cocok dengan tipe mime "
+"yang diberikan (bagi pengekstrak bar), pakai -m MIME1 -m MIME2"
 
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-extract/tracker-main.c:97
@@ -1135,8 +1126,8 @@ msgstr "ALASAN"
 
 #: ../src/tracker-control/tracker-control-miners.c:67
 msgid ""
-"Pause a miner while the calling process is alive or until resumed (you must "
-"use this with --miner)"
+"Pause a miner while the calling process is alive or until resumed (you must use "
+"this with --miner)"
 msgstr ""
 "Istirahatkan penambang ketika proses pemanggil masih hidup atau sampai "
 "dilanjutkan (Anda mesti memakai ini dengan --miner)"
@@ -1154,8 +1145,8 @@ msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
 msgstr ""
-"Penambang yang dipakai dengan --resume atau --pause (Anda dapat memakai "
-"sufiks, mis. Berkas atau Aplikasi)"
+"Penambang yang dipakai dengan --resume atau --pause (Anda dapat memakai sufiks, "
+"mis. Berkas atau Aplikasi)"
 
 #: ../src/tracker-control/tracker-control-miners.c:76
 msgid "MINER"
@@ -1294,13 +1285,11 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:440
 msgid "You must provide the miner for pause or resume commands"
-msgstr ""
-"Anda mesti menyediakan penambang bagi perintah istirahat atau melanjutkan"
+msgstr "Anda mesti menyediakan penambang bagi perintah istirahat atau melanjutkan"
 
 #: ../src/tracker-control/tracker-control-miners.c:446
 msgid "You must provide a pause or resume command for the miner"
-msgstr ""
-"Anda mesti menyediakan perintah istirahat atau melanjutkan bagi penambang"
+msgstr "Anda mesti menyediakan perintah istirahat atau melanjutkan bagi penambang"
 
 #: ../src/tracker-control/tracker-control-miners.c:494
 msgid "Miner options"
@@ -1353,8 +1342,7 @@ msgstr "Ikuti perubahan status saat mereka terjadi"
 
 #: ../src/tracker-control/tracker-control-status.c:85
 msgid ""
-"Watch changes to the database in real time (e.g. resources or files being "
-"added)"
+"Watch changes to the database in real time (e.g. resources or files being added)"
 msgstr ""
 "Amati perubahan ke basis data secara real time (mis. sumber daya atau berkas "
 "sedang ditambahkan)"
@@ -1401,13 +1389,13 @@ msgid "Could not retrieve tracker-store progress"
 msgstr "Tak bisa mengambil kemajuan tracker-store"
 
 #: ../src/tracker-control/tracker-control-status.c:523
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:153
 #: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Tak bisa mengambil prefiks namespace"
 
 #: ../src/tracker-control/tracker-control-status.c:531
-#: ../src/tracker-utils/tracker-info.c:155
+#: ../src/tracker-utils/tracker-info.c:161
 #: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "Tak ada prefiks namespace yang dikembalikan"
@@ -1467,14 +1455,12 @@ msgstr "Ekstraksi metadata gagal"
 
 #: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
-msgstr ""
-"Tak ditemukan modul pengekstrak atau metadata untuk menangani berkas ini"
+msgstr "Tak ditemukan modul pengekstrak atau metadata untuk menangani berkas ini"
 
 #: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
 msgstr ""
 "Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan "
 "(bawaan=0)"
@@ -1512,19 +1498,18 @@ msgstr "Pencarian Desktop"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
-"Tracker"
+"Find what you're looking for on this computer by name or content using Tracker"
 msgstr ""
-"Temukan apa yang Anda cari pada komputer ini berdasarkan nama atau isi "
-"memakai Pelacak"
+"Temukan apa yang Anda cari pada komputer ini berdasarkan nama atau isi memakai "
+"Pelacak"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc. "
 "This includes searching the contents of files where applicable."
 msgstr ""
-"Tampilkan hasil menurut kategori, sebagai contoh, Musik, Video, Aplikasi, "
-"dsb. Ini termasuk mencari isi berkas bila berlaku."
+"Tampilkan hasil menurut kategori, sebagai contoh, Musik, Video, Aplikasi, dsb. "
+"Ini termasuk mencari isi berkas bila berlaku."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
@@ -1588,8 +1573,8 @@ msgstr "Antar muka pengguna Pencarian Desktop memakai Pelacak"
 #. Label for dialog
 #: ../src/tracker-needle/tracker-stats.vala:71
 msgid ""
-"The statistics represented here do not reflect their availability, rather "
-"the total data stored:"
+"The statistics represented here do not reflect their availability, rather the "
+"total data stored:"
 msgstr ""
 "Statistik yang direpresentasikan di sini tak mencerminkan ketersediaannya, "
 "namun hanya total data yang disimpan:"
@@ -1743,11 +1728,11 @@ msgstr "Pencarian Tak Ada Hasil"
 
 #: ../src/tracker-needle/tracker-view.vala:112
 msgid ""
-"Select the view on the toolbar for the content you want, e.g. everything, "
-"files or just images"
+"Select the view on the toolbar for the content you want, e.g. everything, files "
+"or just images"
 msgstr ""
-"Pilih tilikan pada bilah perkakas bagi isi yang Anda inginkan, mis. "
-"semuanya, berkas, atau hanya gambar"
+"Pilih tilikan pada bilah perkakas bagi isi yang Anda inginkan, mis. semuanya, "
+"berkas, atau hanya gambar"
 
 #: ../src/tracker-needle/tracker-view.vala:113
 msgid "Start to search using the entry box above"
@@ -1858,8 +1843,8 @@ msgid ""
 "application will be executed by the CPU next.  Each application has an "
 "associated scheduling  policy and priority.\n"
 "\n"
-"This option allows you to make Tracker take a back seat and not eat up too "
-"much CPU time if you have other applications more deserving of it."
+"This option allows you to make Tracker take a back seat and not eat up too much "
+"CPU time if you have other applications more deserving of it."
 msgstr ""
 "Scheduler adalah komponen kernel yang menentukan aplikasi runnable mana yang "
 "selanjutnya akan dieksekusi oleh CPU. Setiap aplikasi memiliki kebijakan "
@@ -1886,16 +1871,14 @@ msgstr ""
 "diprioritaskan."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:15
-msgid ""
-"_While other applications are running, except for initial data population"
-msgstr ""
-"Ketika aplikasi lain sedang berjalan, kecuali bagi pemenuhan data a_wal"
+msgid "_While other applications are running, except for initial data population"
+msgstr "Ketika aplikasi lain sedang berjalan, kecuali bagi pemenuhan data a_wal"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid ""
 "Indexing content will be <b>much slower</b> but other applications will have "
-"priority. This will only be the case on the <b>first index</b> of your "
-"content after you start your computer from a new install"
+"priority. This will only be the case on the <b>first index</b> of your content "
+"after you start your computer from a new install"
 msgstr ""
 "Pengindeksan isi akan <b>jauh lebih lambat</b> tapi aplikasi lain akan "
 "diprioritaskan. Ini hanya akan berlaku pada <b>pengindeksan pertama</b> atas "
@@ -1907,8 +1890,8 @@ msgstr "_Ketika aplikasi lain sedang berjalan"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid ""
-"Indexing content will be as <b>fast</b> as possible but other applications "
-"may suffer and be slower as a result."
+"Indexing content will be as <b>fast</b> as possible but other applications may "
+"suffer and be slower as a result."
 msgstr ""
 "Pengindeksan ini akan <b>secepat mungkin</b> tapi aplikasi lain mungkin akan "
 "terhambat dan akan menjadi lebih lambat."
@@ -1923,12 +1906,11 @@ msgstr "Limitasi"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:21
 msgid ""
-"Indexed content from removable devices that have not been inserted for a "
-"while, are cleaned up to avoid build up of unused resources."
+"Indexed content from removable devices that have not been inserted for a while, "
+"are cleaned up to avoid build up of unused resources."
 msgstr ""
-"Isi terindeks dari perangkat lepas pasang yang belum disisipkan untuk "
-"sementara waktu, dibersihkan untuk menghindari penumpukan sumber daya yang "
-"tak terpakai."
+"Isi terindeks dari perangkat lepas pasang yang belum disisipkan untuk sementara "
+"waktu, dibersihkan untuk menghindari penumpukan sumber daya yang tak terpakai."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Days before deleting removable devices:"
@@ -1944,21 +1926,21 @@ msgstr "Mengindeks"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid ""
-"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
-"b> directory, can be easily toggled below. This will add or remove their "
-"real paths from the list underneath.\n"
+"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</b> "
+"directory, can be easily toggled below. This will add or remove their real "
+"paths from the list underneath.\n"
 "\n"
-"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
-"directories underneath it will also be indexed. Otherwise, only files "
-"immediately in that directory will be indexed."
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-directories "
+"underneath it will also be indexed. Otherwise, only files immediately in that "
+"directory will be indexed."
 msgstr ""
-"Lokasi khusus seperti direktori <b>Home</b>, <b>Desktop</b>, atau "
-"<b>Dokumen</b> Anda dapat ditag dengan mudah di bawah. Ini akan menambah "
-"atau menghapus path nyata mereka dari daftar dibawahnya.\n"
+"Lokasi khusus seperti direktori <b>Home</b>, <b>Desktop</b>, atau <b>Dokumen</"
+"b> Anda dapat ditag dengan mudah di bawah. Ini akan menambah atau menghapus "
+"path nyata mereka dari daftar dibawahnya.\n"
 "\n"
 "Bila suatu direktori dijungkitkan ke <b>Rekursi</b>, itu berarti bahwa semua "
-"sub direktori dibawahnya juga diindeks. Bila tidak, hanya berkas yang "
-"langsung berada di dalam direktori tersebut yang akan diindeks."
+"sub direktori dibawahnya juga diindeks. Bila tidak, hanya berkas yang langsung "
+"berada di dalam direktori tersebut yang akan diindeks."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Index Home Directory"
@@ -2038,8 +2020,7 @@ msgid ""
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Pola glob dapat dipakai di sini, sebagai contoh: \"*bar*\".\n"
-"Paling umum ini dipakai untuk mengabaikan direktori seperti *~, *.o, *.la, "
-"dsb"
+"Paling umum ini dipakai untuk mengabaikan direktori seperti *~, *.o, *.la, dsb"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker-utils/tracker-search.c:515
@@ -2069,44 +2050,53 @@ msgstr "Kendali"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:54
 msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
+"When resetting your indexed data, the databases are removed and your files will "
+"no longer be indexed. Upon next start, Tracker will then start indexing data as "
+"if it was being run for the first time.\n"
 "\n"
-"<b>Warning: All data indexed will be removed! It can not be retrieved!</b>\n"
+"<b>Warning: All indexes and caches for your data will be removed! They can not "
+"be retrieved! Your REAL data and files will not be touched.</b>\n"
 "\n"
 "Clicking this button will close the preferences too."
 msgstr ""
-"Ketika mereset data terindeks Anda, basis data dihapus dan berkas Anda tak "
+"Ketika mereset data terindeks Anda, basis data dibuang dan berkas Anda tak "
 "diindeks lagi. Saat dimulai berikutnya, Tracker lalu akan memulai mengindeks "
 "data seolah seperti dijalankan untuk pertama kali.\n"
 "\n"
-"<b>Peringatan: Semua data terindeks akan dihapus! Itu tak akan bisa diambil!"
-"</b>\n"
+"<b>Peringatan: Semua indeks dan singgahan bagi data Anda akan dihapus! Itu tak "
+"akan bisa diambil! Berkas dan data Anda yang SEBENARNYA tak akan disentuh.</b>\n"
 "\n"
-"Mengklik tombol ini akan menutup preferensi juga."
+"Mengklik tombol ini juga akan menutup preferensi."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all of my indexed data"
-msgstr "Ya, hapus semua data terindeks saya"
+msgid "Yes, remove all indexes"
+msgstr "Ya, hapus semua indeks"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:60
+msgid ""
+"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
+"able to quickly find your information and content."
+msgstr ""
+"Sebuah 'indeks' adalah sebuah acuan terurut ke sepenggal data. Kita memakai "
+"indeks agar dapat menemukan informasi Anda secara cepat."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:61
 msgid "Reset Indexed Data"
 msgstr "Reset Data Terindeks"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
+#: ../src/tracker-preferences/tracker-preferences.ui.h:62
 msgid "_Delay"
 msgstr "Tun_da"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
+#: ../src/tracker-preferences/tracker-preferences.ui.h:63
 msgid "seconds"
 msgstr "detik"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
+#: ../src/tracker-preferences/tracker-preferences.ui.h:64
 msgid "Start up"
 msgstr "Awal mula"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
+#: ../src/tracker-preferences/tracker-preferences.ui.h:65
 msgid "System"
 msgstr "Sistem"
 
@@ -2118,12 +2108,11 @@ msgstr "Direktori"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:357
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"The changes you have made to your preferences here require a reindex to ensure "
+"all your data is correctly indexed as you have requested."
 msgstr ""
-"Perubahan yang telah Anda buat ke preferensi Anda di sini memerlukan "
-"reindeks untuk memastikan semua data Anda diindeks secara benar seperti yang "
-"Anda minta."
+"Perubahan yang telah Anda buat ke preferensi Anda di sini memerlukan reindeks "
+"untuk memastikan semua data Anda diindeks secara benar seperti yang Anda minta."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:358
 msgid "This will close this dialog!"
@@ -2223,7 +2212,7 @@ msgid "- Import data using Turtle files"
 msgstr "- Impor data memakai berkas Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:373
+#: ../src/tracker-utils/tracker-info.c:379
 msgid "One or more files have not been specified"
 msgstr "Satu berkas atau lebih belum dinyatakan"
 
@@ -2245,42 +2234,48 @@ msgstr ""
 msgid "Show plain text content if available for resources"
 msgstr "Tunjukkan isi teks polos bila tersedia bagi sumber daya"
 
-#: ../src/tracker-utils/tracker-info.c:65
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker-utils/tracker-info.c:71
 msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs (e."
+"g. <file:///path/to/some/file.txt>)"
 msgstr ""
 "Alih-alih mencari suatu nama berkas, perlakukan argumen BERKAS sebagai IRI "
 "sebenarnya (mis. <file:///path/ke/suatu/berkas.txt>)"
 
-#: ../src/tracker-utils/tracker-info.c:69
+#: ../src/tracker-utils/tracker-info.c:75
 msgid "Output results as RDF in Turtle format"
 msgstr "Keluarkan hasil sebagai RDF dalam format Turtle"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:355
+#: ../src/tracker-utils/tracker-info.c:361
 msgid "- Get all information about one or more files"
 msgstr "- Dapatkan semua informasi tentang satu berkas atau lebih"
 
-#: ../src/tracker-utils/tracker-info.c:411
+#: ../src/tracker-utils/tracker-info.c:417
 msgid "Querying information for entity"
 msgstr "Mengquery informasi tentang entitas"
 
-#: ../src/tracker-utils/tracker-info.c:435
+#: ../src/tracker-utils/tracker-info.c:441
 msgid "Unable to retrieve URN for URI"
 msgstr "Tak bisa mengambil URN bagi URI"
 
-#: ../src/tracker-utils/tracker-info.c:445
-#: ../src/tracker-utils/tracker-info.c:479
+#: ../src/tracker-utils/tracker-info.c:451
+#: ../src/tracker-utils/tracker-info.c:485
 msgid "Unable to retrieve data for URI"
 msgstr "Tak bisa mengambil data bagi URI"
 
-#: ../src/tracker-utils/tracker-info.c:488
+#: ../src/tracker-utils/tracker-info.c:494
 msgid "No metadata available for that URI"
 msgstr "Tak tersedia metadata bagi URI itu"
 
-#: ../src/tracker-utils/tracker-info.c:493
+#: ../src/tracker-utils/tracker-info.c:499
 #: ../src/tracker-utils/tracker-search.c:1458
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
@@ -2288,13 +2283,11 @@ msgstr "Tak tersedia metadata bagi URI itu"
 msgid "Results"
 msgstr "Hasil"
 
-#: ../src/tracker-utils/tracker-search.c:81
-#: ../src/tracker-utils/tracker-tag.c:55
+#: ../src/tracker-utils/tracker-search.c:81 ../src/tracker-utils/tracker-tag.c:55
 msgid "Limit the number of results shown"
 msgstr "Batasi cacah hasil yang ditampilkan"
 
-#: ../src/tracker-utils/tracker-search.c:85
-#: ../src/tracker-utils/tracker-tag.c:59
+#: ../src/tracker-utils/tracker-search.c:85 ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Ofsetkan hasilnya"
 
@@ -2307,8 +2300,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Tunjukkan URN untuk hasil (tak berlaku pada --music-albums, --music-artists, "
-"--feeds, --software, --software-categories)"
+"Tunjukkan URN untuk hasil (tak berlaku pada --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
 
 #: ../src/tracker-utils/tracker-search.c:97
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2318,8 +2311,8 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:101
 msgid ""
-"Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music…"
+"Disable showing snippets with results. This is only shown for some categories, "
+"e.g. Documents, Music…"
 msgstr ""
 "Jangan tampilkan snippet dengan hasil. Ini hanya ditampilkan bagi beberapa "
 "kategori, mis. Dokumen, Musik..."
@@ -2507,16 +2500,16 @@ msgstr "- Cari istilah dalam semua data"
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
-"Menerapkan operator AND ke semua istilah yang dipisahkan oleh spasi (lihat --"
-"or-operator)"
+"Menerapkan operator AND ke semua istilah yang dipisahkan oleh spasi (lihat --or-"
+"operator)"
 
 #: ../src/tracker-utils/tracker-search.c:1544
 msgid ""
-"This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
-"you use --or-operator)"
+"This means if you search for 'foo' and 'bar', they must BOTH exist (unless you "
+"use --or-operator)"
 msgstr ""
-"Ini berarti bila Anda mencari ‘foo’ dan ‘bar’, KEDUANYA harus ada (kecuali "
-"Anda memakai —or-operator)"
+"Ini berarti bila Anda mencari ‘foo’ dan ‘bar’, KEDUANYA harus ada (kecuali Anda "
+"memakai —or-operator)"
 
 #: ../src/tracker-utils/tracker-search.c:1551
 msgid "Search options"
@@ -2569,8 +2562,7 @@ msgstr "Ambil prefiks kelas"
 
 #: ../src/tracker-utils/tracker-sparql.c:121
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
 msgstr ""
 "Ambil properti bagi kelas, prefiks juga dapat dipakai (mis. rdfs:Resource)"
 
@@ -2583,18 +2575,15 @@ msgid "CLASS"
 msgstr "KELAS"
 
 #: ../src/tracker-utils/tracker-sparql.c:125
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Ambil kelas yang memberitahu perubahan dalam basis data (CLASS opsional)"
+msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr "Ambil kelas yang memberitahu perubahan dalam basis data (CLASS opsional)"
 
 #: ../src/tracker-utils/tracker-sparql.c:129
 msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
+"Retrieve indexes used in database to improve performance (PROPERTY is optional)"
 msgstr ""
-"Ambil indeks yang dipakai dalam basis data untuk memperbaiki kinerja "
-"(PROPERTY opsional)"
+"Ambil indeks yang dipakai dalam basis data untuk memperbaiki kinerja (PROPERTY "
+"opsional)"
 
 #: ../src/tracker-utils/tracker-sparql.c:130
 msgid "PROPERTY"
@@ -2605,8 +2594,8 @@ msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr ""
-"Menguraikan subkelas, superkelas (dapat dipakai dengan -s untuk menyorot "
-"bagian dari pohon dan -p untuk menampilkan properti)"
+"Menguraikan subkelas, superkelas (dapat dipakai dengan -s untuk menyorot bagian "
+"dari pohon dan -p untuk menampilkan properti)"
 
 #: ../src/tracker-utils/tracker-sparql.c:137
 msgid ""
@@ -2664,10 +2653,8 @@ msgstr "Tak ditemukan prefiks namespace"
 #: ../src/tracker-utils/tracker-sparql.c:500
 #: ../src/tracker-utils/tracker-sparql.c:548
 #: ../src/tracker-utils/tracker-stats.c:269
-#: ../src/tracker-utils/tracker-tag.c:329
-#: ../src/tracker-utils/tracker-tag.c:461
-#: ../src/tracker-utils/tracker-tag.c:583
-#: ../src/tracker-utils/tracker-tag.c:961
+#: ../src/tracker-utils/tracker-tag.c:329 ../src/tracker-utils/tracker-tag.c:461
+#: ../src/tracker-utils/tracker-tag.c:583 ../src/tracker-utils/tracker-tag.c:961
 msgid "None"
 msgstr "Nihil"
 
@@ -2698,8 +2685,7 @@ msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
-"Argumen —list-properties hanya bisa kosong ketika dipakai dengan argumen —"
-"tree"
+"Argumen —list-properties hanya bisa kosong ketika dipakai dengan argumen —tree"
 
 #: ../src/tracker-utils/tracker-sparql.c:1134
 msgid "Could not list classes"
@@ -2801,8 +2787,7 @@ msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
 #: ../src/tracker-utils/tracker-sparql.c:1471
-#: ../utils/tracker-sql/tracker-sql.c:159
-#: ../utils/tracker-sql/tracker-sql.c:192
+#: ../utils/tracker-sql/tracker-sql.c:159 ../utils/tracker-sql/tracker-sql.c:192
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kuiri"
 
@@ -2816,16 +2801,15 @@ msgid ""
 "Show statistics about ALL RDF classes, not just common ones which is the "
 "default (implied by search terms)"
 msgstr ""
-"Menampilkan statistik tentang kelas ALL RDF, bukan hanya yang umum yang "
-"menjadi baku (diimplikasikan oleh istilah pencarian)"
+"Menampilkan statistik tentang kelas ALL RDF, bukan hanya yang umum yang menjadi "
+"baku (diimplikasikan oleh istilah pencarian)"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-stats.c:178
 msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr ""
-" - Tunjukkan statistik bagi semua Nepomuk yang didefinisikan bagi kelas "
-"ontologi"
+" - Tunjukkan statistik bagi semua Nepomuk yang didefinisikan bagi kelas ontologi"
 
 #: ../src/tracker-utils/tracker-stats.c:210
 msgid "Could not get Tracker statistics"
@@ -2844,11 +2828,9 @@ msgid "Use AND for search terms instead of OR (the default)"
 msgstr "Pakai AND untuk istilah pencarian sebagai pengganti OR (baku)"
 
 #: ../src/tracker-utils/tracker-tag.c:67
-msgid ""
-"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgid "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
-"Daftar semua tag (pakai FILTER bila dinyatakan; FILTER selalu memakai OR "
-"lojik)"
+"Daftar semua tag (pakai FILTER bila dinyatakan; FILTER selalu memakai OR lojik)"
 
 #: ../src/tracker-utils/tracker-tag.c:68
 msgid "FILTER"
@@ -2857,14 +2839,13 @@ msgstr "FILTER"
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
-"Tunjukkan berkas yang dihubungkan dengan setiap tag (ini hanya dipakai "
-"dengan --list)"
+"Tunjukkan berkas yang dihubungkan dengan setiap tag (ini hanya dipakai dengan --"
+"list)"
 
 #: ../src/tracker-utils/tracker-tag.c:75
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 msgstr ""
-"Tambahkan tag (bile FILE diabaikan, TAG tak dihubungkan dengan sebarang "
-"berkas)"
+"Tambahkan tag (bile FILE diabaikan, TAG tak dihubungkan dengan sebarang berkas)"
 
 #: ../src/tracker-utils/tracker-tag.c:76 ../src/tracker-utils/tracker-tag.c:80
 msgid "TAG"
@@ -2914,13 +2895,11 @@ msgstr "Tak bisa mendapat berkas untuk mencocokkan tag"
 msgid "No files were found matching ALL of those tags"
 msgstr "Tak ditemukan berkas yang cocok dengan SEMUA tag itu"
 
-#: ../src/tracker-utils/tracker-tag.c:520
-#: ../src/tracker-utils/tracker-tag.c:935
+#: ../src/tracker-utils/tracker-tag.c:520 ../src/tracker-utils/tracker-tag.c:935
 msgid "Could not get all tags"
 msgstr "Tak bisa mendapat semua tag"
 
-#: ../src/tracker-utils/tracker-tag.c:529
-#: ../src/tracker-utils/tracker-tag.c:944
+#: ../src/tracker-utils/tracker-tag.c:529 ../src/tracker-utils/tracker-tag.c:944
 msgid "No tags were found"
 msgstr "Tak ditemukan tag"
 
@@ -2932,8 +2911,7 @@ msgstr "Tag (ditampilkan berdasar nama)"
 msgid "No files were modified"
 msgstr "Tidak ada berkas yang diubah"
 
-#: ../src/tracker-utils/tracker-tag.c:657
-#: ../src/tracker-utils/tracker-tag.c:665
+#: ../src/tracker-utils/tracker-tag.c:657 ../src/tracker-utils/tracker-tag.c:665
 msgid "Files do not exist or aren't indexed"
 msgstr "Berkas tak ada atau belum diindeks"
 
@@ -2990,10 +2968,8 @@ msgstr "Opsi —list diperlukan bagi —show-files"
 
 #: ../src/tracker-utils/tracker-tag.c:1007
 msgid ""
-"The --and-operator option can only be used with --list and tag label "
-"arguments"
-msgstr ""
-"Opsi —and-operator hanya dapat dipakai dengan argumen label tag dan —list"
+"The --and-operator option can only be used with --list and tag label arguments"
+msgstr "Opsi —and-operator hanya dapat dipakai dengan argumen label tag dan —list"
 
 #: ../src/tracker-utils/tracker-tag.c:1009
 msgid "Add and delete actions can not be used together"
