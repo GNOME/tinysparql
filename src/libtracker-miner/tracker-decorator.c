@@ -34,7 +34,8 @@
  * @include: libtracker-miner/tracker-miner.h
  * @title: TrackerDecorator
  * @see_also: #TrackerDecoratorFS
- * #TrackerDecorator watches for signal updates based on file changes
+ *
+ * #TrackerDecorator watches for signal updates based on content changes
  * in the database. When new files are added initially, only simple
  * metadata exists, for example, name, size, mtime, etc. The
  * #TrackerDecorator queues files for extended metadata extraction
@@ -102,11 +103,10 @@ static void   tracker_decorator_initable_iface_init (GInitableIface   *iface);
 /**
  * tracker_decorator_error_quark:
  *
- * Quarks are used as the domain for a #GError. For all errors relating
- * to @TrackerDecorator, you can compare the domain to the return
- * value of this function.
+ * Gives the caller the #GQuark used to identify #TrackerDecorator errors
+ * in #GError structures. The #GQuark is used as the domain for the error.
  *
- * Returns: the @GQuark used for #GErrors related to @TrackerDecorator implementations.
+ * Returns: the #GQuark used for the domain of a #GError.
  *
  * Since: 0.18.
  **/

@@ -356,6 +356,16 @@ static GQuark quark_file_iri = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
 
+/**
+ * tracker_miner_fs_error_quark:
+ *
+ * Gives the caller the #GQuark used to identify #TrackerMinerFS errors
+ * in #GError structures. The #GQuark is used as the domain for the error.
+ *
+ * Returns: the #GQuark used for the domain of a #GError.
+ *
+ * Since: 1.2.
+ **/
 G_DEFINE_QUARK (TrackerMinerFSError, tracker_miner_fs_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMinerFS, tracker_miner_fs, TRACKER_TYPE_MINER,
@@ -3957,7 +3967,7 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
  * could be changed outside between startup and shutdown of the
  * process using this API.
  *
- * The default if not set directly is that @mtime_checking is #TRUE.
+ * The default if not set directly is that @mtime_checking is %TRUE.
  *
  * Since: 0.10
  **/
@@ -3974,8 +3984,13 @@ tracker_miner_fs_set_mtime_checking (TrackerMinerFS *fs,
  * tracker_miner_fs_get_mtime_checking:
  * @fs: a #TrackerMinerFS
  *
- * Returns: #TRUE if mtime checks for directories against the database
- * are done when @fs crawls the file system, otherwise #FALSE.
+ * Returns a boolean used to identify if file modification time checks
+ * are performed when processing content. This may be set to %FALSE if
+ * working prodominently with cloud data where you can't perform these
+ * checks. By default and for local file systems, this is enabled.
+ *
+ * Returns: %TRUE if mtime checks for directories against the database
+ * are done when @fs crawls the file system, otherwise %FALSE.
  *
  * Since: 0.10
  **/
@@ -4018,6 +4033,30 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 	                           flags);
 }
 
+/**
+ * tracker_miner_fs_set_initial_crawling:
+ * @fs: a #TrackerMinerFS
+ * @do_initial_crawling: a #gboolean
+ *
+ * Tells the @fs that crawling the #TrackerIndexingTree should happen
+ * initially. This is actually required to set up file system monitor
+ * using technologies like inotify, etc.
+ *
+ * Setting this to #FALSE can dramatically improve the start up the
+ * crawling of the @fs.
+ *
+ * The down side is that using this consistently means that some files
+ * on the disk may be out of date with files in the database.
+ *
+ * The main purpose of this function is for systems where a @fs is
+ * running the entire time and where it is very unlikely that a file
+ * could be changed outside between startup and shutdown of the
+ * process using this API.
+ *
+ * The default if not set directly is that @do_initial_crawling is %TRUE.
+ *
+ * Since: 0.10
+ **/
 void
 tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                        gboolean        do_initial_crawling)
@@ -4027,6 +4066,20 @@ tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
 	fs->priv->initial_crawling = do_initial_crawling;
 }
 
+/**
+ * tracker_miner_fs_get_initial_crawling:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns a boolean which indicates if the indexing tree is crawled
+ * upon start up or not. This may be set to %FALSE if working
+ * prodominently with cloud data where you can't perform these checks.
+ * By default and for local file systems, this is enabled.
+ *
+ * Returns: %TRUE if a file system structure is crawled for new
+ * updates on start up, otherwise %FALSE.
+ *
+ * Since: 0.10
+ **/
 gboolean
 tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
 {
@@ -4039,8 +4092,13 @@ tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
  * tracker_miner_fs_has_items_to_process:
  * @fs: a #TrackerMinerFS
  *
- * Returns: #TRUE if there are items to process in the internal
- * queues, otherwise #FALSE.
+ * The @fs keeps many priority queus for content it is processing.
+ * This function returns %TRUE if the sum of all (or any) priority
+ * queues is more than 0. This includes items deleted, created,
+ * updated, moved or being written back.
+ *
+ * Returns: %TRUE if there are items to process in the internal
+ * queues, otherwise %FALSE.
  *
  * Since: 0.10
  **/

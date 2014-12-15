@@ -256,6 +256,21 @@ tracker_thumbnailer_init (TrackerThumbnailer *thumbnailer)
 {
 }
 
+/**
+ * tracker_thumbnailer_new:
+ *
+ * Creates a new #TrackerThumbnailer object that can be used to signal
+ * the system's thumbnailing daemon(s) via D-Bus to add or remove
+ * content that needs thumbnailing.
+ *
+ * For example, when mounting a USB thumb drive, content may not have
+ * thumbnails and this object allows the content of that thumb drive
+ * to be queued for processing.
+ *
+ * Returns: %TRUE if successfully stored to be reported, %FALSE otherwise.
+ *
+ * Since: 0.18.
+ */
 TrackerThumbnailer *
 tracker_thumbnailer_new (void)
 {
