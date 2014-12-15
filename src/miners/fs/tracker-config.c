@@ -937,7 +937,7 @@ tracker_config_get_ignored_files (TrackerConfig *config)
 gint
 tracker_config_get_crawling_interval (TrackerConfig *config)
 {
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_CRAWLING_INTERVAL);
 
 	return g_settings_get_int (G_SETTINGS (config), "crawling-interval");
 }
@@ -945,7 +945,7 @@ tracker_config_get_crawling_interval (TrackerConfig *config)
 gint
 tracker_config_get_removable_days_threshold (TrackerConfig *config)
 {
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_REMOVABLE_DAYS_THRESHOLD);
 
 	return g_settings_get_int (G_SETTINGS (config), "removable-days-threshold");
 }
