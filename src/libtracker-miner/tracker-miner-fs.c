@@ -3716,12 +3716,13 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 /**
  * tracker_miner_fs_set_throttle:
  * @fs: a #TrackerMinerFS
- * @throttle: throttle value, between 0 and 1
+ * @throttle: a double between 0.0 and 1.0
  *
- * Tells the filesystem miner to throttle its operations.
- * a value of 0 means no throttling at all, so the miner
- * will perform operations at full speed, 1 is the slowest
- * value.
+ * Tells the filesystem miner to throttle its operations. A value of
+ * 0.0 means no throttling at all, so the miner will perform
+ * operations at full speed, 1.0 is the slowest value. With a value of
+ * 1.0, the @fs is typically waiting one full second before handling
+ * the next batch of queued items to be processed.
  *
  * Since: 0.8
  **/
@@ -3754,9 +3755,10 @@ tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
  * tracker_miner_fs_get_throttle:
  * @fs: a #TrackerMinerFS
  *
- * Gets the current throttle value. see tracker_miner_fs_set_throttle().
+ * Gets the current throttle value, see
+ * tracker_miner_fs_set_throttle() for more details.
  *
- * Returns: current throttle value.
+ * Returns: a double representing a value between 0.0 and 1.0.
  *
  * Since: 0.8
  **/
