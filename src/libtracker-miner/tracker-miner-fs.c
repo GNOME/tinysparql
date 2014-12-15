@@ -19,11 +19,7 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-crawler.h"
 #include "tracker-miner-fs.h"
@@ -2612,7 +2608,7 @@ _tracker_idle_add (TrackerMinerFS *fs,
 {
 	guint interval;
 
-	interval = TRACKER_MAX_TIMEOUT_INTERVAL * fs->priv->throttle;
+	interval = TRACKER_CRAWLER_MAX_TIMEOUT_INTERVAL * fs->priv->throttle;
 
 	if (interval == 0) {
 		return g_idle_add_full (TRACKER_TASK_PRIORITY, func, user_data, NULL);

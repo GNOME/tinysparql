@@ -39,7 +39,7 @@ G_BEGIN_DECLS
 #define TRACKER_CRAWLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
 
 /* Max timeouts time (in msec) */
-#define TRACKER_MAX_TIMEOUT_INTERVAL 1000
+#define TRACKER_CRAWLER_MAX_TIMEOUT_INTERVAL 1000
 
 typedef struct TrackerCrawler         TrackerCrawler;
 typedef struct TrackerCrawlerClass    TrackerCrawlerClass;

@@ -1200,7 +1200,7 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 	if (crawler->priv->idle_id != 0) {
 		guint interval, idle_id;
 
-		interval = TRACKER_MAX_TIMEOUT_INTERVAL * crawler->priv->throttle;
+		interval = TRACKER_CRAWLER_MAX_TIMEOUT_INTERVAL * crawler->priv->throttle;
 
 		g_source_remove (crawler->priv->idle_id);
 
