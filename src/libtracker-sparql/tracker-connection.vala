@@ -220,6 +220,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Executes a SPARQL query on. The API call is completely synchronous, so
 	 * it may block.
 	 *
+	 * The @sparql query should be built with #TrackerSparqlBuilder, or
+	 * its parts correctly escaped using tracker_sparql_escape_string(),
+	 * otherwise SPARQL injection is possible.
+	 *
 	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
 	 * On error, #NULL is returned and the @error is set accordingly.
 	 * Call g_object_unref() on the returned cursor when no longer needed.
@@ -268,6 +272,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Executes a SPARQL update. The API call is completely
 	 * synchronous, so it may block.
+	 *
+	 * The @sparql query should be built with #TrackerSparqlBuilder, or
+	 * its parts correctly escaped using tracker_sparql_escape_string(),
+	 * otherwise SPARQL injection is possible.
 	 *
 	 * Since: 0.10
 	 */
@@ -380,6 +388,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Executes a SPARQL update and returns the URNs of the generated nodes,
 	 * if any. The API call is completely synchronous, so it may block.
+	 *
+	 * The @sparql query should be built with #TrackerSparqlBuilder, or
+	 * its parts correctly escaped using tracker_sparql_escape_string(),
+	 * otherwise SPARQL injection is possible.
 	 *
 	 * Returns: a #GVariant with the generated URNs, which should be freed with
 	 * g_variant_unref() when no longer used.
