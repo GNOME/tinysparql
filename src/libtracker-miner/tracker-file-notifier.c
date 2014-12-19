@@ -96,6 +96,11 @@ typedef struct {
 	GFile *cur_parent;
 } DirectoryCrawledData;
 
+typedef struct {
+	TrackerFileNotifier *notifier;
+	gint max_depth;
+} SparqlStartData;
+
 static gboolean crawl_directories_start (TrackerFileNotifier *notifier);
 
 G_DEFINE_TYPE (TrackerFileNotifier, tracker_file_notifier, G_TYPE_OBJECT)
@@ -342,7 +347,7 @@ notifier_check_next_root (TrackerFileNotifier *notifier)
 }
 
 static void
-file_notifier_traverse_tree (TrackerFileNotifier *notifier)
+file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *config_root, *directory;
@@ -361,6 +366,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 		                              directory,
 		                              G_LEVEL_ORDER,
 		                              file_notifier_traverse_tree_foreach,
+		                              max_depth,
 		                              notifier);
 	}
 }
@@ -721,12 +727,13 @@ sparql_files_query_cb (GObject      *object,
 		       GAsyncResult *result,
 		       gpointer      user_data)
 {
+	SparqlStartData *data = user_data;
 	TrackerFileNotifierPrivate *priv;
 	TrackerFileNotifier *notifier;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	notifier = user_data;
+	notifier = data->notifier;
 	priv = notifier->priv;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
@@ -739,7 +746,7 @@ sparql_files_query_cb (GObject      *object,
 		g_object_unref (cursor);
 	}
 
-	file_notifier_traverse_tree (notifier);
+	file_notifier_traverse_tree (notifier, data->max_depth);
 
 	if (priv->current_index_root->updated_dirs->len > 0) {
 		/* Updated directories have been found, check for deleted contents in those */
@@ -750,6 +757,8 @@ sparql_files_query_cb (GObject      *object,
 	} else {
 		finish_current_directory (notifier);
 	}
+
+	g_free (data);
 }
 
 static gchar *
@@ -779,11 +788,16 @@ sparql_files_compose_query (GFile **files,
 
 static void
 sparql_files_query_start (TrackerFileNotifier  *notifier,
-			  GFile               **files,
-                          guint                 n_files)
+                          GFile               **files,
+                          guint                 n_files,
+                          gint                  max_depth)
 {
 	TrackerFileNotifierPrivate *priv;
 	gchar *sparql;
+	SparqlStartData *data = g_new (SparqlStartData, 1);
+
+	data->notifier = notifier;
+	data->max_depth = max_depth;
 
 	priv = notifier->priv;
 	sparql = sparql_files_compose_query (files, n_files);
@@ -791,7 +805,7 @@ sparql_files_query_start (TrackerFileNotifier  *notifier,
 	                                       sparql,
 	                                       priv->cancellable,
 	                                       sparql_files_query_cb,
-	                                       notifier);
+	                                       data);
 	g_free (sparql);
 }
 
@@ -862,6 +876,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	GFile *directory;
+	gint max_depth = -1;
 
 	g_assert (priv->current_index_root != NULL);
 
@@ -870,6 +885,8 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		return;
 	}
 
+	max_depth = tracker_crawler_get_max_depth (crawler);
+
 	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
 
 	if (priv->current_index_root->query_files->len > 0 &&
@@ -877,11 +894,11 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	     tracker_file_system_get_property (priv->file_system,
 	                                       directory, quark_property_iri))) {
 		sparql_files_query_start (notifier,
-					  (GFile**) priv->current_index_root->query_files->pdata,
-		                          priv->current_index_root->query_files->len);
+                                  (GFile**) priv->current_index_root->query_files->pdata,
+		                          priv->current_index_root->query_files->len, max_depth);
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 	} else {
-		file_notifier_traverse_tree (notifier);
+		file_notifier_traverse_tree (notifier, max_depth);
 		finish_current_directory (notifier);
 	}
 }

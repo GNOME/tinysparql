@@ -89,6 +89,7 @@ const gchar *   tracker_crawler_get_file_attributes (TrackerCrawler *crawler);
 
 GFileInfo *     tracker_crawler_get_file_info       (TrackerCrawler *crawler,
 						     GFile          *file);
+gint            tracker_crawler_get_max_depth       (TrackerCrawler *crawler);
 
 G_END_DECLS
 
