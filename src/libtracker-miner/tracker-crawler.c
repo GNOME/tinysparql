@@ -106,6 +106,8 @@ struct TrackerCrawlerPrivate {
 	gboolean        is_finished;
 	gboolean        is_paused;
 	gboolean        was_started;
+
+	gint            max_depth;
 };
 
 enum {
@@ -245,6 +247,7 @@ tracker_crawler_init (TrackerCrawler *object)
 
 	priv = object->priv;
 
+	priv->max_depth = -1;
 	priv->directories = g_queue_new ();
 }
 
@@ -1098,6 +1101,7 @@ tracker_crawler_start (TrackerCrawler        *crawler,
 	/* Set as running now */
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
+	priv->max_depth = max_depth;
 
 	info = directory_root_info_new (file, max_depth, priv->file_attributes, flags);
 
@@ -1247,6 +1251,22 @@ tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
 
 	return crawler->priv->file_attributes;
+}
+
+/**
+ * tracker_crawler_get_max_depth:
+ * @crawler: a #TrackerCrawler
+ *
+ * Returns the max depth that @crawler got passed on tracker_crawler_start
+ *
+ * Returns: the max depth
+ **/
+
+gint
+tracker_crawler_get_max_depth (TrackerCrawler *crawler)
+{
+	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
+	return crawler->priv->max_depth;
 }
 
 /**

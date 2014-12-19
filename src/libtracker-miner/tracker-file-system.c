@@ -705,6 +705,7 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
                               GFile                         *root,
                               GTraverseType                  order,
                               TrackerFileSystemTraverseFunc  func,
+                              gint                           max_depth,
                               gpointer                       user_data)
 {
 	TrackerFileSystemPrivate *priv;
@@ -729,7 +730,7 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 	g_node_traverse (node,
 	                 order,
 	                 G_TRAVERSE_ALL,
-	                 -1,
+	                 max_depth,
 	                 traverse_filesystem_func,
 	                 &data);
 

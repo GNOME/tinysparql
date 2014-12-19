@@ -70,6 +70,7 @@ void          tracker_file_system_traverse       (TrackerFileSystem             
                                                   GFile                         *root,
                                                   GTraverseType                  order,
                                                   TrackerFileSystemTraverseFunc  func,
+                                                  gint                           max_depth,
                                                   gpointer                       user_data);
 
 void          tracker_file_system_forget_files   (TrackerFileSystem *file_system,
