@@ -63,6 +63,10 @@ typedef struct _TrackerDataProviderIface TrackerDataProviderIface;
  * Completed using @end_finish.
  * @end_finish: Called when the data_provider is completing the
  * asynchronous operation provided by @end_async.
+ * @add_monitor: Called when the data_provider is asked to monitor a
+ * container for changes.
+ * @remove_monitor: Called when the data_provider is asked to stop
+ * monitoring a container for changes.
  * @item_created: Signalled when an item is created in a monitored
  * container. This can be another container or object itself. A
  * container could be a directory and an object could be a file in
@@ -124,6 +128,15 @@ struct _TrackerDataProviderIface {
 	                                              GAsyncResult           *result,
 	                                              GError                **error);
 
+	/* Monitoring API - to tell data provider you're interested */
+	gboolean              (* monitor_add)        (TrackerDataProvider    *data_provider,
+	                                              GFile                  *container,
+	                                              GError                **error);
+	gboolean              (* monitor_remove)     (TrackerDataProvider    *data_provider,
+	                                              GFile                  *container,
+	                                              gboolean                recursively,
+	                                              GError                **error);
+
 	/* Monitoring Signals - for container/object change notification */
 	void                  (* item_created)       (TrackerDataProvider    *data_provider,
 	                                              GFile                  *file,
@@ -146,8 +159,6 @@ struct _TrackerDataProviderIface {
 	/*< private >*/
 	/* Padding for future expansion */
 	void (*_tracker_reserved1) (void);
-	void (*_tracker_reserved2) (void);
-	void (*_tracker_reserved3) (void);
 };
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
@@ -181,6 +192,14 @@ void               tracker_data_provider_end_async       (TrackerDataProvider   
 gboolean           tracker_data_provider_end_finish      (TrackerDataProvider   *data_provider,
                                                           GAsyncResult          *result,
                                                           GError               **error);
+
+gboolean           tracker_data_provider_monitor_add     (TrackerDataProvider  *data_provider,
+                                                          GFile                *container,
+                                                          GError              **error);
+gboolean           tracker_data_provider_monitor_remove  (TrackerDataProvider  *data_provider,
+                                                          GFile                *container,
+                                                          gboolean              recursively,
+                                                          GError              **error);
 
 G_END_DECLS
 

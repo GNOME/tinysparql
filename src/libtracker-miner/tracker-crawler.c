@@ -339,26 +339,12 @@ TrackerCrawler *
 tracker_crawler_new (TrackerDataProvider *data_provider)
 {
 	TrackerCrawler *crawler;
-	TrackerDataProvider *default_data_provider = NULL;
 
-	if (G_LIKELY (!data_provider)) {
-		/* Default to the file data_provider if none is passed */
-		data_provider = default_data_provider = tracker_file_data_provider_new ();
-	}
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), NULL);
 
 	crawler = g_object_new (TRACKER_TYPE_CRAWLER,
 	                        "data-provider", data_provider,
 	                        NULL);
-
-	/* When a data provider is passed to us, we add a reference in
-	 * the set_properties() function for this class, however, if
-	 * we create the data provider, we also have the original
-	 * reference for the created object which needs to be cleared
-	 * up here.
-	 */
-	if (default_data_provider) {
-		g_object_unref (default_data_provider);
-	}
 
 	return crawler;
 }

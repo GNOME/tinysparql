@@ -25,6 +25,7 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-file-notifier.h"
+#include "tracker-file-data-provider.h"
 #include "tracker-file-system.h"
 #include "tracker-crawler.h"
 #include "tracker-monitor.h"
@@ -74,7 +75,6 @@ typedef struct {
 	GCancellable *cancellable;
 
 	TrackerCrawler *crawler;
-	TrackerMonitor *monitor;
 	TrackerDataProvider *data_provider;
 
 	GTimer *timer;
@@ -118,7 +118,7 @@ tracker_file_notifier_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_INDEXING_TREE:
 		priv->indexing_tree = g_value_dup_object (value);
-		tracker_monitor_set_indexing_tree (priv->monitor,
+		tracker_monitor_set_indexing_tree (priv->data_provider,
 		                                   priv->indexing_tree);
 		break;
 	case PROP_DATA_PROVIDER:
@@ -252,9 +252,9 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
 
 		if (add_monitor) {
-			tracker_monitor_add (priv->monitor, canonical);
+			tracker_data_provider_monitor_add (priv->data_provider, canonical, NULL);
 		} else {
-			tracker_monitor_remove (priv->monitor, canonical);
+			tracker_data_provider_monitor_remove (priv->data_provider, canonical, FALSE, NULL);
 		}
 	}
 
@@ -1144,7 +1144,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	if (!is_source_monitored) {
 		if (is_directory) {
 			/* Remove monitors if any */
-			tracker_monitor_remove_recursively (priv->monitor, file);
+			tracker_data_provider_monitor_remove (priv->data_provider, file, TRUE, NULL);
 
 			/* If should recurse, crawl other_file, as content is "new" */
 			file = tracker_file_system_get_file (priv->file_system,
@@ -1182,8 +1182,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			/* Destination location should be indexed as if new */
 			/* Remove monitors if any */
 			if (is_directory) {
-				tracker_monitor_remove_recursively (priv->monitor,
-				                                    file);
+				tracker_data_provider_monitor_remove (priv->data_provider,
+				                                      file,
+				                                      TRUE,
+				                                      NULL);
 			}
 
 			if (should_process_other) {
@@ -1210,8 +1212,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		} else if (!should_process_other) {
 			/* Delete original location as it moves to be non indexable */
 			if (is_directory) {
-				tracker_monitor_remove_recursively (priv->monitor,
-				                                    file);
+				tracker_data_provider_monitor_remove (priv->data_provider,
+				                                      file,
+				                                      TRUE,
+				                                      NULL);
 			}
 
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
@@ -1221,8 +1225,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				gboolean dest_is_recursive, source_is_recursive;
 				TrackerDirectoryFlags source_flags;
 
-				tracker_monitor_move (priv->monitor,
-				                      file, other_file);
+				tracker_monitor_move (priv->data_provider,
+				                      file,
+				                      other_file,
+				                      NULL);
 
 				tracker_indexing_tree_get_root (priv->indexing_tree,
 				                                file, &source_flags);
@@ -1354,7 +1360,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 
 	/* Remove monitors if any */
 	/* FIXME: How do we handle this with 3rd party data_providers? */
-	tracker_monitor_remove_recursively (priv->monitor, directory);
+	tracker_data_provider_monitor_remove (priv->data_provider, directory, TRUE, NULL);
 
 	/* Remove all files from cache */
 	tracker_file_system_forget_files (priv->file_system, directory,
@@ -1377,7 +1383,6 @@ tracker_file_notifier_finalize (GObject *object)
 	}
 
 	g_object_unref (priv->crawler);
-	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
 	g_object_unref (priv->cancellable);
 	g_object_unref (priv->connection);
@@ -1413,6 +1418,29 @@ tracker_file_notifier_constructed (GObject *object)
 	                  G_CALLBACK (indexing_tree_directory_added), object);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
+
+	/* Make sure we have a data provider, either provided or fallback */
+	if (G_LIKELY (!priv->data_provider)) {
+		/* Default to the file data_provider if none is passed */
+		priv->data_provider = (TrackerDataProvider*) tracker_file_data_provider_new ();
+	}
+
+	/* Set up monitor */
+	g_signal_connect (priv->data_provider, "item-created",
+	                  G_CALLBACK (monitor_item_created_cb),
+	                  object);
+	g_signal_connect (priv->data_provider, "item-updated",
+	                  G_CALLBACK (monitor_item_updated_cb),
+	                  object);
+	g_signal_connect (priv->data_provider, "item-attribute-updated",
+	                  G_CALLBACK (monitor_item_attribute_updated_cb),
+	                  object);
+	g_signal_connect (priv->data_provider, "item-deleted",
+	                  G_CALLBACK (monitor_item_deleted_cb),
+	                  object);
+	g_signal_connect (priv->data_provider, "item-moved",
+	                  G_CALLBACK (monitor_item_moved_cb),
+	                  object);
 
 	/* Set up crawler */
 	priv->crawler = tracker_crawler_new (priv->data_provider);
@@ -1575,25 +1603,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
-
-	/* Set up monitor */
-	priv->monitor = tracker_monitor_new ();
-
-	g_signal_connect (priv->monitor, "item-created",
-	                  G_CALLBACK (monitor_item_created_cb),
-	                  notifier);
-	g_signal_connect (priv->monitor, "item-updated",
-	                  G_CALLBACK (monitor_item_updated_cb),
-	                  notifier);
-	g_signal_connect (priv->monitor, "item-attribute-updated",
-	                  G_CALLBACK (monitor_item_attribute_updated_cb),
-	                  notifier);
-	g_signal_connect (priv->monitor, "item-deleted",
-	                  G_CALLBACK (monitor_item_deleted_cb),
-	                  notifier);
-	g_signal_connect (priv->monitor, "item-moved",
-	                  G_CALLBACK (monitor_item_moved_cb),
-	                  notifier);
 }
 
 TrackerFileNotifier *

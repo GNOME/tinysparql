@@ -23,11 +23,13 @@
 
 #include "tracker-file-enumerator.h"
 #include "tracker-file-data-provider.h"
+#include "tracker-monitor.h"
 
 static void tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface);
 
 struct _TrackerFileDataProvider {
 	GObject parent_instance;
+	TrackerMonitor *monitor;
 };
 
 typedef struct {
@@ -71,6 +73,7 @@ tracker_file_data_provider_class_init (TrackerFileDataProviderClass *klass)
 static void
 tracker_file_data_provider_init (TrackerFileDataProvider *fe)
 {
+	fe->monitor = tracker_monitor_new ();
 }
 
 static BeginData *
@@ -279,6 +282,39 @@ file_data_provider_end_finish (TrackerDataProvider  *data_provider,
 	return g_task_propagate_boolean (G_TASK (result), error);
 }
 
+static gboolean
+file_data_provider_monitor_add (TrackerDataProvider  *data_provider,
+                                GFile                *container,
+                                GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), FALSE);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	return tracker_monitor_add (fdp->monitor, container);
+}
+
+static gboolean
+file_data_provider_monitor_remove (TrackerDataProvider  *data_provider,
+                                   GFile                *container,
+                                   gboolean              recursively,
+                                   GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), FALSE);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	if (G_LIKELY (recursively)) {
+		return tracker_monitor_remove_recursively (fdp->monitor, container);
+	} else {
+		return tracker_monitor_remove (fdp->monitor, container);
+	}
+}
+
 static void
 tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface)
 {
@@ -288,6 +324,8 @@ tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface)
 	iface->end = file_data_provider_end;
 	iface->end_async = file_data_provider_end_async;
 	iface->end_finish = file_data_provider_end_finish;
+	iface->monitor_add = file_data_provider_monitor_add;
+	iface->monitor_remove = file_data_provider_monitor_remove;
 }
 
 /**

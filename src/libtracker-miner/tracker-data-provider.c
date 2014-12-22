@@ -55,6 +55,62 @@ G_DEFINE_INTERFACE (TrackerDataProvider, tracker_data_provider, G_TYPE_OBJECT)
 static void
 tracker_data_provider_default_init (TrackerDataProviderInterface *iface)
 {
+	g_signal_new ("item-created",
+	              G_TYPE_FROM_INTERFACE (iface),
+	              G_SIGNAL_RUN_LAST,
+	              G_STRUCT_OFFSET (TrackerDataProviderIface, item_created),
+	              NULL, NULL,
+	              NULL,
+	              G_TYPE_NONE,
+	              2,
+	              G_TYPE_OBJECT,
+	              G_TYPE_BOOLEAN);
+
+	g_signal_new ("item-updated",
+	              G_TYPE_FROM_INTERFACE (iface),
+	              G_SIGNAL_RUN_LAST,
+	              G_STRUCT_OFFSET (TrackerDataProviderIface, item_updated),
+	              NULL, NULL,
+	              NULL,
+	              G_TYPE_NONE,
+	              2,
+	              G_TYPE_OBJECT,
+	              G_TYPE_BOOLEAN);
+
+	g_signal_new ("item-attribute-updated",
+	              G_TYPE_FROM_INTERFACE (iface),
+	              G_SIGNAL_RUN_LAST,
+	              G_STRUCT_OFFSET (TrackerDataProviderIface, item_attribute_updated),
+	              NULL, NULL,
+	              NULL,
+	              G_TYPE_NONE,
+	              2,
+	              G_TYPE_OBJECT,
+	              G_TYPE_BOOLEAN);
+
+	g_signal_new ("item-deleted",
+	              G_TYPE_FROM_INTERFACE (iface),
+	              G_SIGNAL_RUN_LAST,
+	              G_STRUCT_OFFSET (TrackerDataProviderIface, item_deleted),
+	              NULL, NULL,
+	              NULL,
+	              G_TYPE_NONE,
+	              2,
+	              G_TYPE_OBJECT,
+	              G_TYPE_BOOLEAN);
+
+	g_signal_new ("item-moved",
+	              G_TYPE_FROM_INTERFACE (iface),
+	              G_SIGNAL_RUN_LAST,
+	              G_STRUCT_OFFSET (TrackerDataProviderIface, item_moved),
+	              NULL, NULL,
+	              NULL,
+	              G_TYPE_NONE,
+	              4,
+	              G_TYPE_OBJECT,
+	              G_TYPE_OBJECT,
+	              G_TYPE_BOOLEAN,
+	              G_TYPE_BOOLEAN);
 }
 
 /**
@@ -356,4 +412,84 @@ tracker_data_provider_end_finish (TrackerDataProvider  *data_provider,
 	}
 
 	return (* iface->end_finish) (data_provider, result, error);
+}
+
+/**
+ * tracker_data_provider_monitor_add:
+ * @data_provider: a #TrackerDataProvider
+ * @container: a #GFile
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Tells @data_provider to monitor changes on @container. This is very
+ * similar to the g_file_monitor_file() API. This is called depending
+ * on the flags passed to tracker_data_provider_begin() and
+ * tracker_data_provider_begin_async() where
+ * #TRACKER_DIRECTORY_FLAG_MONITOR can be passed.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_monitor_add (TrackerDataProvider  *data_provider,
+                                   GFile                *container,
+                                   GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container), FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->monitor_add == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->monitor_add) (data_provider, container, error);
+}
+
+/**
+ * tracker_data_provider_monitor_remove:
+ * @data_provider: a #TrackerDataProvider
+ * @container: a #GFile
+ * @recursively: Remove monitors on all containers below @container too
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Tells @data_provider to stop monitoring changes on @container. This
+ * is very similar to the g_file_monitor_file() API. This may be called
+ * depending on the flags passed to tracker_data_provider_begin() and
+ * tracker_data_provider_begin_async() where
+ * #TRACKER_DIRECTORY_FLAG_MONITOR can be passed.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_monitor_remove (TrackerDataProvider  *data_provider,
+                                      GFile                *container,
+                                      gboolean              recursively,
+                                      GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container), FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->monitor_remove == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->monitor_remove) (data_provider, container, recursively, error);
 }
