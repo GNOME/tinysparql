@@ -137,10 +137,10 @@ tracker_enumerator_next (TrackerEnumerator  *enumerator,
  * In case of a partial error the callback will be called with any
  * succeeding items and no error, and on the next request the error
  * will be reported. If a request is cancelled the callback will be
- * called with %G_IO_ERROR_CANCELLED.
+ * called with #G_IO_ERROR_CANCELLED.
  *
  * During an async request no other sync and async calls are allowed,
- * and will result in %G_IO_ERROR_PENDING errors.
+ * and will result in #G_IO_ERROR_PENDING errors.
  *
  * Any outstanding i/o request with higher priority (lower numerical
  * value) will be executed before an outstanding request with lower

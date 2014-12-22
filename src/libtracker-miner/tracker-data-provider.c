@@ -77,8 +77,13 @@ tracker_data_provider_default_init (TrackerDataProviderInterface *iface)
  * a wildcard like "standard::*" means all attributes in the standard
  * namespace. An example attribute query be "standard::*,owner::user".
  * The standard attributes are available as defines, like
- * G_FILE_ATTRIBUTE_STANDARD_NAME. See g_file_enumerate_children() for
+ * %G_FILE_ATTRIBUTE_STANDARD_NAME. See g_file_enumerate_children() for
  * more details.
+ *
+ * The @flags provided will affect whether the @data_provider
+ * implementation should be setting up data monitors for changes under
+ * @url. Changes <emphasis>MUST NOT</emphasis> be signalled unless
+ * #TRACKER_DIRECTORY_FLAG_MONITOR is provided in @flags for @url.
  *
  * Returns: (transfer full): a #TrackerEnumerator or %NULL on failure.
  * This must be freed with g_object_unref().
@@ -139,10 +144,10 @@ tracker_data_provider_begin (TrackerDataProvider    *data_provider,
  * In case of a partial error the callback will be called with any
  * succeeding items and no error, and on the next request the error
  * will be reported. If a request is cancelled the callback will be
- * called with %G_IO_ERROR_CANCELLED.
+ * called with #G_IO_ERROR_CANCELLED.
  *
  * During an async request no other sync and async calls are allowed,
- * and will result in %G_IO_ERROR_PENDING errors.
+ * and will result in #G_IO_ERROR_PENDING errors.
  *
  * Any outstanding i/o request with higher priority (lower numerical
  * value) will be executed before an outstanding request with lower

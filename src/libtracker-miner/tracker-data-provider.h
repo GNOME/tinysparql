@@ -63,15 +63,35 @@ typedef struct _TrackerDataProviderIface TrackerDataProviderIface;
  * Completed using @end_finish.
  * @end_finish: Called when the data_provider is completing the
  * asynchronous operation provided by @end_async.
+ * @item_created: Signalled when an item is created in a monitored
+ * container. This can be another container or object itself. A
+ * container could be a directory and an object could be a file in
+ * a directory.
+ * @item_updated: Signalled when an item is updated, this includes
+ * both containers and objects. For example, the contents of an item
+ * have changed.
+ * @item_attribute_updated: Signalled when metadata changes are
+ * made to a container or object. Example of this would be include
+ * chmod, timestamps (utimensat), extended attributes (setxattr), link
+ * counts and user/group ID (chown) updates.
+ * @item_deleted: Signalled when a container or object is deleted.
+ * @item_moved: Signalled when a container or object is moved. The
+ * parameters provided give indication about what is known of source
+ * and target items.
  *
- * Virtual methods left to implement.
+ * Virtual methods to be implemented.
+ *
+ * The @item_created, @item_updated, @item_attribute_updated,
+ * @item_deleted and @item_moved signals <emphasis>MUST NOT</emphasis>
+ * be emitted unless the #TrackerDirectoryFlags used with the @begin
+ * and @begin_async APIs include #TRACKER_DIRECTORY_FLAG_MONITOR.
  **/
 struct _TrackerDataProviderIface {
 	GTypeInterface g_iface;
 
 	/* Virtual Table */
 
-	/* Start the data_provider for a given location, attributes and flags */
+	/* Crawling API - for container/object traversal */
 	TrackerEnumerator *   (* begin)              (TrackerDataProvider    *data_provider,
 	                                              GFile                  *url,
 	                                              const gchar            *attributes,
@@ -90,7 +110,6 @@ struct _TrackerDataProviderIface {
 	                                              GAsyncResult           *result,
 	                                              GError                **error);
 
-	/* Close the given location */
 	gboolean              (* end)                (TrackerDataProvider    *data_provider,
 	                                              TrackerEnumerator      *enumerator,
 	                                              GCancellable           *cancellable,
@@ -105,16 +124,30 @@ struct _TrackerDataProviderIface {
 	                                              GAsyncResult           *result,
 	                                              GError                **error);
 
+	/* Monitoring Signals - for container/object change notification */
+	void                  (* item_created)       (TrackerDataProvider    *data_provider,
+	                                              GFile                  *file,
+	                                              gboolean                is_container);
+	void                  (* item_updated)       (TrackerDataProvider    *data_provider,
+	                                              GFile                  *file,
+	                                              gboolean                is_container);
+	void                  (* item_attribute_updated)
+                                                     (TrackerDataProvider    *data_provider,
+	                                              GFile                  *file,
+	                                              gboolean                is_container);
+	void                  (* item_deleted)       (TrackerDataProvider    *data_provider,
+	                                              GFile                  *file,
+	                                              gboolean                is_container);
+	void                  (* item_moved)         (TrackerDataProvider    *data_provider,
+	                                              GFile                  *file,
+	                                              GFile                  *other_file,
+	                                              gboolean                is_container);
+
 	/*< private >*/
 	/* Padding for future expansion */
 	void (*_tracker_reserved1) (void);
 	void (*_tracker_reserved2) (void);
 	void (*_tracker_reserved3) (void);
-	void (*_tracker_reserved4) (void);
-	void (*_tracker_reserved5) (void);
-	void (*_tracker_reserved6) (void);
-	void (*_tracker_reserved7) (void);
-	void (*_tracker_reserved8) (void);
 };
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
