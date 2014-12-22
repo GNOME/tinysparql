@@ -575,7 +575,7 @@ class MinerFsHelper (Helper):
                 FNULL = open ('/dev/null', 'w')
                 kws = { 'stdout': FNULL }
 
-            subprocess.call ([control_binary, "daemon --kill=miners"], **kws)
+            subprocess.call ([control_binary, "daemon", "--kill=miners"], **kws)
 
         return False
 
