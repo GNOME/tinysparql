@@ -493,3 +493,75 @@ tracker_data_provider_monitor_remove (TrackerDataProvider  *data_provider,
 
 	return (* iface->monitor_remove) (data_provider, container, recursively, error);
 }
+
+/**
+ * tracker_data_provider_set_indexing_tree:
+ * @data_provider: a #TrackerDataProvider
+ * @indexing_tree: a #TrackerIndexingTree
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Tells @data_provider to use @indexing_tree. This is used by
+ * implementations to know what the rules are for ignoring content
+ * (among other things).
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_set_indexing_tree (TrackerDataProvider  *data_provider,
+                                         TrackerIndexingTree  *indexing_tree,
+                                         GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (indexing_tree), FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->set_indexing_tree == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->set_indexing_tree) (data_provider, indexing_tree, error);
+}
+
+/**
+ * tracker_data_provider_get_indexing_tree:
+ * @data_provider: a #TrackerDataProvider
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Return the #TrackerIndexingTree that @data_provider is using. For
+ * details about why this is needed by @data_provider, see
+ * tracker_data_provider_set_indexing_tree().
+ *
+ * Returns: (transfer none): A #TrackerIndexingTree, otherwise %NULL and
+ * @error is set.
+ *
+ * Since: 1.4
+ **/
+TrackerIndexingTree *
+tracker_data_provider_get_indexing_tree (TrackerDataProvider  *data_provider,
+                                         GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), NULL);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->get_indexing_tree == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return NULL;
+	}
+
+	return (* iface->get_indexing_tree) (data_provider, error);
+}

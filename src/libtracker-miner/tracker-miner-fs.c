@@ -31,6 +31,7 @@
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
 #include "tracker-file-notifier.h"
+#include "tracker-file-data-provider.h"
 
 /* If defined will print the tree from GNode while running */
 #ifdef CRAWLED_TREE_ENABLE_TRACE
@@ -193,7 +194,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* Root / tree / index */
 	GFile *root;
-	TrackerIndexingTree *indexing_tree;
 	TrackerFileNotifier *file_notifier;
 	TrackerDataProvider *data_provider;
 
@@ -355,6 +355,22 @@ static void           task_pool_limit_reached_notify_cb       (GObject        *o
 static GQuark quark_file_iri = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
+
+static inline TrackerIndexingTree *
+get_indexing_tree (gpointer user_data)
+{
+	TrackerMinerFS *miner_fs;
+	TrackerMinerFSPrivate *priv;
+
+	miner_fs = TRACKER_MINER_FS (user_data);
+	if (!miner_fs) {
+		return NULL;
+	}
+
+	priv = miner_fs->priv;
+
+	return tracker_data_provider_get_indexing_tree (priv->data_provider, NULL);
+}
 
 /**
  * tracker_miner_fs_error_quark:
@@ -694,6 +710,7 @@ miner_fs_initable_init (GInitable     *initable,
                         GError       **error)
 {
 	TrackerMinerFSPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 	guint limit;
 
 	if (!miner_fs_initable_parent_iface->init (initable, cancellable, error)) {
@@ -718,7 +735,9 @@ miner_fs_initable_init (GInitable     *initable,
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb),
 	                  initable);
 
-	if (!priv->indexing_tree) {
+	indexing_tree = get_indexing_tree (initable);
+
+	if (!indexing_tree) {
 		g_set_error (error,
 		             tracker_miner_fs_error_quark (),
 		             TRACKER_MINER_FS_ERROR_INIT,
@@ -726,13 +745,12 @@ miner_fs_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	g_signal_connect (priv->indexing_tree, "directory-removed",
+	g_signal_connect (indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed),
 	                  initable);
 
 	/* Create the file notifier */
-	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree,
-	                                                 priv->data_provider);
+	priv->file_notifier = tracker_file_notifier_new (priv->data_provider);
 
 	if (!priv->file_notifier) {
 		g_set_error (error,
@@ -838,10 +856,6 @@ fs_finalize (GObject *object)
 
 	g_hash_table_unref (priv->items_ignore_next_update);
 
-	if (priv->indexing_tree) {
-		g_object_unref (priv->indexing_tree);
-	}
-
 	if (priv->file_notifier) {
 		g_object_unref (priv->file_notifier);
 	}
@@ -869,6 +883,8 @@ static void
 fs_constructed (GObject *object)
 {
 	TrackerMinerFSPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
+	GError *error = NULL;
 
 	/* NOTE: We have to do this in this order because initables
 	 * are called _AFTER_ constructed and for subclasses that are
@@ -884,14 +900,38 @@ fs_constructed (GObject *object)
 
 	priv = TRACKER_MINER_FS_GET_PRIVATE (object);
 
-	/* Create root if one didn't exist */
-	if (priv->root == NULL) {
-		/* We default to file:/// */
-		priv->root = g_file_new_for_uri ("file:///");
-	}
+	/* If we already have a data provider passed when we created
+	 * the object, we can use the indexing_tree associated with it
+	 * and hence the root.
+	 *
+	 * This is mainly about ensuring we have everything we need at
+	 * this point, which is 'root', 'data_provider' and and
+	 * 'indexing_tree'.
+	 */
+	if (G_LIKELY (priv->data_provider == NULL)) {
+		/* We default to file:/// - this can be overridden by
+		 * setting it when we create the object
+		 */
+		if (priv->root == NULL) {
+			priv->root = g_file_new_for_uri ("file:///");
+		}
 
-	/* Create indexing tree */
-	priv->indexing_tree = tracker_indexing_tree_new_with_root (priv->root);
+		/* Create indexing tree */
+		indexing_tree = tracker_indexing_tree_new_with_root (priv->root);
+
+		/* Default to the file data_provider if none is passed */
+		priv->data_provider = (TrackerDataProvider*) tracker_file_data_provider_new ();
+		tracker_data_provider_set_indexing_tree (priv->data_provider, indexing_tree, &error);
+
+		g_assert_no_error (error);
+	} else {
+		/* So we have a data provider, let's ensure it is set
+		 * up correctly.
+		 */
+		indexing_tree = tracker_data_provider_get_indexing_tree (priv->data_provider, &error);
+		g_assert_no_error (error);
+		g_assert_nonnull (indexing_tree);
+	}
 }
 
 static void
@@ -1518,7 +1558,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * we have to UPDATE, not INSERT. */
 	urn = lookup_file_urn (fs, file, FALSE);
 
-	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
+	if (!tracker_indexing_tree_file_is_root (get_indexing_tree (fs), file)) {
 		parent = g_file_get_parent (file);
 		parent_urn = lookup_file_urn (fs, parent, TRUE);
 		g_object_unref (parent);
@@ -1966,12 +2006,11 @@ item_move (TrackerMinerFS *fs,
 		g_object_unref (new_parent);
 	g_free (display_name);
 
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
+	tracker_indexing_tree_get_root (get_indexing_tree (fs), source_file, &source_flags);
 
 	if ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
 	    g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-		                                file, &flags);
+		tracker_indexing_tree_get_root (get_indexing_tree (fs), file, &flags);
 
 		if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
 			/* Update children uris */
@@ -2549,7 +2588,7 @@ item_queue_handlers_cb (gpointer user_data)
 		parent = g_file_get_parent (file);
 
 		if (!parent ||
-		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
+		    tracker_indexing_tree_file_is_root (get_indexing_tree (fs), file) ||
 		    lookup_file_urn (fs, parent, TRUE)) {
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
@@ -2695,8 +2734,7 @@ should_check_file (TrackerMinerFS *fs,
 	GFileType file_type;
 
 	file_type = (is_dir) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
-	return tracker_indexing_tree_file_is_indexable (fs->priv->indexing_tree,
-	                                                file, file_type);
+	return tracker_indexing_tree_file_is_indexable (get_indexing_tree (fs), file, file_type);
 }
 
 static gboolean
@@ -2769,8 +2807,7 @@ miner_fs_get_queue_priority (TrackerMinerFS *fs,
 {
 	TrackerDirectoryFlags flags;
 
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-	                                file, &flags);
+	tracker_indexing_tree_get_root (get_indexing_tree (fs), file, &flags);
 
 	return (flags & TRACKER_DIRECTORY_FLAG_PRIORITY) ?
 	        G_PRIORITY_HIGH : G_PRIORITY_DEFAULT;
@@ -3041,8 +3078,7 @@ file_notifier_directory_started (TrackerFileNotifier *notifier,
 	gchar *str, *uri;
 
 	uri = g_file_get_uri (directory);
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-					directory, &flags);
+	tracker_indexing_tree_get_root (get_indexing_tree (fs), directory, &flags);
 
 	if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
                 str = g_strdup_printf ("Crawling recursively directory '%s'", uri);
@@ -3199,7 +3235,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 	}
 
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	tracker_indexing_tree_add (get_indexing_tree (fs),
 	                           file,
 	                           flags);
 }
@@ -3303,19 +3339,19 @@ gboolean
 tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
                                    GFile          *file)
 {
-	TrackerMinerFSPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	priv = fs->priv;
+	indexing_tree = get_indexing_tree (fs);
 
-	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+	if (!tracker_indexing_tree_file_is_root (indexing_tree, file)) {
 		return FALSE;
 	}
 
 	g_debug ("Removing directory");
-	tracker_indexing_tree_remove (priv->indexing_tree, file);
+	tracker_indexing_tree_remove (indexing_tree, file);
 
 	return TRUE;
 }
@@ -3343,7 +3379,7 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
+	tracker_indexing_tree_get_root (get_indexing_tree (fs), file, &flags);
 
 	if (tracker_miner_fs_directory_remove (fs, file)) {
 		if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
@@ -3376,8 +3412,7 @@ check_file_parents (TrackerMinerFS *fs,
 		return FALSE;
 	}
 
-	root = tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-	                                       parent, NULL);
+	root = tracker_indexing_tree_get_root (get_indexing_tree (fs), parent, NULL);
 	if (!root) {
 		g_object_unref (parent);
 		return FALSE;
@@ -3640,8 +3675,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 		if (priority < G_PRIORITY_DEFAULT)
 			flags |= TRACKER_DIRECTORY_FLAG_PRIORITY;
 
-		tracker_indexing_tree_add (fs->priv->indexing_tree,
-		                           file, flags);
+		tracker_indexing_tree_add (get_indexing_tree (fs), file, flags);
 	}
 
 	g_free (uri);
@@ -4026,7 +4060,7 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	tracker_indexing_tree_add (get_indexing_tree (fs),
 	                           directory,
 	                           flags);
 }
@@ -4147,7 +4181,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
+	tracker_indexing_tree_add (get_indexing_tree (fs),
 	                           file,
 	                           flags);
 }
@@ -4161,13 +4195,15 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
  *
  * Returns: (transfer none): The #TrackerIndexingTree
  *          holding the indexing configuration
+ *
+ * Deprecated: 1.2: Use tracker_data_provider_get_indexing_tree() instead.
  **/
 TrackerIndexingTree *
 tracker_miner_fs_get_indexing_tree (TrackerMinerFS *fs)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 
-	return fs->priv->indexing_tree;
+	return get_indexing_tree (fs);
 }
 
 /**

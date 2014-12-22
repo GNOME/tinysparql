@@ -29,6 +29,7 @@
 #include <gio/gio.h>
 
 #include "tracker-enumerator.h"
+#include "tracker-indexing-tree.h"
 #include "tracker-miner-enums.h"
 
 G_BEGIN_DECLS
@@ -156,12 +157,19 @@ struct _TrackerDataProviderIface {
 	                                              GFile                  *other_file,
 	                                              gboolean                is_container);
 
+	/* Indexing tree to know what we can monitor */
+	gboolean              (* set_indexing_tree)  (TrackerDataProvider    *data_provider,
+	                                              TrackerIndexingTree    *indexing_tree,
+	                                              GError                **error);
+	TrackerIndexingTree * (* get_indexing_tree)  (TrackerDataProvider    *data_provider,
+	                                              GError                **error);
+
 	/*< private >*/
-	/* Padding for future expansion */
-	void (*_tracker_reserved1) (void);
+	/* Already +1 past padding :/ */
 };
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
+
 TrackerEnumerator *tracker_data_provider_begin           (TrackerDataProvider   *data_provider,
                                                           GFile                 *url,
                                                           const gchar           *attributes,
@@ -199,6 +207,15 @@ gboolean           tracker_data_provider_monitor_add     (TrackerDataProvider  *
 gboolean           tracker_data_provider_monitor_remove  (TrackerDataProvider  *data_provider,
                                                           GFile                *container,
                                                           gboolean              recursively,
+                                                          GError              **error);
+
+gboolean           tracker_data_provider_set_indexing_tree
+                                                         (TrackerDataProvider  *data_provider,
+                                                          TrackerIndexingTree  *indexing_tree,
+                                                          GError              **error);
+TrackerIndexingTree *
+                   tracker_data_provider_get_indexing_tree
+                                                         (TrackerDataProvider  *data_provider,
                                                           GError              **error);
 
 G_END_DECLS

@@ -128,7 +128,7 @@ GType                 tracker_miner_fs_get_type              (void) G_GNUC_CONST
 GQuark                tracker_miner_fs_error_quark           (void);
 
 /* Properties */
-TrackerIndexingTree * tracker_miner_fs_get_indexing_tree     (TrackerMinerFS  *fs);
+TrackerIndexingTree * tracker_miner_fs_get_indexing_tree     (TrackerMinerFS  *fs) G_GNUC_DEPRECATED;
 TrackerDataProvider * tracker_miner_fs_get_data_provider     (TrackerMinerFS  *fs);
 gdouble               tracker_miner_fs_get_throttle          (TrackerMinerFS  *fs);
 gboolean              tracker_miner_fs_get_mtime_checking    (TrackerMinerFS  *fs);

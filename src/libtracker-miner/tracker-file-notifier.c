@@ -28,7 +28,6 @@
 #include "tracker-file-data-provider.h"
 #include "tracker-file-system.h"
 #include "tracker-crawler.h"
-#include "tracker-monitor.h"
 
 static GQuark quark_property_iri = 0;
 static GQuark quark_property_store_mtime = 0;
@@ -38,7 +37,6 @@ static GQuark quark_property_filesystem_mtime = 0;
 
 enum {
 	PROP_0,
-	PROP_INDEXING_TREE,
 	PROP_DATA_PROVIDER
 };
 
@@ -68,7 +66,6 @@ typedef struct {
 } RootData;
 
 typedef struct {
-	TrackerIndexingTree *indexing_tree;
 	TrackerFileSystem *file_system;
 
 	TrackerSparqlConnection *connection;
@@ -116,11 +113,6 @@ tracker_file_notifier_set_property (GObject      *object,
 	priv = TRACKER_FILE_NOTIFIER (object)->priv;
 
 	switch (prop_id) {
-	case PROP_INDEXING_TREE:
-		priv->indexing_tree = g_value_dup_object (value);
-		tracker_monitor_set_indexing_tree (priv->data_provider,
-		                                   priv->indexing_tree);
-		break;
 	case PROP_DATA_PROVIDER:
 		priv->data_provider = g_value_dup_object (value);
 		break;
@@ -141,9 +133,6 @@ tracker_file_notifier_get_property (GObject    *object,
 	priv = TRACKER_FILE_NOTIFIER (object)->priv;
 
 	switch (prop_id) {
-	case PROP_INDEXING_TREE:
-		g_value_set_object (value, priv->indexing_tree);
-		break;
 	case PROP_DATA_PROVIDER:
 		g_value_set_object (value, priv->data_provider);
 		break;
@@ -182,17 +171,29 @@ root_data_free (RootData *data)
 	g_free (data);
 }
 
+static inline TrackerIndexingTree *
+get_indexing_tree (gpointer user_data)
+{
+	TrackerFileNotifier *notifier;
+	TrackerFileNotifierPrivate *priv;
+
+	notifier = TRACKER_FILE_NOTIFIER (user_data);
+	if (!notifier) {
+		return NULL;
+	}
+
+	priv = notifier->priv;
+
+	return tracker_data_provider_get_indexing_tree (priv->data_provider, NULL);
+}
+
 /* Crawler signal handlers */
 static gboolean
 crawler_check_file_cb (TrackerCrawler *crawler,
                        GFile          *file,
                        gpointer        user_data)
 {
-	TrackerFileNotifierPrivate *priv;
-
-	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
-
-	return tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	return tracker_indexing_tree_file_is_indexable (get_indexing_tree (user_data),
 	                                                file,
 	                                                G_FILE_TYPE_REGULAR);
 }
@@ -203,13 +204,15 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
                             gpointer        user_data)
 {
 	TrackerFileNotifierPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 	GFile *root, *canonical;
 
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
 	g_assert (priv->current_index_root != NULL);
 
 	canonical = tracker_file_system_peek_file (priv->file_system, directory);
-	root = tracker_indexing_tree_get_root (priv->indexing_tree, directory, NULL);
+	indexing_tree = get_indexing_tree (user_data);
+	root = tracker_indexing_tree_get_root (indexing_tree, directory, NULL);
 
 	/* If it's a config root itself, other than the one
 	 * currently processed, bypass it, it will be processed
@@ -220,7 +223,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 		return FALSE;
 	}
 
-	return tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	return tracker_indexing_tree_file_is_indexable (indexing_tree,
 	                                                directory,
 	                                                G_FILE_TYPE_DIRECTORY);
 }
@@ -232,11 +235,13 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
                                      gpointer        user_data)
 {
 	TrackerFileNotifierPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 	gboolean process;
 
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
-	process = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
-	                                                     parent, children);
+	indexing_tree = get_indexing_tree (user_data);
+	process = tracker_indexing_tree_parent_is_indexable (indexing_tree, parent, children);
+
 	if (process) {
 		TrackerDirectoryFlags parent_flags;
 		GFile *canonical;
@@ -246,8 +251,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 		                                          parent,
 		                                          G_FILE_TYPE_DIRECTORY,
 		                                          NULL);
-		tracker_indexing_tree_get_root (priv->indexing_tree,
-		                                canonical, &parent_flags);
+		tracker_indexing_tree_get_root (indexing_tree, canonical, &parent_flags);
 
 		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
 
@@ -312,12 +316,16 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 			                 file);
 		}
 	} else if (!store_mtime && !disk_mtime) {
+		TrackerIndexingTree *indexing_tree;
+
 		/* what are we doing with such file? should happen rarely,
 		 * only with files that we've queried, but we decided not
 		 * to crawl (i.e. embedded root directories, that would
 		 * be processed when that root is being crawled).
 		 */
-		if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+		indexing_tree = get_indexing_tree (user_data);
+
+		if (!tracker_indexing_tree_file_is_root (indexing_tree, file)) {
 			gchar *uri;
 
 			uri = g_file_get_uri (file);
@@ -357,7 +365,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 	g_assert (priv->current_index_root != NULL);
 
 	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
-	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
+	config_root = tracker_indexing_tree_get_root (get_indexing_tree (notifier),
 						      directory, &flags);
 
 	/* The max_depth parameter is usually '1', which would cause only the
@@ -517,7 +525,7 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 			 * when the time arrives.
 			 */
 			canonical = tracker_file_system_peek_file (priv->file_system, file);
-			root = tracker_indexing_tree_get_root (priv->indexing_tree, file, NULL);
+			root = tracker_indexing_tree_get_root (get_indexing_tree (notifier), file, NULL);
 
 			if (canonical && root == file && priv->current_index_root &&
 			    root != priv->current_index_root->root) {
@@ -925,20 +933,21 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
 
 /* Monitor signal handlers */
 static void
-monitor_item_created_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
+monitor_item_created_cb (TrackerDataProvider *data_provider,
+                         GFile               *file,
+                         gboolean             is_directory,
+                         gpointer             user_data)
 {
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerIndexingTree *indexing_tree;
 	GFileType file_type;
 	GFile *canonical;
 
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+	indexing_tree = get_indexing_tree (user_data);
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
+	if (!tracker_indexing_tree_file_is_indexable (indexing_tree, file, file_type)) {
 		/* File should not be indexed */
 		return ;
 	}
@@ -952,7 +961,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 
 		if (parent) {
 			children = g_list_prepend (NULL, file);
-			indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
+			indexable = tracker_indexing_tree_parent_is_indexable (indexing_tree,
 			                                                       parent,
 			                                                       children);
 			g_list_free (children);
@@ -974,8 +983,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		/* If config for the directory is recursive,
 		 * Crawl new entire directory and add monitors
 		 */
-		tracker_indexing_tree_get_root (priv->indexing_tree,
-		                                file, &flags);
+		tracker_indexing_tree_get_root (indexing_tree, file, &flags);
 
 		if (flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
 			canonical = tracker_file_system_get_file (priv->file_system,
@@ -1001,10 +1009,10 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 }
 
 static void
-monitor_item_updated_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
+monitor_item_updated_cb (TrackerDataProvider *data_provider,
+                         GFile               *file,
+                         gboolean             is_directory,
+                         gpointer             user_data)
 {
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
@@ -1013,8 +1021,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
+	if (!tracker_indexing_tree_file_is_indexable (get_indexing_tree (user_data), file, file_type)) {
 		/* File should not be indexed */
 		return;
 	}
@@ -1031,10 +1038,10 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 }
 
 static void
-monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
-                                   GFile          *file,
-                                   gboolean        is_directory,
-                                   gpointer        user_data)
+monitor_item_attribute_updated_cb (TrackerDataProvider *data_provider,
+                                   GFile               *file,
+                                   gboolean             is_directory,
+                                   gpointer             user_data)
 {
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
@@ -1043,8 +1050,7 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
+	if (!tracker_indexing_tree_file_is_indexable (get_indexing_tree (user_data), file, file_type)) {
 		/* File should not be indexed */
 		return;
 	}
@@ -1061,20 +1067,21 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 }
 
 static void
-monitor_item_deleted_cb (TrackerMonitor *monitor,
-                         GFile          *file,
-                         gboolean        is_directory,
-                         gpointer        user_data)
+monitor_item_deleted_cb (TrackerDataProvider *data_provider,
+                         GFile               *file,
+                         gboolean             is_directory,
+                         gpointer             user_data)
 {
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerIndexingTree *indexing_tree;
 	GFile *canonical;
 	GFileType file_type;
 
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
+	indexing_tree = get_indexing_tree (user_data);
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
+	if (!tracker_indexing_tree_file_is_indexable (indexing_tree, file, file_type)) {
 		/* File was not indexed */
 		return ;
 	}
@@ -1088,8 +1095,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		children = g_list_prepend (NULL, file);
 		parent = g_file_get_parent (file);
 
-		indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
-		                                                       parent, children);
+		indexable = tracker_indexing_tree_parent_is_indexable (indexing_tree, parent, children);
 		g_object_unref (parent);
 		g_list_free (children);
 
@@ -1106,8 +1112,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			                                     file,
 			                                     G_FILE_TYPE_DIRECTORY,
 			                                     NULL);
-			tracker_indexing_tree_get_root (priv->indexing_tree,
-							file, &flags);
+			tracker_indexing_tree_get_root (indexing_tree, file, &flags);
 			notifier_queue_file (notifier, file, flags);
 			crawl_directories_start (notifier);
 			return;
@@ -1126,20 +1131,23 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 }
 
 static void
-monitor_item_moved_cb (TrackerMonitor *monitor,
-                       GFile          *file,
-                       GFile          *other_file,
-                       gboolean        is_directory,
-                       gboolean        is_source_monitored,
-                       gpointer        user_data)
+monitor_item_moved_cb (TrackerDataProvider *data_provider,
+                       GFile               *file,
+                       GFile               *other_file,
+                       gboolean             is_directory,
+                       gboolean             is_source_monitored,
+                       gpointer             user_data)
 {
 	TrackerFileNotifier *notifier;
 	TrackerFileNotifierPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 	TrackerDirectoryFlags flags;
 
 	notifier = user_data;
 	priv = notifier->priv;
-	tracker_indexing_tree_get_root (priv->indexing_tree, other_file, &flags);
+
+	indexing_tree = get_indexing_tree (user_data);
+	tracker_indexing_tree_get_root (indexing_tree, other_file, &flags);
 
 	if (!is_source_monitored) {
 		if (is_directory) {
@@ -1173,7 +1181,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		 */
 		source_stored = (tracker_file_system_peek_file (priv->file_system,
 		                                                check_file) != NULL);
-		should_process_other = tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+		should_process_other = tracker_indexing_tree_file_is_indexable (indexing_tree,
 		                                                                other_file,
 		                                                                file_type);
 		g_object_unref (check_file);
@@ -1192,7 +1200,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				gboolean dest_is_recursive;
 				TrackerDirectoryFlags flags;
 
-				tracker_indexing_tree_get_root (priv->indexing_tree, other_file, &flags);
+				tracker_indexing_tree_get_root (indexing_tree, other_file, &flags);
 				dest_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 
 				/* Source file was not stored, check dest file as new */
@@ -1230,8 +1238,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				                      other_file,
 				                      NULL);
 
-				tracker_indexing_tree_get_root (priv->indexing_tree,
-				                                file, &source_flags);
+				tracker_indexing_tree_get_root (indexing_tree, file, &source_flags);
 				source_is_recursive = (source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 				dest_is_recursive = (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;
 
@@ -1374,10 +1381,6 @@ tracker_file_notifier_finalize (GObject *object)
 
 	priv = TRACKER_FILE_NOTIFIER (object)->priv;
 
-	if (priv->indexing_tree) {
-		g_object_unref (priv->indexing_tree);
-	}
-
 	if (priv->data_provider) {
 		g_object_unref (priv->data_provider);
 	}
@@ -1401,29 +1404,31 @@ static void
 tracker_file_notifier_constructed (GObject *object)
 {
 	TrackerFileNotifierPrivate *priv;
+	TrackerIndexingTree *indexing_tree;
 	GFile *root;
+	GError *error = NULL;
 
 	G_OBJECT_CLASS (tracker_file_notifier_parent_class)->constructed (object);
 
 	priv = TRACKER_FILE_NOTIFIER (object)->priv;
-	g_assert (priv->indexing_tree);
+
+	/* Sanity check, make sure we have a data provider and indexing tree */
+	g_assert_nonnull (priv->data_provider);
+
+	indexing_tree = tracker_data_provider_get_indexing_tree (priv->data_provider, &error);
+	g_assert_no_error (error);
+	g_assert_nonnull (indexing_tree);
 
 	/* Initialize filesystem and register properties */
-	root = tracker_indexing_tree_get_master_root (priv->indexing_tree);
+	root = tracker_indexing_tree_get_master_root (indexing_tree);
 	priv->file_system = tracker_file_system_new (root);
 
-	g_signal_connect (priv->indexing_tree, "directory-added",
+	g_signal_connect (indexing_tree, "directory-added",
 	                  G_CALLBACK (indexing_tree_directory_added), object);
-	g_signal_connect (priv->indexing_tree, "directory-updated",
+	g_signal_connect (indexing_tree, "directory-updated",
 	                  G_CALLBACK (indexing_tree_directory_added), object);
-	g_signal_connect (priv->indexing_tree, "directory-removed",
+	g_signal_connect (indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
-
-	/* Make sure we have a data provider, either provided or fallback */
-	if (G_LIKELY (!priv->data_provider)) {
-		/* Default to the file data_provider if none is passed */
-		priv->data_provider = (TrackerDataProvider*) tracker_file_data_provider_new ();
-	}
 
 	/* Set up monitor */
 	g_signal_connect (priv->data_provider, "item-created",
@@ -1547,14 +1552,6 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 		              G_TYPE_NONE, 0, G_TYPE_NONE);
 
 	g_object_class_install_property (object_class,
-	                                 PROP_INDEXING_TREE,
-	                                 g_param_spec_object ("indexing-tree",
-	                                                      "Indexing tree",
-	                                                      "Indexing tree",
-	                                                      TRACKER_TYPE_INDEXING_TREE,
-	                                                      G_PARAM_READWRITE |
-	                                                      G_PARAM_CONSTRUCT_ONLY));
-	g_object_class_install_property (object_class,
 	                                 PROP_DATA_PROVIDER,
 	                                 g_param_spec_object ("data-provider",
 	                                                      "Data provider",
@@ -1606,13 +1603,11 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 }
 
 TrackerFileNotifier *
-tracker_file_notifier_new (TrackerIndexingTree  *indexing_tree,
-                           TrackerDataProvider  *data_provider)
+tracker_file_notifier_new (TrackerDataProvider *data_provider)
 {
-	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (indexing_tree), NULL);
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), NULL);
 
 	return g_object_new (TRACKER_TYPE_FILE_NOTIFIER,
-	                     "indexing-tree", indexing_tree,
 	                     "data-provider", data_provider,
 	                     NULL);
 }
