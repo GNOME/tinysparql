@@ -57,9 +57,6 @@ TrackerIndexingTree * tracker_monitor_get_indexing_tree (TrackerMonitor *monitor
 void                  tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
                                                          TrackerIndexingTree *tree);
 
-gboolean        tracker_monitor_get_enabled          (TrackerMonitor *monitor);
-void            tracker_monitor_set_enabled          (TrackerMonitor *monitor,
-                                                      gboolean        enabled);
 gboolean        tracker_monitor_add                  (TrackerMonitor *monitor,
                                                       GFile          *file);
 gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
@@ -69,12 +66,6 @@ gboolean        tracker_monitor_remove_recursively   (TrackerMonitor *monitor,
 gboolean        tracker_monitor_move                 (TrackerMonitor *monitor,
                                                       GFile          *old_file,
                                                       GFile          *new_file);
-gboolean        tracker_monitor_is_watched           (TrackerMonitor *monitor,
-                                                      GFile          *file);
-gboolean        tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
-                                                      const gchar    *path);
-guint           tracker_monitor_get_count            (TrackerMonitor *monitor);
-guint           tracker_monitor_get_ignored          (TrackerMonitor *monitor);
 
 G_END_DECLS
 
