@@ -597,10 +597,16 @@ handle_method_call_perform_writeback (TrackerController     *controller,
 		g_task_run_in_thread (task, io_writeback_job);
 		g_object_unref (task);
 	} else {
+		char *rdf_types_string;
+		rdf_types_string = g_strjoinv (", ", rdf_types);
 		g_dbus_method_invocation_return_error (invocation,
 		                                       TRACKER_DBUS_ERROR,
 		                                       TRACKER_DBUS_ERROR_UNSUPPORTED,
-		                                       "No module for rdf types");
+		                                       "None of %i writeback modules matched any of the "
+		                                       "given RDF types: %s",
+		                                       g_hash_table_size (priv->modules),
+		                                       rdf_types_string);
+		g_free (rdf_types_string);
 	}
 
 	g_free (rdf_types);
