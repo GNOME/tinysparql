@@ -275,6 +275,8 @@ class StoreHelper (Helper):
     def _graph_updated_timeout_cb (self):
         # Don't fail here, exceptions don't get propagated correctly
         # from the GMainLoop
+        status = subprocess.check_output(['tracker', 'daemon', 'status'])
+        log('Timeout waiting for resource. Current status of daemons:\n%s' % status)
         self.graph_updated_timed_out = True
         self.loop.quit ()
 
