@@ -584,29 +584,22 @@ tracker_monitor_move (TrackerMonitor *monitor,
 	return items_moved > 0;
 }
 
-static const gchar *
-monitor_event_to_string (GFileMonitorEvent event_type)
+inline static const gchar *
+monitor_event_to_string (GFileMonitorEvent value)
 {
-	switch (event_type) {
-	case G_FILE_MONITOR_EVENT_CHANGED:
-		return "G_FILE_MONITOR_EVENT_CHANGED";
-	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-		return "G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT";
-	case G_FILE_MONITOR_EVENT_DELETED:
-		return "G_FILE_MONITOR_EVENT_DELETED";
-	case G_FILE_MONITOR_EVENT_CREATED:
-		return "G_FILE_MONITOR_EVENT_CREATED";
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-		return "G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED";
-	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-		return "G_FILE_MONITOR_EVENT_PRE_UNMOUNT";
-	case G_FILE_MONITOR_EVENT_UNMOUNTED:
-		return "G_FILE_MONITOR_EVENT_UNMOUNTED";
-	case G_FILE_MONITOR_EVENT_MOVED:
-		return "G_FILE_MONITOR_EVENT_MOVED";
-	}
+        GType type;
+        GEnumClass *enum_class;
+        GEnumValue *enum_value;
 
-	return "unknown";
+        type = g_file_monitor_event_get_type ();
+        enum_class = G_ENUM_CLASS (g_type_class_peek (type));
+        enum_value = g_enum_get_value (enum_class, value);
+
+        if (!enum_value) {
+                return "unknown";
+        }
+
+        return enum_value->value_nick;
 }
 
 static void
