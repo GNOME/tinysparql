@@ -783,7 +783,7 @@ sparql_files_compose_query (GFile **files,
 	gint i = 0;
 
 	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) {"
-			    "  ?u a nfo:FileDataObject ; nie:url ?url . "
+			    "  ?u a rdfs:Resource ; nie:url ?url . "
 			    "FILTER (?url IN (");
 	for (i = 0; i < n_files; i++) {
 		if (i != 0)
