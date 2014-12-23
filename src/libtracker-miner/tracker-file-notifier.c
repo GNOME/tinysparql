@@ -500,11 +500,12 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		GFile *file, *canonical, *root;
-		const gchar *time_str, *iri;
+		const gchar *time_str, *uri, *iri;
 		GError *error = NULL;
 		guint64 _time;
 
-		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+		uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		file = g_file_new_for_uri (uri);
 
 		if (check_root) {
 			/* If it's a config root itself, other than the one
@@ -523,7 +524,19 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 
 		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		time_str = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-		_time = tracker_string_to_date (time_str, NULL, &error);
+
+		if (time_str == NULL) {
+			/* This can happen if someone inserted the file's metadata in the store using INSERT
+			 * statements, rather than going through the FS miner. Or if for some reason they
+			 * deleted the nfo:fileLastModified information. We report the store_mtime of the
+			 * file as 0 so that it will get recrawled, if it is still present on disk, in
+			 * file_notifier_traverse_tree_foreach().
+			 */
+			g_warning ("File %s has no nfo:fileLastModified time set.", uri);
+			_time = 0;
+		} else {
+			_time = tracker_string_to_date (time_str, NULL, &error);
+		}
 
 		if (error) {
 			/* This should never happen. Assume that file was modified. */
