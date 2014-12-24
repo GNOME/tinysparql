@@ -187,6 +187,12 @@ partition tracker-file-notifier(5) {
   end note
 
   file_notifier_traverse_foreach --> "FileNotifier::file-created"
+
+  file_notifier_traverse_tree --> [from sparql_files_query_cb] "finish_current_directory
+        <i>Calls file_system_forget_files()
+        <i>which removes the file nodes from
+        <i>memory, leaving only directories." as finish_current_directory
+  finish_current_directory --> FileNotifier::directory-finished
 }
 
 partition tracker-miner-fs {
