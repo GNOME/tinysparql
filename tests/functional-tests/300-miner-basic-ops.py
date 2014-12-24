@@ -203,9 +203,9 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Move a file from monitored to unmonitored directory
         """
-        source = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
-        dest = os.path.join (MINER_TMP_DIR, "test-no-monitored", "file2.txt")
-        source_id = self.system.store.get_resource_id (uri(dest))
+        source = path("test-monitored/dir1/file2.txt")
+        dest = path("test-no-monitored/file2.txt")
+        source_id = self.system.store.get_resource_id (uri(source))
         shutil.move (source, dest)
         self.system.store.await_resource_deleted (source_id)
 
@@ -217,7 +217,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
 
         # Restore the file
         shutil.move (dest, source)
-        self.system.store.await_resource_inserted ('nfo:TextDocument', uri(dest))
+        self.system.store.await_resource_inserted ('nfo:TextDocument', uri(source))
         self.assertEquals (3, self.tracker.count_instances ("nfo:TextDocument"))
 
 
@@ -225,19 +225,22 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Move a file between monitored directories
         """
-        source = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
-        dest = os.path.join (MINER_TMP_DIR, "test-monitored", "file2.txt")
 
-        source_dir_urn = self.__get_file_urn (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1"))
+        source = path("test-monitored/dir1/file2.txt")
+        dest = path("test-monitored/file2.txt")
+
+        resource_id = self.tracker.get_resource_id(url=uri(source))
+
+        source_dir_urn = self.__get_file_urn (os.path.dirname(source))
         parent_before = self.__get_parent_urn (source)
         self.assertEquals (source_dir_urn, parent_before)
 
         shutil.move (source, dest)
-        self.system.store.await_resource_inserted ('nfo:TextDocument', uri(dest))
+        self.tracker.await_property_changed(resource_id, 'nie:url')
 
         # Checking fix for NB#214413: After a move operation, nfo:belongsToContainer
         # should be changed to the new one
-        dest_dir_urn = self.__get_file_urn (os.path.join (MINER_TMP_DIR, "test-monitored"))
+        dest_dir_urn = self.__get_file_urn (os.path.dirname(dest))
         parent_after = self.__get_parent_urn (dest)
         self.assertNotEquals (parent_before, parent_after)
         self.assertEquals (dest_dir_urn, parent_after)
@@ -251,7 +254,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
 
         # Restore the file
         shutil.move (dest, source)
-        self.system.store.await_resource_inserted ('nfo:TextDocument', uri(source))
+        self.tracker.await_property_changed(resource_id, 'nie:url')
 
         result = self.__get_text_documents ()
         self.assertEquals (len (result), 3)
@@ -263,7 +266,7 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Delete one of the files
         """
-        victim = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "file2.txt")
+        victim = path("test-monitored/dir1/file2.txt")
         victim_id = self.system.store.get_resource_id (uri(victim))
         os.remove (victim)
         self.system.store.await_resource_deleted (victim_id)
@@ -284,10 +287,13 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         Delete a directory
         """
-        victim = os.path.join (MINER_TMP_DIR, "test-monitored", "dir1")
+        victim = path("test-monitored/dir1")
         victim_id = self.system.store.get_resource_id (uri(victim))
         shutil.rmtree (victim)
-        self.system.store.await_resource_deleted (victim_id)
+
+        file_inside_victim_url = uri (os.path.join (victim, "file2.txt"))
+        file_inside_victim_id = self.system.store.get_resource_id (file_inside_victim_url)
+        self.system.store.await_resource_deleted (file_inside_victim_id)
 
         result = self.__get_text_documents ()
         self.assertEquals (len (result), 1)
@@ -295,11 +301,11 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         self.assertIn ( uri ("test-monitored/file1.txt"), unpacked_result)
 
         # Restore the dirs
-        os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1"))
-        os.makedirs (os.path.join (MINER_TMP_DIR, "test-monitored", "dir1", "dir2"))
+        os.makedirs (path("test-monitored/dir1"))
+        os.makedirs (path("test-monitored/dir1/dir2"))
         for f in ["test-monitored/dir1/file2.txt",
                   "test-monitored/dir1/dir2/file3.txt"]:
-            filename = os.path.join (MINER_TMP_DIR, f)
+            filename = path(f)
             writer = open (filename, "w")
             writer.write ("Don't panic, everything is fine")
             writer.close ()

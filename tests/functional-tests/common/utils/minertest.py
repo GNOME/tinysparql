@@ -110,3 +110,6 @@ class CommonTrackerMinerTest (ut.TestCase):
     @classmethod
     def tearDownClass (self):
         self.system.tracker_miner_fs_testing_stop ()
+
+    def setUp (self):
+        self.tracker.reset_graph_updates_tracking ()

@@ -25,6 +25,7 @@ especially in the case where nie:InformationElement != nie:DataObject
 from common.utils import configuration as cfg
 from common.utils.dconf import DConfClient
 from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, log
+from common.utils.minertest import CommonTrackerMinerTest, path, uri
 from common.utils.system import TrackerSystemAbstraction
 
 from gi.repository import GLib
@@ -36,12 +37,6 @@ import shutil
 import unittest2 as ut
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
-
-def get_test_path (filename):
-    return os.path.join (MINER_TMP_DIR, filename)
-
-def get_test_uri (filename):
-    return "file://" + os.path.join (MINER_TMP_DIR, filename)
 
 
 CONF_OPTIONS = {
@@ -107,14 +102,14 @@ class MinerResourceRemovalTest (ut.TestCase):
                                                    title = title)
 
     def create_test_file (self, file_name):
-        file_path = get_test_path (file_name)
+        file_path = path(file_name)
 
         file = open (file_path, 'w')
         file.write ("Test")
         file.close ()
 
         return self.store.await_resource_inserted (rdf_class = 'nfo:Document',
-                                                   url = get_test_uri (file_name));
+                                                   url = uri(file_name))
 
     def assertResourceExists (self, urn):
         if self.store.ask ("ASK { <%s> a rdfs:Resource }" % urn) == False:
@@ -131,12 +126,12 @@ class MinerResourceRemovalTest (ut.TestCase):
         in a file is deleted when the file is deleted.
         """
 
-        (file_1_id, file_1_urn) = self.create_test_file ("test_1.txt")
-        (file_2_id, file_2_urn) = self.create_test_file ("test_2.txt")
+        (file_1_id, file_1_urn) = self.create_test_file ("test-monitored/test_1.txt")
+        (file_2_id, file_2_urn) = self.create_test_file ("test-monitored/test_2.txt")
         (ie_1_id, ie_1_urn) = self.create_test_content (file_1_urn, "Test resource 1")
         (ie_2_id, ie_2_urn) = self.create_test_content (file_2_urn, "Test resource 2")
 
-        os.unlink (get_test_path ("test_1.txt"))
+        os.unlink (path ("test-monitored/test_1.txt"))
 
         self.store.await_resource_deleted (file_1_id)
         self.store.await_resource_deleted (ie_1_id,
@@ -148,15 +143,15 @@ class MinerResourceRemovalTest (ut.TestCase):
         self.assertResourceExists (file_2_urn)
         self.assertResourceExists (ie_2_urn)
 
-    def test_02_removable_device_data (self):
-        """
-        Tracker does periodic cleanups of data on removable volumes that haven't
-        been seen since 'removable-days-threshold', and will also remove all data
-        from removable volumes if 'index-removable-devices' is disabled.
-
-        FIXME: not yet possible to test this - we need some way of mounting
-        a fake removable volume: https://bugzilla.gnome.org/show_bug.cgi?id=659739
-        """
+    #def test_02_removable_device_data (self):
+    #    """
+    #    Tracker does periodic cleanups of data on removable volumes that haven't
+    #    been seen since 'removable-days-threshold', and will also remove all data
+    #    from removable volumes if 'index-removable-devices' is disabled.
+    #
+    #    FIXME: not yet possible to test this - we need some way of mounting
+    #    a fake removable volume: https://bugzilla.gnome.org/show_bug.cgi?id=659739
+    #    """
 
         #dconf = DConfClient ()
         #dconf.write (cfg.DCONF_MINER_SCHEMA, 'index-removable-devices', 'true')
