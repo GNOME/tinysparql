@@ -1,0 +1,33 @@
+This is source code for a UML diagram. See: <http://plantuml.sourceforge.net/>.
+
+To create .png files of the diagrams using PlantUML, run:
+
+	plantuml -t png *.plantuml
+
+@startuml
+
+title Tracker file-system mining -- classes
+
+class Crawler
+class FileDataProvider
+class FileEnumerator
+class FileNotifier
+class FileSystem
+class IndexingTree
+class MinerFS
+class Monitor
+
+MinerFS -- FileDataProvider
+MinerFS -- FileNotifier
+MinerFS -- IndexingTree
+
+FileNotifier -- Crawler
+FileNotifier -- FileSystem
+FileNotifier -- IndexingTree
+FileNotifier -- Monitor
+
+Crawler -- FileDataProvider
+FileDataProvider -- FileEnumerator
+
+@enduml
+

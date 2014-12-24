@@ -1,0 +1,33 @@
+This is source code for a UML diagram. See: <http://plantuml.sourceforge.net/>.
+
+To create .png files of the diagrams using PlantUML, run:
+
+	plantuml -t png *.plantuml
+
+@startuml
+
+title Tracker initial filesystem crawl (short version)
+
+database store
+entity "extract"
+entity "miner-fs"
+participant MinerFS
+participant IndexingTree
+participant FileNotifier
+participant Crawler
+participant FileDataProvider
+
+IndexingTree -> FileNotifier: ::directory-added
+FileNotifier -> Crawler: crawler_start()
+Crawler --> FileNotifier: ::check-directory
+Crawler -> FileDataProvider: enumerate contents of directory
+Crawler --> FileNotifier: ::check-directory-contents
+Crawler -> FileNotifier: ::directory-crawled
+Crawler -> FileNotifier: ::finished
+FileNotifier -> MinerFS: ::file-created
+MinerFS -> "miner-fs": ::process-file
+"miner-fs" -> MinerFS: miner_fs_file_notify()
+MinerFS -> store: INSERT some info
+store -> "extract": GraphUpdated signal
+"extract" -> store: INSERT more info
+@enduml

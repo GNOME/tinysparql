@@ -1,0 +1,246 @@
+This is source code for a UML diagram. See: <http://plantuml.sourceforge.net/>.
+
+To create .png files of the diagrams using PlantUML, run:
+
+	plantuml -t png *.plantuml
+
+@startuml
+
+title Tracker initial filesystem crawl (full version)
+
+partition tracker-miner-files {
+  (*) --> "miner_files_initable_init
+        <i>Adds 'roots' from configuration</i>" as miner_files_initable_init
+}
+
+partition tracker-indexing-tree {
+  miner_files_initable_init --> indexing_tree_add
+  indexing_tree_add --> "IndexingTree::directory-added"
+}
+
+partition tracker-file-notifier {
+  "IndexingTree::directory-added" --> indexing_tree_directory_added
+  indexing_tree_directory_added --> "notifier_queue_file
+         <i>Adds a RootData entry to
+         <i>priv->pending_index_roots,
+         <i>with the root GFile enqueued
+         <i>in RootData->pending_dirs</i>" as notifier_queue_file
+  notifier_queue_file --> [from indexing_tree_directory_added] crawl_directories_start
+  crawl_directories_start --> "crawl_directory_in_current_root
+         <i>peeks first item from
+         <i>RootData->pending_dirs to
+         <i>pass to crawler_start</i>" as crawl_directory_in_current_root
+  crawl_directories_start --> "FileNotifier::directory-started"
+}
+
+partition tracker-crawler {
+  crawl_directory_in_current_root --> "crawler_start
+         <i>Creates a DirectoryRootInfo
+         <i>struct for the current 'root'
+         <i>with the root file enqueued in
+         <i>info->directory_processing_queue.
+         <i>info is then pushed to
+         <i>priv->directories</i>" as crawler_start
+  crawler_start --> "check_directory(root)"
+  "check_directory(root)" --> "Crawler::check-directory(root)"
+}
+
+partition tracker-file-notifier(1) {
+  "Crawler::check-directory(root)" --> crawler_check_directory_cb
+  crawler_check_directory_cb --> "indexing_tree_file_is_indexable
+     <i>Decides if directory should be
+     <i>ignored due to user configuration</i>" as indexing_tree_file_is_indexable
+}
+
+partition tracker-crawler(1) {
+  indexing_tree_file_is_indexable --> [from crawler_start, via g_idle_add] "process_func (initial inspection)"
+
+  note left
+    Peeks DirectoryRootinfo from
+    head of priv->directories, and
+    then peeks first dir_info from
+    root_info->directory_processing_queue.
+
+    A directory passes through
+    process_func several times.
+    On the first pass,
+    dir_info->was_inspected will be
+    FALSE, and is set to TRUE before
+    continuing.
+  end note
+
+  "process_func (initial inspection)" --> data_provider_begin
+}
+
+
+partition tracker-file-data-provider {
+  data_provider_begin --> "file_data_provider_begin_async
+        <i>Calls g_file_enumerate_children
+        <i>in a separate thread</i>" as file_data_provider_begin_async
+}
+
+partition tracker-crawler(2) {
+  file_data_provider_begin_async -->[callback] data_provider_begin_cb
+  data_provider_begin_cb -->[enumerator callback] "enumerate_next_cb
+        <i>Called for each file,
+        <i>results are collected
+        <i>in data_provider_data->files</i>" as enumerate_next_cb
+  enumerate_next_cb --> "data_provider_data_add
+        <i>Each file we found is
+        <i>added to dir_info->children</i>" as data_provider_data_add
+  data_provider_data_add --> [from enumerate_next_cb] data_provider_data_process
+  data_provider_data_process --> "Crawler::check-directory-contents"
+}
+
+
+partition tracker-file-notifier(2) {
+  "Crawler::check-directory-contents" --> crawler_check_directory_contents_cb
+  crawler_check_directory_contents_cb --> "indexing_tree_parent_is_indexable
+        <i>Decides if whole directory
+        <i>should be ignored based on
+        <i>user configuration</i>" as indexing_tree_parent_is_indexable
+  crawler_check_directory_contents_cb --> monitor_add
+}
+
+partition tracker-crawler(3) {
+  indexing_tree_parent_is_indexable --> [from enumerate_next_cb] process_func_start
+  process_func_start --> [via g_idle_add] "process_func (add child nodes)"
+
+  note left
+    Peeks same DirectoryRootInfo
+    and DirectoryProcessingInfo
+    as before. Removes one child
+    from dir_data->children,
+    runs it through check_file
+    or check_directory, and adds
+    it as a child of the GTree
+    node at dir_data->node (and
+    (root)_info->tree). If
+    it's a directory it may also
+    be added to
+    (root_)info->directory_processing_queue.
+    Once there are no more children,
+    root_info is removed from
+    priv->directory_processing_queue.
+  end note
+
+  "process_func (add child nodes)" --> [Once (root)_info->directory_processing_queue is empty] "Crawler::directory-crawled"
+}
+
+partition tracker-file-notifier(3) {
+  "Crawler::directory-crawled" --> crawler_directory_called_cb
+  crawler_directory_called_cb --> [via g_node_traverse of the root_info's GTree of GFile objects] file_notifier_add_node_foreach
+  file_notifier_add_node_foreach --> file_system_get_file
+
+  note left
+    This 'interns' the GFile in the
+    TrackerFileSystem, which tracks
+    *all* files known to the miner.
+
+    If crawling finished because
+    MAX_DEPTH was reached, the leaf
+    directories are added to
+    priv->current_index_root->pending_dirs
+    to be processed in a future call
+    to crawl_directory_in_current_root
+
+    All files are added to
+    priv->current_index_root->query_files
+  end note
+}
+
+partition tracker-crawler(4) {
+  file_system_get_file --> [from process_func] data_provider_end
+  data_provider_end --> "<enumerator data is freed>"
+  If "priv->directories is empty"
+    --> [yes] crawler_stop
+  else
+    --> [no] "process_func (initial inspection)"
+  Endif
+  crawler_stop --> "Crawler::finished"
+}
+
+partition tracker-file-notifier(5) {
+  "Crawler::finished" --> crawler_finished_cb
+  crawler_finished_cb --> "sparql_files_query_start
+        <i>SELECT ?urn ?u nfo:fileLastModified(?u)
+        <i>  ?u a rdfs:Resource ; nie:url ?url .
+        <i>FILTER (?url in <priv->current_index_root->query_files>)</i>" as sparql_files_query_start
+  sparql_files_query_start --> [callback] sparql_files_query_cb
+  sparql_files_query_cb --> "sparql_files_query_populate
+        <i>Caches returned URN (also
+        <i>called IRI or 'internal resource
+        <i>identifier') and mtime of stored
+        <i>resource metadata.</i>" as sparql_files_query_populate
+
+  sparql_files_query_populate --> [from sparql_files_query_cb] file_notifier_traverse_tree
+  file_notifier_traverse_tree --> [via file_system_traverse] file_notifier_traverse_foreach
+
+  note left
+    This function could emit
+    FileNotifier::file-updated
+    instead for a file where data
+    already exists in the store,
+    and nfo:fileLastModified is
+    earlier than the mtime of the
+    file on disk
+  end note
+
+  file_notifier_traverse_foreach --> "FileNotifier::file-created"
+}
+
+partition tracker-miner-fs {
+  "FileNotifier::file-created" --> file_notifier_file_created
+  file_notifier_file_created --> "check_item_queues
+        <i>Reconciles the new event
+        <i>against the event queue,
+        <i>which may result in it
+        <i>being ignored</i>" as check_item_queues
+  check_item_queues --> [from file_notifier_file_created] miner_fs_queue_file
+  miner_fs_queue_file --> [from file_notifier_file_created] item_queue_handlers_set_up
+  item_queue_handlers_set_up --> [via g_idle_add] "item_queue_handlers_cb
+        <i>item_queue_get_next_file() will
+        <i>return us a QUEUE_CREATED event</i>" as item_queue_handlers_cb
+  item_queue_handlers_cb --> item_add_or_update
+  item_add_or_update --> "MinerFS::process-file"
+}
+
+partition "miners/fs/tracker-miner-files" {
+  "MinerFS::process-file" --> "miner_files_process_file
+         <i>Calls g_file_query_info_async
+         <i>on the new GFile</i>" as miner_files_process_file
+  miner_files_process_file --> [callback] "process_file_cb
+         <i>Adds lots of file metadata to
+         <i>the SparqlBuilder object passed
+         <i>in through MinerFS::process-file</i>" as process_file_cb
+}
+
+partition tracker-miner-fs(1) {
+  process_file_cb --> miner_fs_file_notify
+  miner_fs_file_notify --> item_add_or_update_continue
+  item_add_or_update_continue --> "sparql_buffer_push
+          <i>The INSERT task for the file
+          <i>metadata is queued and sent
+          <i>to the store.</i>" as sparql_buffer_push
+}
+
+partition tracker-sparql-buffer {
+  sparql_buffer_push --> [once the buffer is full, or time passes] sparql_buffer_flush
+  sparql_buffer_flush --> tracker_sparql_connection_update_array_async
+}
+
+partition "tracker-store process" {
+  tracker_sparql_connection_update_array_async --> [eventually] "org.freedesktop.Tracker.Store.GraphUpdated"
+}
+
+partition "tracker-extract process" {
+  "org.freedesktop.Tracker.Store.GraphUpdated" --> class_signal_cb
+  class_signal_cb --> handle_updates
+  handle_updates --> "element_add
+          <i>The tracker-extract process will
+          <i>read the file contents and add
+          <i>type-specific metadata to the store.</i>"
+  --> (*)
+}
+
+@enduml
