@@ -78,28 +78,11 @@ class TrackerSystemAbstraction:
             for key, value in contents.iteritems():
                 dconf.write(key, value)
 
-    def unset_up_environment (self):
-        """
-        Unset the XDG_*_HOME variables from the environment
-        """
-        for var, directory in TEST_ENV_VARS.iteritems ():
-            if os.environ.has_key (var):
-                del os.environ [var]
-
-        for var, directory in TEST_ENV_DIRS.iteritems ():
-            if os.environ.has_key (var):
-                del os.environ [var]
-
-        if (os.environ.has_key ("TRACKER_DB_ONTOLOGIES_DIR")):
-            del os.environ ["TRACKER_DB_ONTOLOGIES_DIR"]
-
-
     def tracker_store_testing_start (self, confdir=None, ontodir=None):
         """
         Stops any previous instance of the store, calls set_up_environment,
         and starts a new instances of the store
         """
-        self.__stop_tracker_processes ()
         self.set_up_environment (confdir, ontodir)
 
         self.store = helpers.StoreHelper ()
@@ -153,11 +136,10 @@ class TrackerSystemAbstraction:
 
     def tracker_store_testing_stop (self):
         """
-        Stops a running tracker-store and unset all the XDG_*_HOME vars
+        Stops a running tracker-store
         """
         assert self.store
         self.store.stop ()
-        self.unset_up_environment ()
 
 
     def tracker_miner_fs_testing_start (self, confdir=None):
@@ -165,7 +147,6 @@ class TrackerSystemAbstraction:
         Stops any previous instance of the store and miner, calls set_up_environment,
         and starts a new instance of the store and miner-fs
         """
-        self.__stop_tracker_processes ()
         self.set_up_environment (confdir, None)
 
         # Start also the store. DBus autoactivation ignores the env variables.
@@ -180,14 +161,11 @@ class TrackerSystemAbstraction:
 
     def tracker_miner_fs_testing_stop (self):
         """
-        Stops the miner-fs and store running and unset all the XDG_*_HOME vars
+        Stops the extractor, miner-fs and store running
         """
+        self.extractor.stop ()
         self.miner_fs.stop ()
         self.store.stop ()
-
-        self.__stop_tracker_processes ()
-        self.unset_up_environment ()
-
 
     def tracker_writeback_testing_start (self, confdir=None):
         # Start the miner-fs (and store) and then the writeback process
@@ -207,15 +185,6 @@ class TrackerSystemAbstraction:
     def tracker_all_testing_stop (self):
         # This will stop all miner-fs, store and writeback
         self.tracker_writeback_testing_stop ()
-
-    #
-    # Private API
-    #
-    def __stop_tracker_processes (self):
-        control_binary = os.path.join (cfg.BINDIR, "tracker")
-        FNULL = open('/dev/null', 'w')
-        subprocess.call ([control_binary, "daemon", "-t"], stdout=FNULL)
-        time.sleep (1)
 
     def __recreate_directory (self, directory):
         if (os.path.exists (directory)):

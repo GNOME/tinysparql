@@ -40,19 +40,16 @@ class CommonMinerFTS (CommonTrackerMinerTest):
     """
     Superclass to share methods. Shouldn't be run by itself.
     """
+    def prepare_directories (self):
+        # Override content from the base class
+        pass
+
     def setUp (self):
-        self.tracker.reset_graph_updates_tracking ()
         self.testfile = "test-monitored/miner-fts-test.txt"
         if os.path.exists (path (self.testfile)):
-            id = self._query_id (uri (self.testfile))
             os.remove (path (self.testfile))
-            self.tracker.await_resource_deleted (id)
-            self.tracker.reset_graph_updates_tracking ()
 
-    def tearDown (self):
-        #if os.path.exists (path (self.testfile)):
-        #    os.remove (path (self.testfile))
-        pass
+        super(CommonMinerFTS, self).setUp()
 
     def set_text (self, text):
         exists = os.path.exists(path(self.testfile))

@@ -52,42 +52,11 @@ CONF_OPTIONS = {
 
 REASONABLE_TIMEOUT = 30
 
-class MinerResourceRemovalTest (ut.TestCase):
+class MinerResourceRemovalTest (CommonTrackerMinerTest):
 
-    # Use the same instances of store and miner-fs for the whole test suite,
-    # because they take so long to do first-time init.
-    @classmethod
-    def setUpClass (self):
-        log ("Using %s as temp dir\n" % MINER_TMP_DIR)
-        if os.path.exists (MINER_TMP_DIR):
-            shutil.rmtree (MINER_TMP_DIR)
-        os.makedirs (MINER_TMP_DIR)
-
-        self.system = TrackerSystemAbstraction ()
-        self.system.set_up_environment (CONF_OPTIONS, None)
-        self.store = StoreHelper ()
-        self.store.start ()
-
-        # GraphUpdated seems to not be emitted if the extractor isn't running
-        # even though the file resource still gets inserted - maybe because
-        # INSERT SILENT is used in the FS miner?
-        self.extractor = ExtractorHelper ()
-        self.extractor.start ()
-
-        self.miner_fs = MinerFsHelper ()
-        self.miner_fs.start ()
-
-    @classmethod
-    def tearDownClass (self):
-        self.miner_fs.stop ()
-        self.extractor.stop ()
-        self.store.stop ()
-
-    def setUp (self):
-        self.store.reset_graph_updates_tracking ()
-
-    def tearDown (self):
-        self.system.unset_up_environment ()
+    def prepare_directories (self):
+        # Override content from the base class
+        pass
 
     def create_test_content (self, file_urn, title):
         sparql = "INSERT { \
@@ -96,10 +65,10 @@ class MinerResourceRemovalTest (ut.TestCase):
                          nie:isStoredAs <%s> \
                   } " % (title, file_urn)
 
-        self.store.update (sparql)
+        self.tracker.update (sparql)
 
-        return self.store.await_resource_inserted (rdf_class = 'nmm:MusicPiece',
-                                                   title = title)
+        return self.tracker.await_resource_inserted (rdf_class = 'nmm:MusicPiece',
+                                                     title = title)
 
     def create_test_file (self, file_name):
         file_path = path(file_name)
@@ -108,15 +77,15 @@ class MinerResourceRemovalTest (ut.TestCase):
         file.write ("Test")
         file.close ()
 
-        return self.store.await_resource_inserted (rdf_class = 'nfo:Document',
-                                                   url = uri(file_name))
+        return self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
+                                                     url = uri(file_name))
 
     def assertResourceExists (self, urn):
-        if self.store.ask ("ASK { <%s> a rdfs:Resource }" % urn) == False:
+        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == False:
             self.fail ("Resource <%s> does not exist" % urn)
 
     def assertResourceMissing (self, urn):
-        if self.store.ask ("ASK { <%s> a rdfs:Resource }" % urn) == True:
+        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == True:
             self.fail ("Resource <%s> should not exist" % urn)
 
 
@@ -133,10 +102,10 @@ class MinerResourceRemovalTest (ut.TestCase):
 
         os.unlink (path ("test-monitored/test_1.txt"))
 
-        self.store.await_resource_deleted (file_1_id)
-        self.store.await_resource_deleted (ie_1_id,
-                                           "Associated logical resource failed to be deleted " \
-                                           "when its containing file was removed.")
+        self.tracker.await_resource_deleted (file_1_id)
+        self.tracker.await_resource_deleted (ie_1_id,
+                                             "Associated logical resource failed to be deleted " \
+                                             "when its containing file was removed.")
 
         self.assertResourceMissing (file_1_urn)
         self.assertResourceMissing (ie_1_urn)

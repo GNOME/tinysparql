@@ -65,18 +65,6 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         self.assertEquals (len (result), 1)
         return result[0][0]
 
-    def tearDown (self):
-        # Give it a 2 seconds chance
-        result = self.__get_text_documents ()
-        if (len (result) != 3):
-            time.sleep (2)
-        else:
-            return
-
-        result = self.__get_text_documents ()
-        if (len (result) != 3):
-            print "WARNING: Previous test has modified the test files and didn't restore the origina state."
-
     """
     Boot the miner with the correct configuration and check everything is fine
     """
