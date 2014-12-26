@@ -83,7 +83,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
             # tracker-extract. The extractor adds nie:contentCreated for
             # image resources, so know once this property is set the
             # extraction is complete.
-            self.system.store.await_resource_inserted('nfo:Image', url=url, required_property='nie:contentCreated')
+            self.system.store.await_resource_inserted('nfo:Image', url=url, required_property='nfo:width')
 
         await_resource_extraction (self.get_test_filename_jpeg())
         await_resource_extraction (self.get_test_filename_tiff())

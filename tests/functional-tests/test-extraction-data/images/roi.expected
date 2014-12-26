@@ -6,7 +6,6 @@ Comment=JPG with regions of interest in the XMP
 [Metadata]
 a=nfo:Image
 a=nmm:Photo
-nie_title=roi
 nfo_hasRegionOfInterest=@URNUUID@
 nfo_width=128
 nfo_height=128
