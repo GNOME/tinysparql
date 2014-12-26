@@ -110,24 +110,6 @@ class Helper:
             log ("Starting %s" % ' '.join(command))
             return subprocess.Popen ([path] + flags, **kws)
 
-    def _stop_process (self):
-        if options.is_manual_start ():
-            if self.available:
-                print ("Kill %s manually" % self.PROCESS_NAME)
-                self.loop.run ()
-        else:
-            # FIXME: this can hang if the we try to terminate the
-            # process too early in its lifetime ... if you see:
-            #
-            #   GLib-CRITICAL **: g_main_loop_quit: assertion 'loop != NULL' failed
-            #
-            # This means that the signal_handler() function was called
-            # before the main loop was started and the process failed to
-            # terminate.
-            self.process.terminate ()
-            self.process.wait ()
-        return False
-
     def _name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == self.BUS_NAME:
             if old_owner == '' and new_owner != '':
@@ -187,17 +169,22 @@ class Helper:
         self.abort_if_process_exits_with_status_0 = False
 
     def stop (self):
-        if self.available:
+        start = time.time()
+        if self.process.poll() == None:
             # It should step out of this loop when the miner disappear from the bus
             GLib.source_remove(self.process_watch_timeout)
 
-            GLib.idle_add (self._stop_process)
-            self.timeout_id = GLib.timeout_add_seconds (REASONABLE_TIMEOUT, self._timeout_on_idle_cb)
-            self.loop.run ()
-            if self.timeout_id is not None:
-                GLib.source_remove(self.timeout_id)
+            self.process.terminate()
 
-        log ("[%s] stop." % self.PROCESS_NAME)
+            while self.process.poll() == None:
+                time.sleep(0.1)
+
+                if time.time() > (start + REASONABLE_TIMEOUT):
+                    log ("[%s] Failed to terminate, sending kill!" % self.PROCESS_NAME)
+                    self.process.kill()
+                    self.process.wait()
+
+        log ("[%s] stopped." % self.PROCESS_NAME)
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match (self.name_owner_match)
 
@@ -431,6 +418,46 @@ class StoreHelper (Helper):
 
         return
 
+    def await_property_changed (self, subject_id, property_uri):
+        """
+        Block until a property of a resource is updated or inserted.
+        """
+        assert (self.inserts_match_function == None)
+
+        property_id = self.get_resource_id_by_uri(property_uri)
+
+        def find_property_change (inserts_list):
+            matched = False
+            remaining_events = []
+
+            for insert in inserts_list:
+                if insert[1] == subject_id and insert[2] == property_id:
+                    log("Matched property change: %s" % str(insert))
+                    matched = True
+                else:
+                    remaining_events += [insert]
+
+            return matched, remaining_events
+
+        def match_cb (inserts_list):
+            matched, remaining_events = find_property_change (inserts_list)
+            exit_loop = matched
+            return exit_loop, remaining_events
+
+        # Check the list of previously received events for matches
+        (existing_match, self.inserts_list) = find_property_change (self.inserts_list)
+
+        if not existing_match:
+            self._enable_await_timeout ()
+            self.inserts_match_function = match_cb
+            # Run the event loop until the correct notification arrives
+            self.loop.run ()
+            self.inserts_match_function = None
+
+        if self.graph_updated_timed_out:
+            raise Exception ("Timeout waiting for property change, subject %i "
+                             "property %s" % (subject_id, property_uri))
+
     def query (self, query, timeout=5000):
         try:
             return self.resources.SparqlQuery (query, timeout=timeout)
@@ -560,24 +587,6 @@ class MinerFsHelper (Helper):
     FLAGS = ['--initial-sleep=0']
     if cfg.haveMaemo:
         FLAGS.append ('--disable-miner=userguides')
-
-    def _stop_process (self):
-        if options.is_manual_start ():
-            if self.available:
-                log ("Kill %s manually" % self.PROCESS_NAME)
-                self.loop.run ()
-        else:
-            control_binary = os.path.join (cfg.BINDIR, "tracker")
-
-            kws = {}
-
-            if not options.is_verbose ():
-                FNULL = open ('/dev/null', 'w')
-                kws = { 'stdout': FNULL }
-
-            subprocess.call ([control_binary, "daemon", "--kill=miners"], **kws)
-
-        return False
 
     def start (self):
         Helper.start (self)

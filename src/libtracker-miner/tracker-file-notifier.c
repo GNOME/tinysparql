@@ -360,13 +360,18 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
 						      directory, &flags);
 
+	/* The max_depth parameter is usually '1', which would cause only the
+	 * directory itself to be processed. We want the directory and its contents
+	 * to be processed so we need to go to (max_depth + 1) here.
+	 */
+
 	if (config_root != directory ||
 	    flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
 		tracker_file_system_traverse (priv->file_system,
 		                              directory,
 		                              G_LEVEL_ORDER,
 		                              file_notifier_traverse_tree_foreach,
-		                              max_depth,
+		                              max_depth + 1,
 		                              notifier);
 	}
 }

@@ -40,28 +40,34 @@ class CommonMinerFTS (CommonTrackerMinerTest):
     """
     Superclass to share methods. Shouldn't be run by itself.
     """
-    def setUp (self):
-        self.tracker.reset_graph_updates_tracking ()
-        self.testfile = "test-monitored/miner-fts-test.txt"
-        if os.path.exists (path (self.testfile)):
-            id = self._query_id (uri (self.testfile))
-            os.remove (path (self.testfile))
-            self.tracker.await_resource_deleted (id)
-            self.tracker.reset_graph_updates_tracking ()
-
-    def tearDown (self):
-        #if os.path.exists (path (self.testfile)):
-        #    os.remove (path (self.testfile))
+    def prepare_directories (self):
+        # Override content from the base class
         pass
 
+    def setUp (self):
+        self.testfile = "test-monitored/miner-fts-test.txt"
+        if os.path.exists (path (self.testfile)):
+            os.remove (path (self.testfile))
+
+        super(CommonMinerFTS, self).setUp()
+
     def set_text (self, text):
+        exists = os.path.exists(path(self.testfile))
+
         f = open (path (self.testfile), "w")
         f.write (text)
         f.close ()
-        self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
-                                              url = uri (self.testfile),
-                                              required_property = 'nie:plainTextContent')
-        self.tracker.reset_graph_updates_tracking ()
+
+        if exists:
+            subject_id = self.tracker.get_resource_id(uri(self.testfile))
+            self.tracker.await_property_changed(
+                subject_id=subject_id, property_uri='nie:plainTextContent')
+        else:
+            self.tracker.await_resource_inserted(
+                rdf_class='nfo:Document', url=uri(self.testfile),
+                required_property='nie:plainTextContent')
+
+        self.tracker.reset_graph_updates_tracking()
 
     def search_word (self, word):
         """
@@ -198,6 +204,8 @@ class MinerFTSFileOperationsTest (CommonMinerFTS):
     def test_02_empty_the_file (self):
         """
         Emptying the file, the indexed words are also removed
+
+        FIXME: this test currently fails!
         """
         TEXT = "automobile is red and big and whatnot"
         self.basic_test (TEXT, "automobile")
@@ -209,6 +217,8 @@ class MinerFTSFileOperationsTest (CommonMinerFTS):
     def test_03_update_the_file (self):
         """
         Changing the contents of the file, updates the index
+
+        FIXME: this test fails!
         """
         TEXT = "automobile is red and big and whatnot"
         self.basic_test (TEXT, "automobile")
@@ -264,7 +274,8 @@ class MinerFTSFileOperationsTest (CommonMinerFTS):
 
         shutil.copyfile ( path (TEST_16_SOURCE), path (TEST_16_DEST))
         self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
-                                              url = uri (TEST_16_DEST))
+                                              url = uri(TEST_16_DEST),
+                                              required_property = 'nie:plainTextContent')
 
         results = self.search_word ("airplane")
         self.assertEquals (len (results), 1)

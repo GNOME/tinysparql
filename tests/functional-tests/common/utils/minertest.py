@@ -53,8 +53,7 @@ CONF_OPTIONS = {
 
 class CommonTrackerMinerTest (ut.TestCase):
 
-    @classmethod
-    def __prepare_directories (self):
+    def prepare_directories (self):
         #
         #     ~/test-monitored/
         #                     /file1.txt
@@ -92,8 +91,7 @@ class CommonTrackerMinerTest (ut.TestCase):
             self.tracker.await_resource_inserted(
                 'nfo:TextDocument', url=uri(tf))
 
-    @classmethod 
-    def setUpClass (self):
+    def setUp (self):
         for d in ['test-monitored', 'test-no-monitored']:
             dirname = path(d)
             if os.path.exists (dirname):
@@ -105,8 +103,12 @@ class CommonTrackerMinerTest (ut.TestCase):
         self.system.tracker_miner_fs_testing_start (CONF_OPTIONS)
         self.tracker = self.system.store
 
-        self.__prepare_directories ()
+        try:
+            self.prepare_directories ()
+            self.tracker.reset_graph_updates_tracking ()
+        except Exception as e:
+            self.tearDown ()
+            raise
 
-    @classmethod
-    def tearDownClass (self):
+    def tearDown (self):
         self.system.tracker_miner_fs_testing_stop ()
