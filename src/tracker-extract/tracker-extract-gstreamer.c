@@ -1418,6 +1418,28 @@ discoverer_shutdown (MetadataExtractor *extractor)
 		g_object_unref (extractor->discoverer);
 }
 
+static gchar *
+get_discoverer_required_plugins_message (GstDiscovererInfo *info)
+{
+	GString *str;
+	gchar **plugins;
+	gchar *plugins_str;
+
+	plugins = (gchar **)
+	        gst_discoverer_info_get_missing_elements_installer_details (info);
+
+	if (g_strv_length((gchar **)plugins) == 0) {
+		str = g_string_new ("No information available on which plugin is required.");
+	} else {
+		str = g_string_new("Required plugins: ");
+		plugins_str = g_strjoinv (", ", (gchar **)plugins);
+		g_string_append (str, plugins_str);
+		g_free (plugins_str);
+	}
+
+	return g_string_free (str, FALSE);
+}
+
 static gboolean
 discoverer_init_and_run (MetadataExtractor *extractor,
                          const gchar       *uri)
@@ -1426,6 +1448,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	const GstTagList *discoverer_tags;
 	GError *error = NULL;
 	GList *l;
+	gchar *required_plugins_message;
 
 	extractor->duration = -1;
 	extractor->audio_channels = -1;
@@ -1467,8 +1490,15 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	}
 
 	if (error) {
-		g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
-		           error->message);
+		if (gst_discoverer_info_get_result(info) == GST_DISCOVERER_MISSING_PLUGINS) {
+			required_plugins_message = get_discoverer_required_plugins_message (info);
+			g_warning ("Missing a GStreamer plugin for %s. %s", uri,
+			           required_plugins_message);
+			g_free (required_plugins_message);
+		} else {
+			g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
+			           error->message);
+		}
 		gst_discoverer_info_unref (info);
 		g_error_free (error);
 		return FALSE;
