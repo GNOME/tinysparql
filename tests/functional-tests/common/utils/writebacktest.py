@@ -63,6 +63,12 @@ class CommonTrackerWritebackTest (ut.TestCase):
             datadir = os.path.join (cfg.DATADIR, "tracker-tests",
                                     "test-writeback-data")
 
+        if not os.path.exists(WRITEBACK_TMP_DIR):
+            os.makedirs(WRITEBACK_TMP_DIR)
+        else:
+            if not os.path.isdir(WRITEBACK_TMP_DIR):
+                raise Exception("%s exists already and is not a directory" % WRITEBACK_TMP_DIR)
+
         for testfile in [TEST_FILE_JPEG, TEST_FILE_PNG,TEST_FILE_TIFF]:
             origin = os.path.join (datadir, testfile)
             log ("Copying %s -> %s" % (origin, WRITEBACK_TMP_DIR))

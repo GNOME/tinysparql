@@ -55,9 +55,9 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
         NB#217627 - Order if results is different when an image is marked as favorite.
         """
         query_images = """
-          SELECT nie:url (?u) ?contentCreated WHERE {
+          SELECT nie:url(?u) ?contentCreated WHERE {
               ?u a nfo:Visual ;
-                 nie:contentCreated ?contentCreated .
+              nfo:fileLastModified ?contentCreated
           } ORDER BY ?contentCreated
           """
         results = self.tracker.query (query_images)
