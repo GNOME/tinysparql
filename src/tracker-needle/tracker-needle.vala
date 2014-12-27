@@ -18,6 +18,7 @@
 //
 
 using Gtk;
+using Atk;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -28,7 +29,7 @@ extern static const string SRCDIR;
 public class Tracker.Needle {
 	private const string UI_FILE = "tracker-needle.ui";
 	private History history;
-	private Window window;
+	private Gtk.Window window;
 	private ToggleToolButton view_categories;
 	private ToggleToolButton view_filelist;
 	private ToggleToolButton view_icons;
@@ -268,7 +269,7 @@ public class Tracker.Needle {
 		Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_medium, null);
 		Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
 
-		window = builder.get_object ("window_needle") as Window;
+		window = builder.get_object ("window_needle") as Gtk.Window;
 		window.destroy.connect (Gtk.main_quit);
 		window.key_press_event.connect (window_key_press_event);
 
@@ -282,26 +283,42 @@ public class Tracker.Needle {
 
 		view_filelist = builder.get_object ("toolbutton_view_filelist") as ToggleToolButton;
 		view_filelist.toggled.connect (view_toggled);
+		view_filelist.get_accessible().set_name("View File List");
+		view_filelist.get_child().get_accessible().set_name("View File List RadioButton");
 
 		view_icons = builder.get_object ("toolbutton_view_icons") as ToggleToolButton;
 		view_icons.toggled.connect (view_toggled);
+		view_icons.get_accessible().set_name("View Icons");
+		view_icons.get_child().get_accessible().set_name("View Icons RadioButton");
 
 		view_categories = builder.get_object ("toolbutton_view_categories") as ToggleToolButton;
 		view_categories.toggled.connect (view_toggled);
+		view_categories.get_accessible().set_name("View Categories");
+		view_categories.get_child().get_accessible().set_name("View Categories RadioButton");
 
 		separator_secondary = builder.get_object ("separator_secondary") as SeparatorToolItem;
 
 		find_in_contents = builder.get_object ("toolbutton_find_in_contents") as ToggleToolButton;
 		find_in_contents.toggled.connect (find_in_toggled);
+		find_in_contents.get_accessible().set_name("Find in Contents");
+		find_in_contents.get_child().get_accessible().set_name("Find in Contents");
 
 		find_in_titles = builder.get_object ("toolbutton_find_in_titles") as ToggleToolButton;
 		find_in_titles.toggled.connect (find_in_toggled);
+		find_in_titles.get_accessible().set_name("Find in Titles");
+		find_in_titles.get_child().get_accessible().set_name("Find in Titles");
 
 		find_in_all = builder.get_object ("toolbutton_find_in_all") as ToggleToolButton;
 		find_in_all.toggled.connect (find_in_toggled);
+		find_in_all.get_accessible().set_name("Find in All");
+		find_in_all.get_child().get_accessible().set_name("Find in All");
 
 		search_entry = builder.get_object ("toolitem_search_entry") as ToolItem;
+		search_entry.get_accessible().set_name("Search Entry");
+
 		search_list = builder.get_object ("combobox_search") as ComboBox;
+		search_list.get_accessible().set_name("Search List");
+
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
 		search.activate.connect (search_activated);
@@ -314,9 +331,13 @@ public class Tracker.Needle {
 
 		show_tags = builder.get_object ("toolbutton_show_tags") as ToggleToolButton;
 		show_tags.clicked.connect (show_tags_clicked);
+		show_tags.get_accessible().set_name("Show Tags");
+		show_tags.get_child().get_accessible().set_name("Show Tags");
 
 		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
 		show_stats.clicked.connect (show_stats_clicked);
+		show_stats.get_accessible().set_name("Show Stats");
+		show_stats.get_child().get_accessible().set_name("Show Stats");
 
 		view = builder.get_object ("hbox_view") as Box;
 
