@@ -118,7 +118,7 @@ tracker_guarantee_title_from_file (TrackerSparqlBuilder  *metadata,
 
 		value = get_title_from_file (uri);
 
-		if (!value && value[0] != '\0') {
+		if (value && value[0] != '\0') {
 			tracker_sparql_builder_object_unvalidated (metadata, value);
 		} else {
 			success = FALSE;
