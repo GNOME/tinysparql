@@ -20,7 +20,9 @@
 """
 Send concurrent inserts and queries to the daemon to check the concurrency.
 """
-import sys,os,dbus
+import sys
+import os
+import dbus
 import unittest
 import time
 import random
@@ -37,70 +39,73 @@ from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreT
 AMOUNT_OF_TEST_INSTANCES = 100
 AMOUNT_OF_QUERIES = 10
 
+
 class TestConcurrentQuery (CommonTrackerStoreTest):
+
     """
     Send a bunch of queries to the daemon asynchronously, to test the queue
     holding those queries
     """
-    def setUp (self):
-        self.main_loop = GObject.MainLoop ()
-        
-        self.mock_data_insert ()
+
+    def setUp(self):
+        self.main_loop = GObject.MainLoop()
+
+        self.mock_data_insert()
         self.finish_counter = 0
-        
-    def mock_data_insert (self):
+
+    def mock_data_insert(self):
         query = "INSERT {\n"
-        for i in range (0, AMOUNT_OF_TEST_INSTANCES):
-            query += "<test-09:instance-%d> a nco:PersonContact ; nco:fullname 'moe %d'.\n" % (i, i)
+        for i in range(0, AMOUNT_OF_TEST_INSTANCES):
+            query += "<test-09:instance-%d> a nco:PersonContact ; nco:fullname 'moe %d'.\n" % (
+                i, i)
         query += "}"
-        self.tracker.update (query)
-        
-    def mock_data_delete (self):
+        self.tracker.update(query)
+
+    def mock_data_delete(self):
         query = "DELETE {\n"
-        for i in range (0, AMOUNT_OF_TEST_INSTANCES):
+        for i in range(0, AMOUNT_OF_TEST_INSTANCES):
             query += "<test-09:instance-%d> a rdfs:Resource.\n" % (i)
         query += "}"
-        self.tracker.update (query)
+        self.tracker.update(query)
 
         query = "DELETE {\n"
-        for i in range (0, AMOUNT_OF_QUERIES):
+        for i in range(0, AMOUNT_OF_QUERIES):
             query += "<test-09:picture-%d> a rdfs:Resource.\n" % (i)
         query += "}"
-        self.tracker.update (query)
+        self.tracker.update(query)
 
-
-    def test_async_queries (self):
+    def test_async_queries(self):
         QUERY = "SELECT ?u WHERE { ?u a nco:PersonContact. FILTER regex (?u, 'test-09:ins')}"
         UPDATE = "INSERT { <test-09:picture-%d> a nmm:Photo. }"
-        for i in range (0, AMOUNT_OF_QUERIES):
-            self.tracker.get_tracker_iface ().SparqlQuery (QUERY,
-                                                           reply_handler=self.reply_cb,
-                                                           error_handler=self.error_handler)
-            self.tracker.get_tracker_iface ().SparqlUpdate (UPDATE % (i),
-                                                            reply_handler=self.update_cb,
-                                                            error_handler=self.error_handler)
-            
+        for i in range(0, AMOUNT_OF_QUERIES):
+            self.tracker.get_tracker_iface().SparqlQuery(QUERY,
+                                                         reply_handler=self.reply_cb,
+                                                         error_handler=self.error_handler)
+            self.tracker.get_tracker_iface().SparqlUpdate(UPDATE % (i),
+                                                          reply_handler=self.update_cb,
+                                                          error_handler=self.error_handler)
+
         # Safeguard of 50 seconds. The last reply should quit the loop
-        GObject.timeout_add_seconds (60, self.timeout_cb)
-        self.main_loop.run ()
-        
-    def reply_cb (self, results):
+        GObject.timeout_add_seconds(60, self.timeout_cb)
+        self.main_loop.run()
+
+    def reply_cb(self, results):
         self.finish_counter += 1
-        self.assertEquals (len (results), AMOUNT_OF_TEST_INSTANCES)
+        self.assertEquals(len(results), AMOUNT_OF_TEST_INSTANCES)
         if (self.finish_counter >= AMOUNT_OF_QUERIES):
-            self.timeout_cb ()
+            self.timeout_cb()
 
-    def update_cb (self):
-        self.assertTrue (True)
+    def update_cb(self):
+        self.assertTrue(True)
 
-    def error_handler (self):
+    def error_handler(self):
         print "ERROR in DBus call"
-        self.assertTrue (False)
+        self.assertTrue(False)
 
-    def timeout_cb (self):
-        self.mock_data_delete ()
-        self.main_loop.quit ()
+    def timeout_cb(self):
+        self.mock_data_delete()
+        self.main_loop.quit()
         return False
 
 if __name__ == "__main__":
-    ut.main ()
+    ut.main()

@@ -6,7 +6,9 @@ import imp
 
 from common.utils import configuration as cfg
 
-### This function comes from pydoc. Cool!
+# This function comes from pydoc. Cool!
+
+
 def importfile(path):
     """Import a Python source file or compiled file given its path."""
     magic = imp.get_magic()
@@ -56,31 +58,33 @@ else:
         </pre_steps>
         """
 
-def __get_doc (obj):
+
+def __get_doc(obj):
     if obj.__doc__:
-        return obj.__doc__.strip ()
+        return obj.__doc__.strip()
     else:
         return "FIXME description here"
 
-def print_as_xml (filename):
 
-    module = importfile (filename)
+def print_as_xml(filename):
+
+    module = importfile(filename)
     if not module:
         return
-    
+
     print "\n    <set name=\"%s\">" % (module.__name__)
-    print "        <description>%s</description>" % (__get_doc (module))
+    print "        <description>%s</description>" % (__get_doc(module))
     print PRE_STEPS
-    for name, obj in inspect.getmembers (module):
-        if name.startswith ("Common") or name.endswith ("Template"):
+    for name, obj in inspect.getmembers(module):
+        if name.startswith("Common") or name.endswith("Template"):
             continue
-        
-        if (inspect.isclass (obj)
-            and obj.__module__ == filename[:-3]):
-            script = os.path.join (cfg.DATADIR, "tracker-tests", filename)
-            print  TEST_CASE_TMPL % (name,
-                                     __get_doc (obj),
-                                     script + " " + name)
+
+        if (inspect.isclass(obj)
+                and obj.__module__ == filename[:-3]):
+            script = os.path.join(cfg.DATADIR, "tracker-tests", filename)
+            print TEST_CASE_TMPL % (name,
+                                    __get_doc(obj),
+                                    script + " " + name)
 
     print """        <environments>
             <scratchbox>true</scratchbox>
@@ -92,18 +96,18 @@ def print_as_xml (filename):
     #
     # First time a module is loaded, __file__ is the .py
     #  once the file is compiled, __file__ is .pyc
-    if module.__file__.endswith (".py"):
+    if module.__file__.endswith(".py"):
         unlink = module.__file__ + "c"
     else:
         unlink = module.__file__
-    os.unlink (unlink)
+    os.unlink(unlink)
 
 
 if __name__ == "__main__":
 
-    if (len (sys.argv) < 2):
+    if (len(sys.argv) < 2):
         print >> sys.stderr, "pass .py tests as parameter"
-        sys.exit (-1)
+        sys.exit(-1)
     print HEADER
-    map (print_as_xml, sys.argv[1:])
+    map(print_as_xml, sys.argv[1:])
     print FOOTER

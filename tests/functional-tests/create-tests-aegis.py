@@ -6,7 +6,9 @@ import imp
 
 from common.utils import configuration as cfg
 
-### This function comes from pydoc. Cool!
+# This function comes from pydoc. Cool!
+
+
 def importfile(path):
     """Import a Python source file or compiled file given its path."""
     magic = imp.get_magic()
@@ -35,12 +37,13 @@ HEADER = """
 FOOTER = """
 </aegis>"""
 
-def print_aegis_perm_request (filename):
-    module = importfile (filename)
+
+def print_aegis_perm_request(filename):
+    module = importfile(filename)
     if not module:
         return
 
-    install_path = os.path.join (cfg.DATADIR, "tracker-tests", filename)
+    install_path = os.path.join(cfg.DATADIR, "tracker-tests", filename)
 
     print "\n   <request>"
     print '      <credential name="TrackerReadAccess" />'
@@ -55,9 +58,9 @@ def print_aegis_perm_request (filename):
 
 if __name__ == "__main__":
 
-    if (len (sys.argv) < 2):
+    if (len(sys.argv) < 2):
         print >> sys.stderr, "pass .py tests as parameter"
-        sys.exit (-1)
+        sys.exit(-1)
     print HEADER
-    map (print_aegis_perm_request, sys.argv[1:])
+    map(print_aegis_perm_request, sys.argv[1:])
     print FOOTER

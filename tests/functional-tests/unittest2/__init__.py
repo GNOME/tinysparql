@@ -40,7 +40,7 @@ __all__.extend(['getTestCaseNames', 'makeSuite', 'findTestCases'])
 
 # To use the local copy!
 import sys
-sys.path.insert (0, "./common")
+sys.path.insert(0, "./common")
 
 from unittest2.result import TestResult
 from unittest2.case import (
@@ -63,7 +63,7 @@ except ImportError:
     # Compatibility with platforms that don't have the signal module
     pass
 else:
-    __all__.extend(['installHandler', 'registerResult', 'removeResult', 
+    __all__.extend(['installHandler', 'registerResult', 'removeResult',
                     'removeHandler'])
 
 # deprecated

@@ -21,7 +21,8 @@
 Test that the threads in the daemon are working:
  A very long query shouldn't block smaller queries.
 """
-import os, dbus
+import os
+import dbus
 from gi.repository import GObject
 from gi.repository import GLib
 import time
@@ -32,27 +33,32 @@ import unittest2 as ut
 #import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
-MAX_TEST_TIME = 60 # seconds to finish the tests (to avoid infinite waitings)
+MAX_TEST_TIME = 60  # seconds to finish the tests (to avoid infinite waitings)
 
-AMOUNT_SIMPLE_QUERIES = 10 
-COMPLEX_QUERY_TIMEOUT = 15000 # ms (How long do we wait for an answer to the complex query)
-SIMPLE_QUERY_FREQ = 2 # seconds (How freq do we send a simple query to the daemon)
+AMOUNT_SIMPLE_QUERIES = 10
+# ms (How long do we wait for an answer to the complex query)
+COMPLEX_QUERY_TIMEOUT = 15000
+# seconds (How freq do we send a simple query to the daemon)
+SIMPLE_QUERY_FREQ = 2
+
 
 class TestThreadedStore (CommonTrackerStoreTest):
+
     """
     When the database is big, running a complex query takes ages.
     After cancelling the query, any following query is queued
 
     Reported in bug NB#183499
     """
-    def setUp (self):
-        self.main_loop = GObject.MainLoop ()
+
+    def setUp(self):
+        self.main_loop = GObject.MainLoop()
         self.simple_queries_counter = AMOUNT_SIMPLE_QUERIES
         self.simple_queries_answers = 0
 
-    def __populate_database (self):
+    def __populate_database(self):
 
-        self.assertTrue (os.path.exists ('ttl'))
+        self.assertTrue(os.path.exists('ttl'))
         for ttl_file in ["010-nco_EmailAddress.ttl",
                          "011-nco_PostalAddress.ttl",
                          "012-nco_PhoneNumber.ttl",
@@ -61,16 +67,16 @@ class TestThreadedStore (CommonTrackerStoreTest):
                          "018-nco_PersonContact.ttl",
                          "012-nco_PhoneNumber.ttl",
                          "016-nco_ContactIM.ttl"]:
-            full_path = os.path.abspath(os.path.join ("ttl", ttl_file))
+            full_path = os.path.abspath(os.path.join("ttl", ttl_file))
             print full_path
-            self.tracker.get_tracker_iface ().Load ("file://" + full_path,
-                                                        timeout=30000)
+            self.tracker.get_tracker_iface().Load("file://" + full_path,
+                                                  timeout=30000)
 
-    def test_complex_query (self):
-        start = time.time ()
-        self.__populate_database ()
-        end = time.time ()
-        print "Loading: %.3f sec." % (end-start)
+    def test_complex_query(self):
+        start = time.time()
+        self.__populate_database()
+        end = time.time()
+        print "Loading: %.3f sec." % (end - start)
 
         COMPLEX_QUERY = """
         SELECT ?url nie:url(?photo) nco:imContactStatusMessage (?url)
@@ -96,50 +102,52 @@ class TestThreadedStore (CommonTrackerStoreTest):
 
         # Standard timeout
         print "Send complex query"
-        self.complex_start = time.time ()
-        self.tracker.get_tracker_iface ().SparqlQuery (COMPLEX_QUERY, timeout=COMPLEX_QUERY_TIMEOUT,
-                                                       reply_handler=self.reply_complex,
-                                                       error_handler=self.error_handler_complex)
+        self.complex_start = time.time()
+        self.tracker.get_tracker_iface(
+        ).SparqlQuery(COMPLEX_QUERY, timeout=COMPLEX_QUERY_TIMEOUT,
+                      reply_handler=self.reply_complex,
+                      error_handler=self.error_handler_complex)
 
-        self.timeout_id = GLib.timeout_add_seconds (MAX_TEST_TIME, self.__timeout_on_idle)
-        GLib.timeout_add_seconds (SIMPLE_QUERY_FREQ, self.__simple_query)
-        self.main_loop.run ()
+        self.timeout_id = GLib.timeout_add_seconds(
+            MAX_TEST_TIME, self.__timeout_on_idle)
+        GLib.timeout_add_seconds(SIMPLE_QUERY_FREQ, self.__simple_query)
+        self.main_loop.run()
 
-    def __simple_query (self):
+    def __simple_query(self):
         print "Send simple query (%d)" % (self.simple_queries_counter)
         SIMPLE_QUERY = "SELECT ?name WHERE { ?u a nco:PersonContact; nco:fullname ?name. }"
-        self.tracker.get_tracker_iface ().SparqlQuery (SIMPLE_QUERY,
-                                                       timeout=10000,
-                                                       reply_handler=self.reply_simple,
-                                                       error_handler=self.error_handler)
+        self.tracker.get_tracker_iface().SparqlQuery(SIMPLE_QUERY,
+                                                     timeout=10000,
+                                                     reply_handler=self.reply_simple,
+                                                     error_handler=self.error_handler)
         self.simple_queries_counter -= 1
         if (self.simple_queries_counter == 0):
             print "Stop sending queries (wait)"
             return False
         return True
 
-    def reply_simple (self, results):
+    def reply_simple(self, results):
         print "Simple query answered"
-        self.assertNotEquals (len (results), 0)
+        self.assertNotEquals(len(results), 0)
         self.simple_queries_answers += 1
         if (self.simple_queries_answers == AMOUNT_SIMPLE_QUERIES):
             print "All simple queries answered"
-            self.main_loop.quit ()
+            self.main_loop.quit()
 
-    def reply_complex (self, results):
-        print "Complex query: %.3f" % (time.time () - self.complex_start)
+    def reply_complex(self, results):
+        print "Complex query: %.3f" % (time.time() - self.complex_start)
 
-    def error_handler (self, error_msg):
+    def error_handler(self, error_msg):
         print "ERROR in dbus call", error_msg
 
-    def error_handler_complex (self, error_msg):
+    def error_handler_complex(self, error_msg):
         print "Complex query timedout in DBus (", error_msg, ")"
 
-    def __timeout_on_idle (self):
+    def __timeout_on_idle(self):
         print "Timeout... asumming idle"
-        self.main_loop.quit ()
+        self.main_loop.quit()
         return False
-        
+
 
 if __name__ == "__main__":
-    ut.main ()
+    ut.main()

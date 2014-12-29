@@ -21,7 +21,8 @@
 Test the query while running BatchSparqlUpdate at the same time. This was raising
 some SQLITE_MISUSED errors before.
 """
-import os, dbus
+import os
+import dbus
 from gi.repository import GObject
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -33,77 +34,80 @@ from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreT
 # Number of instances per batch
 BATCH_SIZE = 3000
 
+
 class TestSqliteBatchMisused (CommonTrackerStoreTest):
+
     """
     Send big batchSparqlUpdates and run queries at the same time
     Don't run this script directly, use the bash script "force-sqlite-misused.sh" instead
     to configure properly the environment
     """
-    def setUp (self):
-        self.main_loop = GObject.MainLoop ()
+
+    def setUp(self):
+        self.main_loop = GObject.MainLoop()
         self.batch_counter = 0
-        
-    def test_queries_while_batch_insert (self):
-        self.assertTrue (os.path.exists ('ttl'))
-        
+
+    def test_queries_while_batch_insert(self):
+        self.assertTrue(os.path.exists('ttl'))
+
         for root, dirs, files in os.walk('ttl'):
-            for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
-                full_path = os.path.abspath(os.path.join (root, ttl_file))
+            for ttl_file in filter(lambda f: f.endswith(".ttl"), files):
+                full_path = os.path.abspath(os.path.join(root, ttl_file))
                 print full_path
 
                 counter = 0
                 current_batch = ""
                 for line in open(full_path):
-                    if (line.startswith ("@prefix")):
+                    if (line.startswith("@prefix")):
                         continue
                     current_batch += line
-                    if len(line) > 1 and line[:-1].endswith ('.'):
+                    if len(line) > 1 and line[:-1].endswith('.'):
                         counter += 1
-                
+
                     if counter == BATCH_SIZE:
                         query = "INSERT {" + current_batch + "}"
-                        self.tracker.get_tracker_iface ().BatchSparqlUpdate (query,
-                                                          timeout=20000,
-                                                          reply_handler=self.batch_success_cb,
-                                                          error_handler=self.batch_failed_cb)
-                        self.run_a_query ()
+                        self.tracker.get_tracker_iface(
+                        ).BatchSparqlUpdate(query,
+                                            timeout=20000,
+                                            reply_handler=self.batch_success_cb,
+                                            error_handler=self.batch_failed_cb)
+                        self.run_a_query()
                         counter = 0
                         current_batch = ""
                         self.batch_counter += 1
-                        
-        
-        GObject.timeout_add_seconds (2, self.run_a_query)
-        # Safeguard of 60 seconds. The last reply should quit the loop
-        GObject.timeout_add_seconds (60, self.timeout_cb)
-        self.main_loop.run ()
 
-    def run_a_query (self):
+        GObject.timeout_add_seconds(2, self.run_a_query)
+        # Safeguard of 60 seconds. The last reply should quit the loop
+        GObject.timeout_add_seconds(60, self.timeout_cb)
+        self.main_loop.run()
+
+    def run_a_query(self):
         QUERY = "SELECT ?u ?title WHERE { ?u a nie:InformationElement; nie:title ?title. }"
-        self.tracker.get_tracker_iface ().SparqlQuery (QUERY, timeout=20000,
-                                                       reply_handler=self.reply_cb,
-                                                       error_handler=self.error_handler)
+        self.tracker.get_tracker_iface().SparqlQuery(QUERY, timeout=20000,
+                                                     reply_handler=self.reply_cb,
+                                                     error_handler=self.error_handler)
         return True
-        
-    def reply_cb (self, results):
+
+    def reply_cb(self, results):
         print "Query replied correctly"
 
-    def error_handler (self, error_msg):
+    def error_handler(self, error_msg):
         print "Query failed", error_msg
 
-    def batch_success_cb (self):
+    def batch_success_cb(self):
         self.batch_counter -= 1
         if (self.batch_counter == 0):
             print "Last batch was success"
-            self.timeout_cb ()
+            self.timeout_cb()
         print "Success processing a batch"
 
-    def batch_failed_cb (self, error):
+    def batch_failed_cb(self, error):
         print "Failed processing a batch"
 
-    def timeout_cb (self):
+    def timeout_cb(self):
         print "Forced timeout after 60 sec."
-        self.main_loop.quit ()
+        self.main_loop.quit()
         return False
 
 if __name__ == "__main__":
-    ut.main ()
+    ut.main()

@@ -29,13 +29,15 @@ import unittest2 as ut
 #import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
+
 class TestGraphs (CommonTrackerStoreTest):
+
     """
     Insert triplets in different graphs and check the query results asking in
     one specific graph, in all of them and so on.
     """
 
-    def test_graph_filter (self):
+    def test_graph_filter(self):
         """
         1. Insert a contact with different phone numbers from different sources
         2. Query phone numbers of a single graph
@@ -62,7 +64,7 @@ class TestGraphs (CommonTrackerStoreTest):
             }
         }
         """
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
         query = """
         SELECT ?contact ?number WHERE {
@@ -72,11 +74,11 @@ class TestGraphs (CommonTrackerStoreTest):
             }
         } ORDER BY DESC (fts:rank(?contact))
         """
-        results = self.tracker.query (query)
+        results = self.tracker.query(query)
 
-        self.assertEquals (len(results), 1)
-        self.assertEquals (results[0][0], "contact://test/graph/1")
-        self.assertEquals (results[0][1], "tel:+1234567891")
+        self.assertEquals(len(results), 1)
+        self.assertEquals(results[0][0], "contact://test/graph/1")
+        self.assertEquals(results[0][1], "tel:+1234567891")
 
         delete_sparql = """
         DELETE {
@@ -87,7 +89,7 @@ class TestGraphs (CommonTrackerStoreTest):
         }
         """
 
-    def test_graph_insert_multiple (self):
+    def test_graph_insert_multiple(self):
         """
         1. Insert a contact with the same phone number from different sources
         2. Query graph uri of hasPhoneNumber statement
@@ -110,7 +112,7 @@ class TestGraphs (CommonTrackerStoreTest):
             }
         }
         """
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
         query = """
         SELECT ?contact ?g WHERE {
@@ -120,10 +122,10 @@ class TestGraphs (CommonTrackerStoreTest):
             }
         }
         """
-        results = self.tracker.query (query)
-        self.assertEquals (len(results), 1)
-        self.assertEquals (results[0][0], "contact://test/graph/1")
-        self.assertEquals (results[0][1], "graph://test/graph/0")
+        results = self.tracker.query(query)
+        self.assertEquals(len(results), 1)
+        self.assertEquals(results[0][0], "contact://test/graph/1")
+        self.assertEquals(results[0][1], "graph://test/graph/0")
 
         delete_sparql = """
         DELETE {
@@ -131,7 +133,6 @@ class TestGraphs (CommonTrackerStoreTest):
             <contact://test/graph/1> a rdf:Resource .
         }
         """
-
 
 
 if __name__ == '__main__':

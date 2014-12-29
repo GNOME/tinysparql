@@ -30,16 +30,18 @@ from itertools import chain
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
 
-def path (filename):
-    return os.path.join (MINER_TMP_DIR, filename)
 
-def uri (filename):
-    return "file://" + os.path.join (MINER_TMP_DIR, filename)
+def path(filename):
+    return os.path.join(MINER_TMP_DIR, filename)
+
+
+def uri(filename):
+    return "file://" + os.path.join(MINER_TMP_DIR, filename)
 
 
 DEFAULT_TEXT = "Some stupid content, to have a test file"
 
-index_dirs = [os.path.join (MINER_TMP_DIR, "test-monitored")]
+index_dirs = [os.path.join(MINER_TMP_DIR, "test-monitored")]
 CONF_OPTIONS = {
     cfg.DCONF_MINER_SCHEMA: {
         'index-recursive-directories': GLib.Variant.new_strv(index_dirs),
@@ -53,7 +55,7 @@ CONF_OPTIONS = {
 
 class CommonTrackerMinerTest (ut.TestCase):
 
-    def prepare_directories (self):
+    def prepare_directories(self):
         #
         #     ~/test-monitored/
         #                     /file1.txt
@@ -84,31 +86,31 @@ class CommonTrackerMinerTest (ut.TestCase):
         for tf in chain(monitored_files, unmonitored_files):
             testfile = path(tf)
             ensure_dir_exists(os.path.dirname(testfile))
-            with open (testfile, 'w') as f:
-                f.write (DEFAULT_TEXT)
+            with open(testfile, 'w') as f:
+                f.write(DEFAULT_TEXT)
 
         for tf in monitored_files:
             self.tracker.await_resource_inserted(
                 'nfo:TextDocument', url=uri(tf))
 
-    def setUp (self):
+    def setUp(self):
         for d in ['test-monitored', 'test-no-monitored']:
             dirname = path(d)
-            if os.path.exists (dirname):
+            if os.path.exists(dirname):
                 shutil.rmtree(dirname)
             os.makedirs(dirname)
 
-        self.system = TrackerSystemAbstraction ()
+        self.system = TrackerSystemAbstraction()
 
-        self.system.tracker_miner_fs_testing_start (CONF_OPTIONS)
+        self.system.tracker_miner_fs_testing_start(CONF_OPTIONS)
         self.tracker = self.system.store
 
         try:
-            self.prepare_directories ()
-            self.tracker.reset_graph_updates_tracking ()
+            self.prepare_directories()
+            self.tracker.reset_graph_updates_tracking()
         except Exception as e:
-            self.tearDown ()
+            self.tearDown()
             raise
 
-    def tearDown (self):
-        self.system.tracker_miner_fs_testing_stop ()
+    def tearDown(self):
+        self.system.tracker_miner_fs_testing_stop()

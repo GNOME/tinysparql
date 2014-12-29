@@ -28,18 +28,20 @@ from common.utils import configuration as cfg
 import unittest2 as ut
 #import unittest as ut
 
-class CommonTrackerStoreTest (ut.TestCase):
-        """
-        Common superclass for tests that just require a fresh store running
-        """
-        @classmethod 
-	def setUpClass (self):
-            #print "Starting the daemon in test mode"
-            self.system = TrackerSystemAbstraction ()
-            self.system.tracker_store_testing_start ()
-            self.tracker = self.system.store
 
-        @classmethod
-        def tearDownClass (self):
-            #print "Stopping the daemon in test mode (Doing nothing now)"
-            self.system.tracker_store_testing_stop ()
+class CommonTrackerStoreTest (ut.TestCase):
+
+    """
+    Common superclass for tests that just require a fresh store running
+    """
+    @classmethod
+    def setUpClass(self):
+        # print "Starting the daemon in test mode"
+        self.system = TrackerSystemAbstraction()
+        self.system.tracker_store_testing_start()
+        self.tracker = self.system.store
+
+    @classmethod
+    def tearDownClass(self):
+        # print "Stopping the daemon in test mode (Doing nothing now)"
+        self.system.tracker_store_testing_stop()

@@ -2,11 +2,13 @@
 
 """Various utility functions."""
 
+
 def safe_repr(obj):
     try:
         return repr(obj)
     except Exception:
         return object.__repr__(obj)
+
 
 def safe_str(obj):
     try:
@@ -14,8 +16,10 @@ def safe_str(obj):
     except Exception:
         return object.__str__(obj)
 
+
 def strclass(cls):
     return "%s.%s" % (cls.__module__, cls.__name__)
+
 
 def sorted_list_difference(expected, actual):
     """Finds elements in only one or the other of two, sorted input lists.
@@ -56,6 +60,7 @@ def sorted_list_difference(expected, actual):
             unexpected.extend(actual[j:])
             break
     return missing, unexpected
+
 
 def unorderable_list_difference(expected, actual, ignore_duplicate=False):
     """Same behavior as sorted_list_difference but

@@ -21,17 +21,19 @@ parser.add_option("-v", "--verbose", dest="verbose",
 # have their own simple commandline parsers will complain
 for option in ["--startmanually", "-m", "--verbose", "-v"]:
     try:
-        sys.argv.remove (option)
+        sys.argv.remove(option)
     except ValueError:
         pass
 
-def is_verbose ():
+
+def is_verbose():
     """
     True to log process status information to stdout
     """
     return options.verbose
 
-def is_manual_start ():
+
+def is_manual_start():
     """
     False to start the processes automatically
     """
