@@ -58,7 +58,7 @@ from multiprocessing import Process
 
 import ConfigParser
 
-from gi.repository import Tracker, GObject
+from gi.repository import Tracker, GLib, GObject
 
 # Script
 script_name = 'tracker-sandbox'
@@ -81,30 +81,30 @@ store_proc = None
 # Template config file
 config_template = """
 [General]
-Verbosity=0
-SchedIdle=0
-InitialSleep=0
+verbosity=0
+sched-idle=0
+initial-sleep=0
 
 [Monitors]
-EnableMonitors=false
+enable-monitors=false
 
 [Indexing]
-Throttle=0
-IndexOnBattery=true
-IndexOnBatteryFirstTime=true
-IndexRemovableMedia=false
-IndexOpticalDiscs=false
-LowDiskSpaceLimit=-1
-IndexRecursiveDirectories=;
-IndexSingleDirectories=;
-IgnoredDirectories=;
-IgnoredDirectoriesWithContent=;
-IgnoredFiles=
-CrawlingInterval=-1
-RemovableDaysThreshold=3
+throttle=0
+index-on-battery=true
+index-on-battery-first-time=true
+index-removable-media=false
+index-optical-discs=false
+low-disk-space-limit=-1
+index-recursive-directories=;
+index-single-directories=;
+ignored-directories=;
+ignored-directories-with-content=;
+ignored-files=
+crawling-interval=-1
+removable-days-threshold=3
 
 [Writeback]
-EnableWriteback=false
+enable-writeback=false
 """
 
 # Utilities
@@ -385,20 +385,15 @@ def config_set():
 		debug("Using non-recursive content locations: %s" %
 		      opts.content_locations_single)
 
-	index_recursive_directories = ';'.join(
-		dir if dir.startswith('&') else os.path.abspath(dir)
-		for dir in opts.content_locations_recursive or [])
-	index_single_directories = ';'.join(
-		dir if dir.startswith('&') else os.path.abspath(dir)
-		for dir in opts.content_locations_single or [])
+	def locations_gsetting(locations):
+		locations = [dir if dir.startswith('&') else os.path.abspath(dir)
+		             for dir in locations]
+		return GLib.Variant('as', locations).print_(False)
 
-	if not config.has_section('Indexing'):
-		config.add_section('Indexing')
-
-	config.set('Indexing', 'IndexRecursiveDirectories',
-	           index_recursive_directories)
-	config.set('Indexing', 'IndexSingleDirectories',
-	           index_single_directories)
+	config.set('General', 'index-recursive-directories',
+	           locations_gsetting(opts.content_locations_recursive or []))
+	config.set('General', 'index-single-directories',
+	           locations_gsetting(opts.content_locations_single or []))
 
 	with open(config_filename, 'wb') as f:
 		config.write(f)
