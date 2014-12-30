@@ -1,0 +1,74 @@
+@startuml
+
+database "tracker-store" {
+    interface "SPARQL, sent with D-Bus" as sparql
+    interface "GraphUpdated D-Bus signal" as graphupdated
+}
+
+interface filesystem
+interface inotify
+
+frame "tracker-miner-fs" {
+    component Crawler
+    component Monitor
+    component FileNotifier
+    component MinerFiles
+
+    filesystem -> Crawler
+    inotify -> Monitor
+    Crawler - FileNotifier
+    Monitor - FileNotifier
+    FileNotifier - MinerFiles
+    MinerFiles --> sparql
+}
+
+frame "tracker-extract" {
+    component extract
+    component "extract filetype-specific module" as extract_module
+
+    graphupdated -> extract
+    extract - extract_module
+    extract_module - filesystem
+    extract -> sparql
+}
+
+component "Gnome Online Accounts"
+
+component "Gnome Online Miners"
+interface "DLNA"
+interface "Facebook"
+interface "Flickr"
+interface "Google (GData)" as google
+interface OwnCloud
+interface "SkyDrive (Zapojit)" as skydrive
+
+[Gnome Online Accounts] --> [Gnome Online Miners]
+DLNA --> [Gnome Online Miners]
+Facebook --> [Gnome Online Miners]
+Flickr --> [Gnome Online Miners]
+google --> [Gnome Online Miners]
+OwnCloud --> [Gnome Online Miners]
+skydrive --> [Gnome Online Miners]
+
+[Gnome Online Miners] --> sparql
+
+component "Tracker search tool"
+sparql --> [Tracker search tool]
+
+component "Grilo Tracker plugin"
+interface "Grilo API" as grilo_api
+sparql -> [Grilo Tracker plugin]
+graphupdated -> [Grilo Tracker plugin]
+[Grilo Tracker plugin] -> grilo_api
+
+component "Gnome Documents"
+sparql -- [Gnome Documents]
+graphupdated -> [Gnome Documents]
+
+component "Gnome Music"
+grilo_api -> [Gnome Music]
+
+component "Gnome Photos"
+grilo_api -> [Gnome Photos]
+
+@enduml
