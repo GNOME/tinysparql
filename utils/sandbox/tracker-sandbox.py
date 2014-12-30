@@ -66,7 +66,6 @@ script_version = '0.1'
 script_about = 'Localised Tracker sandbox for content indexing and search'
 
 index_location_abs = ''
-content_location_abs = ''
 
 default_prefix = '/usr'
 default_debug_verbosity = 2
@@ -106,18 +105,6 @@ RemovableDaysThreshold=3
 
 [Writeback]
 EnableWriteback=false
-"""
-
-# XDG user-dirs template
-user_dirs_config_template = """
-XDG_DESKTOP_DIR="@PATH@/"
-XDG_DOWNLOAD_DIR="@PATH@/"
-XDG_TEMPLATES_DIR="@PATH@/"
-XDG_PUBLICSHARE_DIR="@PATH@/"
-XDG_DOCUMENTS_DIR="@PATH@/"
-XDG_MUSIC_DIR="@PATH@/"
-XDG_PICTURES_DIR="@PATH@/"
-XDG_VIDEOS_DIR="@PATH@/"
 """
 
 # Utilities
@@ -312,34 +299,15 @@ def environment_set():
 	global dbus_session_pid
 	global dbus_session_file
 	global index_location_abs
-	global content_location_abs
 	global default_debug_verbosity
 
 	index_location_abs = os.path.abspath (opts.index_location)
-
-	# Only needed for updating index
-	content_location_abs = os.path.abspath (opts.content_location)
 
 	# Data
 	os.environ['XDG_DATA_HOME'] = '%s/data/' % index_location_abs
 	os.environ['XDG_CONFIG_HOME'] = '%s/config/' % index_location_abs
 	os.environ['XDG_CACHE_HOME'] = '%s/cache/' % index_location_abs
 	os.environ['XDG_RUNTIME_DIR'] = '%s/run/' % index_location_abs
-
-	# Make sure the XDG dirs are configured correctly
-	config_dir = os.path.join(os.environ['XDG_CONFIG_HOME'])
-	config_filename = os.path.join(config_dir, 'user-dirs.dirs')
-
-	debug('Using XDG user-dirs config file "%s"' % config_filename)
-	mkdir_p(config_dir)
-
-	if not os.path.exists(config_filename):
-		f = open(config_filename, 'w')
-		user_dirs_config = user_dirs_config_template.replace('@PATH@', content_location_abs)
-		f.write(user_dirs_config)
-		f.close()
-
-		debug('  XDG user-dirs config file written')
 
 	# Prefix - only set if non-standard
 	if opts.prefix != default_prefix:
@@ -367,33 +335,6 @@ def environment_set():
 	debug('Using prefix location "%s"' % opts.prefix)
 	debug('Using index location "%s"' % index_location_abs)
 
-	if opts.update:
-		debug('Using content location "%s"' % content_location_abs)
-
-		# Make sure File System miner is configured correctly
-		config_filename = os.path.join(config_dir, 'tracker-miner-fs.cfg')
-
-		debug('Using config file "%s"' % config_filename)
-
-		# Only update config if we're updating the database
-		mkdir_p(config_dir)
-
-		if not os.path.exists(config_filename):
-			f = open(config_filename, 'w')
-			f.write(config_template)
-			f.close()
-
-			debug('  Miner config file written')
-
-		# Set content path
-		config = ConfigParser.ConfigParser()
-		config.optionxform = str
-		config.read(config_filename)
-		config.set('Indexing', 'IndexRecursiveDirectories', content_location_abs + ";")
-
-		with open(config_filename, 'wb') as f:
-			config.write(f)
-
 	# Ensure directory exists
 	# DBus specific instance
 	dbus_session_file = os.path.join(os.environ['XDG_RUNTIME_DIR'], 'dbus-session')
@@ -413,6 +354,55 @@ def environment_set():
 
 	# Important, other subprocesses must use our new bus
 	os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_address
+
+
+def config_set():
+	# Make sure File System miner is configured correctly
+	config_dir = os.path.join(os.environ['XDG_CONFIG_HOME'], 'tracker')
+	config_filename = os.path.join(config_dir, 'tracker-miner-fs.cfg')
+
+	debug('Using config file "%s"' % config_filename)
+
+	# Only update config if we're updating the database
+	mkdir_p(config_dir)
+
+	if not os.path.exists(config_filename):
+		f = open(config_filename, 'w')
+		f.write(config_template)
+		f.close()
+
+		debug('  Miner config file written')
+
+	# Set content path
+	config = ConfigParser.ConfigParser()
+	config.optionxform = str
+	config.read(config_filename)
+
+	if opts.content_locations_recursive:
+		debug("Using content locations: %s" %
+		      opts.content_locations_recursive)
+	if opts.content_locations_single:
+		debug("Using non-recursive content locations: %s" %
+		      opts.content_locations_single)
+
+	index_recursive_directories = ';'.join(
+		dir if dir.startswith('&') else os.path.abspath(dir)
+		for dir in opts.content_locations_recursive or [])
+	index_single_directories = ';'.join(
+		dir if dir.startswith('&') else os.path.abspath(dir)
+		for dir in opts.content_locations_single or [])
+
+	if not config.has_section('Indexing'):
+		config.add_section('Indexing')
+
+	config.set('Indexing', 'IndexRecursiveDirectories',
+	           index_recursive_directories)
+	config.set('Indexing', 'IndexSingleDirectories',
+	           index_single_directories)
+
+	with open(config_filename, 'wb') as f:
+		config.write(f)
+
 
 # Entry point/start
 if __name__ == "__main__":
@@ -444,10 +434,17 @@ if __name__ == "__main__":
 			dest = 'index_location',
 			help = 'directory storing the index')
 	popt.add_option('-c', '--content',
-			action = 'store',
+			action = 'append',
 			metavar = 'DIR',
-			dest = 'content_location',
-			help = 'directory storing the content which is indexed')
+			dest = 'content_locations_recursive',
+			help = 'directory storing the content which is indexed (can be '
+			       'specified multiple times)')
+	popt.add_option('-C', '--content-non-recursive',
+			action = 'append',
+			metavar = 'DIR',
+			dest = 'content_locations_single',
+			help = 'directory storing the content which is indexed, '
+			       'non-recursive variant (can be specified multiple times)')
 	popt.add_option('-u', '--update',
 			action = 'count',
 			dest = 'update',
@@ -472,15 +469,19 @@ if __name__ == "__main__":
 		print '%s %s\n%s\n' % (script_name, script_version, script_about)
 		sys.exit(0)
 
-	if not opts.index_location and not opts.content_location:
-		print 'Expected index (-i) or content (-c) locations to be specified'
-		print usage_invalid
-		sys.exit(1)
+	if not opts.index_location:
+		if not opts.content_locations_recursive and not \
+		        opts.content_locations_single:
+			print 'Expected index (-i) or content (-c) locations to be specified'
+			print usage_invalid
+			sys.exit(1)
 
-	if opts.update and (not opts.index_location or not opts.content_location):
-		print 'Expected index (-i) and content (-c) locations to be specified'
-		print 'These arguments are required to update the index databases'
-		sys.exit(1)
+	if opts.update:
+		if not opts.index_location or not (opts.content_locations_recursive or \
+		        opts.content_locations_single):
+			print 'Expected index (-i) and content (-c) locations to be specified'
+			print 'These arguments are required to update the index databases'
+			sys.exit(1)
 
 	if (opts.query or opts.query or opts.list_files or opts.shell) and not opts.index_location:
 		print 'Expected index location (-i) to be specified'
@@ -495,6 +496,7 @@ if __name__ == "__main__":
 
 	# Set up environment variables and foo needed to get started.
 	environment_set()
+	config_set()
 
 	try:
 		if opts.update:
