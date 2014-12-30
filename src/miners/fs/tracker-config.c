@@ -524,29 +524,6 @@ config_finalize (GObject *object)
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
 
-static gchar *
-get_user_special_dir_if_not_home (GUserDirectory directory)
-{
-	const gchar *path;
-	GFile *home, *file;
-	gboolean res;
-
-	path = g_get_user_special_dir (directory);
-	file = g_file_new_for_path (path);
-	home = g_file_new_for_path (g_get_home_dir ());
-
-	res = g_file_equal (file, home);
-	g_object_unref (file);
-	g_object_unref (home);
-
-	if (res) {
-		/* ignore XDG directories set to $HOME */
-		return NULL;
-	} else {
-		return g_strdup (path);
-	}
-}
-
 static GSList *
 dir_mapping_get (GSList   *dirs,
                  gboolean  is_recursive)
@@ -563,26 +540,7 @@ dir_mapping_get (GSList   *dirs,
 	for (l = filtered; l; l = l->next) {
 		gchar *path_to_use;
 
-		/* Must be a special dir */
-		if (strcmp (l->data, "&DESKTOP") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DESKTOP);
-		} else if (strcmp (l->data, "&DOCUMENTS") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DOCUMENTS);
-		} else if (strcmp (l->data, "&DOWNLOAD") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_DOWNLOAD);
-		} else if (strcmp (l->data, "&MUSIC") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_MUSIC);
-		} else if (strcmp (l->data, "&PICTURES") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_PICTURES);
-		} else if (strcmp (l->data, "&PUBLIC_SHARE") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_PUBLIC_SHARE);
-		} else if (strcmp (l->data, "&TEMPLATES") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_TEMPLATES);
-		} else if (strcmp (l->data, "&VIDEOS") == 0) {
-			path_to_use = get_user_special_dir_if_not_home (G_USER_DIRECTORY_VIDEOS);
-		} else {
-			path_to_use = tracker_path_evaluate_name (l->data);
-		}
+		path_to_use = tracker_path_evaluate_name (l->data);
 
 		if (path_to_use) {
 			evaluated_dirs = g_slist_prepend (evaluated_dirs, path_to_use);

@@ -480,9 +480,67 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 	return new_list;
 }
 
+const struct {
+	const gchar *symbol;
+	GUserDirectory user_dir;
+} special_dirs[] = {
+	{"&DESKTOP",      G_USER_DIRECTORY_DESKTOP},
+	{"&DOCUMENTS",    G_USER_DIRECTORY_DOCUMENTS},
+	{"&DOWNLOAD",     G_USER_DIRECTORY_DOWNLOAD},
+	{"&MUSIC",        G_USER_DIRECTORY_MUSIC},
+	{"&PICTURES",     G_USER_DIRECTORY_PICTURES},
+	{"&PUBLIC_SHARE", G_USER_DIRECTORY_PUBLIC_SHARE},
+	{"&TEMPLATES",    G_USER_DIRECTORY_TEMPLATES},
+	{"&VIDEOS",       G_USER_DIRECTORY_VIDEOS}
+};
+
+
+static gchar *
+get_user_special_dir_if_not_home (const gchar *path)
+{
+	int i;
+	const gchar *real_path;
+	GFile *home, *file;
+	gboolean res;
+
+	real_path = NULL;
+
+	for (i = 0; i < G_N_ELEMENTS(special_dirs); i++) {
+		if (strcmp (path, special_dirs[i].symbol) == 0) {
+			real_path = g_get_user_special_dir (special_dirs[i].user_dir);
+
+			if (real_path == NULL) {
+				g_warning ("Unable to get XDG user directory path for special "
+				           "directory %s. Ignoring this location.", path);
+			}
+
+			break;
+		}
+	}
+
+	if (real_path == NULL)
+		return NULL;
+
+	file = g_file_new_for_path (real_path);
+	home = g_file_new_for_path (g_get_home_dir ());
+
+	res = g_file_equal (file, home);
+	g_object_unref (file);
+	g_object_unref (home);
+
+	if (res) {
+		/* ignore XDG directories set to $HOME */
+		return NULL;
+	} else {
+		return g_strdup (real_path);
+	}
+}
+
+
 gchar *
 tracker_path_evaluate_name (const gchar *path)
 {
+	gchar        *special_dir_path;
 	gchar        *final_path;
 	gchar       **tokens;
 	gchar       **token;
@@ -493,6 +551,13 @@ tracker_path_evaluate_name (const gchar *path)
 
 	if (!path || path[0] == '\0') {
 		return NULL;
+	}
+
+	/* See if it is a special directory name. */
+	special_dir_path = get_user_special_dir_if_not_home (path);
+
+	if (special_dir_path != NULL) {
+		return special_dir_path;
 	}
 
 	/* First check the simple case of using tilder */
