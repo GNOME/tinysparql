@@ -196,6 +196,154 @@ miner_finished_cb (TrackerMinerFS *fs,
 	g_free (locale_file);
 }
 
+/* If a reset is requested, we will remove from the store all items previously
+ * inserted by the tracker-miner-applications, this is:
+ *  (a) all elements which are nfo:softwareIcon of a given nfo:Software
+ *  (b) all nfo:Software in our graph (includes both applications and maemo applets)
+ *  (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory
+ *  (d) all nfo:SoftwareCategory in our graph
+ */
+static void
+miner_applications_reset (TrackerMiner *miner)
+{
+	GError *error = NULL;
+	TrackerSparqlBuilder *sparql;
+
+	sparql = tracker_sparql_builder_new_update ();
+
+	/* (a) all elements which are nfo:softwareIcon of a given nfo:Software */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:Software");
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
+	tracker_sparql_builder_object_variable (sparql, "software");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (b) all nfo:Software in our graph (includes both applications and maemo applets) */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:Software");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "nfo:softwareCategoryIcon");
+	tracker_sparql_builder_object_variable (sparql, "category");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (d) all nfo:SoftwareCategory in our graph */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* Execute a sync update, we don't want the apps miner to start before
+	 * we finish this. */
+	tracker_sparql_connection_update (tracker_miner_get_connection (miner),
+	                                  tracker_sparql_builder_get_result (sparql),
+	                                  G_PRIORITY_HIGH,
+	                                  NULL,
+	                                  &error);
+
+	if (error) {
+		/* Some error happened performing the query, not good */
+		g_critical ("Couldn't reset mined applications: %s",
+		            error ? error->message : "unknown error");
+		g_error_free (error);
+	}
+
+	g_object_unref (sparql);
+}
+
+static gboolean
+detect_locale_changed (TrackerMiner *miner)
+{
+	gchar *locale_file;
+	gchar *previous_locale = NULL;
+	gchar *current_locale;
+	gboolean changed;
+
+	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
+		gchar *contents;
+
+		/* Check locale is correct */
+		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
+			if (contents &&
+			    contents[0] == '\0') {
+				g_critical ("  Empty locale file found at '%s'", locale_file);
+				g_free (contents);
+			} else {
+				/* Re-use contents */
+				previous_locale = contents;
+			}
+		} else {
+			g_critical ("  Could not get content of file '%s'", locale_file);
+		}
+	} else {
+		g_message ("  Could not find locale file:'%s'", locale_file);
+	}
+
+	g_free (locale_file);
+
+	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+
+	/* Note that having both to NULL is actually valid, they would default
+	 * to the unicode collation without locale-specific stuff. */
+	if (g_strcmp0 (previous_locale, current_locale) != 0) {
+		g_message ("Locale change detected from '%s' to '%s'...",
+		           previous_locale, current_locale);
+		changed = TRUE;
+	} else {
+		g_message ("Current and previous locales match: '%s'", previous_locale);
+		changed = FALSE;
+	}
+
+	g_free (current_locale);
+	g_free (previous_locale);
+
+	if (changed) {
+		g_message ("Locale change detected, so resetting miner to "
+		           "remove all previously created items...");
+		miner_applications_reset (miner);
+	}
+
+	return changed;
+}
+
 static gboolean
 miner_applications_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
@@ -232,6 +380,9 @@ miner_applications_initable_init (GInitable     *initable,
 	                  NULL);
 
 	miner_applications_add_directories (fs);
+
+	/* If the locales changed, we need to reset things first */
+	detect_locale_changed (TRACKER_MINER (fs));
 
 	return TRUE;
 }
@@ -856,169 +1007,14 @@ miner_applications_process_file_attributes (TrackerMinerFS       *fs,
 	return FALSE;
 }
 
-/* If a reset is requested, we will remove from the store all items previously
- * inserted by the tracker-miner-applications, this is:
- *  (a) all elements which are nfo:softwareIcon of a given nfo:Software
- *  (b) all nfo:Software in our graph (includes both applications and maemo applets)
- *  (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory
- *  (d) all nfo:SoftwareCategory in our graph
- */
-static void
-miner_applications_reset (TrackerMiner *miner)
-{
-	GError *error = NULL;
-	TrackerSparqlBuilder *sparql;
-
-	sparql = tracker_sparql_builder_new_update ();
-
-	/* (a) all elements which are nfo:softwareIcon of a given nfo:Software */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_subject_variable (sparql, "icon");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "rdfs:Resource");
-	tracker_sparql_builder_delete_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-	tracker_sparql_builder_subject_variable (sparql, "software");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:Software");
-	tracker_sparql_builder_subject_variable (sparql, "icon");
-	tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
-	tracker_sparql_builder_object_variable (sparql, "software");
-	tracker_sparql_builder_where_close (sparql);
-
-	/* (b) all nfo:Software in our graph (includes both applications and maemo applets) */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_subject_variable (sparql, "software");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "rdfs:Resource");
-	tracker_sparql_builder_delete_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-	tracker_sparql_builder_subject_variable (sparql, "software");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:Software");
-	tracker_sparql_builder_where_close (sparql);
-
-	/* (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_subject_variable (sparql, "icon");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "rdfs:Resource");
-	tracker_sparql_builder_delete_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-	tracker_sparql_builder_subject_variable (sparql, "category");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
-	tracker_sparql_builder_subject_variable (sparql, "icon");
-	tracker_sparql_builder_predicate (sparql, "nfo:softwareCategoryIcon");
-	tracker_sparql_builder_object_variable (sparql, "category");
-	tracker_sparql_builder_where_close (sparql);
-
-	/* (d) all nfo:SoftwareCategory in our graph */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_subject_variable (sparql, "category");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "rdfs:Resource");
-	tracker_sparql_builder_delete_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-	tracker_sparql_builder_subject_variable (sparql, "category");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
-	tracker_sparql_builder_where_close (sparql);
-
-	/* Execute a sync update, we don't want the apps miner to start before
-	 * we finish this. */
-	tracker_sparql_connection_update (tracker_miner_get_connection (miner),
-	                                  tracker_sparql_builder_get_result (sparql),
-	                                  G_PRIORITY_HIGH,
-	                                  NULL,
-	                                  &error);
-
-	if (error) {
-		/* Some error happened performing the query, not good */
-		g_critical ("Couldn't reset mined applications: %s",
-		            error ? error->message : "unknown error");
-		g_error_free (error);
-	}
-
-	g_object_unref (sparql);
-}
-
-static gboolean
-detect_locale_changed (TrackerMiner *miner)
-{
-	gchar *locale_file;
-	gchar *previous_locale = NULL;
-	gchar *current_locale;
-	gboolean changed;
-
-	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
-
-	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
-		gchar *contents;
-
-		/* Check locale is correct */
-		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
-			if (contents &&
-			    contents[0] == '\0') {
-				g_critical ("  Empty locale file found at '%s'", locale_file);
-				g_free (contents);
-			} else {
-				/* Re-use contents */
-				previous_locale = contents;
-			}
-		} else {
-			g_critical ("  Could not get content of file '%s'", locale_file);
-		}
-	} else {
-		g_message ("  Could not find locale file:'%s'", locale_file);
-	}
-
-	g_free (locale_file);
-
-	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-
-	/* Note that having both to NULL is actually valid, they would default
-	 * to the unicode collation without locale-specific stuff. */
-	if (g_strcmp0 (previous_locale, current_locale) != 0) {
-		g_message ("Locale change detected from '%s' to '%s'...",
-		           previous_locale, current_locale);
-		changed = TRUE;
-	} else {
-		g_message ("Current and previous locales match: '%s'", previous_locale);
-		changed = FALSE;
-	}
-
-	g_free (current_locale);
-	g_free (previous_locale);
-
-	if (changed) {
-		g_message ("Locale change detected, so resetting miner to "
-		           "remove all previously created items...");
-		miner_applications_reset (miner);
-	}
-
-	return changed;
-}
-
 TrackerMiner *
 tracker_miner_applications_new (GError **error)
 {
-	TrackerMiner *miner;
-
-	miner = g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
-	                        NULL,
-	                        error,
-	                        "name", "Applications",
-	                        "processing-pool-wait-limit", 10,
-	                        "processing-pool-ready-limit", 100,
-	                        NULL);
-
-	/* If the locales changed, we need to reset things first */
-	detect_locale_changed (miner);
-
-	return miner;
+	return g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
+	                       NULL,
+	                       error,
+	                       "name", "Applications",
+	                       "processing-pool-wait-limit", 10,
+	                       "processing-pool-ready-limit", 100,
+	                       NULL);
 }

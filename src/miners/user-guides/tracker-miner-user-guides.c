@@ -248,6 +248,111 @@ miner_finished_cb (TrackerMinerFS *fs,
 	g_free (locale_file);
 }
 
+/* If a reset is requested, we will remove from the store all items previously
+ * inserted by the tracker-miner-userguides, this is:
+ *  (a) Remove all resources which are a nfo:HelpDocument
+ *  (b) Remove all unnecessary directories 
+ */
+static void
+miner_userguides_reset (TrackerMiner *miner)
+{
+	GError *error = NULL;
+	TrackerSparqlBuilder *sparql;
+
+	sparql = tracker_sparql_builder_new_update ();
+
+	/* (a) Remove all resources which are a nfo:HelpDocument */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "userguide");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "userguide");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (b) Remove all unnecessary directories */
+	/* TODO: Finish */
+
+
+	/* Execute a sync update, we don't want the userguides miner to start before
+	 * we finish this. */
+	tracker_sparql_connection_update (tracker_miner_get_connection (miner),
+	                                  tracker_sparql_builder_get_result (sparql),
+	                                  G_PRIORITY_HIGH,
+	                                  NULL,
+	                                  &error);
+
+	if (error) {
+		/* Some error happened performing the query, not good */
+		g_critical ("Couldn't reset mined userguides: %s",
+		            error ? error->message : "unknown error");
+		g_error_free (error);
+	}
+
+	g_object_unref (sparql);
+}
+
+static gboolean
+detect_locale_changed (TrackerMiner *miner)
+{
+	gchar *locale_file;
+	gchar *previous_locale = NULL;
+	gchar *current_locale;
+	gboolean changed;
+
+	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
+
+	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
+		gchar *contents;
+
+		/* Check locale is correct */
+		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
+			if (contents &&
+			    contents[0] == '\0') {
+				g_critical ("  Empty locale file found at '%s'", locale_file);
+				g_free (contents);
+			} else {
+				/* Re-use contents */
+				previous_locale = contents;
+			}
+		} else {
+			g_critical ("  Could not get content of file '%s'", locale_file);
+		}
+	} else {
+		g_message ("  Could not find locale file:'%s'", locale_file);
+	}
+
+	g_free (locale_file);
+
+	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+
+	/* Note that having both to NULL is actually valid, they would default
+	 * to the unicode collation without locale-specific stuff. */
+	if (g_strcmp0 (previous_locale, current_locale) != 0) {
+		g_message ("Locale change detected from '%s' to '%s'...",
+		           previous_locale, current_locale);
+		changed = TRUE;
+	} else {
+		g_message ("Current and previous locales match: '%s'", previous_locale);
+		changed = FALSE;
+	}
+
+	g_free (current_locale);
+	g_free (previous_locale);
+
+	if (changed) {
+		g_message ("Locale change detected, so resetting miner to "
+		           "remove all previously created items...");
+		miner_userguides_reset (miner);
+	}
+
+	return changed;
+}
+
 static gboolean
 miner_userguides_initable_init (GInitable     *initable,
                                 GCancellable  *cancellable,
@@ -281,6 +386,9 @@ miner_userguides_initable_init (GInitable     *initable,
 	                  NULL);
 
 	miner_userguides_add_directories (fs);
+
+	/* If the locales changed, we need to reset things first */
+	detect_locale_changed (TRACKER_MINER (fs));
 
 	return TRUE;
 }
@@ -657,126 +765,14 @@ parser_get_file_content (const gchar *uri,
 	g_strstrip (*content);
 }
 
-/* If a reset is requested, we will remove from the store all items previously
- * inserted by the tracker-miner-userguides, this is:
- *  (a) Remove all resources which are a nfo:HelpDocument
- *  (b) Remove all unnecessary directories 
- */
-static void
-miner_userguides_reset (TrackerMiner *miner)
-{
-	GError *error = NULL;
-	TrackerSparqlBuilder *sparql;
-
-	sparql = tracker_sparql_builder_new_update ();
-
-	/* (a) Remove all resources which are a nfo:HelpDocument */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_subject_variable (sparql, "userguide");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "rdfs:Resource");
-	tracker_sparql_builder_delete_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-	tracker_sparql_builder_subject_variable (sparql, "userguide");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:HelpDocument");
-	tracker_sparql_builder_where_close (sparql);
-
-	/* (b) Remove all unnecessary directories */
-	/* TODO: Finish */
-
-
-	/* Execute a sync update, we don't want the userguides miner to start before
-	 * we finish this. */
-	tracker_sparql_connection_update (tracker_miner_get_connection (miner),
-	                                  tracker_sparql_builder_get_result (sparql),
-	                                  G_PRIORITY_HIGH,
-	                                  NULL,
-	                                  &error);
-
-	if (error) {
-		/* Some error happened performing the query, not good */
-		g_critical ("Couldn't reset mined userguides: %s",
-		            error ? error->message : "unknown error");
-		g_error_free (error);
-	}
-
-	g_object_unref (sparql);
-}
-
-static gboolean
-detect_locale_changed (TrackerMiner *miner)
-{
-	gchar *locale_file;
-	gchar *previous_locale = NULL;
-	gchar *current_locale;
-	gboolean changed;
-
-	locale_file = g_build_filename (g_get_user_cache_dir (), "tracker", LOCALE_FILENAME, NULL);
-
-	if (G_LIKELY (g_file_test (locale_file, G_FILE_TEST_EXISTS))) {
-		gchar *contents;
-
-		/* Check locale is correct */
-		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
-			if (contents &&
-			    contents[0] == '\0') {
-				g_critical ("  Empty locale file found at '%s'", locale_file);
-				g_free (contents);
-			} else {
-				/* Re-use contents */
-				previous_locale = contents;
-			}
-		} else {
-			g_critical ("  Could not get content of file '%s'", locale_file);
-		}
-	} else {
-		g_message ("  Could not find locale file:'%s'", locale_file);
-	}
-
-	g_free (locale_file);
-
-	current_locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-
-	/* Note that having both to NULL is actually valid, they would default
-	 * to the unicode collation without locale-specific stuff. */
-	if (g_strcmp0 (previous_locale, current_locale) != 0) {
-		g_message ("Locale change detected from '%s' to '%s'...",
-		           previous_locale, current_locale);
-		changed = TRUE;
-	} else {
-		g_message ("Current and previous locales match: '%s'", previous_locale);
-		changed = FALSE;
-	}
-
-	g_free (current_locale);
-	g_free (previous_locale);
-
-	if (changed) {
-		g_message ("Locale change detected, so resetting miner to "
-		           "remove all previously created items...");
-		miner_userguides_reset (miner);
-	}
-
-	return changed;
-}
-
 TrackerMiner *
 tracker_miner_userguides_new (GError **error)
 {
-	TrackerMiner *miner;
-
-	miner = g_initable_new (TRACKER_TYPE_MINER_USERGUIDES,
-	                        NULL,
-	                        error,
-	                        "name", "Userguides",
-	                        "processing-pool-wait-limit", 10,
-	                        "processing-pool-ready-limit", 100,
-	                        NULL);
-
-	/* If the locales changed, we need to reset things first */
-	detect_locale_changed (miner);
-
-	return miner;
+	return g_initable_new (TRACKER_TYPE_MINER_USERGUIDES,
+	                       NULL,
+	                       error,
+	                       "name", "Userguides",
+	                       "processing-pool-wait-limit", 10,
+	                       "processing-pool-ready-limit", 100,
+	                       NULL);
 }
