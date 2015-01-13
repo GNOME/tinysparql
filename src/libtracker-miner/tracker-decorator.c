@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include "tracker-decorator.h"
 #include "tracker-decorator-internal.h"
 #include "tracker-priority-queue.h"
@@ -365,9 +367,17 @@ decorator_commit_cb (GObject      *object,
 			child_error = g_ptr_array_index (errors, i);
 
 			if (child_error) {
+				gchar *msg, *p;
+
+				msg = g_strdup (g_ptr_array_index (sparql, i));
+				p = strstr (msg, "nie:plainTextContent");
+				if (p != NULL)
+					*p = '\0';
+
 				g_warning ("Task %d, error: %s", i, child_error->message);
-				g_warning ("Sparql update was:\n%s\n",
-				           (gchar *) g_ptr_array_index (sparql, i));
+				g_warning ("Sparql update was:\n%s\n", msg);
+
+				g_free (msg);
 			}
 		}
 
