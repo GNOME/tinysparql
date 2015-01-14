@@ -121,6 +121,9 @@ static void        miner_files_initable_iface_init      (GInitableIface       *i
 static gboolean    miner_files_initable_init            (GInitable            *initable,
                                                          GCancellable         *cancellable,
                                                          GError              **error);
+static inline TrackerIndexingTree *
+                   get_indexing_tree                    (TrackerMinerFiles    *miner);
+
 static void        mount_pre_unmount_cb                 (GVolumeMonitor       *volume_monitor,
                                                          GMount               *mount,
                                                          TrackerMinerFiles    *mf);
@@ -290,7 +293,6 @@ miner_files_initable_init (GInitable     *initable,
                            GError       **error)
 {
 	TrackerMinerFiles *mf;
-	TrackerMinerFS *fs;
 	TrackerIndexingTree *indexing_tree;
 	TrackerDirectoryFlags flags;
 	GError *inner_error = NULL;
@@ -305,8 +307,7 @@ miner_files_initable_init (GInitable     *initable,
 	}
 
 	mf = TRACKER_MINER_FILES (initable);
-	fs = TRACKER_MINER_FS (initable);
-	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+	indexing_tree = get_indexing_tree (mf);
 	tracker_indexing_tree_set_filter_hidden (indexing_tree, TRUE);
 
 	miner_files_update_filters (mf);
@@ -650,6 +651,20 @@ miner_files_finalize (GObject *object)
 	g_list_free (priv->extraction_queue);
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
+}
+
+static inline TrackerIndexingTree *
+get_indexing_tree (TrackerMinerFiles *miner)
+{
+	TrackerDataProvider *dp;
+
+	if (!miner) {
+		return NULL;
+	}
+
+	dp = tracker_miner_fs_get_data_provider (TRACKER_MINER_FS (miner));
+
+	return tracker_data_provider_get_indexing_tree (dp, NULL);
 }
 
 static void
@@ -1034,7 +1049,7 @@ init_mount_points (TrackerMinerFiles *miner_files)
 					TrackerDirectoryFlags flags;
 					GFile *file;
 
-					indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+					indexing_tree = get_indexing_tree (TRACKER_MINER_FILES (miner));
 					flags = TRACKER_DIRECTORY_FLAG_RECURSE |
 						TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
 						TRACKER_DIRECTORY_FLAG_PRESERVE;
@@ -1158,7 +1173,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+	indexing_tree = get_indexing_tree (miner);
 	tracker_indexing_tree_remove (indexing_tree, mount_point_file);
 
 	/* Set mount point status in tracker-store */
@@ -1198,7 +1213,7 @@ mount_point_added_cb (TrackerStorage *storage,
 		GSList *l;
 
 		mount_point_file = g_file_new_for_path (mount_point);
-		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+		indexing_tree = get_indexing_tree (miner);
 
 		/* Check if one of the recursively indexed locations is in
 		 *   the mounted path, or if the mounted path is inside
@@ -1433,7 +1448,7 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	uri = g_file_get_uri (mount_root);
 	g_message ("Pre-unmount requested for '%s'", uri);
 
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
+	indexing_tree = get_indexing_tree (mf);
 	tracker_indexing_tree_remove (indexing_tree, mount_root);
 	g_object_unref (mount_root);
 
@@ -1562,7 +1577,7 @@ miner_files_update_filters (TrackerMinerFiles *files)
 	TrackerIndexingTree *indexing_tree;
 	GSList *list;
 
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (files));
+	indexing_tree = get_indexing_tree (files);
 
 	/* Ignored files */
 	list = tracker_config_get_ignored_files (files->private->config);
@@ -1593,7 +1608,7 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 	GSList *sl;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
-	indexing_tree = tracker_miner_fs_get_indexing_tree (mf);
+	indexing_tree = get_indexing_tree (TRACKER_MINER_FILES (mf));
 
 	g_message ("Updating %s directories changed from configuration",
 	           recurse ? "recursive" : "single");
@@ -1730,7 +1745,7 @@ miner_files_force_recheck_idle (gpointer user_data)
 
 	miner_files_update_filters (miner_files);
 
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner_files));
+	indexing_tree = get_indexing_tree (miner_files);
 	roots = tracker_indexing_tree_list_roots (indexing_tree);
 
 	for (l = roots; l; l = l->next)	{
@@ -1846,7 +1861,7 @@ index_volumes_changed_idle (gpointer user_data)
 		TrackerIndexingTree *indexing_tree;
 		GSList *sl;
 
-		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
+		indexing_tree = get_indexing_tree (mf);
 
 		for (sl = mounts_removed; sl; sl = g_slist_next (sl)) {
 			GFile *mount_point_file;
@@ -2771,7 +2786,7 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 		}
 	}
 
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
+	indexing_tree = get_indexing_tree (mf);
 	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
 		TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
 		TRACKER_DIRECTORY_FLAG_PRESERVE |

@@ -91,11 +91,21 @@ static void
 miner_applications_basedir_add (TrackerMinerFS *fs,
                                 const gchar    *basedir)
 {
+	TrackerDataProvider *data_provider;
 	TrackerIndexingTree *indexing_tree;
+	GError *error = NULL;
 	GFile *file;
 	gchar *path;
 
-	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+	data_provider = tracker_miner_fs_get_data_provider (fs);
+	indexing_tree = tracker_data_provider_get_indexing_tree (data_provider, &error);
+
+	if (!indexing_tree) {
+		g_critical ("  Could not add directories to be indexed, %s",
+		            error ? error->message : "TrackerIndexingTree was NULL");
+		g_clear_error (&error);
+		return;
+	}
 
 	/* Add $dir/applications */
 	path = g_build_filename (basedir, "applications", NULL);
@@ -351,10 +361,17 @@ miner_applications_initable_init (GInitable     *initable,
 {
 	TrackerMinerFS *fs;
 	GError *inner_error = NULL;
+	TrackerDataProvider *data_provider;
 	TrackerIndexingTree *indexing_tree;
 
 	fs = TRACKER_MINER_FS (initable);
-	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
+	data_provider = tracker_miner_fs_get_data_provider (fs);
+	indexing_tree = tracker_data_provider_get_indexing_tree (data_provider, &inner_error);
+
+	if (!indexing_tree) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 
 	/* Set up files filter, deny every file, but
 	 * those with a .desktop/directory extension
