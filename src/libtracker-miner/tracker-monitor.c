@@ -68,6 +68,7 @@ struct TrackerMonitorPrivate {
 
 	gboolean       enabled;
 
+	gpointer       event_class_ref;
 	GType          monitor_backend;
 
 	guint          monitor_limit;
@@ -235,6 +236,9 @@ tracker_monitor_init (TrackerMonitor *object)
 
 	priv = object->priv;
 
+	priv->event_class_ref = g_type_class_ref (g_file_monitor_event_get_type ());
+
+
 	/* By default we enable monitoring */
 	priv->enabled = TRUE;
 
@@ -367,6 +371,8 @@ tracker_monitor_finalize (GObject *object)
 	if (priv->event_pairs_timeout_id) {
 		g_source_remove (priv->event_pairs_timeout_id);
 	}
+
+	g_type_class_unref (priv->event_class_ref);
 
 	g_hash_table_unref (priv->pre_update);
 	g_hash_table_unref (priv->pre_delete);
@@ -645,14 +651,13 @@ tracker_monitor_move (TrackerMonitor *monitor,
 }
 
 inline static const gchar *
-monitor_event_to_string (GFileMonitorEvent value)
+monitor_event_to_string (TrackerMonitor    *monitor,
+                         GFileMonitorEvent  value)
 {
-        GType type;
         GEnumClass *enum_class;
         GEnumValue *enum_value;
 
-        type = g_file_monitor_event_get_type ();
-        enum_class = G_ENUM_CLASS (g_type_class_peek (type));
+        enum_class = G_ENUM_CLASS (monitor->priv->event_class_ref);
         enum_value = g_enum_get_value (enum_class, value);
 
         if (!enum_value) {
@@ -807,7 +812,7 @@ event_pairs_process_in_ht (TrackerMonitor *monitor,
 			continue;
 
 		g_debug ("Event '%s' for URI '%s' has timed out (%ld seconds have elapsed)",
-		         monitor_event_to_string (event_data->event_type),
+		         monitor_event_to_string (monitor, event_data->event_type),
 		         event_data->file_uri,
 		         seconds);
 		/* STEAL the item from the HT, so that disposal methods
@@ -1255,7 +1260,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		other_file_uri = NULL;
 		g_debug ("Received monitor event:%d (%s) for %s:'%s'",
 		         event_type,
-		         monitor_event_to_string (event_type),
+		         monitor_event_to_string (monitor, event_type),
 		         is_directory ? "directory" : "file",
 		         file_uri);
 	} else {
@@ -1285,7 +1290,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		other_file_uri = g_file_get_uri (other_file);
 		g_debug ("Received monitor event:%d (%s) for files '%s'->'%s'",
 		         event_type,
-		         monitor_event_to_string (event_type),
+		         monitor_event_to_string (monitor, event_type),
 		         file_uri,
 		         other_file_uri);
 	}
