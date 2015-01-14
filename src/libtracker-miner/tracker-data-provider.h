@@ -64,10 +64,19 @@ typedef struct _TrackerDataProviderIface TrackerDataProviderIface;
  * Completed using @end_finish.
  * @end_finish: Called when the data_provider is completing the
  * asynchronous operation provided by @end_async.
- * @add_monitor: Called when the data_provider is asked to monitor a
+ * @monitor_add: Called when the data_provider is asked to monitor a
  * container for changes.
- * @remove_monitor: Called when the data_provider is asked to stop
+ * @monitor_remove: Called when the data_provider is asked to stop
  * monitoring a container for changes.
+ * @monitor_move: Called when the data_provider is asked to move a
+ * monitor from one place to another. This can happen on a file system
+ * when a directory is moved for example.
+ * @is_monitored: Called to find out if data_provider is monitoring
+ * changes for container.
+ * @is_monitored_by_path: The same as @is_monitored, only using a path
+ * string instead of a #GFile.
+ * @monitor_count: Called to find out number of containers monitored
+ * by the data_provider.
  * @item_created: Signalled when an item is created in a monitored
  * container. This can be another container or object itself. A
  * container could be a directory and an object could be a file in
@@ -137,6 +146,20 @@ struct _TrackerDataProviderIface {
 	                                              GFile                  *container,
 	                                              gboolean                recursively,
 	                                              GError                **error);
+	gboolean              (* monitor_move)       (TrackerDataProvider    *data_provider,
+	                                              GFile                  *container_from,
+	                                              GFile                  *container_to,
+	                                              GError                **error);
+	gboolean              (* is_monitored)       (TrackerDataProvider    *data_provider,
+	                                              GFile                  *container,
+	                                              GError                **error);
+
+	gboolean              (* is_monitored_by_path)
+	                                             (TrackerDataProvider    *data_provider,
+	                                              const gchar            *container,
+	                                              GError                **error);
+	guint                 (* monitor_count)      (TrackerDataProvider    *data_provider,
+	                                              GError                **error);
 
 	/* Monitoring Signals - for container/object change notification */
 	void                  (* item_created)       (TrackerDataProvider    *data_provider,
@@ -170,6 +193,7 @@ struct _TrackerDataProviderIface {
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
 
+/* Crawler API */
 TrackerEnumerator *tracker_data_provider_begin           (TrackerDataProvider   *data_provider,
                                                           GFile                 *url,
                                                           const gchar           *attributes,
@@ -201,6 +225,7 @@ gboolean           tracker_data_provider_end_finish      (TrackerDataProvider   
                                                           GAsyncResult          *result,
                                                           GError               **error);
 
+/* Monitor API */
 gboolean           tracker_data_provider_monitor_add     (TrackerDataProvider  *data_provider,
                                                           GFile                *container,
                                                           GError              **error);
@@ -208,7 +233,22 @@ gboolean           tracker_data_provider_monitor_remove  (TrackerDataProvider  *
                                                           GFile                *container,
                                                           gboolean              recursively,
                                                           GError              **error);
+gboolean           tracker_data_provider_monitor_move    (TrackerDataProvider  *data_provider,
+                                                          GFile                *container_from,
+                                                          GFile                *container_to,
+                                                          GError              **error);
+gboolean           tracker_data_provider_is_monitored    (TrackerDataProvider  *data_provider,
+                                                          GFile                *container,
+                                                          GError              **error);
 
+gboolean           tracker_data_provider_is_monitored_by_path
+                                                         (TrackerDataProvider  *data_provider,
+                                                          const gchar          *container,
+                                                          GError              **error);
+guint              tracker_data_provider_monitor_count   (TrackerDataProvider  *data_provider,
+                                                          GError              **error);
+
+/* Indexing Tree API */
 gboolean           tracker_data_provider_set_indexing_tree
                                                          (TrackerDataProvider  *data_provider,
                                                           TrackerIndexingTree  *indexing_tree,

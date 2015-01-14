@@ -43,6 +43,7 @@ typedef struct {
 	GFile *test_file;
 	gchar *test_path;
 
+	TrackerDataProvider *data_provider;
 	TrackerIndexingTree *indexing_tree;
 	GMainLoop *main_loop;
 
@@ -261,6 +262,8 @@ static void
 test_common_context_setup (TestCommonContext *fixture,
                            gconstpointer      data)
 {
+	GError *error = NULL;
+
 	fixture->test_path = g_build_filename (g_get_tmp_dir (),
 	                                       "tracker-test-XXXXXX",
 	                                       NULL);
@@ -277,8 +280,15 @@ test_common_context_setup (TestCommonContext *fixture,
 	fixture->indexing_tree = tracker_indexing_tree_new ();
 	tracker_indexing_tree_set_filter_hidden (fixture->indexing_tree, TRUE);
 
+	fixture->data_provider = tracker_file_data_provider_new ();
+	tracker_data_provider_set_indexing_tree (fixture->data_provider,
+	                                         fixture->indexing_tree,
+	                                         &error);
+
+	g_assert_no_error (error);
+
 	fixture->main_loop = g_main_loop_new (NULL, FALSE);
-	fixture->notifier = tracker_file_notifier_new (fixture->indexing_tree, FALSE);
+	fixture->notifier = tracker_file_notifier_new (fixture->data_provider);
 
 	g_signal_connect (fixture->notifier, "file-created",
 	                  G_CALLBACK (file_notifier_file_created_cb), fixture);

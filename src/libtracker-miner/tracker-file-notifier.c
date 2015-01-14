@@ -1233,10 +1233,11 @@ monitor_item_moved_cb (TrackerDataProvider *data_provider,
 				gboolean dest_is_recursive, source_is_recursive;
 				TrackerDirectoryFlags source_flags;
 
-				tracker_monitor_move (priv->data_provider,
-				                      file,
-				                      other_file,
-				                      NULL);
+				/* FIXME: Check ERROR value here */
+				tracker_data_provider_monitor_move (priv->data_provider,
+				                                    file,
+				                                    other_file,
+				                                    NULL);
 
 				tracker_indexing_tree_get_root (indexing_tree, file, &source_flags);
 				source_is_recursive = (source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0;

@@ -495,6 +495,149 @@ tracker_data_provider_monitor_remove (TrackerDataProvider  *data_provider,
 }
 
 /**
+ * tracker_data_provider_monitor_move:
+ * @data_provider: a #TrackerDataProvider
+ * @container_from: a #GFile
+ * @container_to: a #GFile
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Tells @data_provider to move @container_from to @container_to.
+ * Typically used for file systems where a folder or directory is
+ * moved.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_monitor_move (TrackerDataProvider  *data_provider,
+                                    GFile                *container_from,
+                                    GFile                *container_to,
+                                    GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container_from), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container_to), FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->monitor_move == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->monitor_move) (data_provider, container_from, container_to, error);
+}
+
+/**
+ * tracker_data_provider_is_monitored:
+ * @data_provider: a #TrackerDataProvider
+ * @container: a #GFile
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Asks if @data_provider is monitoring changes to @container.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_is_monitored (TrackerDataProvider  *data_provider,
+                                    GFile                *container,
+                                    GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container), FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->is_monitored == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->is_monitored) (data_provider, container, error);
+}
+
+/**
+ * tracker_data_provider_is_monitored_by_path:
+ * @data_provider: a #TrackerDataProvider
+ * @container: a string
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * The same as tracker_data_provider_is_monitored() but takes a string
+ * to represent the path instead.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE and @error is set.
+ *
+ * Since: 1.4
+ **/
+gboolean
+tracker_data_provider_is_monitored_by_path (TrackerDataProvider  *data_provider,
+                                            const gchar          *container,
+                                            GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (container != NULL, FALSE);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->is_monitored_by_path == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->is_monitored_by_path) (data_provider, container, error);
+}
+
+/**
+ * tracker_data_provider_monitor_count:
+ * @data_provider: a #TrackerDataProvider
+ * @error: location to store the error occurring, or %NULL to ignore
+ *
+ * Asks the @data_provider how many containers are being monitored.
+ *
+ * Returns: A value of 0 or higher on success, otherwise @error is set.
+ *
+ * Since: 1.4
+ **/
+guint
+tracker_data_provider_monitor_count (TrackerDataProvider  *data_provider,
+                                     GError              **error)
+{
+	TrackerDataProviderIface *iface;
+
+	g_return_val_if_fail (TRACKER_IS_DATA_PROVIDER (data_provider), 0);
+
+	iface = TRACKER_DATA_PROVIDER_GET_IFACE (data_provider);
+
+	if (iface->monitor_count == NULL) {
+		g_set_error_literal (error,
+		                     G_IO_ERROR,
+		                     G_IO_ERROR_NOT_SUPPORTED,
+		                     _("Operation not supported"));
+		return FALSE;
+	}
+
+	return (* iface->monitor_count) (data_provider, error);
+}
+
+/**
  * tracker_data_provider_set_indexing_tree:
  * @data_provider: a #TrackerDataProvider
  * @indexing_tree: a #TrackerIndexingTree
