@@ -41,6 +41,8 @@ private_sources = 				       \
 	tracker-file-notifier.c                        \
 	tracker-file-system.h                          \
 	tracker-file-system.c                          \
+	tracker-monitor.c                              \
+	tracker-monitor.h                              \
 	tracker-priority-queue.h                       \
 	tracker-priority-queue.c                       \
 	tracker-task-pool.h                            \
@@ -59,8 +61,6 @@ private_sources += 				       \
 endif
 
 miner_sources = 				       \
-	$(libtracker_miner_monitor_sources)            \
-	$(libtracker_miner_monitor_headers)            \
 	tracker-data-provider.c                        \
 	tracker-data-provider.h                        \
 	tracker-decorator.c                            \

@@ -60,6 +60,16 @@ G_DEFINE_TYPE_WITH_CODE (TrackerFileDataProvider, tracker_file_data_provider, G_
 static void
 tracker_file_data_provider_finalize (GObject *object)
 {
+	TrackerFileDataProvider *fdp = TRACKER_FILE_DATA_PROVIDER (object);
+
+	if (fdp->indexing_tree) {
+		g_object_unref (fdp->indexing_tree);
+	}
+
+	if (fdp->monitor) {
+		g_object_unref (fdp->monitor);
+	}
+
 	G_OBJECT_CLASS (tracker_file_data_provider_parent_class)->finalize (object);
 }
 
@@ -72,9 +82,66 @@ tracker_file_data_provider_class_init (TrackerFileDataProviderClass *klass)
 }
 
 static void
+item_created_cb (TrackerMonitor *monitor,
+                 GFile          *file,
+                 gboolean        is_directory,
+                 gpointer        user_data)
+{
+	TrackerDataProvider *dp = TRACKER_DATA_PROVIDER (user_data);
+	g_signal_emit_by_name (dp, "item-created", file, is_directory);
+}
+
+static void
+item_updated_cb (TrackerMonitor *monitor,
+                 GFile          *file,
+                 gboolean        is_directory,
+                 gpointer        user_data)
+{
+	TrackerDataProvider *dp = TRACKER_DATA_PROVIDER (user_data);
+	g_signal_emit_by_name (dp, "item-updated", file, is_directory);
+}
+
+static void
+item_attribute_updated_cb (TrackerMonitor *monitor,
+                           GFile          *file,
+                           gboolean        is_directory,
+                           gpointer        user_data)
+{
+	TrackerDataProvider *dp = TRACKER_DATA_PROVIDER (user_data);
+	g_signal_emit_by_name (dp, "item-attribute-updated", file, is_directory);
+}
+
+static void
+item_deleted_cb (TrackerMonitor *monitor,
+                 GFile          *file,
+                 gboolean        is_directory,
+                 gpointer        user_data)
+{
+	TrackerDataProvider *dp = TRACKER_DATA_PROVIDER (user_data);
+	g_signal_emit_by_name (dp, "item-deleted", file, is_directory);
+}
+
+static void
+item_moved_cb (TrackerMonitor *monitor,
+               GFile          *file,
+               GFile          *other_file,
+               gboolean        is_directory,
+               gboolean        is_source_monitored,
+               gpointer        user_data)
+{
+	TrackerDataProvider *dp = TRACKER_DATA_PROVIDER (user_data);
+	g_signal_emit_by_name (dp, "item-moved", file, other_file, is_directory, is_source_monitored);
+}
+
+static void
 tracker_file_data_provider_init (TrackerFileDataProvider *fe)
 {
 	fe->monitor = tracker_monitor_new ();
+	g_signal_connect_object (fe->monitor, "item-created", G_CALLBACK (item_created_cb), fe, G_CONNECT_AFTER);
+	g_signal_connect_object (fe->monitor, "item-updated", G_CALLBACK (item_updated_cb), fe, G_CONNECT_AFTER);
+	g_signal_connect_object (fe->monitor, "item-deleted", G_CALLBACK (item_deleted_cb), fe, G_CONNECT_AFTER);
+	g_signal_connect_object (fe->monitor, "item-attribute-updated", G_CALLBACK (item_attribute_updated_cb), fe, G_CONNECT_AFTER);
+	g_signal_connect_object (fe->monitor, "item-moved", G_CALLBACK (item_moved_cb), fe, G_CONNECT_AFTER);
 }
 
 static BeginData *
@@ -317,6 +384,66 @@ file_data_provider_monitor_remove (TrackerDataProvider  *data_provider,
 }
 
 static gboolean
+file_data_provider_monitor_move (TrackerDataProvider  *data_provider,
+                                 GFile                *container_from,
+                                 GFile                *container_to,
+                                 GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container_from), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container_to), FALSE);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	return tracker_monitor_move (fdp->monitor, container_from, container_to);
+}
+
+static gboolean
+file_data_provider_is_monitored (TrackerDataProvider  *data_provider,
+                                 GFile                *container,
+                                 GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (G_IS_FILE (container), FALSE);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	return tracker_monitor_is_watched (fdp->monitor, container);
+}
+
+static gboolean
+file_data_provider_is_monitored_by_path (TrackerDataProvider  *data_provider,
+                                         const gchar          *container,
+                                         GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), FALSE);
+	g_return_val_if_fail (container != NULL, FALSE);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	return tracker_monitor_is_watched_by_string (fdp->monitor, container);
+}
+
+static guint
+file_data_provider_monitor_count (TrackerDataProvider  *data_provider,
+                                  GError              **error)
+{
+	TrackerFileDataProvider *fdp;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_DATA_PROVIDER (data_provider), 0);
+
+	fdp = TRACKER_FILE_DATA_PROVIDER (data_provider);
+
+	return tracker_monitor_get_count (fdp->monitor);
+}
+
+static gboolean
 file_data_provider_set_indexing_tree (TrackerDataProvider  *data_provider,
                                       TrackerIndexingTree  *indexing_tree,
                                       GError              **error)
@@ -364,6 +491,10 @@ tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface)
 	iface->end_finish = file_data_provider_end_finish;
 	iface->monitor_add = file_data_provider_monitor_add;
 	iface->monitor_remove = file_data_provider_monitor_remove;
+	iface->monitor_move = file_data_provider_monitor_move;
+	iface->is_monitored = file_data_provider_is_monitored;
+	iface->is_monitored_by_path = file_data_provider_is_monitored_by_path;
+	iface->monitor_count = file_data_provider_monitor_count;
 	iface->set_indexing_tree = file_data_provider_set_indexing_tree;
 	iface->get_indexing_tree = file_data_provider_get_indexing_tree;
 }

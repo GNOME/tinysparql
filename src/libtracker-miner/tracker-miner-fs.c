@@ -1181,7 +1181,7 @@ process_print_stats (TrackerMinerFS *fs)
 		        fs->priv->total_files_ignored);
 #if 0
 		g_info ("Total monitors    : %d",
-		        tracker_monitor_get_count (fs->priv->monitor));
+		        tracker_data_provider_monitor_count (fs->priv->data_provider));
 #endif
 		g_info ("Total processed   : %d (%d notified, %d with error)",
 		        fs->priv->total_files_processed,
