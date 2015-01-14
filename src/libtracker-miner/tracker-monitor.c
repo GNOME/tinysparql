@@ -111,7 +111,20 @@ enum {
 	LAST_SIGNAL
 };
 
+enum {
+	PROP_0,
+	PROP_ENABLED
+};
+
 static void           tracker_monitor_finalize     (GObject        *object);
+static void           tracker_monitor_set_property (GObject        *object,
+                                                    guint           prop_id,
+                                                    const GValue   *value,
+                                                    GParamSpec     *pspec);
+static void           tracker_monitor_get_property (GObject        *object,
+                                                    guint           prop_id,
+                                                    GValue         *value,
+                                                    GParamSpec     *pspec);
 static guint          get_kqueue_limit             (void);
 static guint          get_inotify_limit            (void);
 static GFileMonitor * directory_monitor_new        (TrackerMonitor *monitor,
@@ -137,6 +150,8 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 	object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_monitor_finalize;
+	object_class->set_property = tracker_monitor_set_property;
+	object_class->get_property = tracker_monitor_get_property;
 
 	signals[ITEM_CREATED] =
 		g_signal_new ("item-created",
@@ -195,6 +210,14 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 		              G_TYPE_OBJECT,
 		              G_TYPE_BOOLEAN,
 		              G_TYPE_BOOLEAN);
+
+	g_object_class_install_property (object_class,
+	                                 PROP_ENABLED,
+	                                 g_param_spec_boolean ("enabled",
+	                                                       "Enabled",
+	                                                       "Enabled",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMonitorPrivate));
 }
@@ -350,6 +373,43 @@ tracker_monitor_finalize (GObject *object)
 	g_hash_table_unref (priv->monitors);
 
 	G_OBJECT_CLASS (tracker_monitor_parent_class)->finalize (object);
+}
+
+static void
+tracker_monitor_set_property (GObject      *object,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+	switch (prop_id) {
+	case PROP_ENABLED:
+		tracker_monitor_set_enabled (TRACKER_MONITOR (object),
+		                             g_value_get_boolean (value));
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	}
+}
+
+static void
+tracker_monitor_get_property (GObject      *object,
+                              guint         prop_id,
+                              GValue       *value,
+                              GParamSpec   *pspec)
+{
+	TrackerMonitorPrivate *priv;
+
+	priv = TRACKER_MONITOR_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_ENABLED:
+		g_value_set_boolean (value, priv->enabled);
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	}
 }
 
 static guint
@@ -1363,6 +1423,14 @@ tracker_monitor_new (void)
 	return g_object_new (TRACKER_TYPE_MONITOR, NULL);
 }
 
+gboolean
+tracker_monitor_get_enabled (TrackerMonitor *monitor)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
+
+	return monitor->priv->enabled;
+}
+
 TrackerIndexingTree *
 tracker_monitor_get_indexing_tree (TrackerMonitor *monitor)
 {
@@ -1386,6 +1454,48 @@ tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
 	if (tree) {
 		monitor->priv->tree = g_object_ref (tree);
 	}
+}
+
+void
+tracker_monitor_set_enabled (TrackerMonitor *monitor,
+                             gboolean        enabled)
+{
+	GList *keys, *k;
+
+	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
+
+	/* Don't replace all monitors if we are already
+	 * enabled/disabled.
+	 */
+	if (monitor->priv->enabled == enabled) {
+		return;
+	}
+
+	monitor->priv->enabled = enabled;
+	g_object_notify (G_OBJECT (monitor), "enabled");
+
+	keys = g_hash_table_get_keys (monitor->priv->monitors);
+
+	/* Update state on all monitored dirs */
+	for (k = keys; k != NULL; k = k->next) {
+		GFile *file;
+
+		file = k->data;
+
+		if (enabled) {
+			GFileMonitor *dir_monitor;
+
+			dir_monitor = directory_monitor_new (monitor, file);
+			g_hash_table_replace (monitor->priv->monitors,
+			                      g_object_ref (file), dir_monitor);
+		} else {
+			/* Remove monitor */
+			g_hash_table_replace (monitor->priv->monitors,
+			                      g_object_ref (file), NULL);
+		}
+	}
+
+	g_list_free (keys);
 }
 
 gboolean
@@ -1539,4 +1649,47 @@ monitor_cancel_recursively (TrackerMonitor *monitor,
 	}
 
 	return items_cancelled > 0;
+}
+
+gboolean
+tracker_monitor_is_watched (TrackerMonitor *monitor,
+                            GFile          *file)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	return g_hash_table_lookup (monitor->priv->monitors, file) != NULL;
+}
+
+gboolean
+tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
+                                      const gchar    *path)
+{
+	GFile      *file;
+	gboolean    watched;
+
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
+	g_return_val_if_fail (path != NULL, FALSE);
+
+	file = g_file_new_for_path (path);
+	watched = g_hash_table_lookup (monitor->priv->monitors, file) != NULL;
+	g_object_unref (file);
+
+	return watched;
+}
+
+guint
+tracker_monitor_get_count (TrackerMonitor *monitor)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 0);
+
+	return g_hash_table_size (monitor->priv->monitors);
+}
+
+guint
+tracker_monitor_get_ignored (TrackerMonitor *monitor)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 0);
+
+	return monitor->priv->monitors_ignored;
 }
