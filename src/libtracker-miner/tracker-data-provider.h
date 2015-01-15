@@ -77,6 +77,12 @@ typedef struct _TrackerDataProviderIface TrackerDataProviderIface;
  * string instead of a #GFile.
  * @monitor_count: Called to find out number of containers monitored
  * by the data_provider.
+ * @set_indexing_tree: The #TrackerIndexingTree is central to what is
+ * indexed and what is ignored. It is used by many components using
+ * the #TrackerDataProvider. This <emphasis>MUST</emphasis> be set or
+ * #TrackerMinerFS will fail to instantiate.
+ * @get_indexing_tree: Return the #TrackerIndexingTree used with this
+ * #TrackerDataProvider.
  * @item_created: Signalled when an item is created in a monitored
  * container. This can be another container or object itself. A
  * container could be a directory and an object could be a file in
@@ -186,9 +192,6 @@ struct _TrackerDataProviderIface {
 	                                              GError                **error);
 	TrackerIndexingTree * (* get_indexing_tree)  (TrackerDataProvider    *data_provider,
 	                                              GError                **error);
-
-	/*< private >*/
-	/* Already +1 past padding :/ */
 };
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
