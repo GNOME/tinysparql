@@ -21,11 +21,15 @@
 
 #include <locale.h>
 
+/* Not normally public */
 #include <libtracker-miner/tracker-crawler.h>
+#include <libtracker-miner/tracker-file-data-provider.h>
 
 typedef struct CrawlerTest CrawlerTest;
 
 struct CrawlerTest {
+	TrackerDataProvider *data_provider;
+
 	GMainLoop *main_loop;
 	guint directories_found;
 	guint directories_ignored;
@@ -38,6 +42,28 @@ struct CrawlerTest {
 	guint n_check_directory_contents;
 	guint n_check_file;
 };
+
+static void
+test_crawler_common_setup (CrawlerTest   *fixture,
+                           gconstpointer  data)
+{
+	fixture->data_provider = tracker_file_data_provider_new ();
+	fixture->main_loop = g_main_loop_new (NULL, FALSE);
+}
+
+static void
+test_crawler_common_teardown (CrawlerTest   *fixture,
+                              gconstpointer  data)
+{
+	if (fixture->data_provider) {
+		g_object_unref (fixture->data_provider);
+	}
+
+	if (fixture->main_loop) {
+		g_main_loop_quit (fixture->main_loop);
+		g_main_loop_unref (fixture->main_loop);
+	}
+}
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
@@ -111,18 +137,17 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 }
 
 static void
-test_crawler_crawl (void)
+test_crawler_crawl (CrawlerTest   *fixture,
+                    gconstpointer  data)
 {
+	TrackerDataProvider *data_provider;
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	gboolean started;
 	GFile *file;
 
-	test.main_loop = g_main_loop_new (NULL, FALSE);
-
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
@@ -130,26 +155,25 @@ test_crawler_crawl (void)
 
 	g_assert_cmpint (started, ==, 1);
 
-	g_main_loop_run (test.main_loop);
+	g_main_loop_run (fixture->main_loop);
 
-	g_assert_cmpint (test.interrupted, ==, 0);
+	g_assert_cmpint (fixture->interrupted, ==, 0);
 
-	g_main_loop_unref (test.main_loop);
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 static void
-test_crawler_crawl_interrupted (void)
+test_crawler_crawl_interrupted (CrawlerTest   *fixture,
+                                gconstpointer  data)
 {
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	gboolean started;
 	GFile *file;
 
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
@@ -159,20 +183,21 @@ test_crawler_crawl_interrupted (void)
 
 	tracker_crawler_stop (crawler);
 
-	g_assert_cmpint (test.interrupted, ==, 1);
+	g_assert_cmpint (fixture->interrupted, ==, 1);
 
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 static void
-test_crawler_crawl_nonexisting (void)
+test_crawler_crawl_nonexisting (CrawlerTest   *fixture,
+                                gconstpointer  data)
 {
 	TrackerCrawler *crawler;
 	GFile *file;
 	gboolean started;
 
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	file = g_file_new_for_path (TEST_DATA_DIR "-idontexist");
 
 	started = tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
@@ -184,167 +209,182 @@ test_crawler_crawl_nonexisting (void)
 }
 
 static void
-test_crawler_crawl_recursive (void)
+test_crawler_crawl_recursive (CrawlerTest   *fixture,
+                              gconstpointer  data)
 {
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	GFile *file;
 
-	test.main_loop = g_main_loop_new (NULL, FALSE);
-
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 	g_signal_connect (crawler, "directory-crawled",
-			  G_CALLBACK (crawler_directory_crawled_cb), &test);
+			  G_CALLBACK (crawler_directory_crawled_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
 	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
-	g_main_loop_run (test.main_loop);
+	g_main_loop_run (fixture->main_loop);
 
 	/* There are 4 directories and 5 (2 hidden) files */
-	g_assert_cmpint (test.directories_found, ==, 4);
-	g_assert_cmpint (test.directories_ignored, ==, 0);
-	g_assert_cmpint (test.files_found, ==, 5);
-	g_assert_cmpint (test.files_ignored, ==, 0);
+	g_assert_cmpint (fixture->directories_found, ==, 4);
+	g_assert_cmpint (fixture->directories_ignored, ==, 0);
+	g_assert_cmpint (fixture->files_found, ==, 5);
+	g_assert_cmpint (fixture->files_ignored, ==, 0);
 
-	g_main_loop_unref (test.main_loop);
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 static void
-test_crawler_crawl_non_recursive (void)
+test_crawler_crawl_non_recursive (CrawlerTest   *fixture,
+                                  gconstpointer  data)
 {
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	GFile *file;
 
-	test.main_loop = g_main_loop_new (NULL, FALSE);
-
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 	g_signal_connect (crawler, "directory-crawled",
-			  G_CALLBACK (crawler_directory_crawled_cb), &test);
+			  G_CALLBACK (crawler_directory_crawled_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
 	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, 1);
 
-	g_main_loop_run (test.main_loop);
+	g_main_loop_run (fixture->main_loop);
 
 	/* There are 3 directories (including parent) and 1 file in toplevel dir */
-	g_assert_cmpint (test.directories_found, ==, 3);
-	g_assert_cmpint (test.directories_ignored, ==, 0);
-	g_assert_cmpint (test.files_found, ==, 1);
-	g_assert_cmpint (test.files_ignored, ==, 0);
+	g_assert_cmpint (fixture->directories_found, ==, 3);
+	g_assert_cmpint (fixture->directories_ignored, ==, 0);
+	g_assert_cmpint (fixture->files_found, ==, 1);
+	g_assert_cmpint (fixture->files_ignored, ==, 0);
 
-	g_main_loop_unref (test.main_loop);
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 static void
-test_crawler_crawl_n_signals (void)
+test_crawler_crawl_n_signals (CrawlerTest   *fixture,
+                              gconstpointer  data)
 {
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	GFile *file;
 
-	test.main_loop = g_main_loop_new (NULL, FALSE);
-
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 	g_signal_connect (crawler, "directory-crawled",
-			  G_CALLBACK (crawler_directory_crawled_cb), &test);
+			  G_CALLBACK (crawler_directory_crawled_cb), fixture);
 	g_signal_connect (crawler, "check-directory",
-			  G_CALLBACK (crawler_check_directory_cb), &test);
+			  G_CALLBACK (crawler_check_directory_cb), fixture);
 	g_signal_connect (crawler, "check-directory-contents",
-			  G_CALLBACK (crawler_check_directory_contents_cb), &test);
+			  G_CALLBACK (crawler_check_directory_contents_cb), fixture);
 	g_signal_connect (crawler, "check-file",
-			  G_CALLBACK (crawler_check_file_cb), &test);
+			  G_CALLBACK (crawler_check_file_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
 	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, -1);
 
-	g_main_loop_run (test.main_loop);
+	g_main_loop_run (fixture->main_loop);
 
-	g_assert_cmpint (test.directories_found, ==, test.n_check_directory);
-	g_assert_cmpint (test.directories_found, ==, test.n_check_directory_contents);
-	g_assert_cmpint (test.files_found, ==, test.n_check_file);
+	g_assert_cmpint (fixture->directories_found, ==, fixture->n_check_directory);
+	g_assert_cmpint (fixture->directories_found, ==, fixture->n_check_directory_contents);
+	g_assert_cmpint (fixture->files_found, ==, fixture->n_check_file);
 
-	g_main_loop_unref (test.main_loop);
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 static void
-test_crawler_crawl_n_signals_non_recursive (void)
+test_crawler_crawl_n_signals_non_recursive (CrawlerTest   *fixture,
+                                            gconstpointer  data)
 {
 	TrackerCrawler *crawler;
-	CrawlerTest test = { 0 };
 	GFile *file;
 
-	setlocale (LC_ALL, "");
-
-	test.main_loop = g_main_loop_new (NULL, FALSE);
-
-	crawler = tracker_crawler_new (NULL);
+	crawler = tracker_crawler_new (fixture->data_provider);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb), &test);
+			  G_CALLBACK (crawler_finished_cb), fixture);
 	g_signal_connect (crawler, "directory-crawled",
-			  G_CALLBACK (crawler_directory_crawled_cb), &test);
+			  G_CALLBACK (crawler_directory_crawled_cb), fixture);
 	g_signal_connect (crawler, "check-directory",
-			  G_CALLBACK (crawler_check_directory_cb), &test);
+			  G_CALLBACK (crawler_check_directory_cb), fixture);
 	g_signal_connect (crawler, "check-directory-contents",
-			  G_CALLBACK (crawler_check_directory_contents_cb), &test);
+			  G_CALLBACK (crawler_check_directory_contents_cb), fixture);
 	g_signal_connect (crawler, "check-file",
-			  G_CALLBACK (crawler_check_file_cb), &test);
+			  G_CALLBACK (crawler_check_file_cb), fixture);
 
 	file = g_file_new_for_path (TEST_DATA_DIR);
 
 	tracker_crawler_start (crawler, file, TRACKER_DIRECTORY_FLAG_NONE, 1);
 
-	g_main_loop_run (test.main_loop);
+	g_main_loop_run (fixture->main_loop);
 
-	g_assert_cmpint (test.directories_found, ==, test.n_check_directory);
-	g_assert_cmpint (1, ==, test.n_check_directory_contents);
-	g_assert_cmpint (test.files_found, ==, test.n_check_file);
+	g_assert_cmpint (fixture->directories_found, ==, fixture->n_check_directory);
+	g_assert_cmpint (1, ==, fixture->n_check_directory_contents);
+	g_assert_cmpint (fixture->files_found, ==, fixture->n_check_file);
 
-	g_main_loop_unref (test.main_loop);
 	g_object_unref (crawler);
 	g_object_unref (file);
 }
 
 int
-main (int    argc,
-      char **argv)
+main (int argc, char **argv)
 {
+	setlocale (LC_ALL, "");
+
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing filesystem crawler");
 
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl",
-	                 test_crawler_crawl);
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-interrupted",
-	                 test_crawler_crawl_interrupted);
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-nonexisting",
-	                 test_crawler_crawl_nonexisting);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/normal",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl,
+	            test_crawler_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/interrupted",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_interrupted,
+	            test_crawler_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/non-existing",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_nonexisting,
+	            test_crawler_common_teardown);
 
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-recursive",
-	                 test_crawler_crawl_recursive);
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-non-recursive",
-	                 test_crawler_crawl_non_recursive);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/recursive",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_recursive,
+	            test_crawler_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/non-recursive",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_non_recursive,
+	            test_crawler_common_teardown);
 
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-n-signals",
-	                 test_crawler_crawl_n_signals);
-	g_test_add_func ("/libtracker-miner/tracker-crawler/crawl-n-signals-non-recursive",
-	                 test_crawler_crawl_n_signals_non_recursive);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/n-signals",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_n_signals,
+	            test_crawler_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-crawler/crawl/n-signals-non-recursive",
+	            CrawlerTest,
+	            NULL,
+	            test_crawler_common_setup,
+	            test_crawler_crawl_n_signals_non_recursive,
+	            test_crawler_common_teardown);
 
 	return g_test_run ();
 }
