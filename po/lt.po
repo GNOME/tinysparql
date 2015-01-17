@@ -4,15 +4,15 @@
 # This file is distributed under the same license as the tracker package.
 # Gintautas Miliauskas <gintas@akl.lt>, 2008.
 # Žygimantas Beručka <zygis@gnome.org>, 2009, 2010, 2013.
-# Aurimas Černius <aurisc4@gmail.com>, 2013, 2014.
+# Aurimas Černius <aurisc4@gmail.com>, 2013, 2014, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-09-10 10:47+0000\n"
-"PO-Revision-Date: 2014-09-10 20:35+0300\n"
+"POT-Creation-Date: 2015-01-17 11:52+0000\n"
+"PO-Revision-Date: 2015-01-17 21:53+0200\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -606,8 +606,8 @@ msgstr "Tikrina, ar FAILAS yra tinkamas apdorojimui pagal nustatymus"
 #: ../src/tracker-extract/tracker-main.c:93
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:73
-#: ../src/tracker-utils/tracker-info.c:74
+#: ../src/tracker-utils/tracker-info.c:79
+#: ../src/tracker-utils/tracker-info.c:80
 #: ../src/tracker-utils/tracker-sparql.c:102
 msgid "FILE"
 msgstr "FAILAS"
@@ -726,7 +726,7 @@ msgstr "Norint pridėti sklaidos kanalą reikia naudoti --add-feed ir --title"
 
 #: ../src/miners/rss/tracker-main.c:113
 #: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:389
+#: ../src/tracker-utils/tracker-info.c:395
 #: ../src/tracker-utils/tracker-search.c:1656
 #: ../src/tracker-utils/tracker-sparql.c:1120
 #: ../src/tracker-utils/tracker-stats.c:200
@@ -763,7 +763,7 @@ msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
 #: ../src/tracker-extract/tracker-extract.c:144
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker-utils/tracker-import.c:110
-#: ../src/tracker-utils/tracker-info.c:390
+#: ../src/tracker-utils/tracker-info.c:396
 #: ../src/tracker-utils/tracker-search.c:1657
 #: ../src/tracker-utils/tracker-sparql.c:1121
 #: ../src/tracker-utils/tracker-stats.c:201
@@ -1420,13 +1420,13 @@ msgid "Could not retrieve tracker-store progress"
 msgstr "Nepavyko gauti tracker-store eigos"
 
 #: ../src/tracker-control/tracker-control-status.c:523
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:153
 #: ../src/tracker-utils/tracker-sparql.c:184
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nepavyko gauti vardų srities priešdėlių"
 
 #: ../src/tracker-control/tracker-control-status.c:531
-#: ../src/tracker-utils/tracker-info.c:155
+#: ../src/tracker-utils/tracker-info.c:161
 #: ../src/tracker-utils/tracker-sparql.c:192
 msgid "No namespace prefixes were returned"
 msgstr "Nerasta vardų srities priešdėlių"
@@ -2116,12 +2116,22 @@ msgid "Control"
 msgstr "Valdymas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:54
+#| msgid ""
+#| "When resetting your indexed data, the databases are removed and your "
+#| "files will no longer be indexed. Upon next start, Tracker will then start "
+#| "indexing data as if it was being run for the first time.\n"
+#| "\n"
+#| "<b>Warning: All data indexed will be removed! It can not be retrieved!</"
+#| "b>\n"
+#| "\n"
+#| "Clicking this button will close the preferences too."
 msgid ""
 "When resetting your indexed data, the databases are removed and your files "
 "will no longer be indexed. Upon next start, Tracker will then start indexing "
 "data as if it was being run for the first time.\n"
 "\n"
-"<b>Warning: All data indexed will be removed! It can not be retrieved!</b>\n"
+"<b>Warning: All indexes and caches for your data will be removed! They can "
+"not be retrieved! Your REAL data and files will not be touched.</b>\n"
 "\n"
 "Clicking this button will close the preferences too."
 msgstr ""
@@ -2130,31 +2140,40 @@ msgstr ""
 "duomenis tarsi būtų paleistas pirmą kartą.\n"
 "\n"
 "<b>Įspėjimas: visi indeksuoti duomenys bus pašalinti! Jų nebebus galima "
-"atgauti!</b>\n"
+"atgauti! Jūsų TIKRIEJI duomenys ir failai nebus paliesti</b>\n"
 "\n"
 "Šio mygtuko paspaudimas taip pat užvers nustatymus."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all of my indexed data"
-msgstr "Taip, pašalinti visus mano indeksuotus duomenis"
+#| msgid "Yes, remove all of my indexed data"
+msgid "Yes, remove all indexes"
+msgstr "Taip, pašalinti visus mano indeksus"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:60
+msgid ""
+"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
+"able to quickly find your information and content."
+msgstr ""
+"Indeksas yra rikiuotos nuorodos į duomenis. Indeksai naudojami greitam "
+"informacijos bei turinio suradimui."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:61
 msgid "Reset Indexed Data"
 msgstr "Atstatyti indeksuotus duomenis"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
+#: ../src/tracker-preferences/tracker-preferences.ui.h:62
 msgid "_Delay"
 msgstr "_Delsa"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
+#: ../src/tracker-preferences/tracker-preferences.ui.h:63
 msgid "seconds"
 msgstr "sek."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
+#: ../src/tracker-preferences/tracker-preferences.ui.h:64
 msgid "Start up"
 msgstr "Paleidimas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
+#: ../src/tracker-preferences/tracker-preferences.ui.h:65
 msgid "System"
 msgstr "Sistema"
 
@@ -2270,7 +2289,7 @@ msgid "- Import data using Turtle files"
 msgstr "– Importuoti duomenis naudojant „Turtle“ failus"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:373
+#: ../src/tracker-utils/tracker-info.c:379
 msgid "One or more files have not been specified"
 msgstr "Nenurodytas vienas ar daugiau failų"
 
@@ -2291,7 +2310,13 @@ msgstr ""
 msgid "Show plain text content if available for resources"
 msgstr "Resursams rodyti grynojo teksto turinį, jei prieinamas"
 
-#: ../src/tracker-utils/tracker-info.c:65
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker-utils/tracker-info.c:71
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
@@ -2299,34 +2324,34 @@ msgstr ""
 "Užuot ieškojus failo pavadinimo, traktuoti failų argumentus kaip faktinius "
 "IRI (pvz. <file:///path/to/some/file.txt>)"
 
-#: ../src/tracker-utils/tracker-info.c:69
+#: ../src/tracker-utils/tracker-info.c:75
 msgid "Output results as RDF in Turtle format"
 msgstr "Išvesti rezultatus RDF „Turtle“ formatu"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:355
+#: ../src/tracker-utils/tracker-info.c:361
 msgid "- Get all information about one or more files"
 msgstr "– Gauti visą informaciją apie vieną ar daugiau failų"
 
-#: ../src/tracker-utils/tracker-info.c:411
+#: ../src/tracker-utils/tracker-info.c:417
 msgid "Querying information for entity"
 msgstr "Klausiamas informacijos apie esybę"
 
-#: ../src/tracker-utils/tracker-info.c:435
+#: ../src/tracker-utils/tracker-info.c:441
 msgid "Unable to retrieve URN for URI"
 msgstr "Nepavyko gauti URN URI adresui"
 
-#: ../src/tracker-utils/tracker-info.c:445
-#: ../src/tracker-utils/tracker-info.c:479
+#: ../src/tracker-utils/tracker-info.c:451
+#: ../src/tracker-utils/tracker-info.c:485
 msgid "Unable to retrieve data for URI"
 msgstr "Nepavyko gauti duomenų apie URI"
 
-#: ../src/tracker-utils/tracker-info.c:488
+#: ../src/tracker-utils/tracker-info.c:494
 msgid "No metadata available for that URI"
 msgstr "Nėra metaduomenų šiam URI"
 
-#: ../src/tracker-utils/tracker-info.c:493
+#: ../src/tracker-utils/tracker-info.c:499
 #: ../src/tracker-utils/tracker-search.c:1458
 #: ../src/tracker-utils/tracker-sparql.c:1483
 #: ../src/tracker-utils/tracker-sparql.c:1486
