@@ -1661,6 +1661,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 				                                    extractor->media_art_buffer_mime,
 				                                    extractor->media_art_artist,
 				                                    extractor->media_art_title,
+				                                    NULL,
 				                                    &error);
 			} else {
 				success = media_art_process_file (media_art_process,
@@ -1669,6 +1670,7 @@ tracker_extract_gstreamer (const gchar          *uri,
 				                                  tracker_extract_info_get_file (info),
 				                                  extractor->media_art_artist,
 				                                  extractor->media_art_title,
+				                                  NULL,
 				                                  &error);
 			}
 

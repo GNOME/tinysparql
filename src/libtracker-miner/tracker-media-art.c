@@ -96,16 +96,16 @@ on_query_finished (GObject      *source_object,
 		/* The get_path API does stripping itself */
 		media_art_get_path (artist,
 		                    album,
-		                    "album", NULL,
-		                    &target, NULL);
+		                    "album",
+		                    &target);
 
 		g_hash_table_replace (table, target, target);
 
 		/* Also add the file to which the symlinks are made */
 		media_art_get_path (NULL,
 		                    album,
-		                    "album", NULL,
-		                    &album_path, NULL);
+		                    "album",
+		                    &album_path);
 
 
 		g_hash_table_replace (table, album_path, album_path);

@@ -231,7 +231,7 @@ NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=0.89
-LIBMEDIAART_REQUIRED=0.5.0
+LIBMEDIAART_REQUIRED=1.9.0
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -1107,7 +1107,7 @@ AC_ARG_ENABLE(libmediaart,
 
 if test "x$enable_libmediaart" != "xno" ; then
    PKG_CHECK_MODULES(LIBMEDIAART,
-                     [libmediaart-1.0 >= $LIBMEDIAART_REQUIRED],
+                     [libmediaart-2.0 >= $LIBMEDIAART_REQUIRED],
                      [have_libmediaart=yes],
                      [have_libmediaart=no])
 
@@ -1124,7 +1124,7 @@ if test "x$enable_libmediaart" != "xno" ; then
    TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $LIBMEDIAART_LIBS"
 
    # Used for .pc file...
-   LIBTRACKER_MINER_PC_REQUIRES="libmediaart-1.0"
+   LIBTRACKER_MINER_PC_REQUIRES="libmediaart-2.0"
    AC_SUBST(LIBTRACKER_MINER_PC_REQUIRES)
 
    if test "x$have_libmediaart" = "xyes"; then

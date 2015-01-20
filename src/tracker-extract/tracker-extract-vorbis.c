@@ -527,6 +527,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                                  file,
 		                                  vd.album_artist ? vd.album_artist : vd.artist,
 		                                  vd.album,
+		                                  NULL,
 		                                  &error);
 
 		if (!success || error) {
