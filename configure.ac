@@ -243,7 +243,8 @@ LIBMEDIAART_REQUIRED=1.9.0
 # 3.6.17 for shared cache mode with virtual tables
 # 3.7.0 for WAL
 # 3.7.9 for FTS4 content= support
-SQLITE_REQUIRED=3.7.9
+# 3.7.15 for sqlite3_errstr() support
+SQLITE_REQUIRED=3.7.15
 
 # Needed to generate .gir files,
 # see http://live.gnome.org/GnomeGoals/AddGObjectIntrospectionSupport
