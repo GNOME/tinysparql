@@ -31,7 +31,6 @@
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
 #include "tracker-file-notifier.h"
-#include "tracker-storage.h"
 
 /* If defined will print the tree from GNode while running */
 #ifdef CRAWLED_TREE_ENABLE_TRACE
@@ -3306,7 +3305,7 @@ tracker_miner_fs_mount_add (TrackerMinerFS *fs,
 		/* Create a nfo:Folder for the mount point */
 		g_message ("Mount point '%s' does not exist in store, need to create it", mount_uri);
 		g_string_append_printf (queries,
-		                        "INSERT SILENT INTO <" TRACKER_MINER_FS_GRAPH_URN "> {"
+		                        "INSERT SILENT INTO <" TRACKER_OWN_GRAPH_URN "> {"
 		                        " _:file a nfo:FileDataObject, nie:InformationElement, nfo:Folder ; "
 		                        "        nie:isStoredAs _:file ; "
 		                        "        nie:url \"%s\" ; "
@@ -3320,7 +3319,7 @@ tracker_miner_fs_mount_add (TrackerMinerFS *fs,
 	g_return_if_fail (uuid != NULL);
 
 	/* Freed in set_up_mount_point_cb() */
-	urn = g_strconcat (TRACKER_DATASOURCE_URN_PREFIX, uuid, NULL);
+	urn = g_strconcat (TRACKER_PREFIX_DATASOURCE_URN, uuid, NULL);
 	type = tracker_storage_get_type_for_uuid (storage, uuid);
 
 	g_string_append_printf (queries,
