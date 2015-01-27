@@ -17,6 +17,7 @@ libtracker_common_la_SOURCES = \
 	tracker-ioprio.c \
 	tracker-log.c \
 	tracker-sched.c \
+	tracker-storage.c \
 	tracker-type-utils.c \
 	tracker-utils.c \
 	tracker-locale.c \
@@ -32,6 +33,7 @@ noinst_HEADERS = \
 	tracker-date-time.h \
 	tracker-file-utils.h \
 	tracker-sched.h \
+	tracker-storage.h \
 	tracker-type-utils.h \
 	tracker-utils.h \
 	tracker-locale.h \
