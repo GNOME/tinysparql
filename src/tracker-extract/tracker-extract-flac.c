@@ -96,6 +96,8 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
 			fd->tracknumber = g_strdup (entry.entry + 12);
 		} else if (g_ascii_strncasecmp (entry.entry, "discno", 6) == 0) {
 			fd->discno = g_strdup (entry.entry + 7);
+                } else if (fd->discno == NULL && g_ascii_strncasecmp(entry.entry, "discnumber", 10) == 0) {
+                        fd->discno = g_strdup (entry.entry + 11);
 		} else if (g_ascii_strncasecmp (entry.entry, "performer", 9) == 0) {
 			/* FIXME: Handle multiple instances of performer */
 			if (fd->performer == NULL) {
