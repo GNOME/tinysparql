@@ -138,6 +138,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		vd.track_count = ogg_get_comment (comment, "trackcount");
 		vd.track_number = ogg_get_comment (comment, "tracknumber");
 		vd.disc_number = ogg_get_comment (comment, "DiscNo");
+                if (vd.disc_number == NULL)
+                        vd.disc_number = ogg_get_comment (comment, "DiscNumber");
 		vd.performer = ogg_get_comment (comment, "Performer");
 		vd.track_gain = ogg_get_comment (comment, "TrackGain");
 		vd.track_peak_gain = ogg_get_comment (comment, "TrackPeakGain");
