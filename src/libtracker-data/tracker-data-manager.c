@@ -3206,14 +3206,15 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 
 				/* Function does what it must do, so reusable atm */
 				range_change_for (property, n_in_col_sql, n_sel_col_sql, field_name);
-			
-			    /* Columns happen to be the same for decomposed multi-value and single value atm */
+
+                                /* Columns happen to be the same for decomposed multi-value and single value atm */
 
 				query = g_strdup_printf ("INSERT INTO \"%s_%s\"(%s) "
-				                         "SELECT %s FROM \"%s_TEMP\"",
+				                         "SELECT %s FROM \"%s_TEMP\" "
+				                         "WHERE ID IS NOT NULL AND \"%s\" IS NOT NULL",
 				                         service_name, field_name,
-										 n_in_col_sql->str, n_sel_col_sql->str,
-				                         service_name);
+				                         n_in_col_sql->str, n_sel_col_sql->str,
+				                         service_name, field_name);
 
 				g_string_free (n_in_col_sql, TRUE);
 				g_string_free (n_sel_col_sql, TRUE);
