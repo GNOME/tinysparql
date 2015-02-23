@@ -36,6 +36,7 @@ public class Tracker.Needle {
 	private SeparatorToolItem separator_secondary;
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
+	private ToggleToolButton find_in_tags;
 	private ToggleToolButton find_in_all;
 	private ToolItem search_entry;
 	private ComboBox search_list;
@@ -63,6 +64,7 @@ public class Tracker.Needle {
 
 	private ResultStore categories_model;
 	private ResultStore files_model;
+	private ResultStore files_in_tags_model;
 	private ResultStore files_in_title_model;
 	private ResultStore images_model;
 	private ResultStore images_in_title_model;
@@ -170,6 +172,19 @@ public class Tracker.Needle {
 		                                "nfo:fileSize(?urn)",
 		                                "nfo:fileLastModified(?urn)",
 		                                "nie:url(?urn)");
+
+		files_in_tags_model = new ResultStore(7);
+		files_in_tags_model.limit = limit;
+		files_in_tags_model.result_overflow.connect (result_overflow);
+		files_in_tags_model.add_query (Tracker.Query.Type.ALL,
+		                       Tracker.Query.Match.TAGS_ONLY,
+		                       "?urn",
+		                       "nie:url(?urn)",
+		                       "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                       "nie:url(?urn)",
+		                       "nfo:fileSize(?urn)",
+		                       "nfo:fileLastModified(?urn)",
+		                       "nie:url(?urn)");
 
 		// Images model
 		images_model = new ResultStore (6);
@@ -307,6 +322,11 @@ public class Tracker.Needle {
 		find_in_titles.toggled.connect (find_in_toggled);
 		find_in_titles.get_accessible().set_name("Find in Titles");
 		find_in_titles.get_child().get_accessible().set_name("Find in Titles");
+
+		find_in_tags = builder.get_object ("toolbutton_find_in_tags") as ToggleToolButton;
+		find_in_tags.toggled.connect (find_in_toggled);
+		find_in_tags.get_accessible().set_name("Find in Tags");
+		find_in_tags.get_child().get_accessible().set_name("Find in Tags");
 
 		find_in_all = builder.get_object ("toolbutton_find_in_all") as ToggleToolButton;
 		find_in_all.toggled.connect (find_in_toggled);
@@ -524,7 +544,11 @@ public class Tracker.Needle {
 			sw_filelist.show ();
 			current_view = sw_filelist;
 
-			if (find_in_contents.active) {
+			if (find_in_tags.active) {
+				store = files_in_tags_model;
+				store.search_tags = search_tags();
+				debug("Tags to look for: %s", string.joinv("; ", store.search_tags.data));
+			} else if (find_in_contents.active) {
 				store = files_model;
 			} else {
 				store = files_in_title_model;
@@ -537,7 +561,10 @@ public class Tracker.Needle {
 
 		if (store != null) {
 			// We can set tags to search by but we don't anymore
-			store.search_tags = null;
+			// except if user want explecitly search by tags only.
+			if (!find_in_tags.active) {
+				store.search_tags = null;
+			}
 			store.search_term = search.get_text ();
 		}
 
@@ -575,6 +602,7 @@ public class Tracker.Needle {
 		separator_secondary.visible = view_filelist.active || view_icons.active;
 		find_in_contents.visible = view_filelist.active;
 		find_in_titles.visible = view_filelist.active || view_icons.active;
+		find_in_tags.visible = view_filelist.active;
 		find_in_all.visible = view_icons.active; // only show this in one view
 
 		search_run ();
@@ -584,6 +612,7 @@ public class Tracker.Needle {
 	private void find_in_toggled () {
 		if (!find_in_contents.active &&
 		    !find_in_titles.active &&
+		    !find_in_tags.active &&
 		    !find_in_all.active) {
 		    return;
 		}
@@ -596,6 +625,11 @@ public class Tracker.Needle {
 			}
 
 			search_run ();
+		} else if (find_in_tags.active){
+			debug ("Find in toggled to 'tags'");
+
+			search_entry.sensitive = true;
+			search_run();
 		} else if (find_in_titles.active) {
 			debug ("Find in toggled to 'titles'");
 
@@ -715,6 +749,16 @@ public class Tracker.Needle {
 
 	private void info_bar_closed (Button source) {
 		info_bar.hide ();
+	}
+
+	private GLib.GenericArray<string> search_tags(){
+		GLib.GenericArray<string> tagArray = new GLib.GenericArray<string>();
+
+		foreach (string tag in search.get_text ().split(",")){
+			tagArray.add(tag) ;
+		}
+
+		return tagArray;
 	}
 }
 
