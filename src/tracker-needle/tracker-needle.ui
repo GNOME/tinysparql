@@ -112,6 +112,21 @@
               </packing>
             </child>
             <child>
+              <object class="GtkRadioToolButton" id="toolbutton_find_in_tags">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Find search criteria in file tags only (separated by comma)</property>
+                <property name="use_action_appearance">False</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-index</property>
+                <property name="group">toolbutton_find_in_contents</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkRadioToolButton" id="toolbutton_find_in_all">
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
