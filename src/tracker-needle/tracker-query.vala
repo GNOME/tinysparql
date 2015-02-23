@@ -264,7 +264,8 @@ public class Tracker.Query {
 		if ((query_type != Type.MUSIC && query_type != Type.DOCUMENTS) &&
 			!(match_type == Match.NONE ||
 			  match_type == Match.FTS ||
-			  match_type == Match.TITLES)) {
+			  match_type == Match.TITLES ||
+			  match_type == Match.TAGS_ONLY)) {
 			critical ("You can not use a non-MUSIC or non-DOCUMENTS query (%d) with INDIRECT matching (%d)", query_type, match_type);
 			return false;
 		}
