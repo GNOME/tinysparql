@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-14 18:23+0000\n"
-"PO-Revision-Date: 2015-02-15 12:44+0100\n"
+"POT-Creation-Date: 2015-02-28 12:09+0000\n"
+"PO-Revision-Date: 2015-02-28 21:30+0100\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -1422,6 +1422,8 @@ msgid ""
 "An 'index' is an ordered referenced to a piece of data. We use indexes to be able to quickly find your information and "
 "content."
 msgstr ""
+"Pod pojmom „index“ sa myslia odkazy na jednotlivé časti údajov. Indexy sa používajú na rýchle nájdenie vašich informácií a "
+"obsahu."
 
 # GtkLabel
 #: ../src/tracker-preferences/tracker-preferences.ui.h:61
@@ -2146,13 +2148,15 @@ msgstr "Obnoví alebo odstráni index a navráti konfigurácie do predvoleného 
 msgid "Search for content indexed or show content by type"
 msgstr "Vyhľadá v indexovanom obsahu alebo zobrazí obsah podľa typu"
 
+# cmd desc
 #: ../src/tracker/tracker-main.c:103
 msgid "Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
+msgstr "Uskutoční dopyt a aktualizáciu indexu použitím SPARQL, alebo vyhľadá, vypíše zoznam a strom ontológie"
 
+# cmd desc
 #: ../src/tracker/tracker-main.c:104
 msgid "Query the database at the lowest level using SQL"
-msgstr ""
+msgstr "Uskutoční dopyt databázy na najnižšej úrovni pomocou SQL"
 
 #: ../src/tracker/tracker-main.c:105
 msgid "Show the indexing progress, content statistics and index state"
@@ -2568,7 +2572,6 @@ msgstr "Neboli nájdené žiadne predpony menných priestorov"
 #: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552 ../src/tracker/tracker-status.c:251
 #: ../src/tracker/tracker-tag.c:323 ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
-#, fuzzy
 msgid "None"
 msgstr "Nič"
 
