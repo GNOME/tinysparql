@@ -1,3 +1,13 @@
+NEW in 1.3.4 - 2015-03-03
+=========================
+
+  * Fixed playlists being processed by tracker-extract
+  * Fixes: #743727, Account for cardinality=0 on DB migration
+  * Fixes: #745219, mp3 passes album instead of song title to libmediaart
+
+Translations: zh_TW, sk, eo, nb, lt, eu, po
+
+
 NEW in 1.3.3 - 2015-02-05
 =========================
 
