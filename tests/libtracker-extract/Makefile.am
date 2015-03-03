@@ -13,8 +13,9 @@ test_programs += tracker-exif-test
 endif
 
 if HAVE_IPTC
-# This test also requires libjpeg...
+if HAVE_LIBJPEG
 test_programs += tracker-iptc-test
+endif
 endif
 
 if HAVE_ENCA
