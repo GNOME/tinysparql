@@ -106,6 +106,7 @@ public class Tracker.Store {
 				var query_task = (QueryTask) task;
 				query_task.watchdog_id = Timeout.add_seconds (max_task_time, () => {
 					query_task.cancellable.cancel ();
+					query_task.watchdog_id = 0;
 					return false;
 				});
 			}
