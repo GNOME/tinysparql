@@ -79,4 +79,7 @@ uninstall-hook:
 completiondir = $(sysconfdir)/bash_completion.d
 completion_DATA = tracker-prompt.sh
 
-EXTRA_DIST = $(completion_DATA) tracker-compat
+tracker-compat: tracker-compat.in
+	$(AM_V_at)sed -e "s|@bindir[@]|${bindir}|" $< > $@
+
+EXTRA_DIST = $(completion_DATA) tracker-compat.in
