@@ -83,3 +83,4 @@ tracker-compat: tracker-compat.in
 	$(AM_V_at)sed -e "s|@bindir[@]|${bindir}|" $< > $@
 
 EXTRA_DIST = $(completion_DATA) tracker-compat.in
+CLEANFILES = tracker-compat
