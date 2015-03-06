@@ -2904,7 +2904,7 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			                                           service_name,
 			                                           service,
 			                                           &sql_type_for_single_value,
-			                                           in_update,
+			                                           in_alter,
 			                                           in_change,
 			                                           &internal_error);
 
