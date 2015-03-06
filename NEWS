@@ -1,3 +1,13 @@
+NEW in 1.3.4 - 2015-03-06
+=========================
+
+  * Fix major database migration bug, skip Tracker 1.3.4. (#745737)
+  * Build only libiptc test if libjpeg is enabled (#745583)
+  * Put absolute path in shell script (#743738)
+
+Translations: ru
+
+
 NEW in 1.3.4 - 2015-03-03
 =========================
 
