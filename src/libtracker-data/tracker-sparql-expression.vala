@@ -678,6 +678,22 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (")");
 
 			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "replace") {
+			sql.append ("replace(");
+			translate_expression_as_string (sql);
+			sql.append (", ");
+
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+			sql.append (", ");
+
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+
+			// FIXME: No regex (nor its modifier flags) support
+			sql.append (")");
+
+			return PropertyType.STRING;
 		} else if (uri == FTS_NS + "rank") {
 			bool is_var;
 			string v = pattern.parse_var_or_term (null, out is_var);
