@@ -54,10 +54,10 @@ public class Tracker.Preferences {
 	private RadioButton radiobutton_sched_idle_first_index;
 	private RadioButton radiobutton_sched_idle_never;
 	private Scale hscale_drop_device_threshold;
-	private ListStore liststore_index;
-	private ListStore liststore_ignored_directories;
-	private ListStore liststore_ignored_files;
-	private ListStore liststore_ignored_directories_with_content;
+	private Gtk.ListStore liststore_index;
+	private Gtk.ListStore liststore_ignored_directories;
+	private Gtk.ListStore liststore_ignored_files;
+	private Gtk.ListStore liststore_ignored_directories_with_content;
 	private TreeView treeview_index;
 	private TreeView treeview_ignored_directories;
 	private TreeView treeview_ignored_directories_with_content;
@@ -169,11 +169,11 @@ public class Tracker.Preferences {
 		treeview_setup (treeview_ignored_directories_with_content, _("Directory"), false, true);
 		treeview_setup (treeview_ignored_files, _("File"), false, true);
 
-		liststore_index = builder.get_object ("liststore_index") as ListStore;
+		liststore_index = builder.get_object ("liststore_index") as Gtk.ListStore;
 		liststore_index.set_sort_column_id (0, Gtk.SortType.ASCENDING);
-		liststore_ignored_directories = builder.get_object ("liststore_ignored_directories") as ListStore;
-		liststore_ignored_files = builder.get_object ("liststore_ignored_files") as ListStore;
-		liststore_ignored_directories_with_content = builder.get_object ("liststore_ignored_directories_with_content") as ListStore;
+		liststore_ignored_directories = builder.get_object ("liststore_ignored_directories") as Gtk.ListStore;
+		liststore_ignored_files = builder.get_object ("liststore_ignored_files") as Gtk.ListStore;
+		liststore_ignored_directories_with_content = builder.get_object ("liststore_ignored_directories_with_content") as Gtk.ListStore;
 
 		// Set initial values
 		checkbutton_enable_index_on_battery.active = settings_miner_fs.get_boolean ("index-on-battery");
@@ -518,7 +518,7 @@ public class Tracker.Preferences {
 		suggest_reindex = true;
 	}
 
-	private void togglebutton_directory_update_model (ToggleButton source, ListStore store, string to_check) {
+	private void togglebutton_directory_update_model (ToggleButton source, Gtk.ListStore store, string to_check) {
 		if (source.active && !model_contains (store, to_check)) {
 			TreeIter iter;
 			liststore_index.append (out iter);
@@ -632,7 +632,7 @@ public class Tracker.Preferences {
 		}
 	}
 
-	private void store_add_value_dialog (ListStore store) {
+	private void store_add_value_dialog (Gtk.ListStore store) {
 		Dialog dialog;
 		Entry entry;
 		Container content_area;
@@ -665,7 +665,7 @@ public class Tracker.Preferences {
 		dialog.destroy ();
 	}
 
-	private void store_add_dir (ListStore store) {
+	private void store_add_dir (Gtk.ListStore store) {
 		FileChooserDialog dialog = new FileChooserDialog (_("Select directory"),
 		                                                  window,
 		                                                  FileChooserAction.SELECT_FOLDER,
@@ -720,13 +720,13 @@ public class Tracker.Preferences {
 
 	private void store_del_dir (TreeView view) {
 		List<TreePath> list;
-		ListStore store;
+		Gtk.ListStore store;
 		TreeModel model;
 
 		TreeSelection selection = view.get_selection ();
 		list = selection.get_selected_rows (out model);
 
-		store = (ListStore) model;
+		store = (Gtk.ListStore) model;
 
 		foreach (TreePath path in list) {
 			TreeIter iter;
@@ -825,7 +825,7 @@ public class Tracker.Preferences {
 		return output;
 	}
 
-	private string[] model_to_strv (ListStore model, bool recurse_required, bool recurse_value) {
+	private string[] model_to_strv (Gtk.ListStore model, bool recurse_required, bool recurse_value) {
 		string[] list = {};
 		TreeIter iter;
 		bool valid;
@@ -877,7 +877,7 @@ public class Tracker.Preferences {
 		return false;
 	}
 
-	private void model_populate (ListStore model, string[] list, bool have_recurse, bool recurse) {
+	private void model_populate (Gtk.ListStore model, string[] list, bool have_recurse, bool recurse) {
 		int position = 0;
 
 		foreach (string s in list) {
@@ -946,7 +946,7 @@ public class Tracker.Preferences {
 		view.append_column (column);
 
 		if (show_recurse_column) {
-			ListStore store = view.get_model () as ListStore;
+			Gtk.ListStore store = view.get_model () as Gtk.ListStore;
 			CellRendererToggle cell = new CellRendererToggle ();
 
 			column = new TreeViewColumn.with_attributes (_("Recurse"),
