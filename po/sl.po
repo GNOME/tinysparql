@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-24 12:07+0000\n"
-"PO-Revision-Date: 2015-03-07 21:00+0100\n"
+"POT-Creation-Date: 2015-03-15 12:04+0000\n"
+"PO-Revision-Date: 2015-03-15 20:18+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -412,7 +412,7 @@ msgstr "Tracker program za podatkovno rudarjenje"
 
 #: ../data/tracker-miner-apps.desktop.in.in.h:2
 msgid "Indexes information about applications installed"
-msgstr ""
+msgstr "Indeksirane podrobnosti o nameščenih programih"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -435,7 +435,6 @@ msgid "Tracker User Guides Miner"
 msgstr "Uporabniški vodnik za podatkovno rudarjenje Tracker"
 
 #: ../data/tracker-miner-user-guides.desktop.in.in.h:2
-#, fuzzy
 msgid "Crawls and processes user guides in shared areas"
 msgstr "Koplje in obdela datoteke datotečnega sistema"
 
@@ -567,7 +566,6 @@ msgstr ""
 
 #: ../src/miners/apps/tracker-main.c:61
 #: ../src/miners/user-guides/tracker-main.c:61
-#, fuzzy
 msgid "Runs until all applications are indexed and then exits"
 msgstr ""
 "Izvaja se dokler niso pripravljena kazala vseh nastavljenih mest in se nato "
@@ -835,7 +833,7 @@ msgstr "Ni mogoče pridobiti povezave vodila D-Bus"
 
 #: ../src/tracker-control/tracker-control.c:91
 msgid "Could not create D-Bus proxy to tracker-store"
-msgstr ""
+msgstr "Ni mogoče ustvariti posredniškega vodila D-Bus za tracker-store"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -959,7 +957,7 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-general.c:478
 msgid "Only one of 'all', 'store' and 'miners' options are allowed"
-msgstr ""
+msgstr "Dovoljene so le možnosti 'vse', 'shrani' in 'rudarji'"
 
 #: ../src/tracker-control/tracker-control-general.c:554
 msgid "Could not stat() file"
@@ -975,7 +973,7 @@ msgstr "Podrobnosti diska"
 
 #: ../src/tracker-control/tracker-control-general.c:609
 msgid "Remaining space on database partition"
-msgstr ""
+msgstr "Preostali prostor na razdelku podatkovne zbirke"
 
 #. 3. Size of dataset (tracker-stats), size of databases
 #: ../src/tracker-control/tracker-control-general.c:616
@@ -1411,6 +1409,8 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
+"Spremljanje sprememb v podatkovni zbirki v realnem času (na primer dodajanje "
+"datotek ali virov)"
 
 #: ../src/tracker-control/tracker-control-status.c:86
 msgid "ONTOLOGY"
@@ -1474,6 +1474,7 @@ msgstr "Ni mogoče zagnati poizvedba SPARQL"
 #: ../src/tracker-control/tracker-control-status.c:650
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
 msgstr ""
+"Ni mogoče poklicati ukaza tracker_sparql_cursor_next() za poizvedbo SPARQL"
 
 #: ../src/tracker-control/tracker-control-status.c:815
 msgid "Could not get SPARQL connection"
@@ -1481,11 +1482,11 @@ msgstr "Ni mogoče pridobiti povezave SPARQL"
 
 #: ../src/tracker-control/tracker-control-status.c:847
 msgid "Now listening for resource updates to the database"
-msgstr ""
+msgstr "Poslušanje posodobitev virov podatkovne zbirke"
 
 #: ../src/tracker-control/tracker-control-status.c:848
 msgid "All nie:plainTextContent properties are omitted"
-msgstr ""
+msgstr "Vse ne: izpuščene so lastnosti besedilnih podatkov"
 
 #: ../src/tracker-control/tracker-control-status.c:863
 msgid "Common statuses include"
@@ -2031,6 +2032,8 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
+"Indeksirana vsebina odstranljivih naprav, ki niso priklopljene, je "
+"počiščena, da se podatki in neuporabni viri ne kopičijo brez potrebe."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Days before deleting removable devices:"
@@ -2153,14 +2156,12 @@ msgid "Ignored Content"
 msgstr "Prezrta vsebina"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
-#, fuzzy
 msgid "Index content of _files found"
-msgstr "Datotek sheme ni mogoče najti:"
+msgstr "Najdena je vsebina kazala _datotek"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
-#, fuzzy
 msgid "Index _numbers"
-msgstr "Številke vrstic"
+msgstr "Številke _kazala"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
 msgid "What is indexed?"
@@ -2199,6 +2200,8 @@ msgid ""
 "An 'index' is an ordered referenced to a piece of data. We use indexes to be "
 "able to quickly find your information and content."
 msgstr ""
+"Indeks je urejen slik do podatka. S kazali je mogoče pohitriti iskanje "
+"informacij v vsebini."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:61
 msgid "Reset Indexed Data"
@@ -2231,19 +2234,20 @@ msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
 msgstr ""
+"Spremembe, ki ste jih naredili med možnostmi zahtevajo ponovno ustvarjanje "
+"kazala. Le tako je mogoče  zagotoviti pravilno delovanje iskalnika."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:358
 msgid "This will close this dialog!"
 msgstr "S tem boste zaprli to pogovorno okno!"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:359
-#, fuzzy
 msgid "Would you like to reindex now?"
-msgstr "Vnesite naslov datoteke, ki jo želite odpreti:"
+msgstr "Ali želite ponovno ustvariti kazalo?"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:361
 msgid "Reindex"
-msgstr ""
+msgstr "Posodobi kazalo"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:362
 #: ../src/tracker-preferences/tracker-preferences.vala:385
@@ -2254,7 +2258,7 @@ msgstr "Ne naredi ničesar"
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
-msgstr ""
+msgstr "Spremembe zahtevajo ponoven zagon opravil trackerja."
 
 #: ../src/tracker-preferences/tracker-preferences.vala:382
 msgid "Would you like to restart now?"
@@ -2361,6 +2365,8 @@ msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
+"Namesto iskanja imena datoteke, upravljaj s potmi IRIs (na primer <file:///"
+"path/to/some/file.txt>)"
 
 #: ../src/tracker-utils/tracker-info.c:75
 msgid "Output results as RDF in Turtle format"
@@ -2929,6 +2935,8 @@ msgid ""
 "Show statistics about ALL RDF classes, not just common ones which is the "
 "default (implied by search terms)"
 msgstr ""
+"Pokaži statistiko vseh razredov RDF in ne le splošne, kot je to privzeto "
+"določeno (preko iskalnih pojmov)"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
