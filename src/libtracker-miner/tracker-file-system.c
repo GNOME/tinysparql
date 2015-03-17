@@ -839,10 +839,11 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 	}
 }
 
-gpointer
-tracker_file_system_get_property (TrackerFileSystem *file_system,
-                                  GFile             *file,
-                                  GQuark             prop)
+gboolean
+tracker_file_system_get_property_full (TrackerFileSystem *file_system,
+                                       GFile             *file,
+                                       GQuark             prop,
+                                       gpointer          *prop_data)
 {
 	FileNodeData *data;
 	FileNodeProperty property, *match;
@@ -862,7 +863,26 @@ tracker_file_system_get_property (TrackerFileSystem *file_system,
 	                 data->properties->len, sizeof (FileNodeProperty),
 	                 search_property_node);
 
-	return (match) ? match->value : NULL;
+	if (prop_data)
+		*prop_data = (match) ? match->value : NULL;
+
+	return match != NULL;
+}
+
+gpointer
+tracker_file_system_get_property (TrackerFileSystem *file_system,
+                                  GFile             *file,
+                                  GQuark             prop)
+{
+	gpointer data;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
+	g_return_val_if_fail (file != NULL, NULL);
+	g_return_val_if_fail (prop > 0, NULL);
+
+	tracker_file_system_get_property_full (file_system, file, prop, &data);
+
+	return data;
 }
 
 void

@@ -94,6 +94,11 @@ void      tracker_file_system_unset_property (TrackerFileSystem  *file_system,
                                               GFile              *file,
                                               GQuark              prop);
 
+gboolean  tracker_file_system_get_property_full (TrackerFileSystem *file_system,
+                                                 GFile             *file,
+                                                 GQuark             prop,
+                                                 gpointer          *data);
+
 G_END_DECLS
 
 #endif /* __TRACKER_FILE_SYSTEM_H__ */

@@ -1672,6 +1672,7 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	TrackerFileNotifierPrivate *priv;
 	GFile *canonical;
 	gchar *iri = NULL;
+	gboolean found;
 
 	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
@@ -1685,9 +1686,21 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 		return NULL;
 	}
 
-	iri = tracker_file_system_get_property (priv->file_system,
-	                                        canonical,
-	                                        quark_property_iri);
+	found = tracker_file_system_get_property_full (priv->file_system,
+	                                               canonical,
+	                                               quark_property_iri,
+	                                               (gpointer *) &iri);
+
+	if (found && !iri) {
+		/* NULL here mean the file iri was "invalidated", the file
+		 * was inserted by a previous event, so it has an unknown iri,
+		 * and further updates are keeping the file object alive.
+		 *
+		 * When these updates are processed, they'll need fetching the
+		 * file IRI again, so we force here extraction for these cases.
+		 */
+		force = TRUE;
+	}
 
 	if (!iri && force) {
 		TrackerSparqlCursor *cursor;
@@ -1710,4 +1723,30 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	}
 
 	return iri;
+}
+
+void
+tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
+                                           GFile               *file)
+{
+	TrackerFileNotifierPrivate *priv;
+	GFile *canonical;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	priv = notifier->priv;
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          file,
+	                                          G_FILE_TYPE_REGULAR,
+	                                          NULL);
+	if (!canonical) {
+		return;
+	}
+
+	/* Set a NULL iri, so we make sure to look it up afterwards */
+	tracker_file_system_set_property (priv->file_system,
+	                                  canonical,
+	                                  quark_property_iri,
+	                                  NULL);
 }
