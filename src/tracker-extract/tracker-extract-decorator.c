@@ -216,7 +216,13 @@ get_metadata_cb (TrackerExtract *extract,
 		GError *error = NULL;
 
 		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), &error);
-		g_task_return_error (task, error);
+
+		if (!error || error->domain == TRACKER_EXTRACT_ERROR) {
+			g_message ("Extraction failed: %s\n", error->message);
+			g_task_return_boolean (task, FALSE);
+		} else {
+			g_task_return_error (task, error);
+		}
 	} else {
 		decorator_save_info (g_task_get_task_data (task),
 		                     TRACKER_EXTRACT_DECORATOR (data->decorator),
