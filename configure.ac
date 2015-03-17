@@ -2633,7 +2633,6 @@ AC_CONFIG_FILES([
 	src/tracker/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-preferences/Makefile
-	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-needle/Makefile
 	src/tracker-needle/icons/Makefile
 	src/tracker-needle/icons/16x16/Makefile
@@ -2642,7 +2641,6 @@ AC_CONFIG_FILES([
 	src/tracker-needle/icons/32x32/Makefile
 	src/tracker-needle/icons/48x48/Makefile
 	src/tracker-needle/icons/scalable/Makefile
-	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile

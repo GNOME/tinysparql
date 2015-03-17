@@ -36,9 +36,15 @@ tracker_preferences_SOURCES =                          \
 	$(top_srcdir)/src/miners/fs/tracker-config.c
 
 EXTRA_DIST =                                           \
+	$(desktop_DATA:.desktop=.desktop.in.in)        \
 	$(pkgdata_DATA)                                \
 	$(appdata_DATA)                                \
 	config.vapi                                    \
 	tracker-config.vapi
 
-CLEANFILES = $(desktop_DATA)
+CLEANFILES =                                           \
+	$(desktop_DATA)                                \
+	$(desktop_DATA:.desktop=.desktop.in)
+
+%.desktop.in: %.desktop.in.in
+	@sed -e "s|@VERSION[@]|${VERSION}|" $< > $@

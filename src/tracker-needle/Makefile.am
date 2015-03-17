@@ -50,11 +50,15 @@ BUILT_SOURCES = \
 	tracker_needle_vala.stamp
 
 CLEANFILES = \
+	$(desktop_DATA:.desktop=.desktop.in) \
 	$(desktop_DATA)
 
 EXTRA_DIST = \
+	$(desktop_DATA:.desktop=.desktop.in.in) \
 	$(ui_DATA) \
 	$(desktop_DATA) \
 	$(appdata_DATA) \
 	config.vapi
 
+%.desktop.in: %.desktop.in.in
+	@sed -e "s|@VERSION[@]|${VERSION}|" $< > $@
