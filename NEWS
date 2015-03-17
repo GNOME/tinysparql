@@ -1,4 +1,16 @@
-NEW in 1.3.4 - 2015-03-06
+NEW in 1.3.6 - 2015-03-17
+=========================
+
+  * Fix spurious folder deletes/reindexes (#741852)
+  * Fix nie:url UNIQUE constraint asserts on downloaded files (RH#1192224)
+  * Clear tracker-store watchdog timeout (#745565)
+  * Support fn:replace (#745917)
+  * Spam stderr less for not-so-uncommon error conditions (#746256)
+
+Translations: ko, bs, sr, sl, da
+
+
+NEW in 1.3.5 - 2015-03-06
 =========================
 
   * Fix major database migration bug, skip Tracker 1.3.4. (#745737)
