@@ -1496,8 +1496,8 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 			           required_plugins_message);
 			g_free (required_plugins_message);
 		} else {
-			g_warning ("Call to gst_discoverer_discover_uri() failed: %s",
-			           error->message);
+			g_warning ("Call to gst_discoverer_discover_uri(%s) failed: %s",
+			           uri, error->message);
 		}
 		gst_discoverer_info_unref (info);
 		g_error_free (error);
