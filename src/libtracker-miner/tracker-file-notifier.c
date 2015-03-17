@@ -685,7 +685,8 @@ sparql_contents_query_cb (GObject      *object,
 
 static gchar *
 sparql_contents_compose_query (GFile **directories,
-                               guint   n_dirs)
+                               guint   n_dirs,
+                               GQueue *filter)
 {
 	GString *str;
 	gchar *uri;
@@ -695,6 +696,9 @@ sparql_contents_compose_query (GFile **directories,
 			    " ?u nfo:belongsToContainer ?f . ?f nie:url ?url ."
 			    " FILTER (?url IN (");
 	for (i = 0; i < n_dirs; i++) {
+		if (g_queue_find (filter, directories[i]))
+			continue;
+
 		if (i != 0)
 			g_string_append_c (str, ',');
 
@@ -711,13 +715,14 @@ sparql_contents_compose_query (GFile **directories,
 static void
 sparql_contents_query_start (TrackerFileNotifier  *notifier,
                              GFile               **directories,
-                             guint                 n_dirs)
+                             guint                 n_dirs,
+                             GQueue               *filter)
 {
 	TrackerFileNotifierPrivate *priv;
 	gchar *sparql;
 
 	priv = notifier->priv;
-	sparql = sparql_contents_compose_query (directories, n_dirs);
+	sparql = sparql_contents_compose_query (directories, n_dirs, filter);
 	tracker_sparql_connection_query_async (priv->connection,
 	                                       sparql,
 	                                       priv->cancellable,
@@ -757,7 +762,8 @@ sparql_files_query_cb (GObject      *object,
 		/* Updated directories have been found, check for deleted contents in those */
 		sparql_contents_query_start (notifier,
 		                             (GFile**) priv->current_index_root->updated_dirs->pdata,
-		                             priv->current_index_root->updated_dirs->len);
+		                             priv->current_index_root->updated_dirs->len,
+		                             priv->current_index_root->pending_dirs);
 		g_ptr_array_set_size (priv->current_index_root->updated_dirs, 0);
 	} else {
 		finish_current_directory (notifier);
