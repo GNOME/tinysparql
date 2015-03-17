@@ -43,6 +43,8 @@
 
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
+G_DEFINE_QUARK (TrackerExtractError, tracker_extract_error)
+
 extern gboolean debug;
 
 typedef struct {
@@ -512,7 +514,7 @@ get_metadata (TrackerExtractTask *task)
 	if (task->cancellable &&
 	    g_cancellable_is_cancelled (task->cancellable)) {
 		g_simple_async_result_set_error ((GSimpleAsyncResult *) task->res,
-		                                 TRACKER_DBUS_ERROR, 0,
+		                                 G_IO_ERROR, G_IO_ERROR_CANCELLED,
 		                                 "Extraction of '%s' was cancelled",
 		                                 task->file);
 
@@ -575,16 +577,17 @@ dispatch_task_cb (TrackerExtractTask *task)
 	priv = TRACKER_EXTRACT_GET_PRIVATE (task->extract);
 
 	if (!task->mimetype) {
-		error = g_error_new (TRACKER_DBUS_ERROR, 0,
-		                     "No mimetype for '%s'",
-		                     task->file);
+		error = g_error_new (tracker_extract_error_quark (),
+		                     TRACKER_EXTRACT_ERROR_NO_MIMETYPE,
+		                     "No mimetype for '%s'", task->file);
 	} else {
 		if (!task->mimetype_handlers) {
 			/* First iteration for task, get the mimetype handlers */
 			task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
 
 			if (!task->mimetype_handlers) {
-				error = g_error_new (TRACKER_DBUS_ERROR, 0,
+				error = g_error_new (tracker_extract_error_quark (),
+				                     TRACKER_EXTRACT_ERROR_NO_EXTRACTOR,
 				                     "No mimetype extractor handlers for uri:'%s' and mime:'%s'",
 				                     task->file, task->mimetype);
 			}
@@ -595,7 +598,8 @@ dispatch_task_cb (TrackerExtractTask *task)
 			if (!tracker_mimetype_info_iter_next (task->mimetype_handlers)) {
 				g_message ("There's no next extractor");
 
-				error = g_error_new (TRACKER_DBUS_ERROR, 0,
+				error = g_error_new (tracker_extract_error_quark (),
+				                     TRACKER_EXTRACT_ERROR_NO_EXTRACTOR,
 				                     "Could not get any metadata for uri:'%s' and mime:'%s'",
 				                     task->file, task->mimetype);
 			} else {
@@ -626,7 +630,8 @@ dispatch_task_cb (TrackerExtractTask *task)
 	case TRACKER_MODULE_NONE:
 		/* Error out */
 		g_simple_async_result_set_error ((GSimpleAsyncResult *) task->res,
-		                                 TRACKER_DBUS_ERROR, 0,
+		                                 tracker_extract_error_quark (),
+		                                 TRACKER_EXTRACT_ERROR_NO_EXTRACTOR,
 		                                 "Module '%s' initialization failed",
 		                                 g_module_name (module));
 		g_simple_async_result_complete_in_idle ((GSimpleAsyncResult *) task->res);
