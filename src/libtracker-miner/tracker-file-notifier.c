@@ -1732,8 +1732,8 @@ tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
 	TrackerFileNotifierPrivate *priv;
 	GFile *canonical;
 
-	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), NULL);
-	g_return_val_if_fail (G_IS_FILE (file), NULL);
+	g_return_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier));
+	g_return_if_fail (G_IS_FILE (file));
 
 	priv = notifier->priv;
 	canonical = tracker_file_system_get_file (priv->file_system,
