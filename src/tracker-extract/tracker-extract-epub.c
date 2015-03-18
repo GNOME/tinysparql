@@ -54,6 +54,7 @@ typedef struct {
 	GList *pages;
 	guint in_metadata : 1;
 	guint in_manifest : 1;
+	guint has_identifier : 1;
 	gchar *savedstring;
 } OPFData;
 
@@ -472,12 +473,12 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		tracker_sparql_builder_object_unvalidated (data->metadata, text);
 		break;
 	case OPF_TAG_TYPE_UUID:
-		tracker_sparql_builder_predicate (data->metadata, "nie:identifier");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
-		break;
 	case OPF_TAG_TYPE_ISBN:
-		tracker_sparql_builder_predicate (data->metadata, "nie:identifier");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		if (!data->has_identifier) {
+			data->has_identifier = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nie:identifier");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		}
 		break;
 	/* case OPF_TAG_TYPE_RATING: */
 	case OPF_TAG_TYPE_UNKNOWN:
