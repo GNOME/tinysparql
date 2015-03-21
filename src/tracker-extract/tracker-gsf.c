@@ -54,7 +54,14 @@ find_member (GsfInfile *arch,
 
 		dirname = g_strndup (name, slash - name);
 
-		if ((member = gsf_infile_child_by_name (arch, dirname)) != NULL) {
+		/**
+		 * Ignore if the directory is the current one that is ".".
+		 * Go to next direcotry if exists
+		 */
+
+		if (strcmp (dirname, ".") == 0) {
+			member = find_member (arch, slash + 1);
+		} else if ((member = gsf_infile_child_by_name (arch, dirname)) != NULL) {
 			GsfInfile *dir;
 
 			dir = GSF_INFILE (member);
