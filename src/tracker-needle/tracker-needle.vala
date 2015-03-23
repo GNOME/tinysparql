@@ -458,7 +458,7 @@ public class Tracker.Needle {
 		if (add_to_model) {
 			TreeIter new_iter;
 
-			ListStore store = (ListStore) model;
+			Gtk.ListStore store = (Gtk.ListStore) model;
 			store.prepend (out new_iter);
 			store.set (new_iter, 0, criteria, -1);
 

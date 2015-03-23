@@ -60,7 +60,7 @@ public class TrackerTagsView : Box {
 	private List<TagData> tag_data_requests;
 	private List<string> files;
 
-	private ListStore store;
+	private Gtk.ListStore store;
 
 	private const string UI_FILE = "tracker-needle.ui";
 
@@ -98,7 +98,7 @@ public class TrackerTagsView : Box {
 
 		cancellable = new Cancellable ();
 
-		store = new ListStore (Col.N_COLUMNS,
+		store = new Gtk.ListStore (Col.N_COLUMNS,
 		                       typeof (int),      /* Selection type */
 		                       typeof (string),   /* Tag ID */
 		                       typeof (string),   /* Tag Name */
@@ -648,7 +648,7 @@ public class TrackerTagsView : Box {
 
 	private void untoggle_all () {
 		TreeModel model = view.get_model ();
-		ListStore store = (ListStore) model;
+		Gtk.ListStore store = (Gtk.ListStore) model;
 
 		model.foreach ((model, path, foreach_iter) => {
 			store.set (foreach_iter, Col.SELECTION, Selection.FALSE, -1);
