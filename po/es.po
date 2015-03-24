@@ -3,15 +3,15 @@
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010, 2011, 2012, 2013, 2014.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010, 2011, 2012, 2013, 2014, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2014-12-17 23:54+0000\n"
-"PO-Revision-Date: 2014-12-18 11:15+0100\n"
+"POT-Creation-Date: 2015-03-24 00:27+0000\n"
+"PO-Revision-Date: 2015-03-24 10:37+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -182,14 +182,14 @@ msgstr "Error al iniciar el programa «tar»"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:466
-#: ../src/tracker/tracker-daemon.c:487 ../src/tracker/tracker-daemon.c:712
-#: ../src/tracker/tracker-daemon.c:744 ../src/tracker/tracker-daemon.c:894
-#: ../src/tracker/tracker-daemon.c:952 ../src/tracker/tracker-daemon.c:987
-#: ../src/tracker/tracker-daemon.c:1056 ../src/tracker/tracker-daemon.c:1247
-#: ../src/tracker/tracker-daemon.c:1313 ../src/tracker/tracker-daemon.c:1672
+#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
+#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
+#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
+#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
@@ -277,7 +277,7 @@ msgstr "Muestra información de la versión"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/apps/tracker-main.c:192
+#: ../src/miners/apps/tracker-main.c:184
 msgid "- start the application data miner"
 msgstr "- iniciar el minero de datos de aplicaciones"
 
@@ -520,90 +520,90 @@ msgstr ""
 msgid "FILE"
 msgstr "ARCHIVO"
 
-#: ../src/miners/fs/tracker-main.c:462
+#: ../src/miners/fs/tracker-main.c:454
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
-#: ../src/miners/fs/tracker-main.c:463
+#: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "El objeto de datos «%s» no existe"
 
-#: ../src/miners/fs/tracker-main.c:478
+#: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "La carpeta es elegible para ser escrutada (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:479
+#: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "La carpeta NO es elegible para ser escrutada (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:499
+#: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "La carpeta es elegible para ser escrutada (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:500
+#: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "La carpeta NO es elegible para ser escrutada (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:547
+#: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "La carpeta es elegible para ser monitorizada (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:548
+#: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "La carpeta NO es elegible para ser monitorizada (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:552
+#: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
 msgstr "El archivo es elegible para ser monitorizado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:553
+#: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo NO es elegible para ser monitoririzado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:557
+#: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o carpeta es elegible para ser monitorizada (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:558
+#: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o carpeta NO es elegible para ser monitorizada (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:573
+#: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
 msgstr "El archivo es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:574
+#: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "El archivo NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:583
+#: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
 msgstr "Se indexará"
 
-#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "No"
 msgstr "No"
 
-#: ../src/miners/fs/tracker-main.c:585
+#: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
 msgstr "Se monitorizará"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:705
+#: ../src/miners/fs/tracker-main.c:697
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -685,7 +685,7 @@ msgstr "Guía de usuario del minero de datos"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/user-guides/tracker-main.c:204
+#: ../src/miners/user-guides/tracker-main.c:196
 msgid "- start the user guides data miner"
 msgstr "- iniciar el minero de datos de guías de usuario"
 
@@ -715,7 +715,7 @@ msgid "Push data to Tracker to make it queryable."
 msgstr "Meter los datos en Tracker para poder solicitarlos."
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
-#: ../src/tracker/tracker-daemon.c:122
+#: ../src/tracker/tracker-daemon.c:123
 msgid "Processing…"
 msgstr "Procesando…"
 
@@ -783,11 +783,11 @@ msgstr ""
 "donde es importante listar los archivos tan rápido como sea posible y se "
 "puede esperar a obtener los metadatos más tarde."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:789
 msgid "Metadata extraction failed"
 msgstr "Falló la extracción de metadatos"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:854
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "No se han encontrado metadatos o módulos del extractor para manejar este "
@@ -824,11 +824,11 @@ msgstr "MÓDULO"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:304
+#: ../src/tracker-extract/tracker-main.c:299
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
-#: ../src/tracker-extract/tracker-main.c:313
+#: ../src/tracker-extract/tracker-main.c:308
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
@@ -879,53 +879,59 @@ msgid "Find search criteria in file titles"
 msgstr "Buscar criterios de búsqueda en los nombres de archivo"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+#| msgid "Find search criteria in file titles"
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr ""
+"Buscar criterios de búsqueda en etiquetas de archivos (separadas por comas)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
 "Mostrar el panel de etiquetado que permite editar las etiquetas de los "
 "resultados seleccionados"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Mostrar estadísticas de los datos almacenados"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr ""
 "_Establecer las etiquetas que quiere asociar con los %d elementos "
 "seleccionados:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Añadir etiqueta"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Quitar etiqueta seleccionada"
 
-#: ../src/tracker-needle/tracker-needle.vala:70
+#: ../src/tracker-needle/tracker-needle.vala:73
 msgid "Search criteria was too generic"
 msgstr "El criterio de búsqueda es muy genérico"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:74
 msgid "Only the first 500 items will be displayed"
 msgstr "Sólo se mostrarán los 500 primeros elementos"
 
-#: ../src/tracker-needle/tracker-needle.vala:710
+#: ../src/tracker-needle/tracker-needle.vala:775
 #: ../src/tracker-preferences/tracker-preferences.vala:1051
 msgid "Print version"
 msgstr "Imprimir versión"
 
-#: ../src/tracker-needle/tracker-needle.vala:717
-#: ../src/tracker-needle/tracker-needle.vala:718
+#: ../src/tracker-needle/tracker-needle.vala:782
+#: ../src/tracker-needle/tracker-needle.vala:783
 msgid "[SEARCH-CRITERIA]"
 msgstr "[CRITERIO_DE_BÚSQUEDA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:723
+#: ../src/tracker-needle/tracker-needle.vala:788
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interfaz de usuario de la herramienta de búsqueda del Escritorio usando "
@@ -985,7 +991,7 @@ msgstr[0] "Imagen"
 msgstr[1] "Imágenes"
 
 #: ../src/tracker-needle/tracker-stats.vala:118
-#: ../src/tracker/tracker-daemon.c:1112
+#: ../src/tracker/tracker-daemon.c:1108
 msgid "Application"
 msgid_plural "Applications"
 msgstr[0] "Aplicación"
@@ -1436,15 +1442,6 @@ msgid "Control"
 msgstr "Controlar"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:54
-#| msgid ""
-#| "When resetting your indexed data, the databases are removed and your "
-#| "files will no longer be indexed. Upon next start, Tracker will then start "
-#| "indexing data as if it was being run for the first time.\n"
-#| "\n"
-#| "<b>Warning: All data indexed will be removed! It can not be retrieved!</"
-#| "b>\n"
-#| "\n"
-#| "Clicking this button will close the preferences too."
 msgid ""
 "When resetting your indexed data, the databases are removed and your files "
 "will no longer be indexed. Upon next start, Tracker will then start indexing "
@@ -1465,7 +1462,6 @@ msgstr ""
 "Al pulsar este botón también cerrará las preferencias."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:59
-#| msgid "Yes, remove all of my indexed data"
 msgid "Yes, remove all indexes"
 msgstr "Sí, eliminar todos los datos indexados"
 
@@ -1599,7 +1595,7 @@ msgstr "Sólo permitir acciones de lectura en la base de datos"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:173
+#: ../src/tracker-store/tracker-main.vala:166
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -1634,43 +1630,43 @@ msgstr ""
 msgid "The 'tracker-control' command is no longer available"
 msgstr "El comando «tracker-control» ya no está disponible"
 
-#: ../src/tracker/tracker-daemon.c:120 ../src/tracker/tracker-daemon.c:433
+#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
 msgstr "No disponible"
 
 #. generic
-#: ../src/tracker/tracker-daemon.c:121
+#: ../src/tracker/tracker-daemon.c:122
 msgid "Initializing"
 msgstr "Inicializando"
 
-#: ../src/tracker/tracker-daemon.c:123
+#: ../src/tracker/tracker-daemon.c:124
 msgid "Fetching…"
 msgstr "Obteniendo…"
 
 #. miner/rss
-#: ../src/tracker/tracker-daemon.c:124
+#: ../src/tracker/tracker-daemon.c:125
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Arrastrándose sólo por la carpeta «%s»"
 
-#: ../src/tracker/tracker-daemon.c:125
+#: ../src/tracker/tracker-daemon.c:126
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Arrastrándose recursivamente por la carpeta «%s»"
 
-#: ../src/tracker/tracker-daemon.c:126
+#: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
 msgstr "Pausado"
 
-#: ../src/tracker/tracker-daemon.c:127
+#: ../src/tracker/tracker-daemon.c:128
 msgid "Idle"
 msgstr "Ocioso"
 
-#: ../src/tracker/tracker-daemon.c:133
+#: ../src/tracker/tracker-daemon.c:134
 msgid "Follow status changes as they happen"
 msgstr "Seguir los cambios según ocurran"
 
-#: ../src/tracker/tracker-daemon.c:137
+#: ../src/tracker/tracker-daemon.c:138
 msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
@@ -1678,23 +1674,23 @@ msgstr ""
 "Vigilar cambios en la base de datos en tiempo real (ej. recursos o archivos "
 "que se añadan)"
 
-#: ../src/tracker/tracker-daemon.c:138
+#: ../src/tracker/tracker-daemon.c:139
 msgid "ONTOLOGY"
 msgstr "ONTOLOGÍA"
 
-#: ../src/tracker/tracker-daemon.c:141
+#: ../src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
 msgstr "Lista de estados comunes para los mineros y el almacén"
 
-#: ../src/tracker/tracker-daemon.c:146
+#: ../src/tracker/tracker-daemon.c:147
 msgid "Pause a miner (you must use this with --miner)"
 msgstr "Pausar un minero (debe usarlo con «--miner»)"
 
-#: ../src/tracker/tracker-daemon.c:147 ../src/tracker/tracker-daemon.c:151
+#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
 msgid "REASON"
 msgstr "RAZÓN"
 
-#: ../src/tracker/tracker-daemon.c:150
+#: ../src/tracker/tracker-daemon.c:151
 msgid ""
 "Pause a miner while the calling process is alive or until resumed (you must "
 "use this with --miner)"
@@ -1702,15 +1698,15 @@ msgstr ""
 "Pausar un minero mientras el proceso de llamada esté activo o hasta que se "
 "reanude (debe usarlo con «--miner»)"
 
-#: ../src/tracker/tracker-daemon.c:154
+#: ../src/tracker/tracker-daemon.c:155
 msgid "Resume a miner (you must use this with --miner)"
 msgstr "Resumir un minero (debe usarlo con «--miner»)"
 
-#: ../src/tracker/tracker-daemon.c:155
+#: ../src/tracker/tracker-daemon.c:156
 msgid "COOKIE"
 msgstr "COOKIE"
 
-#: ../src/tracker/tracker-daemon.c:158
+#: ../src/tracker/tracker-daemon.c:159
 msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
@@ -1718,27 +1714,27 @@ msgstr ""
 "Minero que usar con --resume o --pause (puede usar sufijos, ej. «Files» o "
 "«Applications»)"
 
-#: ../src/tracker/tracker-daemon.c:159
+#: ../src/tracker/tracker-daemon.c:160
 msgid "MINER"
 msgstr "MINERO"
 
-#: ../src/tracker/tracker-daemon.c:162
+#: ../src/tracker/tracker-daemon.c:163
 msgid "List all miners currently running"
 msgstr "Listar todos los mineros actualmente en ejecución"
 
-#: ../src/tracker/tracker-daemon.c:166
+#: ../src/tracker/tracker-daemon.c:167
 msgid "List all miners installed"
 msgstr "Listar todos los mineros instalados"
 
-#: ../src/tracker/tracker-daemon.c:170
+#: ../src/tracker/tracker-daemon.c:171
 msgid "List pause reasons"
 msgstr "Listar los motivos de pausa"
 
-#: ../src/tracker/tracker-daemon.c:175
+#: ../src/tracker/tracker-daemon.c:176
 msgid "List all Tracker processes"
 msgstr "Listar todos los procesos de Tracker"
 
-#: ../src/tracker/tracker-daemon.c:177
+#: ../src/tracker/tracker-daemon.c:178
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1746,11 +1742,11 @@ msgstr ""
 "Usar SIGKILL para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro iguala a «all»"
 
-#: ../src/tracker/tracker-daemon.c:178 ../src/tracker/tracker-daemon.c:181
+#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
 msgstr "APLICACIONES"
 
-#: ../src/tracker/tracker-daemon.c:180
+#: ../src/tracker/tracker-daemon.c:181
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
@@ -1758,11 +1754,11 @@ msgstr ""
 "Usar SIGTERM para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro equivale a «all»"
 
-#: ../src/tracker/tracker-daemon.c:183
+#: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Iniciar mineros (que indirectamente inicia Tracker también)"
 
-#: ../src/tracker/tracker-daemon.c:186
+#: ../src/tracker/tracker-daemon.c:187
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -1770,252 +1766,252 @@ msgstr ""
 "Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
 "«mínimo», «errores») para todos los procesos"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:188
 msgid "LEVEL"
 msgstr "NIVEL"
 
-#: ../src/tracker/tracker-daemon.c:189
+#: ../src/tracker/tracker-daemon.c:190
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
 "Mostrar valores de registro en términos de registro detallado para cada "
 "proceso"
 
-#: ../src/tracker/tracker-daemon.c:268
+#: ../src/tracker/tracker-daemon.c:264
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "No se pudo obtener el estado del minero: %s"
 
 #. Translators: %s is a time string
-#: ../src/tracker/tracker-daemon.c:330
+#: ../src/tracker/tracker-daemon.c:326
 #, c-format
 msgid "%s remaining"
 msgstr "%s restante"
 
-#: ../src/tracker/tracker-daemon.c:333
+#: ../src/tracker/tracker-daemon.c:329
 msgid "unknown time left"
 msgstr "tiempo restante desconocido"
 
 #. Work out lengths for output spacing
-#: ../src/tracker/tracker-daemon.c:346 ../src/tracker/tracker-daemon.c:1323
+#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
 msgid "PAUSED"
 msgstr "PAUSADO"
 
-#: ../src/tracker/tracker-daemon.c:363
+#: ../src/tracker/tracker-daemon.c:359
 msgid "Not running or is a disabled plugin"
 msgstr "No está en ejecución o es un complemento desactivado"
 
-#: ../src/tracker/tracker-daemon.c:465
+#: ../src/tracker/tracker-daemon.c:461
 msgid "Could not retrieve tracker-store status"
 msgstr "No se pudo obtener el estado de tracker-store"
 
-#: ../src/tracker/tracker-daemon.c:486
+#: ../src/tracker/tracker-daemon.c:482
 msgid "Could not retrieve tracker-store progress"
 msgstr "No se pudo obtener el progreso de tracker-store"
 
-#: ../src/tracker/tracker-daemon.c:616 ../src/tracker/tracker-sparql.c:195
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
 msgid "Unable to retrieve namespace prefixes"
 msgstr "No se pudieron obtener los prefijos de espacios de nombres"
 
-#: ../src/tracker/tracker-daemon.c:624 ../src/tracker/tracker-sparql.c:203
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
 msgid "No namespace prefixes were returned"
 msgstr "No se encontró ningún prefijo de espacio de nombres"
 
-#: ../src/tracker/tracker-daemon.c:703 ../src/tracker/tracker-daemon.c:730
+#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
 msgid "Could not run SPARQL query"
 msgstr "No se pudo ejecutar la consulta SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:711 ../src/tracker/tracker-daemon.c:743
+#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
 msgstr ""
 "No se pudo llamar a tracker_sparql_cursor_next() en la consultar SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:893
+#: ../src/tracker/tracker-daemon.c:889
 #, c-format
 msgid "Could not pause miner, manager could not be created, %s"
 msgstr "No se pudo pausar el minero, no se pudo crear el gestor, %s"
 
-#: ../src/tracker/tracker-daemon.c:900
+#: ../src/tracker/tracker-daemon.c:896
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Intentando pausar el minero «%s» con la razón «%s»"
 
-#: ../src/tracker/tracker-daemon.c:908 ../src/tracker/tracker-daemon.c:914
+#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "No se pudo pausar el minero: %s"
 
-#: ../src/tracker/tracker-daemon.c:920
+#: ../src/tracker/tracker-daemon.c:916
 #, c-format
 msgid "Cookie is %d"
 msgstr "La «cookie» es la %d"
 
-#: ../src/tracker/tracker-daemon.c:927 ../src/tracker/tracker-daemon.c:1280
-#: ../src/tracker/tracker-daemon.c:1424
+#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
+#: ../src/tracker/tracker-daemon.c:1420
 msgid "Press Ctrl+C to stop"
 msgstr "Pulse «Ctrl+C» para detener"
 
-#: ../src/tracker/tracker-daemon.c:951
+#: ../src/tracker/tracker-daemon.c:947
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
 msgstr "No se pudo reanudar el minero, no se pudo crear el gestor, %s"
 
-#: ../src/tracker/tracker-daemon.c:958
+#: ../src/tracker/tracker-daemon.c:954
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Intentando resumir el minero %s con la «cookie» %d"
 
-#: ../src/tracker/tracker-daemon.c:965
+#: ../src/tracker/tracker-daemon.c:961
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "No se pudo resumir el minero: %s"
 
-#: ../src/tracker/tracker-daemon.c:969 ../src/tracker/tracker-index.c:222
+#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
 #: ../src/tracker/tracker-sparql.c:1387
 msgid "Done"
 msgstr "Hecho"
 
-#: ../src/tracker/tracker-daemon.c:986
+#: ../src/tracker/tracker-daemon.c:982
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr "No se pudieron listar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker/tracker-daemon.c:1000
+#: ../src/tracker/tracker-daemon.c:996
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
 msgstr[0] "Se encontraró %d minero instalado"
 msgstr[1] "Se encontraron %d mineros instalados"
 
-#: ../src/tracker/tracker-daemon.c:1023
+#: ../src/tracker/tracker-daemon.c:1019
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
 msgstr[0] "Se encontraró %d minero en ejecución"
 msgstr[1] "Se encontraron %d mineros en ejecución"
 
-#: ../src/tracker/tracker-daemon.c:1055
+#: ../src/tracker/tracker-daemon.c:1051
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
 "No se pudieron obtener los detalles de pausa, no se pudo crear el gestor, %s"
 
-#: ../src/tracker/tracker-daemon.c:1065
+#: ../src/tracker/tracker-daemon.c:1061
 msgid "No miners are running"
 msgstr "No hay ningún minero en ejecución"
 
-#: ../src/tracker/tracker-daemon.c:1105 ../src/tracker/tracker-daemon.c:1359
-#: ../src/tracker/tracker-daemon.c:1608 ../src/tracker/tracker-daemon.c:1650
+#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
 msgid "Miners"
 msgstr "Mineros"
 
-#: ../src/tracker/tracker-daemon.c:1114
+#: ../src/tracker/tracker-daemon.c:1110
 msgid "Reason"
 msgstr "Razón"
 
-#: ../src/tracker/tracker-daemon.c:1123
+#: ../src/tracker/tracker-daemon.c:1119
 msgid "No miners are paused"
 msgstr "No hay ningún minero pausado"
 
-#: ../src/tracker/tracker-daemon.c:1211
+#: ../src/tracker/tracker-daemon.c:1207
 msgid "Only one of 'all', 'store' and 'miners' options are allowed"
 msgstr "Sólo se permite una de las opciones «all», «store» y «miners»"
 
-#: ../src/tracker/tracker-daemon.c:1246
+#: ../src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
 msgstr "No se pudo establecer una conexión con SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:1278
+#: ../src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
 msgstr "Escuchando ahora actualizaciones de recursos de la base de datos"
 
-#: ../src/tracker/tracker-daemon.c:1279
+#: ../src/tracker/tracker-daemon.c:1275
 msgid "All nie:plainTextContent properties are omitted"
 msgstr "Todas las propiedades nie:plainTextContent se omiten"
 
-#: ../src/tracker/tracker-daemon.c:1294
+#: ../src/tracker/tracker-daemon.c:1290
 msgid "Common statuses include"
 msgstr "Los estados comunes incluyen"
 
-#: ../src/tracker/tracker-daemon.c:1312 ../src/tracker/tracker-status.c:576
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "No se pudo obtener el estado, no se pudo crear el gestor, %s"
 
 #. Display states
-#: ../src/tracker/tracker-daemon.c:1333
+#: ../src/tracker/tracker-daemon.c:1329
 msgid "Store"
 msgstr "Almacenar"
 
-#: ../src/tracker/tracker-daemon.c:1367
+#: ../src/tracker/tracker-daemon.c:1363
 #, c-format
 msgid "Could not get display name for miner '%s'"
 msgstr "No se pudo obtener el nombre que mostrar del minero «%s»"
 
-#: ../src/tracker/tracker-daemon.c:1465
+#: ../src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
 msgstr "No puede usar un minero pausado y resumir los cambios a la vez"
 
-#: ../src/tracker/tracker-daemon.c:1471
+#: ../src/tracker/tracker-daemon.c:1467
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
 
-#: ../src/tracker/tracker-daemon.c:1477
+#: ../src/tracker/tracker-daemon.c:1473
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Debe proporcionar una pausa o resumir el comando para el minero"
 
-#: ../src/tracker/tracker-daemon.c:1513
+#: ../src/tracker/tracker-daemon.c:1509
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos «--kill» y «--terminate» juntos"
 
-#: ../src/tracker/tracker-daemon.c:1519
+#: ../src/tracker/tracker-daemon.c:1515
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
-#: ../src/tracker/tracker-daemon.c:1534
+#: ../src/tracker/tracker-daemon.c:1530
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
 "o «errores»"
 
-#: ../src/tracker/tracker-daemon.c:1572
+#: ../src/tracker/tracker-daemon.c:1568
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker/tracker-daemon.c:1602 ../src/tracker/tracker-daemon.c:1644
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
 msgstr "Componentes"
 
-#: ../src/tracker/tracker-daemon.c:1609 ../src/tracker/tracker-daemon.c:1651
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
 msgid "Only those with config listed"
 msgstr "Sólo aquellos con la configuración listada"
 
-#: ../src/tracker/tracker-daemon.c:1627
+#: ../src/tracker/tracker-daemon.c:1623
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr "Estableciendo el registro detallado para todos los componentes a «%s»…"
 
-#: ../src/tracker/tracker-daemon.c:1666
+#: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker/tracker-daemon.c:1671
+#: ../src/tracker/tracker-daemon.c:1667
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "No se pudieron iniciar los mineros, no se pudo crear el gestor, %s"
 
-#: ../src/tracker/tracker-daemon.c:1696
+#: ../src/tracker/tracker-daemon.c:1692
 msgid "perhaps a disabled plugin?"
 msgstr "¿quizá es un complemento desactivado?"
 
-#: ../src/tracker/tracker-daemon.c:1740
+#: ../src/tracker/tracker-daemon.c:1736
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Si no se proporcionan argumentos, se muestra el estado del almacenamiento y "
 "de los mineros de datos"
 
-#: ../src/tracker/tracker-daemon.c:1745 ../src/tracker/tracker-index.c:410
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
 #: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
 #: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
 #: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
@@ -2049,13 +2045,11 @@ msgid "Tell miners to (re)index a given file"
 msgstr "Decir a los mineros que (re)indexen un archivo dado"
 
 #: ../src/tracker/tracker-index.c:62
-#| msgid "Backup databases to the file provided"
 msgid "Backup current index / database to the file provided"
 msgstr ""
 "Respaldar el índice actual o las bases de datos al archivo proporcionado"
 
 #: ../src/tracker/tracker-index.c:65
-#| msgid "Restoring database from backup"
 msgid "Restore a database from a previous backup (see --backup)"
 msgstr ""
 "Restaurar una base de datos desde un respaldo anterior (consulte --backup)"
@@ -2273,25 +2267,21 @@ msgstr "No se pudo abrir «%s»"
 
 #: ../src/tracker/tracker-process.c:268
 #, c-format
-#| msgid "Could not terminate process %d"
 msgid "Could not terminate process %d - '%s'"
 msgstr "No se pudo terminar el proceso %d: «%s»"
 
 #: ../src/tracker/tracker-process.c:274
 #, c-format
-#| msgid "Terminated process %d"
 msgid "Terminated process %d - '%s'"
 msgstr "Proceso %d terminado: «%s»"
 
 #: ../src/tracker/tracker-process.c:289
 #, c-format
-#| msgid "Could not kill process %d"
 msgid "Could not kill process %d - '%s'"
 msgstr "No se pudo matar el proceso %d: «%s»"
 
 #: ../src/tracker/tracker-process.c:295
 #, c-format
-#| msgid "Killed process %d"
 msgid "Killed process %d - '%s'"
 msgstr "Proceso %d matado: «%s»"
 
@@ -2300,8 +2290,6 @@ msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matar todos los procesos de Tracker y borrar todas las bases de datos"
 
 #: ../src/tracker/tracker-reset.c:51
-#| msgid ""
-#| "Same as --hard-reset but the backup & journal are restored after restart"
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Igual que --hard pero el respaldo y el diario se restauran después de "
@@ -2314,7 +2302,6 @@ msgstr ""
 "siguiente inicio"
 
 #: ../src/tracker/tracker-reset.c:132
-#| msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "No puede usar los argumentos «--hard» y «--soft» juntos"
 
@@ -2793,7 +2780,6 @@ msgid "Empty result set"
 msgstr "Conjunto de resultados vacío"
 
 #: ../src/tracker/tracker-status.c:52
-#| msgid "Show statistics about the data stored"
 msgid "Show statistics for current index / data set"
 msgstr "Mostrar estadísticas del índice actual o del conjunto de datos"
 
@@ -2875,24 +2861,20 @@ msgid "Database is currently empty"
 msgstr "La base de datos está actualmente vacía"
 
 #: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
-#| msgid "Could not get status from miner: %s"
 msgid "Could not get basic status for Tracker"
 msgstr "No se pudo obtener el estado básico de Tracker"
 
 #: ../src/tracker/tracker-status.c:631
 #, c-format
-#| msgid "Would be indexed"
 msgid "Currently indexed"
 msgstr "Indexado actualmente"
 
 #: ../src/tracker/tracker-status.c:666
-#| msgid "What is indexed?"
 msgid "Data is still being indexed"
 msgstr "Todavía se están indexando los datos"
 
 #: ../src/tracker/tracker-status.c:667
 #, c-format
-#| msgid "Estimated"
 msgid "Estimated %s left"
 msgstr "%s restante estimado"
 
