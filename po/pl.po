@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-02 22:29+0100\n"
-"PO-Revision-Date: 2015-03-02 22:30+0100\n"
+"POT-Creation-Date: 2015-03-24 01:24+0100\n"
+"PO-Revision-Date: 2015-03-24 01:25+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -191,7 +191,7 @@ msgstr "Błąd podczas uruchamiania programu \"tar\""
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -792,11 +792,11 @@ msgstr ""
 "ważne jest jak najszybsze wyświetlenie listy plików, a metadane można "
 "uzyskać później."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:789
 msgid "Metadata extraction failed"
 msgstr "Rozpakowanie metadanych się nie powiodło"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:854
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Nie odnaleziono modułów rozpakowujących lub metadanych do obsłużenia tego "
@@ -887,51 +887,57 @@ msgid "Find search criteria in file titles"
 msgstr "Wyszukuje kryteria wyszukiwania w tytułach plików"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr ""
+"Wyszukuje kryteria wyszukiwania tylko w etykietach plików (oddzielone "
+"przecinkiem)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "Wy_szukiwanie:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
 "Wyświetla panel etykiet umożliwiający modyfikowanie etykiet zaznaczonych "
 "wyników"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Wyświetla statystyki o przechowywanych danych"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr "U_stawienie etykiet do powiązania z %d zaznaczonymi elementami:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Dodaj etykietę"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Usuń zaznaczoną etykietę"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:73
 msgid "Search criteria was too generic"
 msgstr "Kryteria wyszukiwania są zbyt ogólne"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:74
 msgid "Only the first 500 items will be displayed"
 msgstr "Zostanie wyświetlone tylko pierwsze 500 elementów"
 
-#: ../src/tracker-needle/tracker-needle.vala:731
+#: ../src/tracker-needle/tracker-needle.vala:775
 #: ../src/tracker-preferences/tracker-preferences.vala:1051
 msgid "Print version"
 msgstr "Wyświetla wersję"
 
-#: ../src/tracker-needle/tracker-needle.vala:738
-#: ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:782
+#: ../src/tracker-needle/tracker-needle.vala:783
 msgid "[SEARCH-CRITERIA]"
 msgstr "[KRYTERIA-WYSZUKIWANIA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:788
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interfejs użytkownika do wyszukiwania na pulpicie używający programu Tracker"
