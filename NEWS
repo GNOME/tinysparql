@@ -1,3 +1,12 @@
+NEW in 1.4.0 - 2014-03-24
+=========================
+
+  * Fix ambiguous GListModel vs GtkListModel references in vala (#746194)
+  * Fix compiler warnings (#746381)
+  * Ignore "." recursing through compressed content (#746437)
+
+Translations: id, it, sv, tr
+
 NEW in 1.3.6 - 2015-03-17
 =========================
 
