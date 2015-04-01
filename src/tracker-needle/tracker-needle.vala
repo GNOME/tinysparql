@@ -27,6 +27,7 @@ extern static const string UIDIR;
 extern static const string SRCDIR;
 
 public class Tracker.Needle {
+	private GLib.Settings settings_needle = null;
 	private const string UI_FILE = "tracker-needle.ui";
 	private History history;
 	private Gtk.Window window;
@@ -58,6 +59,7 @@ public class Tracker.Needle {
 	private int size_medium = 0;
 	private int size_big = 0;
 	private uint limit = 500;
+	private int default_view = 1;
 	static bool current_find_in_filelist = true;
 	static bool current_find_in_icons = true;
 	private Widget current_view;
@@ -218,6 +220,13 @@ public class Tracker.Needle {
 	public Needle () {
 		create_models ();
 		history = new Tracker.History ();
+
+		// Load Gsettings
+		settings_needle = new GLib.Settings ("org.freedesktop.Tracker.Needle");
+
+		settings_needle.changed.connect ((key) => {
+			debug ("tracker-needle: Key %s changed\n", key);
+		});
 	}
 
 	public void show () {
@@ -285,7 +294,7 @@ public class Tracker.Needle {
 		Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
 
 		window = builder.get_object ("window_needle") as Gtk.Window;
-		window.destroy.connect (Gtk.main_quit);
+		window.destroy.connect (window_closed);
 		window.key_press_event.connect (window_key_press_event);
 
 		toolbar = builder.get_object ("toolbar_main") as Toolbar;
@@ -397,7 +406,21 @@ public class Tracker.Needle {
 		tags_view.hide_label ();
 		paned.pack2 (tags_view, false, false);
 
-		view_categories.set_active (true);
+		//Set up the default view
+		view_categories.active = false;
+		view_icons.active = false;
+		view_filelist.active = false;
+
+		//By default we assume Categories view
+		default_view = settings_needle.get_int ("default-view");
+
+		if (default_view == 0) {
+			view_icons.active = true;
+		} else if (default_view == 2) {
+			view_filelist.active = true;
+		} else {
+			view_categories.active = true;
+		}
 	}
 
 	private bool window_key_press_event (Gtk.Widget widget, Gdk.EventKey event) {
@@ -569,6 +592,19 @@ public class Tracker.Needle {
 		}
 
 		return false;
+	}
+
+	private void window_closed() {
+		// Before exiting save the current view
+		// By default, we assume categories view
+		if (view_icons.active) {
+			settings_needle.set_int ("default-view", 0);
+		} else if (view_filelist.active) {
+			settings_needle.set_int ("default-view", 2);
+		} else {
+			settings_needle.set_int ("default-view", 1);
+		}
+		Gtk.main_quit();
 	}
 
 	private void view_toggled () {
