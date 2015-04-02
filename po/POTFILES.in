@@ -37,6 +37,7 @@ src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-extract/tracker-extract.desktop.in.in
+src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in
 src/tracker-needle/tracker-needle.desktop.in.in
 [type: gettext/glade]src/tracker-needle/tracker-needle.ui
 src/tracker-needle/tracker-needle.vala
