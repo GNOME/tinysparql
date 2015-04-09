@@ -16,7 +16,7 @@ SCAN_OPTIONS=--deprecated-guards="TRACKER_DISABLE_DEPRECATED"
 DOC_SOURCE_DIR = $(top_srcdir)/src/libtracker-sparql
 
 # Used for dependencies
-HFILE_GLOB = $(top_srcdir)/src/libtracker-sparql/*.h $(top_srcdir)/config.h
+HFILE_GLOB = $(top_srcdir)/src/libtracker-sparql/*.h $(top_builddir)/config.h
 CFILE_GLOB = $(top_srcdir)/src/libtracker-sparql/*.c
 
 # Header files to ignore when scanning
