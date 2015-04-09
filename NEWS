@@ -1,3 +1,14 @@
+NEW in 1.2.6: 2015-04-09
+========================
+
+  * Fixes #746401, Fix possible maxCardinality constraint breaks in epub extractor
+  * Fixes #746194, Ambiguous vala references
+  * Fixes #735406, Restrict the amount of data that is logged for errors
+  * Fixes #742035, Fix logic in guarantee title from file
+  * Fixes #678986, Fix item_move() if source file does not exist
+
+Translations: bs, cs, de, hu, id, lt, pl, pt_BR, sk, sl, sr, sr@latin, sv
+
 NEW in 1.2.5: 2014-12-10
 ========================
 
