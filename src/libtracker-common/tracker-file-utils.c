@@ -256,44 +256,58 @@ tracker_file_get_mime_type (GFile *file)
 
 #endif /* __linux__ */
 
-guint64
-tracker_file_system_get_remaining_space (const gchar *path)
+static gboolean
+statvfs_helper (const gchar *path, struct __statvfs *st)
 {
-	guint64 remaining;
-	struct __statvfs st;
+	gchar *_path;
+	int retval;
 
 //LCOV_EXCL_START
-	if (__statvfs (path, &st) == -1) {
-		remaining = 0;
+	/* Iterate up the path to the root until statvfs() doesn’t error with
+	 * ENOENT. This prevents the call failing on first-startup when (for
+	 * example) ~/.cache/tracker might not exist. */
+	_path = g_strdup (path);
+
+	while ((retval = __statvfs (_path, st)) == -1 && errno == ENOENT) {
+		gchar *tmp = g_path_get_dirname (_path);
+		g_free (_path);
+		_path = tmp;
+	}
+
+	g_free (_path);
+//LCOV_EXCL_STOP
+
+	if (retval == -1) {
 		g_critical ("Could not statvfs() '%s': %s",
 		            path,
 		            g_strerror (errno));
-//LCOV_EXCL_STOP
-	} else {
-		remaining = st.f_bsize * st.f_bavail;
 	}
 
-	return remaining;
+	return (retval == 0);
+}
+
+guint64
+tracker_file_system_get_remaining_space (const gchar *path)
+{
+	struct __statvfs st;
+
+	if (statvfs_helper (path, &st)) {
+		return st.f_bsize * st.f_bavail;
+	} else {
+		return 0;
+	}
 }
 
 gdouble
 tracker_file_system_get_remaining_space_percentage (const gchar *path)
 {
-	gdouble remaining;
 	struct __statvfs st;
 
-//LCOV_EXCL_START
-	if (__statvfs (path, &st) == -1) {
-		remaining = 0.0;
-		g_critical ("Could not statvfs() '%s': %s",
-		            path,
-		            g_strerror (errno));
-//LCOV_EXCL_STOP
+	if (statvfs_helper (path, &st)) {
+		return (st.f_bavail * 100.0 / st.f_blocks);
 	} else {
-		remaining = (st.f_bavail * 100.0 / st.f_blocks);
+		return 0.0;
 	}
-
-	return remaining;
 }
 
 gboolean
