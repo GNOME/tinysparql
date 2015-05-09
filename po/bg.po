@@ -1,0 +1,3087 @@
+# Bulgarian translation of tracker po-file.
+# Copyright (C) 2015 Free Software Foundation, Inc.
+# This file is distributed under the same license as the tracer package.
+# Alexander Shopov <ash@kambanaria.org>, 2015.
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker master\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-09 10:52+0300\n"
+"PO-Revision-Date: 2015-05-09 10:52+0300\n"
+"Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
+"Language-Team: Bulgarian <dict@fsa-bg.org>\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:1
+msgid "All posts"
+msgstr "Всички статии"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:2
+msgid "By usage"
+msgstr "По пренадзначиение"
+
+#: ../src/libtracker-common/tracker-utils.c:90
+msgid "unknown time"
+msgstr "неизвестно време"
+
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
+msgid "less than one second"
+msgstr "под секунда"
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:119
+#, c-format
+msgid " %dd"
+msgstr " %d д"
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:123
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2d ч"
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:127
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2d м"
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:131
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2d с"
+
+#: ../src/libtracker-common/tracker-utils.c:135
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d ден"
+msgstr[1] " %d дни"
+
+#: ../src/libtracker-common/tracker-utils.c:139
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d час"
+msgstr[1] " %2.2d часа"
+
+#: ../src/libtracker-common/tracker-utils.c:143
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d минута"
+msgstr[1] " %2.2d минути"
+
+#: ../src/libtracker-common/tracker-utils.c:147
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d секунда"
+msgstr[1] " %2.2d секунди"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+msgid "Maximum length of a word to be indexed"
+msgstr "Максимална дължина на думи за индексиране"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "Думите по-дълги от това няма да бъдат индексирани."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "Maximum number of words to index in a document"
+msgstr "Максимален брой индексирани думи в документ"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Това е максималният брой думи, които ще бъдат прочетени и индексирани в "
+"документ."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+msgid "Enable stemmer"
+msgstr "Формообразуване"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid ""
+"Simplify the words to their root to provide more results. E.g. 'shelves' and "
+"'shelf' to 'shel'"
+msgstr ""
+"Опростяване на думите към корена им. Така се получават повече резултати. "
+"Например „пътища“, „попътният“ и „пропътувайки“ съответстват на „път“."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Enable unaccent"
+msgstr "Изчистване на надредните знаци"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
+"'Idea' for improved matching."
+msgstr ""
+"Преобразуване на буквите с ударения или друг надреден знак към "
+"съответстващата им без такива знаци. Например „въ̀лна“ и „вълна̀“ се "
+"преобразуват към „вълна“. Така се откриват повече резултати."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Ignore numbers"
+msgstr "Прескачане на числата"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "If enabled, numbers will not be indexed."
+msgstr "Числата да не бъдат индексирани."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Ignore stop words"
+msgstr "Прескачане на най-честите"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like 'the', 'yes', 'no', etc."
+msgstr ""
+"Без индексиране на някои кратки, чести думи, които не предоставят "
+"специфичност – напр. „да“, „не“ и др."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Maximum size of journal"
+msgstr "Максимален размер на журнала"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Размер за смяна на журналния файл в MB. Стойността „-1“ изключва сменянето."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Location of journal pieces"
+msgstr "Местоположение на журналните файлове"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr ""
+"Къде да се записват журналните файлове след достигането на максималния "
+"размер."
+
+#: ../src/libtracker-data/tracker-data-backup.c:500
+#: ../src/libtracker-data/tracker-data-backup.c:620
+msgid "Error starting 'tar' program"
+msgstr "Грешка при стартирането на програмата „tar“"
+
+#: ../src/libtracker-data/tracker-data-backup.c:501
+#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/miners/rss/tracker-main.c:114
+#: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-needle/tracker-tags-view.vala:159
+#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
+#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
+#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
+#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
+#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
+#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
+#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
+#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
+#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
+#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
+#: ../src/tracker/tracker-tag.c:977
+msgid "No error given"
+msgstr "Не е дадена грешка"
+
+#: ../src/libtracker-data/tracker-data-backup.c:634
+#, c-format
+msgid "Unknown error, 'tar' exited with status %d"
+msgstr "Непозната грешка. „tar“ завърши с код %d"
+
+#: ../src/libtracker-miner/tracker-enumerator.c:114
+#: ../src/libtracker-miner/tracker-enumerator.c:165
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
+msgid "Operation not supported"
+msgstr "Неподдържана операция"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:997
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+"Пауза на приложението с причина, съвпадаща с вече съществуваща заявка за "
+"пауза"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1096
+msgid "Cookie not recognized to resume paused miner"
+msgstr ""
+"Несъвпадаща бисквитка, затова анализаторът на пауза не може да продължи"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1577
+msgid "Data store is not available"
+msgstr "Съхранените данни липсват"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:339
+msgid "No network connection"
+msgstr "Няма връзка към мрежата"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:340
+msgid "Indexing not recommended on this network connection"
+msgstr "Не се препоръчва индексиране при такава мрежова връзка"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:1
+#: ../src/tracker-needle/tracker-view.vala:331
+msgid "Applications"
+msgstr "Програми"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:2
+msgid "Applications data miner"
+msgstr "Анализатор на данните от програмите"
+
+#: ../src/miners/apps/tracker-main.c:56 ../src/miners/fs/tracker-main.c:74
+#: ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/user-guides/tracker-main.c:56
+#: ../src/tracker-writeback/tracker-main.c:55
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+"Подробност на журнални съобщения: „0“ (само грешки), „1“ (минимална), "
+"„2“ (подробна) и „3“ (най-подробна). Стандартно е „0“."
+
+#: ../src/miners/apps/tracker-main.c:61
+#: ../src/miners/user-guides/tracker-main.c:61
+msgid "Runs until all applications are indexed and then exits"
+msgstr ""
+"Изпълнение докато всички програми се индексират и след това спира работа"
+
+#. Daemon options
+#: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
+#: ../src/miners/user-guides/tracker-main.c:65
+#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-store/tracker-main.vala:47
+#: ../src/tracker-writeback/tracker-main.c:51
+msgid "Displays version information"
+msgstr "Извеждане на информацията за версията"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/apps/tracker-main.c:184
+msgid "- start the application data miner"
+msgstr "— стартиране на анализа на данните от програмите"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
+msgid "Tracker Application Miner"
+msgstr "Анализатор на данните от програмите"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
+msgid "Indexes information about applications installed"
+msgstr "Индексиране на информация за инсталираните програми"
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:1
+msgid "File System"
+msgstr "Файлови системи"
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:2
+msgid "File system data miner"
+msgstr "Анализатор на данните от файловите системи"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Подробност"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Подробност на журналните съобщения."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
+msgid "Initial sleep"
+msgstr "Начален интервал за приспиване"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
+msgid "Initial sleep time, in seconds."
+msgstr "Първоначално време в секунди за приспиване на индексирането."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
+msgid "Scheduler priority when idle"
+msgstr "Приоритет на диспечера при бездействие"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
+msgid ""
+"The scheduler is the kernel component that decides which runnable "
+"application will be executed by the CPU next. Each application has an "
+"associated scheduling policy and priority."
+msgstr ""
+"Диспечерът е компонентът на ядрото, който определя коя да е следващата "
+"програма, което да се изпълнява от процесора. За всяко приложение се прилага "
+"съответна политика и приоритет на диспечера."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
+msgid "Throttle"
+msgstr "Ограничаване"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
+msgid "Indexing speed, the higher the slower."
+msgstr ""
+"Ограничаване на скоростта на индексиране. По-високите стойности водят до по-"
+"голямо ограничаване на скоростта."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
+msgid "Low disk space limit"
+msgstr "Праг на дисковото пространство"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+msgid ""
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
+msgstr ""
+"Праг на дисковото пространство, при който индексирането спира. Стойността "
+"„-1“ маха ограничението на прага."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
+msgid "Crawling interval"
+msgstr "Интервал на индексиране"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
+msgid ""
+"Interval in days to check whether the filesystem is up to date in the "
+"database. 0 forces crawling anytime, -1 forces it only after unclean "
+"shutdowns, and -2 disables it entirely."
+msgstr ""
+"Интервал в дни за проверка на съответствието на файловите системи с базата "
+"от индексирани данни. Стойността „0“ позволява проверката по всяко време, "
+"„-1“ — само след неочаквано рестартиране на машината, а „-2“ изцяло изключва "
+"тези проверки."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
+msgid "Removable devices' data permanence threshold"
+msgstr "Запазване на данни за преносими устройства"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
+msgid ""
+"Threshold in days after which files from removables devices will be removed "
+"from database if not mounted. 0 means never, maximum is 365."
+msgstr ""
+"Праг в дни, след който данните за преносими устройства, които не са били "
+"монтирани в този период, се изтриват от базата данни."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
+msgid "Enable monitors"
+msgstr "Включване на следенето"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
+msgid "Set to false to completely disable any file monitoring"
+msgstr "Когато е „false“ (лъжа), следенето на файловете напълно се изключва."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
+msgid "Enable writeback"
+msgstr "Включване на пакетен запис"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
+msgid "Set to false to completely disable any file writeback"
+msgstr ""
+"Когато е „false“ (лъжа), пакетното запазване на промени във файловете "
+"напълно се изключва."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
+msgid "Index removable devices"
+msgstr "Индексиране на преносимите устройства"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
+msgid ""
+"Set to true to enable indexing mounted directories for removable devices."
+msgstr ""
+"Когато е „true“ (истина), папките представляващи монтираните преносими "
+"устройства ще се индексират."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
+msgid "Index optical discs"
+msgstr "Индексиране на оптични дискове"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+msgid ""
+"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+"removable devices are not indexed, optical discs won't be either)"
+msgstr ""
+"Когато е „true“ (истина), CD, DVD и други оптични медии ще се индексират. "
+"Ключът за индексирането на преносимите устройства също трябва да е "
+"„true“ (истина)"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
+msgid "Index when running on battery"
+msgstr "Индексиране при захранване от батерии"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
+msgid "Set to true to index while running on battery"
+msgstr ""
+"Когато е „true“ (истина), индексирането ще продължава и при захранване от "
+"батерии."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
+msgid "Perform initial indexing when running on battery"
+msgstr "Първоначално индексиране при захранване от батерии"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
+msgid "Set to true to index while running on battery for the first time only"
+msgstr ""
+"Когато е „true“ (истина), само първоначалното индексиране ще се извърши и "
+"при захранване от батерии."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
+msgid "Directories to index recursively"
+msgstr "Папки за рекурсивно индексиране"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
+msgid ""
+"List of directories to index recursively, Special values include: &amp;"
+"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
+"and $HOME/.config/user-dirs.default"
+msgstr ""
+"Списък с папки за рекурсивно индексиране. Специални стойности са: „&amp;"
+"DESKTOP“ (Плот), „&amp;DOCUMENTS“ (Документи), „&amp;DOWNLOAD“ (Свалени), "
+"„&amp;MUSIC“ (Музика), „&amp;PICTURES“ (Изображения), „&amp;"
+"PUBLIC_SHARE“ (Публични), „&amp;TEMPLATES“ (Шаблони), „&amp;VIDEOS“ (Видео). "
+"Вижте „/etc/xdg/user-dirs.defaults“ и „$HOME/.config/user-dirs.default“."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
+msgid "Directories to index non-recursively"
+msgstr "Папки за нерекурсивно индексиране"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
+msgid ""
+"List of directories to index without inspecting subfolders, Special values "
+"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+"dirs.defaults and $HOME/.config/user-dirs.default"
+msgstr ""
+"Списък с папки за нерекурсивно индексиране. Специални стойности са: „&amp;"
+"DESKTOP“ (Плот), „&amp;DOCUMENTS“ (Документи), „&amp;DOWNLOAD“ (Свалени), "
+"„&amp;MUSIC“ (Музика), „&amp;PICTURES“ (Изображения), „&amp;"
+"PUBLIC_SHARE“ (Публични), „&amp;TEMPLATES“ (Шаблони), „&amp;VIDEOS“ (Видео). "
+"Вижте „/etc/xdg/user-dirs.defaults“ и „$HOME/.config/user-dirs.default“."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
+msgid "Ignored files"
+msgstr "Прескачани файлове"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
+msgid "List of file patterns to avoid"
+msgstr "Списък с шаблони за имена на файловете, които да не бъдат индексирани"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
+msgid "Ignored directories"
+msgstr "Прескачани папки"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
+msgid "List of directories to avoid"
+msgstr "Списък с шаблони за имена на папките, които да не бъдат индексирани"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
+msgid "Ignored directories with content"
+msgstr "Папки за прескачане заради съдържание"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
+msgid "Avoid any directory containing a file blacklisted here"
+msgstr ""
+"Списък с шаблони за имена на файлове, които карат папката, която ги съдържа, "
+"да не се индексира"
+
+#: ../src/miners/fs/tracker-main.c:79
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr ""
+"Първоначално време преди събуждане на процеса в секунди в интервала [0; "
+"1000]. Стандартно е „15“."
+
+#: ../src/miners/fs/tracker-main.c:84
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr "Изпълнение докато всички настроени местоположения се индексират"
+
+#: ../src/miners/fs/tracker-main.c:88
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr "Проверка дали ФАЙЛът подлежи на индексиране според настройките"
+
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
+#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+msgid "FILE"
+msgstr "ФАЙЛ"
+
+#: ../src/miners/fs/tracker-main.c:454
+#, c-format
+msgid "Data object '%s' currently exists"
+msgstr "Съществува обект с данни „%s“"
+
+#: ../src/miners/fs/tracker-main.c:455
+#, c-format
+msgid "Data object '%s' currently does not exist"
+msgstr "Не съществува обект с данни „%s“"
+
+#: ../src/miners/fs/tracker-main.c:470
+msgid "Directory is eligible to be mined (based on rules)"
+msgstr "Папката подлежи на анализ (според правилата)"
+
+#: ../src/miners/fs/tracker-main.c:471
+msgid "Directory is NOT eligible to be mined (based on rules)"
+msgstr "Папката НЕ подлежи на анализ (според правилата)"
+
+#: ../src/miners/fs/tracker-main.c:491
+msgid "Directory is eligible to be mined (based on contents)"
+msgstr "Папката подлежи на анализ (според съдържанието си)"
+
+#: ../src/miners/fs/tracker-main.c:492
+msgid "Directory is NOT eligible to be mined (based on contents)"
+msgstr "Папката НЕ подлежи на анализ (според съдържанието си)"
+
+#: ../src/miners/fs/tracker-main.c:539
+msgid "Directory is eligible to be monitored (based on config)"
+msgstr "Папката подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:540
+msgid "Directory is NOT eligible to be monitored (based on config)"
+msgstr "Папката НЕ подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:544
+msgid "File is eligible to be monitored (based on config)"
+msgstr "Файлът подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:545
+msgid "File is NOT eligible to be monitored (based on config)"
+msgstr "Файлът НЕ подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:549
+msgid "File or Directory is eligible to be monitored (based on config)"
+msgstr "Файлът или папката подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:550
+msgid "File or Directory is NOT eligible to be monitored (based on config)"
+msgstr "Файлът или папката НЕ подлежи на следене (според настройките)"
+
+#: ../src/miners/fs/tracker-main.c:565
+msgid "File is eligible to be mined (based on rules)"
+msgstr "Файлът подлежи на анализ (според правилата)"
+
+#: ../src/miners/fs/tracker-main.c:566
+msgid "File is NOT eligible to be mined (based on rules)"
+msgstr "Файлът НЕ подлежи на анализ (според правилата)"
+
+#: ../src/miners/fs/tracker-main.c:575
+msgid "Would be indexed"
+msgstr "Ще се индексира"
+
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
+msgid "Yes"
+msgstr "Да"
+
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
+msgid "No"
+msgstr "Не"
+
+#: ../src/miners/fs/tracker-main.c:577
+msgid "Would be monitored"
+msgstr "Ще се следи"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/fs/tracker-main.c:697
+msgid "- start the tracker indexer"
+msgstr "— стартиране на индексирането"
+
+#: ../src/miners/fs/tracker-miner-files.c:1354
+msgid "Low battery"
+msgstr "Нисък заряд на батерията"
+
+#: ../src/miners/fs/tracker-miner-files.c:1481
+msgid "Low disk space"
+msgstr "Дисковото пространство е на привършване"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
+msgid "Tracker File System Miner"
+msgstr "Анализатор на файловата система"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:2
+msgid "Crawls and processes files on the file system"
+msgstr "Индексиране на файловете във файловата система"
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:1
+msgid "RSS/ATOM Feeds"
+msgstr "Емисии RSS/ATOM"
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:2
+msgid "Fetch RSS/ATOM Feeds"
+msgstr "Изтегляне на емисии RSS/ATOM"
+
+#: ../src/miners/rss/tracker-main.c:44
+msgid "Add feed (must be used with --title)"
+msgstr "Добавяне на емисия (изисква и опцията „--title“)"
+
+#: ../src/miners/rss/tracker-main.c:45
+msgid "URL"
+msgstr "АДРЕС"
+
+#: ../src/miners/rss/tracker-main.c:48
+msgid "Title to use (must be used with --add-feed)"
+msgstr "Използвано заглавие (изисква и опцията „--add-feed“)"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/rss/tracker-main.c:73
+msgid "- start the feeds indexer"
+msgstr "— стартиране на индексирането на емисии"
+
+#: ../src/miners/rss/tracker-main.c:78
+msgid "Adding a feed requires --add-feed and --title"
+msgstr ""
+"Добавянето на емисия изисква задаването и на двете опции: „--add-feed“ и „--"
+"title“"
+
+#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
+#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
+#: ../src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Не може да се установи връзка с основния процес на индексирането"
+
+#: ../src/miners/rss/tracker-main.c:139
+msgid "Could not add feed"
+msgstr "Не може да се добави емисия"
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:1
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Анализатор на емисиите по RSS/ATOM"
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:2
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Изтегляне на емисиите по RSS/ATOM"
+
+#: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:1
+msgid "Userguides"
+msgstr "Ръководства"
+
+#: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:2
+msgid "Userguide data miner"
+msgstr "Анализатор на потребителските ръководства"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/user-guides/tracker-main.c:196
+msgid "- start the user guides data miner"
+msgstr "— стартиране на анализа на потребителските ръководства"
+
+#: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
+msgid "Tracker User Guides Miner"
+msgstr "Анализатор на потребителските ръководства"
+
+#: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
+msgid "Crawls and processes user guides in shared areas"
+msgstr ""
+"Индексиране на потребителските ръководства в споделените части на файловата "
+"система"
+
+#: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:1
+#: ../src/tracker/tracker-search.c:408
+msgid "Emails"
+msgstr "Е-писма"
+
+#: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:2
+msgid "Evolution Email miner"
+msgstr "Анализатор на писмата в Evolution"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Tracker"
+msgstr "Индексиране"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "Push data to Tracker to make it queryable."
+msgstr "Подаване на информация към индексирането, за да може да се търси в нея"
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
+#: ../src/tracker/tracker-daemon.c:123
+msgid "Processing…"
+msgstr "Обработка…"
+
+#. Create dialog and embed vbox.
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
+#: ../src/tracker-needle/tracker-view.vala:539
+msgid "Tags"
+msgstr "Етикети"
+
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
+#: ../src/tracker-needle/tracker-tags-view.vala:374
+#, c-format
+msgid "_Set the tags you want to associate with the %d selected item:"
+msgid_plural "_Set the tags you want to associate with the %d selected items:"
+msgstr[0] "_Задаване на етикетите за %d избран обект:"
+msgstr[1] "_Задаване на етикетите за %d избрани обекта:"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
+msgid "Extractor"
+msgstr "Извличаща програма"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
+msgid "Metadata extractor"
+msgstr "Програма извличаща метаданните"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
+msgid "Max bytes to extract"
+msgstr "Максимален брой байтове за извличане"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr "Максимален размер байтове за извличане от UTF-8."
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr "Максимална широчина на медиен файл"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
+"no limit on the media art width."
+msgstr ""
+"Максимална широчина в пиксели за извлечен медиен файл. Когато броят е "
+"надвишен, файлът се преоразмерява. Стойността „-1“ изключва запазването на "
+"медия от файлове. Стойността „0“ изключва преоразмеряването."
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
+msgid "Wait for FS miner to be done before extracting"
+msgstr ""
+"Изчакване на анализатора на файлови системи да приключи работа, преди да "
+"започне извличането"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
+msgid ""
+"When true, tracker-extract will wait for tracker-miner-fs to be done "
+"crawling before extracting meta-data. This option is useful on constrained "
+"environment where it is important to list files as fast as possible and can "
+"wait to get meta-data later."
+msgstr ""
+"Когато е опцията е зададена, „tracker-extract“ ще изчака „tracker-miner-fs“ "
+"да обходи файловите системи, преди да започне извличането на метаданните. "
+"Такава настройка е за системи с малко ресурси, когато е важно откриването на "
+"файловете да се извърши колкото може по-бързо, а за метаданните може да се "
+"изчака."
+
+#: ../src/tracker-extract/tracker-extract.c:789
+msgid "Metadata extraction failed"
+msgstr "Неуспешно извличане на метаданни"
+
+#: ../src/tracker-extract/tracker-extract.c:854
+msgid "No metadata or extractor modules found to handle this file"
+msgstr "Няма модул, който може да извлече данни или метаданни от този файл"
+
+#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-store/tracker-main.vala:48
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+"Подробност на журнални съобщения: „0“ (само грешки), „1“ (минимална), "
+"„2“ (подробна) и „3“ (най-подробна). Стандартно е „0“."
+
+#: ../src/tracker-extract/tracker-main.c:87
+msgid "File to extract metadata for"
+msgstr "Файл, за който да се извлекат метаданните"
+
+#: ../src/tracker-extract/tracker-main.c:91
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr "Вид по MIME на файла (ако не е зададен, ще бъде отгатнат)"
+
+#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+msgid "MIME"
+msgstr "ВИД_ПО_MIME"
+
+#: ../src/tracker-extract/tracker-main.c:95
+msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgstr "Изрично задаване на модул за извличането (напр. „foo“ за „foo.so“)"
+
+#: ../src/tracker-extract/tracker-main.c:96
+msgid "MODULE"
+msgstr "МОДУЛ"
+
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:299
+msgid "- Extract file meta data"
+msgstr "— извличане на метаданните на файла"
+
+#: ../src/tracker-extract/tracker-main.c:308
+msgid "Filename and mime type must be provided together"
+msgstr "Името на файла и вида по MIME трябва да се дадат заедно"
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Модул за извличане на метаданни"
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Извличане на метаданни за локалните файлове"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Стандартен изглед"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
+#: ../src/tracker-needle/tracker-needle.ui.h:1
+msgid "Desktop Search"
+msgstr "Търсене на компютъра"
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+msgid ""
+"Find what you're looking for on this computer by name or content using "
+"Tracker"
+msgstr "Претърсване на данните върху този компютър чрез Tracker"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:2
+msgid ""
+"Display results by category, for example, Music, Videos, Applications, etc. "
+"This includes searching the contents of files where applicable."
+msgstr ""
+"Извеждане на резултатите по категории, напр. Музика, Видео, Програми и т.н. "
+"Това включва и търсенето в съдържанието на файловете, когато това се налага."
+
+#: ../src/tracker-needle/tracker-needle.ui.h:3
+msgid "Display results by files found in a list"
+msgstr "Показване на резултатите като списък"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:4
+msgid "Display found images"
+msgstr "Показване на откритите изображения"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:5
+msgid "Find search criteria inside files"
+msgstr "Критерии за търсене в съдържанието на файловете"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:6
+msgid "Find search criteria in file titles"
+msgstr "Критерии за търсенето в името на файловете"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "Критерии за търсенето в името на файловете (разделени с „,“)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
+msgid "_Search:"
+msgstr "_Търсене:"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:9
+msgid "Show tagging panel which allows editing tags of selected results"
+msgstr ""
+"Показване на панела за етикети, с който могат за се редактират етикетите на "
+"избраните резултати"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:10
+msgid "Show statistics about the data stored"
+msgstr "Извеждане на статистика за съхранените данни"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:12
+#, no-c-format
+msgid "_Set the tags you want to associate with the %d selected items:"
+msgstr "_Задаване на етикетите за %d избрани обекта:"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:13
+msgid "Add tag"
+msgstr "Добавяне на етикет"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:14
+msgid "Remove selected tag"
+msgstr "Премахване на избрания етикет"
+
+#: ../src/tracker-needle/tracker-needle.vala:75
+msgid "Search criteria was too generic"
+msgstr "Прекалено общи критерии за търсене"
+
+#: ../src/tracker-needle/tracker-needle.vala:76
+msgid "Only the first 500 items will be displayed"
+msgstr "Само първите 500 резултата ще бъдат показани"
+
+#: ../src/tracker-needle/tracker-needle.vala:811
+#: ../src/tracker-preferences/tracker-preferences.vala:1051
+msgid "Print version"
+msgstr "Извеждане на версията"
+
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
+msgid "[SEARCH-CRITERIA]"
+msgstr "[КРИТЕРИИ_ЗА_ТЪРСЕНЕ]"
+
+#: ../src/tracker-needle/tracker-needle.vala:824
+msgid "Desktop Search user interface using Tracker"
+msgstr "Търсене с помощта на Tracker"
+
+#. Label for dialog
+#: ../src/tracker-needle/tracker-stats.vala:71
+msgid ""
+"The statistics represented here do not reflect their availability, rather "
+"the total data stored:"
+msgstr ""
+"Изведената статистика не отговаря на наличността на данните, а на общото "
+"количество съхранени данни:"
+
+#: ../src/tracker-needle/tracker-stats.vala:97
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Етикет"
+msgstr[1] "Етикети"
+
+#: ../src/tracker-needle/tracker-stats.vala:100
+msgid "Contact"
+msgid_plural "Contacts"
+msgstr[0] "Контакт"
+msgstr[1] "Контакти"
+
+#: ../src/tracker-needle/tracker-stats.vala:103
+msgid "Audio"
+msgid_plural "Audios"
+msgstr[0] "Аудио клип"
+msgstr[1] "Аудио клипове"
+
+#: ../src/tracker-needle/tracker-stats.vala:106
+msgid "Document"
+msgid_plural "Documents"
+msgstr[0] "Документ"
+msgstr[1] "Документи"
+
+#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-view.vala:185
+#: ../src/tracker-preferences/tracker-preferences.vala:170
+msgid "File"
+msgid_plural "Files"
+msgstr[0] "Файл"
+msgstr[1] "Файлове"
+
+#: ../src/tracker-needle/tracker-stats.vala:112
+msgid "Folder"
+msgid_plural "Folders"
+msgstr[0] "Папка"
+msgstr[1] "Папки"
+
+#: ../src/tracker-needle/tracker-stats.vala:115
+msgid "Image"
+msgid_plural "Images"
+msgstr[0] "Изображение"
+msgstr[1] "Изображения"
+
+#: ../src/tracker-needle/tracker-stats.vala:118
+#: ../src/tracker/tracker-daemon.c:1108
+msgid "Application"
+msgid_plural "Applications"
+msgstr[0] "Програма"
+msgstr[1] "Програми"
+
+#. case "nmm:Video":
+#: ../src/tracker-needle/tracker-stats.vala:122
+msgid "Video"
+msgid_plural "Videos"
+msgstr[0] "Видео клип"
+msgstr[1] "Видео клипове"
+
+#: ../src/tracker-needle/tracker-stats.vala:125
+msgid "Album"
+msgid_plural "Albums"
+msgstr[0] "Албум"
+msgstr[1] "Албуми"
+
+#: ../src/tracker-needle/tracker-stats.vala:128
+msgid "Music Track"
+msgid_plural "Music Tracks"
+msgstr[0] "Музикално парче"
+msgstr[1] "Музикални парчета"
+
+#: ../src/tracker-needle/tracker-stats.vala:131
+msgid "Photo"
+msgid_plural "Photos"
+msgstr[0] "Фотография"
+msgstr[1] "Фотографии"
+
+#: ../src/tracker-needle/tracker-stats.vala:134
+msgid "Playlist"
+msgid_plural "Playlists"
+msgstr[0] "Списък за изпълнение"
+msgstr[1] "Списъци за изпълнение"
+
+#: ../src/tracker-needle/tracker-stats.vala:137
+msgid "Email"
+msgid_plural "Emails"
+msgstr[0] "Е-писмо"
+msgstr[1] "Е-писма"
+
+#: ../src/tracker-needle/tracker-stats.vala:140
+msgid "Bookmark"
+msgid_plural "Bookmarks"
+msgstr[0] "Отметка"
+msgstr[1] "Отметки"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:324
+msgid "Name"
+msgstr "Име"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:380
+msgid "No items currently selected"
+msgstr "Нищо не е избрано"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
+msgid "Could not update tags"
+msgstr "Етикетите не могат да се обновят"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:526
+#: ../src/tracker/tracker-tag.c:885
+msgid "Could not remove tag"
+msgstr "Етикетът не може да се изтрие"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:701
+msgid "Could not retrieve tags for the current selection"
+msgstr "Етикетите за текущо избраните обекти не могат да бъдат получени"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:740
+#: ../src/tracker/tracker-tag.c:709
+msgid "Could not add tag"
+msgstr "Не може да се добави етикет"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:797
+msgid "Could not update tags for file"
+msgstr "Етикетите на файла не може да се обновяват"
+
+#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+#. if it's more than a week, use the default date format
+#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
+#: ../src/tracker-needle/tracker-utils.vala:108
+#, no-c-format
+msgid "%x"
+msgstr "%x"
+
+#: ../src/tracker-needle/tracker-utils.vala:112
+msgid "Today"
+msgstr "Днес"
+
+#: ../src/tracker-needle/tracker-utils.vala:121
+msgid "Tomorrow"
+msgstr "Утре"
+
+#: ../src/tracker-needle/tracker-utils.vala:123
+msgid "Yesterday"
+msgstr "Вчера"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:127
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "След %ld ден"
+msgstr[1] "След %ld дена"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:130
+#, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] "Преди %ld ден"
+msgstr[1] "Преди %ld дена"
+
+#: ../src/tracker-needle/tracker-utils.vala:142
+#: ../src/tracker-needle/tracker-utils.vala:171
+msgid "Less than one second"
+msgstr "По-малко от секунда"
+
+#: ../src/tracker-needle/tracker-view.vala:111
+msgid "No Search Results"
+msgstr "Не са открити резултати"
+
+#: ../src/tracker-needle/tracker-view.vala:112
+msgid ""
+"Select the view on the toolbar for the content you want, e.g. everything, "
+"files or just images"
+msgstr ""
+"Изберете изгледа за съдържанието чрез летата с инструменти, напр. всичко, "
+"файлове или само изображения."
+
+#: ../src/tracker-needle/tracker-view.vala:113
+msgid "Start to search using the entry box above"
+msgstr "Започване на търсенето чрез прозореца за въвеждане отгоре"
+
+#: ../src/tracker-needle/tracker-view.vala:197
+msgid "Last Changed"
+msgstr "Последна промяна"
+
+#: ../src/tracker-needle/tracker-view.vala:206
+msgid "Size"
+msgstr "Размер"
+
+#: ../src/tracker-needle/tracker-view.vala:334
+msgid "Music"
+msgstr "Музика"
+
+#: ../src/tracker-needle/tracker-view.vala:337
+msgid "Images"
+msgstr "Изображения"
+
+#: ../src/tracker-needle/tracker-view.vala:340
+msgid "Videos"
+msgstr "Видео"
+
+#: ../src/tracker-needle/tracker-view.vala:343
+msgid "Documents"
+msgstr "Документи"
+
+#: ../src/tracker-needle/tracker-view.vala:346
+msgid "Mail"
+msgstr "Поща"
+
+#: ../src/tracker-needle/tracker-view.vala:349
+msgid "Folders"
+msgstr "Папки"
+
+#: ../src/tracker-needle/tracker-view.vala:352
+#: ../src/tracker/tracker-search.c:1001
+msgid "Bookmarks"
+msgstr "Отметки"
+
+#: ../src/tracker-needle/tracker-view.vala:356
+msgid "Items"
+msgstr "Обекти"
+
+#: ../src/tracker-needle/tracker-view.vala:369
+msgid "Loading…"
+msgstr "Зареждане…"
+
+#: ../src/tracker-needle/tracker-view.vala:435
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d страница"
+msgstr[1] "%d страници"
+
+#: ../src/tracker-needle/tracker-view.vala:452
+msgid "_Show Parent Directory"
+msgstr "Показване на _съдържащата папка"
+
+#: ../src/tracker-needle/tracker-view.vala:459
+msgid "_Tags…"
+msgstr "_Етикети…"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Search and Indexing"
+msgstr "Търсене и индексиране"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Configure file indexing with Tracker"
+msgstr "Настройване на индексирането на файлове чрез Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
+msgid "Indexing Preferences"
+msgstr "Настройки на индексирането"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
+msgid "_Monitor file and directory changes"
+msgstr "_Следене за промени по файловете и папките"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
+msgid "Enable when running on _battery"
+msgstr "Индексиране и при захранване от _батерии"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "Enable for _initial data population"
+msgstr "Включване за _първоначалното извличане на данни"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "Include _removable media"
+msgstr "Индексиране и на _преносимите носители на данни"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
+msgstr ""
+"Това включва всички преносими носители, в това число: карти за памет, CD, "
+"DVD- дискове и т.н."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Include optical di_scs"
+msgstr "Индексиране и на _оптичните дискове"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Semantics"
+msgstr "Семантика"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+msgid ""
+"The  scheduler  is  the kernel component that decides which runnable "
+"application will be executed by the CPU next.  Each application has an "
+"associated scheduling  policy and priority.\n"
+"\n"
+"This option allows you to make Tracker take a back seat and not eat up too "
+"much CPU time if you have other applications more deserving of it."
+msgstr ""
+"Диспечерът е компонентът на ядрото, който решава коя програма да се "
+"изпълнява в даден момент от процесора. За всяка програма има политика и "
+"приоритет на диспечера.\n"
+"\n"
+"Тази опция кара Tracker да се изпълнява във фонов режим, като не използва "
+"прекалено много процесорно време, ако някоя друга програма се нуждае от "
+"такова."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+msgid "Index content in the background:"
+msgstr "Индексиране на съдържанието във фонов режим:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+msgid "O_nly when computer is not being used"
+msgstr "_Само когато компютърът не се използва"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
+msgid ""
+"Indexing content will be <b>much slower</b> but other applications will have "
+"priority."
+msgstr ""
+"Индексирането на съдържанието ще е <b>много по-бавно</b>, а другите програми "
+"ще са с приоритет."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
+msgid ""
+"_While other applications are running, except for initial data population"
+msgstr "Във _фонов режим, освен за първоначалното индексиране."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid ""
+"Indexing content will be <b>much slower</b> but other applications will have "
+"priority. This will only be the case on the <b>first index</b> of your "
+"content after you start your computer from a new install"
+msgstr ""
+"Индексирането на съдържанието ще е <b>много по-бавно</b>, а другите програми "
+"ще са с приоритет. Това поведение е само за <b>първоначалното индексиране</"
+"b> на съдържанието — при първото стартиране на компютъра сред инсталиране."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+msgid "While _other applications are running"
+msgstr "_Заедно с другите програми"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+msgid ""
+"Indexing content will be as <b>fast</b> as possible but other applications "
+"may suffer and be slower as a result."
+msgstr ""
+"Индексирането на съдържанието ще е възможно <b>най-бързо</b>, но като "
+"резултат другите програми може да са по-бавни."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid "Stop indexing when _disk space is below:"
+msgstr "Спиране на _индексирането, ако свободното пространство е под:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+msgid "Limitations"
+msgstr "Ограничения"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"Indexed content from removable devices that have not been inserted for a "
+"while, are cleaned up to avoid build up of unused resources."
+msgstr ""
+"Индексите за съдържанието на преносими устройства, които не са поставяни "
+"известно време в компютъра, се изчистват, за да се освободи пространство."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+msgid "Days before deleting removable devices:"
+msgstr "Дни преди изтриваното на индексите за преносими устройства"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Garbage Collection"
+msgstr "Събиране на боклука"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Indexing"
+msgstr "Индексиране"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid ""
+"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
+"b> directory, can be easily toggled below. This will add or remove their "
+"real paths from the list underneath.\n"
+"\n"
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+"directories underneath it will also be indexed. Otherwise, only files "
+"immediately in that directory will be indexed."
+msgstr ""
+"Специалните папки като <b>Домашната</b>, <b>Плота</b> или <b>Документите</b> "
+"могат да се превключват отдолу — това добавя или премахва истинските пътища "
+"до тях в списъка отдолу.\n"
+"\n"
+"Ако за папка е включено <b>рекурсивно</b> обхождане, всички подпапки навътре "
+"в нея също ще бъдат индексирани. В противен случай се индексират само "
+"файловете директно в нея."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+msgid "Index Home Directory"
+msgstr "Индексиране на домашната папка"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid "Index Desktop Directory"
+msgstr "Индексиране на папката на работния плот"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid "Index Documents Directory"
+msgstr "Индексиране на папката за документи"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+msgid "Index Music Directory"
+msgstr "Индексиране на папката за музика"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+msgid "Index Pictures Directory"
+msgstr "Индексиране на папката за изображения"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "Index Videos Directory"
+msgstr "Индексиране на папката за видео"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "Index Download Directory"
+msgstr "Индексиране на папката за свалени файлове"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid ""
+"One or more special locations have the same path.\n"
+"Those which are the same are disabled!"
+msgstr ""
+"Едно или повече от специалните местоположения\n"
+"отговарят на един път. Съвпадащите са изключени!"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+msgid "Add directory to be indexed"
+msgstr "Добавяне на папка за индексиране"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+msgid "Remove directory from being indexed"
+msgstr "Спиране на индексиране на папка"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
+msgid "Where is your content?"
+msgstr "Къде е съдържанието за индексиране?"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
+msgid "Locations"
+msgstr "Местоположения"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:41
+msgid "Glob patterns to ignore:"
+msgstr "Шаблони за прескачане:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:42
+msgid "Opens text entry for glob patterns"
+msgstr "Отваряне на прозорец за въвеждане на шаблони за прескачане"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:43
+msgid "Opens the filechooser dialogue"
+msgstr "Отваряне на прозорец за избор на файлове"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:44
+msgid "With specific files:"
+msgstr "Конкретно следните файлове:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:45
+msgid "Directories"
+msgstr "Папки"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:46
+msgid ""
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+msgstr ""
+"Могат да се използват шаблони като за обвивката, напр.: „*bar*“.\n"
+"Най-често се използва за папки като „*~“, „*.o“, „*.la“ и т.н."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:48
+#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
+msgid "Files"
+msgstr "Файлове"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:49
+msgid "Ignored Content"
+msgstr "Прескачано съдържание"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:50
+msgid "Index content of _files found"
+msgstr "Индексиране на _съдържанието на откритите файлове"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:51
+msgid "Index _numbers"
+msgstr "Индексиране на _числата"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:52
+msgid "What is indexed?"
+msgstr "Какво да се индексира?"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:53
+msgid "Control"
+msgstr "Управление"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:54
+msgid ""
+"When resetting your indexed data, the databases are removed and your files "
+"will no longer be indexed. Upon next start, Tracker will then start indexing "
+"data as if it was being run for the first time.\n"
+"\n"
+"<b>Warning: All indexes and caches for your data will be removed! They can "
+"not be retrieved! Your REAL data and files will not be touched.</b>\n"
+"\n"
+"Clicking this button will close the preferences too."
+msgstr ""
+"При изчистването на индексираното се изтриват базите от данни с резултатите "
+"от анализа на файловете. При следващото стартиране на компютъра Tracker ще "
+"започне първоначално индексиране.\n"
+"\n"
+"<b>Предупреждение: Индексите и временните данни ще бъдат изтрити и ще трябва "
+"да бъдат генерирани наново. Същинските файлове и данни НЯМА да бъдат "
+"променяни.</b>\n"
+"\n"
+"С натискането на бутона ще затворите и прозореца за настройките."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:59
+msgid "Yes, remove all indexes"
+msgstr "Изтриване на всички индекси"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:60
+msgid ""
+"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
+"able to quickly find your information and content."
+msgstr ""
+"Индексът е подреден списък от препратки към определени данни. Чрез индексите "
+"може да се търси много по-бързо."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:61
+msgid "Reset Indexed Data"
+msgstr "Изчистване на индексираните данни"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:62
+msgid "_Delay"
+msgstr "_Забавяне"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:63
+msgid "seconds"
+msgstr "Секунди"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:64
+msgid "Start up"
+msgstr "Стартиране"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:65
+msgid "System"
+msgstr "Система"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:167
+#: ../src/tracker-preferences/tracker-preferences.vala:168
+#: ../src/tracker-preferences/tracker-preferences.vala:169
+msgid "Directory"
+msgstr "Папка"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:357
+msgid ""
+"The changes you have made to your preferences here require a reindex to "
+"ensure all your data is correctly indexed as you have requested."
+msgstr ""
+"Тези промени по настройките изискват индексиране наново, за да се "
+"удовлетворят изискванията."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:358
+msgid "This will close this dialog!"
+msgstr "Това ще затвори този прозорец."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:359
+msgid "Would you like to reindex now?"
+msgstr "Искате ли новото индексиране да започне?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:361
+msgid "Reindex"
+msgstr "Ново индексиране"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:362
+#: ../src/tracker-preferences/tracker-preferences.vala:385
+msgid "Do nothing"
+msgstr "Нищо да не се прави"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:381
+msgid ""
+"The changes you have made to your preferences require restarting tracker "
+"processes."
+msgstr ""
+"Тези промени по настройките изискват рестартиране на индексиращите процеси."
+
+#: ../src/tracker-preferences/tracker-preferences.vala:382
+msgid "Would you like to restart now?"
+msgstr "Желаете ли да ги рестартирате сега?"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:384
+msgid "Restart Tracker"
+msgstr "Рестартиране на индексирането"
+
+#. To translators: This is a feature that is
+#. * disabled for disk space checking.
+#.
+#. To translators: This is a feature that is
+#. * disabled for removing a device from a
+#. * database cache.
+#.
+#: ../src/tracker-preferences/tracker-preferences.vala:450
+#: ../src/tracker-preferences/tracker-preferences.vala:463
+msgid "Disabled"
+msgstr "Изключено"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:640
+msgid "Enter value"
+msgstr "Въведете стойност"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:643
+#: ../src/tracker-preferences/tracker-preferences.vala:672
+msgid "_Cancel"
+msgstr "_Отмяна"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:644
+#: ../src/tracker-preferences/tracker-preferences.vala:674
+msgid "_OK"
+msgstr "_Добре"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:669
+msgid "Select directory"
+msgstr "Избор на папка"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:690
+msgid "That directory is already selected as a location to index"
+msgstr "Папката вече е била отбелязана за индексиране"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:952
+msgid "Recurse"
+msgstr "Рекурсивно"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:1057
+msgid "Desktop Search preferences"
+msgstr "Настройки на търсенето"
+
+#. Indexer options
+#: ../src/tracker-store/tracker-main.vala:51
+msgid "Force a re-index of all content"
+msgstr "Ново индексиране на всички данни"
+
+#: ../src/tracker-store/tracker-main.vala:52
+msgid "Only allow read based actions on the database"
+msgstr "Позволяване само на четене от базата от данни"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.vala:166
+msgid "- start the tracker daemon"
+msgstr "— стартиране на демона за индексиране"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
+msgid "Tracker Store"
+msgstr "Съхранение на индексите"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
+msgid "Metadata database store and lookup manager"
+msgstr "Управление на съхранението и запитването към базата от метаданни"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Лаг на GraphUpdated"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Период в милисекунди преди да се излъчат сигнали към GraphUpdated, че "
+"индексите са се променили в базата от данни."
+
+#: ../src/tracker/tracker-config.c:59
+#, c-format
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr ""
+"Настройките за анализаторите не могат да се получат от GSettings. "
+"Управлението им не може да се стартира, %s"
+
+#: ../src/tracker/tracker-compatible.c:221
+msgid "The 'tracker-control' command is no longer available"
+msgstr "Командата „tracker-control“ вече не съществува"
+
+#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
+msgid "Unavailable"
+msgstr "Липсва"
+
+#. generic
+#: ../src/tracker/tracker-daemon.c:122
+msgid "Initializing"
+msgstr "Инициализиране"
+
+#: ../src/tracker/tracker-daemon.c:124
+msgid "Fetching…"
+msgstr "Получаване…"
+
+#. miner/rss
+#: ../src/tracker/tracker-daemon.c:125
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "Нерекурсивно индексиране на папка „%s“"
+
+#: ../src/tracker/tracker-daemon.c:126
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "Рекурсивно индексиране на папка „%s“"
+
+#: ../src/tracker/tracker-daemon.c:127
+msgid "Paused"
+msgstr "На пауза"
+
+#: ../src/tracker/tracker-daemon.c:128
+msgid "Idle"
+msgstr "Бездействие"
+
+#: ../src/tracker/tracker-daemon.c:134
+msgid "Follow status changes as they happen"
+msgstr "Проследяване на промяната на състоянието"
+
+#: ../src/tracker/tracker-daemon.c:138
+msgid ""
+"Watch changes to the database in real time (e.g. resources or files being "
+"added)"
+msgstr ""
+"Следене на промените в базата от данни в реално време (напр. добавянето на "
+"файлове или други ресурси)"
+
+#: ../src/tracker/tracker-daemon.c:139
+msgid "ONTOLOGY"
+msgstr "ОНТОЛОГИЯ"
+
+#: ../src/tracker/tracker-daemon.c:142
+msgid "List common statuses for miners and the store"
+msgstr "Извеждане на общото състояние на анализиращите и съхраняващите процеси"
+
+#: ../src/tracker/tracker-daemon.c:147
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "Пауза на анализатор (трябва да използвате и опцията „--miner“)"
+
+#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
+msgid "REASON"
+msgstr "ПРИЧИНА"
+
+#: ../src/tracker/tracker-daemon.c:151
+msgid ""
+"Pause a miner while the calling process is alive or until resumed (you must "
+"use this with --miner)"
+msgstr ""
+"Пауза на анализатор докато извикващия го процес е активен или подновен "
+"(трябва да използвате и опцията „--miner“)"
+
+#: ../src/tracker/tracker-daemon.c:155
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+"Продължаване на работата на анализатор (трябва да използвате и опцията „--"
+"miner“)"
+
+#: ../src/tracker/tracker-daemon.c:156
+msgid "COOKIE"
+msgstr "БИСКВИТКА"
+
+#: ../src/tracker/tracker-daemon.c:159
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+"Анализатор, на който да се прати „--resume“ или „--pause“ (може да ползвате "
+"суфикси като „Файлове“ или „Програми“)"
+
+#: ../src/tracker/tracker-daemon.c:160
+msgid "MINER"
+msgstr "АНАЛИЗАТОР"
+
+#: ../src/tracker/tracker-daemon.c:163
+msgid "List all miners currently running"
+msgstr "Извеждане на всички анализатори работещи в момента"
+
+#: ../src/tracker/tracker-daemon.c:167
+msgid "List all miners installed"
+msgstr "Извеждане на всички инсталирани анализатори"
+
+#: ../src/tracker/tracker-daemon.c:171
+msgid "List pause reasons"
+msgstr "Извеждане на причините за паузата"
+
+#: ../src/tracker/tracker-daemon.c:176
+msgid "List all Tracker processes"
+msgstr "Извеждане на всички процеси по индексирането"
+
+#: ../src/tracker/tracker-daemon.c:178
+msgid ""
+"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+"Спиране на всички отговарящи процеси със „SIGKILL“. Вариантите са "
+"„store“ (съхраняващи), „miners“ (анализатори) или „all“ (всички). Ако не е "
+"подадена стойност, стандартната е „all“."
+
+#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
+msgid "APPS"
+msgstr "ПРОГРАМИ"
+
+#: ../src/tracker/tracker-daemon.c:181
+msgid ""
+"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+"Спиране на всички отговарящи процеси със „SIGTERM“. Вариантите са "
+"„store“ (съхраняващи), „miners“ (анализатори) или „all“ (всички). Ако не е "
+"подадена стойност, стандартната е „all“."
+
+#: ../src/tracker/tracker-daemon.c:184
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+"Стартиране на анализаторите (което води до стартирането и на процесите по "
+"съхранение)"
+
+#: ../src/tracker/tracker-daemon.c:187
+msgid ""
+"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+"'errors') for all processes"
+msgstr ""
+"Задаване на ПОДРОБНОСТта на журналните съобщения за всички процеси. "
+"Възможните стойности са „debug“ (най-подробна), „detailed“ (подробна), "
+"„minimal“ (минимална), „errors“ (само грешки)."
+
+#: ../src/tracker/tracker-daemon.c:188
+msgid "LEVEL"
+msgstr "ПОДРОБНОСТ"
+
+#: ../src/tracker/tracker-daemon.c:190
+msgid "Show logging values in terms of log verbosity for each process"
+msgstr "Извеждане на подробността на журналните съобщения за всеки процес"
+
+#: ../src/tracker/tracker-daemon.c:264
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Не може да бъде получено състоянието на анализатора: %s"
+
+#. Translators: %s is a time string
+#: ../src/tracker/tracker-daemon.c:326
+#, c-format
+msgid "%s remaining"
+msgstr "остава: %s"
+
+#: ../src/tracker/tracker-daemon.c:329
+msgid "unknown time left"
+msgstr "остава: неизвестно време"
+
+#. Work out lengths for output spacing
+#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
+msgid "PAUSED"
+msgstr "ПАУЗА"
+
+#: ../src/tracker/tracker-daemon.c:359
+msgid "Not running or is a disabled plugin"
+msgstr "Приставката не работи в момента или е изключена за постоянно"
+
+#: ../src/tracker/tracker-daemon.c:461
+msgid "Could not retrieve tracker-store status"
+msgstr ""
+"Състоянието на процеса за съхранение на индексите „tracker-store“ не може да "
+"бъде получено"
+
+#: ../src/tracker/tracker-daemon.c:482
+msgid "Could not retrieve tracker-store progress"
+msgstr ""
+"Напредъкът на процеса за съхранение на индексите „tracker-store“ не може да "
+"бъде получен"
+
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+msgid "Unable to retrieve namespace prefixes"
+msgstr "Префиксите за пространствата от имена не могат да бъдат получени"
+
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+msgid "No namespace prefixes were returned"
+msgstr "Не са върнати никакви префикси за пространствата от имена"
+
+#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
+msgid "Could not run SPARQL query"
+msgstr "Заявката на SPARQL не може да бъде изпълнена"
+
+#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
+msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+msgstr ""
+"Функцията „tracker_sparql_cursor_next()“ не може да се изпълни върху "
+"заявката на SPARQL"
+
+#: ../src/tracker/tracker-daemon.c:889
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+"Анализаторът не може да се постави на пауза. Не може да се създаде "
+"управление на процесите: %s"
+
+#: ../src/tracker/tracker-daemon.c:896
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr "Опит за пауза на анализатор „%s“ със следната причина „%s“"
+
+#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr "Анализаторът не може да бъде поставен на пауза: %s"
+
+#: ../src/tracker/tracker-daemon.c:916
+#, c-format
+msgid "Cookie is %d"
+msgstr "Бисквитката е %d"
+
+#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
+#: ../src/tracker/tracker-daemon.c:1420
+msgid "Press Ctrl+C to stop"
+msgstr "Натиснете „Ctrl+C“ за спиране"
+
+#: ../src/tracker/tracker-daemon.c:947
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr ""
+"Работата на анализатора не може да бъде подновена, не може да се създаде "
+"управление на процесите: %s"
+
+#: ../src/tracker/tracker-daemon.c:954
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr "Опит за подновяване на работата на анализатора „%s“ с бисквитка %d"
+
+#: ../src/tracker/tracker-daemon.c:961
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr "Работата на анализатора не може да бъде подновена: %s"
+
+#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
+#: ../src/tracker/tracker-sparql.c:1387
+msgid "Done"
+msgstr "Готово"
+
+#: ../src/tracker/tracker-daemon.c:982
+#, c-format
+msgid "Could not list miners, manager could not be created, %s"
+msgstr ""
+"Анализаторите не могат да бъдат изведени, не може да се създаде управление "
+"на процесите: %s"
+
+#: ../src/tracker/tracker-daemon.c:996
+#, c-format
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "Открит е %d инсталиран анализатор"
+msgstr[1] "Открити са %d инсталирани анализатори"
+
+#: ../src/tracker/tracker-daemon.c:1019
+#, c-format
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "Открит е %d стартиран анализатор"
+msgstr[1] "Открити са %d стартирани анализатори"
+
+#: ../src/tracker/tracker-daemon.c:1051
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+"Не могат да се получат подробни данни за паузата, не може да се създаде "
+"управление на процесите: %s"
+
+#: ../src/tracker/tracker-daemon.c:1061
+msgid "No miners are running"
+msgstr "Никой анализатор не работи в момента"
+
+#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+msgid "Miners"
+msgstr "Анализатори"
+
+#: ../src/tracker/tracker-daemon.c:1110
+msgid "Reason"
+msgstr "Причина"
+
+#: ../src/tracker/tracker-daemon.c:1119
+msgid "No miners are paused"
+msgstr "Никои анализатори не са спрени"
+
+#: ../src/tracker/tracker-daemon.c:1207
+msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgstr ""
+"Позволените стойности са „all“ (всички), „store“ (процеси по съхранението) и "
+"„miners“ (анализатори)"
+
+#: ../src/tracker/tracker-daemon.c:1242
+msgid "Could not get SPARQL connection"
+msgstr "Не може да се установи връзка за SPARQL"
+
+#: ../src/tracker/tracker-daemon.c:1274
+msgid "Now listening for resource updates to the database"
+msgstr "Следене за промени по базата от данни"
+
+#: ../src/tracker/tracker-daemon.c:1275
+msgid "All nie:plainTextContent properties are omitted"
+msgstr "Пропуснати са всички свойства „nie:plainTextContent“"
+
+#: ../src/tracker/tracker-daemon.c:1290
+msgid "Common statuses include"
+msgstr "Чести състояния са"
+
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr ""
+"Състоянието не може да бъде получено, не може да бъде създадено управление "
+"на процесите: %s"
+
+#. Display states
+#: ../src/tracker/tracker-daemon.c:1329
+msgid "Store"
+msgstr "Съхранение"
+
+#: ../src/tracker/tracker-daemon.c:1363
+#, c-format
+msgid "Could not get display name for miner '%s'"
+msgstr "Името на анализатора „%s“ не може да се получи"
+
+#: ../src/tracker/tracker-daemon.c:1461
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+"Опциите за пауза и възобновяване на работата на анализаторите са несъвместими"
+
+#: ../src/tracker/tracker-daemon.c:1467
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+"Трябва да укажете кой анализатор да се постави на пауза или да се възобнови "
+"работата му"
+
+#: ../src/tracker/tracker-daemon.c:1473
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+"Трябва да укажете команда за пауза или възобновяване на работата на "
+"анализатора"
+
+#: ../src/tracker/tracker-daemon.c:1509
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr "Опциите „--kill“ и „--terminate“ са несъвместими"
+
+#: ../src/tracker/tracker-daemon.c:1515
+msgid "You can not use the --get-logging and --set-logging arguments together"
+msgstr "Опциите „--get-logging“ и „--set-logging“ са несъвместими"
+
+#: ../src/tracker/tracker-daemon.c:1530
+msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgstr ""
+"Неправилна стойност за подробността на журналните съобщения. Възможните "
+"стойности са: „errors“ (само грешки), „minimal“ (минимална), "
+"„detailed“ (подробна) и „debug“ (най-подробна)"
+
+#: ../src/tracker/tracker-daemon.c:1568
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr "Открит е процес %d отговарящ на командата „%s“"
+
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+msgid "Components"
+msgstr "Компоненти"
+
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+msgid "Only those with config listed"
+msgstr "Само тези в настройките"
+
+#: ../src/tracker/tracker-daemon.c:1623
+#, c-format
+msgid "Setting log verbosity for all components to '%s'…"
+msgstr ""
+"Задаване на подробността на журналните съобщения за всички процеси да е „%s“…"
+
+#: ../src/tracker/tracker-daemon.c:1662
+msgid "Starting miners…"
+msgstr "Стартиране на анализаторите…"
+
+#: ../src/tracker/tracker-daemon.c:1667
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "Анализаторите и управлението не могат да се стартират: %s"
+
+#: ../src/tracker/tracker-daemon.c:1692
+msgid "perhaps a disabled plugin?"
+msgstr "възможна причина е спряна приставка"
+
+#: ../src/tracker/tracker-daemon.c:1736
+msgid ""
+"If no arguments are given, the status of the store and data miners is shown"
+msgstr ""
+"Без аргументи се извежда състоянието и на анализаторите и на процесите по "
+"съхранението"
+
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
+#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
+#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
+#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
+#: ../src/tracker/tracker-tag.c:1079
+msgid "Unrecognized options"
+msgstr "Непознати опции"
+
+#: ../src/tracker/tracker-dbus.c:44
+msgid "Could not get D-Bus connection"
+msgstr "Не може да се установи връзка с D-BUS"
+
+#: ../src/tracker/tracker-dbus.c:62
+msgid "Could not create D-Bus proxy to tracker-store"
+msgstr "Не може да се създаде посредник през D-Bus към „tracker-store“"
+
+#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
+#, c-format
+msgid "failed to exec '%s': %s"
+msgstr "неуспешно изпълнение на „%s“: %s"
+
+#: ../src/tracker/tracker-index.c:56
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+"Задаване на видовете по MIME за файловете, които да се индексират наново. "
+"Повече видове се задават с повтаряне: „-m ВИД_1 -m ВИД_2“"
+
+#: ../src/tracker/tracker-index.c:59
+msgid "Tell miners to (re)index a given file"
+msgstr "Анализаторите да индексират (наново) определен вид файлове"
+
+#: ../src/tracker/tracker-index.c:62
+msgid "Backup current index / database to the file provided"
+msgstr "Резервно копиране на индексите/базите от данни към указания файл"
+
+#: ../src/tracker/tracker-index.c:65
+msgid "Restore a database from a previous backup (see --backup)"
+msgstr "Възстановяване на базата от данни от резервно копие (вж. „--backup“)"
+
+#: ../src/tracker/tracker-index.c:68
+msgid "Import a dataset from the provided file (in Turtle format)"
+msgstr "Внасяне на данни от указания файл във формат „Turtle“"
+
+#: ../src/tracker/tracker-index.c:122
+#, c-format
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+"Видовете по MIME не могат да бъдат индексирани наново, не може да се създаде "
+"управление на процесите: %s"
+
+#: ../src/tracker/tracker-index.c:132
+msgid "Could not reindex mimetypes"
+msgstr "Видовете по MIME не могат да бъдат индексирани наново"
+
+#: ../src/tracker/tracker-index.c:138
+msgid "Reindexing mime types was successful"
+msgstr "Успешно ново индексиране на видовете по MIME"
+
+#: ../src/tracker/tracker-index.c:154
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr ""
+"Файлът не може да се индексира (наново), не може да се създаде управление на "
+"процесите: %s"
+
+#: ../src/tracker/tracker-index.c:169
+msgid "Could not (re)index file"
+msgstr "Файлът не може да се индексира (наново)"
+
+#: ../src/tracker/tracker-index.c:175
+msgid "(Re)indexing file was successful"
+msgstr "Успешно ново индексиране на файл"
+
+#: ../src/tracker/tracker-index.c:206
+msgid "Importing Turtle file"
+msgstr "Внасяне на файлове във формат „Turtle“"
+
+#: ../src/tracker/tracker-index.c:215
+msgid "Unable to import Turtle file"
+msgstr "Файловете във формат „Turtle“ не могат да се внесат"
+
+#: ../src/tracker/tracker-index.c:251
+msgid "Backing up database"
+msgstr "Резервно копиране на базата от данни"
+
+#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
+msgid "Could not backup database"
+msgstr "Не може да се създаде резервно копие на базата от данни"
+
+#: ../src/tracker/tracker-index.c:308
+msgid "Restoring database from backup"
+msgstr "Възстановяване на базата от данни от резервно копие"
+
+#: ../src/tracker/tracker-index.c:435
+msgid ""
+"Only one action (--backup, --restore, --index-file or --import) can be used "
+"at a time"
+msgstr ""
+"Може да задавате само по едно действие — „--backup“ (резервно копие), „--"
+"restore“ (възстановяване от резервно копие), „--index-file“ (индексиране на "
+"файл) или „--import“ (внасяне)"
+
+#: ../src/tracker/tracker-index.c:437
+msgid "Missing one or more files which are required"
+msgstr "Не сте задали файл, а трябва"
+
+#: ../src/tracker/tracker-index.c:439
+msgid "Only one file can be used with --backup and --restore"
+msgstr "С опциите „--backup“ и „--restore“ може да се задава само един файл"
+
+#: ../src/tracker/tracker-index.c:441
+msgid ""
+"Actions (--backup, --restore, --index-file and --import) can not be used "
+"with --reindex-mime-type"
+msgstr ""
+"Опциите за действия — „--backup“, „--restore“, „--index-file“ или „--import“ "
+"са несъвместими с „--reindex-mime-type“"
+
+#: ../src/tracker/tracker-info.c:49
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr ""
+"Извеждане на пълните пространства от имена (т.е. да не се ползват "
+"съкращенията „nie:title“, а пълните адреси)"
+
+#: ../src/tracker/tracker-info.c:53
+msgid "Show plain text content if available for resources"
+msgstr "Извеждане на неформатиран текст, ако такъв е наличен"
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker/tracker-info.c:63
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
+msgstr ""
+"Аргументът да се тълкува не като име на ФАЙЛ, а катоl IRI "
+"(интернационализиран идентификатор на ресурс) — напр. <file:///път/към/някой/"
+"файл.txt>"
+
+#: ../src/tracker/tracker-info.c:67
+msgid "Output results as RDF in Turtle format"
+msgstr "Извеждане на резултатите като RDF във формат „Turtle“"
+
+#: ../src/tracker/tracker-info.c:285
+msgid "Querying information for entity"
+msgstr "Заявка за информация за обекта"
+
+#: ../src/tracker/tracker-info.c:309
+msgid "Unable to retrieve URN for URI"
+msgstr ""
+"Не може да се получи URN-а (име на ресурса) от URI-то (идентификатора на "
+"ресурса)"
+
+#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
+msgid "Unable to retrieve data for URI"
+msgstr "Не могат да се получат данни от URI-то (идентификатора на ресурса)"
+
+#: ../src/tracker/tracker-info.c:362
+msgid "No metadata available for that URI"
+msgstr "Липсват метаданни за URI-то (идентификатора на ресурса)"
+
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
+#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sql.c:136
+msgid "Results"
+msgstr "Резултати"
+
+#: ../src/tracker/tracker-main.c:48
+msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgstr "Използвайте „tracker help КОМАНДА“, за повече информация"
+
+#: ../src/tracker/tracker-main.c:97
+msgid "Start, stop, pause and list processes responsible for indexing content"
+msgstr ""
+"Стартиране, спиране, пауза, изброяване на процесите за индексиране на "
+"съдържанието"
+
+#: ../src/tracker/tracker-main.c:98
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr "Помощ за използването на Tracker и командите му"
+
+#: ../src/tracker/tracker-main.c:99
+msgid "Show information known about local files or items indexed"
+msgstr ""
+"Извеждане на информация за познатите, индексирани локални файлове и обекти"
+
+#: ../src/tracker/tracker-main.c:100
+msgid "Backup, restore, import and (re)index by MIME type or file name"
+msgstr ""
+"Резервно копие, възстановяване от резервно копие, внасяне и индексиране "
+"(наново) по вид MIME или име на файл"
+
+#: ../src/tracker/tracker-main.c:101
+msgid "Reset or remove index and revert configurations to defaults"
+msgstr ""
+"Изчистване/изтриване на индексите и връщане на първоначалните настройки"
+
+#: ../src/tracker/tracker-main.c:102
+msgid "Search for content indexed or show content by type"
+msgstr ""
+"Търсене в индексираното съдържание или извеждане на съдържанието по вид"
+
+#: ../src/tracker/tracker-main.c:103
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Търсене и обновяване на индекса чрез SPARQL или търсене, извеждане като "
+"списък или дърво на онтологията"
+
+#: ../src/tracker/tracker-main.c:104
+msgid "Query the database at the lowest level using SQL"
+msgstr "Заявка към базата на ниско ниво чрез SQL"
+
+#: ../src/tracker/tracker-main.c:105
+msgid "Show the indexing progress, content statistics and index state"
+msgstr ""
+"Извеждане на напредъка на индексирането, статистика на съдържанието и "
+"състоянието на индекса"
+
+#: ../src/tracker/tracker-main.c:106
+msgid "Create, list or delete tags for indexed content"
+msgstr ""
+"Създаване, извеждане или изтриване на етикети за индексираното съдържание"
+
+#: ../src/tracker/tracker-main.c:107
+msgid "Show the license and version in use"
+msgstr "Извеждане на лиценза и версията"
+
+#: ../src/tracker/tracker-main.c:152
+#, c-format
+msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgstr "„%s“ не е команда на tracker. Вижте „tracker --help“"
+
+#: ../src/tracker/tracker-main.c:175
+msgid "Available tracker commands are:"
+msgstr "Съществуващите команди на tracker са:"
+
+#: ../src/tracker/tracker-process.c:74
+msgid "Could not open /proc"
+msgstr "Не може да се отвори папката „/proc“"
+
+#: ../src/tracker/tracker-process.c:124
+msgid "Could not stat() file"
+msgstr "Файлът не може да се открие от функцията „stat()“"
+
+#: ../src/tracker/tracker-process.c:193
+#, c-format
+msgid "Could not open '%s'"
+msgstr "„%s“ не може да се отвори"
+
+#: ../src/tracker/tracker-process.c:322
+#, c-format
+msgid "Could not terminate process %d - '%s'"
+msgstr "Процес %d не може да се прекъсне — „%s“"
+
+#: ../src/tracker/tracker-process.c:328
+#, c-format
+msgid "Terminated process %d - '%s'"
+msgstr "Процес %d е прекъснат — „%s“"
+
+#: ../src/tracker/tracker-process.c:343
+#, c-format
+msgid "Could not kill process %d - '%s'"
+msgstr "Процес %d не може да се убие — „%s“"
+
+#: ../src/tracker/tracker-process.c:349
+#, c-format
+msgid "Killed process %d - '%s'"
+msgstr "Процес %d е убит — „%s“"
+
+#: ../src/tracker/tracker-reset.c:48
+msgid "Kill all Tracker processes and remove all databases"
+msgstr ""
+"Спиране на всички процеси по индексирането и изтриване на всички бази от "
+"данни"
+
+#: ../src/tracker/tracker-reset.c:51
+msgid "Same as --hard but the backup & journal are restored after restart"
+msgstr ""
+"Същото като „--hard“, но резервното копие и журнала се възстановяват след "
+"рестартиране."
+
+#: ../src/tracker/tracker-reset.c:54
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+"Изтриване на всички конфигурационни файлове, за да се пресъздадат при "
+"рестартиране."
+
+#: ../src/tracker/tracker-reset.c:132
+msgid "You can not use the --hard and --soft arguments together"
+msgstr "Опциите „--hard“ и „--soft“ са несъвместими"
+
+#: ../src/tracker/tracker-reset.c:232
+msgid "Removing configuration files…"
+msgstr "Изтриване на конфигурационните файлове…"
+
+#: ../src/tracker/tracker-reset.c:237
+msgid "Resetting existing configuration…"
+msgstr "Връщане на стандартните настройки…"
+
+#: ../src/tracker/tracker-search.c:80
+msgid "Search for files"
+msgstr "Търсене за файлове"
+
+#: ../src/tracker/tracker-search.c:84
+msgid "Search for folders"
+msgstr "Търсене за папки"
+
+#: ../src/tracker/tracker-search.c:88
+msgid "Search for music files"
+msgstr "Търсене за музикални файлове"
+
+#: ../src/tracker/tracker-search.c:92
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "Търсене за музикални албуми (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:96
+msgid "Search for music artists (--all has no effect on this)"
+msgstr "Търсене за музикални изпълнители (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:100
+msgid "Search for image files"
+msgstr "Търсене за файлове-изображения"
+
+#: ../src/tracker/tracker-search.c:104
+msgid "Search for video files"
+msgstr "Търсене за видео файлове"
+
+#: ../src/tracker/tracker-search.c:108
+msgid "Search for document files"
+msgstr "Търсене за файлове-документи"
+
+#: ../src/tracker/tracker-search.c:112
+msgid "Search for emails"
+msgstr "Търсене за е-писма"
+
+#: ../src/tracker/tracker-search.c:116
+msgid "Search for contacts"
+msgstr "Търсене за контакти"
+
+#: ../src/tracker/tracker-search.c:120
+msgid "Search for software (--all has no effect on this)"
+msgstr "Търсене за софтуер (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:124
+msgid "Search for software categories (--all has no effect on this)"
+msgstr "Търсене за категории софтуер (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:128
+msgid "Search for feeds (--all has no effect on this)"
+msgstr "Търсене за емисии по RSS (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:132
+msgid "Search for bookmarks (--all has no effect on this)"
+msgstr "Търсене за отметки (опцията „--all“ не влияе върху това)"
+
+#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
+msgid "Limit the number of results shown"
+msgstr "Брой резултати за показване"
+
+#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
+msgid "Offset the results"
+msgstr "Брой резултати за прескачане"
+
+#: ../src/tracker/tracker-search.c:146
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr "Условията за изразите да се свързват с „ИЛИ“ вместо стандартното „И“"
+
+#: ../src/tracker/tracker-search.c:150
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
+msgstr ""
+"Извеждане на URN (имената на ресурсите) за резултатите (не се отнася за „--"
+"music-albums“, „--music-artists“, „--feeds“, „--software“, „--software-"
+"categories“)"
+
+#: ../src/tracker/tracker-search.c:154
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+"Извеждане и на липсващите попадения (т.е. включване и на носителите, и "
+"дяловете, които не са монтирани)"
+
+#: ../src/tracker/tracker-search.c:158
+msgid ""
+"Disable showing snippets with results. This is only shown for some "
+"categories, e.g. Documents, Music…"
+msgstr ""
+"Без извеждане на откъси от резултатите. Те се показват само за някои "
+"категории, напр. документи, музика…"
+
+#: ../src/tracker/tracker-search.c:162
+msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+msgstr ""
+"Изключване на пълнотекстовото търсене. Автоматично включва и „--disable-"
+"snippets“"
+
+#: ../src/tracker/tracker-search.c:166
+msgid "Disable color when printing snippets and results"
+msgstr "Без цвят при извеждането на резултатите и откъсите от тях"
+
+#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
+msgid "search terms"
+msgstr "търсени думи"
+
+#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:65
+msgid "EXPRESSION"
+msgstr "ИЗРАЗ"
+
+#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+"ВНИМАНИЕ: Достигнат е максималният брой връщани резултати. В базата от данни "
+"има още съвпадения, които не са показани тук"
+
+#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
+#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
+#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
+#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+msgid "Could not get search results"
+msgstr "Резултатите от търсенето не могат да бъдат получени"
+
+#: ../src/tracker/tracker-search.c:295
+msgid "No contacts were found"
+msgstr "Не са открити контакти"
+
+#: ../src/tracker/tracker-search.c:299
+msgid "Contacts"
+msgstr "Контакти"
+
+#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
+msgid "No name"
+msgstr "Няма име"
+
+#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
+msgid "No E-mail address"
+msgstr "Няма адрес на е-поща"
+
+#: ../src/tracker/tracker-search.c:404
+msgid "No emails were found"
+msgstr "Не са открити е-писма"
+
+#: ../src/tracker/tracker-search.c:506
+msgid "No files were found"
+msgstr "Не са открити файлове"
+
+#: ../src/tracker/tracker-search.c:818
+msgid "No artists were found"
+msgstr "Не са открити изпълнители"
+
+#: ../src/tracker/tracker-search.c:822
+msgid "Artists"
+msgstr "Изпълнители"
+
+#: ../src/tracker/tracker-search.c:907
+msgid "No music was found"
+msgstr "Не е открита музика"
+
+#: ../src/tracker/tracker-search.c:911
+msgid "Albums"
+msgstr "Албуми"
+
+#: ../src/tracker/tracker-search.c:997
+msgid "No bookmarks were found"
+msgstr "Ну са открити отметки"
+
+#: ../src/tracker/tracker-search.c:1079
+msgid "No feeds were found"
+msgstr "Не са открити емисии"
+
+#: ../src/tracker/tracker-search.c:1083
+msgid "Feeds"
+msgstr "Емисии"
+
+#: ../src/tracker/tracker-search.c:1163
+msgid "No software was found"
+msgstr "Не са открити програми"
+
+#: ../src/tracker/tracker-search.c:1167
+msgid "Software"
+msgstr "Програми"
+
+#: ../src/tracker/tracker-search.c:1245
+msgid "No software categories were found"
+msgstr "Не са открити категории програми"
+
+#: ../src/tracker/tracker-search.c:1249
+msgid "Software Categories"
+msgstr "Категории програми"
+
+#: ../src/tracker/tracker-search.c:1449
+msgid "No results were found matching your query"
+msgstr "Няма резултати напасващи заявката"
+
+#: ../src/tracker/tracker-search.c:1551
+#, c-format
+msgid "Search term '%s' is a stop word."
+msgstr "Търсената дума „%s“ се прескача."
+
+#: ../src/tracker/tracker-search.c:1562
+#, c-format
+msgid ""
+"Stop words are common words which may be ignored during the indexing process."
+msgstr ""
+"Прескачаните думи са кратки, често употребявани думи, които не предоставят "
+"специфичност и не се индексират."
+
+#: ../src/tracker/tracker-sparql.c:104
+msgid "Path to use to run a query or update from file"
+msgstr "Път за заявката или обновяване от файл"
+
+#: ../src/tracker/tracker-sparql.c:108
+msgid "SPARQL query"
+msgstr "Заявка на SPARQL"
+
+#: ../src/tracker/tracker-sparql.c:109
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: ../src/tracker/tracker-sparql.c:112
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Използва се с опцията „--query“ и е само за промени по базата от данни."
+
+#: ../src/tracker/tracker-sparql.c:116
+msgid "Retrieve classes"
+msgstr "Получаване на класовете"
+
+#: ../src/tracker/tracker-sparql.c:120
+msgid "Retrieve class prefixes"
+msgstr "Получаване на префиксите на класовете"
+
+#: ../src/tracker/tracker-sparql.c:124
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+"Получаване на свойствата на клас. Могат за се ползват и префикси (напр. "
+"„rdfs:Resource“)"
+
+#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
+#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
+#: ../src/tracker/tracker-sparql.c:149
+msgid "CLASS"
+msgstr "КЛАС"
+
+#: ../src/tracker/tracker-sparql.c:128
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+"Получаване на класовете, които известяват за промени в базата от данни "
+"(задаването на конкретен КЛАС не е задължително)"
+
+#: ../src/tracker/tracker-sparql.c:132
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional)"
+msgstr ""
+"Получаване на индексите, които се използват в базата от данни за подобряване "
+"на производителността (задаването на конкретно СВОЙСТВО не е задължително)"
+
+#: ../src/tracker/tracker-sparql.c:133
+msgid "PROPERTY"
+msgstr "СВОЙСТВО"
+
+#: ../src/tracker/tracker-sparql.c:136
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Описание на под- и надкласовете (може да се комбинира с опцията „-s“ за "
+"оцветяване на части от дървото и „-p“ за извеждане на свойствата)"
+
+#: ../src/tracker/tracker-sparql.c:140
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+"Търсене на клас или свойство и извеждане на още информация (напр. Документ)"
+
+#: ../src/tracker/tracker-sparql.c:141
+msgid "CLASS/PROPERTY"
+msgstr "КЛАС/СВОЙСТВО"
+
+#: ../src/tracker/tracker-sparql.c:144
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Извеждане на съкращението на клас (напр. „nfo:FileDataObject“)."
+
+#: ../src/tracker/tracker-sparql.c:148
+msgid "Returns the full namespace for a class."
+msgstr "Извеждане на пълното пространство от имена на клас."
+
+#: ../src/tracker/tracker-sparql.c:249
+msgid "Could not get namespace prefixes"
+msgstr "Префиксите за пространства от имена не могат да бъдат получени."
+
+#: ../src/tracker/tracker-sparql.c:258
+msgid "No namespace prefixes were found"
+msgstr "Не са открити префикси за пространства от имена"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
+#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
+#: ../src/tracker/tracker-tag.c:955
+msgid "None"
+msgstr "Няма"
+
+#: ../src/tracker/tracker-sparql.c:958
+msgid "Could not create tree: subclass query failed"
+msgstr "Не може да се създаде дърво: неуспешна заявка за подклас"
+
+#: ../src/tracker/tracker-sparql.c:1007
+msgid "Could not create tree: class properties query failed"
+msgstr "Не може да се създаде дърво: неуспешна заявка за свойства на клас"
+
+#: ../src/tracker/tracker-sparql.c:1091
+msgid "Could not list classes"
+msgstr "Класовете не могат да бъдат изброени"
+
+#: ../src/tracker/tracker-sparql.c:1099
+msgid "No classes were found"
+msgstr "Не са открити класове"
+
+#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+msgid "Classes"
+msgstr "Класове"
+
+#: ../src/tracker/tracker-sparql.c:1115
+msgid "Could not list class prefixes"
+msgstr "Префиксите на класовете не могат да бъдат изброени"
+
+#: ../src/tracker/tracker-sparql.c:1123
+msgid "No class prefixes were found"
+msgstr "Не са открити префикси на класовете"
+
+#: ../src/tracker/tracker-sparql.c:1123
+msgid "Prefixes"
+msgstr "Префикси"
+
+#: ../src/tracker/tracker-sparql.c:1143
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+msgstr ""
+"Не може да се открие свойство за префикс на клас (напр. „:Resource“ в „rdfs:"
+"Resource“)"
+
+#: ../src/tracker/tracker-sparql.c:1182
+msgid "Could not list properties"
+msgstr "Свойствата не могат да бъдат изведени"
+
+#: ../src/tracker/tracker-sparql.c:1190
+msgid "No properties were found"
+msgstr "Не са открити свойства"
+
+#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+msgid "Properties"
+msgstr "Свойства"
+
+#: ../src/tracker/tracker-sparql.c:1218
+msgid "Could not find notify classes"
+msgstr "Класовете за известяване не могат да бъдат открити"
+
+#: ../src/tracker/tracker-sparql.c:1226
+msgid "No notifies were found"
+msgstr "Не са открити известители"
+
+#: ../src/tracker/tracker-sparql.c:1226
+msgid "Notifies"
+msgstr "Известители"
+
+#: ../src/tracker/tracker-sparql.c:1252
+msgid "Could not find indexed properties"
+msgstr "Не могат да се намерят индексирани свойства"
+
+#: ../src/tracker/tracker-sparql.c:1260
+msgid "No indexes were found"
+msgstr "Не са открити индекси"
+
+#: ../src/tracker/tracker-sparql.c:1260
+msgid "Indexes"
+msgstr "Индекси"
+
+#: ../src/tracker/tracker-sparql.c:1282
+msgid "Could not search classes"
+msgstr "Класовете не могат да се търсят"
+
+#: ../src/tracker/tracker-sparql.c:1290
+msgid "No classes were found to match search term"
+msgstr "Не са открити класове, които да отговарят на търсенето"
+
+#: ../src/tracker/tracker-sparql.c:1305
+msgid "Could not search properties"
+msgstr "Свойствата не могат да се търсят"
+
+#: ../src/tracker/tracker-sparql.c:1313
+msgid "No properties were found to match search term"
+msgstr "Не са открити свойства, които да отговарят на търсенето"
+
+#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+msgid "Could not get UTF-8 path from path"
+msgstr "Не може да се получи вариант в UTF-8 на този път"
+
+#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+msgid "Could not read file"
+msgstr "Не може да се прочете файл"
+
+#: ../src/tracker/tracker-sparql.c:1380
+msgid "Could not run update"
+msgstr "Обновяването не може да се изпълни"
+
+#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
+#: ../src/tracker/tracker-sql.c:162
+msgid "Could not run query"
+msgstr "Не може да се изпълни заявката"
+
+#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+msgid "No results found matching your query"
+msgstr "Няма резултати за заявката"
+
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+msgid "File and query can not be used together"
+msgstr "Опциите за файл и заявка са несъвместими"
+
+#: ../src/tracker/tracker-sparql.c:1499
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Опцията „--list-properties“ трябва да няма аргумент, когато се съчетава с "
+"аргумент на „--tree“"
+
+#: ../src/tracker/tracker-sql.c:110
+msgid "Failed to initialize data manager"
+msgstr "Неуспешно инициализиране на управлението на данните"
+
+#: ../src/tracker/tracker-sql.c:170
+msgid "Empty result set"
+msgstr "Празен резултат"
+
+#: ../src/tracker/tracker-status.c:52
+msgid "Show statistics for current index / data set"
+msgstr "Извеждане на статистика за индексите/съхранените данни"
+
+#: ../src/tracker/tracker-status.c:56
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+"Извеждане на статистика за всички класове по RDF, не само на най-честите "
+"(което е стандартно и се определя от самото търсене)"
+
+#: ../src/tracker/tracker-status.c:60
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
+msgstr ""
+"Събиране на информация за изчистване на грешки. Резултатите се извеждат в "
+"терминала"
+
+#: ../src/tracker/tracker-status.c:187
+msgid "Could not get Tracker statistics"
+msgstr "Не може да се получи статистика за Tracker"
+
+#: ../src/tracker/tracker-status.c:199
+msgid "No statistics available"
+msgstr "Липсва статистика"
+
+#: ../src/tracker/tracker-status.c:248
+msgid "Statistics:"
+msgstr "Статистика:"
+
+#: ../src/tracker/tracker-status.c:289
+msgid "Version"
+msgstr "Версия"
+
+#: ../src/tracker/tracker-status.c:296
+msgid "Disk Information"
+msgstr "Свободно място"
+
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+msgid "Remaining space on database partition"
+msgstr "Оставащо място върху дяла с базата от данни"
+
+#. 3. Size of dataset (tracker-stats), size of databases
+#: ../src/tracker/tracker-status.c:310
+msgid "Data Set"
+msgstr "Размер на данните"
+
+#: ../src/tracker/tracker-status.c:342
+msgid "Configuration"
+msgstr "Настройки"
+
+#: ../src/tracker/tracker-status.c:370
+msgid "No configuration was found"
+msgstr "Не са открити настройки"
+
+#: ../src/tracker/tracker-status.c:374
+msgid "States"
+msgstr "Състояния"
+
+#: ../src/tracker/tracker-status.c:415
+msgid "Data Statistics"
+msgstr "Статистика за данните"
+
+#: ../src/tracker/tracker-status.c:421
+msgid "No connection available"
+msgstr "Няма връзка"
+
+#: ../src/tracker/tracker-status.c:431
+msgid "Could not get statistics"
+msgstr "Статистиката не може да бъде получена"
+
+#: ../src/tracker/tracker-status.c:437
+msgid "No statistics were available"
+msgstr "Статистика няма"
+
+#: ../src/tracker/tracker-status.c:450
+msgid "Database is currently empty"
+msgstr "Базата от данни в момента е празна"
+
+#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+msgid "Could not get basic status for Tracker"
+msgstr "Не може да се установи състоянието на основния процес на индексирането"
+
+#: ../src/tracker/tracker-status.c:631
+#, c-format
+msgid "Currently indexed"
+msgstr "Индексиране"
+
+#: ../src/tracker/tracker-status.c:666
+msgid "Data is still being indexed"
+msgstr "Данните все още се индексират"
+
+#: ../src/tracker/tracker-status.c:667
+#, c-format
+msgid "Estimated %s left"
+msgstr "Остава %s"
+
+#: ../src/tracker/tracker-status.c:671
+msgid "All data miners are idle, indexing complete"
+msgstr "Всички анализатори бездействат, индексирането завърши"
+
+#: ../src/tracker/tracker-tag.c:53
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+"Извеждане на всички етикети (и прилагане на ФИЛТРи, ако са указани. Филтрите "
+"се комбинират винаги с логическо „ИЛИ“)"
+
+#: ../src/tracker/tracker-tag.c:54
+msgid "FILTER"
+msgstr "ФИЛТЪР"
+
+#: ../src/tracker/tracker-tag.c:57
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+"Извеждане на всички файлове с определен етикет (използва се само с опцията "
+"„--list“)"
+
+#: ../src/tracker/tracker-tag.c:61
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+"Добавяне на етикет (ако няма ФАЙЛове, ЕТИКЕТът не се прилага към никой файл)"
+
+#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
+msgid "TAG"
+msgstr "ЕТИКЕТ"
+
+#: ../src/tracker/tracker-tag.c:65
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+"Изтриване на етикет (ако няма ФАЙЛове, ЕТИКЕТът се изтрива от всички файлове)"
+
+#: ../src/tracker/tracker-tag.c:69
+msgid "Description for a tag (this is only used with --add)"
+msgstr "Описание на етикет (може да се използва само с „--add“)"
+
+#: ../src/tracker/tracker-tag.c:70
+msgid "STRING"
+msgstr "НИЗ"
+
+#: ../src/tracker/tracker-tag.c:81
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr ""
+"Комбиниране на условията за търсене чрез „И“, а не с „ИЛИ“ (което е "
+"стандартно)"
+
+#: ../src/tracker/tracker-tag.c:86
+msgid "FILE…"
+msgstr "ФАЙЛ…"
+
+#: ../src/tracker/tracker-tag.c:87
+msgid "FILE [FILE…]"
+msgstr "ФАЙЛ [ФАЙЛ…]"
+
+#: ../src/tracker/tracker-tag.c:249
+msgid "Could not get file URNs"
+msgstr "Не могат да се получат URN-ите (имената на ресурсите) на файловете"
+
+#: ../src/tracker/tracker-tag.c:314
+msgid "Could not get files related to tag"
+msgstr "Не могат да се получат файловете с определен етикет"
+
+#: ../src/tracker/tracker-tag.c:381
+msgid "Could not get all tags in the database"
+msgstr "Не могат да се получат всички етикети в базата от данни"
+
+#: ../src/tracker/tracker-tag.c:391
+msgid "No files have been tagged"
+msgstr "На нито един файл не е присвоен етикет"
+
+#: ../src/tracker/tracker-tag.c:426
+msgid "Could not get files for matching tags"
+msgstr "Не могат да се получат файловете с определен етикет"
+
+#: ../src/tracker/tracker-tag.c:435
+msgid "No files were found matching ALL of those tags"
+msgstr "Няма файлове със всички зададени етикети"
+
+#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
+msgid "Could not get all tags"
+msgstr "Не могат да бъдат получени всички етикети"
+
+#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
+msgid "No tags were found"
+msgstr "Не са открити никакви етикети"
+
+#: ../src/tracker/tracker-tag.c:527
+msgid "Tags (shown by name)"
+msgstr "Етикети (подреждане по име)"
+
+#: ../src/tracker/tracker-tag.c:601
+msgid "No files were modified"
+msgstr "Не са променяни файлове"
+
+#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
+msgid "Files do not exist or aren't indexed"
+msgstr "Файловете не съществуват или не са индексирани"
+
+#: ../src/tracker/tracker-tag.c:725
+msgid "Tag was added successfully"
+msgstr "Успешно добавяне на етикети"
+
+#: ../src/tracker/tracker-tag.c:754
+msgid "Could not add tag to files"
+msgstr "Не могат да се добавят етикети към файловете"
+
+#: ../src/tracker/tracker-tag.c:764
+msgid "Tagged"
+msgstr "С етикет"
+
+#: ../src/tracker/tracker-tag.c:765
+msgid "Not tagged, file is not indexed"
+msgstr "Без етикет, файлът не е индексиран"
+
+#: ../src/tracker/tracker-tag.c:811
+msgid "Could not get tag by label"
+msgstr "Не може да се получи етикет по име"
+
+#: ../src/tracker/tracker-tag.c:822
+msgid "No tags were found by that name"
+msgstr "Няма етикети с това име"
+
+#: ../src/tracker/tracker-tag.c:839
+msgid "None of the files had this tag set"
+msgstr "Никой от файловете не е с този етикет"
+
+#: ../src/tracker/tracker-tag.c:892
+msgid "Tag was removed successfully"
+msgstr "Успешно премахване на етикет"
+
+#: ../src/tracker/tracker-tag.c:896
+msgid "Untagged"
+msgstr "Без етикет"
+
+#: ../src/tracker/tracker-tag.c:897
+msgid "File not indexed or already untagged"
+msgstr "Файлът не е индексиран или е без етикети"
+
+#: ../src/tracker/tracker-tag.c:1088
+msgid "The --list option is required for --show-files"
+msgstr "Опцията „--show-files“ изисква опцията „--list“"
+
+#: ../src/tracker/tracker-tag.c:1090
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Опцията „--and-operator“ може да се използва само с опцията „--list“ и "
+"аргументи-етикети"
+
+#: ../src/tracker/tracker-tag.c:1092
+msgid "Add and delete actions can not be used together"
+msgstr "Не може едновременно да се трие и добавя"
+
+#: ../src/tracker/tracker-tag.c:1094
+msgid "The --description option can only be used with --add"
+msgstr "Опцията „--description“ изисква опцията „--add“"
+
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Без спиране след 30 секунди бездействие"
+
+#. Translators: this message will appear immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-writeback/tracker-main.c:98
+msgid "- start the tracker writeback service"
+msgstr "— стартиране на пакетния запис"
+
+#: ../utils/gtk-sparql/gtk-sparql.ui.h:1
+msgid "Saved queries"
+msgstr "Запазени заявки"
