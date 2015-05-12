@@ -281,7 +281,8 @@ tracker_monitor_init (TrackerMonitor *object)
 		name = g_type_name (priv->monitor_backend);
 
 		/* Set limits based on backend... */
-		if (strcmp (name, "GInotifyDirectoryMonitor") == 0) {
+		if (strcmp (name, "GInotifyDirectoryMonitor") == 0 ||
+		    strcmp (name, "GInotifyFileMonitor") == 0) {
 			/* Using inotify */
 			g_message ("Monitor backend is Inotify");
 
