@@ -848,6 +848,19 @@ AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts4" = "yes")
 AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
 
 ####################################################################
+# bash-completion
+####################################################################
+AC_ARG_WITH([bashcompletiondir],
+        AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),
+        [],
+        [AS_IF([$($PKG_CONFIG --exists bash-completion)], [
+                with_bashcompletiondir=$($PKG_CONFIG --variable=completionsdir bash-completion)
+        ] , [
+                with_bashcompletiondir=${datadir}/bash-completion/completions
+        ])])
+AC_SUBST([bashcompletiondir], [$with_bashcompletiondir])
+
+####################################################################
 # Check for D-Bus requirements
 ####################################################################
 
