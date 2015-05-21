@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-28 12:09+0000\n"
-"PO-Revision-Date: 2015-02-28 21:30+0100\n"
+"POT-Creation-Date: 2015-05-21 11:40+0000\n"
+"PO-Revision-Date: 2015-05-21 21:52+0100\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 1.7.4\n"
+"X-Generator: Poedit 1.7.5\n"
 
 # tab
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -167,15 +167,15 @@ msgstr "Chyba pri spúšťaní programu „tar“"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501 ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:114 ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144 ../src/tracker-needle/tracker-tags-view.vala:159
+#: ../src/tracker-extract/tracker-extract.c:146 ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462 ../src/tracker/tracker-daemon.c:483
 #: ../src/tracker/tracker-daemon.c:708 ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983 ../src/tracker/tracker-daemon.c:1052
 #: ../src/tracker/tracker-daemon.c:1243 ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63 ../src/tracker/tracker-index.c:123
 #: ../src/tracker/tracker-index.c:155 ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
-#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264 ../src/tracker/tracker-process.c:66
-#: ../src/tracker/tracker-process.c:186 ../src/tracker/tracker-process.c:271 ../src/tracker/tracker-process.c:292
+#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264 ../src/tracker/tracker-process.c:75
+#: ../src/tracker/tracker-process.c:196 ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168 ../src/tracker/tracker-sparql.c:1078
 #: ../src/tracker/tracker-status.c:176 ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
 #: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
@@ -714,11 +714,11 @@ msgstr ""
 "nedokončí prechádzanie. Táto voľba je užitočná pre obmedzené prostredie, kde je dôležité vytvoriť zoznam súborov čo "
 "najrýchlejšie a je možné čakať na neskoršie spustenie funkcie meta-data."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:789
 msgid "Metadata extraction failed"
 msgstr "Zlyhalo extrahovanie metaúdajov"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:854
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Nenašli sa žiadne moduly pre metaúdaje alebo nástroj na extrahovanie, ktoré by dokázali spracovať tento súbor"
 
@@ -767,6 +767,19 @@ msgstr "Nástroj na extrahovanie metaúdajov pre sledovač"
 msgid "Extracts metadata from local files"
 msgstr "Extrahuje metaúdaje z miestnych súborov"
 
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Predvolené zobrazenie"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default view of tracker-needle will be Categories view. "
+"When 2, default view of tracker-needle will be Files view."
+msgstr ""
+"Keď je nastavená hodnota 0, predvolené zobrazenie nástroja tracker-needle bude zobrazenie ikôn. Keď je nastavená hodnota "
+"1, predvolené zobrazenie nástroja tracker-needle bude zobrazenie kategórií. Keď je nastavená hodnota 2, predvolené "
+"zobrazenie nástroja tracker-needle bude zobrazenie súborov."
+
 # desktop entry name, window title
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1 ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
@@ -805,57 +818,62 @@ msgstr "Nájde hľadané kritériá v súboroch"
 msgid "Find search criteria in file titles"
 msgstr "Nájde hľadané kritériá v názvoch súborov"
 
-# label
+# tooltip
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "Nájde hľadané kritériá iba v značkách súborov (oddelené čiarkami)"
+
+# label
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "_Hľadať:"
 
 # tooltip
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr "Zobrazí panel so značkami, ktorý umožňuje úpravu značiek vybratých výsledkov"
 
 # tooltip
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Zobrazí štatistiky o uložených údajoch"
 
 # *https://bugzilla.gnome.org/show_bug.cgi?id=707195
 # label
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr "_Nastavte značky, ktoré chcete priradiť %d označeným položkám:"
 
 # tooltip
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Pridá značku"
 
 # tooltip
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Odstráni vybratú značku"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
 msgstr "Kritérium hľadania je veľmi všeobecné"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
 msgstr "Bude zobrazených iba prvých 500 položiek"
 
 # cmd desc
-#: ../src/tracker-needle/tracker-needle.vala:731 ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-needle/tracker-needle.vala:811 ../src/tracker-preferences/tracker-preferences.vala:1051
 msgid "Print version"
 msgstr "Vypíše verziu"
 
-#: ../src/tracker-needle/tracker-needle.vala:738 ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:818 ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
-msgstr "[HĽADANÉ-KRITÉRIÁ]"
+msgstr "[KRITÉRIÁ-HĽADANIA]"
 
 # option context
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
 msgstr "Používateľské rozhranie pre Hľadanie v prostredí použitím sledovača"
 
@@ -2179,35 +2197,35 @@ msgstr "„%s“ nie je príkaz pre sledovač. Viď „tracker --help“."
 msgid "Available tracker commands are:"
 msgstr "Dostupné príkazy pre sledovač:"
 
-#: ../src/tracker/tracker-process.c:65
+#: ../src/tracker/tracker-process.c:74
 msgid "Could not open /proc"
 msgstr "Nepodarilo sa otvoriť /proc"
 
-#: ../src/tracker/tracker-process.c:115
+#: ../src/tracker/tracker-process.c:124
 msgid "Could not stat() file"
 msgstr "Nepodarilo sa zistiť stav súboru pomocou funkcie stat()"
 
-#: ../src/tracker/tracker-process.c:183
+#: ../src/tracker/tracker-process.c:193
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Nepodarilo sa otvoriť „%s“"
 
-#: ../src/tracker/tracker-process.c:268
+#: ../src/tracker/tracker-process.c:322
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Nepodarilo sa ukončiť proces č. %d - „%s“"
 
-#: ../src/tracker/tracker-process.c:274
+#: ../src/tracker/tracker-process.c:328
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Ukončený proces č. %d - „%s“"
 
-#: ../src/tracker/tracker-process.c:289
+#: ../src/tracker/tracker-process.c:343
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Nepodarilo sa zabiť proces č. %d - „%s“"
 
-#: ../src/tracker/tracker-process.c:295
+#: ../src/tracker/tracker-process.c:349
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Zabitý proces č. %d - „%s“"
