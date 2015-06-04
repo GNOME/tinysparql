@@ -1079,6 +1079,15 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
 
+	/* Remove monitors if any */
+	if (is_directory &&
+	    tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+		tracker_monitor_remove_children_recursively (priv->monitor,
+		                                             file);
+	} else if (is_directory) {
+		tracker_monitor_remove_recursively (priv->monitor, file);
+	}
+
 	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 	                                              file, file_type)) {
 		/* File was not indexed */
