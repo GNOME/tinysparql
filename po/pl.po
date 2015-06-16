@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-02 22:29+0100\n"
-"PO-Revision-Date: 2015-03-02 22:30+0100\n"
+"POT-Creation-Date: 2015-06-16 16:57+0200\n"
+"PO-Revision-Date: 2015-06-16 16:58+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -191,7 +191,7 @@ msgstr "Błąd podczas uruchamiania programu \"tar\""
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:114
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -792,11 +792,11 @@ msgstr ""
 "ważne jest jak najszybsze wyświetlenie listy plików, a metadane można "
 "uzyskać później."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:789
 msgid "Metadata extraction failed"
 msgstr "Rozpakowanie metadanych się nie powiodło"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:854
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Nie odnaleziono modułów rozpakowujących lub metadanych do obsłużenia tego "
@@ -2304,22 +2304,23 @@ msgstr "Zakończono proces %d - \"%s\""
 #: ../src/tracker/tracker-process.c:289
 #, c-format
 msgid "Could not kill process %d - '%s'"
-msgstr "Nie można usunąć procesu %d - \"%s\""
+msgstr "Nie można wymusić zakończenia procesu %d - \"%s\""
 
 #: ../src/tracker/tracker-process.c:295
 #, c-format
 msgid "Killed process %d - '%s'"
-msgstr "Usunięto proces %d - \"%s\""
+msgstr "Wymuszono zakończenie procesu %d - \"%s\""
 
 #: ../src/tracker/tracker-reset.c:48
 msgid "Kill all Tracker processes and remove all databases"
 msgstr ""
-"Usuwa wszystkie procesy programu Tracker i usunie wszystkie bazy danych"
+"Wymusza zakończenie wszystkich procesów programu Tracker i usuwa wszystkie "
+"bazy danych"
 
 #: ../src/tracker/tracker-reset.c:51
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
-"Takie samo jak --hard, aby kopia zapasowa i dziennik są przywracane po "
+"Takie samo jak --hard, ale kopia zapasowa i dziennik są przywracane po "
 "ponownym uruchomieniu"
 
 #: ../src/tracker/tracker-reset.c:54
