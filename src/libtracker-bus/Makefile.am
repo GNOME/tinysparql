@@ -17,6 +17,7 @@ AM_CPPFLAGS =                                          \
 	$(LIBTRACKER_BUS_CFLAGS)
 
 libtracker_bus_la_SOURCES =                            \
+	tracker-namespace.vala                         \
 	tracker-bus.vala                               \
 	tracker-array-cursor.vala                      \
 	tracker-bus-fd-cursor.vala

@@ -1,3 +1,4 @@
+tracker-vala-namespace.c
 tracker-sparql-expression.c
 tracker-sparql-pattern.c
 tracker-sparql-query.[ch]

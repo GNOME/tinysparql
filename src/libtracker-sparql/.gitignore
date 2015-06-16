@@ -1,3 +1,4 @@
+tracker-namespace.c
 tracker-builder.c
 tracker-connection.c
 tracker-cursor.c

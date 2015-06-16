@@ -18,6 +18,7 @@ AM_CPPFLAGS =                                          \
 	$(LIBTRACKER_DIRECT_CFLAGS)
 
 libtracker_direct_la_SOURCES =                         \
+	tracker-namespace.vala                         \
 	tracker-direct.vala
 
 libtracker_direct_la_LIBADD =                          \

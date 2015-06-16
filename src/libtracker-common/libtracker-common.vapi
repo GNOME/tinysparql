@@ -17,6 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+[CCode (cprefix = "Tracker", gir_namespace = "Tracker",
+        gir_version = "1.0", lower_case_cprefix = "tracker_")]
 namespace Tracker {
 	[CCode (cheader_filename = "libtracker-common/tracker-date-time.h")]
 	public double string_to_date (string date_string, out int offset) throws DateError;

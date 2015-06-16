@@ -18,6 +18,7 @@ AM_CPPFLAGS =                                          \
 libtracker_sparqlincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-sparql
 
 libtracker_sparql_la_SOURCES =   \
+	tracker-namespace.vala                         \
 	tracker-builder.vala                           \
 	tracker-connection.vala                        \
 	tracker-cursor.vala                            \

@@ -20,6 +20,7 @@ libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_SOURCES =                           \
+	tracker-vala-namespace.vala                    \
 	tracker-sparql-expression.vala                 \
 	tracker-sparql-pattern.vala                    \
 	tracker-sparql-query.vala                      \
