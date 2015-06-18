@@ -1455,12 +1455,6 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 		}
 	}
 
-	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
-	    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->task_pool)) == 0) {
-		/* We need to run this one more time to trigger process_stop() */
-		item_queue_handlers_set_up (fs);
-	}
-
 	/* Last reference is kept by the pool, removing the task from
 	 * the pool cleans up the task too!
 	 *
@@ -1469,6 +1463,12 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 	 * UpdateProcessingTaskContext and GFile.
 	 */
 	tracker_task_pool_remove (fs->priv->task_pool, task);
+
+	if (tracker_miner_fs_has_items_to_process (fs) == FALSE &&
+	    tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->task_pool)) == 0) {
+		/* We need to run this one more time to trigger process_stop() */
+		item_queue_handlers_set_up (fs);
+	}
 
 	g_free (uri);
 }
