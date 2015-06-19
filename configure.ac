@@ -1890,6 +1890,9 @@ elif test "$have_generic_media_handler_app" = "libav"; then
     AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have libav])
     AM_CONDITIONAL(HAVE_LIBAV, true)
     AM_CONDITIONAL(HAVE_GSTREAMER, false)
+else
+    AM_CONDITIONAL(HAVE_LIBAV, false)
+    AM_CONDITIONAL(HAVE_GSTREAMER, false)
 fi
 
 ###########################################################################
