@@ -19,35 +19,20 @@
 # 02110-1301, USA.
 #
 
-if [ $# -lt 4 ]; then
+if [ $# -lt 5 ]; then
 	echo "Insufficient arguments provided"
-	echo "Usage: $0 <ttl2sgml> <ontology-data-dir> <ontology-info-dir> <build-dir>"
+	echo "Usage: $0 <ttl2sgml> <ttlres2sgml> <ontology-data-dir> <ontology-info-dir> <build-dir>"
 	exit 1;
 fi
 
 TTL2SGML=$1
-ONTOLOGIES_DATA_DIR=$2
-ONTOLOGIES_INFO_DIR=$3
-BUILD_DIR=$4
+TTLRES2SGML=$2
+ONTOLOGIES_DATA_DIR=$3
+ONTOLOGIES_INFO_DIR=$4
+BUILD_DIR=$5
 
-echo "Building ontology documentation..."
-echo "- Preparing file full text index properties (fts-properties.xml)"
-
-echo "<?xml version='1.0' encoding='UTF-8'?>
-<chapter id='fts-properties'>
-<title>Full-text indexed properties in the ontology</title>
-<table frame='all'>
-  <colspec colname='Property'/>
-  <colspec colname='Weigth'/>
-
-  <thead>
-   <tr>
-     <td>Property</td>
-     <td>Weigth</td>
-   </tr>
-  </thead>
-
-<tbody>" > $BUILD_DIR/fts-properties.xml
+echo "Building class documentation..."
+$TTLRES2SGML -d $ONTOLOGIES_DATA_DIR -o $BUILD_DIR
 
 for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     # ../../src/ontologies/XX-aaa.description -> PREFIX=aaa
@@ -55,10 +40,8 @@ for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     PREFIX=${TMPNAME#*-}
     echo "- Generating $PREFIX documentation"
 
-    $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -f $BUILD_DIR/fts-properties.xml \
+    $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml \
 	-e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
 done
-
-echo "</tbody></table></chapter>" >> $BUILD_DIR/fts-properties.xml
 
 echo "Done"

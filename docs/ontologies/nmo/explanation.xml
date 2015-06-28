@@ -19,13 +19,6 @@
       <listitem><para> <link linkend="nmo-isSent">nmo:isSent</link> should be used to indicate the direction of the message. This helps with the performance of queries to build a conversation view.</para></listitem>
       <listitem><para> Even when there is a <link linkend="nmo-MessageHeader">nmo:MessageHeader</link> class that can store any arbitrary pair of key-values, its use must be as limited as possible. It is there to store the specific headers in the messages (mainly email) that cannot be completely represented in the ontology. Handle those headers in queries is a performance bottleneck that should be avoided in general.</para></listitem>
     </orderedlist>
-
-    <figure id="nmo-message-graph">
-      <title>Graphical Overview (Message class)</title>
-      <graphic fileref="message-class-overview.png" format="PNG"></graphic>
-      <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
-    </figure>
-
   </sect2>
 
   <sect2 id="nmo-conversation-representation">
@@ -42,19 +35,6 @@
     <para>The ontology represents completely that email tree. The Envelope, root node or more external representation of the Email is the basic <link linkend="nmo-Email">nmo:Email</link> class, subclass of Message. Every node in the tree is always a <link linkend="nmo-MimePart">nmo:MimePart</link> with the required properties to decode the content (mimetype, encoding, boundaries). When the node is internal, then it is also instance of <link linkend="nmo-MultiPart">nmo:MultiPart</link> so it can use the <link linkend="nie-hasPart">nie:hasPart</link> property to link other nodes. The leaf nodes can be instances of specific content classes (besides <link linkend="nmo-MimePart">nmo:MimePart</link>). For example, an MP3 embedded in an Email, will be represented as an instance nmo:MimePart <emphasis>and</emphasis> <link linkend="nmm-MusicPiece">nmm:MusicPiece</link>. </para>
 
     <para>For more detailed (and highly technical) explanation of the email representation in general and this example in concrete, please check <ulink url="http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Email">this wiki page</ulink></para>
-
-    <figure id="nmo-message-graph">
-      <title>Graphical Overview (Email related classes)</title>
-      <graphic fileref="email-mimeparts-overview.png" format="PNG"></graphic>
-      <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
-    </figure>
-
-  </sect2>
-
-  <sect2 id="nmo-accounts-representation">
-    <title>Email accounts</title>
-    <para>Explain here MailAccount and MailFolder</para>
-    <!-- FIXME complete -->
   </sect2>
 
   <sect2 id="nmo-sms-domain">

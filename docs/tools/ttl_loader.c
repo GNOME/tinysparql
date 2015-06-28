@@ -19,6 +19,7 @@
 
 #include "ttl_loader.h"
 #include <glib/gstdio.h>
+#include <gio/gio.h>
 
 #include <libtracker-data/tracker-sparql-query.h>
 
@@ -40,6 +41,7 @@
 #define TRACKER_NOTIFY TRACKER_NS "notify"
 #define TRACKER_FTS_INDEXED TRACKER_NS "fulltextIndexed"
 #define TRACKER_FTS_WEIGHT TRACKER_NS "weight"
+#define TRACKER_PREFIX TRACKER_NS "prefix"
 
 #define NAO_DEPRECATED "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated"
 
@@ -164,6 +166,12 @@ load_in_memory (Ontology    *ontology,
 		}
 
 		prop->weight = g_strdup (turtle_object);
+
+	} else if (!g_strcmp0 (turtle_predicate, TRACKER_PREFIX)) {
+		/* A tracker:prefix on a tracker:Namespace */
+		g_hash_table_insert (ontology->prefixes,
+				     g_strdup (turtle_subject),
+				     g_strdup (turtle_object));
 
 	} else if (!g_strcmp0 (turtle_predicate, RDFS_COMMENT)) {
 		OntologyClass *klass;
@@ -334,6 +342,7 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 {
 	Ontology *ontology;
 
+	g_print ("Loading ontology... %s\n", ttl_file);
 	ontology = g_new0 (Ontology, 1);
 	ontology->classes = g_hash_table_new_full (g_str_hash,
 	                                           g_str_equal,
@@ -344,6 +353,9 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 	                                              g_str_equal,
 	                                              g_free,
 	                                              (GDestroyNotify)ttl_model_property_free);
+	ontology->prefixes = g_hash_table_new_full (g_str_hash,
+						    g_str_equal,
+						    g_free, g_free);
 
 	if (ttl_file) {
 		TrackerTurtleReader *reader;
@@ -366,6 +378,93 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 		}
 	} else {
 		g_warning ("Unable to open '%s'", ttl_file);
+	}
+
+	return ontology;
+}
+
+static GList *
+get_ontology_files (GFile *dir)
+{
+	GFileEnumerator *enumerator;
+	GFileInfo *info;
+	GList *files;
+	const gchar *name;
+
+	enumerator = g_file_enumerate_children (dir,
+	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
+	                                        G_FILE_QUERY_INFO_NONE,
+	                                        NULL, NULL);
+
+	if (!enumerator) {
+		return NULL;
+	}
+
+	files = NULL;
+
+	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
+		name = g_file_info_get_name (info);
+
+		if (g_str_has_suffix (name, ".ontology")) {
+			files = g_list_insert_sorted (files, g_strdup (name),
+			                              (GCompareFunc) g_strcmp0);
+		}
+
+		g_object_unref (info);
+	}
+
+	g_object_unref (enumerator);
+
+	return files;
+}
+
+Ontology *
+ttl_loader_load_ontology_dir (const gchar *ttl_dir)
+{
+	GFile *dir = g_file_new_for_path (ttl_dir);
+	Ontology *ontology;
+	GList *files, *f;
+
+	ontology = g_new0 (Ontology, 1);
+	ontology->classes = g_hash_table_new_full (g_str_hash,
+	                                           g_str_equal,
+	                                           g_free,
+	                                           (GDestroyNotify)ttl_model_class_free);
+
+	ontology->properties = g_hash_table_new_full (g_str_hash,
+	                                              g_str_equal,
+	                                              g_free,
+	                                              (GDestroyNotify)ttl_model_property_free);
+	ontology->prefixes = g_hash_table_new_full (g_str_hash,
+						    g_str_equal,
+						    g_free, g_free);
+
+	files = get_ontology_files (dir);
+	g_object_unref (dir);
+
+	for (f = files; f; f = f->next) {
+		TrackerTurtleReader *reader;
+		GError *error = NULL;
+		gchar *ttl_file;
+
+		ttl_file = g_build_filename (ttl_dir, f->data, NULL);
+		reader = tracker_turtle_reader_new (ttl_file, NULL);
+		g_free (ttl_file);
+
+		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
+			load_in_memory (ontology,
+			                tracker_turtle_reader_get_subject (reader),
+			                tracker_turtle_reader_get_predicate (reader),
+			                tracker_turtle_reader_get_object (reader));
+		}
+
+		g_object_unref (reader);
+
+		if (error) {
+			g_message ("Turtle parser error: %s", error->message);
+			g_error_free (error);
+			break;
+		}
 	}
 
 	return ontology;
@@ -406,6 +505,7 @@ ttl_loader_free_ontology (Ontology *ontology)
 {
 	g_hash_table_destroy (ontology->classes);
 	g_hash_table_destroy (ontology->properties);
+	g_hash_table_destroy (ontology->prefixes);
 	g_free (ontology);
 }
 

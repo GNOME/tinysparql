@@ -29,6 +29,7 @@ void                  ttl_loader_init             (void);
 void                  ttl_loader_shutdown         (void);
 
 Ontology            * ttl_loader_load_ontology    (const gchar *filename);
+Ontology            * ttl_loader_load_ontology_dir(const gchar *dir);
 OntologyDescription * ttl_loader_load_description (const gchar *filename);
 
 void                  ttl_loader_free_ontology    (Ontology *ontology);

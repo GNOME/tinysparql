@@ -67,6 +67,7 @@ typedef struct {
 typedef struct {
 	GHashTable *classes;
 	GHashTable *properties;
+	GHashTable *prefixes;
 } Ontology;
 
 

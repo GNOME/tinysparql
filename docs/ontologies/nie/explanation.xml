@@ -148,15 +148,6 @@ its album).
 
 </refsect2>
 
-
- <refsect2 id="nie-graphical-overview">
-  <figure id="nie-ontology-graph">
-  <title>Graphical Overview</title>
-    <graphic fileref="overview.png" format="PNG"></graphic>
-  </figure>
-  <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
- </refsect2>
-
  <refsect2 id="nie-related-information">
   <title>Related information</title>
 

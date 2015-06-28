@@ -81,66 +81,6 @@ print_link_as_varlistentry (FILE *f,
         g_fprintf (f, "  </varlistentry>\n");
 }
 
-static gchar *
-shortname_to_id (const gchar *name)
-{
-        gchar *id, *p;
-
-        id = g_strdup (name);
-        p = strchr (id, ':');
-
-        if (p) {
-                *p = '-';
-        }
-
-        return id;
-}
-
-static void
-print_reference (gpointer item, gpointer user_data)
-{
-	gchar *shortname, *id;
-	FILE *f = (FILE *)user_data;
-
-	shortname = qname_to_shortname ((gchar *) item);
-        id = shortname_to_id (shortname);
-
-	g_fprintf (f,"<link linkend='%s'>%s</link>, ", id , shortname);
-
-	g_free (shortname);
-	g_free (id);
-}
-
-static void
-print_variablelist_entry (FILE        *f,
-                          const gchar *param,
-                          const gchar *value)
-{
-        g_fprintf (f, "<varlistentry>\n");
-        g_fprintf (f, "<term><parameter>%s</parameter>&#160;:</term>\n", param);
-        g_fprintf (f, "<listitem><simpara>%s</simpara></listitem>\n", (value) ? value : "--");
-        g_fprintf (f, "</varlistentry>\n");
-}
-
-static void
-print_variablelist_entry_list (FILE        *f,
-                               const gchar *param,
-                               GList       *list)
-{
-        g_fprintf (f, "<varlistentry>\n");
-        g_fprintf (f, "<term><parameter>%s</parameter>&#160;:</term>\n", param);
-        g_fprintf (f, "<listitem><simpara>");
-
-        if (list) {
-                g_list_foreach (list, print_reference, f);
-        } else {
-                g_fprintf (f, "--");
-        }
-
-        g_fprintf (f, "</simpara></listitem>\n");
-        g_fprintf (f, "</varlistentry>\n");
-}
-
 #if 0
 static void
 print_deprecated_message (FILE *f)
@@ -158,6 +98,10 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
         gchar *upper_name;
 
         g_fprintf (f, "<?xml version='1.0' encoding='UTF-8'?>\n");
+	g_fprintf (f, "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.1.2//EN\"\n"
+		   "        \"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd\" [\n");
+	g_fprintf (f, "<!ENTITY %% local.common.attrib \"xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'\">\n");
+	g_fprintf (f, "]>");
 
         g_fprintf (f, "<chapter id='%s-ontology'>\n", desc->localPrefix);
 
@@ -200,144 +144,80 @@ print_sgml_footer (FILE *f)
 	g_fprintf (f,"</chapter>\n");
 }
 
-static void
-print_ontology_class (gpointer key, gpointer value, gpointer user_data)
+static gchar *
+name_get_prefix (Ontology    *ontology,
+		 const gchar *name)
 {
-	OntologyClass *def = (OntologyClass *)value;
-	gchar *name, *id;
-	FILE *f = (FILE *)user_data;
+	const gchar *delim;
 
-	g_return_if_fail (f != NULL);
+	delim = g_strrstr (name, "#");
 
-	name = qname_to_shortname (def->classname);
+	if (!delim)
+		delim = g_strrstr (name, "/");
 
-        id = shortname_to_id (name);
-        g_fprintf (f, "<refsect2 id='%s'>\n", id);
+	if (!delim)
+		return NULL;
 
-        g_free (id);
+	delim++;
 
-        g_fprintf (f, "<title>%s</title>\n", name);
+	return g_strndup (name, delim - name);
+}
 
-        if (def->description) {
-                g_fprintf (f, "<para>%s</para>\n", def->description);
-        }
+static gchar *
+name_to_shortname (Ontology    *ontology,
+		   const gchar *name,
+		   const gchar *separator)
+{
+	gchar *prefix, *short_prefix;
+	const gchar *suffix;
 
-        g_fprintf (f, "<variablelist>\n");
+	if (!separator)
+		separator = ":";
 
-        print_variablelist_entry_list (f, "Superclasses", def->superclasses);
-        print_variablelist_entry_list (f, "Subclasses", def->subclasses);
-        print_variablelist_entry_list (f, "In domain of", def->in_domain_of);
-        print_variablelist_entry_list (f, "In range of", def->in_range_of);
+	prefix = name_get_prefix (ontology, name);
 
-        if (def->instances) {
-                print_variablelist_entry_list (f, "Predefined instances", def->instances);
-        }
+	if (!prefix)
+		return g_strdup (name);
 
-        g_fprintf (f, "</variablelist>\n");
+	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
 
-        if (def->notify || def->deprecated) {
-                g_fprintf (f, "<note>\n");
-                g_fprintf (f, "<title>Note:</title>\n");
-                if (def->notify) {
-                        g_fprintf (f, "<para>This class notifies about changes</para>\n");
-                } 
-                if (def->deprecated) {
-                        g_fprintf (f, "<para>This class is deprecated</para>\n");
-                }
-                g_fprintf (f, "</note>\n");
-        }
+	if (!short_prefix) {
+		g_free (prefix);
+		return g_strdup (name);
+	}
 
-        g_fprintf (f, "</refsect2>\n\n");
+	suffix = &name[strlen (prefix)];
+	g_free (prefix);
 
-        g_free (name);
+	return g_strconcat (short_prefix, separator, suffix, NULL);
 }
 
 static void
-print_ontology_property (gpointer key, gpointer value, gpointer user_data)
+print_ontology_class (Ontology      *ontology,
+		      OntologyClass *def,
+		      FILE          *f)
 {
-	OntologyProperty *def = (OntologyProperty *) value;
 	gchar *name, *id;
-	FILE *f = (FILE *) user_data;
 
 	g_return_if_fail (f != NULL);
 
-	name = qname_to_shortname (def->propertyname);
-        id = shortname_to_id (name);
+	name = name_to_shortname (ontology, def->classname, NULL);
+	id = name_to_shortname (ontology, def->classname, "-");
+	g_fprintf (f, "<xi:include href='%s.xml'/>\n", id);
+	g_free (id);
 
-        g_fprintf (f, "<refsect2 id='%s'>\n", id);
-        g_free (id);
-
-        g_fprintf (f, "<title>%s</title>\n", name);
         g_free (name);
-
-        if (def->description) {
-                g_fprintf (f, "<para>%s</para>\n", def->description);
-        }
-
-
-        g_fprintf (f, "<variablelist>\n");
-
-        print_variablelist_entry_list (f, "Type", def->type);
-        print_variablelist_entry_list (f, "Domain", def->domain);
-        print_variablelist_entry_list (f, "Range", def->range);
-        print_variablelist_entry_list (f, "Superproperties", def->superproperties);
-        print_variablelist_entry_list (f, "Subproperties", def->subproperties);
-
-        if (def->max_cardinality) {
-                print_variablelist_entry (f, "Cardinality", def->max_cardinality);
-        }
-
-        if (def->fulltextIndexed) {
-                print_variablelist_entry (f, "Text indexed", 
-                                          "This property is indexed, so it can provide results on text search");
-        }
-
-        g_fprintf (f, "</variablelist>\n");
-
-        if (def->deprecated) {
-                g_fprintf (f, "<note>\n");
-                g_fprintf (f, "<title>Note:</title>\n");
-                g_fprintf (f, "<para>This property is deprecated</para>\n");
-                g_fprintf (f, "</note>\n");
-        }
-
-        g_fprintf (f, "</refsect2>\n\n");
-}
-
-static void
-print_fts_properties (gpointer key, gpointer value, gpointer user_data)
-{
-	OntologyProperty *def = (OntologyProperty *) value;
-	gchar *name, *id;
-	FILE *fts = (FILE *) user_data;
-
-	g_return_if_fail (fts != NULL);
-        if (!def->fulltextIndexed) {
-                return;
-        }
-
-	name = qname_to_shortname (def->propertyname);
-        id = shortname_to_id (name);
-
-        g_fprintf (fts, "<tr>\n");
-        g_fprintf (fts, "  <td>\n");
-        print_reference (def->propertyname, fts);
-        g_fprintf (fts, "  </td>\n");
-        g_fprintf (fts, "  <td>%s</td>\n", (def->weight ? def->weight : "0"));
-        g_fprintf (fts, "</tr>\n");
-
-        g_free (id);
-
 }
 
 void
 ttl_sgml_print (OntologyDescription *description,
                 Ontology *ontology,
                 FILE *f,
-                FILE *fts,
                 const gchar *explanation_file)
 {
+	GHashTableIter iter;
         gchar *upper_name;
+	OntologyClass *def;
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
 
@@ -349,19 +229,14 @@ ttl_sgml_print (OntologyDescription *description,
 
         g_fprintf (f, "<section id='%s-classes'>\n", description->localPrefix);
 	g_fprintf (f, "<title>%s Ontology Classes</title>\n", upper_name);
-	g_hash_table_foreach (ontology->classes, print_ontology_class, f);
-        g_fprintf (f, "</section>\n");
+	g_hash_table_iter_init (&iter, ontology->classes);
 
-        g_fprintf (f, "<section id='%s-properties'>\n", description->localPrefix);
-	g_fprintf (f, "<title>%s Ontology Properties</title>\n", upper_name);
-	g_hash_table_foreach (ontology->properties, print_ontology_property, f);
-        g_fprintf (f, "</section>\n");
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &def)) {
+		print_ontology_class (ontology, def, f);
+	}
 
+        g_fprintf (f, "</section>\n");
 	print_sgml_footer (f);
 
         g_free (upper_name);
-
-        if (fts) {
-                g_hash_table_foreach (ontology->properties, print_fts_properties, fts);
-        }
 }

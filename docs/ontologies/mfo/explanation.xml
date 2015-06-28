@@ -18,13 +18,4 @@
   <title>Special remarks</title>
 <para>In some feeds, like <ulink url="http://video.search.yahoo.com/mrss">"Yahoo Media RSS</ulink>, there can be multiple enclosures together in a group, representing the same resource in different formats, qualities, resolutions, etc. Until further notify, the group will be represented using <link linkend="nie-identifier">nie:identifier</link> property . To mark the default enclosure of the group, there is a <link linkend="mfo-groupDefault">mfo-groupDefault</link> property</para>
  </sect2>
-
- <refsect2 id="mfo-graphical-overview">
-  <figure id="mfo-ontology-graph">
-  <title>Graphical Overview</title>
-    <graphic fileref="feeds-overview.png" format="PNG"></graphic>
-  </figure>
-  <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
- </refsect2>
-
 </section>

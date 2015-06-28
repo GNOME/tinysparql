@@ -55,13 +55,4 @@
 
    <para><link linkend="mlo-LandmarkCategory">mlo:LandmarkCategory</link> has a property <link linkend="mlo-isRemovable">mlo:isRemovable</link> to mark is the category is predefined and shouldn't be deleted by the applications. Tracker (and probably other backends) doesn't enforce applications to respect this value, but consider it a gentleman agreement.</para>
  </refsect2>
-
-
- <refsect2 id="mlo-graphical-overview">
-  <figure id="mlo-ontology-graph">
-  <title>Graphical Overview</title>
-    <graphic fileref="location-overview.png" format="PNG"></graphic>
-  </figure>
-  <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
- </refsect2>
 </section>
