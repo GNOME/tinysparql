@@ -1,24 +1,5 @@
 AUTOMAKE_OPTIONS = 1.6
 
-# Generation of the additional PNG files from DIA files
-#  (list of original '.dia' files with '.png' extension)
-ONTOLOGY_DIAGRAMS =                                    \
-	$(top_srcdir)/docs/ontologies/notation.dia     \
-	$(top_srcdir)/docs/ontologies/mfo/feeds-overview.dia \
-	$(top_srcdir)/docs/ontologies/nmm/radio-overview.dia \
-	$(top_srcdir)/docs/ontologies/nmm/images-overview.dia \
-	$(top_srcdir)/docs/ontologies/mlo/location-overview.dia \
-	$(top_srcdir)/docs/ontologies/nie/overview.dia \
-	$(top_srcdir)/docs/ontologies/nmo/message-class-overview.dia \
-	$(top_srcdir)/docs/ontologies/nmo/email-mimeparts-overview.dia
-
-# The wanted PNG files
-ONTOLOGY_DIAGRAMS_PNG = $(notdir $(ONTOLOGY_DIAGRAMS:.dia=.png))
-
-# DIA to PNG conversion
-update-diagrams: $(ONTOLOGY_DIAGRAMS)
-	$(AM_V_GEN) dia -t png $^ 2>/dev/null
-
 # The original Ontology explanation files
 ONTOLOGY_EXPLANATIONS =                                \
 	$(top_srcdir)/docs/ontologies/mfo/explanation.xml \
@@ -68,7 +49,6 @@ include $(top_srcdir)/gtk-doc.make
 #  by gtk-doc
 EXTRA_DIST +=                                          \
 	version.xml.in                                 \
-	$(ONTOLOGY_DIAGRAMS)                           \
 	$(ONTOLOGY_EXPLANATIONS)
 
 CLEANFILES +=                                          \
