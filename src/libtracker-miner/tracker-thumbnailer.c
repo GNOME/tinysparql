@@ -220,6 +220,7 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 			i = 0;
 			while (g_hash_table_iter_next (&iter, &key, &value)) {
 				private->supported_mime_types[i] = g_strdup (key);
+				g_debug ("  %s", key);
 				i++;
 			}
 
@@ -307,10 +308,14 @@ tracker_thumbnailer_move_add (TrackerThumbnailer *thumbnailer,
 	private = tracker_thumbnailer_get_instance_private (thumbnailer);
 
 	if (!private->service_is_available) {
+		g_debug ("%s: Not thumbnailing ‘%s’ as service is unavailable.",
+		         G_STRFUNC, from_uri);
 		return FALSE;
 	}
 
 	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
+		g_debug ("%s: Not thumbnailing ‘%s’ as MIME type ‘%s’ should "
+		         "not be thumbnailed.", G_STRFUNC, from_uri, mime_type);
 		return FALSE;
 	}
 
@@ -351,10 +356,14 @@ tracker_thumbnailer_remove_add (TrackerThumbnailer *thumbnailer,
 	private = tracker_thumbnailer_get_instance_private (thumbnailer);
 
 	if (!private->service_is_available) {
+		g_debug ("%s: Not thumbnailing ‘%s’ as service is unavailable.",
+		         G_STRFUNC, uri);
 		return FALSE;
 	}
 
 	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
+		g_debug ("%s: Not thumbnailing ‘%s’ as MIME type ‘%s’ should "
+		         "not be thumbnailed.", G_STRFUNC, uri, mime_type);
 		return FALSE;
 	}
 
