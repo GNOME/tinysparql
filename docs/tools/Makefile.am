@@ -1,4 +1,4 @@
-noinst_PROGRAMS = ontology-graph ttl2sgml ttlresource2sgml
+noinst_PROGRAMS = ttl2sgml ttlresource2sgml
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -13,9 +13,6 @@ LDADD =                                                \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(LIBTRACKER_DATA_LIBS) \
 	$(BUILD_LIBS)
-
-ontology_graph_SOURCES =                               \
-	ontology-graph.c
 
 TTL_LOADER_FILES =                                     \
 	ttl_loader.c                                   \

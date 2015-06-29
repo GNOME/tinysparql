@@ -1,11 +1,5 @@
 AUTOMAKE_OPTIONS = 1.6
 
-# Generation of ontology.png using ontology-graph
-ontology.png:
-	$(top_builddir)/docs/tools/ontology-graph -d $(top_srcdir)/src/ontologies -o ontology.dot
-	$(AM_V_GEN) $(GRAPHVIZ_FDP) -Tpng -o $@ ontology.dot
-	rm ontology.dot
-
 # Generation of the additional PNG files from DIA files
 #  (list of original '.dia' files with '.png' extension)
 ONTOLOGY_DIAGRAMS =                                    \

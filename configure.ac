@@ -672,18 +672,6 @@ AM_CONDITIONAL([ENABLE_GTK_DOC], test "x$enable_gtk_doc" = xyes)
 AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
 
-if test "x$enable_gtk_doc" != xno; then
-   # Check for graphviz if we are building gtk_doc
-   AC_PATH_PROG(GRAPHVIZ_FDP, fdp)
-   AC_SUBST(GRAPHVIZ_FDP)
-
-   if test -z "$GRAPHVIZ_FDP"; then
-      AC_MSG_ERROR([Couldn't find Graphviz's fdp tool (graphviz).])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
-
 ####################################################################
 # Check if we should install Windows specific binaries
 ####################################################################
