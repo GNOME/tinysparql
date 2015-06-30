@@ -42,7 +42,7 @@ defining a new id in the explanation document.
 
  All images (don't forget point 4. explained above) are copied in the
 root HTML directory, so internally in the documentation must be
-refered using just the filename:
+referred using just the filename:
 
  E.G. <graphic fileref="images-overview.png" ...
 

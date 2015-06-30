@@ -30,7 +30,7 @@
 
   <sect2 id="nmo-conversation-representation">
     <title>Conversations</title>
-    <para>The dialog between two contacts could be considered a list of messages sorted by time, but that representation is too simplistic. Two contacts can keep a simultaneous communication in two channels (e.g. IM and IRC), and the concept of conversation, a communication with a beggining and end is also important to sort the information in the UI.</para>
+    <para>The dialog between two contacts could be considered a list of messages sorted by time, but that representation is too simplistic. Two contacts can keep a simultaneous communication in two channels (e.g. IM and IRC), and the concept of conversation, a communication with a beginning and end is also important to sort the information in the UI.</para>
     <para>The ontology provides a <link linkend="nmo-CommunicationChannel">nmo:CommunicationChannel</link> class, which groups all messages between a certain set of contacts (linked via <link linkend="nmo-hasParticipant">nmo:hasParticipant</link> property). The communication channel can be transient (an ad-hoc conversation in IM represented in the subclass <link linkend="nmo-TransientChannel">nmo:TransientChannel</link>) or permanent (a well-known IRC channel would be an instance of <link linkend="nmo-PermanentChannel">nmo:PermanentChannel</link> ). Every time 'me' talks with an specific contact, the communication channel should be the same. It identifies somehow the whole list of messages between a set of participants.</para>
     <para>There is a second important class, <link linkend="nmo-Conversation">nmo:Conversation</link> to group messages delimited in a time frame. Every time a IM dialog is open (e.g. a window talking with a certain contact) a new instance of <link linkend="nmo-Conversation">nmo:Conversation</link> is created.</para>
   </sect2>
@@ -67,7 +67,7 @@
     <itemizedlist>
       <listitem>A <link linkend="nmo-SMSMessage">nmo:SMSMessage</link> instance to represent the message itself</listitem>
       <listitem><link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</listitem>
-      <listitem>For some implementations, is usefull to save the original vcards. For that <link linkend="nmo-fromVCard">nmo:fromVCard</link> and <link linkend="nmo-toVCard">nmo:toVCard</link> properties can be used. Those properties point to files in the file system with the vcards</listitem>
+      <listitem>For some implementations, is useful to save the original vcards. For that <link linkend="nmo-fromVCard">nmo:fromVCard</link> and <link linkend="nmo-toVCard">nmo:toVCard</link> properties can be used. Those properties point to files in the file system with the vcards</listitem>
       <listitem><link linkend="nmo-plainTextContent">nmo:plainTextContent</link> inherited from <link linkend="nie-InformationElement">nie:InformationElement</link> for the content.</listitem>
       <listitem><link linkend="nmo-containsSMS">nmo:containsSMS</link> property will link the message with the relevant <link linkend="nmo-SMSFolder">nmo:SMSFolder</link>.</listitem>
       <listitem>If needed, language and characterSet are inherited from NIE (<link linkend="nie-language">nie:language</link>, <link linkend="nie-characterSet">nie:characterSet</link>), but there is a specific <link linkend="nmo-encoding">nmo:encoding</link> property.</listitem>
