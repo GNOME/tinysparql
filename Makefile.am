@@ -98,6 +98,7 @@ DISTCLEANFILES +=                                      \
 
 DISTCHECK_CONFIGURE_FLAGS =                            \
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
+	--with-bashcompletiondir="\$(datadir)"/bash-completion/ \
 	--disable-nautilus-extension                   \
 	--enable-unit-tests                            \
 	--enable-functional-tests                      \
