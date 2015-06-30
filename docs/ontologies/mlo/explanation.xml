@@ -30,7 +30,7 @@
        </para>
      </listitem>
    </orderedlist>
-   <para>These three representations are not exclusive, but is responsability of the applications to keep the data consistent.</para>
+   <para>These three representations are not exclusive, but is responsibility of the applications to keep the data consistent.</para>
    <para>Some places in the space has an special meaning, E.G. premises, buildings or services. This fact is represented in the ontology with the class <link linkend="mlo-Landmark">mlo:Landmark</link>. The title and description of the Landmark itself can be set using the <link linkend="nie-InformationElement">nie:InformationElement</link> properties (<link linkend="nie-title">nie:title</link>, <link linkend="nie-description">nie:description</link>, ...). A location is linked with a landmark with the property <link linkend="mlo-location">mlo:location</link> inherited from the superclass Information Element.</para>
    <para>Landmark can be grouped in categories. For this reason, the ontology provides a property <link linkend="mlo-belongsToCategory">mlo:belongsToCategory</link> that links a Landmark with the class <link linkend="mlo-LandmarkCategory">mlo:LandmarkCategory</link> . The ontology includes also a predefined set of instances, very common an a de-facto standard in the industry.</para>
  </refsect2>
