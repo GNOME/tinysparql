@@ -585,7 +585,7 @@ decorator_retry_file (GFile    *file,
 	gchar *path;
 
 	path = g_file_get_uri (file);
-	g_hash_table_insert (priv->recovery_files, path, file);
+	g_hash_table_insert (priv->recovery_files, path, g_object_ref (file));
 	tracker_decorator_fs_prepend_file (TRACKER_DECORATOR_FS (decorator), file);
 }
 
