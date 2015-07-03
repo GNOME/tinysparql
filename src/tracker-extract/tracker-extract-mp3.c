@@ -1856,6 +1856,17 @@ parse_id3v24 (const gchar           *data,
 		}
 
 		frame_name = &data[pos];
+
+		/* We found padding after all frames */
+		if (frame_name[0] == '\0')
+			break;
+
+		/* We found a IDv2 footer */
+		if (frame_name[0] == '3' &&
+		    frame_name[1] == 'D' &&
+		    frame_name[2] == 'I')
+			break;
+
 		frame = id3v24_get_frame (frame_name);
 
 		csize = (((data[pos+4] & 0x7F) << 21) |
@@ -2049,6 +2060,11 @@ parse_id3v23 (const gchar          *data,
 		}
 
 		frame_name = &data[pos];
+
+		/* We found padding after all frames */
+		if (frame_name[0] == '\0')
+			break;
+
 		frame = id3v24_get_frame (frame_name);
 
 		csize = (((unsigned char)(data[pos + 4]) << 24) |
@@ -2174,6 +2190,11 @@ parse_id3v20 (const gchar          *data,
 		}
 
 		frame_name = &data[pos];
+
+		/* We found padding after all frames */
+		if (frame_name[0] == '\0')
+			break;
+
 		frame = id3v2_get_frame (frame_name);
 
 		csize = (((unsigned char)(data[pos + 3]) << 16) +
