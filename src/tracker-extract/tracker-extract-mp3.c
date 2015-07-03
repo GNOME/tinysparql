@@ -1001,7 +1001,7 @@ mp3_parse_header (const gchar          *data,
 	return TRUE;
 }
 
-static void
+static gboolean
 mp3_parse (const gchar          *data,
            size_t                size,
            size_t                offset,
@@ -1016,7 +1016,7 @@ mp3_parse (const gchar          *data,
 	do {
 		/* Seek for frame start */
 		if (pos + sizeof (header) > size) {
-			return;
+			return FALSE;
 		}
 
 		memcpy (&header, &data[pos], sizeof (header));
@@ -1024,13 +1024,15 @@ mp3_parse (const gchar          *data,
 		if ((header & sync_mask) == sync_mask) {
 			/* Found header sync */
 			if (mp3_parse_header (data, size, pos, uri, metadata, filedata)) {
-				return;
+				return TRUE;
 			}
 		}
 
 		pos++;
 		counter++;
 	} while (counter < MAX_MP3_SCAN_DEEP);
+
+	return FALSE;
 }
 
 static gssize
@@ -2257,6 +2259,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	TrackerSparqlBuilder *metadata, *preupdate;
 	GFile *file;
 	const gchar *graph;
+	gboolean parsed;
 
 	graph = tracker_extract_info_get_graph (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
@@ -2655,10 +2658,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	g_free (md.album_uri);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
+	parsed = mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
 #ifdef HAVE_LIBMEDIAART
-	if (md.performer || md.album) {
+	if (parsed && (md.performer || md.album)) {
 		MediaArtProcess *media_art_process;
 		GError *error = NULL;
 		gboolean success = TRUE;
@@ -2711,6 +2714,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	g_free (filename);
 	g_free (uri);
 
-	return TRUE;
+	return parsed;
 }
 
