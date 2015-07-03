@@ -296,6 +296,7 @@ get_file_metadata (TrackerExtractTask  *task,
 	GFile *file;
 	gchar *mime_used = NULL;
 	gint items = 0;
+	gboolean success = FALSE;
 
 	*info_out = NULL;
 
@@ -324,12 +325,12 @@ get_file_metadata (TrackerExtractTask  *task,
 
 			g_debug ("Using %s...", g_module_name (task->cur_module));
 
-			(task->cur_func) (info);
+			success = (task->cur_func) (info);
 
 			statements = tracker_extract_info_get_metadata_builder (info);
 			items = tracker_sparql_builder_get_length (statements);
 
-			if (items > 0) {
+			if (success && items > 0) {
 				tracker_sparql_builder_insert_close (statements);
 				task->success = TRUE;
 			}
@@ -340,14 +341,14 @@ get_file_metadata (TrackerExtractTask  *task,
 
 	g_debug ("Done (%d objects added)\n", items);
 
-	if (items == 0) {
+	if (!success || items == 0) {
 		tracker_extract_info_unref (info);
 		info = NULL;
 	}
 
 	*info_out = info;
 
-	return (items > 0);
+	return (success && items > 0);
 }
 
 /* This function is called on the thread calling g_cancellable_cancel() */
