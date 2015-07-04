@@ -1287,6 +1287,12 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
+void
+tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface)
+{
+	tracker_fts_rebuild_tokens (interface->db, "fts");
+}
+
 #endif
 
 void
