@@ -40,7 +40,8 @@ gboolean    tracker_fts_alter_table      (sqlite3    *db,
                                           gchar      *table_name,
                                           GHashTable *tables,
                                           GHashTable *grouped_columns);
-
+void        tracker_fts_rebuild_tokens   (sqlite3     *db,
+                                          const gchar *table_name);
 
 G_END_DECLS
 
