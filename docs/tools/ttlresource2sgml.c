@@ -636,7 +636,9 @@ print_properties (FILE          *f,
 		type_name = name_to_shortname (ontology, prop->range->data, NULL);
 		type_class_id = name_to_shortname (ontology, prop->range->data, "-");
 
-		g_fprintf (f, "<refsect2 id='%s.%s'>", id, prop_id);
+		g_fprintf (f, "<refsect2 id='%s.%s' role='property'>", id, prop_id);
+		g_fprintf (f, "<indexterm zone='%s.%s'><primary sortas='%s'>%s</primary></indexterm>",
+		           id, prop_id, shortname, shortname);
 		g_fprintf (f, "<title>The <literal>“%s”</literal> property</title>", shortname);
 		g_fprintf (f, "<programlisting>“%s”"
 			   "          <link linkend=\"%s\">%s</link>"
