@@ -90,6 +90,9 @@ void                tracker_db_manager_set_need_mtime_check   (gboolean needed);
 gboolean            tracker_db_manager_locale_changed         (void);
 void                tracker_db_manager_set_current_locale     (void);
 
+gboolean            tracker_db_manager_get_tokenizer_changed  (void);
+void                tracker_db_manager_tokenizer_update       (void);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */
