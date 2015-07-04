@@ -2094,8 +2094,10 @@ AM_CONDITIONAL(HAVE_LIBOSINFO, test "x$have_libosinfo" = "xyes")
 # distros, it is not.
 
 OLD_CFLAGS="$CFLAGS"
+OLD_LDFLAGS="$LDFLAGS"
 OLD_LIBS="$LIBS"
 CFLAGS=""
+LDFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libgif,
@@ -2132,6 +2134,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBGIF, test "x$have_libgif" = "xyes")
 
 CFLAGS="$OLD_CFLAGS"
+LDFLAGS="$OLD_LDFLAGS"
 LIBS="$OLD_LIBS"
 
 ##################################################################
@@ -2142,8 +2145,10 @@ LIBS="$OLD_LIBS"
 # distros, it is not.
 
 OLD_CFLAGS="$CFLAGS"
+OLD_LDFLAGS="$LDFLAGS"
 OLD_LIBS="$LIBS"
 CFLAGS=""
+LDFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libjpeg,
@@ -2180,6 +2185,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBJPEG, test "x$have_libjpeg" = "xyes")
 
 CFLAGS="$OLD_CFLAGS"
+LDFLAGS="$OLD_LDFLAGS"
 LIBS="$OLD_LIBS"
 
 ##################################################################
@@ -2190,8 +2196,10 @@ LIBS="$OLD_LIBS"
 # distros, it is not.
 
 OLD_CFLAGS="$CFLAGS"
+OLD_LDFLAGS="$LDFLAGS"
 OLD_LIBS="$LIBS"
 CFLAGS=""
+LDFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libtiff,
@@ -2228,6 +2236,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBTIFF, test "x$have_libtiff" = "xyes")
 
 CFLAGS="$OLD_CFLAGS"
+LDFLAGS="$OLD_LDFLAGS"
 LIBS="$OLD_LIBS"
 
 ##################################################################
@@ -2238,8 +2247,10 @@ LIBS="$OLD_LIBS"
 # distros, it is not.
 
 OLD_CFLAGS="$CFLAGS"
+OLD_LDFLAGS="$LDFLAGS"
 OLD_LIBS="$LIBS"
 CFLAGS=""
+LDFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libpng,
@@ -2276,6 +2287,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBPNG, test "x$have_libpng" = "xyes")
 
 CFLAGS="$OLD_CFLAGS"
+LDFLAGS="$OLD_LDFLAGS"
 LIBS="$OLD_LIBS"
 
 ##################################################################
