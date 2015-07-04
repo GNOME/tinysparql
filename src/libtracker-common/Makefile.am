@@ -6,6 +6,16 @@ AM_CPPFLAGS = \
 	-DSHAREDIR=\""$(datadir)"\" \
 	$(LIBTRACKER_COMMON_CFLAGS)
 
+TRACKER_PARSER_FILES =                \
+	tracker-parser.h              \
+	tracker-parser-utils.c        \
+	tracker-parser-utils.h        \
+	tracker-parser-libicu.c       \
+	tracker-parser-libunistring.c
+
+tracker-parser-sha1.h: $(TRACKER_PARSER_FILES)
+	$(AM_V_GEN) echo -n "#define TRACKER_PARSER_SHA1 \""`git log -n1 --format=format:%H -- $(TRACKER_PARSER_FILES)`"\"" > $@
+
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
@@ -61,6 +71,7 @@ tracker-enum-types.c: tracker-enum-types.c.template $(NOINST_H_FILES)
 
 
 BUILT_SOURCES =	                                       \
+	tracker-parser-sha1.h                          \
 	tracker-enum-types.c                           \
 	tracker-enum-types.h
 
@@ -69,6 +80,7 @@ CLEANFILES =                                           \
 	tracker-enum-types.h
 
 EXTRA_DIST =                                           \
+	tracker-parser-sha1.h                          \
 	libtracker-common.vapi                         \
 	tracker-enum-types.c.template                  \
 	tracker-enum-types.h.template

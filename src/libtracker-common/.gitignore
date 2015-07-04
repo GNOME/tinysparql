@@ -1,3 +1,4 @@
 tracker-turtle-writer.c
 tracker-turtle-writer.h
 tracker-enum-types.[c|h]
+tracker-parser-sha1.h
