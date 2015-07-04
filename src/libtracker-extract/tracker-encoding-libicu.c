@@ -34,7 +34,7 @@ tracker_encoding_guess_icu (const gchar *buffer,
 	UCharsetDetector *detector = NULL;
 	const UCharsetMatch *match;
 	gchar *charset = NULL;
-	UErrorCode status;
+	UErrorCode status = 0;
 	const char *p_match = NULL;
 
 	detector = ucsdet_open (&status);
