@@ -3658,6 +3658,20 @@ ontology_get_fts_properties (gboolean     only_new,
 
 	return has_new;
 }
+
+static void
+rebuild_fts_tokens (TrackerDBInterface *iface,
+                    gboolean            creating_db)
+{
+	if (!creating_db) {
+		g_debug ("Rebuilding FTS tokens, this may take a moment...");
+		tracker_db_interface_sqlite_fts_rebuild_tokens (iface);
+		g_debug ("FTS tokens rebuilt");
+	}
+
+	/* Update the stamp file */
+	tracker_db_manager_tokenizer_update ();
+}
 #endif
 
 gboolean
@@ -4638,6 +4652,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		tracker_db_manager_set_current_locale ();
+
+#if HAVE_TRACKER_FTS
+		rebuild_fts_tokens (iface, is_first_time_index);
+	} else if (!read_only && tracker_db_manager_get_tokenizer_changed ()) {
+		rebuild_fts_tokens (iface, is_first_time_index);
+#endif
 	}
 
 	if (!read_only) {
