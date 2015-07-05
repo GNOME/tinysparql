@@ -37,7 +37,8 @@ test_encoding_guessing ()
 	file = g_mapped_file_new (filen, FALSE, NULL);
 
 	output = tracker_encoding_guess (g_mapped_file_get_contents (file),
-	                                 g_mapped_file_get_length (file));
+	                                 g_mapped_file_get_length (file),
+	                                 NULL);
 
 	g_assert_cmpstr (output, ==, "UTF-8");
 
