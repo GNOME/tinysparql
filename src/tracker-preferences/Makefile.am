@@ -11,7 +11,7 @@ appdata_DATA =  tracker-preferences.appdata.xml
 pkgdata_DATA = tracker-preferences.ui
 
 AM_VALAFLAGS =                                         \
-	--pkg gtk+-3.0 --pkg gmodule-2.0               \
+	--pkg gtk+-3.0 --pkg gmodule-2.0 --pkg posix   \
 	$(BUILD_VALAFLAGS)                             \
 	config.vapi                                    \
 	tracker-config.vapi
