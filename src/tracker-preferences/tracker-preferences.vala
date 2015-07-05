@@ -21,6 +21,7 @@
 using Gtk;
 using GLib;
 using Tracker;
+using Posix;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -244,39 +245,11 @@ public class Tracker.Preferences {
 	}
 
 	void reindex () {
-		string output, errors;
-		int status;
-
-		try {
-			Process.spawn_sync (null, /* working dir */
-			                    {"tracker-control", "--hard-reset", "--start" },
-			                    null, /* env */
-			                    SpawnFlags.SEARCH_PATH,
-			                    null,
-			                    out output,
-			                    out errors,
-			                    out status);
-		} catch (GLib.Error e) {
-			stderr.printf ("Could not reindex: %s", e.message);
-		}
+		Posix.system ("tracker reset --hard && tracker daemon --start");
 	}
 
 	void restart () {
-		string output, errors;
-		int status;
-
-		try {
-			Process.spawn_sync (null, /* working dir */
-			                    {"tracker-control", "--terminate=miners", "--terminate=store", "--start" },
-			                    null, /* env */
-			                    SpawnFlags.SEARCH_PATH,
-			                    null,
-			                    out output,
-			                    out errors,
-			                    out status);
-		} catch (GLib.Error e) {
-			stderr.printf ("Could not restart: %s", e.message);
-		}
+		Posix.system ("tracker daemon --terminate=miners --terminate=store && tracker daemon --start");
 	}
 
 	// This function is used to fix up the parameter ordering for callbacks
