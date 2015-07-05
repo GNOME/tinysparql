@@ -675,12 +675,21 @@ get_encoding (const gchar *data,
               gsize        size,
               gboolean    *encoding_found)
 {
+	gdouble confidence = 1;
 	gchar *encoding;
 
 	/* Try to guess encoding */
 	encoding = (data && size ?
-	            tracker_encoding_guess (data, size) :
+	            tracker_encoding_guess (data, size, &confidence) :
 	            NULL);
+
+	if (confidence < 0.5) {
+		/* Confidence on the results was too low, bail out and
+		 * fallback to the default ISO-8859-1/Windows-1252 encoding.
+		 */
+		g_free (encoding);
+		encoding = NULL;
+	}
 
 	/* Notify if a proper detection was done */
 	if (encoding_found) {
