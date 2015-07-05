@@ -244,8 +244,6 @@ public class Tracker.Preferences {
 	}
 
 	void reindex () {
-		stdout.printf ("Reindexing...\n");
-
 		string output, errors;
 		int status;
 
@@ -261,13 +259,9 @@ public class Tracker.Preferences {
 		} catch (GLib.Error e) {
 			stderr.printf ("Could not reindex: %s", e.message);
 		}
-		stdout.printf ("%s\n", output);
-		stdout.printf ("Finishing...\n");
 	}
 
 	void restart () {
-		stdout.printf ("Restarting...\n");
-
 		string output, errors;
 		int status;
 
@@ -283,8 +277,6 @@ public class Tracker.Preferences {
 		} catch (GLib.Error e) {
 			stderr.printf ("Could not restart: %s", e.message);
 		}
-		stdout.printf ("%s\n", output);
-		stdout.printf ("Finishing...\n");
 	}
 
 	// This function is used to fix up the parameter ordering for callbacks
@@ -298,7 +290,7 @@ public class Tracker.Preferences {
 		void* sym;
 
 		if (!module.symbol (handler_name, out sym)) {
-			stdout.printf ("Symbol not found! %s\n", handler_name);
+			warning ("Symbol not found! %s\n", handler_name);
 		} else {
 			Signal.connect (object, signal_name, (GLib.Callback) sym, this);
 		}
