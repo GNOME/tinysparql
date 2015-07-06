@@ -504,7 +504,8 @@ get_embedded_media_art (MetadataExtractor *extractor)
 
 	} while (have_sample);
 
-	have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_IMAGE, lindex, &extractor->sample);
+	/* Fallback to the preview image */
+	have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_PREVIEW_IMAGE, 0, &extractor->sample);
 
 	if (have_sample) {
 		GstBuffer *buffer;
