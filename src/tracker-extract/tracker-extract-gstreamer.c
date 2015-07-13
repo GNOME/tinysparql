@@ -1155,6 +1155,20 @@ extract_metadata (MetadataExtractor      *extractor,
 
 	if (extractor->mime == EXTRACT_MIME_GUESS && !gst_tag_list_is_empty (extractor->tagcache)) {
 		extractor_guess_content_type (extractor);
+	} else {
+		/* Rely on the information from the discoverer rather than the
+		 * mimetype, this is a safety net for those formats that fool
+		 * mimetype sniffing (eg. .ogg suffixed OGG videos being detected
+		 * as audio/ogg.
+		 */
+		if (extractor->mime == EXTRACT_MIME_AUDIO && extractor->has_video) {
+			g_debug ("mimetype says its audio, but has video frames. Falling back to video extraction.");
+			extractor->mime = EXTRACT_MIME_VIDEO;
+		} else if (extractor->mime == EXTRACT_MIME_VIDEO &&
+			   !extractor->has_video && extractor->has_audio) {
+			g_debug ("mimetype says its video, but has only audio. Falling back to audio extraction.");
+			extractor->mime = EXTRACT_MIME_AUDIO;
+		}
 	}
 
 	if (extractor->mime == EXTRACT_MIME_GUESS) {
