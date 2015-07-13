@@ -1,3 +1,26 @@
+NEW in 1.5.0 - 2015-07-13
+=========================
+
+  * Fix possible scenarios for high memory consumption in tracker-extract
+  * Ontology documentation has been revamped
+  * Add search by tags functionality to tracker-needle
+  * Fix spurious "out of space" checks succeeding (#748907)
+  * Fix tracker-miner-fs not entering idle state (#751172)
+  * File monitoring fixes (#750394)
+  * MP3 extraction fixes (#733136, #728252, #735515)
+  * EPUB extraction fixes (#746401)
+  * Fixes on gstreamer-based album extraction (#748227, #732236)
+  * GSF-based extraction fixes (#730085, #746437)
+  * Fix various compiler warnings (#746381, #746194, #751051)
+  * OpenBSD portability fixes (#697719)
+  * Made tracker-needle use gsettings (#740302)
+  * Added infrastructure to rebuild FTS tokens on tokenizer changes
+  * Fixed first index of gnome user docs (#751992)
+  * Allow dummy .rule files for extractors (#735610)
+
+Translations: bg, ca, cs, de, es, hu, id, it, pl, pt, pt_BR, sk, sl, sv, tr, zh_TW
+
+
 NEW in 1.3.6 - 2015-03-17
 =========================
 
