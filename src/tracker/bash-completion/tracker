@@ -17,9 +17,14 @@ tracker_cmds()
 	-h|--help)
 	    return 0;
 	    ;;
-	info|-f|--file)
+	collect-bug-info|info|-f|--file)
 	    if [[ $cur != -* ]]; then
 		_filedir
+		return 0;
+	    fi
+	    ;;
+	-l|--inspect-logs)
+	    if [[ ${words[1]} -eq "collect-bug-info" ]]; then
 		return 0;
 	    fi
 	    ;;

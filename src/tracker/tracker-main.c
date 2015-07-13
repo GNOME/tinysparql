@@ -28,6 +28,7 @@
 
 #include <libtracker-common/tracker-common.h>
 
+#include "tracker-collect-bug-info.h"
 #include "tracker-daemon.h"
 #include "tracker-compatible.h"
 #include "tracker-help.h"
@@ -94,6 +95,7 @@ struct cmd_struct {
 };
 
 static struct cmd_struct commands[] = {
+	{ "collect-bug-info", tracker_collect_bug_info, NEED_NOTHING, N_("Collect information about Tracker failures") },
 	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, pause and list processes responsible for indexing content") },
 	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
 	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 

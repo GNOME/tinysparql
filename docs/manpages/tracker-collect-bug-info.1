@@ -1,0 +1,32 @@
+.TH tracker-info 1 "Oct 2008" GNU "User Commands"
+
+.SH NAME
+tracker-collect-bug-info \- Collect information about Tracker failures
+
+.SH SYNOPSIS
+\fBtracker collect-bug-info\fR [\fIoptions\fR...] <\fIfile1\fR> [[\fIfile2\fR] ...]
+
+.SH DESCRIPTION
+.B tracker collect-bug-info
+
+collects and packs relevant information that might be useful to Tracker
+developers at the time of reporting bugs.
+
+The \fIfile\fR argument can be either a local path or a URI. It also
+does not have to be an absolute path.
+
+.SH OPTIONS
+.TP
+.B \-l, \-\-inspect\-logs
+Inspects journald logs, and looks for URIs/URNs in tracker failures.
+An interactive menu will be offered so multiple report files can be
+created at once.
+.TP
+.B \-b, \-\-bypass\-limits
+Bypass the file limits imposed on the file. By default, only files
+smaller than 10MB may get attached in the collected bundle.
+
+.SH SEE ALSO
+.BR tracker-extract (1),
+.BR tracker-info (1),
+.BR journalctl (1).

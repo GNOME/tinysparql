@@ -20,6 +20,8 @@ tracker_SOURCES = \
 	tracker-main.c \
 	tracker-compatible.c \
 	tracker-compatible.h \
+	tracker-collect-bug-info.c \
+	tracker-collect-bug-info.h \
 	tracker-config.c \
 	tracker-config.h \
 	tracker-color.h \

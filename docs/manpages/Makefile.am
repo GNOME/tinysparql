@@ -3,6 +3,7 @@ tn = tracker-needle.1
 tmrss = tracker-miner-rss.1
 
 common = \
+	tracker-collect-bug-info.1 \
 	tracker-extract.1 \
 	tracker-info.1 \
 	tracker-miner-fs.1 \
