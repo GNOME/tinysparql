@@ -1289,6 +1289,7 @@ test_monitor_directory_event_deleted (TrackerMonitorTestFixture *fixture,
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, source_dir), ==, TRUE);
 	g_object_unref (source_dir);
 	g_free (source_path);
 }
@@ -1713,6 +1714,7 @@ test_monitor_directory_event_moved_to_not_monitored (TrackerMonitorTestFixture *
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, source_dir), ==, TRUE);
 	/* Note that monitor is NOT in dest_dir, so FAIL if we could remove it */
 	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), !=, TRUE);
 	g_assert_cmpint (g_file_delete (dest_dir, NULL, NULL), ==, TRUE);
