@@ -225,7 +225,7 @@ EDS_REQUIRED=2.32.0
 CAMEL_REQUIRED=2.32.0
 GEE_REQUIRED=0.3
 TAGLIB_REQUIRED=1.6
-LIBGRSS_REQUIRED=0.5
+LIBGRSS_REQUIRED=0.6
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
@@ -499,7 +499,7 @@ fi
 
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            libgrss-0.5  >= $LIBGRSS_REQUIRED"
+                            libgrss-0.6  >= $LIBGRSS_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
                   [have_tracker_miner_rss=yes],
