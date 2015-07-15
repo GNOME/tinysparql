@@ -542,6 +542,14 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
+	tmp_string = grss_feed_item_get_author (fiid->item);
+	if (tmp_string != NULL) {
+		g_message ("  Author:'%s'", tmp_string);
+
+		tracker_sparql_builder_predicate (sparql, "nco:creator");
+		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
+	}
+
 	tmp_string = grss_feed_item_get_description (fiid->item);
 	if (tmp_string != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
