@@ -549,8 +549,8 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 	if (str && g_ascii_strcasecmp (str, "true") == 0) {
-		g_message ("  Item already exists '%s'",
-		           grss_feed_item_get_title (fiid->item));
+		g_debug ("  Item already exists '%s'",
+		         grss_feed_item_get_title (fiid->item));
 
 		if (cursor) {
 			g_object_unref (cursor);
