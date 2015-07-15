@@ -446,6 +446,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	gchar *uri;
 	const gchar *str;
 	const gchar *url;
+	const gchar *author;
 	gdouble latitude;
 	gdouble longitude;
 	const gchar *tmp_string;
@@ -523,16 +524,16 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_double (sparql, longitude);
 	}
 
-	has_author = grss_feed_item_get_author (fiid->item);
-	if (has_author != NULL) {
-		g_message ("  Author:'%s'", has_author);
+	author = grss_feed_item_get_author (fiid->item);
+	if (author != NULL) {
+		g_message ("  Author:'%s'", author);
 
 		tracker_sparql_builder_subject (sparql, "_:author");
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nco:Contact");
 
 		tracker_sparql_builder_predicate (sparql, "nco:fullName");
-		tracker_sparql_builder_object_unvalidated (sparql, has_author);
+		tracker_sparql_builder_object_unvalidated (sparql, author);
 	}
 
 	tracker_sparql_builder_subject (sparql, "_:message");
@@ -554,7 +555,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
-	if (has_author != NULL) {
+	if (author != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nco:creator");
 		tracker_sparql_builder_object (sparql, "_:author");
 	}
