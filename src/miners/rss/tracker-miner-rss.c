@@ -523,6 +523,18 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_double (sparql, longitude);
 	}
 
+	has_author = grss_feed_item_get_author (fiid->item);
+	if (has_author != NULL) {
+		g_message ("  Author:'%s'", has_author);
+
+		tracker_sparql_builder_subject (sparql, "_:author");
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nco:Contact");
+
+		tracker_sparql_builder_predicate (sparql, "nco:fullName");
+		tracker_sparql_builder_object_unvalidated (sparql, has_author);
+	}
+
 	tracker_sparql_builder_subject (sparql, "_:message");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "mfo:FeedMessage");
@@ -542,12 +554,9 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
-	tmp_string = grss_feed_item_get_author (fiid->item);
-	if (tmp_string != NULL) {
-		g_message ("  Author:'%s'", tmp_string);
-
+	if (has_author != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nco:creator");
-		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
+		tracker_sparql_builder_object (sparql, "_:author");
 	}
 
 	tmp_string = grss_feed_item_get_description (fiid->item);
