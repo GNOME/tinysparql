@@ -197,8 +197,6 @@ graph_updated_cb (GDBusConnection *connection,
 	g_message ("%s", signal_name);
 	g_message ("  Parameters:'%s'", g_variant_print (parameters, FALSE));
 
-	g_variant_unref (parameters);
-
 	retrieve_and_schedule_feeds (miner);
 }
 
