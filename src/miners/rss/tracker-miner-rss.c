@@ -532,7 +532,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nco:Contact");
 
-		tracker_sparql_builder_predicate (sparql, "nco:fullName");
+		tracker_sparql_builder_predicate (sparql, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (sparql, author);
 	}
 
