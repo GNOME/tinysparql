@@ -310,6 +310,7 @@ feed_channel_changed_timeout_cb (gpointer user_data)
 	time_t now;
 
 	fcud = user_data;
+	fcud->timeout_id = 0;
 
 	now = time (NULL);
 	uri = g_object_get_data (G_OBJECT (fcud->channel), "subject");
