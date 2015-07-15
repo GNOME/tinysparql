@@ -26,6 +26,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-sparql/tracker-ontologies.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <glib/gi18n.h>
 
@@ -696,6 +697,73 @@ feed_item_check_exists (TrackerMinerRSS *miner,
 }
 
 static void
+update_feed_channel_info (TrackerMinerRSS *miner,
+                          GrssFeedChannel *channel)
+{
+	const gchar *subject, *str;
+	GString *update;
+	gchar *escaped;
+	time_t time;
+
+	g_debug ("Updating mfo:FeedChannel for '%s'",
+	         grss_feed_channel_get_title (channel));
+
+	subject = g_object_get_data (G_OBJECT (channel), "subject");
+	update = g_string_new ("INSERT OR REPLACE { ");
+
+	str = grss_feed_channel_get_title (channel);
+	if (str) {
+		escaped = tracker_sparql_escape_string (str);
+		g_string_append_printf (update, "<%s> nie:title \"%s\".", subject, escaped);
+		g_free (escaped);
+	}
+
+	str = grss_feed_channel_get_format (channel);
+	if (str) {
+		escaped = tracker_sparql_escape_string (str);
+		g_string_append_printf (update,
+		                        "<%s> mfo:type [ a mfo:FeedType ;"
+		                        " mfo:name \"%s\"].",
+		                        subject, escaped);
+		g_free (escaped);
+	}
+
+	str = grss_feed_channel_get_description (channel);
+	if (str) {
+		escaped = tracker_sparql_escape_string (str);
+		g_string_append_printf (update, "<%s> nie:description \"%s\".", subject, escaped);
+		g_free (escaped);
+	}
+
+	str = grss_feed_channel_get_image (channel);
+	if (str) {
+		g_string_append_printf (update, "<%s> mfo:image \"%s\".", subject, str);
+	}
+
+	str = grss_feed_channel_get_copyright (channel);
+	if (str) {
+		escaped = tracker_sparql_escape_string (str);
+		g_string_append_printf (update, "<%s> nie:copyright \"%s\".", subject, escaped);
+		g_free (escaped);
+	}
+
+	time = grss_feed_channel_get_publish_time (channel);
+
+	if (time != 0) {
+		escaped = tracker_date_to_string (time);
+		g_string_append_printf (update, "<%s> nmo:lastMessageDate \"%s\".", subject, escaped);
+		g_free (escaped);
+	}
+
+	g_string_append (update, "}");
+
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                        update->str, G_PRIORITY_DEFAULT,
+	                                        NULL, NULL, NULL);
+	g_string_free (update, TRUE);
+}
+
+static void
 feed_ready_cb (GrssFeedsPool   *pool,
                GrssFeedChannel *channel,
                GList           *items,
@@ -720,6 +788,8 @@ feed_ready_cb (GrssFeedsPool   *pool,
 	if (items == NULL) {
 		return;
 	}
+
+	update_feed_channel_info (miner, channel);
 
 	g_message ("Verifying channel:'%s' is up to date",
 	           grss_feed_channel_get_title (channel));
