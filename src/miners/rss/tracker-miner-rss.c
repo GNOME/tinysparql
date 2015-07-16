@@ -611,7 +611,6 @@ feed_item_check_exists_cb (GObject      *source_object,
 	FeedItemInsertData *fiid;
 	time_t t;
 	gchar *uri;
-	const gchar *str;
 	const gchar *url;
 	const gchar *author;
 	gdouble latitude;
@@ -656,8 +655,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	url = get_message_url (fiid->item);
 	channel = grss_feed_item_get_parent (fiid->item);
 
-	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-	if (str && g_ascii_strcasecmp (str, "true") == 0) {
+	if (tracker_sparql_cursor_get_boolean (cursor, 0)) {
 		g_debug ("  Item already exists '%s'",
 		         grss_feed_item_get_title (fiid->item));
 
