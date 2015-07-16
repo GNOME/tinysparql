@@ -776,22 +776,16 @@ feed_item_check_exists (TrackerMinerRSS *miner,
                         GrssFeedItem    *item)
 {
 	FeedItemInsertData *fiid;
-	GrssFeedChannel *feed;
 	gchar *query;
-	gchar *communication_channel;
 	const gchar *url;
 
 	url = get_message_url (item);
-	feed = grss_feed_item_get_parent (item);
-	communication_channel = g_object_get_data (G_OBJECT (feed), "subject");
 
 	query = g_strdup_printf ("ASK {"
 	                         "  ?message a mfo:FeedMessage ;"
-	                         "             nie:url \"%s\";"
-	                         "             nmo:communicationChannel <%s> "
+	                         "             nie:url \"%s\""
 	                         "}",
-	                         url,
-	                         communication_channel);
+	                         url);
 
 	fiid = feed_item_insert_data_new (miner, item);
 
