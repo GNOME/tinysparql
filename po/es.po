@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-07-12 18:44+0000\n"
-"PO-Revision-Date: 2015-07-13 \n"
+"POT-Creation-Date: 2015-07-16 01:05+0000\n"
+"PO-Revision-Date: 2015-07-16 \n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
+"Language-Team: Spanish <gnome-es-list@gnome.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -179,7 +179,7 @@ msgstr "Error al iniciar el programa «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
@@ -631,15 +631,16 @@ msgstr "Proveedores RSS/ATOM"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Obtener proveedores RSS/ATOM"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Añadir proveedor (se debe usar con «--title»)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Añadir proveedor"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Título que usar (se debe usar con «--add-feed»)"
 
@@ -650,11 +651,7 @@ msgstr "Título que usar (se debe usar con «--add-feed»)"
 msgid "- start the feeds indexer"
 msgstr "- iniciar el indexador de proveedores"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Para añadir un proveedor se requiere «--add-feed» y «--title»"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -662,7 +659,7 @@ msgstr "Para añadir un proveedor se requiere «--add-feed» y «--title»"
 msgid "Could not establish a connection to Tracker"
 msgstr "No se pudo establecer una conexión con Tracker"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "No se pudo añadir el proveedor"
 
@@ -2786,17 +2783,14 @@ msgstr ""
 "argumento --tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
 msgstr "Ruta que usar para ejecutar una consulta desde un archivo"
 
 #: ../src/tracker/tracker-sql.c:47
-#| msgid "SPARQL query"
 msgid "SQL query"
 msgstr "Consulta SQL"
 
 #: ../src/tracker/tracker-sql.c:48
-#| msgid "SPARQL"
 msgid "SQL"
 msgstr "SQL"
 
@@ -3081,6 +3075,12 @@ msgstr "- iniciar el servicio de escritura en diferido"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas guardadas"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Añadir proveedor (se debe usar con «--title»)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Para añadir un proveedor se requiere «--add-feed» y «--title»"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr " - Gestionar los procesos y datos de Tracker"
