@@ -41,7 +41,8 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "add-feed", 'a', 0,
 	  G_OPTION_ARG_STRING, &add_feed,
-	  N_("Add feed (must be used with --title)"),
+	  /* Translators: this is a "feed" as in RSS */
+	  N_("Add feed"),
 	  N_("URL") },
 	{ "title", 't', 0,
 	  G_OPTION_ARG_STRING, &title,
@@ -58,7 +59,6 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
-	const gchar *error_message;
 
 	setlocale (LC_ALL, "");
 
@@ -74,16 +74,8 @@ main (int argc, char **argv)
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if ((add_feed && !title) || (!add_feed && title)) {
-		error_message = _("Adding a feed requires --add-feed and --title");
-	} else {
-		error_message = NULL;
-	}
-
-	if (error_message) {
+	if (title && !add_feed) {
 		gchar *help;
-
-		g_printerr ("%s\n\n", error_message);
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -96,9 +88,9 @@ main (int argc, char **argv)
 	g_option_context_free (context);
 
 	/* Command line stuff doesn't use logging, so we're using g_print*() */
-	if (add_feed && title) {
+	if (add_feed) {
 		TrackerSparqlConnection *connection;
-		const gchar *query;
+		GString *query;
 
 		g_print ("Adding feed:\n"
 		         "  title:'%s'\n"
@@ -117,22 +109,24 @@ main (int argc, char **argv)
 		}
 
 		/* FIXME: Make interval configurable */
-		query = g_strdup_printf ("INSERT {"
-		                         "  _:FeedSettings a mfo:FeedSettings ;"
-		                         "                   mfo:updateInterval 20 ."
-		                         "  _:Feed a nie:DataObject, mfo:FeedChannel ;"
-		                         "           mfo:feedSettings _:FeedSettings ;"
-		                         "           nie:url \"%s\" ;"
-		                         "           nie:title \"%s\" . "
-		                         "}",
-		                         add_feed,
-		                         title);
+		query = g_string_new ("INSERT {"
+		                      "  _:FeedSettings a mfo:FeedSettings ;"
+		                      "                   mfo:updateInterval 20 ."
+		                      "  _:Feed a nie:DataObject, mfo:FeedChannel ;"
+		                      "           mfo:feedSettings _:FeedSettings ;");
+
+		if (title) {
+			g_string_append_printf (query, "nie:title \"%s\";", title);
+		}
+
+		g_string_append_printf (query, " nie:url \"%s\" }", add_feed);
 
 		tracker_sparql_connection_update (connection,
-		                                  query,
+		                                  query->str,
 		                                  G_PRIORITY_DEFAULT,
 		                                  NULL,
 		                                  &error);
+		g_string_free (query, TRUE);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
