@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-06-23 11:58+0000\n"
-"PO-Revision-Date: 2015-06-23 15:08+0200\n"
+"POT-Creation-Date: 2015-07-17 00:07+0000\n"
+"PO-Revision-Date: 2015-07-17 16:42+0200\n"
 "Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <openscope at googlegroups dot com>\n"
 "Language: hu\n"
@@ -175,7 +175,7 @@ msgstr "Hiba a „tar” program indításakor"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
@@ -505,6 +505,7 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "FÁJL"
 
@@ -614,15 +615,16 @@ msgstr "RSS/ATOM hírforrások"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "RSS/ATOM hírforrások lekérése"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Hírforrás hozzáadása  (a --title kapcsolóval együtt használandó)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Hírforrás hozzáadása"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Használandó cím (a --add-feed kapcsolóval együtt használandó)"
 
@@ -633,11 +635,7 @@ msgstr "Használandó cím (a --add-feed kapcsolóval együtt használandó)"
 msgid "- start the feeds indexer"
 msgstr "– a hírforrás-indexelő elindítása"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Hírforrás hozzáadásához a --add-feed és a --title is szükséges"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -645,7 +643,7 @@ msgstr "Hírforrás hozzáadásához a --add-feed és a --title is szükséges"
 msgid "Could not establish a connection to Tracker"
 msgstr "Nem hozható létre kapcsolat a Trackerhez"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "A hírforrás nem vehető fel"
 
@@ -763,11 +761,11 @@ msgstr ""
 "korlátozott környezetben hasznos, ahol fontos a fájlok felsorolása a lehető "
 "leggyorsabban, de a metaadatokra lehet várni."
 
-#: ../src/tracker-extract/tracker-extract.c:789
+#: ../src/tracker-extract/tracker-extract.c:790
 msgid "Metadata extraction failed"
 msgstr "A metaadatok kinyerése sikertelen"
 
-#: ../src/tracker-extract/tracker-extract.c:854
+#: ../src/tracker-extract/tracker-extract.c:855
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Nem találhatók metaadat- vagy kinyerő modulok ezen fájl kezeléséhez"
 
@@ -872,7 +870,6 @@ msgid "Find search criteria in file titles"
 msgstr "Keresési feltétel keresése fájlnevekben"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
-#| msgid "Find search criteria in file titles"
 msgid "Find search criteria in file tags only (separated by comma)"
 msgstr "Keresési feltétel keresése csak fájlcímkékben (vesszővel elválasztva)"
 
@@ -912,7 +909,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Csak az első 500 találat jelenik meg"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Verzió kiírása"
 
@@ -960,7 +957,7 @@ msgstr[1] "Dokumentum"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Fájl"
@@ -1482,13 +1479,13 @@ msgstr "Indítás"
 msgid "System"
 msgstr "Rendszer"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Könyvtár"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1496,35 +1493,35 @@ msgstr ""
 "A beállítások változtatásai miatt újraindexelés szükséges, hogy biztosítható "
 "legyen, hogy minden adata a kérésének megfelelően van indexelve."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Ez bezárja ezt az ablakot!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Szeretné most újraindexeltetni?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Újraindexelés"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Ne tegyen semmit"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
 msgstr ""
 "A beállítások változtatásai miatt a tracker folyamatok újraindítása szükséges"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Szeretné ezeket most újraindítani?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Tracker újraindítása"
 
@@ -1535,38 +1532,38 @@ msgstr "Tracker újraindítása"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Kikapcsolva"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Adja meg az értéket"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "Mé_gse"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_OK"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Válasszon könyvtárat"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "Ez a könyvtár már ki van választva indexelendő könyvtárként"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Rekurzió"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Asztali keresés tulajdonságai"
 
@@ -2756,6 +2753,21 @@ msgstr ""
 "A --list-properties argumentum csak akkor lehet üres, ha a --tree "
 "argumentummal együtt használják"
 
+#: ../src/tracker/tracker-sql.c:43
+#| msgid "Path to use to run a query or update from file"
+msgid "Path to use to run a query from file"
+msgstr "Lekérdezés fájlból futtatására használandó útvonal"
+
+#: ../src/tracker/tracker-sql.c:47
+#| msgid "SPARQL query"
+msgid "SQL query"
+msgstr "SQL lekérdezés"
+
+#: ../src/tracker/tracker-sql.c:48
+#| msgid "SPARQL"
+msgid "SQL"
+msgstr "SQL"
+
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
 msgstr "Az adatkezelő előkészítése meghiúsult"
@@ -3038,6 +3050,12 @@ msgstr "– a Tracker visszaíró szolgáltatásának elindítása"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Mentett lekérdezések"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Hírforrás hozzáadása  (a --title kapcsolóval együtt használandó)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Hírforrás hozzáadásához a --add-feed és a --title is szükséges"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr " – Tracker folyamatok és adatok kezelése"
