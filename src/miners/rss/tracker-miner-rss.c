@@ -95,6 +95,75 @@ static const gchar *get_message_url                 (GrssFeedItem              *
 G_DEFINE_TYPE (TrackerMinerRSS, tracker_miner_rss, TRACKER_TYPE_MINER_ONLINE)
 
 static void
+parser_characters (void          *data,
+                   const xmlChar *ch,
+                   int            len)
+{
+	GString *string = data;
+	const gchar *str, *end;
+
+	str = ch;
+	g_utf8_validate (str, len, &end);
+
+	if (end > str) {
+		g_string_append_len (string, str, end - str);
+	}
+
+	if (string->str[string->len - 1] != ' ')
+		g_string_append_c (string, ' ');
+}
+
+static gchar *
+parse_html_text (const gchar *html)
+{
+	GString *string;
+	htmlDocPtr doc;
+	xmlSAXHandler handler = {
+		NULL, /* internalSubset */
+		NULL, /* isStandalone */
+		NULL, /* hasInternalSubset */
+		NULL, /* hasExternalSubset */
+		NULL, /* resolveEntity */
+		NULL, /* getEntity */
+		NULL, /* entityDecl */
+		NULL, /* notationDecl */
+		NULL, /* attributeDecl */
+		NULL, /* elementDecl */
+		NULL, /* unparsedEntityDecl */
+		NULL, /* setDocumentLocator */
+		NULL, /* startDocument */
+		NULL, /* endDocument */
+		NULL, /* startElement */
+		NULL, /* endElement */
+		NULL, /* reference */
+		parser_characters, /* characters */
+		NULL, /* ignorableWhitespace */
+		NULL, /* processingInstruction */
+		NULL, /* comment */
+		NULL, /* xmlParserWarning */
+		NULL, /* xmlParserError */
+		NULL, /* xmlParserError */
+		NULL, /* getParameterEntity */
+		NULL, /* cdataBlock */
+		NULL, /* externalSubset */
+		1,    /* initialized */
+		NULL, /* private */
+		NULL, /* startElementNsSAX2Func */
+		NULL, /* endElementNsSAX2Func */
+		NULL  /* xmlStructuredErrorFunc */
+	};
+
+	string = g_string_new (NULL);
+	doc = htmlSAXParseDoc ((xmlChar *) html, "UTF-8", &handler, string);
+
+	if (doc) {
+		xmlFreeDoc (doc);
+	}
+
+	return g_string_free (string, FALSE);
+}
+
+static void
 tracker_miner_rss_finalize (GObject *object)
 {
 	TrackerMinerRSSPrivate *priv;
@@ -735,7 +804,14 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	tmp_string = grss_feed_item_get_description (fiid->item);
 	if (tmp_string != NULL) {
+		gchar *plain_text;
+
+		plain_text = parse_html_text (tmp_string);
 		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (sparql, plain_text);
+		g_free (plain_text);
+
+		tracker_sparql_builder_predicate (sparql, "nmo:htmlMessageContent");
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
