@@ -48,6 +48,7 @@ struct _TrackerMinerRSSPrivate {
 
 	GList *item_inserts;
 	GHashTable *channel_updates;
+	GHashTable *channels;
 
 	gint rdf_type_id;
 	gint mfo_feed_channel_id;
@@ -111,6 +112,7 @@ tracker_miner_rss_finalize (GObject *object)
 	g_list_free (priv->item_inserts);
 
 	g_hash_table_unref (priv->channel_updates);
+	g_hash_table_unref (priv->channels);
 
 	G_OBJECT_CLASS (tracker_miner_rss_parent_class)->finalize (object);
 }
@@ -195,6 +197,8 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	                                               g_direct_equal,
 	                                               NULL,
 	                                               (GDestroyNotify) feed_channel_update_data_free);
+	priv->channels = g_hash_table_new_full (NULL, NULL, NULL,
+	                                        (GDestroyNotify) g_object_unref);
 
 	priv->pool = grss_feeds_pool_new ();
 	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (feed_fetching_cb), object);
@@ -223,11 +227,13 @@ query_deleted_feed_messages_cb (GObject      *source_object,
                                 gpointer      user_data)
 {
 	TrackerSparqlConnection *connection;
+	TrackerMinerRSSPrivate *priv;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	const gchar *urn;
 	GString *query;
 
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	connection = TRACKER_SPARQL_CONNECTION (source_object);
 	cursor = tracker_sparql_connection_query_finish (connection, res, &error);
 
@@ -245,6 +251,8 @@ query_deleted_feed_messages_cb (GObject      *source_object,
 		                        "DELETE { <%s> ?p ?o }"
 		                        "WHERE { <%s> ?p ?o }\n",
 		                        urn, urn);
+
+		g_hash_table_remove (priv->channels, urn);
 	}
 
 	g_object_unref (cursor);
@@ -912,8 +920,10 @@ feeds_retrieve_cb (GObject      *source_object,
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
 	GrssFeedChannel *chan;
+	GHashTableIter iter;
 	gint count;
 
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
 	                                                 res,
 	                                                 &error);
@@ -938,7 +948,7 @@ feeds_retrieve_cb (GObject      *source_object,
 		gint mins;
 
 		if (count == 0) {
-			g_message ("Feeds found:");
+			g_message ("(New) Feeds found:");
 		}
 
 		count++;
@@ -947,6 +957,9 @@ feeds_retrieve_cb (GObject      *source_object,
 		title = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		interval = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 		subject = tracker_sparql_cursor_get_string (cursor, 3, NULL);
+
+		if (g_hash_table_lookup (priv->channels, subject))
+			continue;
 
 		chan = grss_feed_channel_new ();
 		g_object_set_data_full (G_OBJECT (chan),
@@ -970,13 +983,23 @@ feeds_retrieve_cb (GObject      *source_object,
 		           interval);
 
 		channels = g_list_prepend (channels, chan);
+		g_hash_table_insert (priv->channels,
+		                     g_object_get_data (G_OBJECT (chan), "subject"),
+		                     chan);
+	}
+
+	/* Add to the list the previously created channels */
+	g_hash_table_iter_init (&iter, priv->channels);
+
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &chan)) {
+		channels = g_list_prepend (channels, chan);
+		count++;
 	}
 
 	if (count == 0) {
 		g_message ("No feeds set up, nothing more to do");
 	}
 
-	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	grss_feeds_pool_listen (priv->pool, channels);
 
 	g_object_unref (cursor);
