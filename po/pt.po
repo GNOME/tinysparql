@@ -3,16 +3,16 @@
 # This file is distributed under the same license as the tracker package.
 # Nicolau Gonçalves <excentriko@gmail.com>, 2007, 2008, 2009, 2010.
 # Duarte Loreto <happyguy_pt@hotmail.com>, 2014.
-# Pedro Albuquerque <palbuquerque73@openmailbox.com>, 2015.
+# Pedro Albuquerque <palbuquerque73o@gmail.com>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 3.12\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-07-06 05:15+0000\n"
-"PO-Revision-Date: 2015-07-06 10:55+0100\n"
-"Last-Translator: Pedro Albuquerque <palbuquerque73@openmailbox.com>\n"
+"POT-Creation-Date: 2015-07-17 14:43+0000\n"
+"PO-Revision-Date: 2015-07-18 11:25+0100\n"
+"Last-Translator: Pedro Albuquerque <palbuquerque73o@gmail.com>\n"
 "Language-Team: Português <palbuquerque73@openmailbox.com>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -179,7 +179,7 @@ msgstr "Erro ao iniciar o programa \"tar\""
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
@@ -629,15 +629,16 @@ msgstr "Feeds RSS/ATOM"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Obter feed RSS/ATOM"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Adicionar feed (tem de ser usado com --title)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Adicionar feed"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Título a usar (tem de ser usado com --add-feed)"
 
@@ -648,11 +649,7 @@ msgstr "Título a usar (tem de ser usado com --add-feed)"
 msgid "- start the feeds indexer"
 msgstr "- iniciar o indexador de feeds"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Adicionar um feed requere --add-feed e --title"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -660,7 +657,7 @@ msgstr "Adicionar um feed requere --add-feed e --title"
 msgid "Could not establish a connection to Tracker"
 msgstr "Impossível estabelecer uma ligação ao Tracker"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "Impossível adicionar alimentação"
 
@@ -2767,17 +2764,14 @@ msgstr ""
 "com --tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
 msgstr "Caminho a usar para executar uma consulta de um ficheiro"
 
 #: ../src/tracker/tracker-sql.c:47
-#| msgid "SPARQL query"
 msgid "SQL query"
 msgstr "Consulta SQL"
 
 #: ../src/tracker/tracker-sql.c:48
-#| msgid "SPARQL"
 msgid "SQL"
 msgstr "SQL"
 
@@ -3062,6 +3056,12 @@ msgstr "- iniciar o serviço reescrever do tracker "
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas gravadas"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Adicionar feed (tem de ser usado com --title)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Adicionar um feed requere --add-feed e --title"
 
 #~ msgid "Disable miners started as part of this process, options include: '"
 #~ msgstr ""
