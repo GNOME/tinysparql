@@ -680,6 +680,19 @@ feed_item_insert_cb (GObject      *source,
 }
 
 static void
+sparql_add_contact (TrackerSparqlBuilder *sparql,
+                    const gchar          *alias,
+                    const gchar          *contact)
+{
+	tracker_sparql_builder_subject (sparql, alias);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nco:Contact");
+
+	tracker_sparql_builder_predicate (sparql, "nco:fullname");
+	tracker_sparql_builder_object_unvalidated (sparql, contact);
+}
+
+static void
 feed_item_check_exists_cb (GObject      *source_object,
                            GAsyncResult *res,
                            gpointer      user_data)
@@ -698,6 +711,9 @@ feed_item_check_exists_cb (GObject      *source_object,
 	TrackerSparqlBuilder *sparql;
 	GrssFeedChannel *channel;
 	gboolean has_geolocation;
+	const GList *contributors;
+	const GList *list, *l;
+	GList *contrib_aliases = NULL;
 
 	fiid = user_data;
 	connection = TRACKER_SPARQL_CONNECTION (source_object);
@@ -769,13 +785,20 @@ feed_item_check_exists_cb (GObject      *source_object,
 	author = grss_feed_item_get_author (fiid->item);
 	if (author != NULL) {
 		g_message ("  Author:'%s'", author);
+		sparql_add_contact (sparql, "_:author", author);
+	}
 
-		tracker_sparql_builder_subject (sparql, "_:author");
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nco:Contact");
+	contributors = grss_feed_item_get_contributors (fiid->item);
 
-		tracker_sparql_builder_predicate (sparql, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (sparql, author);
+	for (l = contributors; l; l = l->next) {
+		gchar *subject;
+		gint i = 0;
+
+		g_debug ("  Contributor:'%s'", (gchar *) l->data);
+
+		subject = g_strdup_printf ("_:contrib%d", i++);
+		contrib_aliases = g_list_prepend (contrib_aliases, subject);
+		sparql_add_contact (sparql, subject, l->data);
 	}
 
 	tracker_sparql_builder_subject (sparql, "_:message");
@@ -800,6 +823,11 @@ feed_item_check_exists_cb (GObject      *source_object,
 	if (author != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nco:creator");
 		tracker_sparql_builder_object (sparql, "_:author");
+	}
+
+	for (l = contrib_aliases; l; l = l->next) {
+		tracker_sparql_builder_predicate (sparql, "nco:contributor");
+		tracker_sparql_builder_object (sparql, l->data);
 	}
 
 	tmp_string = grss_feed_item_get_description (fiid->item);
@@ -842,6 +870,18 @@ feed_item_check_exists_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "nmo:communicationChannel");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
+	tmp_string = grss_feed_item_get_copyright (fiid->item);
+	if (tmp_string) {
+		tracker_sparql_builder_predicate (sparql, "nie:copyright");
+		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
+	}
+
+	list = grss_feed_item_get_categories (fiid->item);
+	for (l = list; l; l = l->next) {
+		tracker_sparql_builder_predicate (sparql, "nie:keyword");
+		tracker_sparql_builder_object_unvalidated (sparql, l->data);
+	}
+
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_sparql_connection_update_async (connection,
@@ -850,6 +890,9 @@ feed_item_check_exists_cb (GObject      *source_object,
 	                                        fiid->cancellable,
 	                                        feed_item_insert_cb,
 	                                        fiid);
+
+	g_list_foreach (contrib_aliases, (GFunc) g_free, NULL);
+	g_list_free (contrib_aliases);
 
 	g_object_unref (cursor);
 	g_object_unref (sparql);
