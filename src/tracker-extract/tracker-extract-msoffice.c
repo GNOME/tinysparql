@@ -759,7 +759,8 @@ open_file (const gchar *filename, FILE *file)
 	infile = gsf_infile_msole_new (input, &error);
 
 	if (error) {
-		g_warning ("Failed to open file '%s': %s", filename, error->message);
+		if (error->domain != gsf_input_error_id ())
+			g_warning ("Failed to open file '%s': %s", filename, error->message);
 		g_error_free (error);
 	}
 
