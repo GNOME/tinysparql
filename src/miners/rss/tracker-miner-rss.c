@@ -687,16 +687,6 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 	const gchar *name = grss_person_get_name (contact);
 	const gchar *email = grss_person_get_email (contact);
 	const gchar *uri = grss_person_get_uri (contact);
-	gchar *email_alias = g_strdup_printf ("%s-email", alias);
-
-	if (email != NULL) {
-		tracker_sparql_builder_subject (sparql, email_alias);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nco:EmailAddress");
-
-		tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
-		tracker_sparql_builder_object_unvalidated (sparql, email);
-	}
 
 	tracker_sparql_builder_subject (sparql, alias);
 	tracker_sparql_builder_predicate (sparql, "a");
@@ -707,15 +697,21 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 
 	if (email != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
-                tracker_sparql_builder_object (sparql, email_alias);
+
+		tracker_sparql_builder_object_blank_open (sparql);
+
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+
+		tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+		tracker_sparql_builder_object_unvalidated (sparql, email);
+		tracker_sparql_builder_object_blank_close (sparql);
 	}
 
 	if (uri != NULL) {
 		tracker_sparql_builder_predicate (sparql, "nco:websiteUrl");
 		tracker_sparql_builder_object_unvalidated (sparql, uri);
 	}
-
-	g_free (email_alias);
 }
 
 static void
