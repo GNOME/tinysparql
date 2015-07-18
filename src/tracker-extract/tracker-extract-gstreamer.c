@@ -1510,7 +1510,10 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 			g_message ("Missing a GStreamer plugin for %s. %s", uri,
 			           required_plugins_message);
 			g_free (required_plugins_message);
-		} else {
+		} else if (error->domain != GST_STREAM_ERROR ||
+		           (error->code != GST_STREAM_ERROR_TYPE_NOT_FOUND &&
+		            error->code != GST_STREAM_ERROR_WRONG_TYPE &&
+		            error->code != GST_STREAM_ERROR_DECODE)) {
 			g_warning ("Call to gst_discoverer_discover_uri(%s) failed: %s",
 			           uri, error->message);
 		}
