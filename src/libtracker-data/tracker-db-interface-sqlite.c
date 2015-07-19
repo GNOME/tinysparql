@@ -91,6 +91,7 @@ struct TrackerDBInterface {
 	gchar *busy_status;
 
 	gchar *fts_insert_str;
+	gchar *fts_delete_str;
 };
 
 struct TrackerDBInterfaceClass {
@@ -1149,16 +1150,19 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 	fts_columns = _fts_create_properties (properties);
 
 	if (fts_columns) {
-		GString *insert, *select;
+		GString *insert, *select, *delete, cols;
 		gint i = 0;
 
 		insert = g_string_new ("INSERT INTO fts (docid");
 		select = g_string_new ("SELECT rowid");
+		delete = g_string_new ("UPDATE fts SET docid=?");
 
 		while (fts_columns[i]) {
 			g_string_append_printf (insert, ", \"%s\"",
 						fts_columns[i]);
 			g_string_append_printf (select, ", \"%s\"",
+						fts_columns[i]);
+			g_string_append_printf (delete, ", \"%s\"=\"\"",
 						fts_columns[i]);
 			i++;
 		}
@@ -1169,6 +1173,9 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 
 		g_string_free (select, TRUE);
 		db_interface->fts_insert_str = g_string_free (insert, FALSE);
+
+		g_string_append (delete, " WHERE docid=?");
+		db_interface->fts_delete_str = g_string_free (delete, FALSE);
 
 		g_strfreev (fts_columns);
 	}
@@ -1287,6 +1294,40 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
+gboolean
+tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
+                                           int                 id)
+{
+	TrackerDBStatement *stmt;
+	GError *error = NULL;
+
+	stmt = tracker_db_interface_create_statement (db_interface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &error,
+	                                              db_interface->fts_delete_str);
+	if (!stmt || error) {
+		if (error) {
+			g_warning ("Could not create FTS delete statement: %s",
+			           error->message);
+			g_error_free (error);
+		}
+		return FALSE;
+	}
+
+	tracker_db_statement_bind_int (stmt, 0, id);
+	tracker_db_statement_bind_int (stmt, 1, id);
+	tracker_db_statement_execute (stmt, &error);
+	g_object_unref (stmt);
+
+	if (error) {
+		g_warning ("Could not delete FTS content: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 void
 tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface)
 {
@@ -1341,6 +1382,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	close_database (db_interface);
 	g_free (db_interface->fts_insert_str);
+	g_free (db_interface->fts_delete_str);
 
 	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
 
