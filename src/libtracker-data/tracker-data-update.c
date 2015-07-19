@@ -2068,9 +2068,11 @@ cache_delete_resource_type_full (TrackerClass *class,
 	iface = tracker_db_manager_get_db_interface ();
 
 	if (!single_type) {
-		if (!HAVE_TRACKER_FTS &&
-		    strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
+		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
 		    g_hash_table_size (resource_buffer->tables) == 0) {
+#if HAVE_TRACKER_FTS
+			tracker_db_interface_sqlite_fts_delete_id (iface, resource_buffer->id);
+#endif
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
 
@@ -2134,9 +2136,8 @@ cache_delete_resource_type_full (TrackerClass *class,
 		}
 	}
 
-	/* bypass buffer if possible
-	   we need old property values with FTS */
-	direct_delete = (!HAVE_TRACKER_FTS && g_hash_table_size (resource_buffer->tables) == 0);
+	/* bypass buffer if possible */
+	direct_delete = g_hash_table_size (resource_buffer->tables) == 0;
 
 	/* delete all property values */
 
