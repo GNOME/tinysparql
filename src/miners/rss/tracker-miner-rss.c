@@ -682,14 +682,36 @@ feed_item_insert_cb (GObject      *source,
 static void
 sparql_add_contact (TrackerSparqlBuilder *sparql,
                     const gchar          *alias,
-                    const gchar          *contact)
+                    GrssPerson           *contact)
 {
+	const gchar *name = grss_person_get_name (contact);
+	const gchar *email = grss_person_get_email (contact);
+	const gchar *uri = grss_person_get_uri (contact);
+
 	tracker_sparql_builder_subject (sparql, alias);
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nco:Contact");
 
 	tracker_sparql_builder_predicate (sparql, "nco:fullname");
-	tracker_sparql_builder_object_unvalidated (sparql, contact);
+	tracker_sparql_builder_object_unvalidated (sparql, name);
+
+	if (email != NULL) {
+		tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
+
+		tracker_sparql_builder_object_blank_open (sparql);
+
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+
+		tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+		tracker_sparql_builder_object_unvalidated (sparql, email);
+		tracker_sparql_builder_object_blank_close (sparql);
+	}
+
+	if (uri != NULL) {
+		tracker_sparql_builder_predicate (sparql, "nco:websiteUrl");
+		tracker_sparql_builder_object_unvalidated (sparql, uri);
+	}
 }
 
 static void
@@ -702,7 +724,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	time_t t;
 	gchar *uri;
 	const gchar *url;
-	const gchar *author;
+	GrssPerson *author;
 	gdouble latitude;
 	gdouble longitude;
 	const gchar *tmp_string;
@@ -784,7 +806,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	author = grss_feed_item_get_author (fiid->item);
 	if (author != NULL) {
-		g_message ("  Author:'%s'", author);
+		g_message ("  Author:'%s'", grss_person_get_name (author));
 		sparql_add_contact (sparql, "_:author", author);
 	}
 
@@ -794,7 +816,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		gchar *subject;
 		gint i = 0;
 
-		g_debug ("  Contributor:'%s'", (gchar *) l->data);
+		g_debug ("  Contributor:'%s'", grss_person_get_name (l->data));
 
 		subject = g_strdup_printf ("_:contrib%d", i++);
 		contrib_aliases = g_list_prepend (contrib_aliases, subject);
