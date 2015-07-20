@@ -651,6 +651,9 @@ tracker_parser_reset (TrackerParser *parser,
 
 	parser->cursor = 0;
 
+	if (parser->txt_size == 0)
+		return;
+
 	/* Open converter UTF-8 to UChar */
 	converter = ucnv_open ("UTF-8", &error);
 	if (!converter) {
