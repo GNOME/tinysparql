@@ -93,6 +93,9 @@ const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier     *notif
 void          tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
                                                          GFile               *file);
 
+GFileType     tracker_file_notifier_get_file_type (TrackerFileNotifier *notifier,
+                                                   GFile               *file);
+
 G_END_DECLS
 
 #endif /* __TRACKER_FILE_SYSTEM_H__ */
