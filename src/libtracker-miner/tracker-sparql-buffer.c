@@ -414,13 +414,23 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 			}
 
 			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_CHILDREN) {
+				gchar *dir_uri;
+
 				if (!children_string) {
-					children_string = g_string_new ("");
+					children_string = g_string_new (NULL);
 				} else {
-					g_string_append_c (children_string, ',');
+					g_string_append (children_string, "||");
 				}
 
-				g_string_append_printf (children_string, "\"%s\"", uri);
+				if (uri[strlen (uri) - 1] == '/')
+					dir_uri = g_strdup (uri);
+				else
+					dir_uri = g_strdup_printf ("%s/", uri);
+
+				g_string_append_printf (children_string,
+				                        "fn:starts-with (?u, \"%s\")",
+				                        dir_uri);
+				g_free (dir_uri);
 			}
 
 			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_LOGICAL_RESOURCES) {
@@ -459,7 +469,7 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 			g_string_append_printf (sparql,
 			                        " WHERE { "
 			                        "  ?f nie:url ?u ."
-			                        "  FILTER (tracker:uri-is-descendant (%s, ?u))",
+			                        "  FILTER (%s)",
 			                        children_string->str);
 			g_string_free (children_string, TRUE);
 
