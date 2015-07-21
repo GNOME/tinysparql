@@ -1621,6 +1621,9 @@ item_remove (TrackerMinerFS *fs,
 #endif
 	}
 
+	if (tracker_file_notifier_get_file_type (fs->priv->file_notifier, file) == G_FILE_TYPE_DIRECTORY)
+		flags |= TRACKER_BULK_MATCH_CHILDREN;
+
 	/* FIRST:
 	 * Remove tracker:available for the resources we're going to remove.
 	 * This is done so that unavailability of the resources is marked as soon
@@ -1633,7 +1636,7 @@ item_remove (TrackerMinerFS *fs,
 	                                     "DELETE { "
 	                                     "  ?f tracker:available true "
 	                                     "}",
-	                                     flags | TRACKER_BULK_MATCH_CHILDREN);
+	                                     flags);
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 	                            task,
@@ -1653,7 +1656,6 @@ item_remove (TrackerMinerFS *fs,
 	                                     "  ?ie a rdfs:Resource "
 	                                     "}",
 	                                     flags |
-	                                     TRACKER_BULK_MATCH_CHILDREN |
 	                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
 
 	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
