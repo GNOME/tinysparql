@@ -1,3 +1,19 @@
+NEW in 1.5.1 - 2015-07-21
+=========================
+
+  * Many fixes to RSS miner:
+    - Dumps more complete data on tracker-store.
+    - Stability fixes.
+    - Leak fixes.
+    - Performs automatic maintenance of feed messages.
+  * Bumped libgrss dependency on 0.7
+  * Performance improvements on tracker-store delete operations
+  * Performance improvements on tracker-miner-fs delete operation handling.
+  * Fix main Resource table id/urn leaks
+  * Fix unnecessary queries in tracker-extract
+
+Translations: es, hu, pt
+
 NEW in 1.5.0 - 2015-07-13
 =========================
 
