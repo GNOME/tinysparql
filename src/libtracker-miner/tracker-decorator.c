@@ -969,6 +969,24 @@ tracker_decorator_validate_class_ids (TrackerDecorator *decorator)
 	priv->class_names = (gchar **) g_array_free (array, FALSE);
 }
 
+static gboolean
+tracker_decorator_has_class_id (TrackerDecorator *decorator,
+                                gint              id)
+{
+	TrackerDecoratorPrivate *priv = decorator->priv;
+	ClassInfo *info;
+	gint i;
+
+	for (i = 0; i < priv->classes->len; i++) {
+		info = &g_array_index (priv->classes, ClassInfo, i);
+
+		if (info->class_id == id)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 tracker_decorator_get_property (GObject    *object,
                                 guint       param_id,
@@ -1085,10 +1103,25 @@ static void
 handle_updates (TrackerDecorator *decorator,
                 GVariantIter     *iter)
 {
-	/* Merely use this as a hint that there is something
-	 * left to be processed.
-	 */
-	if (g_variant_iter_n_children (iter) > 0)
+	gint graph, subject, predicate, object;
+	TrackerDecoratorPrivate *priv;
+	gboolean check_added = FALSE;
+
+	priv = decorator->priv;
+
+	while (g_variant_iter_loop (iter, "(iiii)",
+				    &graph, &subject, &predicate, &object)) {
+		/* Merely use this as a hint that there is something
+		 * left to be processed.
+		 */
+		if (predicate == priv->rdf_type_id &&
+		    tracker_decorator_has_class_id (decorator, object)) {
+			check_added = TRUE;
+			break;
+		}
+	}
+
+	if (check_added)
 		decorator_cache_next_items (decorator);
 }
 
@@ -1109,8 +1142,6 @@ class_signal_cb (GDBusConnection *connection,
 	handle_updates (decorator, iter2);
 	g_variant_iter_free (iter1);
 	g_variant_iter_free (iter2);
-
-	decorator_query_remaining_items (decorator);
 }
 
 static gboolean
