@@ -743,6 +743,15 @@ tracker_file_is_hidden (GFile *file)
 		/* Check if GIO says the file is hidden */
 		is_hidden = g_file_info_get_is_hidden (file_info);
 		g_object_unref (file_info);
+	} else {
+		gchar *basename;
+
+		/* Resort last to basename checks, this might happen on
+		 * already deleted files.
+		 */
+		basename = g_file_get_basename (file);
+		is_hidden = basename[0] == '.';
+		g_free (basename);
 	}
 
 	return is_hidden;
