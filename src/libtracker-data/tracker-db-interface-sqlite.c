@@ -1304,6 +1304,7 @@ tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
+	                                              "%s",
 	                                              db_interface->fts_delete_str);
 	if (!stmt || error) {
 		if (error) {
