@@ -679,14 +679,36 @@ feed_item_insert_cb (GObject      *source,
 	feed_item_insert_data_free (fiid);
 }
 
+static gchar *
+sparql_add_website (TrackerSparqlBuilder *sparql,
+                    const gchar          *uri)
+{
+	gchar *website_urn;
+
+	website_urn = tracker_sparql_escape_uri_printf ("urn:website:%s", uri);
+
+	tracker_sparql_builder_insert_silent_open (sparql, NULL);
+	tracker_sparql_builder_subject_iri (sparql, website_urn);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nie:DataObject");
+	tracker_sparql_builder_object (sparql, "nfo:Website");
+
+	tracker_sparql_builder_predicate (sparql, "nie:url");
+	tracker_sparql_builder_object_unvalidated (sparql, uri);
+
+	tracker_sparql_builder_insert_close (sparql);
+
+	return website_urn;
+}
+
 static void
 sparql_add_contact (TrackerSparqlBuilder *sparql,
                     const gchar          *alias,
-                    GrssPerson           *contact)
+                    GrssPerson           *contact,
+                    const gchar          *website_urn)
 {
 	const gchar *name = grss_person_get_name (contact);
 	const gchar *email = grss_person_get_email (contact);
-	const gchar *uri = grss_person_get_uri (contact);
 
 	tracker_sparql_builder_subject (sparql, alias);
 	tracker_sparql_builder_predicate (sparql, "a");
@@ -708,9 +730,9 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 		tracker_sparql_builder_object_blank_close (sparql);
 	}
 
-	if (uri != NULL) {
+	if (website_urn) {
 		tracker_sparql_builder_predicate (sparql, "nco:websiteUrl");
-		tracker_sparql_builder_object_unvalidated (sparql, uri);
+		tracker_sparql_builder_object_iri (sparql, website_urn);
 	}
 }
 
@@ -736,6 +758,8 @@ feed_item_check_exists_cb (GObject      *source_object,
 	const GList *contributors;
 	const GList *list, *l;
 	GList *contrib_aliases = NULL;
+	gchar *website_urn = NULL;
+	GHashTable *contributor_websites;
 
 	fiid = user_data;
 	connection = TRACKER_SPARQL_CONNECTION (source_object);
@@ -785,7 +809,28 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	g_message ("Inserting feed item for '%s'", url);
 
+	contributor_websites = g_hash_table_new_full (NULL, NULL, NULL,
+	                                              (GDestroyNotify) g_free);
 	sparql = tracker_sparql_builder_new_update ();
+	author = grss_feed_item_get_author (fiid->item);
+	contributors = grss_feed_item_get_contributors (fiid->item);
+
+	for (l = contributors; l; l = l->next) {
+		const gchar *url;
+		gchar *urn;
+
+		url = grss_person_get_uri (l->data);
+
+		if (!url)
+			continue;
+
+		urn = sparql_add_website (sparql, url);
+		g_hash_table_insert (contributor_websites, l->data, urn);
+	}
+
+	if (author && grss_person_get_uri (author)) {
+		website_urn = sparql_add_website (sparql, grss_person_get_uri (author));
+	}
 
 	has_geolocation = grss_feed_item_get_geo_point (fiid->item, &latitude, &longitude);
 	tracker_sparql_builder_insert_open (sparql, NULL);
@@ -804,13 +849,10 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object_double (sparql, longitude);
 	}
 
-	author = grss_feed_item_get_author (fiid->item);
 	if (author != NULL) {
 		g_message ("  Author:'%s'", grss_person_get_name (author));
-		sparql_add_contact (sparql, "_:author", author);
+		sparql_add_contact (sparql, "_:author", author, website_urn);
 	}
-
-	contributors = grss_feed_item_get_contributors (fiid->item);
 
 	for (l = contributors; l; l = l->next) {
 		gchar *subject;
@@ -820,7 +862,9 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 		subject = g_strdup_printf ("_:contrib%d", i++);
 		contrib_aliases = g_list_prepend (contrib_aliases, subject);
-		sparql_add_contact (sparql, subject, l->data);
+		sparql_add_contact (sparql, subject, l->data,
+		                    g_hash_table_lookup (contributor_websites, l->data));
+		g_free (subject);
 	}
 
 	tracker_sparql_builder_subject (sparql, "_:message");
@@ -918,6 +962,8 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	g_object_unref (cursor);
 	g_object_unref (sparql);
+	g_free (website_urn);
+	g_hash_table_free (contributor_websites);
 }
 
 static void
