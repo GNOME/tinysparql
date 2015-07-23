@@ -963,7 +963,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	g_object_unref (cursor);
 	g_object_unref (sparql);
 	g_free (website_urn);
-	g_hash_table_free (contributor_websites);
+	g_hash_table_destroy (contributor_websites);
 }
 
 static void
