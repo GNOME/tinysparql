@@ -1107,8 +1107,6 @@ feeds_retrieve_cb (GObject      *source_object,
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
 	GrssFeedChannel *chan;
-	GHashTableIter iter;
-	gint count;
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
@@ -1124,9 +1122,6 @@ feeds_retrieve_cb (GObject      *source_object,
 		return;
 	}
 
-	channels = NULL;
-	count = 0;
-
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *source;
 		const gchar *title;
@@ -1134,16 +1129,12 @@ feeds_retrieve_cb (GObject      *source_object,
 		const gchar *subject;
 		gint mins;
 
-		if (count == 0) {
-			g_message ("(New) Feeds found:");
-		}
-
-		count++;
-
 		source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		title = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		interval = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 		subject = tracker_sparql_cursor_get_string (cursor, 3, NULL);
+
+		g_debug ("Indexing channel '%s'", source);
 
 		if (g_hash_table_lookup (priv->channels, subject))
 			continue;
@@ -1168,30 +1159,22 @@ feeds_retrieve_cb (GObject      *source_object,
 		           title,
 		           source,
 		           interval);
-
-		channels = g_list_prepend (channels, chan);
 		g_hash_table_insert (priv->channels,
 		                     g_object_get_data (G_OBJECT (chan), "subject"),
 		                     chan);
 	}
 
-	/* Add to the list the previously created channels */
-	g_hash_table_iter_init (&iter, priv->channels);
-
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &chan)) {
-		channels = g_list_prepend (channels, chan);
-		count++;
-	}
-
-	if (count == 0) {
+	if (g_hash_table_size (priv->channels) == 0) {
 		g_message ("No feeds set up, nothing more to do");
 	}
 
+	channels = g_hash_table_get_values (priv->channels);
 	grss_feeds_pool_listen (priv->pool, channels);
+	g_list_free (channels);
 
 	g_object_unref (cursor);
 
-	if (count == 0) {
+	if (g_hash_table_size (priv->channels) == 0) {
 		g_object_set (user_data, "progress", 1.0, "status", "Idle", NULL);
 	}
 }
