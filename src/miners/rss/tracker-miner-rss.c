@@ -291,54 +291,41 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 }
 
 static void
-query_deleted_feed_messages_cb (GObject      *source_object,
-                                GAsyncResult *res,
-                                gpointer      user_data)
+delete_unbound_messages (TrackerMinerRSS *miner)
 {
-	TrackerSparqlConnection *connection;
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	const gchar *urn;
-	GString *query;
-
-	connection = TRACKER_SPARQL_CONNECTION (source_object);
-	cursor = tracker_sparql_connection_query_finish (connection, res, &error);
-
-	if (error != NULL) {
-		g_message ("Could not query messages to delete: %s", error->message);
-		g_error_free (error);
-		return;
-	}
-
-	query = g_string_new (NULL);
-
-	while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
-		urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		g_string_append_printf (query,
-		                        "DELETE { <%s> ?p ?o }"
-		                        "WHERE { <%s> ?p ?o }\n",
-		                        urn, urn);
-	}
-
-	g_object_unref (cursor);
-
-	if (error) {
-		g_message ("Could not iterate messages to be deleted: %s",
-		           error->message);
-		g_string_free (query, TRUE);
-		g_error_free (error);
-		return;
-	}
-
-	tracker_sparql_connection_update_async (connection, query->str,
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                        "DELETE { ?msg a rdfs:Resource }"
+	                                        "WHERE  { ?msg a mfo:FeedMessage ."
+	                                        "              FILTER(!BOUND(nmo:communicationChannel(?msg)))"
+	                                        "}",
 	                                        G_PRIORITY_DEFAULT,
 	                                        NULL, NULL, NULL);
-	g_string_free (query, TRUE);
 }
 
 static void
-delete_feed_messages (TrackerMinerRSS *miner,
-                      GArray          *channel_ids)
+delete_message_channels_cb (GObject      *source_object,
+                            GAsyncResult *res,
+                            gpointer      user_data)
+{
+	TrackerMinerRSS *miner = user_data;
+	TrackerSparqlConnection *connection;
+	GError *error = NULL;
+
+	connection = TRACKER_SPARQL_CONNECTION (source_object);
+	tracker_sparql_connection_update_finish (connection, res, &error);
+
+	if (error != NULL) {
+		g_message ("Could not delete message channels: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	delete_unbound_messages (miner);
+}
+
+static void
+delete_message_channels (TrackerMinerRSS *miner,
+                         GArray          *channel_ids)
 {
 	TrackerMinerRSSPrivate *priv;
 	GString *query, *ids_str;
@@ -365,22 +352,17 @@ delete_feed_messages (TrackerMinerRSS *miner,
 	}
 
 	g_string_append_printf (query,
-	                        "SELECT ?urn {"
-	                        "  {"
-	                        "    ?urn a mfo:FeedMessage ;"
-	                        "         nmo:communicationChannel ?chan ."
-	                        "         FILTER (tracker:id (?chan) IN (%s))"
-	                        "  } UNION {"
-	                        "    ?urn a rdfs:Resource ."
-	                        "         FILTER (tracker:id (?urn) IN (%s))"
-	                        "  }"
-	                        "}", ids_str->str, ids_str->str);
+	                        "DELETE { ?msg nmo:communicationChannel ?chan }"
+	                        "WHERE  { ?msg a mfo:FeedMessage;"
+	                        "              nmo:communicationChannel ?chan ."
+	                        "              FILTER (tracker:id(?chan) IN (%s))"
+	                        "}", ids_str->str);
 
-	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                                       query->str,
-	                                       NULL,
-	                                       query_deleted_feed_messages_cb,
-	                                       miner);
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                        query->str, G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        delete_message_channels_cb,
+	                                        miner);
 	g_string_free (ids_str, TRUE);
 	g_string_free (query, TRUE);
 }
@@ -404,7 +386,7 @@ handle_deletes (TrackerMinerRSS *miner,
 	}
 
 	if (deleted->len > 0)
-		delete_feed_messages (miner, deleted);
+		delete_message_channels (miner, deleted);
 
 	g_array_free (deleted, TRUE);
 }
