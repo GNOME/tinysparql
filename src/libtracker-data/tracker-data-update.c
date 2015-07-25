@@ -2213,10 +2213,6 @@ cache_delete_resource_type_full (TrackerClass *class,
 		/* delete row from class table */
 		db_delete_row (iface, tracker_class_get_name (class), resource_buffer->id);
 
-		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0) {
-			db_delete_row (iface, "Resource", resource_buffer->id);
-		}
-
 		if (!single_type) {
 			/* delete row from rdfs:Resource_rdf:type table */
 			/* this is not necessary when deleting the whole resource
