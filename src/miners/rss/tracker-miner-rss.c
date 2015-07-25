@@ -725,13 +725,11 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 	}
 }
 
-static void
-feed_item_check_exists_cb (GObject      *source_object,
-                           GAsyncResult *res,
-                           gpointer      user_data)
+static TrackerSparqlBuilder *
+feed_message_create_insert_builder (TrackerMinerRSS    *miner,
+                                    GrssFeedItem       *item,
+                                    const gchar        *item_urn)
 {
-	TrackerSparqlConnection *connection;
-	FeedItemInsertData *fiid;
 	time_t t;
 	gchar *uri;
 	const gchar *url;
@@ -739,8 +737,6 @@ feed_item_check_exists_cb (GObject      *source_object,
 	gdouble latitude;
 	gdouble longitude;
 	const gchar *tmp_string;
-	TrackerSparqlCursor *cursor;
-	GError *error;
 	TrackerSparqlBuilder *sparql;
 	GrssFeedChannel *channel;
 	gboolean has_geolocation;
@@ -749,71 +745,34 @@ feed_item_check_exists_cb (GObject      *source_object,
 	GList *contrib_aliases = NULL;
 	gchar *website_urn = NULL;
 	GHashTable *contributor_websites;
+	gboolean is_iri = FALSE;
 
-	fiid = user_data;
-	connection = TRACKER_SPARQL_CONNECTION (source_object);
-	error = NULL;
-	cursor = tracker_sparql_connection_query_finish (connection, res, &error);
-
-	if (error != NULL) {
-		g_message ("Could not verify feed existance, %s", error->message);
-		g_error_free (error);
-
-		if (cursor) {
-			g_object_unref (cursor);
-		}
-
-		feed_item_insert_data_free (fiid);
-
-		return;
+	if (!item_urn) {
+		item_urn = "_:message";
+	} else {
+		is_iri = TRUE;
 	}
 
-	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		g_message ("No data in query response??");
-
-		if (cursor) {
-			g_object_unref (cursor);
-		}
-
-		feed_item_insert_data_free (fiid);
-
-		return;
-	}
-
-	url = get_message_url (fiid->item);
-	channel = grss_feed_item_get_parent (fiid->item);
-
-	if (tracker_sparql_cursor_get_boolean (cursor, 0)) {
-		g_debug ("  Item already exists '%s'",
-		         grss_feed_item_get_title (fiid->item));
-
-		if (cursor) {
-			g_object_unref (cursor);
-		}
-
-		feed_item_insert_data_free (fiid);
-
-		return;
-	}
-
+	url = get_message_url (item);
 	g_message ("Inserting feed item for '%s'", url);
 
 	contributor_websites = g_hash_table_new_full (NULL, NULL, NULL,
 	                                              (GDestroyNotify) g_free);
 	sparql = tracker_sparql_builder_new_update ();
-	author = grss_feed_item_get_author (fiid->item);
-	contributors = grss_feed_item_get_contributors (fiid->item);
+	author = grss_feed_item_get_author (item);
+	contributors = grss_feed_item_get_contributors (item);
+	channel = grss_feed_item_get_parent (item);
 
 	for (l = contributors; l; l = l->next) {
-		const gchar *url;
+		const gchar *person_url;
 		gchar *urn;
 
-		url = grss_person_get_uri (l->data);
+		person_url = grss_person_get_uri (l->data);
 
-		if (!url)
+		if (!person_url)
 			continue;
 
-		urn = sparql_add_website (sparql, url);
+		urn = sparql_add_website (sparql, person_url);
 		g_hash_table_insert (contributor_websites, l->data, urn);
 	}
 
@@ -821,7 +780,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		website_urn = sparql_add_website (sparql, grss_person_get_uri (author));
 	}
 
-	has_geolocation = grss_feed_item_get_geo_point (fiid->item, &latitude, &longitude);
+	has_geolocation = grss_feed_item_get_geo_point (item, &latitude, &longitude);
 	tracker_sparql_builder_insert_open (sparql, NULL);
 
 	if (has_geolocation) {
@@ -856,7 +815,11 @@ feed_item_check_exists_cb (GObject      *source_object,
 		g_free (subject);
 	}
 
-	tracker_sparql_builder_subject (sparql, "_:message");
+	if (is_iri) {
+		tracker_sparql_builder_subject_iri (sparql, item_urn);
+	} else {
+		tracker_sparql_builder_subject (sparql, item_urn);
+	}
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "mfo:FeedMessage");
 	tracker_sparql_builder_predicate (sparql, "a");
@@ -867,7 +830,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object (sparql, "_:location");
 	}
 
-	tmp_string = grss_feed_item_get_title (fiid->item);
+	tmp_string = grss_feed_item_get_title (item);
 	if (tmp_string != NULL) {
 		g_message ("  Title:'%s'", tmp_string);
 
@@ -885,7 +848,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 		tracker_sparql_builder_object (sparql, l->data);
 	}
 
-	tmp_string = grss_feed_item_get_description (fiid->item);
+	tmp_string = grss_feed_item_get_description (item);
 	if (tmp_string != NULL) {
 		gchar *plain_text;
 
@@ -914,7 +877,7 @@ feed_item_check_exists_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "mfo:downloadedTime");
 	tracker_sparql_builder_object_date (sparql, &t);
 
-	t = grss_feed_item_get_publish_time (fiid->item);
+	t = grss_feed_item_get_publish_time (item);
 	tracker_sparql_builder_predicate (sparql, "nie:contentCreated");
 	tracker_sparql_builder_object_date (sparql, &t);
 
@@ -925,13 +888,13 @@ feed_item_check_exists_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "nmo:communicationChannel");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
-	tmp_string = grss_feed_item_get_copyright (fiid->item);
+	tmp_string = grss_feed_item_get_copyright (item);
 	if (tmp_string) {
 		tracker_sparql_builder_predicate (sparql, "nie:copyright");
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 
-	list = grss_feed_item_get_categories (fiid->item);
+	list = grss_feed_item_get_categories (item);
 	for (l = list; l; l = l->next) {
 		tracker_sparql_builder_predicate (sparql, "nie:keyword");
 		tracker_sparql_builder_object_unvalidated (sparql, l->data);
@@ -939,20 +902,78 @@ feed_item_check_exists_cb (GObject      *source_object,
 
 	tracker_sparql_builder_insert_close (sparql);
 
+	g_list_foreach (contrib_aliases, (GFunc) g_free, NULL);
+	g_list_free (contrib_aliases);
+
+	g_free (website_urn);
+	g_hash_table_destroy (contributor_websites);
+
+	return sparql;
+}
+
+static void
+feed_item_check_exists_cb (GObject      *source_object,
+                           GAsyncResult *res,
+                           gpointer      user_data)
+{
+	TrackerSparqlConnection *connection;
+	FeedItemInsertData *fiid;
+	TrackerSparqlCursor *cursor;
+	GError *error;
+	TrackerSparqlBuilder *sparql;
+
+	fiid = user_data;
+	connection = TRACKER_SPARQL_CONNECTION (source_object);
+	error = NULL;
+	cursor = tracker_sparql_connection_query_finish (connection, res, &error);
+
+	if (error != NULL) {
+		g_message ("Could not verify feed existance, %s", error->message);
+		g_error_free (error);
+
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
+		feed_item_insert_data_free (fiid);
+
+		return;
+	}
+
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_message ("No data in query response??");
+
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
+		feed_item_insert_data_free (fiid);
+
+		return;
+	}
+
+	if (tracker_sparql_cursor_get_boolean (cursor, 0)) {
+		g_debug ("  Item already exists '%s'",
+		         grss_feed_item_get_title (fiid->item));
+
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
+		feed_item_insert_data_free (fiid);
+
+		return;
+	}
+
+	sparql = feed_message_create_insert_builder (fiid->miner, fiid->item, NULL);
 	tracker_sparql_connection_update_async (connection,
 	                                        tracker_sparql_builder_get_result (sparql),
 	                                        G_PRIORITY_DEFAULT,
 	                                        fiid->cancellable,
 	                                        feed_item_insert_cb,
 	                                        fiid);
-
-	g_list_foreach (contrib_aliases, (GFunc) g_free, NULL);
-	g_list_free (contrib_aliases);
-
-	g_object_unref (cursor);
 	g_object_unref (sparql);
-	g_free (website_urn);
-	g_hash_table_destroy (contributor_websites);
+	g_object_unref (cursor);
 }
 
 static void
