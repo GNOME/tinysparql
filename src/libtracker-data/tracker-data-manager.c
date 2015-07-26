@@ -2625,6 +2625,12 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
+			} else if (in_change && tracker_property_get_cardinality_changed (property)) {
+				/* We should be dropping all indices colliding with the new table name */
+				tracker_db_interface_execute_query (iface, &internal_error,
+				                                    "DROP INDEX IF EXISTS \"%s_%s\"",
+				                                    service_name,
+				                                    field_name);
 			}
 
 			sql = g_string_new ("");
