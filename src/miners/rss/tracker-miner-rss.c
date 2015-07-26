@@ -675,7 +675,8 @@ static void
 sparql_add_contact (TrackerSparqlBuilder *sparql,
                     const gchar          *alias,
                     GrssPerson           *contact,
-                    const gchar          *website_urn)
+                    const gchar          *website_urn,
+                    gboolean              is_iri)
 {
 	const gchar *name = grss_person_get_name (contact);
 	const gchar *email = grss_person_get_email (contact);
@@ -702,7 +703,12 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 
 	if (website_urn) {
 		tracker_sparql_builder_predicate (sparql, "nco:websiteUrl");
-		tracker_sparql_builder_object_iri (sparql, website_urn);
+
+		if (is_iri) {
+			tracker_sparql_builder_object_iri (sparql, website_urn);
+		} else {
+			tracker_sparql_builder_object (sparql, website_urn);
+		}
 	}
 }
 
@@ -734,8 +740,7 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 	const GList *contributors;
 	const GList *list, *l;
 	GList *contrib_aliases = NULL;
-	gchar *website_urn = NULL;
-	GHashTable *contributor_websites;
+	GHashTable *websites;
 	gboolean is_iri = FALSE;
 
 	if (!item_urn) {
@@ -747,8 +752,11 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 	url = get_message_url (item);
 	g_message ("Inserting feed item for '%s'", url);
 
-	contributor_websites = g_hash_table_new_full (NULL, NULL, NULL,
-	                                              (GDestroyNotify) g_free);
+	websites = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                  (GDestroyNotify) g_free,
+	                                  (GDestroyNotify) g_free);
+	g_hash_table_insert (websites, g_strdup (url), g_strdup (item_urn));
+
 	sparql = tracker_sparql_builder_new_update ();
 	author = grss_feed_item_get_author (item);
 	contributors = grss_feed_item_get_contributors (item);
@@ -756,19 +764,28 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 	for (l = contributors; l; l = l->next) {
 		const gchar *person_url;
-		gchar *urn;
 
 		person_url = grss_person_get_uri (l->data);
 
 		if (!person_url)
 			continue;
 
-		urn = sparql_add_website (sparql, person_url);
-		g_hash_table_insert (contributor_websites, l->data, urn);
+		if (g_hash_table_lookup (websites, person_url))
+			continue;
+
+		g_hash_table_insert (websites, g_strdup (person_url),
+		                     sparql_add_website (sparql, person_url));
 	}
 
 	if (author && grss_person_get_uri (author)) {
-		website_urn = sparql_add_website (sparql, grss_person_get_uri (author));
+		const gchar *person_url;
+
+		person_url = grss_person_get_uri (author);
+
+		if (!g_hash_table_lookup (websites, person_url)) {
+			g_hash_table_insert (websites, g_strdup (person_url),
+			                     sparql_add_website (sparql, person_url));
+		}
 	}
 
 	has_geolocation = grss_feed_item_get_geo_point (item, &latitude, &longitude);
@@ -790,7 +807,14 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 	if (author != NULL) {
 		g_message ("  Author:'%s'", grss_person_get_name (author));
-		sparql_add_contact (sparql, "_:author", author, website_urn);
+
+		if (grss_person_get_uri (author))
+			tmp_string = g_hash_table_lookup (websites, grss_person_get_uri (author));
+		else
+			tmp_string = NULL;
+
+		sparql_add_contact (sparql, "_:author", author, tmp_string,
+		                    (tmp_string && tmp_string[0] != '_'));
 	}
 
 	for (l = contributors; l; l = l->next) {
@@ -801,8 +825,14 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 		subject = g_strdup_printf ("_:contrib%d", i++);
 		contrib_aliases = g_list_prepend (contrib_aliases, subject);
-		sparql_add_contact (sparql, subject, l->data,
-		                    g_hash_table_lookup (contributor_websites, l->data));
+
+		if (grss_person_get_uri (l->data))
+			tmp_string = g_hash_table_lookup (websites, grss_person_get_uri (l->data));
+		else
+			tmp_string = NULL;
+
+		sparql_add_contact (sparql, subject, l->data, tmp_string,
+		                    (tmp_string && tmp_string[0] != '_'));
 		g_free (subject);
 	}
 
@@ -895,9 +925,7 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 	g_list_foreach (contrib_aliases, (GFunc) g_free, NULL);
 	g_list_free (contrib_aliases);
-
-	g_free (website_urn);
-	g_hash_table_destroy (contributor_websites);
+	g_hash_table_destroy (websites);
 
 	return sparql;
 }
