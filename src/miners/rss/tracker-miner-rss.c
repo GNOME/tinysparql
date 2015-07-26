@@ -713,12 +713,27 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 }
 
 static gchar *
+feed_message_create_update_channel_query (const gchar  *item_urn,
+                                          GrssFeedItem *item)
+{
+	GrssFeedChannel *channel;
+	const gchar *channel_urn;
+
+	channel = grss_feed_item_get_parent (item);
+	channel_urn = g_object_get_data (G_OBJECT (channel), "subject");
+
+	return g_strdup_printf ("INSERT SILENT { <%s> nmo:communicationChannel <%s> }",
+	                        item_urn, channel_urn);
+}
+
+static gchar *
 feed_message_create_delete_properties_query (const gchar *item_urn)
 {
 	return g_strdup_printf ("DELETE { <%s> ?p ?o }"
 	                        "WHERE  { <%s> a mfo:FeedMessage ;"
 	                        "              ?p ?o ."
-	                        "              FILTER (?p != rdf:type)"
+	                        "              FILTER (?p != rdf:type &&"
+	                        "                      ?p != nmo:communicationChannel)"
 	                        "}", item_urn, item_urn);
 }
 
@@ -1001,6 +1016,7 @@ check_feed_items_cb (GObject      *source_object,
 
 		if (time <= grss_feed_item_get_publish_time (item)) {
 			g_debug ("Item '%s' already up to date", url);
+			g_ptr_array_add (array, feed_message_create_update_channel_query (urn, item));
 		} else {
 			g_debug ("Updating item '%s'", url);
 
