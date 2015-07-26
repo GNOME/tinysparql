@@ -1767,8 +1767,8 @@ tracker_file_notifier_get_file_type (TrackerFileNotifier *notifier,
 	TrackerFileNotifierPrivate *priv;
 	GFile *canonical;
 
-	g_return_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier));
-	g_return_if_fail (G_IS_FILE (file));
+	g_return_val_if_fail (TRACKER_IS_FILE_NOTIFIER (notifier), G_FILE_TYPE_UNKNOWN);
+	g_return_val_if_fail (G_IS_FILE (file), G_FILE_TYPE_UNKNOWN);
 
 	priv = notifier->priv;
 	canonical = tracker_file_system_get_file (priv->file_system,
