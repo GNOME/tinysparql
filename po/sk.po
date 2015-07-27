@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-05-21 11:40+0000\n"
-"PO-Revision-Date: 2015-05-21 21:52+0100\n"
+"POT-Creation-Date: 2015-07-26 14:22+0000\n"
+"PO-Revision-Date: 2015-07-27 10:23+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 1.7.5\n"
+"X-Generator: Poedit 1.8.2\n"
 
 # tab
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -166,7 +166,7 @@ msgid "Error starting 'tar' program"
 msgstr "Chyba pri spúšťaní programu „tar“"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501 ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114 ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/miners/rss/tracker-main.c:106 ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:146 ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462 ../src/tracker/tracker-daemon.c:483
 #: ../src/tracker/tracker-daemon.c:708 ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
@@ -461,7 +461,7 @@ msgstr "Skontroluje či je SÚBOR podľa konfigurácie určený na dolovanie"
 # cmd desc
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88 ../src/tracker/tracker-index.c:60
 #: ../src/tracker/tracker-index.c:71 ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "SÚBOR"
 
@@ -570,17 +570,17 @@ msgstr "Kanály RSS/ATOM"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Nástroj na výber kanálov RSS/ATOM"
 
-# cmd desc
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Pridá kanál (musí byť použité s voľbou --title)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Pridať kanál"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
 # cmd desc
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Názov, ktorý sa použije (musí byť použité s voľbou --add-feed)"
 
@@ -591,17 +591,13 @@ msgstr "Názov, ktorý sa použije (musí byť použité s voľbou --add-feed)"
 msgid "- start the feeds indexer"
 msgstr "- spustí indexovač kanálov"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Pridanie kanála vyžaduje voľby --add-feed a --title"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
 #: ../src/tracker/tracker-search.c:1578 ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505 ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
 msgstr "Nepodarilo sa nadviazať pripojenie k sledovaču"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "Nepodarilo sa pridať kanál"
 
@@ -714,11 +710,11 @@ msgstr ""
 "nedokončí prechádzanie. Táto voľba je užitočná pre obmedzené prostredie, kde je dôležité vytvoriť zoznam súborov čo "
 "najrýchlejšie a je možné čakať na neskoršie spustenie funkcie meta-data."
 
-#: ../src/tracker-extract/tracker-extract.c:789
+#: ../src/tracker-extract/tracker-extract.c:790
 msgid "Metadata extraction failed"
 msgstr "Zlyhalo extrahovanie metaúdajov"
 
-#: ../src/tracker-extract/tracker-extract.c:854
+#: ../src/tracker-extract/tracker-extract.c:855
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Nenašli sa žiadne moduly pre metaúdaje alebo nástroj na extrahovanie, ktoré by dokázali spracovať tento súbor"
 
@@ -864,7 +860,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Bude zobrazených iba prvých 500 položiek"
 
 # cmd desc
-#: ../src/tracker-needle/tracker-needle.vala:811 ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-needle/tracker-needle.vala:811 ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Vypíše verziu"
 
@@ -911,7 +907,7 @@ msgstr[1] "Dokument"
 msgstr[2] "Dokumenty"
 
 #: ../src/tracker-needle/tracker-stats.vala:109 ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Súbory"
@@ -1468,12 +1464,12 @@ msgstr "Spustenie"
 msgid "System"
 msgstr "Systém"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167 ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:168 ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Adresár"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to ensure all your data is correctly indexed as you "
 "have requested."
@@ -1481,32 +1477,32 @@ msgstr ""
 "Zmeny, ktoré ste vykonali v nastaveniach vyžadujú spustenie indexovania odznovu, aby boli vaše údaje správne indexované "
 "podľa vašich požiadaviek."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Týmto sa toto dialógové okno zavrie!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Chcete teraz spustiť indexovanie odznovu?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Indexovať odznovu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362 ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327 ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Nevykonať nič"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid "The changes you have made to your preferences require restarting tracker processes."
 msgstr "Zmeny, ktoré ste vykonali v nastaveniach vyžadujú reštartovanie procesov sledovača."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Chcete teraz vykonať reštart?"
 
 # button label
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Reštartovať sledovač"
 
@@ -1518,38 +1514,38 @@ msgstr "Reštartovať sledovač"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450 ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415 ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Zakázané"
 
 # dialog title
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Zadanie hodnoty"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643 ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608 ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "_Zrušiť"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644 ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609 ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_OK"
 
 # dialog title
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Výber adresára"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "Tento adresár je už vybratý ako umiestnenie na indexovanie"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Rekurzia"
 
 # OptionContext
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Nastavenia hľadania v prostredí"
 
@@ -2709,6 +2705,21 @@ msgstr "Voľby file a query nemôžu byť použité súčasne"
 msgid "The --list-properties argument can only be empty when used with the --tree argument"
 msgstr "Parameter --list-properties musí byť prázdny aby ho bolo možné použiť s argumentom --tree"
 
+# cmd desc
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Cesta, ktorá sa má použiť na spustenie požiadavky zo súboru"
+
+# cmd desc
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Požiadavka SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+#| msgid "SPARQL"
+msgid "SQL"
+msgstr "SQL"
+
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
 msgstr "Zlyhala inicializácia správcu údajov"
@@ -2983,6 +2994,13 @@ msgstr "- spustí službu spätného zápisu sledovača"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Uložené požiadavky"
+
+# cmd desc
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Pridá kanál (musí byť použité s voľbou --title)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Pridanie kanála vyžaduje voľby --add-feed a --title"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr " - Spravuje procesy a údaje sledovača"
