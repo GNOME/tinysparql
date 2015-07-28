@@ -328,7 +328,16 @@ public class Tracker.SparqlScanner : Object {
 			switch (begin[0]) {
 			case 'C':
 			case 'c':
-				if (matches (begin, "COALESCE")) return SparqlTokenType.COALESCE;
+				switch (begin[2]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "COALESCE")) return SparqlTokenType.COALESCE;
+					break;
+				case 'N':
+				case 'n':
+					if (matches (begin, "CONTAINS")) return SparqlTokenType.CONTAINS;
+					break;
+				}
 				break;
 			case 'D':
 			case 'd':
@@ -877,6 +886,7 @@ public enum Tracker.SparqlTokenType {
 	COALESCE,
 	COLON,
 	CONCAT,
+	CONTAINS,
 	COMMA,
 	CONSTRUCT,
 	COUNT,
@@ -978,6 +988,7 @@ public enum Tracker.SparqlTokenType {
 		case COALESCE: return "`COALESCE'";
 		case COLON: return "`:'";
 		case CONCAT: return "`CONCAT'";
+		case CONTAINS: return "`CONTAINS'";
 		case COMMA: return "`,'";
 		case CONSTRUCT: return "`CONSTRUCT'";
 		case COUNT: return "`COUNT'";
