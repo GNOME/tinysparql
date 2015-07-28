@@ -208,7 +208,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'L':
 			case 'l':
-				if (matches (begin, "LIMIT")) return SparqlTokenType.LIMIT;
+				switch (begin[1]) {
+				case 'C':
+				case 'c':
+					if (matches (begin, "LCASE")) return SparqlTokenType.LCASE;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "LIMIT")) return SparqlTokenType.LIMIT;
+					break;
+				}
 				break;
 			case 'N':
 			case 'n':
@@ -224,7 +233,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'U':
 			case 'u':
-				if (matches (begin, "UNION")) return SparqlTokenType.UNION;
+				switch (begin[1]) {
+				case 'N':
+				case 'n':
+					if (matches (begin, "UNION")) return SparqlTokenType.UNION;
+					break;
+				case 'C':
+				case 'c':
+					if (matches (begin, "UCASE")) return SparqlTokenType.UCASE;
+					break;
+				}
 				break;
 			case 'W':
 			case 'w':
@@ -922,6 +940,7 @@ public enum Tracker.SparqlTokenType {
 	ISURI,
 	LANG,
 	LANGMATCHES,
+	LCASE,
 	LIMIT,
 	MAX,
 	MIN,
@@ -964,6 +983,7 @@ public enum Tracker.SparqlTokenType {
 	STRING_LITERAL_LONG2,
 	SUM,
 	TRUE,
+	UCASE,
 	UNION,
 	VAR,
 	WHERE,
@@ -1021,6 +1041,7 @@ public enum Tracker.SparqlTokenType {
 		case ISURI: return "`ISURI'";
 		case LANG: return "`LANG'";
 		case LANGMATCHES: return "`LANGMATCHES'";
+		case LCASE: return "`LCASE'";
 		case LIMIT: return "`LIMIT'";
 		case MAX: return "`MAX'";
 		case MIN: return "`MIN'";
@@ -1062,6 +1083,7 @@ public enum Tracker.SparqlTokenType {
 		case STRING_LITERAL_LONG2: return "string literal";
 		case SUM: return "`SUM'";
 		case TRUE: return "`true'";
+		case UCASE: return "`UCASE'";
 		case UNION: return "`UNION'";
 		case VAR: return "variable";
 		case WHERE: return "`WHERE'";
