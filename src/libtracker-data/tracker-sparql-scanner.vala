@@ -144,6 +144,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'b':
 				if (matches (begin, "BASE")) return SparqlTokenType.BASE;
 				break;
+			case 'C':
+			case 'c':
+				if (matches (begin, "CEIL")) return SparqlTokenType.CEIL;
+				break;
 			case 'D':
 			case 'd':
 				switch (begin[1]) {
@@ -263,7 +267,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'F':
 			case 'f':
-				if (matches (begin, "FALSE")) return SparqlTokenType.FALSE;
+				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "FALSE")) return SparqlTokenType.FALSE;
+					break;
+				case 'L':
+				case 'l':
+					if (matches (begin, "FLOOR")) return SparqlTokenType.FLOOR;
+					break;
+				}
 				break;
 			case 'I':
 			case 'i':
@@ -949,6 +962,7 @@ public enum Tracker.SparqlTokenType {
 	BLANK_NODE,
 	BOUND,
 	BY,
+	CEIL,
 	CLOSE_BRACE,
 	CLOSE_BRACKET,
 	CLOSE_PARENS,
@@ -976,6 +990,7 @@ public enum Tracker.SparqlTokenType {
 	EXISTS,
 	FALSE,
 	FILTER,
+	FLOOR,
 	FROM,
 	GRAPH,
 	GROUP,
@@ -1062,6 +1077,7 @@ public enum Tracker.SparqlTokenType {
 		case BLANK_NODE: return "blank node";
 		case BOUND: return "`BOUND'";
 		case BY: return "`BY'";
+		case CEIL: return "`CEIL'";
 		case CLOSE_BRACE: return "`}'";
 		case CLOSE_BRACKET: return "`]'";
 		case CLOSE_PARENS: return "`)'";
@@ -1086,6 +1102,7 @@ public enum Tracker.SparqlTokenType {
 		case EXISTS: return "`EXISTS'";
 		case FALSE: return "`false'";
 		case FILTER: return "`FILTER'";
+		case FLOOR: return "`FLOOR'";
 		case FROM: return "`FROM'";
 		case GRAPH: return "`GRAPH'";
 		case GROUP: return "`GROUP'";

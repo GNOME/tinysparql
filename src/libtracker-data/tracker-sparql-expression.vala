@@ -1328,6 +1328,18 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return type;
+		case SparqlTokenType.CEIL:
+			next ();
+			sql.append ("SparqlCeil(");
+			type = translate_aggregate_expression (sql);
+			sql.append (")");
+			return type;
+		case SparqlTokenType.FLOOR:
+			next ();
+			sql.append ("SparqlFloor(");
+			type = translate_aggregate_expression (sql);
+			sql.append (")");
+			return type;
 		case SparqlTokenType.GROUP_CONCAT:
 			next ();
 			sql.append ("GROUP_CONCAT(");
