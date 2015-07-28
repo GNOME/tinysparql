@@ -1224,6 +1224,12 @@ class Tracker.Sparql.Expression : Object {
 			var result = translate_function (sql, FN_NS + "upper-case");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return result;
+		case SparqlTokenType.STRLEN:
+			next ();
+			sql.append ("LENGTH(");
+			type = translate_aggregate_expression (sql);
+			sql.append (")");
+			return PropertyType.INTEGER;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
 			query.no_cache = true;
