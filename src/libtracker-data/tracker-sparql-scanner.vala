@@ -431,6 +431,9 @@ public class Tracker.SparqlScanner : Object {
 		case 12:
 			if (matches (begin, "GROUP_CONCAT")) return SparqlTokenType.GROUP_CONCAT;
 			break;
+		case 14:
+			if (matches (begin, "ENCODE_FOR_URI")) return SparqlTokenType.ENCODE_FOR_URI;
+			break;
 		}
 		return SparqlTokenType.PN_PREFIX;
 	}
@@ -950,6 +953,7 @@ public enum Tracker.SparqlTokenType {
 	DOUBLE,
 	DOUBLE_CIRCUMFLEX,
 	DROP,
+	ENCODE_FOR_URI,
 	EOF,
 	EXISTS,
 	FALSE,
@@ -1057,6 +1061,7 @@ public enum Tracker.SparqlTokenType {
 		case DOUBLE: return "`DOUBLE'";
 		case DOUBLE_CIRCUMFLEX: return "`^^'";
 		case DROP: return "`DROP'";
+		case ENCODE_FOR_URI: return "`ENCODE_FOR_URI'";
 		case EOF: return "end of file";
 		case EXISTS: return "`EXISTS'";
 		case FALSE: return "`false'";

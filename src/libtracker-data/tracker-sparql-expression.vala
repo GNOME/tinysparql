@@ -1184,6 +1184,14 @@ class Tracker.Sparql.Expression : Object {
 			var result = translate_function (sql, FN_NS + "contains");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return result;
+		case SparqlTokenType.ENCODE_FOR_URI:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			sql.append ("SparqlEncodeForUri (");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return PropertyType.STRING;
 		case SparqlTokenType.IF:
 			return translate_if_call (sql);
 		case SparqlTokenType.SAMETERM:
