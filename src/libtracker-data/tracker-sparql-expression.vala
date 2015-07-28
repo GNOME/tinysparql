@@ -1230,6 +1230,18 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return PropertyType.INTEGER;
+		case SparqlTokenType.STRSTARTS:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "starts-with");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.STRENDS:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "ends-with");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
 		case SparqlTokenType.SUBSTR:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);

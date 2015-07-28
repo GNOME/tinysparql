@@ -344,6 +344,10 @@ public class Tracker.SparqlScanner : Object {
 					break;
 				}
 				break;
+			case 'S':
+			case 's':
+				if (matches (begin, "STRENDS")) return SparqlTokenType.STRENDS;
+				break;
 			case 'I':
 			case 'i':
 				if (matches (begin, "ISBLANK")) return SparqlTokenType.ISBLANK;
@@ -401,6 +405,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'I':
 			case 'i':
 				if (matches (begin, "ISLITERAL")) return SparqlTokenType.ISLITERAL;
+				break;
+			case 'S':
+			case 's':
+				if (matches (begin, "STRSTARTS")) return SparqlTokenType.STRSTARTS;
 				break;
 			}
 			break;
@@ -985,11 +993,13 @@ public enum Tracker.SparqlTokenType {
 	SILENT,
 	STAR,
 	STR,
+	STRENDS,
 	STRING_LITERAL1,
 	STRING_LITERAL2,
 	STRING_LITERAL_LONG1,
 	STRING_LITERAL_LONG2,
 	STRLEN,
+	STRSTARTS,
 	SUBSTR,
 	SUM,
 	TRUE,
@@ -1087,11 +1097,13 @@ public enum Tracker.SparqlTokenType {
 		case SILENT: return "`SILENT'";
 		case STAR: return "`*'";
 		case STR: return "`STR'";
+		case STRENDS: return "`STRENDS'";
 		case STRING_LITERAL1: return "string literal";
 		case STRING_LITERAL2: return "string literal";
 		case STRING_LITERAL_LONG1: return "string literal";
 		case STRING_LITERAL_LONG2: return "string literal";
 		case STRLEN: return "`STRLEN'";
+		case STRSTARTS: return "`STRSTARTS'";
 		case SUBSTR: return "`SUBSTR'";
 		case SUM: return "`SUM'";
 		case TRUE: return "`true'";
