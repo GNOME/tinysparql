@@ -1172,6 +1172,12 @@ class Tracker.Sparql.Expression : Object {
 			var result = translate_function (sql, TRACKER_NS + "coalesce");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return result;
+		case SparqlTokenType.CONCAT:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "concat");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
 		case SparqlTokenType.IF:
 			return translate_if_call (sql);
 		case SparqlTokenType.SAMETERM:
