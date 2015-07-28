@@ -1012,6 +1012,19 @@ function_sparql_floor (sqlite3_context *context,
 }
 
 static void
+function_sparql_rand (sqlite3_context *context,
+                      int              argc,
+                      sqlite3_value   *argv[])
+{
+	if (argc != 0) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	sqlite3_result_double (context, g_random_double ());
+}
+
+static void
 function_sparql_checksum (sqlite3_context *context,
 			  int              argc,
 			  sqlite3_value   *argv[])
@@ -1189,6 +1202,10 @@ open_database (TrackerDBInterface  *db_interface,
 	                         NULL, NULL);
 	sqlite3_create_function (db_interface->db, "SparqlFloor", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_floor,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlRand", 0, SQLITE_ANY,
+	                         db_interface, &function_sparql_rand,
 	                         NULL, NULL);
 
 	sqlite3_create_function (db_interface->db, "SparqlChecksum", 2, SQLITE_ANY,
