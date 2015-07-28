@@ -979,6 +979,38 @@ function_sparql_string_after (sqlite3_context *context,
 	sqlite3_result_text (context, loc + len, -1, NULL);
 }
 
+static void
+function_sparql_ceil (sqlite3_context *context,
+                      int              argc,
+                      sqlite3_value   *argv[])
+{
+	gdouble value;
+
+	if (argc != 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	value = sqlite3_value_double (argv[0]);
+	sqlite3_result_double (context, ceil (value));
+}
+
+static void
+function_sparql_floor (sqlite3_context *context,
+                       int              argc,
+                       sqlite3_value   *argv[])
+{
+	gdouble value;
+
+	if (argc != 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	value = sqlite3_value_double (argv[0]);
+	sqlite3_result_double (context, floor (value));
+}
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -1111,6 +1143,13 @@ open_database (TrackerDBInterface  *db_interface,
 	                         NULL, NULL);
 	sqlite3_create_function (db_interface->db, "SparqlStringAfter", 2, SQLITE_ANY,
 	                         db_interface, &function_sparql_string_after,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlCeil", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_ceil,
+	                         NULL, NULL);
+	sqlite3_create_function (db_interface->db, "SparqlFloor", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_floor,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
