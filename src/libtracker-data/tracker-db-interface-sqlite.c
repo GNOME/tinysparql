@@ -901,6 +901,84 @@ function_sparql_encode_for_uri (sqlite3_context *context,
 	sqlite3_result_text (context, encoded, -1, g_free);
 }
 
+static void
+function_sparql_string_before (sqlite3_context *context,
+                               int              argc,
+                               sqlite3_value   *argv[])
+{
+	const gchar *str, *substr, *loc;
+	gchar *encoded;
+	gint len;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT ||
+	    sqlite3_value_type (argv[1]) != SQLITE_TEXT) {
+		sqlite3_result_error (context, "Invalid argument types", -1);
+		return;
+	}
+
+	str = sqlite3_value_text (argv[0]);
+	substr = sqlite3_value_text (argv[1]);
+	len = strlen (substr);
+
+	if (len == 0) {
+		sqlite3_result_text (context, "", -1, NULL);
+		return;
+	}
+
+	loc = strstr (str, substr);
+
+	if (!loc) {
+		sqlite3_result_text (context, "", -1, NULL);
+		return;
+	}
+
+	sqlite3_result_text (context, str, loc - str, NULL);
+}
+
+static void
+function_sparql_string_after (sqlite3_context *context,
+                              int              argc,
+                              sqlite3_value   *argv[])
+{
+	const gchar *str, *substr, *loc;
+	gchar *encoded;
+	gint len;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT ||
+	    sqlite3_value_type (argv[1]) != SQLITE_TEXT) {
+		sqlite3_result_error (context, "Invalid argument types", -1);
+		return;
+	}
+
+	str = sqlite3_value_text (argv[0]);
+	substr = sqlite3_value_text (argv[1]);
+	len = strlen (substr);
+
+	if (len == 0) {
+		sqlite3_result_text (context, g_strdup (str), -1, g_free);
+		return;
+	}
+
+	loc = strstr (str, substr);
+
+	if (!loc) {
+		sqlite3_result_text (context, "", -1, NULL);
+		return;
+	}
+
+	sqlite3_result_text (context, loc + len, -1, NULL);
+}
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -1026,6 +1104,13 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlEncodeForUri", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_encode_for_uri,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlStringBefore", 2, SQLITE_ANY,
+	                         db_interface, &function_sparql_string_before,
+	                         NULL, NULL);
+	sqlite3_create_function (db_interface->db, "SparqlStringAfter", 2, SQLITE_ANY,
+	                         db_interface, &function_sparql_string_after,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
