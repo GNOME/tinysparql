@@ -96,6 +96,10 @@ public class Tracker.SparqlScanner : Object {
 						break;
 					}
 					break;
+				case 'B':
+				case 'b':
+					if (matches (begin, "ABS")) return SparqlTokenType.ABS;
+					break;
 				case 'V':
 				case 'v':
 					if (matches (begin, "AVG")) return SparqlTokenType.AVG;
@@ -904,6 +908,7 @@ public struct Tracker.SourceLocation {
 public enum Tracker.SparqlTokenType {
 	NONE,
 	A,
+	ABS,
 	AS,
 	ASC,
 	ASK,
@@ -1012,6 +1017,7 @@ public enum Tracker.SparqlTokenType {
 	public unowned string to_string () {
 		switch (this) {
 		case A: return "`a'";
+		case ABS: return "`ABS'";
 		case AS: return "`AS'";
 		case ASC: return "`ASC'";
 		case ASK: return "`ASK'";
