@@ -1343,6 +1343,12 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return type;
+		case SparqlTokenType.RAND:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			expect (SparqlTokenType.CLOSE_PARENS);
+			sql.append ("SparqlRand()");
+			return PropertyType.DOUBLE;
 		case SparqlTokenType.SECONDS:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);
