@@ -321,6 +321,10 @@ public class Tracker.SparqlScanner : Object {
 				case 't':
 					if (matches (begin, "STRLEN")) return SparqlTokenType.STRLEN;
 					break;
+				case 'U':
+				case 'u':
+					if (matches (begin, "SUBSTR")) return SparqlTokenType.SUBSTR;
+					break;
 				}
 				break;
 			}
@@ -986,6 +990,7 @@ public enum Tracker.SparqlTokenType {
 	STRING_LITERAL_LONG1,
 	STRING_LITERAL_LONG2,
 	STRLEN,
+	SUBSTR,
 	SUM,
 	TRUE,
 	UCASE,
@@ -1087,6 +1092,7 @@ public enum Tracker.SparqlTokenType {
 		case STRING_LITERAL_LONG1: return "string literal";
 		case STRING_LITERAL_LONG2: return "string literal";
 		case STRLEN: return "`STRLEN'";
+		case SUBSTR: return "`SUBSTR'";
 		case SUM: return "`SUM'";
 		case TRUE: return "`true'";
 		case UCASE: return "`UCASE'";
