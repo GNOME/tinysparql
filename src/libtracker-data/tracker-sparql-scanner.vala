@@ -189,6 +189,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'n':
 				if (matches (begin, "NULL")) return SparqlTokenType.NULL;
 				break;
+			case 'R':
+			case 'r':
+				if (matches (begin, "RAND")) return SparqlTokenType.RAND;
+				break;
 			case 'S':
 			case 's':
 				if (matches (begin, "SHA1")) return SparqlTokenType.SHA1;
@@ -1088,6 +1092,7 @@ public enum Tracker.SparqlTokenType {
 	PLUS,
 	PN_PREFIX,
 	PREFIX,
+	RAND,
 	REDUCED,
 	REGEX,
 	REPLACE,
@@ -1209,6 +1214,7 @@ public enum Tracker.SparqlTokenType {
 		case PLUS: return "`+'";
 		case PN_PREFIX: return "prefixed name";
 		case PREFIX: return "`PREFIX'";
+		case RAND: return "`RAND'";
 		case REDUCED: return "`REDUCED'";
 		case REGEX: return "`REGEX'";
 		case REPLACE: return "`REPLACE'";
