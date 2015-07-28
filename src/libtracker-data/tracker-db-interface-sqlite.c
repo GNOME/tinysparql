@@ -883,6 +883,24 @@ function_sparql_unaccent (sqlite3_context *context,
 
 #endif
 
+static void
+function_sparql_encode_for_uri (sqlite3_context *context,
+                                int              argc,
+                                sqlite3_value   *argv[])
+{
+	const gchar *str;
+	gchar *encoded;
+
+	if (argc != 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	str = sqlite3_value_text (argv[0]);
+	encoded = g_uri_escape_string (str, NULL, FALSE);
+	sqlite3_result_text (context, encoded, -1, g_free);
+}
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -1004,6 +1022,10 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_format_time,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlEncodeForUri", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_encode_for_uri,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
