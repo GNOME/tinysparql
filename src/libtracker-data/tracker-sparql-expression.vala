@@ -1292,6 +1292,12 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return type;
+		case SparqlTokenType.ROUND:
+			next ();
+			sql.append ("ROUND(");
+			type = translate_aggregate_expression (sql);
+			sql.append (")");
+			return type;
 		case SparqlTokenType.GROUP_CONCAT:
 			next ();
 			sql.append ("GROUP_CONCAT(");
