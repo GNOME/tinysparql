@@ -405,7 +405,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'S':
 			case 's':
-				if (matches (begin, "SAMETERM")) return SparqlTokenType.SAMETERM;
+				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "SAMETERM")) return SparqlTokenType.SAMETERM;
+					break;
+				case 'T':
+				case 't':
+					if (matches (begin, "STRAFTER")) return SparqlTokenType.STRAFTER;
+					break;
+				}
 				break;
 			}
 			break;
@@ -421,7 +430,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'S':
 			case 's':
-				if (matches (begin, "STRSTARTS")) return SparqlTokenType.STRSTARTS;
+				switch (begin[3]) {
+				case 'B':
+				case 'b':
+					if (matches (begin, "STRBEFORE")) return SparqlTokenType.STRBEFORE;
+					break;
+				case 'S':
+				case 's':
+					if (matches (begin, "STRSTARTS")) return SparqlTokenType.STRSTARTS;
+					break;
+				}
 				break;
 			}
 			break;
@@ -1012,6 +1030,8 @@ public enum Tracker.SparqlTokenType {
 	SILENT,
 	STAR,
 	STR,
+	STRAFTER,
+	STRBEFORE,
 	STRENDS,
 	STRING_LITERAL1,
 	STRING_LITERAL2,
@@ -1119,6 +1139,8 @@ public enum Tracker.SparqlTokenType {
 		case SILENT: return "`SILENT'";
 		case STAR: return "`*'";
 		case STR: return "`STR'";
+		case STRAFTER: return "`STRAFTER'";
+		case STRBEFORE: return "`STRBEFORE'";
 		case STRENDS: return "`STRENDS'";
 		case STRING_LITERAL1: return "string literal";
 		case STRING_LITERAL2: return "string literal";

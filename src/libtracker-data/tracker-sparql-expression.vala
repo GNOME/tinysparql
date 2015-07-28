@@ -1256,6 +1256,28 @@ class Tracker.Sparql.Expression : Object {
 			var result = translate_function (sql, FN_NS + "substring");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return result;
+		case SparqlTokenType.STRBEFORE:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			sql.append ("SparqlStringBefore (");
+			translate_expression_as_string (sql);
+			expect (SparqlTokenType.COMMA);
+			sql.append (",");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return PropertyType.STRING;
+		case SparqlTokenType.STRAFTER:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			sql.append ("SparqlStringAfter (");
+			translate_expression_as_string (sql);
+			expect (SparqlTokenType.COMMA);
+			sql.append (",");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return PropertyType.STRING;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
 			query.no_cache = true;
