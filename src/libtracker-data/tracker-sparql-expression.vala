@@ -1379,6 +1379,30 @@ class Tracker.Sparql.Expression : Object {
 			var result = translate_function (sql, FN_NS + "year-from-dateTime");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return result;
+		case SparqlTokenType.MD5:
+			next ();
+			sql.append ("SparqlChecksum(");
+			type = translate_aggregate_expression (sql);
+			sql.append (", \"md5\")");
+			return type;
+		case SparqlTokenType.SHA1:
+			next ();
+			sql.append ("SparqlChecksum(");
+			type = translate_aggregate_expression (sql);
+			sql.append (", \"sha1\")");
+			return type;
+		case SparqlTokenType.SHA256:
+			next ();
+			sql.append ("SparqlChecksum(");
+			type = translate_aggregate_expression (sql);
+			sql.append (", \"sha256\")");
+			return type;
+		case SparqlTokenType.SHA512:
+			next ();
+			sql.append ("SparqlChecksum(");
+			type = translate_aggregate_expression (sql);
+			sql.append (", \"sha512\")");
+			return type;
 		case SparqlTokenType.GROUP_CONCAT:
 			next ();
 			sql.append ("GROUP_CONCAT(");

@@ -117,6 +117,10 @@ public class Tracker.SparqlScanner : Object {
 				case 'a':
 					if (matches (begin, "MAX")) return SparqlTokenType.MAX;
 					break;
+				case 'D':
+				case 'd':
+					if (matches (begin, "MD5")) return SparqlTokenType.MD5;
+					break;
 				case 'I':
 				case 'i':
 					if (matches (begin, "MIN")) return SparqlTokenType.MIN;
@@ -184,6 +188,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'N':
 			case 'n':
 				if (matches (begin, "NULL")) return SparqlTokenType.NULL;
+				break;
+			case 'S':
+			case 's':
+				if (matches (begin, "SHA1")) return SparqlTokenType.SHA1;
 				break;
 			case 'T':
 			case 't':
@@ -366,6 +374,17 @@ public class Tracker.SparqlScanner : Object {
 				case 'U':
 				case 'u':
 					if (matches (begin, "SUBSTR")) return SparqlTokenType.SUBSTR;
+					break;
+				case 'H':
+				case 'h':
+					switch (begin[3]) {
+					case '2':
+						if (matches (begin, "SHA256")) return SparqlTokenType.SHA256;
+						break;
+					case '5':
+						if (matches (begin, "SHA512")) return SparqlTokenType.SHA512;
+						break;
+					}
 					break;
 				}
 				break;
@@ -1041,6 +1060,7 @@ public enum Tracker.SparqlTokenType {
 	LCASE,
 	LIMIT,
 	MAX,
+	MD5,
 	MIN,
 	MINUS,
 	MINUTES,
@@ -1076,6 +1096,9 @@ public enum Tracker.SparqlTokenType {
 	SECONDS,
 	SELECT,
 	SEMICOLON,
+	SHA1,
+	SHA256,
+	SHA512,
 	SILENT,
 	STAR,
 	STR,
@@ -1159,6 +1182,7 @@ public enum Tracker.SparqlTokenType {
 		case LCASE: return "`LCASE'";
 		case LIMIT: return "`LIMIT'";
 		case MAX: return "`MAX'";
+		case MD5: return "`MD5'";
 		case MIN: return "`MIN'";
 		case MINUS: return "`-'";
 		case MINUTES: return "`MINUTES'";
@@ -1193,6 +1217,9 @@ public enum Tracker.SparqlTokenType {
 		case SECONDS: return "`SECONDS'";
 		case SELECT: return "`SELECT'";
 		case SEMICOLON: return "`;'";
+		case SHA1: return "`SHA1'";
+		case SHA256: return "`SHA256'";
+		case SHA512: return "`SHA512'";
 		case SILENT: return "`SILENT'";
 		case STAR: return "`*'";
 		case STR: return "`STR'";
