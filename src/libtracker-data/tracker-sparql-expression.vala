@@ -1343,6 +1343,42 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return type;
+		case SparqlTokenType.SECONDS:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "seconds-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.MINUTES:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "minutes-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.HOURS:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "hours-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.DAY:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "day-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.MONTH:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "month-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		case SparqlTokenType.YEAR:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			var result = translate_function (sql, FN_NS + "year-from-dateTime");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
 		case SparqlTokenType.GROUP_CONCAT:
 			next ();
 			sql.append ("GROUP_CONCAT(");

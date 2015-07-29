@@ -106,6 +106,10 @@ public class Tracker.SparqlScanner : Object {
 					break;
 				}
 				break;
+			case 'D':
+			case 'd':
+				if (matches (begin, "DAY")) return SparqlTokenType.DAY;
+				break;
 			case 'M':
 			case 'm':
 				switch (begin[1]) {
@@ -189,6 +193,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'w':
 				if (matches (begin, "WITH")) return SparqlTokenType.WITH;
 				break;
+			case 'Y':
+			case 'y':
+				if (matches (begin, "YEAR")) return SparqlTokenType.YEAR;
+				break;
 			}
 			break;
 		case 5:
@@ -214,6 +222,10 @@ public class Tracker.SparqlScanner : Object {
 					break;
 				}
 				break;
+			case 'H':
+			case 'h':
+				if (matches (begin, "HOURS")) return SparqlTokenType.HOURS;
+				break;
 			case 'L':
 			case 'l':
 				switch (begin[1]) {
@@ -226,6 +238,10 @@ public class Tracker.SparqlScanner : Object {
 					if (matches (begin, "LIMIT")) return SparqlTokenType.LIMIT;
 					break;
 				}
+				break;
+			case 'M':
+			case 'm':
+				if (matches (begin, "MONTH")) return SparqlTokenType.MONTH;
 				break;
 			case 'N':
 			case 'n':
@@ -357,6 +373,10 @@ public class Tracker.SparqlScanner : Object {
 			break;
 		case 7:
 			switch (begin[0]) {
+			case 'M':
+			case 'm':
+				if (matches (begin, "MINUTES")) return SparqlTokenType.MINUTES;
+				break;
 			case 'R':
 			case 'r':
 				switch (begin[2]) {
@@ -372,7 +392,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'S':
 			case 's':
-				if (matches (begin, "STRENDS")) return SparqlTokenType.STRENDS;
+				switch (begin[1]) {
+				case 'E':
+				case 'e':
+					if (matches (begin, "SECONDS")) return SparqlTokenType.SECONDS;
+					break;
+				case 'T':
+				case 't':
+					if (matches (begin, "STRENDS")) return SparqlTokenType.STRENDS;
+					break;
+				}
 				break;
 			case 'I':
 			case 'i':
@@ -975,6 +1004,7 @@ public enum Tracker.SparqlTokenType {
 	COUNT,
 	DATA,
 	DATATYPE,
+	DAY,
 	DECIMAL,
 	DELETE,
 	DESC,
@@ -996,6 +1026,7 @@ public enum Tracker.SparqlTokenType {
 	GROUP,
 	GROUP_CONCAT,
 	HAVING,
+	HOURS,
 	IF,
 	INSERT,
 	INTEGER,
@@ -1012,6 +1043,8 @@ public enum Tracker.SparqlTokenType {
 	MAX,
 	MIN,
 	MINUS,
+	MINUTES,
+	MONTH,
 	NAMED,
 	NOT,
 	NULL, /* Non-standard in SPARQL spec */
@@ -1040,6 +1073,7 @@ public enum Tracker.SparqlTokenType {
 	REPLACE,
 	ROUND,
 	SAMETERM,
+	SECONDS,
 	SELECT,
 	SEMICOLON,
 	SILENT,
@@ -1061,7 +1095,8 @@ public enum Tracker.SparqlTokenType {
 	UNION,
 	VAR,
 	WHERE,
-	WITH;
+	WITH,
+	YEAR;
 
 	public unowned string to_string () {
 		switch (this) {
@@ -1089,6 +1124,7 @@ public enum Tracker.SparqlTokenType {
 		case CONSTRUCT: return "`CONSTRUCT'";
 		case COUNT: return "`COUNT'";
 		case DATATYPE: return "`DATATYPE'";
+		case DAY: return "`DAY'";
 		case DECIMAL: return "`DECIMAL'";
 		case DELETE: return "`DELETE'";
 		case DESC: return "`DESC'";
@@ -1108,6 +1144,7 @@ public enum Tracker.SparqlTokenType {
 		case GROUP: return "`GROUP'";
 		case GROUP_CONCAT: return "`GROUP_CONCAT'";
 		case HAVING: return "`HAVING'";
+		case HOURS: return "`HOURS'";
 		case IF: return "`IF'";
 		case INSERT: return "`INSERT'";
 		case INTEGER: return "`INTEGER'";
@@ -1124,6 +1161,8 @@ public enum Tracker.SparqlTokenType {
 		case MAX: return "`MAX'";
 		case MIN: return "`MIN'";
 		case MINUS: return "`-'";
+		case MINUTES: return "`MINUTES'";
+		case MONTH: return "`MONTH'";
 		case NAMED: return "`NAMED'";
 		case NOT: return "`NOT'";
 		case OFFSET: return "`OFFSET'";
@@ -1151,6 +1190,7 @@ public enum Tracker.SparqlTokenType {
 		case REPLACE: return "`REPLACE'";
 		case ROUND: return "`ROUND'";
 		case SAMETERM: return "`SAMETERM'";
+		case SECONDS: return "`SECONDS'";
 		case SELECT: return "`SELECT'";
 		case SEMICOLON: return "`;'";
 		case SILENT: return "`SILENT'";
@@ -1173,6 +1213,7 @@ public enum Tracker.SparqlTokenType {
 		case VAR: return "variable";
 		case WHERE: return "`WHERE'";
 		case WITH: return "`WITH'";
+		case YEAR: return "`YEAR'";
 		default: return "unknown token";
 		}
 	}
