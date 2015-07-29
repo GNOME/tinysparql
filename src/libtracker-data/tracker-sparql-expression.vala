@@ -26,6 +26,12 @@ class Tracker.Sparql.Expression : Object {
 	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
 	const string TRACKER_NS = "http://www.tracker-project.org/ontologies/tracker#";
 
+	enum TimeFormatType {
+		SECONDS,
+		MINUTES,
+		HOURS
+	}
+
 	string? fts_sql;
 
 	public Expression (Query query) {
@@ -449,6 +455,45 @@ class Tracker.Sparql.Expression : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void translate_date (StringBuilder sql, string format) throws Sparql.Error {
+		sql.append_printf ("strftime (\"%s\", ", format);
+
+		if (accept (SparqlTokenType.VAR)) {
+			string variable_name = get_last_string ().substring (1);
+			var variable = context.get_variable (variable_name);
+			sql.append (variable.get_extra_sql_expression ("localDate"));
+			sql.append (" * 24 * 3600");
+		} else {
+			translate_primary_expression (sql);
+		}
+
+		sql.append (", \"unixepoch\")");
+	}
+
+	void translate_time (StringBuilder sql, TimeFormatType type) throws Sparql.Error {
+		sql.append ("(");
+		if (accept (SparqlTokenType.VAR)) {
+			string variable_name = get_last_string ().substring (1);
+			var variable = context.get_variable (variable_name);
+			sql.append (variable.get_extra_sql_expression ("localTime"));
+		} else {
+			translate_primary_expression (sql);
+		}
+
+		switch (type) {
+		case TimeFormatType.SECONDS:
+			sql.append ("% 60");
+			break;
+		case TimeFormatType.MINUTES:
+			sql.append (" / 60 % 60");
+			break;
+		case TimeFormatType.HOURS:
+			sql.append (" / 3600 % 24");
+			break;
+		}
+		sql.append (")");
+	}
+
 	PropertyType translate_function (StringBuilder sql, string uri) throws Sparql.Error {
 		if (uri == XSD_NS + "string") {
 			// conversion to string
@@ -603,64 +648,22 @@ class Tracker.Sparql.Expression : Object {
 
 			return PropertyType.STRING;
 		} else if (uri == FN_NS + "year-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("strftime (\"%Y\", ");
-			sql.append (variable.get_extra_sql_expression ("localDate"));
-			sql.append (" * 24 * 3600, \"unixepoch\")");
-
+			translate_date (sql, "%Y");
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "month-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("strftime (\"%m\", ");
-			sql.append (variable.get_extra_sql_expression ("localDate"));
-			sql.append (" * 24 * 3600, \"unixepoch\")");
-
+			translate_date (sql, "%m");
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "day-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("strftime (\"%d\", ");
-			sql.append (variable.get_extra_sql_expression ("localDate"));
-			sql.append (" * 24 * 3600, \"unixepoch\")");
-
+			translate_date (sql, "%d");
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "hours-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("(");
-			sql.append (variable.get_extra_sql_expression ("localTime"));
-			sql.append (" / 3600)");
-
+			translate_time (sql, TimeFormatType.HOURS);
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "minutes-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("(");
-			sql.append (variable.get_extra_sql_expression ("localTime"));
-			sql.append (" / 60 % 60)");
-
+			translate_time (sql, TimeFormatType.MINUTES);
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "seconds-from-dateTime") {
-			expect (SparqlTokenType.VAR);
-			string variable_name = get_last_string ().substring (1);
-			var variable = context.get_variable (variable_name);
-
-			sql.append ("(");
-			sql.append (variable.get_extra_sql_expression ("localTime"));
-			sql.append ("% 60)");
-
+			translate_time (sql, TimeFormatType.SECONDS);
 			return PropertyType.INTEGER;
 		} else if (uri == FN_NS + "timezone-from-dateTime") {
 			expect (SparqlTokenType.VAR);
