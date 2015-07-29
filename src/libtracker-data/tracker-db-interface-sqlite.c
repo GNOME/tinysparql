@@ -1011,6 +1011,45 @@ function_sparql_floor (sqlite3_context *context,
 	sqlite3_result_double (context, floor (value));
 }
 
+static void
+function_sparql_checksum (sqlite3_context *context,
+			  int              argc,
+			  sqlite3_value   *argv[])
+{
+	const gchar *str, *checksumstr;
+	GChecksumType checksum;
+	gchar *result;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	str = sqlite3_value_text (argv[0]);
+	checksumstr = sqlite3_value_text (argv[1]);
+
+	if (!str || !checksumstr) {
+		sqlite3_result_error (context, "Invalid arguments", -1);
+		return;
+	}
+
+	if (g_ascii_strcasecmp (checksumstr, "md5") == 0)
+		checksum = G_CHECKSUM_MD5;
+	else if (g_ascii_strcasecmp (checksumstr, "sha1") == 0)
+		checksum = G_CHECKSUM_SHA1;
+	else if (g_ascii_strcasecmp (checksumstr, "sha256") == 0)
+		checksum = G_CHECKSUM_SHA256;
+	else if (g_ascii_strcasecmp (checksumstr, "sha512") == 0)
+		checksum = G_CHECKSUM_SHA512;
+	else {
+		sqlite3_result_error (context, "Invalid checksum method specified", -1);
+		return;
+	}
+
+	result = g_compute_checksum_for_string (checksum, str, -1);
+	sqlite3_result_text (context, result, -1, g_free);
+}
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -1150,6 +1189,10 @@ open_database (TrackerDBInterface  *db_interface,
 	                         NULL, NULL);
 	sqlite3_create_function (db_interface->db, "SparqlFloor", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_floor,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlChecksum", 2, SQLITE_ANY,
+	                         db_interface, &function_sparql_checksum,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
