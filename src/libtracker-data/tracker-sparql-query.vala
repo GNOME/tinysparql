@@ -24,6 +24,12 @@ namespace Tracker.Sparql {
 		OPTIONAL
 	}
 
+	enum UpdateType {
+		DELETE,
+		INSERT,
+		UPDATE
+	}
+
 	// Represents a SQL table
 	class DataTable : Object {
 		public string sql_db_tablename; // as in db schema
@@ -229,9 +235,6 @@ public class Tracker.Sparql.Query : Object {
 	internal List<LiteralBinding> bindings;
 
 	internal Context context;
-
-	bool delete_statements;
-	bool update_statements;
 
 	int bnodeid = 0;
 	// base UUID used for blank nodes
@@ -616,19 +619,17 @@ public class Tracker.Sparql.Query : Object {
 			current_graph = null;
 		}
 
-		bool delete_statements;
-		bool update_statements;
+		UpdateType update_type;
 
 		if (accept (SparqlTokenType.INSERT)) {
-			delete_statements = false;
-			update_statements = false;
+			update_type = UpdateType.INSERT;
 
 			if (accept (SparqlTokenType.OR)) {
 				expect (SparqlTokenType.REPLACE);
-				update_statements = true;
+				update_type = UpdateType.UPDATE;
 			}
 
-			if (!update_statements) {
+			if (update_type == UpdateType.INSERT) {
 				// SILENT => ignore (non-syntax) errors
 				silent = accept (SparqlTokenType.SILENT);
 			}
@@ -638,8 +639,7 @@ public class Tracker.Sparql.Query : Object {
 			}
 		} else {
 			expect (SparqlTokenType.DELETE);
-			delete_statements = true;
-			update_statements = false;
+			update_type = UpdateType.DELETE;
 			blank = false;
 
 			// SILENT => ignore (non-syntax) errors
@@ -717,9 +717,6 @@ public class Tracker.Sparql.Query : Object {
 
 		var cursor = exec_sql_cursor (sql.str, null, null, false);
 
-		this.delete_statements = delete_statements;
-		this.update_statements = update_statements;
-
 		int n_solutions = 0;
 		while (cursor.next ()) {
 			// get values of all variables to be bound
@@ -743,7 +740,7 @@ public class Tracker.Sparql.Query : Object {
 			solution.solution_index = i;
 
 			// iterate over each triple in the template
-			parse_construct_triples_block (solution);
+			parse_construct_triples_block (solution, update_type);
 
 			if (blank && update_blank_nodes != null) {
 				update_blank_nodes.add_value (blank_nodes);
@@ -791,7 +788,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_triples_block (Solution var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_triples_block (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
@@ -799,7 +796,7 @@ public class Tracker.Sparql.Query : Object {
 
 			if (accept (SparqlTokenType.GRAPH)) {
 				var old_graph = current_graph;
-				current_graph = parse_construct_var_or_term (var_value_map, out is_null);
+				current_graph = parse_construct_var_or_term (var_value_map, type, out is_null);
 
 				if (is_null) {
 					throw get_error ("'null' not supported for graph");
@@ -808,13 +805,13 @@ public class Tracker.Sparql.Query : Object {
 				expect (SparqlTokenType.OPEN_BRACE);
 
 				while (current () != SparqlTokenType.CLOSE_BRACE) {
-					current_subject = parse_construct_var_or_term (var_value_map, out is_null);
+					current_subject = parse_construct_var_or_term (var_value_map, type, out is_null);
 
 					if (is_null) {
 						throw get_error ("'null' not supported for subject");
 					}
 
-					parse_construct_property_list_not_empty (var_value_map);
+					parse_construct_property_list_not_empty (var_value_map, type);
 					if (!accept (SparqlTokenType.DOT)) {
 						// no triples following
 						break;
@@ -827,13 +824,13 @@ public class Tracker.Sparql.Query : Object {
 
 				accept (SparqlTokenType.DOT);
 			} else {
-				current_subject = parse_construct_var_or_term (var_value_map, out is_null);
+				current_subject = parse_construct_var_or_term (var_value_map, type, out is_null);
 
 				if (is_null) {
 					throw get_error ("'null' not supported for subject");
 				}
 
-				parse_construct_property_list_not_empty (var_value_map);
+				parse_construct_property_list_not_empty (var_value_map, type);
 				if (!accept (SparqlTokenType.DOT) && current () != SparqlTokenType.GRAPH) {
 					// neither GRAPH nor triples following
 					break;
@@ -846,7 +843,7 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string? parse_construct_var_or_term (Solution var_value_map, out bool is_null) throws Sparql.Error, DateError {
+	string? parse_construct_var_or_term (Solution var_value_map, UpdateType type, out bool is_null) throws Sparql.Error, DateError {
 		string result = "";
 		is_null = false;
 		if (current () == SparqlTokenType.VAR) {
@@ -921,7 +918,7 @@ public class Tracker.Sparql.Query : Object {
 			bool old_subject_is_var = current_subject_is_var;
 
 			current_subject = result;
-			parse_construct_property_list_not_empty (var_value_map);
+			parse_construct_property_list_not_empty (var_value_map, type);
 			expect (SparqlTokenType.CLOSE_BRACKET);
 			anon_blank_node_open = false;
 
@@ -933,7 +930,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (Solution var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_property_list_not_empty (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -959,7 +956,7 @@ public class Tracker.Sparql.Query : Object {
 			} else {
 				throw get_error ("expected non-empty property list");
 			}
-			parse_construct_object_list (var_value_map);
+			parse_construct_object_list (var_value_map, type);
 
 			current_predicate = old_predicate;
 
@@ -970,9 +967,9 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object_list (Solution var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_object_list (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		while (true) {
-			parse_construct_object (var_value_map);
+			parse_construct_object (var_value_map, type);
 			if (accept (SparqlTokenType.COMMA)) {
 				continue;
 			}
@@ -980,25 +977,25 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object (Solution var_value_map) throws Sparql.Error, DateError {
+	void parse_construct_object (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		bool is_null = false;
-		string object = parse_construct_var_or_term (var_value_map, out is_null);
+		string object = parse_construct_var_or_term (var_value_map, type, out is_null);
 		if (current_subject == null || current_predicate == null || object == null) {
 			// the SPARQL specification says that triples containing unbound variables
 			// should be excluded from the output RDF graph of CONSTRUCT
 			return;
 		}
 		try {
-			if (update_statements) {
+			if (type == UpdateType.UPDATE) {
 				// update triple in database
 				Data.update_statement (current_graph, current_subject, current_predicate, is_null ? null : object);
-			} else if (delete_statements) {
+			} else if (type == UpdateType.DELETE) {
 				// delete triple from database
 				if (is_null) {
 					throw get_error ("'null' not supported in this mode");
 				}
 				Data.delete_statement (current_graph, current_subject, current_predicate, object);
-			} else {
+			} else if (type == UpdateType.INSERT) {
 				// insert triple into database
 				if (is_null) {
 					throw get_error ("'null' not supported in this mode");
