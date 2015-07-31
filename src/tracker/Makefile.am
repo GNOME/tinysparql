@@ -76,8 +76,10 @@ uninstall-hook:
 	$(RM) "$(DESTDIR)$(bindir)/tracker-tag"
 
 # Bash completion
-bashcompletiondir = @bashcompletiondir@
+if WITH_BASH_COMPLETION
+bashcompletiondir = $(BASH_COMPLETION_DIR)
 bashcompletion_DATA = bash-completion/tracker
+endif
 
 tracker-compat: tracker-compat.in
 	$(AM_V_at)sed -e "s|@bindir[@]|${bindir}|" $< > $@

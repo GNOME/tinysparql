@@ -850,15 +850,25 @@ AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
 ####################################################################
 # bash-completion
 ####################################################################
-AC_ARG_WITH([bashcompletiondir],
-        AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),
-        [],
-        [AS_IF([$($PKG_CONFIG --exists bash-completion)], [
-                with_bashcompletiondir=$($PKG_CONFIG --variable=completionsdir bash-completion)
-        ] , [
-                with_bashcompletiondir=${datadir}/bash-completion/completions
-        ])])
-AC_SUBST([bashcompletiondir], [$with_bashcompletiondir])
+
+AC_ARG_WITH([bash-completion-dir],
+    AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
+        [Install the bash auto-completion script in this directory. @<:@default=yes@:>@]),
+    [],
+    [with_bash_completion_dir=yes])
+
+if test "x$with_bash_completion_dir" = "xyes"; then
+   PKG_CHECK_MODULES([BASH_COMPLETION], [bash-completion >= 2.0],
+       [BASH_COMPLETION_DIR=$($PKG_CONFIG --variable=completionsdir bash-completion)],
+       [BASH_COMPLETION_DIR="${datadir}/bash-completion/completions"])
+elif test "x$with_bash_completion_dir" != "xno"; then
+   # Set with_bash_completions_dir to avoid printing path twice below
+   BASH_COMPLETION_DIR="$with_bash_completion_dir"
+   with_bash_completion_dir="yes"
+fi
+
+AC_SUBST([BASH_COMPLETION_DIR])
+AM_CONDITIONAL([WITH_BASH_COMPLETION],[test "x$with_bash_completion_dir" != "xno"])
 
 ####################################################################
 # Check for D-Bus requirements
@@ -2782,6 +2792,8 @@ Feature Support:
 
 	Cache media art                         $have_libmediaart (libmediaart)
 	Install artwork                         $have_artwork
+
+	Bash completion support:                $with_bash_completion_dir ($BASH_COMPLETION_DIR)
 
 Data Miners / Writebacks:
 

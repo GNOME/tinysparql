@@ -29,7 +29,7 @@ if [ $# -eq 0 ] ; then
 
   if test -n "$JHBUILD_PREFIX" ; then
     echo "Using JHBuild prefix ('$JHBUILD_PREFIX')"
-    NEW_PREFIX="--prefix $JHBUILD_PREFIX"
+    NEW_PREFIX="--prefix $JHBUILD_PREFIX --with-bash-completion-dir=$JHBUILD_PREFIX/share/bash-completion/completions"
   fi
 
   NEW_ARGS="\
