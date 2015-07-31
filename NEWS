@@ -1,3 +1,33 @@
+NEW in 1.4.1 - 2014-07-31
+=========================
+
+  * build: Move bash-completion to new location
+  * libtracker-miner: Set inotify limits for 'GInotifyFileBackend' too (changes in GLib)
+  * tracker-extract: Remove ModulePath from comic/ebook rules
+  * tracker-extract-gstreamer: Rely better on the GstDiscoverer than mimetype sniffing
+  * tracker-extract-gstreamer: Fallback to preview image for album art
+  * tracker-miner-fs: Reset retry counter when we need to prepend parents
+  * tracker-preferences: Use the new command line tool
+  * tracker: Improve bash completion script (complete on real files for some arguments)
+  * tracker: Mark missing strings for translation
+  * Fixes: GB#735610, Remove requirement on ModulePath for extractor .rule files
+  * Fixes: GB#732236, use embedded album art if available
+  * Fixes: GB#750394, libtracker-miner: Keep a monitor on root index tree files on deletion
+  * Fixes: GB#751723, [PATCH] tracker-sparql.1: Man page syntax fix
+  * Fixes: GB#751724, [PATCH] docs: Spelling fixes
+  * Fixes: GB#751992, gnome-shell search on fresh new tracker db triggers tracker-miner-fs warnings
+  * Fixes: GB#748677, tracker-preferences still calls tracker-control
+  * Fixes: GB#746401, epub: handle multiple dc:identifier tags
+
+Translations:
+
+  * Updated bg: Alexander Shopov
+  * Updated pl: Piotr Drąg
+  * Updated pt: Pedro Albuquerque
+  * Updated pt_BR: Gustavo Marques, Felipe Braga
+  * Updated sl: Martin Srebotnjak, Matej Urbančič
+
+
 NEW in 1.4.0 - 2014-03-24
 =========================
 
