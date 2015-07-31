@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-16 16:57+0200\n"
-"PO-Revision-Date: 2015-06-16 16:58+0200\n"
+"POT-Creation-Date: 2015-07-31 19:04+0200\n"
+"PO-Revision-Date: 2015-07-31 19:05+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <gnomepl@aviary.pl>\n"
 "Language: pl\n"
@@ -529,6 +529,7 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "PLIK"
 
@@ -922,7 +923,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Zostanie wyświetlone tylko pierwsze 500 elementów"
 
 #: ../src/tracker-needle/tracker-needle.vala:731
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Wyświetla wersję"
 
@@ -975,7 +976,7 @@ msgstr[2] "Dokumenty"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Plik"
@@ -1514,13 +1515,13 @@ msgstr "Uruchamianie"
 msgid "System"
 msgstr "Systemowe"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Katalog"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1528,24 +1529,24 @@ msgstr ""
 "Zmiany wprowadzone w preferencjach wymagają ponownego zindeksowania danych, "
 "aby zapewnić ich poprawność."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Spowoduje to zamknięcie tego okna dialogowego."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Zindeksować ponownie?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Zindeksuj ponownie"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Nic nie rób"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
@@ -1553,11 +1554,11 @@ msgstr ""
 "Zmiany wprowadzone w preferencjach wymagają ponownego uruchomienia procesów "
 "programu Tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Ponownie uruchomić?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Ponownie uruchom program Tracker"
 
@@ -1568,38 +1569,38 @@ msgstr "Ponownie uruchom program Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Wyłączone"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Wprowadzenie wartości"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "_Anuluj"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_OK"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Wybór katalogu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "Ten katalog został już wybrany jako położenie do indeksowania"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Rekursywnie"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Preferencje wyszukiwania na pulpicie"
 
@@ -2798,6 +2799,18 @@ msgid ""
 msgstr ""
 "Parametr --list-properties może być pusty tylko wtedy, kiedy jest używany z "
 "parametrem --tree"
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Ścieżka do użycia do wykonania zapytania z pliku"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Zapytanie SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
