@@ -1288,10 +1288,10 @@ get_files (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?u ?url"
+		query = g_strdup_printf ("SELECT ?u ?url "
 		                         "WHERE { "
 		                         "  ?u a nie:InformationElement ;"
-		                         "  ?url nie:url(?u) ;"
+		                         "  nie:url ?url ;"
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
