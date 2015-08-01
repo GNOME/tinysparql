@@ -472,10 +472,10 @@ public class Tracker.Sparql.Query : Object {
 			case SparqlTokenType.DELETE:
 				if (blank) {
 					ublank_nodes.open ((VariantType) "aa{ss}");
-					execute_insert_or_delete (ublank_nodes);
+					execute_insert_delete (ublank_nodes);
 					ublank_nodes.close ();
 				} else {
-					execute_insert_or_delete (null);
+					execute_insert_delete (null);
 				}
 				break;
 			case SparqlTokenType.DROP:
@@ -608,10 +608,10 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void execute_insert_or_delete (VariantBuilder? update_blank_nodes) throws GLib.Error {
+	void execute_insert_delete (VariantBuilder? update_blank_nodes) throws GLib.Error {
 		bool blank = true;
 
-		// INSERT or DELETE
+		// DELETE and/or INSERT
 
 		if (accept (SparqlTokenType.WITH)) {
 			parse_from_or_into_param ();
@@ -619,27 +619,17 @@ public class Tracker.Sparql.Query : Object {
 			current_graph = null;
 		}
 
-		UpdateType update_type;
+		SourceLocation? delete_location = null;
+		SourceLocation? insert_location = null;
+		bool insert_is_update = false;
+		bool delete_where = false;
+		bool data = false;
 
-		if (accept (SparqlTokenType.INSERT)) {
-			update_type = UpdateType.INSERT;
+		// Sparql 1.1 defines deletes/inserts as a single
+		// operation with the syntax:
+		//   [DELETE {...}] [INSERT {...}] WHERE {...}
 
-			if (accept (SparqlTokenType.OR)) {
-				expect (SparqlTokenType.REPLACE);
-				update_type = UpdateType.UPDATE;
-			}
-
-			if (update_type == UpdateType.INSERT) {
-				// SILENT => ignore (non-syntax) errors
-				silent = accept (SparqlTokenType.SILENT);
-			}
-
-			if (current_graph == null && accept (SparqlTokenType.INTO)) {
-				parse_from_or_into_param ();
-			}
-		} else {
-			expect (SparqlTokenType.DELETE);
-			update_type = UpdateType.DELETE;
+		if (accept (SparqlTokenType.DELETE)) {
 			blank = false;
 
 			// SILENT => ignore (non-syntax) errors
@@ -648,28 +638,56 @@ public class Tracker.Sparql.Query : Object {
 			if (current_graph == null && accept (SparqlTokenType.FROM)) {
 				parse_from_or_into_param ();
 			}
+
+			if (current_graph == null && accept (SparqlTokenType.DATA)) {
+				// INSERT/DELETE DATA are simpler variants
+				// that don't support variables
+				data = true;
+			} else if (current() == SparqlTokenType.WHERE) {
+				// DELETE WHERE is a short form where the pattern
+				// is also used as the template for deletion
+				delete_where = true;
+			}
+
+			if (!data && !delete_where) {
+				delete_location = get_location ();
+				skip_braces ();
+			}
 		}
 
-		// INSERT/DELETE DATA are simpler variants that don't support variables
-		bool data = (current_graph == null && accept (SparqlTokenType.DATA));
+		if (!data && accept (SparqlTokenType.INSERT)) {
+			if (accept (SparqlTokenType.OR)) {
+				expect (SparqlTokenType.REPLACE);
+				insert_is_update = true;
+			}
+
+			if (!insert_is_update) {
+				// SILENT => ignore (non-syntax) errors
+				silent = accept (SparqlTokenType.SILENT);
+			}
+
+			if (current_graph == null && accept (SparqlTokenType.INTO)) {
+				parse_from_or_into_param ();
+			}
+
+			if (current_graph == null && accept (SparqlTokenType.DATA)) {
+				// INSERT/DELETE DATA are simpler variants
+				// that don't support variables
+				data = true;
+			}
+
+			if (!data && current () == SparqlTokenType.OPEN_BRACE) {
+				insert_location = get_location ();
+				skip_braces ();
+			}
+		}
 
 		var pattern_sql = new StringBuilder ();
 
 		var sql = new StringBuilder ();
 
-		var template_location = get_location ();
-
 		if (!data) {
-			// DELETE WHERE is a short form where the pattern is also used as the template for deletion
-			bool delete_where = accept (SparqlTokenType.WHERE);
-
-			if (delete_where) {
-				template_location = get_location ();
-			} else {
-				skip_braces ();
-			}
-
-			if (delete_where || accept (SparqlTokenType.WHERE)) {
+			if (accept (SparqlTokenType.WHERE)) {
 				pattern.current_graph = current_graph;
 				context = pattern.translate_group_graph_pattern (pattern_sql);
 				pattern.current_graph = null;
@@ -728,25 +746,42 @@ public class Tracker.Sparql.Query : Object {
 
 		cursor = null;
 
-		// iterate over all solutions
-		for (int i = 0; i < n_solutions; i++) {
-			// blank nodes in construct templates are per solution
-
-			uuid_generate (base_uuid);
-			blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-
-			set_location (template_location);
-
-			solution.solution_index = i;
-
-			// iterate over each triple in the template
-			parse_construct_triples_block (solution, update_type);
-
-			if (blank && update_blank_nodes != null) {
-				update_blank_nodes.add_value (blank_nodes);
+		// Iterate over all solutions twice
+		// First handle deletes
+		if (delete_location != null) {
+			for (int i = 0; i < n_solutions; i++) {
+				solution.solution_index = i;
+				set_location (delete_location);
+				parse_construct_triples_block (solution, UpdateType.DELETE);
+				Data.update_buffer_might_flush ();
 			}
 
-			Data.update_buffer_might_flush ();
+			// Force flush on delete/insert operations,
+			// so the elements are already removed at
+			// the time of insertion.
+			if (insert_location != null)
+				Data.update_buffer_flush ();
+		}
+
+		// Then handle inserts/updates
+		if (insert_location != null) {
+			for (int i = 0; i < n_solutions; i++) {
+				uuid_generate (base_uuid);
+				blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
+				solution.solution_index = i;
+
+				set_location (insert_location);
+				parse_construct_triples_block (solution,
+							       insert_is_update ?
+							       UpdateType.UPDATE :
+							       UpdateType.INSERT);
+
+				if (blank && update_blank_nodes != null) {
+					update_blank_nodes.add_value (blank_nodes);
+				}
+
+				Data.update_buffer_might_flush ();
+			}
 		}
 
 		solution = null;
