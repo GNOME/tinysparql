@@ -323,7 +323,10 @@ get_file_metadata (TrackerExtractTask  *task,
 		if (task->cur_func) {
 			TrackerSparqlBuilder *statements;
 
-			g_debug ("Using %s...", g_module_name (task->cur_module));
+			g_debug ("Using %s...",
+				 task->cur_module ?
+				 g_module_name (task->cur_module) :
+				 "Dummy extraction");
 
 			success = (task->cur_func) (info);
 
@@ -465,6 +468,10 @@ filter_module (TrackerExtract *extract,
 	TrackerExtractPrivate *priv;
 	gchar *module_basename, *filter_name;
 	gboolean filter;
+
+	if (!module) {
+		return FALSE;
+	}
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
@@ -620,7 +627,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 
 	task->cur_module = module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, &thread_awareness);
 
-	if (!module || !task->cur_func) {
+	if (!task->cur_func) {
 		g_warning ("Discarding task, no module able to handle '%s'", task->file);
 		priv->unhandled_count++;
 		extract_task_free (task);
@@ -797,7 +804,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
 	task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
 
-	while (task->cur_module && task->cur_func) {
+	while (task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
 		    get_file_metadata (task, &info)) {
 			const gchar *preupdate_str, *postupdate_str, *statements_str, *where;
