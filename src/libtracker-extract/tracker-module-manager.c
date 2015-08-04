@@ -42,6 +42,13 @@ typedef struct {
 	guint initialized : 1;
 } ModuleInfo;
 
+static gboolean dummy_extract_func (TrackerExtractInfo *info);
+
+static ModuleInfo dummy_module = {
+	NULL, TRACKER_MODULE_MAIN_THREAD,
+	dummy_extract_func, NULL, TRUE
+};
+
 static GHashTable *modules = NULL;
 static GHashTable *mimetype_map = NULL;
 static gboolean initialized = FALSE;
@@ -53,6 +60,12 @@ struct _TrackerMimetypeInfo {
 
 	ModuleInfo *cur_module_info;
 };
+
+static gboolean
+dummy_extract_func (TrackerExtractInfo *info)
+{
+	return TRUE;
+}
 
 static gboolean
 load_extractor_rule (GKeyFile  *key_file,
@@ -307,7 +320,7 @@ load_module (RuleInfo *info,
 	ModuleInfo *module_info = NULL;
 
 	if (!info->module_path) {
-		return NULL;
+		return &dummy_module;
 	}
 
 	if (modules) {
