@@ -95,8 +95,7 @@ typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
 	EXTRACT_MIME_IMAGE,
-	EXTRACT_MIME_GUESS,
-	EXTRACT_MIME_SVG,
+	EXTRACT_MIME_GUESS
 } ExtractMime;
 
 typedef struct {
@@ -1200,12 +1199,7 @@ extract_metadata (MetadataExtractor      *extractor,
 #endif
 		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
-
-			if (extractor->mime != EXTRACT_MIME_SVG) {
-				tracker_sparql_builder_object (metadata, "nmm:Photo");
-			} else {
-				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
-			}
+			tracker_sparql_builder_object (metadata, "nmm:Photo");
 		}
 	}
 
@@ -1381,7 +1375,6 @@ common_extract_stream_metadata (MetadataExtractor    *extractor,
 	}
 
 	if (extractor->mime == EXTRACT_MIME_IMAGE ||
-	    extractor->mime == EXTRACT_MIME_SVG ||
 	    extractor->mime == EXTRACT_MIME_VIDEO) {
 
 		if (extractor->width >= 0) {
@@ -1747,9 +1740,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	} else
 #endif /* GSTREAMER_BACKEND_GUPNP_DLNA */
 
-	if (strcmp (mimetype, "image/svg+xml") == 0) {
-		tracker_extract_gstreamer (uri, info, EXTRACT_MIME_SVG, graph);
-	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
+	if (strcmp (mimetype, "video/3gpp") == 0 ||
 	           strcmp (mimetype, "video/mp4") == 0 ||
                    strcmp (mimetype, "video/x-ms-asf") == 0 ||
                    strcmp (mimetype, "application/vnd.ms-asf") == 0 ||
