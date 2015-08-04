@@ -161,25 +161,31 @@ decorator_save_info (TrackerSparqlBuilder    *sparql,
 	tracker_sparql_builder_object_iri (sparql,
 	                                   tracker_decorator_get_data_source (TRACKER_DECORATOR (decorator)));
 
-	/* Add extracted metadata */
-	str = g_strdup_printf ("<%s>", urn);
-	tracker_sparql_builder_append (sparql, str);
-	g_free (str);
-
 	builder = tracker_extract_info_get_metadata_builder (info);
-	result = tracker_sparql_builder_get_result (builder);
-	tracker_sparql_builder_append (sparql, result);
 
-	/* Close graph and insert statement, insert where clause */
-	tracker_sparql_builder_graph_close (sparql);
-        tracker_sparql_builder_insert_close (sparql);
+	if (tracker_sparql_builder_get_length (builder) > 0) {
+		/* Add extracted metadata */
+		str = g_strdup_printf ("<%s>", urn);
+		tracker_sparql_builder_append (sparql, str);
+		g_free (str);
 
-	where = tracker_extract_info_get_where_clause (info);
+		result = tracker_sparql_builder_get_result (builder);
+		tracker_sparql_builder_append (sparql, result);
 
-	if (where && *where) {
-		tracker_sparql_builder_where_open (sparql);
-		tracker_sparql_builder_append (sparql, where);
-		tracker_sparql_builder_where_close (sparql);
+		/* Close graph and insert statement, insert where clause */
+		tracker_sparql_builder_graph_close (sparql);
+		tracker_sparql_builder_insert_close (sparql);
+
+		where = tracker_extract_info_get_where_clause (info);
+
+		if (where && *where) {
+			tracker_sparql_builder_where_open (sparql);
+			tracker_sparql_builder_append (sparql, where);
+			tracker_sparql_builder_where_close (sparql);
+		}
+	} else {
+		tracker_sparql_builder_graph_close (sparql);
+		tracker_sparql_builder_insert_close (sparql);
 	}
 
 	/* Prepend/append pre/postupdate chunks */
