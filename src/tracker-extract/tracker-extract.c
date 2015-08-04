@@ -333,10 +333,10 @@ get_file_metadata (TrackerExtractTask  *task,
 			statements = tracker_extract_info_get_metadata_builder (info);
 			items = tracker_sparql_builder_get_length (statements);
 
-			if (success && items > 0) {
+			if (items > 0)
 				tracker_sparql_builder_insert_close (statements);
-				task->success = TRUE;
-			}
+
+			task->success = success;
 		}
 
 		g_free (mime_used);
@@ -344,14 +344,14 @@ get_file_metadata (TrackerExtractTask  *task,
 
 	g_debug ("Done (%d objects added)\n", items);
 
-	if (!success || items == 0) {
+	if (!success) {
 		tracker_extract_info_unref (info);
 		info = NULL;
 	}
 
 	*info_out = info;
 
-	return (success && items > 0);
+	return success;
 }
 
 /* This function is called on the thread calling g_cancellable_cancel() */
