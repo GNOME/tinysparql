@@ -1,4 +1,3 @@
 [ExtractorRule]
-ModulePath=libextract-gstreamer.so
-MimeTypes=image/svg+xml
+MimeTypes=image/svg+xml;image/svg+xml-compressed;
 FallbackRdfTypes=nfo:Image;nfo:VectorImage;
