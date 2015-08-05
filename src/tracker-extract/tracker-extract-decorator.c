@@ -224,8 +224,9 @@ get_metadata_cb (TrackerExtract *extract,
 		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), &error);
 
 		if (!error || error->domain == TRACKER_EXTRACT_ERROR) {
-			g_message ("Extraction failed: %s\n", error->message);
+			g_message ("Extraction failed: %s\n", error ? error->message : "no error given");
 			g_task_return_boolean (task, FALSE);
+			g_clear_error (&error);
 		} else {
 			g_task_return_error (task, error);
 		}
