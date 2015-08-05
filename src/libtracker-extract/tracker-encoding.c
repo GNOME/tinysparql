@@ -64,6 +64,7 @@ tracker_encoding_guess (const gchar *buffer,
 #ifdef HAVE_ENCA
 	if (!encoding || conf < 0.5) {
 		conf = 1;
+		g_free (encoding);
 		encoding = tracker_encoding_guess_enca (buffer, size);
 	}
 #endif /* HAVE_ENCA */
