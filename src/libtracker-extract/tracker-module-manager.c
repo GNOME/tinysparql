@@ -78,10 +78,14 @@ load_extractor_rule (GKeyFile  *key_file,
 
 	module_path = g_key_file_get_string (key_file, "ExtractorRule", "ModulePath", &local_error);
 
-	if (local_error &&
-	    local_error->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND) {
-		g_propagate_error (error, local_error);
-		return FALSE;
+	if (local_error) {
+		if (!g_error_matches (local_error, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_KEY_NOT_FOUND)) {
+			g_propagate_error (error, local_error);
+			return FALSE;
+		} else {
+			/* Ignore */
+			g_clear_error (&local_error);
+		}
 	}
 
 	if (module_path &&
