@@ -97,18 +97,15 @@ class Helper:
                          "FLAGS",
                          [])
 
-        if options.is_manual_start ():
-            print ("Start %s manually" % self.PROCESS_NAME)
-        else:
-            kws = {}
+        kws = {}
 
-            if not options.is_verbose ():
-                FNULL = open ('/dev/null', 'w')
-                kws = { 'stdout': FNULL, 'stderr': FNULL }
+        if not options.is_verbose ():
+            FNULL = open ('/dev/null', 'w')
+            kws = { 'stdout': FNULL, 'stderr': FNULL }
 
-            command = [path] + flags
-            log ("Starting %s" % ' '.join(command))
-            return subprocess.Popen ([path] + flags, **kws)
+        command = [path] + flags
+        log ("Starting %s" % ' '.join(command))
+        return subprocess.Popen ([path] + flags, **kws)
 
     def _name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == self.BUS_NAME:
@@ -148,18 +145,29 @@ class Helper:
 
         self._get_bus ()
 
-        if (self.bus_admin.NameHasOwner (self.BUS_NAME)):
-            raise Exception ("Unable to start test instance of %s: already running" % self.PROCESS_NAME)
+        if self.bus_admin.NameHasOwner(self.BUS_NAME):
+            if options.is_manual_start():
+                self.available = True
+                log ("Found existing %s process (D-Bus name %s)" %
+                     (self.PROCESS_NAME, self.BUS_NAME))
+                return
+            else:
+                raise Exception ("Unable to start test instance of %s: "
+                                 "already running" % self.PROCESS_NAME)
+        else:
+            log ("Name %s does not have an owner." % self.BUS_NAME)
 
         self.name_owner_match = self.bus.add_signal_receiver (self._name_owner_changed_cb,
                                                               signal_name="NameOwnerChanged",
                                                               path="/org/freedesktop/DBus",
                                                               dbus_interface="org.freedesktop.DBus")
 
-        self.process = self._start_process ()
-        log ('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
-
-        self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
+        if options.is_manual_start():
+            print ("Start %s manually" % self.PROCESS_NAME)
+        else:
+            self.process = self._start_process ()
+            log ('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
+            self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
 
         self.abort_if_process_exits_with_status_0 = True
 
