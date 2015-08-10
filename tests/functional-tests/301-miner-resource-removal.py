@@ -23,17 +23,11 @@ especially in the case where nie:InformationElement != nie:DataObject
 """
 
 from common.utils import configuration as cfg
-from common.utils.dconf import DConfClient
-from common.utils.helpers import MinerFsHelper, StoreHelper, ExtractorHelper, log
 from common.utils.minertest import CommonTrackerMinerTest, path, uri
-from common.utils.system import TrackerSystemAbstraction
 
 from gi.repository import GLib
 
-import dbus
-from gi.repository import GLib
 import os
-import shutil
 import unittest2 as ut
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
@@ -50,7 +44,6 @@ CONF_OPTIONS = {
     }
 }
 
-REASONABLE_TIMEOUT = 30
 
 class MinerResourceRemovalTest (CommonTrackerMinerTest):
 
@@ -79,15 +72,6 @@ class MinerResourceRemovalTest (CommonTrackerMinerTest):
 
         return self.tracker.await_resource_inserted (rdf_class = 'nfo:Document',
                                                      url = uri(file_name))
-
-    def assertResourceExists (self, urn):
-        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == False:
-            self.fail ("Resource <%s> does not exist" % urn)
-
-    def assertResourceMissing (self, urn):
-        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == True:
-            self.fail ("Resource <%s> should not exist" % urn)
-
 
     def test_01_file_deletion (self):
         """

@@ -112,3 +112,11 @@ class CommonTrackerMinerTest (ut.TestCase):
 
     def tearDown (self):
         self.system.tracker_miner_fs_testing_stop ()
+
+    def assertResourceExists (self, urn):
+        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == False:
+            self.fail ("Resource <%s> does not exist" % urn)
+
+    def assertResourceMissing (self, urn):
+        if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == True:
+            self.fail ("Resource <%s> should not exist" % urn)
