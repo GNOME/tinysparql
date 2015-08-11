@@ -124,7 +124,8 @@ test_indexing_tree_001 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -147,7 +148,8 @@ test_indexing_tree_002 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -169,7 +171,8 @@ test_indexing_tree_003 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -191,10 +194,12 @@ test_indexing_tree_004 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -217,10 +222,12 @@ test_indexing_tree_005 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -243,10 +250,12 @@ test_indexing_tree_006 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -269,10 +278,12 @@ test_indexing_tree_007 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -295,10 +306,12 @@ test_indexing_tree_008 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -321,10 +334,12 @@ test_indexing_tree_009 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -347,10 +362,12 @@ test_indexing_tree_010 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -373,10 +390,12 @@ test_indexing_tree_011 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -398,10 +417,12 @@ test_indexing_tree_012 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -423,13 +444,16 @@ test_indexing_tree_013 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -451,13 +475,16 @@ test_indexing_tree_014 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -481,13 +508,16 @@ test_indexing_tree_015 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -510,13 +540,16 @@ test_indexing_tree_016 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -540,13 +573,16 @@ test_indexing_tree_017 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -569,13 +605,16 @@ test_indexing_tree_018 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -598,13 +637,16 @@ test_indexing_tree_019 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -628,13 +670,16 @@ test_indexing_tree_020 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -658,13 +703,16 @@ test_indexing_tree_021 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -688,13 +736,16 @@ test_indexing_tree_022 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -718,13 +769,16 @@ test_indexing_tree_023 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -748,13 +802,16 @@ test_indexing_tree_024 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -777,13 +834,16 @@ test_indexing_tree_025 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -806,13 +866,16 @@ test_indexing_tree_026 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_IGNORE);
+	                           TRACKER_DIRECTORY_FLAG_IGNORE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -836,13 +899,16 @@ test_indexing_tree_027 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -865,13 +931,17 @@ test_indexing_tree_028 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
+
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -895,13 +965,16 @@ test_indexing_tree_029 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_A]);
+	                              fixture->test_dir[TEST_DIRECTORY_A],
+	                              "test-owner");
 
 	ASSERT_NOT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);
@@ -924,13 +997,16 @@ test_indexing_tree_030 (TestCommonContext *fixture,
 {
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_A],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 	tracker_indexing_tree_add (fixture->tree,
 	                           fixture->test_dir[TEST_DIRECTORY_AA],
-	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE);
+	                           TRACKER_DIRECTORY_FLAG_MONITOR | TRACKER_DIRECTORY_FLAG_RECURSE,
+	                           "test-owner");
 
 	tracker_indexing_tree_remove (fixture->tree,
-	                              fixture->test_dir[TEST_DIRECTORY_AA]);
+	                              fixture->test_dir[TEST_DIRECTORY_AA],
+	                              "test-owner");
 
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_A);
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_AA);

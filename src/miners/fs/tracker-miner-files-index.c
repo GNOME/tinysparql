@@ -411,10 +411,10 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 }
 
 static void
-app_appears (GDBusConnection *connection,
-             const gchar     *name,
-             const gchar     *name_owner,
-             gpointer         user_data)
+index_file_for_process_app_appears (GDBusConnection *connection,
+                                    const gchar     *name,
+                                    const gchar     *name_owner,
+                                    gpointer         user_data)
 {
 	IndexFileForProcessData *data = user_data;
 	GFileInfo *file_info;
@@ -447,7 +447,7 @@ app_appears (GDBusConnection *connection,
 }
 
 static void
-app_vanishes (GDBusConnection *connection,
+index_file_for_process_app_vanishes (GDBusConnection *connection,
               const gchar     *name,
               gpointer         user_data)
 {
@@ -457,6 +457,10 @@ app_vanishes (GDBusConnection *connection,
 	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (data->miner), data->file);
 }
 
+/* The IndexFileForProcess D-Bus method does the same as IndexFile, except that
+ * the indexing will stop again if the calling process disconnects from the
+ * bus. This allows for 'opt in' indexing of removable devices.
+ */
 static void
 handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
                                            GDBusMethodInvocation  *invocation,
@@ -474,7 +478,6 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
 
 	g_variant_get (parameters, "(&s)", &file_uri);
-
 	tracker_gdbus_async_return_if_fail (file_uri != NULL, invocation);
 
 	request = tracker_g_dbus_request_begin (invocation, "%s(uri:'%s')", __FUNCTION__, file_uri);
@@ -491,7 +494,6 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 		g_dbus_method_invocation_return_gerror (invocation, internal_error);
 
 		g_error_free (internal_error);
-
 		g_object_unref (file);
 
 		return;
@@ -502,12 +504,17 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 	data = index_file_for_process_data_new (TRACKER_MINER_FS (priv->files_miner), file);
 	g_object_unref (file);
 
+	/* Instead of queuing the file for indexing right away, we go via
+	 * g_bus_watch_name(). The app will 'appear' right away if it's still
+	 * connected, so execution will continue in
+	 * index_file_for_process_app_appears(). This approach is race-free.
+	 */
 	sender = g_dbus_method_invocation_get_sender (invocation);
 	g_bus_watch_name (G_BUS_TYPE_SESSION,
 	                  sender,
 	                  G_BUS_NAME_WATCHER_FLAGS_NONE,
-	                  app_appears,
-	                  app_vanishes,
+	                  index_file_for_process_app_appears,
+	                  index_file_for_process_app_vanishes,
 	                  data,
 	                  index_file_for_process_data_destroy);
 

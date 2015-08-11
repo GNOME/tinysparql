@@ -103,9 +103,10 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 	g_message ("  Adding:'%s'", path);
 
 	tracker_indexing_tree_add (indexing_tree, file,
-				   TRACKER_DIRECTORY_FLAG_RECURSE |
-				   TRACKER_DIRECTORY_FLAG_MONITOR |
-				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	                           TRACKER_DIRECTORY_FLAG_RECURSE |
+	                           TRACKER_DIRECTORY_FLAG_MONITOR |
+	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME,
+	                           "tracker-miner-applications");
 	g_object_unref (file);
 	g_free (path);
 
@@ -114,9 +115,10 @@ miner_applications_basedir_add (TrackerMinerFS *fs,
 	file = g_file_new_for_path (path);
 	g_message ("  Adding:'%s'", path);
 	tracker_indexing_tree_add (indexing_tree, file,
-				   TRACKER_DIRECTORY_FLAG_RECURSE |
-				   TRACKER_DIRECTORY_FLAG_MONITOR |
-				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	                           TRACKER_DIRECTORY_FLAG_RECURSE |
+	                           TRACKER_DIRECTORY_FLAG_MONITOR |
+	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME,
+	                           "tracker-miner-applications");
 	g_object_unref (file);
 	g_free (path);
 }
@@ -156,9 +158,10 @@ miner_applications_add_directories (TrackerMinerFS *fs)
 
 	file = g_file_new_for_path (path);
 	tracker_indexing_tree_add (indexing_tree, file,
-				   TRACKER_DIRECTORY_FLAG_RECURSE |
-				   TRACKER_DIRECTORY_FLAG_MONITOR |
-				   TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	                           TRACKER_DIRECTORY_FLAG_RECURSE |
+	                           TRACKER_DIRECTORY_FLAG_MONITOR |
+	                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME,
+	                           "tracker-miner-applications");
 	g_object_unref (file);
 #endif /* HAVE_MEEGOTOUCH */
 }

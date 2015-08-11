@@ -114,7 +114,8 @@ miner_userguides_basedir_add_path (TrackerMinerFS *fs,
 		tracker_indexing_tree_add (indexing_tree, file,
 		                           TRACKER_DIRECTORY_FLAG_RECURSE |
 		                           TRACKER_DIRECTORY_FLAG_MONITOR |
-		                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+		                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME,
+		                           "tracker-miner-user-guides");
 		g_object_unref (file);
 
 		return TRUE;

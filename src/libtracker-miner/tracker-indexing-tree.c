@@ -42,6 +42,7 @@ struct _NodeData
 	GFile *file;
 	guint flags;
 	guint shallow : 1;
+	GList *owners;
 };
 
 struct _PatternData
@@ -84,8 +85,9 @@ enum {
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static NodeData *
-node_data_new (GFile *file,
-               guint  flags)
+node_data_new (GFile      *file,
+               guint       flags,
+               const char *initial_owner)
 {
 	NodeData *data;
 
@@ -93,6 +95,7 @@ node_data_new (GFile *file,
 	data->file = g_object_ref (file);
 	data->flags = flags;
 	data->shallow = FALSE;
+	data->owners = g_list_prepend(NULL, g_strdup(initial_owner));
 
 	return data;
 }
@@ -206,7 +209,7 @@ tracker_indexing_tree_constructed (GObject *object)
 		priv->root = g_file_new_for_uri ("file:///");
 	}
 
-	data = node_data_new (priv->root, 0);
+	data = node_data_new (priv->root, 0, "TrackerIndexingTree");
 	data->shallow = TRUE;
 
 	priv->config_tree = g_node_new (data);
@@ -474,14 +477,20 @@ check_reparent_node (GNode    *node,
  * @tree: a #TrackerIndexingTree
  * @directory: #GFile pointing to a directory
  * @flags: Configuration flags for the directory
+ * @owner: Unique string identifying the 'owner' of this indexing root
  *
  * Adds a directory to the indexing tree with the
  * given configuration flags.
+ *
+ * If the directory is already in the indexing tree, @owner is added to the
+ * list of owners, which ensures that the directory will not be removed until
+ * tracker_indexing_tree_remove() is called with the same @owner.
  **/
 void
 tracker_indexing_tree_add (TrackerIndexingTree   *tree,
                            GFile                 *directory,
-                           TrackerDirectoryFlags  flags)
+                           TrackerDirectoryFlags  flags,
+                           const char            *owner)
 {
 	TrackerIndexingTreePrivate *priv;
 	GNode *parent, *node;
@@ -499,6 +508,9 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 		data = node->data;
 		data->shallow = FALSE;
 
+		/* Add owner. */
+		data->owners = g_list_prepend(data->owners, g_strdup(owner));
+
 		/* Overwrite flags if they are different */
 		if (data->flags != flags) {
 			gchar *uri;
@@ -511,6 +523,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 			g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0,
 			               data->file);
 		}
+
 		return;
 	}
 
@@ -521,7 +534,7 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 	/* Create node, move children of parent that
 	 * could be children of this new node now.
 	 */
-	data = node_data_new (directory, flags);
+	data = node_data_new (directory, flags, owner);
 	node = g_node_new (data);
 
 	g_node_children_foreach (parent, G_TRAVERSE_ALL,
@@ -542,18 +555,24 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
  * tracker_indexing_tree_remove:
  * @tree: a #TrackerIndexingTree
  * @directory: #GFile pointing to a directory
+ * @owner: Unique string identifying the 'owner' of this indexing root
  *
- * Removes @directory from the indexing tree, note that
- * only directories previously added with tracker_indexing_tree_add()
- * can be effectively removed.
+ * Removes @owner from the list of owners of the @directory indexing root.
+ * If there are no longer any owners, @directory is removed from the indexing
+ * tree.
+ *
+ * Note that only directories previously added with
+ * tracker_indexing_tree_add() can be removed in this way.
  **/
 void
 tracker_indexing_tree_remove (TrackerIndexingTree *tree,
-                              GFile               *directory)
+                              GFile               *directory,
+                              const char          *owner)
 {
 	TrackerIndexingTreePrivate *priv;
 	GNode *node, *parent;
 	NodeData *data;
+	GList *owner_list_item;
 
 	g_return_if_fail (TRACKER_IS_INDEXING_TREE (tree));
 	g_return_if_fail (G_IS_FILE (directory));
@@ -567,25 +586,38 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 
 	data = node->data;
 
-	if (!node->parent) {
-		/* Node is the config tree
-		 * root, mark as shallow again
-		 */
-		data->shallow = TRUE;
+	owner_list_item = g_list_find_custom (data->owners, owner,
+	                                      (GCompareFunc)g_strcmp0);
+
+	if (!owner_list_item) {
+		g_warning ("Unknown owner %s", owner);
 		return;
 	}
 
-	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, data->file);
+	data->owners = g_list_remove_link(data->owners, owner_list_item);
 
-	parent = node->parent;
-	g_node_unlink (node);
+	if (g_list_length(data->owners) == 0) {
+		/* No more owners: actually do the removal. */
+		if (!node->parent) {
+			/* Node is the config tree
+			* root, mark as shallow again
+			*/
+			data->shallow = TRUE;
+			return;
+		}
 
-	/* Move children to parent */
-	g_node_children_foreach (node, G_TRAVERSE_ALL,
-	                         check_reparent_node, parent);
+		g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, data->file);
 
-	node_data_free (node->data);
-	g_node_destroy (node);
+		parent = node->parent;
+		g_node_unlink (node);
+
+		/* Move children to parent */
+		g_node_children_foreach (node, G_TRAVERSE_ALL,
+		                         check_reparent_node, parent);
+
+		node_data_free (node->data);
+		g_node_destroy (node);
+	}
 }
 
 /**

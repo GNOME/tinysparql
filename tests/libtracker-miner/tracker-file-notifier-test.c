@@ -238,7 +238,7 @@ test_common_context_index_dir (TestCommonContext     *fixture,
 	file = g_file_new_for_path (path);
 	g_free (path);
 
-	tracker_indexing_tree_add (fixture->indexing_tree, file, flags);
+	tracker_indexing_tree_add (fixture->indexing_tree, file, flags, "test");
 	g_object_unref (file);
 }
 
@@ -253,7 +253,7 @@ test_common_context_remove_dir (TestCommonContext     *fixture,
 	file = g_file_new_for_path (path);
 	g_free (path);
 
-	tracker_indexing_tree_remove (fixture->indexing_tree, file);
+	tracker_indexing_tree_remove (fixture->indexing_tree, file, "test");
 	g_object_unref (file);
 }
 

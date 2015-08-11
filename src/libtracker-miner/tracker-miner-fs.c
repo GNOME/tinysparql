@@ -3239,7 +3239,8 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           file,
-	                           flags);
+	                           flags,
+	                           "FIXME: owner");
 }
 
 static void
@@ -3465,7 +3466,7 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	}
 
 	g_debug ("Removing directory");
-	tracker_indexing_tree_remove (priv->indexing_tree, file);
+	tracker_indexing_tree_remove (priv->indexing_tree, file, "FIXME: owner");
 
 	return TRUE;
 }
@@ -3791,7 +3792,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 			flags |= TRACKER_DIRECTORY_FLAG_PRIORITY;
 
 		tracker_indexing_tree_add (fs->priv->indexing_tree,
-		                           file, flags);
+		                           file, flags, "FIXME: owner");
 	}
 
 	g_free (uri);
@@ -4178,7 +4179,8 @@ tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           directory,
-	                           flags);
+	                           flags,
+	                           "FIXME: owner");
 }
 
 /**
@@ -4299,7 +4301,8 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           file,
-	                           flags);
+	                           flags,
+	                           "FIXME: owner");
 }
 
 /**

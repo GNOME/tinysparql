@@ -420,7 +420,7 @@ miner_files_initable_init (GInitable     *initable,
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
-		tracker_indexing_tree_add (indexing_tree, file, flags);
+		tracker_indexing_tree_add (indexing_tree, file, flags, "tracker-miner-fs");
 		g_object_unref (file);
 	}
 
@@ -475,7 +475,7 @@ miner_files_initable_init (GInitable     *initable,
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
-		tracker_indexing_tree_add (indexing_tree, file, flags);
+		tracker_indexing_tree_add (indexing_tree, file, flags, "tracker-miner-fs");
 		g_object_unref (file);
 	}
 
@@ -1048,8 +1048,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 					file = g_file_new_for_path (mount_point);
 					if (tracker_miner_files_is_file_eligible (miner_files, file)) {
 						tracker_indexing_tree_add (indexing_tree,
-									   file,
-									   flags);
+						                           file,
+						                           flags,
+						                           "tracker-miner-fs");
 					}
 					g_object_unref (file);
 				}
@@ -1158,7 +1159,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
-	tracker_indexing_tree_remove (indexing_tree, mount_point_file);
+	tracker_indexing_tree_remove (indexing_tree, mount_point_file, "tracker-miner-fs");
 
 	/* Set mount point status in tracker-store */
 	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
@@ -1223,8 +1224,9 @@ mount_point_added_cb (TrackerStorage *storage,
 				g_message ("  Re-check of configured path '%s' needed (recursively)",
 				           (gchar *) l->data);
 				tracker_indexing_tree_add (indexing_tree,
-							   config_file,
-							   flags);
+				                           config_file,
+				                           flags,
+				                           "tracker-miner-fs");
 			} else if (g_file_has_prefix (mount_point_file, config_file)) {
 				/* If the mount path is contained inside the config path,
 				 *  then add the mount path to re-check */
@@ -1232,8 +1234,9 @@ mount_point_added_cb (TrackerStorage *storage,
 				           mount_point,
 				           (gchar *) l->data);
 				tracker_indexing_tree_add (indexing_tree,
-							   config_file,
-							   flags);
+				                           config_file,
+				                           flags,
+				                           "tracker-miner-fs");
 			}
 			g_object_unref (config_file);
 		}
@@ -1257,8 +1260,9 @@ mount_point_added_cb (TrackerStorage *storage,
 				g_message ("  Re-check of configured path '%s' needed (non-recursively)",
 				           (gchar *) l->data);
 				tracker_indexing_tree_add (indexing_tree,
-							   config_file,
-							   flags);
+				                           config_file,
+				                           flags,
+				                           "tracker-miner-fs");
 			}
 			g_object_unref (config_file);
 		}
@@ -1433,7 +1437,7 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	g_message ("Pre-unmount requested for '%s'", uri);
 
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (mf));
-	tracker_indexing_tree_remove (indexing_tree, mount_root);
+	tracker_indexing_tree_remove (indexing_tree, mount_root, "tracker-miner-fs");
 	g_object_unref (mount_root);
 
 	g_free (uri);
@@ -1622,13 +1626,13 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 			if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
 				flags &= ~(TRACKER_DIRECTORY_FLAG_PRESERVE);
 				tracker_indexing_tree_add (indexing_tree,
-							   file, flags);
+				                           file, flags, "tracker-miner-fs");
 			}
 
 			/* Fully remove item (monitors and from store),
 			 * now that there's no preserve flag.
 			 */
-			tracker_indexing_tree_remove (indexing_tree, file);
+			tracker_indexing_tree_remove (indexing_tree, file, "tracker-miner-fs");
 			g_object_unref (file);
 		}
 	}
@@ -1660,7 +1664,7 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 			g_message ("  Adding directory:'%s'", path);
 
 			file = g_file_new_for_path (path);
-			tracker_indexing_tree_add (indexing_tree, file, flags);
+			tracker_indexing_tree_add (indexing_tree, file, flags, "tracker-miner-fs");
 			g_object_unref (file);
 		}
 	}
@@ -1852,7 +1856,8 @@ index_volumes_changed_idle (gpointer user_data)
 
 			mount_point_file = g_file_new_for_path (sl->data);
 			tracker_indexing_tree_remove (indexing_tree,
-						      mount_point_file);
+			                              mount_point_file,
+			                              "tracker-miner-fs");
 			g_object_unref (mount_point_file);
 		}
 
@@ -2799,8 +2804,9 @@ miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
 
 	g_message ("  Adding removable/optical: '%s'", mount_path);
 	tracker_indexing_tree_add (indexing_tree,
-				   mount_point_file,
-				   flags);
+	                           mount_point_file,
+	                           flags,
+	                           "tracker-miner-fs");
 	g_object_unref (mount_point_file);
 }
 
