@@ -239,13 +239,13 @@ tracker_miner_files_peer_listener_class_init (TrackerMinerFilesPeerListenerClass
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST, 0,
 		              NULL, NULL, NULL,
-		              G_TYPE_NONE, 1, G_TYPE_FILE);
+		              G_TYPE_NONE, 2, G_TYPE_FILE, G_TYPE_STRING);
 	signals[UNWATCH_FILE] =
 		g_signal_new ("unwatch-file",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST, 0,
 		              NULL, NULL, NULL,
-		              G_TYPE_NONE, 1, G_TYPE_FILE);
+		              G_TYPE_NONE, 2, G_TYPE_FILE, G_TYPE_STRING);
 }
 
 static void
@@ -271,7 +271,8 @@ tracker_miner_files_peer_listener_new (GDBusConnection *connection)
 
 static void
 unwatch_file (TrackerMinerFilesPeerListener *listener,
-              GFile                         *file)
+              GFile                         *file,
+              const char                    *dbus_name)
 {
 	TrackerMinerFilesPeerListenerPrivate *priv;
 
@@ -279,7 +280,7 @@ unwatch_file (TrackerMinerFilesPeerListener *listener,
 
 	g_object_ref (file);
 	g_hash_table_remove (priv->file_peers, file);
-	g_signal_emit (listener, signals[UNWATCH_FILE], 0, file);
+	g_signal_emit (listener, signals[UNWATCH_FILE], 0, file, dbus_name);
 	g_object_unref (file);
 }
 
@@ -313,7 +314,7 @@ tracker_miner_files_peer_listener_add_watch (TrackerMinerFilesPeerListener *list
 		file_data = file_peers_data_new (file);
 		g_hash_table_insert (priv->file_peers,
 		                     file_data->file, file_data);
-		g_signal_emit (listener, signals[WATCH_FILE], 0, file_data->file);
+		g_signal_emit (listener, signals[WATCH_FILE], 0, file_data->file, dbus_name);
 
 		uri = g_file_get_uri (file);
 		g_debug ("Client '%s' requests watch on '%s'", dbus_name, uri);
@@ -352,7 +353,7 @@ tracker_miner_files_peer_listener_remove_watch (TrackerMinerFilesPeerListener *l
 		g_hash_table_remove (priv->peer_files, peer_data->dbus_name);
 
 	if (file_data->peers->len == 0)
-		unwatch_file (listener, file_data->file);
+		unwatch_file (listener, file_data->file, peer_data->dbus_name);
 }
 
 void
@@ -386,50 +387,10 @@ tracker_miner_files_peer_listener_remove_dbus_name (TrackerMinerFilesPeerListene
 		file_peers_data_remove_dbus_name (file_data, peer_data->dbus_name);
 
 		if (file_data->peers->len == 0)
-			unwatch_file (listener, file_data->file);
+			unwatch_file (listener, file_data->file, peer_data->dbus_name);
 	}
 
 	g_hash_table_remove (priv->peer_files, dbus_name);
-}
-
-void
-tracker_miner_files_peer_listener_remove_file (TrackerMinerFilesPeerListener *listener,
-                                               GFile                         *file)
-{
-	TrackerMinerFilesPeerListenerPrivate *priv;
-	PeerFilesData *peer_data;
-	FilePeersData *file_data;
-	const gchar *dbus_name;
-	gchar *uri;
-	gint i;
-
-	g_return_if_fail (TRACKER_IS_MINER_FILES_PEER_LISTENER (listener));
-	g_return_if_fail (G_IS_FILE (file));
-
-	priv = tracker_miner_files_peer_listener_get_instance_private (listener);
-	file_data = g_hash_table_lookup (priv->file_peers, file);
-
-	if (!file_data || file_data->peers->len == 0)
-		return;
-
-	uri = g_file_get_uri (file);
-	g_debug ("Removing client listeners for file '%s'", uri);
-	g_free (uri);
-
-	for (i = 0; i < file_data->peers->len; i++) {
-		dbus_name = g_ptr_array_index (file_data->peers, i);
-		peer_data = g_hash_table_lookup (priv->peer_files, dbus_name);
-
-		if (!peer_data)
-			continue;
-
-		peer_files_data_remove_file (peer_data, file_data->file);
-
-		if (peer_data->files->len == 0)
-			g_hash_table_remove (priv->peer_files, dbus_name);
-	}
-
-	unwatch_file (listener, file);
 }
 
 gboolean

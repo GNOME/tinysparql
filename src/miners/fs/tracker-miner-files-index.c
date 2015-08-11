@@ -370,27 +370,22 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 	if (is_dir) {
 		TrackerIndexingTree *indexing_tree;
 		TrackerDirectoryFlags flags;
-		gboolean is_watched, needs_watch = FALSE;
-		GFile *root;
+		const char *sender_name;
 
 		indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (priv->files_miner));
-		root = tracker_indexing_tree_get_root (indexing_tree, file, &flags);
-		is_watched = tracker_miner_files_peer_listener_is_file_watched (priv->peer_listener, file);
 
-		if (!root || !(flags & TRACKER_DIRECTORY_FLAG_RECURSE)) {
-			tracker_indexing_tree_add (indexing_tree, file,
-			                           TRACKER_DIRECTORY_FLAG_RECURSE |
-			                           TRACKER_DIRECTORY_FLAG_PRIORITY |
-			                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
-			                           TRACKER_DIRECTORY_FLAG_MONITOR);
-			needs_watch = TRUE;
-		}
+		sender_name = g_dbus_method_invocation_get_sender (invocation);
 
-		if (is_watched || needs_watch) {
-			tracker_miner_files_peer_listener_add_watch (priv->peer_listener,
-			                                             g_dbus_method_invocation_get_sender (invocation),
-			                                             file);
-		}
+		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
+		        TRACKER_DIRECTORY_FLAG_PRIORITY |
+		        TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+		        TRACKER_DIRECTORY_FLAG_MONITOR;
+
+		tracker_indexing_tree_add (indexing_tree, file, flags, sender_name);
+
+		tracker_miner_files_peer_listener_add_watch (priv->peer_listener,
+		                                             g_dbus_method_invocation_get_sender (invocation),
+		                                             file);
 	} else {
 		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
 	}
@@ -428,25 +423,13 @@ handle_method_call (GDBusConnection       *connection,
 static void
 peer_listener_unwatch_file (TrackerMinerFilesPeerListener *listener,
                             GFile                         *file,
+                            const gchar                   *dbus_name,
                             gpointer                       user_data)
 {
 	TrackerMinerFilesIndexPrivate *priv;
-	TrackerIndexingTree *indexing_tree;
 
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (user_data);
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (priv->files_miner));
-	tracker_indexing_tree_remove (indexing_tree, file);
-}
-
-static void
-indexing_tree_directory_remove (TrackerIndexingTree *indexing_tree,
-                                GFile               *file,
-                                gpointer             user_data)
-{
-	TrackerMinerFilesIndexPrivate *priv;
-
-	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (user_data);
-	tracker_miner_files_peer_listener_remove_file (priv->peer_listener, file);
+	tracker_miner_fs_unwatch (TRACKER_MINER_FS(priv->files_miner), file, dbus_name);
 }
 
 static GVariant *
@@ -490,7 +473,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	GVariant *reply;
 	guint32 rval;
 	GError *error = NULL;
-	TrackerIndexingTree *indexing_tree;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
 		handle_get_property,
@@ -583,10 +565,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	priv->peer_listener = tracker_miner_files_peer_listener_new (priv->d_connection);
 	g_signal_connect (priv->peer_listener, "unwatch-file",
 	                  G_CALLBACK (peer_listener_unwatch_file), miner);
-
-	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner_files));
-	g_signal_connect (indexing_tree, "directory-removed",
-	                  G_CALLBACK (indexing_tree_directory_remove), miner);
 
 	return (TrackerMinerFilesIndex *) miner;
 }

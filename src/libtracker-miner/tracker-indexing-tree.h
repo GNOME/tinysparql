@@ -83,9 +83,11 @@ TrackerIndexingTree * tracker_indexing_tree_new_with_root (GFile            *roo
 
 void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tree,
                                                       GFile                 *directory,
-                                                      TrackerDirectoryFlags  flags);
+                                                      TrackerDirectoryFlags  flags,
+                                                      const char            *owner);
 void      tracker_indexing_tree_remove               (TrackerIndexingTree   *tree,
-                                                      GFile                 *directory);
+                                                      GFile                 *directory,
+                                                      const char            *owner);
 
 void      tracker_indexing_tree_add_filter           (TrackerIndexingTree  *tree,
                                                       TrackerFilterType     filter,
