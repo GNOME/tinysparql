@@ -39,6 +39,49 @@ def log (message):
     if options.is_verbose ():
         print (message)
 
+
+def wait_for_bus_name(bus, bus_admin, wanted_name):
+    """
+    Wait for a D-Bus name independently of a process.
+
+    This is used for 'sub' interfaces of a process, which may not appear
+    straight away after the process starts up. For example, the
+    org.freedesktop.Tracker1.Miner.Files.Index object provided by
+    tracker-miner-fs appears a random amount of time *after*
+    the main org.freedesktop.Tracker1.Miner.Filesobject.
+    """
+    available = False
+    loop = GObject.MainLoop ()
+
+    def name_owner_changed_cb(name, old_owner, new_owner):
+        if name == wanted_name:
+            if len(old_owner) == 0 and len(new_owner) > 0:
+                log ("%s appeared on bus (%s)." % (wanted_name, new_owner))
+                available = True
+            elif len(old_owner) > 0 and len(new_owner) == 0:
+                log ("%s disappeared from bus (was %s)." % (
+                    wanted_name, old_owner))
+                available = False
+            else:
+                log ("%s name owner changed (%s => %s)." % (
+                    wanted_name, old_owner, new_owner))
+        loop.quit ()
+
+    name_owner_match = bus.add_signal_receiver (name_owner_changed_cb,
+                                                signal_name="NameOwnerChanged",
+                                                path="/org/freedesktop/DBus",
+                                                dbus_interface="org.freedesktop.DBus")
+
+    if bus_admin.NameHasOwner(wanted_name):
+        log ("%s available on bus." % wanted_name)
+        return
+
+    # Run the loop until the bus name appears. (FIXME: we should have a
+    # timeout in case it doesn't ever appear).
+    loop.run()
+    return
+
+
 class Helper:
     """
     Abstract helper for Tracker processes. Launches the process manually
@@ -136,7 +179,6 @@ class Helper:
         self.loop.quit ()
         self.timeout_id = None
         return False
-
 
     def start (self):
         """
@@ -603,6 +645,15 @@ class MinerFsHelper (Helper):
                                           cfg.MINERFS_OBJ_PATH)
         self.miner_fs = dbus.Interface (bus_object,
                                         dbus_interface = cfg.MINER_IFACE)
+
+
+        # 'Index' interface is a separate interface, provided by the same
+        # process.
+        wait_for_bus_name(self.bus, self.bus_admin, cfg.MINERFS_INDEX_BUSNAME)
+        index_bus_object = self.bus.get_object (cfg.MINERFS_INDEX_BUSNAME,
+                                                cfg.MINERFS_INDEX_OBJ_PATH)
+        self.index_iface = dbus.Interface (index_bus_object,
+                                           dbus_interface = cfg.MINER_INDEX_IFACE)
 
     def stop (self):
         Helper.stop (self)

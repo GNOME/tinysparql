@@ -25,7 +25,6 @@ from gi.repository import GLib
 
 import shutil
 import os
-import warnings
 from itertools import chain
 
 MINER_TMP_DIR = cfg.TEST_MONITORED_TMP_DIR
@@ -120,3 +119,14 @@ class CommonTrackerMinerTest (ut.TestCase):
     def assertResourceMissing (self, urn):
         if self.tracker.ask ("ASK { <%s> a rdfs:Resource }" % urn) == True:
             self.fail ("Resource <%s> should not exist" % urn)
+
+    def assertFilePresent (self, file_url):
+        query = "ASK { ?r a nie:DataObject ; nie:url <%s> }" % file_url
+        if self.tracker.ask (query) == False:
+            self.fail ("File <%s> does not exist in the database" % file_url)
+
+    def assertFileMissing (self, file_url):
+        query = "ASK { ?r a nie:DataObject ; nie:url <%s> }" % file_url
+        if self.tracker.ask (query) == True:
+            self.fail ("File <%s> should not be present in the database" %
+                       file_url)
