@@ -3210,6 +3210,7 @@ file_equal_or_descendant (GFile *file,
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to inspect
  * @recurse: whether the directory should be inspected recursively
+ * @owner: a short string identifying who 'owns' this request
  *
  * Tells the filesystem miner to inspect a directory.
  *
@@ -3218,7 +3219,8 @@ file_equal_or_descendant (GFile *file,
 void
 tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
-                                gboolean        recurse)
+                                gboolean        recurse,
+                                const gchar    *owner)
 {
 	TrackerDirectoryFlags flags = TRACKER_DIRECTORY_FLAG_NONE;
 
@@ -3240,7 +3242,7 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           file,
 	                           flags,
-	                           "FIXME: owner");
+	                           owner);
 }
 
 static void
@@ -3270,13 +3272,16 @@ set_up_mount_point_cb (GObject      *source,
  * @mount: #GMount for the mount-point to inspect
  *
  * Tells the filesystem miner to inspect a mount. It ignores the values
- * of the index-removable-devices and index-optical-discs gsettings keys.
+ * of the index-removable-devices and index-optical-discs gsettings keys, so
+ * that when automatic indexing of removal devices is disabled, applications
+ * can still do 'on demand' indexing of such devices.
  *
  * Since: 0.16
  **/
 void
 tracker_miner_fs_mount_add (TrackerMinerFS *fs,
-                            GMount         *mount)
+                            GMount         *mount,
+                            const gchar    *owner)
 {
 	GFile *mount_point;
 	gchar *mount_uri;
@@ -3350,7 +3355,7 @@ tracker_miner_fs_mount_add (TrackerMinerFS *fs,
 
 	g_string_free (queries, TRUE);
 
-	tracker_miner_fs_directory_add (fs, mount_point, TRUE);
+	tracker_miner_fs_directory_add (fs, mount_point, TRUE, owner);
 
 	g_object_unref (mount_point);
 }
@@ -3744,6 +3749,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
  * @file: #GFile for the directory to check
  * @priority: the priority of the check task
  * @check_parents: whether to check parents and eligibility or not
+ * @owner: a short string identifying who 'owns' this request
  *
  * Tells the filesystem miner to check and index a directory at
  * a given priority, this file must be part of the usual crawling
@@ -3755,7 +3761,8 @@ void
 tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
                                                 GFile          *file,
                                                 gint            priority,
-                                                gboolean        check_parents)
+                                                gboolean        check_parents,
+                                                const gchar    *owner)
 {
 	gboolean should_process = TRUE;
 	gchar *uri;
@@ -3792,7 +3799,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 			flags |= TRACKER_DIRECTORY_FLAG_PRIORITY;
 
 		tracker_indexing_tree_add (fs->priv->indexing_tree,
-		                           file, flags, "FIXME: owner");
+		                           file, flags, owner);
 	}
 
 	g_free (uri);
@@ -3803,6 +3810,7 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to check
  * @check_parents: whether to check parents and eligibility or not
+ * @owner: a short string identifying who 'owns' this request
  *
  * Tells the filesystem miner to check and index a directory,
  * this file must be part of the usual crawling directories
@@ -3813,11 +3821,40 @@ tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
 void
 tracker_miner_fs_check_directory (TrackerMinerFS *fs,
                                   GFile          *file,
-                                  gboolean        check_parents)
+                                  gboolean        check_parents,
+                                  const gchar    *owner)
 {
 	tracker_miner_fs_check_directory_with_priority (fs, file,
 	                                                G_PRIORITY_HIGH,
-	                                                check_parents);
+	                                                check_parents,
+	                                                owner);
+}
+
+/**
+ * tracker_miner_fs_ignore:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the file or directory to ignore
+ * @owner: the owner string that was given when the directory was added for indexing
+ *
+ * Tells the filesystem miner that @owner is no longer interested in @file.
+ * This can be used for files or directories added with
+ * tracker_miner_fs_check_file(), tracker_miner_fs_check_directory() or
+ * tracker_miner_fs_add_mount().
+ *
+ * The metadata for @file and its contents is *not* removed from the Tracker
+ * database. You can use tracker_miner_fs_remove() for this if you are
+ * *certain* nothing else is interested in the data.
+ *
+ * Since: 1.6
+ **/
+void
+tracker_miner_fs_ignore (TrackerMinerFS *fs,
+                         GFile          *file,
+                         const gchar    *owner)
+{
+	/* OK! You can remove 'file' from the TrackerIndexingTree ...
+	 * But you also need to remove it from any QUEUES, right? */
+	tracker_indexing_tree_remove (fs->priv->indexing_tree, file, owner);
 }
 
 /**
@@ -4303,7 +4340,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	tracker_indexing_tree_add (fs->priv->indexing_tree,
 	                           file,
 	                           flags,
-	                           "FIXME: owner");
+	                           "tracker-internal-owner");
 }
 #endif
 

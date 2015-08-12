@@ -183,7 +183,7 @@ add_directory_path (TrackerMinerFS *fs,
 	GFile *file;
 
 	file = g_file_new_for_path (path);
-	tracker_miner_fs_directory_add (fs, file, recurse);
+	tracker_miner_fs_directory_add (fs, file, recurse, "tracker-miner-example");
 	g_object_unref (file);
 }
 

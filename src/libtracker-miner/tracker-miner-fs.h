@@ -151,13 +151,15 @@ void                  tracker_miner_fs_add_directory_without_parent
 
 void                  tracker_miner_fs_directory_add         (TrackerMinerFS  *fs,
                                                               GFile           *file,
-                                                              gboolean         recurse);
+                                                              gboolean         recurse,
+                                                              const gchar     *owner);
 gboolean              tracker_miner_fs_directory_remove      (TrackerMinerFS  *fs,
                                                               GFile           *file);
 gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS  *fs,
                                                               GFile           *file);
 void                  tracker_miner_fs_mount_add             (TrackerMinerFS  *fs,
-                                                              GMount          *mount);
+                                                              GMount          *mount,
+                                                              const gchar     *owner);
 void                  tracker_miner_fs_force_mtime_checking  (TrackerMinerFS  *fs,
                                                               GFile           *directory);
 
@@ -172,12 +174,18 @@ void                  tracker_miner_fs_check_file_with_priority
                                                               gboolean         check_parents);
 void                  tracker_miner_fs_check_directory       (TrackerMinerFS  *fs,
                                                               GFile           *file,
-                                                              gboolean         check_parents);
+                                                              gboolean         check_parents,
+                                                              const gchar     *owner);
 void                  tracker_miner_fs_check_directory_with_priority
                                                              (TrackerMinerFS  *fs,
                                                               GFile           *file,
                                                               gint             priority,
-                                                              gboolean         check_parents);
+                                                              gboolean         check_parents,
+                                                              const gchar     *owner);
+
+void                  tracker_miner_fs_ignore                (TrackerMinerFS  *fs,
+                                                              GFile           *file,
+                                                              const gchar     *owner);
 
 void                  tracker_miner_fs_force_recheck         (TrackerMinerFS  *fs);
 void                  tracker_miner_fs_writeback_file        (TrackerMinerFS  *fs,
