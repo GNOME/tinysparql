@@ -45,13 +45,13 @@ CONF_OPTIONS = {
         'index-single-directories': GLib.Variant.new_strv([]),
         'index-optical-discs': GLib.Variant.new_boolean(False),
         'index-removable-devices': GLib.Variant.new_boolean(False),
-        'throttle': GLib.Variant.new_int32(5),
+        'throttle': GLib.Variant.new_int32(0),
+        'verbosity': GLib.Variant.new_string('detailed'),
     }
 }
 
 
 class CommonTrackerMinerTest (ut.TestCase):
-
     def prepare_directories (self):
         #
         #     ~/test-monitored/
@@ -130,3 +130,8 @@ class CommonTrackerMinerTest (ut.TestCase):
         if self.tracker.ask (query) == True:
             self.fail ("File <%s> should not be present in the database" %
                        file_url)
+
+    def assertFileContents(self, file_urn, expected_contents):
+        query = 'SELECT ?content { <%s> nie:plainTextContent ?content }' % file_urn
+        result = self.tracker.query(query)
+        self.assertEqual(result[0][0], expected_contents)

@@ -219,6 +219,10 @@ class Helper:
         self.abort_if_process_exits_with_status_0 = False
 
     def stop (self):
+        if options.is_manual_start():
+            log ("Manually stop %s" % self.PROCESS_NAME)
+            return
+
         start = time.time()
         if self.process.poll() == None:
             # It should step out of this loop when the miner disappear from the bus
@@ -235,10 +239,15 @@ class Helper:
                     self.process.wait()
 
         log ("[%s] stopped." % self.PROCESS_NAME)
+
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match (self.name_owner_match)
 
     def kill (self):
+        if options.is_manual_start():
+            log ("Manually kill %s" % self.PROCESS_NAME)
+            return
+
         self.process.kill ()
 
         # Name owner changed callback should take us out from this loop
@@ -653,7 +662,7 @@ class MinerFsHelper (Helper):
         index_bus_object = self.bus.get_object (cfg.MINERFS_INDEX_BUSNAME,
                                                 cfg.MINERFS_INDEX_OBJ_PATH)
         self.index_iface = dbus.Interface (index_bus_object,
-                                           dbus_interface = cfg.MINER_INDEX_IFACE)
+                                           dbus_interface = cfg.MINER_FILES_INDEX_IFACE)
 
     def stop (self):
         Helper.stop (self)

@@ -1361,6 +1361,11 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		tracker_crawler_stop (priv->crawler);
 		g_cancellable_cancel (priv->cancellable);
 
+		/* At some point between the 'if' and here, priv->current_index_root is
+		 * set to NULL! */
+		/* crawl_directories_start() or finish_current_directory() are the only
+		 * place it could really be happening ...
+		 */
 		root_data_free (priv->current_index_root);
 		priv->current_index_root = NULL;
 

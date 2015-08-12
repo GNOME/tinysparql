@@ -58,6 +58,7 @@ typedef struct {
 typedef struct {
 	TrackerMinerFS *miner;
 	GFile *file;
+	guint watch_id;
 } IndexFileForProcessData;
 
 typedef struct {
@@ -399,7 +400,7 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 #endif /* REQUIRE_LOCATION_IN_CONFIG */
 
 	if (is_dir) {
-		tracker_miner_fs_check_directory (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
+		tracker_miner_fs_check_directory (TRACKER_MINER_FS (priv->files_miner), file, do_checks, "tracker-IndexFile");
 	} else {
 		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
 	}
@@ -408,6 +409,35 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 	g_dbus_method_invocation_return_value (invocation, NULL);
 
 	g_object_unref (file);
+}
+
+/* Since D-Bus provides an external interface for the miner process, we
+ * should be wary of rogue clients. The 'ownership' tracking in
+ * TrackerIndexingTree doesn't do any kind of sanity checking because it is
+ * internal API only. This function ensures that the application name on the
+ * bus is safe to use as an 'owner name' internally.
+ *
+ * In practice, the D-Bus server itself chooses the name and not the
+ * application, so this is unlikely to be a source of exploits anyway.
+ */
+static gboolean
+index_file_for_process_owner_name_is_safe (const char *owner_name) {
+	const int MAX_OWNER_NAME_LENGTH = 128;
+
+	/* This prevents attacks that cause Tracker to allocate lots of RAM. */
+	if (strlen (owner_name) > MAX_OWNER_NAME_LENGTH) {
+		g_warning ("In call to IndexFileForProcess: Owner name is longer than "
+		           "%i characters. Ignoring request.", MAX_OWNER_NAME_LENGTH);
+		return FALSE;
+	}
+
+	if (g_ascii_strncasecmp (owner_name, "tracker", strlen("tracker")) == 0) {
+		g_warning ("In call to IndexFileForProcess: Owner name '%s' uses "
+		           "reserved 'tracker' prefix. Ignoring request.", owner_name);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static void
@@ -421,6 +451,12 @@ index_file_for_process_app_appears (GDBusConnection *connection,
 	gboolean is_dir;
 	gboolean is_mount;
 
+	if (! index_file_for_process_owner_name_is_safe (name)) {
+		return;
+	}
+
+	g_debug ("Client app appeared: name %s, name owner %s", name, name_owner);
+
 	file_info = g_file_query_info (data->file,
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
@@ -432,29 +468,48 @@ index_file_for_process_app_appears (GDBusConnection *connection,
 
 	if (is_mount) {
 		tracker_miner_fs_mount_add (TRACKER_MINER_FS (data->miner),
-		                            g_file_find_enclosing_mount (data->file, NULL, NULL));
+		                            g_file_find_enclosing_mount (data->file, NULL, NULL),
+		                            name);
 	} else if (is_dir) {
 		tracker_miner_fs_check_directory (TRACKER_MINER_FS (data->miner),
 		                                  data->file,
-		                                  FALSE);
+		                                  FALSE,
+		                                  name);
 	} else {
+		/* FIXME: there's no ownership tracking when we do this... but the
+		 * parent directory might still be enqueued for monitoring, so it's
+		 * a bit weird. Maybe this should be IndexDirectoryForProcess rather
+		 * than IndexFileForProcess ... ?
+		 */
 		tracker_miner_fs_check_file (TRACKER_MINER_FS (data->miner),
 		                             data->file,
 		                             FALSE);
 	}
-
-	index_file_for_process_data_destroy (data);
 }
 
 static void
 index_file_for_process_app_vanishes (GDBusConnection *connection,
-              const gchar     *name,
-              gpointer         user_data)
+                                     const gchar     *name,
+                                     gpointer         user_data)
 {
 	IndexFileForProcessData *data = user_data;
 
-	/* FIXME: What if the directory was already indexed? */
-	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (data->miner), data->file);
+	g_debug ("Client app vanished: name %s", name);
+
+	/* When the app vanishes and was the only owner of a directory, the
+	 * directory is NOT removed from the store, but any indexing that was in
+	 * process is cancelled, and all monitors are removed.
+	 *
+	 * If the directory being watched was a removable device, tracker:available
+	 * will be set to false when the device disconnects.
+	 */
+	tracker_miner_fs_ignore (TRACKER_MINER_FS (data->miner), data->file, name);
+
+	/* Manually disable the watch and free the state struct. The app will need
+	 * to call IndexFileForProcess again if it crashed or something.
+	 */
+	g_bus_unwatch_name (data->watch_id);
+	index_file_for_process_data_destroy (data);
 }
 
 /* The IndexFileForProcess D-Bus method does the same as IndexFile, except that
@@ -477,11 +532,16 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
 
+	g_warning("CHUNT");
+
 	g_variant_get (parameters, "(&s)", &file_uri);
 	tracker_gdbus_async_return_if_fail (file_uri != NULL, invocation);
 
 	request = tracker_g_dbus_request_begin (invocation, "%s(uri:'%s')", __FUNCTION__, file_uri);
 
+	/* FIXME: this seems to return before adding the watch, without returning
+	 * an error ... need to debug, I guess.
+	 */
 	file = g_file_new_for_uri (file_uri);
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
@@ -510,13 +570,14 @@ handle_method_call_index_file_for_process (TrackerMinerFilesIndex *miner,
 	 * index_file_for_process_app_appears(). This approach is race-free.
 	 */
 	sender = g_dbus_method_invocation_get_sender (invocation);
-	g_bus_watch_name (G_BUS_TYPE_SESSION,
-	                  sender,
-	                  G_BUS_NAME_WATCHER_FLAGS_NONE,
-	                  index_file_for_process_app_appears,
-	                  index_file_for_process_app_vanishes,
-	                  data,
-	                  index_file_for_process_data_destroy);
+	g_message ("IndexFileForProcess: Watching process with name: '%s'", sender);
+	data->watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+	                                   sender,
+	                                   G_BUS_NAME_WATCHER_FLAGS_NONE,
+	                                   index_file_for_process_app_appears,
+	                                   index_file_for_process_app_vanishes,
+	                                   data,
+	                                   NULL);
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation, NULL);

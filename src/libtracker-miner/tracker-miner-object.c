@@ -1000,7 +1000,7 @@ miner_pause_internal (TrackerMiner  *miner,
 	}
 
 	if (calling_name) {
-		g_message ("Watching process with name:'%s'", calling_name);
+		g_message ("Pause: Watching process with name:'%s'", calling_name);
 		watch_name_id = g_bus_watch_name (TRACKER_IPC_BUS,
 		                                  calling_name,
 		                                  G_BUS_NAME_WATCHER_FLAGS_NONE,

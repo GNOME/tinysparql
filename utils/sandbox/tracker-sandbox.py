@@ -320,7 +320,7 @@ def environment_set():
 		os.environ['TRACKER_LANGUAGE_STOPWORDS_DIR'] = os.path.join(opts.prefix, 'share', 'tracker', 'stop-words')
 
 	# Preferences
-	os.environ['TRACKER_USE_CONFIG_FILES'] = 'yes'
+	########os.environ['TRACKER_USE_CONFIG_FILES'] = 'yes'
 
 	#if opts.debug:
 	#	os.environ['TRACKER_USE_LOG_FILES'] = 'yes'
@@ -329,8 +329,8 @@ def environment_set():
 		os.environ['G_MESSAGES_DEBUG'] = 'all'
 		os.environ['TRACKER_VERBOSITY'] = '%d' % default_debug_verbosity
 		os.environ['DBUS_VERBOSE'] = '1'
-	else:
-		os.environ['TRACKER_VERBOSITY'] = '0'
+	#else:
+		#os.environ['TRACKER_VERBOSITY'] = '0'
 
 	debug('Using prefix location "%s"' % opts.prefix)
 	debug('Using index location "%s"' % index_location_abs)
@@ -491,7 +491,7 @@ if __name__ == "__main__":
 
 	# Set up environment variables and foo needed to get started.
 	environment_set()
-	config_set()
+	#config_set()
 
 	try:
 		if opts.update:

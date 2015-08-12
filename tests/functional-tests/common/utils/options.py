@@ -35,4 +35,5 @@ def is_manual_start ():
     """
     False to start the processes automatically
     """
+    return True
     return options.startmanually
