@@ -4155,6 +4155,7 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 	return FALSE;
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
 /**
  * tracker_miner_fs_add_directory_without_parent:
  * @fs: a #TrackerMinerFS
@@ -4189,6 +4190,7 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	                           file,
 	                           flags);
 }
+#endif
 
 /**
  * tracker_miner_fs_get_indexing_tree:
