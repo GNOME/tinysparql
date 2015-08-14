@@ -554,6 +554,7 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 	TrackerIndexingTreePrivate *priv;
 	GNode *node, *parent;
 	NodeData *data;
+	GFile *file;
 
 	g_return_if_fail (TRACKER_IS_INDEXING_TREE (tree));
 	g_return_if_fail (G_IS_FILE (directory));
@@ -575,8 +576,7 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 		return;
 	}
 
-	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, data->file);
-
+	file = g_object_ref (data->file);
 	parent = node->parent;
 	g_node_unlink (node);
 
@@ -586,6 +586,9 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 
 	node_data_free (node->data);
 	g_node_destroy (node);
+
+	g_signal_emit (tree, signals[DIRECTORY_REMOVED], 0, file);
+	g_object_unref (file);
 }
 
 /**
