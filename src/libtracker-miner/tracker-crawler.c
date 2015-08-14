@@ -49,7 +49,6 @@ typedef struct {
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
 	GFile *dir_file;
-	GCancellable *cancellable;
 	GSList *files;
 } DataProviderData;
 
@@ -89,7 +88,7 @@ struct TrackerCrawlerPrivate {
 	/* Directories to crawl */
 	GQueue         *directories;
 
-	GList          *cancellables;
+	GCancellable   *cancellable;
 
 	/* Idle handler for processing found data */
 	guint           idle_id;
@@ -306,7 +305,8 @@ crawler_finalize (GObject *object)
 		g_source_remove (priv->idle_id);
 	}
 
-	g_list_free (priv->cancellables);
+	g_cancellable_cancel (priv->cancellable);
+	g_object_unref (priv->cancellable);
 
 	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_free (priv->directories);
@@ -743,10 +743,7 @@ data_provider_data_new (TrackerCrawler          *crawler,
 	/* Make sure there's always a ref of the GFile while we're
 	 * iterating it */
 	dpd->dir_file = g_object_ref (G_FILE (dir_info->node->data));
-	dpd->cancellable = g_cancellable_new ();
 
-	crawler->priv->cancellables = g_list_prepend (crawler->priv->cancellables,
-						      dpd->cancellable);
 	return dpd;
 }
 
@@ -820,13 +817,8 @@ data_provider_data_add (DataProviderData *dpd)
 static void
 data_provider_data_free (DataProviderData *dpd)
 {
-	dpd->crawler->priv->cancellables =
-		g_list_remove (dpd->crawler->priv->cancellables,
-			       dpd->cancellable);
-
 	g_object_unref (dpd->dir_file);
 	g_object_unref (dpd->crawler);
-	g_object_unref (dpd->cancellable);
 
 	if (dpd->files) {
 		g_slist_free_full (dpd->files, g_object_unref);
@@ -846,26 +838,23 @@ data_provider_end_cb (GObject      *object,
 {
 	DataProviderData *dpd;
 	GError *error = NULL;
-	gboolean cancelled;
-
-	dpd = user_data;
-
-	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
 
 	tracker_data_provider_end_finish (TRACKER_DATA_PROVIDER (object), result, &error);
 
+	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+		return;
+
+	dpd = user_data;
+
 	if (error) {
-		if (!cancelled) {
-			gchar *uri;
+		gchar *uri;
 
-			uri = g_file_get_uri (dpd->dir_file);
+		uri = g_file_get_uri (dpd->dir_file);
 
-			g_warning ("Could not end data provider for container / directory '%s', %s",
-			           uri, error ? error->message : "no error given");
+		g_warning ("Could not end data provider for container / directory '%s', %s",
+		           uri, error ? error->message : "no error given");
 
-			g_free (uri);
-		}
-
+		g_free (uri);
 		g_clear_error (&error);
 	}
 
@@ -894,15 +883,9 @@ data_provider_end (TrackerCrawler    *crawler,
 	info->dpd = NULL;
 
 	if (dpd->enumerator) {
-		/* Reset cancellation, we need to perform this even
-		 * if we were cancelled previously.
-		 */
-		g_cancellable_reset (dpd->cancellable);
-
 		tracker_data_provider_end_async (crawler->priv->data_provider,
 		                                 dpd->enumerator,
-		                                 G_PRIORITY_LOW,
-		                                 dpd->cancellable,
+		                                 G_PRIORITY_LOW, NULL,
 		                                 data_provider_end_cb,
 		                                 dpd);
 	} else {
@@ -918,48 +901,31 @@ enumerate_next_cb (GObject      *object,
 	DataProviderData *dpd;
 	GFileInfo *info;
 	GError *error = NULL;
-	gboolean cancelled;
 
-	dpd = user_data;
-	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
 	info = tracker_enumerator_next_finish (TRACKER_ENUMERATOR (object), result, &error);
 
-	/* If cancelled, process what we have so far only... */
-	if (cancelled) {
-		data_provider_data_add (dpd);
-		data_provider_data_process (dpd);
-
-		process_func_start (dpd->crawler);
-
+	/* We don't consider cancellation an error, so we only
+	 * log errors which are not cancellations.
+	 */
+	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 		return;
-	}
+
+	dpd = user_data;
 
 	if (!info) {
 		/* Could be due to:
 		 * a) error,
-		 * b) cancellation,
-		 * c) no more items
-		 */
-
-		/* We don't consider cancellation an error, so we only
-		 * log errors which are not cancellations.
+		 * b) no more items
 		 */
 		if (error) {
-			/* condition a) */
+			gchar *uri;
 
-			if (!cancelled) {
-				gchar *uri;
-
-				/* condition b) */
-				uri = g_file_get_uri (dpd->dir_file);
-				g_warning ("Could not enumerate next item in container / directory '%s', %s",
-				           uri, error ? error->message : "no error given");
-				g_free (uri);
-			}
-
+			uri = g_file_get_uri (dpd->dir_file);
+			g_warning ("Could not enumerate next item in container / directory '%s', %s",
+			           uri, error ? error->message : "no error given");
+			g_free (uri);
 			g_clear_error (&error);
 		} else {
-			/* condition c) */
 			/* Done enumerating, start processing what we got ... */
 			data_provider_data_add (dpd);
 			data_provider_data_process (dpd);
@@ -969,10 +935,9 @@ enumerate_next_cb (GObject      *object,
 	} else {
 		/* More work to do, we keep reference given to us */
 		dpd->files = g_slist_prepend (dpd->files, info);
-
 		tracker_enumerator_next_async (TRACKER_ENUMERATOR (object),
 		                               G_PRIORITY_LOW,
-		                               dpd->cancellable,
+		                               dpd->crawler->priv->cancellable,
 		                               enumerate_next_cb,
 		                               dpd);
 	}
@@ -983,20 +948,22 @@ data_provider_begin_cb (GObject      *object,
                         GAsyncResult *result,
                         gpointer      user_data)
 {
+	TrackerEnumerator *enumerator;
 	DirectoryRootInfo *info;
 	DataProviderData *dpd;
 	GError *error = NULL;
-	gboolean cancelled;
+
+	enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
+
+	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+		return;
 
 	info = user_data;
 	dpd = info->dpd;
-
-	cancelled = g_cancellable_is_cancelled (dpd->cancellable);
-
-	dpd->enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
+	dpd->enumerator = enumerator;
 
 	if (!dpd->enumerator) {
-		if (error && !cancelled) {
+		if (error) {
 			gchar *uri;
 
 			uri = g_file_get_uri (dpd->dir_file);
@@ -1009,19 +976,12 @@ data_provider_begin_cb (GObject      *object,
 		}
 
 		process_func_start (dpd->crawler);
-
-		return;
-	}
-
-	if (cancelled) {
-		process_func_start (dpd->crawler);
-
 		return;
 	}
 
 	tracker_enumerator_next_async (dpd->enumerator,
 	                               G_PRIORITY_LOW,
-	                               dpd->cancellable,
+	                               dpd->crawler->priv->cancellable,
 	                               enumerate_next_cb,
 	                               dpd);
 }
@@ -1055,7 +1015,7 @@ data_provider_begin (TrackerCrawler          *crawler,
 	                                   attrs,
 	                                   info->flags,
 	                                   G_PRIORITY_LOW,
-	                                   dpd->cancellable,
+	                                   crawler->priv->cancellable,
 	                                   data_provider_begin_cb,
 	                                   info);
 	g_free (attrs);
@@ -1098,6 +1058,14 @@ tracker_crawler_start (TrackerCrawler        *crawler,
 		g_timer_stop (priv->timer);
 	}
 
+	/* Set a brand new cancellable */
+	if (priv->cancellable) {
+		g_cancellable_cancel (priv->cancellable);
+		g_object_unref (priv->cancellable);
+	}
+
+	priv->cancellable = g_cancellable_new ();
+
 	/* Set as running now */
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
@@ -1138,7 +1106,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	priv->is_running = FALSE;
-	g_list_foreach (priv->cancellables, (GFunc) g_cancellable_cancel, NULL);
+	g_cancellable_cancel (priv->cancellable);
 
 	process_func_stop (crawler);
 
