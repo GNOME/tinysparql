@@ -614,7 +614,8 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 }
 
 static void
-finish_current_directory (TrackerFileNotifier *notifier)
+finish_current_directory (TrackerFileNotifier *notifier,
+                          gboolean             interrupted)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *directory;
@@ -629,7 +630,7 @@ finish_current_directory (TrackerFileNotifier *notifier)
 	                                  directory,
 	                                  G_FILE_TYPE_REGULAR);
 
-	if (!crawl_directory_in_current_root (notifier)) {
+	if (interrupted || !crawl_directory_in_current_root (notifier)) {
 		/* No more directories left to be crawled in the current
 		 * root, jump to the next one.
 		 */
@@ -652,7 +653,8 @@ finish_current_directory (TrackerFileNotifier *notifier)
 		root_data_free (priv->current_index_root);
 		priv->current_index_root = NULL;
 
-		notifier_check_next_root (notifier);
+		if (!interrupted)
+			notifier_check_next_root (notifier);
 	}
 
 	g_object_unref (directory);
@@ -680,7 +682,7 @@ sparql_contents_query_cb (GObject      *object,
 		g_object_unref (cursor);
 	}
 
-	finish_current_directory (notifier);
+	finish_current_directory (notifier, FALSE);
 }
 
 static gchar *
@@ -766,7 +768,7 @@ sparql_files_query_cb (GObject      *object,
 		                             priv->current_index_root->pending_dirs);
 		g_ptr_array_set_size (priv->current_index_root->updated_dirs, 0);
 	} else {
-		finish_current_directory (notifier);
+		finish_current_directory (notifier, FALSE);
 	}
 
 	g_free (data);
@@ -892,7 +894,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	g_assert (priv->current_index_root != NULL);
 
 	if (was_interrupted) {
-		finish_current_directory (notifier);
+		finish_current_directory (notifier, TRUE);
 		return;
 	}
 
@@ -910,7 +912,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 	} else {
 		file_notifier_traverse_tree (notifier, max_depth);
-		finish_current_directory (notifier);
+		finish_current_directory (notifier, FALSE);
 	}
 }
 
@@ -1360,9 +1362,6 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		/* Directory being currently processed */
 		tracker_crawler_stop (priv->crawler);
 		g_cancellable_cancel (priv->cancellable);
-
-		root_data_free (priv->current_index_root);
-		priv->current_index_root = NULL;
 
 		notifier_check_next_root (notifier);
 	}
