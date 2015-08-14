@@ -33,6 +33,7 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 private_sources = 				       \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
+	tracker-decorator-private.h                    \
 	tracker-file-data-provider.c		       \
 	tracker-file-data-provider.h		       \
 	tracker-file-enumerator.c		       \

@@ -23,6 +23,7 @@
 
 #include "tracker-decorator.h"
 #include "tracker-priority-queue.h"
+#include "tracker-decorator-private.h"
 
 #define QUERY_BATCH_SIZE 100
 #define DEFAULT_BATCH_SIZE 200
@@ -1757,4 +1758,10 @@ tracker_decorator_info_get_sparql (TrackerDecoratorInfo *info)
 		return NULL;
 
 	return g_task_get_task_data (info->task);
+}
+
+void
+_tracker_decorator_invalidate_cache (TrackerDecorator *decorator)
+{
+	decorator_rebuild_cache (decorator);
 }
