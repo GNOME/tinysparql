@@ -1281,7 +1281,7 @@ tracker_decorator_started (TrackerMiner *miner)
 	priv = decorator->priv;
 
 	g_timer_start (priv->timer);
-	decorator_cache_next_items (decorator);
+	decorator_rebuild_cache (decorator);
 }
 
 static void
