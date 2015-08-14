@@ -34,6 +34,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-miner-files.h                          \
 	tracker-miner-files-index.c                    \
 	tracker-miner-files-index.h                    \
+	tracker-miner-files-peer-listener.c            \
+	tracker-miner-files-peer-listener.h            \
 	tracker-storage.c                              \
 	tracker-storage.h                              \
 	tracker-writeback-listener.c                   \
