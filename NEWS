@@ -1,3 +1,24 @@
+NEW in 1.5.2 - 2015-08-20
+=========================
+
+  * libtracker-data: Fix printf string format
+  * libtracker-miner: Fallback to basename checks on hidden files
+  * rss: Set website url as a nfo:WebSite
+  * rss: Simplify GrssFeedChannel list creation
+  * libtracker-data: Clean up stale URIs on startup
+  * rss: Optimize deletes
+  * rss: Perform extraction/insertion of feed items at once
+  * ontology: Remove cardinality limits on nmo:communicationChannel
+  * libtracker-common: String to date conversion to return with GError when null string
+  * libtracker-extract: Add builtin dummy extractor
+  * tracker-extract: Use dummy fastpath for svg extraction
+  * libtracker-extract: Plug leaks
+  * libtracker-miner: Cancellation on unmount fixes
+  * libtracker-miner: Deprecate tracker_miner_fs_add_directory_without_parent
+  * tracker-miner-fs: Keep cache of IndexFile requesters on directories
+
+Translations: ca, cz, lt, pl, pt_BR, pt, sk, tr
+
 NEW in 1.5.1 - 2015-07-21
 =========================
 
