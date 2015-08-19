@@ -305,8 +305,10 @@ crawler_finalize (GObject *object)
 		g_source_remove (priv->idle_id);
 	}
 
-	g_cancellable_cancel (priv->cancellable);
-	g_object_unref (priv->cancellable);
+	if (priv->cancellable) {
+		g_cancellable_cancel (priv->cancellable);
+		g_object_unref (priv->cancellable);
+	}
 
 	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_free (priv->directories);
