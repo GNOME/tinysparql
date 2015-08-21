@@ -446,8 +446,8 @@ tracker_miner_files_peer_listener_is_file_watched (TrackerMinerFilesPeerListener
 {
 	TrackerMinerFilesPeerListenerPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_MINER_FILES_PEER_LISTENER (listener));
-	g_return_if_fail (G_IS_FILE (file));
+	g_return_val_if_fail (TRACKER_IS_MINER_FILES_PEER_LISTENER (listener), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = tracker_miner_files_peer_listener_get_instance_private (listener);
 
