@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-12 19:40+0100\n"
-"PO-Revision-Date: 2015-01-12 19:57+0200\n"
+"POT-Creation-Date: 2015-08-25 16:58+0200\n"
+"PO-Revision-Date: 2015-08-25 17:26+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: gnome-l10n-gl@gnome.org\n"
 "Language: gl\n"
@@ -178,9 +178,9 @@ msgstr "Produciuse un error ao iniciar o programa «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -192,8 +192,8 @@ msgstr "Produciuse un error ao iniciar o programa «tar»"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:66 ../src/tracker/tracker-process.c:186
-#: ../src/tracker/tracker-process.c:271 ../src/tracker/tracker-process.c:292
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
+#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -511,6 +511,7 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "FICHEIRO"
 
@@ -625,15 +626,16 @@ msgstr "Fornecedores RSS/ATOM"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Obter fornecedores RSS/ATOM"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Engadir fornecedor (débese usar con «--title»)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Engaidr fluxo"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Título que usar (débese usar con «--add-feed»)"
 
@@ -644,11 +646,7 @@ msgstr "Título que usar (débese usar con «--add-feed»)"
 msgid "- start the feeds indexer"
 msgstr "- iniciar o indexador do tracker"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -656,7 +654,7 @@ msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "Non foi posíbel engadir un fornecedor"
 
@@ -776,11 +774,11 @@ msgstr ""
 "ambientes con restricci'ons onde é máis importante listar os ficheiros canto "
 "máis rápido sexa posíbel e pode agardar a obter os metadatos máis tarde."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:797
 msgid "Metadata extraction failed"
 msgstr "Produciuse un fallo na extracción de metadatos"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:862
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Non foi posíbel atopar un módulo para xestionar este ficheiro"
 
@@ -831,6 +829,20 @@ msgstr "Metadatos do extractor de Tracker"
 msgid "Extracts metadata from local files"
 msgstr "Extrae os metadatos dos ficheiros locais"
 
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Vista predeterminada"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+"Se é 0, a vista por defecto de tracker-needle será a Vista de iconas. Se é "
+"1, a vista por defecto de tracker-needle será a Vista de categorías. Se é 2, "
+"a vista por defecto de tracker-needle será a Vista de ficheiros."
+
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
@@ -869,52 +881,57 @@ msgid "Find search criteria in file titles"
 msgstr "Buscar criterios de busca nos nomes de ficheiro"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr ""
+"Buscar criterios de busca nas etiquetas de ficheiro (separadas por comas)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "Bu_scar:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
 "Mostrar o panel de etiquetado que permite editar as etiquetas dos resultados "
 "seleccionados"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Mostrar estatísticas dos datos almacenados"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr ""
 "_Estabelecer as etiquetas que quere asociar cos %d elementos seleccionados:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Engadir etiqueta"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Quitar etiqueta seleccionada"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
 msgstr "O criterio de busca é moi xenérico"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
 msgstr "Só se mostrarán os 500 primeiros elementos"
 
-#: ../src/tracker-needle/tracker-needle.vala:731
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-needle/tracker-needle.vala:811
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Imprimir versión"
 
-#: ../src/tracker-needle/tracker-needle.vala:738
-#: ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
 msgstr "[CRITERIO_DE_BUSCA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Interface de usuario da ferramenta de busca do Escritorio usando Tracker"
@@ -954,7 +971,7 @@ msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Ficheiro"
@@ -1475,13 +1492,13 @@ msgstr "Inicio"
 msgid "System"
 msgstr "Sistema"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Cartafol"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1489,24 +1506,24 @@ msgstr ""
 "Os cambios feitos nas preferencias aquí requiren que reindexe para asegurar "
 "que todos os seus datos están correctamente indexados como solicitou."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Isto pechará este diálogo!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Desexa reindexar agora?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Reindexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Non facer nada"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
@@ -1514,11 +1531,11 @@ msgstr ""
 "Os cambios que fixo nas súas preferencias requiren reiniciar os procesos de "
 "tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Desexa reiniciarlo agora?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Reiniciar Tracker"
 
@@ -1529,38 +1546,38 @@ msgstr "Reiniciar Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Desactivado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_Aceptar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Seleccionar cartafol"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "O cartafol xa está seleccionado como unha localización que indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Recurso"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Preferencias de buscas do Escritorio"
 
@@ -2095,8 +2112,8 @@ msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
-"Só pode usar á vez unha acción (--backup, --restore, --index-file ou "
-"--import)"
+"Só pode usar á vez unha acción (--backup, --restore, --index-file ou --"
+"import)"
 
 #: ../src/tracker/tracker-index.c:437
 msgid "Missing one or more files which are required"
@@ -2230,35 +2247,35 @@ msgstr "«%s» non é unha orde de tracker. Vexa «tracker --help»"
 msgid "Available tracker commands are:"
 msgstr "As ordes de tracker dispoñíbeis son:"
 
-#: ../src/tracker/tracker-process.c:65
+#: ../src/tracker/tracker-process.c:74
 msgid "Could not open /proc"
 msgstr "Non se puido abrir /proc"
 
-#: ../src/tracker/tracker-process.c:115
+#: ../src/tracker/tracker-process.c:124
 msgid "Could not stat() file"
 msgstr "Non foi posíbel facer stat() do ficheiro"
 
-#: ../src/tracker/tracker-process.c:183
+#: ../src/tracker/tracker-process.c:193
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Non se puido abrir '%s'"
 
-#: ../src/tracker/tracker-process.c:268
+#: ../src/tracker/tracker-process.c:322
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Non se puido terminar o proceso %d - «%s»"
 
-#: ../src/tracker/tracker-process.c:274
+#: ../src/tracker/tracker-process.c:328
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Proceso %d terminado - «%s»"
 
-#: ../src/tracker/tracker-process.c:289
+#: ../src/tracker/tracker-process.c:343
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Non se puido matar o proceso %d - «%s»"
 
-#: ../src/tracker/tracker-process.c:295
+#: ../src/tracker/tracker-process.c:349
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Proceso %d matado - «%s»"
@@ -2747,6 +2764,18 @@ msgstr ""
 "O argumento --list-properties só pode estar baleiro cando se usa co "
 "argumento --tree"
 
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Ruta que usar para executar unha consulta desde un ficheiro"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Consulta SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
+
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
 msgstr "Produciuse un fallo ao iniciar o administrador de datos"
@@ -3028,6 +3057,12 @@ msgstr "- iniciar o servizo de escrita en diferido"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas gardadas"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Engadir fornecedor (débese usar con «--title»)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Para engadir un fornecedor requírese «--add-feed» e «--title»"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr " - Xestina os procesos e datos de Tracker"
@@ -4337,9 +4372,6 @@ msgstr "Consultas gardadas"
 
 #~ msgid "SQL query to use (can be used multiple times)"
 #~ msgstr "Consulta SQL a empregar (pode ser empregada varias veces)"
-
-#~ msgid "SQL"
-#~ msgstr "SQL"
 
 #~ msgid "Files to attach"
 #~ msgstr "Ficheiros a anexar"
