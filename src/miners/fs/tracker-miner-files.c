@@ -929,6 +929,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 
 		urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
+		if (!urn)
+			continue;
+
 		if (strcmp (urn, TRACKER_DATASOURCE_URN_NON_REMOVABLE_MEDIA) == 0) {
 			/* Report non-removable media to be mounted by HAL as well */
 			state |= VOLUME_MOUNTED;
