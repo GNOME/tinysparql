@@ -20,6 +20,7 @@ AM_CPPFLAGS = \
 # and then separately with the module below.
 rules_files = \
 	10-abw.rule \
+	10-djvu.rule \
 	10-dvi.rule \
 	10-epub.rule \
 	10-flac.rule \
