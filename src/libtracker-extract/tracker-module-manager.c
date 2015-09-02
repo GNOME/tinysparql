@@ -46,7 +46,7 @@ static gboolean dummy_extract_func (TrackerExtractInfo *info);
 
 static ModuleInfo dummy_module = {
 	NULL, TRACKER_MODULE_MAIN_THREAD,
-	dummy_extract_func, NULL, TRUE
+	dummy_extract_func, NULL, NULL, TRUE
 };
 
 static GHashTable *modules = NULL;
