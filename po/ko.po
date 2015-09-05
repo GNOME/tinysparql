@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-03-05 12:07+0000\n"
-"PO-Revision-Date: 2015-03-06 00:12+0900\n"
+"POT-Creation-Date: 2015-09-04 12:07+0000\n"
+"PO-Revision-Date: 2015-09-04 22:57+0900\n"
 "Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
 "Language-Team: Gnome Korea <gnome-kr@googlegroups.com>\n"
 "Language: Korean\n"
@@ -173,9 +173,9 @@ msgstr "'tar' 프로그램 시작에 오류가 있습니다"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -187,8 +187,8 @@ msgstr "'tar' 프로그램 시작에 오류가 있습니다"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:66 ../src/tracker/tracker-process.c:186
-#: ../src/tracker/tracker-process.c:271 ../src/tracker/tracker-process.c:292
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
+#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -495,6 +495,7 @@ msgstr "설정 내용을 기반으로 수집할 <파일>의 조건이 맞는지 
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "<파일>"
 
@@ -579,11 +580,11 @@ msgstr "감시함"
 msgid "- start the tracker indexer"
 msgstr "- 트래커 인덱서를 시작합니다"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "배터리 부족"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "디스크 공간 부족"
 
@@ -603,15 +604,16 @@ msgstr "RSS/ATOM 피드"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "RSS/ATOM 피드를 가져옵니다"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "피드를 추가합니다(--title과 함께 사용해야 합니다)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "피드 추가"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "사용할 제목입니다(--add-feed 옵션과 사용해야 합니다)"
 
@@ -622,11 +624,7 @@ msgstr "사용할 제목입니다(--add-feed 옵션과 사용해야 합니다)"
 msgid "- start the feeds indexer"
 msgstr "- 피드 인덱서를 시작합니다"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "피드를 추가하려면 --add-feed와 --title이 필요합니다"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -634,7 +632,7 @@ msgstr "피드를 추가하려면 --add-feed와 --title이 필요합니다"
 msgid "Could not establish a connection to Tracker"
 msgstr "트래커로 연결을 수립할 수 없습니다"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "피드를 추가할 수 없습니다"
 
@@ -749,11 +747,11 @@ msgstr ""
 "완료할 때까지 기다립니다. 이 옵션은 가능한한 파일을 빨리 조회해야 할 중요한 "
 "강요 환경에 쓸모가 있으며 다음에 메타데이터를 가져올 때 기다릴 수 있습니다."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:797
 msgid "Metadata extraction failed"
 msgstr "메타데이터 추출에 실패했습니다"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:862
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "이 파일을 처리할 메타데이터나 추출모듈이 없습니다"
 
@@ -802,6 +800,20 @@ msgstr "트래커 메타데이터 추출기"
 msgid "Extracts metadata from local files"
 msgstr "로컬 파일에서 메타데이터를 추출합니다"
 
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "기본 보기"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+"0으로 설정하면 tracker-needle 기본 보기를 아이콘 보기 형식으로 설정합니다. 1"
+"로 설정하면 tracker-needle 기본 보기를 분류별 보기 형식으로 설정합니다. 2로 "
+"설정하면 tracker-needle 기본 보기를 파일 보기 형식으로 설정합니다."
+
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
@@ -840,49 +852,53 @@ msgid "Find search criteria in file titles"
 msgstr "파일 제목을 검색 단어로 찾기"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "파일 태그에서만(쉼표로 구분하여) 검색 단어 찾기"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "검색(_S):"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr "선택한 결과에 대한 태그 편집을 허용하는 태깅 패널 표시"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "저장산 데이터에 대한 통계 표시"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr "선택한 항목 %d개에 관련 지을 태그를 설정(_S):"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "태그 추가"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "선택한 태그 제거"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
 msgstr "검색 단어가 매우 일반적입니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
 msgstr "처음 500개의 항목만 표시합니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:731
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-needle/tracker-needle.vala:811
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "버전을 출력합니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:738
-#: ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
 msgstr "<검색-단어>"
 
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
 msgstr "트래커를 사용한 데스크톱 검색 사용자 인터페이스"
 
@@ -917,7 +933,7 @@ msgstr[0] "문서"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "파일"
@@ -1419,13 +1435,13 @@ msgstr "시동"
 msgid "System"
 msgstr "시스템"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "디렉터리"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1433,35 +1449,35 @@ msgstr ""
 "이 곳 기본 설정에서 내용을 바꾸는 동작은, 요청한대로 모든 데이터를 올바르게 "
 "인덱싱 했는지 확인하려는 목적의 재인덱싱이 필요합니다."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "대화 상자를 닫습니다!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "지금 다시 인덱싱 하시겠습니까?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "다시 인덱싱"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "아무것도 안 함"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
 msgstr ""
 "기본 설정에 바꾼 내용을 적용하려면 트래커 프로세스를 다시 시작해야 합니다."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "지금 다시 시작하시겠습니까?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "트래커 다시 시작"
 
@@ -1472,38 +1488,38 @@ msgstr "트래커 다시 시작"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "비활성화됨"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "값을 입력하십시오"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "취소(_C)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "확인(_O)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "디렉터리 선택"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "해당 디렉터리는 이미 인덱싱을 수행하려고 위치로 선택했습니다"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "재귀"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "데스크톱 검색 기본 설정"
 
@@ -2074,7 +2090,7 @@ msgstr "Turtle 형식의 RDF로 결과를 출력합니다"
 
 #: ../src/tracker/tracker-info.c:285
 msgid "Querying information for entity"
-msgstr "엔티티에 대한 쿼리 정보"
+msgstr "엔티티에 대한 질의문 정보"
 
 #: ../src/tracker/tracker-info.c:309
 msgid "Unable to retrieve URN for URI"
@@ -2158,35 +2174,35 @@ msgstr "'%s'은(는) 트래커 명령이 아닙니다. 'tracker --help'를 참�
 msgid "Available tracker commands are:"
 msgstr "사용할 수 있는 트래커 명령은:"
 
-#: ../src/tracker/tracker-process.c:65
+#: ../src/tracker/tracker-process.c:74
 msgid "Could not open /proc"
 msgstr "/proc을 열 수 없습니다"
 
-#: ../src/tracker/tracker-process.c:115
+#: ../src/tracker/tracker-process.c:124
 msgid "Could not stat() file"
 msgstr "파일에 대해 stat()을 수행할 수 없습니다"
 
-#: ../src/tracker/tracker-process.c:183
+#: ../src/tracker/tracker-process.c:193
 #, c-format
 msgid "Could not open '%s'"
 msgstr "'%s'을(를) 열 수 없습니다"
 
-#: ../src/tracker/tracker-process.c:268
+#: ../src/tracker/tracker-process.c:322
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "%d 프로세스를 중단할 수 없습니다 - '%s'"
 
-#: ../src/tracker/tracker-process.c:274
+#: ../src/tracker/tracker-process.c:328
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "%d 프로세스를 중단했습니다 - '%s'"
 
-#: ../src/tracker/tracker-process.c:289
+#: ../src/tracker/tracker-process.c:343
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "%d 프로세스를 죽일 수 없습니다 - '%s'"
 
-#: ../src/tracker/tracker-process.c:295
+#: ../src/tracker/tracker-process.c:349
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "%d 프로세스를 죽였습니다 - '%s'"
@@ -2405,7 +2421,7 @@ msgstr "프로그램 분류"
 
 #: ../src/tracker/tracker-search.c:1449
 msgid "No results were found matching your query"
-msgstr "쿼리에 일치하는 결과를 찾지 못했습니다"
+msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
 #: ../src/tracker/tracker-search.c:1551
 #, c-format
@@ -2420,11 +2436,11 @@ msgstr "스톱 워드는 인덱싱 과정에서 무시할 일반적인 단어입
 
 #: ../src/tracker/tracker-sparql.c:104
 msgid "Path to use to run a query or update from file"
-msgstr "쿼리를 실행하거나 파일로부터 업데이트할 때 사용할 경로"
+msgstr "질의문을 실행하거나 파일로부터 업데이트할 때 사용할 경로"
 
 #: ../src/tracker/tracker-sparql.c:108
 msgid "SPARQL query"
-msgstr "SPARQL 쿼리"
+msgstr "SPARQL 질의문"
 
 #: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL"
@@ -2646,15 +2662,15 @@ msgstr "업데이트를 실행할 수 없습니다"
 #: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
 #: ../src/tracker/tracker-sql.c:162
 msgid "Could not run query"
-msgstr "쿼리를 실행할 수 없습니다"
+msgstr "질의문을 실행할 수 없습니다"
 
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
 msgid "No results found matching your query"
-msgstr "쿼리에 일치하는 결과를 찾지 못했습니다"
+msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
 msgid "File and query can not be used together"
-msgstr "파일과 쿼리문을 함께 사용할 수 없습니다"
+msgstr "파일과 질의문을 함께 사용할 수 없습니다"
 
 #: ../src/tracker/tracker-sparql.c:1499
 msgid ""
@@ -2662,6 +2678,18 @@ msgid ""
 "argument"
 msgstr ""
 "--list-properties 인자는 --tree 인자를 함께 사용할 때만 비울 수 있습니다."
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "질의문을 실행하거나 파일로부터 업데이트할 때 사용할 경로"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "SQL 질의문"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
@@ -2938,7 +2966,13 @@ msgstr "- 트래커 라이트백 서비스를 시작합니다"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
-msgstr "저장한 쿼리"
+msgstr "저장한 질의문"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "피드를 추가합니다(--title과 함께 사용해야 합니다)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "피드를 추가하려면 --add-feed와 --title이 필요합니다"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr "- 트래커 프로세스와 데이터를 관리합니다"
