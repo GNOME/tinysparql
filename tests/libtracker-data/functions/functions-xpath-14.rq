@@ -1,0 +1,7 @@
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+# Tests the replace function.
+# Uses backreferences and the dollar sign 'as is'.
+# There are only backreferences, so the last digit
+# of the backreference of the replacement string
+# is used 'as is'.
+SELECT fn:replace("4aaaa2cc", "(.)a+((((\\d)a)a)|(((\\d)b)b)|(((\\d)c)c))", "The answer is \\$$12.") {}

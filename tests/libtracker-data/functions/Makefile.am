@@ -32,4 +32,14 @@ EXTRA_DIST += \
 	functions-xpath-8.rq                           \
 	functions-xpath-8.out                          \
 	functions-xpath-9.rq                           \
-	functions-xpath-9.out
+	functions-xpath-9.out                          \
+	functions-xpath-10.rq                          \
+	functions-xpath-10.out                         \
+	functions-xpath-11.rq                          \
+	functions-xpath-11.out                         \
+	functions-xpath-12.rq                          \
+	functions-xpath-12.out                         \
+	functions-xpath-13.rq                          \
+	functions-xpath-13.out                         \
+	functions-xpath-14.rq                          \
+	functions-xpath-14.out

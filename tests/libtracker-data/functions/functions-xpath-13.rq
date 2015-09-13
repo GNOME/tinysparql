@@ -1,0 +1,4 @@
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+# Tests the replace function.
+# Uses backreferences.
+SELECT fn:replace("darted", "^(.*?)d(.*)$", "$1c$2") {}
