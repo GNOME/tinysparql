@@ -63,6 +63,12 @@ typedef struct {
 	guint max;
 } TrackerDBStatementLru;
 
+typedef struct {
+	GRegex *syntax_check;
+	GRegex *replacement;
+	GRegex *unescape;
+} TrackerDBReplaceFuncChecks;
+
 struct TrackerDBInterface {
 	GObject parent_instance;
 
@@ -70,6 +76,9 @@ struct TrackerDBInterface {
 	sqlite3 *db;
 
 	GHashTable *dynamic_statements;
+
+	/* Compiled regular expressions */
+	TrackerDBReplaceFuncChecks replace_func_checks;
 
 	GSList *function_data;
 
@@ -567,6 +576,179 @@ function_sparql_regex (sqlite3_context *context,
 	}
 
 	sqlite3_result_int (context, ret);
+}
+
+static void
+ensure_replace_checks (TrackerDBInterface *db_interface)
+{
+	if (db_interface->replace_func_checks.syntax_check != NULL)
+		return;
+
+	db_interface->replace_func_checks.syntax_check =
+		g_regex_new ("(?<!\\\\)\\$\\D", G_REGEX_OPTIMIZE, 0, NULL);
+	db_interface->replace_func_checks.replacement =
+		g_regex_new("(?<!\\\\)\\$(\\d)", G_REGEX_OPTIMIZE, 0, NULL);
+	db_interface->replace_func_checks.unescape =
+		g_regex_new("\\\\\\$", G_REGEX_OPTIMIZE, 0, NULL);
+}
+
+static void
+function_sparql_replace (sqlite3_context *context,
+                         int              argc,
+                         sqlite3_value   *argv[])
+{
+	TrackerDBInterface *db_interface = sqlite3_user_data (context);
+	TrackerDBReplaceFuncChecks *checks = &db_interface->replace_func_checks;
+	gboolean store_regex = FALSE, store_replace_regex = FALSE;
+	const gchar *input, *pattern, *replacement, *flags;
+	gchar *err_str, *output, *replaced = NULL, *unescaped = NULL;
+	GError *error = NULL;
+	GRegexCompileFlags regex_flags = 0;
+	GRegex *regex, *replace_regex;
+	gint capture_count, i;
+
+	ensure_replace_checks (db_interface);
+
+	if (argc == 3) {
+		flags = "";
+	} else if (argc == 4) {
+		flags = sqlite3_value_text (argv[3]);
+	} else {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	input = sqlite3_value_text (argv[0]);
+	regex = sqlite3_get_auxdata (context, 1);
+	replacement = sqlite3_value_text (argv[2]);
+
+	if (regex == NULL) {
+		pattern = sqlite3_value_text (argv[1]);
+
+		for (i = 0; flags[i]; i++) {
+			switch (flags[i]) {
+			case 's':
+				regex_flags |= G_REGEX_DOTALL;
+				break;
+			case 'm':
+				regex_flags |= G_REGEX_MULTILINE;
+				break;
+			case 'i':
+				regex_flags |= G_REGEX_CASELESS;
+				break;
+			case 'x':
+				regex_flags |= G_REGEX_EXTENDED;
+				break;
+			default:
+				err_str = g_strdup_printf ("Invalid SPARQL regex flag '%c'", flags[i]);
+				sqlite3_result_error (context, err_str, -1);
+				g_free (err_str);
+				return;
+			}
+		}
+
+		regex = g_regex_new (pattern, regex_flags, 0, &error);
+
+		if (error) {
+			sqlite3_result_error (context, error->message, -1);
+			g_clear_error (&error);
+			return;
+		}
+
+		/* According to the XPath 2.0 standard, an error shall be raised, if the given
+		 * pattern matches a zero-length string.
+		 */
+		if (g_regex_match (regex, "", 0, NULL)) {
+			err_str = g_strdup_printf ("The given pattern '%s' matches a zero-length string.",
+			                           pattern);
+			sqlite3_result_error (context, err_str, -1);
+			g_regex_unref (regex);
+			g_free (err_str);
+			return;
+		}
+
+		store_regex = TRUE;
+	}
+
+	/* According to the XPath 2.0 standard, an error shall be raised, if all dollar
+	 * signs ($) of the given replacement string are not immediately followed by
+	 * a digit 0-9 or not immediately preceded by a \.
+	 */
+	if (g_regex_match (checks->syntax_check, replacement, 0, NULL)) {
+		err_str = g_strdup_printf ("The replacement string '%s' contains a \"$\" character "
+		                           "that is not immediately followed by a digit 0-9 and "
+		                           "not immediately preceded by a \"\\\".",
+		                           replacement);
+		sqlite3_result_error (context, err_str, -1);
+		g_free (err_str);
+		return;
+	}
+
+	/* According to the XPath 2.0 standard, the dollar sign ($) followed by a number
+	 * indicates backreferences. GRegex uses the backslash (\) for this purpose.
+	 * So the ($) backreferences in the given replacement string are replaced by (\)
+	 * backreferences to support the standard.
+	 */
+	capture_count = g_regex_get_capture_count (regex);
+	replace_regex = sqlite3_get_auxdata (context, 2);
+
+	if (capture_count > 9 && !replace_regex) {
+		gint i;
+		GString *backref_range;
+		gchar *regex_interpret;
+
+		/* S ... capture_count, N ... the given decimal number.
+		 * If N>S and N>9, The last digit of N is taken to be a literal character
+		 * to be included "as is" in the replacement string, and the rules are
+		 * reapplied using the number N formed by stripping off this last digit.
+		 */
+		backref_range = g_string_new ("(");
+		for (i = 10; i <= capture_count; i++) {
+			g_string_append_printf (backref_range, "%d|", i);
+		}
+
+		g_string_append (backref_range, "\\d)");
+		regex_interpret = g_strdup_printf ("(?<!\\\\)\\$%s",
+		                                   backref_range->str);
+
+		replace_regex = g_regex_new (regex_interpret, 0, 0, NULL);
+
+		g_string_free (backref_range, TRUE);
+		g_free (regex_interpret);
+
+		store_replace_regex = TRUE;
+	} else if (capture_count <= 9) {
+		replace_regex = checks->replacement;
+	}
+
+	replaced = g_regex_replace (replace_regex,
+	                            replacement, -1, 0, "\\\\g<\\1>", 0, &error);
+
+	if (replaced) {
+		/* All '\$' pairs are replaced by '$' */
+		unescaped = g_regex_replace (checks->unescape,
+		                             replaced, -1, 0, "$", 0, &error);
+	}
+
+	if (unescaped) {
+		output = g_regex_replace (regex, input, -1, 0, unescaped, 0, &error);
+	}
+
+	if (error) {
+		sqlite3_result_error (context, error->message, -1);
+		g_clear_error (&error);
+		return;
+	}
+
+	sqlite3_result_text (context, output, -1, g_free);
+
+	if (store_replace_regex)
+		sqlite3_set_auxdata (context, 2, replace_regex, (GDestroyNotify) g_regex_unref);
+	if (store_regex)
+		sqlite3_set_auxdata (context, 1, regex, (GDestroyNotify) g_regex_unref);
+
+	g_free (replaced);
+	g_free (unescaped);
 }
 
 #ifdef HAVE_LIBUNISTRING
@@ -1215,6 +1397,10 @@ open_database (TrackerDBInterface  *db_interface,
 	                         db_interface, &function_sparql_checksum,
 	                         NULL, NULL);
 
+	sqlite3_create_function (db_interface->db, "SparqlReplace", -1, SQLITE_ANY,
+	                         db_interface, &function_sparql_replace,
+	                         NULL, NULL);
+
 	sqlite3_extended_result_codes (db_interface->db, 0);
 	sqlite3_busy_timeout (db_interface->db, 100000);
 }
@@ -1298,6 +1484,13 @@ close_database (TrackerDBInterface *db_interface)
 		g_hash_table_unref (db_interface->dynamic_statements);
 		db_interface->dynamic_statements = NULL;
 	}
+
+	if (db_interface->replace_func_checks.syntax_check)
+		g_regex_unref (db_interface->replace_func_checks.syntax_check);
+	if (db_interface->replace_func_checks.replacement)
+		g_regex_unref (db_interface->replace_func_checks.replacement);
+	if (db_interface->replace_func_checks.unescape)
+		g_regex_unref (db_interface->replace_func_checks.unescape);
 
 	if (db_interface->function_data) {
 		g_slist_foreach (db_interface->function_data, (GFunc) g_free, NULL);
