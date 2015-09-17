@@ -6,15 +6,16 @@
 # Alexandre Rostovtsev <tetromino@gmail.com>, 2007.
 # Yuri Myasoedov <ymyasoedov@yandex.ru>, 2014.
 # Ivan Komaritsyn <vantu5z@mail.ru>, 2015.
+# Stas Solovey <whats_up@tut.by>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-19 12:21+0000\n"
-"PO-Revision-Date: 2015-02-19 16:30+0300\n"
-"Last-Translator: Ivan Komaritsyn <vantu5z@mail.ru>\n"
+"POT-Creation-Date: 2015-09-17 12:23+0000\n"
+"PO-Revision-Date: 2015-09-18 01:02+0300\n"
+"Last-Translator: Stas Solovey <whats_up@tut.by>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Gtranslator 2.91.6\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -187,9 +188,9 @@ msgstr "Ошибка запуска программы «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:144
+#: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -201,8 +202,8 @@ msgstr "Ошибка запуска программы «tar»"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:66 ../src/tracker/tracker-process.c:186
-#: ../src/tracker/tracker-process.c:271 ../src/tracker/tracker-process.c:292
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
+#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -524,6 +525,7 @@ msgstr "Проверяет, может ли индексироваться ФА�
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "ФАЙЛ"
 
@@ -608,11 +610,11 @@ msgstr "Будет отслеживаться"
 msgid "- start the tracker indexer"
 msgstr "— запустить индексатор"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "Низкий заряд батареи"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "Мало места на диске"
 
@@ -632,15 +634,16 @@ msgstr "Ленты RSS/ATOM"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Получить ленты RSS/ATOM"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Добавить ленту (должно использовать с --title)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Добавить канал"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Title to use (must be used with --add-feed)"
 
@@ -651,11 +654,7 @@ msgstr "Title to use (must be used with --add-feed)"
 msgid "- start the feeds indexer"
 msgstr "— запустить индексатор лент"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "Добавление ленты требует параметров --add-feed и --title"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -663,7 +662,7 @@ msgstr "Добавление ленты требует параметров --ad
 msgid "Could not establish a connection to Tracker"
 msgstr "Не удалось установить соединение с Tracker"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "Не удалось добавить ленту"
 
@@ -784,11 +783,11 @@ msgstr ""
 "которых необходимо выводить список файлов с максимальной скоростью, а "
 "метаданные можно получить позже."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:797
 msgid "Metadata extraction failed"
 msgstr "Не удалось извлечь метаданные"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:862
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Для этого файла не удалось найти подходящий модуль метаданных или модуль "
@@ -841,6 +840,20 @@ msgstr "Экстрактор метаданных Tracker"
 msgid "Extracts metadata from local files"
 msgstr "Извлечь метаданные из локальных файлов"
 
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Вид по умолчанию"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+"При значении 0, вид трекера по умолчанию будет в виде значков. При значении "
+"1, вид трекера по умолчанию будет в виде категорий. При значении 2, вид "
+"трекера по умолчанию будет в виде просмотра файлов."
+
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
@@ -877,50 +890,55 @@ msgid "Find search criteria in file titles"
 msgstr "Критерий поиска в названиях файлов"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+#| msgid "Find search criteria in file titles"
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "Критерий поиска только в тегах файлов (разделённые запятыми)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "_Искать:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr "Показать панель меток для редактирования меток выбранных результатов"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Показать статистику о хранящихся данных"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr ""
 "_Установить метки, которые необходимо связать с %d выделенными объектами:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Добавить метку"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Удалить выбранную метку"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
 msgstr "Критерий поиска слишком общий"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
 msgstr "Будет показано только первые 500 элементов"
 
-#: ../src/tracker-needle/tracker-needle.vala:731
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-needle/tracker-needle.vala:811
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Показать версию"
 
-#: ../src/tracker-needle/tracker-needle.vala:738
-#: ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
 msgstr "[КРИТЕРИЙ-ПОИСКА]"
 
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
 msgstr "Поиск данных с помощью интерфейса Tracker"
 
@@ -963,7 +981,7 @@ msgstr[2] "Документов"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Файл"
@@ -1451,17 +1469,6 @@ msgstr "Что индексируется?"
 msgid "Control"
 msgstr "Управление"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-#, fuzzy
-#| msgid ""
-#| "When resetting your indexed data, the databases are removed and your "
-#| "files will no longer be indexed. Upon next start, Tracker will then start "
-#| "indexing data as if it was being run for the first time.\n"
-#| "\n"
-#| "<b>Warning: All data indexed will be removed! It can not be retrieved!</"
-#| "b>\n"
-#| "\n"
-#| "Clicking this button will close the preferences too."
 msgid ""
 "When resetting your indexed data, the databases are removed and your files "
 "will no longer be indexed. Upon next start, Tracker will then start indexing "
@@ -1472,9 +1479,9 @@ msgid ""
 "\n"
 "Clicking this button will close the preferences too."
 msgstr ""
-"При сбросе индексов данных, удаляются базы индексации и файлы "
-"становятся непроиндексированными. При следующем запуске Tracker начнёт "
-"индексацию данных заново, как при первом запуске.\n"
+"При сбросе индексов данных, удаляются базы индексации и файлы становятся "
+"непроиндексированными. При следующем запуске Tracker начнёт индексацию "
+"данных заново, как при первом запуске.\n"
 "\n"
 "<b>Внимание: Все индексы и кеш данных будет удалён! Восстановление "
 "невозможно! Сами файлы и данные останутся нетронутыми.</b>\n"
@@ -1490,8 +1497,8 @@ msgid ""
 "An 'index' is an ordered referenced to a piece of data. We use indexes to be "
 "able to quickly find your information and content."
 msgstr ""
-"«Индекс» — это упорядоченная привязка к части данных. Индексы используются для "
-"быстрого поиска файлов и информации."
+"«Индекс» — это упорядоченная привязка к части данных. Индексы используются "
+"для быстрого поиска файлов и информации."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:61
 msgid "Reset Indexed Data"
@@ -1513,13 +1520,13 @@ msgstr "Запуск"
 msgid "System"
 msgstr "Система"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Каталог"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1527,35 +1534,35 @@ msgstr ""
 "Сделанные вами изменения в параметрах требуют переиндексирования, чтобы все "
 "данные были правильно проиндексированы."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Это приведёт к закрытию этого диалога!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Переиндексировать сейчас?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Переиндексировать"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Ничего не делать"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
 msgstr ""
 "Сделанные вами изменения в параметрах требуют перезапуска процессов tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Перезапустить сейчас?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Перезапустить Tracker"
 
@@ -1566,38 +1573,38 @@ msgstr "Перезапустить Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Отключено"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Введите значение"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "_Отмена"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_ОК"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Выбрать каталог"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "Этот каталог уже выбран в качестве места для индекса"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Рекурсивно"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Настройки поиска"
 
@@ -1689,8 +1696,8 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
-"Следить за изменениями и вносить в базу данных в реальном времени (т.е. источники "
-"или файлы будут автоматически добавляться)"
+"Следить за изменениями и вносить в базу данных в реальном времени (т.е. "
+"источники или файлы будут автоматически добавляться)"
 
 #: ../src/tracker/tracker-daemon.c:139
 msgid "ONTOLOGY"
@@ -2041,6 +2048,7 @@ msgstr "возможно отключённый модуль?"
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
+"Если параметры не указаны, то отображается состояние хранения и поиска данных"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
 #: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
@@ -2077,8 +2085,7 @@ msgstr "Переиндексировать указанный файл"
 
 #: ../src/tracker/tracker-index.c:62
 msgid "Backup current index / database to the file provided"
-msgstr ""
-"Сделать резервную копию индекса / базы данных в указанный файл"
+msgstr "Сделать резервную копию индекса / базы данных в указанный файл"
 
 #: ../src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
@@ -2140,8 +2147,8 @@ msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
-"Только одно из действий (--backup, --restore, --index-file или --import) может "
-"быть использовано за раз"
+"Только одно из действий (--backup, --restore, --index-file или --import) "
+"может быть использовано за раз"
 
 #: ../src/tracker/tracker-index.c:437
 msgid "Missing one or more files which are required"
@@ -2212,11 +2219,14 @@ msgstr "Результаты"
 
 #: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
-msgstr "Введите «tracker help <команда>» для информации о специфичных подкомандах."
+msgstr ""
+"Введите «tracker help <команда>» для информации о специфичных подкомандах."
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
+"Запуск, остановка, приостановка и перечисление процессов ответственных за "
+"индексирование содержимого"
 
 #: ../src/tracker/tracker-main.c:98
 msgid "Get help on how to use Tracker and any of these commands"
@@ -2231,6 +2241,8 @@ msgstr ""
 #: ../src/tracker/tracker-main.c:100
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
+"Резервное копирование, восстановление, импорт и (ре)индекс по типу MIME или "
+"имени файла"
 
 #: ../src/tracker/tracker-main.c:101
 msgid "Reset or remove index and revert configurations to defaults"
@@ -2239,27 +2251,32 @@ msgstr "Сброс или удаление индекса и возвращен�
 #: ../src/tracker/tracker-main.c:102
 msgid "Search for content indexed or show content by type"
 msgstr ""
+"Поиск проиндексированного содержимого или отображение содержимого по типу"
 
 #: ../src/tracker/tracker-main.c:103
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
+"Запрашивать и обновлять индекс, используя SPARQL или искать, перечислять и "
+"создавать дерево онтологии"
 
 #: ../src/tracker/tracker-main.c:104
 msgid "Query the database at the lowest level using SQL"
-msgstr ""
+msgstr "Запрос к базе данных на самом низком уровне с использованием SQL"
 
 #: ../src/tracker/tracker-main.c:105
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
+"Показать прогресс индексации, статистику содержимого и состояние индекса"
 
 #: ../src/tracker/tracker-main.c:106
 msgid "Create, list or delete tags for indexed content"
 msgstr ""
+"Создание, перечисление или удаление тегов для индексированного содержимого"
 
 #: ../src/tracker/tracker-main.c:107
 msgid "Show the license and version in use"
-msgstr ""
+msgstr "Показать используемую лицензию и версию"
 
 #: ../src/tracker/tracker-main.c:152
 #, c-format
@@ -2270,35 +2287,35 @@ msgstr "«%s» не является командой tracker. Смотрите 
 msgid "Available tracker commands are:"
 msgstr "Доступные команды tracker:"
 
-#: ../src/tracker/tracker-process.c:65
+#: ../src/tracker/tracker-process.c:74
 msgid "Could not open /proc"
 msgstr "Не удалось открыть /proc"
 
-#: ../src/tracker/tracker-process.c:115
+#: ../src/tracker/tracker-process.c:124
 msgid "Could not stat() file"
 msgstr "Ошибка вызова stat()"
 
-#: ../src/tracker/tracker-process.c:183
+#: ../src/tracker/tracker-process.c:193
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Не удалось открыть «%s»"
 
-#: ../src/tracker/tracker-process.c:268
+#: ../src/tracker/tracker-process.c:322
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Не удалось завершить процесс %d - «%s»"
 
-#: ../src/tracker/tracker-process.c:274
+#: ../src/tracker/tracker-process.c:328
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Завершённый процесс %d - «%s»"
 
-#: ../src/tracker/tracker-process.c:289
+#: ../src/tracker/tracker-process.c:343
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Не удалось убить процесс %d - «%s»"
 
-#: ../src/tracker/tracker-process.c:295
+#: ../src/tracker/tracker-process.c:349
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Убитый процесс %d - «%s»"
@@ -2787,6 +2804,21 @@ msgstr ""
 "Аргумент --list-properties может быть пустым только при использовании "
 "аргумента --tree"
 
+#: ../src/tracker/tracker-sql.c:43
+#| msgid "Path to use to run a query or update from file"
+msgid "Path to use to run a query from file"
+msgstr "Путь, используемый для выполнения запроса из файла"
+
+#: ../src/tracker/tracker-sql.c:47
+#| msgid "SPARQL query"
+msgid "SQL query"
+msgstr "Запрос SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+#| msgid "SPARQL"
+msgid "SQL"
+msgstr "SQL"
+
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
 msgstr "Не удалось инициализировать диспетчер данных"
@@ -2890,14 +2922,13 @@ msgid "Data is still being indexed"
 msgstr "Данные ещё индексируются"
 
 #: ../src/tracker/tracker-status.c:667
-#, fuzzy, c-format
+#, c-format
 msgid "Estimated %s left"
-msgstr "Расчётное время: %s"
+msgstr "Расчётное время %s"
 
 #: ../src/tracker/tracker-status.c:671
-#, fuzzy
 msgid "All data miners are idle, indexing complete"
-msgstr "Все miners свободны, завершение индексирования"
+msgstr "Все службы поиска данных в режиме ожидания, индексация завершена"
 
 #: ../src/tracker/tracker-tag.c:53
 msgid ""
@@ -3069,3 +3100,9 @@ msgstr "— запустить службу обратной записи"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Сохранённые запросы"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Добавить ленту (должно использовать с --title)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "Добавление ленты требует параметров --add-feed и --title"
