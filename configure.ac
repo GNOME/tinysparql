@@ -647,7 +647,7 @@ if test x$enable_functional_tests != "xno"; then
          [AM_PYTHON_CHECK_VERSION([$PYTHON],[$PYTHON_REQUIRED],[:],[PYTHON=":"])])
 
    if test "$PYTHON" = ":"; then
-      AC_MSG_ERROR([Couldn't find Python >= $PYTHON_REQUIRED (for functional-tests, try --disable-functional-tests).])
+      AC_MSG_ERROR([Could not find Python >= $PYTHON_REQUIRED (for functional-tests, try --disable-functional-tests).])
    fi
 
    AC_DEFINE(DIST_FUNCTIONAL_TESTS, 1, [Include functional tests in the installation])
@@ -795,7 +795,7 @@ fi
 
 if test "x$enable_libstemmer" = "xyes"; then
    if test "x$have_libstemmer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libstemmer.])
+      AC_MSG_ERROR([Could not find libstemmer.])
    fi
 fi
 
@@ -939,7 +939,7 @@ AS_IF([test "x$enable_upower" != "xno"], [
 
 if test "x$enable_upower" = "xyes"; then
    if test "x$have_upower" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find upower >= $UPOWER_REQUIRED.])
+      AC_MSG_ERROR([Could not find upower >= $UPOWER_REQUIRED.])
    fi
 fi
 
@@ -976,7 +976,7 @@ if test "x$enable_hal" = "xyes"; then
    if test "x$have_upower" = "xyes"; then
       AC_MSG_ERROR([Only one of UPower and HAL can be used.])
    elif test "x$have_hal" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find hal >= $HAL_REQUIRED.])
+      AC_MSG_ERROR([Could not find hal >= $HAL_REQUIRED.])
    fi
 fi
 
@@ -1020,7 +1020,7 @@ if test "x$with_unicode_support" = "xauto"; then
       if test "x$have_libunistring" = "xyes"; then
          with_unicode_support=libunistring
       else
-         AC_MSG_ERROR([Couldn't find either libunistring or libicu])
+         AC_MSG_ERROR([Could not find either libunistring or libicu])
       fi
    fi
 fi
@@ -1036,7 +1036,7 @@ case "x$with_unicode_support" in
         if test "x$have_libunistring" = "xyes"; then
            AC_DEFINE(HAVE_LIBUNISTRING, [1], [libunistring Unicode support library])
         else
-           AC_MSG_ERROR([Couldn't find libunistring])
+           AC_MSG_ERROR([Could not find libunistring])
         fi
      ;;
      # Use libicu
@@ -1046,7 +1046,7 @@ case "x$with_unicode_support" in
         if test "x$have_libicu" = "xyes"; then
           AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
         else
-          AC_MSG_ERROR([Couldn't find libicu])
+          AC_MSG_ERROR([Could not find libicu])
         fi
      ;;
      # Invalid option value
@@ -1100,7 +1100,7 @@ fi
 
 if test "x$enable_network_manager" = "xyes"; then
    if test "x$have_network_manager" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
+      AC_MSG_ERROR([Could not find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
    fi
 fi
 
@@ -1147,7 +1147,7 @@ fi
 
 if test "x$enable_libmediaart" = "xyes"; then
    if test "x$have_libmediaart" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libmediaart >= $LIBMEDIAART_REQUIRED.])
+      AC_MSG_ERROR([Could not find libmediaart >= $LIBMEDIAART_REQUIRED.])
    fi
 fi
 
@@ -1181,7 +1181,7 @@ fi
 
 if test "x$enable_libexif" = "xyes"; then
    if test "x$have_libexif" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libexif >= $LIBEXIF_REQUIRED.])
+      AC_MSG_ERROR([Could not find libexif >= $LIBEXIF_REQUIRED.])
    fi
 fi
 
@@ -1215,7 +1215,7 @@ fi
 
 if test "x$enable_libiptcdata" = "xyes"; then
    if test "x$have_libiptcdata" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libiptcdata.])
+      AC_MSG_ERROR([Could not find libiptcdata.])
    fi
 fi
 
@@ -1252,7 +1252,7 @@ fi
 
 if test "x$enable_exempi" = "xyes"; then
    if test "x$have_exempi" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find exempi >= $EXEMPI_REQUIRED.])
+      AC_MSG_ERROR([Could not find exempi >= $EXEMPI_REQUIRED.])
    fi
 fi
 
@@ -1308,7 +1308,7 @@ enable_tracker_miner_fs=$enable_miner_fs
 
 if test "x$enable_tracker_miner_fs" = "xyes"; then
    if test "x$have_tracker_miner_fs" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-fs dependencies ($TRACKER_MINER_FS_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-miner-fs dependencies ($TRACKER_MINER_FS_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_fs" = "xno"; then
@@ -1332,7 +1332,7 @@ AC_ARG_ENABLE(tracker-extract,
 
 if test "x$enable_tracker_extract" = "xyes"; then
    if test "x$have_tracker_extract" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-extract dependencies ($TRACKER_EXTRACT_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-extract dependencies ($TRACKER_EXTRACT_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_extract" = "xno"; then
@@ -1356,7 +1356,7 @@ AC_ARG_ENABLE(tracker-writeback,
 
 if test "x$enable_tracker_writeback" = "xyes"; then
    if test "x$have_tracker_writeback" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-writeback dependencies ($TRACKER_WRITEBACK_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-writeback dependencies ($TRACKER_WRITEBACK_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_writeback" = "xno"; then
@@ -1382,7 +1382,7 @@ enable_tracker_miner_apps=$enable_miner_apps
 
 if test "x$enable_tracker_miner_apps" = "xyes"; then
    if test "x$have_tracker_miner_apps" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-apps dependencies ($TRACKER_MINER_APPS_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-miner-apps dependencies ($TRACKER_MINER_APPS_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_apps" = "xno"; then
@@ -1408,7 +1408,7 @@ enable_tracker_miner_user_guides=$enable_miner_user_guides
 
 if test "x$enable_tracker_miner_user_guides" = "xyes"; then
    if test "x$have_tracker_miner_user_guides" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-user-guides dependencies ($TRACKER_MINER_USER_GUIDES_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-miner-user-guides dependencies ($TRACKER_MINER_USER_GUIDES_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_user_guides" = "xno"; then
@@ -1432,7 +1432,7 @@ enable_tracker_miner_rss=$enable_miner_rss
 
 if test "x$enable_tracker_miner_rss" = "xyes" ; then
    if test "x$have_tracker_miner_rss" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-rss dependencies ($TRACKER_MINER_RSS_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-miner-rss dependencies ($TRACKER_MINER_RSS_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_rss" = "xno" ; then
@@ -1458,7 +1458,7 @@ enable_tracker_miner_evolution=$enable_miner_evolution
 
 if test "x$enable_tracker_miner_evolution" = "xyes"; then
    if test "x$have_tracker_miner_evolution" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Tracker Evolution plugin ($TRACKER_MINER_EVOLUTION_REQUIRED).])
+      AC_MSG_ERROR([Could not find Tracker Evolution plugin ($TRACKER_MINER_EVOLUTION_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_evolution" = "xno"; then
@@ -1474,7 +1474,7 @@ if test "x$have_tracker_miner_evolution" = "xyes"; then
                [tracker_miner_evolution_install_dir=`$PKG_CONFIG $evolution_plugin_name --variable=plugindir`],
 
    if test -z $tracker_miner_evolution_install_dir; then
-      AC_MSG_ERROR([Couldn't find evolution plugin dir, consider using --with-evolution-plugin-dir.])
+      AC_MSG_ERROR([Could not find evolution plugin dir, consider using --with-evolution-plugin-dir.])
    fi
 fi
 
@@ -1499,7 +1499,7 @@ enable_tracker_miner_thunderbird=$enable_miner_thunderbird
 
 if test "x$enable_tracker_miner_thunderbird" = "xyes"; then
    if test "x$have_tracker_miner_thunderbird" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Thunderbird ($TRACKER_MINER_THUNDERBIRD_REQUIRED).])
+      AC_MSG_ERROR([Could not find Thunderbird ($TRACKER_MINER_THUNDERBIRD_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_thunderbird" = "xno"; then
@@ -1517,7 +1517,7 @@ if test "x$have_tracker_miner_thunderbird" = "xyes"; then
                [tracker_miner_thunderbird_install_dir=${prefix}/lib/thunderbird-addons/extensions])
 
    if test -z $tracker_miner_thunderbird_install_dir; then
-      AC_MSG_ERROR([Couldn't find thunderbird plugin dir, consider using --with-thunderbird-plugin-dir.])
+      AC_MSG_ERROR([Could not find thunderbird plugin dir, consider using --with-thunderbird-plugin-dir.])
    fi
 fi
 
@@ -1542,7 +1542,7 @@ enable_tracker_miner_firefox=$enable_miner_firefox
 
 if test "x$enable_tracker_miner_firefox" = "xyes"; then
    if test "x$have_tracker_miner_firefox" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Firefox ($TRACKER_MINER_FIREFOX_REQUIRED).])
+      AC_MSG_ERROR([Could not find Firefox ($TRACKER_MINER_FIREFOX_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_firefox" = "xno"; then
@@ -1560,7 +1560,7 @@ if test "x$have_tracker_miner_firefox" = "xyes"; then
                [tracker_miner_firefox_install_dir=${prefix}/lib/firefox-addons/extensions])
 
    if test -z $tracker_miner_firefox_install_dir; then
-      AC_MSG_ERROR([Couldn't find firefox plugin dir, consider using --with-firefox-plugin-dir.])
+      AC_MSG_ERROR([Could not find firefox plugin dir, consider using --with-firefox-plugin-dir.])
    fi
 fi
 
@@ -1583,7 +1583,7 @@ enable_tracker_nautilus_extension=$enable_nautilus_extension
 
 if test "x$enable_tracker_nautilus_extension" = "xyes"; then
    if test "x$have_tracker_nautilus_extension" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Tracker Nautilus extension dependencies ($TRACKER_NAUTILUS_EXTENSION_REQUIRED).])
+      AC_MSG_ERROR([Could not find Tracker Nautilus extension dependencies ($TRACKER_NAUTILUS_EXTENSION_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_nautilus_extension" = "xno"; then
@@ -1643,7 +1643,7 @@ AC_ARG_ENABLE([tracker-needle],
 
 if test "x$enable_tracker_needle" = "xyes" ; then
    if test "x$have_tracker_needle" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_needle" = "xno"; then
@@ -1677,7 +1677,7 @@ fi
 
 if test "x$enable_tracker_preferences" = "xyes" ; then
    if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
+      AC_MSG_ERROR([Could not find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_preferences" = "xno"; then
@@ -1775,7 +1775,7 @@ fi
 
 if test "x$enable_libxml2" = "xyes"; then
    if test "x$have_libxml2" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libxml2 >= $LIBXML2_REQUIRED.])
+      AC_MSG_ERROR([Could not find libxml2 >= $LIBXML2_REQUIRED.])
    fi
 fi
 
@@ -1801,7 +1801,7 @@ fi
 
 if test "x$enable_cfg_man_pages" = "xyes"; then
    if test -z "$XSLTPROC"; then
-      AC_MSG_ERROR([Couldn't find xsltproc, try installing libxslt.])
+      AC_MSG_ERROR([Could not find xsltproc, try installing libxslt.])
    fi
 fi
 
@@ -1866,14 +1866,14 @@ elif test "x$enable_generic_media_extractor" = "xgstreamer"; then
       have_generic_media_handler_app="GStreamer"
       have_generic_media_handler="yes"
    else
-      AC_MSG_ERROR([Couldn't find GStreamer >= $GSTREAMER_REQUIRED])
+      AC_MSG_ERROR([Could not find GStreamer >= $GSTREAMER_REQUIRED])
    fi
 elif test "x$enable_generic_media_extractor" = "xlibav"; then
    if test "$have_libavformat" = "yes" && test "$have_libavcodec" = "yes" && test "$have_libavutil" = "yes"; then
       have_generic_media_handler_app="libav"
       have_generic_media_handler="yes"
    else
-      AC_MSG_ERROR([Couldn't find libav])
+      AC_MSG_ERROR([Could not find libav])
    fi
 else
    have_generic_media_handler="?"
@@ -1917,7 +1917,7 @@ else
            AC_SUBST(GSTREAMER_PBUTILS_LIBS)
 
            if test "x$have_gstreamer_pbutils" != "xyes"; then
-              AC_MSG_ERROR([Couldn't find GStreamer pbutils])
+              AC_MSG_ERROR([Could not find GStreamer pbutils])
            fi
 
            gstreamer_backend="Discoverer"
@@ -1935,7 +1935,7 @@ else
               gstreamer_backend="GUPnP-DLNA"
               AC_DEFINE(GSTREAMER_BACKEND_GUPNP_DLNA, [], [Define that GUPnP-DLNA should be used])
            else
-              AC_MSG_ERROR([Couldn't find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
+              AC_MSG_ERROR([Could not find GUPnP-DLNA >= $GUPNP_DLNA_REQUIRED])
            fi
         ;;
         # Invalid option value
@@ -1988,7 +1988,7 @@ fi
 
 if test "x$enable_poppler" = "xyes"; then
    if test "x$have_poppler" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find poppler-glib >= $POPPLER_REQUIRED.])
+      AC_MSG_ERROR([Could not find poppler-glib >= $POPPLER_REQUIRED.])
    fi
 fi
 
@@ -2022,7 +2022,7 @@ fi
 
 if test "x$enable_libgxps" = "xyes"; then
    if test "x$have_libgxps" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libgxps.])
+      AC_MSG_ERROR([Could not find libgxps.])
    fi
 fi
 
@@ -2056,7 +2056,7 @@ fi
 
 if test "x$enable_libgsf" = "xyes"; then
    if test "x$have_libgsf" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libgsf >= $LIBGSF_REQUIRED.])
+      AC_MSG_ERROR([Could not find libgsf >= $LIBGSF_REQUIRED.])
    fi
 fi
 
@@ -2090,7 +2090,7 @@ fi
 
 if test "x$enable_libosinfo" = "xyes"; then
    if test "x$have_libosinfo" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libosinfo >= $LIBOSINFO_REQUIRED.])
+      AC_MSG_ERROR([Could not find libosinfo >= $LIBOSINFO_REQUIRED.])
    fi
 fi
 
@@ -2137,7 +2137,7 @@ fi
 
 if test "x$enable_libgif" = "xyes"; then
    if test "x$have_libgif" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libgif >= $LIBGIF_REQUIRED.])
+      AC_MSG_ERROR([Could not find libgif >= $LIBGIF_REQUIRED.])
    fi
 fi
 
@@ -2188,7 +2188,7 @@ fi
 
 if test "x$enable_libjpeg" = "xyes"; then
    if test "x$have_libjpeg" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libjpeg >= $LIBJPEG_REQUIRED.])
+      AC_MSG_ERROR([Could not find libjpeg >= $LIBJPEG_REQUIRED.])
    fi
 fi
 
@@ -2239,7 +2239,7 @@ fi
 
 if test "x$enable_libtiff" = "xyes"; then
    if test "x$have_libtiff" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libtiff >= $LIBTIFF_REQUIRED.])
+      AC_MSG_ERROR([Could not find libtiff >= $LIBTIFF_REQUIRED.])
    fi
 fi
 
@@ -2290,7 +2290,7 @@ fi
 
 if test "x$enable_libpng" = "xyes"; then
    if test "x$have_libpng" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libpng >= $LIBPNG_REQUIRED.])
+      AC_MSG_ERROR([Could not find libpng >= $LIBPNG_REQUIRED.])
    fi
 fi
 
@@ -2328,7 +2328,7 @@ fi
 
 if test "x$enable_libvorbis" = "xyes"; then
    if test "x$have_libvorbis" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libvorbis >= $LIBVORBIS_REQUIRED.])
+      AC_MSG_ERROR([Could not find libvorbis >= $LIBVORBIS_REQUIRED.])
    fi
 fi
 
@@ -2361,7 +2361,7 @@ fi
 
 if test "x$enable_libflac" = "xyes"; then
    if test "x$have_libflac" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libflac >= $LIBFLAC_REQUIRED.])
+      AC_MSG_ERROR([Could not find libflac >= $LIBFLAC_REQUIRED.])
    fi
 fi
 
@@ -2395,7 +2395,7 @@ fi
 
 if test "x$enable_libcue" = "xyes"; then
    if test "x$have_libcue" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libcue.])
+      AC_MSG_ERROR([Could not find libcue.])
    fi
 fi
 
@@ -2560,7 +2560,7 @@ fi
 
 if test "x$enable_playlist" = "xyes"; then
    if test "x$have_playlist" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Totem PL parser.])
+      AC_MSG_ERROR([Could not find Totem PL parser.])
    fi
 fi
 
