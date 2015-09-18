@@ -13,23 +13,23 @@
 # Wolfgang Stöggl <c72578@yahoo.de>, 2011, 2014.
 # Paul Seyfert <pseyfert@mathphys.fsk.uni-heidelberg.de>, 2011.
 # Christian Kirbach <christian.kirbach@gmail.com>, 2009, 2010, 2011, 2013.
-# Bernd Homuth <dev@hmt.im>, 2014.
+# Bernd Homuth <dev@hmt.im>, 2014, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-07-31 17:09+0000\n"
-"PO-Revision-Date: 2015-07-31 15:10+0100\n"
-"Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
-"Language-Team: Deutsch <gnome-de@gnome.org> <>\n"
+"POT-Creation-Date: 2015-09-14 12:20+0000\n"
+"PO-Revision-Date: 2015-09-17 21:25+0200\n"
+"Last-Translator: Bernd Homuth <dev@hmt.im>\n"
+"Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"X-Generator: Poedit 1.8.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.6\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -192,7 +192,7 @@ msgstr "Fehler beim Starten von »tar«"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
-#: ../src/miners/rss/tracker-main.c:114
+#: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:146
 #: ../src/tracker-needle/tracker-tags-view.vala:159
@@ -206,8 +206,8 @@ msgstr "Fehler beim Starten von »tar«"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:66 ../src/tracker/tracker-process.c:186
-#: ../src/tracker/tracker-process.c:271 ../src/tracker/tracker-process.c:292
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
+#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -618,11 +618,11 @@ msgstr "Würde überwacht werden"
 msgid "- start the tracker indexer"
 msgstr "- startet die Tracker-Indizierung"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "Akkuzustand niedrig"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "Wenig Speicherplatz"
 
@@ -642,15 +642,16 @@ msgstr "RSS/ATOM-Nachrichtenquellen"
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "RSS/ATOM-Nachrichtenquellen abfragen"
 
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "Nachrichtenquelle hinzufügen (»--title« ist erforderlich)"
-
+#. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Nachrichtenquelle hinzufügen"
+
+#: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
 msgstr "URL"
 
-#: ../src/miners/rss/tracker-main.c:48
+#: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
 msgstr "Zu verwendender Titel (zusammen mit »--add-feed« zu verwenden)"
 
@@ -659,14 +660,9 @@ msgstr "Zu verwendender Titel (zusammen mit »--add-feed« zu verwenden)"
 #.
 #: ../src/miners/rss/tracker-main.c:73
 msgid "- start the feeds indexer"
-msgstr "- startet die Quellen-Indizierung"
+msgstr "- startet die Nachrichtenquellen-Indizierung"
 
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr ""
-"Nachrichtenquelle wird hinzugefügt, die »--add-feed« und »--title« erfordert"
-
-#: ../src/miners/rss/tracker-main.c:113 ../src/tracker/tracker-index.c:195
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
@@ -674,7 +670,7 @@ msgstr ""
 msgid "Could not establish a connection to Tracker"
 msgstr "Es konnte keine Verbindung zu Tracker aufgebaut werden"
 
-#: ../src/miners/rss/tracker-main.c:139
+#: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
 msgstr "Nachrichtenquelle konnte nicht hinzugefügt werden"
 
@@ -796,11 +792,11 @@ msgstr ""
 "nützlich, wo es wichtig ist, Dateien so schnell wie möglich aufzulisten und "
 "auf Meta-Daten gewartet werden kann."
 
-#: ../src/tracker-extract/tracker-extract.c:789
+#: ../src/tracker-extract/tracker-extract.c:797
 msgid "Metadata extraction failed"
 msgstr "Auslesen von Metadaten schlug fehl"
 
-#: ../src/tracker-extract/tracker-extract.c:854
+#: ../src/tracker-extract/tracker-extract.c:862
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Es wurden keine Metadaten gefunden oder keine Entdecker, die mit dieser "
@@ -855,6 +851,19 @@ msgstr "Tracker Metadaten-Entdecker"
 msgid "Extracts metadata from local files"
 msgstr "Liest Metadaten aus lokalen Dateien"
 
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Standardansicht"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+"Bei 0 ist die Standardeinstellung für die Tracker-Nadel die Symbolansicht, "
+"bei 1 die Kategorieansicht und bei 2 die Dateiansicht."
+
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
@@ -889,56 +898,61 @@ msgstr "Suchkriterien auf Dateiinhalte anwenden"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:6
 msgid "Find search criteria in file titles"
-msgstr "Suchkriterien auf Dateinamen anwenden"
+msgstr "Suchkriterien in Dateinamen finden"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
+#| msgid "Find search criteria in file titles"
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "Suchkriterien auf Dateinamen anwenden (getrennt durch Kommata)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
 msgstr "S_uchen:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:8
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
 "Schlagwortleiste anzeigen, welche die Bearbeitung der ausgewählten "
 "Ergebnisse ermöglicht"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:9
+#: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
 msgstr "Statistiken zu den gespeicherten Daten anzeigen"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:11
+#: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
 msgstr ""
 "_Schlagwörter festlegen, die %d ausgewählten Objekten zugeordnet werden "
 "sollen:"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:12
+#: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
 msgstr "Schlagwort hinzufügen"
 
-#: ../src/tracker-needle/tracker-needle.ui.h:13
+#: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
 msgstr "Ausgewähltes Schlagwort entfernen"
 
-#: ../src/tracker-needle/tracker-needle.vala:71
+#: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
 msgstr "Suchkriterien waren zu allgemein"
 
-#: ../src/tracker-needle/tracker-needle.vala:72
+#: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
 msgstr "Nur die ersten 500 Einträge werden angezeigt"
 
-#: ../src/tracker-needle/tracker-needle.vala:731
+#: ../src/tracker-needle/tracker-needle.vala:811
 #: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Version ausgeben"
 
-#: ../src/tracker-needle/tracker-needle.vala:738
-#: ../src/tracker-needle/tracker-needle.vala:739
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
 msgstr "[SUCHKRITERIEN]"
 
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
 msgstr "Benutzerschnittstelle für die Dateisuche mit Tracker"
 
@@ -2258,6 +2272,8 @@ msgstr "Nach indiziertem Inhalt suchen oder Inhalt nach Typ anzeigen"
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
+"Den Index mit SPAQL abfragen und aktualisieren oder die Ontologie "
+"durchsuchen, auflisten und als Baum darstellen."
 
 #: ../src/tracker/tracker-main.c:104
 msgid "Query the database at the lowest level using SQL"
@@ -2271,7 +2287,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-main.c:106
 msgid "Create, list or delete tags for indexed content"
-msgstr ""
+msgstr "Schlagwörter für indizierten Inhalt erstellen, auflisten oder löschen"
 
 #: ../src/tracker/tracker-main.c:107
 msgid "Show the license and version in use"
@@ -2286,35 +2302,35 @@ msgstr "»%s« ist kein Tracker-Befehl. Lesen Sie auch »tracker --help«"
 msgid "Available tracker commands are:"
 msgstr "Es gibt folgende verfügbare Befehle in Tracker:"
 
-#: ../src/tracker/tracker-process.c:65
+#: ../src/tracker/tracker-process.c:74
 msgid "Could not open /proc"
 msgstr "/proc konnte nicht geöffnet werden"
 
-#: ../src/tracker/tracker-process.c:115
+#: ../src/tracker/tracker-process.c:124
 msgid "Could not stat() file"
 msgstr "stat() konnte nicht auf die Datei angewendet werden"
 
-#: ../src/tracker/tracker-process.c:183
+#: ../src/tracker/tracker-process.c:193
 #, c-format
 msgid "Could not open '%s'"
 msgstr "»%s« konnte nicht geöffnet werden"
 
-#: ../src/tracker/tracker-process.c:268
+#: ../src/tracker/tracker-process.c:322
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Prozess %d konnte nicht beendet werden - »%s«"
 
-#: ../src/tracker/tracker-process.c:274
+#: ../src/tracker/tracker-process.c:328
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Prozess %d wurde beendet - »%s«"
 
-#: ../src/tracker/tracker-process.c:289
+#: ../src/tracker/tracker-process.c:343
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Prozess %d konnte nicht eliminiert werden - »%s«"
 
-#: ../src/tracker/tracker-process.c:295
+#: ../src/tracker/tracker-process.c:349
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Prozess %d wurde eliminiert - »%s«"
@@ -2812,24 +2828,19 @@ msgstr ""
 "Argument --tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#, fuzzy
 #| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
-msgstr ""
-"Der zu verwendende Pfad bei Ausführung einer Anfrage oder Aktualisierung von "
-"einer Datei"
+msgstr "Der zu verwendende Pfad bei Ausführung einer Anfrage von einer Datei"
 
 #: ../src/tracker/tracker-sql.c:47
-#, fuzzy
 #| msgid "SPARQL query"
 msgid "SQL query"
-msgstr "SPARQL-Abfrage"
+msgstr "SQL-Abfrage"
 
 #: ../src/tracker/tracker-sql.c:48
-#, fuzzy
 #| msgid "SPARQL"
 msgid "SQL"
-msgstr "SPARQL"
+msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
@@ -3119,6 +3130,14 @@ msgstr "- startet die Tracker-Indizierung"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Gespeicherte Abfragen"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "Nachrichtenquelle hinzufügen (»--title« ist erforderlich)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr ""
+#~ "Nachrichtenquelle wird hinzugefügt, die »--add-feed« und »--title« "
+#~ "erfordert"
 
 #~ msgid " - Manage Tracker processes and data"
 #~ msgstr "- Tracker-Prozesse und Daten verwalten"
