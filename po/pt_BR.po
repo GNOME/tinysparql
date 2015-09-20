@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-08-04 17:39+0000\n"
-"PO-Revision-Date: 2015-08-08 10:44-0300\n"
+"POT-Creation-Date: 2015-09-19 12:23+0000\n"
+"PO-Revision-Date: 2015-09-19 20:47-0300\n"
 "Last-Translator: Felipe Braga <fbobraga@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.8.1\n"
 "X-Project-Style: gnome\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -611,11 +611,11 @@ msgstr "Devem ser monitorados"
 msgid "- start the tracker indexer"
 msgstr "- inicia o indexador do Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "Bateria baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "Pouco espaço em disco"
 
@@ -638,7 +638,7 @@ msgstr "Obter atualizações de RSS/ATOM"
 #. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
 msgid "Add feed"
-msgstr ""
+msgstr "Adicionar fonte"
 
 #: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
@@ -2795,22 +2795,17 @@ msgstr ""
 "argumento --tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#, fuzzy
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
-msgstr "Caminho para usar na execução da consulta ou atualização de um arquivo"
+msgstr "Caminho para usar na execução da consulta de um arquivo"
 
 #: ../src/tracker/tracker-sql.c:47
-#, fuzzy
-#| msgid "SPARQL query"
 msgid "SQL query"
-msgstr "Consulta SPARQL"
+msgstr "Consulta SQL"
 
 #: ../src/tracker/tracker-sql.c:48
-#, fuzzy
 #| msgid "SPARQL"
 msgid "SQL"
-msgstr "SPARQL"
+msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
