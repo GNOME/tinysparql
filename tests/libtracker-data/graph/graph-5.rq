@@ -1,0 +1,5 @@
+SELECT ?g ?p ?v WHERE {
+	GRAPH ?g {
+		example:resource ?p ?v
+	}
+} ORDER BY ?g ?p ?v

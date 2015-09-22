@@ -16,4 +16,6 @@ EXTRA_DIST += \
 	graph-3.out                                    \
 	graph-3.rq                                     \
 	graph-4.out                                    \
-	graph-4.rq
+	graph-4.rq                                     \
+	graph-5.out                                    \
+	graph-5.rq
