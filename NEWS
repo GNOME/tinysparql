@@ -1,3 +1,12 @@
+NEW in 1.6.0 - 2015-09-22
+=========================
+
+  * tracker-extract: Fix synchronization with tracker-miner-fs when wait-for-miner-fs=TRUE
+  * tracker-miner-fs: Fix crash during startup
+  * tracker-extract: Fix builtin dummy module struct
+
+Translations: da, de, el, fr, gl, id, ko, pl, pt_BR, nb, sl, sv, tr, ru, zh_TW
+
 NEW in 1.5.2 - 2015-08-20
 =========================
 
