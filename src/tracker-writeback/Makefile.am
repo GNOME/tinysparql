@@ -70,6 +70,9 @@ config_DATA = tracker-writeback.xml
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.Writeback.service
 
+systemd_userdir = $(prefix)/lib/systemd/user
+systemd_user_DATA = tracker-writeback.service
+
 # Configuration / GSettings
 gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
 gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
@@ -83,11 +86,13 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Writeback.gschema.xml
 # Dist / Clean rules for all data
 CLEANFILES = \
 	$(service_DATA) \
+	$(systemd_user_DATA) \
 	$(gsettings_SCHEMAS) \
 	$(man_MANS)
 
 EXTRA_DIST = \
 	$(service_DATA:.service=.service.in) \
+	$(systemd_user_DATA:.service=.service.in) \
 	$(config_DATA) \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
 	$(man_MANS)

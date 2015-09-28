@@ -76,6 +76,9 @@ config_DATA = \
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.freedesktop.Tracker1.service
 
+systemd_userdir = $(prefix)/lib/systemd/user
+systemd_user_DATA = tracker-store.service
+
 # Desktop files: First we fix the VERSION and libexecdir
 %.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
@@ -104,12 +107,14 @@ CLEANFILES = \
 	$(autostart_DATA) \
 	$(autostart_DATA:.desktop=.desktop.in) \
 	$(service_DATA) \
+	$(systemd_user_DATA) \
 	$(gsettings_SCHEMAS) \
 	$(man_MANS)
 
 EXTRA_DIST += \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(service_DATA:.service=.service.in) \
+	$(systemd_user_DATA:.service=.service.in) \
 	$(config_DATA) \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
 	$(man_MANS)

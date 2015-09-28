@@ -1,6 +1,7 @@
 [D-BUS Service]
 Name=org.freedesktop.Tracker1.Miner.Userguides
 Exec=@libexecdir@/tracker-miner-user-guides
+SystemdService=tracker-miner-user-guides.service
 
 # Miner details needed for tracker-control
 Path=/org/freedesktop/Tracker1/Miner/Userguides

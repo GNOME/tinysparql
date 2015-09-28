@@ -585,6 +585,12 @@ service_DATA = org.freedesktop.Tracker1.Miner.Extract.service
 INTLTOOL_SERVICE_RULE='%.service:   %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< [$]@ -d -u'
 @INTLTOOL_SERVICE_RULE@
 
+tracker-extract.service: tracker-extract.service.in Makefile
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+systemd_userdir = $(prefix)/lib/systemd/user
+systemd_user_DATA = tracker-extract.service
+
 install-data-hook:
 	$(MKDIR_P) "$(DESTDIR)$(datadir)/tracker/miners" && \
 	$(LN_S) -f "$(servicedir)/$(service_DATA)" \
@@ -620,6 +626,7 @@ CLEANFILES += \
 	$(autostart_DATA:.desktop=.desktop.in) \
 	$(service_DATA) \
 	$(service_DATA:.service=.service.in) \
+	$(systemd_user_DATA) \
 	$(gsettings_SCHEMAS) \
 	$(man_MANS)
 
@@ -627,5 +634,6 @@ EXTRA_DIST += \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(config_DATA) \
 	$(service_DATA:.service=.service.in.in) \
+	$(systemd_user_DATA:.service=.service.in) \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
 	$(man_MANS)
