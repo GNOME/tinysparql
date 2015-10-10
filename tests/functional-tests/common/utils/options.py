@@ -1,38 +1,25 @@
-from optparse import OptionParser
-import sys
+import os
 
-usage = "usage: %prog [options]"
+def get_environment_boolean(variable):
+    '''Parse a yes/no boolean passed through the environment.'''
 
-parser = OptionParser(usage=usage)
+    value = os.environ.get(variable, 'no').lower()
+    if value in ['no', '0', 'false']:
+        return False
+    elif value in ['yes', '1', 'true']:
+        return True
+    else:
+        raise RuntimeError('Unexpected value for %s: %s' %
+                           (variable, value))
 
-parser.add_option("-m", "--start-manually", dest="startmanually",
-                  action="store_true",
-                  default=False,
-                  help="Wait for an external instance of the processes to appear in the system")
-
-parser.add_option("-v", "--verbose", dest="verbose",
-                  action="store_true",
-                  default=False,
-                  help="Display a log of test process statuses")
-
-(options, args) = parser.parse_args()
-
-# Deleting options from the args. Otherwise unittest and the tests which
-# have their own simple commandline parsers will complain
-for option in ["--startmanually", "-m", "--verbose", "-v"]:
-    try:
-        sys.argv.remove (option)
-    except ValueError:
-        pass
-
-def is_verbose ():
+def is_verbose():
     """
     True to log process status information to stdout
     """
-    return options.verbose
+    return get_environment_boolean('TRACKER_TESTS_VERBOSE')
 
-def is_manual_start ():
+def is_manual_start():
     """
     False to start the processes automatically
     """
-    return options.startmanually
+    return get_environment_boolean('TRACKER_TESTS_MANUAL_START')
