@@ -63,6 +63,8 @@ class Helper:
         self.bus = None
         self.bus_admin = None
 
+        self.process = None
+
     def install_glib_excepthook(self, loop):
         """
         Handler to abort test if an exception occurs inside the GLib main loop.
@@ -177,6 +179,10 @@ class Helper:
         self.abort_if_process_exits_with_status_0 = False
 
     def stop (self):
+        if self.process is None:
+            # Seems that it didn't even start...
+            return
+
         start = time.time()
         if self.process.poll() == None:
             # It should step out of this loop when the miner disappear from the bus
