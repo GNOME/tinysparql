@@ -21,9 +21,8 @@
 Test the query while running BatchSparqlUpdate at the same time. This was raising
 some SQLITE_MISUSED errors before.
 """
-import os, dbus
+import os
 from gi.repository import GObject
-from dbus.mainloop.glib import DBusGMainLoop
 
 from common.utils import configuration as cfg
 import unittest2 as ut
@@ -62,10 +61,11 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
                 
                     if counter == BATCH_SIZE:
                         query = "INSERT {" + current_batch + "}"
-                        self.tracker.get_tracker_iface ().BatchSparqlUpdate (query,
-                                                          timeout=20000,
-                                                          reply_handler=self.batch_success_cb,
-                                                          error_handler=self.batch_failed_cb)
+                        self.tracker.batch_update(
+                            query,
+                            timeout=20000,
+                            result_handler=self.batch_success_cb,
+                            error_handler=self.batch_failed_cb)
                         self.run_a_query ()
                         counter = 0
                         current_batch = ""
@@ -79,12 +79,13 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
 
     def run_a_query (self):
         QUERY = "SELECT ?u ?title WHERE { ?u a nie:InformationElement; nie:title ?title. }"
-        self.tracker.get_tracker_iface ().SparqlQuery (QUERY, timeout=20000,
-                                                       reply_handler=self.reply_cb,
-                                                       error_handler=self.error_handler)
+        self.tracker.query(
+            QUERY, timeout=20000,
+            reply_handler=self.reply_cb,
+            error_handler=self.error_handler)
         return True
         
-    def reply_cb (self, results):
+    def reply_cb (self, obj, results, data):
         print "Query replied correctly"
 
     def error_handler (self, error_msg):

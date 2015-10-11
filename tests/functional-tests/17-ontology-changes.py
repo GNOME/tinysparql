@@ -22,10 +22,12 @@
 Stand-alone tests cases for the store, booting it with different ontology
 changes and checking if the data is still there.
 """
+
+from gi.repository import GLib
+
 import time
 
 import os
-import dbus # Just for the Exception
 from common.utils import configuration as cfg
 import unittest2 as ut
 #import unittest as ut
@@ -791,7 +793,7 @@ class PropertyPromotionTest (OntologyChangeTestTemplate):
            """ % (self.instance_b))
 
         self.instance_a = "test://ontology-change/property/promotion-to-superclass/a"
-        self.assertRaises (dbus.DBusException,
+        self.assertRaises (GLib.Error,
                            self.tracker.update,
                            "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
         
@@ -832,7 +834,7 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
         
     def validate_status (self):
         # This insertion should fail now
-        self.assertRaises (dbus.DBusException,
+        self.assertRaises (GLib.Error,
                            self.tracker.update,
                            "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
         # No data loss

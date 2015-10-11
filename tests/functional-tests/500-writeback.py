@@ -21,7 +21,7 @@
 Write values in tracker and check the actual values are written
 on the files. Note that these tests are highly platform dependant.
 """
-import os, dbus
+import os
 import time
 
 from common.utils.extractor import get_tracker_extract_output

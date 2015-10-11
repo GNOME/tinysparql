@@ -20,7 +20,6 @@
 """
 Test the distance-calculation functions in Sparql. Only requires the Store
 """
-import dbus
 import unittest
 import random
 

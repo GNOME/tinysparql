@@ -17,8 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
+from gi.repository import GLib
+
 import os 
-import dbus # For the exception handling
 
 from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper
@@ -120,9 +121,9 @@ class BackupRestoreTest (CommonTrackerStoreTest):
               trashfile.write ("Here some useless text that obviously is NOT a backup")
               trashfile.close ()
 
-	      self.assertRaises (dbus.DBusException,
-                                 self.tracker.restore,
-                                 "file://" + TEST_FILE)
+              self.assertRaises(GLib.Error,
+                                self.tracker.restore,
+                                "file://" + TEST_FILE)
               os.unlink (TEST_FILE)
 
         def test_backup_04 (self):
@@ -139,9 +140,9 @@ class BackupRestoreTest (CommonTrackerStoreTest):
               trashfile.close ()
 
               instances_before = self.tracker.count_instances ("nie:InformationElement")
-	      self.assertRaises (dbus.DBusException,
-                                 self.tracker.restore,
-                                 "file://" + TEST_FILE)
+              self.assertRaises(GLib.Error,
+                                self.tracker.restore,
+                                "file://" + TEST_FILE)
 
               os.unlink (TEST_FILE)
 
@@ -150,18 +151,18 @@ class BackupRestoreTest (CommonTrackerStoreTest):
 	      Take backup of db to a invalid path.
 	      Expected: Backup should not be taken and tracker should behave normally.	
 	      """
-              self.assertRaises (dbus.DBusException,
-                                 self.tracker.backup,
-                                 "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+              self.assertRaises(GLib.Error,
+                                self.tracker.backup,
+                                "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
               
 
         def test_backup_06 (self):
             """
             Try to restore an invalid path
             """
-            self.assertRaises (dbus.DBusException,
-                               self.tracker.restore,
-                               "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
+            self.assertRaises(GLib.Error,
+                              self.tracker.restore,
+                              "file://%s/this/is/a/non-existant/folder/backup" % (cfg.TEST_TMP_DIR))
 		
 
 	def test_backup_07(self):

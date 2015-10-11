@@ -20,7 +20,6 @@
 """
 Tests graphs in Sparql. Only requires the store.
 """
-import dbus
 import unittest
 import random
 

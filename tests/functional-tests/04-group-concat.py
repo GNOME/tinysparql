@@ -20,7 +20,6 @@
 """
 Test the GROUP_CONCAT function in Sparql. Only requires the store.
 """
-import dbus
 import unittest
 import random
 

@@ -6,8 +6,6 @@ import configuration as cfg
 
 from gi.repository import GObject
 from gi.repository import GLib
-import dbus
-from dbus.mainloop.glib import DBusGMainLoop
 import time
 
 import options
@@ -104,7 +102,7 @@ class TrackerSystemAbstraction:
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
         try:
             self.store.start ()
-        except dbus.DBusException, e:
+        except GLib.Error:
             raise UnableToBootException ("Unable to boot the store \n(" + str(e) + ")")
 
     def tracker_store_prepare_journal_replay (self):

@@ -20,7 +20,6 @@
 """
 Replicate the behaviour of the miner inserting information in the store.
 """
-import dbus
 import unittest
 import random
 

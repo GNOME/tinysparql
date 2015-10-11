@@ -17,14 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-import dbus
+from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 import os
 import sys
 import subprocess
 import time
-from dbus.mainloop.glib import DBusGMainLoop
 import re
 
 import configuration as cfg
@@ -59,11 +58,18 @@ class Helper:
     PROCESS_NAME = None
 
     def __init__ (self):
-        self.loop = None
-        self.bus = None
-        self.bus_admin = None
-
         self.process = None
+        self.available = False
+
+        self.loop = GObject.MainLoop ()
+        self.install_glib_excepthook(self.loop)
+
+        self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+
+        Gio.bus_watch_name_on_connection(
+            self.bus, self.BUS_NAME, Gio.BusNameWatcherFlags.NONE,
+            self._bus_name_appeared, self._bus_name_vanished)
+        self.loop.run()
 
     def install_glib_excepthook(self, loop):
         """
@@ -75,21 +81,6 @@ class Helper:
             GLib.MainLoop.quit(loop)
             sys.exit()
         sys.excepthook = new_hook
-
-    def _get_bus (self):
-        if self.bus is not None:
-            return
-
-        self.loop = GObject.MainLoop ()
-
-        self.install_glib_excepthook(self.loop)
-
-        dbus_loop = DBusGMainLoop (set_as_default=True)
-        self.bus = dbus.SessionBus (dbus_loop)
-
-        obj = self.bus.get_object ("org.freedesktop.DBus",
-                                   "/org/freedesktop/DBus")
-        self.bus_admin = dbus.Interface (obj, dbus_interface = "org.freedesktop.DBus")
 
     def _start_process (self):
         path = getattr (self,
@@ -109,18 +100,15 @@ class Helper:
         log ("Starting %s" % ' '.join(command))
         return subprocess.Popen ([path] + flags, **kws)
 
-    def _name_owner_changed_cb (self, name, old_owner, new_owner):
-        if name == self.BUS_NAME:
-            if old_owner == '' and new_owner != '':
-                log ("[%s] appeared in the bus" % self.PROCESS_NAME)
-                self.available = True
-            elif old_owner != ''  and new_owner == '':
-                log ("[%s] disappeared from the bus" % self.PROCESS_NAME)
-                self.available = False
-            else:
-                log ("[%s] name change %s -> %s" % (self.PROCESS_NAME, old_owner, new_owner))
+    def _bus_name_appeared(self, name, owner, data):
+        log ("[%s] appeared in the bus as %s" % (self.PROCESS_NAME, owner))
+        self.available = True
+        self.loop.quit()
 
-            self.loop.quit ()
+    def _bus_name_vanished(self, name, data):
+        log ("[%s] disappeared from the bus" % self.PROCESS_NAME)
+        self.available = False
+        self.loop.quit()
 
     def _process_watch_cb (self):
         status = self.process.poll ()
@@ -139,34 +127,19 @@ class Helper:
         self.timeout_id = None
         return False
 
-
     def start (self):
         """
         Start an instance of process and wait for it to appear on the bus.
         """
 
-        self._get_bus ()
-
-        if self.bus_admin.NameHasOwner(self.BUS_NAME):
-            if options.is_manual_start():
-                self.available = True
-                log ("Found existing %s process (D-Bus name %s)" %
-                     (self.PROCESS_NAME, self.BUS_NAME))
-                return
-            else:
-                raise Exception ("Unable to start test instance of %s: "
-                                 "already running" % self.PROCESS_NAME)
-        else:
-            log ("Name %s does not have an owner." % self.BUS_NAME)
-
-        self.name_owner_match = self.bus.add_signal_receiver (self._name_owner_changed_cb,
-                                                              signal_name="NameOwnerChanged",
-                                                              path="/org/freedesktop/DBus",
-                                                              dbus_interface="org.freedesktop.DBus")
-
         if options.is_manual_start():
             print ("Start %s manually" % self.PROCESS_NAME)
         else:
+            if self.available:
+                # It's running, but we didn't start it...
+                raise Exception ("Unable to start test instance of %s: "
+                                 "already running " % self.PROCESS_NAME)
+
             self.process = self._start_process ()
             log ('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
             self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
@@ -199,8 +172,9 @@ class Helper:
                     self.process.wait()
 
         log ("[%s] stopped." % self.PROCESS_NAME)
-        # Disconnect the signals of the next start we get duplicated messages
-        self.bus._clean_up_signal_match (self.name_owner_match)
+
+        # Run the loop until the bus name appears, or the process dies.
+        self.loop.run ()
 
     def kill (self):
         self.process.kill ()
@@ -209,7 +183,6 @@ class Helper:
         self.loop.run ()
 
         log ("[%s] killed." % self.PROCESS_NAME)
-        self.bus._clean_up_signal_match (self.name_owner_match)
 
 
 class StoreHelper (Helper):
@@ -228,37 +201,40 @@ class StoreHelper (Helper):
     def start (self):
         Helper.start (self)
 
-        tracker = self.bus.get_object (cfg.TRACKER_BUSNAME,
-                                       cfg.TRACKER_OBJ_PATH)
+        self.resources = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.TRACKER_BUSNAME, cfg.TRACKER_OBJ_PATH, cfg.RESOURCES_IFACE)
 
-        self.resources = dbus.Interface (tracker,
-                                         dbus_interface=cfg.RESOURCES_IFACE)
+        self.backup_iface = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.TRACKER_BUSNAME, cfg.TRACKER_BACKUP_OBJ_PATH, cfg.BACKUP_IFACE)
 
-        tracker_backup = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_BACKUP_OBJ_PATH)
-        self.backup_iface = dbus.Interface (tracker_backup, dbus_interface=cfg.BACKUP_IFACE)
+        self.stats_iface = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.TRACKER_BUSNAME, cfg.TRACKER_STATS_OBJ_PATH, cfg.STATS_IFACE)
 
-        tracker_stats = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATS_OBJ_PATH)
-
-        self.stats_iface = dbus.Interface (tracker_stats, dbus_interface=cfg.STATS_IFACE)
-
-        tracker_status = self.bus.get_object (cfg.TRACKER_BUSNAME,
-                                              cfg.TRACKER_STATUS_OBJ_PATH)
-        self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
+        self.status_iface = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH, cfg.STATUS_IFACE)
 
         log ("[%s] booting..." % self.PROCESS_NAME)
         self.status_iface.Wait ()
         log ("[%s] ready." % self.PROCESS_NAME)
 
         self.reset_graph_updates_tracking ()
-        self.graph_updated_handler_id = self.bus.add_signal_receiver (self._graph_updated_cb,
-                                                                      signal_name = "GraphUpdated",
-                                                                      path = cfg.TRACKER_OBJ_PATH,
-                                                                      dbus_interface = cfg.RESOURCES_IFACE)
+
+        def signal_handler(proxy, sender_name, signal_name, parameters):
+            if signal_name == 'GraphUpdated':
+                self._graph_updated_cb(*parameters.unpack())
+
+        self.graph_updated_handler_id = self.resources.connect(
+            'g-signal', signal_handler)
 
     def stop (self):
         Helper.stop (self)
 
-        self.bus._clean_up_signal_match (self.graph_updated_handler_id)
+        if self.graph_updated_handler_id != 0:
+            self.resources.disconnect(self.graph_updated_handler_id)
 
     # A system to follow GraphUpdated and make sure all changes are tracked.
     # This code saves every change notification received, and exposes methods
@@ -472,63 +448,26 @@ class StoreHelper (Helper):
             raise Exception ("Timeout waiting for property change, subject %i "
                              "property %s" % (subject_id, property_uri))
 
-    def query (self, query, timeout=5000):
-        try:
-            return self.resources.SparqlQuery (query, timeout=timeout)
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.resources.SparqlQuery (query, timeout=timeout)
-            raise (e)
+    def query (self, query, timeout=5000, **kwargs):
+        return self.resources.SparqlQuery ('(s)', query, timeout=timeout, **kwargs)
 
-    def update (self, update_sparql, timeout=5000):
-        try:
-            return self.resources.SparqlUpdate (update_sparql, timeout=timeout)
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.resources.SparqlUpdate (update_sparql, timeout=timeout)
-            raise (e)
+    def update (self, update_sparql, timeout=5000, **kwargs):
+        return self.resources.SparqlUpdate ('(s)', update_sparql, timeout=timeout, **kwargs)
 
-    def batch_update (self, update_sparql):
-        try:
-            return self.resources.BatchSparqlUpdate (update_sparql)
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.resources.BatchSparqlUpdate (update_sparql)
-            raise (e)
+    def batch_update (self, update_sparql, **kwargs):
+        return self.resources.BatchSparqlUpdate ('(s)', update_sparql, **kwargs)
 
-    def batch_commit (self):
-        return self.resources.BatchCommit ()
+    def batch_commit (self, **kwargs):
+        return self.resources.BatchCommit (**kwargs)
 
-    def backup (self, backup_file):
-        try:
-            self.backup_iface.Save (backup_file)
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.backup_iface.Save (backup_file)
-            raise (e)
-            
-    def restore (self, backup_file):
-        try:
-            return self.backup_iface.Restore (backup_file)
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.backup_iface.Restore (backup_file)
-            raise (e)
+    def backup (self, backup_file, **kwargs):
+        return self.backup_iface.Save ('(s)', backup_file, **kwargs)
 
-    def get_stats (self):
-        try:
-            return self.stats_iface.Get ()
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                return self.stats_iface.Get ()
-            raise (e)
+    def restore (self, backup_file, **kwargs):
+        return self.backup_iface.Restore ('(s)', backup_file, **kwargs)
 
+    def get_stats (self, **kwargs):
+        return self.stats_iface.Get(**kwargs)
 
     def get_tracker_iface (self):
         return self.resources
@@ -539,15 +478,8 @@ class StoreHelper (Helper):
             ?u a %s .
         }
         """
-        try:
-            result = self.resources.SparqlQuery (QUERY % (ontology_class))
-        except dbus.DBusException as (e):
-            if (e.get_dbus_name().startswith ("org.freedesktop.DBus")):
-                self.start ()
-                result = self.resources.SparqlQuery (QUERY % (ontology_class))
-            else:
-                raise (e)
-            
+        result = self.resources.SparqlQuery ('(s)', QUERY % (ontology_class))
+
         if (len (result) == 1):
             return int (result [0][0])
         else:
@@ -605,10 +537,9 @@ class MinerFsHelper (Helper):
     def start (self):
         Helper.start (self)
 
-        bus_object = self.bus.get_object (cfg.MINERFS_BUSNAME,
-                                          cfg.MINERFS_OBJ_PATH)
-        self.miner_fs = dbus.Interface (bus_object,
-                                        dbus_interface = cfg.MINER_IFACE)
+        self.miner_fs = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.MINERFS_BUSNAME, cfg.MINERFS_OBJ_PATH, cfg.MINER_IFACE)
 
     def stop (self):
         Helper.stop (self)

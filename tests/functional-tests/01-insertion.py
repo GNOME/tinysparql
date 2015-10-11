@@ -22,7 +22,7 @@
 Stand-alone tests cases for the store, inserting, removing information
 in pure sparql and checking that the data is really there
 """
-import sys,os,dbus
+import sys,os
 import unittest
 import time
 import random
