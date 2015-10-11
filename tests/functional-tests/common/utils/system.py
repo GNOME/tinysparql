@@ -27,7 +27,7 @@ TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "data", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "cache", "tracker")]
 
-REASONABLE_TIMEOUT = 30
+REASONABLE_TIMEOUT = 5
 
 class UnableToBootException (Exception):
     pass
