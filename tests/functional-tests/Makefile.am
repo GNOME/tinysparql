@@ -52,10 +52,7 @@ standard_tests += \
 	500-writeback.py \
 	501-writeback-details.py \
 	600-applications-camera.py \
-	601-applications-sync.py \
-	mass-storage-mode.py \
-	performance-tc-modified.py \
-	virtual-files-tc.py
+	601-applications-sync.py
 
 slow_tests = \
 	10-sqlite-misused.py \
