@@ -66,11 +66,6 @@ class Helper:
 
         self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
 
-        Gio.bus_watch_name_on_connection(
-            self.bus, self.BUS_NAME, Gio.BusNameWatcherFlags.NONE,
-            self._bus_name_appeared, self._bus_name_vanished)
-        self.loop.run()
-
     def install_glib_excepthook(self, loop):
         """
         Handler to abort test if an exception occurs inside the GLib main loop.
@@ -131,6 +126,14 @@ class Helper:
         """
         Start an instance of process and wait for it to appear on the bus.
         """
+        if self.process is not None:
+            raise RuntimeError(
+                "%s process already started" % self.PROCESS_NAME)
+
+        self._bus_name_watch_id = Gio.bus_watch_name_on_connection(
+            self.bus, self.BUS_NAME, Gio.BusNameWatcherFlags.NONE,
+            self._bus_name_appeared, self._bus_name_vanished)
+        self.loop.run()
 
         if options.is_manual_start():
             print ("Start %s manually" % self.PROCESS_NAME)
@@ -175,12 +178,18 @@ class Helper:
 
         # Run the loop until the bus name appears, or the process dies.
         self.loop.run ()
+        Gio.bus_unwatch_name(self._bus_name_watch_id)
+
+        self.process = None
 
     def kill (self):
         self.process.kill ()
 
         # Name owner changed callback should take us out from this loop
         self.loop.run ()
+        Gio.bus_unwatch_name(self._bus_name_watch_id)
+
+        self.process = None
 
         log ("[%s] killed." % self.PROCESS_NAME)
 
