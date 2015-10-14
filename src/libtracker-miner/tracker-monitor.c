@@ -304,7 +304,8 @@ tracker_monitor_init (TrackerMonitor *object)
 			 */
 			priv->monitor_limit = MAX (priv->monitor_limit, 0);
 		}
-		else if (strcmp (name, "GKqueueDirectoryMonitor") == 0) {
+		else if (strcmp (name, "GKqueueDirectoryMonitor") == 0 ||
+		         strcmp (name, "GKqueueFileMonitor") == 0) {
 			/* Using kqueue(2) */
 			g_message ("Monitor backend is kqueue");
 
