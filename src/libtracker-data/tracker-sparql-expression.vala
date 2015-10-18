@@ -1142,7 +1142,12 @@ class Tracker.Sparql.Expression : Object {
 			next ();
 			string variable_name = get_last_string ().substring (1);
 			var variable = context.get_variable (variable_name);
-			sql.append (variable.sql_expression);
+
+			if (context == variable.origin_context && variable.binding != null) {
+				sql.append (variable.binding.sql_expression);
+			} else {
+				sql.append (variable.sql_expression);
+			}
 
 			if (variable.binding == null) {
 				return PropertyType.UNKNOWN;
