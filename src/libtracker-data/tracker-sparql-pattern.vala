@@ -1102,6 +1102,28 @@ class Tracker.Sparql.Pattern : Object {
 
 				current_graph = old_graph;
 				current_graph_is_var = old_graph_is_var;
+			} else if (accept (SparqlTokenType.BIND)) {
+				var binding = new VariableBinding ();
+				var bind_sql = new StringBuilder ();
+
+				expect (SparqlTokenType.OPEN_PARENS);
+
+				expression.translate_expression (bind_sql);
+				binding.sql_expression = bind_sql.str;
+
+				expect (SparqlTokenType.AS);
+				expect (SparqlTokenType.VAR);
+
+				var as_var = context.get_variable (get_last_string ().substring (1));
+
+				if (as_var.binding != null) {
+					throw query.get_internal_error ("Expected undefined variable in BIND alias");
+				}
+
+				binding.variable = as_var;
+				add_variable_binding (sql, binding, VariableState.BOUND);
+
+				expect (SparqlTokenType.CLOSE_PARENS);
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;

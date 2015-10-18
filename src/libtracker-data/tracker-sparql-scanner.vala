@@ -159,7 +159,16 @@ public class Tracker.SparqlScanner : Object {
 			switch (begin[0]) {
 			case 'B':
 			case 'b':
-				if (matches (begin, "BASE")) return SparqlTokenType.BASE;
+				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "BASE")) return SparqlTokenType.BASE;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "BIND")) return SparqlTokenType.BIND;
+					break;
+				}
 				break;
 			case 'C':
 			case 'c':
@@ -1021,6 +1030,7 @@ public enum Tracker.SparqlTokenType {
 	AVG,
 	BASE,
 	BLANK_NODE,
+	BIND,
 	BOUND,
 	BY,
 	CEIL,
@@ -1148,6 +1158,7 @@ public enum Tracker.SparqlTokenType {
 		case AVG: return "`AVG'";
 		case BASE: return "`BASE'";
 		case BLANK_NODE: return "blank node";
+		case BIND: return "`BIND'";
 		case BOUND: return "`BOUND'";
 		case BY: return "`BY'";
 		case CEIL: return "`CEIL'";
