@@ -670,27 +670,19 @@ sparql_contents_query_cb (GObject      *object,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
+	notifier = user_data;
+
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                 result, &error);
 	if (error) {
-		if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-			goto out;
 		g_warning ("Could not query directory contents: %s\n", error->message);
-	}
-
-	notifier = user_data;
-
-	if (cursor) {
+		g_error_free (error);
+	} else if (cursor) {
 		sparql_contents_check_deleted (notifier, cursor);
 		g_object_unref (cursor);
 	}
 
 	finish_current_directory (notifier, FALSE);
-
-out:
-	if (error) {
-	        g_error_free (error);
-	}
 }
 
 static gchar *
@@ -753,18 +745,15 @@ sparql_files_query_cb (GObject      *object,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
-	                                                 result, &error);
-	if (error) {
-		if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-			goto out;
-		g_warning ("Could not query indexed files: %s\n", error->message);
-	}
-
 	notifier = data->notifier;
 	priv = notifier->priv;
 
-	if (cursor) {
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                                 result, &error);
+	if (error) {
+		g_warning ("Could not query indexed files: %s\n", error->message);
+		g_error_free (error);
+	} else if (cursor) {
 		sparql_files_query_populate (notifier, cursor, TRUE);
 		g_object_unref (cursor);
 	}
@@ -782,10 +771,6 @@ sparql_files_query_cb (GObject      *object,
 		finish_current_directory (notifier, FALSE);
 	}
 
-out:
-	if (error) {
-	        g_error_free (error);
-	}
 	g_free (data);
 }
 
