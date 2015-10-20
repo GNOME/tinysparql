@@ -730,6 +730,11 @@ sparql_contents_query_start (TrackerFileNotifier  *notifier,
 	gchar *sparql;
 
 	priv = notifier->priv;
+
+	if (G_UNLIKELY (priv->connection == NULL)) {
+		return;
+	}
+
 	sparql = sparql_contents_compose_query (directories, n_dirs, filter);
 	tracker_sparql_connection_query_async (priv->connection,
 	                                       sparql,
@@ -826,6 +831,11 @@ sparql_files_query_start (TrackerFileNotifier  *notifier,
 	data->max_depth = max_depth;
 
 	priv = notifier->priv;
+
+	if (G_UNLIKELY (priv->connection == NULL)) {
+		return;
+	}
+
 	sparql = sparql_files_compose_query (files, n_files);
 	tracker_sparql_connection_query_async (priv->connection,
 	                                       sparql,
@@ -1412,7 +1422,7 @@ tracker_file_notifier_finalize (GObject *object)
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
 	g_object_unref (priv->cancellable);
-	g_object_unref (priv->connection);
+	g_clear_object (&priv->connection);
 
 	if (priv->current_index_root)
 		root_data_free (priv->current_index_root);
@@ -1598,11 +1608,9 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 	priv->cancellable = g_cancellable_new ();
 
 	if (error) {
-		g_critical ("Could not get SPARQL connection: %s\n",
-		            error->message);
+		g_warning ("Could not get SPARQL connection: %s\n",
+		           error->message);
 		g_error_free (error);
-
-		g_assert_not_reached ();
 	}
 
 	priv->timer = g_timer_new ();
@@ -1704,6 +1712,11 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	priv = notifier->priv;
+
+	if (G_UNLIKELY (priv->connection == NULL)) {
+		return NULL;
+	}
+
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file,
 	                                          G_FILE_TYPE_REGULAR,
