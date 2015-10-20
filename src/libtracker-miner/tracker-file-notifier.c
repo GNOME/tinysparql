@@ -1405,8 +1405,6 @@ tracker_file_notifier_finalize (GObject *object)
 		g_object_unref (priv->data_provider);
 	}
 
-	g_cancellable_cancel (priv->cancellable);
-
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
