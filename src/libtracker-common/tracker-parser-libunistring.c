@@ -157,7 +157,8 @@ get_word_info (TrackerParser         *parser,
 }
 
 /* The input word in this method MUST be normalized in NFKD form,
- * and given in UTF-8, where str_length is the byte-length */
+ * and given in UTF-8, where str_length is the byte-length
+ * (note: there is no trailing NUL character!) */
 gboolean
 tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
@@ -169,7 +170,6 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 
 	g_return_val_if_fail (str != NULL, FALSE);
 	g_return_val_if_fail (str_length != NULL, FALSE);
-	g_return_val_if_fail (*str_length > 0, FALSE);
 
 	word = (gchar *)str;
 	word_length = *str_length;
@@ -208,9 +208,6 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 		i += utf8_len;
 		j += utf8_len;
 	}
-
-	/* Force proper string end */
-	word[j] = '\0';
 
 	/* Set new output length */
 	*str_length = j;
@@ -289,9 +286,6 @@ process_word_utf8 (TrackerParser         *parser,
 		                            normalized, new_word_length);
 	}
 
-	/* Set output NIL */
-	normalized[new_word_length] = '\0';
-
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
 	if (parser->enable_unaccent &&
 	    type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC &&
@@ -300,6 +294,9 @@ process_word_utf8 (TrackerParser         *parser,
 		tracker_parser_message_hex ("  After UNAC stripping",
 		                            normalized, new_word_length);
 	}
+
+	/* Set output NIL */
+	normalized[new_word_length] = '\0';
 
 	/* Check if stop word */
 	if (parser->ignore_stop_words) {
