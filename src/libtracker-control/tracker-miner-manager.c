@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2015 Red Hat, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,6 +46,9 @@
 #define DBUS_PATH_KEY "Path"
 #define DISPLAY_NAME_KEY "DisplayName"
 #define DESCRIPTION_KEY "Comment"
+
+#define METHOD_INDEX_FILE "IndexFile"
+#define METHOD_INDEX_FILE_FOR_PROCESS "IndexFileForProcess"
 
 typedef struct TrackerMinerManagerPrivate TrackerMinerManagerPrivate;
 typedef struct MinerData MinerData;
@@ -1529,6 +1533,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 
 static gboolean
 miner_manager_index_file_sync (TrackerMinerManager *manager,
+                               const gchar         *method_name,
                                GFile               *file,
                                GCancellable        *cancellable,
                                GError             **error)
@@ -1563,7 +1568,7 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
-	                                 "IndexFile",
+	                                 method_name,
 	                                 g_variant_new ("(s)", uri),
 	                                 NULL,
 	                                 G_DBUS_CALL_FLAGS_NONE,
@@ -1593,7 +1598,8 @@ miner_manager_index_file_thread (GTask *task,
 	GFile *file = task_data;
 	GError *error = NULL;
 
-	miner_manager_index_file_sync (manager, file, cancellable, &error);
+	miner_manager_index_file_sync (manager, METHOD_INDEX_FILE,
+	                               file, cancellable, &error);
 	if (error != NULL) {
 		g_task_return_error (task, error);
 	} else {
@@ -1623,7 +1629,8 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	return miner_manager_index_file_sync (manager, file, NULL, error);
+	return miner_manager_index_file_sync (manager, METHOD_INDEX_FILE,
+	                                      file, NULL, error);
 }
 
 /**
@@ -1672,5 +1679,123 @@ tracker_miner_manager_index_file_finish (TrackerMinerManager *manager,
                                          GAsyncResult        *result,
                                          GError             **error)
 {
+	return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+static void
+miner_manager_index_file_for_process_thread (GTask        *task,
+                                             gpointer      source_object,
+                                             gpointer      task_data,
+                                             GCancellable *cancellable)
+{
+	TrackerMinerManager *manager = source_object;
+	GFile *file = task_data;
+	GError *error = NULL;
+
+	miner_manager_index_file_sync (manager, METHOD_INDEX_FILE_FOR_PROCESS,
+	                               file, cancellable, &error);
+	if (error != NULL) {
+		g_task_return_error (task, error);
+	} else {
+		g_task_return_boolean (task, TRUE);
+	}
+}
+
+/**
+ * tracker_miner_manager_index_file_for_process:
+ * @manager: a #TrackerMinerManager
+ * @file: a URL valid in GIO of a file to give to the miner for processing
+ * @cancellable: (allow-none): a #GCancellable, or %NULL
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
+ *
+ * This function operates exactly the same way as
+ * tracker_miner_manager_index_file() with the exception that if the
+ * calling process dies, the indexing is cancelled. This API is useful
+ * for cases where the calling process wants to tie the indexing
+ * operation closely to its own lifetime.
+ *
+ * On failure @error will be set.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE.
+ *
+ * Since: 1.10
+ **/
+gboolean
+tracker_miner_manager_index_file_for_process (TrackerMinerManager  *manager,
+                                              GFile                *file,
+                                              GCancellable         *cancellable,
+                                              GError              **error)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+	g_return_val_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable), FALSE);
+	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+
+	return miner_manager_index_file_sync (manager, METHOD_INDEX_FILE_FOR_PROCESS,
+	                                      file, cancellable, error);
+}
+
+/**
+ * tracker_miner_manager_index_file_for_process_async:
+ * @manager: a #TrackerMinerManager
+ * @file: a URL valid in GIO of a file to give to the miner for processing
+ * @cancellable: (allow-none): a #GCancellable, or %NULL
+ * @callback: (scope async): a #GAsyncReadyCallback to call when the request is satisfied
+ * @user_data: the data to pass to the callback function
+ *
+ * This function operates exactly the same way as
+ * tracker_miner_manager_index_file() with the exception that if the
+ * calling process dies, the indexing is cancelled. This API is useful
+ * for cases where the calling process wants to tie the indexing
+ * operation closely to its own lifetime.
+ *
+ * When the operation is finished, @callback will be called. You can
+ * then call tracker_miner_manager_index_file_for_process_finish() to
+ * get the result of the operation.
+ *
+ * Since: 1.10
+ **/
+void
+tracker_miner_manager_index_file_for_process_async (TrackerMinerManager *manager,
+                                                    GFile               *file,
+                                                    GCancellable        *cancellable,
+                                                    GAsyncReadyCallback  callback,
+                                                    gpointer             user_data)
+{
+	GTask *task;
+
+	g_return_if_fail (TRACKER_IS_MINER_MANAGER (manager));
+	g_return_if_fail (G_IS_FILE (file));
+	g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+
+	task = g_task_new (manager, cancellable, callback, user_data);
+	g_task_set_task_data (task, g_object_ref (file), (GDestroyNotify) g_object_unref);
+	g_task_run_in_thread (task, miner_manager_index_file_for_process_thread);
+	g_object_unref (task);
+}
+
+/**
+ * tracker_miner_manager_index_file_for_process_finish:
+ * @manager: a #TrackerMinerManager
+ * @result: a #GAsyncResult
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
+ *
+ * Finishes a request to index a file. See tracker_miner_manager_index_file_for_process_async()
+ *
+ * On failure @error will be set.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE.
+ *
+ * Since: 1.10
+ **/
+gboolean
+tracker_miner_manager_index_file_for_process_finish (TrackerMinerManager  *manager,
+                                                     GAsyncResult         *result,
+                                                     GError              **error)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (g_task_is_valid (result, manager), FALSE);;
+	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+
 	return g_task_propagate_boolean (G_TASK (result), error);
 }

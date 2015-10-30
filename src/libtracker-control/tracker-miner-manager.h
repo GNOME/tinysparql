@@ -142,6 +142,18 @@ void                 tracker_miner_manager_index_file_async    (TrackerMinerMana
 gboolean             tracker_miner_manager_index_file_finish   (TrackerMinerManager  *manager,
                                                                 GAsyncResult         *result,
                                                                 GError              **error);
+gboolean             tracker_miner_manager_index_file_for_process        (TrackerMinerManager  *manager,
+                                                                          GFile                *file,
+                                                                          GCancellable         *cancellable,
+                                                                          GError              **error);
+void                 tracker_miner_manager_index_file_for_process_async  (TrackerMinerManager  *manager,
+                                                                          GFile                *file,
+                                                                          GCancellable         *cancellable,
+                                                                          GAsyncReadyCallback   callback,
+                                                                          gpointer              user_data);
+gboolean             tracker_miner_manager_index_file_for_process_finish (TrackerMinerManager  *manager,
+                                                                          GAsyncResult         *result,
+                                                                          GError              **error);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
