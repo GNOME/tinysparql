@@ -1605,7 +1605,7 @@ miner_manager_index_file_thread (GTask *task,
  * @file: a URL valid in GIO of a file to give to the miner for processing
  * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
- * Tells the filesystem miner to index the @file.
+ * Tells the filesystem miner to start indexing the @file.
  *
  * On failure @error will be set.
  *
@@ -1632,9 +1632,9 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
  * @callback: (scope async): a #GAsyncReadyCallback to call when the request is satisfied
  * @user_data: the data to pass to the callback function
  *
- * Tells the filesystem miner to index the @file. When the operation is called,
+ * Tells the filesystem miner to start indexing the @file. Once the message has been sent,
  * @callback will be called. You can then call tracker_miner_manager_index_file_finish()
- * to get the result of the operation.
+ * to get the result.
  *
  * Since: 0.16
  **/
