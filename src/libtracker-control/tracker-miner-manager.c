@@ -1578,7 +1578,7 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 
 	g_variant_unref (v);
 
-	return FALSE;
+	return TRUE;
 }
 
 static void
