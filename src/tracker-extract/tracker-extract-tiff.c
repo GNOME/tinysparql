@@ -140,14 +140,14 @@ get_orientation (TIFF *image)
 
 	if (TIFFGetField (image, TIFFTAG_ORIENTATION, &data)) {
 		switch (data) {
-		case 0: return g_strdup ("nfo:orientation-top");
-		case 1:	return g_strdup ("nfo:orientation-top-mirror");
-		case 2:	return g_strdup ("nfo:orientation-bottom");
-		case 3:	return g_strdup ("nfo:orientation-bottom-mirror");
-		case 4:	return g_strdup ("nfo:orientation-left-mirror");
-		case 5:	return g_strdup ("nfo:orientation-right");
-		case 6:	return g_strdup ("nfo:orientation-right-mirror");
-		case 7:	return g_strdup ("nfo:orientation-left");
+		case 1: return g_strdup ("nfo:orientation-top");
+		case 2:	return g_strdup ("nfo:orientation-top-mirror");
+		case 3:	return g_strdup ("nfo:orientation-bottom");
+		case 4:	return g_strdup ("nfo:orientation-bottom-mirror");
+		case 5:	return g_strdup ("nfo:orientation-left-mirror");
+		case 6:	return g_strdup ("nfo:orientation-right");
+		case 7:	return g_strdup ("nfo:orientation-right-mirror");
+		case 8:	return g_strdup ("nfo:orientation-left");
 		}
 	}
 
