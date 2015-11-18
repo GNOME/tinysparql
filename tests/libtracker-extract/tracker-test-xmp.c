@@ -107,8 +107,8 @@ static ExifNepomuk METERING_MODES [] = {
 
 static ExifNepomuk ORIENTATIONS [] = {
 	{"2", "nfo:orientation-top-mirror"},
-	{"3", "nfo:orientation-bottom-mirror"},
-	{"4", "nfo:orientation-bottom"},
+	{"3", "nfo:orientation-bottom"},
+	{"4", "nfo:orientation-bottom-mirror"},
 	{"5", "nfo:orientation-left-mirror"},
 	{"6", "nfo:orientation-right"},
 	{"7", "nfo:orientation-right-mirror"},

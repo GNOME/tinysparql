@@ -301,9 +301,9 @@ fix_orientation (const gchar *orientation)
 	} else if (orientation && g_ascii_strcasecmp (orientation, "2") == 0) {
 		return  "nfo:orientation-top-mirror";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "3") == 0) {
-		return "nfo:orientation-bottom-mirror";
+		return "nfo:orientation-bottom";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "4") == 0) {
-		return  "nfo:orientation-bottom";
+		return  "nfo:orientation-bottom-mirror";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "5") == 0) {
 		return  "nfo:orientation-left-mirror";
 	} else if (orientation && g_ascii_strcasecmp (orientation, "6") == 0) {
