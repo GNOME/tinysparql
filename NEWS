@@ -1,3 +1,16 @@
+NEW in 1.6.1 - 2015-11-18
+=========================
+
+  * tracker tool: Fixes to UID detection
+  * libtracker-miner: Fix cancellation of tasks during TrackerFileNotifier destruction
+  * libtracker-miner: Handle failure to get a TrackerSparqlConnection
+  * libtracker-common: Fix buffer overrun in libunistring-based unaccenting
+  * libtracker-control: Documentation fixes
+  * tracker-extract: Photo orientation extraction fixes (TIFF, XMP)
+  * Many fixes to functional tests
+
+Translations: eu, it, sr, zh_CN
+
 NEW in 1.6.0 - 2015-09-22
 =========================
 
