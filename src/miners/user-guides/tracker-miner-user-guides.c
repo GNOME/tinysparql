@@ -437,7 +437,33 @@ process_item (ProcessUserguideData  *data,
 	tracker_sparql_builder_graph_open (sparql, TRACKER_OWN_GRAPH_URN);
 
 	if (is_iri) {
+		gchar *delete_properties_sparql;
+
+		delete_properties_sparql =
+			g_strdup_printf ("DELETE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "  } "
+			                 "} "
+			                 "WHERE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+			                 "  } "
+			                 "} "
+			                 "DELETE {"
+			                 "  <%s> nie:url ?o"
+			                 "} WHERE {"
+			                 "  <%s> nie:url ?o"
+			                 "}",
+			                 TRACKER_OWN_GRAPH_URN, urn,
+			                 TRACKER_OWN_GRAPH_URN, urn,
+			                 urn, urn);
+
+		tracker_sparql_builder_prepend (sparql, delete_properties_sparql);
 		tracker_sparql_builder_subject_iri (sparql, urn);
+
+		g_free (delete_properties_sparql);
 	} else {
 		tracker_sparql_builder_subject (sparql, urn);
 	}

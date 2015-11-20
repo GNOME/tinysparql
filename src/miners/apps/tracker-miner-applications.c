@@ -741,7 +741,8 @@ process_desktop_file (ProcessApplicationData  *data,
 		}
 	}
 
-	if (sparql && uri) {
+	if (uri) {
+		gchar *delete_properties_sparql;
 		gchar *desktop_file_uri;
 
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -864,6 +865,33 @@ process_desktop_file (ProcessApplicationData  *data,
 
 
 		g_free (desktop_file_uri);
+
+		/* Prepend a delete statement to delete previous properties from
+		 * the miner, if any.
+		 */
+		delete_properties_sparql =
+			g_strdup_printf ("DELETE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "  } "
+			                 "} "
+			                 "WHERE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+			                 "  } "
+			                 "} "
+			                 "DELETE {"
+			                 "  <%s> nie:url ?o"
+			                 "} WHERE {"
+			                 "  <%s> nie:url ?o"
+			                 "}",
+			                 TRACKER_OWN_GRAPH_URN, uri,
+			                 TRACKER_OWN_GRAPH_URN, uri,
+			                 uri, uri);
+
+		tracker_sparql_builder_prepend (sparql, delete_properties_sparql);
+		g_free (delete_properties_sparql);
 	}
 
 	if (file_info) {

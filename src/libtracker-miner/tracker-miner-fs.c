@@ -1373,55 +1373,19 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
 
+			/* The SPARQL builder will already contain the necessary
+			 * DELETE statements for the properties being updated */
 			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (file), fs->priv->quark_attribute_updated));
 			g_debug ("Updating item '%s' with urn '%s'%s",
 			         uri,
 			         ctxt->urn,
 			         attribute_update_only ? " (attributes only)" : "");
 
-			if (!attribute_update_only) {
-				gchar *full_sparql;
-
-				/* Update, delete all statements inserted by miner except:
-				 *  - rdf:type statements as they could cause implicit deletion of user data
-				 *  - nie:contentCreated so it persists across updates
-				 *
-				 * Additionally, delete also nie:url as it might have been set by 3rd parties,
-				 * and it's used to know whether a file is known to tracker or not.
-				 */
-				full_sparql = g_strdup_printf ("DELETE {"
-				                               "  GRAPH <%s> {"
-				                               "    <%s> ?p ?o"
-				                               "  } "
-				                               "} "
-				                               "WHERE {"
-				                               "  GRAPH <%s> {"
-				                               "    <%s> ?p ?o"
-				                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
-				                               "  } "
-				                               "} "
-				                               "DELETE {"
-				                               "  <%s> nie:url ?o"
-				                               "} WHERE {"
-				                               "  <%s> nie:url ?o"
-				                               "}"
-				                               "%s",
-				                               TRACKER_OWN_GRAPH_URN, ctxt->urn,
-				                               TRACKER_OWN_GRAPH_URN, ctxt->urn,
-				                               ctxt->urn, ctxt->urn,
-				                               tracker_sparql_builder_get_result (ctxt->builder));
-
-				sparql_task = tracker_sparql_task_new_take_sparql_str (file, full_sparql);
-			} else {
-				/* Do not drop graph if only updating attributes, the SPARQL builder
-				 * will already contain the necessary DELETE statements for the properties
-				 * being updated */
-				sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
-			}
 		} else {
 			g_debug ("Creating new item '%s'", uri);
-			sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
 		}
+
+		sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
 	}
 
 	if (sparql_task) {

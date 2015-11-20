@@ -2136,6 +2136,41 @@ process_file_cb (GObject      *object,
 
 	data->mime_type = g_strdup (mime_type);
 
+	if (is_iri) {
+		gchar *delete_properties_sparql;
+
+		/* Update: delete all statements inserted by miner except:
+		 *  - rdf:type statements as they could cause implicit deletion of user data
+		 *  - nie:contentCreated so it persists across updates
+		 *
+		 * Additionally, delete also nie:url as it might have been set by 3rd parties,
+		 * and it's used to know whether a file is known to tracker or not.
+		 */
+		delete_properties_sparql =
+			g_strdup_printf ("DELETE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "  } "
+			                 "} "
+			                 "WHERE {"
+			                 "  GRAPH <%s> {"
+			                 "    <%s> ?p ?o"
+			                 "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+			                 "  } "
+			                 "} "
+			                 "DELETE {"
+			                 "  <%s> nie:url ?o"
+			                 "} WHERE {"
+			                 "  <%s> nie:url ?o"
+			                 "}",
+			                 TRACKER_OWN_GRAPH_URN, urn,
+			                 TRACKER_OWN_GRAPH_URN, urn,
+			                 urn, urn);
+
+		tracker_sparql_builder_prepend (sparql, delete_properties_sparql);
+		g_free (delete_properties_sparql);
+	}
+
 	tracker_sparql_builder_insert_silent_open (sparql, NULL);
 	tracker_sparql_builder_graph_open (sparql, TRACKER_OWN_GRAPH_URN);
 
