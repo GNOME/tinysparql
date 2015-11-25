@@ -2138,21 +2138,22 @@ tracker_db_cursor_get_property (GObject    *object,
 }
 
 static void
-tracker_db_cursor_iter_next_thread (GSimpleAsyncResult *res,
-                                    GObject            *object,
-                                    GCancellable       *cancellable)
+tracker_db_cursor_iter_next_thread (GTask        *task,
+                                    gpointer      object,
+                                    gpointer      task_data,
+                                    GCancellable *cancellable)
 {
 	/* run in thread */
 
-	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (object);
+	TrackerDBCursor *cursor = object;
 	GError *error = NULL;
 	gboolean result;
 
 	result = db_cursor_iter_next (cursor, cancellable, &error);
 	if (error) {
-		g_simple_async_result_set_from_error (res, error);
+		g_task_return_error (task, error);
 	} else {
-		g_simple_async_result_set_op_res_gboolean (res, result);
+		g_task_return_boolean (task, result);
 	}
 }
 
@@ -2162,11 +2163,11 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
                                    GAsyncReadyCallback  callback,
                                    gpointer             user_data)
 {
-	GSimpleAsyncResult *res;
+	GTask *task;
 
-	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
-	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
-	g_object_unref (res);
+	task = g_task_new (G_OBJECT (cursor), cancellable, callback, user_data);
+	g_task_run_in_thread (task, tracker_db_cursor_iter_next_thread);
+	g_object_unref (task);
 }
 
 static gboolean
@@ -2174,10 +2175,7 @@ tracker_db_cursor_iter_next_finish (TrackerDBCursor  *cursor,
                                     GAsyncResult     *res,
                                     GError          **error)
 {
-	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
-		return FALSE;
-	}
-	return g_simple_async_result_get_op_res_gboolean (G_SIMPLE_ASYNC_RESULT (res));
+	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
 static void
