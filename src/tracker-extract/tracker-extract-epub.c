@@ -292,7 +292,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		const gchar *fullname = NULL;
 		gchar *role_uri = NULL;
 		const gchar *role_str = NULL;
-		gint i, j, len;
+		gint i, j = 0, len;
 
 		fname = NULL;
 		gname = NULL;
@@ -344,7 +344,6 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 			/* <given name> <other name> <family name> */
 			g_debug ("Parsing name, no 'opf:file-as' found: '%s'", text);
 
-			j = 0;
 			len = strlen (text);
 
 			for (i = 0; i < len; i++) {
