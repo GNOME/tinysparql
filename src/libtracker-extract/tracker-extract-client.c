@@ -58,7 +58,7 @@ typedef struct {
 
 typedef struct {
 	TrackerExtractInfo *info;
-	GSimpleAsyncResult *res;
+	GTask *task;
 } MetadataCallData;
 
 static SendAndSpliceData *
@@ -111,12 +111,12 @@ send_and_splice_data_free (SendAndSpliceData *data)
 
 static MetadataCallData *
 metadata_call_data_new (TrackerExtractInfo *info,
-                        GSimpleAsyncResult *res)
+                        GTask              *task)
 {
 	MetadataCallData *data;
 
 	data = g_slice_new (MetadataCallData);
-	data->res = g_object_ref (res);
+	data->task = g_object_ref (task);
 	data->info = tracker_extract_info_ref (info);
 
 	return data;
@@ -126,7 +126,7 @@ static void
 metadata_call_data_free (MetadataCallData *data)
 {
 	tracker_extract_info_unref (data->info);
-	g_object_unref (data->res);
+	g_object_unref (data->task);
 	g_slice_free (MetadataCallData, data);
 }
 
@@ -319,7 +319,7 @@ get_metadata_fast_cb (void     *buffer,
 	data = user_data;
 
 	if (G_UNLIKELY (error)) {
-		g_simple_async_result_set_from_error (data->res, error);
+		g_task_return_error (data->task, error);
 	} else {
 		GInputStream *input_stream;
 		GDataInputStream *data_input_stream;
@@ -376,22 +376,21 @@ get_metadata_fast_cb (void     *buffer,
 			g_free (sparql);
 		}
 
-		g_simple_async_result_set_op_res_gpointer (data->res,
-		                                           tracker_extract_info_ref (data->info),
-		                                           (GDestroyNotify) tracker_extract_info_unref);
+		g_task_return_pointer (data->task,
+		                       tracker_extract_info_ref (data->info),
+		                       (GDestroyNotify) tracker_extract_info_unref);
 	}
 
-	g_simple_async_result_complete_in_idle (data->res);
 	metadata_call_data_free (data);
 }
 
 static void
-get_metadata_fast_async (GDBusConnection    *connection,
-                         GFile              *file,
-                         const gchar        *mime_type,
-                         const gchar        *graph,
-                         GCancellable       *cancellable,
-                         GSimpleAsyncResult *res)
+get_metadata_fast_async (GDBusConnection *connection,
+                         GFile           *file,
+                         const gchar     *mime_type,
+                         const gchar     *graph,
+                         GCancellable    *cancellable,
+                         GTask           *task)
 {
 	MetadataCallData *data;
 	TrackerExtractInfo *info;
@@ -405,19 +404,16 @@ get_metadata_fast_async (GDBusConnection    *connection,
 		gint err = errno;
 
 		g_critical ("Coudln't open pipe");
-		g_simple_async_result_set_error (res,
-		                                 G_IO_ERROR,
-		                                 g_io_error_from_errno (err),
-		                                 "Could not open pipe to extractor");
-		g_simple_async_result_complete_in_idle (res);
+		g_task_return_new_error (task, G_IO_ERROR,
+		                         g_io_error_from_errno (err),
+		                         "Could not open pipe to extractor");
 		return;
 	}
 
 	fd_list = g_unix_fd_list_new ();
 
 	if ((fd_index = g_unix_fd_list_append (fd_list, pipefd[1], &error)) == -1) {
-		g_simple_async_result_set_from_error (res, error);
-		g_simple_async_result_complete_in_idle (res);
+		g_task_return_error (task, error);
 
 		g_object_unref (fd_list);
 		g_error_free (error);
@@ -449,7 +445,7 @@ get_metadata_fast_async (GDBusConnection    *connection,
 	g_free (uri);
 
 	info = tracker_extract_info_new (file, mime_type, graph);
-	data = metadata_call_data_new (info, res);
+	data = metadata_call_data_new (info, task);
 
 	dbus_send_and_splice_async (connection,
 	                            message,
@@ -487,8 +483,8 @@ tracker_extract_client_get_metadata (GFile               *file,
                                      GAsyncReadyCallback  callback,
                                      gpointer             user_data)
 {
-	GSimpleAsyncResult *res;
 	GError *error = NULL;
+	GTask *task;
 
 	g_return_if_fail (G_IS_FILE (file));
 	g_return_if_fail (mime_type != NULL);
@@ -499,18 +495,15 @@ tracker_extract_client_get_metadata (GFile               *file,
 		connection = g_bus_get_sync (TRACKER_IPC_BUS, cancellable, &error);
 
 		if (error) {
-			g_simple_async_report_gerror_in_idle (G_OBJECT (file), callback, user_data, error);
-			g_error_free (error);
+			g_task_report_error (file, callback, user_data, NULL, error);
 			return;
 		}
 	}
 
-	res = g_simple_async_result_new (G_OBJECT (file), callback, user_data, NULL);
-	g_simple_async_result_set_handle_cancellation (res, TRUE);
-
+	task = g_task_new (file, cancellable, callback, user_data);
 	get_metadata_fast_async (connection, file, mime_type, graph,
-	                         cancellable, res);
-	g_object_unref (res);
+	                         cancellable, task);
+	g_object_unref (task);
 }
 
 /**
@@ -534,11 +527,7 @@ tracker_extract_client_get_metadata_finish (GFile         *file,
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
-	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
-		return NULL;
-	}
-
-	return g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
+	return g_task_propagate_pointer (G_TASK (res), error);
 }
 
 /**
