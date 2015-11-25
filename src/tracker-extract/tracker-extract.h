@@ -66,6 +66,10 @@ void            tracker_extract_file                    (TrackerExtract         
                                                          GCancellable           *cancellable,
                                                          GAsyncReadyCallback     cb,
                                                          gpointer                user_data);
+TrackerExtractInfo *
+                tracker_extract_file_finish             (TrackerExtract         *extract,
+                                                         GAsyncResult           *res,
+                                                         GError                **error);
 
 #ifdef HAVE_LIBMEDIAART
 MediaArtProcess *

@@ -209,21 +209,18 @@ get_metadata_cb (TrackerExtract *extract,
 {
 	TrackerExtractDecoratorPrivate *priv;
 	TrackerExtractInfo *info;
+	GError *error = NULL;
 	GTask *task;
 
 	priv = TRACKER_EXTRACT_DECORATOR (data->decorator)->priv;
 	task = tracker_decorator_info_get_task (data->decorator_info);
-	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+	info = tracker_extract_file_finish (extract, result, &error);
 
 	tracker_extract_persistence_remove_file (priv->persistence, data->file);
 	g_hash_table_remove (priv->recovery_files, tracker_decorator_info_get_url (data->decorator_info));
 
-	if (!info) {
-		GError *error = NULL;
-
-		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), &error);
-
-		if (!error || error->domain == TRACKER_EXTRACT_ERROR) {
+	if (error) {
+		if (error->domain == TRACKER_EXTRACT_ERROR) {
 			g_message ("Extraction failed: %s\n", error ? error->message : "no error given");
 			g_task_return_boolean (task, FALSE);
 			g_clear_error (&error);
