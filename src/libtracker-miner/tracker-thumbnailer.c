@@ -220,7 +220,7 @@ tracker_thumbnailer_initable_init (GInitable     *initable,
 			i = 0;
 			while (g_hash_table_iter_next (&iter, &key, &value)) {
 				private->supported_mime_types[i] = g_strdup (key);
-				g_debug ("  %s", key);
+				g_debug ("  %s", (gchar *) key);
 				i++;
 			}
 
