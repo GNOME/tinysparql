@@ -1272,14 +1272,15 @@ sparql_buffer_task_finished_cb (GObject      *object,
 	fs = user_data;
 	priv = fs->priv;
 
-	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result),
-	                                           &error)) {
+	task = tracker_sparql_buffer_push_finish (TRACKER_SPARQL_BUFFER (object),
+	                                          result, &error);
+
+	if (error) {
 		g_critical ("Could not execute sparql: %s", error->message);
 		priv->total_files_notified_error++;
 		g_error_free (error);
 	}
 
-	task = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 	task_file = tracker_task_get_file (task);
 
 	tracker_file_notifier_invalidate_file_iri (priv->file_notifier, task_file);

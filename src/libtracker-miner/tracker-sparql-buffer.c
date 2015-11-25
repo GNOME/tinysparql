@@ -67,7 +67,7 @@ struct _SparqlTaskData
 		} bulk;
 	} data;
 
-	GSimpleAsyncResult *result;
+	GTask *async_task;
 };
 
 struct _UpdateData {
@@ -355,13 +355,11 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 		}
 
 		/* Call finished handler with the error, if any */
-		g_simple_async_result_set_op_res_gpointer (task_data->result,
-		                                           task, NULL);
 		if (error) {
-			g_simple_async_result_set_from_error (task_data->result, error);
+			g_task_return_error (task_data->async_task, error);
+		} else {
+			g_task_return_pointer (task_data->async_task, task, NULL);
 		}
-
-		g_simple_async_result_complete (task_data->result);
 
 		/* No need to deallocate the task here, it will be done when
 		 * unref-ing the UpdateArrayData below */
@@ -645,15 +643,12 @@ tracker_sparql_buffer_update_cb (GObject      *object,
 	task_data = tracker_task_get_data (update_data->task);
 
 	/* Call finished handler with the error, if any */
-	g_simple_async_result_set_op_res_gpointer (task_data->result,
-						   update_data->task,
-						   NULL);
 	if (error) {
-		g_simple_async_result_set_from_error (task_data->result, error);
-		g_error_free (error);
+		g_task_return_error (task_data->async_task, error);
+	} else {
+		g_task_return_pointer (task_data->async_task,
+		                       update_data->task, NULL);
 	}
-
-	g_simple_async_result_complete (task_data->result);
 
 	tracker_task_pool_remove (TRACKER_TASK_POOL (update_data->buffer),
 	                          update_data->task);
@@ -740,11 +735,11 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 	 */
 	data = tracker_task_get_data (task);
 
-	if (!data->result) {
-		data->result = g_simple_async_result_new (G_OBJECT (buffer),
-		                                          cb,
-		                                          user_data,
-		                                          NULL);
+	if (!data->async_task) {
+		data->async_task = g_task_new (buffer, NULL, cb, user_data);
+		g_task_set_task_data (data->async_task,
+		                      tracker_task_ref (task),
+		                      (GDestroyNotify) tracker_task_unref);
 	}
 
 	if (priority <= G_PRIORITY_HIGH &&
@@ -796,8 +791,8 @@ sparql_task_data_free (SparqlTaskData *data)
 		break;
 	}
 
-	if (data->result) {
-		g_object_unref (data->result);
+	if (data->async_task) {
+		g_object_unref (data->async_task);
 	}
 
 	g_slice_free (SparqlTaskData, data);
@@ -849,4 +844,23 @@ tracker_sparql_task_new_bulk (GFile                *file,
 	                             flags);
 	return tracker_task_new (file, data,
 	                         (GDestroyNotify) sparql_task_data_free);
+}
+
+TrackerTask *
+tracker_sparql_buffer_push_finish (TrackerSparqlBuffer  *buffer,
+                                   GAsyncResult         *res,
+                                   GError              **error)
+{
+	TrackerTask *task;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_BUFFER (buffer), NULL);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	task = g_task_propagate_pointer (G_TASK (res), error);
+
+	if (!task)
+		task = g_task_get_task_data (G_TASK (res));
+
+	return task;
 }

@@ -73,6 +73,10 @@ void                 tracker_sparql_buffer_push  (TrackerSparqlBuffer *buffer,
                                                   GAsyncReadyCallback  cb,
                                                   gpointer             user_data);
 
+TrackerTask *        tracker_sparql_buffer_push_finish (TrackerSparqlBuffer  *buffer,
+                                                        GAsyncResult         *res,
+                                                        GError              **error);
+
 TrackerTask *        tracker_sparql_task_new_take_sparql_str (GFile                *file,
                                                               gchar                *sparql_str);
 TrackerTask *        tracker_sparql_task_new_with_sparql_str (GFile                *file,
