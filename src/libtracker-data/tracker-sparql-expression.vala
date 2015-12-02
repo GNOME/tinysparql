@@ -1142,7 +1142,12 @@ class Tracker.Sparql.Expression : Object {
 			next ();
 			string variable_name = get_last_string ().substring (1);
 			var variable = context.get_variable (variable_name);
-			sql.append (variable.sql_expression);
+
+			if (context == variable.origin_context && variable.binding != null) {
+				sql.append (variable.binding.sql_expression);
+			} else {
+				sql.append (variable.sql_expression);
+			}
 
 			if (variable.binding == null) {
 				return PropertyType.UNKNOWN;
@@ -1343,6 +1348,18 @@ class Tracker.Sparql.Expression : Object {
 			type = translate_aggregate_expression (sql);
 			sql.append (")");
 			return type;
+		case SparqlTokenType.RAND:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			expect (SparqlTokenType.CLOSE_PARENS);
+			sql.append ("SparqlRand()");
+			return PropertyType.DOUBLE;
+		case SparqlTokenType.NOW:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			expect (SparqlTokenType.CLOSE_PARENS);
+			sql.append ("strftime('%s', 'now')");
+			return PropertyType.DATETIME;
 		case SparqlTokenType.SECONDS:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);

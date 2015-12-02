@@ -129,7 +129,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'N':
 			case 'n':
-				if (matches (begin, "NOT")) return SparqlTokenType.NOT;
+				switch (begin[2]) {
+				case 'T':
+				case 't':
+					if (matches (begin, "NOT")) return SparqlTokenType.NOT;
+					break;
+				case 'W':
+				case 'w':
+					if (matches (begin, "NOW")) return SparqlTokenType.NOW;
+					break;
+				}
 				break;
 			case 'S':
 			case 's':
@@ -150,7 +159,16 @@ public class Tracker.SparqlScanner : Object {
 			switch (begin[0]) {
 			case 'B':
 			case 'b':
-				if (matches (begin, "BASE")) return SparqlTokenType.BASE;
+				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "BASE")) return SparqlTokenType.BASE;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "BIND")) return SparqlTokenType.BIND;
+					break;
+				}
 				break;
 			case 'C':
 			case 'c':
@@ -188,6 +206,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'N':
 			case 'n':
 				if (matches (begin, "NULL")) return SparqlTokenType.NULL;
+				break;
+			case 'R':
+			case 'r':
+				if (matches (begin, "RAND")) return SparqlTokenType.RAND;
 				break;
 			case 'S':
 			case 's':
@@ -1008,6 +1030,7 @@ public enum Tracker.SparqlTokenType {
 	AVG,
 	BASE,
 	BLANK_NODE,
+	BIND,
 	BOUND,
 	BY,
 	CEIL,
@@ -1067,6 +1090,7 @@ public enum Tracker.SparqlTokenType {
 	MONTH,
 	NAMED,
 	NOT,
+	NOW,
 	NULL, /* Non-standard in SPARQL spec */
 	OFFSET,
 	OP_AND,
@@ -1088,6 +1112,7 @@ public enum Tracker.SparqlTokenType {
 	PLUS,
 	PN_PREFIX,
 	PREFIX,
+	RAND,
 	REDUCED,
 	REGEX,
 	REPLACE,
@@ -1133,6 +1158,7 @@ public enum Tracker.SparqlTokenType {
 		case AVG: return "`AVG'";
 		case BASE: return "`BASE'";
 		case BLANK_NODE: return "blank node";
+		case BIND: return "`BIND'";
 		case BOUND: return "`BOUND'";
 		case BY: return "`BY'";
 		case CEIL: return "`CEIL'";
@@ -1189,6 +1215,7 @@ public enum Tracker.SparqlTokenType {
 		case MONTH: return "`MONTH'";
 		case NAMED: return "`NAMED'";
 		case NOT: return "`NOT'";
+		case NOW: return "`NOW'";
 		case OFFSET: return "`OFFSET'";
 		case OP_AND: return "`&&'";
 		case OP_EQ: return "`='";
@@ -1209,6 +1236,7 @@ public enum Tracker.SparqlTokenType {
 		case PLUS: return "`+'";
 		case PN_PREFIX: return "prefixed name";
 		case PREFIX: return "`PREFIX'";
+		case RAND: return "`RAND'";
 		case REDUCED: return "`REDUCED'";
 		case REGEX: return "`REGEX'";
 		case REPLACE: return "`REPLACE'";

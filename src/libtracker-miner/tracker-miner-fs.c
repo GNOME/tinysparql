@@ -169,11 +169,8 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
-	GString   *sparql;
-	const gchar *source_uri;
-	const gchar *uri;
 	TrackerMiner *miner;
-} RecursiveMoveData;
+} ThumbnailMoveData;
 
 struct _TrackerMinerFSPrivate {
 	/* File queues for indexer */
@@ -341,10 +338,6 @@ static void           file_notifier_finished              (TrackerFileNotifier *
                                                            gpointer             user_data);
 
 static void           item_queue_handlers_set_up          (TrackerMinerFS       *fs);
-static void           item_update_children_uri            (TrackerMinerFS       *fs,
-                                                           RecursiveMoveData    *data,
-                                                           const gchar          *source_uri,
-                                                           const gchar          *uri);
 
 static void           task_pool_cancel_foreach                (gpointer        data,
                                                                gpointer        user_data);
@@ -1732,88 +1725,36 @@ item_ignore_next_update (TrackerMinerFS *fs,
 }
 
 static void
-item_update_children_uri_cb (GObject      *object,
-                             GAsyncResult *result,
-                             gpointer      user_data)
+move_thumbnails_cb (GObject      *object,
+                    GAsyncResult *result,
+                    gpointer      user_data)
 {
-	RecursiveMoveData *data = user_data;
+	ThumbnailMoveData *data = user_data;
 	TrackerMinerFS *fs = TRACKER_MINER_FS (data->miner);
 	GError *error = NULL;
 
 	TrackerSparqlCursor *cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (error) {
-		g_critical ("Could not query children: %s", error->message);
+		g_critical ("Could move thumbnails: %s", error->message);
 		g_error_free (error);
-		if (cursor) {
-			g_object_unref (cursor);
-		}
 	} else {
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			const gchar *child_source_uri, *child_mime, *child_urn;
-			gchar *child_uri;
+			const gchar *src, *dst, *mimetype;
 
-			child_urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			child_source_uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-			child_mime = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+			src = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			dst = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			mimetype = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 
-			if (!g_str_has_prefix (child_source_uri, data->source_uri)) {
-				g_warning ("Child URI '%s' does not start with parent URI '%s'",
-				           child_source_uri,
-				           data->source_uri);
-				continue;
-			}
-
-			child_uri = g_strdup_printf ("%s%s", data->uri, child_source_uri + strlen (data->source_uri));
-
-			g_string_append_printf (data->sparql,
-			                        "DELETE { "
-			                        "  <%s> nie:url ?u "
-			                        "} WHERE { "
-			                        "  <%s> nie:url ?u "
-			                        "} ",
-			                        child_urn, child_urn);
-
-			g_string_append_printf (data->sparql,
-			                        "INSERT INTO <%s> {"
-			                        "  <%s> nie:url \"%s\" "
-			                        "} ",
-			                        child_urn, child_urn, child_uri);
-
-			if (fs->priv->thumbnailer)
+			if (fs->priv->thumbnailer) {
 				tracker_thumbnailer_move_add (fs->priv->thumbnailer,
-							      child_source_uri, child_mime, child_uri);
-
-			g_free (child_uri);
+				                              src, mimetype, dst);
+			}
 		}
 	}
 
 	g_object_unref (cursor);
-
 	g_main_loop_quit (data->main_loop);
-}
-
-static void
-item_update_children_uri (TrackerMinerFS    *fs,
-                          RecursiveMoveData *move_data,
-                          const gchar       *source_uri,
-                          const gchar       *uri)
-{
-	gchar *sparql;
-
-	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
-	                          "  ?child nie:url ?url . "
-	                          "  FILTER (tracker:uri-is-descendant (\"%s\", ?url)) "
-	                          "}",
-	                          source_uri);
-
-	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                                       sparql,
-	                                       NULL,
-	                                       item_update_children_uri_cb,
-	                                       move_data);
-
-	g_free (sparql);
 }
 
 static gboolean
@@ -1824,7 +1765,6 @@ item_move (TrackerMinerFS *fs,
 	gchar     *uri, *source_uri;
 	GFileInfo *file_info;
 	GString   *sparql;
-	RecursiveMoveData move_data;
 	TrackerTask *task;
 	const gchar *source_iri;
 	gchar *display_name;
@@ -1943,18 +1883,49 @@ item_move (TrackerMinerFS *fs,
 		                                file, &flags);
 
 		if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
-			/* Update children uris */
-			move_data.main_loop = g_main_loop_new (NULL, FALSE);
-			move_data.sparql = sparql;
-			move_data.source_uri = source_uri;
-			move_data.uri = uri;
-			move_data.miner = TRACKER_MINER (fs);
+			if (fs->priv->thumbnailer) {
+				ThumbnailMoveData move_data;
+				gchar *query;
 
-			item_update_children_uri (fs, &move_data, source_uri, uri);
+				g_debug ("Moving thumbnails within '%s'", uri);
 
-			g_main_loop_run (move_data.main_loop);
+				/* Push all moved files to thumbnailer */
+				move_data.main_loop = g_main_loop_new (NULL, FALSE);
+				move_data.miner = TRACKER_MINER (fs);
 
-			g_main_loop_unref (move_data.main_loop);
+				query = g_strdup_printf ("SELECT ?url ?new_url nie:mimeType(?u) {"
+				                         "  ?u a rdfs:Resource ;"
+				                         "     nie:url ?url ."
+				                         "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
+				                         "  FILTER (STRSTARTS (?url, \"%s/\"))"
+				                         "}",
+				                         uri, source_uri, source_uri);
+
+				tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
+				                                       query,
+				                                       NULL,
+				                                       move_thumbnails_cb,
+				                                       &move_data);
+
+				g_main_loop_run (move_data.main_loop);
+				g_main_loop_unref (move_data.main_loop);
+				g_free (query);
+			}
+
+			g_string_append_printf (sparql,
+			                        " DELETE {"
+			                        "  ?u nie:url ?url "
+			                        "} INSERT { "
+			                        "  GRAPH <" TRACKER_OWN_GRAPH_URN "> {"
+			                        "    ?u nie:url ?new_url "
+			                        "  }"
+			                        "} WHERE {"
+			                        "  ?u a rdfs:Resource;"
+			                        "     nie:url ?url ."
+			                        "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
+			                        "  FILTER (STRSTARTS (?url, \"%s/\"))"
+			                        "} ",
+			                        uri, source_uri, source_uri);
 		} else {
 			/* A directory is being moved from a recursive location to
 			 * a non-recursive one, mark all children as deleted.
