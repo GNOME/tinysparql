@@ -559,7 +559,11 @@ function_sparql_regex (sqlite3_context *context,
 		sqlite3_set_auxdata (context, 1, regex, (void (*) (void*)) g_regex_unref);
 	}
 
-	ret = g_regex_match (regex, text, 0, NULL);
+	if (text != NULL) {
+		ret = g_regex_match (regex, text, 0, NULL);
+	} else {
+		ret = FALSE;
+	}
 
 	sqlite3_result_int (context, ret);
 }
