@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-07-30 00:01+0000\n"
-"PO-Revision-Date: 2015-08-09 22:35+0200\n"
+"POT-Creation-Date: 2015-12-15 14:53+0000\n"
+"PO-Revision-Date: 2015-12-15 19:35+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.3\n"
+"X-Generator: Poedit 1.8.6\n"
 "X-Project-Style: gnome\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -193,8 +193,8 @@ msgstr "Fel vid start av programmet ”tar”"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
-#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:201
+#: ../src/tracker/tracker-process.c:330 ../src/tracker/tracker-process.c:351
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -596,11 +596,11 @@ msgstr "Kommer att övervakas"
 msgid "- start the tracker indexer"
 msgstr "- starta tracker-indexeraren"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "Låg batterispänning"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "Lågt diskutrymme"
 
@@ -765,11 +765,11 @@ msgstr ""
 "användbart i begränsade miljöer där det är viktigt att lista filer så snabbt "
 "som möjligt och där metadata kan komma senare."
 
-#: ../src/tracker-extract/tracker-extract.c:790
+#: ../src/tracker-extract/tracker-extract.c:779
 msgid "Metadata extraction failed"
 msgstr "Misslyckades med extrahering av metadata"
 
-#: ../src/tracker-extract/tracker-extract.c:855
+#: ../src/tracker-extract/tracker-extract.c:844
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Fann inga metadata- eller extraherarmoduler som kan hantera denna fil"
 
@@ -891,7 +891,8 @@ msgstr "Visa statistik om lagrat data"
 #: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
-msgstr "_Ställ in de taggar som du vill associera med %d markerade objekten:"
+msgstr ""
+"_Ställ in de taggar som du vill associera med de %d markerade objekten:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
@@ -2223,31 +2224,31 @@ msgstr "Tillgängliga tracker-kommandon är:"
 msgid "Could not open /proc"
 msgstr "Kunde inte öppna /proc"
 
-#: ../src/tracker/tracker-process.c:124
+#: ../src/tracker/tracker-process.c:127
 msgid "Could not stat() file"
 msgstr "Kunde inte köra stat() på filen"
 
-#: ../src/tracker/tracker-process.c:193
+#: ../src/tracker/tracker-process.c:198
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Kunde inte öppna ”%s”"
 
-#: ../src/tracker/tracker-process.c:322
+#: ../src/tracker/tracker-process.c:327
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Kunde inte avsluta process %d -”%s”"
 
-#: ../src/tracker/tracker-process.c:328
+#: ../src/tracker/tracker-process.c:333
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Avslutade process %d -”%s”"
 
-#: ../src/tracker/tracker-process.c:343
+#: ../src/tracker/tracker-process.c:348
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Kunde inte döda process %d -”%s”"
 
-#: ../src/tracker/tracker-process.c:349
+#: ../src/tracker/tracker-process.c:354
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Dödade process %d -”%s”"
