@@ -356,7 +356,8 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 
 		/* Call finished handler with the error, if any */
 		if (error) {
-			g_task_return_error (task_data->async_task, error);
+			g_task_return_error (task_data->async_task,
+			                     g_error_copy (error));
 		} else {
 			g_task_return_pointer (task_data->async_task, task, NULL);
 		}
