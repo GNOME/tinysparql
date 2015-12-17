@@ -1,3 +1,15 @@
+NEW in 1.7.1 - 2015-12-17
+=========================
+
+  * libtracker-data: Support for Sparql 1.1 BIND and
+    DELETE {...} INSERT {...} WHERE {...} syntax.
+  * libtracker-data: Support for Sparql 1.1 functions: NOW, RAND
+  * libtracker-miner: Improved performance of move operations in TrackerMinerFS
+  * libtracker-data: Silence criticals on REGEX() with empty strings
+  * libtracker-miner, libtracker-extract: Fix double frees
+
+Translations: sl, sv
+
 NEW in 1.7.0 - 2015-11-25
 =========================
 
