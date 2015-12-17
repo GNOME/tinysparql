@@ -155,7 +155,6 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 
 	g_return_val_if_fail (str != NULL, FALSE);
 	g_return_val_if_fail (str_length != NULL, FALSE);
-	g_return_val_if_fail (*str_length > 0, FALSE);
 
 	word = (UChar *)str;
 	word_length = *str_length;
