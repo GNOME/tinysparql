@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2015-07-26T12:30:00Z" .
+	nao:lastModified "2015-12-29T14:30:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -30,6 +30,7 @@ nmo:partBoundary a rdf:Property ;
 nmo:Message a rdfs:Class ;
 	rdfs:comment "A message. Could be an email, instant messanging message, SMS message etc." ;
 	rdfs:subClassOf nfo:TextDocument ;
+	tracker:domainIndex nie:contentCreated ;
 	tracker:notify true .
 
 # FIXME Extension requested in Nepomuk
