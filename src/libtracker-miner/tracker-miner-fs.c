@@ -269,6 +269,7 @@ enum {
 	FINISHED,
 	WRITEBACK_FILE,
 	FINISHED_ROOT,
+	REMOVE_FILE,
 	LAST_SIGNAL
 };
 
@@ -285,6 +286,10 @@ enum {
 
 static void           miner_fs_initable_iface_init        (GInitableIface       *iface);
 
+static gboolean       miner_fs_remove_file                (TrackerMinerFS       *fs,
+                                                           GFile                *file,
+                                                           gboolean              children_only,
+                                                           TrackerSparqlBuilder *builder);
 static void           fs_finalize                         (GObject              *object);
 static void           fs_constructed                      (GObject              *object);
 static void           fs_set_property                     (GObject              *object,
@@ -370,6 +375,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
+
+	klass->remove_file = miner_fs_remove_file;
 
 	object_class->finalize = fs_finalize;
 	object_class->constructed = fs_constructed;
@@ -619,6 +626,49 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              1,
 		              G_TYPE_FILE);
 
+	/**
+	 * TrackerMinerFS::remove-file:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 * @children_only: #TRUE if only the children of @file are to be deleted
+	 * @builder: a #TrackerSparqlBuilder
+	 *
+	 * The ::remove-file signal will be emitted on files that need removal
+	 * according to the miner configuration (either the files themselves are
+	 * deleted, or the directory/contents no longer need inspection according
+	 * to miner configuration and their location.
+	 *
+	 * This operation is always assumed to be recursive, the @children_only
+	 * argument will be %TRUE if for any reason the topmost directory needs
+	 * to stay (e.g. moved from a recursively indexed directory tree to a
+	 * non-recursively indexed location).
+	 *
+	 * The @builder argument can be used to provide additional SPARQL
+	 * deletes and updates necessary around the deletion of those items. If
+	 * the return value of this signal is %TRUE, @builder is expected to
+	 * contain all relevant deletes for this operation.
+	 *
+	 * If the return value of this signal is %FALSE, the miner will apply
+	 * its default behavior, which is deleting all triples that correspond
+	 * to the affected URIs.
+	 *
+	 * Returns: %TRUE if @builder contains all the necessary operations to
+	 *          delete the affected resources, %FALSE to let the miner
+	 *          implicitly handle the deletion.
+	 *
+	 * Since: 1.8
+	 **/
+	signals[REMOVE_FILE] =
+		g_signal_new ("remove-file",
+		              G_TYPE_FROM_CLASS (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, remove_file),
+		              NULL, NULL, NULL,
+		              G_TYPE_BOOLEAN,
+		              3,
+		              G_TYPE_FILE, G_TYPE_BOOLEAN,
+		              TRACKER_SPARQL_TYPE_BUILDER);
+
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
 	quark_file_iri = g_quark_from_static_string ("tracker-miner-file-iri");
@@ -767,6 +817,15 @@ miner_fs_initable_iface_init (GInitableIface *iface)
 {
 	miner_fs_initable_parent_iface = g_type_interface_peek_parent (iface);
 	iface->init = miner_fs_initable_init;
+}
+
+static gboolean
+miner_fs_remove_file (TrackerMinerFS *fs,
+                      GFile                *file,
+                      gboolean              children_only,
+                      TrackerSparqlBuilder *builder)
+{
+	return FALSE;
 }
 
 static void
@@ -1562,6 +1621,8 @@ item_remove (TrackerMinerFS *fs,
              GFile          *file,
              gboolean        only_children)
 {
+	TrackerSparqlBuilder *builder;
+	gboolean delete_handled = FALSE;
 	gchar *uri;
 	TrackerTask *task;
 	guint flags = 0;
@@ -1572,57 +1633,76 @@ item_remove (TrackerMinerFS *fs,
 	         uri);
 
 	if (!only_children) {
-		flags = TRACKER_BULK_MATCH_EQUALS;
-	} else {
 		if (fs->priv->thumbnailer)
 			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
+
 #ifdef HAVE_LIBMEDIAART
 		tracker_media_art_queue_remove (uri, NULL);
 #endif
 	}
 
-	if (tracker_file_notifier_get_file_type (fs->priv->file_notifier, file) == G_FILE_TYPE_DIRECTORY)
-		flags |= TRACKER_BULK_MATCH_CHILDREN;
+	builder = tracker_sparql_builder_new ();
+	g_signal_emit (fs, signals[REMOVE_FILE], 0,
+	               file, only_children, builder, &delete_handled);
 
-	/* FIRST:
-	 * Remove tracker:available for the resources we're going to remove.
-	 * This is done so that unavailability of the resources is marked as soon
-	 * as possible, as the actual delete may take reaaaally a long time
-	 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
-	 * device). */
+	if (tracker_sparql_builder_get_length (builder) > 0) {
+		task = tracker_sparql_task_new_with_sparql (file, builder);
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            task,
+		                            G_PRIORITY_DEFAULT,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+	}
 
-	/* Add new task to processing pool */
-	task = tracker_sparql_task_new_bulk (file,
-	                                     "DELETE { "
-	                                     "  ?f tracker:available true "
-	                                     "}",
-	                                     flags);
+	g_object_unref (builder);
 
-	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-	                            task,
-	                            G_PRIORITY_DEFAULT,
-	                            sparql_buffer_task_finished_cb,
-	                            fs);
+	if (!delete_handled) {
+		if (!only_children)
+			flags = TRACKER_BULK_MATCH_EQUALS;
 
-	/* SECOND:
-	 * Actually remove all resources. This operation is the one which may take
-	 * a long time.
-	 */
+		if (tracker_file_notifier_get_file_type (fs->priv->file_notifier, file) == G_FILE_TYPE_DIRECTORY)
+			flags |= TRACKER_BULK_MATCH_CHILDREN;
 
-	/* Add new task to processing pool */
-	task = tracker_sparql_task_new_bulk (file,
-	                                     "DELETE { "
-	                                     "  ?f a rdfs:Resource . "
-	                                     "  ?ie a rdfs:Resource "
-	                                     "}",
-	                                     flags |
-	                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
+		/* FIRST:
+		 * Remove tracker:available for the resources we're going to remove.
+		 * This is done so that unavailability of the resources is marked as soon
+		 * as possible, as the actual delete may take reaaaally a long time
+		 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
+		 * device). */
 
-	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-	                            task,
-	                            G_PRIORITY_DEFAULT,
-	                            sparql_buffer_task_finished_cb,
-	                            fs);
+		/* Add new task to processing pool */
+		task = tracker_sparql_task_new_bulk (file,
+		                                     "DELETE { "
+		                                     "  ?f tracker:available true "
+		                                     "}",
+		                                     flags);
+
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            task,
+		                            G_PRIORITY_DEFAULT,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+
+		/* SECOND:
+		 * Actually remove all resources. This operation is the one which may take
+		 * a long time.
+		 */
+
+		/* Add new task to processing pool */
+		task = tracker_sparql_task_new_bulk (file,
+		                                     "DELETE { "
+		                                     "  ?f a rdfs:Resource . "
+		                                     "  ?ie a rdfs:Resource "
+		                                     "}",
+		                                     flags |
+		                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
+
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            task,
+		                            G_PRIORITY_DEFAULT,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+	}
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		item_queue_handlers_set_up (fs);
