@@ -1,8 +1,0 @@
-#!/bin/sh
-
-#export TRACKER_OLD_CMD=`echo $0 | sed 's/^[./]*//'`
-export TRACKER_OLD_CMD=`basename $0`
-echo "WARNING: The '$TRACKER_OLD_CMD' command is no longer available." > /dev/stderr
-echo "WARNING: Use 'tracker <command> [<args>]' instead...\n" > /dev/stderr
-
-@bindir@/tracker $@
