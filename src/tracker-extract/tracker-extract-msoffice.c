@@ -1372,6 +1372,7 @@ xls_get_extended_record_string (GsfInput  *stream,
 		/* Go to next chunk */
 		i++;
 	}
+	g_free(buffer);
 }
 
 /**
