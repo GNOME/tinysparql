@@ -510,7 +510,6 @@ decorator_task_done (GObject      *object,
 		decorator_blacklist_add (decorator, info->id);
 
 		if (error) {
-			g_task_propagate_pointer (G_TASK (result), &error);
 			g_warning ("Task for '%s' finished with error: %s\n",
 			           info->url, error->message);
 			g_error_free (error);
