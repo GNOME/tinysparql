@@ -1294,6 +1294,8 @@ sparql_buffer_task_finished_cb (GObject      *object,
 	} else {
 		item_queue_handlers_set_up (fs);
 	}
+
+	tracker_task_unref (task);
 }
 
 static UpdateProcessingTaskContext *
