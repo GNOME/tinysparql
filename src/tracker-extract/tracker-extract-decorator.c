@@ -232,6 +232,7 @@ get_metadata_cb (TrackerExtract *extract,
 		                     TRACKER_EXTRACT_DECORATOR (data->decorator),
 		                     data->decorator_info, info);
 		g_task_return_boolean (task, TRUE);
+		tracker_extract_info_unref (info);
 	}
 
 	priv->n_extracting_files--;
