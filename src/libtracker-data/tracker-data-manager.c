@@ -4626,27 +4626,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	}
 #endif /* DISABLE_JOURNAL */
 
-	if (!read_only) {
-		/* Delete stale URIs in the Resource table */
-		g_debug ("Cleaning up stale resource URIs");
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-		                                              &internal_error,
-		                                              "DELETE FROM Resource WHERE Resource.ID NOT IN"
-		                                              "(SELECT ID FROM \"rdfs:Resource\")");
-
-		if (stmt) {
-			tracker_db_statement_execute (stmt, &internal_error);
-			g_object_unref (stmt);
-		}
-
-		if (internal_error) {
-			g_warning ("Could not clean up stale resource URIs: %s\n",
-			           internal_error->message);
-			g_clear_error (&internal_error);
-		}
-	}
-
 	/* If locale changed, re-create indexes */
 	if (!read_only && tracker_db_manager_locale_changed ()) {
 		/* Report OPERATION - STATUS */
