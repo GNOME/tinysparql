@@ -290,9 +290,11 @@ guint64
 tracker_file_system_get_remaining_space (const gchar *path)
 {
 	struct __statvfs st;
+	gsize available;
 
 	if (statvfs_helper (path, &st)) {
-		return st.f_bsize * st.f_bavail;
+		available = (geteuid () == 0) ? st.f_bfree : st.f_bavail;
+		return st.f_bsize * available;
 	} else {
 		return 0;
 	}
@@ -302,9 +304,11 @@ gdouble
 tracker_file_system_get_remaining_space_percentage (const gchar *path)
 {
 	struct __statvfs st;
+	gsize available;
 
 	if (statvfs_helper (path, &st)) {
-		return (st.f_bavail * 100.0 / st.f_blocks);
+		available = (geteuid () == 0) ? st.f_bfree : st.f_bavail;
+		return (available * 100.0 / st.f_blocks);
 	} else {
 		return 0.0;
 	}
