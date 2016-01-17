@@ -45,7 +45,6 @@ typedef struct {
 	TrackerMinerFiles *files_miner;
 	GDBusConnection *d_connection;
 	TrackerSparqlConnection *connection;
-	gulong signal_id;
 } TrackerWritebackDispatcherPrivate;
 
 enum {
@@ -154,10 +153,6 @@ writeback_dispatcher_finalize (GObject *object)
 {
 	TrackerWritebackDispatcherPrivate *priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
 
-	if (priv->signal_id != 0 && g_signal_handler_is_connected (object, priv->signal_id)) {
-		g_signal_handler_disconnect (object, priv->signal_id);
-	}
-
 	if (priv->connection) {
 		g_object_unref (priv->connection);
 	}
@@ -200,11 +195,11 @@ writeback_dispatcher_initable_init (GInitable    *initable,
 		return FALSE;
 	}
 
-	priv->signal_id = g_signal_connect_object (priv->files_miner,
-	                                           "writeback-file",
-	                                           G_CALLBACK (writeback_dispatcher_writeback_file),
-	                                           initable,
-	                                           G_CONNECT_AFTER);
+	g_signal_connect_object (priv->files_miner,
+	                         "writeback-file",
+	                         G_CALLBACK (writeback_dispatcher_writeback_file),
+	                         initable,
+	                         G_CONNECT_AFTER);
 
 	return TRUE;
 }
