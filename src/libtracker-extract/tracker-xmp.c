@@ -573,7 +573,8 @@ iterate_simple (const gchar    *uri,
                                 */
                         } else if (!current_region->type && g_ascii_strcasecmp (propname, "mwg-rs:Type") == 0) {
                                 current_region->type = g_strdup (value);
-                        } else if (g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
+                        } else if (!current_region->link_class && !current_region->link_uri &&
+                                   g_str_has_prefix (strrchr (path, ']') + 2, "mwg-rs:Extensions")) {
                                 current_region->link_class = g_strdup (propname);
                                 current_region->link_uri = g_strdup (value);
                         }
