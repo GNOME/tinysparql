@@ -83,7 +83,7 @@ namespace Tracker.Sparql {
 		public string sql_expression { get; private set; }
 		public VariableBinding binding;
 		string sql_identifier;
-		public Context origin_context { get; private set; }
+		public weak Context origin_context { get; private set; }
 
 		public Variable (string name, int index, Context context) {
 			this.name = name;
