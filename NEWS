@@ -1,3 +1,16 @@
+NEW in 1.7.2 - 2016-01-17
+=========================
+
+  * Many leak fixes.
+  * libtracker-data: Reverted code to clean up stale Resources, can't just be done yet.
+  * tracker tool: Removed tracker-compatibility CLI wrapper for older commands.
+  * libtracker-common: Fix possible warnings on libicu unaccent code
+  * ontology: Set domain index on nie:contentCreated for nmo:Message
+  * libtracker-miner: Add ::remove-file signal vfunc
+  * libtracker-common: Return total available space if running as admin.
+
+Translations: lt
+
 NEW in 1.7.1 - 2015-12-17
 =========================
 
