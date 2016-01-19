@@ -1,3 +1,16 @@
+New in 1.2.7: 2016-01-19
+========================
+
+- libtracker-miner: Abort async operations once the instace is gone
+- libtracker-miner: Cancel pending operations during destruction
+- libtracker-miner: Handle failure to get a TrackerSparqlConnection
+- libtracker-common: Fix buffer overrun in libunistring unaccenting
+- libtracker-control: Fix return value
+- libtracker-control: Improve the documentation
+- libtracker-data: Silence CRITICAL
+
+Translations: pt
+
 NEW in 1.2.6: 2015-04-09
 ========================
 
