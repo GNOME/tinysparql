@@ -428,7 +428,7 @@ main (int argc, char **argv)
 	                 test_boolean_as_text_to_number_failures_subprocess);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_list_as_list",
 	                 test_string_list_to_string);
-	g_test_add_func ("/libtracker-common/tracker-type-utils/string_list_as_list",
+	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_string_list",
 	                 test_string_to_string_list);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/gslist_to_string_list",
 	                 test_gslist_to_string_list);
