@@ -1,3 +1,16 @@
+New in 1.4.2 - 2015-12-27
+=========================
+
+  * tracker CLI: fixed search with -f argument
+  * libtracker-miner: Cancel pending async operations during destruction
+  * libtracker-miner: Handle failure to get a TrackerSparqlConnection
+  * libtracker-common: Fix buffer overrun on libunistring unaccenting
+  * libtracker-control: Fix return value in function call
+  * libtracker-control: Improve docs
+  * libtracker-data: Silence criticals on REGEX() with null strings
+
+Translations: cs, de, hu, id, lt, pl, pt, sv
+
 NEW in 1.4.1 - 2014-07-31
 =========================
 
