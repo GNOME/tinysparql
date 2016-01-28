@@ -1641,7 +1641,7 @@ item_remove (TrackerMinerFS *fs,
 #endif
 	}
 
-	builder = tracker_sparql_builder_new ();
+	builder = tracker_sparql_builder_new_update ();
 	g_signal_emit (fs, signals[REMOVE_FILE], 0,
 	               file, only_children, builder, &delete_handled);
 
