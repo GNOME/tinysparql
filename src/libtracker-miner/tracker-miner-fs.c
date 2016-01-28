@@ -1419,11 +1419,6 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 		g_message ("Could not process '%s': %s", uri, error->message);
 
 		fs->priv->total_files_notified_error++;
-
-		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND) &&
-		    !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
-			sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
-		}
 	} else {
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
