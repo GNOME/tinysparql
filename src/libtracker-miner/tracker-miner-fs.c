@@ -2905,21 +2905,21 @@ check_item_queues (TrackerMinerFS *fs,
 		if (tracker_file_notifier_get_file_type (fs->priv->file_notifier,
 		                                         file) == G_FILE_TYPE_DIRECTORY) {
 			if (tracker_priority_queue_foreach_remove (fs->priv->items_updated,
-			                                           (GEqualFunc) g_file_has_parent,
+			                                           (GEqualFunc) g_file_has_prefix,
 			                                           file,
 			                                           (GDestroyNotify) g_object_unref)) {
 				g_debug ("  Deleting previous unhandled UPDATED events on children");
 			}
 
 			if (tracker_priority_queue_foreach_remove (fs->priv->items_created,
-			                                           (GEqualFunc) g_file_has_parent,
+			                                           (GEqualFunc) g_file_has_prefix,
 			                                           file,
 			                                           (GDestroyNotify) g_object_unref)) {
 				g_debug ("  Deleting previous unhandled CREATED events on children");
 			}
 
 			if (tracker_priority_queue_foreach_remove (fs->priv->items_deleted,
-			                                           (GEqualFunc) g_file_has_parent,
+			                                           (GEqualFunc) g_file_has_prefix,
 			                                           file,
 			                                           (GDestroyNotify) g_object_unref)) {
 				g_debug ("  Deleting previous unhandled DELETED events on children");
