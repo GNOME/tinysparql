@@ -847,12 +847,12 @@ tracker_file_system_get_property_full (TrackerFileSystem *file_system,
 	FileNodeProperty property, *match;
 	GNode *node;
 
-	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
-	g_return_val_if_fail (file != NULL, NULL);
-	g_return_val_if_fail (prop > 0, NULL);
+	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), FALSE);
+	g_return_val_if_fail (file != NULL, FALSE);
+	g_return_val_if_fail (prop > 0, FALSE);
 
 	node = file_system_get_node (file_system, file);
-	g_return_val_if_fail (node != NULL, NULL);
+	g_return_val_if_fail (node != NULL, FALSE);
 
 	data = node->data;
 	property.prop_quark = prop;

@@ -1235,7 +1235,7 @@ tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 gint
 tracker_crawler_get_max_depth (TrackerCrawler *crawler)
 {
-	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
+	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), 0);
 	return crawler->priv->max_depth;
 }
 
