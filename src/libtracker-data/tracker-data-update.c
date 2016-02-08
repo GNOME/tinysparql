@@ -3737,12 +3737,9 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 				GError *new_error = NULL;
 
 				if (object && rdf_type == property) {
-					TrackerClass *class = NULL;
+					TrackerClass *class;
 
-					uri = tracker_ontologies_get_uri_by_id (object_id);
-					if (uri) {
-						class = tracker_ontologies_get_class_by_uri (uri);
-					}
+					class = tracker_ontologies_get_class_by_uri (object);
 					if (class != NULL) {
 						cache_delete_resource_type (class, NULL, graph_id);
 					} else {
