@@ -1834,7 +1834,7 @@ tracker_db_manager_tokenizer_update (void)
 		g_warning ("The file '%s' could not be rewritten by Tracker and "
 		           "should be deleted manually. Not doing so will result "
 		           "in Tracker rebuilding its FTS tokens on every startup. "
-		           "The error received was: '%s'", error->message);
+		           "The error received was: '%s'", filename, error->message);
 		g_error_free (error);
 	}
 
