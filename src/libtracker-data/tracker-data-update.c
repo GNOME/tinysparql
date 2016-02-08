@@ -3315,8 +3315,6 @@ tracker_data_begin_transaction (GError **error)
 	}
 #endif /* DISABLE_JOURNAL */
 
-	iface = tracker_db_manager_get_db_interface ();
-
 	in_transaction = TRUE;
 }
 
