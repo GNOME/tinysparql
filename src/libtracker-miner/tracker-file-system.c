@@ -448,9 +448,7 @@ tracker_file_system_class_init (TrackerFileSystemClass *klass)
 static void
 tracker_file_system_init (TrackerFileSystem *file_system)
 {
-	TrackerFileSystemPrivate *priv;
-
-	file_system->priv = priv =
+	file_system->priv =
 		G_TYPE_INSTANCE_GET_PRIVATE (file_system,
 		                             TRACKER_TYPE_FILE_SYSTEM,
 		                             TrackerFileSystemPrivate);
