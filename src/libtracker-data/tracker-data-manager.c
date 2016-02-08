@@ -3619,16 +3619,12 @@ ontology_get_fts_properties (gboolean     only_new,
 {
 	TrackerProperty **properties;
 	gboolean has_new = FALSE;
-	GHashTable *hashtable;
 	guint i, len;
 
 	properties = tracker_ontologies_get_properties (&len);
-	hashtable = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
-					   (GDestroyNotify) g_list_free);
-
-	if (multivalued) {
-		*multivalued = g_hash_table_new (g_str_hash, g_str_equal);
-	}
+	*multivalued = g_hash_table_new (g_str_hash, g_str_equal);
+	*fts_properties = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                         NULL, (GDestroyNotify) g_list_free);
 
 	for (i = 0; i < len; i++) {
 		const gchar *name, *table_name;
@@ -3640,26 +3636,20 @@ ontology_get_fts_properties (gboolean     only_new,
 
 		has_new |= tracker_property_get_is_new (properties[i]);
 		table_name = tracker_property_get_table_name (properties[i]);
-
-		if (multivalued &&
-		    tracker_property_get_multiple_values (properties[i])) {
-			g_hash_table_insert (*multivalued, (gpointer) table_name,
-					     GUINT_TO_POINTER (TRUE));
-		}
-
 		name = tracker_property_get_name (properties[i]);
-		list = g_hash_table_lookup (hashtable, table_name);
+		list = g_hash_table_lookup (*fts_properties, table_name);
+
+		if (tracker_property_get_multiple_values (properties[i])) {
+			g_hash_table_insert (*multivalued, (gpointer) table_name,
+			                     GUINT_TO_POINTER (TRUE));
+		}
 
 		if (!list) {
 			list = g_list_prepend (NULL, (gpointer) name);
-			g_hash_table_insert (hashtable, (gpointer) table_name, list);
+			g_hash_table_insert (*fts_properties, (gpointer) table_name, list);
 		} else {
 			list = g_list_append (list, (gpointer) name);
 		}
-	}
-
-	if (fts_properties) {
-		*fts_properties = hashtable;
 	}
 
 	return has_new;
