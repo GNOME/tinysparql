@@ -159,6 +159,7 @@ function_weights (sqlite3_context *context,
 {
 	static guint *weights = NULL;
 	static GMutex mutex;
+	static gint length;
 	int rc = SQLITE_DONE;
 
 	g_mutex_lock (&mutex);
@@ -190,6 +191,7 @@ function_weights (sqlite3_context *context,
 		sqlite3_finalize (stmt);
 
 		if (rc == SQLITE_DONE) {
+			length = weight_array->len * g_array_get_element_size (weight_array);
 			weights = (guint *) g_array_free (weight_array, FALSE);
 		} else {
 			g_array_free (weight_array, TRUE);
@@ -199,7 +201,7 @@ function_weights (sqlite3_context *context,
 	g_mutex_unlock (&mutex);
 
 	if (rc == SQLITE_DONE)
-		sqlite3_result_blob (context, weights, sizeof (weights), NULL);
+		sqlite3_result_blob (context, weights, length, NULL);
 	else
 		sqlite3_result_error_code (context, rc);
 }
@@ -210,9 +212,11 @@ function_property_names (sqlite3_context *context,
                          sqlite3_value   *argv[])
 {
 	gchar **property_names;
+	gint length;
 
 	property_names = g_private_get (&property_names_key);
-	sqlite3_result_blob (context, property_names, sizeof (property_names), NULL);
+	length = g_strv_length (property_names) * sizeof (gchar *);
+	sqlite3_result_blob (context, property_names, length, NULL);
 }
 
 static void
