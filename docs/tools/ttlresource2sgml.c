@@ -436,7 +436,7 @@ hierarchy_context_resolve_class (HierarchyContext *context,
 {
 	GList *l = g_list_find_custom (context->hierarchy, klass->classname,
 				       (GCompareFunc) g_strcmp0);
-	guint pos = g_list_position (context->hierarchy, l);
+	gint pos = g_list_position (context->hierarchy, l);
 	GList *children, *parents;
 	gchar *shortname, *link;
 	HierarchyString *str;
