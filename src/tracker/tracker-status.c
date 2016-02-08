@@ -545,7 +545,7 @@ get_file_and_folder_count (int *files,
 		if (error || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			g_printerr ("%s, %s\n",
 			            _("Could not get basic status for Tracker"),
-			            error->message);
+			            error ? error->message : _("No error given"));
 			g_error_free (error);
 			return EXIT_FAILURE;
 		}
