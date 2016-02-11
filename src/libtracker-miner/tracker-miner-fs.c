@@ -1647,6 +1647,7 @@ item_remove (TrackerMinerFS *fs,
 		                            G_PRIORITY_DEFAULT,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+		tracker_task_unref (task);
 	}
 
 	g_object_unref (builder);
@@ -1677,6 +1678,7 @@ item_remove (TrackerMinerFS *fs,
 		                            G_PRIORITY_DEFAULT,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+		tracker_task_unref (task);
 
 		/* SECOND:
 		 * Actually remove all resources. This operation is the one which may take
@@ -1697,6 +1699,7 @@ item_remove (TrackerMinerFS *fs,
 		                            G_PRIORITY_DEFAULT,
 		                            sparql_buffer_task_finished_cb,
 		                            fs);
+		tracker_task_unref (task);
 	}
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
@@ -2020,6 +2023,7 @@ item_move (TrackerMinerFS *fs,
 	                            G_PRIORITY_DEFAULT,
 	                            sparql_buffer_task_finished_cb,
 	                            fs);
+	tracker_task_unref (task);
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		item_queue_handlers_set_up (fs);
