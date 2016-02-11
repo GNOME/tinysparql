@@ -1782,9 +1782,24 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 	return iri;
 }
 
+static gboolean
+file_notifier_invalidate_file_iri_foreach (GFile    *file,
+                                           gpointer  user_data)
+{
+	TrackerFileSystem *file_system = user_data;
+
+	tracker_file_system_set_property (file_system,
+	                                  file,
+	                                  quark_property_iri,
+	                                  NULL);
+
+	return FALSE;
+}
+
 void
 tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
-                                           GFile               *file)
+                                           GFile               *file,
+                                           gboolean             recursive)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *canonical;
@@ -1801,11 +1816,21 @@ tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
 		return;
 	}
 
-	/* Set a NULL iri, so we make sure to look it up afterwards */
-	tracker_file_system_set_property (priv->file_system,
-	                                  canonical,
-	                                  quark_property_iri,
-	                                  NULL);
+	if (!recursive) {
+		/* Set a NULL iri, so we make sure to look it up afterwards */
+		tracker_file_system_set_property (priv->file_system,
+		                                  canonical,
+		                                  quark_property_iri,
+		                                  NULL);
+		return;
+	}
+
+	tracker_file_system_traverse (priv->file_system,
+	                              canonical,
+	                              G_PRE_ORDER,
+	                              file_notifier_invalidate_file_iri_foreach,
+	                              -1,
+	                              priv->file_system);
 }
 
 GFileType

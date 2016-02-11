@@ -1335,7 +1335,7 @@ sparql_buffer_task_finished_cb (GObject      *object,
 
 	task_file = tracker_task_get_file (task);
 
-	tracker_file_notifier_invalidate_file_iri (priv->file_notifier, task_file);
+	tracker_file_notifier_invalidate_file_iri (priv->file_notifier, task_file, FALSE);
 
 	if (item_queue_is_blocked_by_file (fs, task_file)) {
 		g_object_unref (priv->item_queue_blocker);

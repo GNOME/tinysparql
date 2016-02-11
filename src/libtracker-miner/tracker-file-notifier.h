@@ -91,7 +91,8 @@ const gchar * tracker_file_notifier_get_file_iri (TrackerFileNotifier     *notif
                                                   gboolean                 force);
 
 void          tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
-                                                         GFile               *file);
+                                                         GFile               *file,
+                                                         gboolean             recursive);
 
 GFileType     tracker_file_notifier_get_file_type (TrackerFileNotifier *notifier,
                                                    GFile               *file);
