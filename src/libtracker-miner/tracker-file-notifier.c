@@ -1166,7 +1166,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 
 	/* Remove the file from the cache (works recursively for directories) */
 	tracker_file_system_forget_files (priv->file_system,
-	                                  file,
+	                                  canonical,
 	                                  G_FILE_TYPE_UNKNOWN);
 }
 
