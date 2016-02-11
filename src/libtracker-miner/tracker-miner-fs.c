@@ -2089,14 +2089,6 @@ should_wait (TrackerMinerFS *fs,
 	return FALSE;
 }
 
-static void
-item_reset_reentry_counter (TrackerMinerFS *fs,
-                            GFile          *file)
-{
-	g_object_set_qdata (G_OBJECT (file),
-	                    fs->priv->quark_reentry_counter, NULL);
-}
-
 static gboolean
 item_reenqueue_full (TrackerMinerFS       *fs,
                      TrackerPriorityQueue *item_queue,
@@ -2603,8 +2595,6 @@ item_queue_handlers_cb (gpointer user_data)
 			} else {
 				item_queue = fs->priv->items_updated;
 			}
-
-			item_reset_reentry_counter (fs, file);
 
 			/* Parent isn't indexed yet, reinsert the task into the queue,
 			 * but forcily prepended by its parent so its indexing is
