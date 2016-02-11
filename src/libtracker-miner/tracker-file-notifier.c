@@ -56,6 +56,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 typedef struct {
 	GFile *root;
+	GFile *current_dir;
 	GQueue *pending_dirs;
 	GPtrArray *query_files;
 	GPtrArray *updated_dirs;
@@ -182,6 +183,9 @@ root_data_free (RootData *data)
 	g_queue_free_full (data->pending_dirs, (GDestroyNotify) g_object_unref);
 	g_ptr_array_unref (data->query_files);
 	g_ptr_array_unref (data->updated_dirs);
+	if (data->current_dir) {
+		g_object_unref (data->current_dir);
+	}
 	g_object_unref (data->root);
 	g_free (data);
 }
@@ -277,7 +281,7 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 
 	notifier = user_data;
 	priv = notifier->priv;
-	current_root = g_queue_peek_head (priv->current_index_root->pending_dirs);
+	current_root = priv->current_index_root->current_dir;
 
 	/* If we're crawling over a subdirectory of a root index, it's been
 	 * already notified in the crawling op that made it processed, so avoid
@@ -360,7 +364,7 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 	priv = notifier->priv;
 	g_assert (priv->current_index_root != NULL);
 
-	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
+	directory = priv->current_index_root->current_dir;
 	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
 						      directory, &flags);
 
@@ -596,11 +600,12 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 	if (!priv->current_index_root)
 		return FALSE;
 
-	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
+	directory = g_queue_pop_head (priv->current_index_root->pending_dirs);
 
 	if (!directory)
 		return FALSE;
 
+	priv->current_index_root->current_dir = directory;
 	g_cancellable_reset (priv->cancellable);
 
 	if ((priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) == 0) {
@@ -629,7 +634,8 @@ finish_current_directory (TrackerFileNotifier *notifier,
 	GFile *directory;
 
 	priv = notifier->priv;
-	directory = g_queue_pop_head (priv->current_index_root->pending_dirs);
+	directory = priv->current_index_root->current_dir;
+	priv->current_index_root->current_dir = NULL;
 
 	/* We dispose regular files here, only directories are cached once crawling
 	 * has completed.
@@ -936,7 +942,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	max_depth = tracker_crawler_get_max_depth (crawler);
 
-	directory = g_queue_peek_head (priv->current_index_root->pending_dirs);
+	directory = priv->current_index_root->current_dir;
 
 	if (priv->current_index_root->query_files->len > 0 &&
 	    (directory == priv->current_index_root->root ||
