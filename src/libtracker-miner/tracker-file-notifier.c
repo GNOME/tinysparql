@@ -1162,12 +1162,20 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	/* Fetch the interned copy */
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file, file_type, NULL);
+
+	/* tracker_file_system_forget_files() might already have been
+	 * called on this file. In this case, the object might become
+	 * invalid when returning from g_signal_emit(). Take a
+	 * reference in order to prevent that.
+	 */
+	g_object_ref (canonical);
 	g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 
 	/* Remove the file from the cache (works recursively for directories) */
 	tracker_file_system_forget_files (priv->file_system,
 	                                  canonical,
 	                                  G_FILE_TYPE_UNKNOWN);
+	g_object_unref (canonical);
 }
 
 static void
