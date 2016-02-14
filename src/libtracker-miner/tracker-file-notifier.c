@@ -102,6 +102,10 @@ typedef struct {
 } SparqlStartData;
 
 static gboolean crawl_directories_start (TrackerFileNotifier *notifier);
+static void     sparql_files_query_start (TrackerFileNotifier  *notifier,
+                                          GFile               **files,
+                                          guint                 n_files,
+                                          gint                  max_depth);
 
 G_DEFINE_TYPE (TrackerFileNotifier, tracker_file_notifier, G_TYPE_OBJECT)
 
@@ -607,10 +611,14 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 		depth = MAX_DEPTH;
 	}
 
-	return tracker_crawler_start (priv->crawler,
-	                              directory,
-	                              priv->current_index_root->flags,
-	                              depth);
+	if (!tracker_crawler_start (priv->crawler,
+	                            directory,
+	                            priv->current_index_root->flags,
+	                            depth)) {
+		sparql_files_query_start (notifier, &directory, 1, depth);
+	}
+
+	return TRUE;
 }
 
 static void
