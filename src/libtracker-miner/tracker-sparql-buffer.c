@@ -427,7 +427,7 @@ bulk_operation_merge_finish (BulkOperationMerge *merge)
 					dir_uri = g_strdup_printf ("%s/", uri);
 
 				g_string_append_printf (children_string,
-				                        "fn:starts-with (?u, \"%s\")",
+				                        "STRSTARTS (?u, \"%s\")",
 				                        dir_uri);
 				g_free (dir_uri);
 			}
