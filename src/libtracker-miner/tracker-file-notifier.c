@@ -32,6 +32,7 @@
 static GQuark quark_property_iri = 0;
 static GQuark quark_property_store_mtime = 0;
 static GQuark quark_property_filesystem_mtime = 0;
+static gboolean force_check_updated = FALSE;
 
 #define MAX_DEPTH 1
 
@@ -374,6 +375,9 @@ file_notifier_is_directory_modified (TrackerFileNotifier *notifier,
 {
 	TrackerFileNotifierPrivate *priv;
 	guint64 *store_mtime, *disk_mtime;
+
+	if (G_UNLIKELY (force_check_updated))
+		return TRUE;
 
 	priv = notifier->priv;
 	store_mtime = tracker_file_system_get_property (priv->file_system, file,
@@ -1631,6 +1635,8 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	quark_property_filesystem_mtime = g_quark_from_static_string ("tracker-property-filesystem-mtime");
 	tracker_file_system_register_property (quark_property_filesystem_mtime,
 	                                       g_free);
+
+	force_check_updated = g_getenv ("TRACKER_MINER_FORCE_CHECK_UPDATED") != NULL;
 }
 
 static void
