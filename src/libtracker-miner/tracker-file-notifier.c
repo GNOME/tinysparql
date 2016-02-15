@@ -59,7 +59,6 @@ typedef struct {
 	GFile *current_dir;
 	GQueue *pending_dirs;
 	GPtrArray *query_files;
-	GPtrArray *updated_dirs;
 	guint flags;
 	guint directories_found;
 	guint directories_ignored;
@@ -169,7 +168,6 @@ root_data_new (TrackerFileNotifier *notifier,
 	data->root = g_object_ref (file);
 	data->pending_dirs = g_queue_new ();
 	data->query_files = g_ptr_array_new_with_free_func (g_object_unref);
-	data->updated_dirs = g_ptr_array_new ();
 	data->flags = flags;
 
 	g_queue_push_tail (data->pending_dirs, g_object_ref (file));
@@ -182,7 +180,6 @@ root_data_free (RootData *data)
 {
 	g_queue_free_full (data->pending_dirs, (GDestroyNotify) g_object_unref);
 	g_ptr_array_unref (data->query_files);
-	g_ptr_array_unref (data->updated_dirs);
 	if (data->current_dir) {
 		g_object_unref (data->current_dir);
 	}
@@ -277,7 +274,6 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	TrackerFileNotifierPrivate *priv;
 	guint64 *store_mtime, *disk_mtime;
 	GFile *current_root;
-	GFileType file_type;
 
 	notifier = user_data;
 	priv = notifier->priv;
@@ -295,7 +291,6 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	                                                quark_property_store_mtime);
 	disk_mtime = tracker_file_system_get_property (priv->file_system, file,
 	                                               quark_property_filesystem_mtime);
-	file_type = tracker_file_system_get_file_type (priv->file_system, file);
 
 	if (store_mtime && !disk_mtime) {
 		/* In store but not in disk, delete */
@@ -308,17 +303,6 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	} else if (store_mtime && disk_mtime && *disk_mtime != *store_mtime) {
 		/* Mtime changed, update */
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, file, FALSE);
-
-		if (file_type == G_FILE_TYPE_DIRECTORY) {
-			/* A directory has updated its mtime, this means something
-			 * was either added or removed in the mean time. Crawling
-			 * will always find all newly added files. But still, we
-			 * must check the contents in the store to handle contents
-			 * having been deleted in the directory.
-			 */
-			g_ptr_array_add (priv->current_index_root->updated_dirs,
-			                 file);
-		}
 	} else if (!store_mtime && !disk_mtime) {
 		/* what are we doing with such file? should happen rarely,
 		 * only with files that we've queried, but we decided not
@@ -382,6 +366,22 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 		                              max_depth + 1,
 		                              notifier);
 	}
+}
+
+static gboolean
+file_notifier_is_directory_modified (TrackerFileNotifier *notifier,
+                                     GFile               *file)
+{
+	TrackerFileNotifierPrivate *priv;
+	guint64 *store_mtime, *disk_mtime;
+
+	priv = notifier->priv;
+	store_mtime = tracker_file_system_get_property (priv->file_system, file,
+	                                                quark_property_store_mtime);
+	disk_mtime = tracker_file_system_get_property (priv->file_system, file,
+	                                               quark_property_filesystem_mtime);
+
+	return (store_mtime && disk_mtime && *disk_mtime != *store_mtime);
 }
 
 static gboolean
@@ -721,8 +721,7 @@ out:
 
 static gchar *
 sparql_contents_compose_query (GFile **directories,
-                               guint   n_dirs,
-                               GQueue *filter)
+                               guint   n_dirs)
 {
 	GString *str;
 	gchar *uri;
@@ -736,9 +735,6 @@ sparql_contents_compose_query (GFile **directories,
 	                    "            FILTER (?folder = nfo:Folder) } ."
 			    " FILTER (?url IN (");
 	for (i = 0; i < n_dirs; i++) {
-		if (g_queue_find (filter, directories[i]))
-			continue;
-
 		if (!first) {
 			g_string_append_c (str, ',');
 		}
@@ -757,8 +753,7 @@ sparql_contents_compose_query (GFile **directories,
 static void
 sparql_contents_query_start (TrackerFileNotifier  *notifier,
                              GFile               **directories,
-                             guint                 n_dirs,
-                             GQueue               *filter)
+                             guint                 n_dirs)
 {
 	TrackerFileNotifierPrivate *priv;
 	gchar *sparql;
@@ -769,7 +764,7 @@ sparql_contents_query_start (TrackerFileNotifier  *notifier,
 		return;
 	}
 
-	sparql = sparql_contents_compose_query (directories, n_dirs, filter);
+	sparql = sparql_contents_compose_query (directories, n_dirs);
 	tracker_sparql_connection_query_async (priv->connection,
 	                                       sparql,
 	                                       priv->cancellable,
@@ -789,6 +784,7 @@ sparql_files_query_cb (GObject      *object,
 	TrackerFileNotifier *notifier;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	GFile *directory;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                 result, &error);
@@ -807,14 +803,16 @@ sparql_files_query_cb (GObject      *object,
 	}
 
 	file_notifier_traverse_tree (notifier, data->max_depth);
+	directory = priv->current_index_root->current_dir;
 
-	if (priv->current_index_root->updated_dirs->len > 0) {
-		/* Updated directories have been found, check for deleted contents in those */
-		sparql_contents_query_start (notifier,
-		                             (GFile**) priv->current_index_root->updated_dirs->pdata,
-		                             priv->current_index_root->updated_dirs->len,
-		                             priv->current_index_root->pending_dirs);
-		g_ptr_array_set_size (priv->current_index_root->updated_dirs, 0);
+	if (file_notifier_is_directory_modified (notifier, directory)) {
+		/* The directory has updated its mtime, this means something
+		 * was either added or removed in the mean time. Crawling
+		 * will always find all newly added files. But still, we
+		 * must check the contents in the store to handle contents
+		 * having been deleted in the directory.
+		 */
+		sparql_contents_query_start (notifier, &directory, 1);
 	} else {
 		finish_current_directory (notifier, FALSE);
 	}
