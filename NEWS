@@ -1,3 +1,27 @@
+NEW in 1.7.3 - 2016-02-16
+=========================
+
+  * libtracker-miner: Many indexing fixes leading to stale elements in the database.
+      If "UNIQUE constraint failed: nie:DataObject.nie:url" errors are seen in
+      journald, running tracker-miner-fs once with the TRACKER_MINER_FORCE_CHECK_UPDATED
+      envvar is recommended. you will need to terminate miners before that with
+      tracker daemon -t
+  * libtracker-miner: Do not insert partial/empty sparql on error
+  * libtracker-miner: Pass a builder in UPDATE state to TrackerMinerFS::remove-file
+  * libtracker-miner: Remove children recursively from queues on directory deleted
+  * libtracker-miner: Fix generated Sparql query in sparql_contents_compose_query()
+  * libtracker-miner: Fix some memory leaks of TrackerTask
+  * libtracker-miner: Invalidate files iri recursively in case of file removal
+  * libtracker-miner: Reset of reentry counter is not needed anymore
+  * libtracker-fts: Fix invalid blob length calculation
+  * libtracker-common: Use guint64 for free space calculations
+  * libtracker-data, docs, libtracker-miner: Fix compile warnings
+  * libtracker-data: misc code fixes
+  * libtracker-data: Fix g_warning() missing argument
+  * Update AppData to spec version 0.7+
+
+Translations: lv
+
 NEW in 1.7.2 - 2016-01-17
 =========================
 
