@@ -482,6 +482,7 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 static GFile *
 _insert_store_info (TrackerFileNotifier *notifier,
                     GFile               *file,
+                    GFileType            file_type,
                     const gchar         *iri,
                     guint64              _time)
 {
@@ -490,8 +491,7 @@ _insert_store_info (TrackerFileNotifier *notifier,
 
 	priv = notifier->priv;
 	canonical = tracker_file_system_get_file (priv->file_system,
-	                                          file,
-	                                          G_FILE_TYPE_UNKNOWN,
+	                                          file, file_type,
 	                                          NULL);
 	tracker_file_system_set_property (priv->file_system, canonical,
 	                                  quark_property_iri,
@@ -515,6 +515,7 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 		GFile *file, *canonical, *root;
 		const gchar *time_str, *iri;
 		GError *error = NULL;
+		gboolean is_folder;
 		guint64 _time;
 
 		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
@@ -545,7 +546,12 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 			_time = 0;
 		}
 
-		_insert_store_info (notifier, file, iri, _time);
+		is_folder = tracker_sparql_cursor_get_boolean (cursor, 3);
+
+		_insert_store_info (notifier, file,
+		                    is_folder ?
+		                    G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_UNKNOWN,
+		                    iri, _time);
 		g_object_unref (file);
 	}
 }
@@ -562,6 +568,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *uri;
+		gboolean is_folder;
 
 		/* Sometimes URI can be NULL when nie:url and
 		 * nfo:belongsToContainer does not have a strictly 1:1
@@ -576,13 +583,18 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 
 		file = g_file_new_for_uri (uri);
 		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		is_folder = tracker_sparql_cursor_get_boolean (cursor, 3);
 
 		if (!tracker_file_system_peek_file (priv->file_system, file)) {
 			/* The file exists on the store, but not on the
 			 * crawled content, insert temporarily to handle
 			 * the delete event.
 			 */
-			canonical = _insert_store_info (notifier, file, iri, 0);
+			canonical = _insert_store_info (notifier, file,
+			                                is_folder ?
+			                                G_FILE_TYPE_DIRECTORY :
+			                                G_FILE_TYPE_UNKNOWN,
+			                                iri, 0);
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 		}
 
@@ -717,8 +729,11 @@ sparql_contents_compose_query (GFile **directories,
 	gint i;
 	gboolean first = TRUE;
 
-	str = g_string_new ("SELECT nie:url(?u) ?u nfo:fileLastModified(?u) {"
+	str = g_string_new ("SELECT nie:url(?u) ?u nfo:fileLastModified(?u) "
+	                    "       BOUND (?folder) {"
 			    " ?u nfo:belongsToContainer ?f . ?f nie:url ?url ."
+	                    " OPTIONAL { ?u a ?folder . "
+	                    "            FILTER (?folder = nfo:Folder) } ."
 			    " FILTER (?url IN (");
 	for (i = 0; i < n_dirs; i++) {
 		if (g_queue_find (filter, directories[i]))
@@ -819,8 +834,11 @@ sparql_files_compose_query (GFile **files,
 	gchar *uri;
 	gint i = 0;
 
-	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) {"
+	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) "
+	                    "       BOUND(?folder) {"
 			    "  ?u a rdfs:Resource ; nie:url ?url . "
+	                    "OPTIONAL { ?u a ?folder . "
+                            "           FILTER (?folder = nfo:Folder) } . "
 			    "FILTER (?url IN (");
 	for (i = 0; i < n_files; i++) {
 		if (i != 0)
