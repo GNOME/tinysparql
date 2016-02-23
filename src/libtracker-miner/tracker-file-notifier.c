@@ -653,11 +653,14 @@ finish_current_directory (TrackerFileNotifier *notifier,
 	directory = priv->current_index_root->current_dir;
 	priv->current_index_root->current_dir = NULL;
 
-	/* We dispose regular files here, only directories are cached once crawling
-	 * has completed.
+	/* If crawling was interrupted, we take all collected info as invalid.
+	 * Otherwise we dispose regular files here, only directories are
+	 * cached once crawling has completed.
 	 */
 	tracker_file_system_forget_files (priv->file_system,
 	                                  directory,
+					  interrupted ?
+					  G_FILE_TYPE_UNKNOWN :
 	                                  G_FILE_TYPE_REGULAR);
 
 	if (interrupted || !crawl_directory_in_current_root (notifier)) {
