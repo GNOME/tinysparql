@@ -302,8 +302,14 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 			error_pos += update_data->n_bulk_operations;
 			error = g_ptr_array_index (sparql_array_errors, error_pos);
 			if (error) {
-				g_critical ("  (Sparql buffer) Error in task %u of the array-update: %s",
-				            i, error->message);
+				GFile *file;
+				gchar *uri;
+
+				file = tracker_task_get_file (task);
+				uri = g_file_get_uri (file);
+				g_critical ("  (Sparql buffer) Error in task %u (%s) of the array-update: %s",
+				            i, uri, error->message);
+				g_free (uri);
 
 				if (error_pos < update_data->n_bulk_operations) {
 					BulkOperationMerge *bulk;
