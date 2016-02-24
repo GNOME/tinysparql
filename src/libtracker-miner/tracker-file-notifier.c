@@ -696,6 +696,55 @@ finish_current_directory (TrackerFileNotifier *notifier,
 	g_object_unref (directory);
 }
 
+static gboolean
+root_data_remove_directory (RootData *data,
+			    GFile    *directory)
+{
+	GList *l = data->pending_dirs->head, *next;
+	GFile *file;
+
+	while (l) {
+		file = l->data;
+		next = l->next;
+
+		if (file == directory || g_file_has_prefix (file, directory)) {
+			g_queue_remove (data->pending_dirs, file);
+			g_object_unref (file);
+		}
+
+		l = next;
+	}
+
+	return (data->current_dir == directory ||
+		g_file_has_prefix (data->current_dir, directory));
+}
+
+static void
+file_notifier_current_root_check_remove_directory (TrackerFileNotifier *notifier,
+						   GFile               *file)
+{
+	TrackerFileNotifierPrivate *priv;
+
+	priv = notifier->priv;
+
+	if (priv->current_index_root &&
+	    root_data_remove_directory (priv->current_index_root, file)) {
+		if (g_queue_get_length (priv->current_index_root->pending_dirs) > 0) {
+			crawl_directory_in_current_root (notifier);
+		} else {
+			g_cancellable_cancel (priv->cancellable);
+			tracker_crawler_stop (priv->crawler);
+
+			if (priv->current_index_root) {
+				root_data_free (priv->current_index_root);
+				priv->current_index_root = NULL;
+			}
+
+			notifier_check_next_root (notifier);
+		}
+	}
+}
+
 /* Query for directory contents, used to look for deleted contents in those */
 static void
 sparql_contents_query_cb (GObject      *object,
@@ -1038,6 +1087,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 				 * filter, remove parent directory altogether
 				 */
 				g_signal_emit (notifier, signals[FILE_DELETED], 0, parent);
+				file_notifier_current_root_check_remove_directory (notifier, parent);
 				g_object_unref (parent);
 				return;
 			}
@@ -1211,6 +1261,8 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	g_object_ref (canonical);
 	g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 
+	file_notifier_current_root_check_remove_directory (notifier, canonical);
+
 	/* Remove the file from the cache (works recursively for directories) */
 	tracker_file_system_forget_files (priv->file_system,
 	                                  canonical,
@@ -1308,6 +1360,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			}
 
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
+			file_notifier_current_root_check_remove_directory (notifier, file);
 		} else {
 			/* Handle move */
 			if (is_directory) {
