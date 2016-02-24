@@ -8,7 +8,7 @@
 # Djavan Fagundes <djavan@syst.com.br>, 2010.
 # Gabriel F. Vilar <cogumm@gmail.com>, 2011.
 # Gabriel Speckhahn <gabspeck@gmail.com>, 2011.
-# Rafael Ferreira <rafael.f.f1@gmail.com>, 2013, 2014.
+# Rafael Fontenelle <rffontenelle@gmail.com>, 2013, 2014, 2016.
 # Enrico Nicoletto <liverig@gmail.com>, 2013, 2014.
 # Gustavo Marques <gutodisse@gmail.com>, 2015.
 # Felipe Braga <fbobraga@gmail.com>, 2015.
@@ -17,9 +17,9 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-04-21 23:50+0000\n"
+"POT-Creation-Date: 2016-02-22 03:05+0000\n"
 "PO-Revision-Date: 2015-04-21 21:56-0200\n"
-"Last-Translator: Felipe Braga <fbobraga@gmail.com>\n"
+"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>\n"
 "Language-Team: Brazilian Portuguese GNOME Translation Team <gnome-pt_br-"
 "list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -525,6 +525,7 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
+#: ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "ARQUIVO"
 
@@ -919,7 +920,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Somente os primeiros 500 itens serão exibidos"
 
 #: ../src/tracker-needle/tracker-needle.vala:731
-#: ../src/tracker-preferences/tracker-preferences.vala:1051
+#: ../src/tracker-preferences/tracker-preferences.vala:1016
 msgid "Print version"
 msgstr "Mostrar versão"
 
@@ -967,7 +968,7 @@ msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:171
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Arquivo"
@@ -1492,13 +1493,13 @@ msgstr "Início"
 msgid "System"
 msgstr "Sistema"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:167
 #: ../src/tracker-preferences/tracker-preferences.vala:168
 #: ../src/tracker-preferences/tracker-preferences.vala:169
+#: ../src/tracker-preferences/tracker-preferences.vala:170
 msgid "Directory"
 msgstr "Diretório"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:357
+#: ../src/tracker-preferences/tracker-preferences.vala:322
 msgid ""
 "The changes you have made to your preferences here require a reindex to "
 "ensure all your data is correctly indexed as you have requested."
@@ -1507,24 +1508,24 @@ msgstr ""
 "para certificar de que todos os seus dados estão corretamente indexados como "
 "você solicitou."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:358
+#: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
 msgstr "Isso vai fechar esse diálogo!"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:359
+#: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
 msgstr "Você gostaria de re-indexar agora?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:361
+#: ../src/tracker-preferences/tracker-preferences.vala:326
 msgid "Reindex"
 msgstr "Re-indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:362
-#: ../src/tracker-preferences/tracker-preferences.vala:385
+#: ../src/tracker-preferences/tracker-preferences.vala:327
+#: ../src/tracker-preferences/tracker-preferences.vala:350
 msgid "Do nothing"
 msgstr "Fazer nada"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:346
 msgid ""
 "The changes you have made to your preferences require restarting tracker "
 "processes."
@@ -1532,11 +1533,11 @@ msgstr ""
 "As alterações que você fez nas suas preferêcias exigem que os processo do "
 "tracker sejam reiniciados."
 
-#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:347
 msgid "Would you like to restart now?"
 msgstr "Você gostaria de reiniciar agora?"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:349
 msgid "Restart Tracker"
 msgstr "Reiniciar o Tracker"
 
@@ -1547,38 +1548,38 @@ msgstr "Reiniciar o Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:450
-#: ../src/tracker-preferences/tracker-preferences.vala:463
+#: ../src/tracker-preferences/tracker-preferences.vala:415
+#: ../src/tracker-preferences/tracker-preferences.vala:428
 msgid "Disabled"
 msgstr "Desabilitado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:640
+#: ../src/tracker-preferences/tracker-preferences.vala:605
 msgid "Enter value"
 msgstr "Insira um valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:643
-#: ../src/tracker-preferences/tracker-preferences.vala:672
+#: ../src/tracker-preferences/tracker-preferences.vala:608
+#: ../src/tracker-preferences/tracker-preferences.vala:637
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:644
-#: ../src/tracker-preferences/tracker-preferences.vala:674
+#: ../src/tracker-preferences/tracker-preferences.vala:609
+#: ../src/tracker-preferences/tracker-preferences.vala:639
 msgid "_OK"
 msgstr "_OK"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:669
+#: ../src/tracker-preferences/tracker-preferences.vala:634
 msgid "Select directory"
 msgstr "Selecionar diretório"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:690
+#: ../src/tracker-preferences/tracker-preferences.vala:655
 msgid "That directory is already selected as a location to index"
 msgstr "Este diretório já está selecionado como um local a ser indexado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:952
+#: ../src/tracker-preferences/tracker-preferences.vala:917
 msgid "Recurse"
 msgstr "Recursivo"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1057
+#: ../src/tracker-preferences/tracker-preferences.vala:1022
 msgid "Desktop Search preferences"
 msgstr "Preferências da busca da área de trabalho"
 
@@ -2772,6 +2773,18 @@ msgid ""
 msgstr ""
 "O argumento --list-properties só pode estar vazio quando usado com o "
 "argumento --tree"
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Caminho para usar na execução da consulta de um arquivo"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Consulta SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
 msgid "Failed to initialize data manager"
