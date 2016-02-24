@@ -350,6 +350,8 @@ static void           task_pool_cancel_foreach                (gpointer        d
 static void           task_pool_limit_reached_notify_cb       (GObject        *object,
                                                                GParamSpec     *pspec,
                                                                gpointer        user_data);
+static void           writeback_pool_cancel_foreach           (gpointer        data,
+                                                               gpointer        user_data);
 
 static GQuark quark_file_iri = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
@@ -3028,6 +3030,16 @@ file_notifier_file_deleted (TrackerFileNotifier  *notifier,
                             gpointer              user_data)
 {
 	TrackerMinerFS *fs = user_data;
+
+	if (tracker_file_notifier_get_file_type (notifier, file) == G_FILE_TYPE_DIRECTORY) {
+		/* Cancel all pending tasks on files inside the path given by file */
+		tracker_task_pool_foreach (fs->priv->task_pool,
+					   task_pool_cancel_foreach,
+					   file);
+		tracker_task_pool_foreach (fs->priv->writeback_pool,
+					   writeback_pool_cancel_foreach,
+					   file);
+	}
 
 	if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
 		miner_fs_queue_file (fs, fs->priv->items_deleted, file, FALSE);
