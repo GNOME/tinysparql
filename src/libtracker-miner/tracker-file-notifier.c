@@ -622,7 +622,10 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 		return FALSE;
 
 	priv->current_index_root->current_dir = directory;
-	g_cancellable_reset (priv->cancellable);
+
+	if (priv->cancellable)
+		g_object_unref (priv->cancellable);
+	priv->cancellable = g_cancellable_new ();
 
 	if ((priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) == 0) {
 		/* Don't recurse */
@@ -1463,12 +1466,14 @@ tracker_file_notifier_finalize (GObject *object)
 		g_object_unref (priv->data_provider);
 	}
 
-	g_cancellable_cancel (priv->cancellable);
+	if (priv->cancellable) {
+		g_cancellable_cancel (priv->cancellable);
+		g_object_unref (priv->cancellable);
+	}
 
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 	g_object_unref (priv->file_system);
-	g_object_unref (priv->cancellable);
 	g_clear_object (&priv->connection);
 
 	if (priv->current_index_root)
@@ -1654,7 +1659,6 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 		                             TrackerFileNotifierPrivate);
 
 	priv->connection = tracker_sparql_connection_get (NULL, &error);
-	priv->cancellable = g_cancellable_new ();
 
 	if (error) {
 		g_warning ("Could not get SPARQL connection: %s\n",
