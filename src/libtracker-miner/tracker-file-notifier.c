@@ -730,12 +730,10 @@ file_notifier_current_root_check_remove_directory (TrackerFileNotifier *notifier
 
 	if (priv->current_index_root &&
 	    root_data_remove_directory (priv->current_index_root, file)) {
-		if (g_queue_get_length (priv->current_index_root->pending_dirs) > 0) {
-			crawl_directory_in_current_root (notifier);
-		} else {
-			g_cancellable_cancel (priv->cancellable);
-			tracker_crawler_stop (priv->crawler);
+		g_cancellable_cancel (priv->cancellable);
+		tracker_crawler_stop (priv->crawler);
 
+		if (!crawl_directory_in_current_root (notifier)) {
 			if (priv->current_index_root) {
 				root_data_free (priv->current_index_root);
 				priv->current_index_root = NULL;
