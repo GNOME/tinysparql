@@ -707,7 +707,8 @@ root_data_remove_directory (RootData *data,
 		file = l->data;
 		next = l->next;
 
-		if (file == directory || g_file_has_prefix (file, directory)) {
+		if (g_file_equal (file, directory) ||
+		    g_file_has_prefix (file, directory)) {
 			g_queue_remove (data->pending_dirs, file);
 			g_object_unref (file);
 		}
@@ -715,7 +716,7 @@ root_data_remove_directory (RootData *data,
 		l = next;
 	}
 
-	return (data->current_dir == directory ||
+	return (g_file_equal (data->current_dir, directory) ||
 		g_file_has_prefix (data->current_dir, directory));
 }
 
