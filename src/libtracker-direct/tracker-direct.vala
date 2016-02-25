@@ -72,7 +72,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	Sparql.Cursor query_unlocked (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
+	Sparql.Cursor query_unlocked (string sparql) throws Sparql.Error, DBusError {
 		try {
 			var query_object = new Sparql.Query (sparql);
 			var cursor = query_object.execute_cursor (true);
@@ -86,59 +86,60 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	}
 
 	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
+		// Check here for early cancellation, just in case
+		// the operation can be entirely avoided
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
 		DBManager.lock ();
 		try {
-			return query_unlocked (sparql, cancellable);
+			return query_unlocked (sparql);
 		} finally {
 			DBManager.unlock ();
 		}
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
-		if (!DBManager.trylock ()) {
-			// run in a separate thread
-			Sparql.Error sparql_error = null;
-			IOError io_error = null;
-			DBusError dbus_error = null;
-			Sparql.Cursor result = null;
-			var context = MainContext.get_thread_default ();
+		// run in a separate thread
+		Sparql.Error sparql_error = null;
+		IOError io_error = null;
+		DBusError dbus_error = null;
+		Sparql.Cursor result = null;
+		var context = MainContext.get_thread_default ();
 
-			g_io_scheduler_push_job (job => {
-				try {
-					result = query (sparql, cancellable);
-				} catch (IOError e_io) {
-					io_error = e_io;
-				} catch (Sparql.Error e_spql) {
-					sparql_error = e_spql;
-				} catch (DBusError e_dbus) {
-					dbus_error = e_dbus;
-				}
+		g_io_scheduler_push_job (job => {
+			try {
+				result = query (sparql, cancellable);
+			} catch (IOError e_io) {
+				io_error = e_io;
+			} catch (Sparql.Error e_spql) {
+				sparql_error = e_spql;
+			} catch (DBusError e_dbus) {
+				dbus_error = e_dbus;
+			}
 
-				var source = new IdleSource ();
-				source.set_callback (() => {
-					query_async.callback ();
-					return false;
-				});
-				source.attach (context);
-
+			var source = new IdleSource ();
+			source.set_callback (() => {
+				query_async.callback ();
 				return false;
 			});
-			yield;
+			source.attach (context);
 
-			if (sparql_error != null) {
-				throw sparql_error;
-			} else if (io_error != null) {
-				throw io_error;
-			} else if (dbus_error != null) {
-				throw dbus_error;
-			} else {
-				return result;
-			}
-		}
-		try {
-			return query_unlocked (sparql, cancellable);
-		} finally {
-			DBManager.unlock ();
+			return false;
+		}, Priority.DEFAULT, cancellable);
+		yield;
+
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		} else if (sparql_error != null) {
+			throw sparql_error;
+		} else if (io_error != null) {
+			throw io_error;
+		} else if (dbus_error != null) {
+			throw dbus_error;
+		} else {
+			return result;
 		}
 	}
 }
