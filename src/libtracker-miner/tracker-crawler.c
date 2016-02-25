@@ -565,8 +565,7 @@ static void
 directory_root_info_free (DirectoryRootInfo *info)
 {
 	if (info->dpd)  {
-		data_provider_data_free (info->dpd);
-		info->dpd = NULL;
+		data_provider_end (info->dpd->crawler, info);
 	}
 
 	g_object_unref (info->directory);
