@@ -310,12 +310,13 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 		 * to crawl (i.e. embedded root directories, that would
 		 * be processed when that root is being crawled).
 		 */
-		if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
+		if (file != priv->current_index_root->root &&
+		    !tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
 			gchar *uri;
 
 			uri = g_file_get_uri (file);
-			g_critical ("File '%s' has no disk nor store mtime",
-			            uri);
+			g_debug ("File '%s' has no disk nor store mtime",
+			         uri);
 			g_free (uri);
 		}
 	}
