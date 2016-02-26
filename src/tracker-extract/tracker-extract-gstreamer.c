@@ -254,7 +254,8 @@ get_gst_date_time_to_buf (GstDateTime *date_time,
 	gboolean complete;
 
 	offset_str = "+";
-	year = month = day = hour = minute = second = 0;
+	year = hour = minute = second = 0;
+	month = day = 1;
 	offset = 0.0;
 	complete = TRUE;
 
@@ -296,7 +297,7 @@ get_gst_date_time_to_buf (GstDateTime *date_time,
 		complete = FALSE;
 	}
 
-	snprintf (buf, size, "%04d-%02d-%02dT%02d:%02d:%02d%s%02d00",
+	snprintf (buf, size, "%04d-%02d-%02dT%02d:%02d:%02d%s%02d:00",
 	          year,
 	          month,
 	          day,
@@ -319,7 +320,7 @@ add_date_time_gst_tag_with_mtime_fallback (TrackerSparqlBuilder  *metadata,
 {
 	GstDateTime *date_time;
 	GDate *date;
-	gchar buf[25];
+	gchar buf[26];
 
 	date_time = NULL;
 	date = NULL;
