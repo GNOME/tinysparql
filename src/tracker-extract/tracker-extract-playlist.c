@@ -30,6 +30,7 @@
 #include <totem-pl-parser.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-guarantee.h>
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"
 #define PLAYLIST_PROPERTY_DURATION  "listDuration"
@@ -150,7 +151,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			tracker_sparql_builder_object_unvalidated (metadata, data.title);
 			g_free (data.title);
 		} else {
-			g_message ("Playlist has no title");
+			g_message ("Playlist has no title, attempting to get one from filename");
+			tracker_guarantee_title_from_file (metadata, "nie:title", NULL, uri, NULL);
 		}
 
 		if (data.total_time > 0) {
