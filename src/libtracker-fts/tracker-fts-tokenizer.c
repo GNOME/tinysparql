@@ -19,7 +19,7 @@
  * 02110-1301  USA
  */
 
-/* FTS3/4 Tokenizer using TrackerParser */
+/* FTS5 Tokenizer using TrackerParser */
 
 #include "config.h"
 
@@ -27,209 +27,392 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-parser.h>
+#include <libtracker-data/tracker-ontologies.h>
 
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts-config.h"
-#include "fts3_tokenizer.h"
+#include "fts5.h"
 
+typedef struct TrackerTokenizerData TrackerTokenizerData;
 typedef struct TrackerTokenizer TrackerTokenizer;
-typedef struct TrackerCursor TrackerCursor;
+
+struct TrackerTokenizerData {
+	TrackerLanguage *language;
+	int max_word_length;
+	int max_words;
+	gboolean enable_stemmer;
+	gboolean enable_unaccent;
+	gboolean ignore_numbers;
+	gboolean ignore_stop_words;
+};
 
 struct TrackerTokenizer {
-  sqlite3_tokenizer base;
-  TrackerLanguage *language;
-  int max_word_length;
-  int max_words;
-  gboolean enable_stemmer;
-  gboolean enable_unaccent;
-  gboolean ignore_numbers;
-  gboolean ignore_stop_words;
+	TrackerTokenizerData *data;
+	TrackerParser *parser;
 };
 
-struct TrackerCursor {
-  sqlite3_tokenizer_cursor base;
+static int
+tracker_tokenizer_create (void           *data,
+                          const char    **argv,
+                          int             argc,
+                          Fts5Tokenizer **tokenizer_out)
+{
+	TrackerTokenizer *tokenizer;
 
-  TrackerTokenizer *tokenizer;
-  TrackerParser *parser;
-  guint n_words;
+	tokenizer = g_new0 (TrackerTokenizer, 1);
+	tokenizer->data = data;
+	tokenizer->parser = tracker_parser_new (tokenizer->data->language);
+
+	*tokenizer_out = (Fts5Tokenizer *) tokenizer;
+
+	return SQLITE_OK;
+}
+
+static void
+tracker_tokenizer_destroy (Fts5Tokenizer *fts5_tokenizer)
+{
+	TrackerTokenizer *tokenizer = (TrackerTokenizer *) fts5_tokenizer;
+
+	tracker_parser_free (tokenizer->parser);
+	g_free (tokenizer);
+}
+
+typedef int (*TokenFunc) (void       *pCtx,    /* Copy of 2nd argument to xTokenize() */
+                          int         flags,   /* Mask of FTS5_TOKEN_* flags */
+                          const char *token,   /* Pointer to buffer containing token */
+                          int         n_token, /* Size of token in bytes */
+                          int         start,   /* Byte offset of token within input text */
+                          int         end);    /* Byte offset of end of token within input text */
+
+static int
+tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
+                            void          *ctx,
+                            int            flags, /* Mask of FTS5_TOKENIZE_* flags */
+                            const char    *text,
+                            int            length,
+                            TokenFunc      token_func)
+{
+	TrackerTokenizer *tokenizer = (TrackerTokenizer *) fts5_tokenizer;
+	TrackerTokenizerData *data = tokenizer->data;
+	const gchar *token;
+	gboolean stop_word;
+	int n_tokens = 0, pos, start, end, len;
+	int rc = SQLITE_OK;
+
+	if (length <= 0)
+		return rc;
+
+	tracker_parser_reset (tokenizer->parser, text, length,
+	                      data->max_word_length,
+	                      data->enable_stemmer,
+	                      data->enable_unaccent,
+	                      data->ignore_stop_words,
+	                      TRUE,
+	                      data->ignore_numbers);
+
+	while (n_tokens < data->max_words) {
+		token = tracker_parser_next (tokenizer->parser,
+		                             &pos,
+		                             &start, &end,
+		                             &stop_word,
+		                             &len);
+
+		if (!token)
+			break;
+
+		if (stop_word && data->ignore_stop_words)
+			continue;
+
+		rc = token_func (ctx, 0, token, len, start, end);
+
+		if (rc != SQLITE_OK)
+			break;
+
+		n_tokens++;
+	}
+
+	return rc;
+}
+
+/* Our custom tokenizer: */
+static const fts5_tokenizer tracker_tokenizer_module = {
+	tracker_tokenizer_create,   /* xCreate   */
+	tracker_tokenizer_destroy,  /* xDelete   */
+	tracker_tokenizer_tokenize, /* xTokenize */
 };
 
-/*
-** Create a new tokenizer instance.
-*/
-static int trackerCreate(
-  int argc,                            /* Number of entries in argv[] */
-  const char * const *argv,            /* Tokenizer creation arguments */
-  sqlite3_tokenizer **ppTokenizer      /* OUT: Created tokenizer */
-){
-  TrackerTokenizer *p;
-  TrackerFTSConfig *config;
+static TrackerTokenizerData *
+tracker_tokenizer_data_new (void)
+{
+	TrackerTokenizerData *p;
+	TrackerFTSConfig *config;
 
-  p = (TrackerTokenizer *)sqlite3_malloc(sizeof(TrackerTokenizer));
-  if( !p ){
-    return SQLITE_NOMEM;
-  }
-  memset(p, 0, sizeof(TrackerTokenizer));
-  p->language = tracker_language_new (NULL);
+	config = tracker_fts_config_new ();
 
-  config = tracker_fts_config_new ();
+	p = g_new0 (TrackerTokenizerData, 1);
+	p->language = tracker_language_new (NULL);
+	p->max_word_length = tracker_fts_config_get_max_word_length (config);
+	p->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
+	p->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
+	p->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
+	p->max_words = tracker_fts_config_get_max_words_to_index (config);
 
-  p->max_word_length = tracker_fts_config_get_max_word_length (config);
-  p->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
-  p->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
-  p->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
+	/* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
+	 *  otherwise, get value from the conf file */
+	p->ignore_stop_words = (g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") == 0 ?
+	                        FALSE : tracker_fts_config_get_ignore_stop_words (config));
 
-  /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
-   *  otherwise, get value from the conf file */
-  p->ignore_stop_words = (g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") == 0 ?
-                          FALSE : tracker_fts_config_get_ignore_stop_words (config));
+	g_object_unref (config);
 
-  p->max_words = tracker_fts_config_get_max_words_to_index (config);
-
-  g_object_unref (config);
-
-  *ppTokenizer = (sqlite3_tokenizer *)p;
-
-  return SQLITE_OK;
+	return p;
 }
 
-/*
-** Destroy a tokenizer
-*/
-static int trackerDestroy(sqlite3_tokenizer *pTokenizer){
-  TrackerTokenizer *p = (TrackerTokenizer *)pTokenizer;
-  g_object_unref (p->language);
-  sqlite3_free(p);
-  return SQLITE_OK;
+static void
+tracker_tokenizer_data_free (gpointer user_data)
+{
+	TrackerTokenizerData *data = user_data;
+
+	g_object_unref (data->language);
+	g_free (data);
 }
 
-/*
-** Prepare to begin tokenizing a particular string.  The input
-** string to be tokenized is pInput[0..nBytes-1].  A cursor
-** used to incrementally tokenize this string is returned in 
-** *ppCursor.
-*/
-static int trackerOpen(
-  sqlite3_tokenizer *pTokenizer,         /* The tokenizer */
-  const char *zInput,                    /* Input string */
-  int nInput,                            /* Length of zInput in bytes */
-  sqlite3_tokenizer_cursor **ppCursor    /* OUT: Tokenization cursor */
-){
-  TrackerTokenizer *p = (TrackerTokenizer *)pTokenizer;
-  TrackerParser *parser;
-  TrackerCursor *pCsr;
-
-  if ( nInput<0 ){
-    nInput = strlen(zInput);
-  }
-
-  parser = tracker_parser_new (p->language);
-  tracker_parser_reset (parser, zInput, nInput,
-			p->max_word_length,
-			p->enable_stemmer,
-			p->enable_unaccent,
-			p->ignore_stop_words,
-			TRUE,
-			p->ignore_numbers);
-
-  pCsr = (TrackerCursor *)sqlite3_malloc(sizeof(TrackerCursor));
-  memset(pCsr, 0, sizeof(TrackerCursor));
-  pCsr->tokenizer = p;
-  pCsr->parser = parser;
-
-  *ppCursor = (sqlite3_tokenizer_cursor *)pCsr;
-  return SQLITE_OK;
+static int
+offsets_tokenizer_func (void       *data,
+                        int         flags,
+                        const char *token,
+                        int         n_token,
+                        int         start,
+                        int         end)
+{
+	GArray *offsets = data;
+	g_array_append_val (offsets, start);
+	return SQLITE_OK;
 }
 
-/*
-** Close a tokenization cursor.
-*/
-static int trackerClose(sqlite3_tokenizer_cursor *pCursor){
-  TrackerCursor *pCsr = (TrackerCursor *)pCursor;
+static void
+tracker_offsets_function (const Fts5ExtensionApi  *api,
+                          Fts5Context             *fts_ctx,
+                          sqlite3_context         *ctx,
+                          int                      n_args,
+                          sqlite3_value          **args)
+{
+	GString *str;
+	int rc, n_hits, i;
+	GArray *offsets = NULL;
+	const gchar * const *property_names;
+	gint cur_col = -1;
 
-  tracker_parser_free (pCsr->parser);
-  sqlite3_free(pCsr);
-  return SQLITE_OK;
+	if (n_args > 0) {
+		sqlite3_result_error (ctx, "Invalid argument count", -1);
+		return;
+	}
+
+	property_names = api->xUserData (fts_ctx);
+	rc = api->xInstCount (fts_ctx, &n_hits);
+
+	if (rc != SQLITE_OK) {
+		sqlite3_result_null (ctx);
+		return;
+	}
+
+	str = g_string_new (NULL);
+
+	for (i = 0; i < n_hits; i++) {
+		int phrase, col, n_token;
+
+		rc = api->xInst (fts_ctx, i, &phrase, &col, &n_token);
+
+		if (cur_col != col) {
+			const char *text;
+			int length;
+
+			if (offsets)
+				g_array_free (offsets, TRUE);
+
+			offsets = g_array_new (FALSE, FALSE, sizeof (gint));
+			api->xColumnText (fts_ctx, col, &text, &length);
+			api->xTokenize (fts_ctx, text, length,
+			                offsets, &offsets_tokenizer_func);
+			cur_col = col;
+		}
+
+		if (str->len != 0)
+			g_string_append_c (str, ',');
+
+		if (rc != SQLITE_OK)
+			break;
+
+		g_string_append_printf (str, "%s,%d",
+		                        property_names[col],
+		                        g_array_index (offsets, gint, n_token));
+	}
+
+	if (offsets)
+		g_array_free (offsets, TRUE);
+
+	if (rc == SQLITE_OK) {
+		sqlite3_result_text (ctx, str->str, str->len, g_free);
+		g_string_free (str, FALSE);
+	} else {
+		sqlite3_result_error_code (ctx, rc);
+		g_string_free (str, TRUE);
+	}
 }
 
-/*
-** Extract the next token from a tokenization cursor.
-*/
-static int trackerNext(
-  sqlite3_tokenizer_cursor *pCursor,  /* Cursor returned by simpleOpen */
-  const char **ppToken,               /* OUT: *ppToken is the token text */
-  int *pnBytes,                       /* OUT: Number of bytes in token */
-  int *piStartOffset,                 /* OUT: Starting offset of token */
-  int *piEndOffset,                   /* OUT: Ending offset of token */
-  int *piPosition                     /* OUT: Position integer of token */
-){
-  TrackerCursor *cursor = (TrackerCursor *) pCursor;
-  TrackerTokenizer *p;
-  const gchar *pToken;
-  gboolean stop_word;
-  int pos, start, end, len;
+static GHashTable *
+get_fts_weights (sqlite3_context *context)
+{
+	static GHashTable *weights = NULL;
+	static GMutex mutex;
+	int rc = SQLITE_DONE;
 
-  p  = cursor->tokenizer;
+	g_mutex_lock (&mutex);
 
-  if (cursor->n_words > p->max_words){
-    return SQLITE_DONE;
-  }
+	if (G_UNLIKELY (weights == NULL)) {
+		sqlite3_stmt *stmt;
+		sqlite3 *db;
+		const gchar *uri;
 
-  do {
-    pToken = tracker_parser_next (cursor->parser,
-				  &pos,
-				  &start, &end,
-				  &stop_word,
-				  &len);
+		weights = g_hash_table_new (g_str_hash, g_str_equal);
+		db = sqlite3_context_db_handle (context);
+		rc = sqlite3_prepare_v2 (db,
+		                         "SELECT \"rdf:Property\".\"tracker:weight\", "
+		                         "(SELECT Uri FROM Resource where Resource.ID=\"rdf:Property\".ID) "
+		                         "FROM \"rdf:Property\" "
+		                         "WHERE \"rdf:Property\".\"tracker:fulltextIndexed\" = 1 ",
+		                         -1, &stmt, NULL);
 
-    if (!pToken){
-      return SQLITE_DONE;
-    }
-  } while (stop_word && p->ignore_stop_words);
+		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
+			if (rc == SQLITE_ROW) {
+				TrackerProperty *property;
+				guint weight;
 
-  *ppToken = pToken;
-  *piStartOffset = start;
-  *piEndOffset = end;
-  *piPosition = pos;
-  *pnBytes = len;
+				weight = sqlite3_column_int (stmt, 0);
+				uri = sqlite3_column_text (stmt, 1);
 
-  cursor->n_words++;
+				property = tracker_ontologies_get_property_by_uri (uri);
+				g_hash_table_insert (weights,
+				                     (gpointer) tracker_property_get_name (property),
+				                     GUINT_TO_POINTER (weight));
+			} else if (rc != SQLITE_BUSY) {
+				break;
+			}
+		}
 
-  return SQLITE_OK;
+		sqlite3_finalize (stmt);
+
+		if (rc != SQLITE_DONE) {
+			g_hash_table_destroy (weights);
+			weights = NULL;
+		}
+	}
+
+	g_mutex_unlock (&mutex);
+
+	return weights;
 }
 
-/*
-** The set of routines that implement the simple tokenizer
-*/
-static const sqlite3_tokenizer_module trackerTokenizerModule = {
-  0,                           /* iVersion */
-  trackerCreate,               /* xCreate  */
-  trackerDestroy,              /* xDestroy */
-  trackerOpen,                 /* xOpen    */
-  trackerClose,                /* xClose   */
-  trackerNext,                 /* xNext    */
-};
+static void
+tracker_rank_function (const Fts5ExtensionApi  *api,
+                       Fts5Context             *fts_ctx,
+                       sqlite3_context         *ctx,
+                       int                      n_args,
+                       sqlite3_value          **args)
+{
+	const gchar * const *property_names;
+	int i, rc, n_columns, n_tokens;
+	GHashTable *weights;
+	gdouble rank = 0;
 
-/*
-** Set *ppModule to point at the implementation of the tracker tokenizer.
-*/
-gboolean tracker_tokenizer_initialize (sqlite3 *db) {
-  const sqlite3_tokenizer_module *pTokenizer;
-  int rc = SQLITE_OK;
-  sqlite3_stmt *stmt;
+	if (n_args != 0) {
+		sqlite3_result_error (ctx, "Invalid argument count", -1);
+		return;
+	}
 
-  pTokenizer = &trackerTokenizerModule;
-  rc = sqlite3_prepare_v2(db, "SELECT fts3_tokenizer(?, ?)",
-                          -1, &stmt, 0);
+	n_columns = api->xColumnCount (fts_ctx);
+	property_names = api->xUserData (fts_ctx);
+	weights = get_fts_weights (ctx);
 
-  if (rc != SQLITE_OK) {
-	  return FALSE;
-  }
+	if (!weights) {
+		sqlite3_result_error (ctx, "Could not read FTS weights", -1);
+		return;
+	}
 
-  sqlite3_bind_text(stmt, 1, "TrackerTokenizer", -1, SQLITE_STATIC);
-  sqlite3_bind_blob(stmt, 2, &pTokenizer, sizeof(pTokenizer), SQLITE_STATIC);
-  sqlite3_step(stmt);
-  rc = sqlite3_finalize(stmt);
+	for (i = 0; i < n_columns; i++) {
+		const gchar *property;
+		guint weight;
 
-  return (rc == SQLITE_OK);
+		rc = api->xColumnSize (fts_ctx, i, &n_tokens);
+		if (rc != SQLITE_OK)
+			break;
+
+		if (n_tokens <= 0)
+			continue;
+
+		property = property_names[i];
+		weight = GPOINTER_TO_UINT (g_hash_table_lookup (weights, property));
+		rank += weight;
+	}
+
+	if (rc == SQLITE_OK) {
+		sqlite3_result_double (ctx, rank);
+	} else {
+		sqlite3_result_error_code (ctx, rc);
+	}
+}
+
+static fts5_api *
+get_fts5_api (sqlite3 *db) {
+	int rc = SQLITE_OK;
+	sqlite3_stmt *stmt;
+	fts5_api *api;
+
+	rc = sqlite3_prepare_v2(db, "SELECT fts5()",
+	                        -1, &stmt, 0);
+
+	if (rc != SQLITE_OK) {
+		return NULL;
+	}
+
+	if (sqlite3_step (stmt) != SQLITE_ROW) {
+		return NULL;
+	}
+
+	memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
+	sqlite3_finalize (stmt);
+
+	return api;
+}
+
+gboolean
+tracker_tokenizer_initialize (sqlite3      *db,
+                              const gchar **property_names)
+{
+	TrackerTokenizerData *data;
+	fts5_tokenizer *tokenizer;
+	fts5_api *api;
+
+	api = get_fts5_api (db);
+
+	if (!api)
+		return FALSE;
+
+	data = tracker_tokenizer_data_new ();
+	tokenizer = (fts5_tokenizer *) &tracker_tokenizer_module;
+	api->xCreateTokenizer (api, "TrackerTokenizer", data, tokenizer,
+	                       tracker_tokenizer_data_free);
+
+	/* Offsets */
+	api->xCreateFunction (api, "tracker_offsets",
+	                      g_strdupv ((gchar **) property_names),
+	                      &tracker_offsets_function,
+	                      (GDestroyNotify) g_strfreev);
+
+	/* Rank */
+	api->xCreateFunction (api, "tracker_rank",
+	                      g_strdupv ((gchar **) property_names),
+	                      &tracker_rank_function,
+	                      (GDestroyNotify) g_strfreev);
+
+	return TRUE;
 }
