@@ -820,19 +820,19 @@ fi
 if test "x$have_tracker_fts" = "xyes"; then
    AC_DEFINE(HAVE_TRACKER_FTS, [1], [Define to 1 if tracker FTS is compiled])
 
-   AX_SQLITE_BUILTIN_FTS4
-   if test "x$ax_cv_sqlite_builtin_fts4" = "xyes" ; then
-      have_builtin_fts4="yes"
-      AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS4 compiled in])
+   AX_SQLITE_BUILTIN_FTS5
+   if test "x$ax_cv_sqlite_builtin_fts5" = "xyes" ; then
+      have_builtin_fts5="yes"
+      AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS5 compiled in])
    else
-      have_builtin_fts4="no"
+      have_builtin_fts5="no"
    fi
 else
    AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
-   have_builtin_fts4="disabled"
+   have_builtin_fts5="disabled"
 fi
 
-AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts4" = "yes")
+AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts5" = "yes")
 AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
 
 ####################################################################
@@ -2790,7 +2790,7 @@ Feature Support:
 	Unicode support library:                $with_unicode_support
 
 	Build with Journal support:             $have_tracker_journal
-	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts4)
+	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts5)
 	Build with Stemming support:            $have_libstemmer
 
 	Cache media art                         $have_libmediaart (libmediaart)

@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2011-09-29T12:20:00Z" .
+	nao:lastModified "2016-02-28T21:30:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -599,7 +599,6 @@ nco:hobby a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true ;
 	tracker:weight 2 .
 
 # Same remarks as in url

@@ -341,14 +341,14 @@ class Tracker.Sparql.Pattern : Object {
 		}
 
 		if (queries_fts_data && fts_subject != null) {
-			// Ensure there's a docid to match on in FTS queries
+			// Ensure there's a rowid to match on in FTS queries
 			if (!first) {
 				sql.append (", ");
 			} else {
 				first = false;
 			}
 
-			sql.append ("%s AS docid ".printf (fts_subject.sql_expression));
+			sql.append ("%s AS rowid ".printf (fts_subject.sql_expression));
 		}
 
 		// literals in select expressions need to be bound before literals in the where clause
@@ -459,9 +459,9 @@ class Tracker.Sparql.Pattern : Object {
 				str.append (fts_var);
 			}
 
-			str.append (" FROM fts JOIN (");
+			str.append (" FROM fts5 JOIN (");
 			sql.prepend (str.str);
-			sql.append_printf (") AS ranks USING (docid) WHERE fts %s".printf (match_str.str));
+			sql.append_printf (") AS ranks ON fts5.rowid=rowid WHERE fts5 %s".printf (match_str.str));
 		}
 
 		context = context.parent_context;
@@ -1349,7 +1349,7 @@ class Tracker.Sparql.Pattern : Object {
 			} else if (prop == null) {
 				if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 					// fts:match
-					db_table = "fts";
+					db_table = "fts5";
 					share_table = false;
 					is_fts_match = true;
 					fts_subject = context.get_variable (current_subject);
@@ -1477,7 +1477,7 @@ class Tracker.Sparql.Pattern : Object {
 				binding.table = table;
 				binding.type = subject_type;
 				if (is_fts_match) {
-					binding.sql_db_column_name = "docid";
+					binding.sql_db_column_name = "rowid";
 				} else {
 					binding.sql_db_column_name = "ID";
 				}
@@ -1532,13 +1532,12 @@ class Tracker.Sparql.Pattern : Object {
 				binding.literal = object;
 				// binding.data_type = triple.object.type;
 				binding.table = table;
-				binding.sql_db_column_name = "fts";
+				binding.sql_db_column_name = "fts5";
 				triple_context.bindings.append (binding);
 
-				sql.append_printf ("\"%s\".\"docid\" AS \"ID\", ",
+				sql.append_printf ("\"%s\".\"rowid\" AS \"ID\", ",
 				                   binding.table.sql_query_tablename);
-				sql.append_printf ("tracker_rank(matchinfo(\"%s\".\"fts\", 'cl'),fts_column_weights()) " +
-				                   "AS \"%s_u_rank\", ",
+				sql.append_printf ("\"%s\".\"rank\" AS \"%s_u_rank\", ",
 				                   binding.table.sql_query_tablename,
 				                   context.get_variable (current_subject).name);
 			} else {

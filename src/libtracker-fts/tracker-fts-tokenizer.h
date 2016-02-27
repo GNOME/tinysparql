@@ -21,11 +21,11 @@
 
 #include <sqlite3.h>
 #include <glib.h>
-#include "fts3_tokenizer.h"
 
 #ifndef __TRACKER_FTS_TOKENIZER_H__
 #define __TRACKER_FTS_TOKENIZER_H__
 
-gboolean tracker_tokenizer_initialize (sqlite3 *db);
+gboolean tracker_tokenizer_initialize (sqlite3      *db,
+                                       const gchar **property_names);
 
 #endif /* __TRACKER_FTS_TOKENIZER_H__ */

@@ -949,7 +949,6 @@ tracker_data_resource_buffer_flush (GError **error)
 	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
 		GArray *values;
-		gboolean create = resource_buffer->create;
 		GPtrArray *properties, *text;
 
 		properties = text = NULL;
@@ -982,8 +981,7 @@ tracker_data_resource_buffer_flush (GError **error)
 			tracker_db_interface_sqlite_fts_update_text (iface,
 			                                             resource_buffer->id,
 			                                             (const gchar **) properties->pdata,
-			                                             (const gchar **) text->pdata,
-			                                             create);
+			                                             (const gchar **) text->pdata);
 			update_buffer.fts_ever_updated = TRUE;
 			g_ptr_array_free (properties, TRUE);
 			g_ptr_array_free (text, TRUE);
@@ -1465,17 +1463,26 @@ get_old_property_values (TrackerProperty  *property,
 					if (tracker_property_get_fulltext_indexed (prop)
 					    && check_property_domain (prop)) {
 						const gchar *property_name;
+						GString *str;
 						gint i;
 
 						old_values = get_property_values (prop);
 						property_name = tracker_property_get_name (prop);
+						str = g_string_new (NULL);
 
 						/* delete old fts entries */
 						for (i = 0; i < old_values->len; i++) {
-							tracker_db_interface_sqlite_fts_delete_text (iface,
-							                                             resource_buffer->id,
-							                                             property_name);
+							GValue *value = &g_array_index (old_values, GValue, i);
+							if (i != 0)
+								g_string_append_c (str, ',');
+							g_string_append (str, g_value_get_string (value));
 						}
+
+						tracker_db_interface_sqlite_fts_delete_text (iface,
+						                                             resource_buffer->id,
+						                                             property_name,
+						                                             str->str);
+						g_string_free (str, TRUE);
 					}
 				}
 

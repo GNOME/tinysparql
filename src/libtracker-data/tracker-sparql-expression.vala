@@ -709,7 +709,7 @@ class Tracker.Sparql.Expression : Object {
 			var variable = context.get_variable (v);
 
 			sql.append (variable.sql_expression);
-			fts_sql = "tracker_offsets(offsets(\"fts\"),fts_property_names())";
+			fts_sql = "tracker_offsets(\"fts5\")";
 			return PropertyType.STRING;
 		} else if (uri == FTS_NS + "snippet") {
 			bool is_var;
@@ -718,7 +718,10 @@ class Tracker.Sparql.Expression : Object {
 			var variable = context.get_variable (v);
 			var fts = new StringBuilder ();
 
-			fts.append_printf ("snippet(\"fts\"");
+			fts.append_printf ("snippet(\"fts5\"");
+
+			// lookup column
+			fts.append (", -1");
 
 			// "start match" text
 			if (accept (SparqlTokenType.COMMA)) {
@@ -740,9 +743,6 @@ class Tracker.Sparql.Expression : Object {
 			} else {
 				fts.append (", '...'");
 			}
-
-			// lookup column
-			fts.append (", -1");
 
 			// Approximate number of words in context
 			if (accept (SparqlTokenType.COMMA)) {
