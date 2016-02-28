@@ -29,7 +29,9 @@
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
-#if defined(HAVE_LIBCUE)
+#if defined(HAVE_LIBCUE2)
+#include <libcue.h>
+#elif defined(HAVE_LIBCUE)
 #include <libcue/libcue.h>
 #endif
 
@@ -94,7 +96,11 @@ add_cdtext_string_tag (Cdtext      *cd_text,
 
 static void
 add_cdtext_comment_date_tag (Rem         *cd_comments,
+#if defined(HAVE_LIBCUE2)
+                             enum RemType index,
+#elif defined(HAVE_LIBCUE)
                              enum Cmt     index,
+#endif
                              GstTagList  *tag_list,
                              const gchar *tag)
 {
@@ -117,7 +123,11 @@ add_cdtext_comment_date_tag (Rem         *cd_comments,
 
 static void
 add_cdtext_comment_double_tag (Rem         *cd_comments,
+#if defined(HAVE_LIBCUE2)
+                               enum RemType index,
+#elif defined(HAVE_LIBCUE)
                                enum Cmt     index,
+#endif
                                GstTagList  *tag_list,
                                const gchar *tag)
 {
