@@ -55,6 +55,7 @@ struct _TrackerPropertyPrivate {
 	gint           id;
 	gboolean       indexed;
 	TrackerProperty *secondary_index;
+	gboolean       orig_fulltext_indexed;
 	gboolean       fulltext_indexed;
 	gboolean       multiple_values;
 	gboolean       last_multiple_values;
@@ -488,6 +489,18 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 	}
 
 	return priv->fulltext_indexed;
+}
+
+gboolean
+tracker_property_get_orig_fulltext_indexed (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (property != NULL, FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->orig_fulltext_indexed;
 }
 
 gboolean
@@ -996,6 +1009,19 @@ tracker_property_set_cardinality_changed (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->cardinality_changed = value;
+}
+
+void
+tracker_property_set_orig_fulltext_indexed (TrackerProperty *property,
+                                            gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->orig_fulltext_indexed = value;
 }
 
 void

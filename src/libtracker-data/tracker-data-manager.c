@@ -650,6 +650,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					tracker_property_set_is_inverse_functional_property (property, FALSE);
 					tracker_property_set_default_value (property, NULL);
 					tracker_property_set_multiple_values (property, TRUE);
+					tracker_property_set_fulltext_indexed (property, FALSE);
 				}
 				return;
 			}
@@ -1140,29 +1141,8 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		is_new = tracker_property_get_is_new (property);
-		if (is_new != in_update) {
-			/* Detect unsupported ontology change (this needs a journal replay) */
-			if (in_update == TRUE && is_new == FALSE) {
-				if (check_unsupported_property_value_change (ontology_path,
-				                                             "tracker:fulltextIndexed",
-				                                             subject,
-				                                             predicate,
-				                                             object)) {
-					handle_unsupported_ontology_change (ontology_path,
-					                                    tracker_property_get_name (property),
-					                                    "tracker:fulltextIndexed",
-					                                    tracker_property_get_fulltext_indexed (property) ? "true" : "false",
-					                                    g_strcmp0 (object, "true") == 0 ? "true" : "false",
-					                                    error);
-				}
-			}
-			return;
-		}
-
-		if (strcmp (object, "true") == 0) {
-			tracker_property_set_fulltext_indexed (property, TRUE);
-		}
+		tracker_property_set_fulltext_indexed (property,
+		                                       strcmp (object, "true") == 0);
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "defaultValue") == 0) {
 		TrackerProperty *property;
 
@@ -2436,6 +2416,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 				tracker_property_set_secondary_index (property, tracker_ontologies_get_property_by_uri (secondary_index_uri));
 			}
 
+			tracker_property_set_orig_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 
@@ -3614,11 +3595,11 @@ load_ontologies_gvdb (GError **error)
 #if HAVE_TRACKER_FTS
 static gboolean
 ontology_get_fts_properties (gboolean     only_new,
-			     GHashTable **fts_properties,
-			     GHashTable **multivalued)
+                             GHashTable **fts_properties,
+                             GHashTable **multivalued)
 {
 	TrackerProperty **properties;
-	gboolean has_new = FALSE;
+	gboolean has_changed = FALSE;
 	guint i, len;
 
 	properties = tracker_ontologies_get_properties (&len);
@@ -3630,11 +3611,16 @@ ontology_get_fts_properties (gboolean     only_new,
 		const gchar *name, *table_name;
 		GList *list;
 
+		if (tracker_property_get_fulltext_indexed (properties[i]) !=
+		    tracker_property_get_orig_fulltext_indexed (properties[i])) {
+			has_changed |= TRUE;
+		}
+
 		if (!tracker_property_get_fulltext_indexed (properties[i])) {
 			continue;
 		}
 
-		has_new |= tracker_property_get_is_new (properties[i]);
+		has_changed |= tracker_property_get_is_new (properties[i]);
 		table_name = tracker_property_get_table_name (properties[i]);
 		name = tracker_property_get_name (properties[i]);
 		list = g_hash_table_lookup (*fts_properties, table_name);
@@ -3652,7 +3638,7 @@ ontology_get_fts_properties (gboolean     only_new,
 		}
 	}
 
-	return has_new;
+	return has_changed;
 }
 
 static void
