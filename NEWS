@@ -1,3 +1,10 @@
+New in 1.4.3 - 2016-03-01
+=========================
+
+  * Include embedded copy of sqlite
+
+Translations: pt_BR
+
 New in 1.4.2 - 2015-12-27
 =========================
 
