@@ -39,6 +39,7 @@ endif
 
 libtracker_fts_la_LIBADD =                             \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(top_builddir)/src/sqlite/libtracker-sqlite.la            \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_FTS_LIBS)
 
