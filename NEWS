@@ -1,3 +1,18 @@
+NEW in 1.7.4 - 2016-03-01
+=========================
+
+  * Update to FTS5.
+  * libtracker-miner: Many fixes to TrackerFileNotifier cancellation
+  * libtracker-direct: Handle cancellable argument in queries
+  * libtracker-miner: Plug fd leak on TrackerCrawler cancellation
+  * libtracker-extract: Fix year-only date extraction in gstreamer module
+  * libtracker-extract: Use tracker-guarantee to ensure a title in playlists
+  * tracker-miner-fs: Ignore git repositories. Modify the ignored-directories-with-content
+      setting if you found this convenient.
+  * tracker-miner-fs: Ignore #*# vim backups
+
+Translations: oc
+
 NEW in 1.7.3 - 2016-02-16
 =========================
 
