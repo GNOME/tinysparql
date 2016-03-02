@@ -1,6 +1,7 @@
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
+	-I$(top_srcdir)/src/sqlite                     \
 	-I$(top_builddir)/src                          \
 	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""     \
 	-DLOCALEDIR="\"$(localedir)\""                 \

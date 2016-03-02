@@ -1,6 +1,7 @@
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
+	-I$(top_srcdir)/src/sqlite                     \
 	-DNDEBUG                                       \
 	$(LIBTRACKER_FTS_CFLAGS)
 

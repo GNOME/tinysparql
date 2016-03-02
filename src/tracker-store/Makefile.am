@@ -5,6 +5,7 @@ AM_CPPFLAGS =                                          \
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker-$(TRACKER_API_VERSION)/mail-modules\" \
 	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon"\" \
 	-I$(top_srcdir)/src                            \
+	-I$(top_srcdir)/src/sqlite                     \
 	-I$(top_builddir)/src                          \
 	$(TRACKER_STORE_CFLAGS)                        \
 	-include config.h                              \
