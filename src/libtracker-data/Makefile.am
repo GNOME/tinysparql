@@ -12,6 +12,7 @@ AM_VALAFLAGS =                                         \
 AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
+	-I$(top_srcdir)/src/sqlite                     \
 	-I$(top_builddir)/src                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
 	$(LIBTRACKER_DATA_CFLAGS)
