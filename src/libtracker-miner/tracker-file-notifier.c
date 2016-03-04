@@ -520,7 +520,6 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 		GFile *file, *canonical, *root;
 		const gchar *time_str, *iri;
 		GError *error = NULL;
-		gboolean is_folder;
 		guint64 _time;
 
 		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
@@ -551,11 +550,8 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 			_time = 0;
 		}
 
-		is_folder = tracker_sparql_cursor_get_boolean (cursor, 3);
-
 		_insert_store_info (notifier, file,
-		                    is_folder ?
-		                    G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_UNKNOWN,
+		                    G_FILE_TYPE_UNKNOWN,
 		                    iri, _time);
 		g_object_unref (file);
 	}
@@ -788,10 +784,8 @@ sparql_contents_compose_query (GFile **directories,
 	gboolean first = TRUE;
 
 	str = g_string_new ("SELECT nie:url(?u) ?u nfo:fileLastModified(?u) "
-	                    "       BOUND (?folder) {"
+	                    "       IF (nie:mimeType(?u) = \"inode/directory\", true, false) {"
 			    " ?u nfo:belongsToContainer ?f . ?f nie:url ?url ."
-	                    " OPTIONAL { ?u a ?folder . "
-	                    "            FILTER (?folder = nfo:Folder) } ."
 			    " FILTER (?url IN (");
 	for (i = 0; i < n_dirs; i++) {
 		if (!first) {
@@ -891,11 +885,8 @@ sparql_files_compose_query (GFile **files,
 	gchar *uri;
 	gint i = 0;
 
-	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) "
-	                    "       BOUND(?folder) {"
+	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) {"
 			    "  ?u a rdfs:Resource ; nie:url ?url . "
-	                    "OPTIONAL { ?u a ?folder . "
-                            "           FILTER (?folder = nfo:Folder) } . "
 			    "FILTER (?url IN (");
 	for (i = 0; i < n_files; i++) {
 		if (i != 0)
