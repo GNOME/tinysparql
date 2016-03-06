@@ -1046,7 +1046,7 @@ delete_existing_tracks (TrackerSparqlBuilder *postupdate,
 
 	tracker_sparql_builder_subject_variable (postupdate, "track");
 	tracker_sparql_builder_predicate (postupdate, "a");
-	tracker_sparql_builder_object (postupdate, "rdfs:Resource");
+	tracker_sparql_builder_object (postupdate, "nmm:MusicPiece");
 
 	if (graph) {
 		tracker_sparql_builder_graph_close (postupdate);
