@@ -606,7 +606,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 		tracker_sparql_builder_insert_close (preupdate);
 
-		tracker_sparql_builder_predicate (metadata, "nco:representative");
+		tracker_sparql_builder_predicate (metadata, "nco:contributor");
 		tracker_sparql_builder_object_iri (metadata, uri);
 		g_free (uri);
 	}
