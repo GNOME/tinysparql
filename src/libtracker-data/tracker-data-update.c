@@ -1652,28 +1652,35 @@ cache_insert_metadata_decomposed (TrackerProperty  *property,
 	GError             *new_error = NULL;
 	gboolean            change = FALSE;
 
-	/* also insert super property values */
-	super_properties = tracker_property_get_super_properties (property);
-	while (*super_properties) {
-		change |= cache_insert_metadata_decomposed (*super_properties, value, value_id,
-		                                            graph, graph_id, &new_error);
-		if (new_error) {
-			g_propagate_error (error, new_error);
-			return FALSE;
-		}
-		super_properties++;
-	}
-
-	multiple_values = tracker_property_get_multiple_values (property);
-	table_name = tracker_property_get_table_name (property);
-	field_name = tracker_property_get_name (property);
-
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
 	if (new_error) {
 		g_propagate_error (error, new_error);
 		return FALSE;
 	}
+
+	/* also insert super property values */
+	super_properties = tracker_property_get_super_properties (property);
+	multiple_values = tracker_property_get_multiple_values (property);
+
+	while (*super_properties) {
+		gboolean super_is_multi;
+
+		super_is_multi = tracker_property_get_multiple_values (*super_properties);
+
+		if (super_is_multi || old_values->len == 0) {
+			change |= cache_insert_metadata_decomposed (*super_properties, value, value_id,
+			                                            graph, graph_id, &new_error);
+			if (new_error) {
+				g_propagate_error (error, new_error);
+				return FALSE;
+			}
+		}
+		super_properties++;
+	}
+
+	table_name = tracker_property_get_table_name (property);
+	field_name = tracker_property_get_name (property);
 
 	if (value) {
 		string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
