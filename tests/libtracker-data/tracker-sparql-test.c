@@ -129,6 +129,9 @@ const TestInfo tests[] = {
 
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
+	/* Mixed cardinality tests */
+	{ "mixed-cardinality/insert-mixed-cardinality-query-1", "mixed-cardinality/insert-mixed-cardinality-1", FALSE, FALSE },
+	{ "mixed-cardinality/update-mixed-cardinality-query-1", "mixed-cardinality/update-mixed-cardinality-1", FALSE, FALSE },
 	{ NULL }
 };
 

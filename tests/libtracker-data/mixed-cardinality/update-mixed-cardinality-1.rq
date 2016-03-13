@@ -1,0 +1,10 @@
+INSERT {
+	example:foo a example:A .
+	example:foo example:propertyA "baz" .
+}
+
+INSERT OR REPLACE {
+	example:foo a example:B .
+	example:foo example:propertyB "foo" .
+	example:foo example:propertyB "bar" .
+}

@@ -1,0 +1,5 @@
+SELECT ?s ?o
+WHERE {
+	?s example:propertyA ?o
+}
+
