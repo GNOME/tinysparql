@@ -1,3 +1,30 @@
+NEW in 1.7.5 - 2016-03-14
+=========================
+
+  * Add back .trackerignore match to ignored-directories-with-content
+  * tracker-extract: Fix gstreamer module cuesheet handling
+  * libtracker-miner: Avoid querying file type in crawling queries
+  * libtracker-data: Handle inserts where the subproperty cardinality is larger than the parents'
+  * tracker-extract: Protect all single-valued properties in abiword extractor
+  * tracker-extract: Protect all single-valued properties in EPUB extractor
+  * tracker-extract: Protect all single-valued properties in ooxml extractor
+  * tracker-extract: Protect all single-valued properties in oasis extractor
+  * tracker-extract: Protect all single-valued properties in HTML extractor
+  * tracker-extract: Check string length before parsing XMP in PDF extractor
+  * tracker-extract: Add missing application/msword mimetype
+  * libtracker-miner: Cut some slack on the reentry counter
+  * libtracker-miner: Avoid changing order of elements in processing queue
+  * libtracker-extract: Delete TrackerExtractClient
+  * tracker-extract: Remove old dbus interface xml
+  * tracker-extract: propagate urn to the TrackerExtractInfo
+  * tracker-extract: Use safer method to insert tags in PDF module
+  * tracker-extract: Use safer method to insert tags in GIF module
+  * tracker-extract: Use safer method to insert tags in JPEG module
+  * tracker-extract: Use safer method to insert tags in TIFF module
+  * tracker-extract: Use safer method to insert tags in PNG module
+  * libtracker-miner: Initialize all NodeData memory
+  * libtracker-miner: Ensure the directory root is removed when its indexing root is
+
 NEW in 1.7.4 - 2016-03-01
 =========================
 
