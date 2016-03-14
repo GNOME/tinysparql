@@ -573,7 +573,6 @@ EXTRA_DIST = $(rules_files)
 # DBus interfaces (XML files) and services
 configdir = $(datadir)/tracker
 config_DATA = \
-	tracker-extract.xml \
 	tracker-extract-priority.xml
 
 %.service.in: %.service.in.in
