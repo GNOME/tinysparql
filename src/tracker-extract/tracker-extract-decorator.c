@@ -311,6 +311,7 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 	                      tracker_decorator_info_get_url (info),
 	                      tracker_decorator_info_get_mimetype (info),
 	                      TRACKER_OWN_GRAPH_URN,
+	                      tracker_decorator_info_get_urn (info),
 	                      g_task_get_cancellable (task),
 	                      (GAsyncReadyCallback) get_metadata_cb, data);
 }

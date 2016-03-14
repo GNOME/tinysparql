@@ -47,6 +47,7 @@ struct _TrackerExtractInfo
 	GFile *file;
 	gchar *mimetype;
 	gchar *graph;
+	gchar *urn;
 
 #ifdef HAVE_LIBMEDIAART
 	MediaArtProcess *media_art_process;
@@ -73,7 +74,8 @@ G_DEFINE_BOXED_TYPE (TrackerExtractInfo, tracker_extract_info,
 TrackerExtractInfo *
 tracker_extract_info_new (GFile       *file,
                           const gchar *mimetype,
-                          const gchar *graph)
+                          const gchar *graph,
+                          const gchar *urn)
 {
 	TrackerExtractInfo *info;
 
@@ -83,6 +85,7 @@ tracker_extract_info_new (GFile       *file,
 	info->file = g_object_ref (file);
 	info->mimetype = g_strdup (mimetype);
 	info->graph = g_strdup (graph);
+	info->urn = g_strdup (urn);
 
 	info->preupdate = tracker_sparql_builder_new_update ();
 	info->postupdate = tracker_sparql_builder_new_update ();
@@ -137,6 +140,7 @@ tracker_extract_info_unref (TrackerExtractInfo *info)
 		g_object_unref (info->file);
 		g_free (info->mimetype);
 		g_free (info->graph);
+		g_free (info->urn);
 
 		g_object_unref (info->preupdate);
 		g_object_unref (info->postupdate);
@@ -308,6 +312,14 @@ tracker_extract_info_set_where_clause (TrackerExtractInfo *info,
 
 	g_free (info->where_clause);
 	info->where_clause = g_strdup (where);
+}
+
+const gchar *
+tracker_extract_info_get_urn (TrackerExtractInfo *info)
+{
+	g_return_val_if_fail (info != NULL, NULL);
+
+	return info->urn;
 }
 
 #ifdef HAVE_LIBMEDIAART

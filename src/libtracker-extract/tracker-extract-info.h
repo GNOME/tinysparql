@@ -41,12 +41,14 @@ GType                 tracker_extract_info_get_type               (void) G_GNUC_
 
 TrackerExtractInfo *  tracker_extract_info_new                    (GFile              *file,
                                                                    const gchar        *mimetype,
-                                                                   const gchar        *graph);
+                                                                   const gchar        *graph,
+                                                                   const gchar        *urn);
 TrackerExtractInfo *  tracker_extract_info_ref                    (TrackerExtractInfo *info);
 void                  tracker_extract_info_unref                  (TrackerExtractInfo *info);
 GFile *               tracker_extract_info_get_file               (TrackerExtractInfo *info);
 const gchar *         tracker_extract_info_get_mimetype           (TrackerExtractInfo *info);
 const gchar *         tracker_extract_info_get_graph              (TrackerExtractInfo *info);
+const gchar *         tracker_extract_info_get_urn                (TrackerExtractInfo *info);
 TrackerSparqlBuilder *tracker_extract_info_get_preupdate_builder  (TrackerExtractInfo *info);
 TrackerSparqlBuilder *tracker_extract_info_get_postupdate_builder (TrackerExtractInfo *info);
 TrackerSparqlBuilder *tracker_extract_info_get_metadata_builder   (TrackerExtractInfo *info);

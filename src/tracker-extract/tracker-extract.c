@@ -88,6 +88,7 @@ typedef struct {
 	gchar *file;
 	gchar *mimetype;
 	gchar *graph;
+	gchar *urn;
 
 	TrackerMimetypeInfo *mimetype_handlers;
 
@@ -301,7 +302,7 @@ get_file_metadata (TrackerExtractTask  *task,
 	*info_out = NULL;
 
 	file = g_file_new_for_uri (task->file);
-	info = tracker_extract_info_new (file, task->mimetype, task->graph);
+	info = tracker_extract_info_new (file, task->mimetype, task->graph, task->urn);
 	g_object_unref (file);
 
 #ifdef HAVE_LIBMEDIAART
@@ -382,6 +383,7 @@ extract_task_new (TrackerExtract *extract,
                   const gchar    *uri,
                   const gchar    *mimetype,
                   const gchar    *graph,
+                  const gchar    *urn,
                   GCancellable   *cancellable,
                   GAsyncResult   *res,
                   GError        **error)
@@ -422,6 +424,7 @@ extract_task_new (TrackerExtract *extract,
 	task->file = g_strdup (uri);
 	task->mimetype = mimetype_used;
 	task->graph = g_strdup (graph);
+	task->urn = g_strdup (urn);
 	task->extract = extract;
 
 	if (task->cancellable) {
@@ -454,6 +457,7 @@ extract_task_free (TrackerExtractTask *task)
 		tracker_mimetype_info_free (task->mimetype_handlers);
 	}
 
+	g_free (task->urn);
 	g_free (task->graph);
 	g_free (task->mimetype);
 	g_free (task->file);
@@ -698,6 +702,7 @@ tracker_extract_file (TrackerExtract      *extract,
                       const gchar         *file,
                       const gchar         *mimetype,
                       const gchar         *graph,
+                      const gchar         *urn,
                       GCancellable        *cancellable,
                       GAsyncReadyCallback  cb,
                       gpointer             user_data)
@@ -718,7 +723,7 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	async_task = g_task_new (extract, cancellable, cb, user_data);
 
-	task = extract_task_new (extract, file, mimetype, graph,
+	task = extract_task_new (extract, file, mimetype, graph, urn,
 	                         cancellable, G_ASYNC_RESULT (async_task), &error);
 
 	if (error) {
@@ -772,7 +777,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	task = extract_task_new (object, uri, mime, NULL, NULL, NULL, &error);
+	task = extract_task_new (object, uri, mime, NULL, "_:file", NULL, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
