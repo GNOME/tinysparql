@@ -69,6 +69,7 @@ tracker_toc_free (TrackerToc *toc)
 		g_slice_free (TrackerTocEntry, entry);
 	}
 
+	gst_tag_list_free (toc->tag_list);
 	g_list_free (toc->entry_list);
 
 	g_slice_free (TrackerToc, toc);
