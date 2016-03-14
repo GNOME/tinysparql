@@ -1483,6 +1483,14 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		tracker_crawler_stop (priv->crawler);
 		g_cancellable_cancel (priv->cancellable);
 
+		/* If the crawler was already stopped (eg. we're at the querying
+		 * phase), the current index root won't be cleared.
+		 */
+		if (priv->current_index_root) {
+			root_data_free (priv->current_index_root);
+			priv->current_index_root = NULL;
+		}
+
 		notifier_check_next_root (notifier);
 	}
 
