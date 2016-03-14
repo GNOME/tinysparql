@@ -266,8 +266,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	guint i;
 	GFile *file;
 	TrackerSparqlBuilder *metadata, *preupdate;
-	const gchar *graph;
-	GString *where;
+	const gchar *graph, *urn;
 	int fd;
 
 #ifdef HAVE_LIBIPTCDATA
@@ -286,6 +285,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	preupdate = tracker_extract_info_get_preupdate_builder (info);
 	metadata = tracker_extract_info_get_metadata_builder (info);
 	graph = tracker_extract_info_get_graph (info);
+	urn = tracker_extract_info_get_urn (info);
 
 	fd = tracker_file_open_fd (filename);
 
@@ -407,7 +407,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	md.make = tracker_coalesce_strip (3, xd->make, td.make, ed->make);
 	md.model = tracker_coalesce_strip (3, xd->model, td.model, ed->model);
 
-	keywords = g_ptr_array_new ();
+	keywords = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
 
 	if (ed->user_comment) {
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
@@ -615,34 +615,22 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_keywords_parse (keywords, id->keywords);
 	}
 
-	where = g_string_new ("");
-
 	for (i = 0; i < keywords->len; i++) {
-		gchar *p, *escaped, *var;
+		gchar *escaped, *subject;
+		const gchar *p;
 
 		p = g_ptr_array_index (keywords, i);
 		escaped = tracker_sparql_escape_string (p);
-		var = g_strdup_printf ("tag%d", i + 1);
+		subject = g_strdup_printf ("_:tag%d", i + 1);
 
 		/* ensure tag with specified label exists */
-		tracker_sparql_builder_append (preupdate, "INSERT { ");
-
-		if (graph) {
-			tracker_sparql_builder_append (preupdate, "GRAPH <");
-			tracker_sparql_builder_append (preupdate, graph);
-			tracker_sparql_builder_append (preupdate, "> { ");
-		}
-
-		tracker_sparql_builder_append (preupdate,
-		                               "_:tag a nao:Tag ; nao:prefLabel \"");
-		tracker_sparql_builder_append (preupdate, escaped);
-		tracker_sparql_builder_append (preupdate, "\"");
-
-		if (graph) {
-			tracker_sparql_builder_append (preupdate, " } ");
-		}
-
-		tracker_sparql_builder_append (preupdate, " }\n");
+		tracker_sparql_builder_insert_open (preupdate, graph);
+		tracker_sparql_builder_subject (preupdate, subject);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nao:Tag");
+		tracker_sparql_builder_predicate (preupdate, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (preupdate, escaped);
+		tracker_sparql_builder_insert_close (preupdate);
 		tracker_sparql_builder_append (preupdate,
 		                               "WHERE { FILTER (NOT EXISTS { "
 		                               "?tag a nao:Tag ; nao:prefLabel \"");
@@ -651,19 +639,23 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                               "\" }) }\n");
 
 		/* associate file with tag */
-		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
-		tracker_sparql_builder_object_variable (metadata, var);
+		tracker_sparql_builder_insert_open (preupdate, graph);
+		tracker_sparql_builder_subject_iri (preupdate, urn);
+		tracker_sparql_builder_predicate (preupdate, "nao:hasTag");
+		tracker_sparql_builder_object (preupdate, "?tag");
+		tracker_sparql_builder_insert_close (preupdate);
+		tracker_sparql_builder_where_open (preupdate);
+		tracker_sparql_builder_subject (preupdate, "?tag");
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nao:Tag");
+		tracker_sparql_builder_predicate (preupdate, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (preupdate, escaped);
+		tracker_sparql_builder_where_close (preupdate);
 
-		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
-
-		g_free (var);
+		g_free (subject);
 		g_free (escaped);
-		g_free (p);
 	}
 	g_ptr_array_free (keywords, TRUE);
-
-	tracker_extract_info_set_where_clause (info, where->str);
-	g_string_free (where, TRUE);
 
 	if (md.make || md.model) {
 		gchar *equip_uri;
