@@ -77,6 +77,17 @@ typedef struct {
 
 	/* Metadata-parsing specific things */
 	TrackerSparqlBuilder *metadata;
+	guint has_title      : 1;
+	guint has_subject    : 1;
+	guint has_publisher  : 1;
+	guint has_comment    : 1;
+	guint has_generator  : 1;
+	guint has_page_count : 1;
+	guint has_char_count : 1;
+	guint has_word_count : 1;
+	guint has_line_count : 1;
+	guint has_content_created       : 1;
+	guint has_content_last_modified : 1;
 	gboolean title_already_set;
 	gboolean generator_already_set;
 
@@ -420,54 +431,82 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 		break;
 
 	case MS_OFFICE_XML_TAG_TITLE:
-		if (info->title_already_set) {
+		if (info->has_title) {
 			g_warning ("Avoiding additional title (%s) in MsOffice XML document '%s'",
 			           text, info->uri);
 		} else {
-			info->title_already_set = TRUE;
+			info->has_title = TRUE;
 			tracker_sparql_builder_predicate (info->metadata, "nie:title");
 			tracker_sparql_builder_object_unvalidated (info->metadata, text);
 		}
 		break;
 
 	case MS_OFFICE_XML_TAG_SUBJECT:
-		tracker_sparql_builder_predicate (info->metadata, "nie:subject");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_subject) {
+			g_warning ("Avoiding additional subject (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_subject = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nie:subject");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_AUTHOR:
-		tracker_sparql_builder_predicate (info->metadata, "nco:publisher");
+		if (info->has_publisher) {
+			g_warning ("Avoiding additional publisher (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_publisher = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nco:publisher");
 
-		tracker_sparql_builder_object_blank_open (info->metadata);
-		tracker_sparql_builder_predicate (info->metadata, "a");
-		tracker_sparql_builder_object (info->metadata, "nco:Contact");
+			tracker_sparql_builder_object_blank_open (info->metadata);
+			tracker_sparql_builder_predicate (info->metadata, "a");
+			tracker_sparql_builder_object (info->metadata, "nco:Contact");
 
-		tracker_sparql_builder_predicate (info->metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
-		tracker_sparql_builder_object_blank_close (info->metadata);
+			tracker_sparql_builder_predicate (info->metadata, "nco:fullname");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_sparql_builder_object_blank_close (info->metadata);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_COMMENTS:
-		tracker_sparql_builder_predicate (info->metadata, "nie:comment");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_comment) {
+			g_warning ("Avoiding additional comment (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_comment = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nie:comment");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
-	case MS_OFFICE_XML_TAG_CREATED: {
-		gchar *date;
+	case MS_OFFICE_XML_TAG_CREATED:
+		if (info->has_content_created) {
+			g_warning ("Avoiding additional creation time (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			gchar *date;
 
-		date = tracker_date_guess (text);
-		tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (info->metadata, date);
-		g_free (date);
+			date = tracker_date_guess (text);
+			if (date) {
+				info->has_content_created = TRUE;
+				tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
+				tracker_sparql_builder_object_unvalidated (info->metadata, date);
+				g_free (date);
+			} else {
+				g_warning ("Could not parse creation time (%s) from MsOffice XML document '%s'",
+				           text, info->uri);
+			}
+		}
 		break;
-	}
 
 	case MS_OFFICE_XML_TAG_GENERATOR:
-		if (info->generator_already_set) {
+		if (info->has_generator) {
 			g_warning ("Avoiding additional generator (%s) in MsOffice XML document '%s'",
 			           text, info->uri);
 		} else {
-			info->generator_already_set = TRUE;
+			info->has_generator = TRUE;
 			tracker_sparql_builder_predicate (info->metadata, "nie:generator");
 			tracker_sparql_builder_object_unvalidated (info->metadata, text);
 		}
@@ -480,34 +519,68 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 		 */
 		break;
 
-	case MS_OFFICE_XML_TAG_MODIFIED: {
-		gchar *date;
+	case MS_OFFICE_XML_TAG_MODIFIED:
+		if (info->has_content_last_modified) {
+			g_warning ("Avoiding additional last modification time (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			gchar *date;
 
-                date = tracker_date_guess (text);
-		tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
-		tracker_sparql_builder_object_unvalidated (info->metadata, date);
-                g_free (date);
+			date = tracker_date_guess (text);
+			if (date) {
+				info->has_content_last_modified = TRUE;
+				tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
+				tracker_sparql_builder_object_unvalidated (info->metadata, date);
+				g_free (date);
+			} else {
+				g_warning ("Could not parse last modification time (%s) from MsOffice XML document '%s'",
+				           text, info->uri);
+			}
+		}
 		break;
-	}
 
 	case MS_OFFICE_XML_TAG_NUM_OF_PAGES:
-		tracker_sparql_builder_predicate (info->metadata, "nfo:pageCount");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_page_count) {
+			g_warning ("Avoiding additional page count (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_page_count = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nfo:pageCount");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_NUM_OF_CHARACTERS:
-		tracker_sparql_builder_predicate (info->metadata, "nfo:characterCount");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_char_count) {
+			g_warning ("Avoiding additional character count (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_char_count = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nfo:characterCount");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_NUM_OF_WORDS:
-		tracker_sparql_builder_predicate (info->metadata, "nfo:wordCount");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_word_count) {
+			g_warning ("Avoiding additional word count (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_word_count = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nfo:wordCount");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_NUM_OF_LINES:
-		tracker_sparql_builder_predicate (info->metadata, "nfo:lineCount");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->has_line_count) {
+			g_warning ("Avoiding additional line count (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->has_line_count = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nfo:lineCount");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_NUM_OF_PARAGRAPHS:
