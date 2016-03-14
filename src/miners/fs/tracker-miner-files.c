@@ -1156,9 +1156,6 @@ mount_point_removed_cb (TrackerStorage *storage,
 
 	mount_point_file = g_file_new_for_path (mount_point);
 
-	/* Notify extractor about cancellation of all tasks under the mount point */
-	tracker_extract_client_cancel_for_prefix (mount_point_file);
-
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
 	indexing_tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
