@@ -2105,7 +2105,7 @@ item_reenqueue_full (TrackerMinerFS       *fs,
 	reentry_counter = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (queue_file),
 	                                                       fs->priv->quark_reentry_counter));
 
-	if (reentry_counter < REENTRY_MAX) {
+	if (reentry_counter <= REENTRY_MAX) {
 		g_object_set_qdata (G_OBJECT (queue_file),
 		                    fs->priv->quark_reentry_counter,
 		                    GINT_TO_POINTER (reentry_counter + 1));
