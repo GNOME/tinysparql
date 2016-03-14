@@ -90,10 +90,9 @@ node_data_new (GFile *file,
 {
 	NodeData *data;
 
-	data = g_slice_new (NodeData);
+	data = g_slice_new0 (NodeData);
 	data->file = g_object_ref (file);
 	data->flags = flags;
-	data->shallow = FALSE;
 
 	return data;
 }
