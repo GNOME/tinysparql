@@ -14,6 +14,7 @@ SUBDIRS =                                              \
 	graph                                          \
 	nie                                            \
 	nmo                                            \
+	mixed-cardinality                              \
 	optional                                       \
 	regex                                          \
 	sort                                           \
