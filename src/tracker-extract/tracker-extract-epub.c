@@ -49,12 +49,19 @@ typedef struct {
 	gchar *graph;
 	TrackerSparqlBuilder *preupdate;
 	TrackerSparqlBuilder *metadata;
+	gchar *uri;
 
 	OPFTagType element;
 	GList *pages;
-	guint in_metadata : 1;
-	guint in_manifest : 1;
-	guint has_identifier : 1;
+	guint in_metadata         : 1;
+	guint in_manifest         : 1;
+	guint has_publisher       : 1;
+	guint has_title           : 1;
+	guint has_content_created : 1;
+	guint has_language        : 1;
+	guint has_subject         : 1;
+	guint has_description     : 1;
+	guint has_identifier      : 1;
 	gchar *savedstring;
 } OPFData;
 
@@ -68,7 +75,9 @@ opf_data_new (TrackerExtractInfo *info)
 {
 	OPFData *data = g_slice_new0 (OPFData);
 	TrackerSparqlBuilder *builder;
+	GFile *file;
 
+	file = tracker_extract_info_get_file (info);
 	builder = tracker_extract_info_get_preupdate_builder (info);
 	data->preupdate = g_object_ref (builder);
 
@@ -76,6 +85,7 @@ opf_data_new (TrackerExtractInfo *info)
 	data->metadata = g_object_ref (builder);
 
 	data->graph = g_strdup (tracker_extract_info_get_graph (info));
+	data->uri = g_file_get_uri (file);
 
 	return data;
 }
@@ -104,6 +114,7 @@ opf_data_free (OPFData *data)
 	g_list_free (data->pages);
 
 	g_free (data->graph);
+	g_free (data->uri);
 
 	if (data->metadata) {
 		g_object_unref (data->metadata);
@@ -274,15 +285,21 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 	switch (data->element) {
 	case OPF_TAG_TYPE_PUBLISHER:
-		tracker_sparql_builder_predicate (data->metadata, "nco:publisher");
+		if (data->has_publisher) {
+			g_warning ("Avoiding additional publisher (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			data->has_publisher = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nco:publisher");
 
-		tracker_sparql_builder_object_blank_open (data->metadata);
-		tracker_sparql_builder_predicate (data->metadata, "a");
-		tracker_sparql_builder_object (data->metadata, "nco:Contact");
+			tracker_sparql_builder_object_blank_open (data->metadata);
+			tracker_sparql_builder_predicate (data->metadata, "a");
+			tracker_sparql_builder_object (data->metadata, "nco:Contact");
 
-		tracker_sparql_builder_predicate (data->metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
-		tracker_sparql_builder_object_blank_close (data->metadata);
+			tracker_sparql_builder_predicate (data->metadata, "nco:fullname");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+			tracker_sparql_builder_object_blank_close (data->metadata);
+		}
 		break;
 	case OPF_TAG_TYPE_AUTHOR:
 	case OPF_TAG_TYPE_EDITOR:
@@ -381,7 +398,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 
 		if (data->element == OPF_TAG_TYPE_AUTHOR) {
 			role_str = "nco:creator";
-		} else if (data->element == OPF_TAG_TYPE_EDITOR) {
+		} else if (data->element == OPF_TAG_TYPE_EDITOR && !data->has_publisher) {
 			/* Should this be nco:contributor ?
 			 * 'Editor' is a bit vague here.
 			 */
@@ -448,32 +465,70 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 		break;
 	}
 	case OPF_TAG_TYPE_TITLE:
-		tracker_sparql_builder_predicate (data->metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		if (data->has_title) {
+			g_warning ("Avoiding additional title (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			data->has_title = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nie:title");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		}
 		break;
 	case OPF_TAG_TYPE_CREATED: {
-		gchar *date = tracker_date_guess (text);
+		if (data->has_content_created) {
+			g_warning ("Avoiding additional creation time (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			gchar *date = tracker_date_guess (text);
 
-		tracker_sparql_builder_predicate (data->metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (data->metadata, date);
-		g_free (date);
+			if (date) {
+				data->has_content_created = TRUE;
+				tracker_sparql_builder_predicate (data->metadata, "nie:contentCreated");
+				tracker_sparql_builder_object_unvalidated (data->metadata, date);
+				g_free (date);
+			} else {
+				g_warning ("Could not parse creation time (%s) in EPUB '%s'",
+				           text, data->uri);
+			}
+		}
 		break;
 	}
 	case OPF_TAG_TYPE_LANGUAGE:
-		tracker_sparql_builder_predicate (data->metadata, "nie:language");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		if (data->has_language) {
+			g_warning ("Avoiding additional language (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			data->has_language = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nie:language");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		}
 		break;
 	case OPF_TAG_TYPE_SUBJECT:
-		tracker_sparql_builder_predicate (data->metadata, "nie:subject");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		if (data->has_subject) {
+			g_warning ("Avoiding additional subject (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			data->has_subject = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nie:subject");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		}
 		break;
 	case OPF_TAG_TYPE_DESCRIPTION:
-		tracker_sparql_builder_predicate (data->metadata, "nie:description");
-		tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		if (data->has_description) {
+			g_warning ("Avoiding additional description (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
+			data->has_description = TRUE;
+			tracker_sparql_builder_predicate (data->metadata, "nie:description");
+			tracker_sparql_builder_object_unvalidated (data->metadata, text);
+		}
 		break;
 	case OPF_TAG_TYPE_UUID:
 	case OPF_TAG_TYPE_ISBN:
-		if (!data->has_identifier) {
+		if (data->has_identifier) {
+			g_warning ("Avoiding additional identifier (%s) in EPUB '%s'",
+			           text, data->uri);
+		} else {
 			data->has_identifier = TRUE;
 			tracker_sparql_builder_predicate (data->metadata, "nie:identifier");
 			tracker_sparql_builder_object_unvalidated (data->metadata, text);
