@@ -415,7 +415,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	keywords = g_ptr_array_new ();
 
-	if (xml &&
+	if (xml && *xml &&
 	    (xd = tracker_xmp_new (xml, strlen (xml), uri)) != NULL) {
 		/* The casts here are well understood and known */
 		md.title = (gchar *) tracker_coalesce_strip (4, pd.title, xd->title, xd->title2, xd->pdf_title);
