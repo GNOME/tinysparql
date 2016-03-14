@@ -39,6 +39,8 @@ typedef struct {
 	TrackerSparqlBuilder *metadata;
 	tag_type current;
 	guint in_body : 1;
+	guint has_license : 1;
+	guint has_description : 1;
 	GString *title;
 	GString *plain_text;
 	guint n_bytes_remaining;
@@ -109,9 +111,10 @@ parser_start_element (void           *data,
 
 			href = lookup_attribute (attrs, "href");
 
-			if (href) {
+			if (href && !pd->has_license) {
 				tracker_sparql_builder_predicate (pd->metadata, "nie:license");
 				tracker_sparql_builder_object_unvalidated (pd->metadata, href);
+				pd->has_license = TRUE;
 			}
 		}
 	} else if (g_ascii_strcasecmp (name, "title") == 0) {
@@ -138,9 +141,10 @@ parser_start_element (void           *data,
 
 			desc = lookup_attribute (attrs,"content");
 
-			if (desc) {
+			if (desc && !pd->has_description) {
 				tracker_sparql_builder_predicate (pd->metadata, "nie:description");
 				tracker_sparql_builder_object_unvalidated (pd->metadata, desc);
+				pd->has_description = TRUE;
 			}
 		}
 
