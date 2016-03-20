@@ -211,6 +211,16 @@ public abstract class Tracker.Sparql.Connection : Object {
 	public extern static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
+	 * tracker_sparql_connection_remote_new:
+	 *
+	 * Returns: a new remote #TrackerSparqlConnection. Call g_object_unref() on the
+	 * object when no longer used.
+	 *
+	 * Since: 1.12
+	 */
+	public extern static new Connection remote_new (string uri_base);
+
+	/**
 	 * tracker_sparql_connection_query:
 	 * @self: a #TrackerSparqlConnection
 	 * @sparql: string containing the SPARQL query

@@ -5,12 +5,14 @@ AM_VALAFLAGS =                                         \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi \
-	$(top_srcdir)/src/libtracker-direct/tracker-direct.vapi
+	$(top_srcdir)/src/libtracker-direct/tracker-direct.vapi \
+	$(top_srcdir)/src/libtracker-remote/tracker-remote.vapi
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
+	$(LIBTRACKER_REMOTE_CFLAGS)                    \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES =   \
@@ -20,7 +22,9 @@ libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD =    \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
+	$(top_builddir)/src/libtracker-remote/libtracker-remote.la \
 	$(BUILD_LIBS)                                  \
+	$(LIBTRACKER_REMOTE_LIBS)                      \
 	$(LIBTRACKER_SPARQL_LIBS)
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LDFLAGS =   \

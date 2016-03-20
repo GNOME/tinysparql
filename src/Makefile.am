@@ -11,6 +11,7 @@ SUBDIRS =                                              \
 	libtracker-bus                                 \
 	libtracker-data                                \
 	libtracker-direct                              \
+	libtracker-remote                              \
 	libtracker-sparql-backend                      \
 	libtracker-extract                             \
 	libtracker-miner                               \

@@ -232,6 +232,8 @@ GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=1.2
 LIBMEDIAART_REQUIRED=1.9.0
+JSON_GLIB_REQUIRED=1.0
+LIBSOUP_REQUIRED=2.40
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -284,6 +286,13 @@ LIBTRACKER_DIRECT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
+
+# Check requirements for libtracker-remote
+LIBTRACKER_REMOTE_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                            libsoup-2.4    >= $LIBSOUP_REQUIRED
+                            json-glib-1.0  >= $JSON_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(LIBTRACKER_REMOTE, [$LIBTRACKER_REMOTE_REQUIRED])
 
 # Check requirements for libtracker-extract
 LIBTRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
@@ -2622,6 +2631,7 @@ AC_CONFIG_FILES([
 	src/libtracker-control/tracker-control.pc
 	src/libtracker-data/Makefile
 	src/libtracker-direct/Makefile
+	src/libtracker-remote/Makefile
 	src/libtracker-sparql-backend/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
