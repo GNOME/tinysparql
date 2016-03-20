@@ -98,6 +98,7 @@ static gchar *tree;
 static gchar *get_shorthand;
 static gchar *get_longhand;
 static gchar *search;
+static gchar *remote_url;
 
 static GOptionEntry entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
@@ -147,6 +148,10 @@ static GOptionEntry entries[] = {
 	{ "get-longhand", 0, 0, G_OPTION_ARG_STRING, &get_longhand,
 	  N_("Returns the full namespace for a class."),
 	  N_("CLASS"),
+	},
+	{ "remote-service", 'r', 0, G_OPTION_ARG_STRING, &remote_url,
+	  N_("Remote service to query to"),
+	  N_("BASE_URL"),
 	},
 	{ NULL }
 };
@@ -1070,7 +1075,11 @@ sparql_run (void)
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	connection = tracker_sparql_connection_get (NULL, &error);
+	if (remote_url != NULL) {
+		connection = tracker_sparql_connection_remote_new (remote_url);
+	} else {
+		connection = tracker_sparql_connection_get (NULL, &error);
+	}
 
 	if (!connection) {
 		g_printerr ("%s: %s\n",
