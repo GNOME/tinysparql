@@ -11,10 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
-"&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-11 12:16+0000\n"
-"PO-Revision-Date: 2015-09-11 21:58+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-03-20 23:20+0100\n"
+"PO-Revision-Date: 2016-03-20 21:43+0100\n"
 "Last-Translator: scootergrisen\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -123,8 +122,8 @@ msgid ""
 "Simplify the words to their root to provide more results. E.g. 'shelves' and "
 "'shelf' to 'shel'"
 msgstr ""
-"Forenkl ordene til deres rod for at finde flere resultater. F.eks. "
-"\"filtre\" og \"filter\" til \"filt\""
+"Forenkl ordene til deres rod for at finde flere resultater. F.eks. \"filtre"
+"\" og \"filter\" til \"filt\""
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -185,7 +184,7 @@ msgstr "Fejl ved start af \"tar\"-programmet"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:147
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -197,13 +196,13 @@ msgstr "Fejl ved start af \"tar\"-programmet"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
-#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
+#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:201
+#: ../src/tracker/tracker-process.c:330 ../src/tracker/tracker-process.c:351
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
+#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Ingen fejlbesked givet"
 
@@ -451,15 +450,15 @@ msgstr "Mapper der skal indekseres rekursivt"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid ""
-"List of directories to index recursively, Special values include: "
-"&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
-"&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See "
-"/etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+"List of directories to index recursively, Special values include: &amp;"
+"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
+"and $HOME/.config/user-dirs.default"
 msgstr ""
 "Liste af mapper der skal indekseres rekursivt, specielle værdier inkluderer: "
-"&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
-"&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Se "
-"/etc/xdg/user-dirs.defaults og $HOME/.config/user-dirs.default"
+"&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Se /etc/xdg/user-dirs.defaults og "
+"$HOME/.config/user-dirs.default"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Directories to index non-recursively"
@@ -468,14 +467,14 @@ msgstr "Mapper der skal indekseres uden rekursion"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid ""
 "List of directories to index without inspecting subfolders, Special values "
-"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
-"&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See "
-"/etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+"dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
 "Liste af mapper at indeksere uden at kigge på undermapperne, specielle "
 "værdier inkluderer: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
-"&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Se "
-"/etc/xdg/user-dirs.defaults og $HOME/.config/user-dirs.default"
+"&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Se /etc/xdg/"
+"user-dirs.defaults og $HOME/.config/user-dirs.default"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Ignored files"
@@ -607,11 +606,11 @@ msgstr "Ville blive overvåget"
 msgid "- start the tracker indexer"
 msgstr "- start tracker-indekseringen"
 
-#: ../src/miners/fs/tracker-miner-files.c:1357
+#: ../src/miners/fs/tracker-miner-files.c:1354
 msgid "Low battery"
 msgstr "Lavt batteriniveau"
 
-#: ../src/miners/fs/tracker-miner-files.c:1484
+#: ../src/miners/fs/tracker-miner-files.c:1481
 msgid "Low disk space"
 msgstr "Lav diskplads"
 
@@ -776,11 +775,11 @@ msgstr ""
 "begrænsede miljøer hvor det er vigtigt at vise filer så hurtigt som muligt, "
 "og hvor man kan vente med at finde metadata til senere."
 
-#: ../src/tracker-extract/tracker-extract.c:797
+#: ../src/tracker-extract/tracker-extract.c:784
 msgid "Metadata extraction failed"
 msgstr "Udtrækning af metadata mislykkedes"
 
-#: ../src/tracker-extract/tracker-extract.c:862
+#: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Ingen metadata eller udtrækkermoduler fundet til at håndtere denne fil"
 
@@ -883,7 +882,6 @@ msgid "Find search criteria in file titles"
 msgstr "Find søgekriterium i filtitler"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
-#| msgid "Find search criteria in file titles"
 msgid "Find search criteria in file tags only (separated by comma)"
 msgstr "Find kun søgekriterium i filmærkater (adskilt af komma)"
 
@@ -1218,8 +1216,7 @@ msgstr "Inkluder _eksternt medie"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
-msgstr ""
-"Dette dækker ALLE flytbare medier, hukommelseskort, cd'er, dvd'er osv."
+msgstr "Dette dækker ALLE flytbare medier, hukommelseskort, cd'er, dvd'er osv."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Include optical di_scs"
@@ -1321,12 +1318,12 @@ msgstr "Indekserer"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid ""
-"Special locations such as your <b>Home</b>, <b>Desktop</b> or "
-"<b>Documents</b> directory, can be easily toggled below. This will add or "
-"remove their real paths from the list underneath.\n"
+"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
+"b> directory, can be easily toggled below. This will add or remove their "
+"real paths from the list underneath.\n"
 "\n"
-"If a directory is toggled to <b>Recurse</b>, it means that all "
-"sub-directories underneath it will also be indexed. Otherwise, only files "
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+"directories underneath it will also be indexed. Otherwise, only files "
 "immediately in that directory will be indexed."
 msgstr ""
 "Specielle placeringer som f.eks. din <b>Hjemme-</b>, <b>Skrivebords-</b> "
@@ -1511,7 +1508,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.vala:323
 msgid "This will close this dialog!"
-msgstr "Dette vil lukke dette dialogvindue!"
+msgstr "Dette vil lukke denne dialog!"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:324
 msgid "Would you like to reindex now?"
@@ -1627,10 +1624,6 @@ msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Kunne ikke indhente GSettings-indstillinger for indekseringer, håndteringen "
 "kunne ikke bliver oprettet, %s"
-
-#: ../src/tracker/tracker-compatible.c:221
-msgid "The 'tracker-control' command is no longer available"
-msgstr "Kommandoen \"tracker-control\" er ikke længere tilgængelig"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -2116,8 +2109,8 @@ msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
-"Der kan kun bruges en handling (--backup, --restore, --index-file eller "
-"--import) ad gangen"
+"Der kan kun bruges en handling (--backup, --restore, --index-file eller --"
+"import) ad gangen"
 
 #: ../src/tracker/tracker-index.c:437
 msgid "Missing one or more files which are required"
@@ -2183,68 +2176,68 @@ msgstr "Ingen metadata tilgængelige for den URI"
 msgid "Results"
 msgstr "Resultater"
 
-#: ../src/tracker/tracker-main.c:48
+#: ../src/tracker/tracker-main.c:47
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
 "Se \"tracker help <kommando>\" for information om en specifik underkommando."
 
 # pause (verbum) findes i RO
-#: ../src/tracker/tracker-main.c:97
+#: ../src/tracker/tracker-main.c:96
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Start, stop, paus og vis processerne, der er ansvarlige for indeksering af "
 "information"
 
-#: ../src/tracker/tracker-main.c:98
+#: ../src/tracker/tracker-main.c:97
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Få hjælp til hvordan Tracker bruges, samt disse kommandoer"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:98
 msgid "Show information known about local files or items indexed"
 msgstr "Vis kendte oplysninger om lokale filer eller indekserede elementer"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:99
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Tag sikkerhedskopier, genopret, importér og (gen)indeksér efter MIME-type "
 "eller filnavn"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:100
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Nulstil eller fjern indeks og gendan standardkonfigurationerne"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:101
 msgid "Search for content indexed or show content by type"
 msgstr "Søg efter indekserede informationer eller vis informationer efter type"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:102
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Forespørg og opdatér indeks med SPARQL eller søg, vis ontologien evt. som træ"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:103
 msgid "Query the database at the lowest level using SQL"
 msgstr "Forespørg i databasen på laveste niveau ved hjælp af SQL"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:104
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Vis indekseringsprocessen, indholdsstatistik og indekseringstilstand"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:105
 msgid "Create, list or delete tags for indexed content"
 msgstr "Opret, vis eller slet mærkater for indekseret information"
 
-#: ../src/tracker/tracker-main.c:107
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the license and version in use"
 msgstr "Vis licens og programversion"
 
-#: ../src/tracker/tracker-main.c:152
+#: ../src/tracker/tracker-main.c:151
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgstr "\"%s\" er ikke en trackerkommando. Se \"tracker --help\""
 
-#: ../src/tracker/tracker-main.c:175
+#: ../src/tracker/tracker-main.c:174
 msgid "Available tracker commands are:"
 msgstr "Mulige trackerkommandoer er:"
 
@@ -2252,31 +2245,31 @@ msgstr "Mulige trackerkommandoer er:"
 msgid "Could not open /proc"
 msgstr "Kunne ikke åbne /proc"
 
-#: ../src/tracker/tracker-process.c:124
+#: ../src/tracker/tracker-process.c:127
 msgid "Could not stat() file"
 msgstr "Kunne ikke udføre stat() på fil"
 
-#: ../src/tracker/tracker-process.c:193
+#: ../src/tracker/tracker-process.c:198
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Kunne ikke åbne \"%s\""
 
-#: ../src/tracker/tracker-process.c:322
+#: ../src/tracker/tracker-process.c:327
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Kunne ikke afslutte proces %d - \"%s\""
 
-#: ../src/tracker/tracker-process.c:328
+#: ../src/tracker/tracker-process.c:333
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Afsluttede proces %d - \"%s\""
 
-#: ../src/tracker/tracker-process.c:343
+#: ../src/tracker/tracker-process.c:348
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Kunne ikke dræbe proces %d - \"%s\""
 
-#: ../src/tracker/tracker-process.c:349
+#: ../src/tracker/tracker-process.c:354
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Dræbte proces %d - \"%s\""
@@ -2341,7 +2334,7 @@ msgstr "Søg efter dokumentfiler"
 
 #: ../src/tracker/tracker-search.c:112
 msgid "Search for emails"
-msgstr "Søg efter e-post"
+msgstr "Søg efter e-mail"
 
 #: ../src/tracker/tracker-search.c:116
 msgid "Search for contacts"
@@ -2378,8 +2371,8 @@ msgstr "Brug ELLER (OR) for søgetermer i steden for OG (AND) som er standarden"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, "
-"--feeds, --software, --software-categories)"
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
 msgstr ""
 "Vis URN'er for resultater (gælder ikke for --music-albums, --music-artists, "
 "--feeds, --software, --software-categories)"
@@ -2447,7 +2440,7 @@ msgstr "E-mailadresser"
 
 #: ../src/tracker/tracker-search.c:404
 msgid "No emails were found"
-msgstr "Ingen e-post blev fundet"
+msgstr "Ingen e-mail blev fundet"
 
 #: ../src/tracker/tracker-search.c:506
 msgid "No files were found"
@@ -2540,11 +2533,11 @@ msgstr "Indhent klassepræfikser"
 
 #: ../src/tracker/tracker-sparql.c:124
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. "
-"rdfs:Resource)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
 msgstr ""
-"Indhent egenskaber for en klasses, præfikser kan også bruges (f.eks. "
-"rdfs:Resource)"
+"Indhent egenskaber for en klasses, præfikser kan også bruges (f.eks. rdfs:"
+"Resource)"
 
 #: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
 #: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
@@ -2675,8 +2668,8 @@ msgstr "Præfikser"
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
-"Kunne ikke finde egenskab for klassepræfiks, f.eks. :Resource i "
-"\"rdfs:Resource\""
+"Kunne ikke finde egenskab for klassepræfiks, f.eks. :Resource i \"rdfs:"
+"Resource\""
 
 #: ../src/tracker/tracker-sparql.c:1182
 msgid "Could not list properties"
@@ -2764,17 +2757,14 @@ msgstr ""
 "--tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
 msgstr "Sti som bruges til at køre en forespørgsel fra fil"
 
 #: ../src/tracker/tracker-sql.c:47
-#| msgid "SPARQL query"
 msgid "SQL query"
 msgstr "SQL-forespørgsel"
 
 #: ../src/tracker/tracker-sql.c:48
-#| msgid "SPARQL"
 msgid "SQL"
 msgstr "SQL"
 
@@ -3030,7 +3020,8 @@ msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
 msgstr ""
-"Tilvalget --and-operator kan kun bruges med --list og mærkat-etiket-argumenter"
+"Tilvalget --and-operator kan kun bruges med --list og mærkat-etiket-"
+"argumenter"
 
 #: ../src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
@@ -3054,3 +3045,6 @@ msgstr "- start trackers skrivtilbagetjeneste"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Gemte forespørgsler"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "Kommandoen \"tracker-control\" er ikke længere tilgængelig"
