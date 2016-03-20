@@ -23,6 +23,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 	internal Soup.Session _session;
 	internal string _base_uri;
 
+	const string XML_TYPE = "application/sparql-results+xml";
 	const string JSON_TYPE = "application/sparql-results+json";
 
 	public Connection (string base_uri) {
@@ -36,6 +37,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 		var headers = message.request_headers;
 
 		headers.append ("Accept", JSON_TYPE);
+		headers.append ("Accept", XML_TYPE);
 
 		return message;
 	}
@@ -54,6 +56,8 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 
 		if (content_type == JSON_TYPE) {
 			return new Tracker.Remote.JsonCursor (document, length);
+		} else if (content_type == XML_TYPE) {
+			return new Tracker.Remote.XmlCursor (document, length);
 		} else {
 			throw new Sparql.Error.UNSUPPORTED ("Unknown content type '%s', document is: %s", content_type, document);
 		}

@@ -7,6 +7,7 @@ AM_VALAFLAGS =                                         \
 	--pkg gio-2.0                                  \
 	--pkg libsoup-2.4                              \
 	--pkg json-glib-1.0                            \
+	--pkg libxml-2.0                               \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi
 
@@ -18,6 +19,7 @@ AM_CPPFLAGS =                                          \
 
 libtracker_remote_la_SOURCES =                         \
 	tracker-json-cursor.vala                       \
+	tracker-xml-cursor.vala                        \
 	tracker-remote.vala
 
 libtracker_remote_la_LIBADD =                          \

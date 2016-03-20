@@ -290,6 +290,7 @@ PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
 # Check requirements for libtracker-remote
 LIBTRACKER_REMOTE_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                             libsoup-2.4    >= $LIBSOUP_REQUIRED
+                            libxml-2.0     >= $LIBXML2_REQUIRED
                             json-glib-1.0  >= $JSON_GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_REMOTE, [$LIBTRACKER_REMOTE_REQUIRED])
