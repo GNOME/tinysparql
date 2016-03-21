@@ -1,3 +1,35 @@
+NEW in 1.8.0 - 2016-03-21
+=========================
+
+Changes since 1.7.5:
+  * libtracker-miner: Adapt to libcue 2.0
+  * translations: da
+
+Overview of changes since 1.6.x:
+  * Better support of the Sparql 1.1 syntax:
+    - Support for many builtin functions:
+      * String: CONCAT, CONTAINS, LCASE, UCASE, STRLEN, SUBSTR, STRSTARTS, STRENDS,
+        STRBEFORE, STRAFTER, ENCODE_FOR_URI.
+      * Numeric: ABS, ROUND, CEIL, FLOOR, RAND.
+      * Date/Time: YEAR, MONTH, DAY, HOUR, MINUTES, SECONDS, NOW.
+      * Checksum: MD5, SHA1, SHA256, SHA512.
+  * Support for Sparql 1.1's DELETE {} INSERT {} WHERE {} syntax. This allows for
+    performing complex updates in a single operation, without the shortcomings of
+    the tracker specific INSERT OR REPLACE {} syntax.
+  * Support for Sparql 1.1's BIND(). This allows mapping complex evaluations to a
+    variable within the triple pattern, so usable within it.
+  * The latter two applied allowed tracker-miner-fs to halve the time spent in
+    handling move operations.
+  * Many fixes to tracker-miner-fs and libtracker-miner, it is now a lot more robust
+    esp. around cancellation situations (eg. deleting/unmounting the folder currently
+    being indexed).
+  * Many fixes to tracker-extract modules, many consistency fixes have been fixed where
+    modules would produce invalid Sparql (eg. breaking cardinality limits of certain
+    variables) if given files with unexpected metadata.
+  * As a result of the last two points, 1.8.0 fixes most of the warnings/criticals that
+    have been reported as "spamming journald".
+  * Tracker now uses GTask, except for vala code.
+
 NEW in 1.7.5 - 2016-03-14
 =========================
 
