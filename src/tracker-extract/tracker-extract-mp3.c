@@ -153,6 +153,8 @@ typedef struct {
 	const gchar *title;
 	const gchar *performer;
 	gchar *performer_uri;
+	const gchar *album_artist;
+	gchar *album_artist_uri;
 	const gchar *lyricist;
 	gchar *lyricist_uri;
 	const gchar *album;
@@ -1067,7 +1069,7 @@ id3v2_strlen (const gchar  encoding,
 	switch (encoding) {
 	case 0x01:
 	case 0x02:
-		
+
 		/* UTF-16, string terminated by two NUL bytes */
 		pos = memmem (text, len, "\0\0\0", 3);
 
@@ -2372,6 +2374,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	                                       md.id3v22.performer2,
 	                                       md.id3v1.artist);
 
+	md.album_artist = tracker_coalesce_strip (3, md.id3v24.performer2,
+	                                          md.id3v23.performer2,
+	                                          md.id3v22.performer2);
+
 	md.album = tracker_coalesce_strip (4, md.id3v24.album,
 	                                   md.id3v23.album,
 	                                   md.id3v22.album,
@@ -2467,6 +2473,26 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_insert_close (preupdate);
 	}
 
+	if (md.album_artist) {
+		md.album_artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.album_artist);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		if (graph) {
+			tracker_sparql_builder_graph_open (preupdate, graph);
+		}
+
+		tracker_sparql_builder_subject_iri (preupdate, md.album_artist_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:Artist");
+		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.album_artist);
+
+		if (graph) {
+			tracker_sparql_builder_graph_close (preupdate);
+		}
+		tracker_sparql_builder_insert_close (preupdate);
+	}
+
 	if (md.composer) {
 		md.composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.composer);
 
@@ -2524,9 +2550,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.album);
 
-		if (md.performer_uri) {
+		if (md.album_artist_uri) {
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
-			tracker_sparql_builder_object_iri (preupdate, md.performer_uri);
+			tracker_sparql_builder_object_iri (preupdate, md.album_artist_uri);
 		}
 
 		if (graph) {
@@ -2689,6 +2715,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	g_free (md.album_uri);
+	g_free (md.album_artist_uri);
 
 	/* Get mp3 stream info */
 	parsed = mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
@@ -2749,4 +2776,3 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	return parsed;
 }
-
