@@ -55,7 +55,7 @@ AC_CONFIG_HEADERS([config.h])
 # See: https://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Posix-Variants.html
 AC_USE_SYSTEM_EXTENSIONS
 
-AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability no-dist-gzip dist-xz subdir-objects])
 
 AC_PROG_LIBTOOL
 
