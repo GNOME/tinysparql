@@ -28,6 +28,8 @@ G_BEGIN_DECLS
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
 #endif
 
+GType tracker_uri_get_type (void);
+
 #define TRACKER_TYPE_URI tracker_uri_get_type()
 
 /* The public functions in tracker-uri.c are prototyped in the generated Vala
