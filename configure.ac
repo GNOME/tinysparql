@@ -831,6 +831,12 @@ if test "x$have_tracker_fts" = "xyes"; then
       AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS5 compiled in])
    else
       have_builtin_fts5="no"
+
+      # Make sure SQLite has extension loading enabled
+      AX_SQLITE_AUTO_EXTENSION
+      if test "x$ax_cv_sqlite_auto_extension" != "xyes"; then
+        AC_MSG_ERROR([sqlite3 cannot load extensions])
+      fi
    fi
 else
    AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
