@@ -55,6 +55,12 @@ AC_CONFIG_HEADERS([config.h])
 # See: https://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Posix-Variants.html
 AC_USE_SYSTEM_EXTENSIONS
 
+# Adding the 'subdir-objects' Automake option here will fix some Automake
+# warnings, but it will also break the build. I believe that it triggers
+# <http://debbugs.gnu.org/cgi/bugreport.cgi?bug=13928>. That bug will
+# be fixed in Automake 1.16, so we should be eventually able to use
+# 'subdir-objects' (which is apparently will be on by default in Automake 2.0),
+# but we'll need to require Automake 1.16 before we can do so.
 AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability no-dist-gzip dist-xz])
 
 AC_PROG_LIBTOOL
