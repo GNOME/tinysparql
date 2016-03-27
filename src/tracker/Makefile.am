@@ -1,5 +1,6 @@
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
+	-DLIBEXECDIR=\""$(libexecdir)"\"               \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
 	-DMANDIR=\""$(mandir)"\" \
 	-DTRACKER_EXTRACTOR_RULES_DIR=\""$(TRACKER_EXTRACT_RULES_DIR)"\" \
@@ -25,6 +26,8 @@ tracker_SOURCES = \
 	tracker-daemon.h \
 	tracker-dbus.c \
 	tracker-dbus.h \
+	tracker-extract.c \
+	tracker-extract.h \
 	tracker-help.c \
 	tracker-help.h \
 	tracker-index.c \

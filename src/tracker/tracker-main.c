@@ -29,6 +29,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-daemon.h"
+#include "tracker-extract.h"
 #include "tracker-help.h"
 #include "tracker-index.h"
 #include "tracker-info.h"
@@ -94,6 +95,7 @@ struct cmd_struct {
 
 static struct cmd_struct commands[] = {
 	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, pause and list processes responsible for indexing content") },
+	{ "extract", tracker_extract, NEED_WORK_TREE, N_("Extract information from a file") },
 	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
 	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
 	{ "index", tracker_index, NEED_NOTHING, N_("Backup, restore, import and (re)index by MIME type or file name") },
