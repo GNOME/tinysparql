@@ -55,6 +55,7 @@ src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in
 src/tracker/tracker-config.c
 src/tracker/tracker-daemon.c
 src/tracker/tracker-dbus.c
+src/tracker/tracker-extract.c
 src/tracker/tracker-help.c
 src/tracker/tracker-index.c
 src/tracker/tracker-info.c

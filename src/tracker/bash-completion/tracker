@@ -17,7 +17,7 @@ tracker_cmds()
 	-h|--help)
 	    return 0;
 	    ;;
-	info|-f|--file)
+	extract|info|-f|--file)
 	    if [[ $cur != -* ]]; then
 		_filedir
 		return 0;
