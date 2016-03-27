@@ -125,7 +125,7 @@ typedef struct {
 } ExcelExtendedStringRecord;
 
 typedef struct {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	const gchar *uri;
 } MetadataInfo;
 
@@ -176,13 +176,12 @@ msoffice_string_process_octal_triplets (guchar *str)
 }
 
 static void
-metadata_add_gvalue (TrackerSparqlBuilder *metadata,
-                     const gchar          *uri,
-                     const gchar          *key,
-                     GValue const         *val,
-                     const gchar          *type,
-                     const gchar          *predicate,
-                     gboolean              is_date)
+metadata_add_gvalue (TrackerResource *metadata,
+                     const gchar     *key,
+                     GValue const    *val,
+                     const gchar     *type,
+                     const gchar     *predicate,
+                     gboolean         is_date)
 {
 	gchar *s;
 
@@ -248,18 +247,15 @@ metadata_add_gvalue (TrackerSparqlBuilder *metadata,
 			msoffice_string_process_octal_triplets (str_val);
 
 			if (type && predicate) {
-				tracker_sparql_builder_predicate (metadata, key);
+				TrackerResource *child = tracker_resource_new (NULL);
+				tracker_resource_set_uri (child, "rdf:type", type);
+				tracker_resource_set_string (child, predicate, str_val);
 
-				tracker_sparql_builder_object_blank_open (metadata);
-				tracker_sparql_builder_predicate (metadata, "a");
-				tracker_sparql_builder_object (metadata, type);
+				tracker_resource_add_relation (metadata, key, child);
 
-				tracker_sparql_builder_predicate (metadata, predicate);
-				tracker_sparql_builder_object_unvalidated (metadata, str_val);
-				tracker_sparql_builder_object_blank_close (metadata);
+				g_object_unref (child);
 			} else {
-				tracker_sparql_builder_predicate (metadata, key);
-				tracker_sparql_builder_object_unvalidated (metadata, str_val);
+				tracker_resource_set_string (metadata, key, str_val);
 			}
 
 			g_free (str_val);
@@ -280,11 +276,11 @@ summary_metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (value);
 
 	if (g_strcmp0 (key, "dc:title") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nie:title", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nie:title", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "dc:subject") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nie:subject", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nie:subject", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "dc:creator") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nco:creator", val, "nco:Contact", "nco:fullname", FALSE);
+		metadata_add_gvalue (info->metadata, "nco:creator", val, "nco:Contact", "nco:fullname", FALSE);
 	} else if (g_strcmp0 (key, "dc:keywords") == 0) {
 		gchar *keywords, *str = g_strdup_value_contents (val);
 		gchar *lasts, *keyw;
@@ -306,21 +302,20 @@ summary_metadata_cb (gpointer key,
 
 		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
-			tracker_sparql_builder_predicate (info->metadata, "nie:keyword");
-			tracker_sparql_builder_object_unvalidated (info->metadata, keyw);
+			tracker_resource_add_string (info->metadata, "nie:keyword", keyw);
 		}
 
 		g_free (str);
 	} else if (g_strcmp0 (key, "dc:description") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nie:comment", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nie:comment", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "gsf:page-count") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nfo:pageCount", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nfo:pageCount", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "gsf:word-count") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nfo:wordCount", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nfo:wordCount", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (key, "meta:creation-date") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nie:contentCreated", val, NULL, NULL, TRUE);
+		metadata_add_gvalue (info->metadata, "nie:contentCreated", val, NULL, NULL, TRUE);
 	} else if (g_strcmp0 (key, "meta:generator") == 0) {
-		metadata_add_gvalue (info->metadata, info->uri, "nie:generator", val, NULL, NULL, FALSE);
+		metadata_add_gvalue (info->metadata, "nie:generator", val, NULL, NULL, FALSE);
 	}
 }
 
@@ -333,7 +328,6 @@ document_metadata_cb (gpointer key,
 		MetadataInfo *info = user_data;
 
 		metadata_add_gvalue (info->metadata,
-		                     info->uri,
 		                     "nie:license",
 		                     gsf_doc_prop_get_val (value),
 		                     NULL,
@@ -1548,14 +1542,11 @@ extract_excel_content (GsfInfile *infile,
  * @param uri uri of the file
  */
 static gboolean
-extract_summary (TrackerSparqlBuilder *metadata,
-                 GsfInfile            *infile,
-                 const gchar          *uri)
+extract_summary (TrackerResource *metadata,
+                 GsfInfile       *infile,
+                 const gchar     *uri)
 {
 	GsfInput *stream;
-
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
 
@@ -1632,7 +1623,7 @@ extract_summary (TrackerSparqlBuilder *metadata,
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	TrackerConfig *config;
 	GsfInfile *infile = NULL;
 	gchar *content = NULL, *uri;
@@ -1645,7 +1636,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	gsf_init ();
 
-	metadata = tracker_extract_info_get_metadata_builder (info);
 	mime_used = tracker_extract_info_get_mimetype (info);
 
 	file = tracker_extract_info_get_file (info);
@@ -1673,6 +1663,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
+	metadata = tracker_resource_new (NULL);
+
+	tracker_resource_set_uri (metadata, "rdf:type", "nfo:PaginatedTextDocument");
+
 	/* Extracting summary */
 	extract_summary (metadata, infile, uri);
 
@@ -1685,14 +1679,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		content = extract_msword_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-powerpoint") == 0) {
 		/* PowerPoint file */
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nfo:Presentation");
+		tracker_resource_set_uri (metadata, "rdf:type", "nfo:Presentation");
 
 		content = extract_powerpoint_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
 		/* Excel File */
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nfo:Spreadsheet");
+		tracker_resource_set_uri(metadata, "rdf:type", "nfo:Spreadsheet");
 
 		content = extract_excel_content (infile, max_bytes, &is_encrypted);
 	} else {
@@ -1700,14 +1692,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (content) {
-		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (metadata, content);
+		tracker_resource_set_string (metadata, "nie:plainTextContent", content);
 		g_free (content);
 	}
 
 	if (is_encrypted) {
-		tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
-		tracker_sparql_builder_object_boolean (metadata, TRUE);
+		tracker_resource_set_boolean (metadata, "nfo:isContentEncrypted", TRUE);
 	}
 
 	g_object_unref (infile);
@@ -1716,6 +1706,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	if (mfile) {
 		tracker_file_close (mfile, FALSE);
 	}
+
+	tracker_extract_info_set_resource (info, metadata);
+	g_object_unref (metadata);
 
 	return TRUE;
 }

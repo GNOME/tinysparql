@@ -87,8 +87,6 @@ typedef struct {
 	GAsyncResult *res;
 	gchar *file;
 	gchar *mimetype;
-	gchar *graph;
-	gchar *urn;
 
 	TrackerMimetypeInfo *mimetype_handlers;
 
@@ -296,13 +294,11 @@ get_file_metadata (TrackerExtractTask  *task,
 	TrackerExtractInfo *info;
 	GFile *file;
 	gchar *mime_used = NULL;
-	gint items = 0;
-	gboolean success = FALSE;
 
 	*info_out = NULL;
 
 	file = g_file_new_for_uri (task->file);
-	info = tracker_extract_info_new (file, task->mimetype, task->graph, task->urn);
+	info = tracker_extract_info_new (file, task->mimetype);
 	g_object_unref (file);
 
 #ifdef HAVE_LIBMEDIAART
@@ -322,37 +318,25 @@ get_file_metadata (TrackerExtractTask  *task,
 	 */
 	if (mime_used) {
 		if (task->cur_func) {
-			TrackerSparqlBuilder *statements;
-
 			g_debug ("Using %s...",
 				 task->cur_module ?
 				 g_module_name (task->cur_module) :
 				 "Dummy extraction");
 
-			success = (task->cur_func) (info);
-
-			statements = tracker_extract_info_get_metadata_builder (info);
-			items = tracker_sparql_builder_get_length (statements);
-
-			if (items > 0)
-				tracker_sparql_builder_insert_close (statements);
-
-			task->success = success;
+			task->success = (task->cur_func) (info);
 		}
 
 		g_free (mime_used);
 	}
 
-	g_debug ("Done (%d objects added)\n", items);
-
-	if (!success) {
+	if (!task->success) {
 		tracker_extract_info_unref (info);
 		info = NULL;
 	}
 
 	*info_out = info;
 
-	return success;
+	return task->success;
 }
 
 /* This function is called on the thread calling g_cancellable_cancel() */
@@ -382,8 +366,6 @@ static TrackerExtractTask *
 extract_task_new (TrackerExtract *extract,
                   const gchar    *uri,
                   const gchar    *mimetype,
-                  const gchar    *graph,
-                  const gchar    *urn,
                   GCancellable   *cancellable,
                   GAsyncResult   *res,
                   GError        **error)
@@ -423,8 +405,6 @@ extract_task_new (TrackerExtract *extract,
 	task->res = (res) ? g_object_ref (res) : NULL;
 	task->file = g_strdup (uri);
 	task->mimetype = mimetype_used;
-	task->graph = g_strdup (graph);
-	task->urn = g_strdup (urn);
 	task->extract = extract;
 
 	if (task->cancellable) {
@@ -457,8 +437,6 @@ extract_task_free (TrackerExtractTask *task)
 		tracker_mimetype_info_free (task->mimetype_handlers);
 	}
 
-	g_free (task->urn);
-	g_free (task->graph);
 	g_free (task->mimetype);
 	g_free (task->file);
 
@@ -701,8 +679,6 @@ void
 tracker_extract_file (TrackerExtract      *extract,
                       const gchar         *file,
                       const gchar         *mimetype,
-                      const gchar         *graph,
-                      const gchar         *urn,
                       GCancellable        *cancellable,
                       GAsyncReadyCallback  cb,
                       gpointer             user_data)
@@ -723,8 +699,8 @@ tracker_extract_file (TrackerExtract      *extract,
 
 	async_task = g_task_new (extract, cancellable, cb, user_data);
 
-	task = extract_task_new (extract, file, mimetype, graph, urn,
-	                         cancellable, G_ASYNC_RESULT (async_task), &error);
+	task = extract_task_new (extract, file, mimetype, cancellable,
+	                         G_ASYNC_RESULT (async_task), &error);
 
 	if (error) {
 		g_warning ("Could not get mimetype, %s", error->message);
@@ -777,7 +753,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	task = extract_task_new (object, uri, mime, NULL, "_:file", NULL, NULL, &error);
+	task = extract_task_new (object, uri, mime, NULL, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -796,42 +772,50 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	while (task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
 		    get_file_metadata (task, &info)) {
-			const gchar *preupdate_str, *postupdate_str, *statements_str, *where;
-			TrackerSparqlBuilder *builder;
+			TrackerResource *resource = tracker_extract_info_get_resource (info);
+
+			if (resource == NULL)
+				break;
 
 			no_data_or_modules = FALSE;
-			preupdate_str = statements_str = postupdate_str = NULL;
 
-			builder = tracker_extract_info_get_metadata_builder (info);
+			if (output_format == TRACKER_SERIALIZATION_FORMAT_SPARQL) {
+				TrackerSparqlBuilder *builder;
+				const char *text;
 
-			if (tracker_sparql_builder_get_length (builder) > 0) {
-				statements_str = tracker_sparql_builder_get_result (builder);
+				builder = tracker_sparql_builder_new_update ();
+
+				/* If this was going into the tracker-store we'd generate a unique ID
+				 * here, so that the data persisted across file renames.
+				 */
+				tracker_resource_set_identifier (resource, uri);
+
+				tracker_resource_generate_sparql_update (resource,
+				                                         builder,
+				                                         tracker_namespace_manager_get_default (),
+				                                         NULL);
+
+				text = tracker_sparql_builder_get_result (builder);
+
+				g_print ("%s\n", text);
+
+				g_object_unref (builder);
+			} else if (output_format == TRACKER_SERIALIZATION_FORMAT_TURTLE) {
+				char *turtle;
+
+				/* If this was going into the tracker-store we'd generate a unique ID
+				 * here, so that the data persisted across file renames.
+				 */
+				tracker_resource_set_identifier (resource, uri);
+
+				turtle = tracker_resource_print_turtle (resource,
+				                                        tracker_namespace_manager_get_default ());
+
+				if (turtle) {
+					g_print ("%s\n", turtle);
+					g_free (turtle);
+				}
 			}
-
-			builder = tracker_extract_info_get_preupdate_builder (info);
-
-			if (tracker_sparql_builder_get_length (builder) > 0) {
-				preupdate_str = tracker_sparql_builder_get_result (builder);
-			}
-
-			builder = tracker_extract_info_get_postupdate_builder (info);
-
-			if (tracker_sparql_builder_get_length (builder) > 0) {
-				postupdate_str = tracker_sparql_builder_get_result (builder);
-			}
-
-			where = tracker_extract_info_get_where_clause (info);
-
-			g_print ("\n");
-
-			g_print ("SPARQL pre-update:\n--\n%s--\n\n",
-			         preupdate_str ? preupdate_str : "");
-			g_print ("SPARQL item:\n--\n%s--\n\n",
-			         statements_str ? statements_str : "");
-			g_print ("SPARQL where clause:\n--\n%s--\n\n",
-			         where ? where : "");
-			g_print ("SPARQL post-update:\n--\n%s--\n\n",
-			         postupdate_str ? postupdate_str : "");
 
 			tracker_extract_info_unref (info);
 			break;

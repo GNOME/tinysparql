@@ -62,8 +62,6 @@ TrackerExtract *tracker_extract_new                     (gboolean               
 void            tracker_extract_file                    (TrackerExtract         *extract,
                                                          const gchar            *file,
                                                          const gchar            *mimetype,
-                                                         const gchar            *graph,
-                                                         const gchar            *urn,
                                                          GCancellable           *cancellable,
                                                          GAsyncReadyCallback     cb,
                                                          gpointer                user_data);

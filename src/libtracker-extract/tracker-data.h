@@ -24,6 +24,7 @@
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
+#include <libtracker-sparql/tracker-resource.h>
 #include <libtracker-sparql/tracker-sparql.h>
 #include "tracker-module-manager.h"
 #include "tracker-extract-info.h"
@@ -50,6 +51,7 @@ G_BEGIN_DECLS
  * <title>Basic extractor example</title>
  * An example of how to write an extractor to retrieve PNG embedded
  * metadata.
+ * FIXME: rewrite with TrackerResource!
  * <programlisting>
  *  G_MODULE_EXPORT gboolean
  *  tracker_extract_get_metadata (TrackerExtractInfo *info)
