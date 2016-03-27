@@ -87,12 +87,10 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.Writeback.gschema.xml
 CLEANFILES = \
 	$(service_DATA) \
 	$(systemd_user_DATA) \
-	$(gsettings_SCHEMAS) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS)
 
 EXTRA_DIST = \
 	$(service_DATA:.service=.service.in) \
 	$(systemd_user_DATA:.service=.service.in) \
 	$(config_DATA) \
-	$(gsettings_SCHEMAS:.xml=.xml.in) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS:.xml=.xml.in)

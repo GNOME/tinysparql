@@ -19,6 +19,8 @@
 # 02110-1301, USA.
 #
 
+set -e
+
 if [ $# -lt 5 ]; then
 	echo "Insufficient arguments provided"
 	echo "Usage: $0 <ttl2sgml> <ttlres2sgml> <ontology-data-dir> <ontology-info-dir> <build-dir>"
@@ -31,14 +33,16 @@ ONTOLOGIES_DATA_DIR=$3
 ONTOLOGIES_INFO_DIR=$4
 BUILD_DIR=$5
 
-echo "Building class documentation..."
+if [ ! -e $BUILD_DIR ]; then
+    mkdir -p $BUILD_DIR
+fi
+
 $TTLRES2SGML -d $ONTOLOGIES_DATA_DIR -o $BUILD_DIR
 
 for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     # ../../src/ontologies/XX-aaa.description -> PREFIX=aaa
     TMPNAME=${f%.description}
     PREFIX=${TMPNAME#*-}
-    echo "- Generating $PREFIX documentation"
 
     $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml \
 	-e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
