@@ -1,0 +1,51 @@
+option('docs', type: 'boolean', value: true,
+       description: 'Enable the documentation')
+option('extract', type: 'boolean', value: true,
+       description: 'Enable the Tracker metadata extractor')
+option('fts', type: 'boolean', value: true,
+       description: 'Enable the Tracker full-text search feature')
+option('functional_tests', type: 'boolean', value: true,
+       description: 'Enable the Tracker functional test suite')
+option('guarantee_metadata', type: 'boolean', value: true,
+       description: 'Set nie:title and nie:contentCreated from filename and mtime if no metadata available')
+option('journal', type: 'boolean', value: true,
+       description: 'Enable database journal backup mechanism')
+option('writeback', type: 'boolean', value: true,
+       description: 'Enable Tracker writeback feature')
+
+option('abiword', type: 'boolean', value: 'true',
+       description: 'Enable extractor for AbiWord files')
+option('dvi', type: 'boolean', value: 'true',
+       description: 'Enable extractor for DVI metadata')
+option('icon', type: 'boolean', value: 'true',
+       description: 'Enable extractor for ICO metadata')
+option('mp3', type: 'boolean', value: 'true',
+       description: 'Enable extractor for MP3 metadata')
+option('ps', type: 'boolean', value: 'true',
+       description: 'Enable extractor for PS metadata')
+option('text', type: 'boolean', value: 'true',
+       description: 'Enable extractor for TXT metadata')
+option('unzip_ps_gz_files', type: 'boolean', value: 'true',
+       description: 'Enable extractor for PS.GZ metadata')
+
+option('battery_detection', type: 'combo', choices: ['auto', 'hal', 'upower', 'none'], value: 'auto',
+       description: 'Enable upower or HAL for battery/mains power detection')
+option('charset_detection', type: 'combo', choices: ['auto', 'enca', 'icu', 'none'], value: 'auto',
+       description: 'Enable enca or libicu for charset detection in MP3s')
+option('generic_media_extractor', type: 'combo', choices: ['auto', 'gstreamer', 'libav', 'none'], value: 'auto',
+       description: 'Enables one of the (gstreamer, libav, auto) generic media extractor backends')
+option('gstreamer_backend', type: 'combo', choices: ['discoverer', 'gupnp'], value: 'discoverer',
+       description: 'When GStreamer is used, this enables one of the (discoverer, gupnp) GStreamer backends')
+option('meegotouch', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'no',
+       description: 'Enable libmeegotouch application extraction')
+option('stemmer', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'no',
+       description: 'Enable stemming words while indexing')
+option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',
+       description: 'Unicode support library to use')
+
+option('bash_completion', type: 'string', default: 'yes',
+       description: 'Directory to install Bash completion files (or "yes" for default directory, "no" to disable installation')
+option('dbus_services', type: 'string', default: '',
+       description: 'Directory to install D-Bus .service files (leave blank to use the value from dbus-1.pc)')
+option('systemd_user_services', type: 'string', default: 'yes',
+       description: 'Directory to install systemd user .service files (or "yes" for default directory, "no" to disable installation)')

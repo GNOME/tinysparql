@@ -1,0 +1,23 @@
+if sqlite3_has_builtin_fts5
+    libtracker_fts_fts5 = []
+else
+    libtracker_fts_fts5 = files('fts5.c')
+endif
+
+libtracker_fts_dependencies = [sqlite]
+
+libtracker_fts = static_library('libtracker-fts',
+    'tracker-fts.c',
+    'tracker-fts-config.c',
+    'tracker-fts-tokenizer.c',
+    libtracker_fts_fts5,
+    dependencies: tracker_common_dep,
+    c_args: [
+        '-DTRACKER_COMPILATION',
+    ],
+)
+
+tracker_fts_dep = declare_dependency(
+    link_with: libtracker_fts,
+    dependencies: libtracker_fts_dependencies
+)

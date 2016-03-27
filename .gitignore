@@ -14,6 +14,7 @@
 .deps
 .libs
 config.*
+!config.h.meson.in
 ABOUT-NLS
 aclocal.m4
 autom4te.cache
