@@ -87,6 +87,9 @@ get_date_from_file_mtime (const gchar *uri)
  * (before the "." and extension of the file) as the title. If the
  * title has any "_" characters, they are also converted into spaces.
  *
+ * This function only operates if Tracker was compiled with
+ * --enable-guarantee-metadata enabled at configure-time.
+ *
  * Returns: %TRUE on success and content was added to @metadata, otherwise %FALSE.
  *
  * Since: 0.10
@@ -160,6 +163,9 @@ tracker_guarantee_title_from_file (TrackerSparqlBuilder  *metadata,
  * When parsing @uri, stat() is called on the file to create a
  * date based on the file's mtime.
  *
+ * This function only operates if Tracker was compiled with
+ * --enable-guarantee-metadata enabled at configure-time.
+ *
  * Returns: %TRUE on success and content was added to @metadata, otherwise %FALSE.
  *
  * Since: 0.10
@@ -198,6 +204,143 @@ tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
 	if (current_value && *current_value != '\0') {
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_unvalidated (metadata, current_value);
+	} else {
+		success = FALSE;
+	}
+#endif /* GUARANTEE_METADATA */
+
+	return success;
+}
+
+
+/**
+ * tracker_guarantee_resource_title_from_file:
+ * @resource: the relevant #TrackerResource
+ * @key: the property URI to set
+ * @current_value: the current data to check before looking at @uri.
+ * @uri: a string representing a URI to use
+ * @p_new_value: pointer to a string which receives the new title, or
+ *             %NULL
+ *
+ * Checks @current_value to make sure it is usable (i.e. not %NULL or an
+ * empty string). If it is not usable, then @uri is parsed to guarantee a
+ * metadata value for @key.
+ *
+ * Parses the file pointed to by @uri and uses the basename
+ * (before the "." and extension of the file) as the title. If the
+ * title has any "_" characters, they are also converted into spaces.
+ *
+ * This function only operates if Tracker was compiled with
+ * --enable-guarantee-metadata enabled at configure-time.
+ *
+ * Returns: %TRUE on success and content was added to @metadata, otherwise %FALSE.
+ *
+ * Since: 1.10
+ **/
+gboolean
+tracker_guarantee_resource_title_from_file (TrackerResource  *resource,
+                                            const gchar      *key,
+                                            const gchar      *current_value,
+                                            const gchar      *uri,
+                                            gchar           **p_new_value)
+{
+	gboolean success = TRUE;
+
+#ifdef GUARANTEE_METADATA
+	g_return_val_if_fail (metadata != NULL, FALSE);
+	g_return_val_if_fail (key != NULL, FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+
+	if (current_value && *current_value != '\0') {
+		tracker_resource_set_string (resource, key, current_value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = g_strdup (current_value);
+		}
+	} else {
+		gchar *value;
+
+		value = get_title_from_file (uri);
+
+		if (value && value[0] != '\0') {
+			tracker_resource_set_string (resource, key, value);
+		} else {
+			success = FALSE;
+		}
+
+		if (p_new_value != NULL) {
+			*p_new_value = value;
+		} else {
+			g_free (value);
+		}
+	}
+#else  /* GUARANTEE_METADATA */
+	if (current_value && *current_value != '\0') {
+		tracker_resource_set_string (resource, key, current_value);
+
+		if (p_new_value != NULL) {
+			*p_new_value = g_strdup (current_value);
+		}
+	} else {
+		success = FALSE;
+	}
+#endif /* GUARANTEE_METADATA */
+
+	return success;
+}
+
+/**
+ * tracker_guarantee_resource_date_from_file_mtime:
+ * @resource: the relevant #TrackerResource
+ * @key: the property URI to set
+ * @current_value: the current data to check before looking at @uri
+ * @uri: a string representing a URI to use
+ *
+ * Checks @current_value to make sure it is sane (i.e. not %NULL or an
+ * empty string). If it is, then @uri is parsed to guarantee a
+ * metadata value for @key.
+ *
+ * When parsing @uri, stat() is called on the file to create a
+ * date based on the file's mtime.
+ *
+ * This function only operates if Tracker was compiled with
+ * --enable-guarantee-metadata enabled at configure-time.
+ *
+ * Returns: %TRUE on success and content was added to @metadata, otherwise %FALSE.
+ *
+ * Since: 1.10
+ **/
+gboolean
+tracker_guarantee_resource_date_from_file_mtime (TrackerResource *resource,
+                                                 const gchar     *key,
+                                                 const gchar     *current_value,
+                                                 const gchar     *uri)
+{
+	gboolean success = TRUE;
+
+#ifdef GUARANTEE_METADATA
+	g_return_val_if_fail (resource != NULL, FALSE);
+	g_return_val_if_fail (key != NULL, FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+
+	if (current_value && *current_value != '\0') {
+		tracker_resource_set_string (resource, key, current_value);
+	} else {
+		gchar *value;
+
+		value = get_date_from_file_mtime (uri);
+
+		if (value && *value != '\0') {
+			tracker_resource_set_string (resource, key, value);
+		} else {
+			success = FALSE;
+		}
+
+		g_free (value);
+	}
+#else  /* GUARANTEE_METADATA */
+	if (current_value && *current_value != '\0') {
+		tracker_resource_set_string (resource, key, current_value);
 	} else {
 		success = FALSE;
 	}

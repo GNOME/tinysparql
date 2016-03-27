@@ -284,107 +284,52 @@ test_xmp_orientation (void)
 static void
 test_xmp_apply (void)
 {
-	TrackerSparqlBuilder *metadata, *preupdate;
-	GString *where;
+	TrackerResource *resource;
+	TrackerResource *artist;
 	TrackerXmpData *data;
-	const gchar *graph = NULL;
 
-	metadata = tracker_sparql_builder_new_update ();
-	preupdate = tracker_sparql_builder_new_update ();
-	where = g_string_new ("");
+	resource = tracker_resource_new ("urn:uuid:test");
 
 	data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
 	g_assert (data != NULL);
 
-	tracker_sparql_builder_insert_open (metadata, NULL);
-	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
+	g_assert (tracker_xmp_apply_to_resource (resource, data));
 
-	g_assert (tracker_xmp_apply (preupdate, metadata, graph, where, "urn:uuid:test", data));
+	/* We just check a few of the properties at random. */
+	g_assert_cmpstr (tracker_resource_get_first_string (resource, "nie:description"), ==,
+	                 "Description of the content");
 
-	tracker_sparql_builder_insert_close (metadata);
+	artist = tracker_resource_get_first_relation (resource, "nco:contributor");
+	g_assert_cmpstr (tracker_resource_get_first_string(artist, "nco:fullname"), ==,
+	                 "Artist in exif");
 
-	/* This is the only way to check the sparql is kinda correct */
-
-	/* Disabled this for 0.8.5. It was reporting 41 not 50, this
-	 * test is not credible and I can't see how it can be trusted
-	 * as a method for making sure the query is correct.
-	 *
-	 * -mr
-	 */
-
-	/* g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50); */
-        g_string_free (where, TRUE);
-        g_object_unref (metadata);
-        g_object_unref (preupdate);
-
-        tracker_xmp_free (data);
+	tracker_xmp_free (data);
 }
 
 static void
 test_xmp_apply_location (void)
 {
 	TrackerXmpData data = { 0, };
-	TrackerSparqlBuilder *metadata, *preupdate;
-	GString *where;
-	const gchar *graph = NULL;
+	TrackerResource *resource, *location, *address;
 
 	data.address = g_strdup ("Itamerenkatu 11-13");
 	data.city = g_strdup ("Helsinki");
 	data.state = g_strdup ("N/A");
 	data.country = g_strdup ("Findland");
 
-	metadata = tracker_sparql_builder_new_update ();
-	preupdate = tracker_sparql_builder_new_update ();
-	where = g_string_new ("");
+	resource = tracker_resource_new ("urn:uuid:test");
 
-	tracker_sparql_builder_insert_open (metadata, NULL);
-	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
+	g_assert (tracker_xmp_apply_to_resource (resource, &data));
 
-	g_assert (tracker_xmp_apply (preupdate, metadata, graph, where, "urn:uuid:test", &data));
+	location = tracker_resource_get_first_relation (resource, "slo:location");
+	address = tracker_resource_get_first_relation (location, "slo:postalAddress");
 
-	tracker_sparql_builder_insert_close (metadata);
-
-	/* This is the only way to check the sparql is kinda correct */
-
-	/* The builder just contains this:
-	   <urn:uuid:test> slo:location [ a slo:GeoLocation ;
-	   slo:postalAddress <urn:uuid:c50c4305-c617-4188-b3d3-42ba2291d0de>] .
-	   } */
-
-	g_assert_cmpint (tracker_sparql_builder_get_length (metadata), >=, 3);
+	g_assert_cmpstr (tracker_resource_get_first_string (address, "nco:streetAddress"), ==, data.address);
+	g_assert_cmpstr (tracker_resource_get_first_string (address, "nco:region"), ==, data.state);
+	g_assert_cmpstr (tracker_resource_get_first_string (address, "nco:locality"), ==, data.city);
+	g_assert_cmpstr (tracker_resource_get_first_string (address, "nco:country"), ==, data.country);
 }
 
-
-/*
- * The generated sparql cannot be validated automatically.
- * Debug function to print it in the terminal.
- */
-static void
-debug_print_sparql (TrackerXmpData *data)
-{
-	/* To print the sparql */
-	TrackerSparqlBuilder *metadata, *preupdate;
-	GString *where;
-	const gchar *graph = NULL;
-
-	metadata = tracker_sparql_builder_new_update ();
-	preupdate = tracker_sparql_builder_new_update ();
-	where = g_string_new ("");
-
-	tracker_sparql_builder_insert_open (metadata, NULL);
-	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
-
-	tracker_xmp_apply (preupdate, metadata, graph, where, "urn:uuid:test", data);
-
-	tracker_sparql_builder_insert_close (metadata);
-
-	g_print ("%s\n", tracker_sparql_builder_get_result (preupdate));
-	g_print ("%s\n", tracker_sparql_builder_get_result (metadata));
-
-	g_object_unref (metadata);
-	g_object_unref (preupdate);
-	g_string_free (where, TRUE);
-}
 
 static void
 test_xmp_regions (void)
@@ -425,10 +370,6 @@ test_xmp_regions (void)
 	g_assert_cmpstr (region->height, ==, "0.09");
 	g_assert_cmpstr (region->type, ==, "Face");
 	g_assert_cmpstr (region->title, ==, "John Doe");
-
-	if (0) {
-		debug_print_sparql (data);
-	}
 
 	tracker_xmp_free (data);
 }
@@ -476,8 +417,6 @@ test_xmp_regions_quill (void)
 	g_assert_cmpstr (region->link_class, ==, "nco:PersonContact");
 	g_assert_cmpstr (region->link_uri, ==, "urn:uuid:1");
 
-	//debug_print_sparql (data);
-
 	tracker_xmp_free (data);
 }
 
@@ -521,8 +460,6 @@ test_xmp_regions_ns_prefix (void)
 	g_assert_cmpstr (region->type, ==, "Face");
 	g_assert_cmpstr (region->title, ==, "Average Joe");
 
-	//debug_print_sparql (data);
-
 	tracker_xmp_free (data);
 }
 
@@ -556,8 +493,6 @@ test_xmp_regions_nb282393 ()
 	g_assert_cmpstr (region->width, ==, "0.586667");
 	g_assert_cmpstr (region->height, ==, "0.440000");
 	g_assert_cmpstr (region->title, ==, " ");
-
-	//debug_print_sparql (data);
 
 	tracker_xmp_free (data);
 }
@@ -595,8 +530,6 @@ test_xmp_regions_nb282393_2 ()
 
         g_assert_cmpstr (region->link_class, ==, "nco:PersonContact");
         g_assert_cmpstr (region->link_uri, ==, "urn:uuid:840a3c05-6cc6-48a1-bb56-fc50fae3345a");
-
-	//debug_print_sparql (data);
 
 	tracker_xmp_free (data);
 }

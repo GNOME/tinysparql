@@ -72,6 +72,7 @@ static gint verbosity = -1;
 static gchar *filename;
 static gchar *mime_type;
 static gchar *force_module;
+static gchar *output_format_name;
 static gboolean version;
 
 static TrackerConfig *config;
@@ -94,6 +95,9 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_STRING, &force_module,
 	  N_("Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"),
 	  N_("MODULE") },
+	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format_name,
+	  N_("Output results format: 'sparql', or 'turtle'"),
+	  N_("FORMAT") },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
@@ -241,6 +245,9 @@ run_standalone (TrackerConfig *config)
 	TrackerExtract *object;
 	GFile *file;
 	gchar *uri;
+	GEnumClass *enum_class;
+	GEnumValue *enum_value;
+	TrackerSerializationFormat output_format;
 
 	/* Set log handler for library messages */
 	g_log_set_default_handler (log_handler, NULL);
@@ -249,6 +256,20 @@ run_standalone (TrackerConfig *config)
 	if (verbosity == -1) {
 		verbosity = 3;
 	}
+
+	if (!output_format_name) {
+		output_format_name = "turtle";
+	}
+
+	/* Look up the output format by name */
+	enum_class = g_type_class_ref (TRACKER_TYPE_SERIALIZATION_FORMAT);
+	enum_value = g_enum_get_value_by_nick (enum_class, output_format_name);
+	g_type_class_unref (enum_class);
+	if (!enum_value) {
+		g_printerr (N_("Unsupported serialization format '%s'\n"), output_format_name);
+		return EXIT_FAILURE;
+	}
+	output_format = enum_value->value;
 
 	tracker_locale_init ();
 
@@ -268,7 +289,7 @@ run_standalone (TrackerConfig *config)
 		return EXIT_FAILURE;
 	}
 
-	tracker_extract_get_metadata_by_cmdline (object, uri, mime_type);
+	tracker_extract_get_metadata_by_cmdline (object, uri, mime_type, output_format);
 
 	g_object_unref (object);
 	g_object_unref (file);

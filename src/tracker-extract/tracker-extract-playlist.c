@@ -46,7 +46,7 @@ typedef struct {
 	guint32 track_counter;
 	gint64 total_time;
 	gchar *title;
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 } PlaylistMetadata;
 
 static void
@@ -69,6 +69,7 @@ entry_parsed (TotemPlParser *parser,
               GHashTable    *to_metadata,
               gpointer       user_data)
 {
+	TrackerResource *entry;
 	PlaylistMetadata *data;
 
 	data = (PlaylistMetadata *) user_data;
@@ -80,22 +81,19 @@ entry_parsed (TotemPlParser *parser,
 		return;
 	}
 
+	entry = tracker_resource_new (NULL);
+	tracker_resource_set_uri (entry, "rdf:type", "nfo:MediaFileListEntry");
+	tracker_resource_set_string (entry, "nfo:entryUrl", to_uri);
+	tracker_resource_set_int (entry, "nfo:listPosition", data->track_counter);
+
 	if (data->track_counter == 1) {
-		/* first track, predicate needed */
-		tracker_sparql_builder_predicate (data->metadata, "nfo:hasMediaFileListEntry");
+		/* This causes all existing relations to be deleted, when we serialize
+		 * to SPARQL. */
+		tracker_resource_set_relation (data->metadata, "nfo:hasMediaFileListEntry", entry);
+	} else {
+		tracker_resource_add_relation (data->metadata, "nfo:hasMediaFileListEntry", entry);
 	}
-
-	tracker_sparql_builder_object_blank_open (data->metadata);
-	tracker_sparql_builder_predicate (data->metadata, "a");
-	tracker_sparql_builder_object (data->metadata, "nfo:MediaFileListEntry");
-
-	tracker_sparql_builder_predicate (data->metadata, "nfo:entryUrl");
-	tracker_sparql_builder_object_unvalidated (data->metadata, to_uri);
-
-	tracker_sparql_builder_predicate (data->metadata, "nfo:listPosition");
-	tracker_sparql_builder_object_int64 (data->metadata, (gint64) data->track_counter);
-
-	tracker_sparql_builder_object_blank_close (data->metadata);
+	g_object_unref (entry);
 
 	if (to_metadata) {
 		gchar *duration;
@@ -120,7 +118,7 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
 	TotemPlParser *pl;
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	PlaylistMetadata data;
 	GFile *file;
 	gchar *uri;
@@ -128,41 +126,37 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	pl = totem_pl_parser_new ();
 	file = tracker_extract_info_get_file (info);
 	uri = g_file_get_uri (file);
-	metadata = tracker_extract_info_get_metadata_builder (info);
+
+	metadata = data.metadata = tracker_resource_new (NULL);
 
 	data.track_counter = PLAYLIST_DEFAULT_NO_TRACKS;
 	data.total_time =  PLAYLIST_DEFAULT_DURATION;
 	data.title = NULL;
-	data.metadata = metadata;
 
 	g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
 
 	g_signal_connect (G_OBJECT (pl), "playlist-started", G_CALLBACK (playlist_started), &data);
 	g_signal_connect (G_OBJECT (pl), "entry-parsed", G_CALLBACK (entry_parsed), &data);
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nmm:Playlist");
-	tracker_sparql_builder_object (metadata, "nfo:MediaList");
+	tracker_resource_add_uri (metadata, "rdf:type", "nmm:Playlist");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:MediaList");
 
 	if (totem_pl_parser_parse (pl, uri, FALSE) == TOTEM_PL_PARSER_RESULT_SUCCESS) {
 		if (data.title != NULL) {
 			g_message ("Playlist title:'%s'", data.title);
-			tracker_sparql_builder_predicate (metadata, "nie:title");
-			tracker_sparql_builder_object_unvalidated (metadata, data.title);
+			tracker_resource_set_string (metadata, "nie:title", data.title);
 			g_free (data.title);
 		} else {
 			g_message ("Playlist has no title, attempting to get one from filename");
-			tracker_guarantee_title_from_file (metadata, "nie:title", NULL, uri, NULL);
+			tracker_guarantee_resource_title_from_file (metadata, "nie:title", NULL, uri, NULL);
 		}
 
 		if (data.total_time > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:listDuration");
-			tracker_sparql_builder_object_int64 (metadata, data.total_time);
+			tracker_resource_set_int64 (metadata, "nfo:listDuration", data.total_time);
 		}
 
 		if (data.track_counter > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:entryCounter");
-			tracker_sparql_builder_object_int64 (metadata, data.track_counter);
+			tracker_resource_set_int64 (metadata, "nfo:entryCounter", data.track_counter);
 		}
 	} else {
 		g_warning ("Playlist could not be parsed, no error given");
@@ -170,6 +164,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	g_object_unref (pl);
 	g_free (uri);
+
+	tracker_extract_info_set_resource (info, metadata);
+	g_object_unref (metadata);
 
 	return TRUE;
 }

@@ -171,16 +171,11 @@ TrackerXmpData *tracker_xmp_new           (const gchar          *buffer,
                                            gsize                 len,
                                            const gchar          *uri);
 void            tracker_xmp_free          (TrackerXmpData       *data);
-gboolean        tracker_xmp_apply         (TrackerSparqlBuilder *preupdate,
-                                           TrackerSparqlBuilder *metadata,
-                                           const gchar          *graph,
-                                           GString              *where,
-                                           const gchar          *uri,
-                                           TrackerXmpData       *data);
-gboolean        tracker_xmp_apply_regions (TrackerSparqlBuilder *preupdate,
-                                           TrackerSparqlBuilder *metadata,
-                                           const gchar          *graph,
-                                           TrackerXmpData       *data);
+
+gboolean        tracker_xmp_apply_to_resource         (TrackerResource *resource,
+                                                       TrackerXmpData  *data);
+gboolean        tracker_xmp_apply_regions_to_resource (TrackerResource *resource,
+                                                       TrackerXmpData  *data);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
@@ -188,6 +183,7 @@ gboolean         tracker_xmp_read  (const gchar          *buffer,
                                     size_t                len,
                                     const gchar          *uri,
                                     TrackerXmpData       *data) G_GNUC_DEPRECATED;
+
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
 G_END_DECLS

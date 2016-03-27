@@ -146,60 +146,34 @@ decorator_save_info (TrackerSparqlBuilder    *sparql,
                      TrackerDecoratorInfo    *decorator_info,
                      TrackerExtractInfo      *info)
 {
-	const gchar *urn, *result, *where;
-	TrackerSparqlBuilder *builder;
-	gchar *str;
+	const gchar *urn;
+	TrackerResource *resource = NULL;
+	gchar *sparql_command;
+
+	g_set_object (&resource, tracker_extract_info_get_resource (info));
+
+	if (resource == NULL) {
+		g_message ("Extract module returned no resource for %s",
+		           tracker_decorator_info_get_url (info));
+		/* We must still insert something into the store so that the correct
+		 * nie:dataSource triple get inserted. Otherwise, tracker-extract will
+		 * try to re-extract this file every time it starts.
+		 */
+		resource = tracker_resource_new (NULL);
+	}
 
 	urn = tracker_decorator_info_get_urn (decorator_info);
 
-	tracker_sparql_builder_insert_open (sparql, NULL);
-	tracker_sparql_builder_graph_open (sparql, TRACKER_OWN_GRAPH_URN);
+	tracker_resource_set_identifier (resource, urn);
+	tracker_resource_set_uri (resource, "nie:dataSource",
+	        tracker_decorator_get_data_source (TRACKER_DECORATOR (decorator)));
 
-	/* Set tracker-extract data source */
-	tracker_sparql_builder_subject_iri (sparql, urn);
-	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-	tracker_sparql_builder_object_iri (sparql,
-	                                   tracker_decorator_get_data_source (TRACKER_DECORATOR (decorator)));
+	sparql_command = tracker_resource_print_sparql_update (
+	        resource, NULL, TRACKER_OWN_GRAPH_URN);
+	tracker_sparql_builder_append (sparql, sparql_command);
 
-	builder = tracker_extract_info_get_metadata_builder (info);
-
-	if (tracker_sparql_builder_get_length (builder) > 0) {
-		/* Add extracted metadata */
-		str = g_strdup_printf ("<%s>", urn);
-		tracker_sparql_builder_append (sparql, str);
-		g_free (str);
-
-		result = tracker_sparql_builder_get_result (builder);
-		tracker_sparql_builder_append (sparql, result);
-
-		/* Close graph and insert statement, insert where clause */
-		tracker_sparql_builder_graph_close (sparql);
-		tracker_sparql_builder_insert_close (sparql);
-
-		where = tracker_extract_info_get_where_clause (info);
-
-		if (where && *where) {
-			tracker_sparql_builder_where_open (sparql);
-			tracker_sparql_builder_append (sparql, where);
-			tracker_sparql_builder_where_close (sparql);
-		}
-	} else {
-		tracker_sparql_builder_graph_close (sparql);
-		tracker_sparql_builder_insert_close (sparql);
-	}
-
-	/* Prepend/append pre/postupdate chunks */
-	builder = tracker_extract_info_get_preupdate_builder (info);
-	result = tracker_sparql_builder_get_result (builder);
-
-	if (result && *result)
-		tracker_sparql_builder_prepend (sparql, result);
-
-	builder = tracker_extract_info_get_postupdate_builder (info);
-	result = tracker_sparql_builder_get_result (builder);
-
-	if (result && *result)
-		tracker_sparql_builder_append (sparql, result);
+	g_object_unref (resource);
+	g_free (sparql_command);
 }
 
 static void
@@ -310,8 +284,6 @@ decorator_next_item_cb (TrackerDecorator *decorator,
 	tracker_extract_file (priv->extractor,
 	                      tracker_decorator_info_get_url (info),
 	                      tracker_decorator_info_get_mimetype (info),
-	                      TRACKER_OWN_GRAPH_URN,
-	                      tracker_decorator_info_get_urn (info),
 	                      g_task_get_cancellable (task),
 	                      (GAsyncReadyCallback) get_metadata_cb, data);
 }

@@ -55,7 +55,7 @@ typedef enum {
 } ODTFileType;
 
 typedef struct {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	ODTTagType current;
 	const gchar *uri;
 	guint has_title           : 1;
@@ -110,13 +110,13 @@ static void xml_text_handler_content           (GMarkupParseContext   *context,
 static void extract_oasis_content              (const gchar           *uri,
                                                 gulong                 total_bytes,
                                                 ODTFileType            file_type,
-                                                TrackerSparqlBuilder  *metadata);
+                                                TrackerResource       *metadata);
 
 static void
-extract_oasis_content (const gchar          *uri,
-                       gulong                total_bytes,
-                       ODTFileType           file_type,
-                       TrackerSparqlBuilder *metadata)
+extract_oasis_content (const gchar     *uri,
+                       gulong           total_bytes,
+                       ODTFileType      file_type,
+                       TrackerResource *metadata)
 {
 	gchar *content = NULL;
 	ODTContentParseInfo info;
@@ -150,8 +150,7 @@ extract_oasis_content (const gchar          *uri,
 
 	if (!error || g_error_matches (error, maximum_size_error_quark, 0)) {
 		content = g_string_free (info.content, FALSE);
-		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (metadata, content);
+		tracker_resource_set_string (metadata, "nie:plainTextContent", content);
 	} else {
 		g_warning ("Got error parsing XML file: %s\n", error->message);
 		g_string_free (info.content, TRUE);
@@ -168,7 +167,7 @@ extract_oasis_content (const gchar          *uri,
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	TrackerConfig *config;
 	ODTMetadataParseInfo info = { 0 };
 	ODTFileType file_type;
@@ -188,7 +187,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
 	}
 
-	metadata = tracker_extract_info_get_metadata_builder (extract_info);
+	metadata = tracker_resource_new (NULL);
 	mime_used = tracker_extract_info_get_mimetype (extract_info);
 
 	file = tracker_extract_info_get_file (extract_info);
@@ -201,8 +200,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 
 	/* First, parse metadata */
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:PaginatedTextDocument");
 
 	/* Create parse info */
 	info.metadata = metadata;
@@ -238,6 +236,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 
 	g_free (uri);
 
+	tracker_extract_info_set_resource (extract_info, metadata);
+	g_object_unref (metadata);
+
 	return TRUE;
 }
 
@@ -262,7 +263,7 @@ xml_start_element_handler_metadata (GMarkupParseContext  *context,
 	} else if (g_ascii_strcasecmp (element_name, "dc:description") == 0) {
 		data->current = ODT_TAG_TYPE_COMMENTS;
 	} else if (g_ascii_strcasecmp (element_name, "meta:document-statistic") == 0) {
-		TrackerSparqlBuilder *metadata;
+		TrackerResource *metadata;
 		const gchar **a, **v;
 
 		metadata = data->metadata;
@@ -274,8 +275,7 @@ xml_start_element_handler_metadata (GMarkupParseContext  *context,
 					           *v, data->uri);
 				} else {
 					data->has_word_count = TRUE;
-					tracker_sparql_builder_predicate (metadata, "nfo:wordCount");
-					tracker_sparql_builder_object_unvalidated (metadata, *v);
+					tracker_resource_set_string (metadata, "nfo:wordCount", *v);
 				}
 			} else if (g_ascii_strcasecmp (*a, "meta:page-count") == 0) {
 				if (data->has_page_count) {
@@ -283,8 +283,7 @@ xml_start_element_handler_metadata (GMarkupParseContext  *context,
 					           *v, data->uri);
 				} else {
 					data->has_page_count = TRUE;
-					tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
-					tracker_sparql_builder_object_unvalidated (metadata, *v);
+					tracker_resource_set_string (metadata, "nfo:pageCount", *v);
 				}
 			}
 		}
@@ -316,7 +315,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
                            GError              **error)
 {
 	ODTMetadataParseInfo *data;
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	gchar *date;
 
 	data = user_data;
@@ -334,8 +333,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			           text, data->uri);
 		} else {
 			data->has_title = TRUE;
-			tracker_sparql_builder_predicate (metadata, "nie:title");
-			tracker_sparql_builder_object_unvalidated (metadata, text);
+			tracker_resource_set_string (metadata, "nie:title", text);
 		}
 		break;
 
@@ -345,8 +343,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			           text, data->uri);
 		} else {
 			data->has_subject = TRUE;
-			tracker_sparql_builder_predicate (metadata, "nie:subject");
-			tracker_sparql_builder_object_unvalidated (metadata, text);
+			tracker_resource_set_string (metadata, "nie:subject", text);
 		}
 		break;
 
@@ -355,16 +352,12 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			g_warning ("Avoiding additional publisher (%s) in OASIS document '%s'",
 			           text, data->uri);
 		} else {
+			TrackerResource *publisher = tracker_extract_new_contact (text);
+
 			data->has_publisher = TRUE;
-			tracker_sparql_builder_predicate (metadata, "nco:publisher");
+			tracker_resource_set_relation (metadata, "nco:publisher", publisher);
 
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Contact");
-
-			tracker_sparql_builder_predicate (metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (metadata, text);
-			tracker_sparql_builder_object_blank_close (metadata);
+			g_object_unref (publisher);
 		}
 		break;
 
@@ -377,8 +370,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 		for (keyw = strtok_r (keywords, ",; ", &lasts);
 		     keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
-			tracker_sparql_builder_predicate (metadata, "nie:keyword");
-			tracker_sparql_builder_object_unvalidated (metadata, keyw);
+			tracker_resource_add_string (metadata, "nie:keyword", keyw);
 		}
 
 		g_free (keywords);
@@ -392,8 +384,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			           text, data->uri);
 		} else {
 			data->has_comment = TRUE;
-			tracker_sparql_builder_predicate (metadata, "nie:comment");
-			tracker_sparql_builder_object_unvalidated (metadata, text);
+			tracker_resource_set_string (metadata, "nie:comment", text);
 		}
 		break;
 
@@ -405,8 +396,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			date = tracker_date_guess (text);
 			if (date) {
 				data->has_content_created = TRUE;
-				tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-				tracker_sparql_builder_object_unvalidated (metadata, date);
+				tracker_resource_set_string (metadata, "nie:contentCreated", date);
 				g_free (date);
 			} else {
 				g_warning ("Could not parse creation time (%s) in OASIS document '%s'",
@@ -421,8 +411,7 @@ xml_text_handler_metadata (GMarkupParseContext  *context,
 			           text, data->uri);
 		} else {
 			data->has_generator = TRUE;
-			tracker_sparql_builder_predicate (metadata, "nie:generator");
-			tracker_sparql_builder_object_unvalidated (metadata, text);
+			tracker_resource_set_string (metadata, "nie:generator", text);
 		}
 		break;
 

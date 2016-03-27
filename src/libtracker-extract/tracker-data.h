@@ -24,6 +24,7 @@
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
+#include <libtracker-sparql/tracker-resource.h>
 #include <libtracker-sparql/tracker-sparql.h>
 #include "tracker-module-manager.h"
 #include "tracker-extract-info.h"
@@ -31,61 +32,17 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:tracker-data
- * @title: How to use libtracker-extract
- * @short_description: The essentials by example
- * @stability: Stable
+ * SECTION:tracker-extract
+ * @title: libtracker-extract
+ * @stability: Unstable
  * @include: libtracker-extract/tracker-extract.h
  *
- * The libtracker-extract library is the foundation for Tracker
- * metadata extraction of embedded data in files.
+ * The libtracker-extract library is an internal, private library for Tracker
+ * metadata extraction modules. Third party applications should not link
+ * against libtracker-extract, because its API may change at any time.
  *
- * Tracker comes with extractors written for the most common file
- * types (like MP3, JPEG, PNG, etc.), however, for more special cases,
- * 3rd party applications may want to write their own plugin to
- * extract their own file formats. This documentation describes how to
- * do that.
- *
- * <example>
- * <title>Basic extractor example</title>
- * An example of how to write an extractor to retrieve PNG embedded
- * metadata.
- * <programlisting>
- *  G_MODULE_EXPORT gboolean
- *  tracker_extract_get_metadata (TrackerExtractInfo *info)
- *  {
- *          GFile *file;
- *          TrackerSparqlBuilder *metadata;
- *          gint height, width;
- *
- *          file = tracker_extract_info_get_file (info);
- *          metadata = tracker_extract_info_get_metadata_builder (info);
- *
- *          /&ast; Do data extraction. &ast;/
- *          height = ...
- *          width = ...
- *
- *          /&ast; Insert data into TrackerSparqlBuilder object. &ast;/
- *          tracker_sparql_builder_predicate (metadata, "a");
- *          tracker_sparql_builder_object (metadata, "nfo:Image");
- *          tracker_sparql_builder_object (metadata, "nmm:Photo");
- *
- *          tracker_sparql_builder_predicate (metadata, "nfo:width");
- *          tracker_sparql_builder_object_int64 (metadata, width);
- *
- *          tracker_sparql_builder_predicate (metadata, "nfo:height");
- *          tracker_sparql_builder_object_int64 (metadata, height);
- *
- *          /&ast; Were we successful or not? &ast;/
- *          return TRUE;
- *  }
- * </programlisting>
- * </example>
- *
- * NOTE: This example has changed subtly since 0.10. For details see
- * tracker_extract_get_metadata().
- *
- * Since: 0.12
+ * If you want to insert metadata into the Tracker store from a 3rd party
+ * application, look at the TrackerDecorator class from libtracker-miner.
  */
 
 gboolean tracker_extract_module_init     (TrackerModuleThreadAwareness  *thread_awareness_ret,

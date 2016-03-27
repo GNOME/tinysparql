@@ -213,7 +213,7 @@ tracker_resource_new (const char *identifier)
 {
 	TrackerResource *resource;
 
-	resource = g_object_new (TRACKER_TYPE_RESOURCE, NULL,
+	resource = g_object_new (TRACKER_TYPE_RESOURCE,
 	                         "identifier", identifier,
 	                         NULL);
 
@@ -706,6 +706,12 @@ typedef struct {
 
 void generate_turtle (TrackerResource *resource, GenerateTurtleData *data);
 
+gboolean
+is_blank_node (const char *uri_or_curie_or_blank)
+{
+	return (strncmp(uri_or_curie_or_blank, "_:", 2) == 0);
+}
+
 void
 generate_nested_turtle_resource (TrackerResource    *resource,
                                  GenerateTurtleData *data)
@@ -749,50 +755,123 @@ generate_turtle_resources_foreach (gpointer key,
 }
 
 static void
-generate_turtle_value (const GValue       *value,
-                       GenerateTurtleData *data)
+generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
+                           GString                 *string,
+                           TrackerNamespaceManager *all_namespaces,
+                           TrackerNamespaceManager *our_namespaces)
+{
+	/* The tracker_resource_set_uri() function accepts URIs
+	 * (such as http://example.com/) and compact URIs (such as nie:DataObject),
+	 * and blank node identifiers (_:0). The tracker_resource_set_identifier()
+	 * function works the same.
+	 *
+	 * We could expand all CURIEs, but the generated Turtle or SPARQL will be
+	 * clearer if we leave them be. We still need to attempt to expand them
+	 * internally in order to know whether they need <> brackets around them.
+	 */
+	if (is_blank_node (uri_or_curie_or_blank)) {
+		g_string_append (string, uri_or_curie_or_blank);
+	} else {
+		char *prefix = g_uri_parse_scheme (uri_or_curie_or_blank);
+
+		if (prefix && tracker_namespace_manager_has_prefix (all_namespaces, prefix)) {
+			/* It's a compact URI and we know the prefix */
+			if (our_namespaces != NULL) {
+				maybe_intern_prefix_of_compact_uri (all_namespaces, our_namespaces, uri_or_curie_or_blank);
+			};
+
+			g_string_append (string, uri_or_curie_or_blank);
+		} else {
+			/* It's a full URI (or something invalid, but we can't really tell that here) */
+			g_string_append_printf (string, "<%s>", uri_or_curie_or_blank);
+		}
+	}
+}
+
+static void
+generate_turtle_value (const GValue            *value,
+                       GString                 *string,
+                       TrackerNamespaceManager *all_namespaces,
+                       TrackerNamespaceManager *our_namespaces)
 {
 	GType type = G_VALUE_TYPE (value);
 	if (type == TRACKER_TYPE_URI) {
-		const char *uri = g_value_get_string (value);
-		maybe_intern_prefix_of_compact_uri (data->all_namespaces, data->our_namespaces, uri);
-		g_string_append_printf(data->string, "%s", uri);
+		generate_turtle_uri_value (g_value_get_string (value),
+		                           string,
+		                           all_namespaces,
+		                           our_namespaces);
 	} else if (type == TRACKER_TYPE_RESOURCE) {
 		TrackerResource *relation = TRACKER_RESOURCE (g_value_get_object (value));
-		g_string_append_printf(data->string, "<%s>", tracker_resource_get_identifier (relation));
+		generate_turtle_uri_value (tracker_resource_get_identifier (relation),
+		                           string,
+		                           all_namespaces,
+		                           our_namespaces);
 	} else if (type == G_TYPE_STRING) {
-		g_string_append_printf(data->string, "\"%s\"", g_value_get_string (value));
+		char *escaped = tracker_sparql_escape_string (g_value_get_string (value));
+		g_string_append_printf(string, "\"%s\"", escaped);
+		g_free (escaped);
+	} else if (type == G_TYPE_DATE) {
+		char date_string[256];
+		g_date_strftime (date_string, 256,
+		                 "\"%Y-%m-%d%z\"^^<http://www.w3.org/2001/XMLSchema#date>",
+		                 g_value_get_boxed (value));
+		g_string_append (string, date_string);
+	} else if (type == G_TYPE_DATE_TIME) {
+		char *datetime_string;
+		datetime_string = g_date_time_format (g_value_get_boxed (value),
+		                                      "\"%Y-%m-%dT%H:%M:%s%z\"^^<http://www.w3.org/2001/XMLSchema#dateTime>");
+		g_string_append (string, datetime_string);
+		g_free (datetime_string);
+	} else if (type == G_TYPE_DOUBLE || type == G_TYPE_FLOAT) {
+		/* We can't use GValue transformations here; they're locale-dependent. */
+		char buffer[256];
+		g_ascii_dtostr (buffer, 255, g_value_get_double (value));
+		g_string_append (string, buffer);
 	} else {
 		GValue str_value = G_VALUE_INIT;
 		g_value_init (&str_value, G_TYPE_STRING);
 		if (g_value_transform (value, &str_value)) {
-			g_string_append (data->string, g_value_get_string (&str_value));
+			g_string_append (string, g_value_get_string (&str_value));
 		} else {
-			g_warning ("Cannot serialize value of type %s to Turtle", G_VALUE_TYPE_NAME (value));
+			g_warning ("Cannot serialize value of type %s to Turtle/SPARQL",
+			            G_VALUE_TYPE_NAME (value));
 		}
 		g_value_unset (&str_value);
 	}
 }
 
 void
-generate_turtle_property (const char         *property,
-                          const GValue       *value,
-                          GenerateTurtleData *data)
+generate_turtle_property (const char              *property,
+                          const GValue            *value,
+                          GString                 *string,
+                          TrackerNamespaceManager *all_namespaces,
+                          TrackerNamespaceManager *our_namespaces)
 {
-	g_string_append (data->string, property);
-	g_string_append (data->string, " ");
+	if (strcmp (property, TRACKER_PREFIX_RDF "type") == 0 || strcmp (property, "rdf:type") == 0) {
+		g_string_append (string, "a");
+	} else {
+		g_string_append (string, property);
+	}
+
+	g_string_append (string, " ");
 	if (G_VALUE_HOLDS (value, G_TYPE_PTR_ARRAY)) {
 		int i;
 		GPtrArray *array = g_value_get_boxed (value);
 		if (array->len > 0) {
-			generate_turtle_value (g_ptr_array_index (array, 0), data);
+			generate_turtle_value (g_ptr_array_index (array, 0),
+			                       string,
+			                       all_namespaces,
+			                       our_namespaces);
 			for (i = 1; i < array->len; i++) {
-				g_string_append (data->string, " , ");
-				generate_turtle_value (g_ptr_array_index (array, i), data);
+				g_string_append (string, " , ");
+				generate_turtle_value (g_ptr_array_index (array, i),
+				                       string,
+				                       all_namespaces,
+				                       our_namespaces);
 			}
 		}
 	} else {
-		generate_turtle_value (value, data);
+		generate_turtle_value (value, string, all_namespaces, our_namespaces);
 	}
 }
 
@@ -809,12 +888,14 @@ generate_turtle (TrackerResource    *resource,
 	/* First we recurse to any relations that aren't already in the done list */
 	g_hash_table_foreach (priv->properties, generate_turtle_resources_foreach, data);
 
-	g_string_append_printf (data->string, "<%s> ", priv->identifier);
+	generate_turtle_uri_value (tracker_resource_get_identifier(resource),
+	        data->string, data->all_namespaces, data->our_namespaces);
+	g_string_append (data->string, " ");
 
 	g_hash_table_iter_init (&iter, priv->properties);
 	if (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value))
 		while (TRUE) {
-			generate_turtle_property (property, value, data);
+			generate_turtle_property (property, value, data->string, data->all_namespaces, data->our_namespaces);
 
 			maybe_intern_prefix_of_compact_uri (data->all_namespaces, data->our_namespaces, property);
 
@@ -851,13 +932,20 @@ char *
 tracker_resource_print_turtle (TrackerResource         *self,
                                TrackerNamespaceManager *namespaces)
 {
+	TrackerResourcePrivate *priv;
 	GenerateTurtleData context;
 	char *prefixes;
 
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (self), "");
 
+	priv = GET_PRIVATE (self);
+
 	if (namespaces == NULL) {
 		namespaces = tracker_namespace_manager_get_default ();
+	}
+
+	if (g_hash_table_size (priv->properties) == 0) {
+		return g_strdup("");
 	}
 
 	context.all_namespaces = namespaces;
@@ -883,29 +971,47 @@ tracker_resource_print_turtle (TrackerResource         *self,
 
 typedef struct {
 	TrackerNamespaceManager *namespaces;
-	TrackerSparqlBuilder *builder;
+	GString *string;
 	const char *graph_id;
 	GList *done_list;
-	GHashTable *overwrite_flags;
 } GenerateSparqlData;
 
-void generate_sparql_update (TrackerResource *resource, GenerateSparqlData *data);
+static void generate_sparql_deletes (TrackerResource *resource, GenerateSparqlData *data);
+static void generate_sparql_insert_pattern (TrackerResource *resource, GenerateSparqlData *data);
 
 static void
-generate_sparql_relations_foreach (gpointer key,
-                                   gpointer value_ptr,
-                                   gpointer user_data)
+generate_sparql_relation_deletes_foreach (gpointer key,
+                                          gpointer value_ptr,
+                                          gpointer user_data)
 {
 	const char *property = key;
 	const GValue *value = value_ptr;
 	GenerateSparqlData *data = user_data;
-	GError *error = NULL;
 
 	if (G_VALUE_HOLDS (value, TRACKER_TYPE_RESOURCE)) {
 		TrackerResource *relation = g_value_get_object (value);
 
 		if (g_list_find_custom (data->done_list, relation, (GCompareFunc) tracker_resource_compare) == NULL) {
-			generate_sparql_update (relation, data);
+			generate_sparql_deletes (relation, data);
+			data->done_list = g_list_prepend (data->done_list, relation);
+		}
+	}
+}
+
+static void
+generate_sparql_relation_inserts_foreach (gpointer key,
+                                          gpointer value_ptr,
+                                          gpointer user_data)
+{
+	const char *property = key;
+	const GValue *value = value_ptr;
+	GenerateSparqlData *data = user_data;
+
+	if (G_VALUE_HOLDS (value, TRACKER_TYPE_RESOURCE)) {
+		TrackerResource *relation = g_value_get_object (value);
+
+		if (g_list_find_custom (data->done_list, relation, (GCompareFunc) tracker_resource_compare) == NULL) {
+			generate_sparql_insert_pattern (relation, data);
 			data->done_list = g_list_prepend (data->done_list, relation);
 		}
 	}
@@ -919,219 +1025,119 @@ variable_name_for_property (const char *property) {
 }
 
 static void
-generate_sparql_deletes_foreach (gpointer key,
-                                 gpointer value_ptr,
-                                 gpointer user_data)
+generate_sparql_delete_pattern (TrackerResource     *resource,
+                                GHashTable          *overwrite_flags,
+                                GenerateSparqlData  *data)
 {
-	const char *property = key;
-	const GValue *value = value_ptr;
-	GenerateSparqlData *data = user_data;
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+	GHashTableIter iter;
+	const char *property;
+	const GValue *value;
+	gboolean had_property;
 
-	/* Whether to generate the DELETE is based on whether set_value was ever
-	 * called for this property. That's tracked in a hash table.
-	 */
-	if (g_hash_table_lookup (data->overwrite_flags, property)) {
-		char *variable_name = variable_name_for_property (property);
-		tracker_sparql_builder_predicate (data->builder, property);
-		tracker_sparql_builder_object_variable (data->builder, variable_name);
-		g_free (variable_name);
-	}
-}
-
-static void
-generate_sparql_uri_value (const char         *uri_or_curie,
-                           GenerateSparqlData *data)
-{
-	/* The tracker_resource_set_uri() function accepts both URIs
-	 * (such as http://example.com/) and compact URIs (such as nie:DataObject).
-	 * We could expand them here, but since the tracker-store can understand them
-	 * as-is we leave them be and the generated SPARQL is clearer as a result.
-	 * We still need to attempt to expand them in order to know whether they need
-	 * <> brackets around them.
-	 */
-	char *prefix = g_uri_parse_scheme (uri_or_curie);
-
-	if (prefix && tracker_namespace_manager_has_prefix (data->namespaces, prefix)) {
-		/* It's a compact URI and we know the prefix */
-		tracker_sparql_builder_object (data->builder, uri_or_curie);
-	} else {
-		/* It's a full URI (or something invalid, but we can't really tell that here) */
-		tracker_sparql_builder_object_iri (data->builder, uri_or_curie);
-	}
-}
-
-static void
-generate_sparql_value (const GValue       *value,
-                       GenerateSparqlData *data)
-{
-	TrackerSparqlBuilder *builder = data->builder;
-	GType type = G_VALUE_TYPE (value);
-	if (type == G_TYPE_BOOLEAN) {
-		tracker_sparql_builder_object_boolean (builder, g_value_get_boolean (value));
-	} else if (type == G_TYPE_DATE) {
-		/* tracker_sparql_builder_object_date() exists, but it requires a
-		 * time_t, and GDate and GDateTime don't provide those conveniently.
-		 */
-		char literal[256];
-		g_date_strftime (literal, 256,
-		                 "\"%Y-%m-%d%z\"^^<http://www.w3.org/2001/XMLSchema#date>",
-		                 g_value_get_boxed (value));
-		tracker_sparql_builder_object (builder, literal);
-	} else if (type == G_TYPE_DATE_TIME) {
-		char *literal;
-		literal = g_date_time_format (g_value_get_boxed (value),
-		                              "\"%Y-%m-%dT%H:%M:%s%z\"^^<http://www.w3.org/2001/XMLSchema#dateTime>");
-		tracker_sparql_builder_object (builder, literal);
-		g_free (literal);
-	} else if (type == G_TYPE_DOUBLE) {
-		tracker_sparql_builder_object_double (builder, g_value_get_double (value));
-	} else if (type == G_TYPE_FLOAT) {
-		tracker_sparql_builder_object_double (builder, g_value_get_float (value));
-	} else if (type == G_TYPE_CHAR) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_schar (value));
-	} else if (type == G_TYPE_INT) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_int (value));
-	} else if (type == G_TYPE_INT64) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_int64 (value));
-	} else if (type == G_TYPE_LONG) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_long (value));
-	} else if (type == G_TYPE_UCHAR) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_uchar (value));
-	} else if (type == G_TYPE_UINT) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_uint (value));
-	} else if (type == G_TYPE_ULONG) {
-		tracker_sparql_builder_object_int64 (builder, g_value_get_ulong (value));
-	} else if (type == G_TYPE_UINT64) {
-		g_warning ("Cannot serialize uint64 types to SPARQL. Use int64.");
-		tracker_sparql_builder_object (builder, "null");
-	} else if (type == G_TYPE_STRING) {
-		tracker_sparql_builder_object_string (builder, g_value_get_string (value));
-	} else if (type == TRACKER_TYPE_URI) {
-		generate_sparql_uri_value (g_value_get_string (value), data);
-	} else if (type == TRACKER_TYPE_RESOURCE) {
-		TrackerResource *relation = TRACKER_RESOURCE (g_value_get_object (value));
-		tracker_sparql_builder_object_iri (builder, tracker_resource_get_identifier (relation));
-	} else {
-		g_warning ("Cannot serialize value of type %s to SPARQL", G_VALUE_TYPE_NAME (value));
-		tracker_sparql_builder_object (builder, "null");
-	}
-}
-
-static void
-generate_sparql_inserts_foreach (gpointer key,
-                                 gpointer value_ptr,
-                                 gpointer user_data)
-{
-	const char *property = key;
-	const GValue *value = value_ptr;
-	GenerateSparqlData *data = user_data;
-	char *full_property;
-
-	full_property = tracker_namespace_manager_expand_uri (data->namespaces, property);
-
-	/* The caller should have already set rdf:type */
-	if (strcmp (full_property, TRACKER_PREFIX_RDF "type") == 0 || strcmp (property, "rdf:type") == 0) {
-		g_free (full_property);
-		return;
+	if (data->graph_id) {
+		g_string_append_printf (data->string, "GRAPH <%s> {\n", data->graph_id);
 	}
 
-	tracker_sparql_builder_predicate (data->builder, property);
+	g_string_append (data->string, "  ");
+	generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
+	g_string_append (data->string, "\n    ");
 
-	g_free (full_property);
+	had_property = FALSE;
+	g_hash_table_iter_init (&iter, priv->properties);
+	while (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
+		/* Whether to generate the DELETE is based on whether set_value was ever
+		* called for this property. That's tracked in the overwrite_flags hash table.
+		*/
+		if (g_hash_table_lookup (overwrite_flags, property)) {
+			if (had_property) {
+				g_string_append (data->string, " ;\n    ");
+			}
 
-	if (G_VALUE_TYPE (value) == G_TYPE_PTR_ARRAY) {
-		g_ptr_array_foreach (g_value_get_boxed (value), (GFunc)generate_sparql_value, data);
-	} else {
-		generate_sparql_value (value, data);
+			char *variable_name = variable_name_for_property (property);
+			g_string_append_printf (data->string, "  %s ?%s", property, variable_name);
+			g_free (variable_name);
+
+			had_property = TRUE;
+		}
+	}
+
+	if (data->graph_id) {
+		g_string_append (data->string, " }");
 	}
 }
 
 void
-generate_sparql_update (TrackerResource    *resource,
-                        GenerateSparqlData *data)
+generate_sparql_deletes (TrackerResource    *resource,
+                         GenerateSparqlData *data)
 {
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
-	TrackerSparqlBuilder *builder = data->builder;
-	GValue *type_value;
 
-	if (!priv->identifier) {
-		g_warning ("Main resource must have an identifier.");
-		return;
-	}
-
-	g_return_if_fail (tracker_sparql_builder_get_state (builder) == TRACKER_SPARQL_BUILDER_STATE_UPDATE);
-
-	/* Delete the existing data. If we don't do this, we may get constraint
-	 * violations due to trying to add a second value to a single-valued
-	 * property, and we may get old metadata hanging around.
-	 *
-	 * We have to generate a rather awkward query here, like:
+	/* We have to generate a rather awkward query here, like:
 	 *
 	 *     DELETE { pattern } WHERE { pattern }
 	 *
 	 * It would be better if we could use "DELETE DATA { pattern }". This is
 	 * allowed in SPARQL update 1.1, but not yet supported by Tracker's store.
 	 */
-	data->overwrite_flags = priv->overwrite;
-
-	tracker_sparql_builder_delete_open (builder, NULL);
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_open (builder, data->graph_id);
+	if (! is_blank_node (priv->identifier)) {
+		if (g_hash_table_size (priv->overwrite) > 0) {
+			g_string_append (data->string, "DELETE {\n");
+			generate_sparql_delete_pattern (resource, priv->overwrite, data);
+			g_string_append (data->string, "\n}\nWHERE {\n");
+			generate_sparql_delete_pattern (resource, priv->overwrite, data);
+			g_string_append (data->string, "\n}\n");
+		}
 	}
-	tracker_sparql_builder_subject_iri (builder, priv->identifier);
-	g_hash_table_foreach (priv->properties, generate_sparql_deletes_foreach, data);
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_close (builder);
-	}
-	tracker_sparql_builder_delete_close (builder);
-
-	tracker_sparql_builder_where_open (builder);
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_open (builder, data->graph_id);
-	}
-	tracker_sparql_builder_subject_iri (builder, priv->identifier);
-	g_hash_table_foreach (priv->properties, generate_sparql_deletes_foreach, data);
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_close (builder);
-	}
-	tracker_sparql_builder_where_close (builder);
 
 	/* Now emit any sub-resources. */
-	g_hash_table_foreach (priv->properties, generate_sparql_relations_foreach, data);
+	g_hash_table_foreach (priv->properties, generate_sparql_relation_deletes_foreach, data);
+}
 
-	/* Finally insert the rest of the data */
+static void
+generate_sparql_insert_pattern (TrackerResource    *resource,
+                                GenerateSparqlData *data)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+	GHashTableIter iter;
+	const char *property;
+	char *full_property;
+	const GValue *value;
+	gboolean had_property = FALSE;
 
-	/* Passing the graph directly to insert_open causes it to generate a
-	 * non-standard 'INSERT INTO <graph>' statement, while calling graph_open
-	 * separately causes it to generate INSERT { GRAPH { .. } }. See
-	 * <https://bugzilla.gnome.org/show_bug.cgi?id=658838>.
-	 */
-	tracker_sparql_builder_insert_open (builder, NULL);
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_open (builder, data->graph_id);
-	}
+	/* First, emit any sub-resources. */
+	g_hash_table_foreach (priv->properties, generate_sparql_relation_inserts_foreach, data);
 
-	tracker_sparql_builder_subject_iri (builder, priv->identifier);
+	generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
+	g_string_append_printf (data->string, " ");
 
 	/* rdf:type needs to be first, otherwise you'll see 'subject x is not in domain y'
 	 * errors for the properties you try to set.
 	 */
-	type_value = g_hash_table_lookup (priv->properties, "rdf:type");
-	if (type_value != NULL) {
-		tracker_sparql_builder_predicate (builder, "a");
-		if (G_VALUE_TYPE (type_value) == G_TYPE_PTR_ARRAY) {
-			g_ptr_array_foreach (g_value_get_boxed (type_value), (GFunc)generate_sparql_value, data);
-		} else {
-			generate_sparql_value (type_value, data);
+	value = g_hash_table_lookup (priv->properties, "rdf:type");
+	if (value != NULL) {
+		generate_turtle_property ("a", value, data->string, data->namespaces, NULL);
+		had_property = TRUE;
+	}
+
+	g_hash_table_iter_init (&iter, priv->properties);
+	while (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
+		full_property = tracker_namespace_manager_expand_uri (data->namespaces, property);
+
+		if (strcmp (full_property, TRACKER_PREFIX_RDF "type") != 0 && strcmp (property, "rdf:type") != 0) {
+			if (had_property) {
+				g_string_append (data->string, " ; \n  ");
+			}
+
+			generate_turtle_property (property, value, data->string, data->namespaces, NULL);
+
+			had_property = TRUE;
 		}
+
+		g_free (full_property);
 	}
 
-	g_hash_table_foreach (priv->properties, generate_sparql_inserts_foreach, data);
-
-	if (data->graph_id) {
-		tracker_sparql_builder_graph_close (builder);
-	}
-	tracker_sparql_builder_insert_close (builder);
+	g_string_append (data->string, " .\n");
 }
 
 /**
@@ -1159,17 +1165,24 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
                                       TrackerNamespaceManager *namespaces,
                                       const char              *graph_id)
 {
+	TrackerResourcePrivate *priv;
 	GenerateSparqlData context;
 	char *result;
 
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (resource), "");
 
+	priv = GET_PRIVATE(resource);
+
 	if (namespaces == NULL) {
 		namespaces = tracker_namespace_manager_get_default ();
 	}
 
+	if (g_hash_table_size (priv->properties) == 0) {
+		return g_strdup("");
+	}
+
 	context.namespaces = namespaces;
-	context.builder = tracker_sparql_builder_new_update ();
+	context.string = g_string_new (NULL);
 	context.graph_id = graph_id;
 
 	/* Resources can be recursive, and may have repeated or even cyclic
@@ -1177,15 +1190,27 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
 	 */
 	context.done_list = NULL;
 
-	generate_sparql_update (resource, &context);
+	/* Delete the existing data. If we don't do this, we may get constraint
+	 * violations due to trying to add a second value to a single-valued
+	 * property, and we may get old metadata hanging around.
+	 */
+	generate_sparql_deletes (resource, &context);
 
 	g_list_free (context.done_list);
+	context.done_list = NULL;
 
-	/* We could save a memcpy here by returning the SparqlBuilder instead, but
-	 * this way we are free to remove the TrackerSparqlBuilder code altogether
-	 * in future without having to change the public API of TrackerResource.
-	 */
-	result = g_strdup (tracker_sparql_builder_get_result (context.builder));
-	g_object_unref (context.builder);
-	return result;
+	/* Finally insert the data */
+	g_string_append (context.string, "INSERT {\n");
+	if (graph_id) {
+		g_string_append_printf (context.string, "GRAPH <%s> {\n", graph_id);
+	}
+
+	generate_sparql_insert_pattern (resource, &context);
+
+	if (graph_id) {
+		g_string_append (context.string, "}\n");
+	}
+	g_string_append (context.string, "}\n");
+
+	return g_string_free (context.string, FALSE);
 }

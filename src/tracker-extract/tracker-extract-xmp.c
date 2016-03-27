@@ -135,22 +135,17 @@ find_orig_uri (const gchar *xmp_filename)
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata, *preupdate;
+	TrackerResource *resource;
 	TrackerXmpData *xd = NULL;
 	gchar *filename, *uri;
 	gchar *contents;
 	gsize length = 0;
 	GFile *file;
-	const gchar *graph;
 	int fd;
 	struct stat st;
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
-
-	graph = tracker_extract_info_get_graph (info);
-	preupdate = tracker_extract_info_get_preupdate_builder (info);
-	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	fd = tracker_file_open_fd (filename);
 
@@ -202,12 +197,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                      original_uri ? original_uri : uri);
 
 		if (xd) {
-			GString *where;
+			resource = tracker_resource_new (NULL);
 
-			where = g_string_new ("");
-			tracker_xmp_apply (preupdate, metadata, graph, where, uri, xd);
-			tracker_extract_info_set_where_clause (info, where->str);
-			g_string_free (where, TRUE);
+			tracker_xmp_apply_to_resource (resource, xd);
+
+			tracker_extract_info_set_resource (info, resource);
+			g_object_unref (resource);
 		}
 
 		g_free (original_uri);

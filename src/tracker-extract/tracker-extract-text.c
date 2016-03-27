@@ -91,24 +91,26 @@ tracker_extract_module_init (TrackerModuleThreadAwareness  *thread_awareness_ret
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	TrackerConfig *config;
 	gchar *content;
 
 	config = tracker_main_get_config ();
-	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	content = get_file_content (tracker_extract_info_get_file (info),
 	                            tracker_config_get_max_bytes (config));
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PlainTextDocument");
+	metadata = tracker_resource_new (NULL);
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:PlainTextDocument");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:FileDataObject");
 
 	if (content) {
-		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (metadata, content);
+		tracker_resource_set_string (metadata, "nie:plainTextContent", content);
 		g_free (content);
 	}
+
+	tracker_extract_info_set_resource (info, metadata);
+	g_object_unref (metadata);
 
 	return TRUE;
 }

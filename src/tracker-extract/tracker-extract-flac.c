@@ -142,13 +142,12 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
 }
 
 static void
-add_tuple (TrackerSparqlBuilder *metadata,
-           const char           *predicate,
-           const char           *object)
+add_tuple (TrackerResource *metadata,
+           const char      *predicate,
+           const char      *object)
 {
 	if (object) {
-		tracker_sparql_builder_predicate (metadata, predicate);
-		tracker_sparql_builder_object_unvalidated (metadata, object);
+		tracker_resource_set_string (metadata, predicate, object);
 	}
 }
 
@@ -159,16 +158,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	FLAC__StreamMetadata *stream = NULL, *vorbis, *picture;
 	FLAC__bool success;
 	FlacData fd = { 0 };
-	TrackerSparqlBuilder *preupdate, *metadata;
-	gchar *filename, *uri, *artist_uri = NULL, *album_uri = NULL;
+	TrackerResource *metadata, *artist, *album_disc, *album, *album_artist;
+	gchar *filename, *uri;
 	const gchar *creator;
 	GFile *file;
 	goffset size;
-	const gchar *graph;
-
-	graph = tracker_extract_info_get_graph (info);
-	preupdate = tracker_extract_info_get_preupdate_builder (info);
-	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
@@ -214,209 +208,55 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 	} while (FLAC__metadata_simple_iterator_next (iter));
 
+	metadata = tracker_resource_new (NULL);
+	tracker_resource_add_uri (metadata, "rdf:type", "nmm:MusicPiece");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:Audio");
+
 	creator = tracker_coalesce_strip (3, fd.artist, fd.albumartist,
 	                                  fd.performer);
 
 	if (creator) {
-		artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", creator);
+		artist = tracker_extract_new_artist (creator);
 
-		tracker_sparql_builder_insert_open (preupdate, NULL);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
+		tracker_resource_set_relation (metadata, "nmm:performer", artist);
 
-		tracker_sparql_builder_subject_iri (preupdate, artist_uri);
-		tracker_sparql_builder_predicate (preupdate, "a");
-		tracker_sparql_builder_object (preupdate, "nmm:Artist");
-		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (preupdate, creator);
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
-		tracker_sparql_builder_insert_close (preupdate);
-
+		g_object_unref (artist);
 	}
 
 	if (fd.album) {
-                if (fd.albumartist) {
-                        album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s", fd.album, fd.albumartist);
-                } else {
-                        album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", fd.album);
-                }
-		tracker_sparql_builder_insert_open (preupdate, NULL);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
+		if (fd.albumartist) {
+			album_artist = tracker_extract_new_artist (fd.albumartist);
+		} else {
+			album_artist = NULL;
 		}
 
-		tracker_sparql_builder_subject_iri (preupdate, album_uri);
-		tracker_sparql_builder_predicate (preupdate, "a");
-		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
-		/* FIXME: nmm:albumTitle is now deprecated
-		 * tracker_sparql_builder_predicate (preupdate, "nie:title");
-		 */
-		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (preupdate, fd.album);
+		album_disc = tracker_extract_new_music_album_disc (fd.album,
+		                                                   album_artist,
+		                                                   fd.discno ? atoi(fd.discno) : 1);
 
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
-		tracker_sparql_builder_insert_close (preupdate);
+		album = tracker_resource_get_first_relation (album_disc, "nmm:albumDiscAlbum");
 
 		if (fd.trackcount) {
-			tracker_sparql_builder_delete_open (preupdate, NULL);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_delete_close (preupdate);
-
-			tracker_sparql_builder_where_open (preupdate);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_where_close (preupdate);
-
-			tracker_sparql_builder_insert_open (preupdate, NULL);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
-
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
-			tracker_sparql_builder_object_unvalidated (preupdate, fd.trackcount);
-
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
-			tracker_sparql_builder_insert_close (preupdate);
+			tracker_resource_set_string (album, "nmm:albumTrackCount", fd.trackcount);
 		}
 
 		if (fd.albumgain) {
-			tracker_sparql_builder_delete_open (preupdate, NULL);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_delete_close (preupdate);
-			tracker_sparql_builder_where_open (preupdate);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_where_close (preupdate);
-
-			tracker_sparql_builder_insert_open (preupdate, NULL);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
-
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
-			tracker_sparql_builder_object_double (preupdate, atof (fd.albumgain));
-
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
-			tracker_sparql_builder_insert_close (preupdate);
+			tracker_resource_set_double (album, "nmm:albumGain", atof (fd.albumgain));
 		}
 
 		if (fd.albumpeakgain) {
-			tracker_sparql_builder_delete_open (preupdate, NULL);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_delete_close (preupdate);
-			tracker_sparql_builder_where_open (preupdate);
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
-			tracker_sparql_builder_object_variable (preupdate, "unknown");
-			tracker_sparql_builder_where_close (preupdate);
-
-			tracker_sparql_builder_insert_open (preupdate, NULL);
-			if (graph) {
-				tracker_sparql_builder_graph_open (preupdate, graph);
-			}
-
-			tracker_sparql_builder_subject_iri (preupdate, album_uri);
-			tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
-			tracker_sparql_builder_object_double (preupdate, atof (fd.albumpeakgain));
-
-			if (graph) {
-				tracker_sparql_builder_graph_close (preupdate);
-			}
-			tracker_sparql_builder_insert_close (preupdate);
+			tracker_resource_set_double (album, "nmm:albumPeakGain", atof (fd.albumpeakgain));
 		}
+
+		tracker_resource_set_relation (metadata, "nmm:musicAlbum", album);
+		tracker_resource_set_relation (metadata, "nmm:musicAlbumDisc", album_disc);
+
+		g_object_unref (album_disc);
+		g_object_unref (album_artist);
 	}
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
-	tracker_sparql_builder_object (metadata, "nfo:Audio");
-
-	add_tuple (metadata, "nmm:performer", artist_uri);
-	g_free (artist_uri);
-
-	add_tuple (metadata, "nmm:musicAlbum", album_uri);
-
-	tracker_guarantee_title_from_file (metadata, "nie:title", fd.title, uri, NULL);
+	tracker_guarantee_resource_title_from_file (metadata, "nie:title", fd.title, uri, NULL);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
-
-	if (fd.album && album_uri) {
-		gchar *album_disc_uri;
-                if (fd.albumartist) {
-                        album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
-                                                                           fd.album, fd.albumartist,
-                                                                           fd.discno ? atoi(fd.discno) : 1);
-                } else {
-                        album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-                                                                           fd.album,
-                                                                           fd.discno ? atoi(fd.discno) : 1);
-                }
-
-		tracker_sparql_builder_delete_open (preupdate, NULL);
-		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
-		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-		tracker_sparql_builder_object_variable (preupdate, "unknown");
-		tracker_sparql_builder_delete_close (preupdate);
-		tracker_sparql_builder_where_open (preupdate);
-		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
-		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-		tracker_sparql_builder_object_variable (preupdate, "unknown");
-		tracker_sparql_builder_where_close (preupdate);
-
-		tracker_sparql_builder_delete_open (preupdate, NULL);
-		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
-		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
-		tracker_sparql_builder_object_variable (preupdate, "unknown");
-		tracker_sparql_builder_delete_close (preupdate);
-		tracker_sparql_builder_where_open (preupdate);
-		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
-		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
-		tracker_sparql_builder_object_variable (preupdate, "unknown");
-		tracker_sparql_builder_where_close (preupdate);
-
-		tracker_sparql_builder_insert_open (preupdate, NULL);
-		if (graph) {
-			tracker_sparql_builder_graph_open (preupdate, graph);
-		}
-
-		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
-		tracker_sparql_builder_predicate (preupdate, "a");
-		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbumDisc");
-		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-		tracker_sparql_builder_object_int64 (preupdate, fd.discno ? atoi (fd.discno) : 1);
-		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
-		tracker_sparql_builder_object_iri (preupdate, album_uri);
-
-		if (graph) {
-			tracker_sparql_builder_graph_close (preupdate);
-		}
-		tracker_sparql_builder_insert_close (preupdate);
-
-		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisc");
-		tracker_sparql_builder_object_iri (metadata, album_disc_uri);
-
-		g_free (album_disc_uri);
-	}
-
-	g_free (album_uri);
 
 	/* FIXME: Trackgain/Trackpeakgain: commented out in vorbis */
 
@@ -428,36 +268,18 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	add_tuple (metadata, "nie:license", fd.license);
 
 	if (fd.publisher) {
-		tracker_sparql_builder_predicate (metadata, "dc:publisher");
+		TrackerResource *publisher = tracker_extract_new_contact (fd.publisher);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
+		tracker_resource_set_relation (metadata, "dc:publisher", publisher);
 
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata,
-		                                           fd.publisher);
-		tracker_sparql_builder_object_blank_close (metadata);
+		g_object_unref (publisher);
 	}
 
 	if (stream) {
-		tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
-		tracker_sparql_builder_object_int64 (metadata,
-		                                     stream->data.stream_info.sample_rate);
-
-		tracker_sparql_builder_predicate (metadata, "nfo:channels");
-		tracker_sparql_builder_object_int64 (metadata,
-		                                     stream->data.stream_info.channels);
-
-		tracker_sparql_builder_predicate (metadata,
-		                                  "nfo:averageBitrate");
-		tracker_sparql_builder_object_int64 (metadata,
-		                                     stream->data.stream_info.bits_per_sample);
-
-		tracker_sparql_builder_predicate (metadata, "nfo:duration");
-		tracker_sparql_builder_object_int64 (metadata,
-		                                     stream->data.stream_info.total_samples /
-		                                     stream->data.stream_info.sample_rate);
+		tracker_resource_set_int64 (metadata, "nfo:sampleRate", stream->data.stream_info.sample_rate);
+		tracker_resource_set_int64 (metadata, "nfo:channels", stream->data.stream_info.channels);
+		tracker_resource_set_int64 (metadata, "nfo:averageBitrate", stream->data.stream_info.bits_per_sample);
+		tracker_resource_set_int64 (metadata, "nfo:duration", stream->data.stream_info.total_samples / stream->data.stream_info.sample_rate);
 	}
 
 	g_free (fd.artist);

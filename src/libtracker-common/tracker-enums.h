@@ -35,6 +35,11 @@ typedef enum {
 	TRACKER_SCHED_IDLE_NEVER,
 } TrackerSchedIdle;
 
+typedef enum {
+	TRACKER_SERIALIZATION_FORMAT_SPARQL,
+	TRACKER_SERIALIZATION_FORMAT_TURTLE,
+} TrackerSerializationFormat;
+
 G_END_DECLS
 
 #endif /* __TRACKER_ENUMS_H__ */

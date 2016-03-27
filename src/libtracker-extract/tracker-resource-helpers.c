@@ -264,6 +264,7 @@ tracker_extract_new_music_album_disc (const char      *album_title,
 
 	disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d", album_title, disc_number);
 	album_disc = tracker_resource_new (disc_uri);
+	tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
 	tracker_resource_set_int (album_disc, "nmm:setNumber", disc_number > 0 ? disc_number : 1);
 	tracker_resource_add_relation (album_disc, "nmm:albumDiscAlbum", album);
 

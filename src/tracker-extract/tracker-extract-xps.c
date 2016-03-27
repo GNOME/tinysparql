@@ -27,14 +27,13 @@
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *resource;
 	GXPSDocument *document;
 	GXPSFile *xps_file;
 	GFile *file;
 	gchar *filename;
 	GError *error = NULL;
 
-	metadata = tracker_extract_info_get_metadata_builder (info);
 	file = tracker_extract_info_get_file (info);
 	xps_file = gxps_file_new (file, &error);
 	filename = g_file_get_path (file);
@@ -56,14 +55,15 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
-
-	tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
-	tracker_sparql_builder_object_int64 (metadata, gxps_document_get_n_pages (document));
+	resource = tracker_resource_new (NULL);
+	tracker_resource_add_uri (resource, "rdf:type", "nfo:PaginatedTextDocument");
+	tracker_resource_set_int64 (resource, "nfo:pageCount", gxps_document_get_n_pages (document));
 
 	g_object_unref (document);
 	g_free (filename);
+
+	tracker_extract_info_set_resource (info, resource);
+	g_object_unref (resource);
 
 	return TRUE;
 }

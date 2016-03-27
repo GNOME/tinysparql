@@ -29,21 +29,12 @@ test_extract_info_setters (void)
 
         file = g_file_new_for_path ("./imaginary-file-2");
 
-        info = tracker_extract_info_new (file, "imaginary/mime", "test-graph", "test-urn");
+        info = tracker_extract_info_new (file, "imaginary/mime");
         info_ref = tracker_extract_info_ref (info);
 
         g_assert (g_file_equal (file, tracker_extract_info_get_file (info)));
 
         g_assert_cmpstr (tracker_extract_info_get_mimetype (info), ==, "imaginary/mime");
-        g_assert_cmpstr (tracker_extract_info_get_graph (info), ==, "test-graph");
-        g_assert_cmpstr (tracker_extract_info_get_urn (info), ==, "test-urn");
-        g_assert (tracker_extract_info_get_preupdate_builder (info));
-        g_assert (tracker_extract_info_get_postupdate_builder (info));
-        g_assert (tracker_extract_info_get_metadata_builder (info));
-
-        g_assert (!tracker_extract_info_get_where_clause (info));
-        tracker_extract_info_set_where_clause (info, "where stuff");
-        g_assert_cmpstr (tracker_extract_info_get_where_clause (info), ==, "where stuff");
 
         tracker_extract_info_unref (info_ref);
         tracker_extract_info_unref (info);
@@ -59,7 +50,7 @@ test_extract_info_empty_objects (void)
 
         file = g_file_new_for_path ("./imaginary-file");
 
-        info = tracker_extract_info_new (file, "imaginary/mime", "test-graph", "test-urn");
+        info = tracker_extract_info_new (file, "imaginary/mime");
         info_ref = tracker_extract_info_ref (info);
 
         tracker_extract_info_unref (info_ref);

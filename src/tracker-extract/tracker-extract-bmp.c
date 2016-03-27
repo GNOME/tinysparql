@@ -105,13 +105,11 @@ get_img_resolution (const GFile *file,
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *image;
 	goffset size;
 	gchar *filename;
 	GFile *file;
 	gint64 width = 0, height = 0;
-
-	metadata = tracker_extract_info_get_metadata_builder (info);
 
 	file = tracker_extract_info_get_file (info);
 	if (!file) {
@@ -127,21 +125,21 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:Image");
-	tracker_sparql_builder_object (metadata, "nmm:Photo");
+	image = tracker_resource_new (NULL);
+	tracker_resource_add_uri (image, "rdf:type", "nfo:Image");
+	tracker_resource_add_uri (image, "rdf:type", "nmm:Photo");
 
 	if (get_img_resolution (file, &width, &height)) {
 		if (width > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:width");
-			tracker_sparql_builder_object_int64 (metadata, width);
+			tracker_resource_set_int64 (image, "nfo:width", width);
 		}
 
 		if (height > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:height");
-			tracker_sparql_builder_object_int64 (metadata, height);
+			tracker_resource_set_int64 (image, "nfo:height", height);
 		}
 	}
+
+	tracker_extract_info_set_resource (info, image);
 
 	return TRUE;
 }

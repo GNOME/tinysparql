@@ -22,7 +22,7 @@ For more information see the libtracker-extract reference documentation.
 
 .SH OPTIONS
 .TP
-.B \-\-verbosity\fR=<\fILEVEL\fR>
+.B \-v, \-\-verbosity\fR=<\fILEVEL\fR>
 This sets the log verbosity for the extractor process.
 
 The possible \fILEVEL\fR options are:
@@ -67,6 +67,11 @@ The possible \fILEVEL\fR options are:
 \fIerrors\fR
 \- Show only warnings, criticals, errors or fatal events.
 .RE
+
+.TP
+.B \-o, \-\-output-format\fR=<\fIFORMAT\fR>
+Choose which format to use to output results. Supported formats are
+\fIsparql\fR and \fIturtle\fR.
 
 .SH EXAMPLES
 .TP

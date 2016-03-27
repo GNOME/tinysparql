@@ -214,12 +214,11 @@ error:
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *resource;
 	GFile *file;
 	gchar *filename;
 	DviContext *context;
 
-	metadata = tracker_extract_info_get_metadata_builder (info);
 	file = tracker_extract_info_get_file (info);
 	filename = g_file_get_path (file);
 
@@ -231,18 +230,20 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		return FALSE;
 	}
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+	resource = tracker_resource_new (NULL);
 
-	tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
-	tracker_sparql_builder_object_int64 (metadata, context->npages);
+	tracker_resource_add_uri (resource, "rdf:type", "nfo:PaginatedTextDocument");
+
+	tracker_resource_set_int64 (resource, "nfo:pageCount", context->npages);
 
 	if (context->fileid) {
-		tracker_sparql_builder_predicate (metadata, "nie:comment");
-		tracker_sparql_builder_object_unvalidated (metadata, context->fileid);
+		tracker_resource_set_string (resource, "nie:comment", context->fileid);
 	}
 
 	mdvi_destroy_context (context);
+
+	tracker_extract_info_set_resource (info, resource);
+	g_object_unref (resource);
 
 	return TRUE;
 }
