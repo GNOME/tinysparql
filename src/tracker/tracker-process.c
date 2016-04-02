@@ -35,6 +35,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef __sun
+#define _STRUCTURED_PROC 1
+#include <sys/procfs.h>
+#endif
+
 #include "tracker-process.h"
 
 static TrackerProcessData *

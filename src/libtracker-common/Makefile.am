@@ -14,7 +14,7 @@ TRACKER_PARSER_FILES =                \
 	tracker-parser-libunistring.c
 
 tracker-parser-sha1.h: $(TRACKER_PARSER_FILES)
-	$(AM_V_GEN) echo -n "#define TRACKER_PARSER_SHA1 \""`git log -n1 --format=format:%H -- $(TRACKER_PARSER_FILES)`"\"" > $@
+	$(AM_V_GEN) echo $(ECHO_N) "#define TRACKER_PARSER_SHA1 \""`git log -n1 --format=format:%H -- $^`"\"$(ECHO_C)" > $@
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
