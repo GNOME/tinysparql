@@ -328,14 +328,6 @@ main (int argc, char *argv[])
 
 	config = tracker_config_new ();
 
-	/* Set conditions when we use stand alone settings */
-	if (filename) {
-		return run_standalone (config);
-	}
-
-	/* Initialize subsystems */
-	initialize_directories ();
-
 	/* Extractor command line arguments */
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
@@ -348,6 +340,14 @@ main (int argc, char *argv[])
 	}
 
 	sanity_check_option_values (config);
+
+	/* Set conditions when we use stand alone settings */
+	if (filename) {
+		return run_standalone (config);
+	}
+
+	/* Initialize subsystems */
+	initialize_directories ();
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
