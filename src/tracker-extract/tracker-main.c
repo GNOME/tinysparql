@@ -96,7 +96,7 @@ static GOptionEntry entries[] = {
 	  N_("Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"),
 	  N_("MODULE") },
 	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format_name,
-	  N_("Output results format: 'sparql', or 'turtle'"),
+	  N_("Output results format: 'sparql', 'turtle' or 'json'"),
 	  N_("FORMAT") },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
@@ -289,7 +289,7 @@ run_standalone (TrackerConfig *config)
 		return EXIT_FAILURE;
 	}
 
-	tracker_extract_get_metadata_by_cmdline (object, uri, mime_type);
+	tracker_extract_get_metadata_by_cmdline (object, uri, mime_type, output_format);
 
 	g_object_unref (object);
 	g_object_unref (file);

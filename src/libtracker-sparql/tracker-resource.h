@@ -77,6 +77,8 @@ char *tracker_resource_print_turtle(TrackerResource *self, TrackerNamespaceManag
 
 void tracker_resource_generate_sparql_update (TrackerResource *self, TrackerSparqlBuilder *builder, TrackerNamespaceManager *namespaces, const char *graph_id);
 
+char *tracker_resource_print_jsonld (TrackerResource *self);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_RESOURCE_H__ */

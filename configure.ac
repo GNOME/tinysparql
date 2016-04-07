@@ -232,6 +232,7 @@ GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=0.89
 LIBMEDIAART_REQUIRED=1.9.0
+JSON_GLIB_REQUIRED=1.0.4
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
@@ -317,8 +318,9 @@ LIBTRACKER_CONTROL_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(LIBTRACKER_CONTROL, [$LIBTRACKER_CONTROL_REQUIRED])
 
 # Check requirements for libtracker-sparql
-LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
+LIBTRACKER_SPARQL_REQUIRED="glib-2.0      >= $GLIB_REQUIRED
+                            gio-unix-2.0  >= $GLIB_REQUIRED
+                            json-glib-1.0 >= $JSON_GLIB_REQUIRED
                             uuid"
 
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])

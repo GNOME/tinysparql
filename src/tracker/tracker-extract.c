@@ -31,6 +31,7 @@
 #include "tracker-extract.h"
 
 static gchar *verbosity;
+static gchar *output_format = "turtle";
 static gchar **filenames;
 
 #define EXTRACT_OPTIONS_ENABLED()	  \
@@ -40,6 +41,9 @@ static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0, G_OPTION_ARG_STRING, &verbosity,
 	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
 	  N_("LEVEL") },
+	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format,
+	  N_("Output results format: 'sparql', 'turtle' or 'json-ld'"),
+	  N_("FORMAT") },
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
 	  N_("FILE") },
@@ -48,7 +52,8 @@ static GOptionEntry entries[] = {
 
 
 static gint
-extract_files (TrackerVerbosity verbosity)
+extract_files (TrackerVerbosity verbosity,
+               char *output_format)
 {
 	char **p;
 	char *tracker_extract_path;
@@ -60,7 +65,10 @@ extract_files (TrackerVerbosity verbosity)
 	tracker_extract_path = g_build_filename(LIBEXECDIR, "tracker-extract", NULL);
 
 	for (p = filenames; *p; p++) {
-		char *argv[] = {tracker_extract_path, "--verbosity", verbosity_str, "--file", *p, NULL};
+		char *argv[] = {tracker_extract_path,
+		                "--output-format", output_format,
+		                "--verbosity", verbosity_str,
+		                "--file", *p, NULL };
 
 		g_spawn_sync(NULL, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, NULL, &error);
 
@@ -99,7 +107,7 @@ extract_run (void)
 		}
 	}
 
-	return extract_files (verbosity_level);
+	return extract_files (verbosity_level, output_format);
 }
 
 static int
