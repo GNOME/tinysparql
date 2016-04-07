@@ -339,7 +339,7 @@ test_tracker_sparql_nb237150 (void)
 	/* Test NB#237150 - Second tracker_sparql_connection_get_async
 	 * never returns
 	 */
-	g_test_trap_subprocess ("/libtracker-sparql/tracker/nb237150/subprocess",
+	g_test_trap_subprocess ("/libtracker-sparql/tracker-sparql/nb237150/subprocess",
 	                        G_USEC_PER_SEC * 2,
 	                        G_TEST_SUBPROCESS_INHERIT_STDOUT);
 
@@ -406,23 +406,23 @@ main (gint argc, gchar **argv)
 	/* NOTE: this first test must come BEFORE any others because
 	 * connections are cached by libtracker-sparql.
 	 */
-	g_test_add_func ("/libtracker-sparql/tracker/nb237150",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/nb237150",
 	                 test_tracker_sparql_nb237150);
-	g_test_add_func ("/libtracker-sparql/tracker/nb237150/subprocess",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/nb237150/subprocess",
 	                 test_tracker_sparql_nb237150_subprocess);
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_string",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_escape_string",
 	                 test_tracker_sparql_escape_string);
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_uri_vprintf",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_escape_uri_vprintf",
 	                 test_tracker_sparql_escape_uri_vprintf);
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_interleaved",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_interleaved",
 	                 test_tracker_sparql_connection_interleaved);
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_sync",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_locking_sync",
 	                 test_tracker_sparql_connection_locking_sync);
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_async",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_locking_async",
 	                 test_tracker_sparql_connection_locking_async);
 
 #if HAVE_TRACKER_FTS
-	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_cursor_next_async",
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);
 #endif
 
