@@ -25,14 +25,21 @@
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
+#include <libtracker-common/tracker-common.h>
+
+#include "tracker-config.h"
 #include "tracker-extract.h"
 
+static gchar *verbosity;
 static gchar **filenames;
 
 #define EXTRACT_OPTIONS_ENABLED()	  \
 	((filenames && g_strv_length (filenames) > 0))
 
 static GOptionEntry entries[] = {
+	{ "verbosity", 'v', 0, G_OPTION_ARG_STRING, &verbosity,
+	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
+	  N_("LEVEL") },
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
 	  N_("FILE") },
@@ -41,16 +48,19 @@ static GOptionEntry entries[] = {
 
 
 static gint
-extract_files (void)
+extract_files (TrackerVerbosity verbosity)
 {
 	char **p;
 	char *tracker_extract_path;
+	char verbosity_str[2];
 	GError *error = NULL;
+
+	snprintf (verbosity_str, 2, "%i", verbosity);
 
 	tracker_extract_path = g_build_filename(LIBEXECDIR, "tracker-extract", NULL);
 
 	for (p = filenames; *p; p++) {
-		char *argv[] = {tracker_extract_path, "--file", *p, NULL};
+		char *argv[] = {tracker_extract_path, "--verbosity", verbosity_str, "--file", *p, NULL};
 
 		g_spawn_sync(NULL, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, NULL, &error);
 
@@ -71,7 +81,25 @@ extract_files (void)
 static int
 extract_run (void)
 {
-	return extract_files ();
+	TrackerVerbosity verbosity_level = TRACKER_VERBOSITY_ERRORS;
+
+	if (verbosity) {
+		if (g_ascii_strcasecmp (verbosity, "debug") == 0) {
+			verbosity_level = TRACKER_VERBOSITY_DEBUG;
+		} else if (g_ascii_strcasecmp (verbosity, "detailed") == 0) {
+			verbosity_level = TRACKER_VERBOSITY_DETAILED;
+		} else if (g_ascii_strcasecmp (verbosity, "minimal") == 0) {
+			verbosity_level = TRACKER_VERBOSITY_MINIMAL;
+		} else if (g_ascii_strcasecmp (verbosity, "errors") == 0) {
+			verbosity_level = TRACKER_VERBOSITY_ERRORS;
+		} else {
+			g_printerr ("%s\n",
+			            _("Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"));
+			return EXIT_FAILURE;
+		}
+	}
+
+	return extract_files (verbosity_level);
 }
 
 static int

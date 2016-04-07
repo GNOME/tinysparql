@@ -20,6 +20,54 @@ uses to extract metadata.
 
 For more information see the libtracker-extract reference documentation.
 
+.SH OPTIONS
+.TP
+.B \-\-verbosity\fR=<\fILEVEL\fR>
+This sets the log verbosity for the extractor process.
+
+The possible \fILEVEL\fR options are:
+.sp
+.RS 12
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIdebug\fR
+\- Show EVERYTHING, from debug messages to errors.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.IP \(bu 2.3
+.\}
+\fIdetailed\fR
+\- Show enough detail to understand what is happening.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIminimal\fR
+\- Show an overview of what is going on
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIerrors\fR
+\- Show only warnings, criticals, errors or fatal events.
+.RE
+
 .SH EXAMPLES
 .TP
 Using command line to extract metadata from a file:
