@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2016, Sam Thursfield <sam@afuera.me.uk>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,24 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_SPARQL_H__
-#define __LIBTRACKER_SPARQL_H__
+#ifndef __LIBTRACKER_SPARQL_URI_H__
+#define __LIBTRACKER_SPARQL_URI_H__
 
-#define __LIBTRACKER_SPARQL_INSIDE__
+G_BEGIN_DECLS
 
-#include <libtracker-sparql/tracker-version.h>
-#include <libtracker-sparql/tracker-uri.h>
-#include <libtracker-sparql/tracker-ontologies.h>
-#include <libtracker-sparql/tracker-generated.h>
+#include <glib-object.h>
 
-#undef __LIBTRACKER_SPARQL_INSIDE__
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#endif
 
-#endif /* __LIBTRACKER_SPARQL_H__ */
+#define TRACKER_TYPE_URI tracker_uri_get_type()
+
+/* The public functions in tracker-uri.c are prototyped in the generated Vala
+ * header tracker-generated-no-checks.h, due to being defined in
+ * tracker-sparql.vapi.
+ */
+
+G_END_DECLS
+
+#endif
