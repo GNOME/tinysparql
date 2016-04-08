@@ -24,6 +24,7 @@ libtracker_sparql_la_SOURCES =   \
 	tracker-cursor.vala                            \
 	tracker-utils.vala                             \
 	tracker-uri.c                                  \
+	tracker-uri.h                                  \
 	tracker-ontologies.h \
 	tracker-version.c \
 	tracker-version.h
@@ -50,6 +51,7 @@ libtracker_sparqlinclude_HEADERS =                     \
 	$(vala_header)                                 \
 	tracker-ontologies.h \
 	tracker-sparql.h                               \
+	tracker-uri.h                                  \
 	tracker-version.h
 
 tracker-sparql-$(TRACKER_API_VERSION).deps: tracker-sparql.deps
