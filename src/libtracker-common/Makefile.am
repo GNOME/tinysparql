@@ -63,10 +63,10 @@ libtracker_common_la_LIBADD = \
 	$(LIBTRACKER_COMMON_LIBS) \
 	-lm
 
-tracker-enum-types.h: tracker-enum-types.h.template $(NOINST_H_FILES)
+tracker-enum-types.h: tracker-enum-types.h.template tracker-enums.h
 	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-enum-types.h.template $(noinst_HEADERS)) > $@
 
-tracker-enum-types.c: tracker-enum-types.c.template $(NOINST_H_FILES)
+tracker-enum-types.c: tracker-enum-types.c.template tracker-enums.h
 	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-enum-types.c.template $(noinst_HEADERS)) > $@
 
 
