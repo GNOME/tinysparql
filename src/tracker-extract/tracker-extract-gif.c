@@ -116,6 +116,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	unsigned char *framedata = NULL;
 	GPtrArray *keywords;
 	guint i;
+	gint h;
 	int status;
 	MergeData md = { 0 };
 	GifData   gd = { 0 };
@@ -149,15 +150,17 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			framewidth  = gifFile->Image.Width;
 			frameheight = gifFile->Image.Height;
 
-			framedata = g_malloc (framewidth*frameheight);
-
-			if (DGifGetLine(gifFile, framedata, framewidth*frameheight)==GIF_ERROR) {
+			framedata = g_malloc_n (framewidth, sizeof(GifPixelType));
+			for (h = 0; h < frameheight; h++)
+			{
+				if (DGifGetLine(gifFile, framedata, framewidth)==GIF_ERROR) {
 #if GIFLIB_MAJOR < 5
-				print_gif_error();
+					print_gif_error();
 #else  /* GIFLIB_MAJOR < 5 */
-				gif_error ("Could not load a block of GIF pixes", gifFile->Error);
+					gif_error ("Could not load a block of GIF pixes", gifFile->Error);
 #endif /* GIFLIB_MAJOR < 5 */
-				return;
+					return;
+				}
 			}
 
 			gd.width  = g_strdup_printf ("%d", framewidth);
