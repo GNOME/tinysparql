@@ -526,7 +526,9 @@ miner_data_free (MinerData *data)
 	}
 
 	g_free (data->dbus_path);
+	g_free (data->dbus_name);
 	g_free (data->display_name);
+	g_free (data->description);
 	g_slice_free (MinerData, data);
 }
 
