@@ -23,6 +23,7 @@
 
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-resource-helpers.h"
 #include "tracker-xmp.h"
 #include "tracker-utils.h"
 
