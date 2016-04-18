@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: oc\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-26 12:01+0000\n"
-"PO-Revision-Date: 2016-04-18 21:06+0200\n"
+"PO-Revision-Date: 2016-04-18 21:20+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Virtaal 0.7.1\n"
 "X-Launchpad-Export-Date: 2016-04-18 18:56+0000\n"
 
 #: ../data/trackerd.desktop.in.in.h:1
@@ -1079,7 +1079,7 @@ msgstr[1] "Sètz segur que volètz dobrir %d repertòris ?"
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:783
 #, c-format
 msgid "Could not move \"%s\" to trash."
-msgstr "Impossible de metre « %s » a la banasta."
+msgstr "Impossible de metre « %s » dins l'escobilhièr."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:852
 #, c-format
@@ -1220,7 +1220,7 @@ msgstr "D_obrir lo repertòri"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:215
 msgid "Mo_ve to Trash"
-msgstr "Des_plaçar dins la banasta"
+msgstr "Des_plaçar dins l'escobilhièr"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:216
 msgid "_Save Results As..."
@@ -2370,3 +2370,523 @@ msgstr ""
 
 #~ msgid "Progress:"
 #~ msgstr "Progression:"
+
+#, fuzzy
+#~| msgid "All tags"
+#~ msgid "All posts"
+#~ msgstr "Totas las etiquetas"
+
+#, fuzzy
+#~| msgid "by user"
+#~ msgid "By usage"
+#~ msgstr "per l'utilizaire"
+
+#, fuzzy, c-format
+#~| msgid " %2.2d second"
+#~| msgid_plural " %2.2d seconds"
+#~ msgid " %2.2dh"
+#~ msgstr "segondas"
+
+#, fuzzy, c-format
+#~| msgid " %2.2d second"
+#~| msgid_plural " %2.2d seconds"
+#~ msgid " %2.2dm"
+#~ msgstr "segondas"
+
+#, fuzzy, c-format
+#~| msgid " %2.2d second"
+#~| msgid_plural " %2.2d seconds"
+#~ msgid " %2.2ds"
+#~ msgstr "segondas"
+
+#, fuzzy, c-format
+#~| msgid " %2.2d second"
+#~| msgid_plural " %2.2d seconds"
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] "segondas"
+#~ msgstr[1] "segondas"
+
+#, fuzzy, c-format
+#~| msgid " %2.2d second"
+#~| msgid_plural " %2.2d seconds"
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] "segondas"
+#~ msgstr[1] "segondas"
+
+#, fuzzy
+#~| msgid "Maximum number of unique _words to index:"
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Nombre maximum de m_ots unics d'indexar :"
+
+#, fuzzy
+#~| msgid "Maximum number of unique _words to index:"
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Nombre maximum de m_ots unics d'indexar :"
+
+#, fuzzy
+#~| msgid "Enable i_ndexing"
+#~ msgid "Enable unaccent"
+#~ msgstr "Activar l'_indexacion"
+
+#, fuzzy
+#~| msgid "Ignored Files"
+#~ msgid "Ignore numbers"
+#~ msgstr "Fichièrs ignorats"
+
+#, fuzzy
+#~| msgid "Applications data miner"
+#~ msgid "- start the application data miner"
+#~ msgstr "Aplicacions"
+
+#, fuzzy
+#~| msgid "Tracker Applet"
+#~ msgid "Tracker Application Miner"
+#~ msgstr "Tracker"
+
+#
+#, fuzzy
+#~| msgid "Tracker File System Miner"
+#~ msgid "File system data miner"
+#~ msgstr "Sit web de Tracker"
+
+#, fuzzy
+#~| msgid "Crawling File System"
+#~ msgid "Crawling interval"
+#~ msgstr "Indexacion del sistèma de fichièrs en cors"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index removable devices"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Ignored Files"
+#~ msgid "Ignored files"
+#~ msgstr "Fichièrs ignorats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Ignored directories"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy, c-format
+#~| msgid "Data object '%s' currently does not exist"
+#~ msgid "Data object '%s' currently exists"
+#~ msgstr "Lo document existís pas."
+
+#, fuzzy
+#~| msgid "Could not (re)index file"
+#~ msgid "Would be indexed"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy
+#~| msgid "yes"
+#~ msgid "Yes"
+#~ msgstr "Òc"
+
+#, fuzzy
+#~| msgid "low battery"
+#~ msgid "Low battery"
+#~ msgstr "batariá febla"
+
+#
+#, fuzzy
+#~| msgid "Tracker File System Miner"
+#~ msgid "Tracker RSS/ATOM Feeds Miner"
+#~ msgstr "Sit web de Tracker"
+
+#
+#, fuzzy
+#~| msgid "Tracker File System Miner"
+#~ msgid "Tracker User Guides Miner"
+#~ msgstr "Sit web de Tracker"
+
+#, fuzzy
+#~| msgid "Enable _Evolution email indexing"
+#~ msgid "Evolution Email miner"
+#~ msgstr "Activar l'indexacion del corrièl _Evolution"
+
+#, fuzzy
+#~| msgid "Tags :"
+#~ msgid "Tags"
+#~ msgstr "Etiquetas :"
+
+#, fuzzy
+#~| msgid "Tracker Metadata Extractor"
+#~ msgid "Metadata extractor"
+#~ msgstr "Tracker"
+
+#, fuzzy
+#~| msgid "Maximum number of unique _words to index:"
+#~ msgid "Maximum number of UTF-8 bytes to extract."
+#~ msgstr "Nombre maximum de m_ots unics d'indexar :"
+
+#, fuzzy
+#~| msgid "Tracker Metadata Extractor"
+#~ msgid "Metadata extraction failed"
+#~ msgstr "Tracker"
+
+#, fuzzy
+#~| msgid "All tags"
+#~ msgid "Add tag"
+#~ msgstr "Totas las etiquetas"
+
+#, fuzzy
+#~| msgid "_Remove Tag"
+#~ msgid "Remove selected tag"
+#~ msgstr "_Suprimir l'etiqueta"
+
+#, fuzzy
+#~| msgid "Tags :"
+#~ msgid "Tag"
+#~ msgid_plural "Tags"
+#~ msgstr[0] "Etiquetas :"
+#~ msgstr[1] "Etiquetas :"
+
+#, fuzzy
+#~| msgid "Playlists"
+#~ msgid "Playlist"
+#~ msgid_plural "Playlists"
+#~ msgstr[0] "Listas de lectura"
+#~ msgstr[1] "Listas de lectura"
+
+#, fuzzy
+#~| msgid "Could not update tags"
+#~ msgid "Could not update tags for file"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "less than one second"
+#~ msgid "Less than one second"
+#~ msgstr "mens d'una segonda"
+
+#, fuzzy
+#~| msgid "Search _results: "
+#~ msgid "No Search Results"
+#~ msgstr "_Resultats de la recèrca : "
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Home Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Desktop Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Documents Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Music Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Pictures Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Videos Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "Index _mounted directories"
+#~ msgid "Index Download Directory"
+#~ msgstr "Indexar los dorsièrs _montats"
+
+#, fuzzy
+#~| msgid "<b>Watch Directories</b>"
+#~ msgid "Directories"
+#~ msgstr "<b>Repertòris susvelhats</b>"
+
+#, fuzzy
+#~| msgid "Ignored Files"
+#~ msgid "Ignored Content"
+#~ msgstr "Fichièrs ignorats"
+
+#, fuzzy
+#~| msgid "File System"
+#~ msgid "System"
+#~ msgstr "Fichièrs"
+
+#, fuzzy
+#~| msgid "_Reindex"
+#~ msgid "Reindex"
+#~ msgstr "_Reïndexar"
+
+#, fuzzy
+#~| msgid "Tracker"
+#~ msgid "Restart Tracker"
+#~ msgstr "Tracker"
+
+#, fuzzy
+#~| msgid "Select more _options"
+#~ msgid "Select directory"
+#~ msgstr "Seleccionar mai d'_opcions"
+
+#, fuzzy
+#~| msgid "Tracker Preferences"
+#~ msgid "Desktop Search preferences"
+#~ msgstr "Preferéncias de Tracker"
+
+#, fuzzy, c-format
+#~| msgid "Crawling File System"
+#~ msgid "Crawling single directory '%s'"
+#~ msgstr "Indexacion del sistèma de fichièrs en cors"
+
+#, fuzzy
+#~| msgid "unknown time"
+#~ msgid "unknown time left"
+#~ msgstr "ora desconeguda"
+
+#, fuzzy
+#~| msgid "Could not terminate process %d"
+#~ msgid "Could not retrieve tracker-store progress"
+#~ msgstr "Impossible d'acabar lo processus \"%d\"."
+
+#, fuzzy
+#~| msgid "Could not run query"
+#~ msgid "Could not run SPARQL query"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not pause miner: %s"
+#~ msgid "Could not pause miner, manager could not be created, %s"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not resume miner: %s"
+#~ msgid "Could not resume miner, manager could not be created, %s"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get SPARQL connection"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not get status from miner: %s"
+#~ msgid "Could not get status, manager could not be created, %s"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not get status from miner: %s"
+#~ msgid "Could not get display name for miner '%s'"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy
+#~| msgid "General options"
+#~ msgid "Unrecognized options"
+#~ msgstr "General"
+
+#, fuzzy
+#~| msgid "Could not get search results"
+#~ msgid "Could not get D-Bus connection"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not (re)index file"
+#~ msgid "Tell miners to (re)index a given file"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not reindex mimetypes"
+#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not update tags"
+#~ msgid "Could not backup database"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "No metadata available"
+#~ msgid "No metadata available for that URI"
+#~ msgstr "Cap de metadonada pas disponibla"
+
+#, fuzzy
+#~| msgid "Results:"
+#~ msgid "Results"
+#~ msgstr "Resultats :"
+
+#, fuzzy
+#~| msgid "Could not read file"
+#~ msgid "Could not stat() file"
+#~ msgstr "Impossible de legir lo fichièr"
+
+#, fuzzy, c-format
+#~| msgid "Could not terminate process %d"
+#~ msgid "Could not terminate process %d - '%s'"
+#~ msgstr "Impossible d'acabar lo processus \"%d\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not terminate process %d"
+#~ msgid "Terminated process %d - '%s'"
+#~ msgstr "Impossible d'acabar lo processus \"%d\"."
+
+#, fuzzy, c-format
+#~| msgid "Could not terminate process %d"
+#~ msgid "Could not kill process %d - '%s'"
+#~ msgstr "Impossible d'acabar lo processus \"%d\"."
+
+#, fuzzy
+#~| msgid "Search for specified service"
+#~ msgid "Search for files"
+#~ msgstr "Recercar lo servici especificat"
+
+#, fuzzy
+#~| msgid "Search for specified service"
+#~ msgid "Search for folders"
+#~ msgstr "Recercar lo servici especificat"
+
+#, fuzzy
+#~| msgid "Search for specified service"
+#~ msgid "Search for music files"
+#~ msgstr "Recercar lo servici especificat"
+
+#, fuzzy
+#~| msgid "_Search For Tag"
+#~ msgid "Search for image files"
+#~ msgstr "_Recercar d'etiquetas"
+
+#, fuzzy
+#~| msgid "Search for specified service"
+#~ msgid "Search for video files"
+#~ msgstr "Recercar lo servici especificat"
+
+#, fuzzy
+#~| msgid ""
+#~| "See document %s\n"
+#~| "in %s"
+#~ msgid "Search for document files"
+#~ msgstr ""
+#~ "Consultar lo document %s\n"
+#~ "dins %s"
+
+#, fuzzy
+#~| msgid "_Search For Tag"
+#~ msgid "Search for emails"
+#~ msgstr "_Recercar d'etiquetas"
+
+#, fuzzy
+#~| msgid "_Search For Tag"
+#~ msgid "Search for contacts"
+#~ msgstr "_Recercar d'etiquetas"
+
+#, fuzzy
+#~| msgid "Software Categories"
+#~ msgid "No software categories were found"
+#~ msgstr "_Categorias"
+
+#, fuzzy
+#~| msgid "SQL query to use"
+#~ msgid "SPARQL query"
+#~ msgstr "requèsta SQL d'utilizar"
+
+#, fuzzy
+#~| msgid "Could not get search results"
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not search properties"
+#~ msgid "Could not create tree: class properties query failed"
+#~ msgstr "Impossible d'enregistrar lo document."
+
+#, fuzzy
+#~| msgid "Could not list classes"
+#~ msgid "Could not list class prefixes"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not list classes"
+#~ msgid "Could not find notify classes"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not list properties"
+#~ msgid "Could not find indexed properties"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Indexing"
+#~ msgid "Indexes"
+#~ msgstr "Indexacion"
+
+#, fuzzy
+#~| msgid "SQL query to use"
+#~ msgid "SQL query"
+#~ msgstr "requèsta SQL d'utilizar"
+
+#, fuzzy
+#~| msgid "Conversations:"
+#~ msgid "Configuration"
+#~ msgstr "Conversacions :"
+
+#, fuzzy
+#~| msgid "Status:"
+#~ msgid "States"
+#~ msgstr "Estat :"
+
+#, fuzzy
+#~| msgid "Statistics:"
+#~ msgid "Data Statistics"
+#~ msgstr "Estatisticas :"
+
+#, fuzzy
+#~| msgid "No metadata available"
+#~ msgid "No connection available"
+#~ msgstr "Cap de metadonada pas disponibla"
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get statistics"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "No metadata available"
+#~ msgid "No statistics were available"
+#~ msgstr "Cap de metadonada pas disponibla"
+
+#, fuzzy
+#~| msgid "Data object '%s' currently does not exist"
+#~ msgid "Database is currently empty"
+#~ msgstr "Lo document existís pas."
+
+#, fuzzy
+#~| msgid "Could not get status from miner: %s"
+#~ msgid "Could not get basic status for Tracker"
+#~ msgstr "Impossible de dobrir lo repertòri \"%s\"."
+
+#, fuzzy
+#~| msgid "FILE"
+#~ msgid "FILE…"
+#~ msgstr "FICHIÈR"
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get files related to tag"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get all tags in the database"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get files for matching tags"
+#~ msgstr "Impossible de suprimir \"%s\"."
+
+#, fuzzy
+#~| msgid "Could not get all tags"
+#~ msgid "Could not get tag by label"
+#~ msgstr "Impossible de suprimir \"%s\"."
