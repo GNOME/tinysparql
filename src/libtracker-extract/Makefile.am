@@ -31,6 +31,8 @@ libtracker_extract_la_SOURCES =  \
 	tracker-iptc.h                                 \
 	tracker-module-manager.c                       \
 	tracker-module-manager.h                       \
+	tracker-resource-helpers.c                     \
+	tracker-resource-helpers.h                     \
 	tracker-utils.c                                \
 	tracker-utils.h                                \
 	tracker-xmp.c                                  \
