@@ -53,6 +53,9 @@ G_BEGIN_DECLS
  * server somewhere), use the #TRACKER_DIRECTORY_FLAG_NO_STAT flag.
  * The default is to use stat() and assume we're mining a local or
  * mounted file system.
+ * @TRACKER_DIRECTORY_FLAG_CHECK_DELETED: Forces checks on deleted
+ * contents. This is most usually optimized away unless directory
+ * mtime changes indicate there could be deleted content.
  *
  * Flags used when adding a new directory to be indexed in the
  * #TrackerIndexingTree, #TrackerDataProvider and #TrackerEnumerator.
@@ -65,7 +68,8 @@ typedef enum {
 	TRACKER_DIRECTORY_FLAG_IGNORE          = 1 << 4,
 	TRACKER_DIRECTORY_FLAG_PRESERVE        = 1 << 5,
 	TRACKER_DIRECTORY_FLAG_PRIORITY        = 1 << 6,
-	TRACKER_DIRECTORY_FLAG_NO_STAT         = 1 << 7
+	TRACKER_DIRECTORY_FLAG_NO_STAT         = 1 << 7,
+	TRACKER_DIRECTORY_FLAG_CHECK_DELETED   = 1 << 8,
 } TrackerDirectoryFlags;
 
 /**
