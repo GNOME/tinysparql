@@ -93,6 +93,9 @@ gpointer  tracker_file_system_get_property   (TrackerFileSystem  *file_system,
 void      tracker_file_system_unset_property (TrackerFileSystem  *file_system,
                                               GFile              *file,
                                               GQuark              prop);
+gpointer  tracker_file_system_steal_property (TrackerFileSystem *file_system,
+                                              GFile             *file,
+                                              GQuark             prop);
 
 gboolean  tracker_file_system_get_property_full (TrackerFileSystem *file_system,
                                                  GFile             *file,

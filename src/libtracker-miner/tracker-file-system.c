@@ -933,6 +933,47 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 	g_array_remove_index (data->properties, index);
 }
 
+gpointer
+tracker_file_system_steal_property (TrackerFileSystem *file_system,
+                                    GFile             *file,
+                                    GQuark             prop)
+{
+	FileNodeData *data;
+	FileNodeProperty property, *match;
+	GNode *node;
+	guint index;
+	gpointer prop_value;
+
+	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
+	g_return_val_if_fail (file != NULL, NULL);
+	g_return_val_if_fail (prop > 0, NULL);
+
+	node = file_system_get_node (file_system, file);
+	g_return_val_if_fail (node != NULL, NULL);
+
+	data = node->data;
+	property.prop_quark = prop;
+
+	match = bsearch (&property, data->properties->data,
+	                 data->properties->len, sizeof (FileNodeProperty),
+	                 search_property_node);
+
+	if (!match) {
+		return NULL;
+	}
+
+	prop_value = match->value;
+
+	/* Find out the index from memory positions */
+	index = (guint) ((FileNodeProperty *) match -
+	                 (FileNodeProperty *) data->properties->data);
+	g_assert (index < data->properties->len);
+
+	g_array_remove_index (data->properties, index);
+
+	return prop_value;
+}
+
 typedef struct {
 	TrackerFileSystem *file_system;
 	GList *list;
