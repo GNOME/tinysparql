@@ -583,6 +583,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *uri;
 		gboolean is_folder;
+		GFileType file_type;
 
 		/* Sometimes URI can be NULL when nie:url and
 		 * nfo:belongsToContainer does not have a strictly 1:1
@@ -598,17 +599,22 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 		file = g_file_new_for_uri (uri);
 		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		is_folder = tracker_sparql_cursor_get_boolean (cursor, 3);
+		file_type = is_folder ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_UNKNOWN;
+		canonical = tracker_file_system_peek_file (priv->file_system, file);
 
-		if (!tracker_file_system_peek_file (priv->file_system, file)) {
+		if (!canonical) {
 			/* The file exists on the store, but not on the
 			 * crawled content, insert temporarily to handle
 			 * the delete event.
 			 */
 			canonical = _insert_store_info (notifier, file,
-			                                is_folder ?
-			                                G_FILE_TYPE_DIRECTORY :
-			                                G_FILE_TYPE_UNKNOWN,
+							file_type,
 			                                iri, 0);
+			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
+		} else if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+		                                                     canonical,
+		                                                     file_type)) {
+			/* File is there, but is not indexable anymore, remove too */
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 		}
 
