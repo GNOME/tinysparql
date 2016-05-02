@@ -1029,6 +1029,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		                          priv->current_index_root->query_files->len, max_depth);
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 	} else {
+		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 		file_notifier_traverse_tree (notifier, max_depth);
 		finish_current_directory (notifier, FALSE);
 	}
