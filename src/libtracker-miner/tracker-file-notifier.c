@@ -707,11 +707,12 @@ finish_current_directory (TrackerFileNotifier *notifier,
 		        priv->current_index_root->files_found,
 		        priv->current_index_root->files_ignored);
 
-		root_data_free (priv->current_index_root);
-		priv->current_index_root = NULL;
+		if (!interrupted) {
+			root_data_free (priv->current_index_root);
+			priv->current_index_root = NULL;
 
-		if (!interrupted)
 			notifier_check_next_root (notifier);
+		}
 	}
 
 	g_object_unref (directory);
@@ -1841,6 +1842,11 @@ tracker_file_notifier_stop (TrackerFileNotifier *notifier)
 
 	if (!priv->stopped) {
 		tracker_crawler_stop (priv->crawler);
+
+		if (priv->current_index_root) {
+			root_data_free (priv->current_index_root);
+			priv->current_index_root = NULL;
+		}
 
 		g_cancellable_cancel (priv->cancellable);
 		priv->stopped = TRUE;
