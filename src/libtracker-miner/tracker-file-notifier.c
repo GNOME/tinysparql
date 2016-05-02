@@ -1035,6 +1035,15 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	}
 }
 
+static gint
+find_directory_root (RootData *data,
+                     GFile    *file)
+{
+	if (data->root == file)
+		return 0;
+	return -1;
+}
+
 static void
 notifier_queue_file (TrackerFileNotifier   *notifier,
                      GFile                 *file,
@@ -1042,6 +1051,14 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	RootData *data = root_data_new (notifier, file, flags);
+
+	if (priv->current_index_root &&
+	    priv->current_index_root->root == file)
+		return;
+
+	if (g_list_find_custom (priv->pending_index_roots, file,
+	                        (GCompareFunc) find_directory_root))
+		return;
 
 	if (flags & TRACKER_DIRECTORY_FLAG_PRIORITY) {
 		priv->pending_index_roots = g_list_prepend (priv->pending_index_roots, data);
@@ -1415,15 +1432,6 @@ indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
 	                                          G_FILE_TYPE_DIRECTORY, NULL);
 	notifier_queue_file (notifier, directory, flags);
 	crawl_directories_start (notifier);
-}
-
-static gint
-find_directory_root (RootData *data,
-                     GFile    *file)
-{
-	if (data->root == file)
-		return 0;
-	return -1;
 }
 
 static void
