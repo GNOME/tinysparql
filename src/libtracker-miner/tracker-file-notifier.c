@@ -1453,6 +1453,24 @@ indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
 }
 
 static void
+indexing_tree_directory_updated (TrackerIndexingTree *indexing_tree,
+                                 GFile               *directory,
+                                 gpointer             user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerDirectoryFlags flags;
+
+	tracker_indexing_tree_get_root (indexing_tree, directory, &flags);
+	flags |= TRACKER_DIRECTORY_FLAG_CHECK_DELETED;
+
+	directory = tracker_file_system_get_file (priv->file_system, directory,
+	                                          G_FILE_TYPE_DIRECTORY, NULL);
+	notifier_queue_file (notifier, directory, flags);
+	crawl_directories_start (notifier);
+}
+
+static void
 indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
                                  GFile               *directory,
                                  gpointer             user_data)
@@ -1593,7 +1611,7 @@ tracker_file_notifier_constructed (GObject *object)
 	g_signal_connect (priv->indexing_tree, "directory-added",
 	                  G_CALLBACK (indexing_tree_directory_added), object);
 	g_signal_connect (priv->indexing_tree, "directory-updated",
-	                  G_CALLBACK (indexing_tree_directory_added), object);
+	                  G_CALLBACK (indexing_tree_directory_updated), object);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
 
