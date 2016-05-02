@@ -1867,6 +1867,7 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 
 	if (!iri && force) {
 		TrackerSparqlCursor *cursor;
+		const gchar *str;
 		gchar *sparql;
 
 		/* Fetch data for this file synchronously */
@@ -1875,14 +1876,19 @@ tracker_file_notifier_get_file_iri (TrackerFileNotifier *notifier,
 		                                          sparql, NULL, NULL);
 		g_free (sparql);
 
-		if (cursor) {
-			sparql_files_query_populate (notifier, cursor, FALSE);
+		if (!cursor)
+			return NULL;
+
+		if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			g_object_unref (cursor);
+			return NULL;
 		}
 
-		iri = tracker_file_system_get_property (priv->file_system,
-		                                        canonical,
-		                                        quark_property_iri);
+		str = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		iri = g_strdup (str);
+		tracker_file_system_set_property (priv->file_system, canonical,
+		                                  quark_property_iri, iri);
+		g_object_unref (cursor);
 	}
 
 	return iri;
