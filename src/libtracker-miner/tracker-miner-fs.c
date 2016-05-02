@@ -2562,6 +2562,7 @@ item_queue_handlers_cb (gpointer user_data)
 
 		if (!parent ||
 		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
+		    !tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, NULL) ||
 		    lookup_file_urn (fs, parent, TRUE)) {
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
