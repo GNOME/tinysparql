@@ -1098,7 +1098,8 @@ prepend_config_root (GNode    *node,
 	GList **list = user_data;
 	NodeData *data = node->data;
 
-	*list = g_list_prepend (*list, data->file);
+	if (!data->shallow && !data->removing)
+		*list = g_list_prepend (*list, data->file);
 	return FALSE;
 }
 
