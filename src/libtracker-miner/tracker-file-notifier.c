@@ -456,9 +456,12 @@ file_notifier_add_node_foreach (GNode    *node,
 			                   g_object_ref (canonical));
 		}
 
-		if (depth != 0 || file == priv->current_index_root->root)
+		if (file == priv->current_index_root->root ||
+		    (depth != 0 &&
+		     !tracker_indexing_tree_file_is_root (priv->indexing_tree, file))) {
 			g_ptr_array_add (priv->current_index_root->query_files,
-					 g_object_ref (canonical));
+			                 g_object_ref (canonical));
+		}
 	}
 
 	return FALSE;
