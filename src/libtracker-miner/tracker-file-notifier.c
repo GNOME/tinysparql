@@ -285,18 +285,25 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	 * it here again.
 	 */
 	if (current_root == file &&
-	    current_root != priv->current_index_root->root)
+	    current_root != priv->current_index_root->root) {
+		tracker_file_system_unset_property (priv->file_system, file,
+		                                    quark_property_filesystem_mtime);
+		tracker_file_system_unset_property (priv->file_system, file,
+		                                    quark_property_store_mtime);
 		return FALSE;
+	}
 
-	store_mtime = tracker_file_system_get_property (priv->file_system, file,
-	                                                quark_property_store_mtime);
-	disk_mtime = tracker_file_system_get_property (priv->file_system, file,
-	                                               quark_property_filesystem_mtime);
+	store_mtime = tracker_file_system_steal_property (priv->file_system, file,
+	                                                  quark_property_store_mtime);
+	disk_mtime = tracker_file_system_steal_property (priv->file_system, file,
+	                                                 quark_property_filesystem_mtime);
 
 	if (store_mtime && !disk_mtime) {
 		/* In store but not in disk, delete */
 		g_signal_emit (notifier, signals[FILE_DELETED], 0, file);
 
+		g_free (store_mtime);
+		g_free (disk_mtime);
 		return TRUE;
 	} else if (disk_mtime && !store_mtime) {
 		/* In disk but not in store, create */
@@ -320,6 +327,9 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 			g_free (uri);
 		}
 	}
+
+	g_free (store_mtime);
+	g_free (disk_mtime);
 
 	return FALSE;
 }
