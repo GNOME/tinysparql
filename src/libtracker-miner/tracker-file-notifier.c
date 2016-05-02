@@ -65,6 +65,7 @@ typedef struct {
 	guint directories_ignored;
 	guint files_found;
 	guint files_ignored;
+	guint current_dir_content_filtered : 1;
 } RootData;
 
 typedef struct {
@@ -262,6 +263,8 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 		} else {
 			tracker_monitor_remove (priv->monitor, canonical);
 		}
+	} else {
+		priv->current_index_root->current_dir_content_filtered = TRUE;
 	}
 
 	return process;
@@ -611,7 +614,8 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 							file_type,
 			                                iri, 0);
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
-		} else if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+		} else if (priv->current_index_root->current_dir_content_filtered ||
+		           !tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 		                                                     canonical,
 		                                                     file_type)) {
 			/* File is there, but is not indexable anymore, remove too */
@@ -671,6 +675,7 @@ finish_current_directory (TrackerFileNotifier *notifier,
 	priv = notifier->priv;
 	directory = priv->current_index_root->current_dir;
 	priv->current_index_root->current_dir = NULL;
+	priv->current_index_root->current_dir_content_filtered = FALSE;
 
 	/* If crawling was interrupted, we take all collected info as invalid.
 	 * Otherwise we dispose regular files here, only directories are
@@ -880,6 +885,7 @@ sparql_files_query_cb (GObject      *object,
 	flags = priv->current_index_root->flags;
 
 	if ((flags & TRACKER_DIRECTORY_FLAG_CHECK_DELETED) != 0 ||
+	    priv->current_index_root->current_dir_content_filtered ||
 	    file_notifier_is_directory_modified (notifier, directory)) {
 		/* The directory has updated its mtime, this means something
 		 * was either added or removed in the mean time. Crawling
