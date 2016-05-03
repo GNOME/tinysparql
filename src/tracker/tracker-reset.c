@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -33,6 +34,7 @@
 #include "tracker-daemon.h"
 #include "tracker-process.h"
 #include "tracker-config.h"
+#include "tracker-color.h"
 
 static gboolean hard_reset;
 static gboolean soft_reset;
@@ -132,6 +134,32 @@ reset_run (void)
 		g_printerr ("%s\n",
 		            _("You can not use the --hard and --soft arguments together"));
 		return EXIT_FAILURE;
+	}
+
+	if (hard_reset || soft_reset) {
+		gchar response[100] = { 0 };
+
+		g_print (CRIT_BEGIN "%s" CRIT_END "\n%s\n\n%s %s: ",
+		         _("CAUTION: This process may irreversibly delete data."),
+		         _("Although most content indexed by Tracker can "
+		           "be safely reindexed, it can't be assured that "
+		           "this is the case for all data. Be aware that "
+		           "you may be incurring in a data loss situation, "
+		           "proceed at your own risk."),
+		         _("Are you sure you want to proceed?"),
+		         /* TRANSLATORS: This is to be displayed on command line output */
+		         _("[y|N]"));
+
+		fgets (response, 100, stdin);
+		response[strlen (response) - 1] = '\0';
+
+		/* TRANSLATORS: this is our test for a [y|N] question in the command line.
+		 * A partial or full match will be considered an affirmative answer,
+		 * it is intentionally lowercase, so please keep it like this.
+		 */
+		if (!response[0] || !g_str_has_prefix (_("yes"), response)) {
+			return EXIT_FAILURE;
+		}
 	}
 
 	/* KILL processes first... */

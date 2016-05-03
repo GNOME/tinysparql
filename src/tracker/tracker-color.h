@@ -29,4 +29,7 @@
 #define WARN_BEGIN    "\033[33m"   /* Yellow */
 #define WARN_END      "\033[0m"
 
+#define CRIT_BEGIN "\033[1;31m" /* Red */
+#define CRIT_END   "\033[0m"
+
 #endif /* __TRACKER_COLOR_H__ */
