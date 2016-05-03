@@ -45,7 +45,6 @@ public class Tracker.Preferences {
 	private Window window;
 	private CheckButton checkbutton_enable_index_on_battery_first_time;
 	private CheckButton checkbutton_enable_index_on_battery;
-	private SpinButton spinbutton_delay;
 	private CheckButton checkbutton_enable_monitoring;
 	private CheckButton checkbutton_index_removable_media;
 	private CheckButton checkbutton_index_optical_discs;
@@ -74,7 +73,6 @@ public class Tracker.Preferences {
 	private CheckButton checkbutton_index_file_content;
 	private CheckButton checkbutton_index_numbers;
 	private Box hbox_duplicate_warning;
-	private Button button_reindex;
 	private Notebook notebook;
 
 	public Preferences () {
@@ -135,7 +133,6 @@ public class Tracker.Preferences {
 		checkbutton_enable_monitoring = builder.get_object ("checkbutton_enable_monitoring") as CheckButton;
 		checkbutton_enable_index_on_battery = builder.get_object ("checkbutton_enable_index_on_battery") as CheckButton;
 		checkbutton_enable_index_on_battery_first_time = builder.get_object ("checkbutton_enable_index_on_battery_first_time") as CheckButton;
-		spinbutton_delay = builder.get_object ("spinbutton_delay") as SpinButton;
 		checkbutton_index_removable_media = builder.get_object ("checkbutton_index_removable_media") as CheckButton;
 		checkbutton_index_optical_discs = builder.get_object ("checkbutton_index_optical_discs") as CheckButton;
 		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
@@ -154,8 +151,6 @@ public class Tracker.Preferences {
 		checkbutton_index_file_content = builder.get_object ("checkbutton_index_file_content") as CheckButton;
 		checkbutton_index_numbers = builder.get_object ("checkbutton_index_numbers") as CheckButton;
 		hbox_duplicate_warning = builder.get_object ("hbox_duplicate_warning") as Box;
-
-		button_reindex = builder.get_object ("button_reindex") as Button;
 
 		treeview_index = builder.get_object ("treeview_index") as TreeView;
 		treeviewcolumn_index1 = builder.get_object ("treeviewcolumn_index1") as TreeViewColumn;
@@ -179,8 +174,6 @@ public class Tracker.Preferences {
 		checkbutton_enable_index_on_battery.active = settings_miner_fs.get_boolean ("index-on-battery");
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!checkbutton_enable_index_on_battery.active);
 		checkbutton_enable_index_on_battery_first_time.active = settings_miner_fs.get_boolean ("index-on-battery-first-time");
-		spinbutton_delay.set_increments (1, 1);
-		spinbutton_delay.value = (double) settings_miner_fs.get_int ("initial-sleep");
 		checkbutton_enable_monitoring.active = settings_miner_fs.get_boolean ("enable-monitors");
 		checkbutton_index_removable_media.active = settings_miner_fs.get_boolean ("index-removable-devices");
 		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
@@ -241,10 +234,6 @@ public class Tracker.Preferences {
 		setup_ui ();
 
 		window.show ();
-	}
-
-	void reindex () {
-		Posix.system ("tracker reset --hard && tracker daemon --start");
 	}
 
 	// This function is used to fix up the parameter ordering for callbacks
@@ -328,11 +317,6 @@ public class Tracker.Preferences {
 		}
 
 		Gtk.main_quit ();
-	}
-
-	[CCode (instance_pos = -1)]
-	public void spinbutton_delay_value_changed_cb (SpinButton source) {
-		settings_miner_fs.set_int ("initial-sleep", source.get_value_as_int ());
 	}
 
 	[CCode (instance_pos = -1)]
@@ -520,11 +504,6 @@ public class Tracker.Preferences {
 		settings_fts.set_boolean ("ignore-numbers", !source.active);
 		reset_parser ();
 		suggest_restart = true;
-	}
-
-	[CCode (instance_pos = -1)]
-	public void button_reindex_clicked_cb (Button source) {
-		reindex ();
 	}
 
 	private void toggles_update (UserDirectory[] matches, bool active) {
