@@ -1293,6 +1293,9 @@ get_id3v24_tags (id3v24frame           frame,
 		offset        = 4 + text_desc_len + id3v2_nul_size (text_encode);
 		text          = &data[pos + offset]; /* <full text string according to encoding> */
 
+		if (offset >= csize)
+			break;
+
 		word = id3v24_text_to_utf8 (text_encode, text, csize - offset, info);
 
 		if (!tracker_is_empty_string (word)) {
