@@ -1323,69 +1323,86 @@ open_database (TrackerDBInterface  *db_interface,
 	sqlite3_progress_handler (db_interface->db, 100,
 	                          check_interrupt, db_interface);
 
-	sqlite3_create_function (db_interface->db, "SparqlRegex", 3, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlRegex", 3,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_regex,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlHaversineDistance", 4, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlHaversineDistance", 4,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_haversine_distance,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlCartesianDistance", 4, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlCartesianDistance", 4,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_cartesian_distance,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlStringFromFilename", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlStringFromFilename", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_string_from_filename,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlStringJoin", -1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlStringJoin", -1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_string_join,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlUriIsParent", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlUriIsParent", 2,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_uri_is_parent,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", -1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", -1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_uri_is_descendant,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_lower_case,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_case_fold,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlNormalize", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlNormalize", 2,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_normalize,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlUnaccent", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlUnaccent", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_unaccent,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_format_time,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlEncodeForUri", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlEncodeForUri", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_encode_for_uri,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlStringBefore", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlStringBefore", 2,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_string_before,
 	                         NULL, NULL);
-	sqlite3_create_function (db_interface->db, "SparqlStringAfter", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlStringAfter", 2,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_string_after,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlCeil", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlCeil", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_ceil,
 	                         NULL, NULL);
-	sqlite3_create_function (db_interface->db, "SparqlFloor", 1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlFloor", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_floor,
 	                         NULL, NULL);
 
@@ -1393,11 +1410,13 @@ open_database (TrackerDBInterface  *db_interface,
 	                         db_interface, &function_sparql_rand,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlChecksum", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlChecksum", 2,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_checksum,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlReplace", -1, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlReplace", -1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_replace,
 	                         NULL, NULL);
 
