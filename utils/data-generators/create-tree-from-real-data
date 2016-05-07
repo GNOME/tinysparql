@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+
+'''Create tree from real data!
+
+This script is to generate a directory tree full of media files, which
+you can use for testing Tracker against. It works by using real media
+files from the computer you're running on. So it's more realistic than
+testing with completely faked data, but you can exert *some* control
+over the test environment by specifying how many files of each type
+that you want to have.
+
+The real media files are discovered using the Tracker instance of
+the current running user.
+
+It analyses the existing extract rules to ensure every extractor is
+covered by the test data (warning if no data is available).
+
+Example usage:
+
+    ./create-tree-from-real-data --output-dir=~/tracker-test-data/ \
+        --rules-dir=/opt/tracker-unstable/share/tracker/extract-rules
+
+'''
+
+from gi.repository import Tracker
+
+import argparse
+import os
+import sys
+
+if sys.version_info[0] >= 3:
+    import configparser
+    import urllib.parse as urlparse
+    from urllib.parse import unquote as url_unquote
+else:
+    import ConfigParser as configparser
+    import urlparse
+    from urllib import unquote as url_unquote
+
+
+def argument_parser():
+    parser = argparse.ArgumentParser(
+        description="Assemble test data for the Tracker extractors.")
+    parser.add_argument(
+        '--rules-dir', default='/usr/share/tracker/extract-rules',
+        help="location to find Tracker extract rules (default: %(default)s)")
+    parser.add_argument(
+        '--output-dir', default=None,
+        help="where to create the tree of test data files")
+    parser.add_argument(
+        '--limit', default=10,
+        help="number of files to include in the tree, per extract module")
+    return parser
+
+
+def read_tracker_extract_rule(filename):
+    assert os.path.exists(filename)
+    parser = configparser.ConfigParser()
+    try:
+        parser.read(filename)
+        return dict(parser.items('ExtractorRule'))
+    except configparser.Error as e:
+        raise RuntimeError("%s: %s" % (filename, e))
+
+
+def read_tracker_extract_rules(rules_dir):
+    '''Returns a dict mapping extract module name to the MIME types it reads.
+
+    '''
+    rule_map = {}
+
+    for rule_filename in os.listdir(rules_dir):
+        rule = read_tracker_extract_rule(os.path.join(rules_dir, rule_filename))
+
+        if 'modulepath' not in rule:
+            # Ignore fallback-only rules
+            continue
+
+        module = rule['modulepath']
+        mimetypes = rule['mimetypes'].rstrip(';').split(';')
+
+        if len(mimetypes) == 0:
+            continue
+
+        if module in rule_map:
+            rule_map[module].update(mimetypes)
+        else:
+            rule_map[module] = set(mimetypes)
+
+    return rule_map
+
+
+def make_sparql_list(items):
+    return ', '.join("'" + Tracker.sparql_escape_string(t) + "'" for t in items)
+
+
+def resources_with_mime_types(db, mime_types, limit=10):
+    query = '''
+        SELECT ?url {
+            ?r nie:url ?url ;
+                nie:mimeType ?mime .
+            FILTER ( ?mime IN (%s) )
+        }
+        LIMIT %i
+    ''' % (make_sparql_list(mime_types), limit)
+
+    result = db.query(query)
+    while result.next():
+        yield result.get_string(0)[0]
+
+
+def file_url_to_path(url):
+    '''Convert file:// URL to a pathname.'''
+    scheme, netloc, path, params, query, fragment = urlparse.urlparse(url)
+    if scheme != 'file':
+        raise RuntimeError("Only file:// URLs are supported.")
+    if any([netloc, params, query, fragment]):
+        raise RuntimeError("URL has info other than a file path: %s", url)
+    return url_unquote(path)
+
+
+def unique_output_name(path):
+    if os.path.exists(path):
+        tail = 2
+        while os.path.exists(path + ('.%s' % tail)):
+            tail += 1
+        path = path + ('.%s' % tail)
+    return path
+
+
+def main():
+    args = argument_parser().parse_args()
+
+    rule_map = read_tracker_extract_rules(args.rules_dir)
+
+    db = Tracker.SparqlConnection.get()
+
+    show_only = (args.output_dir == None)
+
+    if show_only:
+        print("No output dir specified, writing information to stdout.")
+
+    extractors_with_no_files = []
+
+    for extractor, mime_types in rule_map.items():
+        resources = list(resources_with_mime_types(db, mime_types, limit=2))
+
+        if (len(resources) == 0):
+            extractors_with_no_files.append(extractor)
+        elif show_only:
+            sys.stdout.write(extractor)
+            sys.stdout.write('\n  - ')
+            sys.stdout.write('\n  - '.join(resources))
+            sys.stdout.write('\n\n')
+        else:
+            output_dir = os.path.expanduser(
+                os.path.join(args.output_dir, extractor))
+            sys.stdout.write("Creating %i links in: %s\n" % (
+                len(resources), output_dir))
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            for uri in resources:
+                src_path = file_url_to_path(uri)
+                if not os.path.exists(src_path):
+                    raise RuntimeError("Tracker returned non-existant file %s"
+                                       % src_path)
+                src_name = os.path.basename(src_path)
+                dst = unique_output_name(os.path.join(output_dir, src_name))
+                try:
+                    os.symlink(src_path, dst)
+                except OSError as e:
+                    raise RuntimeError("%s: %s" % (dst, e))
+
+    sys.stdout.write("\nExtractors with no data available:\n")
+    for extractor in extractors_with_no_files:
+        sys.stdout.write("  %s (mime types: %s)\n" % (extractor, ' '.join(rule_map[extractor])))
+
+
+main()
