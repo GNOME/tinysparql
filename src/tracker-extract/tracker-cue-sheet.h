@@ -41,6 +41,12 @@ typedef struct {
 } TrackerToc;
 
 void        tracker_toc_free            (TrackerToc  *toc);
+TrackerToc *tracker_toc_new             (void);
+
+void        tracker_toc_add_entry       (TrackerToc *toc,
+                                         GstTagList *tags,
+                                         gdouble     start,
+                                         gdouble     duration);
 
 TrackerToc *tracker_cue_sheet_parse     (const gchar *cue_sheet);
 TrackerToc *tracker_cue_sheet_parse_uri (const gchar *uri);

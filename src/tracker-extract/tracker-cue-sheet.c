@@ -39,9 +39,7 @@
 
 #include "tracker-cue-sheet.h"
 
-#if defined(HAVE_LIBCUE)
-
-static TrackerToc *
+TrackerToc *
 tracker_toc_new (void)
 {
 	TrackerToc *toc;
@@ -52,8 +50,6 @@ tracker_toc_new (void)
 
 	return toc;
 }
-
-#endif /* HAVE_LIBCUE */
 
 void
 tracker_toc_free (TrackerToc *toc)
@@ -75,6 +71,22 @@ tracker_toc_free (TrackerToc *toc)
 	g_list_free (toc->entry_list);
 
 	g_slice_free (TrackerToc, toc);
+}
+
+void
+tracker_toc_add_entry (TrackerToc *toc,
+                       GstTagList *tags,
+                       gdouble     start,
+                       gdouble     duration)
+{
+	TrackerTocEntry *toc_entry;
+
+	toc_entry = g_slice_new (TrackerTocEntry);
+	toc_entry->tag_list = gst_tag_list_ref (tags);
+	toc_entry->start = start;
+	toc_entry->duration = duration;
+
+	toc->entry_list = g_list_append (toc->entry_list, toc_entry);
 }
 
 #if defined(HAVE_LIBCUE)

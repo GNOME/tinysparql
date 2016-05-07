@@ -101,6 +101,7 @@ typedef enum {
 typedef struct {
 	ExtractMime     mime;
 	GstTagList     *tagcache;
+	GstToc         *gst_toc;
 	TrackerToc     *toc;
 	gboolean        is_content_encrypted;
 
@@ -453,6 +454,46 @@ get_embedded_cue_sheet_data (GstTagList *tag_list)
 	}
 
 	return NULL;
+}
+
+static TrackerToc *
+translate_discoverer_toc (GstToc *gst_toc)
+{
+	const GList *entries, *l;
+	TrackerToc *toc;
+	gint i = 0;
+
+	entries = gst_toc_get_entries (gst_toc);
+	if (!entries)
+		return NULL;
+
+	toc = tracker_toc_new ();
+
+	for (l = entries; l; l = l->next) {
+		GstTocEntry *entry = l->data;
+		GstTagList *tags, *copy = NULL;
+		gint64 start, stop;
+
+		tags = gst_toc_entry_get_tags (entry);
+
+		if (tags) {
+			copy = gst_tag_list_copy (tags);
+
+			if (gst_tag_list_get_tag_size (copy, GST_TAG_TRACK_NUMBER) == 0) {
+				gst_tag_list_add (copy, GST_TAG_MERGE_REPLACE,
+				                  GST_TAG_TRACK_NUMBER, i + 1,
+				                  NULL);
+			}
+		}
+
+		gst_toc_entry_get_start_stop_times (entry, &start, &stop);
+		tracker_toc_add_entry (toc, copy, (gdouble) start / GST_SECOND,
+		                       (gdouble) (stop - start) / GST_SECOND);
+		gst_tag_list_unref (copy);
+		i++;
+	}
+
+	return toc;
 }
 
 #ifdef HAVE_LIBMEDIAART
@@ -1546,6 +1587,10 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	}
 #endif
 
+	extractor->gst_toc = gst_discoverer_info_get_toc (info);
+	if (extractor->gst_toc)
+		gst_toc_ref (extractor->gst_toc);
+
 	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
 
 	/* Retrieve global tags */
@@ -1661,6 +1706,10 @@ tracker_extract_gstreamer (const gchar          *uri,
 			extractor->toc = tracker_cue_sheet_parse_uri (uri);
 		}
 
+		if (extractor->toc == NULL) {
+			extractor->toc = translate_discoverer_toc (extractor->gst_toc);
+		}
+
 		extract_metadata (extractor,
 		                  uri,
 		                  preupdate,
@@ -1723,6 +1772,9 @@ tracker_extract_gstreamer (const gchar          *uri,
 	gst_tag_list_free (extractor->tagcache);
 
 	tracker_toc_free (extractor->toc);
+
+	if (extractor->gst_toc)
+		gst_toc_unref (extractor->gst_toc);
 
 	g_slist_foreach (extractor->artist_list, (GFunc)g_free, NULL);
 	g_slist_free (extractor->artist_list);
