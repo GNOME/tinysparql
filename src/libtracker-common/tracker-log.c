@@ -267,12 +267,6 @@ tracker_log_init (gint    this_verbosity,
 			                            hide_levels,
 			                            hide_log_handler,
 			                            NULL);
-
-		/* Do the same for 'libmediaart' log output */
-		log_handler_id = g_log_set_handler ("libmediaart",
-			                            hide_levels,
-			                            hide_log_handler,
-			                            NULL);
 	}
 
 	/* Set log handler function for the rest */
