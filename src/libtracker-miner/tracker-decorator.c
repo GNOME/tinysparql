@@ -290,6 +290,52 @@ decorator_update_state (TrackerDecorator *decorator,
 }
 
 static void
+item_warn (TrackerSparqlConnection *conn,
+           gint                     id,
+           const gchar             *sparql,
+           const GError            *error)
+{
+	TrackerSparqlCursor *cursor;
+	const gchar *elem;
+	gchar *query;
+
+	query = g_strdup_printf ("SELECT COALESCE (nie:url (?u), ?u) {"
+	                         "  ?u a rdfs:Resource. "
+	                         "  FILTER (tracker:id (?u) = %d)"
+	                         "}", id);
+
+	cursor = tracker_sparql_connection_query (conn, query, NULL, NULL);
+	g_free (query);
+
+	g_debug ("--8<------------------------------");
+	g_debug ("The information relevant for a bug report is between "
+	         "the dotted lines");
+
+	if (cursor &&
+	    tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		elem = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		g_warning ("Could not insert metadata for item \"%s\": %s",
+		           elem, error->message);
+	} else {
+		g_warning ("Could not insert metadata for item with ID %d: %s",
+		           id, error->message);
+	}
+
+	g_warning ("If the error above is recurrent for the same item/ID, "
+	           "consider running \"%s\" in the terminal with the "
+	           "TRACKER_VERBOSITY=3 environment variable, and filing a "
+	           "bug with the additional information", g_get_prgname ());
+
+	g_debug ("Sparql was:\n%s", sparql);
+	g_debug ("NOTE: The information above may contain data you "
+	         "consider sensitive. Feel free to edit it out, but please "
+	         "keep it as unmodified as you possibly can.");
+	g_debug ("------------------------------>8--");
+
+	g_clear_object (&cursor);
+}
+
+static void
 decorator_commit_cb (GObject      *object,
                      GAsyncResult *result,
                      gpointer      user_data)
@@ -318,24 +364,11 @@ decorator_commit_cb (GObject      *object,
 			child_error = g_ptr_array_index (errors, i);
 			update = &g_array_index (priv->commit_buffer, SparqlUpdate, i);
 
-			if (child_error) {
-				gchar *msg, *p;
+			if (!child_error)
+				continue;
 
-				decorator_blacklist_add (decorator, update->id);
-
-				msg = g_strdup (update->sparql);
-				p = strstr (msg, "nie:plainTextContent");
-
-				if (p != NULL)
-					*p = '\0';
-
-				g_warning ("Task %d, error: %s\n"
-				           "Sparql was:\n%s\n",
-				           i, child_error->message,
-				           msg);
-
-				g_free (msg);
-			}
+			decorator_blacklist_add (decorator, update->id);
+			item_warn (conn, update->id, update->sparql, child_error);
 		}
 
 		g_ptr_array_unref (errors);
