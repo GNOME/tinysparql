@@ -1706,7 +1706,8 @@ tracker_extract_gstreamer (const gchar          *uri,
 			extractor->toc = tracker_cue_sheet_parse_uri (uri);
 		}
 
-		if (extractor->toc == NULL) {
+		if (extractor->toc == NULL &&
+		    extractor->gst_toc != NULL) {
 			extractor->toc = translate_discoverer_toc (extractor->gst_toc);
 		}
 
