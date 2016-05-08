@@ -42,7 +42,7 @@ m4_define([tracker_binary_version], [1.0.0])
 
 AC_INIT([tracker],
         [tracker_version],
-        [http://bugzilla.gnome.org/],
+        [http://bugzilla.gnome.org/enter_bug.cgi?product=tracker],
         [tracker],
         [https://wiki.gnome.org/Projects/Tracker])
 
