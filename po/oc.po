@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
 "&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-02-27 02:56+0000\n"
-"PO-Revision-Date: 2016-02-27 15:13+0200\n"
+"POT-Creation-Date: 2016-04-29 14:41+0000\n"
+"PO-Revision-Date: 2016-05-08 18:54+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -96,7 +96,7 @@ msgstr "Longor maximala dels mots d'indexar"
 msgid ""
 "Words with more characters than this length will be ignored by the indexer."
 msgstr ""
-"Los mots contenant mai de caractèrs qu'aqueste nombre seràn ignorats per "
+"Los mots que contenon mai de caractèrs qu'aqueste nombre seràn ignorats per "
 "l'indexador."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
@@ -153,7 +153,7 @@ msgid ""
 "words like 'the', 'yes', 'no', etc."
 msgstr ""
 "Se activat, los mots de la lista dels mots voids son ignorats. Per ex., de "
-"mots corrents coma « lo », « oui », « non », etc."
+"mots corrents coma « lo », « òc », « non », etc."
 
 #: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -181,7 +181,7 @@ msgstr "Error d'aviada del programa « tar »"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:147
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -193,8 +193,8 @@ msgstr "Error d'aviada del programa « tar »"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:201
-#: ../src/tracker/tracker-process.c:330 ../src/tracker/tracker-process.c:351
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
@@ -220,8 +220,8 @@ msgstr "Operacion pas presa en carga"
 #: ../src/libtracker-miner/tracker-miner-object.c:997
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
-"L'aplicacion e la rason de la pausa correspondent a una requèsta de pausa ja "
-"existenta"
+"L'aplicacion e la rason de la pausa que correspond a una requèsta de pausa "
+"existís ja"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:1096
 msgid "Cookie not recognized to resume paused miner"
@@ -286,7 +286,7 @@ msgstr "Collector d'aplicacions de Tracker"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
 msgid "Indexes information about applications installed"
-msgstr "Indèxa las informacions relatives a las aplicacions installadas"
+msgstr "Indèxa las informacions relativas a las aplicacions installadas"
 
 #: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:1
 msgid "File System"
@@ -345,14 +345,14 @@ msgstr ""
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
 msgid "Low disk space limit"
-msgstr "Limita d'espaci de disc faible"
+msgstr "Limit d'espaci de disc feble"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid ""
 "Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
 "Sulhet d'espaci de disc exprimit en percentatge a partir del qual cal "
-"suspendre l'indexacion o -1 per desactivar."
+"metre l'indexacion en pausa o -1 per desactivar."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -494,7 +494,7 @@ msgstr "Lista de repertòris d'ignorar"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
 msgid "Ignored directories with content"
-msgstr "Repertòris ignorats selon lor contengut"
+msgstr "Repertòris ignorats segon lor contengut"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
 msgid "Avoid any directory containing a file blacklisted here"
@@ -513,7 +513,7 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:88
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
-"Vérifie se FICHIÈR es susceptible d'èsser extrach en foncion de la "
+"Verifica se FICHIÈR es susceptible d'èsser extrait en foncion de la "
 "configuracion"
 
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
@@ -532,72 +532,72 @@ msgstr "L'objet de donada « %s » existís ja"
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
-msgstr "L'objet de donada « %s » existís pas encore"
+msgstr "L'objet de donada « %s » existís pas encara"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr "Lo dorsièr es susceptible d'èsser extrach (en foncion de las règlas)"
+msgstr "Lo dorsièr es susceptible d'èsser extrait (en foncion de las règlas)"
 
 #: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
-"Lo dorsièr es PAS susceptible d'èsser extrach (en foncion de las règlas)"
+"Lo dorsièr es PAS susceptible d'èsser extrait (en foncion de las règlas)"
 
 #: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr "Lo dorsièr es susceptible d'èsser extrach (sur la base del contengut)"
+msgstr "Lo dorsièr es susceptible d'èsser extrait (sur la base del contengut)"
 
 #: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
-"Lo dorsièr es PAS susceptible d'èsser extrach (en foncion del contengut)"
+"Lo dorsièr es PAS susceptible d'èsser extrait (en foncion del contengut)"
 
 #: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr ""
-"Lo dorsièr es susceptible d'èsser surveillé (en foncion de la configuracion)"
+"Lo dorsièr es susceptible d'èsser susvelhat (en foncion de la configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
-"Lo dorsièr es PAS susceptible d'èsser surveillé (en foncion de la "
+"Lo dorsièr es PAS susceptible d'èsser susvelhat (en foncion de la "
 "configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
 msgstr ""
-"Lo fichièr es susceptible d'èsser surveillé (en foncion de la configuracion)"
+"Lo fichièr es susceptible d'èsser susvelhat (en foncion de la configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr ""
-"Lo fichièr es PAS susceptible d'èsser surveillé (en foncion de la "
+"Lo fichièr es PAS susceptible d'èsser susvelhat (en foncion de la "
 "configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
-"Lo fichièr o lo dorsièr es susceptible d'èsser surveillé (en foncion de la "
+"Lo fichièr o lo dorsièr es susceptible d'èsser susvelhat (en foncion de la "
 "configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
-"Lo fichièr o lo dorsièr es PAS susceptible d'èsser surveillé (en foncion de "
+"Lo fichièr o lo dorsièr es PAS susceptible d'èsser susvelhat (en foncion de "
 "la configuracion)"
 
 #: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
-msgstr "Lo fichièr es susceptible d'èsser extrach (en foncion de las règlas)"
+msgstr "Lo fichièr es susceptible d'èsser extrait (en foncion de las règlas)"
 
 #: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr ""
-"Lo fichièr es PAS susceptible d'èsser extrach (en foncion de las règlas)"
+"Lo fichièr es PAS susceptible d'èsser extrait (en foncion de las règlas)"
 
 #: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
-msgstr "Devrait èsser indexat"
+msgstr "Deuriá èsser indexat"
 
 #: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
@@ -609,7 +609,7 @@ msgstr "Non"
 
 #: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
-msgstr "Devrait èsser surveillé"
+msgstr "Deuriá èsser susvelhat"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -618,13 +618,13 @@ msgstr "Devrait èsser surveillé"
 msgid "- start the tracker indexer"
 msgstr "- avia l'indexador de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1357
+#: ../src/miners/fs/tracker-miner-files.c:1354
 msgid "Low battery"
-msgstr "Batariá faible"
+msgstr "Batariá febla"
 
-#: ../src/miners/fs/tracker-miner-files.c:1484
+#: ../src/miners/fs/tracker-miner-files.c:1481
 msgid "Low disk space"
-msgstr "Espaci de disc faible"
+msgstr "Espaci de disc feble"
 
 #: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
@@ -668,7 +668,7 @@ msgstr "- avia l'indexador de fluxes"
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
-msgstr "Impossible d'establir una connexion vers Tracker"
+msgstr "Impossible d'establir una connexion cap a Tracker"
 
 #: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
@@ -684,7 +684,7 @@ msgstr "Percor los fluxes RSS/ATOM"
 
 #: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:1
 msgid "Userguides"
-msgstr "Guides d'utilizacion"
+msgstr "Guidas d'utilizacion"
 
 #: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:2
 msgid "Userguide data miner"
@@ -703,7 +703,7 @@ msgstr "Collector dels manuals d'utilizacion de Tracker"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
 msgid "Crawls and processes user guides in shared areas"
-msgstr "Percor e analisa los manuals d'utilizacion en zònas partagées"
+msgstr "Percor e analisa los manuals d'utilizacion en zònas partejadas"
 
 #: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:1
 #: ../src/tracker/tracker-search.c:408
@@ -769,10 +769,10 @@ msgid ""
 "resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
 "no limit on the media art width."
 msgstr ""
-"Definís la largor maximum en pixèls de tot imatge mèdia extraite. Tota talha "
+"Definís la largor maximum en pixèls de tot imatge mèdia extraita. Tota talha "
 "superiora es redimensionada. Definir la valor a -1 per desactivar "
 "l'enregistrament d'imatges mèdias dels fichièrs. Definir la valor a 0 per "
-"desactivar la contrainte de largor maximum."
+"desactivar la constrenta de largor maximum."
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
 msgid "Wait for FS miner to be done before extracting"
@@ -791,11 +791,11 @@ msgstr ""
 "un environament limitat ont es important de listar los fichièrs lo mai "
 "rapidament possible e ont l'extraccion de las metadonadas pòt esperar."
 
-#: ../src/tracker-extract/tracker-extract.c:779
+#: ../src/tracker-extract/tracker-extract.c:784
 msgid "Metadata extraction failed"
 msgstr "Fracàs de l'extraccion de las metadonadas"
 
-#: ../src/tracker-extract/tracker-extract.c:844
+#: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Cap de modul d'extraccion gerís pas aqueste fichièr o las metadonadas son "
@@ -825,8 +825,8 @@ msgstr "MIME"
 #: ../src/tracker-extract/tracker-main.c:95
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
-"Fòrça l'utilizacion d'un modul per l'extraccion (per ex. « foo » per « "
-"foo.so »)"
+"Fòrça l'utilizacion d'un modul per l'extraccion (per ex. « foo » per « foo."
+"so »)"
 
 #: ../src/tracker-extract/tracker-main.c:96
 msgid "MODULE"
@@ -1033,8 +1033,8 @@ msgstr[1] "Albums"
 #: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
-msgstr[0] "Piste musicala"
-msgstr[1] "Pistes musicalas"
+msgstr[0] "Pista musicala"
+msgstr[1] "Pistas musicalas"
 
 #: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
@@ -1046,7 +1046,7 @@ msgstr[1] "Fòtos"
 msgid "Playlist"
 msgid_plural "Playlists"
 msgstr[0] "Lista de lectura"
-msgstr[1] "Listes de lectura"
+msgstr[1] "Listas de lectura"
 
 #: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
@@ -1076,12 +1076,12 @@ msgstr "Impossible de metre a jorn las etiquetas"
 #: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
-msgstr "Impossible d'enlever l'etiqueta"
+msgstr "Impossible de levar l'etiqueta"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
 msgstr ""
-"Impossible de recuperar las etiquetas correspondent a la seleccion actuala"
+"Impossible de recuperar las etiquetas que correspondon a la seleccion actuala"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker/tracker-tag.c:709
@@ -1147,7 +1147,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-view.vala:113
 msgid "Start to search using the entry box above"
-msgstr "Aviatz una recèrca en vos servissent del champ de picada çaisús"
+msgstr "Aviatz una recèrca en vos servissent del camp de picada çaisús"
 
 #: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
@@ -1420,7 +1420,7 @@ msgstr "Motius de fichièrs d'ignorar :"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:42
 msgid "Opens text entry for glob patterns"
-msgstr "Dobrís una zòna de tèxte per saisir los motius de fichièrs"
+msgstr "Dobrís una zòna de tèxte per sasir los motius de fichièrs"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:43
 msgid "Opens the filechooser dialogue"
@@ -1440,8 +1440,8 @@ msgid ""
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Es possible d'utilizar aici de motius de fichièrs, per exemple : « *bar* ».\n"
-"L'utilizacion la mai frequenta es l'exclusion de dorsièrs coma *~, *.o, *"
-".la, etc."
+"L'utilizacion la mai frequenta es l'exclusion de dorsièrs coma *~, *.o, *."
+"la, etc."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
@@ -1485,7 +1485,7 @@ msgstr ""
 "\n"
 "<b>Atencion : totas las indexacions e los caches de vòstras donadas seràn "
 "suprimits ! Seràn pas mai recuperablas ! Vòstras donadas e fichièrs "
-"originaux ne seràn pas affectés.</b>\n"
+"originals seràn pas afectats.</b>\n"
 "\n"
 "Un clic sus aqueste boton tamparà tanben las preferéncias."
 
@@ -1696,7 +1696,7 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
-"Susvelha en temps real las modificacions fachas a la banca de donadas (per "
+"Susvelha en temps real las modificacions faitas a la banca de donadas (per "
 "ex. apondon de fonts o de fichièrs)"
 
 #: ../src/tracker/tracker-daemon.c:139
@@ -1876,7 +1876,7 @@ msgstr "Lo cookie es %d"
 #: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
 #: ../src/tracker/tracker-daemon.c:1420
 msgid "Press Ctrl+C to stop"
-msgstr "Appuyez sus Ctrl+C per arrestar"
+msgstr "Quichatz sus Ctrl+C per arrestar"
 
 #: ../src/tracker/tracker-daemon.c:947
 #, c-format
@@ -1997,7 +1997,8 @@ msgstr "Vos cal provesir al collector una comanda pausa o resumit"
 
 #: ../src/tracker/tracker-daemon.c:1509
 msgid "You can not use the --kill and --terminate arguments together"
-msgstr "Podètz pas emplegar los paramètres --kill e --terminate en meteis temps"
+msgstr ""
+"Podètz pas emplegar los paramètres --kill e --terminate en meteis temps"
 
 #: ../src/tracker/tracker-daemon.c:1515
 msgid "You can not use the --get-logging and --set-logging arguments together"
@@ -2095,13 +2096,13 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
 msgstr ""
-"Restablís la banca de donadas a partir d'una salvament anterior (veire "
-"--backup)"
+"Restablís la banca de donadas a partir d'una salvament anterior (veire --"
+"backup)"
 
 #: ../src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
 msgstr ""
-"Importe un paquet de donadas dempuèi lo fichièr donat (al format Turtle)"
+"Impòrta un paquet de donadas dempuèi lo fichièr donat (al format Turtle)"
 
 #: ../src/tracker/tracker-index.c:122
 #, c-format
@@ -2230,12 +2231,12 @@ msgstr "Resultats"
 #: ../src/tracker/tracker-main.c:47
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
-"Veuillez consulter « tracker help <command> » per d'informacions sus una "
+"Consultatz « tracker help <command> » per d'informacions sus una "
 "soscomanda especifica."
 
 #: ../src/tracker/tracker-main.c:96
 msgid "Start, stop, pause and list processes responsible for indexing content"
-msgstr "Los processus aviar, pausa, arrestar e listar indexent lo contengut"
+msgstr "Los processus aviar, pausa, arrestar e listar indèxan lo contengut"
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Get help on how to use Tracker and any of these commands"
@@ -2244,7 +2245,7 @@ msgstr "Obténer d'ajuda sus l'utilizacion de Tracker e una d'aquestas comandas"
 #: ../src/tracker/tracker-main.c:98
 msgid "Show information known about local files or items indexed"
 msgstr ""
-"Afichar las informacions connues sus los fichièrs locals o los elements "
+"Afichar las informacions conegudas suls fichièrs locals o los elements "
 "indexats"
 
 #: ../src/tracker/tracker-main.c:99
@@ -2293,37 +2294,37 @@ msgstr "« %s » es pas una comanda tracker. Consultatz « tracker --help »"
 
 #: ../src/tracker/tracker-main.c:174
 msgid "Available tracker commands are:"
-msgstr "Las comandas tracker disponibles son  :"
+msgstr "Las comandas tracker disponiblas son  :"
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "Impossible de dobrir /proc"
 
-#: ../src/tracker/tracker-process.c:127
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "Impossible d'executar stat() sul fichièr"
 
-#: ../src/tracker/tracker-process.c:198
+#: ../src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Impossible de dobrir « %s »"
 
-#: ../src/tracker/tracker-process.c:327
+#: ../src/tracker/tracker-process.c:332
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Impossible de tampar lo processus %d - « %s »"
 
-#: ../src/tracker/tracker-process.c:333
+#: ../src/tracker/tracker-process.c:338
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Processus %d - « %s » acabat"
 
-#: ../src/tracker/tracker-process.c:348
+#: ../src/tracker/tracker-process.c:353
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Impossible de tuar lo processus %d - « %s »"
 
-#: ../src/tracker/tracker-process.c:354
+#: ../src/tracker/tracker-process.c:359
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Processus %d - « %s » tué"
@@ -2370,12 +2371,13 @@ msgstr "Recèrca dels fichièrs musicals"
 
 #: ../src/tracker/tracker-search.c:92
 msgid "Search for music albums (--all has no effect on this)"
-msgstr "Recèrca dels albums musicals (--all a pas d'efièch sus aquesta comanda)"
+msgstr ""
+"Recèrca dels albums musicals (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:96
 msgid "Search for music artists (--all has no effect on this)"
 msgstr ""
-"Recèrca dels artistas musicals (--all a pas d'efièch sus aquesta comanda)"
+"Recèrca dels artistas musicals (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:100
 msgid "Search for image files"
@@ -2399,21 +2401,21 @@ msgstr "Recèrca dels contactes"
 
 #: ../src/tracker/tracker-search.c:120
 msgid "Search for software (--all has no effect on this)"
-msgstr "Recèrca dels logicials (--all a pas d'efièch sus aquesta comanda)"
+msgstr "Recèrca dels logicials (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:124
 msgid "Search for software categories (--all has no effect on this)"
 msgstr ""
-"Recèrca de las categorias de logicials (--all a pas d'efièch sus aquesta "
+"Recèrca de las categorias de logicials (--all a pas d'efèit sus aquesta "
 "comanda)"
 
 #: ../src/tracker/tracker-search.c:128
 msgid "Search for feeds (--all has no effect on this)"
-msgstr "Recèrca dels fluxes (--all a pas d'efièch sus aquesta comanda)"
+msgstr "Recèrca dels fluxes (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:132
 msgid "Search for bookmarks (--all has no effect on this)"
-msgstr "Recèrca dels signets (--all a pas d'efièch sus aquesta comanda)"
+msgstr "Recèrca dels signets (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
 msgid "Limit the number of results shown"
@@ -2425,7 +2427,7 @@ msgstr "Decalar los resultats"
 
 #: ../src/tracker/tracker-search.c:146
 msgid "Use OR for search terms instead of AND (the default)"
-msgstr "Utilizar O pels termes de recèrca al luòc de ET (per defaut)"
+msgstr "Utilizar O pels termes de recèrca al luòc de E (per defaut)"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
@@ -2446,7 +2448,7 @@ msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
 msgstr ""
-"Desactiva l'afichatge d'extraches amb los resultats. Son pas afichats que "
+"Desactiva l'afichatge d'extraits amb los resultats. Son pas afichats que "
 "per certanas categorias, per exemple los documents, la musica…"
 
 #: ../src/tracker/tracker-search.c:162
@@ -2455,7 +2457,7 @@ msgstr "Desactiva la recèrca en tèxte integral. Implica --disable-snippets"
 
 #: ../src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
-msgstr "Desactiva la color al moment de l'afichatge d'extraches e de resultats"
+msgstr "Desactiva la color al moment de l'afichatge d'extraits e de resultats"
 
 #: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
 msgid "search terms"
@@ -2469,7 +2471,7 @@ msgstr "EXPRESSION"
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
-"NÒTA : lo limit es estat atench, i a d'autres elements de la banca de "
+"NÒTA : lo limit es estat atent, i a d'autres elements de la banca de "
 "donadas que figuran pas aici"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
@@ -2506,7 +2508,7 @@ msgstr "Cap de fichièr es pas estat trobat"
 
 #: ../src/tracker/tracker-search.c:818
 msgid "No artists were found"
-msgstr "Cap de artista es pas estat trobat"
+msgstr "Cap d'artista es pas estat trobat"
 
 #: ../src/tracker/tracker-search.c:822
 msgid "Artists"
@@ -2530,7 +2532,7 @@ msgstr "Cap de flux es pas estat trobat"
 
 #: ../src/tracker/tracker-search.c:1083
 msgid "Feeds"
-msgstr "Flux"
+msgstr "Fluxes"
 
 #: ../src/tracker/tracker-search.c:1163
 msgid "No software was found"
@@ -2730,7 +2732,7 @@ msgstr "Cap de prefix de classa es pas estat trobat"
 
 #: ../src/tracker/tracker-sparql.c:1123
 msgid "Prefixes"
-msgstr "Préfixes"
+msgstr "Prefixes"
 
 #: ../src/tracker/tracker-sparql.c:1143
 msgid ""
@@ -2753,15 +2755,15 @@ msgstr "Proprietats"
 
 #: ../src/tracker/tracker-sparql.c:1218
 msgid "Could not find notify classes"
-msgstr "Impossible de trobar las classas de notiuicacion"
+msgstr "Impossible de trobar las classas de notificacion"
 
 #: ../src/tracker/tracker-sparql.c:1226
 msgid "No notifies were found"
-msgstr "Cap de notiuicacion es pas estada trobada"
+msgstr "Cap de notificacion es pas estada trobada"
 
 #: ../src/tracker/tracker-sparql.c:1226
 msgid "Notifies"
-msgstr "Notiuicacions"
+msgstr "Notificacions"
 
 #: ../src/tracker/tracker-sparql.c:1252
 msgid "Could not find indexed properties"
@@ -2854,7 +2856,7 @@ msgid ""
 "default (implied by search terms)"
 msgstr ""
 "Afichar d'estatisticas al sujet de TOTAS las classas RDF, e pas solament per "
-"las mai répandues, coma aquò se fait per defaut (induch pels tèrmes de "
+"las mai répandues, coma aquò se fa per defaut (induch pels tèrmes de "
 "recèrca)"
 
 #: ../src/tracker/tracker-status.c:60
@@ -2953,7 +2955,7 @@ msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
 "Enumèra totas las etiquetas (en utilizant FILTRE se indicat ; FILTRE utiliza "
-"toujours un OU logique)"
+"totjorn un O logic)"
 
 #: ../src/tracker/tracker-tag.c:54
 msgid "FILTER"
@@ -2962,8 +2964,8 @@ msgstr "FILTRE"
 #: ../src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
-"Aficha los fichièrs associats a cada etiqueta (utilizabla unicament amb "
-"--list)"
+"Aficha los fichièrs associats a cada etiqueta (utilizabla unicament amb --"
+"list)"
 
 #: ../src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
@@ -2991,7 +2993,7 @@ msgstr "CADENA"
 
 #: ../src/tracker/tracker-tag.c:81
 msgid "Use AND for search terms instead of OR (the default)"
-msgstr "Utilizar E pels tèrmes de recèrca al luòc de OU (per defaut)"
+msgstr "Utilizar E pels tèrmes de recèrca al luòc de O (per defaut)"
 
 #: ../src/tracker/tracker-tag.c:86
 msgid "FILE…"
@@ -3111,130 +3113,130 @@ msgstr "L'opcion --descripcion pòt pas èsser utilizada qu'amb --add"
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr "Desactiva la tampadura aprèp 30 segondas d'inactivitat"
 
-# Voir http://live.gnome.org/Tracker/Documentation/Writeback
+# Veire http://live.gnome.org/Tracker/Documentation/Writeback
 #. Translators: this message will appear immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
 msgid "- start the tracker writeback service"
-msgstr "- avia lo servici de réescritura de tracker"
+msgstr "- avia lo servici de reescritura de tracker"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Requèstas enregistradas"
 
 #~ msgid "The 'tracker-control' command is no longer available"
-#~ msgstr "La commande « tracker-control » n'est plus disponible"
+#~ msgstr "La comanda « tracker-control » n'est plus disponible"
 
 #~ msgid "Add feed (must be used with --title)"
-#~ msgstr "Ajoute un flux (doit être utilisé avec --title)"
+#~ msgstr "Apond un flux (deu èsser utilizat amb --title)"
 
 #~ msgid "Adding a feed requires --add-feed and --title"
-#~ msgstr "L'ajout d'un flux exige les options --add-feed et --title"
+#~ msgstr "L'apondon d'un flux exigís las opcions --add-feed e --title"
 
 #~ msgid " - Manage Tracker processes and data"
-#~ msgstr " - gère les processus et les données de Tracker"
+#~ msgstr " - gerís los processus e las donadas de Tracker"
 
 #~ msgid "General and Status options cannot be used together"
 #~ msgstr ""
-#~ "Les options générales et d'état ne peuvent pas être utilisées en même "
+#~ "Las opcions generalas e d'estat pòdon pas èsser utilizadas en meteis "
 #~ "temps"
 
 #~ msgid "General and Miners options cannot be used together"
 #~ msgstr ""
-#~ "Les options générales et d'extraction ne peuvent pas être utilisées en "
-#~ "même temps"
+#~ "Las opcions generalas e d'extraccion pòdon pas èsser utilizadas en "
+#~ "meteis temps"
 
 #~ msgid "Status and Miners options cannot be used together"
 #~ msgstr ""
-#~ "Les options d'état et d'extraction ne peuvent pas être utilisées en même "
+#~ "Las opcions d'estat e d'extraccion pòdon pas èsser utilizadas en meteis "
 #~ "temps"
 
 #~ msgid "Restore databases from the file provided"
-#~ msgstr "Restaure les bases de données à partir du fichier indiqué"
+#~ msgstr "Restablís las bancas de donadas a partir del fichièr indicat"
 
 #~ msgid ""
 #~ "You can not use the --terminate with --hard-reset or --soft-reset, --kill "
 #~ "is implied"
 #~ msgstr ""
-#~ "Vous ne pouvez pas indiquer --terminate avec --hard-reset ou --soft-"
-#~ "reset, car --kill est induit"
+#~ "Podètz pas indicar --terminate amb --hard-reset o --soft-"
+#~ "reset, car --kill es induit"
 
 #~ msgid "Waiting one second before starting miners…"
-#~ msgstr "Attente d'une seconde avant le démarrage des collecteurs…"
+#~ msgstr "Attente d'una seconde avant lo démarrage des collectors…"
 
 #~ msgid "General options"
-#~ msgstr "Options générales"
+#~ msgstr "Opcions generalas"
 
 #~ msgid "Show general options"
-#~ msgstr "Affiche les options générales"
+#~ msgstr "Aficha las opcions generalas"
 
 #~ msgid "Miner options"
-#~ msgstr "Options d'extraction"
+#~ msgstr "Opcions d'extraccion"
 
 #~ msgid "Show miner options"
-#~ msgstr "Affiche les options du collecteur"
+#~ msgstr "Aficha las opcions del collector"
 
 #~ msgid "Show current status"
-#~ msgstr "Affiche l'état actuel"
+#~ msgstr "Aficha l'estat actual"
 
 #~ msgid "Status options"
-#~ msgstr "Options d'état"
+#~ msgstr "Opcions d'estat"
 
 #~ msgid "Show status options"
-#~ msgstr "Affiche les options d'état"
+#~ msgstr "Aficha las opcions d'estat"
 
 #~ msgid "- Import data using Turtle files"
-#~ msgstr "- importe des données à l'aide de fichiers Turtle"
+#~ msgstr "- impòrta de donadas amb l'ajuda de fichièrs Turtle"
 
 #~ msgid "One or more files have not been specified"
-#~ msgstr "Un ou plusieurs fichiers n'ont pas été indiqués"
+#~ msgstr "Un o mantun fichièr son pas estats indicats"
 
 #~ msgid "- Get all information about one or more files"
-#~ msgstr "- récupère tous les renseignements sur un ou plusieurs fichiers"
+#~ msgstr "- recupèra totas las entresenhas sus un o mantun fichièr"
 
 #~ msgid "- Search for terms in all data"
-#~ msgstr "- recherche certains termes dans toutes les données"
+#~ msgstr "- recèrca certans tèrmes dins totas las donadas"
 
 #~ msgid ""
 #~ "Applies an AND operator to all terms separated by a space (see --or-"
 #~ "operator)"
 #~ msgstr ""
-#~ "Combine tous les termes séparés par un espace avec un opérateur ET (AND) "
-#~ "(voir --or-operator)"
+#~ "Combina totes los tèrmes separats per un espaci amb un operator E (AND) "
+#~ "(veire --or-operator)"
 
 #~ msgid ""
 #~ "This means if you search for 'foo' and 'bar', they must BOTH exist "
 #~ "(unless you use --or-operator)"
 #~ msgstr ""
-#~ "Cela signifie que si vous recherchez les mots « foo » et « bar », ils "
-#~ "doivent exister TOUS LES DEUX (sauf si vous utilisez --or-operator)"
+#~ "Aquò significa que se recercatz los mots « foo » e « bar », "
+#~ "devon existir TOTES DOS (levat se utilizatz --or-operator)"
 
 #~ msgid "Search options"
-#~ msgstr "Options de recherche"
+#~ msgstr "Opcions de recèrca"
 
 #~ msgid "Show search options"
-#~ msgstr "Affiche les options de recherche"
+#~ msgstr "Aficha las opcions de recèrca"
 
 #~ msgid "Search terms are missing"
-#~ msgstr "Aucun critère de recherche"
+#~ msgstr "Pas cap de critèri de recèrca"
 
 #~ msgid "- Query or update using SPARQL"
-#~ msgstr "- Effectue des requêtes ou des mises à jour avec SPARQL"
+#~ msgstr "- Efectua de requèstas o de mesas a jorn amb SPARQL"
 
 #~ msgid "An argument must be supplied"
-#~ msgstr "Un paramètre doit être fourni"
+#~ msgstr "Un paramètre deu èsser provesit"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
-#~ " - affiche des statistiques pour toutes les classes d'ontologie définies "
-#~ "par Nepomuk"
+#~ " - aficha d'estatistiCAs per totas las classas d'ontologia definidas "
+#~ "per Nepomuk"
 
 #~ msgid "Add, remove or list tags"
-#~ msgstr "- ajoute, enlève ou liste des étiquettes"
+#~ msgstr "- apond, leva o lista d'etiquetas"
 
 #~ msgid "No arguments were provided"
-#~ msgstr "Aucun paramètre n'a été fourni"
+#~ msgstr "Cap de paramètre es pas estat provesit"
 
 #~ msgid "- Query or update using SQL"
-#~ msgstr "- effectue des requêtes ou des mises à jour avec SQL"
+#~ msgstr "- efectua de requèstas o de mesas a jorn amb SQL"
