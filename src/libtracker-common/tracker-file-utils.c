@@ -240,6 +240,8 @@ tracker_file_get_mime_type (GFile *file)
 
 #ifdef __linux__
 
+#define __bsize f_bsize
+
 #ifdef __USE_LARGEFILE64
 #define __statvfs statfs64
 #else
@@ -247,6 +249,8 @@ tracker_file_get_mime_type (GFile *file)
 #endif
 
 #else /* __linux__ */
+
+#define __bsize f_frsize
 
 #if HAVE_STATVFS64
 #define __statvfs statvfs64
@@ -294,7 +298,8 @@ tracker_file_system_get_remaining_space (const gchar *path)
 
 	if (statvfs_helper (path, &st)) {
 		available = (geteuid () == 0) ? st.f_bfree : st.f_bavail;
-		return st.f_bsize * available;
+		/* __bsize is a platform dependent #define above */
+		return st.__bsize * available;
 	} else {
 		return 0;
 	}
