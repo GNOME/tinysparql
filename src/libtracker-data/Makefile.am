@@ -87,20 +87,6 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.DB.gschema.xml
 
 @GSETTINGS_RULES@
 
-if HAVE_XSLTPROC
-DATE=`date +'%B %Y'`
-man_MANS = tracker-db.cfg.5
-else
-man_MANS =
-endif
-
-%.cfg.5: $(gsettings_SCHEMAS)
-	$(AM_V_GEN)$(XSLTPROC) \
-	  --stringparam version "${VERSION}" \
-	  --stringparam current-date "${DATE}" \
-	  --stringparam config-file "$(@:.cfg.5=.cfg)" \
-	  $(top_srcdir)/docs/manpages/gsettings.xsl $^ > $@
-
 # Dist / Clean rules for all data
 BUILT_SOURCES = \
 	libtracker_data_la_vala.stamp

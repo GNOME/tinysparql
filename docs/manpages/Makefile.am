@@ -37,5 +37,4 @@ EXTRA_DIST = \
 	$(common) \
 	$(tp) \
 	$(tn) \
-	$(tmrss) \
-	gsettings.xsl
+	$(tmrss)
