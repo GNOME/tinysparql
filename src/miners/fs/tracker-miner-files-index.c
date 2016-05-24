@@ -391,13 +391,18 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 		 * directory (nor add a watch if we're positive it comes from
 		 * config).
 		 */
-		if (!root || !(flags & TRACKER_DIRECTORY_FLAG_RECURSE)) {
+		if (!root ||
+		    (!(flags & TRACKER_DIRECTORY_FLAG_RECURSE) &&
+		     !g_file_equal (root, file) &&
+		     !g_file_has_parent (file, root))) {
 			tracker_indexing_tree_add (indexing_tree, file,
 			                           TRACKER_DIRECTORY_FLAG_RECURSE |
 			                           TRACKER_DIRECTORY_FLAG_PRIORITY |
 			                           TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
 			                           TRACKER_DIRECTORY_FLAG_MONITOR);
 			needs_watch = TRUE;
+		} else {
+			tracker_indexing_tree_notify_update (indexing_tree, file, TRUE);
 		}
 
 		if (watch_source && (is_watched || needs_watch)) {
