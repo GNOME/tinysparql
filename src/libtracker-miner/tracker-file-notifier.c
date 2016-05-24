@@ -1560,6 +1560,41 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 }
 
 static void
+indexing_tree_child_updated (TrackerIndexingTree *indexing_tree,
+                             GFile               *root,
+                             GFile               *child,
+                             gpointer             user_data)
+{
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	TrackerDirectoryFlags flags;
+	GFileType child_type;
+	GFile *canonical;
+
+	child_type = g_file_query_file_type (child,
+	                                     G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                     NULL);
+
+	if (child_type == G_FILE_TYPE_UNKNOWN)
+		return;
+
+	canonical = tracker_file_system_get_file (priv->file_system,
+	                                          child, child_type, NULL);
+	tracker_indexing_tree_get_root (indexing_tree, child, &flags);
+
+	if (child_type == G_FILE_TYPE_DIRECTORY &&
+	    (flags & TRACKER_DIRECTORY_FLAG_RECURSE)) {
+		flags |= TRACKER_DIRECTORY_FLAG_CHECK_DELETED;
+
+		notifier_queue_file (notifier, canonical, flags);
+		crawl_directories_start (notifier);
+	} else if (tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                                    canonical, child_type)) {
+		g_signal_emit (notifier, signals[FILE_UPDATED], 0, canonical, FALSE);
+	}
+}
+
+static void
 tracker_file_notifier_finalize (GObject *object)
 {
 	TrackerFileNotifierPrivate *priv;
@@ -1615,6 +1650,8 @@ tracker_file_notifier_constructed (GObject *object)
 	                  G_CALLBACK (indexing_tree_directory_updated), object);
 	g_signal_connect (priv->indexing_tree, "directory-removed",
 	                  G_CALLBACK (indexing_tree_directory_removed), object);
+	g_signal_connect (priv->indexing_tree, "child-updated",
+	                  G_CALLBACK (indexing_tree_child_updated), object);
 
 	/* Set up crawler */
 	priv->crawler = tracker_crawler_new (priv->data_provider);
