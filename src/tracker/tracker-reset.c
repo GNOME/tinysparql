@@ -29,6 +29,7 @@
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-data/tracker-data.h>
+#include <libtracker-control/tracker-control.h>
 
 #include "tracker-reset.h"
 #include "tracker-daemon.h"
@@ -39,11 +40,13 @@
 static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
+static gchar *filename = NULL;
 
 #define RESET_OPTIONS_ENABLED() \
 	(hard_reset || \
 	 soft_reset || \
-	 remove_config)
+	 remove_config || \
+	 filename)
 
 static GOptionEntry entries[] = {
 	{ "hard", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
@@ -54,6 +57,10 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
+	  NULL },
+	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &filename,
+	  N_("Erase indexed information about a file, works recursively for directories"),
+	  N_("FILE"),
 	  NULL },
 	{ NULL }
 };
@@ -124,6 +131,80 @@ directory_foreach (GFile    *file,
 	g_object_unref (enumerator);
 }
 
+static int
+delete_info_recursively (GFile *file)
+{
+	TrackerSparqlConnection *connection;
+	TrackerMinerManager *miner_manager;
+	TrackerSparqlCursor *cursor;
+	gchar *query, *uri;
+	GError *error = NULL;
+
+	connection = tracker_sparql_connection_get (NULL, &error);
+
+	if (error)
+		goto error;
+
+	uri = g_file_get_uri (file);
+
+	/* First, query whether the item exists */
+	query = g_strdup_printf ("SELECT ?u { ?u nie:url '%s' }", uri);
+	cursor = tracker_sparql_connection_query (connection, query,
+	                                          NULL, &error);
+
+	/* If the item doesn't exist, bail out. */
+	if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, &error)) {
+		g_clear_object (&cursor);
+
+		if (error)
+			goto error;
+
+		return EXIT_SUCCESS;
+	}
+
+	g_object_unref (cursor);
+
+	/* Now, delete the element recursively */
+	g_print ("%s\n", _("Deleting…"));
+	query = g_strdup_printf ("DELETE { "
+	                         "  ?f a rdfs:Resource . "
+	                         "  ?ie a rdfs:Resource "
+	                         "} WHERE {"
+	                         "  ?f nie:url ?url . "
+	                         "  ?ie nie:isStoredAs ?f . "
+	                         "  FILTER (?url = '%s' ||"
+	                         "          STRSTARTS (?url, '%s/'))"
+	                         "}", uri, uri);
+	g_free (uri);
+
+	tracker_sparql_connection_update (connection, query,
+	                                  G_PRIORITY_DEFAULT, NULL, &error);
+	g_free (query);
+
+	if (error)
+		goto error;
+
+	g_object_unref (connection);
+
+	g_print ("%s\n", _("The indexed data for this file has been deleted "
+	                   "and will be reindexed again."));
+
+	/* Request reindexing of this data, it was previously in the store. */
+	miner_manager = tracker_miner_manager_new_full (FALSE, NULL);
+	tracker_miner_manager_index_file (miner_manager, file, &error);
+	g_object_unref (miner_manager);
+
+	if (error)
+		goto error;
+
+	return EXIT_SUCCESS;
+
+error:
+	g_warning ("%s", error->message);
+	g_error_free (error);
+	return EXIT_FAILURE;
+}
+
 static gint
 reset_run (void)
 {
@@ -160,6 +241,16 @@ reset_run (void)
 		if (!response[0] || !g_str_has_prefix (_("yes"), response)) {
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (filename) {
+		GFile *file;
+		gint retval;
+
+		file = g_file_new_for_commandline_arg (filename);
+		retval = delete_info_recursively (file);
+		g_object_unref (file);
+		return retval;
 	}
 
 	/* KILL processes first... */

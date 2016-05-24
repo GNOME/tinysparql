@@ -4,7 +4,7 @@
 tracker-reset \- Reset the index and configuration
 
 .SH SYNOPSIS
-\fBtracker reset\fR [\-\-hard | \-\-soft] [\-\-config]
+\fBtracker reset\fR [\-\-hard | \-\-soft] [\-\-config] [\-\-file \fIFILE\fR]
 
 .SH DESCRIPTION
 The reset command will change either your configuration or index
@@ -34,10 +34,12 @@ you have a corrupt database but want to reply the journal to restore
 it to the last known good place.
 .TP
 .B \-c, \-\-config
-This removes all config files in \fI$HOME/.config/tracker\fR. All
-files listed are files which were found and successfully removed.
-Restarting the respective processes re-creates the default
-configuration files.
+Resets all configuration to its defaults.
+.TP
+.B \-f, \-\-file \fIFILE\fR
+Resets all indexed information about \fIFILE\fR, works recursively for
+directories. Nothing will be done if \fIFILE\fR is not currently indexed.
+After deletion, a request to reindex this data will be immediately issued.
 
 .SH SEE ALSO
 .BR tracker-daemon (1).
