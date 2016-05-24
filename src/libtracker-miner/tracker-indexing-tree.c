@@ -619,6 +619,67 @@ tracker_indexing_tree_remove (TrackerIndexingTree *tree,
 }
 
 /**
+ * tracker_indexing_tree_notify_update:
+ * @tree: a #TrackerIndexingTree
+ * @file: a #GFile
+ * @recursive: Whether contained indexing roots are affected by the update
+ *
+ * Signals either #TrackerIndexingTree::directory-updated or
+ * #TrackerIndexingTree::child-updated on the given file and
+ * returns #TRUE. If @file is not indexed according to the
+ * #TrackerIndexingTree, #FALSE is returned.
+ *
+ * If @recursive is #TRUE, #TrackerIndexingTree::directory-updated
+ * will be emitted on the indexing roots that are contained in @file.
+ *
+ * Returns: #TRUE if a signal is emitted.
+ *
+ * Since: 1.10
+ **/
+gboolean
+tracker_indexing_tree_notify_update (TrackerIndexingTree *tree,
+                                     GFile               *file,
+                                     gboolean             recursive)
+{
+	TrackerDirectoryFlags flags;
+	gboolean emitted = FALSE;
+	GFile *root;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	root = tracker_indexing_tree_get_root (tree, file, &flags);
+
+	if (tracker_indexing_tree_file_is_root (tree, file)) {
+		g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0, root);
+		emitted = TRUE;
+	} else if (root &&
+	           ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) ||
+	            g_file_has_parent (file, root))) {
+		g_signal_emit (tree, signals[CHILD_UPDATED], 0, root, file);
+		emitted = TRUE;
+	}
+
+	if (recursive) {
+		GList *roots, *l;
+
+		roots = tracker_indexing_tree_list_roots (tree);
+
+		for (l = roots; l; l = l->next) {
+			if (!g_file_has_prefix (l->data, file))
+				continue;
+
+			g_signal_emit (tree, signals[DIRECTORY_UPDATED], 0, l->data);
+			emitted = TRUE;
+		}
+
+		g_list_free (roots);
+	}
+
+	return emitted;
+}
+
+/**
  * tracker_indexing_tree_add_filter:
  * @tree: a #TrackerIndexingTree
  * @filter: filter type
