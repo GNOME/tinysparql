@@ -79,6 +79,7 @@ enum {
 	DIRECTORY_ADDED,
 	DIRECTORY_REMOVED,
 	DIRECTORY_UPDATED,
+	CHILD_UPDATED,
 	LAST_SIGNAL
 };
 
@@ -315,11 +316,10 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	 * @indexing_tree: a #TrackerIndexingTree
 	 * @directory: a #GFile
 	 *
-	 * the ::directory-updated signal is emitted when @directory
-	 * that was previously added has had its indexing flags
-	 * updated due to another directory that is a parent of
-	 * @directory changing. This tends to happen uppon
-	 * tracker_indexing_tree_add() API calls.
+	 * The ::directory-updated signal is emitted on a root
+	 * when either its indexing flags change (e.g. due to consecutive
+	 * calls to tracker_indexing_tree_add()), or anytime an update is
+	 * requested through tracker_indexing_tree_notify_update().
 	 *
 	 * Since: 0.14.0
 	 **/
@@ -332,6 +332,30 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_NONE, 1, G_TYPE_FILE);
+
+	/**
+	 * TrackerIndexingTree::child-updated:
+	 * @indexing_tree: a #TrackerIndexingTree
+	 * @root: the root of this child
+	 * @child: the updated child
+	 *
+	 * The ::child-updated signal may be emitted to notify
+	 * about possible changes on children of a root.
+	 *
+	 * #TrackerIndexingTree does not emit those by itself,
+	 * those may be triggered through tracker_indexing_tree_notify_update().
+	 *
+	 * Since: 1.10
+	 **/
+	signals[CHILD_UPDATED] =
+		g_signal_new ("child-updated",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerIndexingTreeClass,
+		                               child_updated),
+		              NULL, NULL,
+		              NULL,
+		              G_TYPE_NONE, 2, G_TYPE_FILE, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerIndexingTreePrivate));
