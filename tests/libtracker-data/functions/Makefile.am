@@ -7,6 +7,8 @@ EXTRA_DIST += \
 	data-2.ttl                                     \
 	data-3.ontology                                \
 	data-3.ttl                                     \
+	data-4.ontology                                \
+	data-4.ttl                                     \
 	functions-property-1.out                       \
 	functions-property-1.rq                        \
 	functions-tracker-1.out                        \
