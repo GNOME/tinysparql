@@ -1108,7 +1108,9 @@ class Tracker.Sparql.Pattern : Object {
 
 				expect (SparqlTokenType.OPEN_PARENS);
 
+				context.in_bind = true;
 				expression.translate_expression (bind_sql);
+				context.in_bind = false;
 				binding.sql_expression = bind_sql.str;
 
 				expect (SparqlTokenType.AS);

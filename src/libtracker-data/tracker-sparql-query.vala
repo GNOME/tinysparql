@@ -122,6 +122,7 @@ namespace Tracker.Sparql {
 		public HashTable<Variable,PredicateVariable> predicate_variable_map;
 
 		public bool scalar_subquery;
+		public bool in_bind;
 
 		public Context (Query query, Context? parent_context = null) {
 			this.query = query;
