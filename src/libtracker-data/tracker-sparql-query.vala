@@ -83,14 +83,12 @@ namespace Tracker.Sparql {
 		public string sql_expression { get; private set; }
 		public VariableBinding binding;
 		string sql_identifier;
-		public weak Context origin_context { get; private set; }
 
-		public Variable (string name, int index, Context context) {
+		public Variable (string name, int index) {
 			this.name = name;
 			this.index = index;
 			this.sql_identifier = "%d_u".printf (index);
 			this.sql_expression = "\"%s\"".printf (sql_identifier);
-			this.origin_context = context;
 		}
 
 		public string get_extra_sql_expression (string suffix) {
@@ -154,7 +152,7 @@ namespace Tracker.Sparql {
 		internal unowned Variable get_variable (string name) {
 			unowned Variable result = this.var_map.lookup (name);
 			if (result == null) {
-				var variable = new Variable (name, ++query.last_var_index, this);
+				var variable = new Variable (name, ++query.last_var_index);
 				this.var_map.insert (name, variable);
 
 				result = variable;
