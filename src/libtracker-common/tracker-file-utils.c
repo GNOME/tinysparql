@@ -525,7 +525,6 @@ get_user_special_dir_if_not_home (const gchar  *path,
 	int i;
 	const gchar *real_path;
 	GFile *home, *file;
-	gboolean res;
 
 	real_path = NULL;
 	*special_dir = NULL;
