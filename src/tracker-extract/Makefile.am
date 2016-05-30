@@ -20,7 +20,6 @@ AM_CPPFLAGS = \
 # and then separately with the module below.
 rules_files = \
 	10-abw.rule \
-	10-djvu.rule \
 	10-dvi.rule \
 	10-epub.rule \
 	10-flac.rule \
@@ -186,7 +185,6 @@ extractmodules_LTLIBRARIES += libextract-dummy.la
 # Rule files using the dummy extractor
 rules_DATA += 10-comics.rule
 rules_DATA += 10-ebooks.rule
-rules_DATA += 10-djvu.rule
 
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c

@@ -1,3 +1,0 @@
-[ExtractorRule]
-MimeTypes=image/vnd.djvu+multipage;
-FallbackRdfTypes=nfo:PaginatedTextDocument;
