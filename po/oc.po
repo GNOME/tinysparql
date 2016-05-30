@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
-"&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-04-29 14:41+0000\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2016-05-10 16:49+0000\n"
 "PO-Revision-Date: 2016-05-08 18:54+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
@@ -351,8 +351,8 @@ msgstr "Limit d'espaci de disc feble"
 msgid ""
 "Disk space threshold in percent at which to pause indexing, or -1 to disable."
 msgstr ""
-"Sulhet d'espaci de disc exprimit en percentatge a partir del qual cal "
-"metre l'indexacion en pausa o -1 per desactivar."
+"Sulhet d'espaci de disc exprimit en percentatge a partir del qual cal metre "
+"l'indexacion en pausa o -1 per desactivar."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Crawling interval"
@@ -365,7 +365,7 @@ msgid ""
 "shutdowns, and -2 disables it entirely."
 msgstr ""
 "Interval, en jorns, entre las verificacions de mesa a jorn del sistèma de "
-"fichièrs dins la banca de donadas. 0 fòrça l'indexacion constanta, -1 fòrça "
+"fichièrs dins la basa de donadas. 0 fòrça l'indexacion constanta, -1 fòrça "
 "l'indexacion aprèp d'atudaments inapropriats e -2 la desactiva completament."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
@@ -378,7 +378,7 @@ msgid ""
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
 "Relambi en jorns aprèp lo qual los fichièrs dels mèdias amovibles son "
-"suprimits de la banca de donadas se son pas estats montats. 0 significa pas "
+"suprimits de la basa de donadas se son pas estats montats. 0 significa pas "
 "jamai, lo maximum es 365."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
@@ -618,11 +618,11 @@ msgstr "Deuriá èsser susvelhat"
 msgid "- start the tracker indexer"
 msgstr "- avia l'indexador de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
 msgstr "Batariá febla"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
 msgstr "Espaci de disc feble"
 
@@ -944,7 +944,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Sols los 500 primièrs elements seràn afichats"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-preferences/tracker-preferences.vala:951
 msgid "Print version"
 msgstr "Aficha la version"
 
@@ -992,7 +992,7 @@ msgstr[1] "Documents"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:165
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Fichièr"
@@ -1468,106 +1468,16 @@ msgstr "De qué es indexat ?"
 msgid "Control"
 msgstr "Contraròtle"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Quand reïnicializatz vòstras donadas indexadas, las bancas de donadas son "
-"suprimidas e vòstres fichièrs son pas mai indexats. A l'aviada que ven, "
-"Tracker se metrà a indexar las donadas coma se s'èra aviat pel primièr còp.\n"
-"\n"
-"<b>Atencion : totas las indexacions e los caches de vòstras donadas seràn "
-"suprimits ! Seràn pas mai recuperablas ! Vòstras donadas e fichièrs "
-"originals seràn pas afectats.</b>\n"
-"\n"
-"Un clic sus aqueste boton tamparà tanben las preferéncias."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all indexes"
-msgstr "Òc, suprimir totas mas indexacions"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-"Una « indexacion » es lo referenciament ordenat d'un element de donadas. Vos "
-"servís a rapidament retrobar una informacion e son contengut."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "Reïnicializar los donadas indexadas"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "_Esperar"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "segondas"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "Aviada"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "Sistèma"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:162
+#: ../src/tracker-preferences/tracker-preferences.vala:163
+#: ../src/tracker-preferences/tracker-preferences.vala:164
 msgid "Directory"
 msgstr "Dorsièr"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:305
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"Las modificacions efectuadas dins las preferéncias exigisson una "
-"reïndexacion per fin de s'assegurar que totas las donadas son corrèctament "
-"indexadas coma l'avètz demandat."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "Aquò va tampar aquesta bóstia de dialòg !"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "Volètz aviar la reïndexacion ara ?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "Reïndexar"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "Far pas res"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr ""
-"Las modificacions efectuadas dins las preferéncias exigisson lo reaviada "
-"dels processus de tracker."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "Las volètz reaviar ara ?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-msgid "Restart Tracker"
-msgstr "Reaviar Tracker"
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1576,39 +1486,39 @@ msgstr "Reaviar Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:355
+#: ../src/tracker-preferences/tracker-preferences.vala:368
 msgid "Disabled"
 msgstr "Desactivat"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:540
 msgid "Enter value"
 msgstr "Picatz una valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:543
+#: ../src/tracker-preferences/tracker-preferences.vala:572
 msgid "_Cancel"
 msgstr "_Anullar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:544
+#: ../src/tracker-preferences/tracker-preferences.vala:574
 msgid "_OK"
 msgstr "_Validar"
 
 # Titre de boîte de dialogue
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:569
 msgid "Select directory"
 msgstr "Causir un dorsièr"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
 msgstr "Aqueste dorsièr es ja seleccionat coma un emplaçament d'indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
 msgstr "Recursiu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
 msgstr "Preferéncias de la recèrca"
 
@@ -1619,7 +1529,7 @@ msgstr "Fòrça una reïndexacion de tot lo contengut"
 
 #: ../src/tracker-store/tracker-main.vala:52
 msgid "Only allow read based actions on the database"
-msgstr "Autoriza pas que las accions de lectura dins la banca de donadas"
+msgstr "Autoriza pas que las accions de lectura dins la basa de donadas"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -1634,7 +1544,7 @@ msgstr "Depaus Tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
-msgstr "Banca de donadas de metadonadas e gestionari de recèrca"
+msgstr "Basa de donadas de metadonadas e gestionari de recèrca"
 
 #: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
 msgid "GraphUpdated delay"
@@ -1646,7 +1556,7 @@ msgid ""
 "indexed data has changed inside the database."
 msgstr ""
 "Interval d'emission dels senhals GraphUpdatad, exprimit en millisegondas, "
-"pendent lo qual las donadas indexadas an cambiat dins la banca de donadas."
+"pendent lo qual las donadas indexadas an cambiat dins la basa de donadas."
 
 #: ../src/tracker/tracker-config.c:59
 #, c-format
@@ -1696,7 +1606,7 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
-"Susvelha en temps real las modificacions faitas a la banca de donadas (per "
+"Susvelha en temps real las modificacions faitas a la basa de donadas (per "
 "ex. apondon de fonts o de fichièrs)"
 
 #: ../src/tracker/tracker-daemon.c:139
@@ -1955,7 +1865,7 @@ msgstr "Impossible d'establir una connexion SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
-msgstr "Escota de las mesas a jorn de las fonts de la banca de donadas en cors"
+msgstr "Escota de las mesas a jorn de las fonts de la basa de donadas en cors"
 
 #: ../src/tracker/tracker-daemon.c:1275
 msgid "All nie:plainTextContent properties are omitted"
@@ -2055,7 +1965,7 @@ msgstr ""
 "de donadas es afichat"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
+#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:344
 #: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
 #: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
 #: ../src/tracker/tracker-tag.c:1079
@@ -2090,13 +2000,13 @@ msgstr "Demanda als collectors de (re)indexar un fichièr donat"
 #: ../src/tracker/tracker-index.c:62
 msgid "Backup current index / database to the file provided"
 msgstr ""
-"Salvament la banca de donadas actuala e son indexacion dins lo fichièr "
+"Salvament la basa de donadas actuala e son indexacion dins lo fichièr "
 "indicat"
 
 #: ../src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
 msgstr ""
-"Restablís la banca de donadas a partir d'una salvament anterior (veire --"
+"Restablís la basa de donadas a partir d'una salvament anterior (veire --"
 "backup)"
 
 #: ../src/tracker/tracker-index.c:68
@@ -2144,15 +2054,15 @@ msgstr "Impossible d'importar lo fichièr Turtle"
 
 #: ../src/tracker/tracker-index.c:251
 msgid "Backing up database"
-msgstr "Salvament de la banca de donadas"
+msgstr "Salvament de la basa de donadas"
 
 #: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
 msgid "Could not backup database"
-msgstr "Impossible de salvagardar la banca de donadas"
+msgstr "Impossible de salvagardar la basa de donadas"
 
 #: ../src/tracker/tracker-index.c:308
 msgid "Restoring database from backup"
-msgstr "Restabliment de la banca de donadas a partir de lo salvament"
+msgstr "Restabliment de la basa de donadas a partir de lo salvament"
 
 #: ../src/tracker/tracker-index.c:435
 msgid ""
@@ -2231,8 +2141,8 @@ msgstr "Resultats"
 #: ../src/tracker/tracker-main.c:47
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
-"Consultatz « tracker help <command> » per d'informacions sus una "
-"soscomanda especifica."
+"Consultatz « tracker help <command> » per d'informacions sus una soscomanda "
+"especifica."
 
 #: ../src/tracker/tracker-main.c:96
 msgid "Start, stop, pause and list processes responsible for indexing content"
@@ -2271,7 +2181,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-main.c:103
 msgid "Query the database at the lowest level using SQL"
-msgstr "Interrogar la banca de donadas a son nivèl lo mai bas amb SQL"
+msgstr "Interrogar la basa de donadas a son nivèl lo mai bas amb SQL"
 
 #: ../src/tracker/tracker-main.c:104
 msgid "Show the indexing progress, content statistics and index state"
@@ -2329,31 +2239,61 @@ msgstr "Impossible de tuar lo processus %d - « %s »"
 msgid "Killed process %d - '%s'"
 msgstr "Processus %d - « %s » tué"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:50
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Tua totes los processus Tracker e suprimís totas las bancas de donadas"
 
-#: ../src/tracker/tracker-reset.c:51
+#: ../src/tracker/tracker-reset.c:53
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Identic a --hard mas lo salvament e lo jornal son restablits aprèp lo "
 "reaviada"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:56
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Suprimís totes los fichièrs de configuracion per fin que sián regenerats a "
 "l'aviada que ven"
 
-#: ../src/tracker/tracker-reset.c:132
+#: ../src/tracker/tracker-reset.c:135
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Podètz pas emplegar los paramètres --hard e --soft en meteis temps"
 
-#: ../src/tracker/tracker-reset.c:232
+#: ../src/tracker/tracker-reset.c:143
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:144
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can't "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:149
+msgid "Are you sure you want to proceed?"
+msgstr ""
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:151
+msgid "[y|N]"
+msgstr ""
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:160
+#, fuzzy
+#| msgid "Yes"
+msgid "yes"
+msgstr "Òc"
+
+#: ../src/tracker/tracker-reset.c:261
 msgid "Removing configuration files…"
 msgstr "Supression dels fichièrs de configuracion…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:266
 msgid "Resetting existing configuration…"
 msgstr "Reïnicializacion de la configuracion existenta…"
 
@@ -2371,8 +2311,7 @@ msgstr "Recèrca dels fichièrs musicals"
 
 #: ../src/tracker/tracker-search.c:92
 msgid "Search for music albums (--all has no effect on this)"
-msgstr ""
-"Recèrca dels albums musicals (--all a pas d'efèit sus aquesta comanda)"
+msgstr "Recèrca dels albums musicals (--all a pas d'efèit sus aquesta comanda)"
 
 #: ../src/tracker/tracker-search.c:96
 msgid "Search for music artists (--all has no effect on this)"
@@ -2448,8 +2387,8 @@ msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
 msgstr ""
-"Desactiva l'afichatge d'extraits amb los resultats. Son pas afichats que "
-"per certanas categorias, per exemple los documents, la musica…"
+"Desactiva l'afichatge d'extraits amb los resultats. Son pas afichats que per "
+"certanas categorias, per exemple los documents, la musica…"
 
 #: ../src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
@@ -2471,8 +2410,8 @@ msgstr "EXPRESSION"
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
-"NÒTA : lo limit es estat atent, i a d'autres elements de la banca de "
-"donadas que figuran pas aici"
+"NÒTA : lo limit es estat atent, i a d'autres elements de la basa de donadas "
+"que figuran pas aici"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
 #: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
@@ -2613,7 +2552,7 @@ msgstr "CLASSA"
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
-"Recupèra las classas qu'avertisson dels cambiaments dins la banca de donadas "
+"Recupèra las classas qu'avertisson dels cambiaments dins la basa de donadas "
 "(CLASSA es facultatiu)"
 
 #: ../src/tracker/tracker-sparql.c:132
@@ -2621,7 +2560,7 @@ msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr ""
-"Recupèra los indèxes utilizats dins la banca de donadas per melhorar la "
+"Recupèra los indèxes utilizats dins la basa de donadas per melhorar la "
 "performància (PROPRIETAT es facultatiu)"
 
 #: ../src/tracker/tracker-sparql.c:133
@@ -2816,7 +2755,7 @@ msgstr "Cap de resultat correspond pas a vòstra requèsta"
 
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
 msgid "File and query can not be used together"
-msgstr "Los paramètres file e query ne pòdon èsser employés simultanément"
+msgstr "Los paramètres file e query ne pòdon èsser employés simultanèament"
 
 #: ../src/tracker/tracker-sparql.c:1499
 msgid ""
@@ -2856,8 +2795,7 @@ msgid ""
 "default (implied by search terms)"
 msgstr ""
 "Afichar d'estatisticas al sujet de TOTAS las classas RDF, e pas solament per "
-"las mai répandues, coma aquò se fa per defaut (induch pels tèrmes de "
-"recèrca)"
+"las mai répandues, coma aquò se fa per defaut (induit pels tèrmes de recèrca)"
 
 #: ../src/tracker/tracker-status.c:60
 msgid ""
@@ -2889,7 +2827,7 @@ msgstr "Informacions sul disc"
 
 #: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
 msgid "Remaining space on database partition"
-msgstr "Demòra de plaça sus la particion de la banca de donadas"
+msgstr "Demòra de plaça sus la particion de la basa de donadas"
 
 #. 3. Size of dataset (tracker-stats), size of databases
 #: ../src/tracker/tracker-status.c:310
@@ -2926,7 +2864,7 @@ msgstr "Cap d'estatistica èra pas disponibla"
 
 #: ../src/tracker/tracker-status.c:450
 msgid "Database is currently empty"
-msgstr "La banca de donadas es actualament voida"
+msgstr "La basa de donadas es actualament voida"
 
 #: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
 msgid "Could not get basic status for Tracker"
@@ -3013,7 +2951,7 @@ msgstr "Impossible d'obténer los fichièrs ligats a aquesta etiqueta"
 
 #: ../src/tracker/tracker-tag.c:381
 msgid "Could not get all tags in the database"
-msgstr "Impossible d'obténer totas las etiquetas de la banca de donadas"
+msgstr "Impossible d'obténer totas las etiquetas de la basa de donadas"
 
 #: ../src/tracker/tracker-tag.c:391
 msgid "No files have been tagged"
@@ -3125,6 +3063,85 @@ msgstr "- avia lo servici de reescritura de tracker"
 msgid "Saved queries"
 msgstr "Requèstas enregistradas"
 
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Quand reïnicializatz vòstras donadas indexadas, las bancas de donadas son "
+#~ "suprimidas e vòstres fichièrs son pas mai indexats. A l'aviada que ven, "
+#~ "Tracker se metrà a indexar las donadas coma se s'èra aviat pel primièr "
+#~ "còp.\n"
+#~ "\n"
+#~ "<b>Atencion : totas las indexacions e los caches de vòstras donadas seràn "
+#~ "suprimits ! Seràn pas mai recuperablas ! Vòstras donadas e fichièrs "
+#~ "originals seràn pas afectats.</b>\n"
+#~ "\n"
+#~ "Un clic sus aqueste boton tamparà tanben las preferéncias."
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Òc, suprimir totas mas indexacions"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "Una « indexacion » es lo referenciament ordenat d'un element de donadas. "
+#~ "Vos servís a rapidament retrobar una informacion e son contengut."
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Reïnicializar los donadas indexadas"
+
+#~ msgid "_Delay"
+#~ msgstr "_Esperar"
+
+#~ msgid "seconds"
+#~ msgstr "segondas"
+
+#~ msgid "Start up"
+#~ msgstr "Aviada"
+
+#~ msgid "System"
+#~ msgstr "Sistèma"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "Las modificacions efectuadas dins las preferéncias exigisson una "
+#~ "reïndexacion per fin de s'assegurar que totas las donadas son "
+#~ "corrèctament indexadas coma l'avètz demandat."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Aquò va tampar aquesta bóstia de dialòg !"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Volètz aviar la reïndexacion ara ?"
+
+#~ msgid "Reindex"
+#~ msgstr "Reïndexar"
+
+#~ msgid "Do nothing"
+#~ msgstr "Far pas res"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "Las modificacions efectuadas dins las preferéncias exigisson lo reaviada "
+#~ "dels processus de tracker."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Las volètz reaviar ara ?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Reaviar Tracker"
+
 #~ msgid "The 'tracker-control' command is no longer available"
 #~ msgstr "La comanda « tracker-control » n'est plus disponible"
 
@@ -3139,13 +3156,12 @@ msgstr "Requèstas enregistradas"
 
 #~ msgid "General and Status options cannot be used together"
 #~ msgstr ""
-#~ "Las opcions generalas e d'estat pòdon pas èsser utilizadas en meteis "
-#~ "temps"
+#~ "Las opcions generalas e d'estat pòdon pas èsser utilizadas en meteis temps"
 
 #~ msgid "General and Miners options cannot be used together"
 #~ msgstr ""
-#~ "Las opcions generalas e d'extraccion pòdon pas èsser utilizadas en "
-#~ "meteis temps"
+#~ "Las opcions generalas e d'extraccion pòdon pas èsser utilizadas en meteis "
+#~ "temps"
 
 #~ msgid "Status and Miners options cannot be used together"
 #~ msgstr ""
@@ -3159,8 +3175,8 @@ msgstr "Requèstas enregistradas"
 #~ "You can not use the --terminate with --hard-reset or --soft-reset, --kill "
 #~ "is implied"
 #~ msgstr ""
-#~ "Podètz pas indicar --terminate amb --hard-reset o --soft-"
-#~ "reset, car --kill es induit"
+#~ "Podètz pas indicar --terminate amb --hard-reset o --soft-reset, car --"
+#~ "kill es induit"
 
 #~ msgid "Waiting one second before starting miners…"
 #~ msgstr "Attente d'una seconde avant lo démarrage des collectors…"
@@ -3209,8 +3225,8 @@ msgstr "Requèstas enregistradas"
 #~ "This means if you search for 'foo' and 'bar', they must BOTH exist "
 #~ "(unless you use --or-operator)"
 #~ msgstr ""
-#~ "Aquò significa que se recercatz los mots « foo » e « bar », "
-#~ "devon existir TOTES DOS (levat se utilizatz --or-operator)"
+#~ "Aquò significa que se recercatz los mots « foo » e « bar », devon existir "
+#~ "TOTES DOS (levat se utilizatz --or-operator)"
 
 #~ msgid "Search options"
 #~ msgstr "Opcions de recèrca"
@@ -3229,8 +3245,8 @@ msgstr "Requèstas enregistradas"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
-#~ " - aficha d'estatistiCAs per totas las classas d'ontologia definidas "
-#~ "per Nepomuk"
+#~ " - aficha d'estatistiCAs per totas las classas d'ontologia definidas per "
+#~ "Nepomuk"
 
 #~ msgid "Add, remove or list tags"
 #~ msgstr "- apond, leva o lista d'etiquetas"
