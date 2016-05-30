@@ -779,6 +779,31 @@ function_sparql_lower_case (sqlite3_context *context,
 }
 
 static void
+function_sparql_upper_case (sqlite3_context *context,
+                            int              argc,
+                            sqlite3_value   *argv[])
+{
+	const uint16_t *zInput;
+	uint16_t *zOutput;
+	size_t written = 0;
+	int nInput;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	zOutput = u16_toupper (zInput, nInput / 2, NULL, NULL, NULL, &written);
+
+	sqlite3_result_text16 (context, zOutput, written * 2, free);
+}
+
+static void
 function_sparql_case_fold (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
@@ -910,6 +935,48 @@ function_sparql_lower_case (sqlite3_context *context,
 	if (!U_SUCCESS (status)){
 		char zBuf[128];
 		sqlite3_snprintf (128, zBuf, "ICU error: u_strToLower(): %s", u_errorName (status));
+		zBuf[127] = '\0';
+		sqlite3_free (zOutput);
+		sqlite3_result_error (context, zBuf, -1);
+		return;
+	}
+
+	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+}
+
+static void
+function_sparql_upper_case (sqlite3_context *context,
+                            int              argc,
+                            sqlite3_value   *argv[])
+{
+	const UChar *zInput;
+	UChar *zOutput;
+	int nInput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	nOutput = nInput * 2 + 2;
+	zOutput = sqlite3_malloc (nOutput);
+
+	if (!zOutput) {
+		return;
+	}
+
+	u_strToUpper (zOutput, nOutput / 2, zInput, nInput / 2, NULL, &status);
+
+	if (!U_SUCCESS (status)){
+		char zBuf[128];
+		sqlite3_snprintf (128, zBuf, "ICU error: u_strToUpper(): %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
 		sqlite3_result_error (context, zBuf, -1);
@@ -1361,6 +1428,10 @@ open_database (TrackerDBInterface  *db_interface,
 	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1,
 	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
 	                         db_interface, &function_sparql_lower_case,
+	                         NULL, NULL);
+	sqlite3_create_function (db_interface->db, "SparqlUpperCase", 1,
+	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
+	                         db_interface, &function_sparql_upper_case,
 	                         NULL, NULL);
 
 	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1,

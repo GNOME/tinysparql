@@ -532,6 +532,11 @@ class Tracker.Sparql.Expression : Object {
 			translate_expression_as_string (sql);
 			sql.append (")");
 			return PropertyType.STRING;
+		} else if (uri == FN_NS + "upper-case") {
+			sql.append ("SparqlUpperCase (");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			return PropertyType.STRING;
 		} else if (uri == TRACKER_NS + "normalize") {
 			// conversion to string
 			sql.append ("SparqlNormalize (");
