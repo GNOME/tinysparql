@@ -1,0 +1,8 @@
+PREFIX  : <http://example.org/ns#>
+SELECT  ?a ?b ?x AS ?double
+WHERE
+    { ?a :integer ?b .
+      BIND ((?b * 2) AS ?x) .
+      FILTER (?x < 50) .
+    }
+ORDER BY ?a

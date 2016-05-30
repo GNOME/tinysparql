@@ -1,0 +1,11 @@
+@prefix : <http://example.org/ns#> .
+
+:a1 a :A .
+:a2 a :A .
+:e  a :A .
+
+:a1 :string "a1" .
+:a1 :resource :e .
+:a2 :string "a2" .
+:a2 :integer 42 .
+:e  :integer 17 .

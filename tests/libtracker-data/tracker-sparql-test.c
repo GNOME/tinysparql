@@ -137,6 +137,11 @@ const TestInfo tests[] = {
 	/* Mixed cardinality tests */
 	{ "mixed-cardinality/insert-mixed-cardinality-query-1", "mixed-cardinality/insert-mixed-cardinality-1", FALSE, FALSE },
 	{ "mixed-cardinality/update-mixed-cardinality-query-1", "mixed-cardinality/update-mixed-cardinality-1", FALSE, FALSE },
+	/* Bind tests */
+	{ "bind/bind1", "bind/data", FALSE },
+	{ "bind/bind2", "bind/data", FALSE },
+	{ "bind/bind3", "bind/data", FALSE },
+	{ "bind/bind4", "bind/data", FALSE },
 	{ NULL }
 };
 

@@ -6,6 +6,7 @@ SUBDIRS =                                              \
 	anon                                           \
 	ask                                            \
 	basic                                          \
+	bind                                           \
 	bnode-coreference                              \
 	bound                                          \
 	datetime                                       \

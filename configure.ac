@@ -2686,6 +2686,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/anon/Makefile
 	tests/libtracker-data/ask/Makefile
 	tests/libtracker-data/basic/Makefile
+	tests/libtracker-data/bind/Makefile
 	tests/libtracker-data/bnode-coreference/Makefile
 	tests/libtracker-data/bound/Makefile
 	tests/libtracker-data/datetime/Makefile

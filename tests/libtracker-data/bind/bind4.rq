@@ -1,0 +1,10 @@
+PREFIX  : <http://example.org/ns#>
+SELECT  ?a ?x
+WHERE
+    {
+      ?a a :A .
+      BIND (:string(?a) AS ?x) .
+      FILTER (STRSTARTS (:string(?a), "a") &&
+              STRENDS (?x, "1")) .
+    }
+ORDER BY ?a

@@ -1,0 +1,8 @@
+PREFIX  : <http://example.org/ns#>
+SELECT  ?a ?c ?x ?y
+WHERE
+    { ?a :string ?c .
+      BIND (?c AS ?x) .
+      BIND (:string(?a) AS ?y) .
+    }
+ORDER BY ?a
