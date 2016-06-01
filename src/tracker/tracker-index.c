@@ -366,7 +366,9 @@ index_run (void)
 	}
 
 	/* All known options have their own exit points */
-	g_warn_if_reached ();
+	g_printerr("Use `tracker index --file` when giving a specific file or "
+	           "directory to index. See `tracker help index` for more "
+	           "information.\n");
 
 	return EXIT_FAILURE;
 }
