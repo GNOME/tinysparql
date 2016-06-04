@@ -1925,10 +1925,10 @@ item_move (TrackerMinerFS *fs,
 	                        "} WHERE { "
 	                        "  <%s> nfo:fileName ?f ; "
 	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s ; "
-	                        "       nfo:belongsToContainer ?b"
+	                        "       nie:isStoredAs ?s . "
+	                        "       OPTIONAL { <%s> nfo:belongsToContainer ?b }"
 	                        "} ",
-	                        source_iri, source_iri);
+	                        source_iri, source_iri, source_iri);
 
 	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
 
