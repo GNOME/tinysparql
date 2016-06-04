@@ -1687,7 +1687,17 @@ class Tracker.Sparql.Expression : Object {
 		if (accept (SparqlTokenType.DISTINCT)) {
 			sql.append ("DISTINCT ");
 		}
+
+		bool is_var = (current () == SparqlTokenType.VAR);
 		var optype = translate_expression (sql);
+
+		if (is_var) {
+			var variable = context.get_variable (get_last_string ().substring (1));
+			if (variable.binding == null) {
+				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			}
+		}
+
 		expect (SparqlTokenType.CLOSE_PARENS);
 		return optype;
 	}
