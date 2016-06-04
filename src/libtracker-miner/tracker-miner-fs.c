@@ -1944,7 +1944,7 @@ item_move (TrackerMinerFS *fs,
 		                        "       nie:isStoredAs <%s> ; "
 		                        "       nfo:belongsToContainer \"%s\""
 		                        "}"   ,
-		                        source_iri, source_iri,
+		                        TRACKER_OWN_GRAPH_URN, source_iri,
 		                        display_name, uri,
 		                        source_iri,
 		                        new_parent_iri);
@@ -1957,7 +1957,7 @@ item_move (TrackerMinerFS *fs,
 		                        "       nie:url \"%s\" ; "
 		                        "       nie:isStoredAs <%s>"
 		                        "} ",
-		                        source_iri, source_iri,
+		                        TRACKER_OWN_GRAPH_URN, source_iri,
 		                        display_name, uri,
 		                        source_iri);
 	}
