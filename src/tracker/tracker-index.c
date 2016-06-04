@@ -173,10 +173,10 @@ index_or_reindex_file (void)
 		}
 
 		g_print ("%s\n", _("(Re)indexing file was successful"));
-
-		g_object_unref (manager);
 		g_object_unref (file);
 	}
+
+	g_object_unref (manager);
 
 	return EXIT_SUCCESS;
 }
