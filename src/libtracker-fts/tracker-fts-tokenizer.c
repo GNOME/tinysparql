@@ -95,18 +95,24 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 	TrackerTokenizer *tokenizer = (TrackerTokenizer *) fts5_tokenizer;
 	TrackerTokenizerData *data = tokenizer->data;
 	const gchar *token;
-	gboolean stop_word;
+	gboolean stop_word, ignore_stop_words = data->ignore_stop_words;
 	int n_tokens = 0, pos, start, end, len;
 	int rc = SQLITE_OK;
 
 	if (length <= 0)
 		return rc;
 
+	/* When tokenizing the query, we don't want to ignore stop words,
+	 * we might ignore otherwise valid matches.
+	 */
+	if (flags & FTS5_TOKENIZE_QUERY)
+		ignore_stop_words = FALSE;
+
 	tracker_parser_reset (tokenizer->parser, text, length,
 	                      data->max_word_length,
 	                      data->enable_stemmer,
 	                      data->enable_unaccent,
-	                      data->ignore_stop_words,
+	                      ignore_stop_words,
 	                      TRUE,
 	                      data->ignore_numbers);
 
