@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-05-05 21:32+0000\n"
-"PO-Revision-Date: 2016-05-12 09:33+0200\n"
+"POT-Creation-Date: 2016-05-28 22:16+0000\n"
+"PO-Revision-Date: 2016-06-02 09:26+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -517,8 +517,8 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "ARCHIVO"
 
@@ -1934,7 +1934,7 @@ msgstr ""
 "de los mineros de datos"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:344
+#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:435
 #: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
 #: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
 #: ../src/tracker/tracker-tag.c:1079
@@ -2207,31 +2207,52 @@ msgstr "No se pudo matar el proceso %d: «%s»"
 msgid "Killed process %d - '%s'"
 msgstr "Proceso %d matado: «%s»"
 
-#: ../src/tracker/tracker-reset.c:50
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matar todos los procesos de Tracker y borrar todas las bases de datos"
 
-#: ../src/tracker/tracker-reset.c:53
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Igual que --hard pero el respaldo y el diario se restauran después de "
 "reiniciar"
 
-#: ../src/tracker/tracker-reset.c:56
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Quitar todos los archivos de configuración para que se regeneren en el "
 "siguiente inicio"
 
-#: ../src/tracker/tracker-reset.c:135
+#: ../src/tracker/tracker-reset.c:62
+#| msgid "Retrieve meta-data information about files in a directory"
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Eliminar la información indexada sobre un archivo, funciona recursivamente "
+"en carpetas"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "Eliminando…"
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"Se han eliminado los datos indexados para este archivo y se reindexará de "
+"nuevo."
+
+#: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "No puede usar los argumentos «--hard» y «--soft» juntos"
 
-#: ../src/tracker/tracker-reset.c:143
+#: ../src/tracker/tracker-reset.c:224
 msgid "CAUTION: This process may irreversibly delete data."
 msgstr "ADVERTENCIA: este proceso puede eliminar datos definitivamente."
 
-#: ../src/tracker/tracker-reset.c:144
+#: ../src/tracker/tracker-reset.c:225
 msgid ""
 "Although most content indexed by Tracker can be safely reindexed, it can't "
 "be assured that this is the case for all data. Be aware that you may be "
@@ -2241,14 +2262,12 @@ msgstr ""
 "segura, no se puede asegurar esto para todos los datos. Tenga en cuenta que "
 "puede perder datos, proceda bajo su responsabilidad."
 
-#: ../src/tracker/tracker-reset.c:149
-#| msgid "Are you sure you want to open %d document?"
-#| msgid_plural "Are you sure you want to open %d documents?"
+#: ../src/tracker/tracker-reset.c:230
 msgid "Are you sure you want to proceed?"
 msgstr "¿Esta seguro de que quiere continuar?"
 
 #. TRANSLATORS: This is to be displayed on command line output
-#: ../src/tracker/tracker-reset.c:151
+#: ../src/tracker/tracker-reset.c:232
 msgid "[y|N]"
 msgstr "[s|N]"
 
@@ -2256,16 +2275,15 @@ msgstr "[s|N]"
 #. * A partial or full match will be considered an affirmative answer,
 #. * it is intentionally lowercase, so please keep it like this.
 #.
-#: ../src/tracker/tracker-reset.c:160
-#| msgid "Yes"
+#: ../src/tracker/tracker-reset.c:241
 msgid "yes"
 msgstr "sí"
 
-#: ../src/tracker/tracker-reset.c:261
+#: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
 msgstr "Quitando archivos de configuración…"
 
-#: ../src/tracker/tracker-reset.c:266
+#: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
 msgstr "Restableciendo la configuración existente…"
 
@@ -4716,10 +4734,6 @@ msgstr "Consultas guardadas"
 
 #~ msgid "Filename"
 #~ msgstr "Nombre del archivo"
-
-#~ msgid "Retrieve meta-data information about files in a directory"
-#~ msgstr ""
-#~ "Obtener la información de los metadatos de los archivos en un directorio"
 
 #~ msgid "To use multiple meta-data types simply list them, for example:"
 #~ msgstr ""
