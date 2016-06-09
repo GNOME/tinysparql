@@ -789,7 +789,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	}
 
 	task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
-	task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
+	if (task->mimetype_handlers) {
+		task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
+	}
 
 	while (task->cur_func) {
 		if (!filter_module (object, task->cur_module) &&
@@ -845,7 +847,8 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	}
 
 	if (no_data_or_modules) {
-		g_print ("%s\n\n",
+		g_printerr ("%s: %s\n",
+		         uri,
 		         _("No metadata or extractor modules found to handle this file"));
 	}
 
