@@ -1754,6 +1754,11 @@ tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info)
  * Get the #GTask associated with retrieving extended metadata and
  * information for a URN in Tracker.
  *
+ * The task object's data (accessible with g_task_get_task_data()) is the
+ * #TrackerSparqlBuilder that you must populate with the results of the
+ * metadata extraction. This can also be accessed with
+ * tracker_decorator_info_get_sparql().
+ *
  * Returns: (transfer none): the #GTask for #TrackerDecoratorInfo on
  * success or #NULL if there is no existing #GTask.
  *
