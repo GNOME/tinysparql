@@ -304,7 +304,7 @@ tracker_log_shutdown (void)
 	}
 
 	if (libmediaart_log_handler_id) {
-		g_log_remove_handler (G_LOG_DOMAIN, libmediaart_log_handler_id);
+		g_log_remove_handler ("libmediaart", libmediaart_log_handler_id);
 		libmediaart_log_handler_id = 0;
 	}
 
