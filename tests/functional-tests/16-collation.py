@@ -64,7 +64,7 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         }
          """ % (uri, text))
 
-    def __get_text_sorted_by_collation (self):
+    def get_text_sorted_by_collation (self):
         return self.tracker.query ("""
          SELECT ?title WHERE {
             ?u a nie:InformationElement ;
@@ -78,9 +78,9 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         for i in input_list:
             self.__insert_text (i)
 
-        results = [unicode(r[0]) for r in self.__get_text_sorted_by_collation ()]
+        results = [r[0].decode('utf-8') for r in self.get_text_sorted_by_collation ()]
         self.assertEquals (len (results), len (expected_list))
-        
+
         for r in range (0, len (results)):
             self.assertEquals (results[r], expected_list [r],
                                """Error:
