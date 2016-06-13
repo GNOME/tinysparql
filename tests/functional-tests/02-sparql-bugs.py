@@ -21,6 +21,9 @@
 """
 Peculiar Sparql behavour reported in bugs
 """
+
+from gi.repository import GLib
+
 import sys,os
 import unittest
 import time
