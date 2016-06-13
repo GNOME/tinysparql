@@ -32,7 +32,7 @@ import options
 class NoMetadataException (Exception):
     pass
 
-REASONABLE_TIMEOUT = 5
+REASONABLE_TIMEOUT = 30
 
 def log (message):
     if options.is_verbose ():
