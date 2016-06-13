@@ -106,15 +106,20 @@ class Helper:
         self.loop.quit()
 
     def _process_watch_cb (self):
+        if self.process_watch_timeout == 0:
+            # The GLib seems to call the timeout after we've removed it
+            # sometimes, which causes errors unless we detect it.
+            return False
+
         status = self.process.poll ()
 
         if status is None:
-            return True
-
-        if status == 0 and not self.abort_if_process_exits_with_status_0:
-            return True
-
-        raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
+            return True    # continue
+        elif status == 0 and not self.abort_if_process_exits_with_status_0:
+            return True    # continue
+        else:
+            self.process_watch_timeout = 0
+            raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
 
     def _timeout_on_idle_cb (self):
         log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
@@ -161,8 +166,8 @@ class Helper:
 
         start = time.time()
         if self.process.poll() == None:
-            # It should step out of this loop when the miner disappear from the bus
             GLib.source_remove(self.process_watch_timeout)
+            self.process_watch_timeout = 0
 
             self.process.terminate()
 
@@ -183,6 +188,10 @@ class Helper:
         self.process = None
 
     def kill (self):
+        if options.is_manual_start():
+            log ("kill(): ignoring, because process was started manually.")
+            return
+
         self.process.kill ()
 
         # Name owner changed callback should take us out from this loop
