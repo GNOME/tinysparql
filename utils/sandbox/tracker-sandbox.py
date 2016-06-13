@@ -78,6 +78,8 @@ dbus_session_file = ''
 store_pid = -1
 store_proc = None
 
+original_xdg_data_home = GLib.get_user_data_dir()
+
 # Template config file
 config_template = """
 [General]
@@ -399,6 +401,22 @@ def config_set():
 		config.write(f)
 
 
+def link_to_mime_data():
+	'''Create symlink to $XDG_DATA_HOME/mime in our custom data home dir.
+
+	Mimetype detection seems to break horribly if the $XDG_DATA_HOME/mime
+	directory is missing. Since we have to override the normal XDG_DATA_HOME
+	path, we need to work around this by linking back to the real mime data.
+
+	'''
+	new_xdg_data_home = os.environ['XDG_DATA_HOME']
+	new_mime_dir = os.path.join(new_xdg_data_home, 'mime')
+	if not os.path.exists(new_mime_dir):
+		mkdir_p(new_xdg_data_home)
+		os.symlink(
+			os.path.join(original_xdg_data_home, 'mime'), new_mime_dir)
+
+
 # Entry point/start
 if __name__ == "__main__":
 	locale.setlocale(locale.LC_ALL, '')
@@ -492,6 +510,8 @@ if __name__ == "__main__":
 	# Set up environment variables and foo needed to get started.
 	environment_set()
 	config_set()
+
+	link_to_mime_data()
 
 	try:
 		if opts.update:
