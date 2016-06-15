@@ -1,5 +1,5 @@
 # Brazilian Portuguese translation of Tracker.
-# Copyright (C) 2007-2015 Free Software Foundation, Inc.
+# Copyright (C) 2007-2016 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
 # Luiz Armesto <luiz.armesto@gmail.com>, 2007, 2008.
 # Leonardo Ferreira Fontenelle <leo.fontenelle@gmail.com>, 2008.
@@ -8,25 +8,24 @@
 # Djavan Fagundes <djavan@syst.com.br>, 2010.
 # Gabriel F. Vilar <cogumm@gmail.com>, 2011.
 # Gabriel Speckhahn <gabspeck@gmail.com>, 2011.
-# Rafael Ferreira <rafael.f.f1@gmail.com>, 2013, 2014.
 # Enrico Nicoletto <liverig@gmail.com>, 2013, 2014, 2015.
 # Felipe Braga <fbobraga@gmail.com>, 2015.
-#
+# Rafael Fontenelle <rafaelff@gnome.org>, 2013, 2014, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-09-19 12:23+0000\n"
-"PO-Revision-Date: 2015-09-19 20:47-0300\n"
-"Last-Translator: Felipe Braga <fbobraga@gmail.com>\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
+"&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2016-05-28 22:16+0000\n"
+"PO-Revision-Date: 2016-06-15 19:20-0200\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.1\n"
+"X-Generator: Virtaal 0.7.1\n"
 "X-Project-Style: gnome\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -128,8 +127,8 @@ msgid ""
 "Simplify the words to their root to provide more results. E.g. 'shelves' and "
 "'shelf' to 'shel'"
 msgstr ""
-"Simplificar as palavras à sua raiz para fornecer mais resultados. Ex.: "
-"\"shelves\" e \"shelf\" a \"shel\""
+"Simplificar as palavras à sua raiz para fornecer mais resultados. Ex.: \""
+"shelves\" e \"shelf\" a \"shel\""
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -140,8 +139,8 @@ msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
 "'Idea' for improved matching."
 msgstr ""
-"Caracteres traduzidos acentuados equivalentes aos não acentuados. Ex.: "
-"\"método\" a \"metodo\" para resultados melhores."
+"Caracteres traduzidos acentuados equivalentes aos não acentuados. Ex.: \""
+"método\" a \"metodo\" para resultados melhores."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -182,13 +181,13 @@ msgstr "Onde armazenar um pedaço do diário que atingiu o tamanho máximo."
 #: ../src/libtracker-data/tracker-data-backup.c:500
 #: ../src/libtracker-data/tracker-data-backup.c:620
 msgid "Error starting 'tar' program"
-msgstr "Erro ao iniciar programa 'tar'"
+msgstr "Erro ao iniciar programa \"tar\""
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:147
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -200,20 +199,20 @@ msgstr "Erro ao iniciar programa 'tar'"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
-#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
 #: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
+#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Nenhum erro informado"
 
 #: ../src/libtracker-data/tracker-data-backup.c:634
 #, c-format
 msgid "Unknown error, 'tar' exited with status %d"
-msgstr "Erro desconhecido, 'tar' encerrou com status %d"
+msgstr "Erro desconhecido, \"tar\" encerrou com status %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
@@ -476,7 +475,7 @@ msgid ""
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
-"List de diretórios a indexar sem inspecionar subpastas. Valores especiais "
+"Lista de diretórios a indexar sem inspecionar subpastas. Valores especiais "
 "incluem: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Veja /etc/xdg/user-"
 "dirs.defaults e $HOME/.config/user-dirs.default"
@@ -523,8 +522,8 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "ARQUIVO"
 
@@ -784,11 +783,11 @@ msgstr ""
 "restritos em que é importante listar arquivos o mais rápido possível e pode "
 "esperar para obter metadados depois."
 
-#: ../src/tracker-extract/tracker-extract.c:797
+#: ../src/tracker-extract/tracker-extract.c:784
 msgid "Metadata extraction failed"
 msgstr "Extrator de metadados falhou"
 
-#: ../src/tracker-extract/tracker-extract.c:862
+#: ../src/tracker-extract/tracker-extract.c:849
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Não foram encontrados módulos de metadados ou extratores para lidar com este "
@@ -937,7 +936,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Somente os primeiros 500 itens serão exibidos"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-preferences/tracker-preferences.vala:951
 msgid "Print version"
 msgstr "Mostrar versão"
 
@@ -985,7 +984,7 @@ msgstr[1] "Documentos"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:165
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Arquivo"
@@ -1456,107 +1455,17 @@ msgstr "O que está indexado?"
 msgid "Control"
 msgstr "Controlar"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Ao redefinir seus dados indexados, os bancos de dados são removidos e seus "
-"arquivos não vai mais estar indexados. A partir da próxima inicialização, o "
-"Tracker vai, então, iniciar indexação de dados como se ele estivesse sendo "
-"executado pela primeira vez.\n"
-"\n"
-"<b>Aviso: Todos os índices e caches de seus dados também serão removidos! "
-"Eles não podem ser restaurados! Seus arquivos e dados REAIS não serão "
-"tocados.</b>\n"
-"\n"
-"Ao clicar neste botão, as preferências também serão fechadas."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all indexes"
-msgstr "Sim, remover todos indexados"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-"Um \"índice\" é uma ordem referente a um pedaço de dado. Nós usamos índices "
-"para ser capaz de localizar rapidamente sua informação e conteúdo."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "Redefinir dados indexados"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "Atra_so"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "segundos"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "Início"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "Sistema"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:162
+#: ../src/tracker-preferences/tracker-preferences.vala:163
+#: ../src/tracker-preferences/tracker-preferences.vala:164
 msgid "Directory"
 msgstr "Diretório"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:305
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"As alterações que você fez nas suas preferências exigem uma re-indexação "
-"para certificar de que todos os seus dados estão corretamente indexados como "
-"você solicitou."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "Isso vai fechar esse diálogo!"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "Você gostaria de re-indexar agora?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "Re-indexar"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "Fazer nada"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr ""
-"As alterações que você fez nas suas preferêcias exigem que os processo do "
-"tracker sejam reiniciados."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "Você gostaria de reiniciar agora?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-msgid "Restart Tracker"
-msgstr "Reiniciar o Tracker"
+"Algumas das alterações requisitadas surtirão efeito ao reiniciar a sessão."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1565,38 +1474,38 @@ msgstr "Reiniciar o Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:355
+#: ../src/tracker-preferences/tracker-preferences.vala:368
 msgid "Disabled"
 msgstr "Desabilitado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:540
 msgid "Enter value"
 msgstr "Insira um valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:543
+#: ../src/tracker-preferences/tracker-preferences.vala:572
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:544
+#: ../src/tracker-preferences/tracker-preferences.vala:574
 msgid "_OK"
 msgstr "_OK"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:569
 msgid "Select directory"
 msgstr "Selecionar diretório"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
 msgstr "Este diretório já está selecionado como um local a ser indexado"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
 msgstr "Recursivo"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
 msgstr "Preferências da busca da área de trabalho"
 
@@ -1642,10 +1551,6 @@ msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Não foi possível obter GSettings para os mineradores, não foi possível criar "
 "o gerenciador, %s"
-
-#: ../src/tracker/tracker-compatible.c:221
-msgid "The 'tracker-control' command is no longer available"
-msgstr "O comando 'tracker-control' não está mais disponível"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -1729,7 +1634,7 @@ msgid ""
 "Applications)"
 msgstr ""
 "Minerador para usar com --resume ou --pause (você pode utilizar sufixos, ex. "
-"arquivos ou aplicativos"
+"arquivos ou aplicativos)"
 
 #: ../src/tracker/tracker-daemon.c:160
 msgid "MINER"
@@ -1756,8 +1661,8 @@ msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"Usar o SIGKILL para parar todos os processos correspondentes, o \"store\", "
-"\"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
+"Usar o SIGKILL para parar todos os processos correspondentes, o \"store\", \""
+"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1768,8 +1673,8 @@ msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"Usar o SIGTERM para parar todos os processos correspondentes, o \"store\", "
-"\"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
+"Usar o SIGTERM para parar todos os processos correspondentes, o \"store\", \""
+"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1840,8 +1745,7 @@ msgstr "Não foi possível executar consulta SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr ""
-"Não foi possível chamar tracker_sparql_cursor_next() na consulta SPARQL"
+msgstr "Não foi possível chamar tracker_sparql_cursor_next() na consulta SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:889
 #, c-format
@@ -1994,8 +1898,8 @@ msgstr "Você não pode usar os argumentos --get-logging e --set-logging juntos"
 #: ../src/tracker/tracker-daemon.c:1530
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
-"Detalhamento de registro inválido, tente \"debug\", \"detailed\", \"minimal"
-"\" ou \"errors\""
+"Detalhamento de registro inválido, tente \"debug\", \"detailed\", \"minimal\""
+" ou \"errors\""
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
@@ -2039,7 +1943,7 @@ msgstr ""
 "as minerações de dados"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
+#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:435
 #: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
 #: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
 #: ../src/tracker/tracker-tag.c:1079
@@ -2094,11 +1998,11 @@ msgstr ""
 
 #: ../src/tracker/tracker-index.c:132
 msgid "Could not reindex mimetypes"
-msgstr "Não foi possível reindexar os mimetypes"
+msgstr "Não foi possível reindexar os tipos mime"
 
 #: ../src/tracker/tracker-index.c:138
 msgid "Reindexing mime types was successful"
-msgstr "Os mime types foram reindexados com sucesso"
+msgstr "Os tipos mime foram reindexados com sucesso"
 
 #: ../src/tracker/tracker-index.c:154
 #, c-format
@@ -2208,130 +2112,184 @@ msgstr "Não há metadados disponíveis para essa URI"
 msgid "Results"
 msgstr "Resultados"
 
-#: ../src/tracker/tracker-main.c:48
+#: ../src/tracker/tracker-main.c:47
 msgid "See 'tracker help <command>' to read about a specific subcommand."
-msgstr "Veja 'tracker help <comando>' para ler sobre um subcomando específico."
+msgstr ""
+"Veja \"tracker help <comando>\" para ler sobre um subcomando específico."
 
-#: ../src/tracker/tracker-main.c:97
+#: ../src/tracker/tracker-main.c:96
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Inicie, pare, pause e liste processos responsáveis por indexação de conteúdo"
 
-#: ../src/tracker/tracker-main.c:98
+#: ../src/tracker/tracker-main.c:97
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obtenha ajuda de como usar o Tracker e qualquer um destes comandos"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:98
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostra informações conhecidas a respeito de arquivos locais ou itens "
 "indexados"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:99
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Efetua backup, restaura, importa e (re)indexa por tipo MIME ou nome de "
 "arquivo"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:100
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Reinicia ou remove o índice e reverte as configurações ao padrão"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:101
 msgid "Search for content indexed or show content by type"
 msgstr "Pesquise por conteúdo indexado ou mostre conteúdo por tipo"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:102
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consulte e atualize o índice usando SPARQL ou pesquisa, liste e ramifique a "
 "ontologia"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:103
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consulte o banco de dados até o nível mais baixo usando SQL"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:104
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Mostra o progresso da indexação, estatísticas do conteúdo e o estado do "
 "índice"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:105
 msgid "Create, list or delete tags for indexed content"
 msgstr "Cria, lista ou exclui etiquetas de conteúdo indexado"
 
-#: ../src/tracker/tracker-main.c:107
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the license and version in use"
 msgstr "Mostra a licença e versão em uso"
 
-#: ../src/tracker/tracker-main.c:152
+#: ../src/tracker/tracker-main.c:151
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
-msgstr "'%s' não é um comando do tracker. Veja 'tracker --help'"
+msgstr "'%s' não é um comando do tracker. Veja \"tracker --help\""
 
-#: ../src/tracker/tracker-main.c:175
+#: ../src/tracker/tracker-main.c:174
 msgid "Available tracker commands are:"
 msgstr "Comandos disponíveis do tracker são:"
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "Não foi possível abrir /proc"
 
-#: ../src/tracker/tracker-process.c:124
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "Não foi possível efetuar \"stat()\" sobre o arquivo"
 
-#: ../src/tracker/tracker-process.c:193
+#: ../src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Não foi possível abrir \"%s\""
 
-#: ../src/tracker/tracker-process.c:322
+#: ../src/tracker/tracker-process.c:332
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Não foi possível terminar o processo %d - '%s'"
 
-#: ../src/tracker/tracker-process.c:328
+#: ../src/tracker/tracker-process.c:338
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "Processo %d terminado - '%s'"
 
-#: ../src/tracker/tracker-process.c:343
+#: ../src/tracker/tracker-process.c:353
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Não foi possível matar o processo %d - '%s'"
 
-#: ../src/tracker/tracker-process.c:349
+#: ../src/tracker/tracker-process.c:359
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "Processo %d morto - '%s'"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Mata todos os processos do Tracker e remove todas as bases de dados"
 
-#: ../src/tracker/tracker-reset.c:51
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "É o mesmo que o --hard mas o backup & diário são restaurados após reiniciar"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Remove todos os arquivos de configuração e eles são gerados novamente na "
 "próxima inicialização"
 
-#: ../src/tracker/tracker-reset.c:132
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Apague informação indexada sobre um arquivo, funciona recursivamente para "
+"diretórios"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "Excluindo…"
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"Os dados indexados para esse arquivo foram excluídos e serão reindexados "
+"novamente."
+
+#: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Você não pode usar os argumentos --hard e --soft juntos"
 
+#: ../src/tracker/tracker-reset.c:224
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "CUIDADO: Este processo pode excluir dados de forma irreversível."
+
+#: ../src/tracker/tracker-reset.c:225
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can't "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"Apesar da maioria do conteúdo indexado pelo Tracker poder se reindexado com "
+"segurança, não é possível garantir que será assim para todos os dados. Fique "
+"sabendo que você pode passar por uma situação de perda de dados, seguindo a "
+"seu próprio risco."
+
+#: ../src/tracker/tracker-reset.c:230
+msgid "Are you sure you want to proceed?"
+msgstr "Tem certeza que deseja prosseguir?"
+
+#. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:232
+msgid "[y|N]"
+msgstr "[s|N]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:241
+#| msgid "Yes"
+msgid "yes"
+msgstr "sim"
+
+#: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
 msgstr "Removendo arquivos de configuração…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
 msgstr "Redefinindo configuração existente…"
 
@@ -2381,8 +2339,7 @@ msgstr "Procurar por software (--all não possui efeito para isto)"
 
 #: ../src/tracker/tracker-search.c:124
 msgid "Search for software categories (--all has no effect on this)"
-msgstr ""
-"Procurar por categorias de software (--all não possui efeito para isto)"
+msgstr "Procurar por categorias de software (--all não possui efeito para isto)"
 
 #: ../src/tracker/tracker-search.c:128
 msgid "Search for feeds (--all has no effect on this)"
@@ -2441,7 +2398,7 @@ msgstr "termos para a pesquisa"
 
 #: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:65
 msgid "EXPRESSION"
-msgstr "EXPRESSION"
+msgstr "EXPRESSÃO"
 
 #: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
 msgid ""
@@ -2803,7 +2760,6 @@ msgid "SQL query"
 msgstr "Consulta SQL"
 
 #: ../src/tracker/tracker-sql.c:48
-#| msgid "SPARQL"
 msgid "SQL"
 msgstr "SQL"
 
@@ -2833,7 +2789,7 @@ msgid ""
 "results are output to terminal"
 msgstr ""
 "Coleta informações de depuração, úteis para informar problemas e "
-"investigações, os resultados são emitidos no terminal."
+"investigações, os resultados são emitidos no terminal"
 
 #: ../src/tracker/tracker-status.c:187
 msgid "Could not get Tracker statistics"
@@ -2933,8 +2889,8 @@ msgstr "FILTRO"
 #: ../src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
-"Exibir arquivos associados com cada etiqueta (isto é somente usado com --"
-"list)"
+"Exibir arquivos associados com cada etiqueta (isto é somente usado com "
+"--list)"
 
 #: ../src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
@@ -2958,7 +2914,7 @@ msgstr "Descrição para uma etiqueta (isto somente é usado com --add)"
 
 #: ../src/tracker/tracker-tag.c:70
 msgid "STRING"
-msgstr "STRING"
+msgstr "TEXTO"
 
 #: ../src/tracker/tracker-tag.c:81
 msgid "Use AND for search terms instead of OR (the default)"
@@ -3090,6 +3046,88 @@ msgstr "- inicia o serviço de writeback do Tracker"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas salvas"
+
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Ao redefinir seus dados indexados, os bancos de dados são removidos e "
+#~ "seus arquivos não vai mais estar indexados. A partir da próxima "
+#~ "inicialização, o Tracker vai, então, iniciar indexação de dados como se "
+#~ "ele estivesse sendo executado pela primeira vez.\n"
+#~ "\n"
+#~ "<b>Aviso: Todos os índices e caches de seus dados também serão removidos! "
+#~ "Eles não podem ser restaurados! Seus arquivos e dados REAIS não serão "
+#~ "tocados.</b>\n"
+#~ "\n"
+#~ "Ao clicar neste botão, as preferências também serão fechadas."
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Sim, remover todos indexados"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "Um \"índice\" é uma ordem referente a um pedaço de dado. Nós usamos "
+#~ "índices para ser capaz de localizar rapidamente sua informação e conteúdo."
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Redefinir dados indexados"
+
+#~ msgid "_Delay"
+#~ msgstr "Atra_so"
+
+#~ msgid "seconds"
+#~ msgstr "segundos"
+
+#~ msgid "Start up"
+#~ msgstr "Início"
+
+#~ msgid "System"
+#~ msgstr "Sistema"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "As alterações que você fez nas suas preferências exigem uma re-indexação "
+#~ "para certificar de que todos os seus dados estão corretamente indexados "
+#~ "como você solicitou."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Isso vai fechar esse diálogo!"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Você gostaria de re-indexar agora?"
+
+#~ msgid "Reindex"
+#~ msgstr "Re-indexar"
+
+#~ msgid "Do nothing"
+#~ msgstr "Fazer nada"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "As alterações que você fez nas suas preferêcias exigem que os processo do "
+#~ "tracker sejam reiniciados."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Você gostaria de reiniciar agora?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Reiniciar o Tracker"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "O comando 'tracker-control' não está mais disponível"
 
 #~ msgid "Add feed (must be used with --title)"
 #~ msgstr "Adicionar feed (deve ser usado com --title)"
