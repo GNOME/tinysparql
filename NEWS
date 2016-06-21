@@ -1,3 +1,36 @@
+NEW in 1.9.0 - 2016-06-21
+=========================
+
+  * Adapt to new GKqueue monitor mapping.
+  * Remove build time dependency on gnome-common
+  * Fix error handling of tracker-extract-persistence
+  * Fix tracker-miner-fs to honor all configuration options at runtime.
+  * Stop recommending hard resets all through
+    * tracker reset -r will now warn and request the user to explicitly allow
+      the operation.
+    * tracker-preferences won't show anymore a big "reset and restart" button.
+  * Added "tracker reset -f $filename" subcommand. This will recursively reset
+    all indexed content for the given filename/uri, and trigger reindexing if
+    appropriate, so contents are just like freshly indexed.
+  * Fixed possible crash in MP3 extractor
+  * Favor embedded/external cue sheets before flac files' TOC.
+  * store albumArtist from TPE2 tag in MP3 extractor
+  * Avoid possible integer overflow in GIF extractor
+  * Support regular expressions for fn:replace
+  * Mark most internal functions as SQLITE_DETERMINISTIC
+  * Logging changes in tracker-miner-fs, sparql errors no longer end up with
+    full insert queries being logged, but a loud warning with instructions to
+    get more info will be printed instead.
+  * Fix FS size calculations on OpenBSD
+  * Add MS Office "owner files" to ignored-files
+  * Add systemd user services corresponding to D-Bus session services
+  * Handle DjVu files
+  * Fixes in handling of BIND()
+  * miner-fs: Fix handling files moved soon after creating
+  * Improved console output of tracker subcommands
+
+Translations: de, es, oc, pt, pt_BR, sk
+
 NEW in 1.8.0 - 2016-03-21
 =========================
 
