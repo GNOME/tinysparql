@@ -5,15 +5,15 @@
 # Duarte Loreto <happyguy_pt@hotmail.com>, 2014.
 # Pedro Albuquerque <palbuquerque73@gmail.com>, 2015.
 # Sérgio Cardeira <cardeira.sergio@gmail.com>, 2016.
-# Tiago Santos <tiagofsantos81@sapo.pt>, 2016.
+# Tiago Santos <tiagofsantos81@sapo.pt>, 2014 - 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 3.12\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-05-05 11:46+0000\n"
-"PO-Revision-Date: 2016-05-05 21:39+0100\n"
+"POT-Creation-Date: 2016-05-28 22:16+0000\n"
+"PO-Revision-Date: 2016-06-08 09:08+0100\n"
 "Last-Translator: Tiago Santos <tiagofsantos81@sapo.pt>\n"
 "Language-Team: Português <gnome_pt@yahoogroups.com>\n"
 "Language: pt\n"
@@ -517,8 +517,8 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "FICHEIRO"
 
@@ -1924,7 +1924,7 @@ msgstr ""
 "armazenamento"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:344
+#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:435
 #: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
 #: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
 #: ../src/tracker/tracker-tag.c:1079
@@ -2187,31 +2187,51 @@ msgstr "Impossível matar o processo %d - \"%s\""
 msgid "Killed process %d - '%s'"
 msgstr "Matou-se o processo %d - \"%s\""
 
-#: ../src/tracker/tracker-reset.c:50
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Terminar todos os processos Tracker e remover todas as bases de dados"
 
-#: ../src/tracker/tracker-reset.c:53
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "O mesmo que --hard mas a cópia de segurança e o registo são restaurados após "
 "o reinício"
 
-#: ../src/tracker/tracker-reset.c:56
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Remove todos os ficheiros de configuração para que sejam regenerados no "
 "próximo arranque"
 
-#: ../src/tracker/tracker-reset.c:135
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Apagar informação indexada sobre um ficheiro, funciona recursivamente para "
+"diretórios"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "A apagar..."
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"Os dados indexados deste ficheiro foram apagados e serão reindexados "
+"novamente."
+
+#: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Não pode usar os argumentos --hard e --soft ao mesmo tempo"
 
-#: ../src/tracker/tracker-reset.c:143
+#: ../src/tracker/tracker-reset.c:224
 msgid "CAUTION: This process may irreversibly delete data."
 msgstr "ATENÇÃO: Este processo pode apagar dados irreversivelmente."
 
-#: ../src/tracker/tracker-reset.c:144
+#: ../src/tracker/tracker-reset.c:225
 msgid ""
 "Although most content indexed by Tracker can be safely reindexed, it can't "
 "be assured that this is the case for all data. Be aware that you may be "
@@ -2221,12 +2241,12 @@ msgstr ""
 "segurança, não se pode assegurar que isso aconteça em todos os casos. Tenha "
 "em mente que pode ocorrer perda de dados. Proceda por sua conta e risco."
 
-#: ../src/tracker/tracker-reset.c:149
+#: ../src/tracker/tracker-reset.c:230
 msgid "Are you sure you want to proceed?"
 msgstr "Tem a certeza que quer continuar?"
 
 #. TRANSLATORS: This is to be displayed on command line output
-#: ../src/tracker/tracker-reset.c:151
+#: ../src/tracker/tracker-reset.c:232
 msgid "[y|N]"
 msgstr "[s|N]"
 
@@ -2234,16 +2254,15 @@ msgstr "[s|N]"
 #. * A partial or full match will be considered an affirmative answer,
 #. * it is intentionally lowercase, so please keep it like this.
 #.
-#: ../src/tracker/tracker-reset.c:160
-#| msgid "Yes"
+#: ../src/tracker/tracker-reset.c:241
 msgid "yes"
 msgstr "sim"
 
-#: ../src/tracker/tracker-reset.c:261
+#: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
 msgstr "A remover ficheiros de configuração…"
 
-#: ../src/tracker/tracker-reset.c:266
+#: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
 msgstr "A repor configuração existente…"
 
