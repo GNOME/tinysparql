@@ -2826,7 +2826,7 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 	TrackerProperty **properties, *property, **domain_indexes;
 	GSList           *class_properties = NULL, *field_it;
 	gboolean          main_class;
-	gint              i, n_props;
+	guint             i, n_props;
 	gboolean          in_alter = in_update;
 	GError           *internal_error = NULL;
 	GPtrArray        *copy_schedule = NULL;
@@ -3271,7 +3271,7 @@ clean_decomposed_transient_metadata (TrackerDBInterface *iface)
 {
 	TrackerProperty **properties;
 	TrackerProperty *property;
-	gint i, n_props;
+	guint i, n_props;
 
 	properties = tracker_ontologies_get_properties (&n_props);
 
@@ -3316,7 +3316,7 @@ tracker_data_ontology_import_finished (void)
 {
 	TrackerClass **classes;
 	TrackerProperty **properties;
-	gint i, n_props, n_classes;
+	guint i, n_props, n_classes;
 
 	classes = tracker_ontologies_get_classes (&n_classes);
 	properties = tracker_ontologies_get_properties (&n_props);
@@ -3342,7 +3342,7 @@ tracker_data_ontology_import_into_db (gboolean   in_update,
 
 	TrackerClass **classes;
 	TrackerProperty **properties;
-	gint i, n_props, n_classes;
+	guint i, n_props, n_classes;
 
 	iface = tracker_db_manager_get_db_interface ();
 
