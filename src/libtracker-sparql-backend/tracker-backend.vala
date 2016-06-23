@@ -17,6 +17,60 @@
  * Boston, MA  02110-1301, USA.
  */
 
+static size_t log_initialized = false;
+
+static void log_init () {
+	if (GLib.Once.init_enter(&log_initialized)) {
+		// Avoid debug messages
+		int verbosity = 0;
+		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
+		if (env_verbosity != null)
+			verbosity = int.parse (env_verbosity);
+
+		LogLevelFlags remove_levels = 0;
+
+		// If we have debug enabled, we imply G_MESSAGES_DEBUG or we
+		// see nothing, this came in since GLib 2.32.
+		if (verbosity > 2)
+			Environment.set_variable ("G_MESSAGES_DEBUG", "all", true);
+
+		switch (verbosity) {
+		// Log level 3: EVERYTHING
+		case 3:
+			break;
+
+		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
+		case 2:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG;
+			break;
+
+		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
+		case 1:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE;
+			break;
+
+		// Log level 0: CRITICAL/ERROR/WARNING only (default)
+		default:
+		case 0:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE |
+			              LogLevelFlags.LEVEL_INFO;
+			break;
+		}
+
+		if (remove_levels != 0) {
+			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
+		}
+
+		GLib.Once.init_leave (&log_initialized, true);
+	}
+}
+
+static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
+	/* do nothing */
+}
+
 class Tracker.Sparql.Backend : Connection {
 	bool initialized;
 	Tracker.Sparql.Connection direct = null;
@@ -228,7 +282,6 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	static weak Connection? singleton;
-	static bool log_initialized;
 	static Mutex door;
 
 	static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
@@ -337,60 +390,6 @@ class Tracker.Sparql.Backend : Connection {
 		} else {
 			return result;
 		}
-	}
-
-	private static void log_init () {
-		if (log_initialized) {
-			return;
-		}
-
-		log_initialized = true;
-
-		// Avoid debug messages
-		int verbosity = 0;
-		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
-		if (env_verbosity != null)
-			verbosity = int.parse (env_verbosity);
-
-		LogLevelFlags remove_levels = 0;
-
-		// If we have debug enabled, we imply G_MESSAGES_DEBUG or we
-		// see nothing, this came in since GLib 2.32.
-		if (verbosity > 2)
-			Environment.set_variable ("G_MESSAGES_DEBUG", "all", true);
-
-		switch (verbosity) {
-		// Log level 3: EVERYTHING
-		case 3:
-			break;
-
-		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
-		case 2:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG;
-			break;
-
-		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
-		case 1:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE;
-			break;
-
-		// Log level 0: CRITICAL/ERROR/WARNING only (default)
-		default:
-		case 0:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE |
-			              LogLevelFlags.LEVEL_INFO;
-			break;
-		}
-
-		if (remove_levels != 0) {
-			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
-		}
-	}
-
-	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
-		/* do nothing */
 	}
 }
 
