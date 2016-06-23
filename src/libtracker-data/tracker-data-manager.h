@@ -45,8 +45,9 @@ typedef enum {
 } TrackerDataOntologyError;
 
 GQuark   tracker_data_ontology_error_quark           (void);
-gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   flags,
-                                                      const gchar           **test_schema,
+gboolean tracker_data_manager_init                   (const gchar            *store_path,
+                                                      const gchar           **ontologies,
+                                                      TrackerDBManagerFlags   flags,
                                                       gboolean               *first_time,
                                                       gboolean                journal_check,
                                                       gboolean                restoring_backup,

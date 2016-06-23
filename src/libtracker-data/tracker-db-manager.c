@@ -845,7 +845,9 @@ perform_recreate (gboolean *first_time, GError **error)
 }
 
 gboolean
-tracker_db_manager_init (TrackerDBManagerFlags   flags,
+tracker_db_manager_init (const gchar            *store_path,
+                         const gchar           **ontologies,
+                         TrackerDBManagerFlags   flags,
                          gboolean               *first_time,
                          gboolean                restoring_backup,
                          gboolean                shared_cache,

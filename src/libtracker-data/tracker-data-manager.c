@@ -3536,8 +3536,9 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 	g_message ("  Data manager shut down, now initializing again...");
 
 	/* And initialize it again, this actually triggers index recreation. */
-	status = tracker_data_manager_init (flags,
-	                                    NULL,
+	status = tracker_data_manager_init (NULL,  /* FIXME: should pass the store path ! */
+	                                    NULL,  /* FIXME: should pass the same ontologies as before? no ? */
+	                                    flags,
 	                                    &is_first,
 	                                    TRUE,
 	                                    FALSE,
@@ -3673,8 +3674,9 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 }
 
 gboolean
-tracker_data_manager_init (TrackerDBManagerFlags   flags,
-                           const gchar           **test_schemas,
+tracker_data_manager_init (const gchar            *store_path,
+                           const gchar           **ontologies,
+                           TrackerDBManagerFlags   flags,
                            gboolean               *first_time,
                            gboolean                journal_check,
                            gboolean                restoring_backup,
@@ -3700,6 +3702,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #ifndef DISABLE_JOURNAL
 	gboolean read_journal;
 #endif
+
+	/* FIXME: JUST TO FIX COMPILE */
+	char **test_schemas;
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
@@ -3731,7 +3736,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	read_journal = FALSE;
 #endif
 
-	if (!tracker_db_manager_init (flags,
+	if (!tracker_db_manager_init (store_path,
+	                              ontologies,
+	                              flags,
 	                              &is_first_time_index,
 	                              restoring_backup,
 	                              FALSE,
@@ -4262,8 +4269,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						/* This also does tracker_locale_shutdown */
 						tracker_data_manager_shutdown ();
 
-						return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-						                                  test_schemas,
+						return tracker_data_manager_init (store_path,
+						                                  ontologies,
+						                                  flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 						                                  first_time,
 						                                  journal_check,
 						                                  restoring_backup,
@@ -4352,8 +4360,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					/* This also does tracker_locale_shutdown */
 					tracker_data_manager_shutdown ();
 
-					return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-					                                  test_schemas,
+					return tracker_data_manager_init (store_path,
+					                                  ontologies,
+					                                  flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 					                                  first_time,
 					                                  journal_check,
 					                                  restoring_backup,
@@ -4459,8 +4468,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				/* This also does tracker_locale_shutdown */
 				tracker_data_manager_shutdown ();
 
-				return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-				                                  test_schemas,
+				return tracker_data_manager_init (store_path,
+				                                  ontologies,
+				                                  flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
 				                                  first_time,
 				                                  journal_check,
 				                                  restoring_backup,

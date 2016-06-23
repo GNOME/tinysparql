@@ -47,8 +47,9 @@ void   tracker_data_backup_save        (GFile                     *destination,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy);
-void   tracker_data_backup_restore     (GFile                     *journal,
-                                        const gchar              **test_schema,
+void   tracker_data_backup_restore     (const gchar               *store_path,
+                                        const gchar              **ontologies,
+                                        GFile                     *journal,
                                         TrackerBusyCallback        busy_callback,
                                         gpointer                   busy_user_data,
                                         GError                   **error);
