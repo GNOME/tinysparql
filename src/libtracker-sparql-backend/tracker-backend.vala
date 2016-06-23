@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-static size_t log_initialized = false;
+static size_t log_initialized = 0;
 
 static void log_init () {
 	if (GLib.Once.init_enter(&log_initialized)) {
@@ -63,7 +63,7 @@ static void log_init () {
 			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
 		}
 
-		GLib.Once.init_leave (&log_initialized, true);
+		GLib.Once.init_leave (&log_initialized, 1);
 	}
 }
 
@@ -71,18 +71,22 @@ static void remove_log_handler (string? log_domain, LogLevelFlags log_level, str
 	/* do nothing */
 }
 
-class Tracker.Sparql.Backend : Connection {
+/* The session-wide backend does reads in-process, but sends writes over D-Bus
+ * to the session-wide tracker-store daemon. This is the most efficient way to
+ * provide multiple process with read+write access to the same SQLite database.
+ */
+class Tracker.Sparql.SessionWideBackend : Connection {
 	bool initialized;
 	Tracker.Sparql.Connection direct = null;
 	Tracker.Sparql.Connection bus = null;
-	enum Backend {
+	enum BackendType {
 		AUTO,
 		DIRECT,
 		BUS
 	}
 	GLib.BusType bus_type = BusType.SESSION;
 
-	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
+	public SessionWideBackend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
 			// Important to make sure we check the right bus for the store
 			load_env ();
@@ -239,28 +243,28 @@ class Tracker.Sparql.Backend : Connection {
 	// Plugin loading functions
 	private void load_plugins () throws GLib.Error {
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
-		Backend backend = Backend.AUTO;
+		BackendType backend_type = BackendType.AUTO;
 
 		if (env_backend != null) {
 			if (env_backend.ascii_casecmp ("direct") == 0) {
-				backend = Backend.DIRECT;
+				backend_type = BackendType.DIRECT;
 				debug ("Using backend = 'DIRECT'");
 			} else if (env_backend.ascii_casecmp ("bus") == 0) {
-				backend = Backend.BUS;
+				backend_type = BackendType.BUS;
 				debug ("Using backend = 'BUS'");
 			} else {
 				warning ("Environment variable TRACKER_SPARQL_BACKEND set to unknown value '%s'", env_backend);
 			}
 		}
 
-		if (backend == Backend.AUTO) {
+		if (backend_type == BackendType.AUTO) {
 			debug ("Using backend = 'AUTO'");
 		}
 
-		switch (backend) {
-		case Backend.AUTO:
+		switch (backend_type) {
+		case BackendType.AUTO:
 			try {
-				direct = new Tracker.Direct.Connection ();
+				direct = new Tracker.Direct.Connection (null, null, Tracker.Direct.Connection.Flags.READONLY);
 			} catch (Error e) {
 				debug ("Unable to initialize direct backend: " + e.message);
 			}
@@ -268,11 +272,11 @@ class Tracker.Sparql.Backend : Connection {
 			bus = new Tracker.Bus.Connection ();
 			break;
 
-		case Backend.DIRECT:
-			direct = new Tracker.Direct.Connection ();
+		case BackendType.DIRECT:
+			direct = new Tracker.Direct.Connection (null, null, Tracker.Direct.Connection.Flags.READONLY);
 			break;
 
-		case Backend.BUS:
+		case BackendType.BUS:
 			bus = new Tracker.Bus.Connection ();
 			break;
 
@@ -294,7 +298,7 @@ class Tracker.Sparql.Backend : Connection {
 			if (result == null) {
 				log_init ();
 
-				result = new Tracker.Sparql.Backend ();
+				result = new Tracker.Sparql.SessionWideBackend ();
 
 				if (cancellable != null && cancellable.is_cancelled ()) {
 					throw new IOError.CANCELLED ("Operation was cancelled");
@@ -394,17 +398,34 @@ class Tracker.Sparql.Backend : Connection {
 }
 
 public async static Tracker.Sparql.Connection tracker_sparql_connection_get_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return yield Tracker.Sparql.Backend.get_internal_async (cancellable);
+	return yield Tracker.Sparql.SessionWideBackend.get_internal_async (cancellable);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_get (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return Tracker.Sparql.Backend.get_internal (cancellable);
+	return Tracker.Sparql.SessionWideBackend.get_internal (cancellable);
 }
 
 public async static Tracker.Sparql.Connection tracker_sparql_connection_get_direct_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return yield Tracker.Sparql.Backend.get_internal_async (cancellable);
+	return yield Tracker.Sparql.SessionWideBackend.get_internal_async (cancellable);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return Tracker.Sparql.Backend.get_internal (cancellable);
+	return Tracker.Sparql.SessionWideBackend.get_internal (cancellable);
+}
+
+/* The private backend does both reads and writes in-process. This makes sense
+ * if only one process will be reading and writing. Performance will suffer if
+ * multiple processes are trying to write to the same SQLite database
+ * simultaneously.
+ */
+class Tracker.Sparql.PrivateBackend : Tracker.Direct.Connection {
+	public PrivateBackend (string store_path, string[]? ontologies) throws Sparql.Error, IOError {
+		log_init ();
+
+		base (store_path, ontologies, Flags.NONE);
+	}
+}
+
+public static Tracker.Sparql.Connection tracker_sparql_private_store_open (string store_path, string[]? ontologies) throws Tracker.Sparql.Error, IOError {
+    return new Tracker.Sparql.PrivateBackend (store_path, ontologies);
 }

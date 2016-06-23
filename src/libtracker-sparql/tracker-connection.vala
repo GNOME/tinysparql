@@ -19,14 +19,14 @@
 
 /**
  * SECTION: tracker-sparql-connection
- * @short_description: Connecting to the Store
+ * @short_description: Connecting to the user's session-wide Store
  * @title: TrackerSparqlConnection
  * @stability: Stable
  * @include: tracker-sparql.h
  *
  * <para>
  * #TrackerSparqlConnection is an object which sets up connections to the
- * Tracker Store.
+ * user's session-wide Tracker Store.
  * </para>
  */
 

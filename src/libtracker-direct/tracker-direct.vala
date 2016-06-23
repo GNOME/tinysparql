@@ -21,7 +21,12 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	static int use_count;
 	bool initialized;
 
-	public Connection () throws Sparql.Error, IOError, DBusError {
+	public enum Flags {
+		NONE=0,
+		READONLY=1,
+	}
+
+	public Connection (string? store_path, string[]? ontologies, Flags flags) throws Sparql.Error, IOError, DBusError {
 		DBManager.lock ();
 
 		try {
@@ -40,7 +45,12 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 					select_cache_size = int.parse (env_cache_size);
 				}
 
-				Data.Manager.init (DBManagerFlags.READONLY, null, null, false, false, select_cache_size, 0, null, null);
+				DBManagerFlags db_manager_flags = 0;
+				if ((flags & Flags.READONLY) == Flags.READONLY) {
+					db_manager_flags |= DBManagerFlags.READONLY;
+				}
+
+				Data.Manager.init (store_path, ontologies, db_manager_flags, null, false, false, select_cache_size, 0, null, null);
 			}
 
 			use_count++;

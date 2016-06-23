@@ -191,6 +191,9 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	}
 }
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_cursor_next_async_query (gint query)
 {
@@ -215,6 +218,9 @@ test_tracker_sparql_cursor_next_async_query (gint query)
 	                                  GINT_TO_POINTER(query));
 }
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_cursor_next_async (void)
 {
@@ -237,6 +243,9 @@ test_tracker_sparql_cursor_next_async (void)
 
 #endif /* HAVE_TRACKER_FTS */
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_connection_locking_sync (void)
 {
@@ -283,9 +292,15 @@ test_tracker_sparql_connection_locking_async_cb (GObject      *source,
 	g_assert (connection_waiting == NULL);
 }
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_connection_locking_async (void)
 {
+	/* These could be a connection to the user's real session-wide
+	 * tracker-store, so don't do anything crazy.
+	 */
 	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_connection_locking_async_cb, c2);
 	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_connection_locking_async_cb, c3);
 	c3 = tracker_sparql_connection_get (NULL, NULL);
@@ -320,9 +335,15 @@ test_tracker_sparql_nb237150_cb (GObject      *source_object,
 	}
 }
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_nb237150_subprocess (void)
 {
+	/* These could be a connection to the user's real session-wide
+	 * tracker-store, so don't do anything crazy.
+	 */
 	g_print ("\n");
 	g_print ("Calling #1 - tracker_sparql_connection_get_async()\n");
 	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_nb237150_cb, GINT_TO_POINTER(1));
@@ -357,6 +378,9 @@ test_tracker_sparql_nb237150 (void)
 	g_test_trap_assert_stdout ("*Called back ALL*");
 }
 
+/* This test could be using a connection to the user's real session-wide
+ * tracker-store, so it shouldn't do any writes.
+ */
 static void
 test_tracker_sparql_connection_interleaved (void)
 {
@@ -366,8 +390,11 @@ test_tracker_sparql_connection_interleaved (void)
 	TrackerSparqlCursor *cursor2;
 	TrackerSparqlConnection *connection;
 
-	const gchar* query = "select ?u {?u a rdfs:Resource .}";
+	const gchar * query = "select ?u {?u a rdfs:Resource .}";
 
+	/* This could be a connection to the user's real session-wide
+	 * tracker-store, so don't do anything crazy.
+	 */
 	connection = tracker_sparql_connection_get (NULL, &error);
 	g_assert_no_error (error);
 
@@ -387,6 +414,40 @@ test_tracker_sparql_connection_interleaved (void)
 
 	g_object_unref(cursor2);
 	g_object_unref(cursor1);
+}
+
+static void test_sparql_connection_private (void) {
+	GError *error = NULL;
+	TrackerSparqlConnection *connection;
+	TrackerSparqlCursor *cursor;
+	const gchar *store_location;
+	const gchar *cleanup_command;
+	const gchar *update = "insert { <http://www.example.com/> a nie:InformationElement; nie:title \"Boris\" . }";
+	const gchar *query = "select ?title { <http://www.example.com/> nie:title ?title .}";
+
+	store_location = g_mkdtemp ("tracker-sparql-test-XXXXXX");
+
+	connection = tracker_sparql_private_store_open (store_location, NULL, &error);
+	g_assert_no_error (error);
+
+	/* It's OK to do writes here, we have a private connection. */
+	tracker_sparql_connection_update (connection, update, 0, NULL, &error);
+	g_assert_no_error (error);
+
+	cursor = tracker_sparql_connection_query (connection, query, 0, &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "Boris");
+
+	g_object_unref (connection);
+	g_object_unref (cursor);
+
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", store_location);
+	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
+	g_free (cleanup_command);
 }
 
 gint
@@ -420,6 +481,8 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_locking_sync);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_locking_async",
 	                 test_tracker_sparql_connection_locking_async);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_private",
+	                 test_tracker_sparql_connection_private);
 
 #if HAVE_TRACKER_FTS
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_next_async",
