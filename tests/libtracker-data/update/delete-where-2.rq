@@ -1,0 +1,10 @@
+INSERT DATA {
+  example:a  a example:A ;
+             example:double 1.0203040506 .
+  example:b  a example:A ;
+             example:double 2.0304050607 .
+}
+
+DELETE WHERE {
+  example:a  example:double ?anything .
+}

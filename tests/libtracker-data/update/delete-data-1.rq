@@ -1,0 +1,13 @@
+INSERT DATA {
+  example:a  a example:A ;
+             example:stringMultivalued 'foo' ;
+             example:stringMultivalued 'bar' ;
+             example:stringMultivalued 'baz' .
+  example:b  a example:A ;
+             example:stringMultivalued 'baa' .
+}
+
+DELETE DATA {
+  example:a  example:stringMultivalued 'bar' .
+  example:b  example:stringMultivalued 'baa' .
+}

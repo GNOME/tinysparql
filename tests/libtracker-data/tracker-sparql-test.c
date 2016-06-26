@@ -142,6 +142,14 @@ const TestInfo tests[] = {
 	{ "bind/bind2", "bind/data", FALSE },
 	{ "bind/bind3", "bind/data", FALSE },
 	{ "bind/bind4", "bind/data", FALSE },
+	/* Update tests */
+	{ "update/insert-data-query-1", "update/insert-data-1", FALSE, FALSE },
+	{ "update/insert-data-query-2", "update/insert-data-2", FALSE, TRUE },
+	{ "update/delete-data-query-1", "update/delete-data-1", FALSE, FALSE },
+	{ "update/delete-data-query-2", "update/delete-data-2", FALSE, TRUE },
+	{ "update/delete-where-query-1", "update/delete-where-1", FALSE, FALSE },
+	{ "update/delete-where-query-2", "update/delete-where-2", FALSE, FALSE },
+	{ "update/invalid-insert-where-query-1", "update/invalid-insert-where-1", FALSE, TRUE },
 	{ NULL }
 };
 

@@ -1,0 +1,6 @@
+# Expected to fail because we exceed example:string max cardinality
+INSERT DATA {
+  example:a  a example:A ;
+             example:string 'foo' .
+  example:a  example:string 'bar' .
+}

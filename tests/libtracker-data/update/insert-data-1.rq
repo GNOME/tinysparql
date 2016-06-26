@@ -1,0 +1,6 @@
+INSERT DATA {
+  example:a  a example:A ;
+             example:string 'foo' .
+  example:b  a example:A ;
+             example:string 'bar' .
+}
