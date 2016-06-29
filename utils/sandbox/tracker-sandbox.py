@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2012-2013 Martyn Russell <martyn@lanedo.com>
 # Copyright (C) 2012      Sam Thursfield <sam.thursfield@codethink.co.uk>
+# Copyright (C) 2016      Sam Thursfield <sam@afuera.me.uk>
 #
 # This script allows a user to utilise Tracker for local instances by
 # specifying an index directory location where the Tracker data is
@@ -56,7 +57,10 @@ import gi
 
 from multiprocessing import Process
 
-import ConfigParser
+if sys.version_info[0] <= 3:
+    import configparser
+else:
+    import ConfigParser as configparser
 
 from gi.repository import Tracker, GLib, GObject
 
@@ -128,37 +132,37 @@ def db_query_have_files():
 	# Set this here in case we used 'bus' for an update() before this.
 	# os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
 
-	print 'Using query to check index has data in it...'
+	print('Using query to check index has data in it...')
 
 	conn = Tracker.SparqlConnection.get(None)
 	cursor = conn.query('select count(?urn) where { ?urn a nfo:FileDataObject }', None)
 
 	# Only expect one result here...
 	while (cursor.next(None)):
-		print '  Currently %d file(s) exist in our index' % (cursor.get_integer(0))
+		print('  Currently %d file(s) exist in our index' % (cursor.get_integer(0)))
 
 def db_query_list_files():
 	# Set this here in case we used 'bus' for an update() before this.
 	# os.environ['TRACKER_SPARQL_BACKEND'] = 'direct'
 
-	print 'Using query to list files indexed...'
+	print('Using query to list files indexed...')
 
 	conn = Tracker.SparqlConnection.get(None)
 	cursor = conn.query('select nie:url(?urn) where { ?urn a nfo:FileDataObject }', None)
 
 	# Only expect one result here...
 	while (cursor.next(None)):
-		print '  ' + cursor.get_string(0)[0]
+		print('  ' + cursor.get_string(0)[0])
 
 def db_query_files_that_match():
 	conn = Tracker.SparqlConnection.get(None)
 	cursor = conn.query('select nie:url(?urn) where { ?urn a nfo:FileDataObject . ?urn fts:match "%s" }' % (opts.query), None)
 
-	print 'Found:'
+	print('Found:')
 
 	# Only expect one result here...
 	while (cursor.next(None)):
-		print '  ' + cursor.get_string(0)[0]
+		print('  ' + cursor.get_string(0)[0])
 
 # Index functions
 def index_clean():
@@ -190,28 +194,28 @@ def index_update():
 	# Start tracker-miner-fs
 	binary = find_libexec_binaries ('tracker-miner-fs')
 	if binary == None:
-		print 'Could not find "tracker-miner-fs" in $prefix/lib{exec} directories'
-		print 'Is Tracker installed properly?'
+		print('Could not find "tracker-miner-fs" in $prefix/lib{exec} directories')
+		print('Is Tracker installed properly?')
 		sys.exit(1)
 
 	try:
 		# Mine data WITHOUT being a daemon, exit when done. Ignore desktop files
-		subprocess.check_output([binary, "--no-daemon"])
-	except subprocess.CalledProcessError, e:
-		print 'Could not run %s, %s' % (binary, e.output)
+		subprocess.check_output([binary, "--no-daemon"]).decode('utf-8')
+	except subprocess.CalledProcessError as e:
+		print('Could not run %s, %s' % (binary, e.output))
 		sys.exit(1)
 
 	debug('--')
 
 	# We've now finished updating the index now OR we completely failed
-	print 'Index now up to date!'
+	print('Index now up to date!')
 
 	# Check we have data in our index...
 	db_query_have_files()
 
 def index_shell():
-	print 'Starting shell... (type "exit" to finish)'
-	print
+	print('Starting shell... (type "exit" to finish)')
+	print()
 
 	os.system("/bin/bash")
 
@@ -221,17 +225,17 @@ def dbus_session_get_from_content(content):
 	global dbus_session_pid
 
 	if len(content) < 1:
-		print 'Content was empty ... can not get DBus session information from empty string'
+		print('Content was empty ... can not get DBus session information from empty string')
 		return False
 	
 	dbus_session_address = content.splitlines()[0]
 	dbus_session_pid = int(content.splitlines()[1])
 
 	if dbus_session_address == '':
- 		print 'DBus session file was corrupt (no address), please remove "%s"' % (dbus_session_file)
+		print('DBus session file was corrupt (no address), please remove "%s"' % (dbus_session_file))
 		sys.exit(1)
 	if dbus_session_pid < 0:
- 		print 'DBus session file was corrupt (no PID), please remove "%s"' % (dbus_session_file)
+		print('DBus session file was corrupt (no PID), please remove "%s"' % (dbus_session_file))
 		sys.exit(1)
 
 	return True
@@ -245,7 +249,7 @@ def dbus_session_file_get():
 		# Expect this if we have a new session to set up
 		return False
 	except:
-		print "Unexpected error:", sys.exc_info()[0]
+		print("Unexpected error:", sys.exc_info()[0])
 		raise
 
 	return dbus_session_get_from_content(content)
@@ -287,7 +291,7 @@ def environment_unset():
 def environment_set_and_add_path(env, prefix, suffix):
 	new = os.path.join(prefix, suffix)
 
-	if os.environ.has_key(env):
+	if env in os.environ:
 		existing = os.environ[env]
 		full = '%s:%s' % (new, existing)
 	else:
@@ -346,7 +350,7 @@ def environment_set():
 						  "--session",
 						  "--print-address=1",
 						  "--print-pid=1",
-						  "--fork"])
+						  "--fork"]).decode('utf-8')
 
 		dbus_session_get_from_content(output)
 		dbus_session_file_set()
@@ -376,7 +380,7 @@ def config_set():
 		debug('  Miner config file written')
 
 	# Set content path
-	config = ConfigParser.ConfigParser()
+	config = configparser.ConfigParser()
 	config.optionxform = str
 	config.read(config_filename)
 
@@ -392,12 +396,15 @@ def config_set():
 		             for dir in locations]
 		return GLib.Variant('as', locations).print_(False)
 
+	if not config.has_section('General'):
+		config.add_section('General')
+
 	config.set('General', 'index-recursive-directories',
 	           locations_gsetting(opts.content_locations_recursive or []))
 	config.set('General', 'index-single-directories',
 	           locations_gsetting(opts.content_locations_single or []))
 
-	with open(config_filename, 'wb') as f:
+	with open(config_filename, 'w') as f:
 		config.write(f)
 
 
@@ -481,32 +488,32 @@ if __name__ == "__main__":
 	(opts, args) = popt.parse_args()
 
 	if opts.version:
-		print '%s %s\n%s\n' % (script_name, script_version, script_about)
+		print('%s %s\n%s\n' % (script_name, script_version, script_about))
 		sys.exit(0)
 
 	if not opts.index_location:
 		if not opts.content_locations_recursive and not \
 		        opts.content_locations_single:
-			print 'Expected index (-i) or content (-c) locations to be specified'
-			print usage_invalid
+			print('Expected index (-i) or content (-c) locations to be specified')
+			print(usage_invalid)
 			sys.exit(1)
 
 	if opts.update:
 		if not opts.index_location or not (opts.content_locations_recursive or \
 		        opts.content_locations_single):
-			print 'Expected index (-i) and content (-c) locations to be specified'
-			print 'These arguments are required to update the index databases'
+			print('Expected index (-i) and content (-c) locations to be specified')
+			print('These arguments are required to update the index databases')
 			sys.exit(1)
 
 	if (opts.query or opts.query or opts.list_files or opts.shell) and not opts.index_location:
-		print 'Expected index location (-i) to be specified'
-		print 'This arguments is required to use the content that has been indexed'
+		print('Expected index location (-i) to be specified')
+		print('This arguments is required to use the content that has been indexed')
 		sys.exit(1)
 
 	if not opts.update and not opts.query and not opts.list_files and not opts.shell:
-		print 'No action specified (e.g. update (-u), shell (-s), list files (-l), etc)\n'
-		print '%s %s\n%s\n' % (script_name, script_version, script_about)
-		print usage_invalid
+		print('No action specified (e.g. update (-u), shell (-s), list files (-l), etc)\n')
+		print('%s %s\n%s\n' % (script_name, script_version, script_about))
+		print(usage_invalid)
 		sys.exit(1)
 
 	# Set up environment variables and foo needed to get started.
@@ -528,13 +535,13 @@ if __name__ == "__main__":
 
 		if opts.query:
 			if not os.path.exists(index_location_abs):
-				print 'Can not query yet, index has not been created, see --update or -u'
-				print usage_invalid
+				print('Can not query yet, index has not been created, see --update or -u')
+				print(usage_invalid)
 				sys.exit(1)
 
 			db_query_files_that_match()
 
 	except KeyboardInterrupt:
-		print 'Handling Ctrl+C'
+		print('Handling Ctrl+C')
 
 	environment_unset()
