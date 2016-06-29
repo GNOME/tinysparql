@@ -410,11 +410,13 @@ def link_to_mime_data():
 
 	'''
 	new_xdg_data_home = os.environ['XDG_DATA_HOME']
-	new_mime_dir = os.path.join(new_xdg_data_home, 'mime')
-	if not os.path.exists(new_mime_dir):
-		mkdir_p(new_xdg_data_home)
-		os.symlink(
-			os.path.join(original_xdg_data_home, 'mime'), new_mime_dir)
+	old_mime_dir = os.path.join(original_xdg_data_home, 'mime')
+	if os.path.exists(old_mime_dir):
+		new_mime_dir = os.path.join(new_xdg_data_home, 'mime')
+		if not os.path.exists(new_mime_dir) and not os.path.islink(new_mime_dir):
+			mkdir_p(new_xdg_data_home)
+			os.symlink(
+				os.path.join(original_xdg_data_home, 'mime'), new_mime_dir)
 
 
 # Entry point/start
