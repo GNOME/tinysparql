@@ -1371,7 +1371,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nfo:FileHash");
 
 			tracker_sparql_builder_predicate (metadata, "nfo:hashValue");
-			hash_str = g_strdup_printf ("%" G_GSIZE_MODIFIER "x", hash);
+			hash_str = g_strdup_printf ("%" G_GINT64_MODIFIER "x", hash);
 			tracker_sparql_builder_object_string (metadata, hash_str);
 			g_free (hash_str);
 
