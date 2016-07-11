@@ -334,7 +334,7 @@ add_date_time_gst_tag_with_mtime_fallback (TrackerSparqlBuilder  *metadata,
 		gst_date_time_unref (date_time);
 
 		if (!complete) {
-			g_message ("GstDateTime was not complete, parts of the date/time were missing (e.g. hours, minutes, seconds)");
+			g_debug ("GstDateTime was not complete, parts of the date/time were missing (e.g. hours, minutes, seconds)");
 		}
 	} else if (gst_tag_list_get_date (tag_list, tag_date, &date)) {
 		gboolean ret = FALSE;
