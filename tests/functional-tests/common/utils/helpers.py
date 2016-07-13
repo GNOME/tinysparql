@@ -314,7 +314,6 @@ class StoreHelper (Helper):
             required_property_id = self.get_resource_id_by_uri(required_property)
             log ("Required property %s id %i" % (required_property, required_property_id))
 
-        known_subjects = set ()
         def find_resource_insertion (inserts_list):
             matched_creation = (self.matched_resource_id is not None)
             matched_required_property = False
@@ -326,9 +325,7 @@ class StoreHelper (Helper):
             for insert in inserts_list:
                 id = insert[1]
 
-                if not matched_creation and id not in known_subjects:
-                    known_subjects.add (id)
-
+                if not matched_creation:
                     where = "  ?urn a %s " % rdf_class
 
                     if url is not None:
