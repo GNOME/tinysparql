@@ -48,7 +48,8 @@ if HAVE_TRACKER_FTS
 standard_tests += 310-fts-indexing.py
 endif
 standard_tests += \
-	400-extractor.py \
+	400-extractor-metadata.py \
+	410-extractor-decorator.py \
 	500-writeback.py \
 	501-writeback-details.py \
 	600-applications-camera.py \

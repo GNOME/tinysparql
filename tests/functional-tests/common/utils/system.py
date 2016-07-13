@@ -33,9 +33,11 @@ class UnableToBootException (Exception):
     pass
 
 
-class TrackerSystemAbstraction:
+class TrackerSystemAbstraction (object):
+    def __init__(self, settings=None, ontodir=None):
+        self.set_up_environment (settings=settings, ontodir=ontodir)
 
-    def set_up_environment (self, settings, ontodir):
+    def set_up_environment (self, settings=None, ontodir=None):
         """
         Sets up the XDG_*_HOME variables and make sure the directories exist
 

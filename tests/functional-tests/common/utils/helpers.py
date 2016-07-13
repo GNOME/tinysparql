@@ -555,15 +555,22 @@ class MinerFsHelper (Helper):
         self.miner_fs = Gio.DBusProxy.new_sync(
             self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
             cfg.MINERFS_BUSNAME, cfg.MINERFS_OBJ_PATH, cfg.MINER_IFACE)
+        self.index = Gio.DBusProxy.new_sync(
+            self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
+            cfg.MINERFS_BUSNAME, cfg.MINERFS_INDEX_OBJ_PATH, cfg.MINER_INDEX_IFACE)
 
     def stop (self):
         Helper.stop (self)
+
+    def index_file (self, uri):
+        return self.index.IndexFile('(s)', uri)
 
 
 class ExtractorHelper (Helper):
 
     PROCESS_NAME = 'tracker-extract'
     BUS_NAME = cfg.TRACKER_EXTRACT_BUSNAME
+
 
 class WritebackHelper (Helper):
 
