@@ -611,9 +611,9 @@ decorator_ignore_file (GFile    *file,
 	query = g_strdup_printf ("INSERT { GRAPH <" TRACKER_OWN_GRAPH_URN "> {"
 	                         "  ?urn nie:dataSource <" TRACKER_EXTRACT_DATA_SOURCE ">;"
 	                         "       nie:dataSource <" TRACKER_EXTRACT_FAILURE_DATA_SOURCE ">."
-	                         "} WHERE {"
+	                         "} } WHERE {"
 	                         "  ?urn nie:url \"%s\""
-	                         "}}", uri);
+	                         "}", uri);
 
 	tracker_sparql_connection_update (conn, query, G_PRIORITY_DEFAULT, NULL, &error);
 
