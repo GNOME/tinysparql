@@ -1,68 +1,79 @@
-.TH tracker-extract 1 "July 2007" GNU "User Commands"
+.TH tracker-extract 1 "April 2016" GNU "User Commands"
 
 .SH NAME
 tracker-extract \- Extract metadata from a file.
 
 .SH SYNOPSYS
-\fBtracker-extract\fR [\fIOPTION\fR...] \fIFILE\fR...
+\fBtracker extract\fR \fIFILE\fR
 
 .SH DESCRIPTION
-.B tracker-extract
-reads the file and mimetype provided in stdin and extract the metadata from this
-file; then it displays the metadata on the standard output.
+.B tracker extract
+reads the file provided and extracts any metadata it can from this
+file, then displays the metadata on standard output.
 
-.B NOTE:
-If a \fIFILE\fR is not provided then
-.B tracker-extract
-will run for 30 seconds waiting for DBus calls before quitting.
+The metadata is displayed as a SPARQL update command, that can be run against
+a SPARQL endpoint to update its copy of the metadata.
+
+The actual extraction is done by a separate process. This is done to isolate
+the calling process from any memory leaks or crashes in the libraries Tracker
+uses to extract metadata.
+
+For more information see the libtracker-extract reference documentation.
 
 .SH OPTIONS
 .TP
-.B \-?, \-\-help
-Show summary of options.
-.TP
-.B \-v, \-\-verbosity=N
-Set verbosity to N. This overrides the config value.
-Values include 0=errors, 1=minimal, 2=detailed and 3=debug.
-.TP
-.B \-f, \-\-file=FILE
-The \fIFILE\fR to extract metadata from. The \fIFILE\fR argument can
-be either a local path or a URI. It also does not have to be an absolute path.
-.TP
-.B \-m, \-\-mime=MIME
-The \fIMIME\fR type to use for the file. If one is not provided, it
-will be guessed automatically.
-.TP
-.B \-m, \-\-force-module=MODULE
-Force a particular module to be used. This is here as a convenience
-for developers wanting to test their \fIMODULE\fR file. Only the
-\fIMODULE\fR name has to be specified, not the full path. Typically, a
-\fIMODULE\fR is installed to /usr/lib/tracker-0.7/extract-modules/.
-This option can be used with or without the .so part of the name too,
-for example, you can use
-.B --force-module=foo
+.B \-\-verbosity\fR=<\fILEVEL\fR>
+This sets the log verbosity for the extractor process.
 
-Modules are shared objects which are dynamically loaded at run time. These files
-must have the .so suffix to be loaded and must contain the correct
-symbols to be authenticated by
-.B tracker-extract.
-For more information see the libtracker-extract reference documentation.
-.TP
-.B \-V, \-\-version
-Show binary version.
+The possible \fILEVEL\fR options are:
+.sp
+.RS 12
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIdebug\fR
+\- Show EVERYTHING, from debug messages to errors.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.IP \(bu 2.3
+.\}
+\fIdetailed\fR
+\- Show enough detail to understand what is happening.
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIminimal\fR
+\- Show an overview of what is going on
+.sp
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIerrors\fR
+\- Show only warnings, criticals, errors or fatal events.
+.RE
 
 .SH EXAMPLES
 .TP
 Using command line to extract metadata from a file:
 
-.BR 
-$ tracker-extract -v 3 -f /path/to/some/file.mp3
-
-.TP
-Using a specific module to extract metadata from a file:
-
-.BR 
-$ tracker-extract -v 3 -f /path/to/some/file.mp3 -m mymodule
+.BR
+$ tracker extract /path/to/some/file.mp3
 
 .SH ENVIRONMENT
 .TP
