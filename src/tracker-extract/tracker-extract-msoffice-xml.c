@@ -76,7 +76,7 @@ typedef struct {
 	MsOfficeXMLTagType tag_type;
 
 	/* Metadata-parsing specific things */
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	guint has_title      : 1;
 	guint has_subject    : 1;
 	guint has_publisher  : 1;
@@ -436,8 +436,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_title = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nie:title");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nie:title", text);
 		}
 		break;
 
@@ -447,8 +446,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_subject = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nie:subject");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nie:subject", text);
 		}
 		break;
 
@@ -457,16 +455,12 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			g_warning ("Avoiding additional publisher (%s) in MsOffice XML document '%s'",
 			           text, info->uri);
 		} else {
+			TrackerResource *publisher = tracker_extract_new_contact (text);
+
 			info->has_publisher = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nco:publisher");
+			tracker_resource_set_relation (info->metadata, "nco:publisher", publisher);
 
-			tracker_sparql_builder_object_blank_open (info->metadata);
-			tracker_sparql_builder_predicate (info->metadata, "a");
-			tracker_sparql_builder_object (info->metadata, "nco:Contact");
-
-			tracker_sparql_builder_predicate (info->metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
-			tracker_sparql_builder_object_blank_close (info->metadata);
+			g_object_unref (publisher);
 		}
 		break;
 
@@ -476,8 +470,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_comment = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nie:comment");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nie:comment", text);
 		}
 		break;
 
@@ -491,8 +484,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			date = tracker_date_guess (text);
 			if (date) {
 				info->has_content_created = TRUE;
-				tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
-				tracker_sparql_builder_object_unvalidated (info->metadata, date);
+				tracker_resource_set_string (info->metadata, "nie:contentCreated", date);
 				g_free (date);
 			} else {
 				g_warning ("Could not parse creation time (%s) from MsOffice XML document '%s'",
@@ -507,8 +499,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_generator = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nie:generator");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nie:generator", text);
 		}
 		break;
 
@@ -529,8 +520,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			date = tracker_date_guess (text);
 			if (date) {
 				info->has_content_last_modified = TRUE;
-				tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
-				tracker_sparql_builder_object_unvalidated (info->metadata, date);
+				tracker_resource_set_string (info->metadata, "nie:contentLastModified", date);
 				g_free (date);
 			} else {
 				g_warning ("Could not parse last modification time (%s) from MsOffice XML document '%s'",
@@ -545,8 +535,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_page_count = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nfo:pageCount");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nfo:pageCount", text);
 		}
 		break;
 
@@ -556,8 +545,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_char_count = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nfo:characterCount");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nfo:characterCount", text);
 		}
 		break;
 
@@ -567,8 +555,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_word_count = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nfo:wordCount");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nfo:wordCount", text);
 		}
 		break;
 
@@ -578,8 +565,7 @@ msoffice_xml_metadata_parse (GMarkupParseContext  *context,
 			           text, info->uri);
 		} else {
 			info->has_line_count = TRUE;
-			tracker_sparql_builder_predicate (info->metadata, "nfo:lineCount");
-			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			tracker_resource_set_string (info->metadata, "nfo:lineCount", text);
 		}
 		break;
 
@@ -827,7 +813,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 {
 	MsOfficeXMLParserInfo info = { 0 };
 	MsOfficeXMLFileType file_type;
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	TrackerConfig *config;
 	GMarkupParseContext *context = NULL;
 	GError *error = NULL;
@@ -838,7 +824,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
 	}
 
-	metadata = tracker_extract_info_get_metadata_builder (extract_info);
 	file = tracker_extract_info_get_file (extract_info);
 	uri = g_file_get_uri (file);
 
@@ -850,8 +835,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 
 	g_debug ("Extracting MsOffice XML format...");
 
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+	metadata = tracker_resource_new (NULL);
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:PaginatedTextDocument");
 
 	/* Setup Parser info */
 	info.metadata = metadata;
@@ -894,8 +879,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 		info.content = NULL;
 
 		if (content) {
-			tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-			tracker_sparql_builder_object_unvalidated (metadata, content);
+			tracker_resource_set_string (metadata, "nie:plainTextContent", content);
 			g_free (content);
 		}
 	}
@@ -908,6 +892,9 @@ tracker_extract_get_metadata (TrackerExtractInfo *extract_info)
 	g_timer_destroy (info.timer);
 	g_markup_parse_context_free (context);
 	g_free (uri);
+
+	tracker_extract_info_set_resource (extract_info, metadata);
+	g_object_unref (metadata);
 
 	return TRUE;
 }

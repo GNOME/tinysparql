@@ -62,8 +62,6 @@ TrackerExtract *tracker_extract_new                     (gboolean               
 void            tracker_extract_file                    (TrackerExtract         *extract,
                                                          const gchar            *file,
                                                          const gchar            *mimetype,
-                                                         const gchar            *graph,
-                                                         const gchar            *urn,
                                                          GCancellable           *cancellable,
                                                          GAsyncReadyCallback     cb,
                                                          gpointer                user_data);
@@ -81,9 +79,10 @@ void            tracker_extract_dbus_start              (TrackerExtract         
 void            tracker_extract_dbus_stop               (TrackerExtract         *extract);
 
 /* Not DBus API */
-void            tracker_extract_get_metadata_by_cmdline (TrackerExtract         *object,
-                                                         const gchar            *path,
-                                                         const gchar            *mime);
+void            tracker_extract_get_metadata_by_cmdline (TrackerExtract             *object,
+                                                         const gchar                *path,
+                                                         const gchar                *mime,
+                                                         TrackerSerializationFormat  output_format);
 
 G_END_DECLS
 

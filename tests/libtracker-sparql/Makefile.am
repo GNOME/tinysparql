@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS += $(test_programs)
 
 test_programs = \
+	tracker-resource-test                          \
 	tracker-sparql-test                            \
 	tracker-gb-737023-test
 
@@ -17,6 +18,8 @@ LDADD =                                                \
 	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)
+
+tracker_resource_test_SOURCES = tracker-resource-test.c
 
 tracker_sparql_test_SOURCES = tracker-sparql-test.c
 

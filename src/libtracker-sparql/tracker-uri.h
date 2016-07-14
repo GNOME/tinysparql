@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2016, Sam Thursfield <sam@afuera.me.uk>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,29 +17,26 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_ENUMS_H__
-#define __TRACKER_ENUMS_H__
+#ifndef __LIBTRACKER_SPARQL_URI_H__
+#define __LIBTRACKER_SPARQL_URI_H__
 
 G_BEGIN_DECLS
 
-typedef enum {
-	TRACKER_VERBOSITY_ERRORS,
-	TRACKER_VERBOSITY_MINIMAL,
-	TRACKER_VERBOSITY_DETAILED,
-	TRACKER_VERBOSITY_DEBUG,
-} TrackerVerbosity;
+#include <glib-object.h>
 
-typedef enum {
-	TRACKER_SCHED_IDLE_ALWAYS,
-	TRACKER_SCHED_IDLE_FIRST_INDEX,
-	TRACKER_SCHED_IDLE_NEVER,
-} TrackerSchedIdle;
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#endif
 
-typedef enum {
-	TRACKER_SERIALIZATION_FORMAT_SPARQL,
-	TRACKER_SERIALIZATION_FORMAT_TURTLE,
-} TrackerSerializationFormat;
+GType tracker_uri_get_type (void);
+
+#define TRACKER_TYPE_URI tracker_uri_get_type()
+
+/* The public functions in tracker-uri.c are prototyped in the generated Vala
+ * header tracker-generated-no-checks.h, due to being defined in
+ * tracker-sparql.vapi.
+ */
 
 G_END_DECLS
 
-#endif /* __TRACKER_ENUMS_H__ */
+#endif

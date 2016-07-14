@@ -127,35 +127,36 @@ find_max_width_and_height (const gchar *uri,
 G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (TrackerExtractInfo *info)
 {
-	TrackerSparqlBuilder *metadata;
+	TrackerResource *metadata;
 	guint max_width;
 	guint max_height;
 	GFile *file;
 	gchar *uri;
 
-	metadata = tracker_extract_info_get_metadata_builder (info);
 	file = tracker_extract_info_get_file (info);
 	uri = g_file_get_uri (file);
+
+	metadata = tracker_resource_new (NULL);
 
 	/* The Windows Icon file format may contain the same icon with different
 	 * sizes inside, so there's no clear way of setting single width and
 	 * height values. Thus, we set maximum sizes found. */
-	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:Image");
-	tracker_sparql_builder_object (metadata, "nfo:Icon");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:Image");
+	tracker_resource_add_uri (metadata, "rdf:type", "nfo:Icon");
 
 	if (find_max_width_and_height (uri, &max_width, &max_height)) {
 		if (max_width > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:width");
-			tracker_sparql_builder_object_int64 (metadata, (gint64) max_width);
+			tracker_resource_set_int64 (metadata, "nfo:width", (gint64)max_width);
 		}
 		if (max_height > 0) {
-			tracker_sparql_builder_predicate (metadata, "nfo:height");
-			tracker_sparql_builder_object_int64 (metadata, (gint64) max_height);
+			tracker_resource_set_int64 (metadata, "nfo:height", (gint64)max_height);
 		}
 	}
 
 	g_free (uri);
+
+	tracker_extract_info_set_resource (info, metadata);
+	g_object_unref (metadata);
 
 	return TRUE;
 }

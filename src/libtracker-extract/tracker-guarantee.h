@@ -40,6 +40,16 @@ gboolean tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
                                                  const gchar          *current_value,
                                                  const gchar          *uri);
 
+gboolean tracker_guarantee_resource_title_from_file      (TrackerResource  *resource,
+                                                          const gchar      *key,
+                                                          const gchar      *current_value,
+                                                          const gchar      *uri,
+                                                          gchar           **p_new_value);
+gboolean tracker_guarantee_resource_date_from_file_mtime (TrackerResource  *resource,
+                                                          const gchar      *key,
+                                                          const gchar      *current_value,
+                                                          const gchar      *uri);
+
 G_END_DECLS
 
 #endif /*  __LIBTRACKER_EXTRACT_GUARANTEE_H__ */

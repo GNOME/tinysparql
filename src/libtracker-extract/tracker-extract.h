@@ -31,6 +31,7 @@
 #include "tracker-module-manager.h"
 #include "tracker-guarantee.h"
 #include "tracker-iptc.h"
+#include "tracker-resource-helpers.h"
 #include "tracker-utils.h"
 #include "tracker-xmp.h"
 
