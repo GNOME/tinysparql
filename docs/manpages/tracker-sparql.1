@@ -283,11 +283,11 @@ $ tracker sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
 .fi
 
 .TP
-List all music albums
+List all music albums, showing title, track count, and length in seconds.
 
 .BR
 .nf
-$ tracker sparql -q "SELECT ?album ?title COUNT(?song)
+$ tracker sparql -q "SELECT ?title COUNT(?song)
                      AS songs
                      SUM(?length) AS totallength
                      WHERE {
