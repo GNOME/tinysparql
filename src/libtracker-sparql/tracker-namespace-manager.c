@@ -53,9 +53,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, 
  * short prefixes for them to avoid typing full URLs all the time.
  *
  * The syntax used is that of Compact URIs (CURIEs) as defined here:
- * <https://www.w3.org/TR/2010/NOTE-curie-20101216/>
+ * (https://www.w3.org/TR/2010/NOTE-curie-20101216)
  *
- * Usually you'll want to use the default namespace manager, as returned by
+ * Usually you will want to use the default namespace manager, as returned by
  * tracker_namespace_manager_get_default(). This has a set of well-known
  * prefixes predefined.
  * </para>

@@ -94,6 +94,12 @@ tracker_resource_class_init (TrackerResourceClass *klass)
 	object_class->get_property = get_property;
 	object_class->set_property = set_property;
 
+	/**
+	 * TrackerResource:identifier
+	 *
+	 * The URI identifier for this class, or %NULL for a
+	 * blank node.
+	 */
 	g_object_class_install_property (object_class,
 	                                 PROP_IDENTIFIER,
 	                                 g_param_spec_string ("identifier",
@@ -334,12 +340,93 @@ validate_pointer (const void *pointer,
 		                     GINT_TO_POINTER (TRUE));                       \
 	};
 
+/**
+ * tracker_resource_set_boolean:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued boolean object.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_boolean, gboolean, G_TYPE_BOOLEAN, g_value_set_boolean, validate_boolean);
+
+/**
+ * tracker_resource_set_double:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued double object.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_double, double, G_TYPE_DOUBLE, g_value_set_double, validate_double);
+
+/**
+ * tracker_resource_set_int:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued integer object.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int, int, G_TYPE_INT, g_value_set_int, validate_int);
+
+/**
+ * tracker_resource_set_int64:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued integer object.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int64, gint64, G_TYPE_INT64, g_value_set_int64, validate_int64);
+
+/**
+ * tracker_resource_set_relation:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @resource: the property object
+ *
+ * Sets a single-valued resource object as a #TrackerResource. This
+ * function produces similar RDF to tracker_resource_set_uri(),
+ * although in this function the URI will depend on the identifier
+ * set on @resource.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer);
+
+/**
+ * tracker_resource_set_string:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued string object.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING, g_value_set_string, validate_pointer);
+
+/**
+ * tracker_resource_set_uri:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued resource object as a string URI. This function
+ * produces similar RDF to tracker_resource_set_relation(), although
+ * it requires that the URI is previously known.
+ *
+ * Since: 1.10
+ */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
 /**
@@ -458,12 +545,93 @@ tracker_resource_add_gvalue (TrackerResource *self,
 		}                                                                       \
 	};
 
+/**
+ * tracker_resource_add_boolean:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds a boolean object to a multi-valued property.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_boolean, gboolean, G_TYPE_BOOLEAN, g_value_set_boolean, validate_boolean);
+
+/**
+ * tracker_resource_add_double:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds a double object to a multi-valued property.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_double, double, G_TYPE_DOUBLE, g_value_set_double, validate_double);
+
+/**
+ * tracker_resource_add_int:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds an integer object to a multi-valued property.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int, int, G_TYPE_INT, g_value_set_int, validate_int);
+
+/**
+ * tracker_resource_add_boolean:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds an integer object to a multi-valued property.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int64, gint64, G_TYPE_INT64, g_value_set_int64, validate_int64);
+
+/**
+ * tracker_resource_add_relation:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @resource: the property object
+ *
+ * Adds a resource object to a multi-valued property. This
+ * function produces similar RDF to tracker_resource_add_uri(),
+ * although in this function the URI will depend on the identifier
+ * set on @resource.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer);
+
+/**
+ * tracker_resource_add_string:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds a string object to a multi-valued property.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING, g_value_set_string, validate_pointer);
+
+/**
+ * tracker_resource_add_uri:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds a resource object to a multi-valued property. This function
+ * produces similar RDF to tracker_resource_add_relation(), although
+ * it requires that the URI is previously known.
+ *
+ * Since: 1.10
+ */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
 
@@ -544,12 +712,95 @@ GList *tracker_resource_get_values (TrackerResource *self,
 		return get_function (value);                                  \
 	};
 
+/**
+ * tracker_resource_get_first_boolean:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first boolean object previously assigned to a property.
+ *
+ * Returns: the first boolean object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_boolean, gboolean, G_TYPE_BOOLEAN, g_value_get_boolean, FALSE);
+
+/**
+ * tracker_resource_get_first_double:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first double object previously assigned to a property.
+ *
+ * Returns: the first double object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_double, double, G_TYPE_DOUBLE, g_value_get_double, 0.0);
+
+/**
+ * tracker_resource_get_first_int:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first integer object previously assigned to a property.
+ *
+ * Returns: the first integer object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int, int, G_TYPE_INT, g_value_get_int, 0);
+
+/**
+ * tracker_resource_get_first_int64:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first integer object previously assigned to a property.
+ *
+ * Returns: the first integer object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int64, gint64, G_TYPE_INT64, g_value_get_int64, 0);
+
+/**
+ * tracker_resource_get_first_relation:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first resource object previously assigned to a property.
+ *
+ * Returns: the first resource object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_get_object, NULL);
+
+/**
+ * tracker_resource_get_first_string:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first string object previously assigned to a property.
+ *
+ * Returns: the first string object
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_STRING, g_value_get_string, NULL);
+
+/**
+ * tracker_resource_get_first_uri:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first resource object previously assigned to a property.
+ *
+ * Returns: the first resource object as an URI.
+ *
+ * Since: 1.10
+ */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TYPE_URI, g_value_get_string, NULL);
 
 /**
@@ -910,7 +1161,7 @@ generate_turtle (TrackerResource    *resource,
 
 /**
  * tracker_resource_print_turtle:
- * @resource: a #TrackerResource
+ * @self: a #TrackerResource
  * @namespaces: (allow-none): a set of prefixed URLs, or %NULL to use the
  *     default set
  *

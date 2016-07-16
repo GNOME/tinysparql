@@ -1,3 +1,5 @@
+tracker_resource_get_type
+tracker_namespace_manager_get_type
 tracker_sparql_builder_get_type
 tracker_sparql_builder_state_get_type
 tracker_sparql_connection_get_type
