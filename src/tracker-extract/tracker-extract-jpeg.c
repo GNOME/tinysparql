@@ -494,7 +494,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.comment) {
-		tracker_resource_set_string (metadata, "nie:comment", md.comment);
+		tracker_guarantee_resource_utf8_string (metadata, "nie:comment", md.comment);
 	}
 
 	if (md.address || md.state || md.country || md.city ||
