@@ -404,7 +404,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	keywords = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
 
 	if (ed->user_comment) {
-		tracker_resource_set_string (metadata, "nie:comment", ed->user_comment);
+		tracker_guarantee_resource_utf8_string (metadata, "nie:comment", ed->user_comment);
 	}
 
 	if (md.x_dimension) {
@@ -534,7 +534,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.copyright) {
-		tracker_resource_set_string (metadata, "nie:copyright", md.copyright);
+		tracker_guarantee_resource_utf8_string (metadata, "nie:copyright", md.copyright);
 	}
 
 	if (md.white_balance) {
@@ -574,7 +574,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	                                                 uri);
 
 	if (md.description) {
-		tracker_resource_set_string (metadata, "nie:description", md.description);
+		tracker_guarantee_resource_utf8_string (metadata, "nie:description", md.description);
 	}
 
 	if (md.metering_mode) {
