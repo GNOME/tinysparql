@@ -18,6 +18,7 @@
  */
 
 #include "tracker-resource-helpers.h"
+#include "tracker-guarantee.h"
 
 /**
  * SECTION:tracker-resource-helpers
@@ -89,7 +90,7 @@ tracker_extract_new_contact (const char *fullname)
 	publisher = tracker_resource_new (uri);
 
 	tracker_resource_set_uri (publisher, "rdf:type", "nco:Contact");
-	tracker_resource_set_string (publisher, "nco:fullname", fullname);
+	tracker_guarantee_resource_utf8_string (publisher, "nco:fullname", fullname);
 
 	g_free (uri);
 
@@ -296,7 +297,7 @@ tracker_extract_new_tag (const char *label)
 	tag = tracker_resource_new (uri);
 
 	tracker_resource_set_uri (tag, "rdf:type", "nao:Tag");
-	tracker_resource_set_string (tag, "nao:prefLabel", label);
+	tracker_guarantee_resource_utf8_string (tag, "nao:prefLabel", label);
 
 	g_free (uri);
 	return tag;
