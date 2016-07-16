@@ -2363,10 +2363,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	                                            md.id3v22.performer2,
 	                                            md.id3v1.artist);
 
-	md.album_artist_name = tracker_coalesce_strip (3, md.id3v24.performer2,
+	md.album_artist_name = tracker_coalesce_strip (4, md.id3v24.performer2,
 	                                               md.id3v23.performer2,
 	                                               md.id3v22.performer2,
-	                                               md.performer);
+	                                               md.performer_name);
 
 	md.album_name = tracker_coalesce_strip (4, md.id3v24.album,
 	                                        md.id3v23.album,
