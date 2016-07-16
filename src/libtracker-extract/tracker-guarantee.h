@@ -49,6 +49,9 @@ gboolean tracker_guarantee_resource_date_from_file_mtime (TrackerResource  *reso
                                                           const gchar      *key,
                                                           const gchar      *current_value,
                                                           const gchar      *uri);
+gboolean tracker_guarantee_resource_utf8_string (TrackerResource *resource,
+                                                 const gchar     *key,
+                                                 const gchar     *value);
 
 G_END_DECLS
 

@@ -348,3 +348,25 @@ tracker_guarantee_resource_date_from_file_mtime (TrackerResource *resource,
 
 	return success;
 }
+
+gboolean
+tracker_guarantee_resource_utf8_string (TrackerResource *resource,
+                                        const gchar     *key,
+                                        const gchar     *value)
+{
+	const gchar *end;
+	gchar *str;
+
+	if (!g_utf8_validate (value, -1, &end)) {
+		if (end == value)
+			return FALSE;
+
+		str = g_strndup (value, end - value);
+		tracker_resource_set_string (resource, key, str);
+		g_free (str);
+	} else {
+		tracker_resource_set_string (resource, key, value);
+	}
+
+	return TRUE;
+}
