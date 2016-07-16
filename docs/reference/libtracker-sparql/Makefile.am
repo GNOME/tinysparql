@@ -20,7 +20,9 @@ HFILE_GLOB = $(top_srcdir)/src/libtracker-sparql/*.h $(top_builddir)/config.h
 CFILE_GLOB = $(top_srcdir)/src/libtracker-sparql/*.c
 
 # Header files to ignore when scanning
-IGNORE_HFILES = $(top_srcdir)/src/libtracker-sparql/tracker-generated-no-check.h
+IGNORE_HFILES = \
+	$(top_srcdir)/src/libtracker-sparql/tracker-generated-no-check.h	\
+	$(top_srcdir)/src/libtracker-sparql/tracker-uri.h
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.

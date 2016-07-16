@@ -57,7 +57,6 @@ libtracker_sparqlinclude_HEADERS =                     \
 	tracker-ontologies.h \
 	tracker-resource.h                             \
 	tracker-sparql.h                               \
-	tracker-uri.h                                  \
 	tracker-version.h
 
 tracker-sparql-$(TRACKER_API_VERSION).deps: tracker-sparql.deps
