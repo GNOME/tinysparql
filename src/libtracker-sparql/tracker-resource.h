@@ -70,7 +70,7 @@ const char *tracker_resource_get_first_string (TrackerResource *self, const char
 const char *tracker_resource_get_first_uri (TrackerResource *self, const char *property_uri);
 
 const char *tracker_resource_get_identifier (TrackerResource *self);
-void tracker_resource_set_identifier (TrackerResource *self, const char *identifer);
+void tracker_resource_set_identifier (TrackerResource *self, const char *identifier);
 gint tracker_resource_identifier_compare_func (TrackerResource *resource, const char *identifier);
 
 char *tracker_resource_print_turtle(TrackerResource *self, TrackerNamespaceManager *namespaces);
