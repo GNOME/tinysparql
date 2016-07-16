@@ -426,7 +426,7 @@ read_metadata (GifFileType          *gifFile,
 	}
 
 	if (gd.comment) {
-		tracker_resource_set_string (metadata, "nie:comment", gd.comment);
+		tracker_guarantee_resource_utf8_string (metadata, "nie:comment", gd.comment);
 		g_free (gd.comment);
 	}
 
