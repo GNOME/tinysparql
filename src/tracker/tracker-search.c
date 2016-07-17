@@ -517,14 +517,16 @@ get_files_results (TrackerSparqlConnection *connection,
 		                         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 
-				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
+				if (tracker_sparql_cursor_get_n_columns (cursor) > 2)
+					print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
 				g_print ("  %s%s%s\n",
 		                         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         disable_color ? "" : TITLE_END);
 
-				print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
+				if (tracker_sparql_cursor_get_n_columns (cursor) > 2)
+					print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			}
 
 			count++;
