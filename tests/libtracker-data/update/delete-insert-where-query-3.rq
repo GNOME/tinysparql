@@ -1,0 +1,4 @@
+SELECT ?s ?o {
+  ?s example:stringMultivalued ?o
+}
+ORDER BY DESC ?o

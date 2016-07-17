@@ -150,6 +150,12 @@ const TestInfo tests[] = {
 	{ "update/delete-where-query-1", "update/delete-where-1", FALSE, FALSE },
 	{ "update/delete-where-query-2", "update/delete-where-2", FALSE, FALSE },
 	{ "update/invalid-insert-where-query-1", "update/invalid-insert-where-1", FALSE, TRUE },
+	{ "update/delete-insert-where-query-1", "update/delete-insert-where-1", FALSE, FALSE },
+	{ "update/delete-insert-where-query-2", "update/delete-insert-where-2", FALSE, FALSE },
+	{ "update/delete-insert-where-query-3", "update/delete-insert-where-3", FALSE, FALSE },
+	{ "update/delete-insert-where-query-4", "update/delete-insert-where-4", FALSE, FALSE },
+	{ "update/delete-insert-where-query-5", "update/delete-insert-where-5", FALSE, FALSE },
+	{ "update/delete-insert-where-query-6", "update/delete-insert-where-6", FALSE, FALSE },
 	{ NULL }
 };
 

@@ -1,0 +1,17 @@
+# Simple delete{}insert{}where{} test, replaces all objects in
+# a multi-valued property, uses an intermediate variable
+
+INSERT DATA {
+  example:a  a example:A ;
+             example:stringMultivalued 'foo' ;
+             example:stringMultivalued 'baa' .
+}
+
+DELETE {
+  example:a example:stringMultivalued ?string
+} INSERT {
+  example:a example:stringMultivalued 'bar'
+} WHERE {
+  example:a a example:A ;
+            example:stringMultivalued ?string
+}

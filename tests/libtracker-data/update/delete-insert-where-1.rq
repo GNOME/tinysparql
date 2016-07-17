@@ -1,0 +1,14 @@
+# Simple delete{}insert{}where{} test, replaces one single-valued object
+
+INSERT DATA {
+  example:a  a example:A ;
+             example:string 'foo' .
+}
+
+DELETE {
+  example:a example:string 'foo'
+} INSERT {
+  example:a example:string 'bar'
+} WHERE {
+  example:a a example:A
+}

@@ -1,0 +1,17 @@
+# delete{}insert{}where{} test, uses the looked
+# up variable for both deletion and insert
+
+INSERT DATA {
+  example:a  a example:A ;
+             example:string 'foo'
+}
+
+DELETE {
+  example:a example:string ?string
+} INSERT {
+  example:a example:string ?string2
+} WHERE {
+  example:a a example:A ;
+            example:string ?string .
+  BIND (CONCAT (?string, 'bar') AS ?string2)
+}

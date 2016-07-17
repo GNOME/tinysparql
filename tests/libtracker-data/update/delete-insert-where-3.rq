@@ -1,0 +1,15 @@
+# Simple delete{}insert{}where{} test, replaces a selected multi-valued object
+
+INSERT DATA {
+  example:a  a example:A ;
+             example:stringMultivalued 'foo' ;
+             example:stringMultivalued 'baa' .
+}
+
+DELETE {
+  example:a example:stringMultivalued 'baa'
+} INSERT {
+  example:a example:stringMultivalued 'bar'
+} WHERE {
+  example:a a example:A
+}

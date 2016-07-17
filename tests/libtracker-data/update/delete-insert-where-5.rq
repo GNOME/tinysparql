@@ -1,0 +1,16 @@
+# delete{}insert{}where{} test, fails to delete any
+# value, so the insert just adds up.
+
+INSERT DATA {
+  example:a  a example:A ;
+             example:stringMultivalued 'foo' ;
+             example:stringMultivalued 'baa' .
+}
+
+DELETE {
+  example:a example:stringMultivalued 'baz'
+} INSERT {
+  example:a example:stringMultivalued 'bar'
+} WHERE {
+  example:a a example:A
+}
