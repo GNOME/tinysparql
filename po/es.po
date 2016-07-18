@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-05-28 22:16+0000\n"
-"PO-Revision-Date: 2016-06-02 09:26+0200\n"
+"POT-Creation-Date: 2016-07-14 23:46+0000\n"
+"PO-Revision-Date: 2016-07-18 14:27+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: \n"
@@ -183,7 +183,7 @@ msgstr "Error al iniciar el programa «tar»"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:147
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -269,7 +269,7 @@ msgstr ""
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -514,7 +514,8 @@ msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Comprueba si el ARCHIVO es elegible para ser escrutado según la configuración"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
@@ -782,17 +783,17 @@ msgstr ""
 "donde es importante listar los archivos tan rápido como sea posible y se "
 "puede esperar a obtener los metadatos más tarde."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:761
 msgid "Metadata extraction failed"
 msgstr "Falló la extracción de metadatos"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:831
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "No se han encontrado metadatos o módulos del extractor para manejar este "
 "archivo"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -801,33 +802,48 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Tipo MIME para el archivo (si no se proporciona se intentará adivinar)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "Forzar el uso de un módulo para extracción (ej. «foo» para «foo.so»)"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MÓDULO"
 
+#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker/tracker-extract.c:45
+msgid "Output results format: 'sparql', or 'turtle'"
+msgstr "Formato de resultados de salida: «sparql», o «turtle»"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMATO"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format '%s'\n"
+msgstr "Formato «%s» de serialización no soportado\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
@@ -1680,7 +1696,7 @@ msgstr ""
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Iniciar mineros (que indirectamente inicia Tracker también)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -1688,7 +1704,7 @@ msgstr ""
 "Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
 "«mínimo», «errores») para todos los procesos"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "NIVEL"
 
@@ -1889,7 +1905,7 @@ msgstr "No puede usar los argumentos «--kill» y «--terminate» juntos"
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
-#: ../src/tracker/tracker-daemon.c:1530
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
@@ -1933,11 +1949,11 @@ msgstr ""
 "Si no se proporcionan argumentos, se muestra el estado del almacenamiento y "
 "de los mineros de datos"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:435
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1776
+#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
+#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "No se reconocieron las opciones"
 
@@ -1948,6 +1964,11 @@ msgstr "No se pudo obtener una conexión a D-Bus"
 #: ../src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "No se pudo crear un proxu de D-Bus a tracker-store"
+
+#: ../src/tracker/tracker-extract.c:77
+#| msgid "Could not retrieve tracker-store status"
+msgid "Could not run tracker-extract: "
+msgstr "No se pudo ejecutar tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
@@ -2029,7 +2050,7 @@ msgstr "No se pudo hacer un respaldo de la base de datos"
 msgid "Restoring database from backup"
 msgstr "Restaurando base de datos desde el respaldo"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
@@ -2037,15 +2058,15 @@ msgstr ""
 "Sólo se puede usar una acción (--backup, --restore, --index-file o --import) "
 "cada vez"
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Faltan uno o varios de los archivos necesarios"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Sólo se puede usar un archivo con --backup o con --restore"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
@@ -2104,73 +2125,78 @@ msgstr "No existen metadatos disponibles para ese URI"
 msgid "Results"
 msgstr "Resultados"
 
-#: ../src/tracker/tracker-main.c:47
+#: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
 "Ejecute «tracker help <command>» para leer sobre un subcomando específico."
 
-#: ../src/tracker/tracker-main.c:96
+#: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Iniciar, detener, pausar y listar procesos responsables del indexado del "
 "contenido"
 
-#: ../src/tracker/tracker-main.c:97
+#: ../src/tracker/tracker-main.c:98
+#| msgid "Extracts metadata from local files"
+msgid "Extract information from a file"
+msgstr "Extraer información de un archivo"
+
+#: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obtener ayuda sobre cómo usar Tracker y cualquiera de sus comandos"
 
-#: ../src/tracker/tracker-main.c:98
+#: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostrar información conocida sobre archivos locales o elementos indexados"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Respaldar, restaurar, importar y (re)indexar por tipo MIME o por nombre de "
 "archivo"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Reiniciar o eliminar el índice y revertir la configuración a sus valores "
 "predeterminados"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Buscar contenido indexado o mostrar contenido por tipo"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consultar y actualizar el índice usando SPARQL o buscar, listar y mostrar el "
 "árbol de ontologías"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consultar la base de datos a bajo nivel usando SQL"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Mostrar el progreso de indexado, las estadísticas del contenido y el estado "
 "de la indexación"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Crear, listar o eliminar etiquetas para el contenido indexado"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Mostrar la licencia y la versión en uso"
 
-#: ../src/tracker/tracker-main.c:151
+#: ../src/tracker/tracker-main.c:153
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgstr "«%s» no es un comando de Tracker. Consulte «tracker --help»"
 
-#: ../src/tracker/tracker-main.c:174
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Los comandos de Tracker disponibles son:"
 
@@ -2224,7 +2250,6 @@ msgstr ""
 "siguiente inicio"
 
 #: ../src/tracker/tracker-reset.c:62
-#| msgid "Retrieve meta-data information about files in a directory"
 msgid ""
 "Erase indexed information about a file, works recursively for directories"
 msgstr ""
@@ -2233,7 +2258,6 @@ msgstr ""
 
 #. Now, delete the element recursively
 #: ../src/tracker/tracker-reset.c:168
-#| msgid "Fetching…"
 msgid "Deleting…"
 msgstr "Eliminando…"
 
