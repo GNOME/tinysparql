@@ -81,12 +81,12 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
 		/* entry.entry is the format NAME=metadata */
 		if (g_ascii_strncasecmp (entry.entry, "title", 5) == 0) {
 			fd->title = g_strdup (entry.entry + 6);
-		} else if (g_ascii_strncasecmp (entry.entry, "artist", 6) == 0) {
+		} else if (g_ascii_strncasecmp (entry.entry, "artist=", 7) == 0) {
 			/* FIXME: Handle multiple instances of artist */
 			if (fd->artist == NULL) {
 				fd->artist = g_strdup (entry.entry + 7);
 			}
-		} else if (g_ascii_strncasecmp (entry.entry, "album", 5) == 0) {
+		} else if (g_ascii_strncasecmp (entry.entry, "album=", 6) == 0) {
 			fd->album = g_strdup (entry.entry + 6);
 		} else if (g_ascii_strncasecmp (entry.entry, "albumartist", 11) == 0) {
 			fd->albumartist = g_strdup (entry.entry + 12);
