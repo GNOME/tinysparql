@@ -1,3 +1,24 @@
+NEW in 1.9.1 - 2016-08-23
+=========================
+
+  * Tracker-resource: New API to describe RDF resources that can be serialized
+      into SPARQL updates and various data formats. TrackerSparqlBuilder will
+      be eventually phased out by this API.
+  * Tracker-extract:
+    * Use tracker resource integrally.
+    * Fixed blacklisting of crashy files.
+    * Fixes in gstreamer module for 32-bit platforms
+  * Libtracker-control:
+    * Expose "index for process" miner API
+  * Command line tools:
+    * Add "tracker extract" subcommand
+  * SPARQL:
+    * Accept INSERT DATA, DELETE DATA and DELETE WHERE syntax again.
+  * Libtracker miner: Fix accounting in TrackerPriorityQueue when removing
+       elements.
+
+Translations: cs, de, es, fr, hu, id, lt, pl, pt, sk
+
 NEW in 1.9.0 - 2016-06-21
 =========================
 
