@@ -210,6 +210,7 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 	segment = &g_array_index (queue->segments, PrioritySegment, n_segment);
 
 	while (list) {
+		gboolean fetch_segment = FALSE;
 		GList *elem;
 
 		elem = list;
@@ -222,18 +223,14 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 				/* Last element of segment, remove it */
 				g_array_remove_index (queue->segments,
 				                      n_segment);
-
-				if (list) {
-					/* Fetch the next one */
-					segment = &g_array_index (queue->segments,
-					                          PrioritySegment,
-					                          n_segment);
-				}
+				fetch_segment = TRUE;
 			} else if (elem == segment->first_elem) {
 				/* First elemen in segment */
 				segment->first_elem = elem->next;
 			} else if (elem == segment->last_elem) {
 				segment->last_elem = elem->prev;
+				n_segment++;
+				fetch_segment = TRUE;
 			}
 
 			if (destroy_notify) {
@@ -247,12 +244,16 @@ tracker_priority_queue_foreach_remove (TrackerPriorityQueue *queue,
 			    elem == segment->last_elem) {
 				/* Move on to the next segment */
 				n_segment++;
-				g_assert (n_segment < queue->segments->len);
-
-				segment = &g_array_index (queue->segments,
-				                          PrioritySegment,
-				                          n_segment);
+				fetch_segment = TRUE;
 			}
+		}
+
+		if (list && fetch_segment) {
+			/* Fetch the next segment */
+			g_assert (n_segment < queue->segments->len);
+			segment = &g_array_index (queue->segments,
+			                          PrioritySegment,
+			                          n_segment);
 		}
 	}
 
