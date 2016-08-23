@@ -2693,6 +2693,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/error/Makefile
 	tests/libtracker-data/backup/Makefile
 	tests/libtracker-data/turtle/Makefile
+	tests/libtracker-data/update/Makefile
 	tests/libtracker-miner/Makefile
 	tests/libtracker-fts/Makefile
 	tests/libtracker-fts/limits/Makefile

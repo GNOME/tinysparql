@@ -22,6 +22,7 @@ SUBDIRS =                                              \
 	subqueries                                     \
 	error                                          \
 	backup                                         \
+	update                                         \
 	turtle
 
 noinst_PROGRAMS += $(test_programs)
