@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
-"&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-05-28 22:16+0000\n"
-"PO-Revision-Date: 2016-06-15 19:20-0200\n"
+"&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-08-17 11:02+0000\n"
+"PO-Revision-Date: 2016-08-30 08:10-0200\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -127,8 +127,8 @@ msgid ""
 "Simplify the words to their root to provide more results. E.g. 'shelves' and "
 "'shelf' to 'shel'"
 msgstr ""
-"Simplificar as palavras à sua raiz para fornecer mais resultados. Ex.: \""
-"shelves\" e \"shelf\" a \"shel\""
+"Simplificar as palavras à sua raiz para fornecer mais resultados. Ex.: "
+"\"shelves\" e \"shelf\" a \"shel\""
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -139,8 +139,8 @@ msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
 "'Idea' for improved matching."
 msgstr ""
-"Caracteres traduzidos acentuados equivalentes aos não acentuados. Ex.: \""
-"método\" a \"metodo\" para resultados melhores."
+"Caracteres traduzidos acentuados equivalentes aos não acentuados. Ex.: "
+"\"método\" a \"metodo\" para resultados melhores."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -187,7 +187,7 @@ msgstr "Erro ao iniciar programa \"tar\""
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:147
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -201,7 +201,7 @@ msgstr "Erro ao iniciar programa \"tar\""
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
 #: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
 #: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
 #: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
@@ -272,7 +272,7 @@ msgstr "Executa-se até que todos os aplicativos sejam indexados e então sai"
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -519,7 +519,8 @@ msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Verifica se o ARQUIVO é elegível para ser minerado baseado em configuração"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
@@ -655,7 +656,7 @@ msgid "- start the feeds indexer"
 msgstr "- inicia o indexador de feeds"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
@@ -783,17 +784,17 @@ msgstr ""
 "restritos em que é importante listar arquivos o mais rápido possível e pode "
 "esperar para obter metadados depois."
 
-#: ../src/tracker-extract/tracker-extract.c:784
+#: ../src/tracker-extract/tracker-extract.c:761
 msgid "Metadata extraction failed"
 msgstr "Extrator de metadados falhou"
 
-#: ../src/tracker-extract/tracker-extract.c:849
+#: ../src/tracker-extract/tracker-extract.c:831
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Não foram encontrados módulos de metadados ou extratores para lidar com este "
 "arquivo"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -802,34 +803,48 @@ msgstr ""
 "Logging, 0 = somente erros, 1 = mínimo, 2 = detalhado e 3 = depuração (o "
 "padrão é = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
 msgstr "Arquivo para extrair metadados"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Tipo MIME para arquivo (se não fornecido, irá ser perguntado)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
 "Força um módulo a ser usado para extração (e.x: \"foo\" para \"foo.so\")"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MÓDULO"
 
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: 'sparql', or 'turtle'"
+msgstr "Emite formato de resultados: \"sparql\" ou \"turtle\""
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMATO"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format '%s'\n"
+msgstr "Formato de serialização sem suporte \"%s\"\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "- Extract file meta data"
 msgstr "- Extrai metadados do arquivo"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "Nome de arquivo e tipo mime devem ser informados juntos"
 
@@ -1173,7 +1188,7 @@ msgid "Folders"
 msgstr "Pastas"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Favoritos"
 
@@ -1661,8 +1676,8 @@ msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"Usar o SIGKILL para parar todos os processos correspondentes, o \"store\", \""
-"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
+"Usar o SIGKILL para parar todos os processos correspondentes, o \"store\", "
+"\"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1673,15 +1688,15 @@ msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"Usar o SIGTERM para parar todos os processos correspondentes, o \"store\", \""
-"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
+"Usar o SIGTERM para parar todos os processos correspondentes, o \"store\", "
+"\"miners\" e \"all\" podem ser usados, nenhum parâmetro corresponde a \"all\""
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
 "Inicia o minerador (que indiretamente inicia o armazenador do tracker também)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -1689,7 +1704,7 @@ msgstr ""
 "Define o nível de detalhe do registro para LEVEL ('debug', 'detailed', "
 "'minimal', 'errors') para todos os processos"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "NÍVEL"
 
@@ -1745,7 +1760,8 @@ msgstr "Não foi possível executar consulta SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr "Não foi possível chamar tracker_sparql_cursor_next() na consulta SPARQL"
+msgstr ""
+"Não foi possível chamar tracker_sparql_cursor_next() na consulta SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:889
 #, c-format
@@ -1895,11 +1911,11 @@ msgstr "Você não pode usar os argumentos --kill e --terminate juntos"
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Você não pode usar os argumentos --get-logging e --set-logging juntos"
 
-#: ../src/tracker/tracker-daemon.c:1530
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
-"Detalhamento de registro inválido, tente \"debug\", \"detailed\", \"minimal\""
-" ou \"errors\""
+"Detalhamento de registro inválido, tente \"debug\", \"detailed\", \"minimal"
+"\" ou \"errors\""
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
@@ -1942,11 +1958,11 @@ msgstr ""
 "Se nenhum argumento for fornecido, são mostrados o status do armazenamento e "
 "as minerações de dados"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:435
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
+#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Opções desconhecidas"
 
@@ -1957,6 +1973,11 @@ msgstr "Não foi possível obter uma conexão D-Bus"
 #: ../src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Não foi possível criar um proxy D-Bus para o armazenamento do tracker"
+
+#: ../src/tracker/tracker-extract.c:77
+#| msgid "Could not retrieve tracker-store status"
+msgid "Could not run tracker-extract: "
+msgstr "Não foi possível executar tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
@@ -2039,7 +2060,7 @@ msgstr "Não foi possível efetuar backup do banco de dados"
 msgid "Restoring database from backup"
 msgstr "Restaurando banco de dados a partir do backup"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
@@ -2047,15 +2068,15 @@ msgstr ""
 "Apenas uma ação (--backup, --restore, --index-file ou --import) pode ser "
 "usada a cada vez"
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Faltam um ou mais arquivos que são necessários"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Apenas um arquivo pode ser usado com --backup e --restore"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
@@ -2106,77 +2127,82 @@ msgstr "Não foi possível recuperar dados para URI"
 msgid "No metadata available for that URI"
 msgstr "Não há metadados disponíveis para essa URI"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
 #: ../src/tracker/tracker-sql.c:136
 msgid "Results"
 msgstr "Resultados"
 
-#: ../src/tracker/tracker-main.c:47
+#: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
 "Veja \"tracker help <comando>\" para ler sobre um subcomando específico."
 
-#: ../src/tracker/tracker-main.c:96
+#: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Inicie, pare, pause e liste processos responsáveis por indexação de conteúdo"
 
-#: ../src/tracker/tracker-main.c:97
+#: ../src/tracker/tracker-main.c:98
+#| msgid "Extracts metadata from local files"
+msgid "Extract information from a file"
+msgstr "Extrai informações a partir de um arquivo"
+
+#: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obtenha ajuda de como usar o Tracker e qualquer um destes comandos"
 
-#: ../src/tracker/tracker-main.c:98
+#: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostra informações conhecidas a respeito de arquivos locais ou itens "
 "indexados"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Efetua backup, restaura, importa e (re)indexa por tipo MIME ou nome de "
 "arquivo"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Reinicia ou remove o índice e reverte as configurações ao padrão"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Pesquise por conteúdo indexado ou mostre conteúdo por tipo"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consulte e atualize o índice usando SPARQL ou pesquisa, liste e ramifique a "
 "ontologia"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consulte o banco de dados até o nível mais baixo usando SQL"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Mostra o progresso da indexação, estatísticas do conteúdo e o estado do "
 "índice"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Cria, lista ou exclui etiquetas de conteúdo indexado"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Mostra a licença e versão em uso"
 
-#: ../src/tracker/tracker-main.c:151
+#: ../src/tracker/tracker-main.c:153
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgstr "'%s' não é um comando do tracker. Veja \"tracker --help\""
 
-#: ../src/tracker/tracker-main.c:174
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Comandos disponíveis do tracker são:"
 
@@ -2237,7 +2263,6 @@ msgstr ""
 
 #. Now, delete the element recursively
 #: ../src/tracker/tracker-reset.c:168
-#| msgid "Fetching…"
 msgid "Deleting…"
 msgstr "Excluindo…"
 
@@ -2281,7 +2306,6 @@ msgstr "[s|N]"
 #. * it is intentionally lowercase, so please keep it like this.
 #.
 #: ../src/tracker/tracker-reset.c:241
-#| msgid "Yes"
 msgid "yes"
 msgstr "sim"
 
@@ -2339,7 +2363,8 @@ msgstr "Procurar por software (--all não possui efeito para isto)"
 
 #: ../src/tracker/tracker-search.c:124
 msgid "Search for software categories (--all has no effect on this)"
-msgstr "Procurar por categorias de software (--all não possui efeito para isto)"
+msgstr ""
+"Procurar por categorias de software (--all não possui efeito para isto)"
 
 #: ../src/tracker/tracker-search.c:128
 msgid "Search for feeds (--all has no effect on this)"
@@ -2408,10 +2433,10 @@ msgstr ""
 "listados aqui"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Não foi possível obter resultados da pesquisa"
 
@@ -2439,60 +2464,60 @@ msgstr "Nenhum e-mail foi encontrado"
 msgid "No files were found"
 msgstr "Nenhum arquivo foi encontrado"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Nenhum artista encontrado"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Artistas"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Nenhuma música encontrada"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Álbuns"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Nenhum favorito foi encontrado"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Nenhum feed foi encontrado"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Feeds"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Nenhum software foi encontrado"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Software"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Não categoria de software foi encontrada"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Categorias de software"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Nenhum resultado correspondente à sua pesquisa encontrado"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Termo de pesquisa \"%s\" é uma stop word."
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2889,8 +2914,8 @@ msgstr "FILTRO"
 #: ../src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
-"Exibir arquivos associados com cada etiqueta (isto é somente usado com "
-"--list)"
+"Exibir arquivos associados com cada etiqueta (isto é somente usado com --"
+"list)"
 
 #: ../src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
