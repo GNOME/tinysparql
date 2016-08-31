@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-08-31 16:30+0200\n"
+"PO-Revision-Date: 2016-08-31 17:10+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -518,127 +518,128 @@ msgstr "FILE"
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
 msgid "Data object '%s' currently exists"
-msgstr ""
+msgstr "L'ogjet dâts \"%s\" al esist za"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
 msgid "Data object '%s' currently does not exist"
-msgstr ""
+msgstr "L'ogjet dâts \"%s\" al moment nol esist"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Al è pussibil analizâ la cartele (in base aes regulis)"
 
 #: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Nol è pussibil analizâ la cartele (in base aes regulis)"
 
 #: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr ""
+msgstr "Al è pussibil monitorâ la cartele (in base al contignût)"
 
 #: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr ""
+msgstr "Nol è pussibil monitorâ la cartele (in base al contignût)"
 
 #: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Al è pussibil monitorâ la cartele (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Nol è pussibil monitorâ la cartele (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Al è pussibil monitorâ il file (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Nol è pussibil monitorâ il file (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
-msgstr ""
+msgstr "Al è pussibil monitorâ il file o la cartele (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
+"Nol è pussibil monitorâ il file o la cartele (in base ae configurazion)"
 
 #: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Al è pussibil analizâ il file (in base aes regulis)"
 
 #: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
-msgstr ""
+msgstr "Nol è pussibil analizâ il file (in base aes regulis)"
 
 #: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
-msgstr ""
+msgstr "Al vegnarà metût in indiç"
 
 #: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "Yes"
-msgstr ""
+msgstr "Sì"
 
 #: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: ../src/miners/fs/tracker-main.c:577
 msgid "Would be monitored"
-msgstr ""
+msgstr "Al vegnarà monitorât"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
 msgid "- start the tracker indexer"
-msgstr ""
+msgstr "- tache tracker chel che al met in indiç"
 
 #: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
-msgstr ""
+msgstr "Batarie cuasi esauride"
 
 #: ../src/miners/fs/tracker-miner-files.c:1484
 msgid "Low disk space"
-msgstr ""
+msgstr "Spazi disc cuasi esaurît"
 
 #: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
 msgid "Tracker File System Miner"
-msgstr ""
+msgstr "Estratôr di dâts dal file system Tracker"
 
 #: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:2
 msgid "Crawls and processes files on the file system"
-msgstr ""
+msgstr "Cjape sù dâts e elabore file sul file system"
 
 #: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:1
 msgid "RSS/ATOM Feeds"
-msgstr ""
+msgstr "Feed RSS/ATOM"
 
 #: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:2
 msgid "Fetch RSS/ATOM Feeds"
-msgstr ""
+msgstr "Scjarie feed RSS/ATOM"
 
 #. Translators: this is a "feed" as in RSS
 #: ../src/miners/rss/tracker-main.c:45
 msgid "Add feed"
-msgstr ""
+msgstr "Zonte feed"
 
 #: ../src/miners/rss/tracker-main.c:46
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ../src/miners/rss/tracker-main.c:49
 msgid "Title to use (must be used with --add-feed)"
-msgstr ""
+msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
 msgid "- start the feeds indexer"
-msgstr ""
+msgstr "- tache chel che al met in indiç i feed"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
@@ -646,70 +647,70 @@ msgstr ""
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
-msgstr ""
+msgstr "Impussibil stabilî une conession cun Tracker"
 
 #: ../src/miners/rss/tracker-main.c:133
 msgid "Could not add feed"
-msgstr ""
+msgstr "Impussibil zontâ il feed"
 
 #: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:1
 msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr ""
+msgstr "Estratôr di feed RSS/ATOM Tracker"
 
 #: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:2
 msgid "Fetch RSS/ATOM feeds"
-msgstr ""
+msgstr "Scjarie feed RSS/ATOM"
 
 #: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:1
 msgid "Userguides"
-msgstr ""
+msgstr "Guidis utent"
 
 #: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:2
 msgid "Userguide data miner"
-msgstr ""
+msgstr "Estratôr di dâts des guidis utent"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
 msgid "- start the user guides data miner"
-msgstr ""
+msgstr "- tache l'estratôr dâts des guidis utent"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
-msgstr ""
+msgstr "Estratôr di dâts des guidis utent"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
 msgid "Crawls and processes user guides in shared areas"
-msgstr ""
+msgstr "Cjape sù dâts e elabore lis guidis utent te aree condividude"
 
 #: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:1
 #: ../src/tracker/tracker-search.c:408
 msgid "Emails"
-msgstr ""
+msgstr "E-mail"
 
 #: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:2
 msgid "Evolution Email miner"
-msgstr ""
+msgstr "Estratôr di dâts e-mail Evolution"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Tracker"
-msgstr ""
+msgstr "Tracker"
 
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
 msgid "Push data to Tracker to make it queryable."
-msgstr ""
+msgstr "Invie i dâts a Tracker par rindiju disponibii."
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
 #: ../src/tracker/tracker-daemon.c:123
 msgid "Processing…"
-msgstr ""
+msgstr "Elaborazion..."
 
 #. Create dialog and embed vbox.
 #: ../src/plugins/nautilus/tracker-tags-extension.c:71
 #: ../src/tracker-needle/tracker-view.vala:539
 msgid "Tags"
-msgstr ""
+msgstr "Etichetis"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1015
 #: ../src/tracker-needle/tracker-tags-view.vala:374
@@ -721,23 +722,23 @@ msgstr[1] ""
 
 #: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
 msgid "Extractor"
-msgstr ""
+msgstr "Estratôr"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
 msgid "Metadata extractor"
-msgstr ""
+msgstr "Estratôr di meta-dâts"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
 msgid "Max bytes to extract"
-msgstr ""
+msgstr "Numar massim di byte di estrai"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
 msgid "Maximum number of UTF-8 bytes to extract."
-msgstr ""
+msgstr "Numar massim di byte UTF-8 di estrai."
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
 msgid "Max media art width"
-msgstr ""
+msgstr "Largjece massime des figuris"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
 msgid ""
@@ -745,6 +746,9 @@ msgid ""
 "resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
 "no limit on the media art width."
 msgstr ""
+"Massime largjece in pixel des figuris estratis, cualsisei file plui grant al "
+"ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, met a 0 "
+"par disabilitâ il limit su la largjece."
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
 msgid "Wait for FS miner to be done before extracting"
@@ -783,7 +787,7 @@ msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
-msgstr ""
+msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
@@ -791,7 +795,7 @@ msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
-msgstr ""
+msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
 msgid "Output results format: 'sparql', or 'turtle'"
@@ -800,7 +804,7 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:100
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
-msgstr ""
+msgstr "FORMÂT"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
@@ -875,7 +879,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
-msgstr ""
+msgstr "_Cîr:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
@@ -892,11 +896,11 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
-msgstr ""
+msgstr "Zonte etichete"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:14
 msgid "Remove selected tag"
-msgstr ""
+msgstr "Gjave la etichete selezionade"
 
 #: ../src/tracker-needle/tracker-needle.vala:75
 msgid "Search criteria was too generic"
@@ -930,14 +934,14 @@ msgstr ""
 #: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
 msgid_plural "Tags"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Etichete"
+msgstr[1] "Etichetis"
 
 #: ../src/tracker-needle/tracker-stats.vala:100
 msgid "Contact"
 msgid_plural "Contacts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Contat"
+msgstr[1] "Contats"
 
 #: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
