@@ -122,7 +122,7 @@ tracker_extract_new_equipment (const char *make,
 
 	g_return_val_if_fail (make != NULL || model != NULL, NULL);
 
-	equip_uri = tracker_sparql_escape_uri_printf ("urn:equipment:%s:%s", make ? make : "", model ? model : "");
+	equip_uri = tracker_sparql_escape_uri_printf ("urn:equipment:%s:%s:", make ? make : "", model ? model : "");
 
 	equipment = tracker_resource_new (equip_uri);
 	tracker_resource_set_uri (equipment, "rdf:type", "nfo:Equipment");
