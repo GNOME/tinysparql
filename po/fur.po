@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-01 18:25+0200\n"
+"PO-Revision-Date: 2016-09-01 22:34+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -809,7 +809,7 @@ msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
 msgid "Output results format: 'sparql', or 'turtle'"
-msgstr ""
+msgstr "Formât dai risultâts di jessude: 'sparql', o 'turtle'"
 
 #: ../src/tracker-extract/tracker-main.c:100
 #: ../src/tracker/tracker-extract.c:46
@@ -881,7 +881,7 @@ msgstr "Mostre i risultâts in base ai file cjatâts intune liste"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display found images"
-msgstr "Mostre lis figuris"
+msgstr "Mostre lis imagjins cjatadis"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:5
 msgid "Find search criteria inside files"
@@ -996,8 +996,8 @@ msgstr[1] "Cartelis"
 #: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
-msgstr[0] "Figure"
-msgstr[1] "Figuris"
+msgstr[0] "Imagjin"
+msgstr[1] "Imagjins"
 
 #: ../src/tracker-needle/tracker-stats.vala:118
 #: ../src/tracker/tracker-daemon.c:1108
@@ -1248,25 +1248,37 @@ msgid ""
 "This option allows you to make Tracker take a back seat and not eat up too "
 "much CPU time if you have other applications more deserving of it."
 msgstr ""
+"Il planificadôr (scheduler) al è chel component dal kernel che al decît "
+"cuale aplicazion e vegnarà eseguide subite dopo su la CPU. Ogni aplicazion e "
+"à assegnade une politiche di planificazion e une prioritât.\n"
+"\n"
+"Cheste opzion e fâs in mût che Tracker nol dopri masse la CPU in presince di "
+"aplicazions che a'nd' àn plui dibisugne."
 
+# sostituire background con qualcosa di più consono
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
+#, fuzzy
 msgid "Index content in the background:"
-msgstr ""
+msgstr "Met in indiç il contignût in background:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:13
 msgid "O_nly when computer is not being used"
-msgstr ""
+msgstr "Nome cuant che il computer _nol è doprât"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid ""
 "Indexing content will be <b>much slower</b> but other applications will have "
 "priority."
 msgstr ""
+"La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma lis "
+"altris aplicazions a varan prioritât."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid ""
 "_While other applications are running, except for initial data population"
 msgstr ""
+"_Intant che lis altris aplicazions a son in esecuzion, infûr che pal "
+"popolament iniziâl dai dâts"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid ""
@@ -1274,20 +1286,26 @@ msgid ""
 "priority. This will only be the case on the <b>first index</b> of your "
 "content after you start your computer from a new install"
 msgstr ""
+"La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma lis "
+"altris aplicazions a varan prioritât. Chest si apliche nome ae <b>prime "
+"metude in indiç</b> dal contignût al inviament dal computer di une gnove "
+"instalazion"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "While _other applications are running"
-msgstr ""
+msgstr "Intant che lis _altris aplicazions a son in esecuzion"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid ""
 "Indexing content will be as <b>fast</b> as possible but other applications "
 "may suffer and be slower as a result."
 msgstr ""
+"La metude in indiç dai contignûts e sarà la plui <b>veloce</b> pussibile, ma "
+"lis altris aplicazions e podaressin risultâ plui lentis."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:19
 msgid "Stop indexing when _disk space is below:"
-msgstr ""
+msgstr "Ferme la metude in indiç cuant che il spazi _disc al è inferiôr a:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
@@ -1298,10 +1316,12 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
+"I contignûts metûts in indiç dai dispositîfs estraibii no tacâts di resint a "
+"vegnaran netâts par limitâ l'ûs des risorsis disponibilis."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Days before deleting removable devices:"
-msgstr ""
+msgstr "Dîs prime di eliminâ dispositîfs estraibii:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Garbage Collection"
@@ -1309,7 +1329,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Indexing"
-msgstr ""
+msgstr "Metude in indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid ""
@@ -1321,52 +1341,61 @@ msgid ""
 "directories underneath it will also be indexed. Otherwise, only files "
 "immediately in that directory will be indexed."
 msgstr ""
+"Posizions speciâi come lis cartelis <b>Cjase</b>, <b>Scritori</b> o "
+"<b>Documents</b>, a puedin jessi abilitadis chi sot. Chest al zontarà o al "
+"gjavarà il lôr percors reâi de liste chi parsot.\n"
+"\n"
+"Se par une cartele e je abilitade la vôs <b>Ricors</b>, dutis lis sot-"
+"cartelis al so interni a vegnaran metudis in indiç, se no nome i siei file "
+"disponibii lu saran."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Index Home Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Cjase"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Index Desktop Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Scritori"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Index Documents Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Documents"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "Index Music Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Musiche"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "Index Pictures Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Imagjins"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "Index Videos Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Videos"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "Index Download Directory"
-msgstr ""
+msgstr "Met in indiç la cartele Discjariâts"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid ""
 "One or more special locations have the same path.\n"
 "Those which are the same are disabled!"
 msgstr ""
+"Une o plui posizions speciâi a àn il medesim percors.\n"
+"Chês compagnis a vegnin disabilitadis!"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "Add directory to be indexed"
-msgstr ""
+msgstr "Zontâ une cartele di meti in indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "Remove directory from being indexed"
-msgstr ""
+msgstr "Gjave une cartele dal indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Where is your content?"
-msgstr ""
+msgstr "Dulà isal il to contignût?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "Locations"
@@ -1374,29 +1403,33 @@ msgstr "Posizions"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:41
 msgid "Glob patterns to ignore:"
-msgstr ""
+msgstr "Modei glob di ignorâ:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:42
 msgid "Opens text entry for glob patterns"
-msgstr ""
+msgstr "Al vierç la casele di test pai modei glob"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:43
 msgid "Opens the filechooser dialogue"
-msgstr ""
+msgstr "Al vierç il dialic seletôr di file"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:44
 msgid "With specific files:"
-msgstr ""
+msgstr "Cun file specifics:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:45
 msgid "Directories"
-msgstr ""
+msgstr "Cartelis"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
+"Al è pussibil doprâ modei di coincidence cun caratars speciâi, par esempli: "
+"\"*bar*\".\n"
+"Di solit chest al ven doprât par ignorâ cartelis come *~, *.o, *.la, e vie "
+"indenant"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
@@ -1409,15 +1442,15 @@ msgstr "Contignût ignorât"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
 msgid "Index content of _files found"
-msgstr ""
+msgstr "Meti in indiç il contignût dai _file cjatâts"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
 msgid "Index _numbers"
-msgstr ""
+msgstr "Meti in indiç i _numars"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
 msgid "What is indexed?"
-msgstr ""
+msgstr "Ce isal metût in indiç?"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:53
 msgid "Control"
@@ -1433,6 +1466,8 @@ msgstr "Cartele"
 msgid ""
 "Some of the requested changes will take effect on the next session restart."
 msgstr ""
+"Cualchidun dai cambiaments domandâts a varan efiet al prossim inviament di "
+"session."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1466,7 +1501,7 @@ msgstr "Selezione cartele"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
-msgstr ""
+msgstr "Chê cartele e je za selezionade come posizion di meti in indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
@@ -1474,46 +1509,50 @@ msgstr "Ricors"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
-msgstr ""
+msgstr "Preferencis di ricercje scritori"
 
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:51
 msgid "Force a re-index of all content"
-msgstr ""
+msgstr "Sfuarce un tornâ a meti in indiç di ducj i contignûts"
 
 #: ../src/tracker-store/tracker-main.vala:52
 msgid "Only allow read based actions on the database"
-msgstr ""
+msgstr "Al permet nome operazions di leture su la base di dâts"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
 msgid "- start the tracker daemon"
-msgstr ""
+msgstr "- invie il demoni di Tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
-msgstr ""
+msgstr "Archivi di Tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
-msgstr ""
+msgstr "Archivi de base di dâts dai meta-dâts e gjestôr des ricercjs"
 
 #: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
 msgid "GraphUpdated delay"
-msgstr ""
+msgstr "Ritart GraphUpdated"
 
 #: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
 msgid ""
 "Period in milliseconds between GraphUpdated signals being emitted when "
 "indexed data has changed inside the database."
 msgstr ""
+"Periodi in miliseconts tra la emission di segnâi GraphUpdated cuant che i "
+"dâts metûts in indiç a son stâts modificâts te base di dâts."
 
 #: ../src/tracker/tracker-config.c:59
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
+"Impussibil otignî GSettings pai estratôrs, il gjestôr nol pues jessi creât, "
+"%s"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -1522,22 +1561,22 @@ msgstr "No disponibil"
 #. generic
 #: ../src/tracker/tracker-daemon.c:122
 msgid "Initializing"
-msgstr ""
+msgstr "Daûr a inizializâ"
 
 #: ../src/tracker/tracker-daemon.c:124
 msgid "Fetching…"
-msgstr ""
+msgstr "Daûr a recuperâ..."
 
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
 msgid "Crawling single directory '%s'"
-msgstr ""
+msgstr "Daûr a cjapâ sù dâts nome pe cartele \"%s\""
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
 msgid "Crawling recursively directory '%s'"
-msgstr ""
+msgstr "Daûr a cjapâ sù dâts in maniere ricorsive pe cartele \"%s\""
 
 #: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
@@ -1549,7 +1588,7 @@ msgstr "Inatîf"
 
 #: ../src/tracker/tracker-daemon.c:134
 msgid "Follow status changes as they happen"
-msgstr ""
+msgstr "Seguìs i cambiaments di stât apene che a sucedin"
 
 #: ../src/tracker/tracker-daemon.c:138
 msgid ""
@@ -2033,7 +2072,7 @@ msgstr ""
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
 #: ../src/tracker/tracker-sql.c:136
 msgid "Results"
-msgstr ""
+msgstr "Risultâts"
 
 #: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
@@ -2316,7 +2355,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-search.c:299
 msgid "Contacts"
-msgstr ""
+msgstr "Contats"
 
 #: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
 msgid "No name"
@@ -2507,7 +2546,7 @@ msgstr ""
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
-msgstr ""
+msgstr "Nissun"
 
 #: ../src/tracker/tracker-sparql.c:958
 msgid "Could not create tree: subclass query failed"
@@ -2671,7 +2710,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-status.c:199
 msgid "No statistics available"
-msgstr ""
+msgstr "Nissune statistiche disponibile"
 
 #: ../src/tracker/tracker-status.c:248
 msgid "Statistics:"
@@ -2823,11 +2862,11 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
 msgid "No tags were found"
-msgstr ""
+msgstr "No je stade cjatade nissune etichete"
 
 #: ../src/tracker/tracker-tag.c:527
 msgid "Tags (shown by name)"
-msgstr ""
+msgstr "Etichetis (mostradis par non)"
 
 #: ../src/tracker/tracker-tag.c:601
 msgid "No files were modified"
@@ -2839,11 +2878,11 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
-msgstr ""
+msgstr "Zonte de etichete riessude"
 
 #: ../src/tracker/tracker-tag.c:754
 msgid "Could not add tag to files"
-msgstr ""
+msgstr "Impussibil zontâ la etichete ai file"
 
 #: ../src/tracker/tracker-tag.c:764
 msgid "Tagged"
