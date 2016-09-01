@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-08-31 17:10+0200\n"
+"PO-Revision-Date: 2016-09-01 18:25+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -717,8 +717,8 @@ msgstr "Etichetis"
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "_Met lis etichetis di associâ cun %d element selezionât:"
+msgstr[1] "_Met lis etichetis di associâ cun %d elements selezionâts:"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
 msgid "Extractor"
@@ -752,7 +752,7 @@ msgstr ""
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
 msgid "Wait for FS miner to be done before extracting"
-msgstr ""
+msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
 msgid ""
@@ -761,14 +761,20 @@ msgid ""
 "environment where it is important to list files as fast as possible and can "
 "wait to get meta-data later."
 msgstr ""
+"Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime di "
+"estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts dulà che "
+"al è impuartant listâ i file in maniere veloce e al è pussibil spietâ il "
+"recupar dai meta-dâts."
 
 #: ../src/tracker-extract/tracker-extract.c:761
 msgid "Metadata extraction failed"
-msgstr ""
+msgstr "Estrazion dai meta-dâts falide"
 
 #: ../src/tracker-extract/tracker-extract.c:831
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
+"Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî chest "
+"file"
 
 #: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
@@ -776,6 +782,8 @@ msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
 msgstr ""
+"Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
+"(predefinît = 0)"
 
 #: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
@@ -783,7 +791,7 @@ msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
-msgstr ""
+msgstr "Gjenar di MIME pal file (se no furnît al ven intuît)"
 
 #: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
@@ -792,6 +800,8 @@ msgstr "MIME"
 #: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
+"Sfuarce l'ûs di un modul pe estrazion (par esempli \"cjossul\" par \"cjossul."
+"so\")"
 
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
@@ -809,29 +819,29 @@ msgstr "FORMÂT"
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
 msgid "Unsupported serialization format '%s'\n"
-msgstr ""
+msgstr "Formât \"%s\" di serializazion no supuartât\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
 msgid "- Extract file meta data"
-msgstr ""
+msgstr "- Al tire fûr i meta-dâts dai file"
 
 #: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
-msgstr ""
+msgstr "Il non file e il gjenar di mime a scugnin jessi furnîts adun"
 
 #: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
 msgid "Tracker Metadata Extractor"
-msgstr ""
+msgstr "Estratôr di meta-dâts Tracker"
 
 #: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
 msgid "Extracts metadata from local files"
-msgstr ""
+msgstr "Al tire fûr i meta-dâts dai file locâi"
 
 #: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
 msgid "Default View"
-msgstr ""
+msgstr "Visualizazion predefinide"
 
 #: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
 msgid ""
@@ -839,43 +849,52 @@ msgid ""
 "view of tracker-needle will be Categories view. When 2, default view of "
 "tracker-needle will be Files view."
 msgstr ""
+"Cuant che al è metût a 0, la viodude predefinide di tracker-needle e sarà "
+"chê a iconis; cuant che al è metût a 1 e sarà chê a categoriis e cuant che "
+"al è metût a 2 chê a file."
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Desktop Search"
-msgstr ""
+msgstr "Ricercje scritori"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
 "Find what you're looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
+"Cjate cun Tracker ce che tu stâs cirint su chest computer par non o par "
+"contignût"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc. "
 "This includes searching the contents of files where applicable."
 msgstr ""
+"Mostre i risultâts par categorie, par esempli Musiche, Videos, Aplicazions, "
+"e vie indenant. Chest al inclût la ricercje sui contignûts dai file dulà "
+"pussibil."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
-msgstr ""
+msgstr "Mostre i risultâts in base ai file cjatâts intune liste"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display found images"
-msgstr ""
+msgstr "Mostre lis figuris"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:5
 msgid "Find search criteria inside files"
-msgstr ""
+msgstr "Cîr criteri di ricercje dentri dai file"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:6
 msgid "Find search criteria in file titles"
-msgstr ""
+msgstr "Cîr criteri di ricercje tai titui dai file"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
 msgid "Find search criteria in file tags only (separated by comma)"
 msgstr ""
+"Cîr criteri di ricercje nome tes etichetis dai file (separadis di virgule)"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
@@ -884,15 +903,17 @@ msgstr "_Cîr:"
 #: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "Show tagging panel which allows editing tags of selected results"
 msgstr ""
+"Mostre il panel des etichetis che al permet di modificâ lis etichetis dai "
+"risultâts selezionâts"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
-msgstr ""
+msgstr "Mostre statistichis sui dâts memorizâts"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
 msgid "_Set the tags you want to associate with the %d selected items:"
-msgstr ""
+msgstr "_Met lis etichetis di associâ cui elements selezionâts:"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:13
 msgid "Add tag"
@@ -903,26 +924,27 @@ msgid "Remove selected tag"
 msgstr "Gjave la etichete selezionade"
 
 #: ../src/tracker-needle/tracker-needle.vala:75
+#, fuzzy
 msgid "Search criteria was too generic"
-msgstr ""
+msgstr "Il criteri di ricercje al jere masse gjeneric"
 
 #: ../src/tracker-needle/tracker-needle.vala:76
 msgid "Only the first 500 items will be displayed"
-msgstr ""
+msgstr "Nome i prins 500 elements a vegnaran mostrâts"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
 #: ../src/tracker-preferences/tracker-preferences.vala:951
 msgid "Print version"
-msgstr ""
+msgstr "Stampe version"
 
 #: ../src/tracker-needle/tracker-needle.vala:818
 #: ../src/tracker-needle/tracker-needle.vala:819
 msgid "[SEARCH-CRITERIA]"
-msgstr ""
+msgstr "[CRITERI-RICERCJE]"
 
 #: ../src/tracker-needle/tracker-needle.vala:824
 msgid "Desktop Search user interface using Tracker"
-msgstr ""
+msgstr "Interface pe ricercje scritori Tracker"
 
 #. Label for dialog
 #: ../src/tracker-needle/tracker-stats.vala:71
@@ -930,6 +952,8 @@ msgid ""
 "The statistics represented here do not reflect their availability, rather "
 "the total data stored:"
 msgstr ""
+"Lis statistichis mostradis chi no corispuindin ae reâl disponibilitât, ma il "
+"totâl dai dâts archiviâts:"
 
 #: ../src/tracker-needle/tracker-stats.vala:97
 msgid "Tag"
@@ -946,115 +970,115 @@ msgstr[1] "Contats"
 #: ../src/tracker-needle/tracker-stats.vala:103
 msgid "Audio"
 msgid_plural "Audios"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Audio"
+msgstr[1] "Audio"
 
 #: ../src/tracker-needle/tracker-stats.vala:106
 msgid "Document"
 msgid_plural "Documents"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Document"
+msgstr[1] "Documents"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
 #: ../src/tracker-preferences/tracker-preferences.vala:165
 msgid "File"
 msgid_plural "Files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "File"
+msgstr[1] "File"
 
 #: ../src/tracker-needle/tracker-stats.vala:112
 msgid "Folder"
 msgid_plural "Folders"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Cartele"
+msgstr[1] "Cartelis"
 
 #: ../src/tracker-needle/tracker-stats.vala:115
 msgid "Image"
 msgid_plural "Images"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Figure"
+msgstr[1] "Figuris"
 
 #: ../src/tracker-needle/tracker-stats.vala:118
 #: ../src/tracker/tracker-daemon.c:1108
 msgid "Application"
 msgid_plural "Applications"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Aplicazion"
+msgstr[1] "Aplicazions"
 
 #. case "nmm:Video":
 #: ../src/tracker-needle/tracker-stats.vala:122
 msgid "Video"
 msgid_plural "Videos"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Video"
+msgstr[1] "Videos"
 
 #: ../src/tracker-needle/tracker-stats.vala:125
 msgid "Album"
 msgid_plural "Albums"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Album"
+msgstr[1] "Album"
 
 #: ../src/tracker-needle/tracker-stats.vala:128
 msgid "Music Track"
 msgid_plural "Music Tracks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Toc di musiche"
+msgstr[1] "Tocs di musiche"
 
 #: ../src/tracker-needle/tracker-stats.vala:131
 msgid "Photo"
 msgid_plural "Photos"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Foto"
+msgstr[1] "Fotos"
 
 #: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Liste di musiche"
+msgstr[1] "Listis di musiche"
 
 #: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
 msgid_plural "Emails"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "E-mail"
+msgstr[1] "E-mail"
 
 #: ../src/tracker-needle/tracker-stats.vala:140
 msgid "Bookmark"
 msgid_plural "Bookmarks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Segnelibri"
+msgstr[1] "Segnelibris"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:324
 msgid "Name"
-msgstr ""
+msgstr "Non"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:380
 msgid "No items currently selected"
-msgstr ""
+msgstr "Nissun element al moment selezionât"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:466
 #: ../src/tracker-needle/tracker-tags-view.vala:607
 msgid "Could not update tags"
-msgstr ""
+msgstr "Impussibil inzornâ lis etichetis"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:526
 #: ../src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
-msgstr ""
+msgstr "Impussibil gjavâ la etichete"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:701
 msgid "Could not retrieve tags for the current selection"
-msgstr ""
+msgstr "Impussibil otignî lis etichetis pe selezion atuâl"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:740
 #: ../src/tracker/tracker-tag.c:709
 msgid "Could not add tag"
-msgstr ""
+msgstr "Impussibil zontâ la etichete"
 
 #: ../src/tracker-needle/tracker-tags-view.vala:797
 msgid "Could not update tags for file"
-msgstr ""
+msgstr "Impussibil inzornâ lis etichetis pal file"
 
 #. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
 #. if it's more than a week, use the default date format
@@ -1062,154 +1086,158 @@ msgstr ""
 #: ../src/tracker-needle/tracker-utils.vala:108
 #, no-c-format
 msgid "%x"
-msgstr ""
+msgstr "%x"
 
 #: ../src/tracker-needle/tracker-utils.vala:112
 msgid "Today"
-msgstr ""
+msgstr "Vuê"
 
 #: ../src/tracker-needle/tracker-utils.vala:121
 msgid "Tomorrow"
-msgstr ""
+msgstr "Doman"
 
 #: ../src/tracker-needle/tracker-utils.vala:123
 msgid "Yesterday"
-msgstr ""
+msgstr "Îr"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:127
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%ld dì di cumò"
+msgstr[1] "%ld dîs di cumò"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:130
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%ld dì indaûr"
+msgstr[1] "%ld dîs indaûr"
 
 #: ../src/tracker-needle/tracker-utils.vala:142
 #: ../src/tracker-needle/tracker-utils.vala:171
 msgid "Less than one second"
-msgstr ""
+msgstr "Mancul di un secont"
 
 #: ../src/tracker-needle/tracker-view.vala:111
 msgid "No Search Results"
-msgstr ""
+msgstr "Nissun risultât"
 
 #: ../src/tracker-needle/tracker-view.vala:112
 msgid ""
 "Select the view on the toolbar for the content you want, e.g. everything, "
 "files or just images"
 msgstr ""
+"Selezione la viodude su la sbare dai struments pal contignût che tu vûs, par "
+"esempli file o nome imagjins"
 
 #: ../src/tracker-needle/tracker-view.vala:113
 msgid "Start to search using the entry box above"
-msgstr ""
+msgstr "Tache a cirî doprant la casele di test chi parsore"
 
 #: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
-msgstr ""
+msgstr "Ultime modifiche"
 
 #: ../src/tracker-needle/tracker-view.vala:206
 msgid "Size"
-msgstr ""
+msgstr "Dimension"
 
 #: ../src/tracker-needle/tracker-view.vala:334
 msgid "Music"
-msgstr ""
+msgstr "Musiche"
 
 #: ../src/tracker-needle/tracker-view.vala:337
 msgid "Images"
-msgstr ""
+msgstr "Imagjins"
 
 #: ../src/tracker-needle/tracker-view.vala:340
 msgid "Videos"
-msgstr ""
+msgstr "Videos"
 
 #: ../src/tracker-needle/tracker-view.vala:343
 msgid "Documents"
-msgstr ""
+msgstr "Documents"
 
 #: ../src/tracker-needle/tracker-view.vala:346
 msgid "Mail"
-msgstr ""
+msgstr "Pueste"
 
 #: ../src/tracker-needle/tracker-view.vala:349
 msgid "Folders"
-msgstr ""
+msgstr "Cartelis"
 
 #: ../src/tracker-needle/tracker-view.vala:352
 #: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
-msgstr ""
+msgstr "Segnelibris"
 
 #: ../src/tracker-needle/tracker-view.vala:356
 msgid "Items"
-msgstr ""
+msgstr "Elements"
 
 #: ../src/tracker-needle/tracker-view.vala:369
 msgid "Loading…"
-msgstr ""
+msgstr "Daûr a cjamâ..."
 
 #: ../src/tracker-needle/tracker-view.vala:435
 #, c-format
 msgid "%d Page"
 msgid_plural "%d Pages"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d pagjine"
+msgstr[1] "%d pagjinis"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
-msgstr ""
+msgstr "_Mostre cartele superiôr"
 
 #: ../src/tracker-needle/tracker-view.vala:459
 msgid "_Tags…"
-msgstr ""
+msgstr "E_tichetis..."
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Search and Indexing"
-msgstr ""
+msgstr "Ricercje e metude in indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
 msgid "Configure file indexing with Tracker"
-msgstr ""
+msgstr "Configure la metude in indiç dai file cun Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Indexing Preferences"
-msgstr ""
+msgstr "Preferencis de metude in indiç"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "_Monitor file and directory changes"
-msgstr ""
+msgstr "_Monitorâ i cambiaments di file e cartelis"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Enable when running on _battery"
-msgstr ""
+msgstr "Abilite a alimentazion a _batarie"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "Enable for _initial data population"
-msgstr ""
+msgstr "Abilite pal popolament _iniziâl dai dâts"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "Include _removable media"
-msgstr ""
+msgstr "Includi i supuarts est_raibii"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr ""
+"Chest al inclût DUCJ i supuarts estraibii, schedis di memorie, CD, DVD e vie "
+"indenant"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Include optical di_scs"
-msgstr ""
+msgstr "Includi i di_scs otics"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "Semantics"
-msgstr ""
+msgstr "Semantichis"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid ""
@@ -1263,7 +1291,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
-msgstr ""
+msgstr "Limitazions"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:21
 msgid ""
@@ -1342,7 +1370,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "Locations"
-msgstr ""
+msgstr "Posizions"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:41
 msgid "Glob patterns to ignore:"
@@ -1373,11 +1401,11 @@ msgstr ""
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
 msgid "Files"
-msgstr ""
+msgstr "File"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:49
 msgid "Ignored Content"
-msgstr ""
+msgstr "Contignût ignorât"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
 msgid "Index content of _files found"
@@ -1393,13 +1421,13 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:53
 msgid "Control"
-msgstr ""
+msgstr "Control"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:162
 #: ../src/tracker-preferences/tracker-preferences.vala:163
 #: ../src/tracker-preferences/tracker-preferences.vala:164
 msgid "Directory"
-msgstr ""
+msgstr "Cartele"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:305
 msgid ""
@@ -1416,25 +1444,25 @@ msgstr ""
 #: ../src/tracker-preferences/tracker-preferences.vala:355
 #: ../src/tracker-preferences/tracker-preferences.vala:368
 msgid "Disabled"
-msgstr ""
+msgstr "Disabilitât"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:540
 msgid "Enter value"
-msgstr ""
+msgstr "Inserî valôr"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:543
 #: ../src/tracker-preferences/tracker-preferences.vala:572
 msgid "_Cancel"
-msgstr ""
+msgstr "_Anule"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:544
 #: ../src/tracker-preferences/tracker-preferences.vala:574
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:569
 msgid "Select directory"
-msgstr ""
+msgstr "Selezione cartele"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
@@ -1442,7 +1470,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
-msgstr ""
+msgstr "Ricors"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
@@ -1489,7 +1517,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
-msgstr ""
+msgstr "No disponibil"
 
 #. generic
 #: ../src/tracker/tracker-daemon.c:122
@@ -1513,11 +1541,11 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
-msgstr ""
+msgstr "Interot"
 
 #: ../src/tracker/tracker-daemon.c:128
 msgid "Idle"
-msgstr ""
+msgstr "Inatîf"
 
 #: ../src/tracker/tracker-daemon.c:134
 msgid "Follow status changes as they happen"
@@ -1531,7 +1559,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:139
 msgid "ONTOLOGY"
-msgstr ""
+msgstr "ONTOLOGJIE"
 
 #: ../src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
@@ -1543,7 +1571,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
 msgid "REASON"
-msgstr ""
+msgstr "RESON"
 
 #: ../src/tracker/tracker-daemon.c:151
 msgid ""
@@ -1557,7 +1585,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:156
 msgid "COOKIE"
-msgstr ""
+msgstr "COOKIE"
 
 #: ../src/tracker/tracker-daemon.c:159
 msgid ""
@@ -1613,7 +1641,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
-msgstr ""
+msgstr "NIVEL"
 
 #: ../src/tracker/tracker-daemon.c:190
 msgid "Show logging values in terms of log verbosity for each process"
@@ -1637,7 +1665,7 @@ msgstr ""
 #. Work out lengths for output spacing
 #: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
 msgid "PAUSED"
-msgstr ""
+msgstr "INTEROT"
 
 #: ../src/tracker/tracker-daemon.c:359
 msgid "Not running or is a disabled plugin"
@@ -1710,7 +1738,7 @@ msgstr ""
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
 #: ../src/tracker/tracker-sparql.c:1387
 msgid "Done"
-msgstr ""
+msgstr "Fat"
 
 #: ../src/tracker/tracker-daemon.c:982
 #, c-format
@@ -1747,7 +1775,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:1110
 msgid "Reason"
-msgstr ""
+msgstr "Reson"
 
 #: ../src/tracker/tracker-daemon.c:1119
 msgid "No miners are paused"
@@ -1781,7 +1809,7 @@ msgstr ""
 #. Display states
 #: ../src/tracker/tracker-daemon.c:1329
 msgid "Store"
-msgstr ""
+msgstr "Archivi"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
@@ -1819,7 +1847,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
-msgstr ""
+msgstr "Components"
 
 #: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
 msgid "Only those with config listed"
@@ -2151,7 +2179,7 @@ msgstr ""
 #. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:232
 msgid "[y|N]"
-msgstr ""
+msgstr "[s|N]"
 
 #. TRANSLATORS: this is our test for a [y|N] question in the command line.
 #. * A partial or full match will be considered an affirmative answer,
@@ -2159,7 +2187,7 @@ msgstr ""
 #.
 #: ../src/tracker/tracker-reset.c:241
 msgid "yes"
-msgstr ""
+msgstr "sì"
 
 #: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
@@ -2292,63 +2320,63 @@ msgstr ""
 
 #: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
 msgid "No name"
-msgstr ""
+msgstr "Nissun non"
 
 #: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
 msgid "No E-mail address"
-msgstr ""
+msgstr "Nissune direzion e-mail"
 
 #: ../src/tracker/tracker-search.c:404
 msgid "No emails were found"
-msgstr ""
+msgstr "No je stade cjatade nissune e-mail"
 
 #: ../src/tracker/tracker-search.c:506
 msgid "No files were found"
-msgstr ""
+msgstr "Nol è stât cjatât nissun file"
 
 #: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
-msgstr ""
+msgstr "Nol è stât cjatât nissun artist"
 
 #: ../src/tracker/tracker-search.c:824
 msgid "Artists"
-msgstr ""
+msgstr "Artiscj"
 
 #: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
-msgstr ""
+msgstr "Nol è stât cjatât nissun toc musicâl"
 
 #: ../src/tracker/tracker-search.c:913
 msgid "Albums"
-msgstr ""
+msgstr "Album"
 
 #: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
-msgstr ""
+msgstr "Nol è stât cjatât nissun segnelibri"
 
 #: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
-msgstr ""
+msgstr "Nol è stât cjatât nissun feed"
 
 #: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
-msgstr ""
+msgstr "Feed"
 
 #: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
-msgstr ""
+msgstr "Nissun software cjatât"
 
 #: ../src/tracker/tracker-search.c:1169
 msgid "Software"
-msgstr ""
+msgstr "Software"
 
 #: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
-msgstr ""
+msgstr "No je stade cjatade nissune categorie software"
 
 #: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
-msgstr ""
+msgstr "Categoriis software"
 
 #: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
@@ -2499,7 +2527,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
 msgid "Classes"
-msgstr ""
+msgstr "Classis"
 
 #: ../src/tracker/tracker-sparql.c:1115
 msgid "Could not list class prefixes"
@@ -2511,7 +2539,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1123
 msgid "Prefixes"
-msgstr ""
+msgstr "Prefìs"
 
 #: ../src/tracker/tracker-sparql.c:1143
 msgid ""
@@ -2528,7 +2556,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
 msgid "Properties"
-msgstr ""
+msgstr "Proprietâts"
 
 #: ../src/tracker/tracker-sparql.c:1218
 msgid "Could not find notify classes"
@@ -2552,7 +2580,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1260
 msgid "Indexes"
-msgstr ""
+msgstr "Indiçs"
 
 #: ../src/tracker/tracker-sparql.c:1282
 msgid "Could not search classes"
@@ -2647,15 +2675,15 @@ msgstr ""
 
 #: ../src/tracker/tracker-status.c:248
 msgid "Statistics:"
-msgstr ""
+msgstr "Statistichis:"
 
 #: ../src/tracker/tracker-status.c:289
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: ../src/tracker/tracker-status.c:296
 msgid "Disk Information"
-msgstr ""
+msgstr "Informazions disc"
 
 #: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
 msgid "Remaining space on database partition"
@@ -2668,23 +2696,23 @@ msgstr ""
 
 #: ../src/tracker/tracker-status.c:342
 msgid "Configuration"
-msgstr ""
+msgstr "Configurazion"
 
 #: ../src/tracker/tracker-status.c:370
 msgid "No configuration was found"
-msgstr ""
+msgstr "No je stade cjatade nissune configurazion"
 
 #: ../src/tracker/tracker-status.c:374
 msgid "States"
-msgstr ""
+msgstr "Stâts"
 
 #: ../src/tracker/tracker-status.c:415
 msgid "Data Statistics"
-msgstr ""
+msgstr "Statistichis dâts"
 
 #: ../src/tracker/tracker-status.c:421
 msgid "No connection available"
-msgstr ""
+msgstr "Nissune conession disponibile"
 
 #: ../src/tracker/tracker-status.c:431
 msgid "Could not get statistics"
@@ -2727,7 +2755,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:54
 msgid "FILTER"
-msgstr ""
+msgstr "FILTRI"
 
 #: ../src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -2739,7 +2767,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
 msgid "TAG"
-msgstr ""
+msgstr "ETICHETE"
 
 #: ../src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
@@ -2751,7 +2779,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:70
 msgid "STRING"
-msgstr ""
+msgstr "STRINGHE"
 
 #: ../src/tracker/tracker-tag.c:81
 msgid "Use AND for search terms instead of OR (the default)"
@@ -2759,11 +2787,11 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:86
 msgid "FILE…"
-msgstr ""
+msgstr "FILE…"
 
 #: ../src/tracker/tracker-tag.c:87
 msgid "FILE [FILE…]"
-msgstr ""
+msgstr "FILE [FILE…]"
 
 #: ../src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
@@ -2819,7 +2847,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-tag.c:764
 msgid "Tagged"
-msgstr ""
+msgstr "Etichetât"
 
 #: ../src/tracker/tracker-tag.c:765
 msgid "Not tagged, file is not indexed"
