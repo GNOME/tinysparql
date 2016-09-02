@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-02 08:26+0200\n"
+"PO-Revision-Date: 2016-09-02 08:37+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -1757,37 +1757,39 @@ msgstr "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr ""
+msgstr "Tentatîf di interompi l'estratôr \"%s\" cun la reson \"%s\""
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
 #, c-format
 msgid "Could not pause miner: %s"
-msgstr ""
+msgstr "Impussibil interompi l'estratôr: %s"
 
 #: ../src/tracker/tracker-daemon.c:916
 #, c-format
 msgid "Cookie is %d"
-msgstr ""
+msgstr "Il cookie al è %d"
 
 #: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
 #: ../src/tracker/tracker-daemon.c:1420
 msgid "Press Ctrl+C to stop"
-msgstr ""
+msgstr "Frache Ctrl+C par fermâ"
 
 #: ../src/tracker/tracker-daemon.c:947
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
 msgstr ""
+"Impussibil tornâ a meti in vore l'estratôr, il gjestôr nol pues jessi creât, "
+"%s"
 
 #: ../src/tracker/tracker-daemon.c:954
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
-msgstr ""
+msgstr "Tentatîf di tornâ a meti in vore l'estratôr %s cul cookie %d"
 
 #: ../src/tracker/tracker-daemon.c:961
 #, c-format
 msgid "Could not resume miner: %s"
-msgstr ""
+msgstr "Impussibil tornâ a meti in vore l'estratôr: %s"
 
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
 #: ../src/tracker/tracker-sparql.c:1387
@@ -1797,35 +1799,36 @@ msgstr "Fat"
 #: ../src/tracker/tracker-daemon.c:982
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
-msgstr ""
+msgstr "Impussibil elencâ i estratôrs, il gjestôr nol pues jessi creât, %s"
 
 #: ../src/tracker/tracker-daemon.c:996
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Cjatât %d estratôr dâts instalât"
+msgstr[1] "Cjatât %d estratôrs dâts instalâts"
 
 #: ../src/tracker/tracker-daemon.c:1019
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Cjatât %d estratôr dâts in esecuzion"
+msgstr[1] "Cjatât %d estratôrs dâts in esecuzion"
 
 #: ../src/tracker/tracker-daemon.c:1051
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
+"Impussibil otignî i detais de interuzion, il gjestôr nol pues jessi creât, %s"
 
 #: ../src/tracker/tracker-daemon.c:1061
 msgid "No miners are running"
-msgstr ""
+msgstr "Nissun estratôr in esecuzion"
 
 #: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
 #: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
 msgid "Miners"
-msgstr ""
+msgstr "Estratôrs dâts"
 
 #: ../src/tracker/tracker-daemon.c:1110
 msgid "Reason"
@@ -1833,15 +1836,15 @@ msgstr "Reson"
 
 #: ../src/tracker/tracker-daemon.c:1119
 msgid "No miners are paused"
-msgstr ""
+msgstr "Nissun estratôr dâts interot"
 
 #: ../src/tracker/tracker-daemon.c:1207
 msgid "Only one of 'all', 'store' and 'miners' options are allowed"
-msgstr ""
+msgstr "E je permetude nome une tra lis opzions 'all', 'store' e 'miners'"
 
 #: ../src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
-msgstr ""
+msgstr "Impussibil otignî une conession SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
