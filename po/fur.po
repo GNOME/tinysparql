@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-02 00:23+0200\n"
+"PO-Revision-Date: 2016-09-02 08:26+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -1619,10 +1619,12 @@ msgid ""
 "Pause a miner while the calling process is alive or until resumed (you must "
 "use this with --miner)"
 msgstr ""
+"Al interomp un estratôr intant che il procès clamant al è ancjemò atîf o "
+"fintremai che nol è stât ripristinât (al à di jessi doprât cun --miner)"
 
 #: ../src/tracker/tracker-daemon.c:155
 msgid "Resume a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Al torne a meti in vore un estratôr (al à di jessi doprât cun --miner)"
 
 #: ../src/tracker/tracker-daemon.c:156
 msgid "COOKIE"
@@ -1633,52 +1635,60 @@ msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
 msgstr ""
+"Estratôr di doprâ cun --resume o --pause (al è pussibil doprâ sufìs come "
+"\"File\" o \"Aplicazions\")"
 
 #: ../src/tracker/tracker-daemon.c:160
 msgid "MINER"
-msgstr ""
+msgstr "ESTRATÔR"
 
 #: ../src/tracker/tracker-daemon.c:163
 msgid "List all miners currently running"
-msgstr ""
+msgstr "Liste ducj i estratôrs in esecuzion"
 
 #: ../src/tracker/tracker-daemon.c:167
 msgid "List all miners installed"
-msgstr ""
+msgstr "Liste ducj i estratôrs instalâts"
 
 #: ../src/tracker/tracker-daemon.c:171
 msgid "List pause reasons"
-msgstr ""
+msgstr "Liste i motîfs di interuzion"
 
 #: ../src/tracker/tracker-daemon.c:176
 msgid "List all Tracker processes"
-msgstr ""
+msgstr "Liste ducj i procès di Tracker"
 
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
+"Dopre SIGKILL par fermâ ducj i procès corispuindints; a puedin jessi doprâts "
+"\"store\", \"miners\" o \"all\", cence parametris al vûl dî \"all\""
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
-msgstr ""
+msgstr "APLICAZIONS"
 
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
+"Dopre SIGTERM par fermâ ducj i procès corispuindints; a puedin jessi doprâts "
+"\"store\", \"miners\" o \"all\", cence parametris al vûl dî \"all\""
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr ""
+msgstr "Invie i estratôrs (al ven inviât ancje tracker-store)"
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
 msgstr ""
+"Al met il nivel di detais dal regjistri par ducj i procès a NIVEL('debug', "
+"'detailed', 'minimal', 'errors')"
 
 #: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
@@ -1687,21 +1697,23 @@ msgstr "NIVEL"
 #: ../src/tracker/tracker-daemon.c:190
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
+"Mostre i valôrs di regjistrazion in tiermins di regjistri detaiât par ogni "
+"procès"
 
 #: ../src/tracker/tracker-daemon.c:264
 #, c-format
 msgid "Could not get status from miner: %s"
-msgstr ""
+msgstr "Impussibil otignî il stât dal estratôr: %s"
 
 #. Translators: %s is a time string
 #: ../src/tracker/tracker-daemon.c:326
 #, c-format
 msgid "%s remaining"
-msgstr ""
+msgstr "ancjemò %s"
 
 #: ../src/tracker/tracker-daemon.c:329
 msgid "unknown time left"
-msgstr ""
+msgstr "timp restant no cognossût"
 
 #. Work out lengths for output spacing
 #: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
@@ -1710,36 +1722,37 @@ msgstr "INTEROT"
 
 #: ../src/tracker/tracker-daemon.c:359
 msgid "Not running or is a disabled plugin"
-msgstr ""
+msgstr "No in esecuzion o plugin disabilitât"
 
 #: ../src/tracker/tracker-daemon.c:461
 msgid "Could not retrieve tracker-store status"
-msgstr ""
+msgstr "Impussibil otignî il stât di tracker-store"
 
 #: ../src/tracker/tracker-daemon.c:482
 msgid "Could not retrieve tracker-store progress"
-msgstr ""
+msgstr "Impussibil otignî l'avanzament di tracker-store"
 
 #: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
 msgid "Unable to retrieve namespace prefixes"
-msgstr ""
+msgstr "Impussibil otignî i prefìs di namespace"
 
 #: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
 msgid "No namespace prefixes were returned"
-msgstr ""
+msgstr "Nissun prefìs di namespace cjatât"
 
 #: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
 msgid "Could not run SPARQL query"
-msgstr ""
+msgstr "Impussibil eseguî la interogazion SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
 msgstr ""
+"Impussibil clamâ tracker_sparql_cursor_next() su la interogazion SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:889
 #, c-format
 msgid "Could not pause miner, manager could not be created, %s"
-msgstr ""
+msgstr "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
