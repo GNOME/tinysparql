@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-01 22:34+0200\n"
+"PO-Revision-Date: 2016-09-02 00:23+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -1595,6 +1595,8 @@ msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
 msgstr ""
+"Ten di voli i cambiaments ae base di dâts in timp reâl (come risorsis o file "
+"zontâts)"
 
 #: ../src/tracker/tracker-daemon.c:139
 msgid "ONTOLOGY"
@@ -1602,11 +1604,11 @@ msgstr "ONTOLOGJIE"
 
 #: ../src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
-msgstr ""
+msgstr "Liste i stâts comuns pai estratôrs e l'archivi"
 
 #: ../src/tracker/tracker-daemon.c:147
 msgid "Pause a miner (you must use this with --miner)"
-msgstr ""
+msgstr "Interomp un estratôr (al à di jessi doprât cun --miner)"
 
 #: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
 msgid "REASON"
