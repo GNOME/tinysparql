@@ -134,8 +134,10 @@ test_resource_get_set_pointer_validation (void)
 
 		resource = tracker_resource_new ("http://example.com/resource");
 
-		/* This will trigger a g_warning(), and abort. */
+		/* This should trigger a g_warning(), and abort. */
 		tracker_resource_set_string (resource, "http://example.com/1", NULL);
+
+		return;
 	}
 
 	g_test_trap_subprocess (NULL, 0, 0);
