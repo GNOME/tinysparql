@@ -29,6 +29,8 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 MINERFS_BUSNAME = "org.freedesktop.Tracker1.Miner.Files"
 MINERFS_OBJ_PATH = "/org/freedesktop/Tracker1/Miner/Files"
 MINER_IFACE = "org.freedesktop.Tracker1.Miner"
+MINERFS_INDEX_OBJ_PATH = "/org/freedesktop/Tracker1/Miner/Files/Index"
+MINER_INDEX_IFACE = "org.freedesktop.Tracker1.Miner.Index"
 
 TRACKER_BACKUP_OBJ_PATH = "/org/freedesktop/Tracker1/Backup"                                            
 BACKUP_IFACE = "org.freedesktop.Tracker1.Backup"
