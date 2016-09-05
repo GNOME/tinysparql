@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-05 16:48+0200\n"
+"PO-Revision-Date: 2016-09-05 17:18+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -1916,21 +1916,21 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
-msgstr ""
+msgstr "Daûr a inviâ i estratôrs dâts..."
 
 #: ../src/tracker/tracker-daemon.c:1667
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
-msgstr ""
+msgstr "Impussibil inviâ i estratôrs, il gjestôr nol pues jessi creât, %s"
 
 #: ../src/tracker/tracker-daemon.c:1692
 msgid "perhaps a disabled plugin?"
-msgstr ""
+msgstr "salacor un plugin disabilitât?"
 
 #: ../src/tracker/tracker-daemon.c:1736
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
-msgstr ""
+msgstr "Cence argoments, al ven mostrât il stât dal archivi e dai estratôrs"
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
@@ -1938,42 +1938,44 @@ msgstr ""
 #: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
 #: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
-msgstr ""
+msgstr "Opzions no ricognossudis"
 
 #: ../src/tracker/tracker-dbus.c:44
 msgid "Could not get D-Bus connection"
-msgstr ""
+msgstr "Impussibil otignî une conession D-Bus"
 
 #: ../src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
-msgstr ""
+msgstr "Impussibil creâ un proxy D-Bus viers tracker-store"
 
 #: ../src/tracker/tracker-extract.c:77
 msgid "Could not run tracker-extract: "
-msgstr ""
+msgstr "Impussibil eseguî tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec '%s': %s"
-msgstr ""
+msgstr "no si è rivâts a eseguî '%s': %s"
 
 #: ../src/tracker/tracker-index.c:56
 msgid ""
 "Tell miners to reindex files which match the mime type supplied (for new "
 "extractors), use -m MIME1 -m MIME2"
 msgstr ""
+"Dîs ai estratôrs di tornâ a meti in indiç i file che a corispuindin al "
+"gjenar mime furnît (pai gnûfs estratôrs), dopre -m MIME1 -m MIME2"
 
 #: ../src/tracker/tracker-index.c:59
 msgid "Tell miners to (re)index a given file"
-msgstr ""
+msgstr "Dîs ai estratôrs di (torna a)meti in indiç un file furnît"
 
 #: ../src/tracker/tracker-index.c:62
 msgid "Backup current index / database to the file provided"
-msgstr ""
+msgstr "Fâs il backup de base di dâts/indiç sul file furnît"
 
 #: ../src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
-msgstr ""
+msgstr "Torne met une base di dâts di un backup precedent (viôt --backup)"
 
 #: ../src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
@@ -1983,67 +1985,75 @@ msgstr ""
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
 msgstr ""
+"Impussibil tornâ a meti in indiç i gjenars MIME, il gjestôr nol pues jessi "
+"creât, %s"
 
 #: ../src/tracker/tracker-index.c:132
 msgid "Could not reindex mimetypes"
-msgstr ""
+msgstr "Impussibil tornâ a meti in indiç i gjenars MIME"
 
 #: ../src/tracker/tracker-index.c:138
 msgid "Reindexing mime types was successful"
-msgstr ""
+msgstr "Il tornâ a meti in indiç dai gjenars di MIME al è lât a bon fin"
 
 #: ../src/tracker/tracker-index.c:154
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
 msgstr ""
+"Impussibil (tornâ a)meti in indiç il file, il gjestôr nol pues jessi creât, "
+"%s"
 
 #: ../src/tracker/tracker-index.c:169
 msgid "Could not (re)index file"
-msgstr ""
+msgstr "Impussibil (tornâ a)meti in indiç il file"
 
 #: ../src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
-msgstr ""
+msgstr "Il (tornâ a)meti in indiç al è lât a bon fin"
 
 #: ../src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
-msgstr ""
+msgstr "Daûr a impuartâ l'archivi Turtle"
 
 #: ../src/tracker/tracker-index.c:215
 msgid "Unable to import Turtle file"
-msgstr ""
+msgstr "Impussibil impuartâ il file Turtle"
 
 #: ../src/tracker/tracker-index.c:251
 msgid "Backing up database"
-msgstr ""
+msgstr "Daûr a fâ il backup de base di dâts"
 
 #: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
 msgid "Could not backup database"
-msgstr ""
+msgstr "Impussibil fâ il backup de base di dâts"
 
 #: ../src/tracker/tracker-index.c:308
 msgid "Restoring database from backup"
-msgstr ""
+msgstr "Daûr a tornâ a meti la base di dâts dal backup"
 
 #: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
+"A pues jessi doprade nome une azion ae volte (--backup, --restore, --index-"
+"file o --import)"
 
 #: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
-msgstr ""
+msgstr "A mancjin un o plui file necessaris"
 
 #: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
-msgstr ""
+msgstr "Nome un file al pues jessi doprât cun --backup e --restore"
 
 #: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
 msgstr ""
+"Azions (--backup, --restore, --index-file e --import) no puedin jessi "
+"dopradis cun --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
@@ -2051,7 +2061,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-info.c:53
 msgid "Show plain text content if available for resources"
-msgstr ""
+msgstr "Mostre, se disponibii, i contignûts in test sempliç pes risorsis"
 
 #. To translators:
 #. * IRI (International Resource Identifier) is a generalization
@@ -2064,6 +2074,8 @@ msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
+"Al puest di cirî un non di file, dopre i argoments FILE come dai IRI (p.e. "
+"<file:///percors/a/cualchi/file.txt>)"
 
 #: ../src/tracker/tracker-info.c:67
 msgid "Output results as RDF in Turtle format"
