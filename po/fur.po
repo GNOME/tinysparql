@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-05 09:38+0200\n"
+"PO-Revision-Date: 2016-09-05 16:48+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -2067,23 +2067,23 @@ msgstr ""
 
 #: ../src/tracker/tracker-info.c:67
 msgid "Output results as RDF in Turtle format"
-msgstr ""
+msgstr "Da fûr i risultâts come RDF in formât Turtle"
 
 #: ../src/tracker/tracker-info.c:285
 msgid "Querying information for entity"
-msgstr ""
+msgstr "Daûr a consultâ la informazion pe entitât"
 
 #: ../src/tracker/tracker-info.c:309
 msgid "Unable to retrieve URN for URI"
-msgstr ""
+msgstr "Impussibil otignî il URN pal URI"
 
 #: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
 msgid "Unable to retrieve data for URI"
-msgstr ""
+msgstr "Impussibil otignî dâts pal URI"
 
 #: ../src/tracker/tracker-info.c:362
 msgid "No metadata available for that URI"
-msgstr ""
+msgstr "Nissun meta-dât disponibil par chel URI"
 
 #: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
@@ -2094,114 +2094,130 @@ msgstr "Risultâts"
 #: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
+"Consultâ 'tracker help <command>' par informazions su un specific sot-comant."
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
+"Tache, ferme, met in pause e liste i procès responsabii pe metude in indiç "
+"dai contignûts"
 
 #: ../src/tracker/tracker-main.c:98
 msgid "Extract information from a file"
-msgstr ""
+msgstr "Tire fûr informazions di un file"
 
 #: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
+msgstr "Oten informazions sul ûs di Tracker e cualsisei di chescj comants"
 
 #: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr ""
+"Mostre informazions cognossudis in merit ai file locâi o ai elements metûts "
+"in indiç"
 
 #: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
+"Fâs il backup, ripristine, impuarte e (torne a meti)met in indiç par gjenar "
+"di MIME o par non di file"
 
 #: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
-msgstr ""
+msgstr "Ripristine o gjave l'indiç e torne a lis configurazions predefinidis"
 
 #: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
-msgstr ""
+msgstr "Cîr contignûts metûts in indiç o mostre il contignût par gjenar"
 
 #: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
+"Interoghe e inzorne l'indiç doprant SPARQL opûr cîr, liste e met in scjale a "
+"arbul la ontologjie"
 
 #: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
-msgstr ""
+msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 
 #: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
+"Mostre l'avanzament de metude in indiç, lis statistichis e il stât dal indiç"
 
 #: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
-msgstr ""
+msgstr "Cree, liste o elimine etichetis pai contignûts metûts in indiç"
 
 #: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
-msgstr ""
+msgstr "Mostre la licence e la version in ûs"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
-msgstr ""
+msgstr "'%s' nol è un comant tracker. Consultâ 'tracker --help'"
 
 #: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
-msgstr ""
+msgstr "I comants tracker disponibii a son:"
 
 #: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
-msgstr ""
+msgstr "Impussibil vierzi /proc"
 
 #: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
-msgstr ""
+msgstr "Impussibil eseguî stat() sul file"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open '%s'"
-msgstr ""
+msgstr "Impussibil vierzi '%s'"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
 msgid "Could not terminate process %d - '%s'"
-msgstr ""
+msgstr "Impussibil terminâ procès %d - '%s'"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
 msgid "Terminated process %d - '%s'"
-msgstr ""
+msgstr "Terminât procès %d - '%s'"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
 msgid "Could not kill process %d - '%s'"
-msgstr ""
+msgstr "Impussibil copâ procès %d - '%s'"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
 msgid "Killed process %d - '%s'"
-msgstr ""
+msgstr "Copât procès %d - '%s'"
 
 #: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
-msgstr ""
+msgstr "Cope ducj i procès Tracker e gjave dutis lis basis di dâts"
 
 #: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
+"Come --hard ma il backup e il diari a son ripristinâts daspò il gnûf "
+"inviament"
 
 #: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
+"Gjave ducj i file di configurazion cussì che al prossim inviament a sedin "
+"gjenerâts di gnûf"
 
 #: ../src/tracker/tracker-reset.c:62
 msgid ""
 "Erase indexed information about a file, works recursively for directories"
 msgstr ""
+"Scancele la informazion metude in indiç in merit di un file, al funzione in "
+"maniere ricorsive pes cartelis"
 
 #. Now, delete the element recursively
 #: ../src/tracker/tracker-reset.c:168
@@ -2229,6 +2245,9 @@ msgid ""
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
+"Ancje se si pues tornâ a meti in indiç in maniere sigure la plui part dai "
+"contignûts metûts in indiç di Tracker, nol è dite che al sedi il câs di ducj "
+"i dâts. Sta atent che tu podaressis pierdi dâts, continue ma cun to pericul."
 
 #: ../src/tracker/tracker-reset.c:230
 msgid "Are you sure you want to proceed?"
