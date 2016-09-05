@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-02 08:37+0200\n"
+"PO-Revision-Date: 2016-09-05 05:38+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -924,7 +924,6 @@ msgid "Remove selected tag"
 msgstr "Gjave la etichete selezionade"
 
 #: ../src/tracker-needle/tracker-needle.vala:75
-#, fuzzy
 msgid "Search criteria was too generic"
 msgstr "Il criteri di ricercje al jere masse gjeneric"
 
@@ -2794,12 +2793,12 @@ msgstr ""
 
 #: ../src/tracker/tracker-status.c:666
 msgid "Data is still being indexed"
-msgstr ""
+msgstr "La metude in indiç dai dâts e je ancjemò in vore"
 
 #: ../src/tracker/tracker-status.c:667
 #, c-format
 msgid "Estimated %s left"
-msgstr ""
+msgstr "Si stime che a mancjin %s"
 
 #: ../src/tracker/tracker-status.c:671
 msgid "All data miners are idle, indexing complete"
@@ -2821,6 +2820,8 @@ msgstr ""
 #: ../src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 msgstr ""
+"Zonte une etichete (se FILE al è ometût, ETICHETE no ven associade a nissun "
+"file)"
 
 #: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
 msgid "TAG"
@@ -2829,10 +2830,12 @@ msgstr "ETICHETE"
 #: ../src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
+"Elimine une etichete (Se FILE al è ometût, ETICHETE e je gjavade di ducj i "
+"file)"
 
 #: ../src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
-msgstr ""
+msgstr "Descrizion par une etichete (doprade nome cun --add)"
 
 #: ../src/tracker/tracker-tag.c:70
 msgid "STRING"
@@ -2840,7 +2843,7 @@ msgstr "STRINGHE"
 
 #: ../src/tracker/tracker-tag.c:81
 msgid "Use AND for search terms instead of OR (the default)"
-msgstr ""
+msgstr "Dopre AND invezit di OR (predefinît) pai tiermins cirûts"
 
 #: ../src/tracker/tracker-tag.c:86
 msgid "FILE…"
@@ -2852,31 +2855,31 @@ msgstr "FILE [FILE…]"
 
 #: ../src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
-msgstr ""
+msgstr "Impussibil otignî i URN dal file"
 
 #: ../src/tracker/tracker-tag.c:314
 msgid "Could not get files related to tag"
-msgstr ""
+msgstr "Impussibil otignî i file relatîfs ae etichete"
 
 #: ../src/tracker/tracker-tag.c:381
 msgid "Could not get all tags in the database"
-msgstr ""
+msgstr "Impussibil otignî dutis lis etichetis te base di dâts"
 
 #: ../src/tracker/tracker-tag.c:391
 msgid "No files have been tagged"
-msgstr ""
+msgstr "Nissun file al è stât etichetât"
 
 #: ../src/tracker/tracker-tag.c:426
 msgid "Could not get files for matching tags"
-msgstr ""
+msgstr "Impussibil otignî i file che a corispuindin a lis etichetis"
 
 #: ../src/tracker/tracker-tag.c:435
 msgid "No files were found matching ALL of those tags"
-msgstr ""
+msgstr "Nissun file al è stât cjatât che al corispuindi a DUTIS chês etichetis"
 
 #: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
 msgid "Could not get all tags"
-msgstr ""
+msgstr "Impussibil otignî dutis lis etichetis"
 
 #: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
 msgid "No tags were found"
@@ -2888,11 +2891,11 @@ msgstr "Etichetis (mostradis par non)"
 
 #: ../src/tracker/tracker-tag.c:601
 msgid "No files were modified"
-msgstr ""
+msgstr "Nissun file al è stât modificât"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
 msgid "Files do not exist or aren't indexed"
-msgstr ""
+msgstr "I file no esistin o no son metûts in indiç"
 
 #: ../src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
@@ -2908,61 +2911,63 @@ msgstr "Etichetât"
 
 #: ../src/tracker/tracker-tag.c:765
 msgid "Not tagged, file is not indexed"
-msgstr ""
+msgstr "No etichetât, il file nol è metût in indiç"
 
 #: ../src/tracker/tracker-tag.c:811
 msgid "Could not get tag by label"
-msgstr ""
+msgstr "Impussibil otignî la liste des etichetis"
 
 #: ../src/tracker/tracker-tag.c:822
 msgid "No tags were found by that name"
-msgstr ""
+msgstr "No je stade cjatade nissune etichete cun chel non"
 
 #: ../src/tracker/tracker-tag.c:839
 msgid "None of the files had this tag set"
-msgstr ""
+msgstr "Nissun dai file al veve impuestât cheste etichete"
 
 #: ../src/tracker/tracker-tag.c:892
 msgid "Tag was removed successfully"
-msgstr ""
+msgstr "Etichete gjavade cun sucès"
 
 #: ../src/tracker/tracker-tag.c:896
 msgid "Untagged"
-msgstr ""
+msgstr "Cence etichete"
 
 #: ../src/tracker/tracker-tag.c:897
 msgid "File not indexed or already untagged"
-msgstr ""
+msgstr "File no metût in indiç o etichete za gjavade"
 
 #: ../src/tracker/tracker-tag.c:1088
 msgid "The --list option is required for --show-files"
-msgstr ""
+msgstr "La opzion --list e covente par --show-files"
 
 #: ../src/tracker/tracker-tag.c:1090
 msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
 msgstr ""
+"La opzion --and-operator e pues jessi doprade nome cun --list e nons di "
+"etichetis"
 
 #: ../src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
-msgstr ""
+msgstr "Lis azions \"zonte\" e \"elimine\" no puedin jessi dopradis adun"
 
 #: ../src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
-msgstr ""
+msgstr "La opzion --description e pues jessi doprade nome cun --add"
 
 #: ../src/tracker-writeback/tracker-main.c:62
 msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr ""
+msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
 
 #. Translators: this message will appear immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
 msgid "- start the tracker writeback service"
-msgstr ""
+msgstr "- tache il servizi di scriture rimandade tracker"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
-msgstr ""
+msgstr "Interogazions salvadis"
