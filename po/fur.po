@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-05 17:18+0200\n"
+"PO-Revision-Date: 2016-09-05 17:35+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -1847,20 +1847,20 @@ msgstr "Impussibil otignî une conession SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
-msgstr ""
+msgstr "In scolte par inzornaments des risorsis su la base di dâts"
 
 #: ../src/tracker/tracker-daemon.c:1275
 msgid "All nie:plainTextContent properties are omitted"
-msgstr ""
+msgstr "Dutis lis proprietâts nie:plainTextContent a son ometudis"
 
 #: ../src/tracker/tracker-daemon.c:1290
 msgid "Common statuses include"
-msgstr ""
+msgstr "I stâts comuns a includin"
 
 #: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
-msgstr ""
+msgstr "Impussibil otignî il stât, il gjestôr nol pues jessi creât, %s"
 
 #. Display states
 #: ../src/tracker/tracker-daemon.c:1329
@@ -1870,36 +1870,41 @@ msgstr "Archivi"
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
 msgid "Could not get display name for miner '%s'"
-msgstr ""
+msgstr "Impussibil otignî il non pal estratôr '%s'"
 
 #: ../src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
+"Nol è pussibil doprâ lis opzions di interuzion e di ripristinament parie"
 
 #: ../src/tracker/tracker-daemon.c:1467
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
+"Si scugne furnî l'estratôr pai comants di interuzion o di ripristinament"
 
 #: ../src/tracker/tracker-daemon.c:1473
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
+"Si scugne furnî un comant di interuzion o di ripristinament pal estratôr"
 
 #: ../src/tracker/tracker-daemon.c:1509
 msgid "You can not use the --kill and --terminate arguments together"
-msgstr ""
+msgstr "Nol è pussibil doprâ adun i argoments --kill e --terminate"
 
 #: ../src/tracker/tracker-daemon.c:1515
 msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr ""
+msgstr "Nol è pussibil doprâ adun i argoments --get-logging e --set-logging"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
+"Nivel di detais dal regjistri no valit, prove 'debug', 'detailed', 'minimal' "
+"o 'errors'"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
 msgid "Found process ID %d for '%s'"
-msgstr ""
+msgstr "Cjatât ID di procès %d par '%s'"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
@@ -1907,12 +1912,14 @@ msgstr "Components"
 
 #: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
 msgid "Only those with config listed"
-msgstr ""
+msgstr "Nome chei cuntune configurazion in liste"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
 msgid "Setting log verbosity for all components to '%s'…"
 msgstr ""
+"Daûr a stabilî il nivel di detais dal regjistri par ducj i components a "
+"'%s'..."
 
 #: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
@@ -2245,7 +2252,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
-msgstr "No tu puedis doprâ i argoments --hard e --soft adun"
+msgstr "Nol è pussibil doprâ adun i argoments --hard e --soft"
 
 #: ../src/tracker/tracker-reset.c:224
 msgid "CAUTION: This process may irreversibly delete data."
