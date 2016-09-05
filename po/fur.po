@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-05 09:18+0200\n"
+"PO-Revision-Date: 2016-09-05 09:38+0200\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
@@ -2206,20 +2206,22 @@ msgstr ""
 #. Now, delete the element recursively
 #: ../src/tracker/tracker-reset.c:168
 msgid "Deleting…"
-msgstr ""
+msgstr "Daûr a eliminâ..."
 
 #: ../src/tracker/tracker-reset.c:189
 msgid ""
 "The indexed data for this file has been deleted and will be reindexed again."
 msgstr ""
+"I dâts metûts in indiç par chest file a son stâts eliminâts e a vegnaran "
+"tornâts a meti in indiç di gnûf."
 
 #: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
-msgstr ""
+msgstr "No tu puedis doprâ i argoments --hard e --soft adun"
 
 #: ../src/tracker/tracker-reset.c:224
 msgid "CAUTION: This process may irreversibly delete data."
-msgstr ""
+msgstr "ATENZION: Chest procès al pues eliminâ dâts par simpri."
 
 #: ../src/tracker/tracker-reset.c:225
 msgid ""
@@ -2230,7 +2232,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-reset.c:230
 msgid "Are you sure you want to proceed?"
-msgstr ""
+msgstr "Sigûrs di continuâ?"
 
 #. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:232
@@ -2247,7 +2249,7 @@ msgstr "sì"
 
 #: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
-msgstr ""
+msgstr "Rimozion file di configurazion..."
 
 #: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
@@ -2255,95 +2257,102 @@ msgstr ""
 
 #: ../src/tracker/tracker-search.c:80
 msgid "Search for files"
-msgstr ""
+msgstr "Cîr file"
 
 #: ../src/tracker/tracker-search.c:84
 msgid "Search for folders"
-msgstr ""
+msgstr "Cîr cartelis"
 
 #: ../src/tracker/tracker-search.c:88
 msgid "Search for music files"
-msgstr ""
+msgstr "Cîr file musicâi"
 
 #: ../src/tracker/tracker-search.c:92
 msgid "Search for music albums (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr album musicâi (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:96
 msgid "Search for music artists (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr artiscj musicâi (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:100
 msgid "Search for image files"
-msgstr ""
+msgstr "Cîr file inmagjin"
 
 #: ../src/tracker/tracker-search.c:104
 msgid "Search for video files"
-msgstr ""
+msgstr "Cîr file Video"
 
 #: ../src/tracker/tracker-search.c:108
 msgid "Search for document files"
-msgstr ""
+msgstr "Cîr file di document"
 
 #: ../src/tracker/tracker-search.c:112
 msgid "Search for emails"
-msgstr ""
+msgstr "Cîr e-mail"
 
 #: ../src/tracker/tracker-search.c:116
 msgid "Search for contacts"
-msgstr ""
+msgstr "Cîr contats"
 
 #: ../src/tracker/tracker-search.c:120
 msgid "Search for software (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr software (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:124
 msgid "Search for software categories (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr categoriis software (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:128
 msgid "Search for feeds (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr feed (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:132
 msgid "Search for bookmarks (--all has no effect on this)"
-msgstr ""
+msgstr "Cîr segnelibris (--all nol fâs nissun efiet chi)"
 
 #: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
 msgid "Limit the number of results shown"
-msgstr ""
+msgstr "Limitâ il numar di risultâts mostrâts"
 
 #: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
 msgid "Offset the results"
-msgstr ""
+msgstr "Apliche un offset al risultât"
 
 #: ../src/tracker/tracker-search.c:146
 msgid "Use OR for search terms instead of AND (the default)"
-msgstr ""
+msgstr "Dopre OR al puest di AND (predefinît) pai tiermins cirûts"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
+"Mostre i URN pai risultâts (no si apliche a --music-albums, --music-artists, "
+"--feeds, --software, --software-categories)"
 
 #: ../src/tracker/tracker-search.c:154
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
+"Torne ancje dutis lis corispondence no-esistentis (al inclût i volums no "
+"montâts)"
 
 #: ../src/tracker/tracker-search.c:158
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
 msgstr ""
+"No stâ mostrâ i tocs cui risultâts; chest al è mostrât nome par cualchi "
+"categorie come Documents, Musiche..."
 
 #: ../src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
 msgstr ""
+"Disabilite la ricercje su dut il test (FTS). Al impliche --disable-snippets"
 
 #: ../src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
-msgstr "Disabilite i colôrs tal mostrâ lis sclesis e i risultâts"
+msgstr "Disabilite i colôrs tal mostrâ i tocs e i risultâts"
 
 #: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
 msgid "search terms"
