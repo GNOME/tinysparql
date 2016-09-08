@@ -5,18 +5,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&"
-"keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-02-04 15:00+0000\n"
-"PO-Revision-Date: 2016-02-06 23:53+0200\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
+"&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-08-17 11:02+0000\n"
+"PO-Revision-Date: 2016-09-08 20:37+0200\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : "
-"2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 :"
+" 2);\n"
 "X-Generator: Lokalize 2.0\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -180,7 +180,7 @@ msgstr "Kļūda, palaižot “tar” programmu"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -192,13 +192,13 @@ msgstr "Kļūda, palaižot “tar” programmu"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:201
-#: ../src/tracker/tracker-process.c:330 ../src/tracker/tracker-process.c:351
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
+#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Nav dota kļūda"
 
@@ -258,14 +258,13 @@ msgstr ""
 
 #: ../src/miners/apps/tracker-main.c:61
 #: ../src/miners/user-guides/tracker-main.c:61
-#| msgid "Runs until all configured locations are indexed and then exits"
 msgid "Runs until all applications are indexed and then exits"
 msgstr "Darbojas līdz visas lietotnes ir indeksētas, pēc tam iziet"
 
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -275,12 +274,10 @@ msgstr "Rāda versijas informāciju"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-#| msgid "Applications data miner"
 msgid "- start the application data miner"
 msgstr "- palaist lietotņu datu racēju"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
-#| msgid "Applications data miner"
 msgid "Tracker Application Miner"
 msgstr "Tracker lietotņu datu racējs"
 
@@ -509,11 +506,12 @@ msgstr "Darbojas līdz visas konfigurētās vietas ir indeksētas, pēc tam izie
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Pārbauda, vai DATNE kvalificējas rakšanai, balstoties uz konfigurāciju"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "DATNE"
 
@@ -644,7 +642,7 @@ msgid "- start the feeds indexer"
 msgstr "- palaist plūsmu indeksētāju"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
@@ -675,17 +673,14 @@ msgstr "Lietotāja gidu racējs"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-#| msgid "Userguide data miner"
 msgid "- start the user guides data miner"
 msgstr "- palaist lietotāja gidu datu racēju"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
-#| msgid "Tracker File System Miner"
 msgid "Tracker User Guides Miner"
 msgstr "Tracker lietotāju gidu racējs"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
-#| msgid "Crawls and processes files on the file system"
 msgid "Crawls and processes user guides in shared areas"
 msgstr "Apstaigā un apstrādā lietotāju gidus koplietotajās vietās"
 
@@ -772,15 +767,15 @@ msgstr ""
 "vidēs, kur ir svarīgi uzskaitīt datnes cik vien ātri iespējams, un metadatu "
 "saņemšana var pagaidīt."
 
-#: ../src/tracker-extract/tracker-extract.c:779
+#: ../src/tracker-extract/tracker-extract.c:761
 msgid "Metadata extraction failed"
 msgstr "Metadatu izvilkšana cieta neveiksmi"
 
-#: ../src/tracker-extract/tracker-extract.c:844
+#: ../src/tracker-extract/tracker-extract.c:831
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "Šīs datnes apstrādei nav atrastu medadatu vai izvildēja moduļu"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -789,34 +784,48 @@ msgstr ""
 "Reģistrēšana, 0 = tikai kļūdas, 1 = minimāli, 2 = detalizēti un 3 = "
 "atkļūdošana (noklusējuma=0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
 msgstr "Datne, kam izvilkt metadatus priekš"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "MIME tips datnei (ja nav norādīts, tiks minēts)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
 "Piespiest izvilkšanai izmantot moduli (piemēram, \"foo\" priekš \"foo.so\")"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MODULIS"
 
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: 'sparql', or 'turtle'"
+msgstr "Izvadīt rezultātu formāts: “sparql” vai “turtle”"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMĀTS"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format '%s'\n"
+msgstr "Neatbalstīts serializēšanas formāts “%s”\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "- Extract file meta data"
 msgstr "- Izvilkt datnes metadatus"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "Datnes nosaukums un mime tips ir jānorāda vienlaicīgi"
 
@@ -879,7 +888,6 @@ msgid "Find search criteria in file titles"
 msgstr "Atrast meklēšanas kritērijus virsrakstos"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
-#| msgid "Find search criteria in file titles"
 msgid "Find search criteria in file tags only (separated by comma)"
 msgstr "Atrast meklēšanas kritērijus tikai datņu tagos (atdalīti ar komatu)"
 
@@ -917,7 +925,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Tiks parādīti tikai pirmie 500 vienumi"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-preferences/tracker-preferences.vala:951
 msgid "Print version"
 msgstr "Drukāt versiju"
 
@@ -969,7 +977,7 @@ msgstr[2] "Dokumenti"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:165
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Datne"
@@ -1171,7 +1179,7 @@ msgid "Folders"
 msgstr "Mapes"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Grāmatzīmes"
 
@@ -1311,11 +1319,10 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
-"Indeksētais saturs no izņemamas ierīces, kas kādu laiciņu nav ievietota, tiks "
-"iztīrīts, lai neuzkrātos neizmantoti resursi."
+"Indeksētais saturs no izņemamas ierīces, kas kādu laiciņu nav ievietota, "
+"tiks iztīrīts, lai neuzkrātos neizmantoti resursi."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
-#| msgid "Days before deleting removable devices / files since last mounted:"
 msgid "Days before deleting removable devices:"
 msgstr "Dienas pirms tiks izdzēstas noņemamās ierīces:"
 
@@ -1435,17 +1442,14 @@ msgid "Ignored Content"
 msgstr "Ignorētais saturs"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:50
-#| msgid "Index content in the background:"
 msgid "Index content of _files found"
 msgstr "Atrasto _datņu indeksa saturs"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:51
-#| msgid "Ignore numbers"
 msgid "Index _numbers"
 msgstr "Indeksu _numuri"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:52
-#| msgid "Would be indexed"
 msgid "What is indexed?"
 msgstr "Kas tiek indeksēts?"
 
@@ -1453,114 +1457,17 @@ msgstr "Kas tiek indeksēts?"
 msgid "Control"
 msgstr "Vadība"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-#| msgid ""
-#| "When resetting your indexed data, the databases are removed and your "
-#| "files will no longer be indexed. Upon next start, Tracker will then start "
-#| "indexing data as if it was being run for the first time.\n"
-#| "\n"
-#| "<b>Warning: All data indexed will be removed! It can not be retrieved!</"
-#| "b>\n"
-#| "\n"
-#| "Clicking this button will close the preferences too."
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Kad atiestata indeksēšanas datus, datubāzes tiek izņemtas un jūsu datnes "
-"vairs netiks indeksētas. Ar nākamo Tracker palaišanas reizi tas sāks "
-"indeksēt datus tāpat kā pirmajā palaišanas reizē.\n"
-"\n"
-"<b>Brīdinājums — tiks izņemti visi indeksētie dati! To nevar atsaukt! Tos "
-"nevarēs atgūt! Jūsu ĪSTIE dati un datnes netiks aiztiktas.</b>\n"
-"\n"
-"Šīs pogas piespiešana arī aizvērs iestatījumus."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-#| msgid "Yes, remove all of my indexed data"
-msgid "Yes, remove all indexes"
-msgstr "Jā, izņemt visus indeksus"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-"“Indeks” ir sakārtotas atsauces uz datiem. Mēs izmantojam indeksus, lai "
-"varētu ātri atrast informāciju un saturu."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "Atstatīt indeksētos datus"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "_Aizture"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "sekundes"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "Palaišanās"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "Sistēma"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:162
+#: ../src/tracker-preferences/tracker-preferences.vala:163
+#: ../src/tracker-preferences/tracker-preferences.vala:164
 msgid "Directory"
 msgstr "Direktorija"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:305
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"Jūsu veiktajām izmaiņām vajag veikt pārindeksēšanu, lai pārliecinātos, ka "
-"visi dati ir pareizi indeksēti."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "Tas aizvērs šo dialoglodziņu!"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "Vai vēlaties tagad pārindeksēt?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "Pārindeksēt"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "Nedarīt neko"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr ""
-"Izmaiņas, ko veicāt savos iestatījumos, prasa pārstartēt tracker procesus."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "Vai vēlaties tagad pārstartēt?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-#| msgid "Tracker"
-msgid "Restart Tracker"
-msgstr "Pārstartēt Tracker"
+"Dažas no pieprasītajām izmaiņām stāsies spēkā pēc sesijas pārstartēšanas."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1569,38 +1476,38 @@ msgstr "Pārstartēt Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:355
+#: ../src/tracker-preferences/tracker-preferences.vala:368
 msgid "Disabled"
 msgstr "Izslēgts"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:540
 msgid "Enter value"
 msgstr "Ievadiet vērtību"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:543
+#: ../src/tracker-preferences/tracker-preferences.vala:572
 msgid "_Cancel"
 msgstr "At_celt"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:544
+#: ../src/tracker-preferences/tracker-preferences.vala:574
 msgid "_OK"
 msgstr "_Labi"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:569
 msgid "Select directory"
 msgstr "Izvēlēties direktoriju"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
 msgstr "Tā direktorija jau ir izvēlēta kā indeksēšanas vieta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
 msgstr "Rekursīvi"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
 msgstr "Darbvirsmas meklēšanas iestatījumi"
 
@@ -1773,7 +1680,7 @@ msgstr ""
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Palaiž racējus (kas netieši palaiž arī tracker-store)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -1781,7 +1688,7 @@ msgstr ""
 "Iestata reģistrēšanas detalizētību uz LĪMENI ('debug', 'detailed', "
 "'minimal', 'errors') visiem procesiem"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "LĪMENIS"
 
@@ -1814,12 +1721,10 @@ msgid "Not running or is a disabled plugin"
 msgstr "Nav palaists vai ir deaktivēts spraudnis"
 
 #: ../src/tracker/tracker-daemon.c:461
-#| msgid "Could not get Tracker statistics"
 msgid "Could not retrieve tracker-store status"
 msgstr "Nevarēja saņemt tracker-store statusu"
 
 #: ../src/tracker/tracker-daemon.c:482
-#| msgid "Could not retrieve tags for the current selection"
 msgid "Could not retrieve tracker-store progress"
 msgstr "Nevarēja saņemt tracker-store progresu"
 
@@ -1832,7 +1737,6 @@ msgid "No namespace prefixes were returned"
 msgstr "Netika atgriezti vārdtelpas prefiksi"
 
 #: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
-#| msgid "Could not run query"
 msgid "Could not run SPARQL query"
 msgstr "Nevarēja palaist SPARQL vaicājumu"
 
@@ -1862,7 +1766,6 @@ msgstr "Sīkdatne ir %d"
 
 #: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
 #: ../src/tracker/tracker-daemon.c:1420
-#| msgid "Press Ctrl+C to end pause"
 msgid "Press Ctrl+C to stop"
 msgstr "Spiediet Ctrl+C, lai apturētu"
 
@@ -1935,7 +1838,6 @@ msgid "Only one of 'all', 'store' and 'miners' options are allowed"
 msgstr "Tikai viena no “all”, “store” un “miners” opcijām ir atļauta"
 
 #: ../src/tracker/tracker-daemon.c:1242
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get SPARQL connection"
 msgstr "Nevarēja saņemt SPARQL savienojumu"
 
@@ -1963,7 +1865,6 @@ msgstr "Krātuve"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-#| msgid "Could not get status from miner: %s"
 msgid "Could not get display name for miner '%s'"
 msgstr "Neizdevās saņemt displeja nosaukumu no racēja “%s”"
 
@@ -1989,7 +1890,7 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr ""
 "Jūs nevarat vienlaicīgi izmantot parametrus --get-logging un --set-logging"
 
-#: ../src/tracker/tracker-daemon.c:1530
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Nederīga žurnāla detalizētība, mēģiniet 'debug', 'detailed', 'minimal' vai "
@@ -2031,22 +1932,26 @@ msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr "Ja nav doti parametri, tiek rādīts krātuves un datu racēja status"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
+#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Neatpazītas opcijas"
 
 #: ../src/tracker/tracker-dbus.c:44
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get D-Bus connection"
 msgstr "Nevarēja saņemt D-Bus savienojumu"
 
 #: ../src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nevarēja izveidot D-Bus starpnieku uz tracker-store"
+
+#: ../src/tracker/tracker-extract.c:77
+#| msgid "Could not retrieve tracker-store status"
+msgid "Could not run tracker-extract: "
+msgstr "Nevarēja palaist tracker-extract:"
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
@@ -2066,12 +1971,10 @@ msgid "Tell miners to (re)index a given file"
 msgstr "Pateikt racējiem, lai (pār)indeksē doto datni"
 
 #: ../src/tracker/tracker-index.c:62
-#| msgid "Backup databases to the file provided"
 msgid "Backup current index / database to the file provided"
 msgstr "Dublēt pašreizējo indeksu / datubāzi uz doto datni"
 
 #: ../src/tracker/tracker-index.c:65
-#| msgid "Restoring database from backup"
 msgid "Restore a database from a previous backup (see --backup)"
 msgstr "Atjaunot datubāzi no iepriekšējās rezerves kopijas (skatiet --backup)"
 
@@ -2118,7 +2021,6 @@ msgid "Backing up database"
 msgstr "Dublē datubāzi"
 
 #: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
-#| msgid "Could not update tags"
 msgid "Could not backup database"
 msgstr "Neizdevās dublēt datubāzi"
 
@@ -2126,29 +2028,29 @@ msgstr "Neizdevās dublēt datubāzi"
 msgid "Restoring database from backup"
 msgstr "Atjauno datubāzi no rezerves kopijas"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
-"Vienlaicīgi var izmantot tikai vienu darbību (--backup, --restore, "
-"--index-file vai --import)"
+"Vienlaicīgi var izmantot tikai vienu darbību (--backup, --restore, --index-"
+"file vai --import)"
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Trūkst vienas vai vairākas nepieciešamās datnes"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Ar --backup un --restore var izmantot tikai vienu datni"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
 msgstr ""
-"Darbības (--backup, --restore, --index-file and --import) nevar izmantot kopā "
-"ar --reindex-mime-type"
+"Darbības (--backup, --restore, --index-file and --import) nevar izmantot "
+"kopā ar --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
@@ -2170,9 +2072,8 @@ msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
-"Tā vietā, lai uzmeklētu datnes nosaukumu, izmantojiet DATNE parametru kā īstu "
-"IRI "
-"(piem., <file:///path/to/some/file.txt>)"
+"Tā vietā, lai uzmeklētu datnes nosaukumu, izmantojiet DATNE parametru kā "
+"īstu IRI (piem., <file:///path/to/some/file.txt>)"
 
 #: ../src/tracker/tracker-info.c:67
 msgid "Output results as RDF in Turtle format"
@@ -2194,144 +2095,190 @@ msgstr "Nevarēja saņemt URI datus"
 msgid "No metadata available for that URI"
 msgstr "Tam URI nav pieejami metadati"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
 #: ../src/tracker/tracker-sql.c:136
 msgid "Results"
 msgstr "Rezultāti"
 
-#: ../src/tracker/tracker-main.c:47
+#: ../src/tracker/tracker-main.c:48
 msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgstr ""
 "Skatiet “tracker help <komanda>”, lai izlasītu par noteikto apakškomandu."
 
-#: ../src/tracker/tracker-main.c:96
+#: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Palaist, apturēt, pauzēt un uzskaitīt procesus, kas ir atbildīgi par satura "
 "indeksēšanu"
 
-#: ../src/tracker/tracker-main.c:97
+#: ../src/tracker/tracker-main.c:98
+#| msgid "Extracts metadata from local files"
+msgid "Extract information from a file"
+msgstr "Izvilkt informāciju no datnes"
+
+#: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Saņemiet palīdzību par to, kā izmantot Tracker un jebkuru no šīm komandām"
 
-#: ../src/tracker/tracker-main.c:98
+#: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr "Rādīt informāciju, kas ir zināma par indeksētajām datnēm vai vienumiem"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Dublēt, atjaunot, importēt un (pār-)indeksēt pēc MIME tipa vai datnes "
 "nosaukuma"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Atstatīt vai izņemt indeksu un konfigurāciju atjaunot uz noklusējumiem"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Meklēt indeksētu saturu vai rādīt saturu pēc tipa"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Vaicāt un atjaunināt indeksu, izmantojot SPARQL vai meklēt, uzskaitīt un "
 "veidot koka ontoloģiju"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "Vaicāt datubāzi un zemāko līmeni, izmantojot SQL"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Rādīt indeksēšanas progresu, satura statistiku un indeksa stāvokli"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Izveidot, uzskaitīt vai dzēst indeksētā satura tagus"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Rādīt licenci un izmantoto versiju"
 
-#: ../src/tracker/tracker-main.c:151
+#: ../src/tracker/tracker-main.c:153
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgstr "“%s” nav tracker komanda, skatiet “tracker --help”"
 
-#: ../src/tracker/tracker-main.c:174
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Pieejamās tracker komandas:"
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "Nevarēja atvērt /proc"
 
-#: ../src/tracker/tracker-process.c:127
-#| msgid "Could not read file"
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "Nevarēja datnei izpildīt stat()"
 
-#: ../src/tracker/tracker-process.c:198
+#: ../src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Neizdevās atvērt “%s”"
 
-#: ../src/tracker/tracker-process.c:327
+#: ../src/tracker/tracker-process.c:332
 #, c-format
-#| msgid "Could not terminate process %d"
 msgid "Could not terminate process %d - '%s'"
 msgstr "Nevarēja pārtraukt procesu %d — “%s”"
 
-#: ../src/tracker/tracker-process.c:333
+#: ../src/tracker/tracker-process.c:338
 #, c-format
-#| msgid "Terminated process %d"
 msgid "Terminated process %d - '%s'"
 msgstr "Pārtraukts process %d — “%s”"
 
-#: ../src/tracker/tracker-process.c:348
+#: ../src/tracker/tracker-process.c:353
 #, c-format
-#| msgid "Could not kill process %d"
 msgid "Could not kill process %d - '%s'"
 msgstr "Nevarēja nobeigt procesu %d — “%s”"
 
-#: ../src/tracker/tracker-process.c:354
+#: ../src/tracker/tracker-process.c:359
 #, c-format
-#| msgid "Killed process %d"
 msgid "Killed process %d - '%s'"
 msgstr "Nobeigts process %d — “%s”"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Nobeigt visus Tracker procesus un izņemt visas datubāzes"
 
-#: ../src/tracker/tracker-reset.c:51
-#| msgid ""
-#| "Same as --hard-reset but the backup & journal are restored after restart"
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Tas pats kas --hard, bet dublējumi un žurnāli pēc pārstartēšanas tiek "
 "atjaunoti"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Izņem visas konfigurācijas datnes, lai pēc pārstartēšanas tās tiktu "
 "izveidotas no jauna"
 
-#: ../src/tracker/tracker-reset.c:132
-#| msgid "You can not use the --hard-reset and --soft-reset arguments together"
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Izdzēst indeksēto informāciju par datni, darboas rekursīvi direktorijiem"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "Dzēš…"
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr "Šīs datnes indeksētie dati tika izdzēsti un tiks atkal pārindeksēti."
+
+#: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Jūs nevarat vienlaicīgi izmantot parametrus --hard un --soft"
 
+#: ../src/tracker/tracker-reset.c:224
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "BRĪDINĀJUMS: šis process var neatgriezeniski izdzēst datus."
+
+#: ../src/tracker/tracker-reset.c:225
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can't "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"Lai gan lielāko daļu Tracker indeksētā satura var droši pārindeksēt, nevar"
+" garantēt, ka tā būs ar visiem datiem. Ņemiet vērā, ka var pazust dati,"
+" turpinot riskējiet paši."
+
+#: ../src/tracker/tracker-reset.c:230
+msgid "Are you sure you want to proceed?"
+msgstr "Vai tiešām vēlaties turpināt?"
+
+#. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:232
+msgid "[y|N]"
+msgstr "[j|N]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:241
+#| msgid "Yes"
+msgid "yes"
+msgstr "jā"
+
+#: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
 msgstr "Izņem konfigurācijas datnes…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
 msgstr "Pārstartē esošo konfigurāciju…"
 
@@ -2448,10 +2395,10 @@ msgstr ""
 "PIEZĪME: tika sasniegts limits, datubāzē ir vēl vienumu, kas šeit neparādās"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Nevarēja saņemt meklēšanas rezultātus"
 
@@ -2479,60 +2426,60 @@ msgstr "Nav atrastu e-pastu"
 msgid "No files were found"
 msgstr "Nav atrastu datņu"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Nav atrastu izpildītāju"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Izpildītāji"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Nav atrasta mūzika"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Albumi"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Nav atrastu grāmatzīmju"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Nav atrastu plūsmu"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Plūsmas"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Nav atrasta programmatūra"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Programmatūra"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Nav atrastu programmatūras kategoriju"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Programmatūras kategorijas"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Jūsu vaicājumam netika atrasti atbilstoši rezultāti"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Meklēšanas kritērijs '%s' liekvārds."
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2786,17 +2733,14 @@ msgstr ""
 "ar --tree parametru"
 
 #: ../src/tracker/tracker-sql.c:43
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
 msgstr "Ceļš, ko izmanto, lai palaistu vaicājumu no datnes"
 
 #: ../src/tracker/tracker-sql.c:47
-#| msgid "SPARQL query"
 msgid "SQL query"
 msgstr "SQL vaicājums"
 
 #: ../src/tracker/tracker-sql.c:48
-#| msgid "SPARQL"
 msgid "SQL"
 msgstr "SQL"
 
@@ -2809,7 +2753,6 @@ msgid "Empty result set"
 msgstr "Tukša rezultātu kopa"
 
 #: ../src/tracker/tracker-status.c:52
-#| msgid "Show statistics about the data stored"
 msgid "Show statistics for current index / data set"
 msgstr "Rādīt statistiku par pašreizējo indeksu / datu kopu"
 
@@ -2818,8 +2761,8 @@ msgid ""
 "Show statistics about ALL RDF classes, not just common ones which is the "
 "default (implied by search terms)"
 msgstr ""
-"Rādīt statistiku par VISĀM RDF klasēm, ne tikai kopīgajām, kas ir noklusējuma "
-"uzvedība (nosaka meklēšanas nosacījumi)"
+"Rādīt statistiku par VISĀM RDF klasēm, ne tikai kopīgajām, kas ir "
+"noklusējuma uzvedība (nosaka meklēšanas nosacījumi)"
 
 #: ../src/tracker/tracker-status.c:60
 msgid ""
@@ -2842,12 +2785,10 @@ msgid "Statistics:"
 msgstr "Statistika:"
 
 #: ../src/tracker/tracker-status.c:289
-#| msgid "Print version"
 msgid "Version"
 msgstr "Versija"
 
 #: ../src/tracker/tracker-status.c:296
-#| msgid "Displays version information"
 msgid "Disk Information"
 msgstr "Diska informācija"
 
@@ -2865,7 +2806,6 @@ msgid "Configuration"
 msgstr "Konfigurācija"
 
 #: ../src/tracker/tracker-status.c:370
-#| msgid "No music was found"
 msgid "No configuration was found"
 msgstr "Nav atrasta konfigurācija"
 
@@ -2874,38 +2814,31 @@ msgid "States"
 msgstr "Stāvokļi"
 
 #: ../src/tracker/tracker-status.c:415
-#| msgid "Statistics:"
 msgid "Data Statistics"
 msgstr "Datu statistika"
 
 #: ../src/tracker/tracker-status.c:421
-#| msgid "No statistics available"
 msgid "No connection available"
 msgstr "Nav pieejams savienojums"
 
 #: ../src/tracker/tracker-status.c:431
-#| msgid "Could not get Tracker statistics"
 msgid "Could not get statistics"
 msgstr "Nevarēja saņemt statistiku"
 
 #: ../src/tracker/tracker-status.c:437
-#| msgid "No statistics available"
 msgid "No statistics were available"
 msgstr "Nav pieejama statistika"
 
 #: ../src/tracker/tracker-status.c:450
-#| msgid "Data object '%s' currently exists"
 msgid "Database is currently empty"
 msgstr "Datubāze pašlaik ir tukša"
 
 #: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
-#| msgid "Could not get status from miner: %s"
 msgid "Could not get basic status for Tracker"
 msgstr "Nevarēja saņemt Tracker pamata statusu"
 
 #: ../src/tracker/tracker-status.c:631
 #, c-format
-#| msgid "Would be indexed"
 msgid "Currently indexed"
 msgstr "Pašlaik indeksēts"
 
@@ -2961,7 +2894,6 @@ msgid "STRING"
 msgstr "VIRKNE"
 
 #: ../src/tracker/tracker-tag.c:81
-#| msgid "Use OR for search terms instead of AND (the default)"
 msgid "Use AND for search terms instead of OR (the default)"
 msgstr "Meklēšanas kritērijiem izmantot AND, nevis OR (kas ir noklusējuma)"
 
@@ -2982,22 +2914,18 @@ msgid "Could not get files related to tag"
 msgstr "Nevarēja saņemt datnes, kas saistītas ar birku"
 
 #: ../src/tracker/tracker-tag.c:381
-#| msgid "Could not get all tags"
 msgid "Could not get all tags in the database"
 msgstr "Nevarēja saņemt visas datubāzes birkas"
 
 #: ../src/tracker/tracker-tag.c:391
-#| msgid "One or more files have not been specified"
 msgid "No files have been tagged"
 msgstr "Nav tagotu datņu"
 
 #: ../src/tracker/tracker-tag.c:426
-#| msgid "Could not get files related to tag"
 msgid "Could not get files for matching tags"
 msgstr "Nevarēja saņemt datnes atbilstošajiem tagiem"
 
 #: ../src/tracker/tracker-tag.c:435
-#| msgid "No results were found matching your query"
 msgid "No files were found matching ALL of those tags"
 msgstr "Nav atrastu datņu, kas atbilstu viesiem tiem tagiem"
 
@@ -3018,7 +2946,6 @@ msgid "No files were modified"
 msgstr "Nav modificētu datņu"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-#| msgid "File not indexed or already untagged"
 msgid "Files do not exist or aren't indexed"
 msgstr "Datnes neeksistē nav indeksētas"
 
@@ -3067,7 +2994,6 @@ msgid "The --list option is required for --show-files"
 msgstr "--show-files opcijai vajag --list opciju"
 
 #: ../src/tracker/tracker-tag.c:1090
-#| msgid "The --description option can only be used with --add"
 msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
@@ -3096,3 +3022,89 @@ msgstr "- palaist tracker atpakaļrakstīšanas servisu"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Saglabātie vaicājumi"
+
+#~| msgid ""
+#~| "When resetting your indexed data, the databases are removed and your "
+#~| "files will no longer be indexed. Upon next start, Tracker will then "
+#~| "start indexing data as if it was being run for the first time.\n"
+#~| "\n"
+#~| "<b>Warning: All data indexed will be removed! It can not be retrieved!</"
+#~| "b>\n"
+#~| "\n"
+#~| "Clicking this button will close the preferences too."
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Kad atiestata indeksēšanas datus, datubāzes tiek izņemtas un jūsu datnes "
+#~ "vairs netiks indeksētas. Ar nākamo Tracker palaišanas reizi tas sāks "
+#~ "indeksēt datus tāpat kā pirmajā palaišanas reizē.\n"
+#~ "\n"
+#~ "<b>Brīdinājums — tiks izņemti visi indeksētie dati! To nevar atsaukt! Tos "
+#~ "nevarēs atgūt! Jūsu ĪSTIE dati un datnes netiks aiztiktas.</b>\n"
+#~ "\n"
+#~ "Šīs pogas piespiešana arī aizvērs iestatījumus."
+
+#~| msgid "Yes, remove all of my indexed data"
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Jā, izņemt visus indeksus"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "“Indeks” ir sakārtotas atsauces uz datiem. Mēs izmantojam indeksus, lai "
+#~ "varētu ātri atrast informāciju un saturu."
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Atstatīt indeksētos datus"
+
+#~ msgid "_Delay"
+#~ msgstr "_Aizture"
+
+#~ msgid "seconds"
+#~ msgstr "sekundes"
+
+#~ msgid "Start up"
+#~ msgstr "Palaišanās"
+
+#~ msgid "System"
+#~ msgstr "Sistēma"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "Jūsu veiktajām izmaiņām vajag veikt pārindeksēšanu, lai pārliecinātos, ka "
+#~ "visi dati ir pareizi indeksēti."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Tas aizvērs šo dialoglodziņu!"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Vai vēlaties tagad pārindeksēt?"
+
+#~ msgid "Reindex"
+#~ msgstr "Pārindeksēt"
+
+#~ msgid "Do nothing"
+#~ msgstr "Nedarīt neko"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "Izmaiņas, ko veicāt savos iestatījumos, prasa pārstartēt tracker procesus."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Vai vēlaties tagad pārstartēt?"
+
+#~| msgid "Tracker"
+#~ msgid "Restart Tracker"
+#~ msgstr "Pārstartēt Tracker"
