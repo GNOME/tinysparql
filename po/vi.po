@@ -1,0 +1,2950 @@
+# Vietnamese translations for tracker package
+# Bản dịch Tiếng Việt dành cho gói tracker.
+# Copyright © 2016 GNOME i18n Project for Vietnamese.
+# This file is distributed under the same license as the tracker package.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2015, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-09-05 15:38+0000\n"
+"PO-Revision-Date: 2016-09-08 14:37+0700\n"
+"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
+"Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:1
+msgid "All posts"
+msgstr "Mọi bài viết"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:2
+msgid "By usage"
+msgstr "Theo tiêu dùng"
+
+#: ../src/libtracker-common/tracker-utils.c:90
+msgid "unknown time"
+msgstr "không biết thời gian"
+
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
+msgid "less than one second"
+msgstr "ít hơn một giây nữa"
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:119
+#, c-format
+msgid " %dd"
+msgstr " %dng"
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:123
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2dgi"
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:127
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2dph"
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:131
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2dgy"
+
+#: ../src/libtracker-common/tracker-utils.c:135
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d ngày"
+
+#: ../src/libtracker-common/tracker-utils.c:139
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d giờ"
+
+#: ../src/libtracker-common/tracker-utils.c:143
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d phút"
+
+#: ../src/libtracker-common/tracker-utils.c:147
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d giây"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+msgid "Maximum length of a word to be indexed"
+msgstr "Chiều dài từ tối đa sẽ được đánh mục lục"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+"Các từ với số lượng ký tự nhiều hơn chiều dài này sẽ bị bỏ qua bởi bộ đánh "
+"mục lục"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "Maximum number of words to index in a document"
+msgstr "Số lượng từ đối đa để đánh mục lục trong một tài liệu"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr "Bộ đánh mục lục sẽ chỉ đọc số lượng từ tối đa này từ một tài liệu đơn."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+msgid "Enable stemmer"
+msgstr "Bật stemmer"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid ""
+"Simplify the words to their root to provide more results. E.g. 'shelves' and "
+"'shelf' to 'shel'"
+msgstr ""
+"Đơn giản hóa các từ thành từ gốc của nó để cho thêm nhiều kết quả. Ví dụ "
+"“shelves” và “shelf” thành “shel”"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Enable unaccent"
+msgstr "Bật bỏ dấu"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
+"'Idea' for improved matching."
+msgstr ""
+"Chuyển đổi các ký tự có dấu thành không dấu. Ví dụ “Idéa” thành “Idea” để "
+"nâng cao khả năng khớp mẫu."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Ignore numbers"
+msgstr "Bỏ qua số"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "If enabled, numbers will not be indexed."
+msgstr "Nếu bật, số sẽ không được đánh mục lục."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Ignore stop words"
+msgstr "Bỏ qua các từ dừng"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like 'the', 'yes', 'no', etc."
+msgstr ""
+"Nếu bật, các từ được liệt kê trong danh sách từ-dừng sẽ bị bỏ qua. Ví dụ các "
+"từ có nghĩa chung như là “the”, “yes”, “no”, v.v.."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Maximum size of journal"
+msgstr "Cỡ tối đa nhật ký"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Cỡ nhật ký mà tại đó nó quay vòng tính bằng Mb. Dùng -1 để tắt quay vòng."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Location of journal pieces"
+msgstr "Vị trí của mảnh nhật ký"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Lưu mảnh nhật ký chỗ nào khi nó đã chạm đến cỡ tối đa."
+
+#: ../src/libtracker-data/tracker-data-backup.c:500
+#: ../src/libtracker-data/tracker-data-backup.c:620
+msgid "Error starting 'tar' program"
+msgstr "Gặp lỗi khi chạy chương trình “tar”"
+
+#: ../src/libtracker-data/tracker-data-backup.c:501
+#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/miners/rss/tracker-main.c:106
+#: ../src/plugins/nautilus/tracker-tags-view.c:241
+#: ../src/tracker-extract/tracker-extract.c:145
+#: ../src/tracker-needle/tracker-tags-view.vala:159
+#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
+#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
+#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
+#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
+#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
+#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
+#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:168
+#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
+#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
+msgid "No error given"
+msgstr "Không đưa ra lỗi nào"
+
+#: ../src/libtracker-data/tracker-data-backup.c:634
+#, c-format
+msgid "Unknown error, 'tar' exited with status %d"
+msgstr "Lỗi lạ, “tar” đã thoát với mã %d"
+
+#: ../src/libtracker-miner/tracker-enumerator.c:114
+#: ../src/libtracker-miner/tracker-enumerator.c:165
+#: ../src/libtracker-miner/tracker-data-provider.c:110
+#: ../src/libtracker-miner/tracker-data-provider.c:170
+#: ../src/libtracker-miner/tracker-data-provider.c:258
+#: ../src/libtracker-miner/tracker-data-provider.c:316
+msgid "Operation not supported"
+msgstr "Thao tác không được hỗ trợ"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:997
+msgid "Pause application and reason match an already existing pause request"
+msgstr "Tạm dừng ứng dụng và lý do khớp một yêu cầu đã sẵn được dừng rồi"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1096
+msgid "Cookie not recognized to resume paused miner"
+msgstr "Cookie không thể nhận ra máy đào tạm dừng chạy lại"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1577
+msgid "Data store is not available"
+msgstr "Kho chứa dữ liệu không sẵn sàng"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:339
+msgid "No network connection"
+msgstr "Không có kết nối mạng"
+
+#: ../src/libtracker-miner/tracker-miner-online.c:340
+msgid "Indexing not recommended on this network connection"
+msgstr "Không khuyến khích việc đánh mục lục trên kết nối mạng này"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:1
+#: ../src/tracker-needle/tracker-view.vala:331
+msgid "Applications"
+msgstr "Ứng dụng"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:2
+msgid "Applications data miner"
+msgstr "Máy đào dữ liệu ứng dụng"
+
+#: ../src/miners/apps/tracker-main.c:56 ../src/miners/fs/tracker-main.c:74
+#: ../src/miners/rss/tracker-main.c:39
+#: ../src/miners/user-guides/tracker-main.c:56
+#: ../src/tracker-writeback/tracker-main.c:55
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+"Ghi nhật ký, 0 = chỉ khi lỗi, 1 = tối thiểu, 2 = chi tiết và 3 = gỡ lỗi (mặc "
+"định=0)"
+
+#: ../src/miners/apps/tracker-main.c:61
+#: ../src/miners/user-guides/tracker-main.c:61
+msgid "Runs until all applications are indexed and then exits"
+msgstr "Chạy cho đến khi mọi ứng dụng được đánh mục lục rồi thoát"
+
+#. Daemon options
+#: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
+#: ../src/miners/user-guides/tracker-main.c:65
+#: ../src/tracker-extract/tracker-main.c:103
+#: ../src/tracker-store/tracker-main.vala:47
+#: ../src/tracker-writeback/tracker-main.c:51
+msgid "Displays version information"
+msgstr "Hiển thị thông tin phiên bản"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/apps/tracker-main.c:184
+msgid "- start the application data miner"
+msgstr "- khởi chạy máy đào dữ liệu ứng dụng"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
+msgid "Tracker Application Miner"
+msgstr "Máy đào ứng dụng Tracker"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
+msgid "Indexes information about applications installed"
+msgstr "Thông tin đánh mục lục về các ứng dụng đã cài"
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:1
+msgid "File System"
+msgstr "Hệ thống tập tin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:2
+msgid "File system data miner"
+msgstr "Máy đào dữ liệu hệ thống tập tin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Ghi chi tiết nhật ký"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Ghi chi tiết nhật ký."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
+msgid "Initial sleep"
+msgstr "Tạm ngủ lúc khởi tạo"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
+msgid "Initial sleep time, in seconds."
+msgstr "Thời gian tạm ngủ lúc khởi tạo, tính bằng giây."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
+msgid "Scheduler priority when idle"
+msgstr "Mức ưu tiên lập lịch trình khi nghỉ"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
+msgid ""
+"The scheduler is the kernel component that decides which runnable "
+"application will be executed by the CPU next. Each application has an "
+"associated scheduling policy and priority."
+msgstr ""
+"Bộ lập lịch là một thành phần của nhân cái mà quyết định ứng dụng nào có thể "
+"chạy sẽ được CPU thực hiện tiếp theo. Từng ứng dụng có chính sách và mức ưu "
+"tiên lập lịch liên quan đến nó."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
+msgid "Throttle"
+msgstr "Tiết lưu"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
+msgid "Indexing speed, the higher the slower."
+msgstr "Tốc độ đánh mục lục, cao lên hay thấp đi."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
+msgid "Low disk space limit"
+msgstr "Giới hạn chỗ trống tối thiểu"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+msgid ""
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
+msgstr ""
+"Ngưỡng chỗ trống trên đĩa tính bằng phần trăm tại thời điểm đó dừng đánh mục "
+"lục, hoặc -1 để tắt."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
+msgid "Crawling interval"
+msgstr "Khoảng thời gian kiểm tra cập nhật"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
+msgid ""
+"Interval in days to check whether the filesystem is up to date in the "
+"database. 0 forces crawling anytime, -1 forces it only after unclean "
+"shutdowns, and -2 disables it entirely."
+msgstr ""
+"Khoảng thời gian tính bằng ngày để kiểm tra xem hệ thống tập tin đã cập nhật "
+"với cơ sở dữ liệu hay chưa. 0 để áp buộc cập nhật bất kỳ lúc nào, -1 để ép "
+"buộc chỉ sau khi tắt đột ngột, và -2 để tắt nó hoàn toàn."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
+msgid "Removable devices' data permanence threshold"
+msgstr "Ngưỡng dữ liệu từ thiết bị di động được lưu trữ"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
+msgid ""
+"Threshold in days after which files from removables devices will be removed "
+"from database if not mounted. 0 means never, maximum is 365."
+msgstr ""
+"Ngưỡng tính theo ngày mà các tập tin từ thiết bị di động sau đó sẽ bị gỡ bỏ "
+"khỏi cơ sở dữ liệu nếu nó không gắn. 0 là không bao giờ, tối đa là 365."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
+msgid "Enable monitors"
+msgstr "Bật theo dõi"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
+msgid "Set to false to completely disable any file monitoring"
+msgstr "Không chọn để tắt hoàn toàn việc theo dõi tập tin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
+msgid "Enable writeback"
+msgstr "Bật ghi ngược"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
+msgid "Set to false to completely disable any file writeback"
+msgstr "Đặt là sai để tắt hoàn toàn mọi ghi ngược tập tin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
+msgid "Index removable devices"
+msgstr "Đánh mục lục các thiết bị di động"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
+msgid ""
+"Set to true to enable indexing mounted directories for removable devices."
+msgstr ""
+"Đặt nó nếu muốn bật đánh mục lục các thư mục đã gắn cho thiết bị di động."
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
+msgid "Index optical discs"
+msgstr "Đánh mục lục các đĩa quang"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+msgid ""
+"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+"removable devices are not indexed, optical discs won't be either)"
+msgstr ""
+"Chọn nếu muốn bật đánh mục lục CD, DVD và các đa phương tiện quang học chung "
+"khác (nếu các thiết bị di động không được đánh mục lục, các đĩa quang cũng "
+"không được thực hiện)"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
+msgid "Index when running on battery"
+msgstr "Đánh mục lục khi chạy bằng pin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
+msgid "Set to true to index while running on battery"
+msgstr "Chọn nó nếu muốn đánh mục lục trong khi chạy bằng pin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
+msgid "Perform initial indexing when running on battery"
+msgstr "Thực hiện khởi tạo mục lục khi chạy bằng pin"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
+msgid "Set to true to index while running on battery for the first time only"
+msgstr ""
+"Chọn nó nếu muốn đánh mục lục khi chạy bằng pin chỉ cho lần chạy đầu tiên"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
+msgid "Directories to index recursively"
+msgstr "Các thư mục đánh chỉ mục bị đệ quy"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
+msgid ""
+"List of directories to index recursively, Special values include: &amp;"
+"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
+"and $HOME/.config/user-dirs.default"
+msgstr ""
+"Danh sách các thư mục để đánh mục lục một cách đệ quy. Các giá trị đặt biệt "
+"bao gồm: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Xem /etc/xdg/user-"
+"dirs.defaults và $HOME/.config/user-dirs.default"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
+msgid "Directories to index non-recursively"
+msgstr "Các thư mục để đánh chỉ mục không-đệ-quy"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
+msgid ""
+"List of directories to index without inspecting subfolders, Special values "
+"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+"dirs.defaults and $HOME/.config/user-dirs.default"
+msgstr ""
+"Danh sách các thư mục để đánh mục lục không điều tra thư mục con. Các giá "
+"trị đặc biệt bao gồm: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
+"MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Xem /"
+"etc/xdg/user-dirs.defaults và $HOME/.config/user-dirs.default"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
+msgid "Ignored files"
+msgstr "Những tập tin bị lờ đi"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
+msgid "List of file patterns to avoid"
+msgstr "Danh sách các mẫu tập tin để tránh xa"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
+msgid "Ignored directories"
+msgstr "Những thư mục bị lờ đi"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
+msgid "List of directories to avoid"
+msgstr "Danh sách các mẫu thư mục để tránh xa"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
+msgid "Ignored directories with content"
+msgstr "Các thư mục bị bỏ qua với nội dung"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
+msgid "Avoid any directory containing a file blacklisted here"
+msgstr "Tránh xa mọi thư mục có chứa một tập tin danh-sách-đen ở đây"
+
+#: ../src/miners/fs/tracker-main.c:79
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr "Thời gian tạm ngủ khi khởi tạo tính bằng giây, 0->1000 (mặc định = 15)"
+
+#: ../src/miners/fs/tracker-main.c:84
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr "Chạy cho tới khi mọi vị trí đã cấu hình được đánh chỉ mục rồi thoát"
+
+#: ../src/miners/fs/tracker-main.c:88
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr "Kiểm tra xem TẬP TIN có đủ tư cách để khai thác trên cơ sở cấu hình"
+
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
+#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
+#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "TẬP-TIN"
+
+#: ../src/miners/fs/tracker-main.c:454
+#, c-format
+msgid "Data object '%s' currently exists"
+msgstr "Đối tượng dữ liệu “%s” hiện đã sẵn có"
+
+#: ../src/miners/fs/tracker-main.c:455
+#, c-format
+msgid "Data object '%s' currently does not exist"
+msgstr "Đối tượng dữ liệu “%s” hiện chưa sẵn có"
+
+#: ../src/miners/fs/tracker-main.c:470
+msgid "Directory is eligible to be mined (based on rules)"
+msgstr "Thư mục thích hợp để đào (dựa trên các quy tắc)"
+
+#: ../src/miners/fs/tracker-main.c:471
+msgid "Directory is NOT eligible to be mined (based on rules)"
+msgstr "Thư mục KHÔNG thích hợp để đào (dựa trên các quy tắc)"
+
+#: ../src/miners/fs/tracker-main.c:491
+msgid "Directory is eligible to be mined (based on contents)"
+msgstr "Thư mục thích hợp để đào (dựa trên các nội dung)"
+
+#: ../src/miners/fs/tracker-main.c:492
+msgid "Directory is NOT eligible to be mined (based on contents)"
+msgstr "Thư mục KHÔNG thích hợp để đào (dựa trên các nội dung)"
+
+#: ../src/miners/fs/tracker-main.c:539
+msgid "Directory is eligible to be monitored (based on config)"
+msgstr "Thư mục thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:540
+msgid "Directory is NOT eligible to be monitored (based on config)"
+msgstr "Thư mục KHÔNG thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:544
+msgid "File is eligible to be monitored (based on config)"
+msgstr "Tập tin thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:545
+msgid "File is NOT eligible to be monitored (based on config)"
+msgstr "Tập tin KHÔNG thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:549
+msgid "File or Directory is eligible to be monitored (based on config)"
+msgstr "Tập tin hay Thư mục thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:550
+msgid "File or Directory is NOT eligible to be monitored (based on config)"
+msgstr "Tập tin hay Thư mục KHÔNG thích hợp để theo dõi (dựa trên cấu hình)"
+
+#: ../src/miners/fs/tracker-main.c:565
+msgid "File is eligible to be mined (based on rules)"
+msgstr "Tập tin thích hợp để đào (dựa trên quy tắc)"
+
+#: ../src/miners/fs/tracker-main.c:566
+msgid "File is NOT eligible to be mined (based on rules)"
+msgstr "Tập tin KHÔNG thích hợp để đào (dựa trên quy tắc)"
+
+#: ../src/miners/fs/tracker-main.c:575
+msgid "Would be indexed"
+msgstr "Nên được đánh mục lục"
+
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
+msgid "Yes"
+msgstr "Có"
+
+#: ../src/miners/fs/tracker-main.c:576 ../src/miners/fs/tracker-main.c:578
+msgid "No"
+msgstr "Không"
+
+#: ../src/miners/fs/tracker-main.c:577
+msgid "Would be monitored"
+msgstr "Nên được theo dõi"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/fs/tracker-main.c:697
+msgid "- start the tracker indexer"
+msgstr "- khởi chạy bộ đánh mục lục tracker"
+
+#: ../src/miners/fs/tracker-miner-files.c:1357
+msgid "Low battery"
+msgstr "Pin yếu"
+
+#: ../src/miners/fs/tracker-miner-files.c:1484
+msgid "Low disk space"
+msgstr "Sắp hết đĩa"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
+msgid "Tracker File System Miner"
+msgstr "Máy đào hệ thống tập tin Tracker"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:2
+msgid "Crawls and processes files on the file system"
+msgstr "Crawls và các tập tin xử lý trên hệ thống tập tin"
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:1
+msgid "RSS/ATOM Feeds"
+msgstr "RSS/ATOM Feeds"
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:2
+msgid "Fetch RSS/ATOM Feeds"
+msgstr "Fetch RSS/ATOM Feeds"
+
+#. Translators: this is a "feed" as in RSS
+#: ../src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Thêm phản hồi"
+
+#: ../src/miners/rss/tracker-main.c:46
+msgid "URL"
+msgstr "URL"
+
+#: ../src/miners/rss/tracker-main.c:49
+msgid "Title to use (must be used with --add-feed)"
+msgstr "Tiêu đề muốn dùng (phải được dùng với --add-feed)"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/rss/tracker-main.c:73
+msgid "- start the feeds indexer"
+msgstr "- bắt đầu feed bộ đánh mục lục"
+
+#: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
+#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
+#: ../src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Không thể thiết lập một kết nối đến Tracker"
+
+#: ../src/miners/rss/tracker-main.c:133
+msgid "Could not add feed"
+msgstr "Không thể thêm feed"
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:1
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Máy đào Tracker RSS/ATOM Feeds"
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:2
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Lấy RSS/ATOM feeds"
+
+#: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:1
+msgid "Userguides"
+msgstr "Hướng dẫn sử dụng"
+
+#: ../src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in.h:2
+msgid "Userguide data miner"
+msgstr "Hướng dẫn sử dụng máy đào dữ liệu"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/user-guides/tracker-main.c:196
+msgid "- start the user guides data miner"
+msgstr "- bắt đầu máy đào dữ liệu hướng dẫn sử dụng"
+
+#: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
+msgid "Tracker User Guides Miner"
+msgstr "Máy đào hướng dẫn sử dụng Tracker"
+
+#: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
+msgid "Crawls and processes user guides in shared areas"
+msgstr ""
+
+#: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:1
+#: ../src/tracker/tracker-search.c:408
+msgid "Emails"
+msgstr "Thư điện tử"
+
+#: ../src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in.h:2
+msgid "Evolution Email miner"
+msgstr "Máy đào thư Evolution"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Tracker"
+msgstr "Bộ theo dõi"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "Push data to Tracker to make it queryable."
+msgstr "Đẩy dữ liệu lên Tracker để làm cho nó truy vấn được."
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
+#: ../src/tracker/tracker-daemon.c:123
+msgid "Processing…"
+msgstr "Đang xử lý…"
+
+#. Create dialog and embed vbox.
+#: ../src/plugins/nautilus/tracker-tags-extension.c:71
+#: ../src/tracker-needle/tracker-view.vala:539
+msgid "Tags"
+msgstr "Thẻ"
+
+#: ../src/plugins/nautilus/tracker-tags-view.c:1015
+#: ../src/tracker-needle/tracker-tags-view.vala:374
+#, c-format
+msgid "_Set the tags you want to associate with the %d selected item:"
+msgid_plural "_Set the tags you want to associate with the %d selected items:"
+msgstr[0] "Đặ_t cờ bạn muốn nó kết hợp cùng với %d mục đã chọn:"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
+msgid "Extractor"
+msgstr "Bộ trích xuất"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
+msgid "Metadata extractor"
+msgstr "Bộ trích xuất siêu dữ liệu"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
+msgid "Max bytes to extract"
+msgstr "Số lượng byte tối đa để trích"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr "Số lượng byte UTF-8 tối đa được trích."
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
+"no limit on the media art width."
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
+msgid "Wait for FS miner to be done before extracting"
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
+msgid ""
+"When true, tracker-extract will wait for tracker-miner-fs to be done "
+"crawling before extracting meta-data. This option is useful on constrained "
+"environment where it is important to list files as fast as possible and can "
+"wait to get meta-data later."
+msgstr ""
+
+#: ../src/tracker-extract/tracker-extract.c:761
+msgid "Metadata extraction failed"
+msgstr "Gặp lỗi khi rút trích siêu dữ liệu"
+
+#: ../src/tracker-extract/tracker-extract.c:831
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:83
+#: ../src/tracker-store/tracker-main.vala:48
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+"Ghi nhật ký, 0 = chỉ lỗi, 1 = tối thiểu, 2 = chi tiết và 3 = gỡ lỗi (mặc "
+"định = 0)"
+
+#: ../src/tracker-extract/tracker-main.c:88
+msgid "File to extract metadata for"
+msgstr "Tập tin để trích siêu dữ liệu từ đó"
+
+#: ../src/tracker-extract/tracker-main.c:92
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr "kiểu MIME cho tập tin (nếu không cung cấp, thì sẽ được đoán)"
+
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
+msgid "MIME"
+msgstr "MIME"
+
+#: ../src/tracker-extract/tracker-main.c:96
+msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgstr ""
+"Buộc một mô-đun ddowcj sử dụng cho rút trích (ví dụ: \"foo\" cho \"foo.so\")"
+
+#: ../src/tracker-extract/tracker-main.c:97
+msgid "MODULE"
+msgstr "MÔ-ĐUN"
+
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: 'sparql', or 'turtle'"
+msgstr "Xuất kết quả theo định dạng: “sparql”, hay “turtle”"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "ĐỊNH_DẠNG"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format '%s'\n"
+msgstr "Định dạng sê-ri không được hỗ trợ “%s”\n"
+
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:320
+msgid "- Extract file meta data"
+msgstr "- Trích xuất dữ liệu tập tin meta"
+
+#: ../src/tracker-extract/tracker-main.c:329
+msgid "Filename and mime type must be provided together"
+msgstr "Tên tập tin và kiểu mime phải được cung cấp cùng nhau"
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
+msgid "Tracker Metadata Extractor"
+msgstr "Bộ trích xuất siêu dữ liệu của Tracker"
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr "Trích xuất siêu dữ liệu từ các tập tin nội bộ"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
+msgid "Default View"
+msgstr "Trình bày mặc định"
+
+#: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:2
+msgid ""
+"When 0, default view of tracker-needle will be Icons view. When 1, default "
+"view of tracker-needle will be Categories view. When 2, default view of "
+"tracker-needle will be Files view."
+msgstr ""
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
+#: ../src/tracker-needle/tracker-needle.ui.h:1
+msgid "Desktop Search"
+msgstr "Tìm kiếm trên máy tính để bàn"
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+msgid ""
+"Find what you're looking for on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Tìm thứ bạn muốn tìm trên máy tính này theo tên hay nội dung bằng cách dùng "
+"Tracker"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:2
+msgid ""
+"Display results by category, for example, Music, Videos, Applications, etc. "
+"This includes searching the contents of files where applicable."
+msgstr ""
+"Kết xuất kết quả theo thể loại, ví dụ, Nhạc, Phim, Ứng dụng v.v.. Nó bao gồm "
+"tìm kiếm nội dung của tập tin khi có thể được."
+
+#: ../src/tracker-needle/tracker-needle.ui.h:3
+msgid "Display results by files found in a list"
+msgstr "Hiển thị kết quả theo các tập tin tìm thấy trong một danh sách"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:4
+msgid "Display found images"
+msgstr "Hiển thị ảnh tìm thấy"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:5
+msgid "Find search criteria inside files"
+msgstr "Tìm tiêu chí tìm kiếm trong các tập tin"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:6
+msgid "Find search criteria in file titles"
+msgstr "Tìm tiêu chí tìm kiếm trong tiêu đề tập tin"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Find search criteria in file tags only (separated by comma)"
+msgstr "Tìm tiêu chí tìm kiếm chỉ trong thẻ tập tin (ngăn cách bằng dấu phẩy)"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:8
+msgid "_Search:"
+msgstr "Tìm _kiếm:"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:9
+msgid "Show tagging panel which allows editing tags of selected results"
+msgstr "Hiển thị bảng thẻ cái mà cho phép sửa thẻ của kết quả được chọn"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:10
+msgid "Show statistics about the data stored"
+msgstr "Hiển thị thống kê về dữ liệu đã lưu trữ"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:12
+#, no-c-format
+msgid "_Set the tags you want to associate with the %d selected items:"
+msgstr "_Đặt thẻ bạn muốn kết hợp cùng với các %d mục tin đã chọn:"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:13
+msgid "Add tag"
+msgstr "Thêm thẻ"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:14
+msgid "Remove selected tag"
+msgstr "Gỡ bỏ các thẻ đã chọn"
+
+#: ../src/tracker-needle/tracker-needle.vala:75
+msgid "Search criteria was too generic"
+msgstr "Tiêu chí tìm kiếm quá chung chung"
+
+#: ../src/tracker-needle/tracker-needle.vala:76
+msgid "Only the first 500 items will be displayed"
+msgstr "Chỉ 500 mục đầu tiên sẽ được hiển thị"
+
+#: ../src/tracker-needle/tracker-needle.vala:811
+#: ../src/tracker-preferences/tracker-preferences.vala:951
+msgid "Print version"
+msgstr "Hiển thị phiên bản"
+
+#: ../src/tracker-needle/tracker-needle.vala:818
+#: ../src/tracker-needle/tracker-needle.vala:819
+msgid "[SEARCH-CRITERIA]"
+msgstr "[TIÊU-CHÍ-TÌM-KIẾM]"
+
+#: ../src/tracker-needle/tracker-needle.vala:824
+msgid "Desktop Search user interface using Tracker"
+msgstr "Giao diện tìm kiếm Desktop sử dụng Tracker"
+
+#. Label for dialog
+#: ../src/tracker-needle/tracker-stats.vala:71
+msgid ""
+"The statistics represented here do not reflect their availability, rather "
+"the total data stored:"
+msgstr ""
+"Các thống kê hiện diện ở đây không phản ánh tính khả dụng của nó, đúng hơn "
+"là dữ liệu tổng được lưu:"
+
+#: ../src/tracker-needle/tracker-stats.vala:97
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Thẻ"
+
+#: ../src/tracker-needle/tracker-stats.vala:100
+msgid "Contact"
+msgid_plural "Contacts"
+msgstr[0] "Liên lạc"
+
+#: ../src/tracker-needle/tracker-stats.vala:103
+msgid "Audio"
+msgid_plural "Audios"
+msgstr[0] "Âm thanh"
+
+#: ../src/tracker-needle/tracker-stats.vala:106
+msgid "Document"
+msgid_plural "Documents"
+msgstr[0] "Tài liệu"
+
+#: ../src/tracker-needle/tracker-stats.vala:109
+#: ../src/tracker-needle/tracker-view.vala:185
+#: ../src/tracker-preferences/tracker-preferences.vala:165
+msgid "File"
+msgid_plural "Files"
+msgstr[0] "Tập tin"
+
+#: ../src/tracker-needle/tracker-stats.vala:112
+msgid "Folder"
+msgid_plural "Folders"
+msgstr[0] "Thư mục"
+
+#: ../src/tracker-needle/tracker-stats.vala:115
+msgid "Image"
+msgid_plural "Images"
+msgstr[0] "Ảnh"
+
+#: ../src/tracker-needle/tracker-stats.vala:118
+#: ../src/tracker/tracker-daemon.c:1108
+msgid "Application"
+msgid_plural "Applications"
+msgstr[0] "Ứng dụng"
+
+#. case "nmm:Video":
+#: ../src/tracker-needle/tracker-stats.vala:122
+msgid "Video"
+msgid_plural "Videos"
+msgstr[0] "Phim"
+
+#: ../src/tracker-needle/tracker-stats.vala:125
+msgid "Album"
+msgid_plural "Albums"
+msgstr[0] "Tập nhạc"
+
+#: ../src/tracker-needle/tracker-stats.vala:128
+msgid "Music Track"
+msgid_plural "Music Tracks"
+msgstr[0] "Rãnh nhạc"
+
+#: ../src/tracker-needle/tracker-stats.vala:131
+msgid "Photo"
+msgid_plural "Photos"
+msgstr[0] "Ảnh"
+
+#: ../src/tracker-needle/tracker-stats.vala:134
+msgid "Playlist"
+msgid_plural "Playlists"
+msgstr[0] "Danh sách phát"
+
+#: ../src/tracker-needle/tracker-stats.vala:137
+msgid "Email"
+msgid_plural "Emails"
+msgstr[0] "Thư điện tử"
+
+#: ../src/tracker-needle/tracker-stats.vala:140
+msgid "Bookmark"
+msgid_plural "Bookmarks"
+msgstr[0] "Dấu trang"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:324
+msgid "Name"
+msgstr "Tên"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:380
+msgid "No items currently selected"
+msgstr "Hiện chưa chọn mục nào"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:466
+#: ../src/tracker-needle/tracker-tags-view.vala:607
+msgid "Could not update tags"
+msgstr "Không thể cập nhật các thẻ"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:526
+#: ../src/tracker/tracker-tag.c:885
+msgid "Could not remove tag"
+msgstr "Không thể gỡ bỏ các thẻ"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:701
+msgid "Could not retrieve tags for the current selection"
+msgstr "Không thể nhận các thẻ cho chọn lựa hiện tại"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:740
+#: ../src/tracker/tracker-tag.c:709
+msgid "Could not add tag"
+msgstr "Không thể thêm thẻ"
+
+#: ../src/tracker-needle/tracker-tags-view.vala:797
+msgid "Could not update tags for file"
+msgstr "Không thể cập nhật các thẻ cho tập tin"
+
+#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+#. if it's more than a week, use the default date format
+#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
+#: ../src/tracker-needle/tracker-utils.vala:108
+#, no-c-format
+msgid "%x"
+msgstr "%x"
+
+#: ../src/tracker-needle/tracker-utils.vala:112
+msgid "Today"
+msgstr "Hôm nay"
+
+#: ../src/tracker-needle/tracker-utils.vala:121
+msgid "Tomorrow"
+msgstr "Ngày mai"
+
+#: ../src/tracker-needle/tracker-utils.vala:123
+msgid "Yesterday"
+msgstr "Hôm qua"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:127
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "%ld ngày kể từ bây giờ"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:130
+#, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] "%ld ngày trước"
+
+#: ../src/tracker-needle/tracker-utils.vala:142
+#: ../src/tracker-needle/tracker-utils.vala:171
+msgid "Less than one second"
+msgstr "chưa đến một giây"
+
+#: ../src/tracker-needle/tracker-view.vala:111
+msgid "No Search Results"
+msgstr "Không tìm thấy kết quả nào"
+
+#: ../src/tracker-needle/tracker-view.vala:112
+msgid ""
+"Select the view on the toolbar for the content you want, e.g. everything, "
+"files or just images"
+msgstr ""
+"Chọn ô trình bày trên thanh công cụ cho nội dung bạn muốn, ví dụ: mọi thứ, "
+"các tập tin hay chỉ ảnh thôi"
+
+#: ../src/tracker-needle/tracker-view.vala:113
+msgid "Start to search using the entry box above"
+msgstr "Bắt đầu tìm sử dụng hộp nhập ở phía trên"
+
+#: ../src/tracker-needle/tracker-view.vala:197
+msgid "Last Changed"
+msgstr "Sửa lần cuối"
+
+#: ../src/tracker-needle/tracker-view.vala:206
+msgid "Size"
+msgstr "Kích cỡ"
+
+#: ../src/tracker-needle/tracker-view.vala:334
+msgid "Music"
+msgstr "Âm nhạc"
+
+#: ../src/tracker-needle/tracker-view.vala:337
+msgid "Images"
+msgstr "Ảnh"
+
+#: ../src/tracker-needle/tracker-view.vala:340
+msgid "Videos"
+msgstr "Phim"
+
+#: ../src/tracker-needle/tracker-view.vala:343
+msgid "Documents"
+msgstr "Tài liệu"
+
+#: ../src/tracker-needle/tracker-view.vala:346
+msgid "Mail"
+msgstr "Thư"
+
+#: ../src/tracker-needle/tracker-view.vala:349
+msgid "Folders"
+msgstr "Thư mục"
+
+#: ../src/tracker-needle/tracker-view.vala:352
+#: ../src/tracker/tracker-search.c:1003
+msgid "Bookmarks"
+msgstr "Dấu trang"
+
+#: ../src/tracker-needle/tracker-view.vala:356
+msgid "Items"
+msgstr "Mục"
+
+#: ../src/tracker-needle/tracker-view.vala:369
+msgid "Loading…"
+msgstr "Đang tải…"
+
+#: ../src/tracker-needle/tracker-view.vala:435
+#, c-format
+msgid "%d Page"
+msgid_plural "%d Pages"
+msgstr[0] "%d Trang"
+
+#: ../src/tracker-needle/tracker-view.vala:452
+msgid "_Show Parent Directory"
+msgstr "_Hiển thị thư mục cha"
+
+#: ../src/tracker-needle/tracker-view.vala:459
+msgid "_Tags…"
+msgstr "_Thẻ…"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Search and Indexing"
+msgstr "Tìm kiếm và đánh mục lục"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Configure file indexing with Tracker"
+msgstr "Cấu hình đánh chỉ mục tập tin với Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
+msgid "Indexing Preferences"
+msgstr "Tùy thích chỉ mục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
+msgid "_Monitor file and directory changes"
+msgstr "_Theo dõi sự thay đổi của tập tin và thư mục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
+msgid "Enable when running on _battery"
+msgstr "Bật khi đang chạy bằng _pin"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "Enable for _initial data population"
+msgstr "Bật cho tập hợp dữ liệu _khởi tạo"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "Include _removable media"
+msgstr "Bao gồm cả các đĩa _di động"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
+msgstr "Nó bao gồm TẤT CẢ các đĩa đa phương tiện, thẻ nhớ, CD, DVD, v.v.."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Include optical di_scs"
+msgstr "Bao gồm cả đĩa _quang"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Semantics"
+msgstr "Ngữ nghĩa"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+msgid ""
+"The  scheduler  is  the kernel component that decides which runnable "
+"application will be executed by the CPU next.  Each application has an "
+"associated scheduling  policy and priority.\n"
+"\n"
+"This option allows you to make Tracker take a back seat and not eat up too "
+"much CPU time if you have other applications more deserving of it."
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+msgid "Index content in the background:"
+msgstr "Đánh mục lục nội dung ở dưới nền hệ thống:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+msgid "O_nly when computer is not being used"
+msgstr "Chỉ _khi máy tính không làm gì"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
+msgid ""
+"Indexing content will be <b>much slower</b> but other applications will have "
+"priority."
+msgstr ""
+"Việc đánh chỉ mục nội dung sẽ <b>lâu hơn</b> nhưng các ứng dụng sẽ có quyền "
+"ưu tiên."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
+msgid ""
+"_While other applications are running, except for initial data population"
+msgstr ""
+"T_rong khi các ứng dụng khác đang chạy, trừ cho khởi tạo dữ liệu lần đầu"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid ""
+"Indexing content will be <b>much slower</b> but other applications will have "
+"priority. This will only be the case on the <b>first index</b> of your "
+"content after you start your computer from a new install"
+msgstr ""
+"Việc đánh chỉ mục nội dung sẽ <b>lâu hơn</b> nhưng các ứng dụng sẽ có quyền "
+"ưu tiên. Điều này sẽ chỉ xảy ra trong trường hợp <b>đánh chỉ mục lần đầu</b> "
+"của nội dung máy tính của bạn sau khi bạn khởi động máy tính sau khi cài đặt "
+"mới"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+msgid "While _other applications are running"
+msgstr "Trong khi các ứng dụng _khác đang chạy"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+msgid ""
+"Indexing content will be as <b>fast</b> as possible but other applications "
+"may suffer and be slower as a result."
+msgstr ""
+"Nội dung đánh chỉ mục sẽ <b>nhanh nhất</b> có thể nhưng các ứng dụng khác có "
+"thể chịu đựng và chậm hơn là kết quả."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid "Stop indexing when _disk space is below:"
+msgstr "Dừng đánh mục lục khi đĩ_a còn dưới:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+msgid "Limitations"
+msgstr "Giới hạn"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"Indexed content from removable devices that have not been inserted for a "
+"while, are cleaned up to avoid build up of unused resources."
+msgstr ""
+"Nội dung đã đánh mục lục từ thiết bị di động cái mà không được cắm vào trong "
+"khoảng thời gian nào đó sẽ bị xóa đi để tránh xây dựng nên nhưng lại không "
+"dùng đến."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+msgid "Days before deleting removable devices:"
+msgstr "Số ngày trước khi xóa các thiết bị di động:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Garbage Collection"
+msgstr "Bộ dọn rác"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Indexing"
+msgstr "Lập chỉ mục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid ""
+"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
+"b> directory, can be easily toggled below. This will add or remove their "
+"real paths from the list underneath.\n"
+"\n"
+"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+"directories underneath it will also be indexed. Otherwise, only files "
+"immediately in that directory will be indexed."
+msgstr ""
+"Chỉ định các vị trí như là thư mục <b>Thư mục riêng</b>, <b>Màn hình nền</b> "
+"hay <b>Tài liệu</b> của bạn, có thể bật tắt bên dưới dễ dàng. Việc này sẽ "
+"thêm hay gỡ bỏ các đường dẫn thực thế của chúng khỏi danh sách phía dưới.\n"
+"\n"
+"Nếu một thư mục bị bật/tắt ở <b>Đệ quy</b>, điều đó có nghĩa rằng mọi thư "
+"mục con theo sau cũng sẽ được đánh mục lục. Nếu không, chỉ có các tập tin ở "
+"trực tiếp trong thư mục đó là được đưa vào mục lục."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+msgid "Index Home Directory"
+msgstr "Đánh mục lục thư mục riêng"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid "Index Desktop Directory"
+msgstr "Đánh mục lục thư mục Màn hình nền"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid "Index Documents Directory"
+msgstr "Đánh mục lục thư mục Tài liệu"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+msgid "Index Music Directory"
+msgstr "Đánh mục lục thư mục Nhạc"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+msgid "Index Pictures Directory"
+msgstr "Đánh mục lục thư mục Ảnh"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "Index Videos Directory"
+msgstr "Đánh mục lục thư mục Phim"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "Index Download Directory"
+msgstr "Đánh mục lục thư mục Tải về"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid ""
+"One or more special locations have the same path.\n"
+"Those which are the same are disabled!"
+msgstr ""
+"Một hay một số vị trí đặc biệt có cùng đường dẫn.\n"
+"Những cái mà giống nhau sẽ bị tắt đi!"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+msgid "Add directory to be indexed"
+msgstr "Thêm thư mục để đánh mục lục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+msgid "Remove directory from being indexed"
+msgstr "Bỏ thư mục để không đánh mục lục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
+msgid "Where is your content?"
+msgstr "Nội dung của bạn ở đâu?"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
+msgid "Locations"
+msgstr "Vị trí"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:41
+msgid "Glob patterns to ignore:"
+msgstr "Khớp mẫu sau sẽ bị bỏ qua:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:42
+msgid "Opens text entry for glob patterns"
+msgstr "Mở mục văn bản để làm mẫu khớp"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:43
+msgid "Opens the filechooser dialogue"
+msgstr "Mở hộp thoại chọn tập tin"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:44
+msgid "With specific files:"
+msgstr "Với các tập tin đặc thù:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:45
+msgid "Directories"
+msgstr "Thư mục"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:46
+msgid ""
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:48
+#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
+msgid "Files"
+msgstr "Tập tin"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:49
+msgid "Ignored Content"
+msgstr "Nội dung bị bỏ qua"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:50
+msgid "Index content of _files found"
+msgstr "Đánh mục lục nội dung của _tập tin tìm thấy"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:51
+msgid "Index _numbers"
+msgstr "Đánh mục lục _số"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:52
+msgid "What is indexed?"
+msgstr "Cái gì cần đánh mục mục? "
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:53
+msgid "Control"
+msgstr "Điều khiển"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:162
+#: ../src/tracker-preferences/tracker-preferences.vala:163
+#: ../src/tracker-preferences/tracker-preferences.vala:164
+msgid "Directory"
+msgstr "Thư mục"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:305
+msgid ""
+"Some of the requested changes will take effect on the next session restart."
+msgstr ""
+"Một số thay đổi đã yêu cầu sẽ có hiệu lực ở phiên khởi động lại tiếp theo."
+
+#. To translators: This is a feature that is
+#. * disabled for disk space checking.
+#.
+#. To translators: This is a feature that is
+#. * disabled for removing a device from a
+#. * database cache.
+#.
+#: ../src/tracker-preferences/tracker-preferences.vala:355
+#: ../src/tracker-preferences/tracker-preferences.vala:368
+msgid "Disabled"
+msgstr "Đã tắt"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:540
+msgid "Enter value"
+msgstr "Nhập giá trị"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:543
+#: ../src/tracker-preferences/tracker-preferences.vala:572
+msgid "_Cancel"
+msgstr "T_hôi"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:544
+#: ../src/tracker-preferences/tracker-preferences.vala:574
+msgid "_OK"
+msgstr "Đồn_g ý"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:569
+msgid "Select directory"
+msgstr "Chọn thư mục"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:590
+msgid "That directory is already selected as a location to index"
+msgstr "Thư mục mà đã sẵn được chọn là vị trí để đánh mục lục"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:852
+msgid "Recurse"
+msgstr "Đệ quy"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:957
+msgid "Desktop Search preferences"
+msgstr "Tùy thích tìm kiếm máy tính"
+
+#. Indexer options
+#: ../src/tracker-store/tracker-main.vala:51
+msgid "Force a re-index of all content"
+msgstr "Ép buộc đánh lại mục lục của mọi nội dung"
+
+#: ../src/tracker-store/tracker-main.vala:52
+msgid "Only allow read based actions on the database"
+msgstr "Chỉ cho phép đọc thao tác cơ bản trên cơ sở dữ liệu"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.vala:166
+msgid "- start the tracker daemon"
+msgstr "- khởi chạy dịch vụ tracker"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
+msgid "Tracker Store"
+msgstr "Kho Tracker"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
+msgid "Metadata database store and lookup manager"
+msgstr "Kho lưu siêu dữ liệu cơ sở dữ liệu và bộ quản lý tìm kiếm"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Trễ GraphUpdated"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+
+#: ../src/tracker/tracker-config.c:59
+#, c-format
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
+msgid "Unavailable"
+msgstr "Không sẵn sàng"
+
+#. generic
+#: ../src/tracker/tracker-daemon.c:122
+msgid "Initializing"
+msgstr "Đang khởi tạo"
+
+#: ../src/tracker/tracker-daemon.c:124
+msgid "Fetching…"
+msgstr "Đang lấy về…"
+
+#. miner/rss
+#: ../src/tracker/tracker-daemon.c:125
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "Thư mục crawl đơn “%s”"
+
+#: ../src/tracker/tracker-daemon.c:126
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "Thư mục crawl đệ quy “%s”"
+
+#: ../src/tracker/tracker-daemon.c:127
+msgid "Paused"
+msgstr "Tạm ngừng"
+
+#: ../src/tracker/tracker-daemon.c:128
+msgid "Idle"
+msgstr "Nghỉ"
+
+#: ../src/tracker/tracker-daemon.c:134
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:138
+msgid ""
+"Watch changes to the database in real time (e.g. resources or files being "
+"added)"
+msgstr ""
+"Xem các thay đổi đến cơ sở dữ liệu trong thời gian thực (vd: các tài nguyên "
+"hay tập tin đang được thêm)"
+
+#: ../src/tracker/tracker-daemon.c:139
+msgid "ONTOLOGY"
+msgstr "BẢN THỂ"
+
+#: ../src/tracker/tracker-daemon.c:142
+msgid "List common statuses for miners and the store"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:147
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "Tạm dừng một máy đào (bạn phải dùng với --miner)"
+
+#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
+msgid "REASON"
+msgstr "LÝ DO"
+
+#: ../src/tracker/tracker-daemon.c:151
+msgid ""
+"Pause a miner while the calling process is alive or until resumed (you must "
+"use this with --miner)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:155
+msgid "Resume a miner (you must use this with --miner)"
+msgstr "Phục hồi lại một máy đào (bạn phải sử dụng cái này với --miner)"
+
+#: ../src/tracker/tracker-daemon.c:156
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: ../src/tracker/tracker-daemon.c:159
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:160
+msgid "MINER"
+msgstr "MINER"
+
+#: ../src/tracker/tracker-daemon.c:163
+msgid "List all miners currently running"
+msgstr "Liệt kê mọi máy đào hiện đang chạy"
+
+#: ../src/tracker/tracker-daemon.c:167
+msgid "List all miners installed"
+msgstr "Liệt kê mọi máy đào đã cài đặt"
+
+#: ../src/tracker/tracker-daemon.c:171
+msgid "List pause reasons"
+msgstr "Liệt kê lý do dừng"
+
+#: ../src/tracker/tracker-daemon.c:176
+msgid "List all Tracker processes"
+msgstr "Liệt kê mọi tiến trình Tracker"
+
+#: ../src/tracker/tracker-daemon.c:178
+msgid ""
+"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
+msgid "APPS"
+msgstr "ỨNGDỤNG"
+
+#: ../src/tracker/tracker-daemon.c:181
+msgid ""
+"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:184
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+msgid ""
+"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+"'errors') for all processes"
+msgstr ""
+"Đặt mức chi tiết ghi nhật ký cho LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) cho mọi tiến trình"
+
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
+msgid "LEVEL"
+msgstr "MỨC"
+
+#: ../src/tracker/tracker-daemon.c:190
+msgid "Show logging values in terms of log verbosity for each process"
+msgstr ""
+"Hiển thị giá trị ghi nhật ký trong điều kiện của chi tiết nhật ký cho từng "
+"tiến trình"
+
+#: ../src/tracker/tracker-daemon.c:264
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Không thể lấy trạng thái từ máy đào: %s"
+
+#. Translators: %s is a time string
+#: ../src/tracker/tracker-daemon.c:326
+#, c-format
+msgid "%s remaining"
+msgstr "còn %s nữa"
+
+#: ../src/tracker/tracker-daemon.c:329
+msgid "unknown time left"
+msgstr "không biết còn cần bao lâu nữa"
+
+#. Work out lengths for output spacing
+#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
+msgid "PAUSED"
+msgstr "ĐÃ TẠM DỪNG"
+
+#: ../src/tracker/tracker-daemon.c:359
+msgid "Not running or is a disabled plugin"
+msgstr "Không chạy hay phần bổ sung bị tắt"
+
+#: ../src/tracker/tracker-daemon.c:461
+msgid "Could not retrieve tracker-store status"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:482
+msgid "Could not retrieve tracker-store progress"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+msgid "Unable to retrieve namespace prefixes"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+msgid "No namespace prefixes were returned"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
+msgid "Could not run SPARQL query"
+msgstr "Không thể chạy truy vấn SPARQL"
+
+#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
+msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:889
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:896
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr "Đang cố dừng máy đào “%s” với lý do “%s” "
+
+#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr "Không thể phân tích cú pháp máy đào: %s"
+
+#: ../src/tracker/tracker-daemon.c:916
+#, c-format
+msgid "Cookie is %d"
+msgstr "Cookie là %d"
+
+#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
+#: ../src/tracker/tracker-daemon.c:1420
+msgid "Press Ctrl+C to stop"
+msgstr "Bấm tổ hợp phím CTRL+C để dừng"
+
+#: ../src/tracker/tracker-daemon.c:947
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:954
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:961
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr "Không thể phục hồi máy đào: %s"
+
+#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
+#: ../src/tracker/tracker-sparql.c:1387
+msgid "Done"
+msgstr "Xong"
+
+#: ../src/tracker/tracker-daemon.c:982
+#, c-format
+msgid "Could not list miners, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:996
+#, c-format
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "Thấy %d máy đào đã cài đặt"
+
+#: ../src/tracker/tracker-daemon.c:1019
+#, c-format
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "Thấy %d máy đào đang chạy"
+
+#: ../src/tracker/tracker-daemon.c:1051
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1061
+msgid "No miners are running"
+msgstr "Không có máy đào nào đang chạy"
+
+#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+msgid "Miners"
+msgstr "Máy đào"
+
+#: ../src/tracker/tracker-daemon.c:1110
+msgid "Reason"
+msgstr "Lý do"
+
+#: ../src/tracker/tracker-daemon.c:1119
+msgid "No miners are paused"
+msgstr "Không có máy đào nào đang tạm dừng"
+
+#: ../src/tracker/tracker-daemon.c:1207
+msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgstr "Chỉ cho phép một tùy chọn “all”, “store” và “miners”."
+
+#: ../src/tracker/tracker-daemon.c:1242
+msgid "Could not get SPARQL connection"
+msgstr "Không thể lấy kết nối SPARQL"
+
+#: ../src/tracker/tracker-daemon.c:1274
+msgid "Now listening for resource updates to the database"
+msgstr "Giờ lắng nghe các cập nhật tài nguyên vào cơ sở dữ liệu"
+
+#: ../src/tracker/tracker-daemon.c:1275
+msgid "All nie:plainTextContent properties are omitted"
+msgstr "Mọi thuộc tính nie:plainTextContent bị bỏ qua"
+
+#: ../src/tracker/tracker-daemon.c:1290
+msgid "Common statuses include"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr ""
+
+#. Display states
+#: ../src/tracker/tracker-daemon.c:1329
+msgid "Store"
+msgstr "Lưu"
+
+#: ../src/tracker/tracker-daemon.c:1363
+#, c-format
+msgid "Could not get display name for miner '%s'"
+msgstr "Không thể lấy tên hiển thị cho máy đào “%s”"
+
+#: ../src/tracker/tracker-daemon.c:1461
+msgid "You can not use miner pause and resume switches together"
+msgstr "Bạn không thể dùng tùy chọn dừng và phục hồi lại cùng nhau"
+
+#: ../src/tracker/tracker-daemon.c:1467
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1473
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1509
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr "Bạn không thể dùng --kill và --terminate cùng nhau"
+
+#: ../src/tracker/tracker-daemon.c:1515
+msgid "You can not use the --get-logging and --set-logging arguments together"
+msgstr "Bạn không thể dùng --get-logging và --set-logging cùng nhau"
+
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgstr ""
+"Mức chi tiết ghi nhật ký không hợp lệ, try “debug”, “detailed”, “minimal” "
+"hoặc “errors”"
+
+#: ../src/tracker/tracker-daemon.c:1568
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr "Tìm thấy tiến trình ID %d cho “%s”"
+
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+msgid "Components"
+msgstr "Thành phần"
+
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+msgid "Only those with config listed"
+msgstr "Chỉ những thứ mà cấu hình đã liệt kê"
+
+#: ../src/tracker/tracker-daemon.c:1623
+#, c-format
+msgid "Setting log verbosity for all components to '%s'…"
+msgstr "Cài đặt mức chi tiết ghi nhật ký cho mọi thành phần thành “%s'…"
+
+#: ../src/tracker/tracker-daemon.c:1662
+msgid "Starting miners…"
+msgstr "Bắt đầu đào…"
+
+#: ../src/tracker/tracker-daemon.c:1667
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "Không thể khởi chạy máy đào, bộ quản lý không thể được tạo, %s"
+
+#: ../src/tracker/tracker-daemon.c:1692
+msgid "perhaps a disabled plugin?"
+msgstr "chắc là đã tắt phần bổ sung?"
+
+#: ../src/tracker/tracker-daemon.c:1736
+msgid ""
+"If no arguments are given, the status of the store and data miners is shown"
+msgstr ""
+"Nếu không đưa ra tham số, trạng thái của lưu trữ và dữ liệu của máy đào là "
+"không biết"
+
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
+#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
+msgid "Unrecognized options"
+msgstr "Các tùy chọn không được chấp nhận"
+
+#: ../src/tracker/tracker-dbus.c:44
+msgid "Could not get D-Bus connection"
+msgstr "Không thể lấy kết nối D-Bus"
+
+#: ../src/tracker/tracker-dbus.c:62
+msgid "Could not create D-Bus proxy to tracker-store"
+msgstr "Không thể tạo ủy nhiệm để D-Bus tracker-store"
+
+#: ../src/tracker/tracker-extract.c:77
+msgid "Could not run tracker-extract: "
+msgstr "Không thể chạy tracker-extract:"
+
+#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
+#, c-format
+msgid "failed to exec '%s': %s"
+msgstr "gặp lỗi khi thực thi “%s”: %s"
+
+#: ../src/tracker/tracker-index.c:56
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+"Bảo máy đào đánh (lại) chỉ mục các tập tin mà khớp kiểu mime đã cho (cho bộ "
+"trích xuất mới), dùng -m MIME1 -m MIME2"
+
+#: ../src/tracker/tracker-index.c:59
+msgid "Tell miners to (re)index a given file"
+msgstr "Bảo máy đào đánh (lại) chỉ mục của tập tin đã cho"
+
+#: ../src/tracker/tracker-index.c:62
+msgid "Backup current index / database to the file provided"
+msgstr "Sao lưu cơ sở dữ liệu/ mục lục hiện tại vào tập tin đã cho"
+
+#: ../src/tracker/tracker-index.c:65
+msgid "Restore a database from a previous backup (see --backup)"
+msgstr ""
+"Phục hồi lại một cơ sở dữ liệu từ bản sao lưu dự phòng trước đây (xem --"
+"backup)"
+
+#: ../src/tracker/tracker-index.c:68
+msgid "Import a dataset from the provided file (in Turtle format)"
+msgstr "Nhập các bản dữ liệu từ tập tin đã cung cấp (ở định dạng Turtle)"
+
+#: ../src/tracker/tracker-index.c:122
+#, c-format
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+"Không thể đánh mục lục lại kiểu-mime, bộ quản lý không thể được tạo ra, %s"
+
+#: ../src/tracker/tracker-index.c:132
+msgid "Could not reindex mimetypes"
+msgstr "Không thể đánh mục lục lại kiểu-mime"
+
+#: ../src/tracker/tracker-index.c:138
+msgid "Reindexing mime types was successful"
+msgstr "Đánh mục lục lại kiểu mime đã thành công"
+
+#: ../src/tracker/tracker-index.c:154
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr "Không thể đánh (lại) chỉ mục tập tin, bộ quản lý không thể tạo, %s"
+
+#: ../src/tracker/tracker-index.c:169
+msgid "Could not (re)index file"
+msgstr "Không thể đánh (lại) chỉ mục tập tin"
+
+#: ../src/tracker/tracker-index.c:175
+msgid "(Re)indexing file was successful"
+msgstr "Đánh (lại) chỉ mục đã thành công"
+
+#: ../src/tracker/tracker-index.c:206
+msgid "Importing Turtle file"
+msgstr "Đang nhập tập tin Turtle"
+
+#: ../src/tracker/tracker-index.c:215
+msgid "Unable to import Turtle file"
+msgstr "Không thể nhập tập tin Turtle"
+
+#: ../src/tracker/tracker-index.c:251
+msgid "Backing up database"
+msgstr "Sao lưu cơ sở dữ liệu"
+
+#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
+msgid "Could not backup database"
+msgstr "Không thể sao lưu cơ sở dữ liệu"
+
+#: ../src/tracker/tracker-index.c:308
+msgid "Restoring database from backup"
+msgstr "Phục hồi lại cơ sở dữ liệu từ bản sao dự phòng"
+
+#: ../src/tracker/tracker-index.c:437
+msgid ""
+"Only one action (--backup, --restore, --index-file or --import) can be used "
+"at a time"
+msgstr ""
+"Chỉ một thao tác (--backup, --restore, --index-file hay --import) có thể "
+"chạy ở một thời điểm"
+
+#: ../src/tracker/tracker-index.c:439
+msgid "Missing one or more files which are required"
+msgstr "Thiếu một hay nhiều hơn tập tin cần thiết"
+
+#: ../src/tracker/tracker-index.c:441
+msgid "Only one file can be used with --backup and --restore"
+msgstr "Chỉ có thể dùng một tập tin với --backup và --restore"
+
+#: ../src/tracker/tracker-index.c:443
+msgid ""
+"Actions (--backup, --restore, --index-file and --import) can not be used "
+"with --reindex-mime-type"
+msgstr ""
+"Các thao tác (--backup, --restore, --index-file và --import) có thể được sử "
+"dụng cùng với --reindex-mime-type"
+
+#: ../src/tracker/tracker-info.c:49
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr ""
+"Hiển thị không gian tên đầy đủ (ví dụ đừng dùng nie:title, dùng URL dạng đầy "
+"đủ)"
+
+#: ../src/tracker/tracker-info.c:53
+msgid "Show plain text content if available for resources"
+msgstr "Hiển thị nội dung văn bản nếu nguồn đó cho phép"
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker/tracker-info.c:63
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
+msgstr ""
+"Thay vì tìm kiếm tên tập tin, coi các đối số TẬP TIN là IRI thực tế (ví dụ: "
+"<file:///đường/dẫn/đến/một/số/tập/tin.txt>)"
+
+#: ../src/tracker/tracker-info.c:67
+msgid "Output results as RDF in Turtle format"
+msgstr "Kết xuất kết quả là RDF trong định dạng Turtle"
+
+#: ../src/tracker/tracker-info.c:285
+msgid "Querying information for entity"
+msgstr "Đang truy vấn thông tin cho thực thể"
+
+#: ../src/tracker/tracker-info.c:309
+msgid "Unable to retrieve URN for URI"
+msgstr "Không thể nhận URN cho URI"
+
+#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
+msgid "Unable to retrieve data for URI"
+msgstr "Không thể lấy được dữ liệu cho URI"
+
+#: ../src/tracker/tracker-info.c:362
+msgid "No metadata available for that URI"
+msgstr "No metadata available for that URI"
+
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sql.c:136
+msgid "Results"
+msgstr "Kết quả"
+
+#: ../src/tracker/tracker-main.c:48
+msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgstr "Xem “tracker help <lệnh>” để đọc về các lệnh con đã cho."
+
+#: ../src/tracker/tracker-main.c:97
+msgid "Start, stop, pause and list processes responsible for indexing content"
+msgstr ""
+"Khởi chạy, dừng, tạm dừng và liệt kê các tiến trình đáp ứng được cho nội "
+"dung mục lục"
+
+#: ../src/tracker/tracker-main.c:98
+msgid "Extract information from a file"
+msgstr "Trích xuất thông tin từ một tập tin"
+
+#: ../src/tracker/tracker-main.c:99
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr "Nhận trợ giúp về cách dùng Tracker và bất kỳ lệnh nào trong đó"
+
+#: ../src/tracker/tracker-main.c:100
+msgid "Show information known about local files or items indexed"
+msgstr "Hiển thị thông tin về các tập tin nội bộ hay các mục được đánh mục lục"
+
+#: ../src/tracker/tracker-main.c:101
+msgid "Backup, restore, import and (re)index by MIME type or file name"
+msgstr ""
+"Sao lưu, phục hồi, nhập và đánh (lại) mục lục theo kiểu MIME hay tên tập tin"
+
+#: ../src/tracker/tracker-main.c:102
+msgid "Reset or remove index and revert configurations to defaults"
+msgstr "Đặt lại hay xóa bỏ mục lục và hoàn nguyên cấu hình lại thành mặc định"
+
+#: ../src/tracker/tracker-main.c:103
+msgid "Search for content indexed or show content by type"
+msgstr "Tìm kiếm nội dung đã đánh mục lục hay hiển thị nội dung theo kiểu"
+
+#: ../src/tracker/tracker-main.c:104
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Truy vấn hay cập nhật chỉ mục sử dụng SPARQL hay tìm kiếm, liệt kê và cây "
+"bản thể"
+
+#: ../src/tracker/tracker-main.c:105
+msgid "Query the database at the lowest level using SQL"
+msgstr "Truy vấn cơ sở dữ liệu ở mức thấp nhật sử dụng SQL"
+
+#: ../src/tracker/tracker-main.c:106
+msgid "Show the indexing progress, content statistics and index state"
+msgstr ""
+"Hiển thị tiến trình đánh mục lục, thống kê nội dung và tình trạng mục lục"
+
+#: ../src/tracker/tracker-main.c:107
+msgid "Create, list or delete tags for indexed content"
+msgstr "Tạo, liệt kê hay xóa các thẻ cho nội dung mục lục"
+
+#: ../src/tracker/tracker-main.c:108
+msgid "Show the license and version in use"
+msgstr "Hiển thị giấy phép sử dụng và phiên bản"
+
+#: ../src/tracker/tracker-main.c:153
+#, c-format
+msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgstr "“%s” không phải là một lệnh tracker. Xem “tracker --help”"
+
+#: ../src/tracker/tracker-main.c:176
+msgid "Available tracker commands are:"
+msgstr "Các lệnh tracker sẵn có là:"
+
+#: ../src/tracker/tracker-process.c:79
+msgid "Could not open /proc"
+msgstr "Không thể mở “/proc”"
+
+#: ../src/tracker/tracker-process.c:132
+msgid "Could not stat() file"
+msgstr "Không thể stat() tập tin"
+
+#: ../src/tracker/tracker-process.c:203
+#, c-format
+msgid "Could not open '%s'"
+msgstr "Không thể mở “%s”"
+
+#: ../src/tracker/tracker-process.c:332
+#, c-format
+msgid "Could not terminate process %d - '%s'"
+msgstr "Không thể chấm dứt tiến trình %d - “%s”"
+
+#: ../src/tracker/tracker-process.c:338
+#, c-format
+msgid "Terminated process %d - '%s'"
+msgstr "Đã chấm dứt tiến trình %d - “%s”"
+
+#: ../src/tracker/tracker-process.c:353
+#, c-format
+msgid "Could not kill process %d - '%s'"
+msgstr "Không thể giết tiến trình %d - “%s”"
+
+#: ../src/tracker/tracker-process.c:359
+#, c-format
+msgid "Killed process %d - '%s'"
+msgstr "Đã giết tiến trình %d - “%s”"
+
+#: ../src/tracker/tracker-reset.c:53
+msgid "Kill all Tracker processes and remove all databases"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:56
+msgid "Same as --hard but the backup & journal are restored after restart"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:59
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Tẩy thông tin mục lục về một tập tin, các công việc một cách đệ quy cho các "
+"thư mục"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+msgid "Deleting…"
+msgstr "Đang xóa…"
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:216
+msgid "You can not use the --hard and --soft arguments together"
+msgstr "Bạn không thể dùng --hard và --soft cùng nhau"
+
+#: ../src/tracker/tracker-reset.c:224
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "CẨN THẬN: Tiến trình này có thể xóa dữ liệu không phục hồi được."
+
+#: ../src/tracker/tracker-reset.c:225
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can't "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:230
+msgid "Are you sure you want to proceed?"
+msgstr "Bạn có chắc là muốn tiếp tục không?"
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:232
+msgid "[y|N]"
+msgstr "[c|K]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:241
+msgid "yes"
+msgstr "có"
+
+#: ../src/tracker/tracker-reset.c:352
+msgid "Removing configuration files…"
+msgstr "Đang xóa các tập tin cấu hình…"
+
+#: ../src/tracker/tracker-reset.c:357
+msgid "Resetting existing configuration…"
+msgstr "Đặt lại cấu hình sẵn có…"
+
+#: ../src/tracker/tracker-search.c:80
+msgid "Search for files"
+msgstr "Tìm tập tin"
+
+#: ../src/tracker/tracker-search.c:84
+msgid "Search for folders"
+msgstr "Tìm thư mục"
+
+#: ../src/tracker/tracker-search.c:88
+msgid "Search for music files"
+msgstr "Tìm kiếm các tập tin nhạc"
+
+#: ../src/tracker/tracker-search.c:92
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "Tìm tuyển tập nhạc (--all không có ảnh hưởng đến cái này)"
+
+#: ../src/tracker/tracker-search.c:96
+msgid "Search for music artists (--all has no effect on this)"
+msgstr "Tìm nghệ sỹ nhạc (--all không có ảnh hưởng đến cái này)"
+
+#: ../src/tracker/tracker-search.c:100
+msgid "Search for image files"
+msgstr "Tìm kiếm tập tin ảnh"
+
+#: ../src/tracker/tracker-search.c:104
+msgid "Search for video files"
+msgstr "Tìm kiếm tập tin phim"
+
+#: ../src/tracker/tracker-search.c:108
+msgid "Search for document files"
+msgstr "Tìm kiếm tập tin tài liệu"
+
+#: ../src/tracker/tracker-search.c:112
+msgid "Search for emails"
+msgstr "Tìm thư điện tử"
+
+#: ../src/tracker/tracker-search.c:116
+msgid "Search for contacts"
+msgstr "Tìm kiếm liên lạc"
+
+#: ../src/tracker/tracker-search.c:120
+msgid "Search for software (--all has no effect on this)"
+msgstr "Search for software (--all has no effect on this)"
+
+#: ../src/tracker/tracker-search.c:124
+msgid "Search for software categories (--all has no effect on this)"
+msgstr "Tìm thể loại phần mềm (--all không có ảnh hưởng đến cái này)"
+
+#: ../src/tracker/tracker-search.c:128
+msgid "Search for feeds (--all has no effect on this)"
+msgstr "Tìm các feed (--all không có ảnh hưởng đến cái này)"
+
+#: ../src/tracker/tracker-search.c:132
+msgid "Search for bookmarks (--all has no effect on this)"
+msgstr "Tìm đánh dấu (--all không có ảnh hưởng đến cái này)"
+
+#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
+msgid "Limit the number of results shown"
+msgstr "Giới hạn số lượng kết quả hiển thị"
+
+#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
+msgid "Offset the results"
+msgstr "Vị trí bù của kết quả"
+
+#: ../src/tracker/tracker-search.c:146
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:150
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:154
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:158
+msgid ""
+"Disable showing snippets with results. This is only shown for some "
+"categories, e.g. Documents, Music…"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:162
+msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:166
+msgid "Disable color when printing snippets and results"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
+msgid "search terms"
+msgstr "các điều khoản tìm"
+
+#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:65
+msgid "EXPRESSION"
+msgstr "BIỂU_THỨC"
+
+#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
+msgid "Could not get search results"
+msgstr "Không thể lấy kết quả tìm kiếm"
+
+#: ../src/tracker/tracker-search.c:295
+msgid "No contacts were found"
+msgstr "Không tìm thấy liên lạc nào"
+
+#: ../src/tracker/tracker-search.c:299
+msgid "Contacts"
+msgstr "Danh bạ"
+
+#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
+msgid "No name"
+msgstr "Không tên"
+
+#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
+msgid "No E-mail address"
+msgstr "Thiếu địa chỉ thư điện tử"
+
+#: ../src/tracker/tracker-search.c:404
+msgid "No emails were found"
+msgstr "Không tìm thấy thư điện tử nào"
+
+#: ../src/tracker/tracker-search.c:506
+msgid "No files were found"
+msgstr "Không tìm thấy tập tin nào"
+
+#: ../src/tracker/tracker-search.c:820
+msgid "No artists were found"
+msgstr "Không tìm thấy nghệ sĩ nào"
+
+#: ../src/tracker/tracker-search.c:824
+msgid "Artists"
+msgstr "Nghệ sĩ"
+
+#: ../src/tracker/tracker-search.c:909
+msgid "No music was found"
+msgstr "Không tìm thấy bài hát nào"
+
+#: ../src/tracker/tracker-search.c:913
+msgid "Albums"
+msgstr "Tập nhạc"
+
+#: ../src/tracker/tracker-search.c:999
+msgid "No bookmarks were found"
+msgstr "Không tìm thấy đánh dấu nào"
+
+#: ../src/tracker/tracker-search.c:1081
+msgid "No feeds were found"
+msgstr "Không tìm thấy feed nào"
+
+#: ../src/tracker/tracker-search.c:1085
+msgid "Feeds"
+msgstr "Feeds"
+
+#: ../src/tracker/tracker-search.c:1165
+msgid "No software was found"
+msgstr "Không tìm thấy phần mềm nào"
+
+#: ../src/tracker/tracker-search.c:1169
+msgid "Software"
+msgstr "Phần mềm"
+
+#: ../src/tracker/tracker-search.c:1247
+msgid "No software categories were found"
+msgstr "Không tìm thấy thể loại phần mềm nào"
+
+#: ../src/tracker/tracker-search.c:1251
+msgid "Software Categories"
+msgstr "Thể loại phần mềm"
+
+#: ../src/tracker/tracker-search.c:1451
+msgid "No results were found matching your query"
+msgstr "Không tìm thấy kết quả nào khớp với mẫu"
+
+#: ../src/tracker/tracker-search.c:1553
+#, c-format
+msgid "Search term '%s' is a stop word."
+msgstr "Điều kiện tìm “%s” là một từ dừng. "
+
+#: ../src/tracker/tracker-search.c:1564
+#, c-format
+msgid ""
+"Stop words are common words which may be ignored during the indexing process."
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:104
+msgid "Path to use to run a query or update from file"
+msgstr "Đường dẫn dùng để chạy một truy vấn hay cập nhật từ tập tin"
+
+#: ../src/tracker/tracker-sparql.c:108
+msgid "SPARQL query"
+msgstr "Truy vấn SPARQL"
+
+#: ../src/tracker/tracker-sparql.c:109
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: ../src/tracker/tracker-sparql.c:112
+msgid "This is used with --query and for database updates only."
+msgstr "Nó được dùng với --query và chỉ dành cho cập nhật cơ sở dữ liệu."
+
+#: ../src/tracker/tracker-sparql.c:116
+msgid "Retrieve classes"
+msgstr "Khôi phục các lớp"
+
+#: ../src/tracker/tracker-sparql.c:120
+msgid "Retrieve class prefixes"
+msgstr "Khôi phục tiền tố lớp"
+
+#: ../src/tracker/tracker-sparql.c:124
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+"Phục hồi các thuộc tính cho một lớp, tiền tố có thể cũng được dùng (ví dụ "
+"rdfs:Resource)"
+
+#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
+#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
+#: ../src/tracker/tracker-sparql.c:149
+msgid "CLASS"
+msgstr "LỚP"
+
+#: ../src/tracker/tracker-sparql.c:128
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:132
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:133
+msgid "PROPERTY"
+msgstr "THUỘC-TÍNH"
+
+#: ../src/tracker/tracker-sparql.c:136
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:140
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:141
+msgid "CLASS/PROPERTY"
+msgstr "LỚP/THUỘC-TÍNH"
+
+#: ../src/tracker/tracker-sparql.c:144
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Trả về dạng viết tắt cho một lớp (ví dụ nfo:FileDataObject)."
+
+#: ../src/tracker/tracker-sparql.c:148
+msgid "Returns the full namespace for a class."
+msgstr "Trả về không gian tên dạng đầy đủ cho một lớp."
+
+#: ../src/tracker/tracker-sparql.c:249
+msgid "Could not get namespace prefixes"
+msgstr "Không thể lấy tiền tố không gian tên"
+
+#: ../src/tracker/tracker-sparql.c:258
+msgid "No namespace prefixes were found"
+msgstr "Không tìm thấy tiền tố không gian tên"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
+#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
+#: ../src/tracker/tracker-tag.c:955
+msgid "None"
+msgstr "Không"
+
+#: ../src/tracker/tracker-sparql.c:958
+msgid "Could not create tree: subclass query failed"
+msgstr "Không thể tạo cây: truy vấn lớp con gặp lỗi"
+
+#: ../src/tracker/tracker-sparql.c:1007
+msgid "Could not create tree: class properties query failed"
+msgstr "Không thể tạo cây: truy vấn các thuộc tính lớp gặp lỗi"
+
+#: ../src/tracker/tracker-sparql.c:1091
+msgid "Could not list classes"
+msgstr "Không thể liệt kê các lớp"
+
+#: ../src/tracker/tracker-sparql.c:1099
+msgid "No classes were found"
+msgstr "Không tìm thấy lớp nào"
+
+#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+msgid "Classes"
+msgstr "Lớp"
+
+#: ../src/tracker/tracker-sparql.c:1115
+msgid "Could not list class prefixes"
+msgstr "Không thể liệt kê các tiền tố lớp"
+
+#: ../src/tracker/tracker-sparql.c:1123
+msgid "No class prefixes were found"
+msgstr "Không tìm thấy tiền tố lớp nào"
+
+#: ../src/tracker/tracker-sparql.c:1123
+msgid "Prefixes"
+msgstr "Tiếp đầu nghữ"
+
+#: ../src/tracker/tracker-sparql.c:1143
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1182
+msgid "Could not list properties"
+msgstr "Không thể liệt kê các thuộc tính"
+
+#: ../src/tracker/tracker-sparql.c:1190
+msgid "No properties were found"
+msgstr "Không tìm thấy thuộc tính nào"
+
+#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+msgid "Properties"
+msgstr "Thuộc tính"
+
+#: ../src/tracker/tracker-sparql.c:1218
+msgid "Could not find notify classes"
+msgstr "Không thể tìm thấy các lớp thông báo"
+
+#: ../src/tracker/tracker-sparql.c:1226
+msgid "No notifies were found"
+msgstr "Không tìm thấy thông báo nào"
+
+#: ../src/tracker/tracker-sparql.c:1226
+msgid "Notifies"
+msgstr "Thông báo"
+
+#: ../src/tracker/tracker-sparql.c:1252
+msgid "Could not find indexed properties"
+msgstr "Không thể tìm thấy các thuộc tính chỉ mục"
+
+#: ../src/tracker/tracker-sparql.c:1260
+msgid "No indexes were found"
+msgstr "Không tìm thấy chỉ mục nào"
+
+#: ../src/tracker/tracker-sparql.c:1260
+msgid "Indexes"
+msgstr "Chỉ mục"
+
+#: ../src/tracker/tracker-sparql.c:1282
+msgid "Could not search classes"
+msgstr "Không thể tìm thấy lớp"
+
+#: ../src/tracker/tracker-sparql.c:1290
+msgid "No classes were found to match search term"
+msgstr "Không tìm thấy lớp nào khớp tiêu chí tìm kiếm"
+
+#: ../src/tracker/tracker-sparql.c:1305
+msgid "Could not search properties"
+msgstr "Kt tìm kiếm các thuộc tính"
+
+#: ../src/tracker/tracker-sparql.c:1313
+msgid "No properties were found to match search term"
+msgstr "Không tìm thấy thuộc tính nào khớp tiêu chí tìm kiếm"
+
+#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+msgid "Could not get UTF-8 path from path"
+msgstr "Không thể lấy đường dẫn UTF-8 từ đường dẫn"
+
+#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+msgid "Could not read file"
+msgstr "Không thể đọc tập tin"
+
+#: ../src/tracker/tracker-sparql.c:1380
+msgid "Could not run update"
+msgstr "Không thể chạy cập nhật"
+
+#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
+#: ../src/tracker/tracker-sql.c:162
+msgid "Could not run query"
+msgstr "Không thể chạy truy vấn"
+
+#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+msgid "No results found matching your query"
+msgstr "Không thấy kết quả nào khớp với truy vấn của bạn"
+
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+msgid "File and query can not be used together"
+msgstr "Tập tin và truy vấn không thể dùng cùng với nhau"
+
+#: ../src/tracker/tracker-sparql.c:1499
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Đường dẫn để dùng chạy một truy vấn từ tập tin"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Truy vấn SQL"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
+
+#: ../src/tracker/tracker-sql.c:110
+msgid "Failed to initialize data manager"
+msgstr "Gặp lỗi khi khởi tạo bộ quản lý dữ liệu"
+
+#: ../src/tracker/tracker-sql.c:170
+msgid "Empty result set"
+msgstr "Tập hợp kết quả trống rỗng"
+
+#: ../src/tracker/tracker-status.c:52
+msgid "Show statistics for current index / data set"
+msgstr "Hiển thị thống kê cho tập hợp dữ liệu/chỉ mục hiện hành"
+
+#: ../src/tracker/tracker-status.c:56
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:60
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
+msgstr ""
+"Sưu tập thông tin gỡ lỗi hữu dùng cho báo cáo lỗi và điều tra, kết quả sẽ "
+"xuất ra thiết bị cuối"
+
+#: ../src/tracker/tracker-status.c:187
+msgid "Could not get Tracker statistics"
+msgstr "Không thể lấy thống kê Tracker"
+
+#: ../src/tracker/tracker-status.c:199
+msgid "No statistics available"
+msgstr "Không có sẵn thống kê"
+
+#: ../src/tracker/tracker-status.c:248
+msgid "Statistics:"
+msgstr "Thống kê:"
+
+#: ../src/tracker/tracker-status.c:289
+msgid "Version"
+msgstr "Phiên bản"
+
+#: ../src/tracker/tracker-status.c:296
+msgid "Disk Information"
+msgstr "Thông tin đĩa"
+
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+msgid "Remaining space on database partition"
+msgstr "Chỗ trống còn lại trên phân vùng cơ sở dữ liệu"
+
+#. 3. Size of dataset (tracker-stats), size of databases
+#: ../src/tracker/tracker-status.c:310
+msgid "Data Set"
+msgstr "Tập hợp dữ liệu"
+
+#: ../src/tracker/tracker-status.c:342
+msgid "Configuration"
+msgstr "Cấu hình"
+
+#: ../src/tracker/tracker-status.c:370
+msgid "No configuration was found"
+msgstr "Không tìm thấy cấu hình nào"
+
+#: ../src/tracker/tracker-status.c:374
+msgid "States"
+msgstr "Tình trạng"
+
+#: ../src/tracker/tracker-status.c:415
+msgid "Data Statistics"
+msgstr "Thống kê dữ liệu"
+
+#: ../src/tracker/tracker-status.c:421
+msgid "No connection available"
+msgstr "Không có kết nối nào sẵn có cả"
+
+#: ../src/tracker/tracker-status.c:431
+msgid "Could not get statistics"
+msgstr "Không thể lấy thống kê"
+
+#: ../src/tracker/tracker-status.c:437
+msgid "No statistics were available"
+msgstr "Không có thống kê nào sẵn sàng cả"
+
+#: ../src/tracker/tracker-status.c:450
+msgid "Database is currently empty"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+msgid "Could not get basic status for Tracker"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:631
+#, c-format
+msgid "Currently indexed"
+msgstr "Chỉ mục hiện tại"
+
+#: ../src/tracker/tracker-status.c:666
+msgid "Data is still being indexed"
+msgstr "Dữ liệu đang được đánh chỉ mục"
+
+#: ../src/tracker/tracker-status.c:667
+#, c-format
+msgid "Estimated %s left"
+msgstr "Ước tính còn %s"
+
+#: ../src/tracker/tracker-status.c:671
+msgid "All data miners are idle, indexing complete"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:53
+msgid ""
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:54
+msgid "FILTER"
+msgstr "LỌC"
+
+#: ../src/tracker/tracker-tag.c:57
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:61
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
+msgid "TAG"
+msgstr "THẺ"
+
+#: ../src/tracker/tracker-tag.c:65
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:69
+msgid "Description for a tag (this is only used with --add)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:70
+msgid "STRING"
+msgstr "CHUỖI"
+
+#: ../src/tracker/tracker-tag.c:81
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Dùng AND để làm điều kiện tìm kiếm thay cho OR (mặc định)"
+
+#: ../src/tracker/tracker-tag.c:86
+msgid "FILE…"
+msgstr "TẬP_TIN…"
+
+#: ../src/tracker/tracker-tag.c:87
+msgid "FILE [FILE…]"
+msgstr "TẬP_TIN [TẬP_TIN …]"
+
+#: ../src/tracker/tracker-tag.c:249
+msgid "Could not get file URNs"
+msgstr "Không thể lấy tập tin URNs"
+
+#: ../src/tracker/tracker-tag.c:314
+msgid "Could not get files related to tag"
+msgstr "Không thể lấy các tập tin liên quan đến thẻ"
+
+#: ../src/tracker/tracker-tag.c:381
+msgid "Could not get all tags in the database"
+msgstr "Không thể lấy mọi thể trong cơ sở dữ liệu"
+
+#: ../src/tracker/tracker-tag.c:391
+msgid "No files have been tagged"
+msgstr "Chưa có tập tin nào được đánh thẻ"
+
+#: ../src/tracker/tracker-tag.c:426
+msgid "Could not get files for matching tags"
+msgstr "Không thể lấy tập tin khớp thẻ"
+
+#: ../src/tracker/tracker-tag.c:435
+msgid "No files were found matching ALL of those tags"
+msgstr "Không tìm thấy tập tin nào khớp TẤT CẢ các thẻ đó"
+
+#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
+msgid "Could not get all tags"
+msgstr "Không thể lấy mọi thẻ"
+
+#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
+msgid "No tags were found"
+msgstr "Không tìm thấy thẻ nào"
+
+#: ../src/tracker/tracker-tag.c:527
+msgid "Tags (shown by name)"
+msgstr "Thẻ (hiển thị theo tên)"
+
+#: ../src/tracker/tracker-tag.c:601
+msgid "No files were modified"
+msgstr "Không có tập tin nào bị sửa"
+
+#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
+msgid "Files do not exist or aren't indexed"
+msgstr "Các tập tin không tồn tại hoặc chưa được đánh chỉ số"
+
+#: ../src/tracker/tracker-tag.c:725
+msgid "Tag was added successfully"
+msgstr "Đã thêm thẻ thành công"
+
+#: ../src/tracker/tracker-tag.c:754
+msgid "Could not add tag to files"
+msgstr "Không thể thêm thẻ vào tập tin"
+
+#: ../src/tracker/tracker-tag.c:764
+msgid "Tagged"
+msgstr "Được đánh thẻ"
+
+#: ../src/tracker/tracker-tag.c:765
+msgid "Not tagged, file is not indexed"
+msgstr "Chưa đánh thẻ, tập tin chưa được đánh mục lục"
+
+#: ../src/tracker/tracker-tag.c:811
+msgid "Could not get tag by label"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:822
+msgid "No tags were found by that name"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:839
+msgid "None of the files had this tag set"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:892
+msgid "Tag was removed successfully"
+msgstr "Đã xóa thẻ thành công"
+
+#: ../src/tracker/tracker-tag.c:896
+msgid "Untagged"
+msgstr "Bỏ đánh thẻ"
+
+#: ../src/tracker/tracker-tag.c:897
+msgid "File not indexed or already untagged"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1088
+msgid "The --list option is required for --show-files"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1090
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1092
+msgid "Add and delete actions can not be used together"
+msgstr "Hành đọng thêm và xóa không thể dùng cùng với nhau"
+
+#: ../src/tracker/tracker-tag.c:1094
+msgid "The --description option can only be used with --add"
+msgstr ""
+
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr ""
+
+#. Translators: this message will appear immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-writeback/tracker-main.c:98
+msgid "- start the tracker writeback service"
+msgstr "- bắt đầu dịch vụ ghi ngược tracker"
+
+#: ../utils/gtk-sparql/gtk-sparql.ui.h:1
+msgid "Saved queries"
+msgstr "Các truy vấn đã lưu"
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Vâng, xóa bỏ mọi mục lục"
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Đặt lại dữ liệu đã đánh mục lục"
+
+#~ msgid "_Delay"
+#~ msgstr "Độ _trễ"
+
+#~ msgid "seconds"
+#~ msgstr "giây"
+
+#~ msgid "Start up"
+#~ msgstr "Khởi động"
+
+#~ msgid "System"
+#~ msgstr "Hệ thống"
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Cái này sẽ đóng hộp thoại này!"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Bạn có muốn đánh mục lục lại bây giờ không?"
+
+#~ msgid "Reindex"
+#~ msgstr "Đánh mục lục lại"
+
+#~ msgid "Do nothing"
+#~ msgstr "Không làm gì"
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Bạn có muốn khởi động lại bây giờ không?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Khởi động lại Tracker"
