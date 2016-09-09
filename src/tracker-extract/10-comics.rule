@@ -1,3 +1,3 @@
 [ExtractorRule]
-MimeTypes=application/x-cbr;application/x-cbz;application/x-cbt;application/x-cb7;
+MimeTypes=application/x-cbr;application/x-cbz;application/x-cbt;application/x-cb7;application/vnd.comicbook+zip;
 FallbackRdfTypes=nfo:EBook;
