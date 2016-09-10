@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-22 20:32+0200\n"
-"PO-Revision-Date: 2016-08-22 20:33+0200\n"
+"POT-Creation-Date: 2016-09-10 05:45+0200\n"
+"PO-Revision-Date: 2016-09-10 05:47+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -338,8 +338,7 @@ msgid ""
 "associated scheduling policy and priority."
 msgstr ""
 "Planista to część jądra decydująca o kolejności wykonywania programów przez "
-"procesor. Każdy program posiada powiązaną ze sobą politykę i priorytet "
-"planowania."
+"procesor. Każdy program ma powiązaną ze sobą politykę i priorytet planowania."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
 msgid "Throttle"
@@ -517,7 +516,7 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:88
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
-"Sprawdza, czy PLIK nadaje się do przeszukiwania w oparciu o konfigurację"
+"Sprawdza, czy PLIK nadaje się do przeszukiwania na podstawie konfiguracji"
 
 #: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
 #: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
@@ -540,53 +539,53 @@ msgstr "Obiekt danych „%s” obecnie nie istnieje"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr "Katalog nadaje się do przeszukiwania (w oparciu o reguły)"
+msgstr "Katalog nadaje się do przeszukiwania (na podstawie reguł)"
 
 #: ../src/miners/fs/tracker-main.c:471
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o reguły)"
+msgstr "Katalog NIE nadaje się do przeszukiwania (na podstawie reguł)"
 
 #: ../src/miners/fs/tracker-main.c:491
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr "Katalog nadaje się do przeszukiwania (w oparciu o zawartość)"
+msgstr "Katalog nadaje się do przeszukiwania (na podstawie zawartości)"
 
 #: ../src/miners/fs/tracker-main.c:492
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "Katalog NIE nadaje się do przeszukiwania (w oparciu o zawartość)"
+msgstr "Katalog NIE nadaje się do przeszukiwania (na podstawie zawartości)"
 
 #: ../src/miners/fs/tracker-main.c:539
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr "Katalog nadaje się do monitorowania (w oparciu o konfigurację)"
+msgstr "Katalog nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:540
 msgid "Directory is NOT eligible to be monitored (based on config)"
-msgstr "Katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
+msgstr "Katalog NIE nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:544
 msgid "File is eligible to be monitored (based on config)"
-msgstr "Plik nadaje się do monitorowania (w oparciu o konfigurację)"
+msgstr "Plik nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:545
 msgid "File is NOT eligible to be monitored (based on config)"
-msgstr "Plik NIE nadaje się do monitorowania (w oparciu o konfigurację)"
+msgstr "Plik NIE nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:549
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
-"Plik lub katalog nadaje się do monitorowania (w oparciu o konfigurację)"
+"Plik lub katalog nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:550
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
-"Plik lub katalog NIE nadaje się do monitorowania (w oparciu o konfigurację)"
+"Plik lub katalog NIE nadaje się do monitorowania (na podstawie konfiguracji)"
 
 #: ../src/miners/fs/tracker-main.c:565
 msgid "File is eligible to be mined (based on rules)"
-msgstr "Plik nadaje się do przeszukiwania (w oparciu o konfigurację)"
+msgstr "Plik nadaje się do przeszukiwania (na podstawie reguł)"
 
 #: ../src/miners/fs/tracker-main.c:566
 msgid "File is NOT eligible to be mined (based on rules)"
-msgstr "Plik NIE nadaje się do przeszukiwania (w oparciu o konfigurację)"
+msgstr "Plik NIE nadaje się do przeszukiwania (na podstawie reguł)"
 
 #: ../src/miners/fs/tracker-main.c:575
 msgid "Would be indexed"
@@ -881,7 +880,7 @@ msgid ""
 "Find what you're looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
-"Wyszukiwanie na tym komputerze według nazwy lub treści używając programu "
+"Wyszukiwanie na tym komputerze według nazwy lub treści za pomocą programu "
 "Tracker"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
@@ -1170,7 +1169,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-view.vala:113
 msgid "Start to search using the entry box above"
-msgstr "Rozpoczyna wyszukiwanie używając powyższego pola wprowadzania"
+msgstr "Rozpoczyna wyszukiwanie za pomocą powyższego pola wprowadzania"
 
 #: ../src/tracker-needle/tracker-view.vala:197
 msgid "Last Changed"
@@ -1284,7 +1283,7 @@ msgid ""
 "much CPU time if you have other applications more deserving of it."
 msgstr ""
 "Planista to część jądra decydująca o kolejności wykonywania programów przez "
-"procesor. Każdy program posiada powiązaną ze sobą politykę i priorytet "
+"procesor. Każdy program ma powiązaną ze sobą politykę i priorytet "
 "planowania.\n"
 "\n"
 "Ta opcja umożliwia nakazanie programowi Tracker przejścia do działania w tle "
@@ -1416,7 +1415,7 @@ msgid ""
 "One or more special locations have the same path.\n"
 "Those which are the same are disabled!"
 msgstr ""
-"Jedno lub więcej specjalnych położeń ma tą samą ścieżkę.\n"
+"Jedno lub więcej specjalnych położeń ma tę samą ścieżkę.\n"
 "Zostały one wyłączone."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:37
@@ -1695,7 +1694,7 @@ msgid ""
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Używa SIGKILL, aby zatrzymać wszystkie procesy dopasowania, można użyć opcji "
-"„store”, „miners” lub „all”, nie podanie parametru równa się opcji „all”"
+"„store”, „miners” lub „all”, niepodanie parametru równa się opcji „all”"
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1707,7 +1706,7 @@ msgid ""
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Używa SIGTERM, aby zatrzymać wszystkie procesy dopasowania, można użyć opcji "
-"„store”, „miners” lub „all”, nie podanie parametru równa się opcji „all”"
+"„store”, „miners” lub „all”, niepodanie parametru równa się opcji „all”"
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1729,7 +1728,7 @@ msgstr "POZIOM"
 #: ../src/tracker/tracker-daemon.c:190
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr ""
-"Wyświetla wartości dziennika w terminach szczegółowości dziennika dla "
+"Wyświetla wartości dziennika w kategoriach szczegółowości dziennika dla "
 "każdego procesu"
 
 #: ../src/tracker/tracker-daemon.c:264
@@ -1958,7 +1957,7 @@ msgstr "Uruchamianie przeszukiwań…"
 #: ../src/tracker/tracker-daemon.c:1667
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
-msgstr "Nie można uruchomić przeszukiwać, nie można utworzyć menedżera, %s"
+msgstr "Nie można uruchomić przeszukiwań, nie można utworzyć menedżera, %s"
 
 #: ../src/tracker/tracker-daemon.c:1692
 msgid "perhaps a disabled plugin?"
@@ -2021,7 +2020,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr "Importuje zestaw danych z podanego pliku (w formacie Turtle)"
+msgstr "Importuje zestaw danych z podanego pliku (w formacie Turtle)"
 
 #: ../src/tracker/tracker-index.c:122
 #, c-format
@@ -2188,12 +2187,12 @@ msgstr "Wyszukuje zindeksowaną treść lub wyświetla ją według typu"
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
-"Odpytuje i aktualizuje indeks używając SPARQL lub wyszukuje, wyświetla listę "
-"i drzewo ontologii"
+"Odpytuje i aktualizuje indeks za pomocą SPARQL lub wyszukuje, wyświetla "
+"listę i drzewo ontologii"
 
 #: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
-msgstr "Odpytuje bazę danych na najniższym poziomie używając SQL"
+msgstr "Odpytuje bazę danych na najniższym poziomie za pomocą SQL"
 
 #: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
@@ -2916,7 +2915,7 @@ msgstr ""
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
-"Wyświetla listę wszystkich etykiet (używając FILTRU, jeśli go podano; FILTR "
+"Wyświetla listę wszystkich etykiet (za pomocą FILTRU, jeśli go podano; FILTR "
 "zawsze używa logicznego LUB)"
 
 #: ../src/tracker/tracker-tag.c:54
