@@ -3,22 +3,23 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 #
-# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014, 2015.
+# Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2014, 2015, 2016.
 # Edurne Labaka <elabaka@uzei.com>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-14 13:46+0200\n"
-"PO-Revision-Date: 2015-10-09 22:58+0200\n"
-"Last-Translator: Iñaki Larrañaga Murgoitio <dooteo@zundan.com>\n"
-"Language-Team: Basque <Basque <librezale@librezale.org>>\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
+"&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-08-17 11:02+0000\n"
+"PO-Revision-Date: 2016-09-17 20:48+0100\n"
+"Last-Translator: dooteo <dooteo@zundan.com>\n"
+"Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Generator: Lokalize 2.0\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -182,7 +183,7 @@ msgstr "Errorea 'tar' programa abiaraztean"
 #: ../src/libtracker-data/tracker-data-backup.c:621
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
 #: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
@@ -194,13 +195,13 @@ msgstr "Errorea 'tar' programa abiaraztean"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:201
-#: ../src/tracker/tracker-process.c:330 ../src/tracker/tracker-process.c:351
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:168
 #: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
+#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Ez da errorerik eman"
 
@@ -266,7 +267,7 @@ msgstr ""
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -514,11 +515,12 @@ msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "FITXATEGIA indexatzeko hautagaia den egiaztatzen du konfigurazioaren arabera"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "FITXATEGIA"
 
@@ -657,7 +659,7 @@ msgid "- start the feeds indexer"
 msgstr "- abiarazi iturrien indexatzailea"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
 #: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
@@ -782,16 +784,16 @@ msgstr ""
 "azkarren fitxategiak zerrendatzea eta itxaroten egon daiteke meta-datuak "
 "geroago lortzeko."
 
-#: ../src/tracker-extract/tracker-extract.c:797
+#: ../src/tracker-extract/tracker-extract.c:761
 msgid "Metadata extraction failed"
 msgstr "Huts egin du meta-datuak erauztean"
 
-#: ../src/tracker-extract/tracker-extract.c:862
+#: ../src/tracker-extract/tracker-extract.c:831
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Ez da meta-datuen edo erauzlearen modulurik aurkitu fitxategi hau kudeatzeko"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -800,35 +802,49 @@ msgstr ""
 "Erregistroa:  0 = erroreak soilik, 1 = gutxienekoa, 2 = xehea eta 3 = "
 "arazketa (lehenetsia=0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
 msgstr "Fitxategia meta-datuak erauzteko"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Fitxategiaren MIME mota (ez bada ematen, asmatu egingo da)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
+#: ../src/tracker-extract/tracker-main.c:96
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
 "Behartu modulu bat erabiltzera erauzteko (adib. 'lelo' erabili 'lelo.so' "
 "adierazteko)"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MODULUA"
 
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: 'sparql', or 'turtle'"
+msgstr "Irteerako emaitzaren formatua: 'sparql', edo 'turtle'"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMATUA"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format '%s'\n"
+msgstr "'%s' serializazio-formatua onartu gabe\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
+#: ../src/tracker-extract/tracker-main.c:320
 msgid "- Extract file meta data"
 msgstr "- Erauzi fitxategiaren meta-datuak"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "Fitxategia eta MIME mota elkarrekin eman behar dira"
 
@@ -930,7 +946,7 @@ msgid "Only the first 500 items will be displayed"
 msgstr "Soilik aurreneko 500 elementu bistaratuko dira"
 
 #: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-preferences/tracker-preferences.vala:951
 msgid "Print version"
 msgstr "Erakutsi bertsioa"
 
@@ -978,7 +994,7 @@ msgstr[1] "Dokumentuak"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:165
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Fitxategia"
@@ -1167,7 +1183,7 @@ msgid "Folders"
 msgstr "Karpetak"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Laster-markak"
 
@@ -1452,105 +1468,17 @@ msgstr "Zer indexatzen da?"
 msgid "Control"
 msgstr "Kontrola"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Indexatutako datuak berrezartzean datu-baseak kentzen dira eta zure "
-"fitxategiak ez dira gehiago indexatuko. Hurrengoan berrabiaraztean, Tracker-"
-"ek datuak indexatzen hasiko da aurreneko aldiz izango balitz bezala.\n"
-"\n"
-"<b>Abisua: indexatutako eta cachean gordetako datu guztiak ezabatuko dira! "
-"Ezingo dira berreskuratu! Benetako datuak eta fitxategiak ez dira ukituko.</"
-"b>\n"
-"\n"
-"Egin klik botoi honetan hobespenak ere ixteko."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all indexes"
-msgstr "Bai, kendu indexatutako guztiak"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-"Indize bat ordenatutako erreferentzia bat da datu-pieza batera. Zure "
-"informazioa eta edukia bizkor bilatzeko erabiltzen dugu indexazioa."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "Berrezarri indexatutako datuak"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "_Atzerapena"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "segundo"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "Hasiera"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "Sistema"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:162
+#: ../src/tracker-preferences/tracker-preferences.vala:163
+#: ../src/tracker-preferences/tracker-preferences.vala:164
 msgid "Directory"
 msgstr "Direktorioa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:305
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"Hemen hobespenetan egin dituzun aldaketek berrindexatzea eskatzen dute zure "
-"datu guztiak zuk eskatu bezala ondo indexatu direla ziurtatzeko."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "Honekin elkarrizketa-koadroa itxiko da!"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "Berrindexatu nahi duzu orain?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "Berrindexatu"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "Ez egin ezer"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr ""
-"Hobespenetan egin dituzun aldaketek tracker-en prozesuak berrabiaraztea "
-"eskatzen dute."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "Berrabiarazi nahi duzu orain?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-msgid "Restart Tracker"
-msgstr "Berrabiarazi Tracker"
+"Eskatutako aldaketa batzuk saioa hurrengoan berrabiaraztean eragingo dute."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1559,38 +1487,38 @@ msgstr "Berrabiarazi Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:355
+#: ../src/tracker-preferences/tracker-preferences.vala:368
 msgid "Disabled"
 msgstr "Desgaituta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:540
 msgid "Enter value"
 msgstr "Sartu balioa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:543
+#: ../src/tracker-preferences/tracker-preferences.vala:572
 msgid "_Cancel"
 msgstr "_Utzi"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:544
+#: ../src/tracker-preferences/tracker-preferences.vala:574
 msgid "_OK"
 msgstr "_Ados"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:569
 msgid "Select directory"
 msgstr "Hautatu direktorioa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:590
 msgid "That directory is already selected as a location to index"
 msgstr "Direktorio hori jadanik hautatuta dago indexatzeko kokaleku gisa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:852
 msgid "Recurse"
 msgstr "Errekurtsiboki"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:957
 msgid "Desktop Search preferences"
 msgstr "Mahaigaineko bilaketaren hobespenak"
 
@@ -1635,10 +1563,6 @@ msgstr ""
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Ezin izan da biltzaileen GSettings lortu. Ezin izan da kudeatzailea sortu: %s"
-
-#: ../src/tracker/tracker-compatible.c:221
-msgid "The 'tracker-control' command is no longer available"
-msgstr "'tracker-control' komandoa ez dago gehiago erabilgarri"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -1770,7 +1694,7 @@ msgstr ""
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Abiarazi biltzaileak (bide batez tracker-store ere abiarazten baitute)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
 "'errors') for all processes"
@@ -1778,7 +1702,7 @@ msgstr ""
 "Erregistroaren xehetasun-maila MAILAra ezartzen du ('debug', 'detailed', "
 "'minimal', 'errors') prozesu guztientzako"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "MAILA"
 
@@ -1980,7 +1904,7 @@ msgstr "Ezin dituzu --kill eta --terminate argumentuak batera erabili"
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Ezin dituzu --get-logging eta --set-logging argumentuak batera erabili"
 
-#: ../src/tracker/tracker-daemon.c:1530
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgstr ""
 "Erregistroaren xehetasun-maila baliogabea. Saiatu 'debug', 'detailed', "
@@ -2025,11 +1949,11 @@ msgstr ""
 "Ez bada argumenturik ematen, biltegiaren eta datuen biltzaileen egoera "
 "erakutsiko da."
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
+#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Aukera ezezagunak"
 
@@ -2040,6 +1964,11 @@ msgstr "Ezin izan da D-Bus konexioa lortu"
 #: ../src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Ezin izan da tracker biltegirako D-Bus proxya sortu"
+
+#: ../src/tracker/tracker-extract.c:77
+#| msgid "Could not retrieve tracker-store status"
+msgid "Could not run tracker-extract: "
+msgstr "Ezin izan da 'tracker-extract' exekutatu: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
@@ -2120,7 +2049,7 @@ msgstr "Ezin izan da datu-basearen babeskopia egin"
 msgid "Restoring database from backup"
 msgstr "Datu-basea babeskopiatik leheneratzen"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
@@ -2128,15 +2057,15 @@ msgstr ""
 "Soilik ekintza bat (--backup, --restore, --index-file edo --import) erabil "
 "daiteke aldian"
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Behar diren fitxategi bat edo gehiago falta dira"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Soilik fitxategi bat erabil daiteke --backup eta --restore ekintzekin"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
@@ -2187,7 +2116,7 @@ msgstr "Ezin da URIaren daturik eskuratu"
 msgid "No metadata available for that URI"
 msgstr "Ez dago URIaren meta-daturik eskuragarri"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
 #: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
 #: ../src/tracker/tracker-sql.c:136
 msgid "Results"
@@ -2205,122 +2134,181 @@ msgstr ""
 "prozesuak"
 
 #: ../src/tracker/tracker-main.c:98
+#| msgid "Extracts metadata from local files"
+msgid "Extract information from a file"
+msgstr "Erauzi informazioa fitxategitik"
+
+#: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Lortu Tracker eta komando hauetariko edozer nola erabiltzen den buruzko "
 "laguntza"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Erakutsi lokaleko fitxategiei edo indexatutako elementuei buruzko informazio "
 "ezaguna"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Egin babeskopia, berreskuratu, inportatu eta (ber)indexatu MIME motaren edo "
 "fitxategi-izenaren arabera"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Berrezarri edo kendu indizea eta alderantzikatu konfigurazioak lehenetsietara"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Bilatu indexatutako edukia edo erakutsi edukia motaren arabera"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Kontsultatu eta eguneratu indizea SPARQL edo bilatu, zerrendatu eta sortu "
 "zuhaitz ontologikoa"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "Kontsultatu datu-basea maila baxuenean SQL erabiliz"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Erakutsi indexazioaren prozesua, edukiaren estatistikak eta indizearen egoera"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Sortu, zerrendatu edo ezabatu indexatutako edukiaren etiketak"
 
-#: ../src/tracker/tracker-main.c:107
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Erakutsi darabilen lizentzia eta bertsioa"
 
-#: ../src/tracker/tracker-main.c:152
+#: ../src/tracker/tracker-main.c:153
 #, c-format
 msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgstr "'%s' ez da tracker-en komandoa. Ikus 'tracker --help'"
 
-#: ../src/tracker/tracker-main.c:175
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Tracker-en komando erabilgarriak:"
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "Ezin izan da /proc ireki"
 
-#: ../src/tracker/tracker-process.c:127
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "Ezin izan da stat() funtzioa exekutatu fitxategian"
 
-#: ../src/tracker/tracker-process.c:198
+#: ../src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Ezin izan da '%s' ireki"
 
-#: ../src/tracker/tracker-process.c:327
+#: ../src/tracker/tracker-process.c:332
 #, c-format
 msgid "Could not terminate process %d - '%s'"
 msgstr "Ezin izan da %d - '%s' prozesua amaitu"
 
-#: ../src/tracker/tracker-process.c:333
+#: ../src/tracker/tracker-process.c:338
 #, c-format
 msgid "Terminated process %d - '%s'"
 msgstr "%d - '%s' prozesua amaituta"
 
-#: ../src/tracker/tracker-process.c:348
+#: ../src/tracker/tracker-process.c:353
 #, c-format
 msgid "Could not kill process %d - '%s'"
 msgstr "Ezin izan da %d - '%s' prozesua hil"
 
-#: ../src/tracker/tracker-process.c:354
+#: ../src/tracker/tracker-process.c:359
 #, c-format
 msgid "Killed process %d - '%s'"
 msgstr "%d - '%s' prozesua hilda"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Hil Tracker-en prozesu guztiak eta kendu datu-base guztiak"
 
-#: ../src/tracker/tracker-reset.c:51
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "--hard aukeraren berdina, baina eta egunkaria berrabiarazi ondoren "
 "leheneratuko dira"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Kendu konfigurazioko fitxategi guztiak, abiarazten den hurrengoan birsortzeko"
 
-#: ../src/tracker/tracker-reset.c:132
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Ezabatu fitxategi bati buruzko indexatutako informazioa, errekurtsiboki"
+" funtzionatzen du direktorioentzako"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:168
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "Ezabatzen…"
+
+#: ../src/tracker/tracker-reset.c:189
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"Fitxategi honen indexatutako datuak ezabatu egin dira eta berriro indexatuko"
+" dira."
+
+#: ../src/tracker/tracker-reset.c:216
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Ezin dituzu --hard eta --soft argumentuak batera erabili"
 
+#: ../src/tracker/tracker-reset.c:224
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "KONTU: prozesu honek datuak betirako ezabatuko ditu."
+
+#: ../src/tracker/tracker-reset.c:225
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can't "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"Tracker-ek indexatutako ia datu guztiak modu seguruan indexatu daiteke"
+" berriro, "
+"ezin da bermatu datu guztientzako. Kontu ibili, datuen galera eragin"
+" dezakezulako, "
+"zeure ardurapean egin."
+
+#: ../src/tracker/tracker-reset.c:230
+msgid "Are you sure you want to proceed?"
+msgstr "Ziur zaude jarraitu nahi duzula?"
+
+#. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:232
+msgid "[y|N]"
+msgstr "[b/E]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:241
+#| msgid "Yes"
+msgid "yes"
+msgstr "bai"
+
+#: ../src/tracker/tracker-reset.c:352
 msgid "Removing configuration files…"
 msgstr "Konfigurazioko fitxategiak kentzen…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
 msgstr "Dagoen konfigurazioa leheneratzen…"
 
@@ -2436,10 +2424,10 @@ msgstr ""
 "datu-basean"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Ezin izan dira bilaketaren emaitzak eskuratu"
 
@@ -2467,60 +2455,60 @@ msgstr "Ez da postarik aurkitu"
 msgid "No files were found"
 msgstr "Ez da fitxategirik aurkitu"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Ez da artistarik aurkitu"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Artistak"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Ez da abestirik aurkitu"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Albumak"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Ez da laster-markarik aurkitu"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Ez da iturririk aurkitu"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Iturriak"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Ez da softwarerik aurkitu"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Softwarea"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Ez da softwareen kategoriarik aurkitu"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Softwareen kategoriak"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Ez da zure kontsultarekin bat datorren emaitzarik aurkitu"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Bilaketaren '%s' terminoa hitz huts bat da."
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -3071,6 +3059,87 @@ msgstr "- abiarazi atzerapeneko idazketa zerbitzua"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Gordetako kontsultak"
+
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Indexatutako datuak berrezartzean datu-baseak kentzen dira eta zure "
+#~ "fitxategiak ez dira gehiago indexatuko. Hurrengoan berrabiaraztean, "
+#~ "Tracker-ek datuak indexatzen hasiko da aurreneko aldiz izango balitz "
+#~ "bezala.\n"
+#~ "\n"
+#~ "<b>Abisua: indexatutako eta cachean gordetako datu guztiak ezabatuko "
+#~ "dira! Ezingo dira berreskuratu! Benetako datuak eta fitxategiak ez dira "
+#~ "ukituko.</b>\n"
+#~ "\n"
+#~ "Egin klik botoi honetan hobespenak ere ixteko."
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Bai, kendu indexatutako guztiak"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "Indize bat ordenatutako erreferentzia bat da datu-pieza batera. Zure "
+#~ "informazioa eta edukia bizkor bilatzeko erabiltzen dugu indexazioa."
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Berrezarri indexatutako datuak"
+
+#~ msgid "_Delay"
+#~ msgstr "_Atzerapena"
+
+#~ msgid "seconds"
+#~ msgstr "segundo"
+
+#~ msgid "Start up"
+#~ msgstr "Hasiera"
+
+#~ msgid "System"
+#~ msgstr "Sistema"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "Hemen hobespenetan egin dituzun aldaketek berrindexatzea eskatzen dute "
+#~ "zure datu guztiak zuk eskatu bezala ondo indexatu direla ziurtatzeko."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Honekin elkarrizketa-koadroa itxiko da!"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Berrindexatu nahi duzu orain?"
+
+#~ msgid "Reindex"
+#~ msgstr "Berrindexatu"
+
+#~ msgid "Do nothing"
+#~ msgstr "Ez egin ezer"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "Hobespenetan egin dituzun aldaketek tracker-en prozesuak berrabiaraztea "
+#~ "eskatzen dute."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Berrabiarazi nahi duzu orain?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Berrabiarazi Tracker"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "'tracker-control' komandoa ez dago gehiago erabilgarri"
 
 #~ msgid "Add feed (must be used with --title)"
 #~ msgstr "Gehitu iturria (--title aukerarekin erabili)"
