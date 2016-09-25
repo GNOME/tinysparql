@@ -1213,7 +1213,7 @@ msgstr "Configureu la indexació de fitxers del Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Indexing Preferences"
-msgstr "Preferències d'_indexació"
+msgstr "Preferències d'indexació"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "_Monitor file and directory changes"
@@ -1318,13 +1318,13 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
-"De tan en tan s'esborren les dades indexades de continguts de dispositius "
+"De tant en tant s'esborra el contingut indexat dels dispositius "
 "extraïbles que no s'hagin inserit durant un temps per evitar l'acumulació de "
-"dades no utilitzades."
+"dades no usades."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Days before deleting removable devices:"
-msgstr "Dies abans de suprimir les dades dels dispositius extraïbles:"
+msgstr "Dies abans de suprimir dels dispositius extraïbles:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Garbage Collection"
@@ -1344,7 +1344,7 @@ msgid ""
 "directories underneath it will also be indexed. Otherwise, only files "
 "immediately in that directory will be indexed."
 msgstr ""
-"Localitzacions especials com ara el directori <b>Carpeta de l'usuari</b>, "
+"Localitzacions especials com ara els directoris <b>Carpeta de l'usuari</b>, "
 "<b>Escriptori</b> o <b>Documents</b>, poden ser configurats a continuació. "
 "Això afegirà o suprimirà el seu camí real de la llista de baix.\n"
 "\n"
@@ -2170,7 +2170,7 @@ msgstr ""
 #: ../src/tracker/tracker-info.c:49
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
-"Mostra el nom d'espais sencer (per exemple no mostra l'URL sencera en "
+"Mostra el nom d'espais sencer (per exemple mostra l'URL sencer en "
 "comptes de nie:title)"
 
 #: ../src/tracker/tracker-info.c:53
