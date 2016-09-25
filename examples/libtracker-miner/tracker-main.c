@@ -24,8 +24,6 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-utils.h>
-
 #include "tracker-miner-test.h"
 
 static void
@@ -59,103 +57,6 @@ miner_start_cb (gpointer user_data)
 }
 
 static gboolean
-check_directory_cb (TrackerMinerFS *fs,
-                    GFile          *file,
-                    gpointer        user_data)
-{
-	gchar *path;
-	gchar *basename;
-	gboolean should_process;
-
-	should_process = FALSE;
-	basename = NULL;
-	path = g_file_get_path (file);
-
-	if (tracker_is_empty_string (path)) {
-		goto done;
-	}
-
-	if (!g_utf8_validate (path, -1, NULL)) {
-		g_message ("Ignoring path:'%s', not valid UTF-8", path);
-		goto done;
-	}
-
-	/* Most common things to ignore */
-	if (strcmp (path, "/dev") == 0 ||
-	    strcmp (path, "/lib") == 0 ||
-	    strcmp (path, "/proc") == 0 ||
-	    strcmp (path, "/sys") == 0) {
-		goto done;
-	}
-
-	if (g_str_has_prefix (path, g_get_tmp_dir ())) {
-		goto done;
-	}
-
-	/* Check ignored directories in config */
-	basename = g_file_get_basename (file);
-
-	if (!basename) {
-		goto done;
-	}
-
-	/* If directory begins with ".", check it isn't one of
-	 * the top level directories to watch/crawl if it
-	 * isn't we ignore it. If it is, we don't.
-	 */
-	if (basename[0] == '.') {
-		goto done;
-	}
-
-	/* Check module directory ignore patterns */
-	should_process = TRUE;
-
- done:
-	g_free (path);
-	g_free (basename);
-
-	return should_process;
-}
-
-static gboolean
-check_file_cb (TrackerMinerFS *fs,
-               GFile          *file,
-               gpointer                user_data)
-{
-	gchar *path;
-	gchar *basename;
-	gboolean should_process;
-
-	should_process = FALSE;
-	basename = NULL;
-	path = g_file_get_path (file);
-
-	if (tracker_is_empty_string (path)) {
-		goto done;
-	}
-
-	if (!g_utf8_validate (path, -1, NULL)) {
-		g_message ("Ignoring path:'%s', not valid UTF-8", path);
-		goto done;
-	}
-
-	/* Check basename against pattern matches */
-	basename = g_file_get_basename (file);
-
-	if (!basename || basename[0] == '.') {
-		goto done;
-	}
-
-	should_process = TRUE;
-
- done:
-	g_free (path);
-	g_free (basename);
-
-	return should_process;
-}
-
-static void
 process_file_cb (TrackerMinerFS *fs,
                  GFile          *file,
                  gpointer        user_data)
@@ -165,13 +66,11 @@ process_file_cb (TrackerMinerFS *fs,
 	path = g_file_get_path (file);
 	g_print ("** PROCESSING FILE:'%s'\n", path);
 	g_free (path);
-}
 
-static gboolean
-monitor_directory_cb (TrackerMinerFS *fs,
-                      GFile          *file,
-                      gpointer        user_data)
-{
+	/* Notify that processing is complete. */
+	tracker_miner_fs_file_notify (fs, file, NULL);
+
+	/* Return FALSE here if you ignored the file. */
 	return TRUE;
 }
 
@@ -187,53 +86,65 @@ add_directory_path (TrackerMinerFS *fs,
 	g_object_unref (file);
 }
 
+static void
+add_special_directory (TrackerMinerFS *fs,
+                       GUserDirectory  dir,
+                       const char     *dir_name,
+                       gboolean        recurse)
+{
+	if (strcmp (g_get_user_special_dir (dir), g_get_home_dir ()) == 0) {
+		g_message ("User dir %s is set to home directory; ignoring.", dir_name);
+	} else {
+		add_directory_path (fs,
+		                    g_get_user_special_dir (dir),
+		                    recurse);
+	}
+}
+
 int
 main (int argc, char *argv[])
 {
 	TrackerMiner *miner;
+	TrackerIndexingTree *tree;
 	GMainLoop *main_loop;
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	miner = tracker_miner_test_new ("test");
 
-	g_signal_connect (TRACKER_MINER_FS (miner), "check-file",
-	                  G_CALLBACK (check_file_cb),
-	                  NULL);
-	g_signal_connect (TRACKER_MINER_FS (miner), "check-directory",
-	                  G_CALLBACK (check_directory_cb),
-	                  NULL);
 	g_signal_connect (TRACKER_MINER_FS (miner), "process-file",
 	                  G_CALLBACK (process_file_cb),
 	                  NULL);
-	g_signal_connect (TRACKER_MINER_FS (miner), "monitor-directory",
-	                  G_CALLBACK (monitor_directory_cb),
-	                  NULL);
+
+	tree = tracker_miner_fs_get_indexing_tree (TRACKER_MINER_FS (miner));
+
+	/* Ignore files that g_file_info_get_is_hidden() tells us are hidden files. */
+	tracker_indexing_tree_set_filter_hidden (tree, TRUE);
+
+	/* Ignore special filesystems that definitely shouldn't be indexed */
+	/* FIXME: it would be better to avoid based on filesystem type; i.e. avoid
+	 * devtmpfs, sysfs and procfs filesystems. */
+	tracker_indexing_tree_add_filter(tree, TRACKER_FILTER_PARENT_DIRECTORY, "/dev");
+	tracker_indexing_tree_add_filter(tree, TRACKER_FILTER_PARENT_DIRECTORY, "/proc");
+	tracker_indexing_tree_add_filter(tree, TRACKER_FILTER_PARENT_DIRECTORY, "/sys");
+
+	tracker_indexing_tree_add_filter(tree, TRACKER_FILTER_PARENT_DIRECTORY, g_get_tmp_dir());
 
 	add_directory_path (TRACKER_MINER_FS (miner),
 	                    g_get_home_dir (),
 	                    FALSE);
+
+	/* This should be ignored */
 	add_directory_path (TRACKER_MINER_FS (miner),
 	                    g_get_tmp_dir (),
 	                    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
-	                    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
-	                    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
-	                    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
-	                    FALSE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
-	                    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
-	                    g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
-	                    TRUE);
+
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_PICTURES, "PICTURES", TRUE);
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_MUSIC, "MUSIC", TRUE);
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_VIDEOS, "VIDEOS", TRUE);
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_DOWNLOAD, "DOWNLOAD", TRUE);
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_DOCUMENTS, "DOCUMENTS", TRUE);
+	add_special_directory (TRACKER_MINER_FS (miner), G_USER_DIRECTORY_DESKTOP, "DESKTOP", TRUE);
 
 	g_signal_connect (miner, "finished",
 	                  G_CALLBACK (miner_finished_cb),
