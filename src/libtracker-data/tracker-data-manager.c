@@ -130,7 +130,7 @@ handle_unsupported_ontology_change (const gchar  *ontology_path,
 	             subject != NULL ? subject : "Unknown",
 	             change != NULL ? change : "Unknown",
 	             old != NULL ? old : "Unknown",
-	             attempted_new != NULL ? attempted_new : "Uknown");
+	             attempted_new != NULL ? attempted_new : "Unknown");
 }
 
 static void
