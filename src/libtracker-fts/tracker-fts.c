@@ -212,7 +212,11 @@ tracker_fts_alter_table (sqlite3    *db,
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
-	query = g_strdup_printf ("DROP TABLE fts5");
+	query = g_strdup_printf ("DROP TABLE %s", tmp_name);
+	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
+	g_free (query);
+
+	query = g_strdup_printf ("DROP TABLE %s", table_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
