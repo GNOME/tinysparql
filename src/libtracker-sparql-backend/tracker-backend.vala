@@ -133,7 +133,7 @@ class Tracker.Sparql.Backend : Connection {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override GenericArray<Sparql.Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
