@@ -163,7 +163,7 @@ License which can be viewed at:
 			/* Translators: this messagge will apper immediately after the
 			 * usage string - Usage: COMMAND <THIS_MESSAGE>
 			 */
-			var context = new OptionContext (_("- start the tracker daemon"));
+			var context = new OptionContext (_("— start the tracker daemon"));
 			context.add_main_entries (entries, null);
 			context.parse (ref args);
 		} catch (Error e) {

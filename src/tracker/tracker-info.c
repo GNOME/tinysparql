@@ -46,7 +46,7 @@ static gboolean turtle;
 
 static GOptionEntry entries[] = {
 	{ "full-namespaces", 'f', 0, G_OPTION_ARG_NONE, &full_namespaces,
-	  N_("Show full namespaces (i.e. don't use nie:title, use full URLs)"),
+	  N_("Show full namespaces (i.e. don’t use nie:title, use full URLs)"),
 	  NULL,
 	},
 	{ "plain-text-content", 'c', 0, G_OPTION_ARG_NONE, &plain_text_content,

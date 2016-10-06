@@ -56,7 +56,7 @@ exec_man_man (const char *path, const char *page)
 	}
 
 	execlp (path, "man", page, (char *) NULL);
-	g_warning(_("failed to exec '%s': %s"), path, strerror (errno));
+	g_warning(_("failed to exec “%s”: %s"), path, strerror (errno));
 
 	return -1;
 }
@@ -68,7 +68,7 @@ exec_man_cmd (const char *cmd, const char *page)
 
 	shell_cmd = g_strdup_printf ("%s %s", cmd, page);
 	execl ("/bin/sh", "sh", "-c", shell_cmd, (char *) NULL);
-	g_warning (_("failed to exec '%s': %s"), cmd, strerror (errno));
+	g_warning (_("failed to exec “%s”: %s"), cmd, strerror (errno));
 	g_free (shell_cmd);
 
 	return -1;

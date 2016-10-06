@@ -93,10 +93,10 @@ static GOptionEntry entries[] = {
 	  N_("MIME") },
 	{ "force-module", 'm', 0,
 	  G_OPTION_ARG_STRING, &force_module,
-	  N_("Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"),
+	  N_("Force a module to be used for extraction (e.g. “foo” for “foo.so”)"),
 	  N_("MODULE") },
 	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format_name,
-	  N_("Output results format: 'sparql', or 'turtle'"),
+	  N_("Output results format: “sparql”, or “turtle”"),
 	  N_("FORMAT") },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
@@ -266,7 +266,7 @@ run_standalone (TrackerConfig *config)
 	enum_value = g_enum_get_value_by_nick (enum_class, output_format_name);
 	g_type_class_unref (enum_class);
 	if (!enum_value) {
-		g_printerr (N_("Unsupported serialization format '%s'\n"), output_format_name);
+		g_printerr (N_("Unsupported serialization format “%s”\n"), output_format_name);
 		return EXIT_FAILURE;
 	}
 	output_format = enum_value->value;
@@ -317,7 +317,7 @@ main (int argc, char *argv[])
 
 	/* Translators: this message will appear immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
-	context = g_option_context_new (_("- Extract file meta data"));
+	context = g_option_context_new (_("— Extract file meta data"));
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);

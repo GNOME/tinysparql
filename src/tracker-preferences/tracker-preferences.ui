@@ -1331,7 +1331,7 @@ Those which are the same are disabled!</property>
                                       <object class="GtkTreeView" id="treeview_ignored_files">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="tooltip_text" translatable="yes">Globbing patterns can be used here, for example: "*bar*".
+                                        <property name="tooltip_text" translatable="yes">Globbing patterns can be used here, for example: “*bar*”.
 Most commonly this is used to ignore directories like *~, *.o, *.la, etc</property>
                                         <property name="model">liststore_ignored_files</property>
                                         <property name="headers_visible">False</property>

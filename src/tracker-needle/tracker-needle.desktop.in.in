@@ -1,6 +1,6 @@
 [Desktop Entry]
 _Name=Desktop Search
-_Comment=Find what you're looking for on this computer by name or content using Tracker
+_Comment=Find what you’re looking for on this computer by name or content using Tracker
 Exec=tracker-needle
 Icon=system-search
 Terminal=false

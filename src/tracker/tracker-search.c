@@ -147,7 +147,7 @@ static GOptionEntry entries[] = {
 	  NULL
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
-	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists, --feeds, --software, --software-categories)"),
+	  N_("Show URNs for results (doesn’t apply to --music-albums, --music-artists, --feeds, --software, --software-categories)"),
 	  NULL
 	},
 	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
@@ -1550,7 +1550,7 @@ search_run (void)
 			down = g_utf8_strdown (*p, -1);
 
 			if (tracker_language_is_stop_word (language, down)) {
-				g_printerr (_("Search term '%s' is a stop word."),
+				g_printerr (_("Search term “%s” is a stop word."),
 				            down);
 				g_printerr ("\n");
 

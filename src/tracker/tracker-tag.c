@@ -648,7 +648,7 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 		cursor = get_file_urns (connection, uris, NULL);
 
 		if (!cursor) {
-			g_printerr ("%s\n", _("Files do not exist or aren't indexed"));
+			g_printerr ("%s\n", _("Files do not exist or aren’t indexed"));
 			g_strfreev (uris);
 			return FALSE;
 		}
@@ -656,7 +656,7 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 		urns_strv = result_to_strv (cursor, 0);
 
 		if (!urns_strv || g_strv_length (urns_strv) < 1) {
-			g_printerr ("%s\n", _("Files do not exist or aren't indexed"));
+			g_printerr ("%s\n", _("Files do not exist or aren’t indexed"));
 			g_object_unref (cursor);
 			g_strfreev (uris);
 			return FALSE;

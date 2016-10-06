@@ -122,8 +122,8 @@ static const gchar *statuses[8] = {
 	N_("Initializing"),
 	N_("Processing…"),
 	N_("Fetching…"), /* miner/rss */
-	N_("Crawling single directory '%s'"),
-	N_("Crawling recursively directory '%s'"),
+	N_("Crawling single directory “%s”"),
+	N_("Crawling recursively directory “%s”"),
 	N_("Paused"),
 	N_("Idle")
 };
@@ -175,16 +175,16 @@ static GOptionEntry entries[] = {
 	{ "list-processes", 'p', 0, G_OPTION_ARG_NONE, &list_processes,
 	  N_("List all Tracker processes") },
 	{ "kill", 'k', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, term_option_arg_func,
-	  N_("Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
+	  N_("Use SIGKILL to stop all matching processes, either “store”, “miners” or “all” may be used, no parameter equals “all”"),
 	  N_("APPS") },
 	{ "terminate", 't', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, term_option_arg_func,
-	  N_("Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
+	  N_("Use SIGTERM to stop all matching processes, either “store”, “miners” or “all” may be used, no parameter equals “all”"),
 	  N_("APPS") },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
 	{ "set-log-verbosity", 0, 0, G_OPTION_ARG_STRING, &set_log_verbosity,
-	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
+	  N_("Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, “errors”) for all processes"),
 	  N_("LEVEL") },
 	{ "get-log-verbosity", 0, 0, G_OPTION_ARG_NONE, &get_log_verbosity,
 	  N_("Show logging values in terms of log verbosity for each process"),
@@ -893,7 +893,7 @@ miner_pause (const gchar *miner,
 		return EXIT_FAILURE;
 	}
 
-	str = g_strdup_printf (_("Attempting to pause miner '%s' with reason '%s'"),
+	str = g_strdup_printf (_("Attempting to pause miner “%s” with reason “%s”"),
 	                       miner,
 	                       reason);
 	g_print ("%s\n", str);
@@ -1204,7 +1204,7 @@ term_option_arg_func (const gchar  *option_value,
 		option = TRACKER_PROCESS_TYPE_MINERS;
 	} else {
 		g_set_error_literal (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
-		                     _("Only one of 'all', 'store' and 'miners' options are allowed"));
+		                     _("Only one of “all”, “store” and “miners” options are allowed"));
 		return FALSE;
 	}
 
@@ -1360,7 +1360,7 @@ daemon_run (void)
 
 			name = tracker_miner_manager_get_display_name (manager, l->data);
 			if (!name) {
-				g_critical (_("Could not get display name for miner '%s'"),
+				g_critical (_("Could not get display name for miner “%s”"),
 				            (const gchar*) l->data);
 				continue;
 			}
@@ -1527,7 +1527,7 @@ daemon_run (void)
 			set_log_verbosity_value = TRACKER_VERBOSITY_ERRORS;
 		} else {
 			g_printerr ("%s\n",
-			            _("Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"));
+			            _("Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"));
 			return EXIT_FAILURE;
 		}
 	}
@@ -1565,7 +1565,7 @@ daemon_run (void)
 		for (l = pids; l; l = l->next) {
 			TrackerProcessData *pd = l->data;
 
-			str = g_strdup_printf (_("Found process ID %d for '%s'"), pd->pid, pd->cmd);
+			str = g_strdup_printf (_("Found process ID %d for “%s”"), pd->pid, pd->cmd);
 			g_print ("%s\n", str);
 			g_free (str);
 		}
@@ -1620,7 +1620,7 @@ daemon_run (void)
 			return EXIT_FAILURE;
 		}
 
-		str = g_strdup_printf (_("Setting log verbosity for all components to '%s'…"), set_log_verbosity);
+		str = g_strdup_printf (_("Setting log verbosity for all components to “%s”…"), set_log_verbosity);
 		g_print ("%s\n", str);
 		g_print ("\n");
 		g_free (str);

@@ -497,7 +497,7 @@ tracker_data_backup_save (GFile                     *destination,
 		             TRACKER_DATA_BACKUP_ERROR,
 		             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 		             "%s, %s",
-		             _("Error starting 'tar' program"),
+		             _("Error starting “tar” program"),
 		             local_error ? local_error->message : _("No error given"));
 
 		g_warning ("%s", error->message);
@@ -617,7 +617,7 @@ tracker_data_backup_restore (GFile                *journal,
 			             TRACKER_DATA_BACKUP_ERROR,
 			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 			             "%s, %s",
-			             _("Error starting 'tar' program"),
+			             _("Error starting “tar” program"),
 			             n_error ? n_error->message : _("No error given"));
 			g_warning ("%s", info->error->message);
 			g_clear_error (&n_error);
@@ -631,7 +631,7 @@ tracker_data_backup_restore (GFile                *journal,
 			g_set_error (&info->error,
 			             TRACKER_DATA_BACKUP_ERROR,
 			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
-			             _("Unknown error, 'tar' exited with status %d"),
+			             _("Unknown error, “tar” exited with status %d"),
 			             exit_status);
 		}
 

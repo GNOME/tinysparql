@@ -451,8 +451,8 @@ check_eligible (void)
 	}
 
 	g_print (exists ?
-	         _("Data object '%s' currently exists") :
-	         _("Data object '%s' currently does not exist"),
+	         _("Data object “%s” currently exists") :
+	         _("Data object “%s” currently does not exist"),
 	         path);
 
 	g_print ("\n");
@@ -694,7 +694,7 @@ main (gint argc, gchar *argv[])
 	/* Translators: this messagge will apper immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
-	context = g_option_context_new (_("- start the tracker indexer"));
+	context = g_option_context_new (_("— start the tracker indexer"));
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);

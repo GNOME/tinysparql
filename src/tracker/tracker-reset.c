@@ -223,7 +223,7 @@ reset_run (void)
 		g_print (CRIT_BEGIN "%s" CRIT_END "\n%s\n\n%s %s: ",
 		         _("CAUTION: This process may irreversibly delete data."),
 		         _("Although most content indexed by Tracker can "
-		           "be safely reindexed, it can't be assured that "
+		           "be safely reindexed, it can’t be assured that "
 		           "this is the case for all data. Be aware that "
 		           "you may be incurring in a data loss situation, "
 		           "proceed at your own risk."),

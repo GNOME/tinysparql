@@ -70,7 +70,7 @@ main (int argc, char **argv)
 	/* Translators: this messagge will apper immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
-	context = g_option_context_new (_("- start the feeds indexer"));
+	context = g_option_context_new (_("— start the feeds indexer"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 

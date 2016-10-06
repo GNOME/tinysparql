@@ -200,7 +200,7 @@ tracker_process_find_all (void)
 		if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 			gchar *str;
 
-			str = g_strdup_printf (_("Could not open '%s'"), filename);
+			str = g_strdup_printf (_("Could not open “%s”"), filename);
 			g_printerr ("%s: %s\n",
 			            str,
 			            error ? error->message : _("No error given"));
@@ -329,13 +329,13 @@ tracker_process_stop (TrackerProcessTypes daemons_to_term,
 			if (kill (pid, SIGTERM) == -1) {
 				const gchar *errstr = g_strerror (errno);
 						
-				str = g_strdup_printf (_("Could not terminate process %d - '%s'"), pid, basename);
+				str = g_strdup_printf (_("Could not terminate process %d — “%s”"), pid, basename);
 				g_printerr ("  %s: %s\n",
 				            str,
 				            errstr ? errstr : _("No error given"));
 				g_free (str);
 			} else {
-				str = g_strdup_printf (_("Terminated process %d - '%s'"), pid, basename);
+				str = g_strdup_printf (_("Terminated process %d — “%s”"), pid, basename);
 				g_print ("  %s\n", str);
 				g_free (str);
 			}
@@ -350,13 +350,13 @@ tracker_process_stop (TrackerProcessTypes daemons_to_term,
 			if (kill (pid, SIGKILL) == -1) {
 				const gchar *errstr = g_strerror (errno);
 
-				str = g_strdup_printf (_("Could not kill process %d - '%s'"), pid, basename);
+				str = g_strdup_printf (_("Could not kill process %d — “%s”"), pid, basename);
 				g_printerr ("  %s: %s\n",
 				            str,
 				            errstr ? errstr : _("No error given"));
 				g_free (str);
 			} else {
-				str = g_strdup_printf (_("Killed process %d - '%s'"), pid, basename);
+				str = g_strdup_printf (_("Killed process %d — “%s”"), pid, basename);
 				g_print ("  %s\n", str);
 				g_free (str);
 			}

@@ -39,10 +39,10 @@ static gchar **filenames;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0, G_OPTION_ARG_STRING, &verbosity,
-	  N_("Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', 'errors') for all processes"),
+	  N_("Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, “errors”) for all processes"),
 	  N_("LEVEL") },
 	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format,
-	  N_("Output results format: 'sparql', or 'turtle'"),
+	  N_("Output results format: “sparql”, or “turtle”"),
 	  N_("FORMAT") },
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
@@ -102,7 +102,7 @@ extract_run (void)
 			verbosity_level = TRACKER_VERBOSITY_ERRORS;
 		} else {
 			g_printerr ("%s\n",
-			            _("Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"));
+			            _("Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"));
 			return EXIT_FAILURE;
 		}
 	}

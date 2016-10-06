@@ -68,7 +68,7 @@ Boston, MA  02110-1301, USA.
     </key>
 
     <key name="removable-days-threshold" type="i">
-      <_summary>Removable devices' data permanence threshold</_summary>
+      <_summary>Removable devices’ data permanence threshold</_summary>
       <_description>
 	Threshold in days after which files from removables devices
 	will be removed from database if not mounted. 0 means never,
@@ -100,7 +100,7 @@ Boston, MA  02110-1301, USA.
       <_summary>Index optical discs</_summary>
       <_description>
 	Set to true to enable indexing CDs, DVDs, and generally optical media
-	(if removable devices are not indexed, optical discs won't be either)
+	(if removable devices are not indexed, optical discs won’t be either)
       </_description>
       <default>false</default>
     </key>

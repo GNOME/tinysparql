@@ -1141,7 +1141,7 @@ sparql_run (void)
 			if (!p) {
 				g_printerr ("%s\n",
 				            _("Could not find property for class prefix, "
-				              "e.g. :Resource in 'rdfs:Resource'"));
+				              "e.g. :Resource in “rdfs:Resource”"));
 				g_free (prefix);
 				g_object_unref (connection);
 

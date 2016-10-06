@@ -45,7 +45,7 @@ const char usage_string[] =
 	"               <command> [<args>]";
  
 const char usage_more_info_string[] =
-	N_("See 'tracker help <command>' to read about a specific subcommand.");
+	N_("See “tracker help <command>” to read about a specific subcommand.");
 
 const char about[] =
 	"Tracker " PACKAGE_VERSION "\n"
@@ -150,7 +150,7 @@ handle_command (int argc, const char **argv)
 		exit (run_builtin (p, argc, argv));
 	}
 
-	g_printerr (_("'%s' is not a tracker command. See 'tracker --help'"), argv[0]);
+	g_printerr (_("“%s” is not a tracker command. See “tracker --help”"), argv[0]);
 	g_printerr ("\n");
 	exit (EXIT_FAILURE);
 }

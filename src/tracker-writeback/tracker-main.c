@@ -95,7 +95,7 @@ main (int   argc,
 	/* Translators: this message will appear immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
-	context = g_option_context_new (_("- start the tracker writeback service"));
+	context = g_option_context_new (_("— start the tracker writeback service"));
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
