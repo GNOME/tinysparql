@@ -186,7 +186,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Deprecated: 0.12: Use tracker_sparql_connection_get_async instead.
 	 */
-	[Deprecated]
+	[Version (deprecated=true)]
 	public extern async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
@@ -207,7 +207,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Deprecated: 0.12: Use tracker_sparql_connection_get instead.
 	 */
-	[Deprecated]
+	[Version (deprecated=true)]
 	public extern static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
