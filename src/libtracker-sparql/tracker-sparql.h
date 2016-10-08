@@ -25,6 +25,7 @@
 #include <libtracker-sparql/tracker-version.h>
 #include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-sparql/tracker-resource.h>
+#include <libtracker-sparql/tracker-notifier.h>
 #include <libtracker-sparql/tracker-generated.h>
 
 #undef __LIBTRACKER_SPARQL_INSIDE__

@@ -215,6 +215,30 @@ tracker_sparql_cursor_set_connection
 </SECTION>
 
 <SECTION>
+<FILE>tracker-notifier</FILE>
+<TITLE>TrackerNotifier</TITLE>
+TrackerNotifierFlags
+TrackerNotifier
+TrackerNotifierClass
+TrackerNotifierEventType
+TrackerNotifierEvent
+tracker_notifier_new
+tracker_notifier_event_get_event_type
+tracker_notifier_event_get_id
+tracker_notifier_event_get_type
+tracker_notifier_event_get_urn
+tracker_notifier_event_get_location
+<SUBSECTION Standard>
+TRACKER_IS_NOTIFIER
+TRACKER_IS_NOTIFIER_CLASS
+TRACKER_NOTIFIER
+TRACKER_NOTIFIER_CLASS
+TRACKER_NOTIFIER_GET_CLASS
+TRACKER_TYPE_NOTIFIER
+tracker_notifier_get_type
+</SECTION>
+
+<SECTION>
 <TITLE>Version Information</TITLE>
 <FILE>tracker-version</FILE>
 tracker_major_version

@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2016 Red Hat Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+#ifndef __TRACKER_NOTIFIER_H__
+#define __TRACKER_NOTIFIER_H__
+
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#endif
+
+#include <gio/gio.h>
+
+#define TRACKER_TYPE_NOTIFIER (tracker_notifier_get_type ())
+
+G_DECLARE_DERIVABLE_TYPE (TrackerNotifier, tracker_notifier, TRACKER, NOTIFIER, GObject)
+
+typedef struct _TrackerNotifierEvent TrackerNotifierEvent;
+
+struct _TrackerNotifierClass {
+	GObjectClass parent_class;
+
+	void (* events) (TrackerNotifier *notifier,
+	                 const GPtrArray *events);
+
+	/* <Private> */
+	gpointer padding[20];
+};
+
+/**
+ * TrackerNotifierFlags:
+ * @TRACKER_NOTIFIER_FLAG_NONE: No flags
+ * @TRACKER_NOTIFIER_FLAG_QUERY_URN: Query URN of notified elements
+ * @TRACKER_NOTIFIER_FLAG_QUERY_LOCATION: Query location of notified elements
+ * @TRACKER_NOTIFIER_FLAG_NOTIFY_UNEXTRACTED: Added/updated Elements are
+ *   notified in 2 steps (a CREATE/UPDATE event after the file is first
+ *   known, and an UPDATE event after metadata is extracted). The default
+ *   #TrackerNotifier behavior coalesces those events in one.
+ *
+ * Flags affecting #TrackerNotifier behavior.
+ */
+typedef enum {
+	TRACKER_NOTIFIER_FLAG_NONE               = 0,
+	TRACKER_NOTIFIER_FLAG_QUERY_URN          = 1 << 1,
+	TRACKER_NOTIFIER_FLAG_QUERY_LOCATION     = 1 << 2,
+	TRACKER_NOTIFIER_FLAG_NOTIFY_UNEXTRACTED = 1 << 3,
+} TrackerNotifierFlags;
+
+/**
+ * TrackerNotifierEventType:
+ * @TRACKER_NOTIFIER_EVENT_CREATE: An element was created.
+ * @TRACKER_NOTIFIER_EVENT_DELETE: An element was deleted.
+ * @TRACKER_NOTIFIER_EVENT_UPDATE: An element was updated.
+ *
+ * Notifier event types.
+ */
+typedef enum {
+	TRACKER_NOTIFIER_EVENT_CREATE,
+	TRACKER_NOTIFIER_EVENT_DELETE,
+	TRACKER_NOTIFIER_EVENT_UPDATE
+} TrackerNotifierEventType;
+
+TrackerNotifier * tracker_notifier_new (const gchar * const   *classes,
+                                        TrackerNotifierFlags   flags,
+                                        GCancellable          *cancellable,
+                                        GError               **error);
+
+TrackerNotifierEventType
+              tracker_notifier_event_get_event_type (TrackerNotifierEvent *event);
+gint64        tracker_notifier_event_get_id         (TrackerNotifierEvent *event);
+const gchar * tracker_notifier_event_get_type       (TrackerNotifierEvent *event);
+const gchar * tracker_notifier_event_get_urn        (TrackerNotifierEvent *event);
+const gchar * tracker_notifier_event_get_location   (TrackerNotifierEvent *event);
+
+#endif /* __TRACKER_NOTIFIER_H__ */

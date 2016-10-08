@@ -17,13 +17,26 @@ AM_CPPFLAGS =                                          \
 
 libtracker_sparqlincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-sparql
 
+tracker-sparql-enum-types.h: tracker-sparql-enum-types.h.template tracker-notifier.h
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-sparql-enum-types.h.template tracker-notifier.h) > $@
+
+tracker-sparql-enum-types.c: tracker-sparql-enum-types.c.template tracker-sparql-enum-types.h
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-sparql-enum-types.c.template tracker-notifier.h) > $@
+
+ENUM_SOURCES =                                         \
+	tracker-sparql-enum-types.c                    \
+	tracker-sparql-enum-types.h
+
 libtracker_sparql_la_SOURCES =   \
+	$(ENUM_SOURCES)                                \
 	tracker-namespace.vala                         \
 	tracker-builder.vala                           \
 	tracker-connection.vala                        \
 	tracker-cursor.vala                            \
 	tracker-namespace-manager.c                    \
 	tracker-namespace-manager.h                    \
+	tracker-notifier.c                             \
+	tracker-notifier.h                             \
 	tracker-resource.c                             \
 	tracker-resource.h                             \
 	tracker-utils.vala                             \
@@ -54,7 +67,8 @@ tracker-sparql-$(TRACKER_API_VERSION).vapi: tracker-sparql.vapi
 libtracker_sparqlinclude_HEADERS =                     \
 	$(vala_header)                                 \
 	tracker-namespace-manager.h                    \
-	tracker-ontologies.h \
+	tracker-notifier.h                             \
+	tracker-ontologies.h                           \
 	tracker-resource.h                             \
 	tracker-sparql.h                               \
 	tracker-version.h
@@ -69,7 +83,9 @@ pkgconfig_DATA = tracker-sparql-$(TRACKER_API_VERSION).pc
 tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
 	cp $< $@
 
-CLEANFILES = tracker-sparql-$(TRACKER_API_VERSION).pc
+CLEANFILES = \
+	$(ENUM_SOURCES)                                 \
+	tracker-sparql-$(TRACKER_API_VERSION).pc
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
