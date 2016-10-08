@@ -385,14 +385,14 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 		return;
 	}
 
-	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid child", -1);
-		return;
-	}
-
-	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid first parent", -1);
-		return;
+	for (i = 0; i < argc; i++) {
+		if (sqlite3_value_type (argv[i]) == SQLITE_NULL) {
+			sqlite3_result_int (context, FALSE);
+			return;
+		} else if (sqlite3_value_type (argv[i]) != SQLITE_TEXT) {
+			sqlite3_result_error (context, "Invalid non-text argument", -1);
+			return;
+		}
 	}
 
 	child = sqlite3_value_text (argv[argc-1]);
