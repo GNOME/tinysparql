@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2016-08-26 01:51+0000\n"
-"PO-Revision-Date: 2016-09-05 17:35+0200\n"
+"POT-Creation-Date: 2016-10-09 14:17+0000\n"
+"PO-Revision-Date: 2016-10-12 16:24+0200\n"
+"Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "X-Generator: Poedit 1.8.8\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -787,7 +787,7 @@ msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
-msgstr ""
+msgstr "File di dulà tirâ fûr i metadâts"
 
 #: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
@@ -1324,7 +1324,7 @@ msgstr "Dîs prime di eliminâ dispositîfs estraibii:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Garbage Collection"
-msgstr ""
+msgstr "Colezion scovacis"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Indexing"
@@ -2065,6 +2065,7 @@ msgstr ""
 #: ../src/tracker/tracker-info.c:49
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
+"Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL complets)"
 
 #: ../src/tracker/tracker-info.c:53
 msgid "Show plain text content if available for resources"
@@ -2291,7 +2292,7 @@ msgstr "Rimozion file di configurazion..."
 
 #: ../src/tracker/tracker-reset.c:357
 msgid "Resetting existing configuration…"
-msgstr ""
+msgstr "Si sta ristabilint la configurazion esistente..."
 
 #: ../src/tracker/tracker-search.c:80
 msgid "Search for files"
@@ -2499,6 +2500,7 @@ msgstr ""
 "Lis peraulis di ferme a son peraulis di ûs comun che a puedin jessi "
 "ignoradis dilunc il procès de metude in indiç."
 
+# equivocabile il "di un file"
 #: ../src/tracker/tracker-sparql.c:104
 #, fuzzy
 msgid "Path to use to run a query or update from file"
@@ -2581,16 +2583,19 @@ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Torne il non sempliç di une classe (p.e. nfo:FileDataObject)."
 
 #: ../src/tracker/tracker-sparql.c:148
+#, fuzzy
 msgid "Returns the full namespace for a class."
-msgstr ""
+msgstr "Al torne il namespace complet di une classe."
 
 #: ../src/tracker/tracker-sparql.c:249
+#, fuzzy
 msgid "Could not get namespace prefixes"
-msgstr ""
+msgstr "Impussibil otignî i prefìs di namespace"
 
 #: ../src/tracker/tracker-sparql.c:258
+#, fuzzy
 msgid "No namespace prefixes were found"
-msgstr ""
+msgstr "Nissun prefìs di namespace cjatât"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
@@ -2765,13 +2770,12 @@ msgid "SQL"
 msgstr "SQL"
 
 #: ../src/tracker/tracker-sql.c:110
-#, fuzzy
 msgid "Failed to initialize data manager"
 msgstr "No si è rivâts a inizializâ il gjestôr di dâts"
 
 #: ../src/tracker/tracker-sql.c:170
 msgid "Empty result set"
-msgstr ""
+msgstr "Cumbinazion di risultâts vueide"
 
 #: ../src/tracker/tracker-status.c:52
 msgid "Show statistics for current index / data set"
