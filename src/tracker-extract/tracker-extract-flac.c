@@ -212,6 +212,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	tracker_resource_add_uri (metadata, "rdf:type", "nmm:MusicPiece");
 	tracker_resource_add_uri (metadata, "rdf:type", "nfo:Audio");
 
+	FLAC__metadata_simple_iterator_delete (iter);
+
 	creator = tracker_coalesce_strip (3, fd.artist, fd.albumartist,
 	                                  fd.performer);
 
