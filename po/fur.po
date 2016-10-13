@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2016-10-09 14:17+0000\n"
-"PO-Revision-Date: 2016-10-12 16:24+0200\n"
+"PO-Revision-Date: 2016-10-13 16:29+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
@@ -1986,7 +1986,7 @@ msgstr "Torne met une base di dâts di un backup precedent (viôt --backup)"
 
 #: ../src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr ""
+msgstr "Impuarte une base di dâts dal file furnît (in formât Turtle)"
 
 #: ../src/tracker/tracker-index.c:122
 #, c-format
@@ -2583,19 +2583,16 @@ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Torne il non sempliç di une classe (p.e. nfo:FileDataObject)."
 
 #: ../src/tracker/tracker-sparql.c:148
-#, fuzzy
 msgid "Returns the full namespace for a class."
-msgstr "Al torne il namespace complet di une classe."
+msgstr "Al torne il spazi dai nons (namespace) complet di une classe."
 
 #: ../src/tracker/tracker-sparql.c:249
-#, fuzzy
 msgid "Could not get namespace prefixes"
-msgstr "Impussibil otignî i prefìs di namespace"
+msgstr "Impussibil otignî i prefìs dal spazi dai nons (namespace)"
 
 #: ../src/tracker/tracker-sparql.c:258
-#, fuzzy
 msgid "No namespace prefixes were found"
-msgstr "Nissun prefìs di namespace cjatât"
+msgstr "Nissun prefìs dal spazi dai nons (namespace) cjatât"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
