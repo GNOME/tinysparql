@@ -1,3 +1,18 @@
+NEW in 1.10.1 - 2016-10-14
+==========================
+
+  * Tracker-extract:
+    - Fixed FD leak in flac extractor
+    - Fixes to tag parsing in flac extractor
+    - Memory leak fixes in libav extractor
+  * Libtracker-sparl:
+    - Fixes to tracker:uri-is-descendant() error checks
+    - Fix namespace of Errors in libtracker-sparql API
+  * Misc:
+    - Fixes on functional tests
+
+Translations: ca, eu, fur, it
+
 NEW in 1.10.0 - 2016-09-19
 =========================
 
