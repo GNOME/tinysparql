@@ -39,7 +39,7 @@ char *tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self, const
 gboolean tracker_namespace_manager_has_prefix (TrackerNamespaceManager *self, const char *prefix);
 const char *tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self, const char *prefix);
 
-void tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self, const char *prefix, const char *namespace);
+void tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self, const char *prefix, const char *ns);
 
 char *tracker_namespace_manager_print_turtle (TrackerNamespaceManager *self);
 
