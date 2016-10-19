@@ -87,7 +87,7 @@ namespace Tracker {
 		public void lock ();
 		public bool trylock ();
 		public void unlock ();
-		public bool locale_changed ();
+		public bool locale_changed () throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]

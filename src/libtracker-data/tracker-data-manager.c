@@ -4600,7 +4600,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	/* If locale changed, re-create indexes */
-	if (!read_only && tracker_db_manager_locale_changed ()) {
+	if (!read_only && tracker_db_manager_locale_changed (NULL)) {
 		/* Report OPERATION - STATUS */
 		busy_status = g_strdup_printf ("%s - %s",
 		                               busy_operation,

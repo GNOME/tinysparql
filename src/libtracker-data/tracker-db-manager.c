@@ -646,7 +646,7 @@ db_set_locale (const gchar *locale)
 }
 
 gboolean
-tracker_db_manager_locale_changed (void)
+tracker_db_manager_locale_changed (GError **error)
 {
 	gchar *db_locale;
 	gchar *current_locale;
@@ -670,8 +670,11 @@ tracker_db_manager_locale_changed (void)
 	 * both to NULL is actually valid, they would default to
 	 * the unicode collation without locale-specific stuff. */
 	if (g_strcmp0 (db_locale, current_locale) != 0) {
-		g_message ("Locale change detected from '%s' to '%s'...",
-		           db_locale, current_locale);
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "Locale change detected (DB:%s, User/App:%s)",
+		             db_locale, current_locale);
 		changed = TRUE;
 	} else {
 		g_message ("Current and DB locales match: '%s'", db_locale);
