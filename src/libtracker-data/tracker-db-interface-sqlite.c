@@ -142,8 +142,7 @@ static void                tracker_db_interface_initable_iface_init (GInitableIf
 static TrackerDBStatement *tracker_db_statement_sqlite_new          (TrackerDBInterface    *db_interface,
                                                                      sqlite3_stmt          *sqlite_stmt);
 static void                tracker_db_statement_sqlite_reset        (TrackerDBStatement    *stmt);
-static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (sqlite3_stmt          *sqlite_stmt,
-                                                                     TrackerDBStatement    *ref_stmt,
+static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (TrackerDBStatement    *ref_stmt,
                                                                      TrackerPropertyType   *types,
                                                                      gint                   n_types,
                                                                      const gchar * const   *variable_names,
@@ -2544,8 +2543,7 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 }
 
 static TrackerDBCursor *
-tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
-                              TrackerDBStatement  *ref_stmt,
+tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
                               TrackerPropertyType *types,
                               gint                 n_types,
                               const gchar * const *variable_names,
@@ -2571,7 +2569,7 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
 	   uses a single shared connection with SQLite mutex disabled */
 	cursor->threadsafe = threadsafe;
 
-	cursor->stmt = sqlite_stmt;
+	cursor->stmt = ref_stmt->stmt;
 	ref_stmt->stmt_is_sunk = TRUE;
 	cursor->ref_stmt = g_object_ref (ref_stmt);
 
@@ -2913,7 +2911,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, NULL, 0, NULL, 0, FALSE);
+	return tracker_db_cursor_sqlite_new (stmt, NULL, 0, NULL, 0, FALSE);
 }
 
 TrackerDBCursor *
@@ -2928,7 +2926,7 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, types, n_types, variable_names, n_variable_names, threadsafe);
+	return tracker_db_cursor_sqlite_new (stmt, types, n_types, variable_names, n_variable_names, threadsafe);
 }
 
 static void
