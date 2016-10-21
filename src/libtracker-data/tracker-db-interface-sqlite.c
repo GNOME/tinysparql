@@ -1369,6 +1369,72 @@ check_interrupt (void *user_data)
 }
 
 static void
+initialize_functions (TrackerDBInterface *db_interface)
+{
+	gint i;
+	struct {
+		gchar *name;
+		int n_args;
+		int mods;
+		void (*func) (sqlite3_context *, int, sqlite3_value**);
+	} functions[] = {
+		/* Geolocation */
+		{ "SparqlHaversineDistance", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_haversine_distance },
+		{ "SparqlCartesianDistance", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_cartesian_distance },
+		/* Date/time */
+		{ "SparqlFormatTime", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_format_time },
+		/* Paths and filenames */
+		{ "SparqlStringFromFilename", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_string_from_filename },
+		{ "SparqlUriIsParent", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_uri_is_parent },
+		{ "SparqlUriIsDescendant", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_uri_is_descendant },
+		{ "SparqlEncodeForUri", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_encode_for_uri },
+		/* Strings */
+		{ "SparqlRegex", 3, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_regex },
+		{ "SparqlStringJoin", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_string_join },
+		{ "SparqlLowerCase", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_lower_case },
+		{ "SparqlUpperCase", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_upper_case },
+		{ "SparqlCaseFold", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_case_fold },
+		{ "SparqlNormalize", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_normalize },
+		{ "SparqlUnaccent", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_unaccent },
+		{ "SparqlStringBefore", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_string_before },
+		{ "SparqlStringAfter", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_string_after },
+		{ "SparqlReplace", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_replace },
+		{ "SparqlChecksum", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_checksum },
+		/* Numbers */
+		{ "SparqlCeil", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_ceil },
+		{ "SparqlFloor", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_floor },
+		{ "SparqlRand", 0, SQLITE_ANY, function_sparql_rand },
+	};
+
+	for (i = 0; i < G_N_ELEMENTS (functions); i++) {
+		sqlite3_create_function (db_interface->db,
+		                         functions[i].name, functions[i].n_args,
+		                         functions[i].mods, db_interface,
+		                         functions[i].func, NULL, NULL);
+	}
+}
+
+static void
 open_database (TrackerDBInterface  *db_interface,
                GError             **error)
 {
@@ -1403,106 +1469,7 @@ open_database (TrackerDBInterface  *db_interface,
 	sqlite3_progress_handler (db_interface->db, 100,
 	                          check_interrupt, db_interface);
 
-	sqlite3_create_function (db_interface->db, "SparqlRegex", 3,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_regex,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlHaversineDistance", 4,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_haversine_distance,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlCartesianDistance", 4,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_cartesian_distance,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlStringFromFilename", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_string_from_filename,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlStringJoin", -1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_string_join,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlUriIsParent", 2,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_uri_is_parent,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", -1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_uri_is_descendant,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_lower_case,
-	                         NULL, NULL);
-	sqlite3_create_function (db_interface->db, "SparqlUpperCase", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_upper_case,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_case_fold,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlNormalize", 2,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_normalize,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlUnaccent", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_unaccent,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlFormatTime", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_format_time,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlEncodeForUri", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_encode_for_uri,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlStringBefore", 2,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_string_before,
-	                         NULL, NULL);
-	sqlite3_create_function (db_interface->db, "SparqlStringAfter", 2,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_string_after,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlCeil", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_ceil,
-	                         NULL, NULL);
-	sqlite3_create_function (db_interface->db, "SparqlFloor", 1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_floor,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlRand", 0, SQLITE_ANY,
-	                         db_interface, &function_sparql_rand,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlChecksum", 2,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_checksum,
-	                         NULL, NULL);
-
-	sqlite3_create_function (db_interface->db, "SparqlReplace", -1,
-	                         SQLITE_ANY | SQLITE_DETERMINISTIC,
-	                         db_interface, &function_sparql_replace,
-	                         NULL, NULL);
+	initialize_functions (db_interface);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
 	sqlite3_busy_timeout (db_interface->db, 100000);
