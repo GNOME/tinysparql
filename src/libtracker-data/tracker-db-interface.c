@@ -39,9 +39,9 @@ tracker_db_interface_execute_query (TrackerDBInterface  *interface,
 
 	va_start (args, query);
 	tracker_db_interface_execute_vquery (interface,
-	                                                  error,
-	                                                  query,
-	                                                  args);
+					     error,
+					     query,
+					     args);
 	va_end (args);
 }
 
