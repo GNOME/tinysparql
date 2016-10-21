@@ -80,8 +80,6 @@ struct TrackerDBInterface {
 	/* Compiled regular expressions */
 	TrackerDBReplaceFuncChecks replace_func_checks;
 
-	GSList *function_data;
-
 	/* Number of active cursors */
 	gint n_active_cursors;
 
@@ -1596,12 +1594,6 @@ close_database (TrackerDBInterface *db_interface)
 		g_regex_unref (db_interface->replace_func_checks.replacement);
 	if (db_interface->replace_func_checks.unescape)
 		g_regex_unref (db_interface->replace_func_checks.unescape);
-
-	if (db_interface->function_data) {
-		g_slist_foreach (db_interface->function_data, (GFunc) g_free, NULL);
-		g_slist_free (db_interface->function_data);
-		db_interface->function_data = NULL;
-	}
 
 	if (db_interface->db) {
 		rc = sqlite3_close (db_interface->db);
