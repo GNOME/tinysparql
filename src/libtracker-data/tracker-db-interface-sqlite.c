@@ -120,7 +120,7 @@ struct TrackerDBCursorClass {
 };
 
 struct TrackerDBStatement {
-	GObject parent_instance;
+	GInitiallyUnowned parent_instance;
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
 	gboolean stmt_is_sunk;
@@ -163,7 +163,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 tracker_db_interface_initable_iface_init));
 
-G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_INITIALLY_UNOWNED)
 
 G_DEFINE_TYPE (TrackerDBCursor, tracker_db_cursor, TRACKER_SPARQL_TYPE_CURSOR)
 
@@ -2051,7 +2051,7 @@ tracker_db_interface_lru_insert_unchecked (TrackerDBInterface          *db_inter
 	 */
 	g_hash_table_replace (db_interface->dynamic_statements,
 	                      (gpointer) sqlite3_sql (stmt->stmt),
-	                      stmt);
+	                      g_object_ref_sink (stmt));
 
 	/* So the ring looks a bit like this: *
 	 *                                    *
@@ -2184,7 +2184,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 
 	g_free (full_query);
 
-	return (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) ? g_object_ref (stmt) : stmt;
+	return g_object_ref_sink (stmt);
 }
 
 static void
