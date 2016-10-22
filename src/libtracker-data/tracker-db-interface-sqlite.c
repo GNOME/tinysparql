@@ -1958,6 +1958,37 @@ tracker_db_interface_set_busy_handler (TrackerDBInterface  *db_interface,
 	}
 }
 
+static sqlite3_stmt *
+tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
+                                   const gchar         *full_query,
+                                   GError             **error)
+{
+	sqlite3_stmt *sqlite_stmt;
+	int retval;
+
+	g_debug ("Preparing query: '%s'", full_query);
+	retval = sqlite3_prepare_v2 (db_interface->db, full_query, -1, &sqlite_stmt, NULL);
+
+	if (retval != SQLITE_OK) {
+		sqlite_stmt = NULL;
+
+		if (retval == SQLITE_INTERRUPT) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_INTERRUPTED,
+			             "Interrupted");
+		} else {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_QUERY_ERROR,
+			             "%s",
+			             sqlite3_errmsg (db_interface->db));
+		}
+	}
+
+	return sqlite_stmt;
+}
+
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface           *db_interface,
                                        TrackerDBStatementCacheType   cache_type,
@@ -2010,31 +2041,12 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 
 	if (!stmt) {
 		sqlite3_stmt *sqlite_stmt;
-		int retval;
 
-		g_debug ("Preparing query: '%s'", full_query);
-
-		retval = sqlite3_prepare_v2 (db_interface->db, full_query, -1, &sqlite_stmt, NULL);
-
-		if (retval != SQLITE_OK) {
-
-			if (retval == SQLITE_INTERRUPT) {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_INTERRUPTED,
-				             "Interrupted");
-			} else {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_QUERY_ERROR,
-				             "%s",
-				             sqlite3_errmsg (db_interface->db));
-			}
-
-			g_free (full_query);
-
+		sqlite_stmt = tracker_db_interface_prepare_stmt (db_interface,
+		                                                 full_query,
+		                                                 error);
+		if (!sqlite_stmt)
 			return NULL;
-		}
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
@@ -2224,33 +2236,15 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 	int retval;
 
 	full_query = g_strdup_vprintf (query, args);
-
-	/* g_debug ("Running query: '%s'", full_query); */
-	retval = sqlite3_prepare_v2 (db_interface->db, full_query, -1, &stmt, NULL);
-
-	if (retval != SQLITE_OK) {
-		g_set_error (error,
-		             TRACKER_DB_INTERFACE_ERROR,
-		             TRACKER_DB_QUERY_ERROR,
-		             "%s",
-		             sqlite3_errmsg (db_interface->db));
-		g_free (full_query);
+	stmt = tracker_db_interface_prepare_stmt (db_interface,
+	                                          full_query,
+	                                          error);
+	g_free (full_query);
+	if (!stmt)
 		return;
-	} else if (stmt == NULL) {
-		g_set_error (error,
-		             TRACKER_DB_INTERFACE_ERROR,
-		             TRACKER_DB_QUERY_ERROR,
-		             "Could not prepare SQL statement:'%s'",
-		             full_query);
-
-		g_free (full_query);
-		return;
-	}
 
 	execute_stmt (db_interface, stmt, NULL, error);
 	sqlite3_finalize (stmt);
-
-	g_free (full_query);
 }
 
 TrackerDBInterface *
