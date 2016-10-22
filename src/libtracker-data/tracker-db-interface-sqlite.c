@@ -123,7 +123,7 @@ struct TrackerDBStatement {
 	GInitiallyUnowned parent_instance;
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
-	gboolean stmt_is_sunk;
+	gboolean stmt_is_used;
 	TrackerDBStatement *next;
 	TrackerDBStatement *prev;
 };
@@ -2017,7 +2017,7 @@ tracker_db_interface_lru_lookup (TrackerDBInterface          *db_interface,
 
 	/* a) Cached */
 
-	if (stmt && stmt->stmt_is_sunk) {
+	if (stmt && stmt->stmt_is_used) {
 		/* c) Forced non-cached
 		 * prepared statement is still in use, create new uncached one
 		 */
@@ -2360,7 +2360,7 @@ tracker_db_statement_finalize (GObject *object)
 	 * too often. We mustn't sqlite3_finalize the priv->stmt in this case,
 	 * though. It would crash&burn the cursor. */
 
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_finalize (stmt->stmt);
 
@@ -2385,7 +2385,7 @@ tracker_db_statement_sqlite_new (TrackerDBInterface *db_interface,
 
 	stmt->db_interface = db_interface;
 	stmt->stmt = sqlite_stmt;
-	stmt->stmt_is_sunk = FALSE;
+	stmt->stmt_is_used = FALSE;
 
 	return stmt;
 }
@@ -2409,7 +2409,7 @@ tracker_db_cursor_close (TrackerDBCursor *cursor)
 		tracker_db_manager_lock ();
 	}
 
-	cursor->ref_stmt->stmt_is_sunk = FALSE;
+	cursor->ref_stmt->stmt_is_used = FALSE;
 	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
 	g_object_unref (cursor->ref_stmt);
 	cursor->ref_stmt = NULL;
@@ -2545,7 +2545,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	cursor->threadsafe = threadsafe;
 
 	cursor->stmt = ref_stmt->stmt;
-	ref_stmt->stmt_is_sunk = TRUE;
+	ref_stmt->stmt_is_used = TRUE;
 	cursor->ref_stmt = g_object_ref (ref_stmt);
 
 	if (types) {
@@ -2578,7 +2578,7 @@ tracker_db_statement_bind_double (TrackerDBStatement *stmt,
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_bind_double (stmt->stmt, index + 1, value);
 }
@@ -2590,7 +2590,7 @@ tracker_db_statement_bind_int (TrackerDBStatement *stmt,
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_bind_int64 (stmt->stmt, index + 1, value);
 }
@@ -2601,7 +2601,7 @@ tracker_db_statement_bind_null (TrackerDBStatement *stmt,
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_bind_null (stmt->stmt, index + 1);
 }
@@ -2613,7 +2613,7 @@ tracker_db_statement_bind_text (TrackerDBStatement *stmt,
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_bind_text (stmt->stmt, index + 1, value, -1, SQLITE_TRANSIENT);
 }
@@ -2874,7 +2874,7 @@ tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
-	g_return_if_fail (!stmt->stmt_is_sunk);
+	g_return_if_fail (!stmt->stmt_is_used);
 
 	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 }
@@ -2884,7 +2884,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
                                    GError             **error)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
-	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
+	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
 	return tracker_db_cursor_sqlite_new (stmt, NULL, 0, NULL, 0, FALSE);
 }
@@ -2899,7 +2899,7 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
                                           GError              **error)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
-	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
+	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
 	return tracker_db_cursor_sqlite_new (stmt, types, n_types, variable_names, n_variable_names, threadsafe);
 }
@@ -2917,7 +2917,7 @@ tracker_db_cursor_init (TrackerDBCursor *cursor)
 static void
 tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 {
-	g_assert (!stmt->stmt_is_sunk);
+	g_assert (!stmt->stmt_is_used);
 
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
