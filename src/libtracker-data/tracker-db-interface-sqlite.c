@@ -1989,6 +1989,154 @@ tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
 	return sqlite_stmt;
 }
 
+static TrackerDBStatement *
+tracker_db_interface_lru_lookup (TrackerDBInterface          *db_interface,
+                                 TrackerDBStatementCacheType *cache_type,
+                                 const gchar                 *full_query)
+{
+	TrackerDBStatement *stmt;
+
+	g_return_val_if_fail (*cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
+	                      *cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
+	                      NULL);
+
+	/* There are three kinds of queries:
+	 * a) Cached queries: SELECT and UPDATE ones (cache_type)
+	 * b) Non-Cached queries: NONE ones (cache_type)
+	 * c) Forced Non-Cached: in case of a stmt being already in use, we can't
+	 *    reuse it (you can't use two different loops on a sqlite3_stmt, of
+	 *    course). This happens with recursive uses of a cursor, for example.
+	 */
+
+	stmt = g_hash_table_lookup (db_interface->dynamic_statements,
+	                            full_query);
+	if (!stmt) {
+		/* Query not in LRU */
+		return NULL;
+	}
+
+	/* a) Cached */
+
+	if (stmt && stmt->stmt_is_sunk) {
+		/* c) Forced non-cached
+		 * prepared statement is still in use, create new uncached one
+		 */
+		stmt = NULL;
+		/* Make sure to set cache_type here, to avoid replacing
+		 * the current statement.
+		 */
+		*cache_type = TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
+	}
+
+	return stmt;
+}
+
+static void
+tracker_db_interface_lru_insert_unchecked (TrackerDBInterface          *db_interface,
+                                           TrackerDBStatementCacheType  cache_type,
+                                           TrackerDBStatement          *stmt)
+{
+	TrackerDBStatementLru *stmt_lru;
+
+	g_return_if_fail (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
+	                  cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT);
+
+	/* LRU holds a reference to the stmt */
+	stmt_lru = cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ?
+		&db_interface->update_stmt_lru : &db_interface->select_stmt_lru;
+
+	/* use replace instead of insert to make sure we store the string that
+	 * belongs to the right sqlite statement to ensure the lifetime of the string
+	 * matches the statement
+	 */
+	g_hash_table_replace (db_interface->dynamic_statements,
+	                      (gpointer) sqlite3_sql (stmt->stmt),
+	                      stmt);
+
+	/* So the ring looks a bit like this: *
+	 *                                    *
+	 *    .--tail  .--head                *
+	 *    |        |                      *
+	 *  [p-n] -> [p-n] -> [p-n] -> [p-n]  *
+	 *    ^                          |    *
+	 *    `- [n-p] <- [n-p] <--------'    *
+	 *                                    */
+
+	if (stmt_lru->size >= stmt_lru->max) {
+		TrackerDBStatement *new_head;
+
+		/* We reached max-size of the LRU stmt cache. Destroy current
+		 * least recently used (stmt_lru.head) and fix the ring. For
+		 * that we take out the current head, and close the ring.
+		 * Then we assign head->next as new head.
+		 */
+		new_head = stmt_lru->head->next;
+		g_hash_table_remove (db_interface->dynamic_statements,
+		                     (gpointer) sqlite3_sql (stmt_lru->head->stmt));
+		stmt_lru->size--;
+		stmt_lru->head = new_head;
+	} else {
+		if (stmt_lru->size == 0) {
+			stmt_lru->head = stmt;
+			stmt_lru->tail = stmt;
+		}
+	}
+
+	/* Set the current stmt (which is always new here) as the new tail
+	 * (new most recent used). We insert current stmt between head and
+	 * current tail, and we set tail to current stmt.
+	 */
+	stmt_lru->size++;
+	stmt->next = stmt_lru->head;
+	stmt_lru->head->prev = stmt;
+
+	stmt_lru->tail->next = stmt;
+	stmt->prev = stmt_lru->tail;
+	stmt_lru->tail = stmt;
+}
+
+static void
+tracker_db_interface_lru_update (TrackerDBInterface          *db_interface,
+                                 TrackerDBStatementCacheType  cache_type,
+                                 TrackerDBStatement          *stmt)
+{
+	TrackerDBStatementLru *stmt_lru;
+
+	g_return_if_fail (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
+	                  cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT);
+
+	stmt_lru = cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ?
+		&db_interface->update_stmt_lru : &db_interface->select_stmt_lru;
+
+	tracker_db_statement_sqlite_reset (stmt);
+
+	if (stmt == stmt_lru->head) {
+		/* Current stmt is least recently used, shift head and tail
+		 * of the ring to efficiently make it most recently used.
+		 */
+		stmt_lru->head = stmt_lru->head->next;
+		stmt_lru->tail = stmt_lru->tail->next;
+	} else if (stmt != stmt_lru->tail) {
+		/* Current statement isn't most recently used, make it most
+		 * recently used now (less efficient way than above).
+		 */
+
+		/* Take stmt out of the list and close the ring */
+		stmt->prev->next = stmt->next;
+		stmt->next->prev = stmt->prev;
+
+		/* Put stmt as tail (most recent used) */
+		stmt->next = stmt_lru->head;
+		stmt_lru->head->prev = stmt;
+		stmt->prev = stmt_lru->tail;
+		stmt_lru->tail->next = stmt;
+		stmt_lru->tail = stmt;
+	}
+
+	/* if (stmt == tail), it's already the most recently used in the
+	 * ring, so in this case we do nothing of course */
+}
+
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface           *db_interface,
                                        TrackerDBStatementCacheType   cache_type,
@@ -1997,7 +2145,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
                                        ...)
 {
 	TrackerDBStatementLru *stmt_lru = NULL;
-	TrackerDBStatement *stmt;
+	TrackerDBStatement *stmt = NULL;
 	va_list args;
 	gchar *full_query;
 
@@ -2007,36 +2155,9 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
-	/* There are three kinds of queries:
-	 * a) Cached queries: SELECT and UPDATE ones (cache_type)
-	 * b) Non-Cached queries: NONE ones (cache_type)
-	 * c) Forced Non-Cached: in case of a stmt being already in use, we can't
-	 *    reuse it (you can't use two different loops on a sqlite3_stmt, of
-	 *    course). This happens with recursive uses of a cursor, for example */
-
 	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
-
-		if (stmt && stmt->stmt_is_sunk) {
-			/* c) Forced non-cached
-			 * prepared statement is still in use, create new uncached one */
-			stmt = NULL;
-			/* Make sure to set cache_type here, to ensure the right flow in the
-			 * LRU-cache below */
-			cache_type = TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
-		}
-
-		if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
-			/* a) Cached */
-			stmt_lru = &db_interface->update_stmt_lru;
-		} else {
-			/* a) Cached */
-			stmt_lru = &db_interface->select_stmt_lru;
-		}
-
-	} else {
-		/* b) Non-Cached */
-		stmt = NULL;
+		stmt = tracker_db_interface_lru_lookup (db_interface, &cache_type,
+		                                        full_query);
 	}
 
 	if (!stmt) {
@@ -2048,88 +2169,17 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		if (!sqlite_stmt)
 			return NULL;
 
-		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
+		stmt = tracker_db_statement_sqlite_new (db_interface,
+		                                        sqlite_stmt);
 
 		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-			/* use replace instead of insert to make sure we store the string that
-			   belongs to the right sqlite statement to ensure the lifetime of the string
-			   matches the statement */
-			g_hash_table_replace (db_interface->dynamic_statements,
-			                      (gpointer) sqlite3_sql (sqlite_stmt),
-			                      stmt);
-
-			/* So the ring looks a bit like this: *
-			 *                                    *
-			 *    .--tail  .--head                *
-			 *    |        |                      *
-			 *  [p-n] -> [p-n] -> [p-n] -> [p-n]  *
-			 *    ^                          |    *
-			 *    `- [n-p] <- [n-p] <--------'    *
-			 *                                    */
-
-			if (stmt_lru->size >= stmt_lru->max) {
-				TrackerDBStatement *new_head;
-
-				/* We reached max-size of the LRU stmt cache. Destroy current
-				 * least recently used (stmt_lru.head) and fix the ring. For
-				 * that we take out the current head, and close the ring.
-				 * Then we assign head->next as new head. */
-
-				new_head = stmt_lru->head->next;
-				g_hash_table_remove (db_interface->dynamic_statements,
-				                     (gpointer) sqlite3_sql (stmt_lru->head->stmt));
-				stmt_lru->size--;
-				stmt_lru->head = new_head;
-			} else {
-				if (stmt_lru->size == 0) {
-					stmt_lru->head = stmt;
-					stmt_lru->tail = stmt;
-				}
-			}
-
-			/* Set the current stmt (which is always new here) as the new tail
-			 * (new most recent used). We insert current stmt between head and
-			 * current tail, and we set tail to current stmt. */
-
-			stmt_lru->size++;
-			stmt->next = stmt_lru->head;
-			stmt_lru->head->prev = stmt;
-
-			stmt_lru->tail->next = stmt;
-			stmt->prev = stmt_lru->tail;
-			stmt_lru->tail = stmt;
+			tracker_db_interface_lru_insert_unchecked (db_interface,
+			                                           cache_type,
+			                                           stmt);
 		}
-	} else {
-		tracker_db_statement_sqlite_reset (stmt);
-
-		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-			if (stmt == stmt_lru->head) {
-
-				/* Current stmt is least recently used, shift head and tail
-				 * of the ring to efficiently make it most recently used. */
-
-				stmt_lru->head = stmt_lru->head->next;
-				stmt_lru->tail = stmt_lru->tail->next;
-			} else if (stmt != stmt_lru->tail) {
-
-				/* Current statement isn't most recently used, make it most
-				 * recently used now (less efficient way than above). */
-
-				/* Take stmt out of the list and close the ring */
-				stmt->prev->next = stmt->next;
-				stmt->next->prev = stmt->prev;
-
-				/* Put stmt as tail (most recent used) */
-				stmt->next = stmt_lru->head;
-				stmt_lru->head->prev = stmt;
-				stmt->prev = stmt_lru->tail;
-				stmt_lru->tail->next = stmt;
-				stmt_lru->tail = stmt;
-			}
-
-			/* if (stmt == tail), it's already the most recently used in the
-			 * ring, so in this case we do nothing of course */
-		}
+	} else if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
+		tracker_db_interface_lru_update (db_interface, cache_type,
+		                                 stmt);
 	}
 
 	g_free (full_query);
