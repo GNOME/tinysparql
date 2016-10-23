@@ -35,8 +35,7 @@ G_BEGIN_DECLS
 typedef void (*TrackerDBWalCallback) (gint n_pages);
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
-                                                                        GError                  **error);
-TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename,
+                                                                        gboolean                  readonly,
                                                                         GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);

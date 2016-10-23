@@ -146,9 +146,9 @@ static gboolean            db_exec_no_reply                        (TrackerDBInt
 static TrackerDBInterface *db_interface_create                      (TrackerDB            db,
                                                                      GError             **error);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (GError             **error,
-                                                                     gint                 num, ...);
-static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (GError             **error,
-                                                                     gint                 num, ...);
+                                                                     gboolean             readonly,
+                                                                     gint                 num,
+                                                                     ...);
 static void                db_remove_locale_file                    (void);
 
 static gboolean              initialized;
@@ -323,7 +323,7 @@ db_interface_get (TrackerDB   type,
 	           path,
 	           db_type_to_string (type));
 
-	iface = tracker_db_interface_sqlite_new (path,
+	iface = tracker_db_interface_sqlite_new (path, FALSE,
 	                                         &internal_error);
 
 	if (internal_error) {
@@ -1197,14 +1197,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	initialized = TRUE;
 
+	resources_iface = tracker_db_manager_get_db_interfaces (&internal_error,
+	                                                        (flags & TRACKER_DB_MANAGER_READONLY) != 0,
+	                                                        1, TRACKER_DB_METADATA);
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
-		resources_iface = tracker_db_manager_get_db_interfaces_ro (&internal_error, 1,
-		                                                           TRACKER_DB_METADATA);
 		/* libtracker-direct does not use per-thread interfaces */
 		global_iface = resources_iface;
-	} else {
-		resources_iface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
-		                                                        TRACKER_DB_METADATA);
 	}
 
 	if (internal_error) {
@@ -1213,7 +1211,8 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 			perform_recreate (first_time, &new_error);
 			if (!new_error) {
-				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
+				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error,
+				                                                        FALSE, 1,
 				                                                        TRACKER_DB_METADATA);
 			} else {
 				/* Most serious error is the recreate one here */
@@ -1365,8 +1364,10 @@ tracker_db_manager_get_file (TrackerDB db)
  * returns: (caller-owns): a database connection
  **/
 static TrackerDBInterface *
-tracker_db_manager_get_db_interfaces (GError **error,
-                                      gint num, ...)
+tracker_db_manager_get_db_interfaces (GError   **error,
+                                      gboolean   readonly,
+                                      gint       num,
+                                      ...)
 {
 	gint n_args;
 	va_list args;
@@ -1381,6 +1382,7 @@ tracker_db_manager_get_db_interfaces (GError **error,
 
 		if (!connection) {
 			connection = tracker_db_interface_sqlite_new (dbs[db].abs_filename,
+			                                              readonly,
 			                                              &internal_error);
 
 			if (internal_error) {
@@ -1416,57 +1418,6 @@ tracker_db_manager_get_db_interfaces (GError **error,
 	return connection;
 }
 
-static TrackerDBInterface *
-tracker_db_manager_get_db_interfaces_ro (GError **error,
-                                         gint num, ...)
-{
-	gint n_args;
-	va_list args;
-	TrackerDBInterface *connection = NULL;
-	GError *internal_error = NULL;
-
-	g_return_val_if_fail (initialized != FALSE, NULL);
-
-	va_start (args, num);
-	for (n_args = 1; n_args <= num; n_args++) {
-		TrackerDB db = va_arg (args, TrackerDB);
-
-		if (!connection) {
-			connection = tracker_db_interface_sqlite_new_ro (dbs[db].abs_filename,
-			                                                 &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				connection = NULL;
-				goto end_on_error;
-			}
-
-			db_set_params (connection,
-			               dbs[db].cache_size,
-			               dbs[db].page_size,
-			               &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				connection = NULL;
-				goto end_on_error;
-			}
-
-		} else {
-			db_exec_no_reply (connection,
-			                  "ATTACH '%s' as '%s'",
-			                  dbs[db].abs_filename,
-			                  dbs[db].name);
-		}
-	}
-
-	end_on_error:
-
-	va_end (args);
-
-	return connection;
-}
-
 /**
  * tracker_db_manager_get_db_interface:
  *
@@ -1493,8 +1444,12 @@ tracker_db_manager_get_db_interface (void)
 
 	/* Ensure the interface is there */
 	if (!interface) {
-		interface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
-		                                                  TRACKER_DB_METADATA);
+		TrackerDBManagerFlags flags;
+
+		flags = tracker_db_manager_get_flags (NULL, NULL);
+		interface = tracker_db_manager_get_db_interfaces (&internal_error,
+		                                                  (flags & TRACKER_DB_MANAGER_READONLY) != 0,
+		                                                  1, TRACKER_DB_METADATA);
 
 		if (internal_error) {
 			g_critical ("Error opening database: %s", internal_error->message);

@@ -2299,6 +2299,7 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 
 TrackerDBInterface *
 tracker_db_interface_sqlite_new (const gchar  *filename,
+                                 gboolean      readonly,
                                  GError      **error)
 {
 	TrackerDBInterface *object;
@@ -2308,28 +2309,7 @@ tracker_db_interface_sqlite_new (const gchar  *filename,
 	                         NULL,
 	                         &internal_error,
 	                         "filename", filename,
-	                         NULL);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return NULL;
-	}
-
-	return object;
-}
-
-TrackerDBInterface *
-tracker_db_interface_sqlite_new_ro (const gchar  *filename,
-                                    GError      **error)
-{
-	TrackerDBInterface *object;
-	GError *internal_error = NULL;
-
-	object = g_initable_new (TRACKER_TYPE_DB_INTERFACE,
-	                         NULL,
-	                         &internal_error,
-	                         "filename", filename,
-	                         "read-only", TRUE,
+	                         "read-only", !!readonly,
 	                         NULL);
 
 	if (internal_error) {
