@@ -2,23 +2,23 @@
 # Copyright (C) 2007-2016 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
 #
-# Gabor Kelemen <kelemeng at gnome dot hu>, 2007, 2008, 2009, 2010, 2011, 2013, 2014.
+# Gabor Kelemen <kelemeng at gnome dot hu>, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016.
 # Balázs Úr <urbalazs at gmail dot com>, 2014, 2015, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2016-08-17 11:02+0000\n"
-"PO-Revision-Date: 2016-08-20 17:33+0200\n"
-"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
+"POT-Creation-Date: 2016-10-09 14:18+0000\n"
+"PO-Revision-Date: 2016-10-23 22:22+0200\n"
+"Last-Translator: Gabor Kelemen <kelemeng at ubuntu dot com>\n"
 "Language-Team: Hungarian <openscope at googlegroups dot com>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 1.2\n"
+"X-Generator: Lokalize 1.5\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -113,9 +113,12 @@ msgid "Enable stemmer"
 msgstr "Tö_vező bekapcsolása"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#| msgid ""
+#| "Simplify the words to their root to provide more results. E.g. 'shelves' "
+#| "and 'shelf' to 'shel'"
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
 "A szavak egyszerűsítése a tövükre több találat eléréséhez. Például: „polcok” "
 "és „polccal” -> „polc”"
@@ -125,9 +128,12 @@ msgid "Enable unaccent"
 msgstr "Ékezettelenítés engedélyezése"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#| msgid ""
+#| "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' "
+#| "to 'Idea' for improved matching."
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "Az ékezetes betűk a megfelelő ékezettelenre cserélése több találathoz. "
 "Például: „ékezet” -> „ekezet”."
@@ -145,9 +151,12 @@ msgid "Ignore stop words"
 msgstr "Megállítószavak mellőzése"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#| msgid ""
+#| "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#| "common words like 'the', 'yes', 'no', etc."
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "Ha engedélyezett, a megállítószavak figyelmen kívül maradnak, például az "
 "olyan gyakori szavak, mint a névelők, „igen”, „nem”, „és” stb."
@@ -170,7 +179,8 @@ msgstr "A naplódarabok tárolási helye a maximális méret elérésekor."
 
 #: ../src/libtracker-data/tracker-data-backup.c:500
 #: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
+#| msgid "Error starting 'tar' program"
+msgid "Error starting “tar” program"
 msgstr "Hiba a „tar” program indításakor"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
@@ -201,7 +211,8 @@ msgstr "Nincs megadva hiba"
 
 #: ../src/libtracker-data/tracker-data-backup.c:634
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
+#| msgid "Unknown error, 'tar' exited with status %d"
+msgid "Unknown error, “tar” exited with status %d"
 msgstr "Ismeretlen hiba, a „tar” a következő állapottal lépett ki: %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
@@ -272,7 +283,8 @@ msgstr "Verzióinformációk megjelenítése"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
+#| msgid "- start the application data miner"
+msgid "— start the application data miner"
 msgstr "– elindítja az alkalmazások adatbányászát"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
@@ -363,7 +375,8 @@ msgstr ""
 "után, és a -2 teljesen letiltja."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+#| msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "Cserélhető eszközök adatainak megőrzési küszöbe"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -405,9 +418,12 @@ msgid "Index optical discs"
 msgstr "Optikai adathordozók indexelése"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+#| msgid ""
+#| "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+#| "removable devices are not indexed, optical discs won't be either)"
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
 "Állítsa igazra a CD-k, DVD-k és általában az optikai adathordozók "
 "indexeléséhez (de ha a cserélhető eszközök indexelése nincs bekapcsolva, "
@@ -512,12 +528,14 @@ msgstr "FÁJL"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
+#| msgid "Data object '%s' currently exists"
+msgid "Data object “%s” currently exists"
 msgstr "A(z) „%s” adatobjektum már létezik"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
+#| msgid "Data object '%s' currently does not exist"
+msgid "Data object “%s” currently does not exist"
 msgstr "A(z) „%s” adatobjektum nem létezik"
 
 #: ../src/miners/fs/tracker-main.c:470
@@ -589,7 +607,8 @@ msgstr "Meg lesz figyelve"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
+#| msgid "- start the tracker indexer"
+msgid "— start the tracker indexer"
 msgstr "– a tracker indexelő elindítása"
 
 #: ../src/miners/fs/tracker-miner-files.c:1357
@@ -633,7 +652,8 @@ msgstr "Használandó cím (a --add-feed kapcsolóval együtt használandó)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
+#| msgid "- start the feeds indexer"
+msgid "— start the feeds indexer"
 msgstr "– a hírforrás-indexelő elindítása"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
@@ -668,7 +688,8 @@ msgstr "Felhasználói kézikönyvek adatbányász"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
+#| msgid "- start the user guides data miner"
+msgid "— start the user guides data miner"
 msgstr "– elindítja a felhasználói kézikönyvek adatbányászát"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
@@ -792,7 +813,9 @@ msgid "MIME"
 msgstr "MIME-típus"
 
 #: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+#| msgid ""
+#| "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 msgstr ""
 "Kinyeréshez használandó modul kényszerítése (például: „valami” = „valami.so”)"
 
@@ -801,7 +824,8 @@ msgid "MODULE"
 msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: 'sparql', or 'turtle'"
+#| msgid "Output results format: 'sparql', or 'turtle'"
+msgid "Output results format: “sparql”, or “turtle”"
 msgstr "Kimeneti eredmények formátuma: „sparql” vagy „turtle”"
 
 #: ../src/tracker-extract/tracker-main.c:100
@@ -811,13 +835,15 @@ msgstr "FORMÁTUM"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
-msgid "Unsupported serialization format '%s'\n"
+#| msgid "Unsupported serialization format '%s'\n"
+msgid "Unsupported serialization format “%s”\n"
 msgstr "Nem támogatott sorosítási formátum: „%s”\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
-msgid "- Extract file meta data"
+#| msgid "- Extract file meta data"
+msgid "— Extract file meta data"
 msgstr "– Fájlok metaadatainak kinyerése"
 
 #: ../src/tracker-extract/tracker-main.c:329
@@ -852,8 +878,11 @@ msgid "Desktop Search"
 msgstr "Asztali keresés"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+#| msgid ""
+#| "Find what you're looking for on this computer by name or content using "
+#| "Tracker"
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "Keresett fájlok megtalálása a számítógépen név vagy tartalom szerint a "
@@ -1409,8 +1438,11 @@ msgid "Directories"
 msgstr "Könyvtárak"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
+#| msgid ""
+#| "Globbing patterns can be used here, for example: \"*bar*\".\n"
+#| "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Itt megadhatók helyettesítési minták, például: „*valami*”.\n"
@@ -1451,8 +1483,8 @@ msgstr "Könyvtár"
 msgid ""
 "Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"A kért változtatások közül néhány csak a munkamenet következő újraindításakor "
-"lép majd életbe."
+"A kért változtatások közül néhány csak a munkamenet következő "
+"újraindításakor lép majd életbe."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1509,8 +1541,9 @@ msgstr "Csak olvasási műveletek engedélyezése az adatbázison"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- a tracker démon elindítása"
+#| msgid "- start the tracker daemon"
+msgid "— start the tracker daemon"
+msgstr "– a tracker démon elindítása"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1555,12 +1588,14 @@ msgstr "Lekérés…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
+#| msgid "Crawling single directory '%s'"
+msgid "Crawling single directory “%s”"
 msgstr "„%s” könyvtár bejárása"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
+#| msgid "Crawling recursively directory '%s'"
+msgid "Crawling recursively directory “%s”"
 msgstr "„%s” könyvtár rekurzív bejárása"
 
 #: ../src/tracker/tracker-daemon.c:127
@@ -1645,9 +1680,12 @@ msgid "List all Tracker processes"
 msgstr "Az összes Tracker folyamat felsorolása"
 
 #: ../src/tracker/tracker-daemon.c:178
+#| msgid ""
+#| "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "A SIGKILL használata az összes illeszkedő folyamat leállítására: a „store”, "
 "„miners” vagy „all” használható, ha nincs megadva akkor az „all” használata"
@@ -1657,9 +1695,12 @@ msgid "APPS"
 msgstr "ALKALMAZÁSOK"
 
 #: ../src/tracker/tracker-daemon.c:181
+#| msgid ""
+#| "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "A SIGTERM használata az összes illeszkedő folyamat leállítására: a „store”, "
 "„miners” vagy „all” használható, ha nincs megadva akkor az „all” használata"
@@ -1670,9 +1711,12 @@ msgstr ""
 "Adatbányászok elindítása (a tracker-store indirekt elindításával együtt)"
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+#| msgid ""
+#| "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+#| "'errors') for all processes"
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
 "A naplózás részletességének beállítása a SZINTRE („debug”, „detailed”, "
 "„minimal”, „errors”) minden folyamathoz"
@@ -1742,7 +1786,8 @@ msgstr "Nem szüneteltethető az adatbányász, a kezelő nem hozható létre, %
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
+#| msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "Kísérlet „%s” adatbányász szüneteltetésére a következő okkal: „%s”"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
@@ -1823,7 +1868,8 @@ msgid "No miners are paused"
 msgstr "Nincsenek szüneteltetett adatbányászok"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+#| msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "Csak az „all”, „store” és „miners” kapcsolók egyike engedélyezett"
 
 #: ../src/tracker/tracker-daemon.c:1242
@@ -1854,7 +1900,8 @@ msgstr "Tárolás"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
+#| msgid "Could not get display name for miner '%s'"
+msgid "Could not get display name for miner “%s”"
 msgstr "Nem kérhető le a(z) „%s” adatbányász megjelenő neve"
 
 #: ../src/tracker/tracker-daemon.c:1461
@@ -1880,14 +1927,17 @@ msgstr ""
 "Nem használhatja egyszerre a --get-logging és --set-logging paramétereket"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+#| msgid ""
+#| "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "Érvénytelen naplórészletesség, próbálja a „debug”, „detailed”, „minimal” "
 "vagy „errors” egyikét"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
+#| msgid "Found process ID %d for '%s'"
+msgid "Found process ID %d for “%s”"
 msgstr "A(z) %d folyamatazonosító található ehhez: „%s”"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
@@ -1900,7 +1950,8 @@ msgstr "Csak a beállításokkal rendelkezők jelennek meg"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+#| msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Naplórészletesség beállítása minden összetevőhöz erre: „%s”…"
 
 #: ../src/tracker/tracker-daemon.c:1662
@@ -1940,13 +1991,13 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nem hozható létre D-Bus proxy a tracker-store-hoz"
 
 #: ../src/tracker/tracker-extract.c:77
-#| msgid "Could not retrieve tracker-store status"
 msgid "Could not run tracker-extract: "
 msgstr "Nem futtatható a tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
+#| msgid "failed to exec '%s': %s"
+msgid "failed to exec “%s”: %s"
 msgstr "nem sikerült végrehajtani: „%s”: %s"
 
 #: ../src/tracker/tracker-index.c:56
@@ -2044,7 +2095,8 @@ msgstr ""
 "a --reindex-mime-type kapcsolóval"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+#| msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Teljes névterek megjelenítése (azaz ne a nie:title típust használja, hanem a "
 "teljes URL-eket)"
@@ -2094,7 +2146,8 @@ msgid "Results"
 msgstr "Eredmények"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+#| msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Az egyes alparancsokkal kapcsolatban olvassa el a „tracker help <parancs>” "
 "kimenetét."
@@ -2106,7 +2159,6 @@ msgstr ""
 "szüneteltetése és listázása"
 
 #: ../src/tracker/tracker-main.c:98
-#| msgid "Extracts metadata from local files"
 msgid "Extract information from a file"
 msgstr "Információk kinyerése egy fájlból"
 
@@ -2162,7 +2214,8 @@ msgstr "A használatban lévő licenc és verzió megjelenítése"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
+#| msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "A(z) „%s” nem tracker parancs. Lásd: „tracker --help”"
 
 #: ../src/tracker/tracker-main.c:176
@@ -2179,28 +2232,33 @@ msgstr "A fájl nem érhető el"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
+#| msgid "Could not open '%s'"
+msgid "Could not open “%s”"
 msgstr "Nem nyitható meg a következő: „%s”"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "Nem fejeztethető be a(z) %d számú folyamat - „%s”"
+#| msgid "Could not terminate process %d - '%s'"
+msgid "Could not terminate process %d — “%s”"
+msgstr "Nem fejeztethető be a(z) %d számú folyamat – „%s”"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "A(z) %d számú folyamat befejeztetve - „%s”"
+#| msgid "Terminated process %d - '%s'"
+msgid "Terminated process %d — “%s”"
+msgstr "A(z) %d számú folyamat befejeztetve – „%s”"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "A(z) %d számú folyamat nem lőhető ki - „%s”"
+#| msgid "Could not kill process %d - '%s'"
+msgid "Could not kill process %d — “%s”"
+msgstr "A(z) %d számú folyamat nem lőhető ki – „%s”"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
-msgstr "A(z) %d számú folyamat kilőve - „%s”"
+#| msgid "Killed process %d - '%s'"
+msgid "Killed process %d — “%s”"
+msgstr "A(z) %d számú folyamat kilőve – „%s”"
 
 #: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
@@ -2227,7 +2285,6 @@ msgstr ""
 
 #. Now, delete the element recursively
 #: ../src/tracker/tracker-reset.c:168
-#| msgid "Fetching…"
 msgid "Deleting…"
 msgstr "Törlés…"
 
@@ -2247,8 +2304,12 @@ msgid "CAUTION: This process may irreversibly delete data."
 msgstr "VIGYÁZAT: ez a folyamat visszafordíthatatlanul törölheti az adatokat."
 
 #: ../src/tracker/tracker-reset.c:225
+#| msgid ""
+#| "Although most content indexed by Tracker can be safely reindexed, it "
+#| "can't be assured that this is the case for all data. Be aware that you "
+#| "may be incurring in a data loss situation, proceed at your own risk."
 msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can't "
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
@@ -2271,7 +2332,6 @@ msgstr "[i|N]"
 #. * it is intentionally lowercase, so please keep it like this.
 #.
 #: ../src/tracker/tracker-reset.c:241
-#| msgid "Yes"
 msgid "yes"
 msgstr "igen"
 
@@ -2352,8 +2412,11 @@ msgid "Use OR for search terms instead of AND (the default)"
 msgstr "A VAGY használata a keresőkifejezésekre az ÉS (alapbeállítás) helyett"
 
 #: ../src/tracker/tracker-search.c:150
+#| msgid ""
+#| "Show URNs for results (doesn't apply to --music-albums, --music-artists, "
+#| "--feeds, --software, --software-categories)"
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "URN megjelenítése a találatokhoz (nem érvényes a --music-albums, --music-"
@@ -2478,7 +2541,8 @@ msgstr "Nincs a lekérdezésnek megfelelő találat"
 
 #: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
+#| msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
 msgstr "A kifejezés („%s”) egy megállítószó"
 
 #: ../src/tracker/tracker-search.c:1564
@@ -2649,8 +2713,11 @@ msgid "Prefixes"
 msgstr "Előtagok"
 
 #: ../src/tracker/tracker-sparql.c:1143
+#| msgid ""
+#| "Could not find property for class prefix, e.g. :Resource in 'rdfs:"
+#| "Resource'"
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Nem található tulajdonság az osztályelőtaghoz, például :Resource az „rdfs:"
 "Resource”-ban"
@@ -2957,7 +3024,8 @@ msgid "No files were modified"
 msgstr "Nem lettek módosítva fájlok"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
+#| msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
 msgstr "A fájlok nem léteznek, vagy nincsenek indexelve"
 
 #: ../src/tracker/tracker-tag.c:725
@@ -3028,9 +3096,11 @@ msgstr "30 másodperc inaktivitás utáni leállítás kikapcsolása"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
+#| msgid "- start the tracker writeback service"
+msgid "— start the tracker writeback service"
 msgstr "– a Tracker visszaíró szolgáltatásának elindítása"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Mentett lekérdezések"
+
