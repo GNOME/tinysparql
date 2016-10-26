@@ -23,7 +23,6 @@
 
 #include "tracker-crawler.h"
 #include "tracker-miner-fs.h"
-#include "tracker-media-art.h"
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
 #include "tracker-thumbnailer.h"
@@ -1637,10 +1636,6 @@ item_remove (TrackerMinerFS *fs,
 	if (!only_children) {
 		if (fs->priv->thumbnailer)
 			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
-
-#ifdef HAVE_LIBMEDIAART
-		tracker_media_art_queue_remove (uri, NULL);
-#endif
 	}
 
 	g_object_set_qdata (G_OBJECT (file),
@@ -2551,9 +2546,6 @@ item_queue_handlers_cb (gpointer user_data)
 
 				if (fs->priv->thumbnailer)
 					tracker_thumbnailer_send (fs->priv->thumbnailer);
-#ifdef HAVE_LIBMEDIAART
-				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
-#endif
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,

@@ -53,12 +53,6 @@ private_sources = 				       \
 	tracker-utils.c                                \
 	tracker-utils.h
 
-if HAVE_LIBMEDIAART
-private_sources += 				       \
-	tracker-media-art.c                            \
-	tracker-media-art.h
-endif
-
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
