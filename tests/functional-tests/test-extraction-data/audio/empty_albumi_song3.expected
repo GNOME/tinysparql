@@ -1,9 +1,0 @@
-[TestFile]
-Filename=empty_albumi_song3.mp3
-Bugzilla=NB#223536, NB#223148
-Comment=Mp3 with empty Artist and album. Made extractor crash.
-
-[Metadata]
-a=nmm:MusicPiece
-nie_title=song3
-

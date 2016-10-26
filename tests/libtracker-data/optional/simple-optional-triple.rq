@@ -1,7 +1,0 @@
-SELECT ?a ?p ?q
-WHERE
-{
-    ?a a example:A
-    OPTIONAL { ?a example:p ?p }
-    ?a example:q ?q
-}

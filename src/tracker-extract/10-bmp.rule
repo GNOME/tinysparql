@@ -1,5 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-bmp.so
-MimeTypes=image/bmp
-FallbackRdfTypes=nfo:Image;nmm:Photo;
-

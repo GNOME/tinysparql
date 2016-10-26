@@ -1,4 +1,0 @@
-SELECT ?s ?o {
-  ?s example:string ?o
-}
-ORDER BY DESC ?o

@@ -1,4 +1,0 @@
-PREFIX ns: <http://example.org/ns#>
-PREFIX x:  <http://example.org/x/>
-
-SELECT ?s ?p WHERE { ?s ?p x:A } ORDER BY ?s ?p

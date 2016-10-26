@@ -1,3 +1,0 @@
-SELECT ?plainTextContent
-WHERE { ?x nie:plainTextContent ?plainTextContent }
-ORDER BY ?plainTextContent

@@ -1,3 +1,0 @@
-SELECT ?title
-WHERE { ?x nie:title ?title }
-ORDER BY ?title

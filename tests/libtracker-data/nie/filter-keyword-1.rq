@@ -1,3 +1,0 @@
-SELECT ?keyword
-WHERE { ?x nie:keyword ?keyword }
-ORDER BY ?keyword

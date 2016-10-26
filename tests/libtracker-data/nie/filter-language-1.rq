@@ -1,3 +1,0 @@
-SELECT ?language
-WHERE { ?x nie:language ?language }
-ORDER BY ?language

@@ -1,4 +1,0 @@
-SELECT ?s ?v
-WHERE {
-	?s example:p ?v
-}

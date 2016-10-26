@@ -1,4 +1,0 @@
-PREFIX : <http://example/> 
-
-SELECT ?v
-{ ?x :p ?v . FILTER(str(?x) IN ('http://example/x')) }

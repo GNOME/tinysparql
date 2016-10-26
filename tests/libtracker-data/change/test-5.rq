@@ -1,1 +1,0 @@
-select ?index { example:DomA tracker:domainIndex ?index }

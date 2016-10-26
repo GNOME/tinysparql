@@ -1,1 +1,0 @@
-select ?s1 { <a02> example:single1 ?s1 }

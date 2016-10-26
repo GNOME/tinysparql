@@ -1,3 +1,0 @@
-SELECT ?generator
-WHERE { ?x nie:generator ?generator }
-ORDER BY ?generator

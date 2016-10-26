@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-xps.so
-MimeTypes=application/oxps;application/vnd.ms-xpsdocument;
-FallbackRdfTypes=nfo:PaginatedTextDocument

@@ -1,3 +1,0 @@
-SELECT ?version
-WHERE { ?x nie:version ?version }
-ORDER BY ?version

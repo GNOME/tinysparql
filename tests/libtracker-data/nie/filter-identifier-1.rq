@@ -1,3 +1,0 @@
-SELECT ?identifier
-WHERE { ?x nie:identifier ?identifier }
-ORDER BY ?identifier

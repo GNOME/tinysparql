@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-xmp.so
-MimeTypes=application/rdf+xml
-

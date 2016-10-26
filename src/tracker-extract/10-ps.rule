@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-ps.so
-MimeTypes=application/x-gzpostscript;application/postscript;
-FallbackRdfTypes=nfo:PaginatedTextDocument

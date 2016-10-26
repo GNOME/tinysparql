@@ -1,5 +1,0 @@
-# Expected to fail because this is invalid syntax
-INSERT WHERE {
-  example:a a example:A ;
-            example:string ?foo
-}

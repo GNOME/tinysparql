@@ -1,3 +1,0 @@
-SELECT ?s ?o {
-  ?s example:string ?o
-}

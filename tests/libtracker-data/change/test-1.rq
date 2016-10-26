@@ -1,1 +1,0 @@
-select ?b02 { <a01> example:b ?b02 }

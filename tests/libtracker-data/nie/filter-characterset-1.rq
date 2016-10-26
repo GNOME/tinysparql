@@ -1,3 +1,0 @@
-SELECT ?characterSet
-WHERE { ?x nie:characterSet ?characterSet }
-ORDER BY ?characterSet

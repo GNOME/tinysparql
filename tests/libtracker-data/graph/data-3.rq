@@ -1,8 +1,0 @@
-INSERT {
-	example:graphA a example:Graph ;
-		example:graphTitle "Graph Foo" .
-	GRAPH example:graphA {
-		example:resource a example:A ;
-			example:p 42
-	}
-}

@@ -1,7 +1,0 @@
-[TestFile]
-Filename=corrupted-image.gif
-Bugzilla=NB#184882
-Comment=This image make the extractor crash
-
-[Metadata]
-a=nmm:Photo
