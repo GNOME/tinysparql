@@ -1,17 +1,5 @@
-SUBDIRS =
-
-if HAVE_TRACKER_MINER_FS
-SUBDIRS += fs
-endif
-
-if HAVE_TRACKER_MINER_APPS
-SUBDIRS += apps
-endif
+SUBDIRS = 
 
 if HAVE_TRACKER_MINER_RSS
 SUBDIRS += rss
-endif
-
-if HAVE_TRACKER_MINER_USER_GUIDES
-SUBDIRS += user-guides
 endif
