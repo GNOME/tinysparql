@@ -4,8 +4,7 @@ AM_CPPFLAGS = \
 	-DSHAREDIR=\""$(datadir)"\" \
 	$(LIBTRACKER_COMMON_CFLAGS)
 
-libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_common_LTLIBRARIES = libtracker-common.la
+noinst_LTLIBRARIES = libtracker-common.la
 
 libtracker_common_la_SOURCES = \
 	$(BUILT_SOURCES) \
