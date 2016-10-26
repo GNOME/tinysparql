@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = src docs po utils examples
+SUBDIRS = src po
 
 if HAVE_UNIT_TESTS
 SUBDIRS += tests

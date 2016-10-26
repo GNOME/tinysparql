@@ -27,10 +27,6 @@ endif
 standard_tests = \
 	01-insertion.py \
 	02-sparql-bugs.py
-if HAVE_TRACKER_FTS
-standard_tests += 03-fts-functions.py
-endif
-standard_tests += \
 	04-group-concat.py \
 	05-coalesce.py \
 	06-distance.py \
@@ -44,10 +40,6 @@ standard_tests += \
 	200-backup-restore.py \
 	300-miner-basic-ops.py \
 	301-miner-resource-removal.py
-if HAVE_TRACKER_FTS
-standard_tests += 310-fts-indexing.py
-endif
-standard_tests += \
 	400-extractor-metadata.py \
 	410-extractor-decorator.py \
 	500-writeback.py \

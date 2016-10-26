@@ -47,7 +47,7 @@ AC_INIT([tracker],
         [https://wiki.gnome.org/Projects/Tracker])
 
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
+AC_CONFIG_SRCDIR([src/miners/fs/tracker-main.c])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
@@ -201,16 +201,14 @@ LT_INIT([disable-static])
 PYTHON_REQUIRED=2.6
 
 # Library required versions
+TRACKER_REQUIRED=1.10.0
 DBUS_REQUIRED=1.3.1
 GLIB_REQUIRED=2.44.0
-GTK_REQUIRED=3.0.0
 LIBXML2_REQUIRED=2.6
 HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.16.0
-CAIRO_REQUIRED=1.0
-LIBICU_REQUIRED=4.8.1.1
 LIBJPEG_REQUIRED="any version"
 LIBGIF_REQUIRED="any version"
 LIBTIFF_REQUIRED="any version"
@@ -220,26 +218,13 @@ LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.14.24
 LIBOSINFO_REQUIRED=0.2.9
 EXEMPI_REQUIRED=2.1.0
-EVO_REQUIRED=2.32.0
-EVO_SHELL_REQUIRED=2.32.0
-EDS_REQUIRED=2.32.0
-CAMEL_REQUIRED=2.32.0
 GEE_REQUIRED=0.3
 TAGLIB_REQUIRED=1.6
 LIBGRSS_REQUIRED=0.7
-NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=1.2
 LIBMEDIAART_REQUIRED=1.9.0
-
-# 3.6.11 for sqlite_backup API
-# 3.6.16 to fix test failures
-# 3.6.17 for shared cache mode with virtual tables
-# 3.7.0 for WAL
-# 3.7.9 for FTS4 content= support
-# 3.7.15 for sqlite3_errstr() support
-SQLITE_REQUIRED=3.7.15
 
 # Needed to generate .gir files,
 # see http://live.gnome.org/GnomeGoals/AddGObjectIntrospectionSupport
@@ -247,16 +232,6 @@ GOBJECT_INTROSPECTION_CHECK([0.9.5])
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 AC_SUBST(GLIB_PREFIX)
-
-# Check requirements for gvdb
-GVDB_REQUIRED="glib-2.0 >= $GLIB_REQUIRED"
-PKG_CHECK_MODULES(GVDB, [$GVDB_REQUIRED])
-
-# Check requirements for libtracker-bus
-LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
@@ -270,60 +245,13 @@ case $host in
     ;;
 esac
 
-# Check requirements for libtracker-data
-LIBTRACKER_DATA_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                          gio-unix-2.0 >= $GLIB_REQUIRED
-                          sqlite3      >= $SQLITE_REQUIRED
-                          uuid"
-PKG_CHECK_MODULES(LIBTRACKER_DATA, [$LIBTRACKER_DATA_REQUIRED])
-
-LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS -lz -lm"
-
-# Check requirements for libtracker-direct
-LIBTRACKER_DIRECT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
-
 # Check requirements for libtracker-extract
-LIBTRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+LIBTRACKER_EXTRACT_REQUIRED="tracker-sparql-1.0 >= TRACKER_REQUIRED
+                             glib-2.0     >= $GLIB_REQUIRED
                              gio-unix-2.0 >= $GLIB_REQUIRED
 			     gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
-
-# Check requirements for libtracker-fts
-LIBTRACKER_FTS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED
-                         sqlite3      >= $SQLITE_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
-
-# Check requirements for libtracker-miner
-LIBTRACKER_MINER_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
-                           gio-unix-2.0    >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
-
-# Check requirements for libtracker-control
-LIBTRACKER_CONTROL_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
-                             gio-unix-2.0    >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_CONTROL, [$LIBTRACKER_CONTROL_REQUIRED])
-
-# Check requirements for libtracker-sparql
-LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            uuid"
-
-PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
-
-# Check requirements for tracker-control
-TRACKER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                  gio-unix-2.0 >= $GLIB_REQUIRED
-                  uuid"
-
-PKG_CHECK_MODULES(TRACKER, [$TRACKER_REQUIRED])
 
 # Check requirements for tracker-resdump
 TRACKER_RESDUMP_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
@@ -333,18 +261,10 @@ PKG_CHECK_MODULES(TRACKER_RESDUMP, [$TRACKER_RESDUMP_REQUIRED],
                   [have_tracker_resdump=yes],
                   [have_tracker_resdump=no])
 
-# Check requirements for tracker-store
-TRACKER_STORE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                        gio-unix-2.0 >= $GLIB_REQUIRED
-                        gmodule-2.0  >= $GLIB_REQUIRED
-                        sqlite3      >= $SQLITE_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_STORE, [$TRACKER_STORE_REQUIRED])
-
-TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
-
 # Check requirements for tracker-extract
-TRACKER_EXTRACT_REQUIRED="glib-2.0        >= $GLIB_REQUIRED
+TRACKER_EXTRACT_REQUIRED="tracker-sparql-1.0 >= TRACKER_REQUIRED
+                          tracker-miner-1.0 >= TRACKER_REQUIRED
+                          glib-2.0        >= $GLIB_REQUIRED
                           gio-unix-2.0    >= $GLIB_REQUIRED
                           gmodule-2.0     >= $GLIB_REQUIRED"
 
@@ -364,169 +284,22 @@ TRACKER_EXTRACT_MODULES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED"
 PKG_CHECK_MODULES(TRACKER_EXTRACT_MODULES, [$TRACKER_EXTRACT_MODULES_REQUIRED])
 
 # Check requirements for tracker-writeback
-TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+TRACKER_WRITEBACK_REQUIRED="tracker-miner-1.0 >= TRACKER_REQUIRED
+                            glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
                             gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
 
 # Check requirements for tracker-miner-fs
-TRACKER_MINER_FS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+TRACKER_MINER_FS_REQUIRED="tracker-miner-1.0 >= TRACKER_REQUIRED
+                           glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 
 TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
-
-# Check requirements for tracker-miner-apps
-TRACKER_MINER_APPS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                             gio-unix-2.0 >= $GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
-
-# Check requirements for tracker-miner-user-guides
-TRACKER_MINER_USER_GUIDES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                                    gio-unix-2.0 >= $GLIB_REQUIRED
-                                    libxml-2.0   >= $LIBXML2_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_USER_GUIDES, [$TRACKER_MINER_USER_GUIDES_REQUIRED])
-
-# Check requirements for tracker-miner-evolution
-evolution_plugin_name=""
-
-# First test for 3_3_5
-TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                        evolution-shell-3.0       >= 3.1
-                                        evolution-plugin-3.0
-                                        libemail-utils
-                                        libemail-engine
-                                        evolution-data-server-1.2 >= $EDS_REQUIRED
-                                        camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-
-   AC_DEFINE(EVOLUTION_SHELL_3_3_5, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Second test for 3_2
-TRACKER_MINER_EVOLUTION_3_2_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                      evolution-shell-3.0       >= 3.1
-                                      evolution-plugin-3.0
-                                      evolution-data-server-1.2 >= $EDS_REQUIRED
-                                      camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_2_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-
-   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Third test for 2_91
-TRACKER_MINER_EVOLUTION_2_91_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                       evolution-shell-3.0
-                                       evolution-plugin-3.0
-                                       evolution-data-server-1.2 >= $EDS_REQUIRED
-                                       camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_2_91_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Fourth test others (do we really want support for anything < 3.2)?
-TRACKER_MINER_EVOLUTION_LAST_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                       evolution-shell           >= $EVO_SHELL_REQUIRED
-                                       evolution-plugin          >= $EVO_REQUIRED
-                                       evolution-data-server-1.2 >= $EDS_REQUIRED
-                                       camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_LAST_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin"
-fi
-
-# Check requirements for tracker-miner-thunderbird
-TRACKER_MINER_THUNDERBIRD_REQUIRED=5.0
-have_tracker_miner_thunderbird="no "
-
-AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
-if test -n $THUNDERBIRD; then
-   thunderbird_version=`$THUNDERBIRD --version 2>/dev/null | awk '{print $NF}'`
-
-   AX_COMPARE_VERSION([$thunderbird_version], ge, [$TRACKER_MINER_THUNDERBIRD_REQUIRED],
-                      have_tracker_miner_thunderbird="yes",
-                      have_tracker_miner_thunderbird="no ")
-   AC_SUBST(THUNDERBIRD)
-fi
-
-# Check requirements for tracker-miner-firefox
-TRACKER_MINER_FIREFOX_REQUIRED=4.0
-have_tracker_miner_firefox="no "
-
-AC_PATH_PROG(FIREFOX, firefox, firefox)
-if test -n $FIREFOX; then
-   firefox_version=`$FIREFOX --version 2>/dev/null | awk '{print $NF}'`
-
-   AX_COMPARE_VERSION([$firefox_version], ge, [$TRACKER_MINER_FIREFOX_REQUIRED],
-                      have_tracker_miner_firefox="yes",
-                      have_tracker_miner_firefox="no ")
-   AC_SUBST(FIREFOX)
-fi
-
-# Check requirements for tracker-miner-rss
-TRACKER_MINER_RSS_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
-                            libgrss  >= $LIBGRSS_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
-                  [have_tracker_miner_rss=yes],
-                  [have_tracker_miner_rss=no])
-
-# Check requirements for tracker-needle
-TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED
-                         gmodule-2.0  >= $GLIB_REQUIRED
-                         gtk+-3.0     >= $GTK_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
-                  [have_tracker_needle=yes],
-                  [have_tracker_needle=no])
-
-# Check requirements for tracker-preferences
-TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                              gio-unix-2.0   >= $GLIB_REQUIRED
-                              gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-3.0       >= $GTK_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
-                  [have_tracker_preferences=yes],
-                  [have_tracker_preferences=no])
-
-# Check requirements for Nautilus extension
-TRACKER_NAUTILUS_EXTENSION_REQUIRED="libnautilus-extension"
-
-PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
-                  [have_tracker_nautilus_extension=yes],
-                  [have_tracker_nautilus_extension=no])
 
 # Check we have Vala valac command we need
 VALA_MIN_VERSION=0.18.0
@@ -596,35 +369,6 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
 LDFLAGS=$save_LDFLAGS
 if test "x$enable_new_dtags" = "xyes"; then
     LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
-fi
-
-####################################################################
-# Check for minimal
-####################################################################
-
-AC_ARG_ENABLE(minimal,
-              AS_HELP_STRING([--enable-minimal],
-                             [disabled EVERYTHING except the very core (tracker-store and foundation libraries) [[default=no]]]),
-              [enable_minmal=$enableval],
-              [enable_minmal=no])
-
-# WE only disable the binaries we're building here, not optional
-# extras for those binaries
-if test "x$enable_minimal" = "xyes"; then
-   AC_MSG_WARN([Building minimal configuration])
-
-   enable_tracker_extract=no
-   enable_tracker_writeback=no
-   enable_miner_fs=no
-   enable_miner_apps=no
-   enable_miner_user_guides=no
-   enable_miner_rss=no
-   enable_miner_evolution=no
-   enable_miner_thunderbird=no
-   enable_miner_firefox=no
-   enable_nautilus_extension=no
-   enable_tracker_needle=no
-   enable_tracker_preferences=no
 fi
 
 ####################################################################
@@ -703,71 +447,6 @@ if test "x$enable_maemo" = "xyes" ; then
    AC_DEFINE(HAVE_MAEMO, 1, [Define if we enable Maemo specific features])
 fi
 
-####################################################################
-# Check if we should disable the journal
-####################################################################
-
-AC_ARG_ENABLE(journal,
-              AS_HELP_STRING([--enable-journal],
-                             [enable database journal backup mechanism [[default=yes]]]),
-              [enable_journal=$enableval],
-              [enable_journal=yes])
-
-if test "x$enable_journal" != "xno" ; then
-   have_tracker_journal="yes"
-else
-   have_tracker_journal="no  (disabled)"
-fi
-
-AM_CONDITIONAL(DISABLE_JOURNAL, test "x$enable_journal" = "xno")
-
-if test "x$enable_journal" = "xno" ; then
-   AC_DEFINE(DISABLE_JOURNAL, 1, [Define if we disable the journal])
-fi
-
-####################################################################
-# Check for SQLite
-####################################################################
-
-PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
-AC_SUBST(SQLITE3_CFLAGS)
-AC_SUBST(SQLITE3_LIBS)
-
-# Make sure SQLite is compiled thread-safe
-AX_SQLITE_THREADSAFE
-if test "x$ax_cv_sqlite_threadsafe" != "xyes"; then
-  AC_MSG_ERROR([sqlite3 is not compiled thread-safe])
-fi
-
-# Make sure we're not using versions which cause problems.
-#
-# Avoid versions:
-#   3.7.10 - 3.7.13: https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
-#   3.8.1:           https://mail.gnome.org/archives/tracker-list/2013-November/msg00021.html
-#   3.8.4.1:         https://mail.gnome.org/archives/tracker-list/2014-April/msg00001.html
-#
-AC_MSG_CHECKING(whether SQLite3 version is safe)
-
-PKG_CHECK_EXISTS([sqlite3 <= 3.7.9], sqlite_safe=yes, sqlite_safe=no)
-if test "x$sqlite_safe" != "xyes"; then
-   PKG_CHECK_EXISTS([sqlite3 >= 3.7.14], sqlite_safe=yes, sqlite_safe=no)
-fi
-
-if test "x$sqlite_safe" = "xyes"; then
-   PKG_CHECK_EXISTS([sqlite3 = 3.8.1], sqlite_safe=no, sqlite_safe=yes)
-fi
-
-if test "x$sqlite_safe" = "xyes"; then
-   PKG_CHECK_EXISTS([sqlite3 = 3.8.4.2], sqlite_safe=no, sqlite_safe=yes)
-fi
-
-
-if test "x$sqlite_safe" != "xyes"; then
-   AC_MSG_RESULT(no)
-else
-   AC_MSG_RESULT(yes)
-fi
-
 ##################################################################
 # Check for libtracker-common, make sure libstemmer exists
 ##################################################################
@@ -796,69 +475,6 @@ if test "x$enable_libstemmer" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_LIBSTEMMER, test "x$have_libstemmer" = "xyes")
-
-##################################################################
-# Check for tracker-fts, allow disabling FTS support
-##################################################################
-
-AC_ARG_ENABLE([tracker-fts],
-              AS_HELP_STRING([--enable-tracker-fts],
-                             [enable the tracker FTS [[default=auto]]]),
-              [enable_tracker_fts=$enableval],
-              [enable_tracker_fts=auto])
-
-if test "x$enable_tracker_fts" = "xno" ; then
-   have_tracker_fts="no  (disabled)"
-else
-   have_tracker_fts="yes"
-fi
-
-if test "x$have_tracker_fts" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_FTS, [1], [Define to 1 if tracker FTS is compiled])
-
-   AX_SQLITE_BUILTIN_FTS5
-   if test "x$ax_cv_sqlite_builtin_fts5" = "xyes" ; then
-      have_builtin_fts5="yes"
-      AC_DEFINE(HAVE_BUILTIN_FTS, [], [Defined if Sqlite has FTS5 compiled in])
-   else
-      have_builtin_fts5="no"
-
-      # Make sure SQLite has extension loading enabled
-      AX_SQLITE_AUTO_EXTENSION
-      if test "x$ax_cv_sqlite_auto_extension" != "xyes"; then
-        AC_MSG_ERROR([sqlite3 cannot load extensions])
-      fi
-   fi
-else
-   AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
-   have_builtin_fts5="disabled"
-fi
-
-AM_CONDITIONAL(HAVE_BUILTIN_FTS, test "$have_builtin_fts5" = "yes")
-AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
-
-####################################################################
-# bash-completion
-####################################################################
-
-AC_ARG_WITH([bash-completion-dir],
-    AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
-        [Install the bash auto-completion script in this directory. @<:@default=yes@:>@]),
-    [],
-    [with_bash_completion_dir=yes])
-
-if test "x$with_bash_completion_dir" = "xyes"; then
-   PKG_CHECK_MODULES([BASH_COMPLETION], [bash-completion >= 2.0],
-       [BASH_COMPLETION_DIR=$($PKG_CONFIG --variable=completionsdir bash-completion)],
-       [BASH_COMPLETION_DIR="${datadir}/bash-completion/completions"])
-elif test "x$with_bash_completion_dir" != "xno"; then
-   # Set with_bash_completions_dir to avoid printing path twice below
-   BASH_COMPLETION_DIR="$with_bash_completion_dir"
-   with_bash_completion_dir="yes"
-fi
-
-AC_SUBST([BASH_COMPLETION_DIR])
-AM_CONDITIONAL([WITH_BASH_COMPLETION],[test "x$with_bash_completion_dir" != "xno"])
 
 ####################################################################
 # Check for D-Bus requirements
@@ -984,129 +600,13 @@ fi
 
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
-##################################################################
-# Check for libtracker-data and libtracker-fts: Unicode support
-#
-# By default, AUTO with this order of preference:
-#  1)  libunistring
-#  2)  libicu
-##################################################################
-
-# Check for libunistring...
-AC_CHECK_HEADER(uniwbrk.h,
-                AC_CHECK_LIB([unistring],
-                             [u8_wordbreaks],
-                             [have_libunistring=yes],
-                             [have_libunistring=no]))
-LIBUNISTRING_CFLAGS=""
-LIBUNISTRING_LIBS="-lunistring"
-
-# Check for libicu...
-PKG_CHECK_MODULES(LIBICU,
-                  [icu-i18n >= $LIBICU_REQUIRED icu-uc >= $LIBICU_REQUIRED],
-                  [have_libicu=yes],
-                  [have_libicu=no])
-
-# Configure option
-AC_ARG_WITH([unicode-support],
-            AS_HELP_STRING([--with-unicode-support],
-                           [Unicode support library? (libunistring|libicu) [[default=auto]]]),
-            [with_unicode_support=$withval],
-            [with_unicode_support=auto])
-
-# If auto, decide ourselves
-if test "x$with_unicode_support" = "xauto"; then
-   if test "x$have_libicu" = "xyes"; then
-      with_unicode_support=libicu
-   else
-      if test "x$have_libunistring" = "xyes"; then
-         with_unicode_support=libunistring
-      else
-         AC_MSG_ERROR([Could not find either libunistring or libicu])
-      fi
-   fi
-fi
-
-UNICODE_SUPPORT_CFLAGS=
-UNICODE_SUPPORT_LIBS=
-
-case "x$with_unicode_support" in
-     # Use libunistring
-     "xlibunistring")
-        UNICODE_SUPPORT_CFLAGS=$LIBUNISTRING_CFLAGS
-        UNICODE_SUPPORT_LIBS=$LIBUNISTRING_LIBS
-        if test "x$have_libunistring" = "xyes"; then
-           AC_DEFINE(HAVE_LIBUNISTRING, [1], [libunistring Unicode support library])
-        else
-           AC_MSG_ERROR([Could not find libunistring])
-        fi
-     ;;
-     # Use libicu
-     "xlibicu")
-        UNICODE_SUPPORT_CFLAGS=$LIBICU_CFLAGS
-        UNICODE_SUPPORT_LIBS=$LIBICU_LIBS
-        if test "x$have_libicu" = "xyes"; then
-          AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
-        else
-          AC_MSG_ERROR([Could not find libicu])
-        fi
-     ;;
-     # Invalid option value
-     *) AC_MSG_ERROR([Wrong value for --with-unicode-support: $with_unicode_support]) ;;
-esac
-
-AM_CONDITIONAL(HAVE_LIBICU, test "x$have_libicu" = "xyes")
-
 # Add to libtracker-common
 LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $UNICODE_SUPPORT_CFLAGS"
 LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $UNICODE_SUPPORT_LIBS"
 
-# Add to libtracker-fts
-LIBTRACKER_FTS_CFLAGS="$LIBTRACKER_FTS_CFLAGS $UNICODE_SUPPORT_CFLAGS"
-LIBTRACKER_FTS_LIBS="$LIBTRACKER_FTS_LIBS $UNICODE_SUPPORT_LIBS"
-
-# Add to libtracker-data
-LIBTRACKER_DATA_CFLAGS="$LIBTRACKER_DATA_CFLAGS $UNICODE_SUPPORT_CFLAGS"
-LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS $UNICODE_SUPPORT_LIBS"
-
 # Add to libtracker-extract
 LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $UNICODE_SUPPORT_CFLAGS"
 LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $UNICODE_SUPPORT_LIBS"
-
-AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibunistring")
-AM_CONDITIONAL(BUILD_LIBICU_PARSER, test "x$with_unicode_support" = "xlibicu")
-
-##################################################################
-# Check for libtracker-miner: network-manager for web miners
-##################################################################
-
-AC_ARG_ENABLE(network_manager,
-              AS_HELP_STRING([--enable-network-manager],
-                             [enable NetworkManager support to detect network status [[default=auto]]]),
-              [enable_network_manager=$enableval],
-              [enable_network_manager=auto])
-
-if test "x$enable_network_manager" != "xno"; then
-   PKG_CHECK_MODULES(NETWORK_MANAGER,
-                     [libnm-glib >= $NETWORK_MANAGER_REQUIRED],
-                     [have_network_manager=yes],
-                     [have_network_manager=no])
-
-   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $NETWORK_MANAGER_CFLAGS"
-   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $NETWORK_MANAGER_LIBS"
-
-   if test "x$have_network_manager" = "xyes"; then
-      AC_DEFINE(HAVE_NETWORK_MANAGER, [], [Define if we have NetworkManager for network status detection])
-   fi
-fi
-
-if test "x$enable_network_manager" = "xyes"; then
-   if test "x$have_network_manager" != "xyes"; then
-      AC_MSG_ERROR([Could not find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
 
 ##################################################################
 # Check for libtracker-miner, tracker-extract: libmediaart
@@ -1368,247 +868,6 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_WRITEBACK, test "x$have_tracker_writeback" = "xyes")
 
-##################################################################
-# Check for tracker-miner-apps
-##################################################################
-
-have_tracker_miner_apps="yes"
-
-AC_ARG_ENABLE(miner_apps,
-              AS_HELP_STRING([--enable-miner-apps],
-                             [enable Application miner [[default=yes]]]),
-              [enable_miner_apps=$enableval],
-              [enable_miner_apps=yes])
-
-enable_tracker_miner_apps=$enable_miner_apps
-
-if test "x$enable_tracker_miner_apps" = "xyes"; then
-   if test "x$have_tracker_miner_apps" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-miner-apps dependencies ($TRACKER_MINER_APPS_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_apps" = "xno"; then
-      have_tracker_miner_apps="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_APPS, test "x$have_tracker_miner_apps" = "xyes")
-
-##################################################################
-# Check for tracker-miner-user-guides
-##################################################################
-
-have_tracker_miner_user_guides="yes"
-
-AC_ARG_ENABLE(miner_user_guides,
-              AS_HELP_STRING([--enable-miner-user-guides],
-                             [enable User guides miner [[default=auto]]]),
-              [enable_miner_user_guides=$enableval],
-              [enable_miner_user_guides=auto])
-
-enable_tracker_miner_user_guides=$enable_miner_user_guides
-
-if test "x$enable_tracker_miner_user_guides" = "xyes"; then
-   if test "x$have_tracker_miner_user_guides" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-miner-user-guides dependencies ($TRACKER_MINER_USER_GUIDES_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_user_guides" = "xno"; then
-      have_tracker_miner_user_guides="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_USER_GUIDES, test "x$have_tracker_miner_user_guides" = "xyes")
-
-##################################################################
-# Check for tracker-miner-rss
-##################################################################
-
-AC_ARG_ENABLE([miner_rss],
-              AS_HELP_STRING([--enable-miner-rss],
-                             [enable RSS data miner [[default=auto]]]),
-              [enable_miner_rss=$enableval],
-              [enable_miner_rss=auto])
-
-enable_tracker_miner_rss=$enable_miner_rss
-
-if test "x$enable_tracker_miner_rss" = "xyes" ; then
-   if test "x$have_tracker_miner_rss" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-miner-rss dependencies ($TRACKER_MINER_RSS_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_rss" = "xno" ; then
-      have_tracker_miner_rss="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_RSS, test "x$have_tracker_miner_rss" = "xyes")
-
-####################################################################
-# Check for tracker-miner-evolution
-####################################################################
-
-tracker_miner_evolution_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_evolution],
-              AS_HELP_STRING([--enable-miner-evolution],
-                             [enable Evolution email data miner [[default=auto]]]),
-              [enable_miner_evolution=$enableval],
-              [enable_miner_evolution=auto])
-
-enable_tracker_miner_evolution=$enable_miner_evolution
-
-if test "x$enable_tracker_miner_evolution" = "xyes"; then
-   if test "x$have_tracker_miner_evolution" != "xyes"; then
-      AC_MSG_ERROR([Could not find Tracker Evolution plugin ($TRACKER_MINER_EVOLUTION_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_evolution" = "xno"; then
-      have_tracker_miner_evolution="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_evolution" = "xyes"; then
-   AC_ARG_WITH([evolution_plugin_dir],
-               AS_HELP_STRING([--with-evolution-plugin-dir],
-                              [path to Evolution plugin directory])),
-               [tracker_miner_evolution_install_dir=$withval],
-               [tracker_miner_evolution_install_dir=`$PKG_CONFIG $evolution_plugin_name --variable=plugindir`],
-
-   if test -z $tracker_miner_evolution_install_dir; then
-      AC_MSG_ERROR([Could not find evolution plugin dir, consider using --with-evolution-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_EVOLUTION_INSTALL_DIR=$tracker_miner_evolution_install_dir
-AC_SUBST(TRACKER_MINER_EVOLUTION_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_EVOLUTION, test "x$have_tracker_miner_evolution" = "xyes")
-
-####################################################################
-# Check for tracker-miner-thunderbird
-####################################################################
-
-tracker_miner_thunderbird_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_thunderbird],
-              AS_HELP_STRING([--enable-miner-thunderbird],
-                             [enable Thunderbird email data miner [[default=auto]]]),
-              [enable_miner_thunderbird=$enableval],
-              [enable_miner_thunderbird=auto])
-
-enable_tracker_miner_thunderbird=$enable_miner_thunderbird
-
-if test "x$enable_tracker_miner_thunderbird" = "xyes"; then
-   if test "x$have_tracker_miner_thunderbird" != "xyes"; then
-      AC_MSG_ERROR([Could not find Thunderbird ($TRACKER_MINER_THUNDERBIRD_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_thunderbird" = "xno"; then
-      have_tracker_miner_thunderbird="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_thunderbird" = "xyes"; then
-   # This is a symlinked to $prefix/share/xul-ext
-   # This was ${prefix}/lib/thunderbird-${thunderbird_version}/extensions
-   AC_ARG_WITH([thunderbird_plugin_dir],
-               AS_HELP_STRING([--with-thunderbird-plugin-dir],
-                              [path to Thunderbird plugin directory]),
-               [tracker_miner_thunderbird_install_dir=$withval],
-               [tracker_miner_thunderbird_install_dir=${prefix}/lib/thunderbird-addons/extensions])
-
-   if test -z $tracker_miner_thunderbird_install_dir; then
-      AC_MSG_ERROR([Could not find thunderbird plugin dir, consider using --with-thunderbird-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_THUNDERBIRD_INSTALL_DIR=$tracker_miner_thunderbird_install_dir
-AC_SUBST(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_THUNDERBIRD, test "x$have_tracker_miner_thunderbird" = "xyes")
-
-####################################################################
-# Check for tracker-miner-firefox
-####################################################################
-
-tracker_miner_firefox_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_firefox],
-              AS_HELP_STRING([--enable-miner-firefox],
-                             [enable Firefox email data miner [[default=auto]]]),
-              [enable_miner_firefox=$enableval],
-              [enable_miner_firefox=auto])
-
-enable_tracker_miner_firefox=$enable_miner_firefox
-
-if test "x$enable_tracker_miner_firefox" = "xyes"; then
-   if test "x$have_tracker_miner_firefox" != "xyes"; then
-      AC_MSG_ERROR([Could not find Firefox ($TRACKER_MINER_FIREFOX_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_firefox" = "xno"; then
-      have_tracker_miner_firefox="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_firefox" = "xyes"; then
-   # This is a symlinked to $prefix/share/xul-ext
-   # This was ${prefix}/lib/firefox-${firefox_version}/extensions
-   AC_ARG_WITH([firefox_plugin_dir],
-               AS_HELP_STRING([--with-firefox-plugin-dir],
-                              [path to Firefox plugin directory]),
-               [tracker_miner_firefox_install_dir=$withval],
-               [tracker_miner_firefox_install_dir=${prefix}/lib/firefox-addons/extensions])
-
-   if test -z $tracker_miner_firefox_install_dir; then
-      AC_MSG_ERROR([Could not find firefox plugin dir, consider using --with-firefox-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_FIREFOX_INSTALL_DIR=$tracker_miner_firefox_install_dir
-AC_SUBST(TRACKER_MINER_FIREFOX_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_FIREFOX, test "x$have_tracker_miner_firefox" = "xyes")
-
-####################################################################
-# Check for nautilus extension
-####################################################################
-
-AC_ARG_ENABLE([nautilus-extension],
-              AS_HELP_STRING([--enable-nautilus-extension],
-                             [enable tagging in nautilus with Tracker [[default=auto]]]),
-              [enable_nautilus_extension=$enableval],
-              [enable_nautilus_extension=auto])
-
-enable_tracker_nautilus_extension=$enable_nautilus_extension
-
-if test "x$enable_tracker_nautilus_extension" = "xyes"; then
-   if test "x$have_tracker_nautilus_extension" != "xyes"; then
-      AC_MSG_ERROR([Could not find Tracker Nautilus extension dependencies ($TRACKER_NAUTILUS_EXTENSION_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_nautilus_extension" = "xno"; then
-     have_tracker_nautilus_extension="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_nautilus_extension" = "xyes"; then
-   AC_ARG_WITH([nautilus-extensions-dir],
-               AS_HELP_STRING([--with-nautilus-extensions-dir],
-                              [path to Nautilus extensions directory]),
-               [tracker_nautilus_extension_install_dir=$withval],
-               [tracker_nautilus_extension_install_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`])
-
-   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="$tracker_nautilus_extension_install_dir"
-else
-   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
-fi
-
-AC_SUBST([TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR])
-
-AM_CONDITIONAL(HAVE_TRACKER_NAUTILUS_EXTENSION, test "$have_tracker_nautilus_extension" = "yes")
-
 ####################################################################
 # Check for tracker-writeback: Taglib for audio writeback support
 ####################################################################
@@ -1632,62 +891,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
-
-##################################################################
-# Check for tracker-needle
-##################################################################
-
-AC_ARG_ENABLE([tracker-needle],
-              AS_HELP_STRING([--enable-tracker-needle],
-                             [enable GTK+ UI to search for content [[default=auto]]]),
-              [enable_tracker_needle=$enableval],
-              [enable_tracker_needle=auto])
-
-if test "x$enable_tracker_needle" = "xyes" ; then
-   if test "x$have_tracker_needle" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_needle" = "xno"; then
-      have_tracker_needle="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_needle" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_NEEDLE, [1], [Define to 1 if tracker-needle is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_NEEDLE, [0], [Define to 0 if tracker-needle is not compiled])
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
-
-##################################################################
-# Check for tracker-preferences
-##################################################################
-
-AC_ARG_ENABLE([tracker-preferences],
-              AS_HELP_STRING([--enable-tracker-preferences],
-                             [enable GTK+ UI to configure Tracker [[default=auto]]]),
-              [enable_tracker_preferences=$enableval],
-              [enable_tracker_preferences=auto])
-
-# If we don't have miner-fs enabled, the preferences are pointless
-# So we override in this case.
-if test "x$enable_tracker_miner_fs" = "xyes" ; then
-   enable_tracker_miner_fs="no"
-fi
-
-if test "x$enable_tracker_preferences" = "xyes" ; then
-   if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_preferences" = "xno"; then
-      have_tracker_preferences="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
 ##################################################################
 # Check for tracker-resdump
@@ -2572,176 +1775,25 @@ AC_PATH_PROG(INITCTL, initctl, [])
 AC_SUBST(INITCTL)
 AM_CONDITIONAL(HAVE_UPSTART, test "x$INITCTL" != "x")
 
-####################################################################
-# Check whether we should install artwork
-####################################################################
-
-AC_ARG_ENABLE(artwork,
-              AS_HELP_STRING([--enable-artwork],
-                             [install artwork, e.g. data/icons/* [[default=auto]]]),
-              [enable_artwork=$enableval],
-              [enable_artwork=auto])
-
-if test "x$enable_artwork" != "xno"; then
-   AC_DEFINE(HAVE_ARTWORK, [], [Define if we should install artwork])
-   have_artwork=yes
-else
-   have_artwork="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
-
-
 ##################################################################
 # Write generated files
 ##################################################################
 
 AC_CONFIG_FILES([
-	docs/Makefile
-	docs/design/Makefile
-	docs/manpages/Makefile
-	docs/reference/Makefile
-	docs/reference/libtracker-control/Makefile
-	docs/reference/libtracker-control/version.xml
-	docs/reference/libtracker-sparql/Makefile
-	docs/reference/libtracker-sparql/version.xml
-	docs/reference/libtracker-miner/Makefile
-	docs/reference/libtracker-miner/version.xml
-	docs/reference/ontology/Makefile
-	docs/reference/ontology/version.xml
-	docs/tools/Makefile
 	Makefile
 	po/Makefile.in
-	src/gvdb/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-common/stop-words/Makefile
-	src/libtracker-sparql/Makefile
-	src/libtracker-sparql/tracker-sparql.pc
-	src/libtracker-bus/Makefile
-	src/libtracker-control/Makefile
-	src/libtracker-control/tracker-control.pc
-	src/libtracker-data/Makefile
-	src/libtracker-direct/Makefile
-	src/libtracker-sparql-backend/Makefile
-	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
-	src/libtracker-miner/Makefile
-	src/libtracker-miner/tracker-miner.pc
 	src/Makefile
 	src/miners/Makefile
 	src/miners/fs/Makefile
-	src/miners/apps/Makefile
-	src/miners/rss/Makefile
-	src/miners/user-guides/Makefile
-	src/ontologies/Makefile
-	src/tracker-store/Makefile
-	src/tracker/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-preferences/Makefile
-	src/tracker-needle/Makefile
-	src/tracker-needle/icons/Makefile
-	src/tracker-needle/icons/16x16/Makefile
-	src/tracker-needle/icons/22x22/Makefile
-	src/tracker-needle/icons/24x24/Makefile
-	src/tracker-needle/icons/32x32/Makefile
-	src/tracker-needle/icons/48x48/Makefile
-	src/tracker-needle/icons/scalable/Makefile
 	src/tracker-writeback/Makefile
-	src/plugins/Makefile
-	src/plugins/evolution/Makefile
-	src/plugins/thunderbird/Makefile
-	src/plugins/thunderbird/install.rdf
-        src/plugins/thunderbird/chrome/Makefile
-        src/plugins/thunderbird/chrome/content/Makefile
-        src/plugins/thunderbird/chrome/locale/Makefile
-        src/plugins/thunderbird/chrome/skin/Makefile
-        src/plugins/thunderbird/defaults/Makefile
-        src/plugins/thunderbird/defaults/preferences/Makefile
-	src/plugins/firefox/Makefile
-	src/plugins/firefox/install.rdf
-        src/plugins/firefox/chrome/Makefile
-        src/plugins/firefox/chrome/content/Makefile
-        src/plugins/firefox/chrome/locale/Makefile
-        src/plugins/firefox/chrome/skin/Makefile
-        src/plugins/firefox/defaults/Makefile
-        src/plugins/firefox/defaults/preferences/Makefile
-	src/plugins/nautilus/Makefile
 	tests/common/Makefile
-        tests/gvdb/Makefile
-	tests/libtracker-common/Makefile
 	tests/libtracker-extract/Makefile
-	tests/libtracker-data/Makefile
-	tests/libtracker-data/aggregates/Makefile
-	tests/libtracker-data/algebra/Makefile
-	tests/libtracker-data/anon/Makefile
-	tests/libtracker-data/ask/Makefile
-	tests/libtracker-data/basic/Makefile
-	tests/libtracker-data/bind/Makefile
-	tests/libtracker-data/bnode-coreference/Makefile
-	tests/libtracker-data/bound/Makefile
-	tests/libtracker-data/datetime/Makefile
-	tests/libtracker-data/expr-ops/Makefile
-	tests/libtracker-data/functions/Makefile
-	tests/libtracker-data/graph/Makefile
-	tests/libtracker-data/nie/Makefile
-	tests/libtracker-data/nmo/Makefile
-	tests/libtracker-data/mixed-cardinality/Makefile
-	tests/libtracker-data/optional/Makefile
-	tests/libtracker-data/regex/Makefile
-	tests/libtracker-data/sort/Makefile
-	tests/libtracker-data/subqueries/Makefile
-	tests/libtracker-data/error/Makefile
-	tests/libtracker-data/backup/Makefile
-	tests/libtracker-data/turtle/Makefile
-	tests/libtracker-data/update/Makefile
-	tests/libtracker-miner/Makefile
-	tests/libtracker-fts/Makefile
-	tests/libtracker-fts/limits/Makefile
-	tests/libtracker-fts/prefix/Makefile
-	tests/libtracker-sparql/Makefile
-	tests/functional-tests/Makefile
-	tests/functional-tests/ipc/Makefile
-	tests/functional-tests/common/Makefile
-	tests/functional-tests/common/utils/configuration.py
-	tests/functional-tests/common/utils/Makefile
-	tests/functional-tests/unittest2/Makefile
-	tests/functional-tests/test-extraction-data/Makefile
-	tests/functional-tests/test-extraction-data/audio/Makefile
-	tests/functional-tests/test-extraction-data/images/Makefile
-	tests/functional-tests/test-extraction-data/office/Makefile
-	tests/functional-tests/test-extraction-data/video/Makefile
-	tests/functional-tests/test-extraction-data/playlists/Makefile
-	tests/functional-tests/test-writeback-data/Makefile
-	tests/functional-tests/test-ontologies/Makefile
-	tests/functional-tests/test-ontologies/basic/Makefile
-	tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
-	tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
-	tests/functional-tests/test-ontologies/cardinality/Makefile
-	tests/functional-tests/test-ontologies/notify/Makefile
-	tests/functional-tests/test-ontologies/indexed/Makefile
-	tests/functional-tests/test-ontologies/add-class/Makefile
-	tests/functional-tests/test-ontologies/add-prop/Makefile
-	tests/functional-tests/test-ontologies/add-domainIndex/Makefile
-	tests/functional-tests/test-ontologies/superclass-remove/Makefile
-	tests/functional-tests/test-ontologies/property-promotion/Makefile
-	tests/functional-tests/test-ontologies/basic-future/Makefile
-	tests/functional-tests/test-apps-data/Makefile
-	tests/functional-tests/ttl/Makefile
 	tests/Makefile
-	tests/tracker-steroids/Makefile
 	tests/tracker-writeback/Makefile
-	utils/Makefile
-	utils/gtk-sparql/Makefile
-	utils/ontology/Makefile
-	utils/data-generators/Makefile
-	utils/data-generators/cc/Makefile
-	utils/mtp/Makefile
-	utils/sandbox/Makefile
-	utils/tracker-resdump/Makefile
-	examples/Makefile
-	examples/libtracker-miner/Makefile
-	examples/libtracker-sparql/Makefile
-	examples/rss-reader/Makefile
 ])
 
 AC_OUTPUT
@@ -2758,8 +1810,6 @@ Build Configuration:
 
 	Win32:                                  $native_win32
 
-	Enable gtk doc (for documentation):     $enable_gtk_doc
-
 	Enable functional tests:                $enable_functional_tests
 	Enable unit tests:                      $have_unit_tests
 
@@ -2767,31 +1817,11 @@ Feature Support:
 
 	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
-	Support for network status detection:   $have_network_manager
-	Unicode support library:                $with_unicode_support
-
-	Build with Journal support:             $have_tracker_journal
-	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts5)
-	Build with Stemming support:            $have_libstemmer
 
 	Cache media art                         $have_libmediaart (libmediaart)
-	Install artwork                         $have_artwork
 
-	Bash completion support:                $with_bash_completion_dir ($BASH_COMPLETION_DIR)
-
-Data Miners / Writebacks:
-
-	FS (File System):                       $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
-	Applications:                           $have_tracker_miner_apps
-	RSS:                                    $have_tracker_miner_rss
-	User Guides:                            $have_tracker_miner_user_guides
-	Email:
-          Evolution:                            $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
-          Thunderbird:                          $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
-        Bookmarks:
-          FireFox:                              $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
-
-        Extract (secondary extraction):         $have_tracker_extract
+	File system miner:                      $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
+        Metadata extraction:                    $have_tracker_extract
         Writeback (writing changes back):       $have_tracker_writeback"
 
 if test "x$enable_tracker_extract" != "xno" ; then
@@ -2819,7 +1849,8 @@ Metadata Extractors:
 	Support MP3 tag charset detection:      $have_charset_detection (icu: $have_libicu_charset_detection, enca: $have_enca)
 	Support PS parsing:                     $have_ps
 	Support text parsing:                   $have_text
-	Support icon parsing:                   $have_icon"
+	Support icon parsing:                   $have_icon
+	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)"
 fi
 
 if test "x$enable_tracker_writeback" != "xno" ; then
@@ -2828,33 +1859,4 @@ Writeback Formats:
 
 	Audio files using Taglib:               $have_taglib
 	XMP:                                    $have_exempi"
-fi
-
-echo "
-Applications:
-
-	Build tracker-preferences:              $have_tracker_preferences
-	Build tracker-needle:                   $have_tracker_needle
-
-Frameworks / Options:
-
-        Support GNOME's Nautilus                $have_tracker_nautilus_extension ($tracker_nautilus_extension_install_dir)
-	Support Maemo                           $enable_maemo
-	Support libmeegotouch                   $have_meegotouch
-	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
-
-"
-
-# Any warnings we need to issue...
-if test "x$sqlite_safe" = "xno"; then
-sqlite_version=$($PKG_CONFIG --modversion sqlite3)
-echo "
-WARNING:
-        SQLite3 version $sqlite_version is not safe. For details see:
-        3.7.10 - 3.7.13: https://mail.gnome.org/archives/tracker-list/2012-October/msg00028.html
-        3.8.1:           https://mail.gnome.org/archives/tracker-list/2013-November/msg00021.html
-        3.8.4.2:         https://mail.gnome.org/archives/tracker-list/2014-April/msg00001.html
-
-
-"
 fi
