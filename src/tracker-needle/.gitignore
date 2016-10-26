@@ -1,6 +1,0 @@
-tracker-needle
-*.c
-*.desktop.in
-org.freedesktop.Tracker.Needle.gschema.valid
-org.freedesktop.Tracker.Needle.gschema.xml
-org.freedesktop.Tracker.enums.xml
