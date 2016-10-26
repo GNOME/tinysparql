@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-pdf.so
-MimeTypes=application/pdf
-FallbackRdfTypes=nfo:PaginatedTextDocument
