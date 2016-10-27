@@ -234,7 +234,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		album_disc = tracker_extract_new_music_album_disc (fd.album,
 		                                                   album_artist,
-		                                                   fd.discno ? atoi(fd.discno) : 1);
+		                                                   fd.discno ? atoi(fd.discno) : 1,
+		                                                   fd.date);
 
 		album = tracker_resource_get_first_relation (album_disc, "nmm:albumDiscAlbum");
 

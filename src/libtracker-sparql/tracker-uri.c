@@ -53,6 +53,8 @@ tracker_sparql_escape_uri_vprintf (const gchar *format,
 gchar *
 tracker_sparql_escape_uri_printf  (const gchar* format,
                                    ...);
+gchar *
+tracker_sparql_escape_uri         (const gchar *uri);
 
 static const char *
 find_conversion (const char  *format,
@@ -165,7 +167,7 @@ find_conversion (const char  *format,
  *
  * The result is escaped using g_uri_escape_string().
  *
- * Returns: a newly-allocated string holding the result. The returned string
+ * Returns: (transfer-full): a newly-allocated string holding the result. The returned string
  * should be freed with g_free() when no longer needed.
  *
  * Since: 0.10
@@ -269,7 +271,7 @@ cleanup:
  *
  * Calls tracker_sparql_escape_uri_vprintf() with the @... supplied.
  *
- * Returns: a newly-allocated string holding the result.The returned string
+ * Returns: (transfer-full): a newly-allocated string holding the result.The returned string
  * should be freed with g_free() when no longer needed.
  *
  * Since: 0.10
@@ -287,3 +289,23 @@ tracker_sparql_escape_uri_printf (const gchar *format, ...)
 	return result;
 }
 
+/**
+ * tracker_sparql_escape_uri:
+ * @uri: a string to be escaped, following the tracker sparql rules
+ *
+ * Calls tracker_sparql_escape_uri_printf().
+ *
+ * Returns: (transfer-full): a newly-allocated string holding the result. The returned string
+ * should be freed with g_free() when no longer needed.
+ *
+ * Since: 1.12
+ */
+gchar *
+tracker_sparql_escape_uri (const gchar *uri)
+{
+	gchar *result;
+
+	result = tracker_sparql_escape_uri_printf ("%s", uri);
+
+	return result;
+}

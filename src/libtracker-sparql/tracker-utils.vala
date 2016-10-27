@@ -33,6 +33,7 @@ namespace Tracker.Sparql {
 	// Imported from tracker-uri.c
 	public extern string escape_uri_vprintf (string format, va_list args);
 	public extern string escape_uri_printf (string format, ...);
+	public extern string escape_uri (string uri);
 
 	/**
 	 * tracker_sparql_escape_string:

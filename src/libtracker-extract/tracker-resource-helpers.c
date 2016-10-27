@@ -229,6 +229,7 @@ tracker_extract_new_location (const char *street_address,
  * @album_title: title of the album
  * @album_artist: (allow none): a #TrackerResource for the album artist, or %NULL
  * @disc_number: disc number of this disc (the first / only disc in a set should be 1, not 0)
+ * @date: (allow none):The release date, or %NULL
  *
  * Create new nmm:MusicAlbumDisc and nmm:MusicAlbum resources. The resources are
  * given fixed URIs based on @album_title and @disc_number, so they will be
@@ -246,47 +247,63 @@ tracker_extract_new_location (const char *street_address,
 TrackerResource *
 tracker_extract_new_music_album_disc (const char      *album_title,
                                       TrackerResource *album_artist,
-                                      int              disc_number)
+                                      int              disc_number,
+                                      const char      *date)
 {
-	gchar *album_uri, *disc_uri;
-	const gchar *album_artist_name;
+	GString *album_uri, *disc_uri;
+	const gchar *album_artist_name = NULL;
+	gchar *tmp_album_uri, *tmp_disc_uri;
 
 	TrackerResource *album, *album_disc;
 
 	g_return_val_if_fail (album_title != NULL, NULL);
 
-	album_artist_name = tracker_resource_get_first_string (album_artist,
-	                                                       "nmm:artistName");
+	if (album_artist)
+		album_artist_name = tracker_resource_get_first_string (album_artist,
+		                                                       "nmm:artistName");
 
-	if (album_artist != NULL) {
-		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s",
-		                                              album_title,
-		                                              album_artist_name);
-	} else {
-		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
-	}
-	album = tracker_resource_new (album_uri);
+	album_uri = g_string_new ("urn:album:");
+
+	g_string_append (album_uri, album_title);
+
+	if (album_artist_name)
+		g_string_append_printf (album_uri, ":%s", album_artist_name);
+
+	if (date)
+		g_string_append_printf (album_uri, ":%s", date);
+
+	tmp_album_uri = tracker_sparql_escape_uri (album_uri->str);
+	album = tracker_resource_new (tmp_album_uri);
 
 	tracker_resource_set_uri (album, "rdf:type", "nmm:MusicAlbum");
 	tracker_resource_set_string (album, "nmm:albumTitle", album_title);
 
-	if (album_artist != NULL) {
+	if (album_artist)
 		tracker_resource_add_relation (album, "nmm:albumArtist", album_artist);
-		disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
-		                                             album_title,
-		                                             album_artist_name,
-		                                             disc_number);
-	} else {
-		disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d", album_title, disc_number);
-	}
 
-	album_disc = tracker_resource_new (disc_uri);
+	disc_uri = g_string_new ("urn:album-disc:");
+
+	g_string_append (disc_uri, album_title);
+
+	if (album_artist_name)
+		g_string_append_printf (disc_uri, ":%s", album_artist_name);
+
+	if (date)
+		g_string_append_printf (disc_uri, ":%s", date);
+
+	g_string_append_printf (disc_uri, ":Disc%d", disc_number);
+
+	tmp_disc_uri = tracker_sparql_escape_uri (disc_uri->str);
+	album_disc = tracker_resource_new (tmp_disc_uri);
+
 	tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
 	tracker_resource_set_int (album_disc, "nmm:setNumber", disc_number > 0 ? disc_number : 1);
 	tracker_resource_add_relation (album_disc, "nmm:albumDiscAlbum", album);
 
-	g_free (album_uri);
-	g_free (disc_uri);
+	g_free (tmp_album_uri);
+	g_free (tmp_disc_uri);
+	g_string_free (album_uri, TRUE);
+	g_string_free (disc_uri, TRUE);
 
 	g_object_unref (album);
 

@@ -2456,35 +2456,23 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.album_name) {
-		gchar *album_uri;
+		TrackerResource *album_disc = NULL;
 
-		if (md.album_artist_name) {
-			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s",
-		                                                md.album_name,
-		                                                md.album_artist_name);
-		} else {
-			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s",
-		                                                md.album_name);
-		}
+		album_disc = tracker_extract_new_music_album_disc (md.album_name,
+		                                                   md.album_artist,
+		                                                   md.set_number > 0 ? md.set_number : 1,
+		                                                   md.recording_time);
 
-		md.album = tracker_resource_new (album_uri);
+		md.album = tracker_resource_get_first_relation (album_disc, "nmm:albumDiscAlbum");
 
-		tracker_resource_set_uri (md.album, "rdf:type", "nmm:MusicAlbum");
-		/* FIXME: nmm:albumTitle is now deprecated
-		 * tracker_sparql_builder_predicate (preupdate, "nie:title");
-		 */
-		tracker_resource_set_string (md.album, "nmm:albumTitle", md.album_name);
-
-		if (md.album_artist) {
-			tracker_resource_set_relation (md.album, "nmm:albumArtist", md.album_artist);
-			g_object_unref (md.album_artist);
-		}
+		tracker_resource_set_relation (main_resource, "nmm:musicAlbum", md.album);
+		tracker_resource_set_relation (main_resource, "nmm:musicAlbumDisc", album_disc);
 
 		if (md.track_count > 0) {
 			tracker_resource_set_int (md.album, "nmm:albumTrackCount", md.track_count);
 		}
 
-		g_free (album_uri);
+		g_object_unref (album_disc);
 	}
 
 	tracker_resource_add_uri (main_resource, "rdf:type", "nmm:MusicPiece");
@@ -2543,33 +2531,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if (md.track_number > 0) {
 		tracker_resource_set_int (main_resource, "nmm:trackNumber", md.track_number);
-	}
-
-	if (md.album) {
-		TrackerResource *album_disc;
-		gchar *album_disc_uri;
-
-		if (md.album_artist_name) {
-			album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
-		                                                     md.album_name,
-		                                                     md.album_artist_name,
-		                                                     md.set_number > 0 ? md.set_number : 1);
-		} else {
-			album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-		                                                     md.album_name,
-		                                                     md.set_number > 0 ? md.set_number : 1);
-		}
-
-		album_disc = tracker_resource_new (album_disc_uri);
-		tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
-		tracker_resource_set_int (album_disc, "nmm:setNumber", md.set_number > 0 ? md.set_number : 1);
-		tracker_resource_set_relation (album_disc, "nmm:albumDiscAlbum", md.album);
-
-		tracker_resource_set_relation (main_resource, "nmm:musicAlbumDisc", album_disc);
-
-		g_free (album_disc_uri);
-		g_object_unref (album_disc);
-		g_object_unref (md.album);
 	}
 
 	/* Get mp3 stream info */

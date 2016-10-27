@@ -184,7 +184,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		album_disc = tracker_extract_new_music_album_disc (vd.album,
 		                                                   album_artist,
-		                                                   vd.disc_number ? atoi(vd.disc_number) : 1);
+		                                                   vd.disc_number ? atoi(vd.disc_number) : 1,
+		                                                   vd.date);
 
 		g_clear_object (&album_artist);
 
