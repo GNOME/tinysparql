@@ -38,8 +38,6 @@
 #include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-extract/tracker-extract.h>
 
-#include <libtracker-data/tracker-db-manager.h>
-
 #include "tracker-power.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
@@ -1336,7 +1334,7 @@ check_battery_status (TrackerMinerFiles *mf)
 			if (!tracker_config_get_index_on_battery_first_time (mf->private->config)) {
 				g_message ("Running on battery, but not enabled, pausing");
 				should_pause = TRUE;
-			} else if (tracker_db_manager_get_first_index_done ()) {
+			} else if (tracker_init_get_first_index_done ()) {
 				g_message ("Running on battery and first-time index "
 				           "already done, pausing");
 				should_pause = TRUE;
@@ -1407,8 +1405,8 @@ miner_finished_cb (TrackerMinerFS *fs,
 	TrackerMinerFiles *mf = TRACKER_MINER_FILES (fs);
 
 	/* Create stamp file if not already there */
-	if (!tracker_db_manager_get_first_index_done ()) {
-		tracker_db_manager_set_first_index_done (TRUE);
+	if (!tracker_init_get_first_index_done ()) {
+		tracker_init_set_first_index_done (TRUE);
 	}
 
 	/* And remove the signal handler so that it's not
@@ -2492,7 +2490,7 @@ miner_files_finished (TrackerMinerFS *fs,
                       gint            files_found,
                       gint            files_ignored)
 {
-	tracker_db_manager_set_last_crawl_done (TRUE);
+	tracker_init_set_last_crawl_done (TRUE);
 }
 
 TrackerMiner *

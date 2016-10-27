@@ -21,6 +21,7 @@ libtracker_common_LTLIBRARIES = libtracker-common.la
 
 libtracker_common_la_SOURCES = \
 	$(BUILT_SOURCES) \
+	tracker-init.c \
 	tracker-date-time.c \
 	tracker-dbus.c \
 	tracker-file-utils.c \
@@ -34,6 +35,7 @@ libtracker_common_la_SOURCES = \
 	tracker-language.c
 
 noinst_HEADERS = \
+	tracker-init.h \
 	tracker-dbus.h \
 	tracker-enums.h \
 	tracker-ioprio.h \

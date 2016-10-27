@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2016 Red Hat
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,31 +17,19 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_H__
-#define __LIBTRACKER_COMMON_H__
+#ifndef __TRACKER_MINER_INIT_H__
+#define __TRACKER_MINER_INIT_H__
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
-
+#include "config.h"
 #include <glib.h>
 
-#define __LIBTRACKER_COMMON_INSIDE__
+gboolean tracker_init_get_first_index_done (void);
+void     tracker_init_set_first_index_done (gboolean done);
 
-#include "tracker-date-time.h"
-#include "tracker-dbus.h"
-#include "tracker-file-utils.h"
-#include "tracker-ioprio.h"
-#include "tracker-language.h"
-#include "tracker-log.h"
-#include "tracker-parser.h"
-#include "tracker-sched.h"
-#include "tracker-type-utils.h"
-#include "tracker-utils.h"
-#include "tracker-locale.h"
-#include "tracker-enum-types.h"
-#include "tracker-init.h"
+guint64  tracker_init_get_last_crawl_done  (void);
+void     tracker_init_set_last_crawl_done  (gboolean done);
 
-#undef __LIBTRACKER_COMMON_INSIDE__
+gboolean tracker_init_get_need_mtime_check (void);
+void     tracker_init_set_need_mtime_check (gboolean needed);
 
-#endif /* __LIBTRACKER_COMMON_H__ */
+#endif /* __TRACKER_MINER_INIT_H__ */
