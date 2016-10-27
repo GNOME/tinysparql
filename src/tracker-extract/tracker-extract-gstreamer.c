@@ -677,7 +677,7 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 
         if (album_artist) {
                 album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
-                                                                   album_title, album_artist,
+                                                                   album_title, album_artist_name,
                                                                    has_it ? volume_number : 1);
         } else {
                 album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
