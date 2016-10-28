@@ -248,12 +248,23 @@ tracker_extract_new_music_album_disc (const char      *album_title,
                                       TrackerResource *album_artist,
                                       int              disc_number)
 {
-	char *album_uri, *disc_uri;
+	gchar *album_uri, *disc_uri;
+	const gchar *album_artist_name;
+
 	TrackerResource *album, *album_disc;
 
 	g_return_val_if_fail (album_title != NULL, NULL);
 
-	album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
+	album_artist_name = tracker_resource_get_first_string (album_artist,
+	                                                       "nmm:artistName");
+
+	if (album_artist != NULL) {
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s",
+		                                              album_title,
+		                                              album_artist_name);
+	} else {
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
+	}
 	album = tracker_resource_new (album_uri);
 
 	tracker_resource_set_uri (album, "rdf:type", "nmm:MusicAlbum");
@@ -261,14 +272,20 @@ tracker_extract_new_music_album_disc (const char      *album_title,
 
 	if (album_artist != NULL) {
 		tracker_resource_add_relation (album, "nmm:albumArtist", album_artist);
+		disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
+		                                             album_title,
+		                                             album_artist_name,
+		                                             disc_number);
+	} else {
+		disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d", album_title, disc_number);
 	}
 
-	disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d", album_title, disc_number);
 	album_disc = tracker_resource_new (disc_uri);
 	tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
 	tracker_resource_set_int (album_disc, "nmm:setNumber", disc_number > 0 ? disc_number : 1);
 	tracker_resource_add_relation (album_disc, "nmm:albumDiscAlbum", album);
 
+	g_free (album_uri);
 	g_free (disc_uri);
 
 	g_object_unref (album);

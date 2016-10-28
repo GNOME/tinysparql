@@ -637,10 +637,9 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 {
 	TrackerResource *album = NULL, *album_artist = NULL, *album_disc = NULL;
 	gchar *album_uri, *album_disc_uri;
-	gchar *album_artist_name;
-	gchar *album_title = NULL;
-	gchar *album_artist_temp = NULL;
+	gchar *album_artist_name = NULL;
 	gchar *track_artist_temp = NULL;
+	gchar *album_title = NULL;
 	gboolean has_it;
 	guint volume_number;
 
@@ -649,17 +648,15 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 	if (!album_title)
 		return NULL;
 
-	gst_tag_list_get_string (tag_list, GST_TAG_ALBUM_ARTIST, &album_artist_temp);
+	gst_tag_list_get_string (tag_list, GST_TAG_ALBUM_ARTIST, &album_artist_name);
 	gst_tag_list_get_string (tag_list, GST_TAG_ARTIST, &track_artist_temp);
 
-	album_artist_name = g_strdup (tracker_coalesce_strip (2, album_artist_temp, track_artist_temp));
-
-        if (album_artist_name != NULL) {
-                album_artist = intern_artist (extractor, album_artist_name);
-                album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s", album_title, album_artist_name);
-        } else {
-                album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
-        }
+	if (album_artist_name != NULL) {
+		album_artist = intern_artist (extractor, album_artist_name);
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s", album_title, album_artist_name);
+	} else {
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album_title);
+	}
 
 	album = tracker_resource_new (album_uri);
 	tracker_resource_set_uri (album, "rdf:type", "nmm:MusicAlbum");
@@ -675,15 +672,15 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 
 	has_it = gst_tag_list_get_uint (tag_list, GST_TAG_ALBUM_VOLUME_NUMBER, &volume_number);
 
-        if (album_artist) {
-                album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
-                                                                   album_title, album_artist_name,
-                                                                   has_it ? volume_number : 1);
-        } else {
-                album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-                                                                   album_title,
-                                                                   has_it ? volume_number : 1);
-        }
+	if (album_artist) {
+		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
+		                                                   album_title, album_artist_name,
+		                                                   has_it ? volume_number : 1);
+	} else {
+		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+		                                                   album_title,
+		                                                   has_it ? volume_number : 1);
+	}
 
 	album_disc = tracker_resource_new (album_disc_uri);
 	tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
@@ -694,11 +691,11 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 	set_property_from_gst_tag (album, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
 
 #ifdef HAVE_LIBMEDIAART
-	extractor->media_art_artist = album_artist_name;
+	extractor->media_art_artist = g_strdup (tracker_coalesce_strip (2, album_artist_name, track_artist_temp));
 	extractor->media_art_title = album_title;
 #endif
 
-	g_free (album_artist_temp);
+	g_free (album_artist_name);
 	g_free (track_artist_temp);
 
 	return album_disc;

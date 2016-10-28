@@ -2456,7 +2456,17 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.album_name) {
-		char *album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", md.album_name);
+		gchar *album_uri;
+
+		if (md.album_artist_name) {
+			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s:%s",
+		                                                md.album_name,
+		                                                md.album_artist_name);
+		} else {
+			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s",
+		                                                md.album_name);
+		}
+
 		md.album = tracker_resource_new (album_uri);
 
 		tracker_resource_set_uri (md.album, "rdf:type", "nmm:MusicAlbum");
@@ -2473,6 +2483,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		if (md.track_count > 0) {
 			tracker_resource_set_int (md.album, "nmm:albumTrackCount", md.track_count);
 		}
+
+		g_free (album_uri);
 	}
 
 	tracker_resource_add_uri (main_resource, "rdf:type", "nmm:MusicPiece");
@@ -2537,9 +2549,16 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		TrackerResource *album_disc;
 		gchar *album_disc_uri;
 
-		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-		                                                   md.album_name,
-		                                                   md.set_number > 0 ? md.set_number : 1);
+		if (md.album_artist_name) {
+			album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:%s:Disc%d",
+		                                                     md.album_name,
+		                                                     md.album_artist_name,
+		                                                     md.set_number > 0 ? md.set_number : 1);
+		} else {
+			album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+		                                                     md.album_name,
+		                                                     md.set_number > 0 ? md.set_number : 1);
+		}
 
 		album_disc = tracker_resource_new (album_disc_uri);
 		tracker_resource_set_uri (album_disc, "rdf:type", "nmm:MusicAlbumDisc");
