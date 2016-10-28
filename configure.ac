@@ -40,10 +40,10 @@ m4_define([tracker_lt_current_minus_age],
 # TRACKER_BINARY_VERSION=$TRACKER_MAJOR_VERSION.$TRACKER_MINOR_VERSION.$LT_CURRENT
 m4_define([tracker_binary_version], [1.0.0])
 
-AC_INIT([tracker],
+AC_INIT([tracker-miner-rss],
         [tracker_version],
         [http://bugzilla.gnome.org/enter_bug.cgi?product=tracker],
-        [tracker],
+        [tracker-miner-rss],
         [https://wiki.gnome.org/Projects/Tracker])
 
 AC_CONFIG_AUX_DIR([build-aux])
