@@ -1,72 +1,9 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
-[type: gettext/glade]examples/rss-reader/rss_viewer.ui
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
-src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in
-src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in
-src/libtracker-data/tracker-data-backup.c
-src/libtracker-miner/tracker-enumerator.c
-src/libtracker-miner/tracker-data-provider.c
-src/libtracker-miner/tracker-miner-fs.c
-src/libtracker-miner/tracker-miner-object.c
-src/libtracker-miner/tracker-miner-online.c
-src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in
-src/miners/apps/tracker-main.c
-src/miners/apps/tracker-miner-apps.desktop.in.in
-src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in
-src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in
-src/miners/fs/tracker-main.c
-src/miners/fs/tracker-miner-files.c
-src/miners/fs/tracker-miner-fs.desktop.in.in
 src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in
 src/miners/rss/tracker-main.c
 src/miners/rss/tracker-miner-rss.c
 src/miners/rss/tracker-miner-rss.desktop.in.in
-src/miners/user-guides/org.freedesktop.Tracker1.Miner.Userguides.service.in.in
-src/miners/user-guides/tracker-main.c
-src/miners/user-guides/tracker-miner-user-guides.desktop.in.in
-src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in
-src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
-src/plugins/evolution/tracker-evolution-plugin.c
-src/plugins/nautilus/tracker-tags-extension.c
-src/plugins/nautilus/tracker-tags-view.c
-src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in
-src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in
-src/tracker-extract/tracker-extract.c
-src/tracker-extract/tracker-main.c
-src/tracker-extract/tracker-extract.desktop.in.in
-src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in
-src/tracker-needle/tracker-needle.desktop.in.in
-[type: gettext/glade]src/tracker-needle/tracker-needle.ui
-src/tracker-needle/tracker-needle.vala
-src/tracker-needle/tracker-query.vala
-src/tracker-needle/tracker-stats.vala
-src/tracker-needle/tracker-tags-view.vala
-src/tracker-needle/tracker-utils.vala
-src/tracker-needle/tracker-view.vala
-src/tracker-preferences/tracker-preferences.desktop.in.in
-[type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
-src/tracker-preferences/tracker-preferences.vala
-src/tracker-store/tracker-main.vala
-src/tracker-store/tracker-store.desktop.in.in
-src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in
-src/tracker/tracker-config.c
-src/tracker/tracker-daemon.c
-src/tracker/tracker-dbus.c
-src/tracker/tracker-extract.c
-src/tracker/tracker-help.c
-src/tracker/tracker-index.c
-src/tracker/tracker-info.c
-src/tracker/tracker-main.c
-src/tracker/tracker-process.c
-src/tracker/tracker-reset.c
-src/tracker/tracker-search.c
-src/tracker/tracker-sparql.c
-src/tracker/tracker-sql.c
-src/tracker/tracker-status.c
-src/tracker/tracker-tag.c
-src/tracker-writeback/tracker-main.c
-src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in
-[type: gettext/glade]utils/gtk-sparql/gtk-sparql.ui
