@@ -2,6 +2,8 @@
 #
 # Test runner script for Tracker's functional tests
 
+set -e
+
 SCRIPT=$1
 
 DBUS_SESSION_BUS_PID=
