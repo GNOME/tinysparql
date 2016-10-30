@@ -263,7 +263,7 @@ test_getline (void)
 {
         FILE *f;
         gchar *line = NULL;
-        gsize  n;
+        gsize  n = 0;
  
         f = fopen (TOP_SRCDIR "/tests/libtracker-extract/getline-test.txt", "r");
         g_assert_cmpint (tracker_getline (&line, &n, f), >, 0);
