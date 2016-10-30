@@ -8,7 +8,6 @@ AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \
 	-I$(top_srcdir)/src \
 	-I$(top_builddir)/src \
-	-DSHAREDIR=\""$(datadir)"\" \
 	$(GVDB_CFLAGS)
 
 gvdb_test_SOURCES = gvdb-test.c
