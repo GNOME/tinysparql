@@ -1215,7 +1215,6 @@ tracker_decorator_initable_init (GInitable     *initable,
 		                                    class_signal_cb,
 		                                    initable, NULL);
 	decorator_update_state (decorator, "Idle", FALSE);
-	decorator_rebuild_cache (decorator);
 	return TRUE;
 }
 
