@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-07-25 20:47+0000\n"
-"PO-Revision-Date: 2016-07-18 14:27+0200\n"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-10-09 14:18+0000\n"
+"PO-Revision-Date: 2016-11-02 10:03+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
+"Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -115,9 +115,12 @@ msgid "Enable stemmer"
 msgstr "Activar stemmer"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#| msgid ""
+#| "Simplify the words to their root to provide more results. E.g. 'shelves' "
+#| "and 'shelf' to 'shel'"
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
 "Simplificar las palabras a su raíz para proporcionar más resultados. Ej. "
 "«estanterías» y «estante» a «estant»."
@@ -127,9 +130,12 @@ msgid "Enable unaccent"
 msgstr "Activar unaccent"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#| msgid ""
+#| "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' "
+#| "to 'Idea' for improved matching."
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "Traducir caracteres acentuados a su equivalente sin acentuar. Ej. «Idéa» a "
 "«Idea» para mejorar la coincidencia."
@@ -147,9 +153,12 @@ msgid "Ignore stop words"
 msgstr "Ignorar palabras de parada"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#| msgid ""
+#| "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#| "common words like 'the', 'yes', 'no', etc."
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "Si está activada, se ignorarán las palabras listadas en la lista de palabras "
 "de parada. Ej. palabras comunes como «sí», «no», etc."
@@ -176,7 +185,8 @@ msgstr ""
 
 #: ../src/libtracker-data/tracker-data-backup.c:500
 #: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
+#| msgid "Error starting 'tar' program"
+msgid "Error starting “tar” program"
 msgstr "Error al iniciar el programa «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
@@ -207,7 +217,8 @@ msgstr "No se proporcionó ningún error"
 
 #: ../src/libtracker-data/tracker-data-backup.c:634
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
+#| msgid "Unknown error, 'tar' exited with status %d"
+msgid "Unknown error, “tar” exited with status %d"
 msgstr "Error desconocido, «tar» ha terminado con el estado %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
@@ -279,7 +290,8 @@ msgstr "Muestra información de la versión"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
+#| msgid "- start the application data miner"
+msgid "— start the application data miner"
 msgstr "- iniciar el minero de datos de aplicaciones"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
@@ -370,7 +382,8 @@ msgstr ""
 "fuerza sólo después de apagados no limpio, y -2 lo desactiva por completo."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+#| msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "Umbral de permanencia de datos en dispositivos extraíbles"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -418,9 +431,12 @@ msgid "Index optical discs"
 msgstr "Indexar discos ópticos"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+#| msgid ""
+#| "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+#| "removable devices are not indexed, optical discs won't be either)"
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
 "Establecer a cierto para activar la indexación de CD, DVD y medios ópticos "
 "en general (si los dispositivos extraíbles no están indexados, los discos "
@@ -525,13 +541,15 @@ msgstr "ARCHIVO"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
+#| msgid "Data object '%s' currently exists"
+msgid "Data object “%s” currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
-msgstr "El objeto de datos «%s» no existe"
+#| msgid "Data object '%s' currently does not exist"
+msgid "Data object “%s” currently does not exist"
+msgstr "El objeto de datos «%s» no existe actualmente"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
@@ -607,7 +625,8 @@ msgstr "Se monitorizará"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
+#| msgid "- start the tracker indexer"
+msgid "— start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
 #: ../src/miners/fs/tracker-miner-files.c:1357
@@ -651,7 +670,8 @@ msgstr "Título que usar (se debe usar con «--add-feed»)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
+#| msgid "- start the feeds indexer"
+msgid "— start the feeds indexer"
 msgstr "- iniciar el indexador de proveedores"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
@@ -686,7 +706,8 @@ msgstr "Guía de usuario del minero de datos"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
+#| msgid "- start the user guides data miner"
+msgid "— start the user guides data miner"
 msgstr "- iniciar el minero de datos de guías de usuario"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
@@ -815,15 +836,19 @@ msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+#| msgid ""
+#| "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 msgstr "Forzar el uso de un módulo para extracción (ej. «foo» para «foo.so»)"
 
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MÓDULO"
 
-#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: 'sparql', or 'turtle'"
+#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker/tracker-extract.c:45
+#| msgid "Output results format: 'sparql', or 'turtle'"
+msgid "Output results format: “sparql”, or “turtle”"
 msgstr "Formato de resultados de salida: «sparql», o «turtle»"
 
 #: ../src/tracker-extract/tracker-main.c:100
@@ -833,13 +858,15 @@ msgstr "FORMATO"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
-msgid "Unsupported serialization format '%s'\n"
+#| msgid "Unsupported serialization format '%s'\n"
+msgid "Unsupported serialization format “%s”\n"
 msgstr "Formato «%s» de serialización no soportado\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
-msgid "- Extract file meta data"
+#| msgid "- Extract file meta data"
+msgid "— Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
 #: ../src/tracker-extract/tracker-main.c:329
@@ -875,8 +902,11 @@ msgid "Desktop Search"
 msgstr "Búsquedas de Escritorio"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+#| msgid ""
+#| "Find what you're looking for on this computer by name or content using "
+#| "Tracker"
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "Encuentre lo que está buscando por nombre o contenido en este equipo usando "
@@ -1437,12 +1467,15 @@ msgid "Directories"
 msgstr "Carpetas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
+#| msgid ""
+#| "Globbing patterns can be used here, for example: \"*bar*\".\n"
+#| "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Aquí se pueden usar patrones de coincidencia, por ejemplo: «*bar*».\n"
-"Esto se suele usar para ignorar carpetas como *~, *.o, *.la, etc"
+"Esto se suele usar para ignorar carpetas como *~, *.o, *.la, etc."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
@@ -1537,8 +1570,9 @@ msgstr "Sólo permitir acciones de lectura en la base de datos"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "iniciar el demonio de tracker"
+#| msgid "- start the tracker daemon"
+msgid "— start the tracker daemon"
+msgstr "— iniciar el demonio de tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1583,12 +1617,14 @@ msgstr "Obteniendo…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
+#| msgid "Crawling single directory '%s'"
+msgid "Crawling single directory “%s”"
 msgstr "Arrastrándose sólo por la carpeta «%s»"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
+#| msgid "Crawling recursively directory '%s'"
+msgid "Crawling recursively directory “%s”"
 msgstr "Arrastrándose recursivamente por la carpeta «%s»"
 
 #: ../src/tracker/tracker-daemon.c:127
@@ -1672,21 +1708,27 @@ msgid "List all Tracker processes"
 msgstr "Listar todos los procesos de Tracker"
 
 #: ../src/tracker/tracker-daemon.c:178
+#| msgid ""
+#| "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Usar SIGKILL para parar todos los procesos coincidentes, se debe usar "
-"«store», «miners» o «all», ningún parámetro iguala a «all»"
+"«store», «miners» o «all», ningún parámetro equivale a «all»"
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
 msgstr "APLICACIONES"
 
 #: ../src/tracker/tracker-daemon.c:181
+#| msgid ""
+#| "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Usar SIGTERM para parar todos los procesos coincidentes, se debe usar "
 "«store», «miners» o «all», ningún parámetro equivale a «all»"
@@ -1696,9 +1738,12 @@ msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Iniciar mineros (que indirectamente inicia Tracker también)"
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+#| msgid ""
+#| "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+#| "'errors') for all processes"
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
 "Establece el nivel de detalle a «NIVEL» («depuración», «detallado», "
 "«mínimo», «errores») para todos los procesos"
@@ -1769,7 +1814,8 @@ msgstr "No se pudo pausar el minero, no se pudo crear el gestor, %s"
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
+#| msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "Intentando pausar el minero «%s» con la razón «%s»"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
@@ -1850,7 +1896,8 @@ msgid "No miners are paused"
 msgstr "No hay ningún minero pausado"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+#| msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "Sólo se permite una de las opciones «all», «store» y «miners»"
 
 #: ../src/tracker/tracker-daemon.c:1242
@@ -1881,7 +1928,8 @@ msgstr "Almacenar"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
+#| msgid "Could not get display name for miner '%s'"
+msgid "Could not get display name for miner “%s”"
 msgstr "No se pudo obtener el nombre que mostrar del minero «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1461
@@ -1905,14 +1953,17 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "No puede usar los argumentos «--get-logging» y «--set-logging» juntos"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+#| msgid ""
+#| "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "Registro detallado no válido, pruebe con «depuración», «detallado», «mínimo» "
 "o «errores»"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
+#| msgid "Found process ID %d for '%s'"
+msgid "Found process ID %d for “%s”"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
@@ -1925,7 +1976,8 @@ msgstr "Sólo aquellos con la configuración listada"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+#| msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Estableciendo el registro detallado para todos los componentes a «%s»…"
 
 #: ../src/tracker/tracker-daemon.c:1662
@@ -1970,7 +2022,8 @@ msgstr "No se pudo ejecutar tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
+#| msgid "failed to exec '%s': %s"
+msgid "failed to exec “%s”: %s"
 msgstr "falló al ejecutar «%s»: %s"
 
 #: ../src/tracker/tracker-index.c:56
@@ -2073,7 +2126,8 @@ msgstr ""
 "usar con --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+#| msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Mostrar espacios de nombres completos (ej. no usar nie:título, usar URL "
 "completos)"
@@ -2124,7 +2178,8 @@ msgid "Results"
 msgstr "Resultados"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+#| msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Ejecute «tracker help <command>» para leer sobre un subcomando específico."
 
@@ -2190,7 +2245,8 @@ msgstr "Mostrar la licencia y la versión en uso"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
+#| msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "«%s» no es un comando de Tracker. Consulte «tracker --help»"
 
 #: ../src/tracker/tracker-main.c:176
@@ -2207,27 +2263,32 @@ msgstr "No se pudo hacer «stat()» sobre el archivo"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
+#| msgid "Could not open '%s'"
+msgid "Could not open “%s”"
 msgstr "No se pudo abrir «%s»"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
+#| msgid "Could not terminate process %d - '%s'"
+msgid "Could not terminate process %d — “%s”"
 msgstr "No se pudo terminar el proceso %d: «%s»"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
+#| msgid "Terminated process %d - '%s'"
+msgid "Terminated process %d — “%s”"
 msgstr "Proceso %d terminado: «%s»"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
+#| msgid "Could not kill process %d - '%s'"
+msgid "Could not kill process %d — “%s”"
 msgstr "No se pudo matar el proceso %d: «%s»"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
+#| msgid "Killed process %d - '%s'"
+msgid "Killed process %d — “%s”"
 msgstr "Proceso %d matado: «%s»"
 
 #: ../src/tracker/tracker-reset.c:53
@@ -2274,8 +2335,12 @@ msgid "CAUTION: This process may irreversibly delete data."
 msgstr "ADVERTENCIA: este proceso puede eliminar datos definitivamente."
 
 #: ../src/tracker/tracker-reset.c:225
+#| msgid ""
+#| "Although most content indexed by Tracker can be safely reindexed, it "
+#| "can't be assured that this is the case for all data. Be aware that you "
+#| "may be incurring in a data loss situation, proceed at your own risk."
 msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can't "
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
@@ -2377,8 +2442,11 @@ msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Use OR para buscar términos en lugar de AND (lo predeterminado)"
 
 #: ../src/tracker/tracker-search.c:150
+#| msgid ""
+#| "Show URNs for results (doesn't apply to --music-albums, --music-artists, "
+#| "--feeds, --software, --software-categories)"
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
@@ -2504,7 +2572,8 @@ msgstr "No se encontró ningún resultado coincidente con su consulta"
 
 #: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
+#| msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
 msgstr "El término de búsqueda «%s» es una palabra de parada."
 
 #: ../src/tracker/tracker-search.c:1564
@@ -2673,10 +2742,13 @@ msgid "Prefixes"
 msgstr "Prefijos"
 
 #: ../src/tracker/tracker-sparql.c:1143
+#| msgid ""
+#| "Could not find property for class prefix, e.g. :Resource in 'rdfs:"
+#| "Resource'"
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"No se pudo encontrar la propiedad para la clase del prefijo, ej. #Recurso en "
+"No se pudo encontrar la propiedad para la clase del prefijo, ej. :Recurso en "
 "«rdfs:Recurso»"
 
 #: ../src/tracker/tracker-sparql.c:1182
@@ -2982,7 +3054,8 @@ msgid "No files were modified"
 msgstr "No se modificó ningún archivo"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
+#| msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
 msgstr "Los archivos no existen o no están indexados"
 
 #: ../src/tracker/tracker-tag.c:725
@@ -3053,7 +3126,8 @@ msgstr "Desactivar el apagado después de 30 segundos de inactividad"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
+#| msgid "- start the tracker writeback service"
+msgid "— start the tracker writeback service"
 msgstr "- iniciar el servicio de escritura en diferido"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
