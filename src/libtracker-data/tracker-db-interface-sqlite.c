@@ -1028,6 +1028,40 @@ function_sparql_case_fold (sqlite3_context *context,
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
 
+static gunichar2 *
+normalize_string (const gunichar2    *string,
+                  gsize               string_len, /* In gunichar2s */
+                  UNormalizationMode  mode,
+                  gsize              *len_out,    /* In gunichar2s */
+                  UErrorCode         *status)
+{
+	int nInput, nOutput;
+	gunichar2 *zOutput;
+
+	nOutput = (string_len * 2) + 1;
+	zOutput = g_new0 (gunichar2, nOutput);
+
+	nOutput = unorm_normalize (string, string_len, mode, 0, zOutput, nOutput, status);
+
+	if (*status == U_BUFFER_OVERFLOW_ERROR) {
+		/* Try again after allocating enough space for the normalization */
+		*status = U_ZERO_ERROR;
+		zOutput = g_renew (gunichar2, zOutput, nOutput);
+		memset (zOutput, 0, nOutput * sizeof (gunichar2));
+		nOutput = unorm_normalize (string, string_len, mode, 0, zOutput, nOutput, status);
+	}
+
+	if (!U_SUCCESS (*status)) {
+		g_clear_pointer (&zOutput, g_free);
+		nOutput = 0;
+	}
+
+	if (len_out)
+		*len_out = nOutput;
+
+	return zOutput;
+}
+
 static void
 function_sparql_normalize (sqlite3_context *context,
                            int              argc,
@@ -1037,7 +1071,7 @@ function_sparql_normalize (sqlite3_context *context,
 	const uint16_t *zInput;
 	uint16_t *zOutput;
 	int nInput;
-	int nOutput;
+	gsize nOutput;
 	UNormalizationMode nf;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -1067,15 +1101,8 @@ function_sparql_normalize (sqlite3_context *context,
 	}
 
 	nInput = sqlite3_value_bytes16 (argv[0]);
+	zOutput = normalize_string (zInput, nInput / 2, nf, &nOutput, &status);
 
-	nOutput = nInput * 2 + 2;
-	zOutput = sqlite3_malloc (nOutput);
-
-	if (!zOutput) {
-		return;
-	}
-
-	unorm_normalize (zInput, nInput/2, nf, 0, zOutput, nOutput/2, &status);
 	if (!U_SUCCESS (status)) {
 		char zBuf[128];
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
@@ -1085,7 +1112,7 @@ function_sparql_normalize (sqlite3_context *context,
 		return;
 	}
 
-	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+	sqlite3_result_text16 (context, zOutput, nOutput * sizeof (gunichar2), g_free);
 }
 
 static void
@@ -1109,15 +1136,8 @@ function_sparql_unaccent (sqlite3_context *context,
 	}
 
 	nInput = sqlite3_value_bytes16 (argv[0]);
+	zOutput = normalize_string (zInput, nInput / 2, UNORM_NFKD, &nOutput, &status);
 
-	nOutput = nInput * 2 + 2;
-	zOutput = sqlite3_malloc (nOutput);
-
-	if (!zOutput) {
-		return;
-	}
-
-	nOutput = unorm_normalize (zInput, nInput/2, UNORM_NFKD, 0, zOutput, nOutput/2, &status);
 	if (!U_SUCCESS (status)) {
 		char zBuf[128];
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
@@ -1130,7 +1150,7 @@ function_sparql_unaccent (sqlite3_context *context,
 	/* Unaccenting is done in place */
 	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
 
-	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+	sqlite3_result_text16 (context, zOutput, nOutput * sizeof (gunichar2), g_free);
 }
 
 #endif
