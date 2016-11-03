@@ -198,10 +198,7 @@ set_track_tags_from_cdtext (GstTagList *tag_list,
 static void
 process_toc_tags (TrackerToc *toc)
 {
-	GList *node;
 	gint track_count;
-
-	gchar *album_artist = NULL;
 
 	if (gst_tag_list_get_tag_size (toc->tag_list, GST_TAG_TRACK_COUNT) == 0) {
 		track_count = g_list_length (toc->entry_list);
@@ -211,24 +208,6 @@ process_toc_tags (TrackerToc *toc)
 		                  track_count,
 		                  NULL);
 	}
-
-	gst_tag_list_get_string (toc->tag_list, GST_TAG_ALBUM_ARTIST, &album_artist);
-
-	for (node = toc->entry_list; node; node = node->next) {
-		TrackerTocEntry *entry = node->data;
-
-		if (album_artist != NULL) {
-			if (gst_tag_list_get_tag_size (entry->tag_list, GST_TAG_ARTIST) == 0 &&
-			    gst_tag_list_get_tag_size (entry->tag_list, GST_TAG_PERFORMER) == 0)
-				gst_tag_list_add (entry->tag_list,
-				                  GST_TAG_MERGE_REPLACE,
-				                  GST_TAG_ARTIST,
-				                  album_artist,
-				                  NULL);
-		}
-	}
-
-	g_free (album_artist);
 }
 
 /* This function runs in two modes: for external CUE sheets, it will check

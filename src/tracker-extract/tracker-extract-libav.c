@@ -167,24 +167,14 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if ((tag = av_dict_get (format->metadata, "artist", tag, 0))) {
 			performer = tracker_extract_new_artist (tag->value);
-			if (!album_artist) {
-				album_artist_name = tag->value;
-				album_artist = performer;
-			}
 		}
 
 		if (!performer && (tag = av_dict_get (format->metadata, "performer", tag, 0))) {
 			performer = tracker_extract_new_artist (tag->value);
-			if (!album_artist) {
-				album_artist_name = tag->value;
-				album_artist = performer;
-			}
 		}
 
 		if (performer) {
 			tracker_resource_set_relation (metadata, "nmm:performer", performer);
-		} else if (album_artist) {
-			tracker_resource_set_relation (metadata, "nmm:performer", album_artist);
 		}
 
 		if ((tag = av_dict_get (format->metadata, "composer", tag, 0))) {
@@ -240,7 +230,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	if (format->bit_rate > 0) {
 		tracker_resource_set_int64 (metadata, "nfo:averageBitrate", format->bit_rate);
 	}
-
 
 	if ((tag = av_dict_get (format->metadata, "comment", NULL, 0))) {
 		tracker_resource_set_string (metadata, "nie:comment", tag->value);

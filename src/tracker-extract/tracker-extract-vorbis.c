@@ -178,8 +178,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 		if (vd.album_artist) {
 			album_artist = tracker_extract_new_artist (vd.album_artist);
-		} else if (md.creator) {
-			album_artist = g_object_ref (md.creator);
 		} else {
 			album_artist = NULL;
 		}
@@ -188,7 +186,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		                                                   album_artist,
 		                                                   vd.disc_number ? atoi(vd.disc_number) : 1);
 
-		g_object_unref (album_artist);
+		g_clear_object (&album_artist);
 
 		album = tracker_resource_get_first_relation (album_disc, "nmm:albumDiscAlbum");
 
