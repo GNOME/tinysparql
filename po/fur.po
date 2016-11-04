@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2016-10-09 14:17+0000\n"
-"PO-Revision-Date: 2016-10-13 16:29+0200\n"
+"POT-Creation-Date: 2016-10-13 14:31+0000\n"
+"PO-Revision-Date: 2016-11-04 15:39+0100\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
@@ -115,11 +115,11 @@ msgstr "Abilite stemmer"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
 "Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
-"\"cjacare\", \"cjacari\", \"cjacarai\" in \"cjacar\""
+"«cjacare», «cjacari», «cjacarai» in «cjacar»"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -127,11 +127,11 @@ msgstr "Abilite letaris cence acent"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
-"\"bruntulâ\" in \"bruntula\"."
+"«bruntulâ» in «bruntula»."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -148,10 +148,10 @@ msgstr "Ignore lis peraulis di ferme"
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "Se abilitât, lis peraulis listadis te liste des peraulis di ferme a vegnaran "
-"ignoradis. Par esempli peraulis come \"sì\", \"no\", \"il\" e vie indenant."
+"ignoradis. Par esempli peraulis come «sì», «no», «il» e vie indenant."
 
 #: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -172,8 +172,8 @@ msgstr "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
 
 #: ../src/libtracker-data/tracker-data-backup.c:500
 #: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
-msgstr "Erôr tal inviâ il program \"tar\""
+msgid "Error starting “tar” program"
+msgstr "Erôr tal inviâ il program «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:501
 #: ../src/libtracker-data/tracker-data-backup.c:621
@@ -203,8 +203,8 @@ msgstr "Nissun erôr furnît"
 
 #: ../src/libtracker-data/tracker-data-backup.c:634
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
-msgstr "Erôr no cognossût: \"tar\" al è jessut cul stât %d"
+msgid "Unknown error, “tar” exited with status %d"
+msgstr "Erôr no cognossût: «tar» al è jessut cul stât %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
@@ -275,8 +275,8 @@ msgstr "Mostre informazions su la version"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
-msgstr "- invie l'estratôr dâts des aplicazions"
+msgid "— start the application data miner"
+msgstr "— invie l'estratôr dâts des aplicazions"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
 msgid "Tracker Application Miner"
@@ -366,7 +366,7 @@ msgstr ""
 "sisteme si è fermât in maniere no juste, -2 lu disabilite."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -411,7 +411,7 @@ msgstr "Met in indiç discs otics"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
 "Met a VÊR par abilitâ la metude in indiç di CD, DVD e plui in gjenar di "
 "dispositîfs otics (se i dispositîfs estraibii no vegnin metûts in indiç "
@@ -517,13 +517,13 @@ msgstr "FILE"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
-msgstr "L'ogjet dâts \"%s\" al esist za"
+msgid "Data object “%s” currently exists"
+msgstr "L'ogjet dâts «%s» al esist za"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
-msgstr "L'ogjet dâts \"%s\" al moment nol esist"
+msgid "Data object “%s” currently does not exist"
+msgstr "L'ogjet dâts «%s» al moment nol esist"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
@@ -594,8 +594,8 @@ msgstr "Al vegnarà monitorât"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
-msgstr "- tache tracker chel che al met in indiç"
+msgid "— start the tracker indexer"
+msgstr "— tache tracker chel che al met in indiç"
 
 #: ../src/miners/fs/tracker-miner-files.c:1357
 msgid "Low battery"
@@ -638,8 +638,8 @@ msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- tache chel che al met in indiç i feed"
+msgid "— start the feeds indexer"
+msgstr "— tache chel che al met in indiç i feed"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
@@ -673,8 +673,8 @@ msgstr "Estratôr di dâts des guidis utent"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
-msgstr "- tache l'estratôr dâts des guidis utent"
+msgid "— start the user guides data miner"
+msgstr "— tache l'estratôr dâts des guidis utent"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
@@ -798,18 +798,18 @@ msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 msgstr ""
-"Sfuarce l'ûs di un modul pe estrazion (par esempli \"cjossul\" par \"cjossul."
-"so\")"
+"Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
+"so»)"
 
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: 'sparql', or 'turtle'"
-msgstr "Formât dai risultâts di jessude: 'sparql', o 'turtle'"
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "Formât dai risultâts di jessude: «sparql», o «turtle»"
 
 #: ../src/tracker-extract/tracker-main.c:100
 #: ../src/tracker/tracker-extract.c:46
@@ -818,14 +818,14 @@ msgstr "FORMÂT"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
-msgid "Unsupported serialization format '%s'\n"
-msgstr "Formât \"%s\" di serializazion no supuartât\n"
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Formât «%s» di serializazion no supuartât\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
-msgid "- Extract file meta data"
-msgstr "- Al tire fûr i meta-dâts dai file"
+msgid "— Extract file meta data"
+msgstr "— Al tire fûr i meta-dâts dai file"
 
 #: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
@@ -860,11 +860,11 @@ msgstr "Ricercje scritori"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
-"Cjate cun Tracker ce che tu stâs cirint su chest computer par non o par "
-"contignût"
+"Cjate, doprant Tracker, ce che tu stâs cirint su chest computer, par non o "
+"par contignût"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid ""
@@ -1256,7 +1256,6 @@ msgstr ""
 
 # sostituire background con qualcosa di più consono
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
-#, fuzzy
 msgid "Index content in the background:"
 msgstr "Met in indiç il contignût in background:"
 
@@ -1422,11 +1421,11 @@ msgstr "Cartelis"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Al è pussibil doprâ modei di coincidence cun caratars speciâi, par esempli: "
-"\"*bar*\".\n"
+"«*bar*».\n"
 "Di solit chest al ven doprât par ignorâ cartelis come *~, *.o, *.la, e vie "
 "indenant"
 
@@ -1523,8 +1522,8 @@ msgstr "Al permet nome operazions di leture su la base di dâts"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- invie il demoni di Tracker"
+msgid "— start the tracker daemon"
+msgstr "— invie il demoni di Tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1569,13 +1568,13 @@ msgstr "Daûr a recuperâ..."
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
-msgstr "Daûr a cjapâ sù dâts nome pe cartele \"%s\""
+msgid "Crawling single directory “%s”"
+msgstr "Daûr a cjapâ sù dâts nome pe cartele «%s»"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "Daûr a cjapâ sù dâts in maniere ricorsive pe cartele \"%s\""
+msgid "Crawling recursively directory “%s”"
+msgstr "Daûr a cjapâ sù dâts in maniere ricorsive pe cartele «%s»"
 
 #: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
@@ -1659,11 +1658,11 @@ msgstr "Liste ducj i procès di Tracker"
 
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Dopre SIGKILL par fermâ ducj i procès corispuindints; a puedin jessi doprâts "
-"\"store\", \"miners\" o \"all\", cence parametris al vûl dî \"all\""
+"«store», «miners» o «all», cence parametris al vûl dî «all»"
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1671,11 +1670,11 @@ msgstr "APLICAZIONS"
 
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Dopre SIGTERM par fermâ ducj i procès corispuindints; a puedin jessi doprâts "
-"\"store\", \"miners\" o \"all\", cence parametris al vûl dî \"all\""
+"«store», «miners» o «all», cence parametris al vûl dî «all»"
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1683,11 +1682,11 @@ msgstr "Invie i estratôrs (al ven inviât ancje tracker-store)"
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
-"Al met il nivel di detais dal regjistri par ducj i procès a NIVEL('debug', "
-"'detailed', 'minimal', 'errors')"
+"Al met il nivel di detais dal regjistri par ducj i procès a NIVEL(«debug», "
+"«detailed», «minimal», «errors»)"
 
 #: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
@@ -1755,8 +1754,8 @@ msgstr "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "Tentatîf di interompi l'estratôr \"%s\" cun la reson \"%s\""
+msgid "Attempting to pause miner “%s” with reason “%s”"
+msgstr "Tentatîf di interompi l'estratôr «%s» cun la reson «%s»"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
 #, c-format
@@ -1838,8 +1837,8 @@ msgid "No miners are paused"
 msgstr "Nissun estratôr dâts interot"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
-msgstr "E je permetude nome une tra lis opzions 'all', 'store' e 'miners'"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
+msgstr "E je permetude nome une tra lis opzions «all», «store» e «miners»"
 
 #: ../src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
@@ -1869,8 +1868,8 @@ msgstr "Archivi"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
-msgstr "Impussibil otignî il non pal estratôr '%s'"
+msgid "Could not get display name for miner “%s”"
+msgstr "Impussibil otignî il non pal estratôr «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
@@ -1896,15 +1895,15 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Nol è pussibil doprâ adun i argoments --get-logging e --set-logging"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
-"Nivel di detais dal regjistri no valit, prove 'debug', 'detailed', 'minimal' "
-"o 'errors'"
+"Nivel di detais dal regjistri no valit, prove «debug», «detailed», «minimal» "
+"o «errors»"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
-msgstr "Cjatât ID di procès %d par '%s'"
+msgid "Found process ID %d for “%s”"
+msgstr "Cjatât ID di procès %d par «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
@@ -1916,10 +1915,10 @@ msgstr "Nome chei cuntune configurazion in liste"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr ""
 "Daûr a stabilî il nivel di detais dal regjistri par ducj i components a "
-"'%s'..."
+"«%s»..."
 
 #: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
@@ -1961,8 +1960,8 @@ msgstr "Impussibil eseguî tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
-msgstr "no si è rivâts a eseguî '%s': %s"
+msgid "failed to exec “%s”: %s"
+msgstr "no si è rivâts a eseguî «%s»: %s"
 
 #: ../src/tracker/tracker-index.c:56
 msgid ""
@@ -2063,7 +2062,7 @@ msgstr ""
 "dopradis cun --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL complets)"
 
@@ -2112,9 +2111,9 @@ msgid "Results"
 msgstr "Risultâts"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
-"Consultâ 'tracker help <command>' par informazions su un specific sot-comant."
+"Consultâ «tracker help <command>» par informazions su un specific sot-comant."
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
@@ -2176,8 +2175,8 @@ msgstr "Mostre la licence e la version in ûs"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
-msgstr "'%s' nol è un comant tracker. Consultâ 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
+msgstr "«%s» nol è un comant tracker. Consultâ «tracker --help»"
 
 #: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
@@ -2193,28 +2192,28 @@ msgstr "Impussibil eseguî stat() sul file"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
-msgstr "Impussibil vierzi '%s'"
+msgid "Could not open “%s”"
+msgstr "Impussibil vierzi «%s»"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "Impussibil terminâ procès %d - '%s'"
+msgid "Could not terminate process %d — “%s”"
+msgstr "Impussibil terminâ procès %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "Terminât procès %d - '%s'"
+msgid "Terminated process %d — “%s”"
+msgstr "Terminât procès %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "Impussibil copâ procès %d - '%s'"
+msgid "Could not kill process %d — “%s”"
+msgstr "Impussibil copâ procès %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
-msgstr "Copât procès %d - '%s'"
+msgid "Killed process %d — “%s”"
+msgstr "Copât procès %d — «%s»"
 
 #: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
@@ -2261,7 +2260,7 @@ msgstr "ATENZION: Chest procès al pues eliminâ dâts par simpri."
 
 #: ../src/tracker/tracker-reset.c:225
 msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can't "
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
@@ -2364,7 +2363,7 @@ msgstr "Dopre OR al puest di AND (predefinît) pai tiermins cirûts"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "Mostre i URN pai risultâts (no si apliche a --music-albums, --music-artists, "
@@ -2489,8 +2488,8 @@ msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
 
 #: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
-msgstr "Il tiermin di ricercje \"%s\" al è une peraule di ferme."
+msgid "Search term “%s” is a stop word."
+msgstr "Il tiermin di ricercje «%s» al è une peraule di ferme."
 
 #: ../src/tracker/tracker-search.c:1564
 #, c-format
@@ -2502,10 +2501,9 @@ msgstr ""
 
 # equivocabile il "di un file"
 #: ../src/tracker/tracker-sparql.c:104
-#, fuzzy
 msgid "Path to use to run a query or update from file"
 msgstr ""
-"Percors di doprâ par eseguî une interogazion o un inzornament di un file"
+"Percors di doprâ par eseguî une interogazion o un inzornament furnint un file"
 
 #: ../src/tracker/tracker-sparql.c:108
 msgid "SPARQL query"
@@ -2662,10 +2660,10 @@ msgstr "Prefìs"
 
 #: ../src/tracker/tracker-sparql.c:1143
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"Impussibil cjatâ la proprietât pal prefìs de classe, par esempli \":Resource"
-"\" in \"rdfs:Resource\""
+"Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in «rdfs:"
+"Resource»"
 
 #: ../src/tracker/tracker-sparql.c:1182
 msgid "Could not list properties"
@@ -2754,9 +2752,8 @@ msgstr ""
 "--tree"
 
 #: ../src/tracker/tracker-sql.c:43
-#, fuzzy
 msgid "Path to use to run a query from file"
-msgstr "Percors di doprâ par eseguî une interogazion di un file"
+msgstr "Percors di doprâ par eseguî une interogazion furnint un file"
 
 #: ../src/tracker/tracker-sql.c:47
 msgid "SQL query"
@@ -2970,7 +2967,7 @@ msgid "No files were modified"
 msgstr "Nissun file al è stât modificât"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
 msgstr "I file no esistin o no son metûts in indiç"
 
 #: ../src/tracker/tracker-tag.c:725
@@ -3041,8 +3038,8 @@ msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- tache il servizi di scriture rimandade tracker"
+msgid "— start the tracker writeback service"
+msgstr "— tache il servizi di scriture rimandade di tracker"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
