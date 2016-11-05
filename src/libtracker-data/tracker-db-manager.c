@@ -168,6 +168,9 @@ static GMutex                global_mutex;
 
 static TrackerDBInterface   *global_iface;
 
+/* mutex protecting DB manager initialization/shutdown */
+static GMutex                init_mutex;
+
 static const gchar *
 location_to_directory (TrackerDBLocation location)
 {
@@ -847,17 +850,17 @@ perform_recreate (gboolean *first_time, GError **error)
 	}
 }
 
-gboolean
-tracker_db_manager_init (TrackerDBManagerFlags   flags,
-                         gboolean               *first_time,
-                         gboolean                restoring_backup,
-                         gboolean                shared_cache,
-                         guint                   select_cache_size,
-                         guint                   update_cache_size,
-                         TrackerBusyCallback     busy_callback,
-                         gpointer                busy_user_data,
-                         const gchar            *busy_operation,
-                         GError                **error)
+static gboolean
+db_manager_init_unlocked (TrackerDBManagerFlags   flags,
+                          gboolean               *first_time,
+                          gboolean                restoring_backup,
+                          gboolean                shared_cache,
+                          guint                   select_cache_size,
+                          guint                   update_cache_size,
+                          TrackerBusyCallback     busy_callback,
+                          gpointer                busy_user_data,
+                          const gchar            *busy_operation,
+                          GError                **error)
 {
 	GType etype;
 	TrackerDBVersion version;
@@ -1245,8 +1248,35 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	return TRUE;
 }
 
-void
-tracker_db_manager_shutdown (void)
+gboolean
+tracker_db_manager_init (TrackerDBManagerFlags   flags,
+                         gboolean               *first_time,
+                         gboolean                restoring_backup,
+                         gboolean                shared_cache,
+                         guint                   select_cache_size,
+                         guint                   update_cache_size,
+                         TrackerBusyCallback     busy_callback,
+                         gpointer                busy_user_data,
+                         const gchar            *busy_operation,
+                         GError                **error)
+{
+	gboolean retval;
+
+	g_mutex_lock (&init_mutex);
+
+	retval = db_manager_init_unlocked (flags, first_time, restoring_backup,
+					   shared_cache,
+					   select_cache_size, update_cache_size,
+					   busy_callback, busy_user_data,
+					   busy_operation, error);
+
+	g_mutex_unlock (&init_mutex);
+
+	return retval;
+}
+
+static void
+db_manager_shutdown_unlocked (void)
 {
 	guint i;
 
@@ -1302,6 +1332,14 @@ tracker_db_manager_shutdown (void)
 
 	g_free (in_use_filename);
 	in_use_filename = NULL;
+}
+
+void
+tracker_db_manager_shutdown (void)
+{
+	g_mutex_lock (&init_mutex);
+	db_manager_shutdown_unlocked ();
+	g_mutex_unlock (&init_mutex);
 }
 
 void
