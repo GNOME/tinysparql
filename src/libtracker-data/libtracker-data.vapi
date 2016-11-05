@@ -78,7 +78,9 @@ namespace Tracker {
 		FORCE_REINDEX,
 		REMOVE_CACHE,
 		REMOVE_ALL,
-		READONLY
+		READONLY,
+		DO_NOT_CHECK_ONTOLOGY,
+		ENABLE_MUTEXES,
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
@@ -100,7 +102,7 @@ namespace Tracker {
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
 		public abstract DBCursor start_cursor () throws DBInterfaceError;
-		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names, bool threadsafe) throws DBInterfaceError;
+		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-config.h")]

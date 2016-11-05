@@ -140,8 +140,7 @@ static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (TrackerDBSt
                                                                      TrackerPropertyType   *types,
                                                                      gint                   n_types,
                                                                      const gchar * const   *variable_names,
-                                                                     gint                   n_variable_names,
-                                                                     gboolean               threadsafe);
+                                                                     gint                   n_variable_names);
 static gboolean            tracker_db_cursor_get_boolean            (TrackerSparqlCursor   *cursor,
                                                                      guint                  column);
 static gboolean            db_cursor_iter_next                      (TrackerDBCursor       *cursor,
@@ -2507,8 +2506,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
                               TrackerPropertyType *types,
                               gint                 n_types,
                               const gchar * const *variable_names,
-                              gint                 n_variable_names,
-                              gboolean             threadsafe)
+                              gint                 n_variable_names)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
@@ -2865,7 +2863,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, NULL, 0, NULL, 0, FALSE);
+	return tracker_db_cursor_sqlite_new (stmt, NULL, 0, NULL, 0);
 }
 
 TrackerDBCursor *
@@ -2874,13 +2872,12 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
                                           gint                  n_types,
                                           const gchar * const  *variable_names,
                                           gint                  n_variable_names,
-                                          gboolean              threadsafe,
                                           GError              **error)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, types, n_types, variable_names, n_variable_names, threadsafe);
+	return tracker_db_cursor_sqlite_new (stmt, types, n_types, variable_names, n_variable_names);
 }
 
 static void

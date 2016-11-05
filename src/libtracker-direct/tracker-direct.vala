@@ -63,7 +63,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	Sparql.Cursor query_unlocked (string sparql) throws Sparql.Error, DBusError {
 		try {
 			var query_object = new Sparql.Query (sparql);
-			var cursor = query_object.execute_cursor (true);
+			var cursor = query_object.execute_cursor ();
 			cursor.connection = this;
 			return cursor;
 		} catch (DBInterfaceError e) {

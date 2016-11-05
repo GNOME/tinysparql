@@ -417,19 +417,19 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 
-	public DBCursor? execute_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
+	public DBCursor? execute_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 
 		prepare_execute ();
 
 		switch (current ()) {
 		case SparqlTokenType.SELECT:
-			return execute_select_cursor (threadsafe);
+			return execute_select_cursor ();
 		case SparqlTokenType.CONSTRUCT:
 			throw get_internal_error ("CONSTRUCT is not supported");
 		case SparqlTokenType.DESCRIBE:
 			throw get_internal_error ("DESCRIBE is not supported");
 		case SparqlTokenType.ASK:
-			return execute_ask_cursor (threadsafe);
+			return execute_ask_cursor ();
 		case SparqlTokenType.INSERT:
 		case SparqlTokenType.DELETE:
 		case SparqlTokenType.DROP:
@@ -536,10 +536,10 @@ public class Tracker.Sparql.Query : Object {
 		return stmt;
 	}
 
-	DBCursor? exec_sql_cursor (string sql, PropertyType[]? types, string[]? variable_names, bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
+	DBCursor? exec_sql_cursor (string sql, PropertyType[]? types, string[]? variable_names) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
-		return stmt.start_sparql_cursor (types, variable_names, threadsafe);
+		return stmt.start_sparql_cursor (types, variable_names);
 	}
 
 	string get_select_query (out SelectContext context) throws DBInterfaceError, Sparql.Error, DateError {
@@ -554,11 +554,11 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBCursor? execute_select_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
+	DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		SelectContext context;
 		string sql = get_select_query (out context);
 
-		return exec_sql_cursor (sql, context.types, context.variable_names, true);
+		return exec_sql_cursor (sql, context.types, context.variable_names);
 	}
 
 	string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
@@ -592,8 +592,8 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBCursor? execute_ask_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql_cursor (get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN }, new string[] { "result" }, true);
+	DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
+		return exec_sql_cursor (get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN }, new string[] { "result" });
 	}
 
 	private void parse_from_or_into_param () throws Sparql.Error {
@@ -744,7 +744,7 @@ public class Tracker.Sparql.Query : Object {
 		sql.append (pattern_sql.str);
 		sql.append (")");
 
-		var cursor = exec_sql_cursor (sql.str, null, null, false);
+		var cursor = exec_sql_cursor (sql.str, null, null);
 
 		int n_solutions = 0;
 		while (cursor.next ()) {
