@@ -163,9 +163,6 @@ static guint                 u_cache_size;
 
 static GPrivate              interface_data_key = G_PRIVATE_INIT ((GDestroyNotify)g_object_unref);
 
-/* mutex used by singleton connection in libtracker-direct, not used by tracker-store */
-static GMutex                global_mutex;
-
 static TrackerDBInterface   *global_iface;
 
 /* mutex protecting DB manager initialization/shutdown */
@@ -1770,24 +1767,6 @@ tracker_db_manager_set_need_mtime_check (gboolean needed)
 	}
 
 	g_free (filename);
-}
-
-void
-tracker_db_manager_lock (void)
-{
-	g_mutex_lock (&global_mutex);
-}
-
-gboolean
-tracker_db_manager_trylock (void)
-{
-	return g_mutex_trylock (&global_mutex);
-}
-
-void
-tracker_db_manager_unlock (void)
-{
-	g_mutex_unlock (&global_mutex);
 }
 
 inline static gchar *
