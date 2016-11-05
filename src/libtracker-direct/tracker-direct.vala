@@ -20,6 +20,7 @@
 public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	static int use_count;
 	bool initialized;
+	private Mutex mutex = Mutex ();
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
 		try {
@@ -80,11 +81,11 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			throw new IOError.CANCELLED ("Operation was cancelled");
 		}
 
-		DBManager.lock ();
+		mutex.lock ();
 		try {
 			return query_unlocked (sparql);
 		} finally {
-			DBManager.unlock ();
+			mutex.unlock ();
 		}
 	}
 
