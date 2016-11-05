@@ -94,6 +94,10 @@ struct TrackerDBInterface {
 	gchar *busy_status;
 
 	gchar *fts_properties;
+
+	/* Used if TRACKER_DB_MANAGER_ENABLE_MUTEXES is set */
+	GMutex mutex;
+	guint use_mutex;
 };
 
 struct TrackerDBInterfaceClass {
@@ -109,10 +113,6 @@ struct TrackerDBCursor {
 	gint n_types;
 	gchar **variable_names;
 	gint n_variable_names;
-
-	/* used for direct access as libtracker-sparql is thread-safe and
-	   uses a single shared connection with SQLite mutex disabled */
-	gboolean threadsafe;
 };
 
 struct TrackerDBCursorClass {
@@ -1433,6 +1433,20 @@ initialize_functions (TrackerDBInterface *db_interface)
 	}
 }
 
+static inline void
+tracker_db_interface_lock (TrackerDBInterface *iface)
+{
+	if (iface->use_mutex)
+		g_mutex_lock (&iface->mutex);
+}
+
+static inline void
+tracker_db_interface_unlock (TrackerDBInterface *iface)
+{
+	if (iface->use_mutex)
+		g_mutex_unlock (&iface->mutex);
+}
+
 static void
 open_database (TrackerDBInterface  *db_interface,
                GError             **error)
@@ -1912,6 +1926,8 @@ static void
 tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
 	db_interface->ro = FALSE;
+	db_interface->use_mutex = (tracker_db_manager_get_flags (NULL, NULL) &
+	                           TRACKER_DB_MANAGER_ENABLE_MUTEXES) != 0;
 
 	prepare_database (db_interface);
 }
@@ -2384,18 +2400,14 @@ tracker_db_cursor_close (TrackerDBCursor *cursor)
 	iface = cursor->ref_stmt->db_interface;
 	g_atomic_int_add (&iface->n_active_cursors, -1);
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	tracker_db_interface_lock (iface);
 
 	cursor->ref_stmt->stmt_is_used = FALSE;
 	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
 	g_object_unref (cursor->ref_stmt);
 	cursor->ref_stmt = NULL;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 }
 
 static void
@@ -2518,9 +2530,6 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 
 	cursor->finished = FALSE;
 
-	cursor->threadsafe = (tracker_db_manager_get_flags (NULL, NULL) &
-	                      TRACKER_DB_MANAGER_ENABLE_MUTEXES) != 0;
-
 	cursor->stmt = ref_stmt->stmt;
 	ref_stmt->stmt_is_used = TRUE;
 	cursor->ref_stmt = g_object_ref (ref_stmt);
@@ -2598,18 +2607,18 @@ tracker_db_statement_bind_text (TrackerDBStatement *stmt,
 void
 tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 {
+	TrackerDBInterface *iface;
+
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	sqlite3_reset (cursor->stmt);
 	cursor->finished = FALSE;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 }
 
 gboolean
@@ -2636,9 +2645,7 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 	if (!cursor->finished) {
 		guint result;
 
-		if (cursor->threadsafe) {
-			tracker_db_manager_lock ();
-		}
+		tracker_db_interface_lock (iface);
 
 		if (g_cancellable_is_cancelled (cancellable)) {
 			result = SQLITE_INTERRUPT;
@@ -2664,9 +2671,7 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 
 		cursor->finished = (result != SQLITE_ROW);
 
-		if (cursor->threadsafe) {
-			tracker_db_manager_unlock ();
-		}
+		tracker_db_interface_unlock (iface);
 	}
 
 	return (!cursor->finished);
@@ -2713,17 +2718,16 @@ gint64
 tracker_db_cursor_get_int (TrackerDBCursor *cursor,
                            guint            column)
 {
+	TrackerDBInterface *iface;
 	gint64 result;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	result = (gint64) sqlite3_column_int64 (cursor->stmt, column);
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 
 	return result;
 }
@@ -2732,17 +2736,16 @@ gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor,
                               guint            column)
 {
+	TrackerDBInterface *iface;
 	gdouble result;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	result = (gdouble) sqlite3_column_double (cursor->stmt, column);
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 
 	return result;
 }
@@ -2759,20 +2762,19 @@ TrackerSparqlValueType
 tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
                                   guint            column)
 {
+	TrackerDBInterface *iface;
 	gint column_type;
 	gint n_columns = sqlite3_column_count (cursor->stmt);
 
 	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	column_type = sqlite3_column_type (cursor->stmt, column);
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 
 	if (column_type == SQLITE_NULL) {
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
@@ -2800,11 +2802,12 @@ const gchar*
 tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
                                      guint            column)
 {
+	TrackerDBInterface *iface;
 	const gchar *result;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	if (column < cursor->n_variable_names) {
 		result = cursor->variable_names[column];
@@ -2812,9 +2815,7 @@ tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
 		result = sqlite3_column_name (cursor->stmt, column);
 	}
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 
 	return result;
 }
@@ -2824,11 +2825,12 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
                               guint            column,
                               glong           *length)
 {
+	TrackerDBInterface *iface;
 	const gchar *result;
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_lock ();
-	}
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	if (length) {
 		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);
@@ -2839,9 +2841,7 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
 		result = (const gchar *) sqlite3_column_text (cursor->stmt, column);
 	}
 
-	if (cursor->threadsafe) {
-		tracker_db_manager_unlock ();
-	}
+	tracker_db_interface_unlock (iface);
 
 	return result;
 }
