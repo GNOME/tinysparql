@@ -2170,6 +2170,8 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
+	tracker_db_interface_lock (db_interface);
+
 	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 		stmt = tracker_db_interface_lru_lookup (db_interface, &cache_type,
 		                                        full_query);
@@ -2198,6 +2200,8 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	}
 
 	g_free (full_query);
+
+	tracker_db_interface_unlock (db_interface);
 
 	return g_object_ref_sink (stmt);
 }
@@ -2300,16 +2304,19 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 	sqlite3_stmt *stmt;
 	int retval;
 
+	tracker_db_interface_lock (db_interface);
+
 	full_query = g_strdup_vprintf (query, args);
 	stmt = tracker_db_interface_prepare_stmt (db_interface,
 	                                          full_query,
 	                                          error);
 	g_free (full_query);
-	if (!stmt)
-		return;
+	if (stmt) {
+		execute_stmt (db_interface, stmt, NULL, error);
+		sqlite3_finalize (stmt);
+	}
 
-	execute_stmt (db_interface, stmt, NULL, error);
-	sqlite3_finalize (stmt);
+	tracker_db_interface_unlock (db_interface);
 }
 
 TrackerDBInterface *
