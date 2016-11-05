@@ -22,8 +22,6 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	bool initialized;
 
 	public Connection () throws Sparql.Error, IOError, DBusError {
-		DBManager.lock ();
-
 		try {
 			if (use_count == 0) {
 				// make sure that current locale vs db locale are the same,
@@ -45,8 +43,6 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			initialized = true;
 		} catch (Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
-		} finally {
-			DBManager.unlock ();
 		}
 	}
 
@@ -57,16 +53,10 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 
 		// Clean up connection
-		DBManager.lock ();
+		use_count--;
 
-		try {
-			use_count--;
-
-			if (use_count == 0) {
-				Data.Manager.shutdown ();
-			}
-		} finally {
-			DBManager.unlock ();
+		if (use_count == 0) {
+			Data.Manager.shutdown ();
 		}
 	}
 
