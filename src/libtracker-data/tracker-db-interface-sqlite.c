@@ -2520,9 +2520,8 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 
 	cursor->finished = FALSE;
 
-	/* used for direct access as libtracker-sparql is thread-safe and
-	   uses a single shared connection with SQLite mutex disabled */
-	cursor->threadsafe = threadsafe;
+	cursor->threadsafe = (tracker_db_manager_get_flags (NULL, NULL) &
+	                      TRACKER_DB_MANAGER_ENABLE_MUTEXES) != 0;
 
 	cursor->stmt = ref_stmt->stmt;
 	ref_stmt->stmt_is_used = TRUE;

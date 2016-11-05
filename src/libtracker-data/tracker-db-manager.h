@@ -47,7 +47,8 @@ typedef enum {
 	/* 1 << 3 Was low mem mode */
 	TRACKER_DB_MANAGER_REMOVE_ALL            = 1 << 4,
 	TRACKER_DB_MANAGER_READONLY              = 1 << 5,
-	TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY = 1 << 6
+	TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY = 1 << 6,
+	TRACKER_DB_MANAGER_ENABLE_MUTEXES        = 1 << 7,
 } TrackerDBManagerFlags;
 
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
