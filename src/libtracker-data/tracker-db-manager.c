@@ -163,8 +163,6 @@ static guint                 u_cache_size;
 
 static GPrivate              interface_data_key = G_PRIVATE_INIT ((GDestroyNotify)g_object_unref);
 
-static TrackerDBInterface   *global_iface;
-
 /* mutex protecting DB manager initialization/shutdown */
 static GMutex                init_mutex;
 
@@ -1200,10 +1198,6 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	resources_iface = tracker_db_manager_get_db_interfaces (&internal_error,
 	                                                        (flags & TRACKER_DB_MANAGER_READONLY) != 0,
 	                                                        1, TRACKER_DB_METADATA);
-	if (flags & TRACKER_DB_MANAGER_READONLY) {
-		/* libtracker-direct does not use per-thread interfaces */
-		global_iface = resources_iface;
-	}
 
 	if (internal_error) {
 		if ((!restoring_backup) && (flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -1297,12 +1291,6 @@ db_manager_shutdown_unlocked (void)
 	data_dir = NULL;
 	g_free (user_data_dir);
 	user_data_dir = NULL;
-
-	if (global_iface) {
-		/* libtracker-direct */
-		g_object_unref (global_iface);
-		global_iface = NULL;
-	}
 
 	/* shutdown db interface in all threads */
 	g_private_replace (&interface_data_key, NULL);
@@ -1469,11 +1457,6 @@ tracker_db_manager_get_db_interface (void)
 	TrackerDBInterface *interface;
 
 	g_return_val_if_fail (initialized != FALSE, NULL);
-
-	if (global_iface) {
-		/* libtracker-direct */
-		return global_iface;
-	}
 
 	interface = g_private_get (&interface_data_key);
 
