@@ -371,20 +371,17 @@ static fts5_api *
 get_fts5_api (sqlite3 *db) {
 	int rc = SQLITE_OK;
 	sqlite3_stmt *stmt;
-	fts5_api *api;
+	fts5_api *api = NULL;
 
 	rc = sqlite3_prepare_v2(db, "SELECT fts5()",
 	                        -1, &stmt, 0);
 
-	if (rc != SQLITE_OK) {
+	if (rc != SQLITE_OK)
 		return NULL;
-	}
 
-	if (sqlite3_step (stmt) != SQLITE_ROW) {
-		return NULL;
-	}
+	if (sqlite3_step (stmt) == SQLITE_ROW)
+		memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
 
-	memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
 	sqlite3_finalize (stmt);
 
 	return api;
