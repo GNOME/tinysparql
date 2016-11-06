@@ -2392,6 +2392,27 @@ tracker_db_statement_sqlite_new (TrackerDBInterface *db_interface,
 	return stmt;
 }
 
+static TrackerDBStatement *
+tracker_db_statement_sqlite_grab (TrackerDBStatement *stmt)
+{
+	g_assert (!stmt->stmt_is_used);
+	stmt->stmt_is_used = TRUE;
+	g_object_ref (stmt->db_interface);
+	return g_object_ref (stmt);
+}
+
+static void
+tracker_db_statement_sqlite_release (TrackerDBStatement *stmt)
+{
+	TrackerDBInterface *iface = stmt->db_interface;
+
+	g_assert (stmt->stmt_is_used);
+	stmt->stmt_is_used = FALSE;
+	tracker_db_statement_sqlite_reset (stmt);
+	g_object_unref (stmt);
+	g_object_unref (iface);
+}
+
 static void
 tracker_db_cursor_close (TrackerDBCursor *cursor)
 {
@@ -2408,12 +2429,7 @@ tracker_db_cursor_close (TrackerDBCursor *cursor)
 	g_atomic_int_add (&iface->n_active_cursors, -1);
 
 	tracker_db_interface_lock (iface);
-
-	cursor->ref_stmt->stmt_is_used = FALSE;
-	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
-	g_object_unref (cursor->ref_stmt);
-	cursor->ref_stmt = NULL;
-
+	g_clear_pointer (&cursor->ref_stmt, tracker_db_statement_sqlite_release);
 	tracker_db_interface_unlock (iface);
 }
 
@@ -2538,8 +2554,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	cursor->finished = FALSE;
 
 	cursor->stmt = ref_stmt->stmt;
-	ref_stmt->stmt_is_used = TRUE;
-	cursor->ref_stmt = g_object_ref (ref_stmt);
+	cursor->ref_stmt = tracker_db_statement_sqlite_grab (ref_stmt);
 
 	if (types) {
 		gint i;
