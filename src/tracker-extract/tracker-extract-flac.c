@@ -284,6 +284,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_resource_set_int64 (metadata, "nfo:duration", stream->data.stream_info.total_samples / stream->data.stream_info.sample_rate);
 	}
 
+	if (metadata) {
+		tracker_extract_info_set_resource (info, metadata);
+		g_object_unref (metadata);
+	}
+
 	g_free (fd.artist);
 	g_free (fd.album);
 	g_free (fd.albumartist);
