@@ -254,7 +254,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		tracker_resource_set_relation (metadata, "nmm:musicAlbumDisc", album_disc);
 
 		g_object_unref (album_disc);
-		g_object_unref (album_artist);
+		g_clear_object (&album_artist);
 	}
 
 	tracker_guarantee_resource_title_from_file (metadata, "nie:title", fd.title, uri, NULL);
