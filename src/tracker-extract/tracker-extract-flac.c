@@ -88,7 +88,7 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
 			}
 		} else if (g_ascii_strncasecmp (entry.entry, "album=", 6) == 0) {
 			fd->album = g_strdup (entry.entry + 6);
-		} else if (g_ascii_strncasecmp (entry.entry, "albumartist", 11) == 0) {
+		} else if (g_ascii_strncasecmp (entry.entry, "albumartist=", 12) == 0) {
 			fd->albumartist = g_strdup (entry.entry + 12);
 		} else if (g_ascii_strncasecmp (entry.entry, "trackcount", 10) == 0) {
 			fd->trackcount = g_strdup (entry.entry + 11);
