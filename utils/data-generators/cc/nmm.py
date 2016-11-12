@@ -124,8 +124,7 @@ def generateMusicAlbumDisc(index):
 ####################################################################################
 nmm_MusicAlbum = '''
 <%(album_uri)s> a nmm:MusicAlbum ;
-    nie:title        "%(album_name)s" ;
-    nmm:albumTitle   "%(album_name)s" .
+    nie:title        "%(album_name)s" .
 '''
 def generateAlbum(index):
   me = 'nmm#MusicAlbum'

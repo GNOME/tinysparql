@@ -195,7 +195,7 @@ on_timer_callback (gpointer data)
 	tracker_sparql_connection_query_async (connection,
 	                                       "SELECT ?title nmm:artistName (?artist) WHERE { "
 	                                       "  ?mpiece nmm:musicAlbum ?album . "
-	                                       "  ?album nmm:albumTitle ?title . "
+	                                       "  ?album nie:title ?title . "
 	                                       "  OPTIONAL { ?album nmm:albumArtist ?artist } "
 	                                       "}",
 	                                       NULL,

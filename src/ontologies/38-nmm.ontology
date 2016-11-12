@@ -188,7 +188,7 @@ nmm:artwork a rdf:Property ;
 
 nmm:albumTitle a rdf:Property ;
 	rdfs:label "Title" ;
-	rdfs:comment "nmm:albumTitle is deprecated, use nie:title instead, extractors still need updating" ;
+	rdfs:comment "nmm:albumTitle is deprecated, use nie:title instead" ;
 	rdfs:subPropertyOf nie:title ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;

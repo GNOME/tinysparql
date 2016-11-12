@@ -130,7 +130,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                     nmm:artistName 'John Lennon' .
 
                 <urn:uuid:123123123> a nmm:MusicAlbum ;
-                    nmm:albumTitle 'Imagine' .
+                    nie:title 'Imagine' .
 
                 <file:///a/b/c/imagine.mp3> a nmm:MusicPiece, nfo:FileDataObject;
                     nfo:fileName 'imagine.mp3';
@@ -158,7 +158,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         nfo:fileName ?filename.
 
                     ?x nmm:artistName ?artist .
-                    ?y nmm:albumTitle ?album.
+                    ?y nie:title ?album.
                     }
                     """
                 result = self.tracker.query(QUERY)
@@ -687,7 +687,7 @@ class TrackerStoreDeleteTests (CommonTrackerStoreTest):
                 self.tracker.update ("""
                 INSERT {
                    <test://instance-delete-02> a nmm:MusicAlbum;
-                           nmm:albumTitle '06_Album_delete'.
+                           nie:title '06_Album_delete'.
                 }
                 """)
 

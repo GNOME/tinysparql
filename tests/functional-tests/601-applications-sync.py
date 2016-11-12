@@ -90,8 +90,8 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
                      nie:isStoredAs          _:x
         }
 
-        INSERT { <urn:album:SinCos> a              nmm:MusicAlbum;
-                                    nmm:albumTitle 'SinCos'
+        INSERT { <urn:album:SinCos> a         nmm:MusicAlbum;
+                                    nie:title 'SinCos'
         }
 
         INSERT { <urn:artist:AbBaby> a              nmm:Artist;

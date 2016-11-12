@@ -276,7 +276,7 @@ tracker_extract_new_music_album_disc (const char      *album_title,
 	album = tracker_resource_new (tmp_album_uri);
 
 	tracker_resource_set_uri (album, "rdf:type", "nmm:MusicAlbum");
-	tracker_resource_set_string (album, "nmm:albumTitle", album_title);
+	tracker_resource_set_string (album, "nie:title", album_title);
 
 	if (album_artist)
 		tracker_resource_add_relation (album, "nmm:albumArtist", album_artist);
