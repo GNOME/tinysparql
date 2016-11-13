@@ -60,7 +60,6 @@ struct _TrackerDecoratorInfo {
 
 struct _ClassInfo {
 	gchar *class_name;
-	gint class_id;
 	gint priority;
 };
 
@@ -70,7 +69,7 @@ struct _SparqlUpdate {
 };
 
 struct _TrackerDecoratorPrivate {
-	guint graph_updated_signal_id;
+	TrackerNotifier *notifier;
 	gchar *data_source;
 
 	GArray *classes; /* Array of ClassInfo */
@@ -91,14 +90,10 @@ struct _TrackerDecoratorPrivate {
 	GTimer *timer;
 	GQueue next_elem_queue; /* Queue of incoming tasks */
 
-	gint rdf_type_id;
-	gint nie_data_source_id;
-	gint data_source_id;
 	gint batch_size;
 
 	guint processing : 1;
 	guint querying   : 1;
-	guint validated  : 1;
 };
 
 enum {
@@ -124,6 +119,10 @@ static void decorator_task_done (GObject      *object,
                                  gpointer      user_data);
 static void decorator_cache_next_items (TrackerDecorator *decorator);
 static gboolean decorator_check_commit (TrackerDecorator *decorator);
+
+static void notifier_events_cb (TrackerDecorator *decorator,
+				GPtrArray        *events,
+				TrackerNotifier  *notifier);
 
 /**
  * tracker_decorator_error_quark:
@@ -720,9 +719,6 @@ create_query_string (TrackerDecorator  *decorator,
 	GString *query;
 	gint i;
 
-	if (!priv->validated)
-		return NULL;
-
 	query = g_string_new ("SELECT ");
 
 	for (i = 0; select_clauses[i]; i++) {
@@ -941,83 +937,30 @@ decorator_cache_next_items (TrackerDecorator *decorator)
 	}
 }
 
-static gint
-get_class_id (TrackerSparqlConnection *conn,
-              const gchar             *class,
-              gboolean                 is_iri)
-{
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	gchar *query;
-	gint id = -1;
-
-	if (is_iri)
-		query = g_strdup_printf ("select tracker:id (<%s>) { }", class);
-	else
-		query = g_strdup_printf ("select tracker:id (%s) { }", class);
-
-	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-	g_free (query);
-
-	if (error) {
-		g_critical ("Could not get class ID for '%s': %s\n",
-		            class, error->message);
-		g_error_free (error);
-		return -1;
-	}
-
-	if (tracker_sparql_cursor_next (cursor, NULL, NULL))
-		id = tracker_sparql_cursor_get_integer (cursor, 0);
-	else
-		g_critical ("'%s' didn't resolve to a known class ID", class);
-
-	g_object_unref (cursor);
-
-	return id;
-}
-
 static void
-tracker_decorator_validate_class_ids (TrackerDecorator *decorator)
-{
-	TrackerSparqlConnection *sparql_conn;
-	TrackerDecoratorPrivate *priv;
-	ClassInfo *info;
-	GArray *array;
-	gint i = 0;
-
-	priv = decorator->priv;
-	sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
-	array = g_array_new (TRUE, FALSE, sizeof (gchar*));
-
-	for (i = 0; i < priv->classes->len; i++) {
-		info = &g_array_index (priv->classes, ClassInfo, i);
-		info->class_id = get_class_id (sparql_conn,
-		                               info->class_name, FALSE);
-		if (info->class_id > 0) {
-			priv->validated = TRUE;
-			g_array_append_val (array, info->class_name);
-		}
-	}
-
-	priv->class_names = (gchar **) g_array_free (array, FALSE);
-}
-
-static gboolean
-tracker_decorator_has_class_id (TrackerDecorator *decorator,
-                                gint              id)
+update_notifier (TrackerDecorator *decorator)
 {
 	TrackerDecoratorPrivate *priv = decorator->priv;
-	ClassInfo *info;
-	gint i;
 
-	for (i = 0; i < priv->classes->len; i++) {
-		info = &g_array_index (priv->classes, ClassInfo, i);
+	g_clear_object (&priv->notifier);
 
-		if (info->class_id == id)
-			return TRUE;
+	if (priv->class_names) {
+		GError *error = NULL;
+
+		priv->notifier = tracker_notifier_new ((const gchar * const *) priv->class_names,
+						       TRACKER_NOTIFIER_FLAG_NOTIFY_UNEXTRACTED,
+						       NULL, &error);
+
+		if (error) {
+			g_warning ("Could not create notifier: %s\n",
+				   error->message);
+			g_error_free (error);
+		}
+
+		g_signal_connect_swapped (priv->notifier, "events",
+					  G_CALLBACK (notifier_events_cb),
+					  decorator);
 	}
-
-	return FALSE;
 }
 
 static void
@@ -1053,7 +996,6 @@ decorator_add_class (TrackerDecorator *decorator,
 	ClassInfo info;
 
 	info.class_name = g_strdup (class);
-	info.class_id = -1;
 	info.priority = G_PRIORITY_DEFAULT;
 	g_array_append_val (priv->classes, info);
 }
@@ -1065,6 +1007,9 @@ decorator_set_classes (TrackerDecorator  *decorator,
 	TrackerDecoratorPrivate *priv = decorator->priv;
 	gint i;
 
+	g_strfreev (priv->class_names);
+	priv->class_names = g_strdupv ((gchar **) classes);
+
 	if (priv->classes->len > 0) {
 		g_array_remove_range (priv->classes, 0,
 		                      priv->classes->len);
@@ -1073,6 +1018,8 @@ decorator_set_classes (TrackerDecorator  *decorator,
 	for (i = 0; classes[i]; i++) {
 		decorator_add_class (decorator, classes[i]);
 	}
+
+	update_notifier (decorator);
 }
 
 static void
@@ -1106,50 +1053,31 @@ tracker_decorator_set_property (GObject      *object,
 }
 
 static void
-handle_deletes (TrackerDecorator *decorator,
-                GVariantIter     *iter)
+notifier_events_cb (TrackerDecorator *decorator,
+		    GPtrArray       *events,
+		    TrackerNotifier *notifier)
 {
-	gint graph, subject, predicate, object;
-	TrackerDecoratorPrivate *priv;
-
-	priv = decorator->priv;
-
-	while (g_variant_iter_loop (iter, "(iiii)",
-				    &graph, &subject, &predicate, &object)) {
-		if (predicate == priv->rdf_type_id) {
-			decorator_item_cache_remove (decorator, subject);
-			decorator_blacklist_remove (decorator, subject);
-		} else if (predicate == priv->nie_data_source_id &&
-			 object == priv->data_source_id) {
-			/* If only the decorator datasource is removed,
-			 * re-process the file from scratch if it's not already
-			 * queued. We don't know its class_name_id, so we have
-			 * to query it first. This should be rare enough that
-			 * it doesn't matter to accumulate them to query in
-			 * batches. */
-			decorator_cache_next_items (decorator);
-		}
-	}
-}
-
-static void
-handle_updates (TrackerDecorator *decorator,
-                GVariantIter     *iter)
-{
-	gint graph, subject, predicate, object;
-	TrackerDecoratorPrivate *priv;
 	gboolean check_added = FALSE;
+	gint64 id;
+	gint i;
 
-	priv = decorator->priv;
+	for (i = 0; i < events->len; i++) {
+		TrackerNotifierEvent *event;
 
-	while (g_variant_iter_loop (iter, "(iiii)",
-				    &graph, &subject, &predicate, &object)) {
-		/* Merely use this as a hint that there is something
-		 * left to be processed.
-		 */
-		if (predicate == priv->rdf_type_id &&
-		    tracker_decorator_has_class_id (decorator, object)) {
+		event = g_ptr_array_index (events, i);
+		id = tracker_notifier_event_get_id (event);
+
+		switch (tracker_notifier_event_get_event_type (event)) {
+		case TRACKER_NOTIFIER_EVENT_CREATE:
+		case TRACKER_NOTIFIER_EVENT_UPDATE:
+			/* Merely use this as a hint that there is something
+			 * left to be processed.
+			 */
 			check_added = TRUE;
+			break;
+		case TRACKER_NOTIFIER_EVENT_DELETE:
+			decorator_item_cache_remove (decorator, id);
+			decorator_blacklist_remove (decorator, id);
 			break;
 		}
 	}
@@ -1158,62 +1086,23 @@ handle_updates (TrackerDecorator *decorator,
 		decorator_cache_next_items (decorator);
 }
 
-static void
-class_signal_cb (GDBusConnection *connection,
-                 const gchar     *sender_name,
-                 const gchar     *object_path,
-                 const gchar     *interface_name,
-                 const gchar     *signal_name,
-                 GVariant        *parameters,
-                 gpointer         user_data)
-{
-	TrackerDecorator *decorator = user_data;
-	GVariantIter *iter1, *iter2;
-
-	g_variant_get (parameters, "(&sa(iiii)a(iiii))", NULL, &iter1, &iter2);
-	handle_deletes (decorator, iter1);
-	handle_updates (decorator, iter2);
-	g_variant_iter_free (iter1);
-	g_variant_iter_free (iter2);
-}
-
 static gboolean
 tracker_decorator_initable_init (GInitable     *initable,
                                  GCancellable  *cancellable,
                                  GError       **error)
 {
-	TrackerSparqlConnection *sparql_conn;
-	TrackerDecoratorPrivate *priv;
 	TrackerDecorator *decorator;
-	GDBusConnection *conn;
 
 	if (!parent_initable_iface->init (initable, cancellable, error))
 		return FALSE;
 
 	decorator = TRACKER_DECORATOR (initable);
-	priv = decorator->priv;
-
-	sparql_conn = tracker_miner_get_connection (TRACKER_MINER (initable));
-	conn = tracker_miner_get_dbus_connection (TRACKER_MINER (initable));
 
 	if (g_cancellable_is_cancelled (cancellable))
 		return FALSE;
 
-	priv->rdf_type_id = get_class_id (sparql_conn, "rdf:type", FALSE);
-	priv->nie_data_source_id = get_class_id (sparql_conn, "nie:dataSource", FALSE);
-	priv->data_source_id = get_class_id (sparql_conn, priv->data_source, TRUE);
-	tracker_decorator_validate_class_ids (decorator);
+	update_notifier (decorator);
 
-	priv->graph_updated_signal_id =
-		g_dbus_connection_signal_subscribe (conn,
-		                                    TRACKER_DBUS_SERVICE,
-		                                    TRACKER_DBUS_INTERFACE_RESOURCES,
-		                                    "GraphUpdated",
-		                                    TRACKER_DBUS_OBJECT_RESOURCES,
-		                                    NULL,
-		                                    G_DBUS_SIGNAL_FLAGS_NONE,
-		                                    class_signal_cb,
-		                                    initable, NULL);
 	decorator_update_state (decorator, "Idle", FALSE);
 	return TRUE;
 }
@@ -1241,16 +1130,11 @@ tracker_decorator_finalize (GObject *object)
 {
 	TrackerDecoratorPrivate *priv;
 	TrackerDecorator *decorator;
-	GDBusConnection *conn;
 
 	decorator = TRACKER_DECORATOR (object);
 	priv = decorator->priv;
 
-	if (priv->graph_updated_signal_id) {
-		conn = tracker_miner_get_dbus_connection (TRACKER_MINER (object));
-		g_dbus_connection_signal_unsubscribe (conn,
-		                                      priv->graph_updated_signal_id);
-	}
+	g_clear_object (&priv->notifier);
 
 	g_queue_foreach (&priv->item_cache,
 	                 (GFunc) tracker_decorator_info_unref,
