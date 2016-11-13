@@ -50,6 +50,8 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
+static int sql_by_query (void);
+
 static int
 sql_by_file (void)
 {
@@ -82,7 +84,7 @@ sql_by_file (void)
 
 	g_free (path_in_utf8);
 
-	return EXIT_SUCCESS;
+	return sql_by_query ();
 }
 
 static int
