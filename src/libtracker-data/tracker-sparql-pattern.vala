@@ -1108,7 +1108,10 @@ class Tracker.Sparql.Pattern : Object {
 
 				expect (SparqlTokenType.OPEN_PARENS);
 
-				context.in_bind = true;
+				// We only need the binding sql expression when
+				// we are not in a group graph pattern, both
+				// cases are handled differently below.
+				context.in_bind = !in_group_graph_pattern;
 				expression.translate_expression (bind_sql);
 				context.in_bind = false;
 				binding.sql_expression = bind_sql.str;
@@ -1123,7 +1126,21 @@ class Tracker.Sparql.Pattern : Object {
 				}
 
 				binding.variable = as_var;
-				add_variable_binding (sql, binding, VariableState.BOUND);
+
+				if (in_group_graph_pattern) {
+					// Surround the entire group graph pattern with
+					// SELECT $binding , * FROM (...)
+					var binding_sql = new StringBuilder ("SELECT ");
+					add_variable_binding (binding_sql, binding, VariableState.BOUND);
+					binding_sql.append (" * FROM (");
+					sql.insert (group_graph_pattern_start, binding_sql.str);
+					sql.append (")");
+				} else {
+					// This is the "simple" case, where we are
+					// still constructing the SELECT ... part,
+					// just add the binding sql in this case.
+					add_variable_binding (sql, binding, VariableState.BOUND);
+				}
 
 				expect (SparqlTokenType.CLOSE_PARENS);
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
