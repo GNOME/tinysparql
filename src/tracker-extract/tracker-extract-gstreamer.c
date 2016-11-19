@@ -1151,6 +1151,7 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 {
 	GstDiscovererInfo *info;
 	const GstTagList *discoverer_tags;
+	const GstToc *gst_toc;
 	GError *error = NULL;
 	GList *l;
 	gchar *required_plugins_message;
@@ -1232,9 +1233,9 @@ discoverer_init_and_run (MetadataExtractor *extractor,
 	}
 #endif
 
-	extractor->gst_toc = gst_discoverer_info_get_toc (info);
-	if (extractor->gst_toc)
-		gst_toc_ref (extractor->gst_toc);
+	gst_toc = gst_discoverer_info_get_toc (info);
+	if (gst_toc)
+		extractor->gst_toc = gst_toc_copy (gst_toc);
 
 	extractor->duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
 
