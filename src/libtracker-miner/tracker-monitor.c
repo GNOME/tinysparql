@@ -666,6 +666,10 @@ monitor_event_to_string (GFileMonitorEvent event_type)
 		return "G_FILE_MONITOR_EVENT_UNMOUNTED";
 	case G_FILE_MONITOR_EVENT_MOVED:
 		return "G_FILE_MONITOR_EVENT_MOVED";
+	case G_FILE_MONITOR_EVENT_RENAMED:
+	case G_FILE_MONITOR_EVENT_MOVED_IN:
+	case G_FILE_MONITOR_EVENT_MOVED_OUT:
+		break;
 	}
 
 	return "unknown";
@@ -1334,6 +1338,10 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 		case G_FILE_MONITOR_EVENT_UNMOUNTED:
 			/* Do nothing */
+		case G_FILE_MONITOR_EVENT_RENAMED:
+		case G_FILE_MONITOR_EVENT_MOVED_IN:
+		case G_FILE_MONITOR_EVENT_MOVED_OUT:
+			/* We don't use G_FILE_MONITOR_WATCH_MOVES */
 			break;
 		}
 	} else {
@@ -1355,6 +1363,10 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 		case G_FILE_MONITOR_EVENT_UNMOUNTED:
 			/* Do nothing */
+		case G_FILE_MONITOR_EVENT_RENAMED:
+		case G_FILE_MONITOR_EVENT_MOVED_IN:
+		case G_FILE_MONITOR_EVENT_MOVED_OUT:
+			/* We don't use G_FILE_MONITOR_WATCH_MOVES */
 			break;
 		}
 	}
