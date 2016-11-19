@@ -1111,9 +1111,9 @@ class Tracker.Sparql.Pattern : Object {
 				// We only need the binding sql expression when
 				// we are not in a group graph pattern, both
 				// cases are handled differently below.
-				context.in_bind = !in_group_graph_pattern;
+				context.need_binding_expression = !in_group_graph_pattern;
 				expression.translate_expression (bind_sql);
-				context.in_bind = false;
+				context.need_binding_expression = false;
 				binding.sql_expression = bind_sql.str;
 
 				expect (SparqlTokenType.AS);
