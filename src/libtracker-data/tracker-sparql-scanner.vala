@@ -960,7 +960,7 @@ public class Tracker.SparqlScanner : Object {
 	}
 
 	bool matches (char* begin, string keyword) {
-		char* keyword_array = keyword;
+		char* keyword_array = (char*) keyword;
 		for (int i = 0; keyword_array[i] != 0; i++) {
 			if (begin[i].toupper () != keyword_array[i]) {
 				return false;
