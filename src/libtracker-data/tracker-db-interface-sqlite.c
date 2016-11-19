@@ -146,7 +146,7 @@ static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (sqlite3_stm
                                                                      TrackerDBStatement    *ref_stmt,
                                                                      TrackerPropertyType   *types,
                                                                      gint                   n_types,
-                                                                     const gchar          **variable_names,
+                                                                     const gchar * const   *variable_names,
                                                                      gint                   n_variable_names,
                                                                      gboolean               threadsafe);
 static gboolean            tracker_db_cursor_get_boolean            (TrackerSparqlCursor   *cursor,
@@ -2548,7 +2548,7 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
                               TrackerDBStatement  *ref_stmt,
                               TrackerPropertyType *types,
                               gint                 n_types,
-                              const gchar        **variable_names,
+                              const gchar * const *variable_names,
                               gint                 n_variable_names,
                               gboolean             threadsafe)
 {
@@ -2920,7 +2920,7 @@ TrackerDBCursor *
 tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
                                           TrackerPropertyType  *types,
                                           gint                  n_types,
-                                          const gchar         **variable_names,
+                                          const gchar * const  *variable_names,
                                           gint                  n_variable_names,
                                           gboolean              threadsafe,
                                           GError              **error)
