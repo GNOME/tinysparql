@@ -372,7 +372,7 @@ reset_run (void)
 
 			g_print ("  %s\n", c->name);
 
-			keys = g_settings_list_keys (c->settings);
+			keys = g_settings_schema_list_keys (c->schema);
 			for (p = keys; p && *p; p++) {
 				g_print ("    %s\n", *p);
 				g_settings_reset (c->settings, *p);

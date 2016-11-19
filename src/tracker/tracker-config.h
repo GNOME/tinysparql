@@ -26,6 +26,7 @@
 
 typedef struct {
 	gchar *name;
+	GSettingsSchema *schema;
 	GSettings *settings;
 	gboolean is_miner;
 } ComponentGSettings;

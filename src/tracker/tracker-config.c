@@ -37,14 +37,15 @@ tracker_gsettings_get_all (gint *longest_name_length)
 	} SchemaWithPath;
 
 	TrackerMinerManager *manager;
+	GSettingsSchemaSource *source;
 	GError *error = NULL;
 	GSettings *settings;
 	GSList *all = NULL;
 	GSList *l;
 	GSList *miners_available;
 	GSList *valid_schemas = NULL;
-	const gchar * const *schema;
-	gint len = 0;
+	gchar **schemas;
+	gint i, len = 0;
 	SchemaWithPath components[] = {
 		{ "Store", "store" },
 		{ "Extract", "extract" },
@@ -65,22 +66,27 @@ tracker_gsettings_get_all (gint *longest_name_length)
 
 	miners_available = tracker_miner_manager_get_available (manager);
 
-	/* Get valid schemas so we don't try to load invalid ones */
-	for (schema = g_settings_list_schemas (); schema && *schema; schema++) {
-		if (!g_str_has_prefix (*schema, "org.freedesktop.Tracker.")) {
+	source = g_settings_schema_source_get_default ();
+	g_settings_schema_source_list_schemas (source, TRUE, &schemas, NULL);
+
+	for (i = 0; schemas[i]; i++) {
+		if (!g_str_has_prefix (schemas[i], "org.freedesktop.Tracker.")) {
 			continue;
 		}
 
-		valid_schemas = g_slist_prepend (valid_schemas, g_strdup (*schema));
+		valid_schemas = g_slist_prepend (valid_schemas, g_strdup (schemas[i]));
 	}
 
 	/* Store / General */
 	for (swp = components; swp && swp->schema; swp++) {
+		GSettingsSchema *settings_schema;
 		gchar *schema;
 		gchar *path;
 
 		schema = g_strdup_printf ("org.freedesktop.Tracker.%s", swp->schema);
 		path = g_strdup_printf ("/org/freedesktop/tracker/%s/", swp->path);
+
+		settings_schema = g_settings_schema_source_lookup (source, schema, FALSE);
 
 		/* If miner doesn't have a schema, no point in getting config */
 		if (!tracker_string_in_gslist (schema, valid_schemas)) {
@@ -97,6 +103,7 @@ tracker_gsettings_get_all (gint *longest_name_length)
 
 			c->name = g_strdup (swp->schema);
 			c->settings = settings;
+			c->schema = settings_schema;
 			c->is_miner = FALSE;
 
 			all = g_slist_prepend (all, c);
@@ -156,6 +163,7 @@ tracker_gsettings_get_all (gint *longest_name_length)
 	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 	g_slist_free (miners_available);
 	g_object_unref (manager);
+	g_strfreev (schemas);
 
 	if (longest_name_length) {
 		*longest_name_length = len;
@@ -198,6 +206,7 @@ tracker_gsettings_free (GSList *all)
 
 		g_free (c->name);
 		g_object_unref (c->settings);
+		g_object_unref (c->schema);
 		g_slice_free (ComponentGSettings, c);
 	}
 }
