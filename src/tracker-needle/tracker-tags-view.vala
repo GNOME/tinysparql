@@ -373,7 +373,7 @@ public class TrackerTagsView : Box {
 			string str = dngettext (null,
 			                        "_Set the tags you want to associate with the %d selected item:",
 			                        "_Set the tags you want to associate with the %d selected items:",
-			                        files.length ()).printf (files.length ());
+			                        files.length ()).printf ((int) files.length ());
 			label.set_text_with_mnemonic (str);
 			vbox.sensitive = true;
 		} else {
