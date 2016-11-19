@@ -781,10 +781,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			no_data_or_modules = FALSE;
 
 			if (output_format == TRACKER_SERIALIZATION_FORMAT_SPARQL) {
-				TrackerSparqlBuilder *builder;
 				const char *text;
-
-				builder = tracker_sparql_builder_new_update ();
 
 				/* If this was going into the tracker-store we'd generate a unique ID
 				 * here, so that the data persisted across file renames.
