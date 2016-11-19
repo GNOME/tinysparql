@@ -154,7 +154,7 @@ decorator_save_info (TrackerSparqlBuilder    *sparql,
 
 	if (resource == NULL) {
 		g_message ("Extract module returned no resource for %s",
-		           tracker_decorator_info_get_url (info));
+		           tracker_decorator_info_get_url (decorator_info));
 		/* We must still insert something into the store so that the correct
 		 * nie:dataSource triple get inserted. Otherwise, tracker-extract will
 		 * try to re-extract this file every time it starts.
