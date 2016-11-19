@@ -294,7 +294,7 @@ _nm_client_get_network_type (NMClient *nm_client)
 	}
 
 #if (NM_CHECK_VERSION (0,8,992))
-	if (NM_IS_DEVICE_MODEM (device) || NM_IS_DEVICE_WIMAX (device)) {
+	if (NM_IS_DEVICE_MODEM (device)) {
 		return TRACKER_NETWORK_TYPE_3G;
 	}
 #else
