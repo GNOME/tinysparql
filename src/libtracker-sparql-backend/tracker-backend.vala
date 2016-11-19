@@ -91,7 +91,7 @@ class Tracker.Sparql.Backend : Connection {
 		base.dispose ();
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
@@ -100,7 +100,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
@@ -109,7 +109,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
@@ -117,7 +117,7 @@ class Tracker.Sparql.Backend : Connection {
 		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
@@ -125,7 +125,7 @@ class Tracker.Sparql.Backend : Connection {
 		return bus.update_blank (sparql, priority, cancellable);
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
@@ -133,14 +133,14 @@ class Tracker.Sparql.Backend : Connection {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GenericArray<Sparql.Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override GenericArray<Sparql.Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
