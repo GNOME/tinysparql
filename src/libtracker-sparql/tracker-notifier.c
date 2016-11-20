@@ -86,7 +86,7 @@
 
 #include "tracker-notifier.h"
 #include "tracker-sparql-enum-types.h"
-#include "tracker-sparql.h"
+#include "tracker-generated-no-checks.h"
 
 typedef struct _TrackerNotifierPrivate TrackerNotifierPrivate;
 typedef struct _TrackerNotifierEventCache TrackerNotifierEventCache;
