@@ -43,7 +43,7 @@ namespace Tracker.Sparql {
 		public string sql_db_column_name;
 		public string sql_expression {
 			get {
-				if (this._sql_expression == null) {
+				if (this._sql_expression == null && table != null) {
 					this._sql_expression = "\"%s\".\"%s\"".printf (table.sql_query_tablename, sql_db_column_name);
 				}
 				return this._sql_expression;
