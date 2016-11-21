@@ -1,3 +1,22 @@
+NEW in 1.11.0 - 2016-11-21
+==========================
+
+  * libtracker-sparql: Added TrackerNotifier, helper object to receive
+    notifications of changes to the Tracker database. All users of the
+    GraphUpdated DBus signal are recommended to switch to it.
+  * libtracker-sparql: Added client-side support for HTTP SPARQL
+    endpoints.
+  * libtracker-direct: Much reduced mutex contention during threaded/async
+    queries on the direct access backend.
+  * libtracker-sparql: Using BIND() after OPTIONAL{} now works properly
+  * tracker-extract: Many improvements to music extraction, better labeling
+    of albums, nmm:albumArtist metadata is more faithful to the file
+    metadata.
+  * libtracker-data: Fixed possible overflows in tracker:normalize/unaccent
+  * Other fixes and cleanups.
+
+Translations: ca, cs, de, es, eu, hu, lt, fur, pl, sv, zh_CN
+
 NEW in 1.10.0 - 2016-09-19
 =========================
 
