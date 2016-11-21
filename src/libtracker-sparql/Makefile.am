@@ -104,6 +104,8 @@ MAINTAINERCLEANFILES =                                 \
 CLEANFILES += tracker-sparql-$(TRACKER_API_VERSION).vapi
 
 EXTRA_DIST =                                           \
+	tracker-sparql-enum-types.c.template           \
+	tracker-sparql-enum-types.h.template           \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	tracker-sparql.deps                            \
 	$(vala_header:.h=-no-checks.h)
