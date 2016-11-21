@@ -1,3 +1,9 @@
+NEW in 1.11.0.1 - 2016-11-21
+============================
+
+  Brown paper bag release, revert BIND() fix as it breaks other legit
+  cases.
+
 NEW in 1.11.0 - 2016-11-21
 ==========================
 
