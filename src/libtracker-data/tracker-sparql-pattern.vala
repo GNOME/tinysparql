@@ -1130,9 +1130,9 @@ class Tracker.Sparql.Pattern : Object {
 				if (in_group_graph_pattern) {
 					// Surround the entire group graph pattern with
 					// SELECT $binding , * FROM (...)
-					var binding_sql = new StringBuilder ("SELECT (");
+					var binding_sql = new StringBuilder ("SELECT ");
 					add_variable_binding (binding_sql, binding, VariableState.BOUND);
-					binding_sql.append (") * FROM (");
+					binding_sql.append (" * FROM (");
 					sql.insert (group_graph_pattern_start, binding_sql.str);
 					sql.append (")");
 				} else {
