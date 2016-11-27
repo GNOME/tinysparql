@@ -1146,7 +1146,7 @@ generate_turtle (TrackerResource    *resource,
 	g_string_append (data->string, " ");
 
 	g_hash_table_iter_init (&iter, priv->properties);
-	if (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value))
+	if (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
 		while (TRUE) {
 			generate_turtle_property (property, value, data->string, data->all_namespaces, data->our_namespaces);
 
@@ -1159,6 +1159,7 @@ generate_turtle (TrackerResource    *resource,
 				break;
 			}
 		}
+	}
 }
 
 /**
