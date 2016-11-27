@@ -316,8 +316,10 @@ tracker_decorator_fs_prepend_file (TrackerDecoratorFS *decorator,
 	if (!cursor)
 		return 0;
 
-	if (!tracker_sparql_cursor_next (cursor, NULL, NULL))
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_object_unref (cursor);
 		return 0;
+	}
 
 	id = tracker_sparql_cursor_get_integer (cursor, 0);
 	class_id = tracker_sparql_cursor_get_integer (cursor, 1);
