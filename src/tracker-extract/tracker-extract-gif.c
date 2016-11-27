@@ -151,6 +151,7 @@ read_metadata (GifFileType          *gifFile,
 			for (h = 0; h < frameheight; h++)
 			{
 				if (DGifGetLine(gifFile, framedata, framewidth)==GIF_ERROR) {
+					g_free (framedata);
 #if GIFLIB_MAJOR < 5
 					print_gif_error();
 #else  /* GIFLIB_MAJOR < 5 */
