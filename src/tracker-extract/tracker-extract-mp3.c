@@ -154,7 +154,6 @@ typedef struct {
 	const gchar *performer_name;
 	TrackerResource *performer;
 	const gchar *album_artist_name;
-	TrackerResource *album_artist;
 	const gchar *lyricist_name;
 	TrackerResource *lyricist;
 	const gchar *album_name;
@@ -2443,10 +2442,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		md.performer = tracker_extract_new_artist (md.performer_name);
 	}
 
-	if (md.album_artist_name) {
-		md.album_artist = tracker_extract_new_artist (md.album_artist_name);
-	}
-
 	if (md.composer_name) {
 		md.composer = tracker_extract_new_artist (md.composer_name);
 	}
@@ -2456,10 +2451,13 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.album_name) {
-		TrackerResource *album_disc = NULL;
+		TrackerResource *album_disc = NULL, *album_artist = NULL;
+
+		if (md.album_artist_name)
+			album_artist = tracker_extract_new_artist (md.album_artist_name);
 
 		album_disc = tracker_extract_new_music_album_disc (md.album_name,
-		                                                   md.album_artist,
+		                                                   album_artist,
 		                                                   md.set_number > 0 ? md.set_number : 1,
 		                                                   md.recording_time);
 
@@ -2473,6 +2471,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 
 		g_object_unref (album_disc);
+		g_clear_object (&album_artist);
 	}
 
 	tracker_resource_add_uri (main_resource, "rdf:type", "nmm:MusicPiece");
@@ -2491,7 +2490,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	if (md.performer) {
 		tracker_resource_set_relation (main_resource, "nmm:performer", md.performer);
-		g_object_unref (md.performer);
 	}
 
 	if (md.composer) {
@@ -2575,6 +2573,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 	}
 #endif
+	g_clear_object (&md.performer);
 	g_free (md.media_art_data);
 	g_free (md.media_art_mime);
 
