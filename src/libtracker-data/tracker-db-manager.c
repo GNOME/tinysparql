@@ -1233,8 +1233,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	s_cache_size = select_cache_size;
 	u_cache_size = update_cache_size;
 
-	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0)
-		g_private_replace (&interface_data_key, resources_iface);
+	g_private_replace (&interface_data_key, resources_iface);
 
 	return TRUE;
 }
