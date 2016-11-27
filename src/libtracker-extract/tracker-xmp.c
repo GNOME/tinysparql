@@ -1142,6 +1142,7 @@ tracker_xmp_apply_regions_to_resource (TrackerResource *resource,
 		}
 
 		tracker_resource_add_relation (resource, "nfo:hasRegionOfInterest", region_resource);
+		g_object_unref (region_resource);
 	}
 
 	return TRUE;
