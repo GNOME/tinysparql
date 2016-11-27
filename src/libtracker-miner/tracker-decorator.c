@@ -1144,7 +1144,7 @@ tracker_decorator_finalize (GObject *object)
 	decorator_cancel_active_tasks (decorator);
 	decorator_notify_empty (decorator);
 
-	g_free (priv->class_names);
+	g_strfreev (priv->class_names);
 	g_hash_table_destroy (priv->tasks);
 	g_array_unref (priv->classes);
 	g_array_unref (priv->prepended_ids);
