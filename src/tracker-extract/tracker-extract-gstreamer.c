@@ -171,10 +171,12 @@ intern_artist (MetadataExtractor     *extractor,
 	node = g_slist_find_custom (extractor->artist_list, artist_uri,
 	                            (GCompareFunc) tracker_resource_identifier_compare_func);
 	if (node) {
+		g_free (artist_uri);
 		return node->data;
 	}
 
 	artist = tracker_extract_new_artist (artist_name);
+	g_free (artist_uri);
 
 	extractor->artist_list = g_slist_prepend (extractor->artist_list, artist);
 
