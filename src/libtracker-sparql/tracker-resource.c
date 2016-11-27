@@ -1036,6 +1036,8 @@ generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
 			/* It's a full URI (or something invalid, but we can't really tell that here) */
 			g_string_append_printf (string, "<%s>", uri_or_curie_or_blank);
 		}
+
+		g_free (prefix);
 	}
 }
 
@@ -1462,6 +1464,9 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
 		g_string_append (context.string, "}\n");
 	}
 	g_string_append (context.string, "}\n");
+
+	g_list_free (context.done_list);
+	context.done_list = NULL;
 
 	return g_string_free (context.string, FALSE);
 }
