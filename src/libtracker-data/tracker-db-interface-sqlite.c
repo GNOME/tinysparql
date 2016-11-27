@@ -2183,8 +2183,10 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		sqlite_stmt = tracker_db_interface_prepare_stmt (db_interface,
 		                                                 full_query,
 		                                                 error);
-		if (!sqlite_stmt)
+		if (!sqlite_stmt) {
+			tracker_db_interface_unlock (db_interface);
 			return NULL;
+		}
 
 		stmt = tracker_db_statement_sqlite_new (db_interface,
 		                                        sqlite_stmt);
