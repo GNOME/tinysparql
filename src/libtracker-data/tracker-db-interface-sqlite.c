@@ -2428,11 +2428,15 @@ tracker_db_cursor_close (TrackerDBCursor *cursor)
 	}
 
 	iface = cursor->ref_stmt->db_interface;
+
+	g_object_ref (iface);
 	g_atomic_int_add (&iface->n_active_cursors, -1);
 
 	tracker_db_interface_lock (iface);
 	g_clear_pointer (&cursor->ref_stmt, tracker_db_statement_sqlite_release);
 	tracker_db_interface_unlock (iface);
+
+	g_object_unref (iface);
 }
 
 static void
