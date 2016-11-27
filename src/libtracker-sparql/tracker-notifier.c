@@ -660,6 +660,8 @@ expand_class_iris (TrackerNotifier  *notifier,
 
 	cursor = tracker_sparql_connection_query (priv->connection, sparql->str,
 	                                          cancellable, error);
+	g_string_free (sparql, TRUE);
+
 	if (!cursor)
 		return FALSE;
 	if (!tracker_sparql_cursor_next (cursor, cancellable, error))
