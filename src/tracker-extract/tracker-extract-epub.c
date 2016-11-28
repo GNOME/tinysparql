@@ -287,7 +287,7 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 	case OPF_TAG_TYPE_EDITOR:
 	case OPF_TAG_TYPE_ILLUSTRATOR:
 	case OPF_TAG_TYPE_CONTRIBUTOR: {
-		TrackerResource *contact, *artist;
+		TrackerResource *contact, *artist = NULL;
 		gchar *fname, *gname, *oname;
 		const gchar *fullname = NULL;
 		gchar *role_uri = NULL;
