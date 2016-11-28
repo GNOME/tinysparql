@@ -1327,13 +1327,6 @@ generate_sparql_deletes (TrackerResource    *resource,
 {
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
 
-	/* We have to generate a rather awkward query here, like:
-	 *
-	 *     DELETE { pattern } WHERE { pattern }
-	 *
-	 * It would be better if we could use "DELETE DATA { pattern }". This is
-	 * allowed in SPARQL update 1.1, but not yet supported by Tracker's store.
-	 */
 	if (! is_blank_node (priv->identifier)) {
 		if (g_hash_table_size (priv->overwrite) > 0) {
 			g_string_append (data->string, "DELETE {\n");
