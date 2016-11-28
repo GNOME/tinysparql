@@ -656,7 +656,8 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 	gst_tag_list_get_string (tag_list, GST_TAG_ARTIST, &track_artist_temp);
 	gst_tag_list_get_date_time (tag_list, GST_TAG_DATE_TIME, &datetime_temp);
 
-	album_datetime = gst_date_time_to_iso8601_string (datetime_temp);
+	if (datetime_temp)
+		album_datetime = gst_date_time_to_iso8601_string (datetime_temp);
 	album_artist = intern_artist (extractor, album_artist_name);
 	has_it = gst_tag_list_get_uint (tag_list, GST_TAG_ALBUM_VOLUME_NUMBER, &volume_number);
 
@@ -675,7 +676,7 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 	extractor->media_art_title = album_title;
 #endif
 
-	gst_date_time_unref (datetime_temp);
+	g_clear_pointer (&datetime_temp, (GDestroyNotify) gst_date_time_unref);
 	g_free (album_artist_name);
 	g_free (album_datetime);
 	g_free (track_artist_temp);
