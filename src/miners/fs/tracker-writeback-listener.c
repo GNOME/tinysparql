@@ -51,8 +51,6 @@ enum {
 	PROP_FILES_MINER
 };
 
-#define TRACKER_WRITEBACK_LISTENER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_WRITEBACK_LISTENER, TrackerWritebackListenerPrivate))
-
 static void     writeback_listener_set_property    (GObject              *object,
                                                     guint                 param_id,
                                                     const GValue         *value,
@@ -80,6 +78,7 @@ writeback_listener_initable_iface_init (GInitableIface *iface)
 }
 
 G_DEFINE_TYPE_WITH_CODE (TrackerWritebackListener, tracker_writeback_listener, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (TrackerWritebackListener)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 writeback_listener_initable_iface_init));
 
@@ -111,9 +110,10 @@ writeback_listener_set_property (GObject      *object,
                                  const GValue *value,
                                  GParamSpec   *pspec)
 {
+	TrackerWritebackListener *listener = TRACKER_WRITEBACK_LISTENER (object);
 	TrackerWritebackListenerPrivate *priv;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (object);
+	priv = tracker_writeback_listener_get_instance_private (listener);
 
 	switch (param_id) {
 	case PROP_FILES_MINER:
@@ -131,9 +131,10 @@ writeback_listener_get_property (GObject    *object,
                                  GValue     *value,
                                  GParamSpec *pspec)
 {
+	TrackerWritebackListener *listener = TRACKER_WRITEBACK_LISTENER (object);
 	TrackerWritebackListenerPrivate *priv;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (object);
+	priv = tracker_writeback_listener_get_instance_private (listener);
 
 	switch (param_id) {
 	case PROP_FILES_MINER:
@@ -148,7 +149,10 @@ writeback_listener_get_property (GObject    *object,
 static void
 writeback_listener_finalize (GObject *object)
 {
-	TrackerWritebackListenerPrivate *priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (object);
+	TrackerWritebackListener *listener = TRACKER_WRITEBACK_LISTENER (object);
+	TrackerWritebackListenerPrivate *priv;
+
+	priv = tracker_writeback_listener_get_instance_private (listener);
 
 	if (priv->connection && priv->d_signal) {
 		g_dbus_connection_signal_unsubscribe (priv->d_connection, priv->d_signal);
@@ -178,10 +182,11 @@ writeback_listener_initable_init (GInitable    *initable,
                                   GCancellable *cancellable,
                                   GError       **error)
 {
+	TrackerWritebackListener *listener = TRACKER_WRITEBACK_LISTENER (initable);
 	TrackerWritebackListenerPrivate *priv;
 	GError *internal_error = NULL;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (initable);
+	priv = tracker_writeback_listener_get_instance_private (listener);
 
 	priv->connection = tracker_sparql_connection_get (NULL, &internal_error);
 
@@ -263,7 +268,7 @@ sparql_query_cb (GObject      *object,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (self);
+	priv = tracker_writeback_listener_get_instance_private (self);
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
@@ -339,7 +344,7 @@ rdf_types_to_uris_cb (GObject      *object,
 	TrackerSparqlConnection *connection;
 	GError *error = NULL;
 
-	priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (self);
+	priv = tracker_writeback_listener_get_instance_private (self);
 	connection = priv->connection;
 
 	cursor = tracker_sparql_connection_query_finish (connection, result, &error);
@@ -412,7 +417,7 @@ delayed_loop_idle (gpointer user_data)
 		GString *query;
 		gboolean comma = FALSE;
 
-		priv = TRACKER_WRITEBACK_LISTENER_GET_PRIVATE (ldata->self);
+		priv = tracker_writeback_listener_get_instance_private (ldata->self);
 
 		data = query_data_new (ldata->self);
 
