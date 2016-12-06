@@ -35,7 +35,6 @@ typedef struct {
 
 typedef struct {
 	GModule *module;
-	TrackerModuleThreadAwareness thread_awareness;
 	TrackerExtractMetadataFunc extract_func;
 	TrackerExtractInitFunc init_func;
 	TrackerExtractShutdownFunc shutdown_func;
@@ -45,8 +44,7 @@ typedef struct {
 static gboolean dummy_extract_func (TrackerExtractInfo *info);
 
 static ModuleInfo dummy_module = {
-	NULL, TRACKER_MODULE_MAIN_THREAD,
-	dummy_extract_func, NULL, NULL, TRUE
+	NULL, dummy_extract_func, NULL, NULL, TRUE
 };
 
 static GHashTable *modules = NULL;
@@ -375,7 +373,7 @@ load_module (RuleInfo *info,
 		if (module_info->init_func) {
 			GError *error = NULL;
 
-			if (!(module_info->init_func) (&module_info->thread_awareness, &error)) {
+			if (!(module_info->init_func) (&error)) {
 				g_critical ("Could not initialize module %s: %s",
 					    g_module_name (module_info->module),
 					    (error) ? error->message : "No error given");
@@ -386,8 +384,6 @@ load_module (RuleInfo *info,
 
 				return NULL;
 			}
-		} else {
-			module_info->thread_awareness = TRACKER_MODULE_MAIN_THREAD;
 		}
 
 		module_info->initialized = TRUE;
@@ -530,12 +526,10 @@ tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
  * tracker_mimetype_info_get_module:
  * @info: a #TrackerMimetypeInfo
  * @extract_func: (out): (allow-none): return value for the extraction function
- * @thread_awareness: (out): (allow-none): thread awareness of the extractor module
  *
  * Returns the #GModule that @info is currently pointing to, if @extract_func is
  * not %NULL, it will be filled in with the pointer to the metadata extraction
- * function. If @thread_awareness is not %NULL, it will be filled in with the
- * module thread awareness description.
+ * function.
  *
  * Returns: The %GModule currently pointed to by @info.
  *
@@ -543,8 +537,7 @@ tracker_extract_module_manager_get_mimetype_handlers (const gchar *mimetype)
  **/
 GModule *
 tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
-                                  TrackerExtractMetadataFunc   *extract_func,
-                                  TrackerModuleThreadAwareness *thread_awareness)
+                                  TrackerExtractMetadataFunc   *extract_func)
 {
 	g_return_val_if_fail (info != NULL, NULL);
 
@@ -554,10 +547,6 @@ tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
 
 	if (extract_func) {
 		*extract_func = info->cur_module_info->extract_func;
-	}
-
-	if (thread_awareness) {
-		*thread_awareness = info->cur_module_info->thread_awareness;
 	}
 
 	return info->cur_module_info->module;

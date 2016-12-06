@@ -521,7 +521,7 @@ get_metadata (TrackerExtractTask *task)
 	return FALSE;
 }
 
-static void
+static gpointer
 single_thread_get_metadata (GAsyncQueue *queue)
 {
 	while (TRUE) {
@@ -534,6 +534,8 @@ single_thread_get_metadata (GAsyncQueue *queue)
 #endif /* THREAD_ENABLE_TRACE */
 		get_metadata (task);
 	}
+
+	return NULL;
 }
 
 /* This function is executed in the main thread, decides the
@@ -543,9 +545,9 @@ single_thread_get_metadata (GAsyncQueue *queue)
 static gboolean
 dispatch_task_cb (TrackerExtractTask *task)
 {
-	TrackerModuleThreadAwareness thread_awareness;
 	TrackerExtractPrivate *priv;
 	GError *error = NULL;
+	GAsyncQueue *async_queue;
 	GModule *module;
 
 #ifdef THREAD_ENABLE_TRACE
@@ -595,7 +597,7 @@ dispatch_task_cb (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-	task->cur_module = module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, &thread_awareness);
+	task->cur_module = module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func);
 
 	if (!task->cur_func) {
 		g_warning ("Discarding task, no module able to handle '%s'", task->file);
@@ -604,72 +606,32 @@ dispatch_task_cb (TrackerExtractTask *task)
 		return FALSE;
 	}
 
-	switch (thread_awareness) {
-	case TRACKER_MODULE_NONE:
-		/* Error out */
-		g_task_return_new_error (G_TASK (task->res),
-		                         tracker_extract_error_quark (),
-		                         TRACKER_EXTRACT_ERROR_NO_EXTRACTOR,
-		                         "Module '%s' initialization failed",
-		                         g_module_name (module));
-		extract_task_free (task);
-		break;
-	case TRACKER_MODULE_MAIN_THREAD:
-		/* Dispatch the task right away in this thread */
-#ifdef THREAD_ENABLE_TRACE
-		g_debug ("Thread:%p (Main) <-- '%s': Dispatching in main thread",
-		         g_thread_self(), task->file);
-#endif /* THREAD_ENABLE_TRACE */
-		get_metadata (task);
-		break;
-	case TRACKER_MODULE_SINGLE_THREAD: {
-		GAsyncQueue *async_queue;
+	async_queue = g_hash_table_lookup (priv->single_thread_extractors, module);
 
-		async_queue = g_hash_table_lookup (priv->single_thread_extractors, module);
+	if (!async_queue) {
+		GThread *thread;
 
-		if (!async_queue) {
-			GThread *thread;
-
-			/* No thread created yet for this module, create it
-			 * together with the async queue used to pass data to it
-			 */
-			async_queue = g_async_queue_new ();
-			thread = g_thread_try_new ("single",
-			                           (GThreadFunc) single_thread_get_metadata,
-			                           g_async_queue_ref (async_queue),
-			                           &error);
-			if (!thread) {
-				g_task_return_error (G_TASK (task->res), error);
-				extract_task_free (task);
-				return FALSE;
-			}
-
-			/* We won't join the thread, so just unref it here */
-			g_object_unref (thread);
-
-			g_hash_table_insert (priv->single_thread_extractors, module, async_queue);
-		}
-
-		g_async_queue_push (async_queue, task);
-		break;
-	}
-	case TRACKER_MODULE_MULTI_THREAD:
-		/* Put task in thread pool */
-#ifdef THREAD_ENABLE_TRACE
-		g_debug ("Thread:%p (Main) --> '%s': Dispatching in thread pool",
-		         g_thread_self(), task->file);
-#endif /* THREAD_ENABLE_TRACE */
-		g_thread_pool_push (priv->thread_pool, task, &error);
-
-		if (error) {
+		/* No thread created yet for this module, create it
+		 * together with the async queue used to pass data to it
+		 */
+		async_queue = g_async_queue_new ();
+		thread = g_thread_try_new ("single",
+		                           (GThreadFunc) single_thread_get_metadata,
+		                           g_async_queue_ref (async_queue),
+		                           &error);
+		if (!thread) {
 			g_task_return_error (G_TASK (task->res), error);
 			extract_task_free (task);
-
 			return FALSE;
 		}
 
-		break;
+		/* We won't join the thread, so just unref it here */
+		g_thread_unref (thread);
+
+		g_hash_table_insert (priv->single_thread_extractors, module, async_queue);
 	}
+
+	g_async_queue_push (async_queue, task);
 
 	return FALSE;
 }
@@ -767,7 +729,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	task->mimetype_handlers = tracker_extract_module_manager_get_mimetype_handlers (task->mimetype);
 	if (task->mimetype_handlers) {
-		task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func, NULL);
+		task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers, &task->cur_func);
 	}
 
 	while (task->cur_func) {
@@ -817,8 +779,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			}
 
 			task->cur_module = tracker_mimetype_info_get_module (task->mimetype_handlers,
-			                                                     &task->cur_func,
-			                                                     NULL);
+			                                                     &task->cur_func);
 		}
 	}
 
