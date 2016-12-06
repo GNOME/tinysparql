@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2016, Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,31 +17,19 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_H__
-#define __LIBTRACKER_COMMON_H__
+#ifndef __TRACKER_SECCOMP_H__
+#define __TRACKER_SECCOMP_H__
+
+#include <glib.h>
+
+G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#include <glib.h>
+gboolean tracker_seccomp_init (void);
 
-#define __LIBTRACKER_COMMON_INSIDE__
+G_END_DECLS
 
-#include "tracker-date-time.h"
-#include "tracker-dbus.h"
-#include "tracker-file-utils.h"
-#include "tracker-ioprio.h"
-#include "tracker-language.h"
-#include "tracker-log.h"
-#include "tracker-parser.h"
-#include "tracker-sched.h"
-#include "tracker-seccomp.h"
-#include "tracker-type-utils.h"
-#include "tracker-utils.h"
-#include "tracker-locale.h"
-#include "tracker-enum-types.h"
-
-#undef __LIBTRACKER_COMMON_INSIDE__
-
-#endif /* __LIBTRACKER_COMMON_H__ */
+#endif /* __TRACKER_SECCOMP_H__ */
