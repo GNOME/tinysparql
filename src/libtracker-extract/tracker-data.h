@@ -88,8 +88,7 @@ G_BEGIN_DECLS
  * Since: 0.12
  */
 
-gboolean tracker_extract_module_init     (TrackerModuleThreadAwareness  *thread_awareness_ret,
-                                          GError                       **error);
+gboolean tracker_extract_module_init     (GError **error);
 gboolean tracker_extract_module_shutdown (void);
 
 /**
