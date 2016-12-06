@@ -45,8 +45,7 @@ G_BEGIN_DECLS
  * application, look at the TrackerDecorator class from libtracker-miner.
  */
 
-gboolean tracker_extract_module_init     (TrackerModuleThreadAwareness  *thread_awareness_ret,
-                                          GError                       **error);
+gboolean tracker_extract_module_init     (GError **error);
 gboolean tracker_extract_module_shutdown (void);
 
 /**
