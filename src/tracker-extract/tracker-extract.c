@@ -524,6 +524,9 @@ get_metadata (TrackerExtractTask *task)
 static gpointer
 single_thread_get_metadata (GAsyncQueue *queue)
 {
+	if (!tracker_seccomp_init ())
+		g_assert_not_reached ();
+
 	while (TRUE) {
 		TrackerExtractTask *task;
 
