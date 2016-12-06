@@ -2601,6 +2601,20 @@ fi
 
 AM_CONDITIONAL(HAVE_ARTWORK, test "x$have_artwork" = "xyes")
 
+##################################################################
+# Check for libseccomp
+##################################################################
+
+PKG_CHECK_MODULES(LIBSECCOMP,
+                  [libseccomp >= 2.0],
+                  [have_libseccomp=yes],
+                  [have_libseccomp=no])
+
+if test "$have_libseccomp" = "yes"; then
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $LIBSECCOMP_LIBS"
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $LIBSECCOMP_CFLAGS"
+   AC_DEFINE(HAVE_LIBSECCOMP, [], [Define if we have libseccomp])
+fi
 
 ##################################################################
 # Write generated files
@@ -2867,5 +2881,11 @@ WARNING:
         3.8.4.2:         https://mail.gnome.org/archives/tracker-list/2014-April/msg00001.html
 
 
+"
+fi
+
+if test "$have_libseccomp" = "no"; then
+echo "
+WARNING: libseccomp was not found, build will not be prevented, but this is a security flaw.
 "
 fi
