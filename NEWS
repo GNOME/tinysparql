@@ -1,3 +1,15 @@
+NEW in 1.11.2 - 2016-12-08
+==========================
+
+  * tracker-extract: Sandbox extractor threads. Filesystem and network
+    access are limited to being read and local only.
+  * tracker-miner-fs: Fixed high CPU use when receiving many writeback
+    notifications at once.
+  * tracker-extract, libtracker-sparql, libtracker-miner: plug leaks
+  * tests: cleanups and improvements
+
+Translations: hu
+
 NEW in 1.11.1 - 2016-11-21
 ==========================
 
