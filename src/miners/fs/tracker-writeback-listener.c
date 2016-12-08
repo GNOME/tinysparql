@@ -107,8 +107,6 @@ tracker_writeback_listener_class_init (TrackerWritebackListenerClass *klass)
 	                                                      "The FS Miner",
 	                                                      TRACKER_TYPE_MINER_FILES,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
-
-	g_type_class_add_private (klass, sizeof (TrackerWritebackListenerPrivate));
 }
 
 static void
