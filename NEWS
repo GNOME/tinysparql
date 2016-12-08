@@ -1,3 +1,15 @@
+NEW in 1.10.2 - 2016-12-08
+==========================
+
+  * tracker-extract: Sandbox extractor threads. Filesystem and network
+    access are limited to being read and local only.
+  * libtracker-sparql: Fix compile on C++ compilers
+  * tracker-extract: Use CUE info as a last resort on FLACs
+  * tracker-extract: Minor improvements on albumartist extraction
+  * libtracker-data: Handle overflows on libicu-based normalization
+
+Translations: nb, zh_CN
+
 NEW in 1.10.1 - 2016-10-14
 ==========================
 
