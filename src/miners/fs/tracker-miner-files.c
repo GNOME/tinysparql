@@ -44,6 +44,7 @@
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-storage.h"
+#include "tracker-extract-watchdog.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 #define SECONDS_PER_DAY 86400
@@ -65,6 +66,7 @@ struct ProcessFileData {
 struct TrackerMinerFilesPrivate {
 	TrackerConfig *config;
 	TrackerStorage *storage;
+	TrackerExtractWatchdog *extract_watchdog;
 
 	GVolumeMonitor *volume_monitor;
 
@@ -552,6 +554,8 @@ miner_files_initable_init (GInitable     *initable,
 
 	disk_space_check_start (mf);
 
+	mf->private->extract_watchdog = tracker_extract_watchdog_new ();
+
 	return TRUE;
 }
 
@@ -603,6 +607,8 @@ miner_files_finalize (GObject *object)
 
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
+
+	g_clear_object (&priv->extract_watchdog);
 
 	if (priv->config) {
 		g_signal_handlers_disconnect_by_func (priv->config,

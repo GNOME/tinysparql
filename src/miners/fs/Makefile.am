@@ -29,6 +29,8 @@ tracker_miner_fs_SOURCES =                             \
 	$(power_headers)                               \
 	tracker-config.c                               \
 	tracker-config.h                               \
+	tracker-extract-watchdog.c                     \
+	tracker-extract-watchdog.h                     \
 	tracker-main.c                                 \
 	tracker-miner-files.c                          \
 	tracker-miner-files.h                          \
