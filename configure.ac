@@ -2614,6 +2614,8 @@ if test "$have_libseccomp" = "yes"; then
    LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $LIBSECCOMP_LIBS"
    LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $LIBSECCOMP_CFLAGS"
    AC_DEFINE(HAVE_LIBSECCOMP, [], [Define if we have libseccomp])
+else
+  AC_MSG_ERROR([Libseccomp is mandatory for sandboxed metadata extraction])
 fi
 
 ##################################################################
