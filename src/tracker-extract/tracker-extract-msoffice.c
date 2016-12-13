@@ -1260,9 +1260,8 @@ xls_get_extended_record_string (GsfInput  *stream,
 	 * CONTINUE record: http://msdn.microsoft.com/en-us/library/dd949081%28v=office.12%29.aspx
 	 **/
 
-	/* Reading cst total */
+	/* Skip cst total */
 	gsf_input_read (stream, 4, tmp_buffer);
-	read_32bit (tmp_buffer);
 
 	/* Reading cst unique */
 	gsf_input_read (stream, 4, tmp_buffer);
