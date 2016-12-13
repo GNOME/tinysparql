@@ -593,7 +593,7 @@ function_sparql_replace (sqlite3_context *context,
 	TrackerDBReplaceFuncChecks *checks = &db_interface->replace_func_checks;
 	gboolean store_regex = FALSE, store_replace_regex = FALSE;
 	const gchar *input, *pattern, *replacement, *flags;
-	gchar *err_str, *output, *replaced = NULL, *unescaped = NULL;
+	gchar *err_str, *output = NULL, *replaced = NULL, *unescaped = NULL;
 	GError *error = NULL;
 	GRegexCompileFlags regex_flags = 0;
 	GRegex *regex, *replace_regex;
@@ -716,13 +716,13 @@ function_sparql_replace (sqlite3_context *context,
 	replaced = g_regex_replace (replace_regex,
 	                            replacement, -1, 0, "\\\\g<\\1>", 0, &error);
 
-	if (replaced) {
+	if (!error) {
 		/* All '\$' pairs are replaced by '$' */
 		unescaped = g_regex_replace (checks->unescape,
 		                             replaced, -1, 0, "$", 0, &error);
 	}
 
-	if (unescaped) {
+	if (!error) {
 		output = g_regex_replace (regex, input, -1, 0, unescaped, 0, &error);
 	}
 
