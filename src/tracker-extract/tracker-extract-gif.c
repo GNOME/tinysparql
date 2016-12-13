@@ -502,5 +502,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		g_object_unref (metadata);
 	}
 
+	close (fd);
+
 	return TRUE;
 }
