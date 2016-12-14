@@ -632,7 +632,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	info_ptr = png_create_info_struct (png_ptr);
 	if (!info_ptr) {
-		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+		png_destroy_read_struct (&png_ptr, NULL, NULL);
 		tracker_file_close (f, FALSE);
 		return FALSE;
 	}
