@@ -124,9 +124,8 @@ tracker_locale_init (void)
 			case TRACKER_LOCALE_MONETARY:
 				env_locale = setlocale (LC_MONETARY, NULL);
 				break;
-			case TRACKER_LOCALE_LAST:
-				/* Make compiler happy. The for loop avoids
-				 * this from happening. */
+			default:
+				g_assert_not_reached ();
 				break;
 			}
 
