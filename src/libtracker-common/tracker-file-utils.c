@@ -629,12 +629,8 @@ tracker_path_evaluate_name (const gchar *path)
 	 * symbolic links to other places, returning only the REAL
 	 * location.
 	 */
-	if (tokens) {
-		expanded = g_strjoinv (G_DIR_SEPARATOR_S, tokens);
-		g_strfreev (tokens);
-	} else {
-		expanded = g_strdup (path);
-	}
+	expanded = g_strjoinv (G_DIR_SEPARATOR_S, tokens);
+	g_strfreev (tokens);
 
 	/* Only resolve relative paths if there is a directory
 	 * separator in the path, otherwise it is just a name.
