@@ -459,14 +459,13 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 				reset = TRUE;
 
 				continue;
-			}
-			else if (is_recursive && tracker_path_is_in_path (in_path, path)) {
+			} else if (is_recursive && tracker_path_is_in_path (in_path, path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
 				         in_path, path);
 
 				g_free (l2->data);
 				new_list = g_slist_delete_link (new_list, l2);
-				l1 = new_list;
+				l2 = new_list;
 
 				reset = TRUE;
 
