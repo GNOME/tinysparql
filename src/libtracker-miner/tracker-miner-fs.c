@@ -2885,6 +2885,7 @@ check_item_queues (TrackerMinerFS *fs,
 			g_debug ("  Found previous unhandled CREATED/UPDATED event");
 			return FALSE;
 		}
+		return TRUE;
 	case QUEUE_WRITEBACK:
 		/* No consecutive writebacks for the same file */
 		if (tracker_priority_queue_find (fs->priv->items_writeback, NULL,
