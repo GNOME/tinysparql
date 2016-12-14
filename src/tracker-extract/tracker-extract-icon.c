@@ -113,8 +113,8 @@ find_max_width_and_height (const gchar *uri,
 		/* Height... */
 		if (image_metadata[1] == 0) {
 			*height = 256;
-		} else if (image_metadata[1] > *width) {
-			*height = image_metadata[0];
+		} else if (image_metadata[1] > *height) {
+			*height = image_metadata[1];
 		}
 	}
 
