@@ -247,7 +247,9 @@ journal_read_string (JournalReader  *jreader,
 		}
 
 		result = g_malloc (found_pos + 1);
-		g_input_stream_read (G_INPUT_STREAM (bstream), result, found_pos + 1, NULL, NULL);
+
+		if (g_input_stream_read (G_INPUT_STREAM (bstream), result, found_pos + 1, NULL, error) < 0)
+			return NULL;
 	} else {
 		gsize str_length;
 
