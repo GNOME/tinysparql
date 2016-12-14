@@ -312,7 +312,12 @@ dir_move_to_temp (const gchar *path)
 	gchar *temp_dir;
 
 	temp_dir = g_build_filename (path, "tmp", NULL);
-	g_mkdir (temp_dir, 0777);
+	if (g_mkdir (temp_dir, 0777) < 0) {
+		g_critical ("Could not move %s to temp directory: %m",
+			    path);
+		g_free (temp_dir);
+		return;
+	}
 
 	/* ensure that no obsolete temporary files are around */
 	dir_remove_files (temp_dir);
