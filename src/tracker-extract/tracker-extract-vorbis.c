@@ -372,7 +372,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	g_object_unref (md.creator);
 
 #ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED);
+	if (posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED) != 0)
+		g_warning ("posix_fadvise() call failed: %m");
 #endif /* HAVE_POSIX_FADVISE */
 
 	/* NOTE: This calls fclose on the file */

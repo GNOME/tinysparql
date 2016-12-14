@@ -374,7 +374,8 @@ tracker_read_text_from_fd (gint  fd,
 
 	/* Close the file here */
 #ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+	if (posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED) != 0)
+		g_warning ("posix_fadvise() call failed: %m");
 #endif /* HAVE_POSIX_FADVISE */
 	fclose (fz);
 

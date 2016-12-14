@@ -2318,7 +2318,8 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	id3v1_buffer = read_id3v1_buffer (fd, size);
 
 #ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+	if (posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED) != 0)
+		g_warning ("posix_fadvise() call failed: %m");
 #endif /* HAVE_POSIX_FADVISE */
 
 	close (fd);
