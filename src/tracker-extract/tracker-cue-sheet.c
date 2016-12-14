@@ -380,9 +380,7 @@ tracker_cue_sheet_parse_uri (const gchar *uri)
 
 		cue_sheet_file = n->data;
 
-		g_file_load_contents (cue_sheet_file, NULL, &buffer, NULL, NULL, &error);
-
-		if (error != NULL) {
+		if (!g_file_load_contents (cue_sheet_file, NULL, &buffer, NULL, NULL, &error)) {
 			g_debug ("Unable to read cue sheet: %s", error->message);
 			g_error_free (error);
 			continue;
