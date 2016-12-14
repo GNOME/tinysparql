@@ -368,8 +368,7 @@ load_module (RuleInfo *info,
 		g_hash_table_insert (modules, (gpointer) info->module_path, module_info);
 	}
 
-	if (module_info && initialize &&
-	    !module_info->initialized) {
+	if (initialize && !module_info->initialized) {
 		if (module_info->init_func) {
 			GError *error = NULL;
 
