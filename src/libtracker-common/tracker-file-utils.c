@@ -94,7 +94,8 @@ tracker_file_close (FILE     *file,
 
 #ifdef HAVE_POSIX_FADVISE
 	if (!need_again_soon) {
-		posix_fadvise (fileno (file), 0, 0, POSIX_FADV_DONTNEED);
+		if (posix_fadvise (fileno (file), 0, 0, POSIX_FADV_DONTNEED) != 0)
+			g_warning ("posix_fadvise() call failed: %m");
 	}
 #endif /* HAVE_POSIX_FADVISE */
 
