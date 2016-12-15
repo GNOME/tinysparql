@@ -52,6 +52,7 @@ tracker_seccomp_init (void)
 	/* Memory management */
 	ALLOW_RULE (brk);
 	ALLOW_RULE (mmap);
+	ALLOW_RULE (mmap2);
 	ALLOW_RULE (munmap);
 	ALLOW_RULE (mremap);
 	ALLOW_RULE (mprotect);
@@ -59,7 +60,9 @@ tracker_seccomp_init (void)
 	/* Process management */
 	ALLOW_RULE (exit_group);
 	ALLOW_RULE (getuid);
+	ALLOW_RULE (getuid32);
 	ALLOW_RULE (geteuid);
+	ALLOW_RULE (geteuid32);
 	ALLOW_RULE (getppid);
 	ALLOW_RULE (gettid);
 	ALLOW_RULE (exit);
@@ -78,6 +81,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (readlink);
 	ALLOW_RULE (readlinkat);
 	ALLOW_RULE (utime);
+	ALLOW_RULE (time);
 	ALLOW_RULE (fsync);
 	/* Processes and threads */
 	ALLOW_RULE (clone);
@@ -92,6 +96,8 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (poll);
 	ALLOW_RULE (ppoll);
 	ALLOW_RULE (fcntl);
+	ALLOW_RULE (fcntl64);
+	ALLOW_RULE (eventfd);
 	ALLOW_RULE (eventfd2);
 	ALLOW_RULE (pipe);
 	ALLOW_RULE (pipe2);
@@ -105,6 +111,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (read);
 	ALLOW_RULE (pread64);
 	ALLOW_RULE (lseek);
+	ALLOW_RULE (_llseek);
 	ALLOW_RULE (fadvise64);
 	ALLOW_RULE (write);
 	ALLOW_RULE (writev);
