@@ -65,11 +65,16 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (exit);
 	/* Basic filesystem access */
 	ALLOW_RULE (fstat);
+	ALLOW_RULE (fstat64);
 	ALLOW_RULE (stat);
+	ALLOW_RULE (stat64);
 	ALLOW_RULE (statfs);
+	ALLOW_RULE (statfs64);
 	ALLOW_RULE (lstat);
+	ALLOW_RULE (lstat64);
 	ALLOW_RULE (access);
 	ALLOW_RULE (getdents);
+	ALLOW_RULE (getdents64);
 	ALLOW_RULE (readlink);
 	ALLOW_RULE (readlinkat);
 	ALLOW_RULE (utime);
