@@ -1,3 +1,10 @@
+NEW in 1.10.3 - 2016-12-16
+==========================
+
+  * tracker-extract: Whitelisted further syscalls in the sandbox. False
+    positives were being triggered in i686 platforms, plus other syscalls
+    that have been missed in 1.10.2.
+
 NEW in 1.10.2 - 2016-12-08
 ==========================
 
