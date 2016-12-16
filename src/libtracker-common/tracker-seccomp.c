@@ -119,6 +119,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (getrandom);
 	ALLOW_RULE (clock_gettime);
 	ALLOW_RULE (clock_getres);
+	ALLOW_RULE (gettimeofday);
 	/* Descriptors */
 	ALLOW_RULE (close);
 	ALLOW_RULE (read);
