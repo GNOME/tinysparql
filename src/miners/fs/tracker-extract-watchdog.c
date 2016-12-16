@@ -116,7 +116,8 @@ extract_watchdog_start (TrackerExtractWatchdog *watchdog,
 				  (autostart ?
 				   G_BUS_NAME_WATCHER_FLAGS_AUTO_START :
 				   G_BUS_NAME_WATCHER_FLAGS_NONE),
-				  NULL, extract_watchdog_name_vanished,
+				  extract_watchdog_name_appeared,
+				  extract_watchdog_name_vanished,
 				  watchdog, NULL);
 }
 
