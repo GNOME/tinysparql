@@ -118,6 +118,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (fadvise64);
 	ALLOW_RULE (write);
 	ALLOW_RULE (writev);
+	ALLOW_RULE (dup);
 	/* Needed by some GStreamer modules doing crazy stuff, less
 	 * scary thanks to the restriction below about sockets being
 	 * local.
@@ -166,6 +167,14 @@ tracker_seccomp_init (void)
 		goto out;
 	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (EACCES), SCMP_SYS(open), 1,
 	                      SCMP_CMP(1, SCMP_CMP_MASKED_EQ, O_RDWR, O_RDWR)) < 0)
+		goto out;
+
+	/* Special requirements for dup2/dup3, no fiddling with stdin/out/err */
+	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(dup2), 1,
+	                      SCMP_CMP(1, SCMP_CMP_GT, 2)) < 0)
+		goto out;
+	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(dup3), 1,
+	                      SCMP_CMP(1, SCMP_CMP_GT, 2)) < 0)
 		goto out;
 
 	g_debug ("Loading seccomp rules.");
