@@ -1150,9 +1150,9 @@ if test "x$enable_libmediaart" != "xno" ; then
    LIBTRACKER_MINER_PC_REQUIRES="libmediaart-2.0"
    AC_SUBST(LIBTRACKER_MINER_PC_REQUIRES)
 
-   if test "x$have_libmediaart" = "xyes"; then
-      AC_DEFINE(HAVE_LIBMEDIAART, [], [Define if we have libmediaart])
-   fi
+#   if test "x$have_libmediaart" = "xyes"; then
+#      AC_DEFINE(HAVE_LIBMEDIAART, [], [Define if we have libmediaart])
+#   fi
 else
    have_libmediaart="no  (disabled)"
 fi
