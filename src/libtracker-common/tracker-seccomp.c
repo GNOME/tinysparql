@@ -83,6 +83,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (utime);
 	ALLOW_RULE (time);
 	ALLOW_RULE (fsync);
+	ALLOW_RULE (umask);
 	/* Processes and threads */
 	ALLOW_RULE (clone);
 	ALLOW_RULE (futex);
