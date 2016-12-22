@@ -186,6 +186,12 @@ if test "x$have_function" = "xno" ; then
             [Defined for compilers not supporting __FUNCTION__])
 fi
 
+case $host in
+    *-*-linux*)
+        tracker_os_linux=yes
+        ;;
+esac
+
 # Remember CFLAGS upon entering configure...
 CFLAGS="$CFLAGS"
 
@@ -2614,8 +2620,9 @@ if test "$have_libseccomp" = "yes"; then
    LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $LIBSECCOMP_LIBS"
    LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $LIBSECCOMP_CFLAGS"
    AC_DEFINE(HAVE_LIBSECCOMP, [], [Define if we have libseccomp])
-else
-  AC_MSG_ERROR([Libseccomp is mandatory for sandboxed metadata extraction])
+# seccomp is a linux thing
+elif test "$tracker_os_linux" = "yes"; then
+   AC_MSG_ERROR([Libseccomp is mandatory for sandboxed metadata extraction])
 fi
 
 ##################################################################
