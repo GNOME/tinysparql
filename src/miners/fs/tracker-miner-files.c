@@ -740,16 +740,16 @@ set_up_mount_point_type (TrackerMinerFiles *miner,
 	                        removable_device_urn, removable_device_urn);
 
 	g_string_append_printf (accumulator,
-	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isRemovable %s } ",
-	                        removable_device_urn, removable_device_urn, removable ? "true" : "false");
+	                        "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:isRemovable %s } ",
+	                        removable_device_urn, removable ? "true" : "false");
 
 	g_string_append_printf (accumulator,
 	                        "DELETE { <%s> tracker:isOptical ?unknown } WHERE { <%s> a tracker:Volume; tracker:isOptical ?unknown } ",
 	                        removable_device_urn, removable_device_urn);
 
 	g_string_append_printf (accumulator,
-	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isOptical %s } ",
-	                        removable_device_urn, removable_device_urn, optical ? "true" : "false");
+	                        "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:isOptical %s } ",
+	                        removable_device_urn, optical ? "true" : "false");
 }
 
 static void
@@ -810,17 +810,17 @@ set_up_mount_point (TrackerMinerFiles *miner,
 
                 if (mount_name) {
                         g_string_append_printf (queries,
-                                                "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true; nie:title \"%s\" } ",
-                                                removable_device_urn, removable_device_urn, mount_name);
+                                                "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:isMounted true; nie:title \"%s\" } ",
+                                                removable_device_urn, mount_name);
                 } else {
                         g_string_append_printf (queries,
-                                                "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
-                                                removable_device_urn, removable_device_urn);
+                                                "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:isMounted true } ",
+                                                removable_device_urn);
                 }
 
                 g_string_append_printf (queries,
-                                        "INSERT { GRAPH <%s> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> } ",
-                                        removable_device_urn, removable_device_urn);
+                                        "INSERT { GRAPH <" TRACKER_OWN_GRAPH_URN "> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> } ",
+                                        removable_device_urn);
 	} else {
 		gchar *now;
 
@@ -834,16 +834,16 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
-		                        removable_device_urn, removable_device_urn, now);
+		                        "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
+		                        removable_device_urn, now);
 
 		g_string_append_printf (queries,
 		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted false } ",
-		                        removable_device_urn, removable_device_urn);
+		                        "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> { <%s> a tracker:Volume; tracker:isMounted false } ",
+		                        removable_device_urn);
 
 		g_string_append_printf (queries,
 		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
