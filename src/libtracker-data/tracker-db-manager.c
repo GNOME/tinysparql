@@ -336,6 +336,7 @@ db_interface_get (TrackerDB   type,
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
+		g_object_unref (iface);
 		return NULL;
 	}
 
@@ -1420,10 +1421,9 @@ tracker_db_manager_get_db_interfaces (GError   **error,
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
-				connection = NULL;
+				g_clear_object (&connection);
 				goto end_on_error;
 			}
-
 		} else {
 			db_exec_no_reply (connection,
 			                  "ATTACH '%s' as '%s'",
