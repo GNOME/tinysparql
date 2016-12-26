@@ -841,21 +841,15 @@ data_provider_end_cb (GObject      *object,
 	GError *error = NULL;
 
 	tracker_data_provider_end_finish (TRACKER_DATA_PROVIDER (object), result, &error);
-
-	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-		return;
-
 	dpd = user_data;
 
 	if (error) {
-		gchar *uri;
-
-		uri = g_file_get_uri (dpd->dir_file);
-
-		g_warning ("Could not end data provider for container / directory '%s', %s",
-		           uri, error ? error->message : "no error given");
-
-		g_free (uri);
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			gchar *uri = g_file_get_uri (dpd->dir_file);
+			g_warning ("Could not end data provider for container / directory '%s', %s",
+			           uri, error ? error->message : "no error given");
+			g_free (uri);
+		}
 		g_clear_error (&error);
 	}
 
@@ -904,13 +898,6 @@ enumerate_next_cb (GObject      *object,
 	GError *error = NULL;
 
 	info = tracker_enumerator_next_finish (TRACKER_ENUMERATOR (object), result, &error);
-
-	/* We don't consider cancellation an error, so we only
-	 * log errors which are not cancellations.
-	 */
-	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-		return;
-
 	dpd = user_data;
 
 	if (!info) {
@@ -919,12 +906,16 @@ enumerate_next_cb (GObject      *object,
 		 * b) no more items
 		 */
 		if (error) {
-			gchar *uri;
+			/* We don't consider cancellation an error, so we only
+			 * log errors which are not cancellations.
+			 */
+			if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+				gchar *uri = g_file_get_uri (dpd->dir_file);
+				g_warning ("Could not enumerate next item in container / directory '%s', %s",
+				           uri, error ? error->message : "no error given");
+				g_free (uri);
+			}
 
-			uri = g_file_get_uri (dpd->dir_file);
-			g_warning ("Could not enumerate next item in container / directory '%s', %s",
-			           uri, error ? error->message : "no error given");
-			g_free (uri);
 			g_clear_error (&error);
 		} else {
 			/* Done enumerating, start processing what we got ... */
@@ -956,23 +947,18 @@ data_provider_begin_cb (GObject      *object,
 
 	enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
 
-	if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-		return;
-
 	info = user_data;
 	dpd = info->dpd;
 	dpd->enumerator = enumerator;
 
 	if (!dpd->enumerator) {
 		if (error) {
-			gchar *uri;
-
-			uri = g_file_get_uri (dpd->dir_file);
-
-			g_warning ("Could not enumerate container / directory '%s', %s",
-			           uri, error ? error->message : "no error given");
-
-			g_free (uri);
+			if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+				gchar *uri = g_file_get_uri (dpd->dir_file);
+				g_warning ("Could not enumerate container / directory '%s', %s",
+				           uri, error ? error->message : "no error given");
+				g_free (uri);
+			}
 			g_clear_error (&error);
 		}
 
