@@ -434,7 +434,12 @@ read_metadata (TrackerResource      *metadata,
 	}
 
 	if (md.flash) {
-		tracker_resource_set_string (metadata, "nmm:flash", md.flash); }
+		TrackerResource *flash;
+
+		flash = tracker_resource_new (md.flash);
+		tracker_resource_set_relation (metadata, "nmm:flash", flash);
+		g_object_unref (flash);
+	}
 
 	if (md.focal_length) {
 		tracker_resource_set_string (metadata, "nmm:focalLength", md.focal_length);
