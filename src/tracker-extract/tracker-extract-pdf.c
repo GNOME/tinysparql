@@ -533,7 +533,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 
 		if (xd->metering_mode) {
-			tracker_resource_set_string (metadata, "nmm:meteringMode", xd->metering_mode);
+			TrackerResource *metering;
+
+			metering = tracker_resource_new (xd->metering_mode);
+			tracker_resource_set_relation (metadata, "nmm:meteringMode", metering);
+			g_object_unref (metering);
 		}
 
 		if (xd->address || xd->state || xd->country || xd->city ||

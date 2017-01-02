@@ -583,7 +583,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.metering_mode) {
-		tracker_resource_set_string (metadata, "nmm:meteringMode", md.metering_mode);
+		TrackerResource *metering;
+
+		metering = tracker_resource_new (md.metering_mode);
+		tracker_resource_set_relation (metadata, "nmm:meteringMode", metering);
+		g_object_unref (metering);
 	}
 
 	if (md.creator) {

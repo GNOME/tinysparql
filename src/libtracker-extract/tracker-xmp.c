@@ -1035,7 +1035,11 @@ tracker_xmp_apply_to_resource (TrackerResource *resource,
 	}
 
 	if (data->metering_mode) {
-		tracker_resource_set_string (resource, "nmm:meteringMode", data->metering_mode);
+		TrackerResource *metering;
+
+		metering = tracker_resource_new (data->metering_mode);
+		tracker_resource_set_relation (resource, "nmm:meteringMode", metering);
+		g_object_unref (metering);
 	}
 
 	if (data->creator) {

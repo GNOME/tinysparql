@@ -446,9 +446,12 @@ read_metadata (TrackerResource      *metadata,
 	}
 
 	if (md.metering_mode) {
-		tracker_resource_set_string (metadata, "nmm:meteringMode", md.metering_mode);
-	}
+		TrackerResource *metering;
 
+		metering = tracker_resource_new (md.metering_mode);
+		tracker_resource_set_relation (metadata, "nmm:meteringMode", metering);
+		g_object_unref (metering);
+	}
 
 	if (xd->keywords) {
 		tracker_keywords_parse (keywords, xd->keywords);
