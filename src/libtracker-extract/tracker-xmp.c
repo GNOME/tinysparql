@@ -977,7 +977,11 @@ tracker_xmp_apply_to_resource (TrackerResource *resource,
 	}
 
 	if (data->orientation) {
-		tracker_resource_set_string (resource, "nfo:orientation", data->orientation);
+		TrackerResource *orientation;
+
+		orientation = tracker_resource_new (data->orientation);
+		tracker_resource_set_relation (resource, "nfo:orientation", orientation);
+		g_object_unref (orientation);
 	}
 
 	if (data->rights || data->copyright) {

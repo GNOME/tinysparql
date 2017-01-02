@@ -530,7 +530,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	                                            NULL);
 
 	if (md.orientation) {
-		tracker_resource_set_string (metadata, "nfo:orientation", md.orientation);
+		TrackerResource *orientation;
+
+		orientation = tracker_resource_new (md.orientation);
+		tracker_resource_set_relation (metadata, "nfo:orientation", orientation);
+		g_object_unref (orientation);
 	}
 
 	if (md.copyright) {
