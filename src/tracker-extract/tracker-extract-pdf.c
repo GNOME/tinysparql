@@ -466,7 +466,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 		}
 
 		if (xd->orientation) {
-			tracker_resource_set_string (metadata, "nfo:orientation", xd->orientation);
+			TrackerResource *orientation;
+
+			orientation = tracker_resource_new (xd->orientation);
+			tracker_resource_set_relation (metadata, "nfo:orientation", orientation);
+			g_object_unref (orientation);
 		}
 
 		if (xd->rights) {
