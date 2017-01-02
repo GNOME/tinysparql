@@ -987,7 +987,11 @@ tracker_xmp_apply_to_resource (TrackerResource *resource,
 	}
 
 	if (data->white_balance) {
-		tracker_resource_set_string (resource, "nmm:whiteBalance", data->white_balance);
+		TrackerResource *white_balance;
+
+		white_balance = tracker_resource_new (data->white_balance);
+		tracker_resource_set_relation (resource, "nmm:meteringMode", white_balance);
+		g_object_unref (white_balance);
 	}
 
 	if (data->fnumber) {
