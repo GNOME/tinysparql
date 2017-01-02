@@ -426,7 +426,11 @@ read_metadata (TrackerResource      *metadata,
 	}
 
 	if (md.white_balance) {
-		tracker_resource_set_string (metadata, "nmm:whiteBalance", md.white_balance);
+		TrackerResource *white_balance;
+
+		white_balance = tracker_resource_new (md.white_balance);
+		tracker_resource_set_relation (metadata, "nmm:meteringMode", white_balance);
+		g_object_unref (white_balance);
 	}
 
 	if (md.fnumber) {
