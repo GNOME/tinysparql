@@ -421,7 +421,11 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	if (md.flash) {
-		tracker_resource_set_string (metadata, "nmm:flash", md.flash);
+		TrackerResource *flash;
+
+		flash = tracker_resource_new (md.flash);
+		tracker_resource_set_relation (metadata, "nmm:flash", flash);
+		g_object_unref (flash);
 	}
 
 	if (md.focal_length) {

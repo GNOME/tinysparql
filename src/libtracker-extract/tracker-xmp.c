@@ -995,7 +995,11 @@ tracker_xmp_apply_to_resource (TrackerResource *resource,
 	}
 
 	if (data->flash) {
-		tracker_resource_set_string (resource, "nmm:flash", data->flash);
+		TrackerResource *flash;
+
+		flash = tracker_resource_new (data->flash);
+		tracker_resource_set_relation (resource, "nmm:flash", flash);
+		g_object_unref (flash);
 	}
 
 	if (data->focal_length) {
