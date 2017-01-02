@@ -331,7 +331,11 @@ read_metadata (GifFileType          *gifFile,
 	}
 
 	if (xd->metering_mode) {
-		tracker_resource_set_string (metadata, "nmm:meteringMode", xd->metering_mode);
+		TrackerResource *metering;
+
+		metering = tracker_resource_new (xd->metering_mode);
+		tracker_resource_set_relation (metadata, "nmm:meteringMode", metering);
+		g_object_unref (metering);
 	}
 
 	keywords = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
