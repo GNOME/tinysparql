@@ -1293,6 +1293,32 @@ generate_sparql_relation_inserts_foreach (gpointer key,
 			generate_sparql_insert_pattern (relation, data);
 			data->done_list = g_list_prepend (data->done_list, relation);
 		}
+	} else if (G_VALUE_HOLDS (value, G_TYPE_PTR_ARRAY)) {
+		GPtrArray *array = g_value_get_boxed (value);
+		const GValue *array_value;
+		TrackerResource *relation;
+		gint i;
+
+		for (i = 0; i < array->len; i++) {
+			array_value = g_ptr_array_index (array, i);
+
+			if (!G_VALUE_HOLDS (array_value, TRACKER_TYPE_RESOURCE))
+				continue;
+
+			relation = g_value_get_object (array_value);
+
+			/* We don't need to produce inserts for builtin classes */
+			if (is_builtin_class (tracker_resource_get_identifier (relation),
+					      data->namespaces))
+				continue;
+
+			if (g_list_find_custom (data->done_list, relation,
+						(GCompareFunc) tracker_resource_compare) != NULL)
+				continue;
+
+			generate_sparql_insert_pattern (relation, data);
+			data->done_list = g_list_prepend (data->done_list, relation);
+		}
 	}
 }
 
