@@ -231,7 +231,6 @@ EDS_REQUIRED=2.32.0
 CAMEL_REQUIRED=2.32.0
 TAGLIB_REQUIRED=1.6
 LIBGRSS_REQUIRED=0.7
-NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=1.2
@@ -946,8 +945,9 @@ AC_ARG_ENABLE(network_manager,
               [enable_network_manager=auto])
 
 if test "x$enable_network_manager" != "xno"; then
+
    PKG_CHECK_MODULES(NETWORK_MANAGER,
-                     [libnm-glib >= $NETWORK_MANAGER_REQUIRED],
+                     [libnm],
                      [have_network_manager=yes],
                      [have_network_manager=no])
 
@@ -961,7 +961,7 @@ fi
 
 if test "x$enable_network_manager" = "xyes"; then
    if test "x$have_network_manager" != "xyes"; then
-      AC_MSG_ERROR([Could not find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
+      AC_MSG_ERROR([Could not find libnm.])
    fi
 fi
 

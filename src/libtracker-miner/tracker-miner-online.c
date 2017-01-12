@@ -26,21 +26,7 @@
 #include <glib/gi18n.h>
 
 #ifdef HAVE_NETWORK_MANAGER
-#include <libnm-glib/nm-client.h>
-
-#ifndef NM_CHECK_VERSION
-#define NM_CHECK_VERSION(x,y,z) (0)
-#endif /* NM_CHECK_VERSION */
-
-#include <libnm-glib/nm-device-ethernet.h>
-#include <libnm-glib/nm-device-wifi.h>
-#if (NM_CHECK_VERSION (0,8,992))
-#include <libnm-glib/nm-device-modem.h>
-#include <libnm-glib/nm-device-wimax.h>
-#else
-#include <libnm-glib/nm-gsm-device.h>
-#include <libnm-glib/nm-cdma-device.h>
-#endif
+#include <NetworkManager.h>
 #endif /* HAVE_NETWORK_MANAGER */
 
 /**
@@ -241,19 +227,17 @@ _nm_client_get_network_type (NMClient *nm_client)
 	NMActiveConnection *default_active_connection;
 	const GPtrArray *devices;
 	NMDevice *device;
+	NMState state;
 
-	if (!nm_client_get_manager_running (nm_client)) {
+	if (!nm_client_get_nm_running (nm_client)) {
 		return TRACKER_NETWORK_TYPE_UNKNOWN;
 	}
 
-	switch (nm_client_get_state (nm_client)) {
-	case NM_STATE_UNKNOWN:
+	state = nm_client_get_state (nm_client);
+	if (state == NM_STATE_UNKNOWN)
 		return TRACKER_NETWORK_TYPE_UNKNOWN;
-	case NM_STATE_CONNECTED:
-		break;
-	default:
-		return TRACKER_NETWORK_TYPE_NONE;
-	}
+	if (state <= NM_STATE_DISCONNECTING)
+		return TRACKER_NETWORK_TYPE_UNKNOWN;
 
 	default_active_connection = find_default_active_connection (nm_client);
 
@@ -379,7 +363,11 @@ miner_online_initable_init (GInitable     *initable,
 	}
 
 #ifdef HAVE_NETWORK_MANAGER
-	priv->client = nm_client_new ();
+	priv->client = nm_client_new (NULL, error);
+	if (!priv->client) {
+		g_prefix_error (error, "Couldn't create NetworkManager client: ");
+		return FALSE;
+	}
 	g_signal_connect (priv->client, "notify::state",
 	                  G_CALLBACK (_nm_client_state_notify_cb), miner);
 	network_type = _nm_client_get_network_type (priv->client);
