@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-07-14 23:46+0000\n"
-"PO-Revision-Date: 2016-08-05 12:53+0200\n"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2016-12-16 12:51+0000\n"
+"PO-Revision-Date: 2017-01-18 22:11+0100\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "Language: sk\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.11\n"
 
 # tab
 #: ../examples/rss-reader/rss_viewer.ui.h:1
@@ -124,8 +124,8 @@ msgstr "Povoliť skrátenie"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
 "Zjednoduší slová na koreň slova aby poskytol viacero výsledkov. Napr. "
 "„shelves“ a „shelf“ skráti na „shel“"
@@ -136,8 +136,8 @@ msgstr "Povoliť zrušenie prízvukov"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "Preloží znaky s prízvukom na ich ekvivalenty bez prízvuku. Napr. „Idéa“ "
 "zmení na „Idea“, čím vylepší porovnávanie."
@@ -157,7 +157,7 @@ msgstr "Ignorovať stopslová"
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "Ak je povolené, slová uvedené v zozname stopslov budú ignorované. Ide o "
 "slová bez významovej informácie ako sú spojky a predložky."
@@ -179,18 +179,18 @@ msgstr "Umiestnenie častí žurnálu"
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr "Kam sa majú ukladať časti žurnálu, keď dosiahnu maximálnu veľkosť."
 
-#: ../src/libtracker-data/tracker-data-backup.c:500
-#: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
+#: ../src/libtracker-data/tracker-data-backup.c:505
+#: ../src/libtracker-data/tracker-data-backup.c:625
+msgid "Error starting “tar” program"
 msgstr "Chyba pri spúšťaní programu „tar“"
 
-#: ../src/libtracker-data/tracker-data-backup.c:501
-#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/libtracker-data/tracker-data-backup.c:506
+#: ../src/libtracker-data/tracker-data-backup.c:626
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
@@ -202,17 +202,17 @@ msgstr "Chyba pri spúšťaní programu „tar“"
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
 #: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
 #: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
-#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
-#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
+#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Chybová správa nebola poskytnutá"
 
-#: ../src/libtracker-data/tracker-data-backup.c:634
+#: ../src/libtracker-data/tracker-data-backup.c:639
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
+msgid "Unknown error, “tar” exited with status %d"
 msgstr "Neznáma chyba. Program „tar“ skončil so stavom %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
@@ -286,8 +286,8 @@ msgstr "Zobrazí informácie o verzii"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
-msgstr "- spustí dolovač údajov aplikácií"
+msgid "— start the application data miner"
+msgstr "— spustí dolovač údajov aplikácií"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
 msgid "Tracker Application Miner"
@@ -377,7 +377,7 @@ msgstr ""
 "celkom zakazuje."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "Prah uchovávania údajov odoberateľných zariadení"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -424,7 +424,7 @@ msgstr "Indexovať optické disky"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
 "Nastavte na true, ak chcete indexovať disky CD, DVD, a ďalšie optické nosiče "
 "(ak nie sú indexované vymeniteľné zariadenia, nebudú ani optické disky)"
@@ -523,18 +523,18 @@ msgstr "Skontroluje či je SÚBOR podľa konfigurácie určený na dolovanie"
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
-#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "SÚBOR"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
+msgid "Data object “%s” currently exists"
 msgstr "Údajový objekt „%s“ momentálne existuje"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
+msgid "Data object “%s” currently does not exist"
 msgstr "Údajový objekt „%s“ momentálne neexistuje"
 
 #: ../src/miners/fs/tracker-main.c:470
@@ -606,14 +606,14 @@ msgstr "Mal by byť monitorovaný"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
-msgstr "- spustí indexovač sledovača"
+msgid "— start the tracker indexer"
+msgstr "— spustí indexovač sledovača"
 
-#: ../src/miners/fs/tracker-miner-files.c:1357
+#: ../src/miners/fs/tracker-miner-files.c:1363
 msgid "Low battery"
 msgstr "Slabá batéria"
 
-#: ../src/miners/fs/tracker-miner-files.c:1484
+#: ../src/miners/fs/tracker-miner-files.c:1490
 msgid "Low disk space"
 msgstr "Nedostatok miesta na disku"
 
@@ -651,12 +651,12 @@ msgstr "Názov, ktorý sa použije (musí byť použité s voľbou --add-feed)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- spustí indexovač kanálov"
+msgid "— start the feeds indexer"
+msgstr "— spustí indexovač kanálov"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
-#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
+#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
@@ -686,8 +686,8 @@ msgstr "Dolovač údajov pre používateľské príručky"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
-msgstr "- spustí dolovač údajov užívateľských príručiek"
+msgid "— start the user guides data miner"
+msgstr "— spustí dolovač údajov užívateľských príručiek"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
@@ -785,11 +785,11 @@ msgstr ""
 "súborov čo najrýchlejšie a je možné čakať na neskoršie spustenie funkcie "
 "meta-data."
 
-#: ../src/tracker-extract/tracker-extract.c:761
+#: ../src/tracker-extract/tracker-extract.c:726
 msgid "Metadata extraction failed"
 msgstr "Zlyhalo extrahovanie metaúdajov"
 
-#: ../src/tracker-extract/tracker-extract.c:831
+#: ../src/tracker-extract/tracker-extract.c:792
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "Nenašli sa žiadne moduly pre metaúdaje alebo nástroj na extrahovanie, ktoré "
@@ -820,7 +820,7 @@ msgstr "MIME"
 
 # cmd desc
 #: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 msgstr "Vynúti použitie modulu pre extrakciu (napr. „nieco“ pre „nieco.so“)"
 
 #: ../src/tracker-extract/tracker-main.c:97
@@ -828,7 +828,7 @@ msgid "MODULE"
 msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: 'sparql', or 'turtle'"
+msgid "Output results format: “sparql”, or “turtle”"
 msgstr "Formát výstupných výsledkov: „sparql“ alebo „turtle“"
 
 #: ../src/tracker-extract/tracker-main.c:100
@@ -838,14 +838,14 @@ msgstr "FORMÁT"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
-msgid "Unsupported serialization format '%s'\n"
+msgid "Unsupported serialization format “%s”\n"
 msgstr "Nepodporovaný formát sériových bitov „%s“\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
-msgid "- Extract file meta data"
-msgstr "- Extrahuje meta údaje súboru"
+msgid "— Extract file meta data"
+msgstr "— Extrahuje meta údaje súboru"
 
 #: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
@@ -882,7 +882,7 @@ msgstr "Hľadanie v prostredí"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "Pomocou sledovača nájdete to, čo hľadáte v tomto počítači podľa názvu alebo "
@@ -1223,7 +1223,7 @@ msgid "Folders"
 msgstr "Priečinky"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Záložky"
 
@@ -1512,7 +1512,7 @@ msgstr "Adresáre"
 # tooltip
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Tu je možné použiť skupinové vzory ako napríklad: \"*nieco*\".\n"
@@ -1619,8 +1619,8 @@ msgstr "Povolí nad databázou iba akcie súvisiace s čítaním"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- spustí démona sledovača"
+msgid "— start the tracker daemon"
+msgstr "— spustí démona sledovača"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1642,7 +1642,7 @@ msgstr ""
 "Doba v milisekundách medzi vyslaniami signálov GraphUpdated, keď sú "
 "indexované údaje zmenené v databáze."
 
-#: ../src/tracker/tracker-config.c:59
+#: ../src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
@@ -1668,13 +1668,13 @@ msgstr "Získava údaje kanála…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
+msgid "Crawling single directory “%s”"
 msgstr "Prechádza samostatný adresár „%s“"
 
 # miner status
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
+msgid "Crawling recursively directory “%s”"
 msgstr "Prechádza rekurzívne adresár „%s“"
 
 # miner status
@@ -1774,8 +1774,8 @@ msgstr "Vypíše všetky procesy sledovača"
 # cmd desc
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Použije signál SIGKILL na zastavenie všetkých zodpevedajúcich procesov, "
 "môžete použiť buď „store“ (úložisko), „miners“ (dolovače) alebo "
@@ -1788,8 +1788,8 @@ msgstr "APLIKÁCIE"
 # cmd desc
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Použije signál SIGTERM na zastavenie všetkých zodpevedajúcich procesov, "
 "môžete použiť buď „store“ (úložisko), „miners“ (dolovače) alebo "
@@ -1803,8 +1803,8 @@ msgstr "Spustí dolovače (čím sa nepriamo spustí aj úložisko sledovača)"
 # cmd desc
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
 "Pre všetky procesy nastaví podrobnosť výpisov na ÚROVEŇ („debug“ (ladenie), "
 "„detailed“ (podrobný), „minimal“ (minimálny), „errors“ (iba chyby))"
@@ -1850,11 +1850,11 @@ msgstr "Nepodarilo sa získať stav úložiska sledovača"
 msgid "Could not retrieve tracker-store progress"
 msgstr "Nepodarilo sa získať priebeh úložiska sledovača"
 
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Nepodarilo sa získať predpony menných priestorov"
 
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "Neboli vrátené žiadne predpony menných priestorov"
 
@@ -1875,7 +1875,7 @@ msgstr "Nepodarilo sa pozastaviť dolovač, správca nemohol byť vytvorený, %s
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "Pokus o pozastavenie dolovača „%s“ z dôvodu „%s“"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
@@ -1911,7 +1911,7 @@ msgstr "Nepodarilo sa obnoviť činnosť dolovača: %s"
 
 # PM: nasleduje ako výpis po chybe
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1387
+#: ../src/tracker/tracker-sparql.c:1396
 msgid "Done"
 msgstr "Dokončené"
 
@@ -1962,7 +1962,7 @@ msgid "No miners are paused"
 msgstr "Žiadne dolovače nie sú pozastavené"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "Iba jedna z volieb „all“, „store“ a „miners“ je povolená"
 
 #: ../src/tracker/tracker-daemon.c:1242
@@ -1981,7 +1981,7 @@ msgstr "Všetky vlastnosti nie:plainTextContent sú vynechané"
 msgid "Common statuses include"
 msgstr "Medzi bežné patria stavy"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "Nepodarilo sa získať stav, správca nemohol byť vytvorený, %s"
@@ -1993,7 +1993,7 @@ msgstr "Úložisko"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
+msgid "Could not get display name for miner “%s”"
 msgstr "Nepodarilo sa získať názov zobrazenia pre dolovač „%s“"
 
 #: ../src/tracker/tracker-daemon.c:1461
@@ -2021,14 +2021,14 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Parametre --get-logging a --set-logging nemôžete použiť spolu"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "Neplatná hodnota pre podrobnosť záznamu, skúste použiť „debug“ (ladenie), "
 "„detailed“ (podrobný), „minimal“ (minimálny), „errors“ (iba chyby)"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
+msgid "Found process ID %d for “%s”"
 msgstr "Nájdený identifikátor procesu %d pre „%s“"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
@@ -2041,7 +2041,7 @@ msgstr "Iba tie, ktoré sú uvedené v konfigurácii"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Nastavuje sa podrobnosť záznamov pre všetky súčasti na hodnotu „%s“…"
 
 #: ../src/tracker/tracker-daemon.c:1662
@@ -2066,9 +2066,9 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
-#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1776
-#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
-#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:230
+#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Nerozpoznané voľby"
 
@@ -2088,8 +2088,8 @@ msgstr "Nepodarilo sa spustiť funkciu tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
-msgstr "zlyhalo vykonanie „%s“: %s"
+msgid "failed to exec “%s”: %s"
+msgstr "zlyhalo spustenie „%s“: %s"
 
 # cmd desc
 #: ../src/tracker/tracker-index.c:56
@@ -2191,7 +2191,7 @@ msgstr ""
 
 # cmd desc
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Zobrazí úplné menné priestory (t.j nepoužije nie:nazov, použije úplné adresy "
 "URL)"
@@ -2237,14 +2237,14 @@ msgstr "Nepodarilo sa získať údaje pre URI"
 msgid "No metadata available for that URI"
 msgstr "Nie sú dostupné žiadne metaúdaje pre taký URI"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
-#: ../src/tracker/tracker-sql.c:136
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:138
 msgid "Results"
 msgstr "Výsledky"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Informácie k danému príkazu môžete získať pomocou „tracker help <príkaz>“"
 
@@ -2308,7 +2308,7 @@ msgstr "Vypíše používanú licenciu a verziu"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "„%s“ nie je príkaz pre sledovač. Viď „tracker --help“."
 
 #: ../src/tracker/tracker-main.c:176
@@ -2325,28 +2325,28 @@ msgstr "Nepodarilo sa zistiť stav súboru pomocou funkcie stat()"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
+msgid "Could not open “%s”"
 msgstr "Nepodarilo sa otvoriť „%s“"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "Nepodarilo sa ukončiť proces č. %d - „%s“"
+msgid "Could not terminate process %d — “%s”"
+msgstr "Nepodarilo sa ukončiť proces č. %d — „%s“"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "Ukončený proces č. %d - „%s“"
+msgid "Terminated process %d — “%s”"
+msgstr "Ukončený proces č. %d — „%s“"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "Nepodarilo sa zabiť proces č. %d - „%s“"
+msgid "Could not kill process %d — “%s”"
+msgstr "Nepodarilo sa zabiť proces č. %d — „%s“"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
-msgstr "Zabitý proces č. %d - „%s“"
+msgid "Killed process %d — “%s”"
+msgstr "Zabitý proces č. %d — „%s“"
 
 # cmd desc
 #: ../src/tracker/tracker-reset.c:53
@@ -2392,7 +2392,7 @@ msgstr "VÝSTRAHA: Tento proces môže nenávratne odstrániť údaje."
 
 #: ../src/tracker/tracker-reset.c:225
 msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can't "
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
@@ -2515,7 +2515,7 @@ msgstr ""
 # cmd desc
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "Zobrazí názvy URN pre výsledky (nevzťahuje sa na --music-albums, --music-"
@@ -2562,10 +2562,10 @@ msgstr ""
 "tu nie sú uvedené"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Nepodarilo sa získať výsledky hľadania"
 
@@ -2593,60 +2593,60 @@ msgstr "Nenašli sa žiadne emaily"
 msgid "No files were found"
 msgstr "Nenašli sa žiadne súbory"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Nenašli sa žiadni umelci"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Umelci"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Nenašla sa žiadna hudba"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Albumy"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Nenašli sa žiadne záložky"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Nenašli sa žiadne kanály"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Kanály"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Nenašiel sa žiadny softvér"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Softvér"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Nenašli sa žiadne kategórie softvéru"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Kategórie softvéru"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Nenašli sa žiadne výsledky zhodujúce sa s vašou požiadavkou"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
 msgstr "Hľadaný pojem „%s“ je stopslovo."
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2655,71 +2655,71 @@ msgstr ""
 "procesu indexovania ignorované."
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:104
+#: ../src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Cesta, ktorá sa má použiť na spustenie požiadavky alebo aktualizovanie zo "
 "súboru"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:108
+#: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "Požiadavka SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:109
+#: ../src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:112
+#: ../src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr "Toto sa používa iba spolu s --query a pre aktualizovanie databázy"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:116
+#: ../src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "Získa triedy"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:120
+#: ../src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "Získa predpony tried"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:124
+#: ../src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
 "Získa vlastnosti pre triedu, môžu byť použité aj predpony (napr.: rdfs:Zdroj)"
 
-#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
-#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
-#: ../src/tracker/tracker-sparql.c:149
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "TRIEDA"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:128
+#: ../src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Získa triedy, ktoré upozorňujú na zmeny v databáze (TRIEDA je nepovinná)"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:132
+#: ../src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr ""
 "Získa indexy použité v databáze na zvýšenie výkonu (VLASTNOSŤ je voliteľná)"
 
-#: ../src/tracker/tracker-sparql.c:133
+#: ../src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "VLASTNOSŤ"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:136
+#: ../src/tracker/tracker-sparql.c:137
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -2728,31 +2728,39 @@ msgstr ""
 "častí stromu a parametrom -p na zobrazenie vlastností)"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:140
+#: ../src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Vyhľadá triedu alebo vlastnosť a zobrazí viac informácií (napr. Dokument)"
 
-#: ../src/tracker/tracker-sparql.c:141
+#: ../src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "TRIEDA/VLASTNOSŤ"
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:144
+#: ../src/tracker/tracker-sparql.c:145
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Vráti skrátený výpis pre triedu (napr. nfo:FileDataObject)."
 
 # cmd desc
-#: ../src/tracker/tracker-sparql.c:148
+#: ../src/tracker/tracker-sparql.c:149
 msgid "Returns the full namespace for a class."
 msgstr "Vráti celý menný priestor pre triedu."
 
-#: ../src/tracker/tracker-sparql.c:249
+#: ../src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "Vzdialená služba, ktorej odosielať požiadavky"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "ZÁKLADNÁ_URL"
+
+#: ../src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "Nepodarilo sa získať predpony menných priestorov"
 
-#: ../src/tracker/tracker-sparql.c:258
+#: ../src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "Neboli nájdené žiadne predpony menných priestorov"
 
@@ -2785,129 +2793,129 @@ msgstr "Neboli nájdené žiadne predpony menných priestorov"
 #. *     None
 #. *
 #.
-#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
 #: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "Nič"
 
-#: ../src/tracker/tracker-sparql.c:958
+#: ../src/tracker/tracker-sparql.c:963
 msgid "Could not create tree: subclass query failed"
 msgstr "Nepodarilo sa vytvoriť strom: požiadavka na podtriedu zlyhala "
 
-#: ../src/tracker/tracker-sparql.c:1007
+#: ../src/tracker/tracker-sparql.c:1012
 msgid "Could not create tree: class properties query failed"
 msgstr "Nepodarilo sa vytvoriť strom: požiadavka na vlastnosti triedy zlyhala"
 
-#: ../src/tracker/tracker-sparql.c:1091
+#: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "Nepodarilo sa vypísať zoznam tried"
 
-#: ../src/tracker/tracker-sparql.c:1099
+#: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "Nenašli sa žiadne triedy"
 
-#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "Triedy"
 
-#: ../src/tracker/tracker-sparql.c:1115
+#: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "Nepodarilo sa vypísať zoznam predpôn triedy"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "Nenašli sa žiadne predpony"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "Predpony"
 
-#: ../src/tracker/tracker-sparql.c:1143
+#: ../src/tracker/tracker-sparql.c:1152
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Nepodarilo sa nájsť vlastnosť pre predponu triedy, napr Zdroj v „rdfs:Zdroj“"
 
-#: ../src/tracker/tracker-sparql.c:1182
+#: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
 msgstr "Nepodarilo sa vypísať zoznam vlastností"
 
-#: ../src/tracker/tracker-sparql.c:1190
+#: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "Nenašli sa žiadne vlastnosti"
 
-#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "Vlastnosti"
 
-#: ../src/tracker/tracker-sparql.c:1218
+#: ../src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "Nepodarilo sa nájsť oznamujúce triedy"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "Nenašli sa žiadne oznámenia"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "Oznámenia"
 
-#: ../src/tracker/tracker-sparql.c:1252
+#: ../src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "Nepodarilo sa nájsť indexované vlastnosti"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "Nenašli sa žiadne indexy"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "Indexy"
 
-#: ../src/tracker/tracker-sparql.c:1282
+#: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "Nepodarilo sa vyhľadať triedy"
 
-#: ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "Nenašli sa žiadne vlastnosti zodpovedajúce hľadanému pojmu"
 
-#: ../src/tracker/tracker-sparql.c:1305
+#: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
 msgstr "Nepodarilo sa vyhľadať vlastnosti"
 
-#: ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "Nenašli sa žiadne vlastnosti zodpovedajúce hľadanému pojmu"
 
-#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "Nepodarilo sa získať cestu v UTF-8 z cesty"
 
-#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "Nepodarilo sa prečítať súbor"
 
-#: ../src/tracker/tracker-sparql.c:1380
+#: ../src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Nepodarilo sa spustiť aktualizáciu"
 
-#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
-#: ../src/tracker/tracker-sql.c:162
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:131
+#: ../src/tracker/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "Nepodarilo sa spustiť požiadavku"
 
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Nájdené výsledky sa nezhodujú z vašou požiadavkou"
 
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:239
 msgid "File and query can not be used together"
 msgstr "Voľby file a query nemôžu byť použité súčasne"
 
-#: ../src/tracker/tracker-sparql.c:1499
+#: ../src/tracker/tracker-sparql.c:1508
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -2929,11 +2937,11 @@ msgstr "Požiadavka SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: ../src/tracker/tracker-sql.c:110
+#: ../src/tracker/tracker-sql.c:112
 msgid "Failed to initialize data manager"
 msgstr "Zlyhala inicializácia správcu údajov"
 
-#: ../src/tracker/tracker-sql.c:170
+#: ../src/tracker/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Množina výsledkov prázdna"
 
@@ -2982,7 +2990,7 @@ msgstr "Verzia"
 msgid "Disk Information"
 msgstr "Informácie o disku"
 
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
 msgid "Remaining space on database partition"
 msgstr "Zostávajúce miesto na oddieli s databázou"
 
@@ -3023,25 +3031,25 @@ msgstr "Neboli dostupné žiadne štatistiky"
 msgid "Database is currently empty"
 msgstr "Databáza je momentálne prázdna"
 
-#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
 msgid "Could not get basic status for Tracker"
 msgstr "Nepodarilo sa získať základný stav sledovača"
 
-#: ../src/tracker/tracker-status.c:631
+#: ../src/tracker/tracker-status.c:634
 #, c-format
 msgid "Currently indexed"
 msgstr "Aktuálne indexované"
 
-#: ../src/tracker/tracker-status.c:666
+#: ../src/tracker/tracker-status.c:669
 msgid "Data is still being indexed"
 msgstr "Prebieha indexovanie údajov"
 
-#: ../src/tracker/tracker-status.c:667
+#: ../src/tracker/tracker-status.c:670
 #, c-format
 msgid "Estimated %s left"
 msgstr "Odhadovaný zostávajúci čas: %s"
 
-#: ../src/tracker/tracker-status.c:671
+#: ../src/tracker/tracker-status.c:674
 msgid "All data miners are idle, indexing complete"
 msgstr "Všetky dolovače údajov sú nečinné. Indexovanie je dokončené."
 
@@ -3147,8 +3155,8 @@ msgid "No files were modified"
 msgstr "Neboli zmenené žiadne súbory"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
-msgstr "Súbor neexistuje alebo nie je indexovaný"
+msgid "Files do not exist or aren’t indexed"
+msgstr "Súbory neexistujú, alebo nie sú indexované"
 
 #: ../src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
@@ -3219,8 +3227,8 @@ msgstr "Zakáže vypnutie po 30 sekundách nečinnosti"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- spustí službu spätného zápisu sledovača"
+msgid "— start the tracker writeback service"
+msgstr "— spustí službu spätného zápisu sledovača"
 
 # GtkLabel
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
