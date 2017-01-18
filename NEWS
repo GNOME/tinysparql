@@ -1,3 +1,14 @@
+NEW in 1.11.3 - 2017-01-02
+==========================
+
+  * tracker-extract: Whitelist multiple inocuous syscalls that were
+    reported to raise false positives in the extraction sandbox.
+  * Make libseccomp dependency only mandatory on Linux
+  * Fix several leaks and Coverity warnings
+  * Fixed tracker-extract insertion of pre-defined resources
+  * Fixed TrackerResource SPARQL generation of rdfs:Resource properties
+    with cardinality>1
+
 NEW in 1.11.2 - 2016-12-08
 ==========================
 
