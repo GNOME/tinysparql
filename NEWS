@@ -1,3 +1,12 @@
+NEW in 1.10.4 - 2017-01-19
+==========================
+
+  * tracker-extract: Whitelist multiple inocuous syscalls that were
+    reported to raise false positives in the extraction sandbox.
+  * Fixed tracker-extract insertion of pre-defined resources
+  * Fixed TrackerResource SPARQL generation of rdfs:Resource properties
+    with cardinality>1
+
 NEW in 1.10.3 - 2016-12-16
 ==========================
 
