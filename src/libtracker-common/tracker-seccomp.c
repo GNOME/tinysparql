@@ -72,6 +72,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (geteuid32);
 	ALLOW_RULE (getppid);
 	ALLOW_RULE (gettid);
+	ALLOW_RULE (getpid);
 	ALLOW_RULE (exit);
 	ALLOW_RULE (getrusage);
 	ALLOW_RULE (getrlimit);
