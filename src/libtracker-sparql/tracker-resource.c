@@ -1001,7 +1001,6 @@ generate_turtle_resources_foreach (gpointer key,
                                    gpointer value_ptr,
                                    gpointer user_data)
 {
-	const char *property = key;
 	const GValue *value = value_ptr;
 	GenerateTurtleData *data = user_data;
 	TrackerResource *resource;
@@ -1153,7 +1152,6 @@ generate_turtle (TrackerResource    *resource,
                  GenerateTurtleData *data)
 {
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
-	GString *result;
 	GHashTableIter iter;
 	const char *property;
 	const GValue *value;
@@ -1258,7 +1256,6 @@ generate_sparql_relation_deletes_foreach (gpointer key,
                                           gpointer value_ptr,
                                           gpointer user_data)
 {
-	const char *property = key;
 	const GValue *value = value_ptr;
 	GenerateSparqlData *data = user_data;
 
@@ -1277,7 +1274,6 @@ generate_sparql_relation_inserts_foreach (gpointer key,
                                           gpointer value_ptr,
                                           gpointer user_data)
 {
-	const char *property = key;
 	const GValue *value = value_ptr;
 	GenerateSparqlData *data = user_data;
 
@@ -1465,7 +1461,6 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
 {
 	TrackerResourcePrivate *priv;
 	GenerateSparqlData context;
-	char *result;
 
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (resource), "");
 
