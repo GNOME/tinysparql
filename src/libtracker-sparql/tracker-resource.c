@@ -1091,7 +1091,7 @@ generate_turtle_value (const GValue            *value,
 	} else if (type == G_TYPE_DATE_TIME) {
 		char *datetime_string;
 		datetime_string = g_date_time_format (g_value_get_boxed (value),
-		                                      "\"%Y-%m-%dT%H:%M:%s%z\"^^<http://www.w3.org/2001/XMLSchema#dateTime>");
+		                                      "\"%Y-%m-%dT%H:%M:%S%z\"^^<http://www.w3.org/2001/XMLSchema#dateTime>");
 		g_string_append (string, datetime_string);
 		g_free (datetime_string);
 	} else if (type == G_TYPE_DOUBLE || type == G_TYPE_FLOAT) {
