@@ -60,7 +60,9 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (mprotect);
 	ALLOW_RULE (madvise);
 	ERROR_RULE (mlock, EPERM);
+#ifdef __NR_mlock2
 	ERROR_RULE (mlock2, EPERM);
+#endif
 	ERROR_RULE (munlock, EPERM);
 	ERROR_RULE (mlockall, EPERM);
 	ERROR_RULE (munlockall, EPERM);
@@ -119,7 +121,9 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (uname);
 	ALLOW_RULE (sysinfo);
 	ALLOW_RULE (prctl);
+#ifdef __NR_getrandom
 	ALLOW_RULE (getrandom);
+#endif
 	ALLOW_RULE (clock_gettime);
 	ALLOW_RULE (clock_getres);
 	ALLOW_RULE (gettimeofday);
