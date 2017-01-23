@@ -38,9 +38,15 @@
 
 #include <seccomp.h>
 
-#define ALLOW_RULE(call) G_STMT_START { if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(call), 0) < 0) goto out; } G_STMT_END
+#define ALLOW_RULE(call) G_STMT_START { \
+	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(call), 0) < 0) \
+		goto out; \
+} G_STMT_END
 
-#define ERROR_RULE(call, error) G_STMT_START { if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (error), SCMP_SYS(call), 0) < 0) goto out; } G_STMT_END
+#define ERROR_RULE(call, error) G_STMT_START { \
+	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (error), SCMP_SYS(call), 0) < 0) \
+		goto out; \
+} G_STMT_END
 
 gboolean
 tracker_seccomp_init (void)
