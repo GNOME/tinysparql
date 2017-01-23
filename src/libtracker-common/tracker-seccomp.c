@@ -39,12 +39,16 @@
 #include <seccomp.h>
 
 #define ALLOW_RULE(call) G_STMT_START { \
-	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(call), 0) < 0) \
+	int allow_rule_syscall_number = seccomp_syscall_resolve_name (G_STRINGIFY (call)); \
+	if (allow_rule_syscall_number == __NR_SCMP_ERROR || \
+	    seccomp_rule_add (ctx, SCMP_ACT_ALLOW, allow_rule_syscall_number, 0) < 0) \
 		goto out; \
 } G_STMT_END
 
 #define ERROR_RULE(call, error) G_STMT_START { \
-	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (error), SCMP_SYS(call), 0) < 0) \
+	int error_rule_syscall_number = seccomp_syscall_resolve_name (G_STRINGIFY (call)); \
+	if (error_rule_syscall_number == __NR_SCMP_ERROR || \
+	    seccomp_rule_add (ctx, SCMP_ACT_ERRNO (error), error_rule_syscall_number, 0) < 0) \
 		goto out; \
 } G_STMT_END
 
@@ -66,9 +70,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (mprotect);
 	ALLOW_RULE (madvise);
 	ERROR_RULE (mlock, EPERM);
-#ifdef __NR_mlock2
 	ERROR_RULE (mlock2, EPERM);
-#endif
 	ERROR_RULE (munlock, EPERM);
 	ERROR_RULE (mlockall, EPERM);
 	ERROR_RULE (munlockall, EPERM);
@@ -127,9 +129,7 @@ tracker_seccomp_init (void)
 	ALLOW_RULE (uname);
 	ALLOW_RULE (sysinfo);
 	ALLOW_RULE (prctl);
-#ifdef __NR_getrandom
 	ALLOW_RULE (getrandom);
-#endif
 	ALLOW_RULE (clock_gettime);
 	ALLOW_RULE (clock_getres);
 	ALLOW_RULE (gettimeofday);
