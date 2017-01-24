@@ -18,6 +18,7 @@
  */
 
 using Tracker.Sparql;
+using GLib;
 
 static Connection conn;
 
@@ -25,18 +26,18 @@ static void usage (string[] args) {
 	stderr.printf("Usage: %s urn\n", args[0]);
 }
 
-static Gee.Set<string> looked_up_iris;
+static GLib.GenericSet<string> looked_up_iris;
 
 static bool dump_resource (string urn) {
-	Gee.List<string> iris_to_lookup = new Gee.ArrayList<string> ();
+	GLib.List<string> iris_to_lookup = new GLib.List<string> ();
 
 	looked_up_iris.add (urn);
 
 	try {
 		Cursor cursor = conn.query ("SELECT ?p rdfs:range(?p) ?o {<%s> ?p ?o}".printf (urn));
 
-		Gee.List<string> type_statements = new Gee.ArrayList<string>();
-		Gee.List<string> statements = new Gee.ArrayList<string>();
+		GLib.List<string> type_statements = new GLib.List<string>();
+		GLib.List<string> statements = new GLib.List<string>();
 
 		while (cursor.next ()) {
 			// Skip tracker internal stuff
@@ -60,16 +61,16 @@ static bool dump_resource (string urn) {
 					// Assume resource
 					unowned string obj = cursor.get_string (2);
 					if (!looked_up_iris.contains (obj)) {
-						iris_to_lookup.add (obj);
+						iris_to_lookup.append (obj);
 					}
 					statement += "<%s>".printf (obj);
 					break;
 			}
 
 			if (cursor.get_string (0) == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
-				type_statements.add (statement);
+				type_statements.append (statement);
 			} else {
-				statements.add (statement);
+				statements.append (statement);
 			}
 		}
 
@@ -108,7 +109,7 @@ static int main(string[] args)
 		return 1;
 	}
 
-	looked_up_iris = new Gee.HashSet<string>();
+	looked_up_iris = new GLib.GenericSet<string>(GLib.str_hash, GLib.str_equal);
 
 	if (dump_resource (args[1])) {
 		return 0;
