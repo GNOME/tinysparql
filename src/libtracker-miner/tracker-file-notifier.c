@@ -772,7 +772,7 @@ sparql_contents_query_cb (GObject      *object,
                           GAsyncResult *result,
                           gpointer      user_data)
 {
-	TrackerFileNotifier *notifier;
+	TrackerFileNotifier *notifier = TRACKER_FILE_NOTIFIER (user_data);
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
@@ -785,8 +785,6 @@ sparql_contents_query_cb (GObject      *object,
 		}
 		goto out;
 	}
-
-	notifier = user_data;
 
 	if (cursor) {
 		sparql_contents_check_deleted (notifier, cursor);
