@@ -156,6 +156,8 @@ static gboolean              locations_initialized;
 static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *in_use_filename = NULL;
+static gchar                *in_use_domain = NULL;
+static gchar                *in_use_ontology_name = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 static guint                 s_cache_size;
@@ -848,6 +850,8 @@ perform_recreate (gboolean *first_time, GError **error)
 
 static gboolean
 db_manager_init_unlocked (TrackerDBManagerFlags   flags,
+                          const gchar            *domain,
+                          const gchar            *ontology_name,
                           gboolean               *first_time,
                           gboolean                restoring_backup,
                           gboolean                shared_cache,
@@ -899,11 +903,30 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	tracker_db_manager_init_locations ();
 
 	g_free (in_use_filename);
-	in_use_filename = g_build_filename (g_get_user_data_dir (),
-	                                    "tracker",
-	                                    "data",
-	                                    IN_USE_FILENAME,
-	                                    NULL);
+    g_free (in_use_domain);
+    g_free (in_use_ontology_name);
+
+    if (domain == NULL) {
+        domain = "tracker";
+
+    }
+    in_use_domain = g_strdup (domain);
+
+    if (ontology_name == NULL) {
+        in_use_ontology_name = NULL;
+        in_use_filename = g_build_filename (g_get_user_data_dir (),
+                                            domain,
+                                            "data",
+                                            IN_USE_FILENAME,
+                                            NULL);
+    } else {
+        in_use_ontology_name = g_strdup (ontology_name);
+        in_use_filename = g_build_filename (g_get_user_data_dir (),
+                                            domain, ontology_name,
+                                            "data",
+                                            IN_USE_FILENAME,
+                                            NULL);
+    }
 
 	/* Don't do need_reindex checks for readonly (direct-access) */
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -1241,6 +1264,8 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
+                         const gchar            *domain,
+                         const gchar            *ontology_name,
                          gboolean               *first_time,
                          gboolean                restoring_backup,
                          gboolean                shared_cache,
@@ -1255,11 +1280,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	g_mutex_lock (&init_mutex);
 
-	retval = db_manager_init_unlocked (flags, first_time, restoring_backup,
-					   shared_cache,
-					   select_cache_size, update_cache_size,
-					   busy_callback, busy_user_data,
-					   busy_operation, error);
+    retval = db_manager_init_unlocked (flags, domain, ontology_name,
+                                       first_time, restoring_backup,
+                                       shared_cache,
+                                       select_cache_size, update_cache_size,
+                                       busy_callback, busy_user_data,
+                                       busy_operation, error);
 
 	g_mutex_unlock (&init_mutex);
 

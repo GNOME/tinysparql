@@ -268,6 +268,7 @@ test_sparql_query (TestInfo      *test_info,
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL, NULL, /* domain and ontology_name */
 	                           test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);

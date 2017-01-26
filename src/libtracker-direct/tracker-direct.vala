@@ -37,7 +37,9 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 					select_cache_size = int.parse (env_cache_size);
 				}
 
-				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES, null, null, false, false, select_cache_size, 0, null, null);
+				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
+				                   null /* domain */ , null /* ontology */,
+				                   null, null, false, false, select_cache_size, 0, null, null);
 			}
 
 			use_count++;
@@ -47,6 +49,32 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
+	 public Connection.custom_ontology (string domain, string ontology_name) throws Sparql.Error, IOError, DBusError {
+		try {
+			if (use_count == 0) {
+				// make sure that current locale vs db locale are the same,
+				// otherwise return an error
+				Locale.init ();
+				DBManager.locale_changed ();
+
+				uint select_cache_size = 100;
+				string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
+
+				if (env_cache_size != null) {
+					select_cache_size = int.parse (env_cache_size);
+				}
+
+				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
+				                   domain, ontology_name,
+				                   null, null, false, false, select_cache_size, 0, null, null);
+			}
+
+			use_count++;
+			initialized = true;
+		} catch (Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
+	}
 	~Connection () {
 		if (!initialized) {
 			// use_count did not get increased if initialization failed

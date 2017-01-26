@@ -97,7 +97,7 @@ sql_by_query (void)
 	gboolean first_time = FALSE;
 	gint n_rows = 0;
 
-	if (!tracker_data_manager_init (0,
+	if (!tracker_data_manager_init (0, NULL, NULL,
 	                                NULL,
 	                                &first_time,
 	                                FALSE,

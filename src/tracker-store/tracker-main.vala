@@ -260,7 +260,8 @@ License which can be viewed at:
 		bool is_first_time_index;
 
 		try {
-			Tracker.Data.Manager.init (flags,
+			// TODO: Set domain and ontology name here
+			Tracker.Data.Manager.init (flags, null, null,
 			                           null,
 			                           out is_first_time_index,
 			                           true,

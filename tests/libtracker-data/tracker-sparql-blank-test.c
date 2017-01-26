@@ -56,6 +56,7 @@ test_blank (TestInfo      *info,
 
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL, NULL, /* domain and ontology_name */
 	                           NULL,
 	                           NULL,
 	                           FALSE,

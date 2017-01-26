@@ -228,7 +228,7 @@ test_ontology_change (void)
 		g_assert_no_error (error);
 		g_chmod (ontology_file, 0666);
 
-		tracker_data_manager_init (0, (const gchar **) test_schemas,
+		tracker_data_manager_init (0, NULL, NULL, (const gchar **) test_schemas,
 		                           NULL, FALSE, FALSE,
 		                           100, 100, NULL, NULL, NULL, &error);
 
@@ -272,7 +272,7 @@ test_ontology_change (void)
 
 	delete_db (FALSE);
 
-	tracker_data_manager_init (0, (const gchar **) test_schemas,
+	tracker_data_manager_init (0, NULL, NULL, (const gchar **) test_schemas,
 	                           NULL, TRUE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 

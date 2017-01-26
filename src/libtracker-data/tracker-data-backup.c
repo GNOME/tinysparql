@@ -555,6 +555,8 @@ tracker_data_backup_save (GFile                     *destination,
 
 void
 tracker_data_backup_restore (GFile                *journal,
+                             const gchar          *domain,
+                             const gchar          *ontology,                             
                              const gchar         **test_schemas,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,
@@ -694,7 +696,8 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
+		tracker_data_manager_init (flags, domain, ontology, test_schemas,
+		                           &is_first, TRUE, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup", &internal_error);
