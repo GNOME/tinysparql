@@ -53,6 +53,8 @@ typedef enum {
 
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
 gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags   flags,
+                                                               const gchar            *domain,
+                                                               const gchar            *ontology_name,
                                                                gboolean               *first_time,
                                                                gboolean                restoring_backup,
                                                                gboolean                shared_cache,

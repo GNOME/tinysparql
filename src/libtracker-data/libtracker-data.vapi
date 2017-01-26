@@ -224,12 +224,12 @@ namespace Tracker {
 		public delegate void BackupFinished (GLib.Error error);
 
 		public void backup_save (GLib.File destination, owned BackupFinished callback);
-		public void backup_restore (GLib.File journal, [CCode (array_length = false)] string[]? test_schema, BusyCallback busy_callback) throws GLib.Error;
+		public void backup_restore (GLib.File journal, string? domain, string? ontology_name, [CCode (array_length = false)] string[]? test_schema, BusyCallback busy_callback) throws GLib.Error;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
 	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
+		public bool init (DBManagerFlags flags, string? domain, string? ontology_name, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
 	}
 

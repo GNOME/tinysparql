@@ -124,6 +124,7 @@ test_backup_and_restore_helper (gboolean journal)
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL, NULL,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
@@ -188,6 +189,7 @@ test_backup_and_restore_helper (gboolean journal)
 #endif /* DISABLE_JOURNAL */
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL, NULL,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
@@ -196,7 +198,7 @@ test_backup_and_restore_helper (gboolean journal)
 
 	check_content_in_db (0, 0);
 
-	tracker_data_backup_restore (backup_file, (const gchar **) test_schemas, NULL, NULL, &error);
+	tracker_data_backup_restore (backup_file, NULL, NULL,(const gchar **) test_schemas, NULL, NULL, &error);
 	g_assert_no_error (error);
 	check_content_in_db (3, 1);
 
