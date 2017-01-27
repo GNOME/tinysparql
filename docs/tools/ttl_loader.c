@@ -185,7 +185,7 @@ load_in_memory (Ontology    *ontology,
 			if (prop) {
 				prop->description = g_strdup (turtle_object);
 			} else {
-				g_error ("UHUMMM %s", turtle_subject);
+				g_error ("Error in comment (%s doesn't exist)", turtle_subject);
 			}
 		}
 
