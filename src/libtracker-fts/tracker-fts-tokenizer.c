@@ -207,6 +207,7 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 	GArray *offsets = NULL;
 	const gchar * const *property_names;
 	gint cur_col = -1;
+	gboolean first = TRUE;
 
 	if (n_args > 0) {
 		sqlite3_result_error (ctx, "Invalid argument count", -1);
@@ -228,7 +229,7 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 
 		rc = api->xInst (fts_ctx, i, &phrase, &col, &n_token);
 
-		if (cur_col != col) {
+		if (first || cur_col != col) {
 			const char *text;
 			int length;
 
@@ -241,6 +242,8 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 			                offsets, &offsets_tokenizer_func);
 			cur_col = col;
 		}
+
+		first = FALSE;
 
 		if (str->len != 0)
 			g_string_append_c (str, ',');
