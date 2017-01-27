@@ -293,7 +293,7 @@ reset_run (void)
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
-                                      NULL, NULL, /* domain and ontology-name */
+		                              NULL, NULL, /* domain and ontology-name */
 		                              NULL,
 		                              FALSE,
 		                              FALSE,

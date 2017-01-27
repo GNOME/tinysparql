@@ -556,7 +556,7 @@ tracker_data_backup_save (GFile                     *destination,
 void
 tracker_data_backup_restore (GFile                *journal,
                              const gchar          *domain,
-                             const gchar          *ontology,                             
+                             const gchar          *ontology,
                              const gchar         **test_schemas,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,

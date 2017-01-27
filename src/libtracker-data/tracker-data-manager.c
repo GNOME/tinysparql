@@ -3736,8 +3736,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	read_journal = FALSE;
 #endif
 
-    if (!tracker_db_manager_init (flags,
-                                  domain, ontology_name,
+	if (!tracker_db_manager_init (flags,
+	                              domain, ontology_name,
 	                              &is_first_time_index,
 	                              restoring_backup,
 	                              FALSE,
@@ -3811,13 +3811,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	domain_stored = g_strdup(domain);
 	g_free (ontology_name_stored);
 	ontology_name_stored = g_strdup(ontology_name);
-	
+
 	if (G_LIKELY (!env_path)) {
 		if (ontology_name == NULL) {
 			ontologies_dir = g_build_filename (SHAREDIR,
 			                                   "tracker",
 			                                   "ontologies",
-		    	                               NULL);
+			                                   NULL);
 		} else {
 			if (domain == NULL) {
 				domain = "tracker";
