@@ -22,6 +22,9 @@ class Tracker.Main {
 	[CCode (cname = "PACKAGE_VERSION")]
 	extern const string PACKAGE_VERSION;
 
+	[CCode (cname = "SHAREDIR")]
+	extern const string SHAREDIR;
+
 	const string LICENSE = "This program is free software and comes without any warranty.
 It is licensed under version 2 or later of the General Public
 License which can be viewed at:
@@ -41,6 +44,8 @@ License which can be viewed at:
 	static int verbosity;
 	static bool force_reindex;
 	static bool readonly_mode;
+	static string domain_ontology;
+	static string cache_location;
 	static string domain;
 	static string ontology_name;
 	
@@ -52,8 +57,10 @@ License which can be viewed at:
 		/* Indexer options */
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
-		{ "domain", 'd', 0, OptionArg.STRING, ref domain, N_("Domain to be used"), null },
-		{ "ontology-name", 'o', 0, OptionArg.STRING, ref ontology_name, N_("Ontology to be used"), null },
+		{ "domain-ontology", 'd', 0, OptionArg.STRING, ref domain_ontology, N_("Load a specified domain ontology"), null },
+		{ "cache-location", 'd', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
+		{ "domain", 'd', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
+		{ "ontology-name", 0, 0, OptionArg.STRING, ref ontology_name, N_("Override ontology to be used"), null },
 
 		{ null }
 	};
@@ -65,9 +72,17 @@ License which can be viewed at:
 		message ("Store options:");
 		message ("  Readonly mode  ........................  %s", readonly_mode ? "yes" : "no");
 		message ("  GraphUpdated Delay ....................  %d", config.graphupdated_delay);
-		message ("  Domain         ........................  %s", domain);
-		message ("  Ontology name  ........................  %s", ontology_name);
 
+		if (domain_ontology != null)
+			message ("  Domain ontology........................  %s", domain_ontology);
+
+		message ("  Cache location.........................  %s",
+		         cache_location != null ? cache_location : "tracker");
+		message ("  Domain ................................  %s",
+		         domain != null ? null : "org.freedesktop.Tracker1");
+
+		if (ontology_name != null)
+			message ("  Ontology name .........................  %s", ontology_name);
 	}
 
 	static void do_shutdown () {
@@ -203,6 +218,31 @@ License which can be viewed at:
 			message ("Using log file:'%s'", log_filename);
 		}
 
+		if (domain_ontology != null) {
+			string? loaded_domain;
+			string? loaded_cache_location;
+			string? loaded_ontology_name;
+
+			string keyfile_path = Path.build_filename (SHAREDIR,
+			                                           "tracker",
+			                                           "domains",
+			                                           domain_ontology+".desktop");
+			try {
+				GLib.KeyFile keyfile = new GLib.KeyFile ( );
+				keyfile.load_from_file (keyfile_path, GLib.KeyFileFlags.NONE);
+				loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
+				loaded_cache_location = keyfile.get_string ("DomainOntology", "CacheLocation");
+				loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
+
+				if (domain == null)
+					domain = loaded_domain;
+				if (cache_location == null)
+					cache_location = loaded_cache_location;
+				if (ontology_name == null)
+					ontology_name = loaded_ontology_name;
+			} catch { }
+		}
+
 		sanity_check_option_values (config);
 
 		if (!Tracker.DBus.init (config)) {
@@ -268,7 +308,7 @@ License which can be viewed at:
 		bool is_first_time_index;
 
 		try {
-			Tracker.Data.Manager.init (flags, domain, ontology_name,
+			Tracker.Data.Manager.init (flags, cache_location, ontology_name,
 			                           null,
 			                           out is_first_time_index,
 			                           true,

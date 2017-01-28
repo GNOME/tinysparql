@@ -46,7 +46,7 @@ typedef enum {
 
 GQuark   tracker_data_ontology_error_quark           (void);
 gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   flags,
-                                                      const gchar            *domain,
+                                                      const gchar            *loc,
                                                       const gchar            *ontology_name,
                                                       const gchar           **test_schema,
                                                       gboolean               *first_time,
