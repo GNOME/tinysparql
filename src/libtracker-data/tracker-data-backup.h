@@ -49,7 +49,7 @@ void   tracker_data_backup_save        (GFile                     *destination,
                                         GDestroyNotify             destroy);
 void   tracker_data_backup_restore     (GFile                     *journal,
                                         const gchar               *domain,
-                                        const gchar               *ontology,
+                                        const gchar               *ontology_name,
                                         const gchar              **test_schema,
                                         TrackerBusyCallback        busy_callback,
                                         gpointer                   busy_user_data,

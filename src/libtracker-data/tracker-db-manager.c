@@ -658,7 +658,7 @@ tracker_db_manager_locale_changed (GError **error)
 	 * to check for locale mismatches for initializing the database.
 	 */
 	if (!locations_initialized) {
-		tracker_db_manager_init_locations ();
+		tracker_db_manager_init_locations (in_use_domain, in_use_ontology_name);
 	}
 
 	/* Get current collation locale */
@@ -787,7 +787,7 @@ db_recreate_all (GError **error)
 }
 
 void
-tracker_db_manager_init_locations (void)
+tracker_db_manager_init_locations (const char *domain, const char *ontology_name)
 {
 	const gchar *dir;
 	guint i;
@@ -796,17 +796,26 @@ tracker_db_manager_init_locations (void)
 		return;
 	}
 
+	if (domain == NULL) {
+		domain = "tracker";
+	}
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
-	                                  "tracker",
+	                                  domain,
 	                                  "data",
 	                                  NULL);
 
 	/* For DISABLE_JOURNAL case we should use g_get_user_data_dir here. For now
 	 * keeping this as-is */
 
-	data_dir = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             NULL);
+	if (ontology_name == NULL) {
+		data_dir = g_build_filename (g_get_user_cache_dir (),
+		                             domain,
+		                             NULL);
+	} else {
+		data_dir = g_build_filename (g_get_user_cache_dir (),
+		                             domain, ontology_name,
+		                             NULL);
+	}
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		dir = location_to_directory (dbs[i].location);
@@ -900,33 +909,35 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 	old_flags = flags;
 
-	tracker_db_manager_init_locations ();
-
 	g_free (in_use_filename);
-    g_free (in_use_domain);
-    g_free (in_use_ontology_name);
+	g_free (in_use_domain);
+	g_free (in_use_ontology_name);
 
-    if (domain == NULL) {
-        domain = "tracker";
+	if (domain == NULL)
+		domain = "tracker";
+	in_use_domain = g_strdup (domain);
 
-    }
-    in_use_domain = g_strdup (domain);
+	if (ontology_name == NULL)
+		in_use_ontology_name = NULL;
+	else
+		in_use_ontology_name = g_strdup (ontology_name);
 
-    if (ontology_name == NULL) {
-        in_use_ontology_name = NULL;
-        in_use_filename = g_build_filename (g_get_user_data_dir (),
-                                            domain,
-                                            "data",
-                                            IN_USE_FILENAME,
-                                            NULL);
-    } else {
-        in_use_ontology_name = g_strdup (ontology_name);
-        in_use_filename = g_build_filename (g_get_user_data_dir (),
-                                            domain, ontology_name,
-                                            "data",
-                                            IN_USE_FILENAME,
-                                            NULL);
-    }
+	in_use_domain = g_strdup (domain);
+
+	tracker_db_manager_init_locations (domain, ontology_name);
+	if (ontology_name == NULL) {
+		in_use_filename = g_build_filename (g_get_user_data_dir (),
+		                                    domain,
+		                                    "data",
+		                                    IN_USE_FILENAME,
+		                                    NULL);
+	} else {
+		in_use_filename = g_build_filename (g_get_user_data_dir (),
+		                                    domain, ontology_name,
+		                                    "data",
+		                                    IN_USE_FILENAME,
+		                                    NULL);
+	}
 
 	/* Don't do need_reindex checks for readonly (direct-access) */
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -1045,19 +1056,27 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		/* do not do shutdown check for read-only mode (direct access) */
 		gboolean must_recreate = FALSE;
 #ifndef DISABLE_JOURNAL
-		gchar *journal_filename;
+		gchar *journal_filename, *jfname;
 #endif /* DISABLE_JOURNAL */
 
 		/* Load databases */
 		g_message ("Loading databases files...");
 
 #ifndef DISABLE_JOURNAL
-		journal_filename = g_build_filename (g_get_user_data_dir (),
-		                                     "tracker",
-		                                     "data",
-		                                     TRACKER_DB_JOURNAL_FILENAME,
-		                                     NULL);
-
+		if (ontology_name == NULL) {
+			journal_filename = g_build_filename (g_get_user_data_dir (),
+			                                     domain,
+			                                     "data",
+			                                     TRACKER_DB_JOURNAL_FILENAME,
+			                                     NULL);
+		} else {
+			journal_filename = g_build_filename (g_get_user_data_dir (),
+			                                     domain,
+			                                     ontology_name,
+			                                     "data",
+			                                     TRACKER_DB_JOURNAL_FILENAME,
+			                                     NULL);
+		}
 		must_recreate = !tracker_db_journal_reader_verify_last (journal_filename,
 		                                                        NULL);
 

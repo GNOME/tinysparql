@@ -3828,6 +3828,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			                                   ontology_name,
 			                                   NULL);
 		}
+		if (!g_file_test (ontologies_dir, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+			g_critical ("%s is not a directory with an ontology", ontologies_dir);
+		}
 	} else {
 		ontologies_dir = g_strdup (env_path);
 	}

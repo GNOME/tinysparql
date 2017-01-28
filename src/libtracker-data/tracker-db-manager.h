@@ -69,7 +69,7 @@ void                tracker_db_manager_remove_all             (gboolean         
 void                tracker_db_manager_optimize               (void);
 const gchar *       tracker_db_manager_get_file               (TrackerDB              db);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (void);
-void                tracker_db_manager_init_locations         (void);
+void                tracker_db_manager_init_locations         (const gchar *domain, const gchar *ontology_name);
 gboolean            tracker_db_manager_has_enough_space       (void);
 void                tracker_db_manager_create_version_file    (void);
 void                tracker_db_manager_remove_version_file    (void);

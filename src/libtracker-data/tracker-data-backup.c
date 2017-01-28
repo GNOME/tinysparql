@@ -556,7 +556,7 @@ tracker_data_backup_save (GFile                     *destination,
 void
 tracker_data_backup_restore (GFile                *journal,
                              const gchar          *domain,
-                             const gchar          *ontology,
+                             const gchar          *ontology_name,
                              const gchar         **test_schemas,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,
@@ -655,7 +655,7 @@ tracker_data_backup_restore (GFile                *journal,
 		             &info->error);
 #endif /* DISABLE_JOURNAL */
 
-		tracker_db_manager_init_locations ();
+		tracker_db_manager_init_locations (domain, ontology_name);
 
 		/* Re-set the DB version file, so that its mtime changes. The mtime of this
 		 * file will change only when the whole DB is recreated (after a hard reset
@@ -696,7 +696,7 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, domain, ontology, test_schemas,
+		tracker_data_manager_init (flags, domain, ontology_name, test_schemas,
 		                           &is_first, TRUE, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,

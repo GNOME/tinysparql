@@ -41,7 +41,9 @@ License which can be viewed at:
 	static int verbosity;
 	static bool force_reindex;
 	static bool readonly_mode;
-
+	static string domain;
+	static string ontology_name;
+	
 	const OptionEntry entries[] = {
 		/* Daemon options */
 		{ "version", 'V', 0, OptionArg.NONE, ref version, N_("Displays version information"), null },
@@ -50,6 +52,9 @@ License which can be viewed at:
 		/* Indexer options */
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
+		{ "domain", 'd', 0, OptionArg.STRING, ref domain, N_("Domain to be used"), null },
+		{ "ontology-name", 'o', 0, OptionArg.STRING, ref ontology_name, N_("Ontology to be used"), null },
+
 		{ null }
 	};
 
@@ -60,6 +65,9 @@ License which can be viewed at:
 		message ("Store options:");
 		message ("  Readonly mode  ........................  %s", readonly_mode ? "yes" : "no");
 		message ("  GraphUpdated Delay ....................  %d", config.graphupdated_delay);
+		message ("  Domain         ........................  %s", domain);
+		message ("  Ontology name  ........................  %s", ontology_name);
+
 	}
 
 	static void do_shutdown () {
@@ -260,8 +268,7 @@ License which can be viewed at:
 		bool is_first_time_index;
 
 		try {
-			// TODO: Set domain and ontology name here
-			Tracker.Data.Manager.init (flags, null, null,
+			Tracker.Data.Manager.init (flags, domain, ontology_name,
 			                           null,
 			                           out is_first_time_index,
 			                           true,
