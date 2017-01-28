@@ -1879,6 +1879,14 @@ parse_id3v24 (const gchar           *data,
 		         ((data[pos+6] & 0x7F) << 7) |
 		         ((data[pos+7] & 0x7F) << 0));
 
+		if (pos + frame_size + csize > size) {
+			g_debug ("[v24] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
+			         "exceeds file boundaries (%" G_GSIZE_FORMAT "), "
+			         "not processing any more frames",
+			         frame_name, csize, size);
+			break;
+		}
+
 		flags = (((unsigned char) (data[pos + 8]) << 8) +
 		         ((unsigned char) (data[pos + 9])));
 
@@ -2077,6 +2085,14 @@ parse_id3v23 (const gchar          *data,
 		         ((unsigned char)(data[pos + 6]) << 8)  |
 		         ((unsigned char)(data[pos + 7]) << 0) );
 
+		if (pos + frame_size + csize > size) {
+			g_debug ("[v23] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
+			         "exceeds file boundaries (%" G_GSIZE_FORMAT "), "
+			         "not processing any more frames",
+			         frame_name, csize, size);
+			break;
+		}
+
 		flags = (((unsigned char)(data[pos + 8]) << 8) +
 		         ((unsigned char)(data[pos + 9])));
 
@@ -2205,6 +2221,14 @@ parse_id3v20 (const gchar          *data,
 		csize = (((unsigned char)(data[pos + 3]) << 16) +
 		         ((unsigned char)(data[pos + 4]) << 8) +
 		         ((unsigned char)(data[pos + 5]) ) );
+
+		if (pos + frame_size + csize > size) {
+			g_debug ("[v20] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
+			         "exceeds file boundaries (%" G_GSIZE_FORMAT "), "
+			         "not processing any more frames",
+			         frame_name, csize, size);
+			break;
+		}
 
 		pos += frame_size;
 
