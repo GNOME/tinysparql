@@ -67,7 +67,7 @@
 
 static gchar    *ontologies_dir;
 static gchar    *ontology_name_stored;
-static gchar    *domain_stored;
+static gchar    *loc_stored;
 static gboolean  initialized;
 static gboolean  reloading = FALSE;
 #ifndef DISABLE_JOURNAL
@@ -3539,7 +3539,7 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 
 	/* And initialize it again, this actually triggers index recreation. */
 	status = tracker_data_manager_init (flags,
-	                                    domain_stored, ontology_name_stored,
+	                                    loc_stored, ontology_name_stored,
 	                                    NULL,
 	                                    &is_first,
 	                                    TRUE,
@@ -3677,7 +3677,7 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
-                           const gchar            *domain,
+                           const gchar            *loc,
                            const gchar            *ontology_name,
                            const gchar           **test_schemas,
                            gboolean               *first_time,
@@ -3737,7 +3737,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif
 
 	if (!tracker_db_manager_init (flags,
-	                              domain, ontology_name,
+	                              loc, ontology_name,
 	                              &is_first_time_index,
 	                              restoring_backup,
 	                              FALSE,
@@ -3807,8 +3807,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
 
-	g_free (domain_stored);
-	domain_stored = g_strdup(domain);
+	g_free (loc_stored);
+	loc_stored = g_strdup(loc);
 	g_free (ontology_name_stored);
 	ontology_name_stored = g_strdup(ontology_name);
 
@@ -3819,11 +3819,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			                                   "ontologies",
 			                                   NULL);
 		} else {
-			if (domain == NULL) {
-				domain = "tracker";
+			if (loc == NULL) {
+				loc = "tracker";
 			}
 			ontologies_dir = g_build_filename (SHAREDIR,
-			                                   domain,
+			                                   loc,
 			                                   "ontologies",
 			                                   ontology_name,
 			                                   NULL);
@@ -4288,7 +4288,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_data_manager_shutdown ();
 
 						return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-						                                  domain, ontology_name,
+						                                  loc, ontology_name,
 						                                  test_schemas,
 						                                  first_time,
 						                                  journal_check,
@@ -4379,7 +4379,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_data_manager_shutdown ();
 
 					return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-					                                  domain, ontology_name,
+					                                  loc, ontology_name,
 					                                  test_schemas,
 					                                  first_time,
 					                                  journal_check,
@@ -4487,7 +4487,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_data_manager_shutdown ();
 
 				return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
-				                                  domain, ontology_name,
+				                                  loc, ontology_name,
 				                                  test_schemas,
 				                                  first_time,
 				                                  journal_check,
