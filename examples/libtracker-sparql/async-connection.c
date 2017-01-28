@@ -107,11 +107,6 @@ query_cb (GObject      *object,
 		                                  md);
 	} else {
 		g_critical ("Could not run query: %s", error->message);
-
-		if (cursor) {
-			g_object_unref (cursor);
-		}
-
 		g_error_free (error);
 		g_main_loop_quit (md->loop);
 	}
