@@ -60,9 +60,9 @@ const gchar*       tracker_ontologies_get_uri_by_id        (gint              id
 void               tracker_ontologies_add_id_uri_pair      (gint              id,
                                                             const gchar      *uri);
 
-void               tracker_ontologies_write_gvdb           (const gchar      *filename,
+gboolean           tracker_ontologies_write_gvdb           (const gchar      *filename,
                                                             GError          **error);
-void               tracker_ontologies_load_gvdb            (const gchar      *filename,
+gboolean           tracker_ontologies_load_gvdb            (const gchar      *filename,
                                                             GError          **error);
 GVariant *         tracker_ontologies_get_namespace_value_gvdb  (const gchar      *uri,
                                                                  const gchar      *predicate);

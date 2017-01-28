@@ -3559,10 +3559,11 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 	return status;
 }
 
-static void
+static gboolean
 write_ontologies_gvdb (gboolean   overwrite,
                        GError   **error)
 {
+	gboolean retval = TRUE;
 	gchar *filename;
 
 	filename = g_build_filename (g_get_user_cache_dir (),
@@ -3571,10 +3572,12 @@ write_ontologies_gvdb (gboolean   overwrite,
 	                             NULL);
 
 	if (overwrite || !g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		tracker_ontologies_write_gvdb (filename, error);
+		retval = tracker_ontologies_write_gvdb (filename, error);
 	}
 
 	g_free (filename);
+
+	return retval;
 }
 
 static void

@@ -480,13 +480,14 @@ gvdb_hash_table_insert_statement (GHashTable  *table,
 	gvdb_hash_table_insert_variant (table, parent, uri, predicate, g_variant_new_string (value));
 }
 
-void
+gboolean
 tracker_ontologies_write_gvdb (const gchar  *filename,
                                GError      **error)
 {
 	GHashTable *root_table, *table;
 	GvdbItem *root, *item;
 	const gchar *uri;
+	gboolean retval;
 	gint i;
 
 	root_table = gvdb_hash_table_new (NULL, NULL);
@@ -575,12 +576,14 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 	}
 	g_hash_table_unref (table);
 
-	gvdb_table_write_contents (root_table, filename, FALSE, error);
+	retval = gvdb_table_write_contents (root_table, filename, FALSE, error);
 
 	g_hash_table_unref (root_table);
+
+	return retval;
 }
 
-void
+gboolean
 tracker_ontologies_load_gvdb (const gchar  *filename,
                               GError      **error)
 {
@@ -590,12 +593,13 @@ tracker_ontologies_load_gvdb (const gchar  *filename,
 
 	gvdb_table = gvdb_table_new (filename, TRUE, error);
 	if (!gvdb_table) {
-		return;
+		return FALSE;
 	}
 
 	gvdb_namespaces_table = gvdb_table_get_table (gvdb_table, "namespaces");
 	gvdb_classes_table = gvdb_table_get_table (gvdb_table, "classes");
 	gvdb_properties_table = gvdb_table_get_table (gvdb_table, "properties");
+	return TRUE;
 }
 
 GVariant *
