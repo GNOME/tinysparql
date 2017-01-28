@@ -241,10 +241,10 @@ status_stat (void)
 		}
 
 		if (output->len > 0) {
+			g_string_prepend (output, "\n");
 			/* To translators: This is to say there are no
 			 * statistics found. We use a "Statistics:
 			 * None" with multiple print statements */
-			g_string_prepend (output, "\n");
 			g_string_prepend (output, _("Statistics:"));
 		} else {
 			g_string_append_printf (output,

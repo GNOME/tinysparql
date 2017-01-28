@@ -211,8 +211,8 @@ reset_run (void)
 	GError *error = NULL;
 
 	if (hard_reset && soft_reset) {
-		/* TRANSLATORS: --hard and --soft are commandline arguments */
 		g_printerr ("%s\n",
+		            /* TRANSLATORS: --hard and --soft are commandline arguments */
 		            _("You can not use the --hard and --soft arguments together"));
 		return EXIT_FAILURE;
 	}
