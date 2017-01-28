@@ -222,17 +222,17 @@ License which can be viewed at:
 			flags |= DBManagerFlags.FORCE_REINDEX;
 		}
 
-		var notifier = Tracker.DBus.register_notifier ();
+		var notifier = Tracker.DBus.register_notifier (domain, ontology_name);
 		var busy_callback = notifier.get_callback ();
 
 		Tracker.Store.init ();
 
 		/* Make Tracker available for introspection */
-		if (!Tracker.DBus.register_objects ()) {
+		if (!Tracker.DBus.register_objects (domain, ontology_name)) {
 			return 1;
 		}
 
-		if (!Tracker.DBus.register_names ()) {
+		if (!Tracker.DBus.register_names (domain, ontology_name)) {
 			return 1;
 		}
 
@@ -321,7 +321,7 @@ License which can be viewed at:
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
 
-		Tracker.DBus.shutdown ();
+		Tracker.DBus.shutdown (domain, ontology_name);
 		Tracker.Data.Manager.shutdown ();
 		Tracker.Log.shutdown ();
 
