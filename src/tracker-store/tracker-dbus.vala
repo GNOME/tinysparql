@@ -77,12 +77,24 @@ public class Tracker.DBus {
 		}
 	}
 
-	public static bool register_names () {
+	public static bool register_names (string? domain, string? ontology_name) {
 		/* Register the service name for org.freedesktop.Tracker */
-		if (!dbus_register_service (SERVICE)) {
-			return false;
+		
+		if (domain != null) {
+			if (ontology_name != null) {
+				if (!dbus_register_service (domain+"."+ontology_name)) {
+					return false;
+				}
+			} else {
+				if (!dbus_register_service (domain)) {
+					return false;
+				}
+			}
+		} else {
+			if (!dbus_register_service (SERVICE)) {
+				return false;
+			}
 		}
-
 		return true;
 	}
 
@@ -114,10 +126,10 @@ public class Tracker.DBus {
 		}
 	}
 
-	static void set_available (bool available) {
+	static void set_available (bool available, string? domain, string? ontology_name) {
 		if (available) {
 			if (resources_id == 0) {
-				register_objects ();
+				register_objects (domain, ontology_name);
 			}
 		} else {
 			if (resources_id != 0) {
@@ -135,8 +147,8 @@ public class Tracker.DBus {
 		}
 	}
 
-	public static void shutdown () {
-		set_available (false);
+	public static void shutdown (string? domain, string? ontology_name) {
+		set_available (false, domain, ontology_name);
 
 		if (backup != null) {
 			connection.unregister_object (backup_id);
@@ -153,7 +165,7 @@ public class Tracker.DBus {
 		connection = null;
 	}
 
-	public static Tracker.Status? register_notifier () {
+	public static Tracker.Status? register_notifier (string? domain, string? ontology_name) {
 		if (connection == null) {
 			critical ("D-Bus support must be initialized before registering objects!");
 			return null;
@@ -165,13 +177,19 @@ public class Tracker.DBus {
 			critical ("Could not create TrackerStatus object to register");
 			return null;
 		}
-
-		notifier_id = register_object (connection, notifier, Tracker.Status.PATH);
+		
+		if (domain != null)
+			if (ontology_name != null)
+				notifier_id = register_object (connection, notifier, "/"+domain+"/"+ontology_name+"/Status");
+			else
+				notifier_id = register_object (connection, notifier, "/"+domain+"/Status");
+		else
+			notifier_id = register_object (connection, notifier, Tracker.Status.PATH);
 
 		return notifier;
 	}
 
-	public static bool register_objects () {
+	public static bool register_objects (string? domain, string? ontology_name) {
 		//gpointer object, resources;
 
 		if (connection == null) {
@@ -186,7 +204,13 @@ public class Tracker.DBus {
 			return false;
 		}
 
-		statistics_id = register_object (connection, statistics, Tracker.Statistics.PATH);
+		if (domain != null)
+			if (ontology_name != null)
+				notifier_id = register_object (connection, notifier, "/"+domain+"/"+ontology_name+"/Statistics");
+			else
+				notifier_id = register_object (connection, notifier, "/"+domain+"/Statistics");
+		else
+			statistics_id = register_object (connection, statistics, Tracker.Statistics.PATH);
 
 		/* Add org.freedesktop.Tracker1.Resources */
 		resources = new Tracker.Resources (connection, config);
@@ -202,7 +226,13 @@ public class Tracker.DBus {
 			0,
 			name_owner_changed_cb);
 
-		resources_id = register_object (connection, resources, Tracker.Resources.PATH);
+		if (domain != null)
+			if (ontology_name != null)
+				notifier_id = register_object (connection, notifier, "/"+domain+"/"+ontology_name+"/Resources");
+			else
+				notifier_id = register_object (connection, notifier, "/"+domain+"/Resources");
+		else
+			resources_id = register_object (connection, resources, Tracker.Resources.PATH);
 
 		/* Add org.freedesktop.Tracker1.Steroids */
 		steroids = new Tracker.Steroids ();
@@ -211,7 +241,13 @@ public class Tracker.DBus {
 			return false;
 		}
 
-		steroids_id = register_object (connection, steroids, Tracker.Steroids.PATH);
+		if (domain != null)
+			if (ontology_name != null)
+				notifier_id = register_object (connection, notifier, "/"+domain+"/"+ontology_name+"/Steroids");
+			else
+				notifier_id = register_object (connection, notifier, "/"+domain+"/Steroids");
+		else
+			steroids_id = register_object (connection, steroids, Tracker.Steroids.PATH);
 
 		if (backup == null) {
 			/* Add org.freedesktop.Tracker1.Backup */
@@ -221,6 +257,12 @@ public class Tracker.DBus {
 				return false;
 			}
 
+		if (domain != null)
+			if (ontology_name != null)
+				notifier_id = register_object (connection, notifier, "/"+domain+"/"+ontology_name+"/Backup");
+			else
+				notifier_id = register_object (connection, notifier, "/"+domain+"/Backup");
+		else
 			backup_id = register_object (connection, backup, Tracker.Backup.PATH);
 		}
 
