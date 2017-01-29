@@ -187,7 +187,7 @@ test_ontology_init (TestInfo      *test_info,
 
 	/* first-time initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL,
+	                           NULL, NULL, NULL,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -207,7 +207,7 @@ test_ontology_init (TestInfo      *test_info,
 
 	/* initialization from existing database */
 	tracker_data_manager_init (0,
-	                           NULL, NULL,
+	                           NULL, NULL, NULL,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -243,7 +243,7 @@ test_query (TestInfo      *test_info,
 
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, /* domain and ontology_name */
+	                           NULL, NULL, NULL, /* loc, domain and ontology_name */
 	                           NULL,
 	                           NULL,
 	                           FALSE,

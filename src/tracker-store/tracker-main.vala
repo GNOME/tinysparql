@@ -325,7 +325,7 @@ License which can be viewed at:
 		bool is_first_time_index;
 
 		try {
-			Tracker.Data.Manager.init (flags, cache_location, ontology_name,
+			Tracker.Data.Manager.init (flags, cache_location, domain, ontology_name,
 			                           null,
 			                           out is_first_time_index,
 			                           true,
