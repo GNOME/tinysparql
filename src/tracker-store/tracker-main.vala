@@ -81,7 +81,7 @@ License which can be viewed at:
 		message ("  Cache location.........................  %s",
 		         cache_location != null ? cache_location : "tracker");
 		message ("  Domain ................................  %s",
-		         domain != null ? null : "org.freedesktop.Tracker1");
+		         domain != null ? domain : "org.freedesktop.Tracker1");
 
 		if (ontology_name != null)
 			message ("  Ontology name .........................  %s", ontology_name);
