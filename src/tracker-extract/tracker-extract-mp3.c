@@ -447,6 +447,60 @@ strnlen (const char *str, size_t max)
 
 #endif /* HAVE_STRNLEN */
 
+/* Helpers to get data from BE */
+inline static guint32
+extract_uint32 (gconstpointer data)
+{
+	const guint32 *ptr = data;
+	return GUINT32_FROM_BE (*ptr);
+}
+
+inline static guint16
+extract_uint16 (gconstpointer data)
+{
+	const guint16 *ptr = data;
+	return GUINT16_FROM_BE (*ptr);
+}
+
+inline static guint32
+extract_uint32_7bit (gconstpointer data)
+{
+	const guchar *ptr = data;
+#if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
+	return (((ptr[0] & 0x7F) << 21) |
+	        ((ptr[1] & 0x7F) << 14) |
+	        ((ptr[2] & 0x7F) << 7) |
+	        ((ptr[3] & 0x7F) << 0));
+#elif (G_BYTE_ORDER == G_BIG_ENDIAN)
+	return (((ptr[0] & 0x7F) << 0) |
+	        ((ptr[1] & 0x7F) << 7) |
+	        ((ptr[2] & 0x7F) << 14) |
+	        ((ptr[3] & 0x7F) << 21));
+#else
+	g_warning ("Can't figure endianness");
+	return 0;
+#endif
+}
+
+/* id3v20 is odd... */
+inline static guint32
+extract_uint32_3byte (gconstpointer data)
+{
+	const guchar *ptr = data;
+#if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
+	return ((ptr[0] << 16) |
+	        (ptr[1] << 8) |
+	        (ptr[2] << 0));
+#elif (G_BYTE_ORDER == G_BIG_ENDIAN)
+	return ((ptr[0] << 0) |
+	        (ptr[1] << 8) |
+	        (ptr[2] << 16));
+#else
+	g_warning ("Can't figure endianness");
+	return 0;
+#endif
+}
+
 static void
 id3tag_free (id3tag *tags)
 {
@@ -1793,10 +1847,7 @@ parse_id3v24 (const gchar           *data,
 	 * unsychronisation, including padding, excluding the header
 	 * but not excluding the extended header (total tag size - 10)
 	 */
-	tsize = (((data[6] & 0x7F) << 21) |
-	         ((data[7] & 0x7F) << 14) |
-	         ((data[8] & 0x7F) << 7) |
-	         ((data[9] & 0x7F) << 0));
+	tsize = extract_uint32_7bit (&data[6]);
 
 	/* We don't handle experimental cases */
 	if (experimental) {
@@ -1823,10 +1874,7 @@ parse_id3v24 (const gchar           *data,
 		 *   Extended Flags         $xx xx
 		 *   Size of padding        $xx xx xx xx
 		 */
-		ext_header_size = (((data[10] & 0x7F) << 21) |
-		                   ((data[11] & 0x7F) << 14) |
-		                   ((data[12] & 0x7F) << 7) |
-		                   ((data[13] & 0x7F) << 0));
+		ext_header_size = extract_uint32_7bit (&data[10]);
 
 		/* Where the 'Extended header size', currently 6 or 10
 		 * bytes, excludes itself. The 'Size of padding' is
@@ -1874,10 +1922,7 @@ parse_id3v24 (const gchar           *data,
 
 		frame = id3v24_get_frame (frame_name);
 
-		csize = (((data[pos+4] & 0x7F) << 21) |
-		         ((data[pos+5] & 0x7F) << 14) |
-		         ((data[pos+6] & 0x7F) << 7) |
-		         ((data[pos+7] & 0x7F) << 0));
+		csize = (size_t) extract_uint32_7bit (&data[pos + 4]);
 
 		if (pos + frame_size + csize > size) {
 			g_debug ("[v24] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
@@ -1887,8 +1932,7 @@ parse_id3v24 (const gchar           *data,
 			break;
 		}
 
-		flags = (((unsigned char) (data[pos + 8]) << 8) +
-		         ((unsigned char) (data[pos + 9])));
+		flags = extract_uint16 (&data[pos + 8]);
 
 		pos += frame_size;
 
@@ -2005,10 +2049,7 @@ parse_id3v23 (const gchar          *data,
 	 * unsychronisation, including padding, excluding the header
 	 * but not excluding the extended header (total tag size - 10)
 	 */
-	tsize = (((data[6] & 0x7F) << 21) |
-	         ((data[7] & 0x7F) << 14) |
-	         ((data[8] & 0x7F) << 7) |
-	         ((data[9] & 0x7F) << 0));
+	tsize = extract_uint32_7bit (&data[6]);
 
 	/* We don't handle experimental cases */
 	if (experimental) {
@@ -2035,10 +2076,7 @@ parse_id3v23 (const gchar          *data,
 		 *   Extended Flags         $xx xx
 		 *   Size of padding        $xx xx xx xx
 		 */
-		ext_header_size = (((unsigned char)(data[10]) << 24) |
-		                   ((unsigned char)(data[11]) << 16) |
-		                   ((unsigned char)(data[12]) << 8) |
-		                   ((unsigned char)(data[13]) << 0));
+		ext_header_size = extract_uint32 (&data[10]);
 
 		/* Where the 'Extended header size', currently 6 or 10
 		 * bytes, excludes itself. The 'Size of padding' is
@@ -2080,10 +2118,7 @@ parse_id3v23 (const gchar          *data,
 
 		frame = id3v24_get_frame (frame_name);
 
-		csize = (((unsigned char)(data[pos + 4]) << 24) |
-		         ((unsigned char)(data[pos + 5]) << 16) |
-		         ((unsigned char)(data[pos + 6]) << 8)  |
-		         ((unsigned char)(data[pos + 7]) << 0) );
+		csize = (size_t) extract_uint32 (&data[pos + 4]);
 
 		if (pos + frame_size + csize > size) {
 			g_debug ("[v23] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
@@ -2093,8 +2128,7 @@ parse_id3v23 (const gchar          *data,
 			break;
 		}
 
-		flags = (((unsigned char)(data[pos + 8]) << 8) +
-		         ((unsigned char)(data[pos + 9])));
+		flags = extract_uint16 (&data[pos + 8]);
 
 		pos += frame_size;
 
@@ -2185,10 +2219,7 @@ parse_id3v20 (const gchar          *data,
 	}
 
 	unsync = (data[5] & 0x80) > 0;
-	tsize = (((data[6] & 0x7F) << 21) |
-	         ((data[7] & 0x7F) << 14) |
-	         ((data[8] & 0x7F) << 07) |
-	         ((data[9] & 0x7F) << 00));
+	tsize = extract_uint32_7bit (&data[6]);
 
 	if (tsize + header_size > size)  {
 		g_message ("[v20] Expected MP3 tag size and header size to be within file size boundaries");
@@ -2218,9 +2249,7 @@ parse_id3v20 (const gchar          *data,
 
 		frame = id3v2_get_frame (frame_name);
 
-		csize = (((unsigned char)(data[pos + 3]) << 16) +
-		         ((unsigned char)(data[pos + 4]) << 8) +
-		         ((unsigned char)(data[pos + 5]) ) );
+		csize = (size_t) extract_uint32_3byte (&data[pos + 3]);
 
 		if (pos + frame_size + csize > size) {
 			g_debug ("[v20] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
