@@ -59,10 +59,10 @@ License which can be viewed at:
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
 		{ "domain-ontology", 'd', 0, OptionArg.STRING, ref domain_ontology, N_("Load a specified domain ontology"), null },
-		{ "cache-location", 'd', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
-		{ "domain", 'd', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
-		{ "ontology-name", 0, 0, OptionArg.STRING, ref ontology_name, N_("Override ontology to be used"), null },
-		{ "dbus-path", 0, 0, OptionArg.STRING, ref dbus_path, N_("Override DBus path to be used"), null },
+		{ "cache-location", 'c', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
+		{ "domain", 'm', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
+		{ "ontology-name", 'n', 0, OptionArg.STRING, ref ontology_name, N_("Override ontology to be used"), null },
+		{ "dbus-path", 'p', 0, OptionArg.STRING, ref dbus_path, N_("Override DBus path to be used"), null },
 
 		{ null }
 	};
