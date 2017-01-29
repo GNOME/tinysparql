@@ -157,6 +157,7 @@ static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *in_use_filename = NULL;
 static gchar                *in_use_loc = NULL;
+static gchar                *in_use_domain = NULL;
 static gchar                *in_use_ontology_name = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
@@ -665,7 +666,7 @@ tracker_db_manager_locale_changed (GError **error)
 	 * to check for locale mismatches for initializing the database.
 	 */
 	if (!locations_initialized) {
-		tracker_db_manager_init_locations (in_use_loc, in_use_ontology_name);
+		tracker_db_manager_init_locations (in_use_loc, in_use_domain, in_use_ontology_name);
 	}
 
 	/* Get current collation locale */
@@ -794,7 +795,7 @@ db_recreate_all (GError **error)
 }
 
 void
-tracker_db_manager_init_locations (const char *loc, const char *ontology_name)
+tracker_db_manager_init_locations (const char *loc, const gchar *domain, const char *ontology_name)
 {
 	const gchar *dir;
 	guint i;
@@ -867,6 +868,7 @@ perform_recreate (gboolean *first_time, GError **error)
 static gboolean
 db_manager_init_unlocked (TrackerDBManagerFlags   flags,
                           const gchar            *loc,
+                          const gchar            *domain,
                           const gchar            *ontology_name,
                           gboolean               *first_time,
                           gboolean                restoring_backup,
@@ -917,20 +919,23 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 	g_free (in_use_filename);
 	g_free (in_use_loc);
+	g_free (in_use_domain);
 	g_free (in_use_ontology_name);
 
 	if (loc == NULL)
 		loc = "tracker";
 	in_use_loc = g_strdup (loc);
 
+	if (domain == NULL)
+		domain = "tracker";
+	in_use_domain = g_strdup (domain);
+
 	if (ontology_name == NULL)
 		in_use_ontology_name = NULL;
 	else
 		in_use_ontology_name = g_strdup (ontology_name);
 
-	in_use_loc = g_strdup (loc);
-
-	tracker_db_manager_init_locations (loc, ontology_name);
+	tracker_db_manager_init_locations (loc, domain, ontology_name);
 	if (ontology_name == NULL) {
 		in_use_filename = g_build_filename (g_get_user_data_dir (),
 		                                    loc,
@@ -1290,6 +1295,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
                          const gchar            *loc,
+                         const gchar            *domain,
                          const gchar            *ontology_name,
                          gboolean               *first_time,
                          gboolean                restoring_backup,
@@ -1305,7 +1311,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	g_mutex_lock (&init_mutex);
 
-	retval = db_manager_init_unlocked (flags, loc, ontology_name,
+	retval = db_manager_init_unlocked (flags, loc, domain, ontology_name,
 	                                   first_time, restoring_backup,
 	                                   shared_cache,
 	                                   select_cache_size, update_cache_size,

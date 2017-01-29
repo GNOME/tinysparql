@@ -38,7 +38,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 				}
 
 				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
-				                   null /* domain */ , null /* ontology */,
+				                   null /*loc */, null /* domain */ , null /* ontology */,
 				                   null, null, false, false, select_cache_size, 0, null, null);
 			}
 
@@ -49,7 +49,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	 public Connection.custom_ontology (string domain, string ontology_name) throws Sparql.Error, IOError, DBusError {
+	 public Connection.custom_ontology (string? loc, string? domain, string? ontology_name) throws Sparql.Error, IOError, DBusError {
 		try {
 			if (use_count == 0) {
 				// make sure that current locale vs db locale are the same,
@@ -65,7 +65,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 				}
 
 				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
-				                   domain, ontology_name,
+				                   loc, domain, ontology_name,
 				                   null, null, false, false, select_cache_size, 0, null, null);
 			}
 

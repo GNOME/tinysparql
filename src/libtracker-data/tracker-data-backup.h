@@ -48,6 +48,7 @@ void   tracker_data_backup_save        (GFile                     *destination,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy);
 void   tracker_data_backup_restore     (GFile                     *journal,
+                                        const gchar               *loc,
                                         const gchar               *domain,
                                         const gchar               *ontology_name,
                                         const gchar              **test_schema,
