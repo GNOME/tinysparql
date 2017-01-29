@@ -48,6 +48,7 @@ License which can be viewed at:
 	static string cache_location;
 	static string domain;
 	static string ontology_name;
+	static string dbus_path;
 	
 	const OptionEntry entries[] = {
 		/* Daemon options */
@@ -61,6 +62,7 @@ License which can be viewed at:
 		{ "cache-location", 'd', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
 		{ "domain", 'd', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
 		{ "ontology-name", 0, 0, OptionArg.STRING, ref ontology_name, N_("Override ontology to be used"), null },
+		{ "dbus-path", 0, 0, OptionArg.STRING, ref dbus_path, N_("Override DBus path to be used"), null },
 
 		{ null }
 	};
@@ -219,28 +221,43 @@ License which can be viewed at:
 		}
 
 		if (domain_ontology != null) {
-			string? loaded_domain;
-			string? loaded_cache_location;
-			string? loaded_ontology_name;
-
 			string keyfile_path = Path.build_filename (SHAREDIR,
 			                                           "tracker",
-			                                           "domains",
-			                                           domain_ontology+".desktop");
+			                                           "domain-ontologies",
+			                                           domain_ontology+".rule");
 			try {
-				GLib.KeyFile keyfile = new GLib.KeyFile ( );
+				KeyFile keyfile = new KeyFile ( );
 				keyfile.load_from_file (keyfile_path, GLib.KeyFileFlags.NONE);
-				loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
-				loaded_cache_location = keyfile.get_string ("DomainOntology", "CacheLocation");
-				loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
+				
+				try {
+					string? loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
+					if (domain == null)
+						domain = loaded_domain;
+				} catch (KeyFileError m) {}
 
-				if (domain == null)
-					domain = loaded_domain;
-				if (cache_location == null)
-					cache_location = loaded_cache_location;
-				if (ontology_name == null)
-					ontology_name = loaded_ontology_name;
-			} catch { }
+				try {
+					string? loaded_cache_location = keyfile.get_string ("DomainOntology", "CacheLocation");
+					if (cache_location == null)
+						cache_location = loaded_cache_location;
+				} catch (KeyFileError m) {}
+
+				try {
+					string? loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
+					if (ontology_name == null)
+						ontology_name = loaded_ontology_name;
+				} catch (KeyFileError m) {}
+
+				try {
+					string? loaded_dbus_path = keyfile.get_string ("DomainOntology", "DBusPath");
+					if (dbus_path == null)
+						dbus_path = loaded_dbus_path;
+				} catch (KeyFileError m) {}
+
+			} catch (KeyFileError ke) {
+				critical("Loading " + keyfile_path + " " + ke.message);
+			} catch (FileError fe) {
+				critical("Loading " + keyfile_path + " " + fe.message);
+			}
 		}
 
 		sanity_check_option_values (config);
@@ -262,17 +279,17 @@ License which can be viewed at:
 			flags |= DBManagerFlags.FORCE_REINDEX;
 		}
 
-		var notifier = Tracker.DBus.register_notifier (domain, ontology_name);
+		var notifier = Tracker.DBus.register_notifier (domain, dbus_path, ontology_name);
 		var busy_callback = notifier.get_callback ();
 
 		Tracker.Store.init ();
 
 		/* Make Tracker available for introspection */
-		if (!Tracker.DBus.register_objects (domain, ontology_name)) {
+		if (!Tracker.DBus.register_objects (domain, dbus_path, ontology_name)) {
 			return 1;
 		}
 
-		if (!Tracker.DBus.register_names (domain, ontology_name)) {
+		if (!Tracker.DBus.register_names (domain, dbus_path, ontology_name)) {
 			return 1;
 		}
 
@@ -361,7 +378,7 @@ License which can be viewed at:
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
 
-		Tracker.DBus.shutdown (domain, ontology_name);
+		Tracker.DBus.shutdown (domain, dbus_path, ontology_name);
 		Tracker.Data.Manager.shutdown ();
 		Tracker.Log.shutdown ();
 
