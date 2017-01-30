@@ -292,7 +292,7 @@ reset_run (void)
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
-		                              NULL, NULL, NULL, /* locl, domain and ontology-name */
+		                              NULL, NULL, /* cache_location, data_location */
 		                              NULL,
 		                              FALSE,
 		                              FALSE,
@@ -309,7 +309,7 @@ reset_run (void)
 			return EXIT_FAILURE;
 		}
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, FALSE, NULL);
+		tracker_db_journal_init (NULL, NULL, NULL, FALSE, NULL);
 #endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_remove_all (hard_reset);

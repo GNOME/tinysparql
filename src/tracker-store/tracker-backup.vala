@@ -84,7 +84,7 @@ public class Tracker.Backup : Object {
 			var notifier = (Status) (Tracker.DBus.get_object (typeof (Status)));
 			var busy_callback = notifier.get_callback ();
 
-			// TODO: set loc, domain and ontology_name here from store session
+			// TODO: set cache_location, data_location and ontology_location here from store session
 			Data.backup_restore (journal, null, null, null, null, busy_callback);
 
 			request.end ();

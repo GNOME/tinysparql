@@ -564,6 +564,8 @@ db_journal_writer_init (JournalWriter  *jwriter,
 
 gboolean
 tracker_db_journal_init (const gchar  *filename,
+                         const gchar  *cache_location,
+                         const gchar  *data_location,
                          gboolean      truncate,
                          GError      **error)
 {
@@ -575,12 +577,17 @@ tracker_db_journal_init (const gchar  *filename,
 	g_return_val_if_fail (writer.journal == 0, FALSE);
 
 	if (filename == NULL) {
-		/* Used mostly for testing */
-		filename_use = g_build_filename (g_get_user_data_dir (),
-		                                 "tracker",
-		                                 "data",
-		                                 TRACKER_DB_JOURNAL_FILENAME,
-		                                 NULL);
+		if (data_location == NULL) {
+			filename_use = g_build_filename (g_get_user_data_dir (),
+			                                 "tracker",
+			                                 "data",
+			                                 TRACKER_DB_JOURNAL_FILENAME,
+			                                 NULL);
+		} else {
+			filename_use = g_build_filename (data_location,
+			                                 TRACKER_DB_JOURNAL_FILENAME,
+			                                 NULL);
+		}
 		filename_free = (gchar *) filename_use;
 	} else {
 		filename_use = filename;

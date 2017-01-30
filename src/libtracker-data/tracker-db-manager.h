@@ -53,9 +53,8 @@ typedef enum {
 
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
 gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags   flags,
-                                                               const gchar            *loc,
-                                                               const gchar            *domain,
-                                                               const gchar            *ontology_name,
+                                                               const gchar            *cache_location,
+                                                               const gchar            *data_location,
                                                                gboolean               *first_time,
                                                                gboolean                restoring_backup,
                                                                gboolean                shared_cache,
@@ -70,9 +69,8 @@ void                tracker_db_manager_remove_all             (gboolean         
 void                tracker_db_manager_optimize               (void);
 const gchar *       tracker_db_manager_get_file               (TrackerDB              db);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (void);
-void                tracker_db_manager_init_locations         (const gchar           *loc,
-                                                               const gchar           *domain,
-                                                               const gchar           *ontology_name);
+void                tracker_db_manager_init_locations         (const gchar           *cache_location,
+                                                               const gchar           *data_location);
 gboolean            tracker_db_manager_has_enough_space       (void);
 void                tracker_db_manager_create_version_file    (void);
 void                tracker_db_manager_remove_version_file    (void);
