@@ -34,10 +34,9 @@ handle_statement (gint subject, gint predicate)
 	cursor = tracker_sparql_connection_query (con, query, NULL, NULL);
 	g_free (query);
 
-	if (!cursor)
+	if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, NULL))
 		return;
 
-	tracker_sparql_cursor_next (cursor, NULL, NULL);
 	pred = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 	query = g_strdup_printf ("SELECT ?t { <%s> <%s> ?t }",
 	                         tracker_sparql_cursor_get_string (cursor, 0, NULL),
