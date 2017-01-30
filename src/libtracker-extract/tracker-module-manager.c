@@ -581,3 +581,17 @@ tracker_mimetype_info_free (TrackerMimetypeInfo *info)
 
 	g_slice_free (TrackerMimetypeInfo, info);
 }
+
+void
+tracker_module_manager_load_modules (void)
+{
+	RuleInfo *rule_info;
+	guint i;
+
+	g_return_if_fail (initialized == TRUE);
+
+	for (i = 0; i < rules->len; i++) {
+		rule_info = &g_array_index (rules, RuleInfo, i);
+		load_module (rule_info, TRUE);
+	}
+}

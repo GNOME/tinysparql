@@ -382,6 +382,8 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_module_manager_load_modules ();
+
 	decorator = tracker_extract_decorator_new (extract, NULL, &error);
 
 	if (error) {

@@ -57,6 +57,8 @@ GModule * tracker_mimetype_info_get_module (TrackerMimetypeInfo          *info,
 gboolean  tracker_mimetype_info_iter_next  (TrackerMimetypeInfo          *info);
 void      tracker_mimetype_info_free       (TrackerMimetypeInfo          *info);
 
+void tracker_module_manager_load_modules (void);
+
 G_END_DECLS
 
 #endif /* __TRACKER_EXTRACT_MODULE_MANAGER_H__ */
