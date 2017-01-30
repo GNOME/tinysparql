@@ -1319,8 +1319,6 @@ tracker_extract_gstreamer (const gchar          *uri,
 
 	g_return_val_if_fail (uri, NULL);
 
-	gst_init (NULL, NULL);
-
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
 	extractor->tagcache = gst_tag_list_new_empty ();
@@ -1464,5 +1462,12 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	}
 
 	g_free (uri);
+	return TRUE;
+}
+
+G_MODULE_EXPORT gboolean
+tracker_extract_module_init (GError **error)
+{
+	gst_init (NULL, NULL);
 	return TRUE;
 }
