@@ -38,13 +38,12 @@ typedef struct {
 	TrackerExtractMetadataFunc extract_func;
 	TrackerExtractInitFunc init_func;
 	TrackerExtractShutdownFunc shutdown_func;
-	guint initialized : 1;
 } ModuleInfo;
 
 static gboolean dummy_extract_func (TrackerExtractInfo *info);
 
 static ModuleInfo dummy_module = {
-	NULL, dummy_extract_func, NULL, NULL, TRUE
+	NULL, dummy_extract_func, NULL, NULL
 };
 
 static GHashTable *modules = NULL;
@@ -316,8 +315,7 @@ tracker_extract_module_manager_get_fallback_rdf_types (const gchar *mimetype)
 }
 
 static ModuleInfo *
-load_module (RuleInfo *info,
-             gboolean  initialize)
+load_module (RuleInfo *info)
 {
 	ModuleInfo *module_info = NULL;
 
@@ -331,6 +329,7 @@ load_module (RuleInfo *info,
 
 	if (!module_info) {
 		GModule *module;
+		GError *init_error = NULL;
 
 		/* Load the module */
 		module = g_module_open (info->module_path, G_MODULE_BIND_LOCAL);
@@ -357,6 +356,17 @@ load_module (RuleInfo *info,
 		g_module_symbol (module, INIT_FUNCTION, (gpointer *) &module_info->init_func);
 		g_module_symbol (module, SHUTDOWN_FUNCTION, (gpointer *) &module_info->shutdown_func);
 
+		if (module_info->init_func &&
+		    !(module_info->init_func) (&init_error)) {
+			g_critical ("Could not initialize module %s: %s",
+			            g_module_name (module_info->module),
+			            (init_error) ? init_error->message : "No error given");
+
+			g_clear_error (&init_error);
+			g_slice_free (ModuleInfo, module_info);
+			return NULL;
+		}
+
 		/* Add it to the cache */
 		if (G_UNLIKELY (!modules)) {
 			/* Key is an intern string, so
@@ -366,26 +376,6 @@ load_module (RuleInfo *info,
 		}
 
 		g_hash_table_insert (modules, (gpointer) info->module_path, module_info);
-	}
-
-	if (initialize && !module_info->initialized) {
-		if (module_info->init_func) {
-			GError *error = NULL;
-
-			if (!(module_info->init_func) (&error)) {
-				g_critical ("Could not initialize module %s: %s",
-					    g_module_name (module_info->module),
-					    (error) ? error->message : "No error given");
-
-				if (error) {
-					g_error_free (error);
-				}
-
-				return NULL;
-			}
-		}
-
-		module_info->initialized = TRUE;
 	}
 
 	return module_info;
@@ -398,7 +388,7 @@ initialize_first_module (TrackerMimetypeInfo *info)
 
 	/* Actually iterates through the list loaded + initialized module */
 	while (info->cur && !module_info) {
-		module_info = load_module (info->cur->data, TRUE);
+		module_info = load_module (info->cur->data);
 
 		if (!module_info) {
 			info->cur = info->cur->next;
@@ -524,6 +514,6 @@ tracker_module_manager_load_modules (void)
 
 	for (i = 0; i < rules->len; i++) {
 		rule_info = &g_array_index (rules, RuleInfo, i);
-		load_module (rule_info, TRUE);
+		load_module (rule_info);
 	}
 }
