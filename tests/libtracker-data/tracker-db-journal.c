@@ -33,7 +33,7 @@ test_init_and_shutdown (void)
 
 	/* check double init/shutdown */
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, FALSE, &error);
+	result = tracker_db_journal_init (NULL, NULL, NULL, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -42,7 +42,7 @@ test_init_and_shutdown (void)
 	g_assert (result == TRUE);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, FALSE, &error);
+	result = tracker_db_journal_init (NULL, NULL, NULL, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -64,7 +64,7 @@ test_write_functions (void)
 	g_unlink (path);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_db_journal_init (path, FALSE, &error);
+	tracker_db_journal_init (path, NULL, NULL, FALSE, &error);
 	g_assert_no_error (error);
 
 	filename = tracker_db_journal_get_filename ();

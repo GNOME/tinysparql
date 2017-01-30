@@ -156,9 +156,8 @@ static gboolean              locations_initialized;
 static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *in_use_filename = NULL;
-static gchar                *in_use_loc = NULL;
-static gchar                *in_use_domain = NULL;
-static gchar                *in_use_ontology_name = NULL;
+static gchar                *in_use_cache_location = NULL;
+static gchar                *in_use_data_location = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 static guint                 s_cache_size;
@@ -659,7 +658,7 @@ tracker_db_manager_locale_changed (GError **error)
 	 * to check for locale mismatches for initializing the database.
 	 */
 	if (!locations_initialized) {
-		tracker_db_manager_init_locations (in_use_loc, in_use_domain, in_use_ontology_name);
+		tracker_db_manager_init_locations (in_use_cache_location, in_use_data_location);
 	}
 
 	/* Get current collation locale */
@@ -788,7 +787,7 @@ db_recreate_all (GError **error)
 }
 
 void
-tracker_db_manager_init_locations (const char *loc, const gchar *domain, const char *ontology_name)
+tracker_db_manager_init_locations (const char *cache_location, const gchar *data_location)
 {
 	const gchar *dir;
 	guint i;
@@ -797,25 +796,25 @@ tracker_db_manager_init_locations (const char *loc, const gchar *domain, const c
 		return;
 	}
 
-	if (loc == NULL) {
-		loc = "tracker";
+	if (data_location == NULL) {
+		user_data_dir = g_build_filename (g_get_user_data_dir (),
+		                                  "tracker",
+		                                  "data",
+		                                  NULL);
+
+	} else {
+		user_data_dir = g_strdup (data_location);
 	}
-	user_data_dir = g_build_filename (g_get_user_data_dir (),
-	                                  loc,
-	                                  "data",
-	                                  NULL);
 
 	/* For DISABLE_JOURNAL case we should use g_get_user_data_dir here. For now
 	 * keeping this as-is */
 
-	if (ontology_name == NULL) {
+	if (cache_location == NULL) {
 		data_dir = g_build_filename (g_get_user_cache_dir (),
-		                             loc,
+		                             "tracker",
 		                             NULL);
 	} else {
-		data_dir = g_build_filename (g_get_user_cache_dir (),
-		                             loc, ontology_name,
-		                             NULL);
+		data_dir = g_strdup (cache_location);
 	}
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
@@ -860,9 +859,8 @@ perform_recreate (gboolean *first_time, GError **error)
 
 static gboolean
 db_manager_init_unlocked (TrackerDBManagerFlags   flags,
-                          const gchar            *loc,
-                          const gchar            *domain,
-                          const gchar            *ontology_name,
+                          const gchar            *cache_location,
+                          const gchar            *data_location,
                           gboolean               *first_time,
                           gboolean                restoring_backup,
                           gboolean                shared_cache,
@@ -911,35 +909,31 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 	old_flags = flags;
 
-	g_free (in_use_filename);
-	g_free (in_use_loc);
-	g_free (in_use_domain);
-	g_free (in_use_ontology_name);
-
-	if (loc == NULL)
-		loc = "tracker";
-	in_use_loc = g_strdup (loc);
-
-	if (domain == NULL)
-		domain = "tracker";
-	in_use_domain = g_strdup (domain);
-
-	if (ontology_name == NULL)
-		in_use_ontology_name = NULL;
+	g_free (in_use_cache_location);
+	if (cache_location == NULL)
+		in_use_cache_location = NULL;
 	else
-		in_use_ontology_name = g_strdup (ontology_name);
+		in_use_cache_location = g_strdup (cache_location);
 
-	tracker_db_manager_init_locations (loc, domain, ontology_name);
-	if (ontology_name == NULL) {
+	g_free (in_use_data_location);
+	if (data_location == NULL)
+		in_use_data_location = NULL;
+	else
+		in_use_data_location = g_strdup (data_location);
+
+	tracker_db_manager_init_locations (cache_location, data_location);
+
+	g_free (in_use_filename);
+	if (data_location == NULL) {
+		/* ~/.cache/tracker/data/ */
 		in_use_filename = g_build_filename (g_get_user_data_dir (),
-		                                    loc,
+		                                    "tracker",
 		                                    "data",
 		                                    IN_USE_FILENAME,
 		                                    NULL);
 	} else {
-		in_use_filename = g_build_filename (g_get_user_data_dir (),
-		                                    loc, ontology_name,
-		                                    "data",
+		/* ~/.cache/cache_location/ontology-name/data/ */
+		in_use_filename = g_build_filename (data_location,
 		                                    IN_USE_FILENAME,
 		                                    NULL);
 	}
@@ -1068,17 +1062,14 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		g_message ("Loading databases files...");
 
 #ifndef DISABLE_JOURNAL
-		if (ontology_name == NULL) {
+		if (data_location == NULL) {
 			journal_filename = g_build_filename (g_get_user_data_dir (),
-			                                     loc,
+			                                     "tracker",
 			                                     "data",
 			                                     TRACKER_DB_JOURNAL_FILENAME,
 			                                     NULL);
 		} else {
-			journal_filename = g_build_filename (g_get_user_data_dir (),
-			                                     loc,
-			                                     ontology_name,
-			                                     "data",
+			journal_filename = g_build_filename (data_location,
 			                                     TRACKER_DB_JOURNAL_FILENAME,
 			                                     NULL);
 		}
@@ -1288,9 +1279,8 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
-                         const gchar            *loc,
-                         const gchar            *domain,
-                         const gchar            *ontology_name,
+                         const gchar            *cache_location,
+                         const gchar            *data_location,
                          gboolean               *first_time,
                          gboolean                restoring_backup,
                          gboolean                shared_cache,
@@ -1305,7 +1295,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 	g_mutex_lock (&init_mutex);
 
-    retval = db_manager_init_unlocked (flags, loc, domain, ontology_name,
+    retval = db_manager_init_unlocked (flags, cache_location, data_location,
                                        first_time, restoring_backup,
                                        shared_cache,
                                        select_cache_size, update_cache_size,
@@ -1559,8 +1549,13 @@ tracker_db_manager_has_enough_space  (void)
 inline static gchar *
 get_first_index_filename (void)
 {
-	return g_build_filename (g_get_user_cache_dir (),
-	                         "tracker",
+	if (in_use_cache_location == NULL) {
+		return g_build_filename (g_get_user_cache_dir (),
+		                         "tracker",
+		                         FIRST_INDEX_FILENAME,
+		                         NULL);
+	}
+	return g_build_filename (in_use_cache_location,
 	                         FIRST_INDEX_FILENAME,
 	                         NULL);
 }
@@ -1631,8 +1626,13 @@ tracker_db_manager_set_first_index_done (gboolean done)
 inline static gchar *
 get_last_crawl_filename (void)
 {
-	return g_build_filename (g_get_user_cache_dir (),
-	                         "tracker",
+	if (in_use_cache_location == NULL) {
+		return g_build_filename (g_get_user_cache_dir (),
+		                         "tracker",
+		                         LAST_CRAWL_FILENAME,
+		                         NULL);
+	}
+	return g_build_filename (in_use_cache_location,
 	                         LAST_CRAWL_FILENAME,
 	                         NULL);
 }
@@ -1715,8 +1715,13 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 inline static gchar *
 get_need_mtime_check_filename (void)
 {
-	return g_build_filename (g_get_user_cache_dir (),
-	                         "tracker",
+	if (in_use_cache_location == NULL) {
+		return g_build_filename (g_get_user_cache_dir (),
+		                         "tracker",
+		                         NEED_MTIME_CHECK_FILENAME,
+		                         NULL);
+	}
+	return g_build_filename (in_use_cache_location,
 	                         NEED_MTIME_CHECK_FILENAME,
 	                         NULL);
 }
@@ -1805,8 +1810,13 @@ tracker_db_manager_set_need_mtime_check (gboolean needed)
 inline static gchar *
 get_parser_sha1_filename (void)
 {
-	return g_build_filename (g_get_user_cache_dir (),
-	                         "tracker",
+	if (in_use_cache_location == NULL) {
+		return g_build_filename (g_get_user_cache_dir (),
+		                         "tracker",
+		                         PARSER_SHA1_FILENAME,
+		                         NULL);
+	}
+	return g_build_filename (in_use_cache_location,
 	                         PARSER_SHA1_FILENAME,
 	                         NULL);
 }

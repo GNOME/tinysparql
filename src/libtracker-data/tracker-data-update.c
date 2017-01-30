@@ -3837,7 +3837,10 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		size = tracker_db_journal_reader_get_size_of_correct ();
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_db_journal_init (NULL, FALSE, &n_error);
+		const gchar *cache_location = tracker_data_manager_get_cache_location();
+		const gchar *data_location = tracker_data_manager_get_data_location();
+
+		tracker_db_journal_init (NULL, cache_location, data_location, FALSE, &n_error);
 		if (n_error) {
 			g_clear_error (&journal_error);
 			/* This is fatal (journal file not writable, etc) */

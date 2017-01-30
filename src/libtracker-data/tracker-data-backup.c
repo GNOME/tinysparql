@@ -343,20 +343,28 @@ dir_move_from_temp (const gchar *path)
 }
 
 static void
-move_to_temp (void)
+move_to_temp (const gchar* cache_location, const gchar* data_location)
 {
 	gchar *data_dir, *cache_dir;
 
 	g_message ("Moving all database files to temporary location");
 
-	data_dir = g_build_filename (g_get_user_data_dir (),
-	                             "tracker",
-	                             "data",
-	                             NULL);
-
-	cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                              "tracker",
-	                              NULL);
+	if (data_location == NULL) {
+		data_dir = g_build_filename (g_get_user_data_dir (),
+		                             "tracker",
+		                             "data",
+		                             NULL);
+	} else {
+		data_dir = g_strdup (data_location);
+	}
+	
+	if (cache_location == NULL) {
+		cache_dir = g_build_filename (g_get_user_cache_dir (),
+		                              "tracker",
+		                              NULL);
+	} else {
+		cache_dir = g_strdup(cache_location);
+	}
 
 	dir_move_to_temp (data_dir);
 	dir_move_to_temp (cache_dir);
@@ -366,22 +374,34 @@ move_to_temp (void)
 }
 
 static void
-remove_temp (void)
+remove_temp (const gchar* cache_location, const gchar* data_location)
 {
 	gchar *tmp_data_dir, *tmp_cache_dir;
 
 	g_message ("Removing all database files from temporary location");
 
-	tmp_data_dir = g_build_filename (g_get_user_data_dir (),
-	                                 "tracker",
-	                                 "data",
-	                                 "tmp",
-	                                 NULL);
+	if (data_location == NULL) {
+		tmp_data_dir = g_build_filename (g_get_user_data_dir (),
+		                                 "tracker",
+		                                 "data",
+		                                 "tmp",
+		                                 NULL);
+	} else {
+		tmp_data_dir = g_build_filename (data_location,
+		                                 "tmp",
+		                                 NULL);
+	}
 
-	tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                                  "tracker",
-	                                  "tmp",
-	                                  NULL);
+	if (cache_location == NULL) {
+		tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
+		                                  "tracker",
+		                                  "tmp",
+		                                  NULL);
+	} else {
+		tmp_cache_dir = g_build_filename (cache_location,
+		                                  "tmp",
+		                                  NULL);
+	}
 
 	dir_remove_files (tmp_data_dir);
 	dir_remove_files (tmp_cache_dir);
@@ -394,20 +414,28 @@ remove_temp (void)
 }
 
 static void
-restore_from_temp (void)
+restore_from_temp (const gchar* cache_location, const gchar* data_location)
 {
 	gchar *data_dir, *cache_dir;
 
 	g_message ("Restoring all database files from temporary location");
 
-	data_dir = g_build_filename (g_get_user_data_dir (),
-	                             "tracker",
-	                             "data",
-	                             NULL);
+	if (data_location == NULL) {
+		data_dir = g_build_filename (g_get_user_data_dir (),
+		                             "tracker",
+		                             "data",
+		                             NULL);
+	} else {
+		data_dir = g_strdup (data_location);
+	}
 
-	cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                              "tracker",
-	                              NULL);
+	if (cache_location == NULL) {
+		cache_dir = g_build_filename (g_get_user_cache_dir (),
+		                              "tracker",
+		                              NULL);
+	} else {
+		cache_dir = g_strdup (cache_location);
+	}
 
 	dir_move_from_temp (data_dir);
 	dir_move_from_temp (cache_dir);
@@ -555,9 +583,9 @@ tracker_data_backup_save (GFile                     *destination,
 
 void
 tracker_data_backup_restore (GFile                *journal,
-                             const gchar          *loc,
-                             const gchar          *domain,
-                             const gchar          *ontology_name,
+                             const gchar          *cache_location,
+                             const gchar          *data_location,
+                             const gchar          *ontology_location,
                              const gchar         **test_schemas,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,
@@ -593,7 +621,7 @@ tracker_data_backup_restore (GFile                *journal,
 
 		tracker_data_manager_shutdown ();
 
-		move_to_temp ();
+		move_to_temp (cache_location, data_location);
 
 #ifndef DISABLE_JOURNAL
 		argv = g_new0 (char*, 6);
@@ -656,7 +684,7 @@ tracker_data_backup_restore (GFile                *journal,
 		             &info->error);
 #endif /* DISABLE_JOURNAL */
 
-		tracker_db_manager_init_locations (loc, domain, ontology_name);
+		tracker_db_manager_init_locations (cache_location, data_location);
 
 		/* Re-set the DB version file, so that its mtime changes. The mtime of this
 		 * file will change only when the whole DB is recreated (after a hard reset
@@ -669,7 +697,7 @@ tracker_data_backup_restore (GFile                *journal,
 		tracker_db_manager_set_need_mtime_check (TRUE);
 
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, FALSE, &n_error);
+		tracker_db_journal_init (NULL, cache_location, data_location, FALSE, &n_error);
 
 		if (n_error) {
 			if (!info->error) {
@@ -683,9 +711,9 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 
 		if (info->error) {
-			restore_from_temp ();
+			restore_from_temp (cache_location, data_location);
 		} else {
-			remove_temp ();
+			remove_temp (cache_location, data_location);
 		}
 
 		tracker_db_journal_shutdown (&n_error);
@@ -697,7 +725,7 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, loc, domain, ontology_name, test_schemas,
+		tracker_data_manager_init (flags, cache_location, data_location, ontology_location, test_schemas,
 		                           &is_first, TRUE, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
@@ -707,7 +735,11 @@ tracker_data_backup_restore (GFile                *journal,
 		if (internal_error) {
 			restore_from_temp ();
 
-			tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
+			tracker_data_manager_init (flags,
+			                           cache_location,
+			                           data_location,
+			                           ontology_location,
+			                           test_schemas, &is_first, TRUE, TRUE,
 			                           select_cache_size, update_cache_size,
 			                           busy_callback, busy_user_data,
 			                           "Restoring backup", &internal_error);

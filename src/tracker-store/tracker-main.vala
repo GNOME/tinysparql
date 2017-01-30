@@ -46,10 +46,12 @@ License which can be viewed at:
 	static bool readonly_mode;
 	static string domain_ontology;
 	static string cache_location;
+	static string data_location;
+	static string ontology_location;
+	static string dbus_path;
 	static string domain;
 	static string ontology_name;
-	static string dbus_path;
-	
+
 	const OptionEntry entries[] = {
 		/* Daemon options */
 		{ "version", 'V', 0, OptionArg.NONE, ref version, N_("Displays version information"), null },
@@ -59,10 +61,12 @@ License which can be viewed at:
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
 		{ "domain-ontology", 'd', 0, OptionArg.STRING, ref domain_ontology, N_("Load a specified domain ontology"), null },
-		{ "cache-location", 'c', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
-		{ "domain", 'm', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
-		{ "ontology-name", 'n', 0, OptionArg.STRING, ref ontology_name, N_("Override ontology to be used"), null },
+		{ "domain", 'a', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
+		{ "ontology-name", 'o', 0, OptionArg.STRING, ref ontology_name, N_("Override ontology name to be used"), null },
 		{ "dbus-path", 'p', 0, OptionArg.STRING, ref dbus_path, N_("Override DBus path to be used"), null },
+		{ "cache-location", 'c', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
+		{ "data-location", 'm', 0, OptionArg.STRING, ref data_location, N_("Override data location to be used"), null },
+		{ "ontology-location", 'n', 0, OptionArg.STRING, ref ontology_location, N_("Override ontology location to be used"), null },
 
 		{ null }
 	};
@@ -78,13 +82,17 @@ License which can be viewed at:
 		if (domain_ontology != null)
 			message ("  Domain ontology........................  %s", domain_ontology);
 
-		message ("  Cache location.........................  %s",
-		         cache_location != null ? cache_location : "tracker");
-		message ("  Domain ................................  %s",
-		         domain != null ? domain : "org.freedesktop.Tracker1");
-
+		if (domain != null)
+			message ("  Domain.................................  %s", domain);
 		if (ontology_name != null)
-			message ("  Ontology name .........................  %s", ontology_name);
+			message ("  Ontology name..........................  %s", ontology_name);
+
+		if (cache_location != null)
+			message ("  Cache location.........................  %s", cache_location);
+		if (data_location != null)
+			message ("  Data location..........................  %s", data_location);
+		if (ontology_location != null)
+			message ("  Ontology location......................  %s", ontology_location);
 	}
 
 	static void do_shutdown () {
@@ -230,9 +238,9 @@ License which can be viewed at:
 				keyfile.load_from_file (keyfile_path, GLib.KeyFileFlags.NONE);
 				
 				try {
-					string? loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
-					if (domain == null)
-						domain = loaded_domain;
+					string? loaded_data_location = keyfile.get_string ("DomainOntology", "DataLocation");
+					if (data_location == null)
+						data_location = loaded_data_location;
 				} catch (KeyFileError m) {}
 
 				try {
@@ -242,15 +250,27 @@ License which can be viewed at:
 				} catch (KeyFileError m) {}
 
 				try {
-					string? loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
-					if (ontology_name == null)
-						ontology_name = loaded_ontology_name;
+					string? loaded_ontology_location = keyfile.get_string ("DomainOntology", "OntologyLocation");
+					if (ontology_location == null)
+						ontology_location = loaded_ontology_location;
 				} catch (KeyFileError m) {}
 
 				try {
 					string? loaded_dbus_path = keyfile.get_string ("DomainOntology", "DBusPath");
 					if (dbus_path == null)
 						dbus_path = loaded_dbus_path;
+				} catch (KeyFileError m) {}
+
+				try {
+					string? loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
+					if (domain == null)
+						domain = loaded_domain;
+				} catch (KeyFileError m) {}
+
+				try {
+					string? loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
+					if (ontology_name == null)
+						ontology_name = loaded_ontology_name;
 				} catch (KeyFileError m) {}
 
 			} catch (KeyFileError ke) {
@@ -325,7 +345,14 @@ License which can be viewed at:
 		bool is_first_time_index;
 
 		try {
-			Tracker.Data.Manager.init (flags, cache_location, domain, ontology_name,
+			string final_cache_location = cache_location != null ? cache_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
+			string final_data_location = data_location != null ? data_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
+			string final_ontology_location = ontology_location != null ? ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
+			
+			Tracker.Data.Manager.init (flags,
+			                           final_cache_location,
+			                           final_data_location,
+			                           final_ontology_location,
 			                           null,
 			                           out is_first_time_index,
 			                           true,
