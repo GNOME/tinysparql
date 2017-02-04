@@ -23,9 +23,6 @@ using Atk;
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
 
-[CCode (cname = "SRCDIR")]
-extern static const string SRCDIR;
-
 public class Tracker.Needle {
 	private GLib.Settings settings_needle = null;
 	private const string UI_FILE = "tracker-needle.ui";
@@ -271,22 +268,16 @@ public class Tracker.Needle {
 		Paned paned;
 
 		try {
-			//try load from source tree first.
-			builder.add_from_file (SRCDIR + UI_FILE);
+			builder.add_from_file (UIDIR + UI_FILE);
 		} catch (GLib.Error e) {
-			//now the install location
-			try {
-				builder.add_from_file (UIDIR + UI_FILE);
-			} catch (GLib.Error e) {
-				var msg = new MessageDialog (null,
-				                             DialogFlags.MODAL,
-				                             MessageType.ERROR,
-				                             ButtonsType.CANCEL,
-				                             "Failed to load UI file, %s\n",
-				                             e.message);
-				msg.run ();
-				Gtk.main_quit();
-			}
+			var msg = new MessageDialog (null,
+			                             DialogFlags.MODAL,
+			                             MessageType.ERROR,
+			                             ButtonsType.CANCEL,
+			                             "Failed to load UI file, %s\n",
+			                             e.message);
+			msg.run ();
+			Gtk.main_quit();
 		}
 
 		Gtk.icon_size_lookup (Gtk.IconSize.MENU, out size_small, null);

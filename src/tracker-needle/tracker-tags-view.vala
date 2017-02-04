@@ -260,23 +260,17 @@ public class TrackerTagsView : Box {
 		var builder = new Gtk.Builder ();
 
 		try {
-			debug ("Trying to use UI file:'%s'", SRCDIR + UI_FILE);
-			builder.add_from_file (SRCDIR + UI_FILE);
+			debug ("Trying to use UI file:'%s'", UIDIR + UI_FILE);
+			builder.add_from_file (UIDIR + UI_FILE);
 		} catch (GLib.Error e) {
-			//now the install location
-			try {
-				debug ("Trying to use UI file:'%s'", UIDIR + UI_FILE);
-				builder.add_from_file (UIDIR + UI_FILE);
-			} catch (GLib.Error e) {
-				var msg = new MessageDialog (null,
-				                             DialogFlags.MODAL,
-				                             MessageType.ERROR,
-				                             ButtonsType.CANCEL,
-				                             "Failed to load UI file, %s\n",
-				                             e.message);
-				msg.run ();
-				Gtk.main_quit ();
-			}
+			var msg = new MessageDialog (null,
+			                             DialogFlags.MODAL,
+			                             MessageType.ERROR,
+			                             ButtonsType.CANCEL,
+			                             "Failed to load UI file, %s\n",
+			                             e.message);
+			msg.run ();
+			Gtk.main_quit ();
 		}
 
 		// Get widgets from .ui file

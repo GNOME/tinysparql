@@ -22,7 +22,6 @@ AM_CPPFLAGS =                                          \
 	-I$(top_builddir)/src                          \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"       \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
-	-DSRCDIR=\"$(abs_srcdir)/\"                    \
 	$(TRACKER_PREFERENCES_CFLAGS)                  \
 	-include config.h
 

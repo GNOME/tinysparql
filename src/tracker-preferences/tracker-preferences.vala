@@ -26,9 +26,6 @@ using Posix;
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
 
-[CCode (cname = "SRCDIR")]
-extern static const string SRCDIR;
-
 public class Tracker.Preferences {
 	private GLib.Settings settings_fts = null;
 	private GLib.Settings settings_miner_fs = null;
@@ -107,23 +104,17 @@ public class Tracker.Preferences {
 		var builder = new Gtk.Builder ();
 
 		try {
-			debug ("Trying to use UI file:'%s'", SRCDIR + UI_FILE);
-			builder.add_from_file (SRCDIR + UI_FILE);
+			debug ("Trying to use UI file:'%s'", UIDIR + UI_FILE);
+			builder.add_from_file (UIDIR + UI_FILE);
 		} catch (GLib.Error e) {
-			//now the install location
-			try {
-				debug ("Trying to use UI file:'%s'", UIDIR + UI_FILE);
-				builder.add_from_file (UIDIR + UI_FILE);
-			} catch (GLib.Error e) {
-				var msg = new MessageDialog (null,
-				                             DialogFlags.MODAL,
-				                             MessageType.ERROR,
-				                             ButtonsType.CANCEL,
-				                             "Failed to load UI file, %s\n",
-				                             e.message);
-				msg.run ();
-				Gtk.main_quit();
-			}
+			var msg = new MessageDialog (null,
+			                             DialogFlags.MODAL,
+			                             MessageType.ERROR,
+			                             ButtonsType.CANCEL,
+			                             "Failed to load UI file, %s\n",
+			                             e.message);
+			msg.run ();
+			Gtk.main_quit();
 		}
 
 		// Get widgets from .ui file
