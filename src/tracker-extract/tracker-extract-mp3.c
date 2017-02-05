@@ -2221,7 +2221,7 @@ parse_id3v20 (const gchar          *data,
 	unsync = (data[5] & 0x80) > 0;
 	tsize = extract_uint32_7bit (&data[6]);
 
-	if (tsize + header_size > size)  {
+	if (tsize > size - header_size)  {
 		g_message ("[v20] Expected MP3 tag size and header size to be within file size boundaries");
 		return;
 	}
@@ -2251,7 +2251,7 @@ parse_id3v20 (const gchar          *data,
 
 		csize = (size_t) extract_uint32_3byte (&data[pos + 3]);
 
-		if (pos + frame_size + csize > size) {
+		if (csize > size - pos - frame_size) {
 			g_debug ("[v20] Size of current frame '%s' (%" G_GSIZE_FORMAT ") "
 			         "exceeds file boundaries (%" G_GSIZE_FORMAT "), "
 			         "not processing any more frames",
