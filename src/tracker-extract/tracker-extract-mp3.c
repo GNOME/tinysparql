@@ -2206,7 +2206,7 @@ parse_id3v20 (const gchar          *data,
 	guint tsize;
 	guint pos;
 
-	if ((size < 16) ||
+	if ((size < header_size + frame_size) ||
 	    (data[0] != 0x49) ||
 	    (data[1] != 0x44) ||
 	    (data[2] != 0x33) ||
