@@ -1803,7 +1803,7 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 AC_ARG_ENABLE(generic-media-extractor,
               AS_HELP_STRING([--enable-generic-media-extractor=ARG],
-                             [enables one of the (gstreamer, libav, external, auto) generic media extractor backends [[default=auto]]]),
+                             [enables one of the (gstreamer, libav, auto) generic media extractor backends [[default=auto]]]),
               [enable_generic_media_extractor=$enableval],
               [enable_generic_media_extractor=auto])
 
@@ -1843,38 +1843,38 @@ AC_SUBST(AVUTIL_LIBS)
 if test "x$enable_generic_media_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
       have_generic_media_handler="yes"
-      have_generic_media_handler_app="GStreamer"
+      generic_media_handler_name="GStreamer"
    elif test "$have_libav" = "yes"; then
-      have_generic_media_handler_app="libav"
+      generic_media_handler_name="libav"
       have_generic_media_handler="yes"
    else
-      have_generic_media_handler="?"
-      have_generic_media_handler_app="An external generic_media player will be called"
+      have_generic_media_handler="no"
+      generic_media_handler_name="none"
    fi
 elif test "x$enable_generic_media_extractor" = "xgstreamer"; then
    if test "$have_libgstreamer" = "yes"; then
-      have_generic_media_handler_app="GStreamer"
+      generic_media_handler_name="GStreamer"
       have_generic_media_handler="yes"
    else
       AC_MSG_ERROR([Could not find GStreamer >= $GSTREAMER_REQUIRED])
    fi
 elif test "x$enable_generic_media_extractor" = "xlibav"; then
    if test "$have_libavformat" = "yes" && test "$have_libavcodec" = "yes" && test "$have_libavutil" = "yes"; then
-      have_generic_media_handler_app="libav"
+      generic_media_handler_name="libav"
       have_generic_media_handler="yes"
    else
       AC_MSG_ERROR([Could not find libav])
    fi
 else
-   have_generic_media_handler="?"
-   have_generic_media_handler_app="An external generic media player will be called"
+   have_generic_media_handler="no"
+   generic_media_handler_name="none"
 fi
 
-if test "$have_generic_media_handler_app" = "GStreamer"; then
+if test "$generic_media_handler_name" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
    AM_CONDITIONAL(HAVE_LIBAV, false)
-elif test "$have_generic_media_handler_app" = "libav"; then
+elif test "$generic_media_handler_name" = "libav"; then
    AC_DEFINE(HAVE_LIBAV, [], [Define if we have libav])
    AM_CONDITIONAL(HAVE_LIBAV, true)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
@@ -1893,7 +1893,7 @@ AC_ARG_WITH([gstreamer-backend],
             [with_gstreamer_backend=$withval],
             [with_gstreamer_backend=discoverer])
 
-if test "$have_generic_media_handler_app" != "GStreamer"; then
+if test "$generic_media_handler_name" != "GStreamer"; then
    AC_MSG_WARN([No need to specify a GStreamer backend if not using GStreamer])
    gstreamer_backend="N/A"
 else
@@ -2841,7 +2841,7 @@ Metadata Extractors:
 	Support MS & Open Office:               $have_libgsf
 	Support XML / HTML:                     $have_libxml2
 	Support embedded / sidecar XMP:         $have_exempi
-	Support generic media formats:          $have_generic_media_handler ($have_generic_media_handler_app) (backend: $gstreamer_backend)
+	Support generic media formats:          $have_generic_media_handler ($generic_media_handler_name) (backend: $gstreamer_backend)
 	Support cue sheet parsing:              $have_libcue (libcue2.0: $have_libcue2)
 	Support playlists (w/ Totem):           $have_playlist
 	Support ISO image parsing:              $have_libosinfo
