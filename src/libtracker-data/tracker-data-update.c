@@ -3453,7 +3453,8 @@ tracker_data_rollback_transaction (void)
 	tracker_db_interface_execute_query (iface, &ignorable, "ROLLBACK");
 
 	if (ignorable) {
-		g_error_free (ignorable);
+		g_warning ("Transaction rollback failed: %s\n", ignorable->message);
+		g_clear_error (&ignorable);
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
@@ -3469,7 +3470,7 @@ tracker_data_rollback_transaction (void)
 			 * journal file failing (in case of TRANSACTION_FORMAT_ONTOLOGY) */
 			g_warning ("Error ignored while rolling back transaction in journal: %s",
 			           ignorable->message ? ignorable->message : "No error given");
-			g_error_free (ignorable);
+			g_clear_error (&ignorable);
 		}
 #endif /* DISABLE_JOURNAL */
 
