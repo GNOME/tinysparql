@@ -60,8 +60,7 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &filename,
 	  N_("Erase indexed information about a file, works recursively for directories"),
-	  N_("FILE"),
-	  NULL },
+	  N_("FILE") },
 	{ NULL }
 };
 
