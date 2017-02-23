@@ -164,12 +164,10 @@ public class Tracker.Store {
 		if (task.type == TaskType.QUERY) {
 			var query_task = (QueryTask) task;
 
-			if (task.error == null) {
-				try {
-					query_task.cancellable.set_error_if_cancelled ();
-				} catch (Error e) {
-					task.error = e;
-				}
+			if (task.error == null &&
+			    query_task.cancellable != null &&
+			    query_task.cancellable.is_cancelled ()) {
+				task.error = new IOError.CANCELLED ("Operation was cancelled");
 			}
 
 			task.callback ();
