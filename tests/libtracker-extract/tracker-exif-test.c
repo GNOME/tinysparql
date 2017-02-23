@@ -31,7 +31,7 @@ test_exif_parse (void)
 
         g_assert (g_file_get_contents (TOP_SRCDIR "/tests/libtracker-extract/exif-img.jpg", &blob, &length, NULL));
 
-        exif = tracker_exif_new (blob, length, "test://file");
+        exif = tracker_exif_new ((guchar *)blob, length, "test://file");
 
         /* Ignored on purpose on the code (?) */
         //g_assert_cmpstr (exif->x_dimension, ==, );
@@ -77,7 +77,7 @@ test_exif_parse_empty (void)
 
         g_assert (g_file_get_contents (TOP_SRCDIR "/tests/libtracker-extract/exif-free-img.jpg", &blob, &length, NULL));
 
-        exif = tracker_exif_new (blob, length, "test://file");
+        exif = tracker_exif_new ((guchar *)blob, length, "test://file");
 
         tracker_exif_free (exif);
 }

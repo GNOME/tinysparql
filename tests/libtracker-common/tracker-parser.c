@@ -186,8 +186,8 @@ run_parsing (void)
 			original_word[original_word_length] = '\0';
 
 			/* Get hex strings */
-			word_hex = tracker_strhex (word, word_length, ':');
-			original_word_hex = tracker_strhex (original_word,
+			word_hex = tracker_strhex ((guint8 *)word, word_length, ':');
+			original_word_hex = tracker_strhex ((guint8 *)original_word,
 			                                    original_word_length,
 			                                    ':');
 

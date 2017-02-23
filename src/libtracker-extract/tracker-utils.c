@@ -822,7 +822,7 @@ tracker_date_guess (const gchar *date_string)
 
 static gint
 my_igetdelim (gchar  **linebuf,
-              guint   *linebufsz,
+              gsize   *linebufsz,
               gint     delimiter,
               FILE    *file)
 {

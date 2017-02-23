@@ -106,7 +106,7 @@ parser_characters (void          *data,
 	GString *string = data;
 	const gchar *str, *end;
 
-	str = ch;
+	str = (gchar *)ch;
 	g_utf8_validate (str, len, &end);
 
 	if (end > str) {

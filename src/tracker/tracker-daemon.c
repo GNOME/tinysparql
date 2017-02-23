@@ -881,7 +881,7 @@ miner_pause (const gchar *miner,
 	TrackerMinerManager *manager;
 	GError *error = NULL;
 	gchar *str;
-	gint cookie;
+	guint32 cookie;
 
 	/* Don't auto-start the miners here */
 	manager = tracker_miner_manager_new_full (FALSE, &error);

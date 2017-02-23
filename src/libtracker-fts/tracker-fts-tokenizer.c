@@ -297,7 +297,7 @@ get_fts_weights (sqlite3_context *context)
 				guint weight;
 
 				weight = sqlite3_column_int (stmt, 0);
-				uri = sqlite3_column_text (stmt, 1);
+				uri = (gchar *)sqlite3_column_text (stmt, 1);
 
 				property = tracker_ontologies_get_property_by_uri (uri);
 				g_hash_table_insert (weights,

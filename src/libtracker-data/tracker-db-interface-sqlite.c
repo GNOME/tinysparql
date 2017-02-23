@@ -188,11 +188,11 @@ function_sparql_string_join (sqlite3_context *context,
 		return;
 	}
 
-	separator = sqlite3_value_text (argv[argc-1]);
+	separator = (gchar *)sqlite3_value_text (argv[argc-1]);
 
 	for (i = 0;i < argc-1; i++) {
 		if (sqlite3_value_type (argv[argc-1]) == SQLITE_TEXT) {
-			const gchar *text = sqlite3_value_text (argv[i]);
+			const gchar *text = (gchar *)sqlite3_value_text (argv[i]);
 
 			if (text != NULL) {
 				if (!str) {
@@ -231,7 +231,7 @@ function_sparql_string_from_filename (sqlite3_context *context,
 	/* "/home/user/path/title_of_the_movie.movie" -> "title of the movie"
 	 * Only for local files currently, do we need to change? */
 
-	name = g_filename_display_basename (sqlite3_value_text (argv[0]));
+	name = g_filename_display_basename ((gchar *)sqlite3_value_text (argv[0]));
 
 	if (!name) {
 		sqlite3_result_null (context);
@@ -263,8 +263,8 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 		return;
 	}
 
-	parent = sqlite3_value_text (argv[0]);
-	uri = sqlite3_value_text (argv[1]);
+	parent = (gchar *)sqlite3_value_text (argv[0]);
+	uri = (gchar *)sqlite3_value_text (argv[1]);
 
 	if (!parent || !uri) {
 		sqlite3_result_error (context, "Invalid arguments", -1);
@@ -387,11 +387,11 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 		}
 	}
 
-	child = sqlite3_value_text (argv[argc-1]);
+	child = (gchar *)sqlite3_value_text (argv[argc-1]);
 
 	for (i = 0; i < argc - 1 && !match; i++) {
 		if (sqlite3_value_type (argv[i]) == SQLITE_TEXT) {
-			const gchar *parent = sqlite3_value_text (argv[i]);
+			const gchar *parent = (gchar *)sqlite3_value_text (argv[i]);
 			guint parent_len = sqlite3_value_bytes (argv[i]);
 
 			if (!parent)
@@ -517,14 +517,14 @@ function_sparql_regex (sqlite3_context *context,
 
 	regex = sqlite3_get_auxdata (context, 1);
 
-	text = sqlite3_value_text (argv[0]);
-	flags = sqlite3_value_text (argv[2]);
+	text = (gchar *)sqlite3_value_text (argv[0]);
+	flags = (gchar *)sqlite3_value_text (argv[2]);
 
 	if (regex == NULL) {
 		gchar *err_str;
 		GError *error = NULL;
 
-		pattern = sqlite3_value_text (argv[1]);
+		pattern = (gchar *)sqlite3_value_text (argv[1]);
 
 		regex_flags = 0;
 		while (*flags) {
@@ -604,18 +604,18 @@ function_sparql_replace (sqlite3_context *context,
 	if (argc == 3) {
 		flags = "";
 	} else if (argc == 4) {
-		flags = sqlite3_value_text (argv[3]);
+		flags = (gchar *)sqlite3_value_text (argv[3]);
 	} else {
 		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
 
-	input = sqlite3_value_text (argv[0]);
+	input = (gchar *)sqlite3_value_text (argv[0]);
 	regex = sqlite3_get_auxdata (context, 1);
-	replacement = sqlite3_value_text (argv[2]);
+	replacement = (gchar *)sqlite3_value_text (argv[2]);
 
 	if (regex == NULL) {
-		pattern = sqlite3_value_text (argv[1]);
+		pattern = (gchar *)sqlite3_value_text (argv[1]);
 
 		for (i = 0; flags[i]; i++) {
 			switch (flags[i]) {
@@ -1078,7 +1078,7 @@ function_sparql_normalize (sqlite3_context *context,
 		return;
 	}
 
-	nfstr = sqlite3_value_text (argv[1]);
+	nfstr = (gchar *)sqlite3_value_text (argv[1]);
 	if (g_ascii_strcasecmp (nfstr, "nfc") == 0)
 		nf = UNORM_NFC;
 	else if (g_ascii_strcasecmp (nfstr, "nfd") == 0)
@@ -1159,7 +1159,7 @@ function_sparql_encode_for_uri (sqlite3_context *context,
 		return;
 	}
 
-	str = sqlite3_value_text (argv[0]);
+	str = (gchar *)sqlite3_value_text (argv[0]);
 	encoded = g_uri_escape_string (str, NULL, FALSE);
 	sqlite3_result_text (context, encoded, -1, g_free);
 }
@@ -1183,8 +1183,8 @@ function_sparql_string_before (sqlite3_context *context,
 		return;
 	}
 
-	str = sqlite3_value_text (argv[0]);
-	substr = sqlite3_value_text (argv[1]);
+	str = (gchar *)sqlite3_value_text (argv[0]);
+	substr = (gchar *)sqlite3_value_text (argv[1]);
 	len = strlen (substr);
 
 	if (len == 0) {
@@ -1221,8 +1221,8 @@ function_sparql_string_after (sqlite3_context *context,
 		return;
 	}
 
-	str = sqlite3_value_text (argv[0]);
-	substr = sqlite3_value_text (argv[1]);
+	str = (gchar *)sqlite3_value_text (argv[0]);
+	substr = (gchar *)sqlite3_value_text (argv[1]);
 	len = strlen (substr);
 
 	if (len == 0) {
@@ -1299,8 +1299,8 @@ function_sparql_checksum (sqlite3_context *context,
 		return;
 	}
 
-	str = sqlite3_value_text (argv[0]);
-	checksumstr = sqlite3_value_text (argv[1]);
+	str = (gchar *)sqlite3_value_text (argv[0]);
+	checksumstr = (gchar *)sqlite3_value_text (argv[1]);
 
 	if (!str || !checksumstr) {
 		sqlite3_result_error (context, "Invalid arguments", -1);
