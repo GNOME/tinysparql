@@ -1027,7 +1027,7 @@ normalize_string (const gunichar2    *string,
                   gsize              *len_out,    /* In gunichar2s */
                   UErrorCode         *status)
 {
-	int nInput, nOutput;
+	int nOutput;
 	gunichar2 *zOutput;
 
 	nOutput = (string_len * 2) + 1;
@@ -1112,7 +1112,6 @@ function_sparql_unaccent (sqlite3_context *context,
                           int              argc,
                           sqlite3_value   *argv[])
 {
-	const gchar *nfstr;
 	const uint16_t *zInput;
 	uint16_t *zOutput;
 	int nInput;
@@ -1171,7 +1170,6 @@ function_sparql_string_before (sqlite3_context *context,
                                sqlite3_value   *argv[])
 {
 	const gchar *str, *substr, *loc;
-	gchar *encoded;
 	gint len;
 
 	if (argc != 2) {
@@ -1210,7 +1208,6 @@ function_sparql_string_after (sqlite3_context *context,
                               sqlite3_value   *argv[])
 {
 	const gchar *str, *substr, *loc;
-	gchar *encoded;
 	gint len;
 
 	if (argc != 2) {
@@ -2159,7 +2156,6 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
                                        const gchar                  *query,
                                        ...)
 {
-	TrackerDBStatementLru *stmt_lru = NULL;
 	TrackerDBStatement *stmt = NULL;
 	va_list args;
 	gchar *full_query;
@@ -2304,7 +2300,6 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 {
 	gchar *full_query;
 	sqlite3_stmt *stmt;
-	int retval;
 
 	tracker_db_interface_lock (db_interface);
 

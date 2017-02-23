@@ -860,7 +860,6 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 {
 	GType etype;
 	TrackerDBVersion version;
-	const gchar *dir;
 	gboolean need_reindex;
 	guint i;
 	int in_use_file;

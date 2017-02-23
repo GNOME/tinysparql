@@ -1053,7 +1053,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		tracker_property_set_range (property, range);
 	} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
 		TrackerProperty *property;
-		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -1133,7 +1132,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "fulltextIndexed") == 0) {
 		TrackerProperty *property;
-		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -1334,10 +1332,6 @@ static void
 check_for_max_cardinality_change (TrackerProperty  *property,
                                   GError          **error)
 {
-	TrackerClass *class;
-	gchar *query = NULL;
-	TrackerDBCursor *cursor;
-	gboolean changed = TRUE;
 	gboolean orig_multiple_values = tracker_property_get_orig_multiple_values (property);
 	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
 	GError *n_error = NULL;
