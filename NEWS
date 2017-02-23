@@ -1,3 +1,10 @@
+NEW in 1.10.5 - 2017-02-23
+==========================
+
+  * tracker-extract: Further sandboxing fixes. Compiling with
+    --disable-libmediaart is still advised on the 1.10 branch
+  * tracker-store: Fix low-probability memory corruption
+
 NEW in 1.10.4 - 2017-01-19
 ==========================
 
