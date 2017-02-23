@@ -13,7 +13,6 @@ AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
-	-DNO_LIBDBUS                                   \
 	$(LIBTRACKER_BUS_CFLAGS)
 
 libtracker_bus_la_SOURCES =                            \

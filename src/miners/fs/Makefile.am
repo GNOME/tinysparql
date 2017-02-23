@@ -117,14 +117,12 @@ CLEANFILES = \
 	$(service_DATA) \
 	$(service_DATA:.service=.service.in) \
 	$(systemd_user_DATA) \
-	$(gsettings_SCHEMAS) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS)
 
 EXTRA_DIST = \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(config_DATA) \
 	$(service_DATA:.service=.service.in.in) \
 	$(systemd_user_DATA:.service=.service.in) \
-	$(gsettings_SCHEMAS:.xml=.xml.in) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS:.xml=.xml.in)
 

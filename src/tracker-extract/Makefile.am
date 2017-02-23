@@ -207,7 +207,7 @@ libextract_mp3_la_LIBADD =  \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 # Vorbis (OGG)
-libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c $(escape_sources)
+libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c
 libextract_vorbis_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS)
 libextract_vorbis_la_LDFLAGS = $(module_flags)
 libextract_vorbis_la_LIBADD = \
@@ -218,7 +218,7 @@ libextract_vorbis_la_LIBADD = \
 	$(LIBVORBIS_LIBS)
 
 # Flac
-libextract_flac_la_SOURCES = tracker-extract-flac.c $(escape_sources)
+libextract_flac_la_SOURCES = tracker-extract-flac.c
 libextract_flac_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS)
 libextract_flac_la_LDFLAGS = $(module_flags)
 libextract_flac_la_LIBADD = \
@@ -626,13 +626,11 @@ CLEANFILES += \
 	$(service_DATA) \
 	$(service_DATA:.service=.service.in) \
 	$(systemd_user_DATA) \
-	$(gsettings_SCHEMAS) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS)
 
 EXTRA_DIST += \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(config_DATA) \
 	$(service_DATA:.service=.service.in.in) \
 	$(systemd_user_DATA:.service=.service.in) \
-	$(gsettings_SCHEMAS:.xml=.xml.in) \
-	$(man_MANS)
+	$(gsettings_SCHEMAS:.xml=.xml.in)

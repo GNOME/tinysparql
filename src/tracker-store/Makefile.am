@@ -2,13 +2,10 @@ AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
 	-DSHAREDIR=\""$(datadir)"\"                    \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
-	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker-$(TRACKER_API_VERSION)/mail-modules\" \
-	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon"\" \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	$(TRACKER_STORE_CFLAGS)                        \
-	-include config.h                              \
-	-DNO_LIBDBUS
+	-include config.h
 
 libexec_PROGRAMS = tracker-store
 
