@@ -209,6 +209,7 @@ static void
 db_set_params (TrackerDBInterface   *iface,
                gint                  cache_size,
                gint                  page_size,
+               gboolean              readonly,
                GError              **error)
 {
 	gchar *queries = NULL;
@@ -234,9 +235,14 @@ db_set_params (TrackerDBInterface   *iface,
 #else
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 #endif /* DISABLE_JOURNAL */
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
+
+		if (readonly) {
+			tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = MEMORY;");
+		} else {
+			tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
+		}
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 		                                              &internal_error,
@@ -332,6 +338,7 @@ db_interface_get (TrackerDB   type,
 	db_set_params (iface,
 	               dbs[type].cache_size,
 	               dbs[type].page_size,
+	               TRUE,
 	               &internal_error);
 
 	if (internal_error) {
@@ -1416,6 +1423,7 @@ tracker_db_manager_get_db_interfaces (GError   **error,
 			db_set_params (connection,
 			               dbs[db].cache_size,
 			               dbs[db].page_size,
+			               readonly,
 			               &internal_error);
 
 			if (internal_error) {
