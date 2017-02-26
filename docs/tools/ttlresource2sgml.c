@@ -781,6 +781,11 @@ generate_ontology_class_docs (Ontology    *ontology,
 		output_file = g_build_filename (output_dir, class_filename, NULL);
 
 		f = fopen (output_file, "w");
+
+		if (f == NULL) {
+			g_error ("Could not open %s for writing.\n", output_file);
+		}
+
 		g_free (class_filename);
 		g_free (output_file);
 		g_free (shortname);
