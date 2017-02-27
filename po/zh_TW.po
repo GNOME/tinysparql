@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-08-25 14:35+0800\n"
-"PO-Revision-Date: 2015-08-25 14:35+0800\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2017-02-23 12:37+0000\n"
+"PO-Revision-Date: 2017-02-25 17:31+0800\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (Taiwan) <chinese-l10n@googlegroups.com>\n"
 "Language: zh_TW\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -108,9 +108,9 @@ msgstr "啟用 stemmer"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
-msgstr "簡化文字為字根以提供更多結果。例如：'shelves'、'shelf' 為 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr "簡化文字為字根以提供更多結果。例如：「shelves」和「shelf」為「shel」"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -118,10 +118,10 @@ msgstr "啟用 unaccent"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
-"將有重音的字轉換為不具重音的同義字。例如 'Idéa' 換為 'Idea'  以改進比對。"
+"將有重音的字轉換為不具重音的同義字。例如「Idea」換為「Idea」以改進比對。"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -138,10 +138,10 @@ msgstr "忽略停止字詞"
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
-"如果啟用，在 stop-words 清單中列出的文字會被忽略。例如常用的文字「the」、"
-"「yes」、「no」等等"
+"如果啟用，在 stop-words 列表中列出的文字會被忽略。例如常用的文字「the」、"
+"「yes」、「no」等等。"
 
 #: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -159,18 +159,18 @@ msgstr "日誌片段的位置"
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr "日誌檔達到最大容量時要儲存在何處。"
 
-#: ../src/libtracker-data/tracker-data-backup.c:500
-#: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
+#: ../src/libtracker-data/tracker-data-backup.c:505
+#: ../src/libtracker-data/tracker-data-backup.c:625
+msgid "Error starting “tar” program"
 msgstr "啟動「tar」程式時發生錯誤"
 
-#: ../src/libtracker-data/tracker-data-backup.c:501
-#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/libtracker-data/tracker-data-backup.c:506
+#: ../src/libtracker-data/tracker-data-backup.c:626
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
@@ -180,19 +180,19 @@ msgstr "啟動「tar」程式時發生錯誤"
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
-#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
-#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
+#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "沒有錯誤訊息"
 
-#: ../src/libtracker-data/tracker-data-backup.c:634
+#: ../src/libtracker-data/tracker-data-backup.c:639
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
+msgid "Unknown error, “tar” exited with status %d"
 msgstr "不明的錯誤，「tar」以狀態 %d 結束"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
@@ -249,7 +249,7 @@ msgstr "一直執行到所有的應用程式都完成索引後結束"
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -259,8 +259,8 @@ msgstr "顯示版本資訊"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
-msgstr "- 啟動應用程式資料礦工"
+msgid "— start the application data miner"
+msgstr "— 啟動應用程式資料礦工"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
 msgid "Tracker Application Miner"
@@ -346,7 +346,7 @@ msgstr ""
 "未成功關機時進行，而 -2 則會完全停用它。"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "可移除裝置資料持久性界限"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -389,7 +389,7 @@ msgstr "索引光學碟片"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
 "設定為 true 以啟用對 CD、DVD 和一般光學媒體的索引 (如果不索引可移除裝置，則光"
 "學碟片也不會被索引)"
@@ -421,7 +421,7 @@ msgid ""
 "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
 "and $HOME/.config/user-dirs.default"
 msgstr ""
-"要遞迴索引的目錄清單，特殊的數值包含：&amp;DESKTOP、 &amp;DOCUMENTS、&amp;"
+"要遞迴索引的目錄列表，特殊的數值包含：&amp;DESKTOP、 &amp;DOCUMENTS、&amp;"
 "DOWNLOAD、&amp;MUSIC、&amp;PICTURES、&amp;PUBLIC_SHARE、&amp;TEMPLATES、&amp;"
 "VIDEOS。請查閱 /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs."
 "default"
@@ -437,7 +437,7 @@ msgid ""
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
-"索引不檢查子資料夾的目錄清單，特殊的數值包含：&amp;DESKTOP、 &amp;DOCUMENTS、"
+"索引不檢查子資料夾的目錄列表，特殊的數值包含：&amp;DESKTOP、 &amp;DOCUMENTS、"
 "&amp;DOWNLOAD、&amp;MUSIC、&amp;PICTURES、&amp;PUBLIC_SHARE、&amp;TEMPLATES、"
 "&amp;VIDEOS。請查閱 /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs."
 "default"
@@ -448,7 +448,7 @@ msgstr "忽略的檔案"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
 msgid "List of file patterns to avoid"
-msgstr "要避免的檔案樣式清單"
+msgstr "要避免的檔案樣式列表"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
 msgid "Ignored directories"
@@ -456,7 +456,7 @@ msgstr "忽略的目錄"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
 msgid "List of directories to avoid"
-msgstr "要避免的目錄清單"
+msgstr "要避免的目錄列表"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
 msgid "Ignored directories with content"
@@ -478,22 +478,23 @@ msgstr "一直執行到所有設定的位置都完成索引後結束。"
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "檢查檔案是否適合設定所定探查條件"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "檔案"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
+msgid "Data object “%s” currently exists"
 msgstr "資料物件「%s」目前存在"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
+msgid "Data object “%s” currently does not exist"
 msgstr "資料物件「%s」目前不存在"
 
 #: ../src/miners/fs/tracker-main.c:470
@@ -564,14 +565,14 @@ msgstr "不會被監控"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
-msgstr "- 啟動 tracker 索引器"
+msgid "— start the tracker indexer"
+msgstr "— 啟動 tracker 索引器"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1363
 msgid "Low battery"
 msgstr "電池低電量"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1490
 msgid "Low disk space"
 msgstr "磁碟空間不足"
 
@@ -608,12 +609,12 @@ msgstr "使用的標題 (必須與 --add-feed 一起使用)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- 啟動餵送索引器"
+msgid "— start the feeds indexer"
+msgstr "— 啟動餵送索引器"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
-#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
+#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
@@ -643,8 +644,8 @@ msgstr "使用者指南資料礦工"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
-msgstr "- 啟動使用者指南資料礦工"
+msgid "— start the user guides data miner"
+msgstr "— 啟動使用者指南資料礦工"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
@@ -683,7 +684,7 @@ msgid "Tags"
 msgstr "標籤"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1015
-#: ../src/tracker-needle/tracker-tags-view.vala:374
+#: ../src/tracker-needle/tracker-tags-view.vala:368
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -695,7 +696,7 @@ msgstr "解譯器"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
 msgid "Metadata extractor"
-msgstr "元數據解譯器"
+msgstr "詮釋資料解譯器"
 
 #: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
 msgid "Max bytes to extract"
@@ -729,61 +730,75 @@ msgid ""
 "environment where it is important to list files as fast as possible and can "
 "wait to get meta-data later."
 msgstr ""
-"當設定為「true」時， tracker-extract 在解壓縮元數據前會等待 tracker-miner-fs "
-"完成收集。這個選項在環境限制為列出檔案比取得元數據優先的環境會很有用。"
+"當設定為「true」時， tracker-extract 在解壓縮詮釋資料前會等待 tracker-miner-"
+"fs 完成收集。這個選項在環境限制為列出檔案比取得詮釋資料優先的環境會很有用。"
 
-#: ../src/tracker-extract/tracker-extract.c:797
+#: ../src/tracker-extract/tracker-extract.c:726
 msgid "Metadata extraction failed"
-msgstr "元數據解譯失敗"
+msgstr "詮釋資料解譯失敗"
 
-#: ../src/tracker-extract/tracker-extract.c:862
+#: ../src/tracker-extract/tracker-extract.c:792
 msgid "No metadata or extractor modules found to handle this file"
-msgstr "沒有元數據或是找不到能處理這個檔案的解譯模組"
+msgstr "沒有詮釋資料或是找不到能處理這個檔案的解譯模組"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
 msgstr "記錄，0 = 只有錯誤， 1 = 最少，2 = 詳細，3 = 除錯 (預設=0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
-msgstr "檔案解開元數據用於"
+msgstr "檔案解開詮釋資料用於"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "檔案的 MIME 類型 (如果未提供，會使用猜測的結果)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+#: ../src/tracker-extract/tracker-main.c:96
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 msgstr "強制用於解開的模組 (例如「foo」代表「foo.so」)"
 
-#: ../src/tracker-extract/tracker-main.c:96
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "模組"
 
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "輸出結果格式：「sparql」或「turtle」"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "格式"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "不支援的序列化格式「%s」\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
-msgid "- Extract file meta data"
-msgstr "- 解開檔案元數據"
+#: ../src/tracker-extract/tracker-main.c:320
+msgid "— Extract file meta data"
+msgstr "— 解開檔案詮釋資料"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "檔案名稱和 mime 類型必須一起提供"
 
 #: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
 msgid "Tracker Metadata Extractor"
-msgstr "Tracker 元數據解譯器"
+msgstr "Tracker 詮釋資料解譯器"
 
 #: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
 msgid "Extracts metadata from local files"
-msgstr "從本地檔案解開元數據"
+msgstr "從本地檔案解開詮釋資料"
 
 #: ../src/tracker-needle/org.freedesktop.Tracker.Needle.gschema.xml.in.h:1
 msgid "Default View"
@@ -805,7 +820,7 @@ msgstr "桌面搜尋"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr "使用 Tracker 依名稱或內容找出您在這臺電腦上要找的東西"
 
@@ -818,7 +833,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
-msgstr "以清單顯示找到檔案的結果"
+msgstr "以列表顯示找到檔案的結果"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display found images"
@@ -861,25 +876,25 @@ msgstr "加入標籤"
 msgid "Remove selected tag"
 msgstr "移除選取的標籤"
 
-#: ../src/tracker-needle/tracker-needle.vala:75
+#: ../src/tracker-needle/tracker-needle.vala:72
 msgid "Search criteria was too generic"
 msgstr "搜尋條件太寬鬆"
 
-#: ../src/tracker-needle/tracker-needle.vala:76
+#: ../src/tracker-needle/tracker-needle.vala:73
 msgid "Only the first 500 items will be displayed"
 msgstr "只會顯示前 500 個項目"
 
-#: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-needle/tracker-needle.vala:802
+#: ../src/tracker-preferences/tracker-preferences.vala:942
 msgid "Print version"
 msgstr "顯示版本"
 
-#: ../src/tracker-needle/tracker-needle.vala:818
-#: ../src/tracker-needle/tracker-needle.vala:819
+#: ../src/tracker-needle/tracker-needle.vala:809
+#: ../src/tracker-needle/tracker-needle.vala:810
 msgid "[SEARCH-CRITERIA]"
 msgstr "[搜尋-條件]"
 
-#: ../src/tracker-needle/tracker-needle.vala:824
+#: ../src/tracker-needle/tracker-needle.vala:815
 msgid "Desktop Search user interface using Tracker"
 msgstr "使用 Tracker 的桌面搜尋使用者介面"
 
@@ -912,7 +927,7 @@ msgstr[0] "文件"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:156
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "檔案"
@@ -957,7 +972,7 @@ msgstr[0] "相片"
 #: ../src/tracker-needle/tracker-stats.vala:134
 msgid "Playlist"
 msgid_plural "Playlists"
-msgstr[0] "播放清單"
+msgstr[0] "播放列表"
 
 #: ../src/tracker-needle/tracker-stats.vala:137
 msgid "Email"
@@ -969,34 +984,34 @@ msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "書籤"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:324
+#: ../src/tracker-needle/tracker-tags-view.vala:318
 msgid "Name"
 msgstr "名稱"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:380
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 msgid "No items currently selected"
 msgstr "目前尚未選取項目"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:466
-#: ../src/tracker-needle/tracker-tags-view.vala:607
+#: ../src/tracker-needle/tracker-tags-view.vala:460
+#: ../src/tracker-needle/tracker-tags-view.vala:601
 msgid "Could not update tags"
 msgstr "無法更新標籤"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:526
+#: ../src/tracker-needle/tracker-tags-view.vala:520
 #: ../src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
 msgstr "無法移除標籤"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:701
+#: ../src/tracker-needle/tracker-tags-view.vala:695
 msgid "Could not retrieve tags for the current selection"
 msgstr "無法取回目前選擇區域的標籤"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:740
+#: ../src/tracker-needle/tracker-tags-view.vala:734
 #: ../src/tracker/tracker-tag.c:709
 msgid "Could not add tag"
 msgstr "無法加入書籤"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:797
+#: ../src/tracker-needle/tracker-tags-view.vala:791
 msgid "Could not update tags for file"
 msgstr "無法更新檔案的標籤"
 
@@ -1086,7 +1101,7 @@ msgid "Folders"
 msgstr "資料夾"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "書籤"
 
@@ -1244,7 +1259,7 @@ msgid ""
 "immediately in that directory will be indexed."
 msgstr ""
 "特殊的位址如<b>家目錄</b>、<b>桌面</b>或<b>文件</b>資料夾都可以輕鬆的切換。這"
-"會在下面的清單中加入或移除他們的真實路徑。\n"
+"會在下面的列表中加入或移除他們的真實路徑。\n"
 "\n"
 "如果目錄切換到<b>遞迴</b>，表示其下的所有子資料夾都會被索引。否則，只有直接出"
 "現在目錄中的檔案會被索引。"
@@ -1323,10 +1338,10 @@ msgstr "目錄"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
-"比對樣式可以在這裡使用，例如：「*bar*」。\n"
+"萬用字元樣式可以在這裡使用，例如：「*bar*」。\n"
 "這最常用來忽略目錄如 *~, *.o, *.la, 等等"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
@@ -1354,100 +1369,16 @@ msgstr "已索引了什麼？"
 msgid "Control"
 msgstr "控制"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"當重新設定您已索引的資料時，資料庫會被移除，而您的檔案將不再被索引。直到下次"
-"啟動時，Tracker 才會開始索引初次使用的資料。\n"
-"\n"
-"<b>警告：所有已索引及快取的資料會被移除！這些資料無法取回！您的原始資料與檔案"
-"則不會被影響。</b>\n"
-"\n"
-"點擊這個按鈕會同時關閉偏好設定。"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all indexes"
-msgstr "是，移除所有的索引"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-"「索引」是對一群資料的有序參照。我們使用索引能夠快速找到您的資訊與內容。"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "重設已索引資料"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "延遲(_D)"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "秒鐘"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "啟動"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "系統"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:153
+#: ../src/tracker-preferences/tracker-preferences.vala:154
+#: ../src/tracker-preferences/tracker-preferences.vala:155
 msgid "Directory"
 msgstr "目錄"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:296
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
-msgstr ""
-"您在這裡對偏好設定所進行的變更需要進行重新索引，以確保您所有的資料是依您的要"
-"求正確的進行索引。"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "這樣會關閉這個對話盒！"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "您是否要立即重新索引？"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "重新索引"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "不做任何事"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr "您在偏好設定所進行的變更需要重新啟動 tracker 程序。"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "您是否要立即重新啟動程式？"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-msgid "Restart Tracker"
-msgstr "重新啟動 Tracker"
+"Some of the requested changes will take effect on the next session restart."
+msgstr "某些要求的變更會在下次工作階段重新啟動時生效。"
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1456,38 +1387,38 @@ msgstr "重新啟動 Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:346
+#: ../src/tracker-preferences/tracker-preferences.vala:359
 msgid "Disabled"
 msgstr "已停用"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:531
 msgid "Enter value"
 msgstr "輸入數值"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:534
+#: ../src/tracker-preferences/tracker-preferences.vala:563
 msgid "_Cancel"
 msgstr "取消(_C)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:535
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "_OK"
 msgstr "確定(_O)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:560
 msgid "Select directory"
 msgstr "選擇目錄"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:581
 msgid "That directory is already selected as a location to index"
 msgstr "那個目錄已經選取做為要索引的位置"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:843
 msgid "Recurse"
 msgstr "遞迴"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:948
 msgid "Desktop Search preferences"
 msgstr "桌面搜尋偏好設定"
 
@@ -1504,8 +1435,8 @@ msgstr "只允許在資料庫中以讀取為基礎的動作"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- 啟動 tracker 伺服程式"
+msgid "— start the tracker daemon"
+msgstr "— 啟動 tracker 伺服程式"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1513,7 +1444,7 @@ msgstr "Tracker 儲存區"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
-msgstr "元數據資料庫儲存與查詢管理員"
+msgstr "詮釋資料資料庫儲存與查詢管理員"
 
 #: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
 msgid "GraphUpdated delay"
@@ -1525,14 +1456,10 @@ msgid ""
 "indexed data has changed inside the database."
 msgstr "當索引資料在資料庫內部變更時發出 GraphUpdated 信號的間隔 (以毫秒計)。"
 
-#: ../src/tracker/tracker-config.c:59
+#: ../src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr "不能取得 miners 的 GSettings，管理員無法建立，%s"
-
-#: ../src/tracker/tracker-compatible.c:221
-msgid "The 'tracker-control' command is no longer available"
-msgstr "「tracker-control」指令已不再可用"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -1550,12 +1477,12 @@ msgstr "正在取回…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
+msgid "Crawling single directory “%s”"
 msgstr "抓取單一目錄「%s」的資料"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
+msgid "Crawling recursively directory “%s”"
 msgstr "抓取遞廻目錄「%s」的資料"
 
 #: ../src/tracker/tracker-daemon.c:127
@@ -1634,8 +1561,8 @@ msgstr "列出所有的 Tracker 程序"
 
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "使用 SIGKILL 停止所有符合的程序，可以使用「store」、「miners」或「all」，不使"
 "用參數則等同於「all」"
@@ -1646,8 +1573,8 @@ msgstr "程式"
 
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "使用 SIGTERM 停止所有符合的程序，可以使用「store」、「miners」或「all」，不使"
 "用參數則等同於「all」"
@@ -1656,15 +1583,15 @@ msgstr ""
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "啟動礦工 (也會間接啟動 tracker-store)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
 "設定所有程序的紀錄詳細程度至等級 (「debug」、「detailed」、「minimal」、"
 "「errors」)"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "等級"
 
@@ -1704,11 +1631,11 @@ msgstr "無法接收 tracker-store 狀態"
 msgid "Could not retrieve tracker-store progress"
 msgstr "無法接收 tracker-store 程序"
 
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "無法取回命名空間前綴"
 
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "未傳回命名空間前綴"
 
@@ -1727,7 +1654,7 @@ msgstr "無法暫停礦工，管理員無法建立，%s"
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "嘗試暫停礦工「%s」，原因為「%s」"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
@@ -1761,7 +1688,7 @@ msgid "Could not resume miner: %s"
 msgstr "無法恢復礦工：%s"
 
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1387
+#: ../src/tracker/tracker-sparql.c:1396
 msgid "Done"
 msgstr "完成"
 
@@ -1805,7 +1732,7 @@ msgid "No miners are paused"
 msgstr "沒有礦工被暫停"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "只允許「all」、「store」和「miners」其中一個選項"
 
 #: ../src/tracker/tracker-daemon.c:1242
@@ -1824,7 +1751,7 @@ msgstr "所有的 nie:plainTextContent 屬性都已送出"
 msgid "Common statuses include"
 msgstr "一般狀態包含"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "無法取得狀態，管理員無法建立，%s"
@@ -1836,7 +1763,7 @@ msgstr "儲存"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
+msgid "Could not get display name for miner “%s”"
 msgstr "無法從礦工「%s」取得顯示名稱"
 
 #: ../src/tracker/tracker-daemon.c:1461
@@ -1859,14 +1786,14 @@ msgstr "您不可以同時使用 --kill 與 --terminate 參數"
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "您不可以同時使用 --get-logging 與 --set-logging 參數"
 
-#: ../src/tracker/tracker-daemon.c:1530
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "無效的紀錄詳細程度，請試試「debug」、「detailed」、「minimal」或「errors」"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
+msgid "Found process ID %d for “%s”"
 msgstr "找到「%2$s」的程序 ID %1$d"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
@@ -1879,7 +1806,7 @@ msgstr "只有設定列出的"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr "設定「%s」所有元件的紀錄詳細程度…"
 
 #: ../src/tracker/tracker-daemon.c:1662
@@ -1900,11 +1827,11 @@ msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr "如果沒有指定引數，就會顯示儲存區與資料礦工的狀態"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:434 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:230
+#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "無法辨識的選項"
 
@@ -1916,9 +1843,13 @@ msgstr "無法取得 D-Bus 連線"
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "無法建立至 tracker-store 的 D-Bus 代理伺服器"
 
+#: ../src/tracker/tracker-extract.c:77
+msgid "Could not run tracker-extract: "
+msgstr "無法執行 tracker-extract："
+
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
+msgid "failed to exec “%s”: %s"
 msgstr "無法執行「%s」：%s"
 
 #: ../src/tracker/tracker-index.c:56
@@ -1991,21 +1922,21 @@ msgstr "無法備份資料庫"
 msgid "Restoring database from backup"
 msgstr "從備份還原資料庫"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr "同時只能使用一個動作 (--backup, --restore, --index-file 或 --import) "
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "缺少一或更多必要的檔案"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "只有一個檔案能使用 --backup 和 --restore"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
@@ -2014,7 +1945,7 @@ msgstr ""
 "type 同時使用"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr "顯示完整的命名空間 (例如：不使用 nie:title，使用完整 URL)"
 
 #: ../src/tracker/tracker-info.c:53
@@ -2053,16 +1984,16 @@ msgstr "無法取回 URI 的資料"
 
 #: ../src/tracker/tracker-info.c:362
 msgid "No metadata available for that URI"
-msgstr "沒有那個 URI 的元數據可用"
+msgstr "沒有那個 URI 的詮釋資料可用"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
-#: ../src/tracker/tracker-sql.c:136
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:138
 msgid "Results"
 msgstr "結果"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr "請查閱「tracker help <command>」以了解特定子指令的資訊。"
 
 #: ../src/tracker/tracker-main.c:97
@@ -2070,109 +2001,159 @@ msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr "開始、停止、暫停與列出處理索引內容的程序"
 
 #: ../src/tracker/tracker-main.c:98
+msgid "Extract information from a file"
+msgstr "從檔案解開資訊"
+
+#: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "取得如何使用 Tracker 與任何這些指令的協助"
 
-#: ../src/tracker/tracker-main.c:99
+#: ../src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr "顯示關於已索引本地端檔案或項目已知的資訊"
 
-#: ../src/tracker/tracker-main.c:100
+#: ../src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr "依 MIME 類型或檔案名稱備份、還原、匯入與(重新)索引"
 
-#: ../src/tracker/tracker-main.c:101
+#: ../src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "重設或移除索引並將設定回復為預設值"
 
-#: ../src/tracker/tracker-main.c:102
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "搜尋索引的內容或依類型顯示內容"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr "使用 SPARQL 查詢與更新索引，或搜尋、列出資料本體的樹狀圖"
 
-#: ../src/tracker/tracker-main.c:104
+#: ../src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "使用 SQL 查詢最低階的資料庫"
 
-#: ../src/tracker/tracker-main.c:105
+#: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "顯示索引程序、內容統計與索引狀態"
 
-#: ../src/tracker/tracker-main.c:106
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "為已索引的內容建立、列出或刪除標籤"
 
-#: ../src/tracker/tracker-main.c:107
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "顯示使用中的授權與版本"
 
-#: ../src/tracker/tracker-main.c:152
+#: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "「%s」不是 tracker 指令。請查閱「tracker --help」"
 
-#: ../src/tracker/tracker-main.c:175
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "可用的 tracker 指令有："
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "無法開啟 /proc"
 
-#: ../src/tracker/tracker-process.c:124
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "無法 stat() 檔案"
 
-#: ../src/tracker/tracker-process.c:193
+#: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
+msgid "Could not open “%s”"
 msgstr "無法開啟「%s」"
 
-#: ../src/tracker/tracker-process.c:322
+#: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "無法終結程序 %d -「%s」"
+msgid "Could not terminate process %d — “%s”"
+msgstr "無法終結程序 %d —「%s」"
 
-#: ../src/tracker/tracker-process.c:328
+#: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "已終結信號 %d -「%s」"
+msgid "Terminated process %d — “%s”"
+msgstr "已終結程序 %d —「%s」"
 
-#: ../src/tracker/tracker-process.c:343
+#: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "無法中斷程序 %d -「%s」"
+msgid "Could not kill process %d — “%s”"
+msgstr "無法中斷程序 %d —「%s」"
 
-#: ../src/tracker/tracker-process.c:349
+#: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
-msgstr "中斷程序 %d -「%s」"
+msgid "Killed process %d — “%s”"
+msgstr "中斷程序 %d —「%s」"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "中止 Tracker 程序並移除所有的資料庫"
 
-#: ../src/tracker/tracker-reset.c:51
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr "等同 --hard 但在重新啟動後還原備份 ＆ 日誌"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr "移除所有的設定檔案以便它們在下次啟動時重新產生"
 
-#: ../src/tracker/tracker-reset.c:132
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr "消除關於檔案的已索引資訊，可在目錄中遞廻運作"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:167
+msgid "Deleting…"
+msgstr "正在刪除…"
+
+#: ../src/tracker/tracker-reset.c:188
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr "這個檔案的已索引資料已被刪除，將再一次重建索引。"
+
+#. TRANSLATORS: --hard and --soft are commandline arguments
+#: ../src/tracker/tracker-reset.c:215
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "您不可以同時使用 --hard 與 --soft 參數"
 
-#: ../src/tracker/tracker-reset.c:232
+#: ../src/tracker/tracker-reset.c:223
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "注意︰ 這個過程可能會不可逆轉的刪除資料。"
+
+#: ../src/tracker/tracker-reset.c:224
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"雖然大多數 Tracker 索引的內容可以安全的重新索引，仍然不能放心認為所有資料都是"
+"的這樣。要注意，您可能會面臨資料遺失的情況，進行的風險由您自己承擔。"
+
+#: ../src/tracker/tracker-reset.c:229
+msgid "Are you sure you want to proceed?"
+msgstr "是否確定要繼續？"
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:231
+msgid "[y|N]"
+msgstr "[y|N]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:240
+msgid "yes"
+msgstr "是"
+
+#: ../src/tracker/tracker-reset.c:351
 msgid "Removing configuration files…"
 msgstr "移除設定檔案…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:356
 msgid "Resetting existing configuration…"
 msgstr "重設現有的設定…"
 
@@ -2246,7 +2227,7 @@ msgstr "搜尋語詞使用 OR 代替 AND (預設值)"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "顯示結果的 URN (不能套用到 --music-albums、--music-artists、--feeds、--"
@@ -2284,10 +2265,10 @@ msgid ""
 msgstr "注意：已達到限制，資料庫中還有更多項目未列在這裡"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "無法取得搜尋結果"
 
@@ -2315,144 +2296,152 @@ msgstr "找不到電子郵件"
 msgid "No files were found"
 msgstr "找不到檔案"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "找不到演出者"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "演出者"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "找不到音樂"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "專輯"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "找不到書籤"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "找不到餵送"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "餵送"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "找不到軟體"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "軟體"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "找不到軟體分類"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "軟體分類"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "找不到符合您查詢的結果"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
 msgstr "搜尋字詞「%s」是停止字詞。"
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr "停止字詞表示下次索引程序中可能會被忽略的通用性字詞。"
 
-#: ../src/tracker/tracker-sparql.c:104
+#: ../src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr "用來執行查詢或從檔案更新的路徑"
 
-#: ../src/tracker/tracker-sparql.c:108
+#: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "SPARQL 查詢"
 
-#: ../src/tracker/tracker-sparql.c:109
+#: ../src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:112
+#: ../src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr "這只能用於 --query 與資料庫的更新。"
 
-#: ../src/tracker/tracker-sparql.c:116
+#: ../src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "取回類別"
 
-#: ../src/tracker/tracker-sparql.c:120
+#: ../src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "取回類別前綴"
 
-#: ../src/tracker/tracker-sparql.c:124
+#: ../src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr "取回類別的屬性，也可以使用前綴 (例如 rdfs:Resource)"
 
-#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
-#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
-#: ../src/tracker/tracker-sparql.c:149
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "類別"
 
-#: ../src/tracker/tracker-sparql.c:128
+#: ../src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "取回資料庫中通知有變更的類別 (CLASS 是選擇性的)"
 
-#: ../src/tracker/tracker-sparql.c:132
+#: ../src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr "取回用於資料庫的索引以增進效能 (PROPERTY 為選用性)"
 
-#: ../src/tracker/tracker-sparql.c:133
+#: ../src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "屬性"
 
-#: ../src/tracker/tracker-sparql.c:136
+#: ../src/tracker/tracker-sparql.c:137
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr "描述子類別、母類別 (可以加上 -s 強調顯示樹狀部分，-p 可顯示屬性)"
 
-#: ../src/tracker/tracker-sparql.c:140
+#: ../src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "搜尋類別或屬性並顯示更多資訊 (例如：文件)"
 
-#: ../src/tracker/tracker-sparql.c:141
+#: ../src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "屬性/類別"
 
-#: ../src/tracker/tracker-sparql.c:144
+#: ../src/tracker/tracker-sparql.c:145
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "傳回某類別之縮寫 (例如 nfo:FileDataObject)。"
 
-#: ../src/tracker/tracker-sparql.c:148
+#: ../src/tracker/tracker-sparql.c:149
 msgid "Returns the full namespace for a class."
 msgstr "傳回類別的完整命名空間"
 
-#: ../src/tracker/tracker-sparql.c:249
+#: ../src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "要查詢的遠端服務"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "BASE_URL"
+
+#: ../src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "無法取得命名空間前綴"
 
-#: ../src/tracker/tracker-sparql.c:258
+#: ../src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "找不到命名空間前綴"
 
@@ -2483,128 +2472,128 @@ msgstr "找不到命名空間前綴"
 #. *     None
 #. *
 #.
-#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
 #: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "沒有"
 
-#: ../src/tracker/tracker-sparql.c:958
+#: ../src/tracker/tracker-sparql.c:963
 msgid "Could not create tree: subclass query failed"
 msgstr "無法建立樹狀圖：子類別查詢失敗"
 
-#: ../src/tracker/tracker-sparql.c:1007
+#: ../src/tracker/tracker-sparql.c:1012
 msgid "Could not create tree: class properties query failed"
 msgstr "無法建立樹狀圖：類別屬性查詢失敗"
 
-#: ../src/tracker/tracker-sparql.c:1091
+#: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "無法列出類別"
 
-#: ../src/tracker/tracker-sparql.c:1099
+#: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "找不到類別"
 
-#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "類別"
 
-#: ../src/tracker/tracker-sparql.c:1115
+#: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "無法列出類別前綴"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "找不到類別前綴"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "前綴"
 
-#: ../src/tracker/tracker-sparql.c:1143
+#: ../src/tracker/tracker-sparql.c:1152
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
-msgstr "找不到類別前綴，例如 :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+msgstr "找不到類別前綴，例如：「rdfs:Resource」中的資源"
 
-#: ../src/tracker/tracker-sparql.c:1182
+#: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
 msgstr "無法列出屬性"
 
-#: ../src/tracker/tracker-sparql.c:1190
+#: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "找不到屬性"
 
-#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "屬性"
 
-#: ../src/tracker/tracker-sparql.c:1218
+#: ../src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "找不到通知類別"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "找不到通知"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "通知"
 
-#: ../src/tracker/tracker-sparql.c:1252
+#: ../src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "找不到索引的屬性"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "找不到索引"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "索引"
 
-#: ../src/tracker/tracker-sparql.c:1282
+#: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "無法搜尋類別"
 
-#: ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "找不到符合搜尋語詞的類別"
 
-#: ../src/tracker/tracker-sparql.c:1305
+#: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
 msgstr "無法搜尋屬性"
 
-#: ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "找不到符合搜尋語詞的屬性"
 
-#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "無法從路徑取得 UTF-8 路徑"
 
-#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "無法讀取檔案"
 
-#: ../src/tracker/tracker-sparql.c:1380
+#: ../src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "無法執行更新"
 
-#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
-#: ../src/tracker/tracker-sql.c:162
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:131
+#: ../src/tracker/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "無法執行查詢"
 
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "找不到符合您查詢的結果"
 
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:239
 msgid "File and query can not be used together"
 msgstr "檔案與查詢不能同時使用"
 
-#: ../src/tracker/tracker-sparql.c:1499
+#: ../src/tracker/tracker-sparql.c:1508
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -2622,11 +2611,11 @@ msgstr "SQL 查詢"
 msgid "SQL"
 msgstr "SQL"
 
-#: ../src/tracker/tracker-sql.c:110
+#: ../src/tracker/tracker-sql.c:112
 msgid "Failed to initialize data manager"
 msgstr "無法初始化資料管理員"
 
-#: ../src/tracker/tracker-sql.c:170
+#: ../src/tracker/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "清空結果"
 
@@ -2655,6 +2644,9 @@ msgstr "無法取得 Tracker 統計"
 msgid "No statistics available"
 msgstr "沒有統計可用"
 
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
 #: ../src/tracker/tracker-status.c:248
 msgid "Statistics:"
 msgstr "統計："
@@ -2667,7 +2659,7 @@ msgstr "版本"
 msgid "Disk Information"
 msgstr "磁碟資訊"
 
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
 msgid "Remaining space on database partition"
 msgstr "資料庫分割區的剩餘空間"
 
@@ -2708,25 +2700,25 @@ msgstr "沒有統計可用"
 msgid "Database is currently empty"
 msgstr "資料庫目前是空的"
 
-#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
 msgid "Could not get basic status for Tracker"
 msgstr "無法取得 Tracker 基礎狀態"
 
-#: ../src/tracker/tracker-status.c:631
+#: ../src/tracker/tracker-status.c:634
 #, c-format
 msgid "Currently indexed"
 msgstr "目前已索引"
 
-#: ../src/tracker/tracker-status.c:666
+#: ../src/tracker/tracker-status.c:669
 msgid "Data is still being indexed"
 msgstr "資料仍然被索引"
 
-#: ../src/tracker/tracker-status.c:667
+#: ../src/tracker/tracker-status.c:670
 #, c-format
 msgid "Estimated %s left"
 msgstr "預估剩下 %s"
 
-#: ../src/tracker/tracker-status.c:671
+#: ../src/tracker/tracker-status.c:674
 msgid "All data miners are idle, indexing complete"
 msgstr "所有資料礦工都已閒置，索引已完成"
 
@@ -2816,7 +2808,7 @@ msgid "No files were modified"
 msgstr "沒有檔案被修改"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
 msgstr "檔案不存在或未索引"
 
 #: ../src/tracker/tracker-tag.c:725
@@ -2885,12 +2877,87 @@ msgstr "停用 30 秒未動作後關閉"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- 啟動 tracker 回寫服務"
+msgid "— start the tracker writeback service"
+msgstr "—啟動 tracker 回寫服務"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "儲存的查詢"
+
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "當重新設定您已索引的資料時，資料庫會被移除，而您的檔案將不再被索引。直到下"
+#~ "次啟動時，Tracker 才會開始索引初次使用的資料。\n"
+#~ "\n"
+#~ "<b>警告：所有已索引及快取的資料會被移除！這些資料無法取回！您的原始資料與"
+#~ "檔案則不會被影響。</b>\n"
+#~ "\n"
+#~ "點擊這個按鈕會同時關閉偏好設定。"
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "是，移除所有的索引"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "「索引」是對一群資料的有序參照。我們使用索引能夠快速找到您的資訊與內容。"
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "重設已索引資料"
+
+#~ msgid "_Delay"
+#~ msgstr "延遲(_D)"
+
+#~ msgid "seconds"
+#~ msgstr "秒鐘"
+
+#~ msgid "Start up"
+#~ msgstr "啟動"
+
+#~ msgid "System"
+#~ msgstr "系統"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "您在這裡對偏好設定所進行的變更需要進行重新索引，以確保您所有的資料是依您的"
+#~ "要求正確的進行索引。"
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "這樣會關閉這個對話盒！"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "您是否要立即重新索引？"
+
+#~ msgid "Reindex"
+#~ msgstr "重新索引"
+
+#~ msgid "Do nothing"
+#~ msgstr "不做任何事"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr "您在偏好設定所進行的變更需要重新啟動 tracker 程序。"
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "您是否要立即重新啟動程式？"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "重新啟動 Tracker"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "「tracker-control」指令已不再可用"
 
 #~ msgid "Add feed (must be used with --title)"
 #~ msgstr "加入餵送 (必須與 --title 一起使用)"
