@@ -621,7 +621,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	png_structp png_ptr;
 	png_infop info_ptr;
 	png_infop end_ptr;
-	png_bytepp row_pointers;
+	png_bytep row_data;
 	guint row;
 	png_uint_32 width, height;
 	gint bit_depth, color_type;
@@ -694,20 +694,10 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	/* Read the image. FIXME We should be able to skip this step and
 	 * just get the info from the end. This causes some errors atm.
 	 */
-	row_pointers = g_new0 (png_bytep, height);
-
-	for (row = 0; row < height; row++) {
-		row_pointers[row] = png_malloc (png_ptr,
-		                                png_get_rowbytes (png_ptr,info_ptr));
-	}
-
-	png_read_image (png_ptr, row_pointers);
-
-	for (row = 0; row < height; row++) {
-		png_free (png_ptr, row_pointers[row]);
-	}
-
-	g_free (row_pointers);
+	row_data = png_malloc (png_ptr, png_get_rowbytes (png_ptr, info_ptr));
+	for (row = 0; row < height; row++)
+		png_read_row (png_ptr, row_data, NULL);
+	png_free (png_ptr, row_data);
 
 	png_read_end (png_ptr, end_ptr);
 
