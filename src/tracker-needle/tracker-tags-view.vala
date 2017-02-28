@@ -514,7 +514,7 @@ public class TrackerTagsView : Box {
 			yield connection.update_async (query, Priority.DEFAULT, td.cancellable);
 
 			debug ("Tag removed");
-			store.remove (td.iter);
+			store.remove (ref td.iter);
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql update query: %s", e.message);
 			show_error_dialog (_("Could not remove tag"), e);
