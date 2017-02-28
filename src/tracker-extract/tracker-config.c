@@ -226,9 +226,14 @@ config_constructed (GObject *object)
 	 */
 	g_settings_bind (settings, "verbosity", object, "verbosity", G_SETTINGS_BIND_GET | G_SETTINGS_BIND_GET_NO_CHANGES);
 	g_settings_bind (settings, "sched-idle", object, "sched-idle", G_SETTINGS_BIND_GET);
-	g_settings_bind (settings, "max-bytes", object, "max-bytes", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "max-media-art-width", object, "max-media-art-width", G_SETTINGS_BIND_GET);
 	g_settings_bind (settings, "wait-for-miner-fs", object, "wait-for-miner-fs", G_SETTINGS_BIND_GET);
+
+	/* Cache settings accessed from extractor modules, we don't want
+	 * the GSettings object accessed within these as it may trigger
+	 * unintended open() calls.
+	 */
+	TRACKER_CONFIG (settings)->max_bytes = g_settings_get_int (settings, "max-bytes");
 }
 
 TrackerConfig *
@@ -303,7 +308,7 @@ tracker_config_get_max_bytes (TrackerConfig *config)
 {
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
 
-	return g_settings_get_int (G_SETTINGS (config), "max-bytes");
+	return config->max_bytes;
 }
 
 gint

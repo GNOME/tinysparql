@@ -36,7 +36,7 @@ typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
 	GSettings parent;
-	gpointer priv;
+	gint max_bytes;
 };
 
 struct TrackerConfigClass {
