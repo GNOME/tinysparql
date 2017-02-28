@@ -428,7 +428,7 @@ public class Tracker.Preferences {
 				Value value;
 				store.get_value (iter, 0, out value);
 				if (value.get_string () == to_check) {
-					store.remove (iter);
+					store.remove (ref iter);
 					valid = store.get_iter_first (out iter);
 				} else {
 					valid = store.iter_next (ref iter);
@@ -634,7 +634,7 @@ public class Tracker.Preferences {
 			// Check which UserDirectorys we match with str
 			UserDirectory[] matches = dir_match_user_directories (dir);
 
-			store.remove (iter);
+			store.remove (ref iter);
 
 			// Check if we need to untoggle a button
 			toggles_update (matches, false);
