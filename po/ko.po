@@ -2,16 +2,16 @@
 # Copyright(C) 2007 THE tracker'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
 # Namhyung Kim <namhyung@gmail.com>, 2007.
-# Seong-ho Cho <shcho@gnome.org>, 2013-2016.
+# Seong-ho Cho <shcho@gnome.org>, 2013-2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2016-08-17 11:02+0000\n"
-"PO-Revision-Date: 2016-09-02 02:47+0900\n"
-"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
+"POT-Creation-Date: 2017-02-23 12:37+0000\n"
+"PO-Revision-Date: 2017-03-01 21:30+0900\n"
+"Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
 "Language-Team: Gnome Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
@@ -110,11 +110,11 @@ msgstr "파생어 활성화"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
-"더 많은 결과를 제공하려 어근을 단순화 합니다. 예 'shelves'와 'shelf'를 "
-"'shel'로 표기"
+"더 많은 결과를 제공하려 단어를 어근으로 단순화 합니다. 예: “shelves”와 "
+"“shelf”를 “shel”로 표기"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
 msgid "Enable unaccent"
@@ -122,11 +122,11 @@ msgstr "강세 제거 활성화"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "강세를 표시한 문자를 강세가 없는 문자와 동등하게 변환합니다. 예: 일치 조건 개"
-"선을 위해 'Idéa'를 'Idea'로 바꿈."
+"선을 위해 “Idéa”를 “Idea”로 바꿈."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
 msgid "Ignore numbers"
@@ -143,10 +143,10 @@ msgstr "정지 단어 무시"
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "이 항목을 활성화 하면, 정지 단어 목록에 있는 단어는 무시합니다. 예: 일반적인 "
-"단어 'the', 'yes', 'no', 등."
+"단어 “the”, “yes”, “no”, 등."
 
 #: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -166,18 +166,18 @@ msgstr "저널 조각의 위치"
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr "저널이 최대 크기에 도달했을대 저널 조각을 보관할 위치."
 
-#: ../src/libtracker-data/tracker-data-backup.c:500
-#: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
-msgstr "'tar' 프로그램 시작에 오류가 있습니다"
+#: ../src/libtracker-data/tracker-data-backup.c:505
+#: ../src/libtracker-data/tracker-data-backup.c:625
+msgid "Error starting “tar” program"
+msgstr "“tar” 프로그램 시작에 오류가 있습니다"
 
-#: ../src/libtracker-data/tracker-data-backup.c:501
-#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/libtracker-data/tracker-data-backup.c:506
+#: ../src/libtracker-data/tracker-data-backup.c:626
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
 #: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
@@ -189,18 +189,18 @@ msgstr "'tar' 프로그램 시작에 오류가 있습니다"
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
 #: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
 #: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
-#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:168
-#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:548
-#: ../src/tracker/tracker-status.c:577 ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
+#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "발생한 오류가 없습니다"
 
-#: ../src/libtracker-data/tracker-data-backup.c:634
+#: ../src/libtracker-data/tracker-data-backup.c:639
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
-msgstr "알 수 없는 오류, %d 상태로 'tar' 프로그램을 빠져나갔습니다"
+msgid "Unknown error, “tar” exited with status %d"
+msgstr "알 수 없는 오류, %d 상태로 “tar” 프로그램을 빠져나갔습니다"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
@@ -266,8 +266,8 @@ msgstr "버전 정보를 표시합니다"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
-msgstr "- 프로그램 데이터 수집기를 시작합니다"
+msgid "— start the application data miner"
+msgstr "— 프로그램 데이터 수집기를 시작합니다"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
 msgid "Tracker Application Miner"
@@ -356,7 +356,7 @@ msgstr ""
 "행, -2 값은 완전한 비활성화를 의미합니다."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "이동식 장치 데이터 영속성 임계값"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -401,10 +401,10 @@ msgstr "광학 디스크 인덱싱"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
-"CD, DVD, 그리고 일반적인 광학 미디어의 인덱싱을 활성화 하려면 참으로 설정하십"
-"시오(광학장치가 없다면, 광학 디스크는 CD도 DVD도 아닙니다)"
+"CD, DVD, 그리고 일반 광학 미디어의 인덱싱을 활성화하려면 참으로 설정하십시오"
+"(이동식 장치를 인덱싱하지 않으면, 광학 디스크도 인덱싱하지 않습니다)"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Index when running on battery"
@@ -496,19 +496,19 @@ msgstr "설정 내용을 기반으로 수집할 <파일>의 조건이 맞는지 
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
 #: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
-#: ../src/tracker/tracker-sparql.c:105 ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "<파일>"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
-msgstr "'%s' 데이터 객체가 현재 존재합니다"
+msgid "Data object “%s” currently exists"
+msgstr "“%s” 데이터 객체가 있습니다"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
-msgstr "'%s' 데이터 객체가 없습니다"
+msgid "Data object “%s” currently does not exist"
+msgstr "“%s” 데이터 객체가 없습니다"
 
 #: ../src/miners/fs/tracker-main.c:470
 msgid "Directory is eligible to be mined (based on rules)"
@@ -578,14 +578,14 @@ msgstr "감시함"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
-msgstr "- 트래커 인덱서를 시작합니다"
+msgid "— start the tracker indexer"
+msgstr "— 트래커 인덱서를 시작합니다"
 
-#: ../src/miners/fs/tracker-miner-files.c:1357
+#: ../src/miners/fs/tracker-miner-files.c:1363
 msgid "Low battery"
 msgstr "배터리 부족"
 
-#: ../src/miners/fs/tracker-miner-files.c:1484
+#: ../src/miners/fs/tracker-miner-files.c:1490
 msgid "Low disk space"
 msgstr "디스크 공간 부족"
 
@@ -622,12 +622,12 @@ msgstr "사용할 제목입니다(--add-feed 옵션과 사용해야 합니다)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- 피드 인덱서를 시작합니다"
+msgid "— start the feeds indexer"
+msgstr "— 피드 인덱서를 시작합니다"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
 #: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
-#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
@@ -657,8 +657,8 @@ msgstr "사용자 안내서 데이터 수집기"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
-msgstr "- 사용자 안내서 데이터 수집기를 시작합니다"
+msgid "— start the user guides data miner"
+msgstr "— 사용자 안내서 데이터 수집기를 시작합니다"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
@@ -697,7 +697,7 @@ msgid "Tags"
 msgstr "태그"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1015
-#: ../src/tracker-needle/tracker-tags-view.vala:374
+#: ../src/tracker-needle/tracker-tags-view.vala:368
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -748,11 +748,11 @@ msgstr ""
 "완료할 때까지 기다립니다. 이 옵션은 가능한한 파일을 빨리 조회해야 할 중요한 "
 "강요 환경에 쓸모가 있으며 다음에 메타데이터를 가져올 때 기다릴 수 있습니다."
 
-#: ../src/tracker-extract/tracker-extract.c:761
+#: ../src/tracker-extract/tracker-extract.c:726
 msgid "Metadata extraction failed"
 msgstr "메타데이터 추출에 실패했습니다"
 
-#: ../src/tracker-extract/tracker-extract.c:831
+#: ../src/tracker-extract/tracker-extract.c:792
 msgid "No metadata or extractor modules found to handle this file"
 msgstr "이 파일을 처리할 메타데이터나 추출모듈이 없습니다"
 
@@ -776,16 +776,16 @@ msgid "MIME"
 msgstr "<MIME>"
 
 #: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
-msgstr "추출을 위해 사용할 모듈 강제(예: \"foo.so\"의 \"foo\")"
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+msgstr "추출을 위해 사용할 모듈 강제(예: “foo.so”의 “foo”)"
 
 #: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "<모듈>"
 
 #: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: 'sparql', or 'turtle'"
-msgstr "출력 결과 형식: 'sparql' 또는 'turtle'"
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "출력 결과 형식: “sparql” 또는 “turtle”"
 
 #: ../src/tracker-extract/tracker-main.c:100
 #: ../src/tracker/tracker-extract.c:46
@@ -794,14 +794,14 @@ msgstr "<형식>"
 
 #: ../src/tracker-extract/tracker-main.c:269
 #, c-format
-msgid "Unsupported serialization format '%s'\n"
-msgstr "지원하지 않는 '%s' 직렬화 형식\n"
+msgid "Unsupported serialization format “%s”\n"
+msgstr "지원하지 않는 “%s” 직렬화 형식\n"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-extract/tracker-main.c:320
-msgid "- Extract file meta data"
-msgstr "- 파일 메타데이터를 추출합니다"
+msgid "— Extract file meta data"
+msgstr "— 파일 메타데이터를 추출합니다"
 
 #: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
@@ -836,7 +836,7 @@ msgstr "데스크톱 검색"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "트래커를 사용하여 여러분이 이 컴퓨터에서 찾아볼 내용을 이름이나 파일 내용으"
@@ -895,25 +895,25 @@ msgstr "태그 추가"
 msgid "Remove selected tag"
 msgstr "선택한 태그 제거"
 
-#: ../src/tracker-needle/tracker-needle.vala:75
+#: ../src/tracker-needle/tracker-needle.vala:72
 msgid "Search criteria was too generic"
 msgstr "검색 단어가 매우 일반적입니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:76
+#: ../src/tracker-needle/tracker-needle.vala:73
 msgid "Only the first 500 items will be displayed"
 msgstr "처음 500개의 항목만 표시합니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:951
+#: ../src/tracker-needle/tracker-needle.vala:802
+#: ../src/tracker-preferences/tracker-preferences.vala:942
 msgid "Print version"
 msgstr "버전을 출력합니다"
 
-#: ../src/tracker-needle/tracker-needle.vala:818
-#: ../src/tracker-needle/tracker-needle.vala:819
+#: ../src/tracker-needle/tracker-needle.vala:809
+#: ../src/tracker-needle/tracker-needle.vala:810
 msgid "[SEARCH-CRITERIA]"
 msgstr "<검색-단어>"
 
-#: ../src/tracker-needle/tracker-needle.vala:824
+#: ../src/tracker-needle/tracker-needle.vala:815
 msgid "Desktop Search user interface using Tracker"
 msgstr "트래커를 사용한 데스크톱 검색 사용자 인터페이스"
 
@@ -948,7 +948,7 @@ msgstr[0] "문서"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:165
+#: ../src/tracker-preferences/tracker-preferences.vala:156
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "파일"
@@ -1005,34 +1005,34 @@ msgid "Bookmark"
 msgid_plural "Bookmarks"
 msgstr[0] "북마크"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:324
+#: ../src/tracker-needle/tracker-tags-view.vala:318
 msgid "Name"
 msgstr "이름"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:380
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 msgid "No items currently selected"
 msgstr "현재 선택한 항목이 없습니다"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:466
-#: ../src/tracker-needle/tracker-tags-view.vala:607
+#: ../src/tracker-needle/tracker-tags-view.vala:460
+#: ../src/tracker-needle/tracker-tags-view.vala:601
 msgid "Could not update tags"
 msgstr "태그를 업데이트 할 수 없습니다"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:526
+#: ../src/tracker-needle/tracker-tags-view.vala:520
 #: ../src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
 msgstr "태그를 제거할 수 없습니다"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:701
+#: ../src/tracker-needle/tracker-tags-view.vala:695
 msgid "Could not retrieve tags for the current selection"
 msgstr "현재 선택에 대한 태그를 가져올 수 없습니다"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:740
+#: ../src/tracker-needle/tracker-tags-view.vala:734
 #: ../src/tracker/tracker-tag.c:709
 msgid "Could not add tag"
 msgstr "태그를 추가할 수 없습니다"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:797
+#: ../src/tracker-needle/tracker-tags-view.vala:791
 msgid "Could not update tags for file"
 msgstr "파일에 대한 태그를 업데이트할 수 없습니다"
 
@@ -1367,11 +1367,11 @@ msgstr "디렉터리"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
-"여기서 글로빙 패턴을 사용할 수 있습니다:\"*bar*\".\n"
-"대부분 다음과 같이 디렉터리를 무시할 때 사용합니다:*~, *.o, *.la, etc"
+"여기서 글로빙 패턴을 사용할 수 있습니다:“*bar*”.\n"
+"대부분 다음과 같이 디렉터리를 무시할 때 사용합니다: *~, *.o, *.la 등"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:48
 #: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
@@ -1398,16 +1398,16 @@ msgstr "인덱싱한 요소가 무엇입니까?"
 msgid "Control"
 msgstr "제어"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:162
-#: ../src/tracker-preferences/tracker-preferences.vala:163
-#: ../src/tracker-preferences/tracker-preferences.vala:164
+#: ../src/tracker-preferences/tracker-preferences.vala:153
+#: ../src/tracker-preferences/tracker-preferences.vala:154
+#: ../src/tracker-preferences/tracker-preferences.vala:155
 msgid "Directory"
 msgstr "디렉터리"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:305
+#: ../src/tracker-preferences/tracker-preferences.vala:296
 msgid ""
 "Some of the requested changes will take effect on the next session restart."
-msgstr "일부 요청 변경은 다음에 세션을 다시 시작한 후 결과가 나타납니다."
+msgstr "요청하여 바꾼 일부 설정은 다음에 세션을 다시 시작한 후 동작합니다."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1416,38 +1416,38 @@ msgstr "일부 요청 변경은 다음에 세션을 다시 시작한 후 결과�
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:355
-#: ../src/tracker-preferences/tracker-preferences.vala:368
+#: ../src/tracker-preferences/tracker-preferences.vala:346
+#: ../src/tracker-preferences/tracker-preferences.vala:359
 msgid "Disabled"
 msgstr "비활성화됨"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:540
+#: ../src/tracker-preferences/tracker-preferences.vala:531
 msgid "Enter value"
 msgstr "값을 입력하십시오"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:543
-#: ../src/tracker-preferences/tracker-preferences.vala:572
+#: ../src/tracker-preferences/tracker-preferences.vala:534
+#: ../src/tracker-preferences/tracker-preferences.vala:563
 msgid "_Cancel"
 msgstr "취소(_C)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:544
-#: ../src/tracker-preferences/tracker-preferences.vala:574
+#: ../src/tracker-preferences/tracker-preferences.vala:535
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "_OK"
 msgstr "확인(_O)"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:569
+#: ../src/tracker-preferences/tracker-preferences.vala:560
 msgid "Select directory"
 msgstr "디렉터리 선택"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:590
+#: ../src/tracker-preferences/tracker-preferences.vala:581
 msgid "That directory is already selected as a location to index"
 msgstr "해당 디렉터리는 이미 인덱싱을 수행하려고 위치로 선택했습니다"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:852
+#: ../src/tracker-preferences/tracker-preferences.vala:843
 msgid "Recurse"
 msgstr "재귀"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:957
+#: ../src/tracker-preferences/tracker-preferences.vala:948
 msgid "Desktop Search preferences"
 msgstr "데스크톱 검색 기본 설정"
 
@@ -1464,8 +1464,8 @@ msgstr "데이터베이스에서 읽기 관련 동작만 허용"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- 트래커 데몬을 시작합니다"
+msgid "— start the tracker daemon"
+msgstr "— 트래커 데몬을 시작합니다"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1487,7 +1487,7 @@ msgstr ""
 "데이터베이스에서 인덱싱한 데이터가 바뀔때 발생한 GraphUpdated 시그널간의 밀리"
 "초 단위 주기입니다."
 
-#: ../src/tracker/tracker-config.c:59
+#: ../src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
@@ -1509,13 +1509,13 @@ msgstr "가져오는 중…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
-msgstr "'%s' 단일 디렉터리 크롤링"
+msgid "Crawling single directory “%s”"
+msgstr "“%s” 단일 디렉터리 크롤링"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "'%s' 디렉터리 재귀적 크롤링"
+msgid "Crawling recursively directory “%s”"
+msgstr "“%s” 디렉터리 재귀적 크롤링"
 
 #: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
@@ -1599,11 +1599,11 @@ msgstr "모든 트래커 프로세스 조회"
 
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
-"일치하는 모든 프로세스를 멈추려면 SIGKILL을 사용하십시오. \"store\", \"miners"
-"\", \"all\"을 사용할 수 있으며, 매개변수를 주지 않으면 \"all\"과 같습니다."
+"일치하는 모든 프로세스를 멈추려면 SIGKILL을 사용하십시오. “store”, “miners”, "
+" “all”을 사용할 수 있으며, 매개변수를 주지 않으면 “all”과 같습니다."
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1611,11 +1611,11 @@ msgstr "<프로그램>"
 
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
-"일치하는 모든 프로세스를 멈추려면 SIGTERM을 사용하십시오. \"store\", \"miners"
-"\", \"all\"을 사용할 수 있으며, 매개변수를 주지 않으면 \"all\"과 같습니다."
+"일치하는 모든 프로세스를 멈추려면 SIGTERM을 사용하십시오. “store”, “miners”, "
+"“all”을 사용할 수 있으며, 매개변수를 주지 않으면 “all”과 같습니다."
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1623,11 +1623,11 @@ msgstr "수집기를 시작합니다(간접적으로 tracker-store도 시작합�
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
-"모든 프로세스에 대한 로깅 빈도를 <수준>('debug', 'detailed', 'minimal', "
-"'errors')으로 설정합니다"
+"모든 프로세스에 대한 로깅 빈도를 <수준>(“debug”, “detailed”, “minimal”, "
+"“errors”)으로 설정합니다"
 
 #: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
@@ -1669,11 +1669,11 @@ msgstr "tracker-store 상태를 가져올 수 없습니다"
 msgid "Could not retrieve tracker-store progress"
 msgstr "tracker-store 처리 과정 내용을 가져올 수 없습니다."
 
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "이름 공간 접두어를 가져올 수 없습니다"
 
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "반환한 이름공간 접두어가 없습니다"
 
@@ -1692,8 +1692,8 @@ msgstr "수집기를 일시 정지 할 수가 없어, 관리자를 만들 수 �
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "'%s' 수집기를 '%s' 사유로 일시 정지 시도중"
+msgid "Attempting to pause miner “%s” with reason “%s”"
+msgstr "“%s” 수집기를 “%s” 사유로 일시정지 시도 중"
 
 #: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
 #, c-format
@@ -1726,7 +1726,7 @@ msgid "Could not resume miner: %s"
 msgstr "수집기 동작을 재개할 수 없습니다: %s"
 
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1387
+#: ../src/tracker/tracker-sparql.c:1396
 msgid "Done"
 msgstr "완료"
 
@@ -1770,8 +1770,8 @@ msgid "No miners are paused"
 msgstr "일시 정지중인 수집기가 없습니다"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
-msgstr "'all', 'store', 'miners' 중 하나의 옵션만 사용할 수 있습니다"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
+msgstr "“all”, “store”, “miners” 중 하나의 옵션만 사용할 수 있습니다"
 
 #: ../src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
@@ -1790,7 +1790,7 @@ msgstr "모든 nie:plainTextContent 속성이 생략되었습니다"
 msgid "Common statuses include"
 msgstr "일반적인 상태에는 다음 내용이 있습니다"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "상태를 가져올 수 없어, 관리자를 만들 수 없습니다. %s"
@@ -1802,8 +1802,8 @@ msgstr "저장소"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
-msgstr "'%s' 수집기 이름을 가져올 수 없습니다"
+msgid "Could not get display name for miner “%s”"
+msgstr "“%s” 수집기 이름을 가져올 수 없습니다"
 
 #: ../src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
@@ -1826,15 +1826,15 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "--get-logging과 --set-logging 인자를 함께 사용할 수 없습니다"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
-"잘못된 로그 빈도값입니다. 'debug', 'detailed', 'minimal', 'errors'를 사용해보"
-"십시오"
+"잘못된 로그 빈도값입니다. “debug”, “detailed”, “minimal”, “errors”'를 사용해"
+"보십시오"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
-msgstr "'%2$s'에 대한 프로세스 ID %1$d을(를) 찾았습니다"
+msgid "Found process ID %d for “%s”"
+msgstr "“%2$s” 프로세스 ID %1$d을(를) 찾았습니다"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
@@ -1846,8 +1846,8 @@ msgstr "조회한 설정과 이들하고만"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
-msgstr "모든 구성요소에 대한 로그 빈도를 '%s'에 설정하는 중…"
+msgid "Setting log verbosity for all components to “%s”…"
+msgstr "모든 구성요소에 대한 로그 빈도를 “%s”에 설정하는 중…"
 
 #: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
@@ -1869,9 +1869,9 @@ msgstr "매개 변수가 없다면, 저장소 및 데이터 수집기 상태가 
 
 #: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
-#: ../src/tracker/tracker-reset.c:435 ../src/tracker/tracker-search.c:1778
-#: ../src/tracker/tracker-sparql.c:1488 ../src/tracker/tracker-sql.c:228
-#: ../src/tracker/tracker-status.c:703 ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-reset.c:434 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:230
+#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "인식할 수 없는 옵션"
 
@@ -1889,8 +1889,8 @@ msgstr "tracker-extract를 실행할 수 없음: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
-msgstr "'%s' 실행에 실패: %s"
+msgid "failed to exec “%s”: %s"
+msgstr "“%s” 실행 실패: %s"
 
 #: ../src/tracker/tracker-index.c:56
 msgid ""
@@ -1991,7 +1991,7 @@ msgstr ""
 "import)을 사용할 수 없습니다"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr "전체 이름공간 표시(예: nie:title을 사용하지 않고, 완전한 URL을 사용)"
 
 #: ../src/tracker/tracker-info.c:53
@@ -2033,15 +2033,15 @@ msgid "No metadata available for that URI"
 msgstr "URI에 대해 사용할 수 있는 메타데이터가 없습니다"
 
 #: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
-#: ../src/tracker/tracker-sql.c:136
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:138
 msgid "Results"
 msgstr "결과"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
-"지정 하위 명령 정보를 읽어보려면 'tracker help <명령>' 결과를 살펴보십시오."
+"지정 하위 명령 정보를 읽어보려면 “tracker help <명령>” 결과를 살펴보십시오."
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
@@ -2099,8 +2099,8 @@ msgstr "라이선스 및 사용 버전 표시"
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
-msgstr "'%s'은(는) 트래커 명령이 아닙니다. 'tracker --help'를 참고하십시오"
+msgid "“%s” is not a tracker command. See “tracker --help”"
+msgstr "“%s”은(는) 트래커 명령이 아닙니다. “tracker --help”를 참고하십시오"
 
 #: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
@@ -2116,28 +2116,28 @@ msgstr "파일에 대해 stat()을 수행할 수 없습니다"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
-msgstr "'%s'을(를) 열 수 없습니다"
+msgid "Could not open “%s”"
+msgstr "“%s”을(를) 열 수 없습니다"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "%d 프로세스를 중단할 수 없습니다 - '%s'"
+msgid "Could not terminate process %d — “%s”"
+msgstr "%d 프로세스를 중단할 수 없습니다 — “%s”"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "%d 프로세스를 중단했습니다 - '%s'"
+msgid "Terminated process %d — “%s”"
+msgstr "%d 프로세스를 중단했습니다 — “%s”"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "%d 프로세스를 죽일 수 없습니다 - '%s'"
+msgid "Could not kill process %d — “%s”"
+msgstr "%d 프로세스를 죽일 수 없습니다 — “%s”"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-msgid "Killed process %d - '%s'"
-msgstr "%d 프로세스를 죽였습니다 - '%s'"
+msgid "Killed process %d — “%s”"
+msgstr "%d 프로세스를 죽였습니다 — “%s”"
 
 #: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
@@ -2157,39 +2157,40 @@ msgid ""
 msgstr "파일 색인 정보, 작업을 디렉터리에 대해 재귀적으로 삭제합니다"
 
 #. Now, delete the element recursively
-#: ../src/tracker/tracker-reset.c:168
+#: ../src/tracker/tracker-reset.c:167
 msgid "Deleting…"
 msgstr "삭제 중…"
 
-#: ../src/tracker/tracker-reset.c:189
+#: ../src/tracker/tracker-reset.c:188
 msgid ""
 "The indexed data for this file has been deleted and will be reindexed again."
 msgstr "이 파일의 색인 데이터를 삭제하고 다시 색인 작업을 진행합니다."
 
-#: ../src/tracker/tracker-reset.c:216
+#. TRANSLATORS: --hard and --soft are commandline arguments
+#: ../src/tracker/tracker-reset.c:215
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "--hard와 --soft 인자를 함께 사용할 수 없습니다."
 
-#: ../src/tracker/tracker-reset.c:224
+#: ../src/tracker/tracker-reset.c:223
 msgid "CAUTION: This process may irreversibly delete data."
 msgstr "위험: 이 과정은 데이터를 복원할 수 없도록 삭제합니다."
 
-#: ../src/tracker/tracker-reset.c:225
+#: ../src/tracker/tracker-reset.c:224
 msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can't "
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
 "incurring in a data loss situation, proceed at your own risk."
 msgstr ""
 "트래커에서 색인 처리한 대부분의 내용에 대해 다시 재 색인 과정을 거치지만, 모"
-"든 데이터에 대해 진행하지는 않습니다. 데이터를 잃을 상황에 처할 수 있음을 인"
-"지하시고, 위험성을 인지한 채로 진행하십시오."
+"든 데이터의 경우에 대해 장담할 수는 없습니다. 데이터를 잃을 상황에 처할 수 있"
+"음을 인지하시고, 위험성을 인지한 채로 진행하십시오."
 
-#: ../src/tracker/tracker-reset.c:230
+#: ../src/tracker/tracker-reset.c:229
 msgid "Are you sure you want to proceed?"
 msgstr "정말로 진행하시겠습니까?"
 
 #. TRANSLATORS: This is to be displayed on command line output
-#: ../src/tracker/tracker-reset.c:232
+#: ../src/tracker/tracker-reset.c:231
 msgid "[y|N]"
 msgstr "[y|N]"
 
@@ -2197,15 +2198,15 @@ msgstr "[y|N]"
 #. * A partial or full match will be considered an affirmative answer,
 #. * it is intentionally lowercase, so please keep it like this.
 #.
-#: ../src/tracker/tracker-reset.c:241
+#: ../src/tracker/tracker-reset.c:240
 msgid "yes"
 msgstr "예"
 
-#: ../src/tracker/tracker-reset.c:352
+#: ../src/tracker/tracker-reset.c:351
 msgid "Removing configuration files…"
 msgstr "설정 파일 제거중…"
 
-#: ../src/tracker/tracker-reset.c:357
+#: ../src/tracker/tracker-reset.c:356
 msgid "Resetting existing configuration…"
 msgstr "기존 설정을 되돌리는 중…"
 
@@ -2279,11 +2280,11 @@ msgstr "AND 대신 검색 단어에 OR 사용(기본값)"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
 "결과에 URN 표시(--music-albums, --music-artists, --feeds, --software, --"
-"software-categories에 적용하지 마십시오)"
+"software-categories에 적용하지 않음)"
 
 #: ../src/tracker/tracker-search.c:154
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -2403,8 +2404,8 @@ msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
 #: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
-msgstr "'%s' 검색 단어는 스톱 워드입니다."
+msgid "Search term “%s” is a stop word."
+msgstr "“%s” 검색 단어는 스톱 워드입니다."
 
 #: ../src/tracker/tracker-search.c:1564
 #, c-format
@@ -2412,31 +2413,31 @@ msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr "스톱 워드는 인덱싱 과정에서 무시할 일반적인 단어입니다."
 
-#: ../src/tracker/tracker-sparql.c:104
+#: ../src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr "질의문을 실행하거나 파일로부터 업데이트할 때 사용할 경로"
 
-#: ../src/tracker/tracker-sparql.c:108
+#: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "SPARQL 질의문"
 
-#: ../src/tracker/tracker-sparql.c:109
+#: ../src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:112
+#: ../src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr "이 옵션은 --query와 데이터베이스 업데이트시에만 사용합니다."
 
-#: ../src/tracker/tracker-sparql.c:116
+#: ../src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "클래스를 가져옵니다"
 
-#: ../src/tracker/tracker-sparql.c:120
+#: ../src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "클래스 접두어를 가져옵니다"
 
-#: ../src/tracker/tracker-sparql.c:124
+#: ../src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -2444,19 +2445,19 @@ msgstr ""
 "클래스에 대한 속성을 가져옵니다. 접두어도 사용할 수 있습니다(예:rdfs:"
 "Resource)"
 
-#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
-#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
-#: ../src/tracker/tracker-sparql.c:149
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "<클래스>"
 
-#: ../src/tracker/tracker-sparql.c:128
+#: ../src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "데이터베이스에서 바뀐 알림에 대한 클래스를 가져옵니다(<클래스>는 선택입니다)"
 
-#: ../src/tracker/tracker-sparql.c:132
+#: ../src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2464,11 +2465,11 @@ msgstr ""
 "성능을 개선하려 데이터베이스에서 사용하는 인덱스를 받습니다(PROPERTY는 선택"
 "적)"
 
-#: ../src/tracker/tracker-sparql.c:133
+#: ../src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "<속성>"
 
-#: ../src/tracker/tracker-sparql.c:136
+#: ../src/tracker/tracker-sparql.c:137
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -2476,28 +2477,36 @@ msgstr ""
 "하위 클래스, 상위 클래스를 나타냅니다(트리의 강조 부분을 나타낼 때 -s를 사용"
 "할 수 있으며 속성을 표시할 때 -p를 사용할 수 있습니다)"
 
-#: ../src/tracker/tracker-sparql.c:140
+#: ../src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "클래스 또는 속성을 검색하고 더 많은 정보를 표시합니다(예: 문서)"
 
-#: ../src/tracker/tracker-sparql.c:141
+#: ../src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "<클래스>/<속성>"
 
-#: ../src/tracker/tracker-sparql.c:144
+#: ../src/tracker/tracker-sparql.c:145
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "클래스 약자 표기를 반환합니다(예:  nfo:FileDataObject)."
 
-#: ../src/tracker/tracker-sparql.c:148
+#: ../src/tracker/tracker-sparql.c:149
 msgid "Returns the full namespace for a class."
 msgstr "클래스 전체 이름 공간을 반환합니다."
 
-#: ../src/tracker/tracker-sparql.c:249
+#: ../src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "요청 구문을 보낼 원격 서비스"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "BASE_URL"
+
+#: ../src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "이름공간 접두어를 가져올 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:258
+#: ../src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "이름공간 접두어를 찾지 못했습니다"
 
@@ -2528,129 +2537,129 @@ msgstr "이름공간 접두어를 찾지 못했습니다"
 #. *     None
 #. *
 #.
-#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
 #: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "없음"
 
-#: ../src/tracker/tracker-sparql.c:958
+#: ../src/tracker/tracker-sparql.c:963
 msgid "Could not create tree: subclass query failed"
 msgstr "트리를 만들 수 없습니다: 하위클래스 요청에 실패했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1007
+#: ../src/tracker/tracker-sparql.c:1012
 msgid "Could not create tree: class properties query failed"
 msgstr "트리를 만들 수 없습니다: 클래스 속성 요청에 실패했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1091
+#: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "클래스를 조회할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1099
+#: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "클래스를 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "클래스"
 
-#: ../src/tracker/tracker-sparql.c:1115
+#: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "클래스 접두어를 조회할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "클래스 접두어를 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "접두어"
 
-#: ../src/tracker/tracker-sparql.c:1143
+#: ../src/tracker/tracker-sparql.c:1152
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"클래스 접두어에 대한 속성을 찾을 수 없습니다. 예:'rdfs:Resource'의 Resource"
+"클래스 접두어에 대한 속성을 찾을 수 없습니다. 예: “rdfs:Resource”의 Resource"
 
-#: ../src/tracker/tracker-sparql.c:1182
+#: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
 msgstr "속성을 조회할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1190
+#: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "속성을 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "속성"
 
-#: ../src/tracker/tracker-sparql.c:1218
+#: ../src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "알림 클래스를 찾을 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "알림을 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "알림"
 
-#: ../src/tracker/tracker-sparql.c:1252
+#: ../src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "인덱싱한 속성을 찾을 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "인덱스를 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "인덱스"
 
-#: ../src/tracker/tracker-sparql.c:1282
+#: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "클래스를 검색할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "검색 단어에 일치하는 클래스를 찾을 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1305
+#: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
 msgstr "속성을 검색할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "검색 단어에 일치하는 속성을 찾을 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "경로로부터 UTF-8 경로를 가져올 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "파일을 읽을 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1380
+#: ../src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "업데이트를 실행할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
-#: ../src/tracker/tracker-sql.c:162
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:131
+#: ../src/tracker/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "질의문을 실행할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:239
 msgid "File and query can not be used together"
 msgstr "파일과 질의문을 함께 사용할 수 없습니다"
 
-#: ../src/tracker/tracker-sparql.c:1499
+#: ../src/tracker/tracker-sparql.c:1508
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -2669,11 +2678,11 @@ msgstr "SQL 질의문"
 msgid "SQL"
 msgstr "SQL"
 
-#: ../src/tracker/tracker-sql.c:110
+#: ../src/tracker/tracker-sql.c:112
 msgid "Failed to initialize data manager"
 msgstr "데이터 관리자를 초기화 하는데 실패했습니다"
 
-#: ../src/tracker/tracker-sql.c:170
+#: ../src/tracker/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "빈 결과 세트"
 
@@ -2703,6 +2712,9 @@ msgstr "트래커 통계를 가져올 수 없습니다"
 msgid "No statistics available"
 msgstr "통계가 없습니다"
 
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
 #: ../src/tracker/tracker-status.c:248
 msgid "Statistics:"
 msgstr "통계:"
@@ -2715,7 +2727,7 @@ msgstr "버전"
 msgid "Disk Information"
 msgstr "디스크 정보"
 
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
 msgid "Remaining space on database partition"
 msgstr "데이터베이스 파티션에 남은 공간"
 
@@ -2756,25 +2768,25 @@ msgstr "통계가 없습니다"
 msgid "Database is currently empty"
 msgstr "현재 데이터베이스가 비어 있습니다"
 
-#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
 msgid "Could not get basic status for Tracker"
 msgstr "트래커의 기본 상태 정보를 가져올 수 없습니다"
 
-#: ../src/tracker/tracker-status.c:631
+#: ../src/tracker/tracker-status.c:634
 #, c-format
 msgid "Currently indexed"
 msgstr "현재 인덱싱함"
 
-#: ../src/tracker/tracker-status.c:666
+#: ../src/tracker/tracker-status.c:669
 msgid "Data is still being indexed"
 msgstr "현재 데이터를 인덱싱 중입니다."
 
-#: ../src/tracker/tracker-status.c:667
+#: ../src/tracker/tracker-status.c:670
 #, c-format
 msgid "Estimated %s left"
 msgstr "소요 시간 %s 남음"
 
-#: ../src/tracker/tracker-status.c:671
+#: ../src/tracker/tracker-status.c:674
 msgid "All data miners are idle, indexing complete"
 msgstr "모든 데이터 수집기가 대기 상태이며, 인덱싱이 끝났습니다"
 
@@ -2869,7 +2881,7 @@ msgid "No files were modified"
 msgstr "수정한 파일이 없습니다"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
 msgstr "파일이 없거나 인덱싱하지 않았습니다."
 
 #: ../src/tracker/tracker-tag.c:725
@@ -2939,8 +2951,8 @@ msgstr "30초 동안 아무런 반응이 없으면 시스템 종료를 비활성
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- 트래커 라이트백 서비스를 시작합니다"
+msgid "— start the tracker writeback service"
+msgstr "— 트래커 라이트백 서비스를 시작합니다"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
