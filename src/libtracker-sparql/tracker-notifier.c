@@ -433,7 +433,7 @@ create_extra_info_query (TrackerNotifier *notifier,
 		if (has_elements)
 			g_string_append_c (filter, ',');
 
-		g_string_append_printf (filter, "%ld", event->id);
+		g_string_append_printf (filter, "%" G_GINT64_FORMAT "d", event->id);
 		has_elements = TRUE;
 	}
 
@@ -489,8 +489,8 @@ tracker_notifier_query_extra_info (TrackerNotifier *notifier,
 		event = find_event_in_array (events, id, &idx);
 
 		if (!event) {
-			g_critical ("Queried for id %ld but it is not found, "
-			            "bailing out", id);
+			g_critical ("Queried for id %" G_GINT64_FORMAT "d but it is not "
+			            "found, bailing out", id);
 			break;
 		}
 
@@ -522,7 +522,8 @@ create_extra_deleted_info_query (TrackerNotifier *notifier,
 		if (event->type != TRACKER_NOTIFIER_EVENT_DELETE)
 			continue;
 
-		g_string_append_printf (sparql, "%ld tracker:uri(%ld) ",
+		g_string_append_printf (sparql, "%" G_GINT64_FORMAT "d "
+		                        "tracker:uri(%" G_GINT64_FORMAT "d)",
 		                        event->id, event->id);
 		has_elements = TRUE;
 	}
@@ -572,8 +573,8 @@ tracker_notifier_query_extra_deleted_info (TrackerNotifier *notifier,
 		event = find_event_in_array (events, id, &idx);
 
 		if (!event) {
-			g_critical ("Queried for id %ld in column %d but it "
-			            "is not found, bailing out", id, col);
+			g_critical ("Queried for id %" G_GINT64_FORMAT "d in column %d "
+			            "but it is not found, bailing out", id, col);
 			break;
 		}
 
