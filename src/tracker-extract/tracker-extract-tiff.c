@@ -30,6 +30,7 @@
 #include <glib/gstdio.h>
 
 #include <tiffio.h>
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #define CM_TO_INCH          0.393700787
