@@ -21,7 +21,7 @@ using Gtk;
 using Atk;
 
 [CCode (cname = "TRACKER_UI_DIR")]
-extern static const string UIDIR;
+extern const string UIDIR;
 
 public class Tracker.Needle {
 	private GLib.Settings settings_needle = null;
