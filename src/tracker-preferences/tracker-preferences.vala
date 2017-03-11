@@ -24,7 +24,7 @@ using Tracker;
 using Posix;
 
 [CCode (cname = "TRACKER_UI_DIR")]
-extern static const string UIDIR;
+extern const string UIDIR;
 
 public class Tracker.Preferences {
 	private GLib.Settings settings_fts = null;
