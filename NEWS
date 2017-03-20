@@ -1,3 +1,20 @@
+NEW in 1.12.0 - 2017-03-20
+==========================
+
+  * Multiple compile warning fixes
+  * Fix compilation on older vala
+
+  Overview of changes between 1.10 and 1.12:
+
+  * The extractors are now sandboxed
+  * Small improvements towards full sparql 1.1 compliance
+  * Many fixes for Coverity warnings
+  * Thread contention in direct-access tracker clients has been
+    eliminated, concurrent queries are now significantly faster.
+  * Many small fixes all over the place.
+
+Translations: da, id, it, ko, lt, lv
+
 NEW in 1.11.4 - 2017-02-23
 ==========================
 
