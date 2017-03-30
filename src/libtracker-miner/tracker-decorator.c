@@ -803,7 +803,7 @@ decorator_query_remaining_items_cb (GObject      *object,
 		tracker_sparql_cursor_get_integer (cursor, 0);
 	g_object_unref (cursor);
 
-	g_debug ("Found %ld items to extract", priv->n_remaining_items);
+	g_debug ("Found %" G_GSIZE_FORMAT " items to extract", priv->n_remaining_items);
 
 	if (priv->n_remaining_items > 0)
 		decorator_cache_next_items (decorator);
