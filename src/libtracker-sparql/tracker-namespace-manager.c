@@ -152,6 +152,7 @@ tracker_namespace_manager_get_default ()
 		tracker_namespace_manager_add_prefix (manager, "nmm", TRACKER_PREFIX_NMM);
 		tracker_namespace_manager_add_prefix (manager, "mlo", TRACKER_PREFIX_MLO);
 		tracker_namespace_manager_add_prefix (manager, "mfo", TRACKER_PREFIX_MFO);
+		tracker_namespace_manager_add_prefix (manager, "osinfo", TRACKER_PREFIX_OSINFO);
 
 		g_once_init_leave (&default_namespace_manager__volatile, manager);
 	}
