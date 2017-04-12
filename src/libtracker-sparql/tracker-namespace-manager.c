@@ -122,7 +122,7 @@ tracker_namespace_manager_new ()
  * libtracker-sparql. It may not correspond with the installed set of
  * ontologies, if they have been modified since they were installed.
  *
- * Returns: a global, shared #TrackerNamespaceManager instance
+ * Returns: (transfer none): a global, shared #TrackerNamespaceManager instance
  *
  * Since: 1.10
  */

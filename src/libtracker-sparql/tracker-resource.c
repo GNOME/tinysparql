@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, Sam Thursfield <sam@afuera.me.uk>
+ * Copyright (C) 2016-2017, Sam Thursfield <sam@afuera.me.uk>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -642,7 +642,8 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI
  *
  * Returns the list of all known values of the given property.
  *
- * Returns: a #GList of #GValue instances, which must be freed by the caller.
+ * Returns: (transfer full) (element-type GValue): a #GList of #GValue
+ * instances, which must be freed by the caller.
  *
  * Since: 1.10
  */
@@ -771,7 +772,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int64, gint64, G_TYPE_INT64, 
  *
  * Returns the first resource object previously assigned to a property.
  *
- * Returns: the first resource object
+ * Returns: (transfer none): the first resource object
  *
  * Since: 1.10
  */
