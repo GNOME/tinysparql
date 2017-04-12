@@ -167,7 +167,7 @@ find_conversion (const char  *format,
  *
  * The result is escaped using g_uri_escape_string().
  *
- * Returns: (transfer-full): a newly-allocated string holding the result. The returned string
+ * Returns: (transfer full): a newly-allocated string holding the result. The returned string
  * should be freed with g_free() when no longer needed.
  *
  * Since: 0.10
@@ -271,7 +271,7 @@ cleanup:
  *
  * Calls tracker_sparql_escape_uri_vprintf() with the @... supplied.
  *
- * Returns: (transfer-full): a newly-allocated string holding the result.The returned string
+ * Returns: (transfer full): a newly-allocated string holding the result.The returned string
  * should be freed with g_free() when no longer needed.
  *
  * Since: 0.10
@@ -295,7 +295,7 @@ tracker_sparql_escape_uri_printf (const gchar *format, ...)
  *
  * Calls tracker_sparql_escape_uri_printf().
  *
- * Returns: (transfer-full): a newly-allocated string holding the result. The returned string
+ * Returns: (transfer full): a newly-allocated string holding the result. The returned string
  * should be freed with g_free() when no longer needed.
  *
  * Since: 1.12

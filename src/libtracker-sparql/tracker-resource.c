@@ -582,7 +582,7 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_double, double, G_TYPE_DOUBLE, g_va
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int, int, G_TYPE_INT, g_value_set_int, validate_int);
 
 /**
- * tracker_resource_add_boolean:
+ * tracker_resource_add_int64:
  * @self: the #TrackerResource
  * @property_uri: a string identifying the property to modify
  * @value: the property object
