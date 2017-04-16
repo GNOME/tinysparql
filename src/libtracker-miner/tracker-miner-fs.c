@@ -2109,11 +2109,10 @@ should_wait (TrackerMinerFS *fs,
 }
 
 static gboolean
-item_reenqueue_full (TrackerMinerFS       *fs,
-                     TrackerPriorityQueue *item_queue,
-                     GFile                *queue_file,
-                     gpointer              queue_data,
-                     gint                  priority)
+item_enqueue_again (TrackerMinerFS       *fs,
+                    TrackerPriorityQueue *item_queue,
+                    GFile                *queue_file,
+                    gint                  priority)
 {
 	gint reentry_counter;
 	gchar *uri;
@@ -2126,7 +2125,7 @@ item_reenqueue_full (TrackerMinerFS       *fs,
 		g_object_set_qdata (G_OBJECT (queue_file),
 		                    fs->priv->quark_reentry_counter,
 		                    GINT_TO_POINTER (reentry_counter + 1));
-		tracker_priority_queue_add (item_queue, queue_data, priority);
+		tracker_priority_queue_add (item_queue, g_object_ref (queue_file), priority);
 
 		should_wait = TRUE;
 	} else {
@@ -2145,15 +2144,6 @@ item_reenqueue_full (TrackerMinerFS       *fs,
 	}
 
 	return should_wait;
-}
-
-static gboolean
-item_reenqueue (TrackerMinerFS       *fs,
-                TrackerPriorityQueue *item_queue,
-                GFile                *queue_file,
-                gint                  priority)
-{
-	return item_reenqueue_full (fs, item_queue, queue_file, queue_file, priority);
 }
 
 static QueueState
@@ -2601,8 +2591,8 @@ item_queue_handlers_cb (gpointer user_data)
 			 * ensured, tasks are inserted at a higher priority so they
 			 * are processed promptly anyway.
 			 */
-			item_reenqueue (fs, item_queue, g_object_ref (parent), priority - 1);
-			item_reenqueue (fs, item_queue, g_object_ref (file), priority);
+			item_enqueue_again (fs, item_queue, parent, priority - 1);
+			item_enqueue_again (fs, item_queue, file, priority);
 
 			keep_processing = TRUE;
 		}
