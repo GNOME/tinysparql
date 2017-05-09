@@ -182,8 +182,8 @@ tracker_seccomp_init (void)
 	                      SCMP_CMP(0, SCMP_CMP_EQ, 2)) < 0)
 		goto out;
 
-	/* Special requirements for open, allow O_RDONLY calls, but fail
-	 * if write permissions are requested.
+	/* Special requirements for open/openat, allow O_RDONLY calls,
+         * but fail if write permissions are requested.
 	 */
 	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(open), 1,
 	                      SCMP_CMP(1, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) < 0)
@@ -193,6 +193,16 @@ tracker_seccomp_init (void)
 		goto out;
 	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (EACCES), SCMP_SYS(open), 1,
 	                      SCMP_CMP(1, SCMP_CMP_MASKED_EQ, O_RDWR, O_RDWR)) < 0)
+		goto out;
+
+	if (seccomp_rule_add (ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat), 1,
+	                      SCMP_CMP(2, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) < 0)
+		goto out;
+	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (EACCES), SCMP_SYS(openat), 1,
+	                      SCMP_CMP(2, SCMP_CMP_MASKED_EQ, O_WRONLY, O_WRONLY)) < 0)
+		goto out;
+	if (seccomp_rule_add (ctx, SCMP_ACT_ERRNO (EACCES), SCMP_SYS(openat), 1,
+	                      SCMP_CMP(2, SCMP_CMP_MASKED_EQ, O_RDWR, O_RDWR)) < 0)
 		goto out;
 
 	g_debug ("Loading seccomp rules.");
