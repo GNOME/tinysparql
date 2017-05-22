@@ -14,4 +14,4 @@ config_DATA = \
 	stopwords.ru \
 	stopwords.sv
 
-EXTRA_DIST = $(config_DATA)
+EXTRA_DIST = $(config_DATA) meson.build

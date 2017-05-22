@@ -9,7 +9,14 @@
 # to. If it updates the file unconditionally, everything will rebuild from
 # scratch every time Meson reexecutes.
 
-set -eu
+set -u
+
+# Check first if we're in a git env, bail out otherwise
+git diff HEAD..HEAD >/dev/null 2>&1
+
+if [ $@ != 0 && -f ${BUILDDIR}/tracker-parser-sha1.h ]; then
+	exit 0;
+fi
 
 SRCDIR=${MESON_SOURCE_ROOT}/src/libtracker-common
 BUILDDIR=${MESON_BUILD_ROOT}/src/libtracker-common

@@ -6,5 +6,4 @@ config_SCRIPTS =                                       \
 	01-writeback.py
 
 EXTRA_DIST += \
-	$(config_SCRIPTS) \
-	meson.build
+	$(config_SCRIPTS)

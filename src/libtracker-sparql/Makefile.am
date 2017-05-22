@@ -109,6 +109,7 @@ EXTRA_DIST =                                           \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	tracker-sparql.deps                            \
 	$(vala_header:.h=-no-checks.h)                 \
+	tracker-sparql-add-include-guards.sh           \
 	meson.build
 
 # Introspection foo

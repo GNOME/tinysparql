@@ -37,4 +37,7 @@ if HAVE_TRACKER_NEEDLE
 SUBDIRS += tracker-needle
 endif
 
-EXTRA_DIST = meson.build
+EXTRA_DIST = \
+	meson.build \
+	create-miner-symlinks.sh \
+	install-generated-header.sh

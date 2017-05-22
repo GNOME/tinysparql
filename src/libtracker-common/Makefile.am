@@ -86,4 +86,5 @@ EXTRA_DIST =                                           \
 	libtracker-common.vapi                         \
 	tracker-enum-types.c.template                  \
 	tracker-enum-types.h.template                  \
+	generate-tracker-parser-sha1-header.sh         \
 	meson.build

@@ -80,6 +80,7 @@ functional-test:
 	cd tests/functional-tests/ && $(MAKE) $(AM_MAKEFLAGS) $@
 
 EXTRA_DIST +=                                          \
+	config.h.meson.in                              \
 	ChangeLog.pre-0-6-93                           \
 	COPYING.GPL                                    \
 	COPYING.LGPL                                   \
@@ -87,7 +88,9 @@ EXTRA_DIST +=                                          \
 	intltool-extract.in                            \
 	intltool-merge.in                              \
 	intltool-update.in			       \
+	po/meson.build \
 	meson.build \
+	meson_options.txt \
 	tracker.doap \
 	tap-driver.sh \
 	tap-test

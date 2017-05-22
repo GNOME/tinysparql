@@ -96,6 +96,7 @@ EXTRA_DIST = \
 	$(config_SCRIPTS) \
 	$(config_DATA) \
 	create-tests-xml.py \
+	test-runner.sh \
 	meson.build
 
 if HAVE_MAEMO
