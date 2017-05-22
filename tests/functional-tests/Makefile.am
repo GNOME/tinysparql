@@ -95,7 +95,8 @@ functional-test-slow: ${slow_tests}
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
 	$(config_DATA) \
-	create-tests-xml.py
+	create-tests-xml.py \
+	meson.build
 
 if HAVE_MAEMO
 CLEANFILES = \

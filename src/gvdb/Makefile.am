@@ -16,3 +16,5 @@ noinst_HEADERS = \
 libgvdb_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(GVDB_LIBS)
+
+EXTRA_DIST = meson.build

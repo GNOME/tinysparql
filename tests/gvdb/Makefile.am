@@ -15,3 +15,5 @@ gvdb_test_LDADD = \
 	$(top_builddir)/src/gvdb/libgvdb.la \
 	$(BUILD_LIBS) \
 	$(GVDB_LIBS)
+
+EXTRA_DIST += meson.build

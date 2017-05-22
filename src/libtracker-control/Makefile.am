@@ -62,7 +62,8 @@ CLEANFILES += $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
 	tracker-control.vapi                           \
-	tracker-control.deps
+	tracker-control.deps                           \
+	meson.build
 
 # Introspection foo
 -include $(INTROSPECTION_MAKEFILE)

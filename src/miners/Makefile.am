@@ -15,3 +15,5 @@ endif
 if HAVE_TRACKER_MINER_USER_GUIDES
 SUBDIRS += user-guides
 endif
+
+EXTRA_DIST = meson.build

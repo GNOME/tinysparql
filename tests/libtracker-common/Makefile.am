@@ -44,4 +44,6 @@ tracker_parser_test_SOURCES = tracker-parser-test.c
 
 tracker_parser_SOURCES = tracker-parser.c
 
-EXTRA_DIST += non-utf8.txt
+EXTRA_DIST += \
+	non-utf8.txt \
+	meson.build

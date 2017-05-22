@@ -6,3 +6,5 @@ SUBDIRS =                                              \
 if ENABLE_GTK_DOC
 SUBDIRS += ontology
 endif
+
+EXTRA_DIST = meson.build

@@ -115,5 +115,6 @@ EXTRA_DIST += \
 	data/dir/empty-dir/.hidden \
 	data/dir/file1 \
 	data/dir/file2 \
+	meson.build \
 	mock-miners/mock-miner-1.desktop \
 	mock-miners/mock-miner-2.desktop

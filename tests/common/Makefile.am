@@ -15,3 +15,4 @@ libtracker_testcommon_la_SOURCES =                     \
 	tracker-test-helpers.c                         \
 	tracker-test-helpers.h
 
+EXTRA_DIST += meson.build

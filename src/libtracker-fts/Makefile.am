@@ -46,4 +46,5 @@ CLEANFILES = \
 
 EXTRA_DIST += \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
-	$(man_MANS)
+	$(man_MANS) \
+	meson.build

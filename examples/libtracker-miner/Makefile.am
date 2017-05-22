@@ -18,3 +18,5 @@ tracker_miner_test_SOURCES =                           \
 	tracker-miner-test.c                           \
 	tracker-miner-test.h                           \
 	tracker-main.c
+
+EXTRA_DIST = meson.build

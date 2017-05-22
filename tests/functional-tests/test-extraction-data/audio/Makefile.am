@@ -10,4 +10,5 @@ audiotest_DATA =                                       \
 	empty_albumi_song3.mp3			       \
 	empty_albumi_song3.expected
 
-EXTRA_DIST = $(audiotest_DATA)
+EXTRA_DIST = \
+	$(audiotest_DATA)

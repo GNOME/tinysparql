@@ -108,7 +108,8 @@ EXTRA_DIST =                                           \
 	tracker-sparql-enum-types.h.template           \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	tracker-sparql.deps                            \
-	$(vala_header:.h=-no-checks.h)
+	$(vala_header:.h=-no-checks.h)                 \
+	meson.build
 
 # Introspection foo
 -include $(INTROSPECTION_MAKEFILE)

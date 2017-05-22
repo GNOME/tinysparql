@@ -70,4 +70,5 @@ EXTRA_DIST += \
 	exif-free-img.jpg		\
 	guarantee-mtime-test.txt	\
 	getline-test.txt		\
-	iptc-img.jpg
+	iptc-img.jpg			\
+	meson.build

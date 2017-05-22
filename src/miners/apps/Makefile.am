@@ -69,4 +69,5 @@ EXTRA_DIST = \
 	$(autostart_DATA:.desktop=.desktop.in.in) \
 	$(service_DATA:.service=.service.in.in) \
 	$(systemd_user_DATA:.service=.service.in) \
+	meson.build \
 	$(NULL)

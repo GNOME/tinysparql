@@ -64,4 +64,6 @@ bashcompletiondir = $(BASH_COMPLETION_DIR)
 bashcompletion_DATA = bash-completion/tracker
 endif
 
-EXTRA_DIST = $(bashcompletion_DATA)
+EXTRA_DIST = \
+	$(bashcompletion_DATA)
+	meson.build

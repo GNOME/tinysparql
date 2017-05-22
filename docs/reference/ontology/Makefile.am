@@ -49,7 +49,8 @@ include $(top_srcdir)/gtk-doc.make
 #  by gtk-doc
 EXTRA_DIST +=                                          \
 	version.xml.in                                 \
-	$(ONTOLOGY_EXPLANATIONS)
+	$(ONTOLOGY_EXPLANATIONS)                       \
+	meson.build
 
 CLEANFILES +=                                          \
 	gen-doc.stamp

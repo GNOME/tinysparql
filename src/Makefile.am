@@ -36,3 +36,5 @@ endif
 if HAVE_TRACKER_NEEDLE
 SUBDIRS += tracker-needle
 endif
+
+EXTRA_DIST = meson.build

@@ -5,4 +5,6 @@ configdir = $(datadir)/tracker-tests
 config_SCRIPTS =                                       \
 	01-writeback.py
 
-EXTRA_DIST += $(config_SCRIPTS)
+EXTRA_DIST += \
+	$(config_SCRIPTS) \
+	meson.build

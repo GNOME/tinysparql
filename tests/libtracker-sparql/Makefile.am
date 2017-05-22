@@ -24,3 +24,5 @@ tracker_resource_test_SOURCES = tracker-resource-test.c
 tracker_sparql_test_SOURCES = tracker-sparql-test.c
 
 tracker_gb_737023_test_SOURCES = tracker-gb-737023.c
+
+EXTRA_DIST += meson.build

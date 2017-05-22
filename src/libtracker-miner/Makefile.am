@@ -200,4 +200,6 @@ endif
 configdir = $(datadir)/tracker
 config_DATA = tracker-miner.xml
 
-EXTRA_DIST += $(config_DATA)
+EXTRA_DIST += \
+	$(config_DATA) \
+	meson.build

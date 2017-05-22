@@ -65,3 +65,4 @@ test_class_signal_performance_SOURCES = \
 test_class_signal_performance_batch_SOURCES = \
 	test-class-signal-performance-batch.vala
 
+EXTRA_DIST = meson.build

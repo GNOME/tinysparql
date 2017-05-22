@@ -11,3 +11,5 @@ LDADD = $(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-$(TRACKE
 async_connection_SOURCES = async-connection.c
 
 class_signal_SOURCES = class-signal.c
+
+EXTRA_DIST = meson.build

@@ -93,4 +93,5 @@ EXTRA_DIST = \
 	$(service_DATA:.service=.service.in) \
 	$(systemd_user_DATA:.service=.service.in) \
 	$(config_DATA) \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	meson.build

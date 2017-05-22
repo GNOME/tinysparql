@@ -32,4 +32,3 @@ endif
 EXTRA_DIST = \
 	$(maemo_ontology) \
 	$(config_DATA)
-

@@ -99,4 +99,5 @@ CLEANFILES = \
 EXTRA_DIST = \
 	libtracker-data.vapi \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
-	$(man_MANS)
+	$(man_MANS) \
+	meson.build

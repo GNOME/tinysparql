@@ -11,3 +11,5 @@ dist-check-gtk-doc:
 endif
 
 dist-hook: dist-check-gtk-doc
+
+EXTRA_DIST = meson.build

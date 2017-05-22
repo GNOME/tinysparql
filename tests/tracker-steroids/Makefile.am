@@ -21,3 +21,4 @@ LDADD =                                                \
 tracker_test_SOURCES =                                 \
 	tracker-test.c
 
+EXTRA_DIST += meson.build

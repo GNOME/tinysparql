@@ -39,7 +39,8 @@ EXTRA_DIST =                                           \
 	$(pkgdata_DATA)                                \
 	$(appdata_DATA)                                \
 	config.vapi                                    \
-	tracker-config.vapi
+	tracker-config.vapi                            \
+	meson.build
 
 CLEANFILES =                                           \
 	$(desktop_DATA)                                \

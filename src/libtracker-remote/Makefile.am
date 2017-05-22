@@ -34,3 +34,5 @@ BUILT_SOURCES =                                        \
 
 DISTCLEANFILES =                                       \
 	libtracker_remote_la_vala.stamp
+
+EXTRA_DIST = meson.build

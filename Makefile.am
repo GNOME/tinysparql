@@ -87,6 +87,7 @@ EXTRA_DIST +=                                          \
 	intltool-extract.in                            \
 	intltool-merge.in                              \
 	intltool-update.in			       \
+	meson.build \
 	tracker.doap \
 	tap-driver.sh \
 	tap-test

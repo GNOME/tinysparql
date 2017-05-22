@@ -28,3 +28,4 @@ tracker_resdump_CFLAGS = $(AM_CPPFLAGS)
 tracker_resdump_VALAFLAGS = $(AM_VALAFLAGS)
 tracker_resdump_LDADD = $(LDADD)
 
+EXTRA_DIST = meson.build

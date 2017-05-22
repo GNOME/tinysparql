@@ -24,3 +24,5 @@ endif
 if DIST_FUNCTIONAL_TESTS
 SUBDIRS += functional-tests
 endif
+
+EXTRA_DIST += meson.build

@@ -32,4 +32,6 @@ ttlresource2sgml_SOURCES =                             \
 	$(TTL_LOADER_FILES)                            \
 	ttlresource2sgml.c
 
-EXTRA_DIST = gen-doc.sh
+EXTRA_DIST = \
+	gen-doc.sh \
+	meson.build

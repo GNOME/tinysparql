@@ -76,4 +76,5 @@ EXTRA_DIST = \
 	$(desktop_DATA) \
 	$(appdata_DATA) \
 	config.vapi \
-	$(gsettings_SCHEMAS:.xml=.xml.in)
+	$(gsettings_SCHEMAS:.xml=.xml.in) \
+	meson.build

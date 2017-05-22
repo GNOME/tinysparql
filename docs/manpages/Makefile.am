@@ -37,4 +37,5 @@ EXTRA_DIST = \
 	$(common) \
 	$(tp) \
 	$(tn) \
-	$(tmrss)
+	$(tmrss) \
+	meson.build

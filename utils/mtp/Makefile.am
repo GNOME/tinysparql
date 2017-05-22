@@ -13,3 +13,5 @@ mtp_dummy_LDADD =                                      \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)
+
+EXTRA_DIST = meson.build

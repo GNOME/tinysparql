@@ -37,5 +37,6 @@ EXTRA_DIST += \
 	fts3aa-2.out                                   \
 	fts3ae-data.rq                                 \
 	fts3ae-1.rq                                    \
-	fts3ae-1.out
+	fts3ae-1.out                                   \
+	meson.build
 

@@ -31,3 +31,5 @@ noinst_HEADERS =                                       \
 
 BUILT_SOURCES =                                        \
 	libtracker_direct_la_vala.stamp
+
+EXTRA_DIST = meson.build
