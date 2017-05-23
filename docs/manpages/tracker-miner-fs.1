@@ -52,16 +52,6 @@ would be monitored for changes. This works with non-existing
 arguments as well as existing 
 .B FILE
 arguments.
-.TP
-.B \-d, \-\-disable-miner=MINER
-Tells the daemon to disable the in-house miners it supports. Depending
-on build options, this can be 'Files', 'Applications'
-and 'Userguides'. This option can be provided more than once to
-diasable multiple miners. Disable in this case means the miner is not
-started, though all miners still register themselves on D-Bus and
-appear there, no actual action is performed otherwise (such as
-crawling, setting up monitors, or checking mtimes against the
-file system).
 
 .SH ENVIRONMENT
 .TP
