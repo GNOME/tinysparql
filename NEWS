@@ -1,3 +1,16 @@
+NEW in 1.13.0 - 2017-05-23
+==========================
+
+  * Added support for the Meson build system, autotools will be eventually
+    discontinued.
+  * Compile fixes
+  * Fixed introspection annotations
+  * libtracker-sparql: Support osinfo ontology in TrackerNamespace
+  * Fix possible source of stale files in TrackerFileSystem
+  * Whitelist some more syscalls
+
+Translations: fur, ru
+
 NEW in 1.12.0 - 2017-03-20
 ==========================
 
