@@ -20,6 +20,8 @@ libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_SOURCES =                           \
+	$(top_builddir)/src/ontologies/tracker-gresources.c \
+	$(top_builddir)/src/ontologies/tracker-gresources.h \
 	tracker-vala-namespace.vala                    \
 	tracker-sparql-expression.vala                 \
 	tracker-sparql-pattern.vala                    \

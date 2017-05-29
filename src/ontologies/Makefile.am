@@ -1,12 +1,14 @@
 configdir = $(datadir)/tracker/ontologies
 
-config_DATA =                                          \
+internal_config = \
 	10-xsd.ontology	    10-xsd.description         \
 	11-rdf.ontology	    11-rdf.description         \
 	12-nrl.ontology	    12-nrl.description         \
 	20-dc.ontology      20-dc.description          \
+	31-nao.ontology	    31-nao.description
+
+config_DATA =                                          \
 	30-nie.ontology	    30-nie.description         \
-	31-nao.ontology	    31-nao.description         \
 	32-nco.ontology     32-nco.description         \
 	33-nfo.ontology	    33-nfo.description         \
 	34-nmo.ontology	    34-nmo.description         \
@@ -23,5 +25,16 @@ config_DATA =                                          \
 	91-maemo.ontology   91-maemo.description       \
 	93-libosinfo.ontology 93-libosinfo.description
 
+# GResource
+tracker_gresource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/builtin-ontology.gresource.xml)
+tracker-gresources.h: builtin-ontology.gresource.xml $(tracker_gresource_files) $(internal_config)
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name tracker_gresources $<
+tracker-gresources.c: builtin-ontology.gresource.xml $(tracker_gresource_files) $(internal_config)
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name tracker_gresources $<
+
+BUILT_SOURCES = tracker-gresources.c tracker-gresources.h
+
 EXTRA_DIST = \
+	$(internal_config) \
+	builtin-ontology.gresource.xml \
 	$(config_DATA)

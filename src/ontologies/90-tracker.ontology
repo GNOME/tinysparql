@@ -18,11 +18,6 @@ tracker:tagRelatedTo a rdf:Property ;
 	rdfs:domain nao:Tag ;
 	rdfs:range rdfs:Class .
 
-tracker:notify a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdfs:Class ;
-	rdfs:range xsd:boolean .
-
 tracker:Volume a rdfs:Class ;
 	rdfs:label "Storage media" ;
         rdfs:subClassOf nie:InformationElement ;
@@ -56,16 +51,6 @@ tracker:isOptical a rdf:Property ;
 tracker:available a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;
-	rdfs:range xsd:boolean .
-
-tracker:writeback a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdf:Property ;
-	rdfs:range xsd:boolean .
-
-tracker:forceJournal a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
 fts: a tracker:Namespace ;

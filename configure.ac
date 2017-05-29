@@ -875,6 +875,9 @@ AC_SUBST(GLIB_MKENUMS)
 GDBUS_CODEGEN=`$PKG_CONFIG --variable=gdbus_codegen gio-2.0`
 AC_SUBST(GDBUS_CODEGEN)
 
+GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable glib_compile_resources gio-2.0`
+AC_SUBST(GLIB_COMPILE_RESOURCES)
+
 ####################################################################
 # Should we build GLib based unit tests
 ####################################################################
