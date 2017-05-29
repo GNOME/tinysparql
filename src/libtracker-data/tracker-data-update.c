@@ -3539,13 +3539,9 @@ void
 tracker_data_load_turtle_file (GFile   *file,
                                GError **error)
 {
-	gchar *path;
+	g_return_if_fail (G_IS_FILE (file));
 
-	g_return_if_fail (G_IS_FILE (file) && g_file_is_native (file));
-
-	path = g_file_get_path (file);
-	tracker_turtle_reader_load (path, error);
-	g_free (path);
+	tracker_turtle_reader_load (file, error);
 }
 
 void

@@ -1710,25 +1710,26 @@ tracker_data_ontology_free_seen (GPtrArray *seen)
 }
 
 static void
-load_ontology_file_from_path (const gchar        *ontology_path,
-                              gint               *max_id,
-                              gboolean            in_update,
-                              GPtrArray          *seen_classes,
-                              GPtrArray          *seen_properties,
-                              GHashTable         *uri_id_map,
-                              GError            **error)
+load_ontology_file (GFile       *file,
+                    gint        *max_id,
+                    gboolean     in_update,
+                    GPtrArray   *seen_classes,
+                    GPtrArray   *seen_properties,
+                    GHashTable  *uri_id_map,
+                    GError     **error)
 {
 	TrackerTurtleReader *reader;
 	GError              *ttl_error = NULL;
-	GFile               *file = g_file_new_for_path (ontology_path);
+	gchar               *ontology_uri;
 
 	reader = tracker_turtle_reader_new (file, &ttl_error);
-	g_object_unref (file);
 
 	if (ttl_error) {
 		g_propagate_error (error, ttl_error);
 		return;
 	}
+
+	ontology_uri = g_file_get_uri (file);
 
 	/* Post checks are only needed for ontology updates, not the initial
 	 * ontology */
@@ -1746,7 +1747,7 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 			subject_id = GPOINTER_TO_INT (g_hash_table_lookup (uri_id_map, subject));
 		}
 
-		tracker_data_ontology_load_statement (ontology_path, subject_id, subject, predicate, object,
+		tracker_data_ontology_load_statement (ontology_uri, subject_id, subject, predicate, object,
 		                                      max_id, in_update, NULL, NULL,
 		                                      seen_classes, seen_properties, &ontology_error);
 
@@ -1756,6 +1757,7 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 		}
 	}
 
+	g_free (ontology_uri);
 	g_object_unref (reader);
 
 	if (ttl_error) {
@@ -1765,16 +1767,14 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 
 
 static TrackerOntology*
-get_ontology_from_path (const gchar *ontology_path)
+get_ontology_from_file (GFile *file)
 {
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
-	GFile *file = g_file_new_for_path (ontology_path);
 
 	reader = tracker_turtle_reader_new (file, &error);
-	g_object_unref (file);
 
 	if (error) {
 		g_critical ("Turtle parse error: %s", error->message);
@@ -1811,7 +1811,9 @@ get_ontology_from_path (const gchar *ontology_path)
 
 			ontology = g_hash_table_lookup (ontology_uris, subject);
 			if (ontology == NULL) {
-				g_critical ("%s: Unknown ontology %s", ontology_path, subject);
+				gchar *uri = g_file_get_uri (file);
+				g_critical ("%s: Unknown ontology %s", uri, subject);
+				g_free (uri);
 				return NULL;
 			}
 
@@ -1834,7 +1836,9 @@ get_ontology_from_path (const gchar *ontology_path)
 	}
 
 	if (ret == NULL) {
-		g_critical ("Ontology file has no nao:lastModified header: %s", ontology_path);
+		gchar *uri = g_file_get_uri (file);
+		g_critical ("Ontology file has no nao:lastModified header: %s", uri);
+		g_free (uri);
 	}
 
 	return ret;
@@ -1984,16 +1988,14 @@ tracker_data_ontology_process_statement (const gchar *graph,
 }
 
 static void
-import_ontology_path (const gchar *ontology_path,
-                      gboolean in_update,
-                      gboolean ignore_nao_last_modified)
+import_ontology_file (GFile    *file,
+                      gboolean  in_update,
+                      gboolean  ignore_nao_last_modified)
 {
 	GError *error = NULL;
 	TrackerTurtleReader* reader;
-	GFile *file = g_file_new_for_path (ontology_path);
 
 	reader = tracker_turtle_reader_new (file, &error);
-	g_object_unref (file);
 
 	if (error != NULL) {
 		g_critical ("%s", error->message);
@@ -3399,36 +3401,61 @@ tracker_data_ontology_import_into_db (gboolean   in_update,
 	}
 }
 
-static GList*
-get_ontologies (gboolean     test_schema,
-                const gchar *ontologies_dir)
+static gint
+compare_file_names (GFile *file_a,
+                    GFile *file_b)
 {
+	gchar *name_a, *name_b;
+	gint return_val;
+
+	name_a = g_file_get_basename (file_a);
+	name_b = g_file_get_basename (file_b);
+	return_val = strcmp (name_a, name_b);
+
+	g_free (name_a);
+	g_free (name_b);
+
+	return return_val;
+}
+
+static GList*
+get_ontologies (const gchar  *ontologies_dir,
+                GError      **error)
+{
+	GFileEnumerator *enumerator;
+	GFile *ontologies;
 	GList *sorted = NULL;
 
-	if (test_schema) {
-		sorted = g_list_prepend (sorted, g_strdup ("12-nrl.ontology"));
-		sorted = g_list_prepend (sorted, g_strdup ("11-rdf.ontology"));
-		sorted = g_list_prepend (sorted, g_strdup ("10-xsd.ontology"));
-	} else {
-		GDir        *ontologies;
-		const gchar *conf_file;
+	ontologies = g_file_new_for_path (ontologies_dir);
+	enumerator = g_file_enumerate_children (ontologies,
+	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
+	                                        G_FILE_QUERY_INFO_NONE,
+	                                        NULL, error);
+	if (!enumerator)
+		return NULL;
 
-		ontologies = g_dir_open (ontologies_dir, 0, NULL);
+	while (TRUE) {
+		GFileInfo *info;
+		GFile *child;
+		const gchar *name;
 
-		conf_file = g_dir_read_name (ontologies);
-
-		/* .ontology files */
-		while (conf_file) {
-			if (g_str_has_suffix (conf_file, ".ontology")) {
-				sorted = g_list_insert_sorted (sorted,
-				                               g_strdup (conf_file),
-				                               (GCompareFunc) strcmp);
-			}
-			conf_file = g_dir_read_name (ontologies);
+		if (!g_file_enumerator_iterate (enumerator, &info, &child, NULL, error)) {
+			g_list_free_full (sorted, g_object_unref);
+			g_object_unref (enumerator);
+			return NULL;
 		}
 
-		g_dir_close (ontologies);
+		if (!info)
+			break;
+
+		name = g_file_info_get_name (info);
+		if (g_str_has_suffix (name, ".ontology"))
+			sorted = g_list_prepend (sorted, g_object_ref (child));
 	}
+
+	sorted = g_list_sort (sorted, (GCompareFunc) compare_file_names);
+
+	g_object_unref (enumerator);
 
 	return sorted;
 }
@@ -3909,7 +3936,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	if (is_first_time_index && !read_only) {
-		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
+		sorted = get_ontologies (ontologies_dir, &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 #ifndef DISABLE_JOURNAL
 		if (!read_journal) {
@@ -3937,25 +3969,24 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
-			gchar *ontology_path;
-			g_debug ("Loading ontology %s", (char *) l->data);
-			
-			/* TODO: support GResource here */
-			ontology_path = g_build_filename (ontologies_dir, l->data, NULL);
-			load_ontology_file_from_path (ontology_path,
-			                              &max_id,
-			                              FALSE,
-			                              NULL,
-			                              NULL,
-			                              uri_id_map,
-			                              &ontology_error);
+			GFile *ontology_file = l->data;
+			gchar *uri = g_file_get_uri (ontology_file);
+
+			g_debug ("Loading ontology %s", uri);
+
+			load_ontology_file (ontology_file,
+			                    &max_id,
+			                    FALSE,
+			                    NULL,
+			                    NULL,
+			                    uri_id_map,
+			                    &ontology_error);
 			if (ontology_error) {
 				g_error ("Error loading ontology (%s): %s",
-				         ontology_path,
-				         ontology_error->message);
+				         uri, ontology_error->message);
 			}
-			g_free (ontology_path);
 
+			g_free (uri);
 		}
 
 		if (test_schemas) {
@@ -3963,23 +3994,27 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			for (p = 0; test_schemas[p] != NULL; p++) {
 				GError *ontology_error = NULL;
 				gchar *test_schema_path;
+				GFile *file;
+
 				test_schema_path = g_strconcat (test_schemas[p], ".ontology", NULL);
+				file = g_file_new_for_path (test_schema_path);
 
 				g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
 
-				load_ontology_file_from_path (test_schema_path,
-				                              &max_id,
-				                              FALSE,
-				                              NULL,
-				                              NULL,
-				                              uri_id_map,
-				                              &ontology_error);
+				load_ontology_file (file,
+				                    &max_id,
+				                    FALSE,
+				                    NULL,
+				                    NULL,
+				                    uri_id_map,
+				                    &ontology_error);
 				if (ontology_error) {
 					g_error ("Error loading ontology (%s): %s",
 					         test_schema_path,
 					         ontology_error->message);
 				}
 				g_free (test_schema_path);
+				g_object_unref (file);
 			}
 		}
 
@@ -4052,20 +4087,20 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
-			/* TODO: support GResource here */
-			gchar *ontology_path = g_build_filename (ontologies_dir, l->data, NULL);
-			import_ontology_path (ontology_path, FALSE, !journal_check);
-			g_free (ontology_path);
+			import_ontology_file (l->data, FALSE, !journal_check);
 		}
 
 		if (test_schemas) {
 			guint p;
 			for (p = 0; test_schemas[p] != NULL; p++) {
 				gchar *test_schema_path;
+				GFile *file;
 
 				test_schema_path = g_strconcat (test_schemas[p], ".ontology", NULL);
-				import_ontology_path (test_schema_path, FALSE, TRUE);
+				file = g_file_new_for_path (test_schema_path);
+				import_ontology_file (file, FALSE, TRUE);
 				g_free (test_schema_path);
+				g_object_unref (file);
 			}
 		}
 
@@ -4088,8 +4123,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		write_ontologies_gvdb (TRUE /* overwrite */, NULL);
 
-		g_list_foreach (sorted, (GFunc) g_free, NULL);
-		g_list_free (sorted);
+		g_list_free_full (sorted, g_object_unref);
 		sorted = NULL;
 
 		/* First time, no need to check ontology */
@@ -4165,17 +4199,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		seen_properties = g_ptr_array_new ();
 
 		/* Get all the ontology files from ontologies_dir */
-		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
+		ontos = get_ontologies (ontologies_dir, &internal_error);
 
-		for (l = sorted; l; l = l->next) {
-			gchar *ontology_path;
-			/* TODO: support GResource here */
-			ontology_path = g_build_filename (ontologies_dir, l->data, NULL);
-			ontos = g_list_append (ontos, ontology_path);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
 		}
-
-		g_list_foreach (sorted, (GFunc) g_free, NULL);
-		g_list_free (sorted);
 
 		if (test_schemas) {
 			for (p = 0; test_schemas[p] != NULL; p++) {
@@ -4229,20 +4258,22 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		for (l = ontos; l; l = l->next) {
 			TrackerOntology *ontology;
-			const gchar *ontology_path = l->data;
+			GFile *ontology_file = l->data;
 			const gchar *ontology_uri;
 			gboolean found, update_nao = FALSE;
 			gpointer value;
 			gint last_mod;
 
 			/* Parse a TrackerOntology from ontology_file */
-			ontology = get_ontology_from_path (ontology_path);
+			ontology = get_ontology_from_file (ontology_file);
 
 			if (!ontology) {
 				/* TODO: cope with full custom .ontology files: deal with this
 				 * error gracefully. App devs might install wrong ontology files
 				 * and we shouldn't critical() due to this. */
-				g_critical ("Can't get ontology from file: %s", ontology_path);
+				gchar *uri = g_file_get_uri (ontology_file);
+				g_critical ("Can't get ontology from file: %s", uri);
+				g_free (uri);
 				continue;
 			}
 
@@ -4262,7 +4293,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
 				if (val != last_mod) {
-					g_debug ("Ontology file '%s' needs update", ontology_path);
+					gchar *uri = g_file_get_uri (ontology_file);
+
+					g_debug ("Ontology file '%s' needs update", uri);
+					g_free (uri);
 
 					if (!transaction_started) {
 						tracker_data_begin_ontology_transaction (&internal_error);
@@ -4290,13 +4324,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					}
 					/* load ontology from files into memory, set all new's
 					 * is_new to TRUE */
-					load_ontology_file_from_path (ontology_path,
-					                              &max_id,
-					                              TRUE,
-					                              seen_classes,
-					                              seen_properties,
-					                              uri_id_map,
-					                              &ontology_error);
+					load_ontology_file (ontology_file,
+					                    &max_id,
+					                    TRUE,
+					                    seen_classes,
+					                    seen_properties,
+					                    uri_id_map,
+					                    &ontology_error);
 
 					if (g_error_matches (ontology_error,
 					                     TRACKER_DATA_ONTOLOGY_ERROR,
@@ -4316,8 +4350,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 							g_hash_table_unref (ontos_table);
 						}
 						if (ontos) {
-							g_list_foreach (ontos, (GFunc) g_free, NULL);
-							g_list_free (ontos);
+							g_list_free_full (ontos, g_object_unref);
 						}
 						g_free (ontologies_dir);
 						if (uri_id_map) {
@@ -4354,8 +4387,10 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 			} else {
 				GError *ontology_error = NULL;
+				gchar *uri = g_file_get_uri (ontology_file);
 
-				g_debug ("Ontology file '%s' got added", ontology_path);
+				g_debug ("Ontology file '%s' got added", uri);
+				g_free (uri);
 
 				if (!transaction_started) {
 					tracker_data_begin_ontology_transaction (&internal_error);
@@ -4383,13 +4418,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 				/* load ontology from files into memory, set all new's
 				 * is_new to TRUE */
-				load_ontology_file_from_path (ontology_path,
-				                              &max_id,
-				                              TRUE,
-				                              seen_classes,
-				                              seen_properties,
-				                              uri_id_map,
-				                              &ontology_error);
+				load_ontology_file (ontology_file,
+				                    &max_id,
+				                    TRUE,
+				                    seen_classes,
+				                    seen_properties,
+				                    uri_id_map,
+				                    &ontology_error);
 
 				if (g_error_matches (ontology_error,
 				                     TRACKER_DATA_ONTOLOGY_ERROR,
@@ -4409,8 +4444,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						g_hash_table_unref (ontos_table);
 					}
 					if (ontos) {
-						g_list_foreach (ontos, (GFunc) g_free, NULL);
-						g_list_free (ontos);
+						g_list_free_full (ontos, g_object_unref);
 					}
 					g_free (ontologies_dir);
 					if (uri_id_map) {
@@ -4519,8 +4553,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					g_hash_table_unref (ontos_table);
 				}
 				if (ontos) {
-					g_list_foreach (ontos, (GFunc) g_free, NULL);
-					g_list_free (ontos);
+					g_list_free_full (ontos, g_object_unref);
 				}
 				g_free (ontologies_dir);
 				if (uri_id_map) {
@@ -4565,9 +4598,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 
 			for (l = to_reload; l; l = l->next) {
-				const gchar *ontology_path = l->data;
+				GFile *ontology_file = l->data;
 				/* store ontology in database */
-				import_ontology_path (ontology_path, TRUE, !journal_check);
+				import_ontology_file (ontology_file, TRUE, !journal_check);
 			}
 			g_list_free (to_reload);
 
@@ -4602,9 +4635,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		g_hash_table_unref (ontos_table);
-
-		g_list_foreach (ontos, (GFunc) g_free, NULL);
-		g_list_free (ontos);
+		g_list_free_full (ontos, g_object_unref);
 	}
 
 #ifndef DISABLE_JOURNAL
