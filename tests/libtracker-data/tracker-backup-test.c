@@ -134,8 +134,10 @@ test_backup_and_restore_helper (gboolean journal)
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".data", NULL);
 	if (g_file_test (data_filename, G_FILE_TEST_IS_REGULAR)) {
-		tracker_turtle_reader_load (data_filename, &error);
+		GFile *file = g_file_new_for_path (data_filename);
+		tracker_turtle_reader_load (file, &error);
 		g_assert_no_error (error);
+		g_object_unref (file);
 	} else {
 		g_assert_not_reached ();
 	}

@@ -233,6 +233,7 @@ test_query (TestInfo      *test_info,
 	gchar *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
+	GFile *file;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 	data_prefix = g_build_filename (prefix, test_info->data, NULL);
@@ -257,8 +258,10 @@ test_query (TestInfo      *test_info,
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-	tracker_turtle_reader_load (data_filename, &error);
+	file = g_file_new_for_path (data_filename);
+	tracker_turtle_reader_load (file, &error);
 	g_assert_no_error (error);
+	g_object_unref (file);
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
 	results_filename = g_strconcat (test_prefix, ".out", NULL);

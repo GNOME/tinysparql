@@ -176,12 +176,13 @@ turtle_load_ontology (const gchar *turtle_subject,
 }
 
 static void
-process_file (const gchar *ttl_file)
+process_file (const gchar *ttl_path)
 {
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
+	GFile *ttl_file = g_file_new_for_path (ttl_path);
 
-	g_print ("Processing %s\n", ttl_file);
+	g_print ("Processing %s\n", ttl_path);
 
 	reader = tracker_turtle_reader_new (ttl_file, NULL);
 
@@ -192,6 +193,7 @@ process_file (const gchar *ttl_file)
 	}
 
 	g_object_unref (reader);
+	g_object_unref (ttl_file);
 
 	if (error) {
 		g_message ("Turtle parse error: %s", error->message);

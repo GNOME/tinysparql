@@ -360,8 +360,10 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 	if (ttl_file) {
 		TrackerTurtleReader *reader;
 		GError *error = NULL;
+		GFile *file = g_file_new_for_path (ttl_file);
 
-		reader = tracker_turtle_reader_new (ttl_file, NULL);
+		reader = tracker_turtle_reader_new (file, NULL);
+		g_object_unref (file);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 			load_in_memory (ontology,
@@ -446,9 +448,12 @@ ttl_loader_load_ontology_dir (const gchar *ttl_dir)
 		TrackerTurtleReader *reader;
 		GError *error = NULL;
 		gchar *ttl_file;
+		GFile *file;
 
 		ttl_file = g_build_filename (ttl_dir, f->data, NULL);
-		reader = tracker_turtle_reader_new (ttl_file, NULL);
+		file = g_file_new_for_path (ttl_file);
+		reader = tracker_turtle_reader_new (file, NULL);
+		g_object_unref (file);
 		g_free (ttl_file);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
@@ -476,11 +481,13 @@ ttl_loader_load_description (const gchar *filename)
 	OntologyDescription *desc;
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
+	GFile *file;
 
 	desc = ttl_model_description_new ();
 
-
-	reader = tracker_turtle_reader_new (filename, NULL);
+	file = g_file_new_for_path (filename);
+	reader = tracker_turtle_reader_new (file, NULL);
+	g_object_unref (file);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		load_description (desc,

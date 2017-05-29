@@ -120,6 +120,7 @@ load_ontology_files (const gchar *services_dir)
 	while (conf_file) {
 		TrackerTurtleReader *reader;
 		GError *error = NULL;
+		GFile *file;
 
 		if (!g_str_has_suffix (conf_file, "ontology")) {
 			conf_file = g_dir_read_name (services);
@@ -127,8 +128,10 @@ load_ontology_files (const gchar *services_dir)
 		}
 
 		fullpath = g_build_filename (dir_uri, conf_file, NULL);
+		file = g_file_new_for_path (fullpath);
 
-		reader = tracker_turtle_reader_new (fullpath, NULL);
+		reader = tracker_turtle_reader_new (file, NULL);
+		g_object_unref (file);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 			turtle_load_ontology (tracker_turtle_reader_get_subject (reader),
@@ -162,6 +165,7 @@ main (gint argc, gchar **argv)
 	GOptionContext *context;
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
+	GFile *file;
 
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
@@ -189,7 +193,9 @@ main (gint argc, gchar **argv)
 	//"/home/ivan/devel/codethink/tracker-ssh/data/services"
 	load_ontology_files (ontology_dir);
 
-	reader = tracker_turtle_reader_new (ttl_file, NULL);
+	file = g_file_new_for_commandline_arg (ttl_file);
+	reader = tracker_turtle_reader_new (file, NULL);
+	g_object_unref (file);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		turtle_statement_handler (tracker_turtle_reader_get_subject (reader),

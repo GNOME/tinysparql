@@ -1720,8 +1720,10 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 {
 	TrackerTurtleReader *reader;
 	GError              *ttl_error = NULL;
+	GFile               *file = g_file_new_for_path (ontology_path);
 
-	reader = tracker_turtle_reader_new (ontology_path, &ttl_error);
+	reader = tracker_turtle_reader_new (file, &ttl_error);
+	g_object_unref (file);
 
 	if (ttl_error) {
 		g_propagate_error (error, ttl_error);
@@ -1769,8 +1771,10 @@ get_ontology_from_path (const gchar *ontology_path)
 	GError *error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
+	GFile *file = g_file_new_for_path (ontology_path);
 
-	reader = tracker_turtle_reader_new (ontology_path, &error);
+	reader = tracker_turtle_reader_new (file, &error);
+	g_object_unref (file);
 
 	if (error) {
 		g_critical ("Turtle parse error: %s", error->message);
@@ -1984,11 +1988,12 @@ import_ontology_path (const gchar *ontology_path,
                       gboolean in_update,
                       gboolean ignore_nao_last_modified)
 {
-	GError          *error = NULL;
-
+	GError *error = NULL;
 	TrackerTurtleReader* reader;
+	GFile *file = g_file_new_for_path (ontology_path);
 
-	reader = tracker_turtle_reader_new (ontology_path, &error);
+	reader = tracker_turtle_reader_new (file, &error);
+	g_object_unref (file);
 
 	if (error != NULL) {
 		g_critical ("%s", error->message);
