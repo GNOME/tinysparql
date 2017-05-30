@@ -189,7 +189,6 @@ test_ontology_init (TestInfo      *test_info,
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL, NULL, NULL,
 	                           NULL,
-	                           NULL,
 	                           FALSE,
 	                           FALSE,
 	                           100,
@@ -208,7 +207,6 @@ test_ontology_init (TestInfo      *test_info,
 	/* initialization from existing database */
 	tracker_data_manager_init (0,
 	                           NULL, NULL, NULL,
-	                           NULL,
 	                           NULL,
 	                           FALSE,
 	                           FALSE,
@@ -245,7 +243,6 @@ test_query (TestInfo      *test_info,
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL, NULL, NULL, /* loc, domain and ontology_name */
-	                           NULL,
 	                           NULL,
 	                           FALSE,
 	                           FALSE,
@@ -298,7 +295,6 @@ setup (TestInfo *info,
 
 		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
 		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE));
 	}
 }
 

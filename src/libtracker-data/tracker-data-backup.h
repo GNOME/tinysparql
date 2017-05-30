@@ -51,7 +51,6 @@ void   tracker_data_backup_restore     (GFile                     *journal,
                                         const gchar               *cache_location,
                                         const gchar               *data_location,
                                         GFile                     *ontology_location,
-                                        const gchar              **test_schema,
                                         TrackerBusyCallback        busy_callback,
                                         gpointer                   busy_user_data,
                                         GError                   **error);

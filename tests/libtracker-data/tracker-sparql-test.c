@@ -255,7 +255,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *query, *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
-	const gchar *test_schemas[2] = { NULL, NULL };
+	GFile *file, *test_schemas;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -263,13 +263,14 @@ test_sparql_query (TestInfo      *test_info,
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
-	test_schemas[0] = data_prefix;
+	file = g_file_new_for_path (data_prefix);
+	test_schemas = g_file_get_parent (file);
+	g_object_unref (file);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, NULL, /* loc, domain and ontology_name */
-	                           test_schemas,
+	                           NULL, NULL, test_schemas, /* loc, domain and ontology_name */
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -343,6 +344,7 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (query_filename);
 	g_free (query);
 	g_free (results_filename);
+	g_object_unref (test_schemas);
 
 	tracker_data_manager_shutdown ();
 }
@@ -370,7 +372,6 @@ setup (TestInfo      *info,
 
 		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
 		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE));
 	}
 }
 

@@ -58,7 +58,6 @@ test_blank (TestInfo      *info,
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL, NULL, NULL, /* loc, domain and ontology_name */
 	                           NULL,
-	                           NULL,
 	                           FALSE,
 	                           FALSE,
 	                           100,
@@ -148,7 +147,6 @@ setup (TestInfo      *info,
 
 		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
 		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE));
 	}
 }
 

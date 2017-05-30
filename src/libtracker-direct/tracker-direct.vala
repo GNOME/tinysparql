@@ -39,7 +39,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 
 				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
 				                   null /*loc */, null /* domain */ , null /* ontology */,
-				                   null, null, false, false, select_cache_size, 0, null, null);
+				                   null, false, false, select_cache_size, 0, null, null);
 			}
 
 			use_count++;
@@ -66,7 +66,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 
 				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
 				                   loc, domain, ontology_loc,
-				                   null, null, false, false, select_cache_size, 0, null, null);
+				                   null, false, false, select_cache_size, 0, null, null);
 			}
 
 			use_count++;

@@ -3574,7 +3574,6 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 	                                    cache_location_stored,
 	                                    data_location_stored,
 	                                    ontology_location_stored,
-	                                    NULL,
 	                                    &is_first,
 	                                    TRUE,
 	                                    FALSE,
@@ -3727,7 +3726,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            const gchar            *cache_location,
                            const gchar            *data_location,
                            GFile                  *ontology_location,
-                           const gchar           **test_schemas,
                            gboolean               *first_time,
                            gboolean                journal_check,
                            gboolean                restoring_backup,
@@ -3997,35 +3995,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_free (uri);
 		}
 
-		if (test_schemas) {
-			guint p;
-			for (p = 0; test_schemas[p] != NULL; p++) {
-				GError *ontology_error = NULL;
-				gchar *test_schema_path;
-				GFile *file;
-
-				test_schema_path = g_strconcat (test_schemas[p], ".ontology", NULL);
-				file = g_file_new_for_path (test_schema_path);
-
-				g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
-
-				load_ontology_file (file,
-				                    &max_id,
-				                    FALSE,
-				                    NULL,
-				                    NULL,
-				                    uri_id_map,
-				                    &ontology_error);
-				if (ontology_error) {
-					g_error ("Error loading ontology (%s): %s",
-					         test_schema_path,
-					         ontology_error->message);
-				}
-				g_free (test_schema_path);
-				g_object_unref (file);
-			}
-		}
-
 		tracker_data_begin_ontology_transaction (&internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -4096,20 +4065,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
 			import_ontology_file (l->data, FALSE, !journal_check);
-		}
-
-		if (test_schemas) {
-			guint p;
-			for (p = 0; test_schemas[p] != NULL; p++) {
-				gchar *test_schema_path;
-				GFile *file;
-
-				test_schema_path = g_strconcat (test_schemas[p], ".ontology", NULL);
-				file = g_file_new_for_path (test_schema_path);
-				import_ontology_file (file, FALSE, TRUE);
-				g_free (test_schema_path);
-				g_object_unref (file);
-			}
 		}
 
 		tracker_data_commit_transaction (&internal_error);
@@ -4212,14 +4167,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			return FALSE;
-		}
-
-		if (test_schemas) {
-			for (p = 0; test_schemas[p] != NULL; p++) {
-				gchar *test_schema_path;
-				test_schema_path = g_strconcat (test_schemas[p], ".ontology", NULL);
-				ontos = g_list_append (ontos, test_schema_path);
-			}
 		}
 
 		/* check ontology against database */
@@ -4373,7 +4320,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						                                  cache_location,
 						                                  data_location,
 						                                  ontology_location,
-						                                  test_schemas,
 						                                  first_time,
 						                                  journal_check,
 						                                  restoring_backup,
@@ -4467,7 +4413,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					                                  cache_location,
 					                                  data_location,
 					                                  ontology_location,
-					                                  test_schemas,
 					                                  first_time,
 					                                  journal_check,
 					                                  restoring_backup,
@@ -4576,7 +4521,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				                                  cache_location,
 				                                  data_location,
 				                                  ontology_location,
-				                                  test_schemas,
 				                                  first_time,
 				                                  journal_check,
 				                                  restoring_backup,

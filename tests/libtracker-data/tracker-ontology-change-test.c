@@ -182,21 +182,17 @@ test_ontology_change (void)
 {
 	gchar *ontology_file;
 	GFile *file2;
-	gchar *prefix, *build_prefix;
+	gchar *prefix, *build_prefix, *ontologies;
 	gchar *ontology_dir;
 	guint i;
 	GError *error = NULL;
-	gchar *test_schemas[5] = { NULL, NULL, NULL, NULL, NULL };
+	GFile *test_schemas;
 
 	delete_db (TRUE);
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
-
-	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "20-dc", NULL);
-	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "31-nao", NULL);
-	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "90-tracker", NULL);
-	test_schemas[3] = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example", NULL);
+	ontologies = g_build_filename (prefix, "ontologies", NULL);
 
 	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
 
@@ -206,6 +202,7 @@ test_ontology_change (void)
 
 	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", NULL);
 	g_mkdir_with_parents (ontology_dir, 0777);
+	test_schemas = g_file_new_for_path (ontology_dir);
 	g_free (ontology_dir);
 
 	for (i = 0; changes[i].ontology; i++) {
@@ -228,7 +225,7 @@ test_ontology_change (void)
 		g_assert_no_error (error);
 		g_chmod (ontology_file, 0666);
 
-		tracker_data_manager_init (0, NULL, NULL, NULL, (const gchar **) test_schemas,
+		tracker_data_manager_init (0, NULL, NULL, test_schemas,
 		                           NULL, FALSE, FALSE,
 		                           100, 100, NULL, NULL, NULL, &error);
 
@@ -272,7 +269,7 @@ test_ontology_change (void)
 
 	delete_db (FALSE);
 
-	tracker_data_manager_init (0, NULL, NULL, NULL, (const gchar **) test_schemas,
+	tracker_data_manager_init (0, NULL, NULL, test_schemas,
 	                           NULL, TRUE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -299,9 +296,8 @@ test_ontology_change (void)
 	g_file_delete (file2, NULL, NULL);
 
 	g_object_unref (file2);
-	g_free (test_schemas[0]);
-	g_free (test_schemas[1]);
-	g_free (test_schemas[2]);
+	g_object_unref (test_schemas);
+	g_free (ontologies);
 	g_free (build_prefix);
 	g_free (prefix);
 }
@@ -318,7 +314,6 @@ main (int argc, char **argv)
 
 	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE);
 
 	/* add test cases */
 

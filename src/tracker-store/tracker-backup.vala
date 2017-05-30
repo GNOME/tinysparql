@@ -85,7 +85,7 @@ public class Tracker.Backup : Object {
 			var busy_callback = notifier.get_callback ();
 
 			// TODO: set cache_location, data_location and ontology_location here from store session
-			Data.backup_restore (journal, null, null, null, null, busy_callback);
+			Data.backup_restore (journal, null, null, null, busy_callback);
 
 			request.end ();
 		} catch (Error e) {

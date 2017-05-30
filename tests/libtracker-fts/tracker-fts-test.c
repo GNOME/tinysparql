@@ -53,28 +53,27 @@ test_sparql_query (gconstpointer test_data)
 	gchar *update, *update_filename;
 	gchar *query, *query_filename;
 	gchar *results, *results_filename;
-	gchar *prefix, *data_prefix, *test_prefix;
+	gchar *prefix, *test_prefix;
+	GFile *ontology;
 	gint i;
-	const gchar *test_schemas[2] = { NULL, NULL };
 
 	error = NULL;
 	test_info = test_data;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-fts", NULL);
-	data_prefix = g_build_filename (prefix, "data", NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
+	ontology = g_file_new_for_path (prefix);
 	g_free (prefix);
 
-	test_schemas[0] = data_prefix;
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, NULL,
-	                           test_schemas,
+	                           NULL, NULL, ontology,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
 	g_assert_no_error (error);
+	g_object_unref (ontology);
 
 	/* load data / perform updates */
 
@@ -163,7 +162,6 @@ test_sparql_query (gconstpointer test_data)
 		g_string_free (test_results, TRUE);
 	}
 
-	g_free (data_prefix);
 	g_free (test_prefix);
 
 	tracker_data_manager_shutdown ();
@@ -183,7 +181,6 @@ main (int argc, char **argv)
 
 	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE);
 	g_setenv ("TRACKER_FTS_STOP_WORDS", "0", TRUE);
 
 	g_free (current_dir);

@@ -103,29 +103,25 @@ check_content_in_db (gint expected_instances,
 static void
 test_backup_and_restore_helper (gboolean journal)
 {
-	gchar  *data_prefix, *data_filename, *backup_location, *backup_filename, *db_location, *meta_db;
+	gchar  *data_prefix, *data_filename, *backup_location, *backup_filename, *db_location, *meta_db, *ontologies;
 	GError *error = NULL;
 	GFile  *backup_file;
-	gchar *test_schemas[5] = { NULL, NULL, NULL, NULL, NULL };
+	GFile  *test_schemas;
 
 	db_location = g_build_path (G_DIR_SEPARATOR_S, xdg_location, "tracker", NULL);
 	data_prefix = g_build_path (G_DIR_SEPARATOR_S, 
 	                            TOP_SRCDIR, "tests", "libtracker-data", "backup", "backup",
 	                            NULL);
 
-	/*
-	 * This function uses $(data_prefix).ontology
-	 */ 
-	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", "ontologies", "20-dc", NULL);
-	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", "ontologies", "31-nao", NULL);
-	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", "ontologies", "90-tracker", NULL);
-	test_schemas[3] = data_prefix;
+	ontologies = g_build_path (G_DIR_SEPARATOR_S,
+	                           TOP_SRCDIR, "tests", "libtracker-data", "backup",
+	                           NULL);
+	test_schemas = g_file_new_for_path (ontologies);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, NULL,
-	                           (const gchar **) test_schemas,
+	                           NULL, NULL, test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -191,8 +187,7 @@ test_backup_and_restore_helper (gboolean journal)
 #endif /* DISABLE_JOURNAL */
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, NULL,
-	                           (const gchar **) test_schemas,
+	                           NULL, NULL, test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -200,14 +195,12 @@ test_backup_and_restore_helper (gboolean journal)
 
 	check_content_in_db (0, 0);
 
-	tracker_data_backup_restore (backup_file, NULL, NULL, NULL,(const gchar **) test_schemas, NULL, NULL, &error);
+	tracker_data_backup_restore (backup_file, NULL, NULL, test_schemas, NULL, NULL, &error);
 	g_assert_no_error (error);
 	check_content_in_db (3, 1);
 
-	g_free (test_schemas[0]);
-	g_free (test_schemas[1]);
-	g_free (test_schemas[2]);
-	g_free (test_schemas[3]);
+	g_object_unref (test_schemas);
+	g_free (ontologies);
 
 	g_assert_cmpint (backup_calls, ==, 1);
 
@@ -250,7 +243,6 @@ setup (TestInfo      *info,
 
 		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
 		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE));
 	}
 }
 

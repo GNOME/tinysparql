@@ -98,7 +98,6 @@ sql_by_query (void)
 	gint n_rows = 0;
 
 	if (!tracker_data_manager_init (0, NULL, NULL, NULL,
-	                                NULL,
 	                                &first_time,
 	                                FALSE,
 	                                FALSE,

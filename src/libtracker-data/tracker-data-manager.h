@@ -50,7 +50,6 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   fl
                                                       const gchar            *cache_location,
                                                       const gchar            *data_location,
                                                       GFile                  *ontology_location,
-                                                      const gchar           **test_schema,
                                                       gboolean               *first_time,
                                                       gboolean                journal_check,
                                                       gboolean                restoring_backup,

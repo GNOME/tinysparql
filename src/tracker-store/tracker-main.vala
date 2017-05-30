@@ -353,7 +353,6 @@ License which can be viewed at:
 			                           final_cache_location,
 			                           final_data_location,
 			                           final_ontology_location,
-			                           null,
 			                           out is_first_time_index,
 			                           true,
 			                           false,
