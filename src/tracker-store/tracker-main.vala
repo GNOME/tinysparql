@@ -347,8 +347,8 @@ License which can be viewed at:
 		try {
 			string final_cache_location = cache_location != null ? cache_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
 			string final_data_location = data_location != null ? data_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
-			string final_ontology_location = ontology_location != null ? ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR) : null;
-			
+			File final_ontology_location = ontology_location != null ? File.new_for_path (ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) : null;
+
 			Tracker.Data.Manager.init (flags,
 			                           final_cache_location,
 			                           final_data_location,

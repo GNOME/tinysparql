@@ -585,7 +585,7 @@ void
 tracker_data_backup_restore (GFile                *journal,
                              const gchar          *cache_location,
                              const gchar          *data_location,
-                             const gchar          *ontology_location,
+                             GFile                *ontology_location,
                              const gchar         **test_schemas,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,

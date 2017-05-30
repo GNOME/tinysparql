@@ -65,8 +65,8 @@
 
 #define ZLIBBUFSIZ 8192
 
-static gchar    *ontologies_dir;
-static gchar    *ontology_location_stored;
+static GFile    *ontologies_dir = NULL;
+static GFile    *ontology_location_stored = NULL;
 static gchar    *cache_location_stored;
 static gchar    *data_location_stored;
 static gboolean  initialized;
@@ -3419,14 +3419,12 @@ compare_file_names (GFile *file_a,
 }
 
 static GList*
-get_ontologies (const gchar  *ontologies_dir,
-                GError      **error)
+get_ontologies (GFile   *ontologies,
+                GError **error)
 {
 	GFileEnumerator *enumerator;
-	GFile *ontologies;
 	GList *sorted = NULL;
 
-	ontologies = g_file_new_for_path (ontologies_dir);
 	enumerator = g_file_enumerate_children (ontologies,
 	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
 	                                        G_FILE_QUERY_INFO_NONE,
@@ -3728,7 +3726,7 @@ gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
                            const gchar            *cache_location,
                            const gchar            *data_location,
-                           const gchar            *ontology_location,
+                           GFile                  *ontology_location,
                            const gchar           **test_schemas,
                            gboolean               *first_time,
                            gboolean                journal_check,
@@ -3864,11 +3862,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	else
 		cache_location_stored = NULL;
 
-	g_free (ontology_location_stored);
-	if (ontology_location != NULL)
-		ontology_location_stored = g_strdup(ontology_location);
-	else
-		ontology_location_stored = NULL;
+	g_set_object (&ontology_location_stored, ontology_location);
 
 	g_free (data_location_stored);
 	if (data_location != NULL)
@@ -3879,19 +3873,26 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	if (G_LIKELY (!env_path)) {
 		if (ontology_location == NULL) {
+			gchar *file_path;
+
 			/* SHAREDIR/tracker/ontologies */
-			ontologies_dir = g_build_filename (SHAREDIR, "tracker",
-			                                   "ontologies", NULL);
+			file_path = g_build_filename (SHAREDIR, "tracker",
+			                              "ontologies", NULL);
+			ontologies_dir = g_file_new_for_path (file_path);
+			g_free (file_path);
 		} else {
 			/* Typically SHAREDIR/tracker/domain-ontologies/domain/ontology-name */
-			ontologies_dir = g_strdup (ontology_location);
+			ontologies_dir = g_object_ref (ontology_location);
 		}
 
-		/* TODO: support GResource here */
-		if (!g_file_test (ontologies_dir, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)) {
+		if (g_file_query_file_type (ontologies_dir, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
+			gchar *uri;
+
+			uri = g_file_get_uri (ontologies_dir);
 			g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
 			             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
-			             "'%s' is not a ontology location", ontologies_dir);
+			             "'%s' is not a ontology location", uri);
+			g_free (uri);
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
@@ -3901,7 +3902,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 	} else {
-		ontologies_dir = g_strdup (env_path);
+		ontologies_dir = g_file_new_for_path (env_path);
 	}
 
 #ifndef DISABLE_JOURNAL
@@ -4359,7 +4360,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						if (ontos) {
 							g_list_free_full (ontos, g_object_unref);
 						}
-						g_free (ontologies_dir);
+						g_object_unref (ontologies_dir);
 						if (uri_id_map) {
 							g_hash_table_unref (uri_id_map);
 						}
@@ -4453,7 +4454,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					if (ontos) {
 						g_list_free_full (ontos, g_object_unref);
 					}
-					g_free (ontologies_dir);
+					g_clear_object (&ontologies_dir);
 					if (uri_id_map) {
 						g_hash_table_unref (uri_id_map);
 					}
@@ -4562,7 +4563,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (ontos) {
 					g_list_free_full (ontos, g_object_unref);
 				}
-				g_free (ontologies_dir);
+				g_clear_object (&ontologies_dir);
 				if (uri_id_map) {
 					g_hash_table_unref (uri_id_map);
 				}
@@ -4759,7 +4760,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	initialized = TRUE;
 
-	g_free (ontologies_dir);
+	g_clear_object (&ontologies_dir);
 
 	/* This is the only one which doesn't show the 'OPERATION' part */
 	if (busy_callback) {
