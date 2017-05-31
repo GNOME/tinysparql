@@ -1846,23 +1846,24 @@ get_ontology_from_file (GFile *file)
 
 #ifndef DISABLE_JOURNAL
 static void
-load_ontology_ids_from_journal (GHashTable **uri_id_map_out,
-                                gint        *max_id)
+load_ontology_ids_from_journal (TrackerDBJournalReader  *reader,
+                                GHashTable             **uri_id_map_out,
+                                gint                    *max_id)
 {
 	GHashTable *uri_id_map;
 
 	uri_id_map = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                    g_free, NULL);
 
-	while (tracker_db_journal_reader_next (NULL)) {
+	while (tracker_db_journal_reader_next (reader, NULL)) {
 		TrackerDBJournalEntryType type;
 
-		type = tracker_db_journal_reader_get_type ();
+		type = tracker_db_journal_reader_get_entry_type (reader);
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
 			gint id;
 			const gchar *uri;
 
-			tracker_db_journal_reader_get_resource (&id, &uri);
+			tracker_db_journal_reader_get_resource (reader, &id, &uri);
 			g_hash_table_insert (uri_id_map, g_strdup (uri), GINT_TO_POINTER (id));
 			if (id > *max_id) {
 				*max_id = id;
@@ -3839,14 +3840,19 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 #ifndef DISABLE_JOURNAL
 	if (journal_check && is_first_time_index) {
+		TrackerDBJournalReader *journal_reader;
+
 		/* Call may fail without notice (it's handled) */
-		if (tracker_db_journal_reader_init (data_location, &internal_error)) {
-			if (tracker_db_journal_reader_next (NULL)) {
+		journal_reader = tracker_db_journal_reader_new (data_location, &internal_error);
+
+		if (journal_reader) {
+			if (tracker_db_journal_reader_next (journal_reader, NULL)) {
 				/* journal with at least one valid transaction
 				   is required to trigger journal replay */
 				read_journal = TRUE;
 			}
-			tracker_db_journal_reader_shutdown ();
+
+			tracker_db_journal_reader_free (journal_reader);
 		} else if (internal_error) {
 			if (!g_error_matches (internal_error,
 			                      TRACKER_DB_JOURNAL_ERROR,
@@ -3893,13 +3899,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 #ifndef DISABLE_JOURNAL
 	if (read_journal) {
+		TrackerDBJournalReader *journal_reader;
+
 		in_journal_replay = TRUE;
+		journal_reader = tracker_db_journal_reader_ontology_new (data_location, &internal_error);
 
-		if (tracker_db_journal_reader_ontology_init (data_location, &internal_error)) {
+		if (journal_reader) {
 			/* Load ontology IDs from journal into memory */
-			load_ontology_ids_from_journal (&uri_id_map, &max_id);
-
-			tracker_db_journal_reader_shutdown ();
+			load_ontology_ids_from_journal (journal_reader, &uri_id_map, &max_id);
+			tracker_db_journal_reader_free (journal_reader);
 		} else {
 			if (internal_error) {
 				if (!g_error_matches (internal_error,

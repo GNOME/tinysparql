@@ -54,6 +54,8 @@ typedef enum {
 	TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
 } TrackerDBJournalEntryType;
 
+typedef struct _TrackerDBJournalReader TrackerDBJournalReader;
+
 GQuark       tracker_db_journal_error_quark                  (void);
 
 /*
@@ -115,32 +117,38 @@ gboolean     tracker_db_journal_truncate                     (gsize new_size);
 /*
  * Reader API
  */
-gboolean     tracker_db_journal_reader_init                  (GFile         *data_location,
+TrackerDBJournalReader *
+             tracker_db_journal_reader_new                   (GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_ontology_init         (GFile         *data_location,
+TrackerDBJournalReader *
+             tracker_db_journal_reader_ontology_new          (GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_shutdown              (void);
+void         tracker_db_journal_reader_free                  (TrackerDBJournalReader *reader);
 TrackerDBJournalEntryType
-             tracker_db_journal_reader_get_type              (void);
+             tracker_db_journal_reader_get_entry_type        (TrackerDBJournalReader  *reader);
 
-gboolean     tracker_db_journal_reader_next                  (GError      **error);
-gint64       tracker_db_journal_reader_get_time              (void);
-gboolean     tracker_db_journal_reader_get_resource          (gint         *id,
-                                                              const gchar **uri);
-gboolean     tracker_db_journal_reader_get_statement         (gint         *g_id,
-                                                              gint         *s_id,
-                                                              gint         *p_id,
-                                                              const gchar **object);
-gboolean     tracker_db_journal_reader_get_statement_id      (gint         *g_id,
-                                                              gint         *s_id,
-                                                              gint         *p_id,
-                                                              gint         *o_id);
-gsize        tracker_db_journal_reader_get_size_of_correct   (void);
-gdouble      tracker_db_journal_reader_get_progress          (void);
+gboolean     tracker_db_journal_reader_next                  (TrackerDBJournalReader  *reader,
+                                                              GError                 **error);
+gint64       tracker_db_journal_reader_get_time              (TrackerDBJournalReader  *reader);
+gboolean     tracker_db_journal_reader_get_resource          (TrackerDBJournalReader  *reader,
+                                                              gint                    *id,
+                                                              const gchar            **uri);
+gboolean     tracker_db_journal_reader_get_statement         (TrackerDBJournalReader  *reader,
+                                                              gint                    *g_id,
+                                                              gint                    *s_id,
+                                                              gint                    *p_id,
+                                                              const gchar            **object);
+gboolean     tracker_db_journal_reader_get_statement_id      (TrackerDBJournalReader  *reader,
+                                                              gint                    *g_id,
+                                                              gint                    *s_id,
+                                                              gint                    *p_id,
+                                                              gint                    *o_id);
+gsize        tracker_db_journal_reader_get_size_of_correct   (TrackerDBJournalReader  *reader);
+gdouble      tracker_db_journal_reader_get_progress          (TrackerDBJournalReader  *reader);
 
-gboolean     tracker_db_journal_reader_verify_last           (const gchar  *filename,
-                                                              GFile        *data_location,
-                                                              GError      **error);
+gboolean     tracker_db_journal_reader_verify_last           (const gchar             *filename,
+                                                              GFile                   *data_location,
+                                                              GError                 **error);
 
 G_END_DECLS
 

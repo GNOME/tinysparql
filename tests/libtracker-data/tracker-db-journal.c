@@ -172,12 +172,13 @@ static void
 test_read_functions (void)
 {
 	GError *error = NULL;
-	gchar *path, *filename;
+	gchar *path;
 	gboolean result;
 	TrackerDBJournalEntryType type;
 	gint id, s_id, p_id, o_id;
 	const gchar *uri, *str;
-	GFile *data_location, *child;
+	GFile *data_location;
+	TrackerDBJournalReader *reader;
 
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
 	data_location = g_file_new_for_path (path);
@@ -186,198 +187,195 @@ test_read_functions (void)
 	/* NOTE: we don't unlink here so we can use the data from the write tests */
 
 	/* Create an iterator */
-	result = tracker_db_journal_reader_init (data_location, &error);
-	g_free (filename);
+	reader = tracker_db_journal_reader_new (data_location, &error);
 	g_object_unref (data_location);
 	g_assert_no_error (error);
-	g_assert_cmpint (result, ==, TRUE);
+	g_assert_nonnull (reader);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_START);
 
 	/* First transaction */
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_START_TRANSACTION);
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 12);
 	g_assert_cmpstr (uri, ==, "http://resource");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 13);
 	g_assert_cmpstr (uri, ==, "http://predicate");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 14);
 	g_assert_cmpstr (uri, ==, "http://resource");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID);
 
-	result = tracker_db_journal_reader_get_statement_id (NULL, &s_id, &p_id, &o_id);
+	result = tracker_db_journal_reader_get_statement_id (reader, NULL, &s_id, &p_id, &o_id);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 12);
 	g_assert_cmpint (p_id, ==, 13);
 	g_assert_cmpint (o_id, ==, 14);
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_END_TRANSACTION);
 
 	/* Second transaction */
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_START_TRANSACTION);
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 15);
 	g_assert_cmpstr (uri, ==, "http://resource");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 16);
 	g_assert_cmpstr (uri, ==, "http://predicate");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_INSERT_STATEMENT);
 
-	result = tracker_db_journal_reader_get_statement (NULL, &s_id, &p_id, &str);
+	result = tracker_db_journal_reader_get_statement (reader, NULL, &s_id, &p_id, &str);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 15);
 	g_assert_cmpint (p_id, ==, 16);
 	g_assert_cmpstr (str, ==, "test");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_END_TRANSACTION);
 
 	/* Third transaction */
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_START_TRANSACTION);
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 17);
 	g_assert_cmpstr (uri, ==, "http://resource");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 18);
 	g_assert_cmpstr (uri, ==, "http://predicate");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_RESOURCE);
 
-	result = tracker_db_journal_reader_get_resource (&id, &uri);
+	result = tracker_db_journal_reader_get_resource (reader, &id, &uri);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (id, ==, 19);
 	g_assert_cmpstr (uri, ==, "http://resource");
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID);
 
-	result = tracker_db_journal_reader_get_statement_id (NULL, &s_id, &p_id, &o_id);
+	result = tracker_db_journal_reader_get_statement_id (reader, NULL, &s_id, &p_id, &o_id);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 17);
 	g_assert_cmpint (p_id, ==, 18);
 	g_assert_cmpint (o_id, ==, 19);
 
-	result = tracker_db_journal_reader_next (&error);
+	result = tracker_db_journal_reader_next (reader, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
-	type = tracker_db_journal_reader_get_type ();
+	type = tracker_db_journal_reader_get_entry_type (reader);
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_END_TRANSACTION);
 
-	/* Shutdown */
-	result = tracker_db_journal_reader_shutdown ();
-	g_assert_cmpint (result, ==, TRUE);
+	tracker_db_journal_reader_free (reader);
 }
 
 #endif /* DISABLE_JOURNAL */

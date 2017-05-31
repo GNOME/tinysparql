@@ -3566,32 +3566,34 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 	const gchar *uri;
 	GError *n_error = NULL;
 	GFile *data_location;
+	TrackerDBJournalReader *reader;
 
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
 	data_location = tracker_data_manager_get_data_location ();
-	tracker_db_journal_reader_init (data_location, &n_error);
+	reader = tracker_db_journal_reader_new (data_location, &n_error);
 	g_object_unref (data_location);
-	if (n_error) {
+
+	if (!reader) {
 		/* This is fatal (doesn't happen when file doesn't exist, does happen
 		 * when for some other reason the reader can't be created) */
 		g_propagate_error (error, n_error);
 		return;
 	}
 
-	while (tracker_db_journal_reader_next (&journal_error)) {
+	while (tracker_db_journal_reader_next (reader, &journal_error)) {
 		TrackerDBJournalEntryType type;
 		const gchar *object;
 		gint graph_id, subject_id, predicate_id, object_id;
 
-		type = tracker_db_journal_reader_get_type ();
+		type = tracker_db_journal_reader_get_entry_type (reader);
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
 			GError *new_error = NULL;
 			TrackerDBInterface *iface;
 			TrackerDBStatement *stmt;
 			gint id;
 
-			tracker_db_journal_reader_get_resource (&id, &uri);
+			tracker_db_journal_reader_get_resource (reader, &id, &uri);
 
 			iface = tracker_db_manager_get_db_interface ();
 
@@ -3611,7 +3613,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
-			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
+			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (reader), NULL);
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			GError *new_error = NULL;
 			tracker_data_update_buffer_might_flush (&new_error);
@@ -3632,7 +3634,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			GError *new_error = NULL;
 			TrackerProperty *property = NULL;
 
-			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
+			tracker_db_journal_reader_get_statement (reader, &graph_id, &subject_id, &predicate_id, &object);
 
 			if (last_operation_type == -1) {
 				tracker_data_update_buffer_flush (&new_error);
@@ -3671,7 +3673,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			TrackerClass *class = NULL;
 			TrackerProperty *property = NULL;
 
-			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
+			tracker_db_journal_reader_get_statement_id (reader, &graph_id, &subject_id, &predicate_id, &object_id);
 
 			if (last_operation_type == -1) {
 				tracker_data_update_buffer_flush (&new_error);
@@ -3727,7 +3729,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			GError *new_error = NULL;
 			TrackerProperty *property = NULL;
 
-			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
+			tracker_db_journal_reader_get_statement (reader, &graph_id, &subject_id, &predicate_id, &object);
 
 			if (last_operation_type == 1) {
 				tracker_data_update_buffer_flush (&new_error);
@@ -3775,7 +3777,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			TrackerClass *class = NULL;
 			TrackerProperty *property = NULL;
 
-			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
+			tracker_db_journal_reader_get_statement_id (reader, &graph_id, &subject_id, &predicate_id, &object_id);
 
 			if (last_operation_type == 1) {
 				tracker_data_update_buffer_flush (&new_error);
@@ -3822,7 +3824,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 		if (busy_callback) {
 			busy_callback (busy_status,
-			               tracker_db_journal_reader_get_progress (),
+			               tracker_db_journal_reader_get_progress (reader),
 			               busy_user_data);
 		}
 	}
@@ -3833,8 +3835,8 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		gsize size;
 		GFile *cache_location, *data_location;
 
-		size = tracker_db_journal_reader_get_size_of_correct ();
-		tracker_db_journal_reader_shutdown ();
+		size = tracker_db_journal_reader_get_size_of_correct (reader);
+		tracker_db_journal_reader_free (reader);
 
 		cache_location = tracker_data_manager_get_cache_location();
 		data_location = tracker_data_manager_get_data_location();
@@ -3861,7 +3863,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 		g_clear_error (&journal_error);
 	} else {
-		tracker_db_journal_reader_shutdown ();
+		tracker_db_journal_reader_free (reader);
 	}
 }
 
