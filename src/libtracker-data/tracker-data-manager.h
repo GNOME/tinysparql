@@ -43,12 +43,13 @@ G_BEGIN_DECLS
 typedef enum {
 	TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
 	TRACKER_DATA_ONTOLOGY_NOT_FOUND,
+	TRACKER_DATA_UNSUPPORTED_LOCATION
 } TrackerDataOntologyError;
 
 GQuark   tracker_data_ontology_error_quark           (void);
 gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   flags,
-                                                      const gchar            *cache_location,
-                                                      const gchar            *data_location,
+                                                      GFile                  *cache_location,
+                                                      GFile                  *data_location,
                                                       GFile                  *ontology_location,
                                                       gboolean               *first_time,
                                                       gboolean                journal_check,
@@ -66,8 +67,8 @@ gboolean tracker_data_manager_reload                 (TrackerBusyCallback     bu
                                                       const gchar            *busy_operation,
                                                       GError                **error);
 
-const gchar * tracker_data_manager_get_cache_location();
-const gchar * tracker_data_manager_get_data_location ();
+GFile * tracker_data_manager_get_cache_location();
+GFile * tracker_data_manager_get_data_location ();
 
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);

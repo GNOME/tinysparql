@@ -3829,14 +3829,18 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 	if (journal_error) {
 		GError *n_error = NULL;
 		gsize size;
+		GFile *cache_location, *data_location;
 
 		size = tracker_db_journal_reader_get_size_of_correct ();
 		tracker_db_journal_reader_shutdown ();
 
-		const gchar *cache_location = tracker_data_manager_get_cache_location();
-		const gchar *data_location = tracker_data_manager_get_data_location();
+		cache_location = tracker_data_manager_get_cache_location();
+		data_location = tracker_data_manager_get_data_location();
 
 		tracker_db_journal_init (NULL, cache_location, data_location, FALSE, &n_error);
+		g_object_unref (cache_location);
+		g_object_unref (data_location);
+
 		if (n_error) {
 			g_clear_error (&journal_error);
 			/* This is fatal (journal file not writable, etc) */

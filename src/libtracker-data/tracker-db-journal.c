@@ -564,8 +564,8 @@ db_journal_writer_init (JournalWriter  *jwriter,
 
 gboolean
 tracker_db_journal_init (const gchar  *filename,
-                         const gchar  *cache_location,
-                         const gchar  *data_location,
+                         GFile        *cache_location,
+                         GFile        *data_location,
                          gboolean      truncate,
                          GError      **error)
 {
@@ -584,9 +584,13 @@ tracker_db_journal_init (const gchar  *filename,
 			                                 TRACKER_DB_JOURNAL_FILENAME,
 			                                 NULL);
 		} else {
-			filename_use = g_build_filename (data_location,
-			                                 TRACKER_DB_JOURNAL_FILENAME,
-			                                 NULL);
+			GFile *child;
+
+			child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+			filename_use = g_file_get_path (child);
+			g_object_unref (child);
+
+			g_assert (filename_use != NULL);
 		}
 		filename_free = (gchar *) filename_use;
 	} else {

@@ -67,8 +67,8 @@
 
 static GFile    *ontologies_dir = NULL;
 static GFile    *ontology_location_stored = NULL;
-static gchar    *cache_location_stored;
-static gchar    *data_location_stored;
+static GFile    *cache_location_stored = NULL;
+static GFile    *data_location_stored = NULL;
 static gboolean  initialized;
 static gboolean  reloading = FALSE;
 #ifndef DISABLE_JOURNAL
@@ -3711,20 +3711,20 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 #endif
 }
 
-const gchar * tracker_data_manager_get_cache_location()
+GFile * tracker_data_manager_get_cache_location()
 {
-	return cache_location_stored;
+	return cache_location_stored ? g_object_ref (cache_location_stored) : NULL;
 }
 
-const gchar * tracker_data_manager_get_data_location ()
+GFile * tracker_data_manager_get_data_location ()
 {
-	return data_location_stored;
+	return data_location_stored ? g_object_ref (data_location_stored) : NULL;
 }
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags   flags,
-                           const gchar            *cache_location,
-                           const gchar            *data_location,
+                           GFile                  *cache_location,
+                           GFile                  *data_location,
                            GFile                  *ontology_location,
                            gboolean               *first_time,
                            gboolean                journal_check,
@@ -3751,6 +3751,39 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #ifndef DISABLE_JOURNAL
 	gboolean read_journal;
 #endif
+
+	if ((cache_location && !g_file_is_native (cache_location)) ||
+	    (data_location && !g_file_is_native (data_location))) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "Cache and data locations must be local");
+		return FALSE;
+	}
+
+	if (!cache_location) {
+		gchar *dir = g_build_filename (g_get_user_cache_dir (),
+		                               "tracker",
+		                               NULL);
+		cache_location = g_file_new_for_path (dir);
+		g_free (dir);
+	}
+
+	if (!data_location) {
+		gchar *dir = g_build_filename (g_get_user_data_dir (),
+		                               "tracker",
+		                               "data",
+		                               NULL);
+		data_location = g_file_new_for_path (dir);
+		g_free (dir);
+	}
+
+	if (!ontology_location) {
+		gchar *dir = g_build_filename (SHAREDIR, "tracker",
+		                               "ontologies", NULL);
+		ontology_location = g_file_new_for_path (dir);
+		g_free (dir);
+	}
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
@@ -3854,34 +3887,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
 
-	g_free (cache_location_stored);
-	if (cache_location != NULL)
-		cache_location_stored = g_strdup(cache_location);
-	else
-		cache_location_stored = NULL;
-
+	g_set_object (&cache_location_stored, cache_location);
 	g_set_object (&ontology_location_stored, ontology_location);
-
-	g_free (data_location_stored);
-	if (data_location != NULL)
-		data_location_stored = g_strdup(data_location);
-	else
-		data_location_stored = NULL;
-
+	g_set_object (&data_location_stored, data_location);
 
 	if (G_LIKELY (!env_path)) {
-		if (ontology_location == NULL) {
-			gchar *file_path;
-
-			/* SHAREDIR/tracker/ontologies */
-			file_path = g_build_filename (SHAREDIR, "tracker",
-			                              "ontologies", NULL);
-			ontologies_dir = g_file_new_for_path (file_path);
-			g_free (file_path);
-		} else {
-			/* Typically SHAREDIR/tracker/domain-ontologies/domain/ontology-name */
-			ontologies_dir = g_object_ref (ontology_location);
-		}
+		ontologies_dir = g_object_ref (ontology_location);
 
 		if (g_file_query_file_type (ontologies_dir, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
 			gchar *uri;

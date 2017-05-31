@@ -49,7 +49,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	 public Connection.custom_ontology (string? loc, string? domain, File? ontology_loc) throws Sparql.Error, IOError, DBusError {
+	 public Connection.custom_ontology (File loc, File? journal_loc, File? ontology_loc) throws Sparql.Error, IOError, DBusError {
 		try {
 			if (use_count == 0) {
 				// make sure that current locale vs db locale are the same,
@@ -65,7 +65,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 				}
 
 				Data.Manager.init (DBManagerFlags.READONLY | DBManagerFlags.ENABLE_MUTEXES,
-				                   loc, domain, ontology_loc,
+				                   loc, journal_loc, ontology_loc,
 				                   null, false, false, select_cache_size, 0, null, null);
 			}
 

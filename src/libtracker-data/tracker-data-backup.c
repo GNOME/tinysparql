@@ -343,28 +343,15 @@ dir_move_from_temp (const gchar *path)
 }
 
 static void
-move_to_temp (const gchar* cache_location, const gchar* data_location)
+move_to_temp (GFile *cache_location,
+              GFile *data_location)
 {
 	gchar *data_dir, *cache_dir;
 
 	g_message ("Moving all database files to temporary location");
 
-	if (data_location == NULL) {
-		data_dir = g_build_filename (g_get_user_data_dir (),
-		                             "tracker",
-		                             "data",
-		                             NULL);
-	} else {
-		data_dir = g_strdup (data_location);
-	}
-	
-	if (cache_location == NULL) {
-		cache_dir = g_build_filename (g_get_user_cache_dir (),
-		                              "tracker",
-		                              NULL);
-	} else {
-		cache_dir = g_strdup(cache_location);
-	}
+	data_dir = g_file_get_path (data_location);
+	cache_dir = g_file_get_path (cache_location);
 
 	dir_move_to_temp (data_dir);
 	dir_move_to_temp (cache_dir);
@@ -374,34 +361,21 @@ move_to_temp (const gchar* cache_location, const gchar* data_location)
 }
 
 static void
-remove_temp (const gchar* cache_location, const gchar* data_location)
+remove_temp (GFile *cache_location,
+             GFile *data_location)
 {
 	gchar *tmp_data_dir, *tmp_cache_dir;
+	GFile *child;
 
 	g_message ("Removing all database files from temporary location");
 
-	if (data_location == NULL) {
-		tmp_data_dir = g_build_filename (g_get_user_data_dir (),
-		                                 "tracker",
-		                                 "data",
-		                                 "tmp",
-		                                 NULL);
-	} else {
-		tmp_data_dir = g_build_filename (data_location,
-		                                 "tmp",
-		                                 NULL);
-	}
+	child = g_file_get_child (data_location, "tmp");
+	tmp_data_dir = g_file_get_path (child);
+	g_object_unref (child);
 
-	if (cache_location == NULL) {
-		tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
-		                                  "tracker",
-		                                  "tmp",
-		                                  NULL);
-	} else {
-		tmp_cache_dir = g_build_filename (cache_location,
-		                                  "tmp",
-		                                  NULL);
-	}
+	child = g_file_get_child (cache_location, "tmp");
+	tmp_cache_dir = g_file_get_path (child);
+	g_object_unref (child);
 
 	dir_remove_files (tmp_data_dir);
 	dir_remove_files (tmp_cache_dir);
@@ -414,28 +388,15 @@ remove_temp (const gchar* cache_location, const gchar* data_location)
 }
 
 static void
-restore_from_temp (const gchar* cache_location, const gchar* data_location)
+restore_from_temp (GFile *cache_location,
+                   GFile *data_location)
 {
 	gchar *data_dir, *cache_dir;
 
 	g_message ("Restoring all database files from temporary location");
 
-	if (data_location == NULL) {
-		data_dir = g_build_filename (g_get_user_data_dir (),
-		                             "tracker",
-		                             "data",
-		                             NULL);
-	} else {
-		data_dir = g_strdup (data_location);
-	}
-
-	if (cache_location == NULL) {
-		cache_dir = g_build_filename (g_get_user_cache_dir (),
-		                              "tracker",
-		                              NULL);
-	} else {
-		cache_dir = g_strdup (cache_location);
-	}
+	data_dir = g_file_get_path (data_location);
+	cache_dir = g_file_get_path (cache_location);
 
 	dir_move_from_temp (data_dir);
 	dir_move_from_temp (cache_dir);
@@ -583,8 +544,8 @@ tracker_data_backup_save (GFile                     *destination,
 
 void
 tracker_data_backup_restore (GFile                *journal,
-                             const gchar          *cache_location,
-                             const gchar          *data_location,
+                             GFile                *cache_location,
+                             GFile                *data_location,
                              GFile                *ontology_location,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,
