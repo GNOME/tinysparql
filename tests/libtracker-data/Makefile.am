@@ -92,9 +92,6 @@ EXTRA_DIST += \
 	change/updates/99-example.queries.v5           \
 	change/updates/99-example.queries.v6           \
 	change/updates/99-example.queries.v7           \
-	ontologies/20-dc.ontology                      \
-	ontologies/31-nao.ontology                     \
-	ontologies/90-tracker.ontology                 \
 	meson.build
 
 clean-local:

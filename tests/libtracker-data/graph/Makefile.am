@@ -1,13 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST += \
-	data-1.ontology                                \
+	test.ontology                                  \
 	data-1.rq                                      \
-	data-2.ontology                                \
 	data-2.rq                                      \
-	data-3.ontology                                \
 	data-3.rq                                      \
-	data-4.ontology                                \
 	data-4.rq                                      \
 	graph-1.out                                    \
 	graph-1.rq                                     \

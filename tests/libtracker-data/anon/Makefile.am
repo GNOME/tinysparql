@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST += \
-	data.ontology                                  \
+	test.ontology                                  \
 	data.ttl                                       \
 	query.out                                      \
 	query.rq                                       \

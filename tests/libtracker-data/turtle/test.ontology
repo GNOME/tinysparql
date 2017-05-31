@@ -1,15 +1,23 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <http://example.org/ns2#> .
-@prefix f: <http://example.org/ns#> .
+@prefix foo: <http://example.org/ns#> .
+@prefix : <http://other.example.org/ns#> .
+@prefix f: <http://example.org/ns3#> .
 @prefix b: <http://example.org/b2#> .
 @prefix bz: <http://example.org/b2> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix bar: <bar#> .
 
+foo: a tracker:Namespace ;
+	tracker:prefix "foo" .
+
 : a tracker:Namespace ;
 	tracker:prefix "" .
+
+foo: a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
 
 b: a tracker:Namespace ;
 	tracker:prefix "b" .
@@ -23,7 +31,7 @@ bz: a tracker:Namespace ;
 f: a tracker:Namespace ;
 	tracker:prefix "a" .
 
-<http://example.org/ns2#>  a rdf:Property ;
+<http://other.example.org/ns#>  a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource .
 

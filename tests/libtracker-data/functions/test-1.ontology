@@ -37,3 +37,26 @@ example:o a rdf:Property ;
 example:a a rdf:Property ;
 	rdfs:domain example:B ;
 	rdfs:range example:A .
+
+example:title a rdf:Property ;
+	rdfs:domain example:A ;
+	rdfs:range xsd:string .
+
+example:filename a rdf:Property ;
+	rdfs:domain example:A ;
+	rdfs:range xsd:string .
+
+example:Location a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+example:name a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:string .
+
+example:latitude a rdf:Property ;
+	rdfs:domain example:Location ;
+	rdfs:range xsd:double .
+
+example:longitude a rdf:Property ;
+	rdfs:domain example:Location ;
+	rdfs:range xsd:double .

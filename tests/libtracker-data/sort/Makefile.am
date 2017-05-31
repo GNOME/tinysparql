@@ -1,13 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST += \
-	data-sort-1.ontology                           \
+	test.ontology                                  \
 	data-sort-1.ttl                                \
-	data-sort-3.ontology                           \
 	data-sort-3.ttl                                \
-	data-sort-4.ontology                           \
 	data-sort-4.ttl                                \
-	data-sort-5.ontology                           \
 	data-sort-5.ttl                                \
 	query-sort-1.out                               \
 	query-sort-1.rq                                \
