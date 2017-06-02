@@ -32,7 +32,8 @@ G_BEGIN_DECLS
 
 #define TRACKER_COLLATION_NAME "TRACKER"
 
-typedef void (*TrackerDBWalCallback) (gint n_pages);
+typedef void (*TrackerDBWalCallback) (TrackerDBInterface *iface,
+                                      gint                n_pages);
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
                                                                         gboolean                  readonly,
@@ -46,6 +47,10 @@ void                tracker_db_interface_sqlite_fts_init               (TrackerD
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_wal_hook               (TrackerDBInterface       *interface,
                                                                         TrackerDBWalCallback      callback);
+gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerDBInterface       *interface,
+                                                                        gboolean                  blocking,
+                                                                        GError                  **error);
+
 
 #if HAVE_TRACKER_FTS
 void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,

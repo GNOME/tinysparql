@@ -260,7 +260,7 @@ public class Tracker.Store {
 
 	static int checkpointing;
 
-	static void wal_hook (int n_pages) {
+	static void wal_hook (DBInterface iface, int n_pages) {
 		// run in update thread
 
 		debug ("WAL: %d pages", n_pages);

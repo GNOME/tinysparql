@@ -98,6 +98,9 @@ struct TrackerDBInterface {
 	/* Used if TRACKER_DB_MANAGER_ENABLE_MUTEXES is set */
 	GMutex mutex;
 	guint use_mutex;
+
+	/* Wal */
+	TrackerDBWalCallback wal_hook;
 };
 
 struct TrackerDBInterfaceClass {
@@ -1854,8 +1857,9 @@ wal_hook (gpointer     user_data,
           const gchar *db_name,
           gint         n_pages)
 {
-	((TrackerDBWalCallback) user_data) (n_pages);
+	TrackerDBInterface *iface = user_data;
 
+	iface->wal_hook (iface, n_pages);
 	return SQLITE_OK;
 }
 
@@ -1863,9 +1867,33 @@ void
 tracker_db_interface_sqlite_wal_hook (TrackerDBInterface   *interface,
                                       TrackerDBWalCallback  callback)
 {
-	sqlite3_wal_hook (interface->db, wal_hook, callback);
+	interface->wal_hook = callback;
+	sqlite3_wal_hook (interface->db, wal_hook, interface);
 }
 
+gboolean
+tracker_db_interface_sqlite_wal_checkpoint (TrackerDBInterface  *interface,
+                                            gboolean             blocking,
+                                            GError             **error)
+{
+	int return_val;
+
+	tracker_db_interface_lock (interface);
+	return_val = sqlite3_wal_checkpoint_v2 (interface->db, NULL,
+	                                        blocking ? SQLITE_CHECKPOINT_FULL : SQLITE_CHECKPOINT_PASSIVE,
+	                                        NULL, NULL);
+	tracker_db_interface_unlock (interface);
+
+	if (return_val != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             sqlite3_errstr (return_val));
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 static void
 tracker_db_interface_sqlite_finalize (GObject *object)
