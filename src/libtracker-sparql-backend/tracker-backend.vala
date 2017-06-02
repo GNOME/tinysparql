@@ -182,6 +182,13 @@ class Tracker.Sparql.Backend : Connection {
 		return yield bus.statistics_async (cancellable);
 	}
 
+	private Connection create_readonly_direct () throws GLib.Error, Sparql.Error, IOError, DBusError {
+		File store = File.new_for_path (Path.build_filename (Environment.get_user_cache_dir(), "tracker"));
+		var conn = new Tracker.Direct.Connection (Tracker.Sparql.ConnectionFlags.READONLY, store, null, null);
+		conn.init ();
+		return conn;
+	}
+
 	// Plugin loading functions
 	private void load_plugins () throws GLib.Error {
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
@@ -206,7 +213,7 @@ class Tracker.Sparql.Backend : Connection {
 		switch (backend) {
 		case Backend.AUTO:
 			try {
-				direct = new Tracker.Direct.Connection ();
+				direct = create_readonly_direct ();
 			} catch (Error e) {
 				warning ("Falling back to bus backend, the direct backend failed to initialize: " + e.message);
 			}
@@ -215,7 +222,7 @@ class Tracker.Sparql.Backend : Connection {
 			break;
 
 		case Backend.DIRECT:
-			direct = new Tracker.Direct.Connection ();
+			direct = create_readonly_direct ();
 			break;
 
 		case Backend.BUS:
