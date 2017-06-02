@@ -74,6 +74,11 @@ public errordomain Tracker.Sparql.Error {
 	UNSUPPORTED
 }
 
+public enum Tracker.Sparql.ConnectionFlags {
+	NONE     = 0,
+	READONLY = 1 << 0,
+}
+
 /**
  * TrackerSparqlConnection:
  *
@@ -219,6 +224,28 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Since: 1.12
 	 */
 	public extern static new Connection remote_new (string uri_base);
+
+	/**
+	 * tracker_sparql_connection_local_new:
+	 *
+	 * Returns: a new local #TrackerSparqlConnection using the specified
+	 * @cache/@journal locations, and the ontology specified in the @ontology
+	 * directory. Call g_object_unref() on the object when no longer used.
+	 *
+	 * Since: 1.12
+	 */
+	public extern static new Connection local_new (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
+
+	/**
+	 * tracker_sparql_connection_local_new_async:
+	 *
+	 * Returns: a new local #TrackerSparqlConnection using the specified
+	 * @cache/@journal locations, and the ontology specified in the @ontology
+	 * directory. Call g_object_unref() on the object when no longer used.
+	 *
+	 * Since: 1.12
+	 */
+	public extern async static new Connection local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
 	/**
 	 * tracker_sparql_connection_query:

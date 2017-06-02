@@ -420,3 +420,16 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Ca
 public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string url_base) {
 	return new Tracker.Remote.Connection (url_base);
 }
+
+public static Tracker.Sparql.Connection tracker_sparql_connection_local_new (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	var conn = new Tracker.Direct.Connection (flags, store, journal, ontology);
+	conn.init (cancellable);
+	return conn;
+}
+
+public static async Tracker.Sparql.Connection tracker_sparql_connection_local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	var conn = new Tracker.Direct.Connection (flags, store, journal, ontology);
+	conn.init_async.begin (Priority.DEFAULT, cancellable);
+	yield;
+	return conn;
+}
