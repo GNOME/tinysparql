@@ -307,11 +307,12 @@ dir_move_files (const gchar *src_path, const gchar *dest_path)
 }
 
 static void
-dir_move_to_temp (const gchar *path)
+dir_move_to_temp (const gchar *path,
+                  const gchar *tmpname)
 {
 	gchar *temp_dir;
 
-	temp_dir = g_build_filename (path, "tmp", NULL);
+	temp_dir = g_build_filename (path, tmpname, NULL);
 	if (g_mkdir (temp_dir, 0777) < 0) {
 		g_critical ("Could not move %s to temp directory: %m",
 			    path);
@@ -327,11 +328,12 @@ dir_move_to_temp (const gchar *path)
 }
 
 static void
-dir_move_from_temp (const gchar *path)
+dir_move_from_temp (const gchar *path,
+                    const gchar *tmpname)
 {
 	gchar *temp_dir;
 
-	temp_dir = g_build_filename (path, "tmp", NULL);
+	temp_dir = g_build_filename (path, tmpname, NULL);
 
 	/* ensure that no obsolete files are around */
 	dir_remove_files (path);
@@ -353,8 +355,8 @@ move_to_temp (GFile *cache_location,
 	data_dir = g_file_get_path (data_location);
 	cache_dir = g_file_get_path (cache_location);
 
-	dir_move_to_temp (data_dir);
-	dir_move_to_temp (cache_dir);
+	dir_move_to_temp (data_dir, "tmp.data");
+	dir_move_to_temp (cache_dir, "tmp.cache");
 
 	g_free (cache_dir);
 	g_free (data_dir);
@@ -369,11 +371,11 @@ remove_temp (GFile *cache_location,
 
 	g_message ("Removing all database files from temporary location");
 
-	child = g_file_get_child (data_location, "tmp");
+	child = g_file_get_child (data_location, "tmp.data");
 	tmp_data_dir = g_file_get_path (child);
 	g_object_unref (child);
 
-	child = g_file_get_child (cache_location, "tmp");
+	child = g_file_get_child (cache_location, "tmp.cache");
 	tmp_cache_dir = g_file_get_path (child);
 	g_object_unref (child);
 
@@ -398,8 +400,8 @@ restore_from_temp (GFile *cache_location,
 	data_dir = g_file_get_path (data_location);
 	cache_dir = g_file_get_path (cache_location);
 
-	dir_move_from_temp (data_dir);
-	dir_move_from_temp (cache_dir);
+	dir_move_from_temp (data_dir, "tmp.data");
+	dir_move_from_temp (cache_dir, "tmp.cache");
 
 	g_free (cache_dir);
 	g_free (data_dir);
