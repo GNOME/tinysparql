@@ -29,7 +29,6 @@
 #include <libtracker-data/tracker-data.h>
 
 static gchar *tests_data_dir = NULL;
-static gchar *xdg_location = NULL;
 static gint backup_calls = 0;
 static GMainLoop *loop = NULL;
 
@@ -38,6 +37,7 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	gboolean use_journal;
+	gchar *data_location;
 };
 
 const TestInfo tests[] = {
@@ -101,14 +101,16 @@ check_content_in_db (gint expected_instances,
  * Run again the queries
  */
 static void
-test_backup_and_restore_helper (gboolean journal)
+test_backup_and_restore_helper (const gchar *db_location,
+                                gboolean     journal)
 {
-	gchar  *data_prefix, *data_filename, *backup_location, *backup_filename, *db_location, *meta_db, *ontologies;
+	gchar  *data_prefix, *data_filename, *backup_location, *backup_filename, *meta_db, *ontologies;
 	GError *error = NULL;
 	GFile  *backup_file;
-	GFile  *test_schemas;
+	GFile  *data_location, *test_schemas;
 
-	db_location = g_build_path (G_DIR_SEPARATOR_S, xdg_location, "tracker", NULL);
+	data_location = g_file_new_for_path (db_location);
+
 	data_prefix = g_build_path (G_DIR_SEPARATOR_S, 
 	                            TOP_SRCDIR, "tests", "libtracker-data", "backup", "backup",
 	                            NULL);
@@ -121,7 +123,7 @@ test_backup_and_restore_helper (gboolean journal)
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, test_schemas,
+	                           data_location, data_location, test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -187,7 +189,7 @@ test_backup_and_restore_helper (gboolean journal)
 #endif /* DISABLE_JOURNAL */
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, test_schemas,
+	                           data_location, data_location, test_schemas,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -195,7 +197,7 @@ test_backup_and_restore_helper (gboolean journal)
 
 	check_content_in_db (0, 0);
 
-	tracker_data_backup_restore (backup_file, NULL, NULL, test_schemas, NULL, NULL, &error);
+	tracker_data_backup_restore (backup_file, data_location, data_location, test_schemas, NULL, NULL, &error);
 	g_assert_no_error (error);
 	check_content_in_db (3, 1);
 
@@ -211,12 +213,7 @@ static void
 test_backup_and_restore (TestInfo      *info,
                          gconstpointer  context)
 {
-	gint index;
-
-	index = GPOINTER_TO_INT (context);
-	*info = tests[index];
-
-	test_backup_and_restore_helper (info->use_journal);
+	test_backup_and_restore_helper (info->data_location, info->use_journal);
 	backup_calls = 0;
 }
 
@@ -224,26 +221,15 @@ static void
 setup (TestInfo      *info,
        gconstpointer  context)
 {
-	gint i;
+	const TestInfo *test = context;
+	gchar *basename;
 
-	i = GPOINTER_TO_INT (context);
-	*info = tests[i];
+	*info = *test;
 
-	/* Sadly, we can't use ONE location per test because GLib
-	 * caches XDG env vars, so g_get_*dir() will not change if we
-	 * update the environment, this sucks majorly.
-	 */
-	if (!xdg_location) {
-		gchar *basename;
-
-		/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
-		basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
-		xdg_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
-		g_free (basename);
-
-		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-	}
+	/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
+	basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
+	info->data_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
+	g_free (basename);
 }
 
 static void
@@ -253,14 +239,13 @@ teardown (TestInfo      *info,
 	gchar *cleanup_command;
 
 	/* clean up */
-	g_print ("Removing temporary data (%s)\n", xdg_location);
+	g_print ("Removing temporary data (%s)\n", info->data_location);
 
-	cleanup_command = g_strdup_printf ("rm -Rf %s/", xdg_location);
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->data_location);
 	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
 	g_free (cleanup_command);
 
-	g_free (xdg_location);
-	xdg_location = NULL;
+	g_free (info->data_location);
 }
 
 int
@@ -277,8 +262,8 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add ("/libtracker-data/backup/journal_then_save_and_restore", TestInfo, GINT_TO_POINTER(0), setup, test_backup_and_restore, teardown);
-	g_test_add ("/libtracker-data/backup/save_and_restore", TestInfo, GINT_TO_POINTER(1), setup, test_backup_and_restore, teardown);
+	g_test_add ("/libtracker-data/backup/journal_then_save_and_restore", TestInfo, &tests[0], setup, test_backup_and_restore, teardown);
+	g_test_add ("/libtracker-data/backup/save_and_restore", TestInfo, &tests[1], setup, test_backup_and_restore, teardown);
 
 	result = g_test_run ();
 

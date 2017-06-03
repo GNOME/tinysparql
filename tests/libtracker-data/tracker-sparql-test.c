@@ -34,7 +34,6 @@
 #include <libtracker-data/tracker-sparql-query.h>
 
 static gchar *tests_data_dir = NULL;
-static gchar *xdg_location = NULL;
 
 typedef struct _TestInfo TestInfo;
 
@@ -43,6 +42,7 @@ struct _TestInfo {
 	const gchar *data;
 	gboolean expect_query_error;
 	gboolean expect_update_error;
+	gchar *data_location;
 };
 
 const TestInfo tests[] = {
@@ -255,7 +255,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *query, *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
-	GFile *file, *test_schemas;
+	GFile *file, *test_schemas, *data_location;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -267,10 +267,12 @@ test_sparql_query (TestInfo      *test_info,
 	test_schemas = g_file_get_parent (file);
 	g_object_unref (file);
 
+	data_location = g_file_new_for_path (test_info->data_location);
+
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL, NULL, test_schemas, /* loc, domain and ontology_name */
+	                           data_location, data_location, test_schemas, /* loc, domain and ontology_name */
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -345,6 +347,7 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (query);
 	g_free (results_filename);
 	g_object_unref (test_schemas);
+	g_object_unref (data_location);
 
 	tracker_data_manager_shutdown ();
 }
@@ -353,26 +356,15 @@ static void
 setup (TestInfo      *info,
        gconstpointer  context)
 {
-	gint i;
+	const TestInfo *test = context;
+	gchar *basename;
 
-	i = GPOINTER_TO_INT (context);
-	*info = tests[i];
+	*info = *test;
 
-	/* Sadly, we can't use ONE location per test because GLib
-	 * caches XDG env vars, so g_get_*dir() will not change if we
-	 * update the environment, this sucks majorly.
-	 */
-	if (!xdg_location) {
-		gchar *basename;
-
-		/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
-		basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
-		xdg_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
-		g_free (basename);
-
-		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-	}
+	/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
+	basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
+	info->data_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
+	g_free (basename);
 }
 
 static void
@@ -382,14 +374,13 @@ teardown (TestInfo      *info,
 	gchar *cleanup_command;
 
 	/* clean up */
-	g_print ("Removing temporary data (%s)\n", xdg_location);
+	g_print ("Removing temporary data (%s)\n", info->data_location);
 
-	cleanup_command = g_strdup_printf ("rm -Rf %s/", xdg_location);
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->data_location);
 	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
 	g_free (cleanup_command);
 
-	g_free (xdg_location);
-	xdg_location = NULL;
+	g_free (info->data_location);
 }
 
 int
@@ -423,7 +414,7 @@ main (int argc, char **argv)
 #endif
 
 		testpath = g_strconcat ("/libtracker-data/sparql/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup, test_sparql_query, teardown);
+		g_test_add (testpath, TestInfo, &tests[i], setup, test_sparql_query, teardown);
 		g_free (testpath);
 	}
 

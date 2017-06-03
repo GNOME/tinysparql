@@ -3752,37 +3752,21 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	gboolean read_journal;
 #endif
 
-	if ((cache_location && !g_file_is_native (cache_location)) ||
-	    (data_location && !g_file_is_native (data_location))) {
+	if (!cache_location || !data_location || !ontology_location) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "All data storage and ontology locations must be provided");
+		return FALSE;
+	}
+
+	if (!g_file_is_native (cache_location) ||
+	    !g_file_is_native (data_location)) {
 		g_set_error (error,
 		             TRACKER_DATA_ONTOLOGY_ERROR,
 		             TRACKER_DATA_UNSUPPORTED_LOCATION,
 		             "Cache and data locations must be local");
 		return FALSE;
-	}
-
-	if (!cache_location) {
-		gchar *dir = g_build_filename (g_get_user_cache_dir (),
-		                               "tracker",
-		                               NULL);
-		cache_location = g_file_new_for_path (dir);
-		g_free (dir);
-	}
-
-	if (!data_location) {
-		gchar *dir = g_build_filename (g_get_user_data_dir (),
-		                               "tracker",
-		                               "data",
-		                               NULL);
-		data_location = g_file_new_for_path (dir);
-		g_free (dir);
-	}
-
-	if (!ontology_location) {
-		gchar *dir = g_build_filename (SHAREDIR, "tracker",
-		                               "ontologies", NULL);
-		ontology_location = g_file_new_for_path (dir);
-		g_free (dir);
 	}
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;

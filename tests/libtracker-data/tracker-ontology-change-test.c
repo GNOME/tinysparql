@@ -183,10 +183,10 @@ test_ontology_change (void)
 	gchar *ontology_file;
 	GFile *file2;
 	gchar *prefix, *build_prefix, *ontologies;
-	gchar *ontology_dir;
+	gchar *data_dir, *ontology_dir;
 	guint i;
 	GError *error = NULL;
-	GFile *test_schemas;
+	GFile *data_location, *test_schemas;
 
 	delete_db (TRUE);
 
@@ -204,6 +204,10 @@ test_ontology_change (void)
 	g_mkdir_with_parents (ontology_dir, 0777);
 	test_schemas = g_file_new_for_path (ontology_dir);
 	g_free (ontology_dir);
+
+	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
+	data_location = g_file_new_for_path (data_dir);
+	g_free (data_dir);
 
 	for (i = 0; changes[i].ontology; i++) {
 		GFile *file1;
@@ -225,7 +229,7 @@ test_ontology_change (void)
 		g_assert_no_error (error);
 		g_chmod (ontology_file, 0666);
 
-		tracker_data_manager_init (0, NULL, NULL, test_schemas,
+		tracker_data_manager_init (0, data_location, data_location, test_schemas,
 		                           NULL, FALSE, FALSE,
 		                           100, 100, NULL, NULL, NULL, &error);
 
@@ -269,7 +273,7 @@ test_ontology_change (void)
 
 	delete_db (FALSE);
 
-	tracker_data_manager_init (0, NULL, NULL, test_schemas,
+	tracker_data_manager_init (0, data_location, data_location, test_schemas,
 	                           NULL, TRUE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
 
@@ -297,6 +301,7 @@ test_ontology_change (void)
 
 	g_object_unref (file2);
 	g_object_unref (test_schemas);
+	g_object_unref (data_location);
 	g_free (ontologies);
 	g_free (build_prefix);
 	g_free (prefix);
@@ -306,14 +311,8 @@ int
 main (int argc, char **argv)
 {
 	gint result;
-	gchar *data_dir;
 
 	g_test_init (&argc, &argv, NULL);
-
-	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
-
-	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
 
 	/* add test cases */
 
@@ -328,8 +327,6 @@ main (int argc, char **argv)
 	g_print ("Removing temporary data\n");
 	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
 	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
-
-	g_free (data_dir);
 
 	return result;
 }

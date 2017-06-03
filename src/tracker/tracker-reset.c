@@ -259,12 +259,22 @@ reset_run (void)
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
+		GFile *cache_location, *data_location;
+		gchar *dir;
 #ifndef DISABLE_JOURNAL
 		gchar *rotate_to;
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
 		gint chunk_size_mb;
 #endif /* DISABLE_JOURNAL */
+
+		dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+		cache_location = g_file_new_for_path (dir);
+		g_free (dir);
+
+		dir = g_build_filename (g_get_user_data_dir (), "tracker", "data", NULL);
+		data_location = g_file_new_for_path (dir);
+		g_free (dir);
 
 		/* Set log handler for library messages */
 		log_handler_id = g_log_set_handler (NULL,
@@ -292,7 +302,7 @@ reset_run (void)
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
-		                              NULL, NULL, /* cache_location, data_location */
+		                              cache_location, data_location,
 		                              NULL,
 		                              FALSE,
 		                              FALSE,

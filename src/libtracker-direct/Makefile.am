@@ -15,6 +15,7 @@ AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
+	-DSHAREDIR=\""$(datadir)"\"                    \
 	$(LIBTRACKER_DIRECT_CFLAGS)
 
 libtracker_direct_la_SOURCES =                         \

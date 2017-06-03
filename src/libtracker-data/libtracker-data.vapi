@@ -230,7 +230,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
 	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, GLib.File? cache_location, GLib.File? data_location, GLib.File? ontology_location, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
+		public bool init (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
 	}
 

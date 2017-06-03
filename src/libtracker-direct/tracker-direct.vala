@@ -37,6 +37,9 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 
 	private AsyncQueue<Task> update_queue;
 
+	[CCode (cname = "SHAREDIR")]
+	extern const string SHAREDIR;
+
 	enum TaskType {
 		QUERY,
 		UPDATE,
@@ -195,6 +198,11 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		journal_loc = journal;
 		ontology_loc = ontology;
 		flags = connection_flags;
+
+		if (journal_loc == null)
+			journal_loc = database_loc;
+		if (ontology_loc == null)
+			ontology_loc = File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies"));
 
 		update_queue = new AsyncQueue<Task> ();
 	}

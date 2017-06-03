@@ -556,6 +556,14 @@ tracker_data_backup_restore (GFile                *journal,
 	BackupSaveInfo *info;
 	GError *internal_error = NULL;
 
+	if (!cache_location || !data_location || !ontology_location) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "All data storage and ontology locations must be provided");
+		return;
+	}
+
 	info = g_new0 (BackupSaveInfo, 1);
 #ifndef DISABLE_JOURNAL
 	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());

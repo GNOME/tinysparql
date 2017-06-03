@@ -96,8 +96,23 @@ sql_by_query (void)
 	GError *error = NULL;
 	gboolean first_time = FALSE;
 	gint n_rows = 0;
+	GFile *cache_location, *data_location, *ontology_location;
+	gchar *dir;
 
-	if (!tracker_data_manager_init (0, NULL, NULL, NULL,
+	dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+	cache_location = g_file_new_for_path (dir);
+	g_free (dir);
+
+	dir = g_build_filename (g_get_user_data_dir (), "tracker", "data", NULL);
+	data_location = g_file_new_for_path (dir);
+	g_free (dir);
+
+	dir = g_build_filename (SHAREDIR, "tracker", "ontologies", NULL);
+	ontology_location = g_file_new_for_path (dir);
+	g_free (dir);
+
+	if (!tracker_data_manager_init (0, cache_location,
+	                                data_location, ontology_location,
 	                                &first_time,
 	                                FALSE,
 	                                FALSE,
