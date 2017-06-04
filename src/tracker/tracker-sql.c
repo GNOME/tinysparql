@@ -107,7 +107,7 @@ sql_by_query (void)
 	data_location = g_file_new_for_path (dir);
 	g_free (dir);
 
-	dir = g_build_filename (SHAREDIR, "tracker", "ontologies", NULL);
+	dir = g_build_filename (SHAREDIR, "tracker", "ontologies", "nepomuk", NULL);
 	ontology_location = g_file_new_for_path (dir);
 	g_free (dir);
 

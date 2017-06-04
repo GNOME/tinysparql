@@ -245,7 +245,7 @@ test_query (TestInfo      *test_info,
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
-	ontology_path = g_build_filename (TOP_SRCDIR, "src", "ontologies", NULL);
+	ontology_path = g_build_filename (TOP_SRCDIR, "src", "ontologies", "nepomuk", NULL);
 	ontology_location = g_file_new_for_path (ontology_path);
 	g_free (ontology_path);
 

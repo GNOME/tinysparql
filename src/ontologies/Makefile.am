@@ -8,22 +8,22 @@ internal_config = \
 	31-nao.ontology	    31-nao.description
 
 config_DATA =                                          \
-	30-nie.ontology	    30-nie.description         \
-	32-nco.ontology     32-nco.description         \
-	33-nfo.ontology	    33-nfo.description         \
-	34-nmo.ontology	    34-nmo.description         \
-	35-ncal.ontology    35-ncal.description        \
-	36-scal.ontology    36-scal.description        \
-	37-nid3.ontology    37-nid3.description        \
-	38-nmm.ontology	    38-nmm.description         \
-	39-mto.ontology	    39-mto.description         \
-	40-mlo.ontology	    40-mlo.description         \
-	41-mfo.ontology	    41-mfo.description         \
-	89-mtp.ontology	    89-mtp.description         \
-	92-slo.ontology     92-slo.description         \
-	90-tracker.ontology 90-tracker.description     \
-	91-maemo.ontology   91-maemo.description       \
-	93-libosinfo.ontology 93-libosinfo.description
+	nepomuk/30-nie.ontology	    nepomuk/30-nie.description         \
+	nepomuk/32-nco.ontology     nepomuk/32-nco.description         \
+	nepomuk/33-nfo.ontology	    nepomuk/33-nfo.description         \
+	nepomuk/34-nmo.ontology	    nepomuk/34-nmo.description         \
+	nepomuk/35-ncal.ontology    nepomuk/35-ncal.description        \
+	nepomuk/36-scal.ontology    nepomuk/36-scal.description        \
+	nepomuk/37-nid3.ontology    nepomuk/37-nid3.description        \
+	nepomuk/38-nmm.ontology	    nepomuk/38-nmm.description         \
+	nepomuk/39-mto.ontology	    nepomuk/39-mto.description         \
+	nepomuk/40-mlo.ontology	    nepomuk/40-mlo.description         \
+	nepomuk/41-mfo.ontology	    nepomuk/41-mfo.description         \
+	nepomuk/89-mtp.ontology	    nepomuk/89-mtp.description         \
+	nepomuk/92-slo.ontology     nepomuk/92-slo.description         \
+	nepomuk/90-tracker.ontology nepomuk/90-tracker.description     \
+	nepomuk/91-maemo.ontology   nepomuk/91-maemo.description       \
+	nepomuk/93-libosinfo.ontology nepomuk/93-libosinfo.description
 
 # GResource
 tracker_gresource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/builtin-ontology.gresource.xml)
@@ -37,4 +37,4 @@ BUILT_SOURCES = tracker-gresources.c tracker-gresources.h
 EXTRA_DIST = \
 	$(internal_config) \
 	builtin-ontology.gresource.xml \
-	$(config_DATA)
+	$(nepomuk_DATA)

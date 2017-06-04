@@ -353,7 +353,7 @@ License which can be viewed at:
 				File.new_for_path (Path.build_filename (Environment.get_user_data_dir (), "tracker", "data"));
 			File final_ontology_location = ontology_location != null ?
 				File.new_for_path (ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
-				File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies"));
+				File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies", "nepomuk"));
 
 			Tracker.Data.Manager.init (flags,
 			                           final_cache_location,

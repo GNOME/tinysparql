@@ -202,7 +202,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		if (journal_loc == null)
 			journal_loc = database_loc;
 		if (ontology_loc == null)
-			ontology_loc = File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies"));
+			ontology_loc = File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies", "nepomuk"));
 
 		update_queue = new AsyncQueue<Task> ();
 	}
