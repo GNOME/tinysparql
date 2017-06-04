@@ -1468,6 +1468,32 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 G_MODULE_EXPORT gboolean
 tracker_extract_module_init (GError **error)
 {
+	/* Lifted from totem-video-thumbnailer */
+	const gchar *blacklisted[] = {
+		"vaapidecodebin",
+		"vaapidecode",
+		"vaapimpeg2dec",
+		"vaapih264dec",
+		"vaapivc1dec",
+		"vaapivp8dec",
+		"vaapivp9dec",
+		"vaapih265dec",
+		"bmcdec",
+	};
+	GstRegistry *registry;
+	guint i;
+
 	gst_init (NULL, NULL);
+	registry = gst_registry_get ();
+
+	for (i = 0; i < G_N_ELEMENTS (blacklisted); i++) {
+		GstPluginFeature *feature =
+			gst_registry_find_feature (registry,
+						   blacklisted[i],
+						   GST_TYPE_ELEMENT_FACTORY);
+		if (feature)
+			gst_registry_remove_feature (registry, feature);
+	}
+
 	return TRUE;
 }
