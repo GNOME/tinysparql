@@ -3601,11 +3601,11 @@ write_ontologies_gvdb (gboolean   overwrite,
 {
 	gboolean retval = TRUE;
 	gchar *filename;
+	GFile *child;
 
-	filename = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             "ontologies.gvdb",
-	                             NULL);
+	child = g_file_get_child (cache_location_stored, "ontologies.gvdb");
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
 	if (overwrite || !g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		retval = tracker_ontologies_write_gvdb (filename, error);
@@ -3620,11 +3620,11 @@ static void
 load_ontologies_gvdb (GError **error)
 {
 	gchar *filename;
+	GFile *child;
 
-	filename = g_build_filename (g_get_user_cache_dir (),
-	                             "tracker",
-	                             "ontologies.gvdb",
-	                             NULL);
+	child = g_file_get_child (cache_location_stored, "ontologies.gvdb");
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
 	tracker_ontologies_load_gvdb (filename, error);
 
