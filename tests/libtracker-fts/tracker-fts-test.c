@@ -185,7 +185,7 @@ main (int argc, char **argv)
 	datadir = g_build_filename (current_dir, "tracker", NULL);
 	g_free (current_dir);
 
-	g_setenv ("TRACKER_FTS_STOP_WORDS", "0", TRUE);
+	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR", current_dir, TRUE);
 
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {

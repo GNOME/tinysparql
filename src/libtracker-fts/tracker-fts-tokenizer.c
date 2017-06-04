@@ -162,11 +162,7 @@ tracker_tokenizer_data_new (void)
 	p->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
 	p->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
 	p->max_words = tracker_fts_config_get_max_words_to_index (config);
-
-	/* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
-	 *  otherwise, get value from the conf file */
-	p->ignore_stop_words = (g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") == 0 ?
-	                        FALSE : tracker_fts_config_get_ignore_stop_words (config));
+	p->ignore_stop_words = tracker_fts_config_get_ignore_stop_words (config);
 
 	g_object_unref (config);
 
