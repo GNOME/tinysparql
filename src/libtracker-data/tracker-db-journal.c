@@ -570,34 +570,25 @@ db_journal_writer_init (JournalWriter  *jwriter,
 }
 
 gboolean
-tracker_db_journal_init (const gchar  *filename,
-                         GFile        *cache_location,
-                         GFile        *data_location,
-                         gboolean      truncate,
-                         GError      **error)
+tracker_db_journal_init (GFile     *data_location,
+                         gboolean   truncate,
+                         GError   **error)
 {
 	gboolean ret;
-	const gchar *filename_use;
-	gchar *filename_free = NULL;
+	gchar *filename;
 	GError *n_error = NULL;
+	GFile *child;
 
 	g_return_val_if_fail (writer.journal == 0, FALSE);
 
-	if (filename == NULL) {
-		GFile *child;
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-		child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
-		filename_use = g_file_get_path (child);
-		g_object_unref (child);
+	g_assert (filename != NULL);
 
-		g_assert (filename_use != NULL);
-		filename_free = (gchar *) filename_use;
-	} else {
-		filename_use = filename;
-	}
-
-	ret = db_journal_writer_init (&writer, truncate, TRUE, filename_use, data_location, &n_error);
-	g_free (filename_free);
+	ret = db_journal_writer_init (&writer, truncate, TRUE, filename, data_location, &n_error);
+	g_free (filename);
 
 	if (!ret) {
 		g_propagate_error (error, n_error);
@@ -1403,27 +1394,20 @@ db_journal_reader_init (JournalReader  *jreader,
 }
 
 gboolean
-tracker_db_journal_reader_init (const gchar  *filename,
-                                GFile        *data_location,
-                                GError      **error)
+tracker_db_journal_reader_init (GFile   *data_location,
+                                GError **error)
 {
 	gboolean ret;
 	GError *n_error = NULL;
-	gchar *filename_used;
+	gchar *filename;
+	GFile *child;
 
-	/* Used mostly for testing */
-	if (G_UNLIKELY (filename)) {
-		filename_used = g_strdup (filename);
-	} else {
-		GFile *child;
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-		child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
-		filename_used = g_file_get_path (child);
-		g_object_unref (child);
-	}
-
-	ret = db_journal_reader_init (&reader, TRUE, filename_used, data_location, &n_error);
-	g_free (filename_used);
+	ret = db_journal_reader_init (&reader, TRUE, filename, data_location, &n_error);
+	g_free (filename);
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
@@ -1433,27 +1417,20 @@ tracker_db_journal_reader_init (const gchar  *filename,
 }
 
 gboolean
-tracker_db_journal_reader_ontology_init (const gchar  *filename,
-                                         GFile        *data_location,
-                                         GError      **error)
+tracker_db_journal_reader_ontology_init (GFile   *data_location,
+                                         GError **error)
 {
-	gchar *filename_used;
+	gchar *filename;
 	gboolean result;
 	GError *n_error = NULL;
+	GFile *child;
 
-	/* Used mostly for testing */
-	if (G_UNLIKELY (filename)) {
-		filename_used = g_strdup (filename);
-	} else {
-		GFile *child;
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-		child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
-		filename_used = g_file_get_path (child);
-		g_object_unref (child);
-	}
-
-	result = db_journal_reader_init (&reader, TRUE, filename_used, data_location, &n_error);
-	g_free (filename_used);
+	result = db_journal_reader_init (&reader, TRUE, filename, data_location, &n_error);
+	g_free (filename);
 
 	if (!result) {
 		g_propagate_error (error, n_error);

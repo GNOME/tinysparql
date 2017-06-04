@@ -3570,7 +3570,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
 	data_location = tracker_data_manager_get_data_location ();
-	tracker_db_journal_reader_init (NULL, data_location, &n_error);
+	tracker_db_journal_reader_init (data_location, &n_error);
 	g_object_unref (data_location);
 	if (n_error) {
 		/* This is fatal (doesn't happen when file doesn't exist, does happen
@@ -3839,7 +3839,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		cache_location = tracker_data_manager_get_cache_location();
 		data_location = tracker_data_manager_get_data_location();
 
-		tracker_db_journal_init (NULL, cache_location, data_location, FALSE, &n_error);
+		tracker_db_journal_init (data_location, FALSE, &n_error);
 		g_object_unref (cache_location);
 		g_object_unref (data_location);
 

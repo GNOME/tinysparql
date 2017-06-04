@@ -667,7 +667,7 @@ tracker_data_backup_restore (GFile                *journal,
 		tracker_db_manager_set_need_mtime_check (TRUE);
 
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, cache_location, data_location, FALSE, &n_error);
+		tracker_db_journal_init (data_location, FALSE, &n_error);
 
 		if (n_error) {
 			if (!info->error) {

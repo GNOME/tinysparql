@@ -44,7 +44,7 @@ test_init_and_shutdown (void)
 
 	/* check double init/shutdown */
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
+	result = tracker_db_journal_init (data_location, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -53,7 +53,7 @@ test_init_and_shutdown (void)
 	g_assert (result == TRUE);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
+	result = tracker_db_journal_init (data_location, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -85,7 +85,7 @@ test_write_functions (void)
 	g_object_unref (child);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
+	tracker_db_journal_init (data_location, FALSE, &error);
 	g_object_unref (data_location);
 	g_assert_no_error (error);
 
@@ -183,14 +183,10 @@ test_read_functions (void)
 	data_location = g_file_new_for_path (path);
 	g_free (path);
 
-	child = g_file_get_child (data_location, "tracker-store.journal");
-	filename = g_file_get_path (child);
-	g_object_unref (child);
-
 	/* NOTE: we don't unlink here so we can use the data from the write tests */
 
 	/* Create an iterator */
-	result = tracker_db_journal_reader_init (filename, data_location, &error);
+	result = tracker_db_journal_reader_init (data_location, &error);
 	g_free (filename);
 	g_object_unref (data_location);
 	g_assert_no_error (error);
@@ -408,10 +404,6 @@ main (int argc, char **argv)
 
 	/* Clean up */
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
-	g_unlink (path);
-	g_free (path);
-
-	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-data", "dconf", "user", NULL);
 	g_unlink (path);
 	g_free (path);
 

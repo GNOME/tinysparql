@@ -3841,7 +3841,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #ifndef DISABLE_JOURNAL
 	if (journal_check && is_first_time_index) {
 		/* Call may fail without notice (it's handled) */
-		if (tracker_db_journal_reader_init (NULL, data_location, &internal_error)) {
+		if (tracker_db_journal_reader_init (data_location, &internal_error)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
 				   is required to trigger journal replay */
@@ -3902,7 +3902,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	if (read_journal) {
 		in_journal_replay = TRUE;
 
-		if (tracker_db_journal_reader_ontology_init (NULL, data_location, &internal_error)) {
+		if (tracker_db_journal_reader_ontology_init (data_location, &internal_error)) {
 			/* Load ontology IDs from journal into memory */
 			load_ontology_ids_from_journal (&uri_id_map, &max_id);
 
@@ -3949,8 +3949,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		 * contain a single valid transaction, or is explicitly ignored
 		 * (journal_check == FALSE, only for test cases)
 		 */
-		tracker_db_journal_init (NULL, cache_location, data_location,
-		                         !in_journal_replay, &internal_error);
+		tracker_db_journal_init (data_location, !in_journal_replay, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -4097,8 +4096,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (!read_only) {
 
 #ifndef DISABLE_JOURNAL
-			tracker_db_journal_init (NULL, cache_location, data_location,
-			                         FALSE, &internal_error);
+			tracker_db_journal_init (data_location, FALSE, &internal_error);
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
@@ -4638,8 +4636,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		in_journal_replay = FALSE;
 
 		/* open journal for writing */
-		tracker_db_journal_init (NULL, cache_location, data_location,
-		                         FALSE, &internal_error);
+		tracker_db_journal_init (data_location, FALSE, &internal_error);
 
 		if (internal_error) {
 			g_hash_table_unref (uri_id_map);

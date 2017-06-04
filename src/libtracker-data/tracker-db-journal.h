@@ -59,9 +59,7 @@ GQuark       tracker_db_journal_error_quark                  (void);
 /*
  * Writer API
  */
-gboolean     tracker_db_journal_init                         (const gchar  *filename,
-                                                              GFile        *cache_location,
-                                                              GFile        *data_location,
+gboolean     tracker_db_journal_init                         (GFile        *data_location,
                                                               gboolean      truncate,
                                                               GError      **error);
 gboolean     tracker_db_journal_shutdown                     (GError      **error);
@@ -117,11 +115,9 @@ gboolean     tracker_db_journal_truncate                     (gsize new_size);
 /*
  * Reader API
  */
-gboolean     tracker_db_journal_reader_init                  (const gchar   *filename,
-                                                              GFile         *data_location,
+gboolean     tracker_db_journal_reader_init                  (GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_ontology_init         (const gchar   *filename,
-                                                              GFile         *data_location,
+gboolean     tracker_db_journal_reader_ontology_init         (GFile         *data_location,
                                                               GError       **error);
 gboolean     tracker_db_journal_reader_shutdown              (void);
 TrackerDBJournalEntryType
