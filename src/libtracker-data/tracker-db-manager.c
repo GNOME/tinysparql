@@ -214,78 +214,62 @@ db_set_params (TrackerDBInterface   *iface,
                gboolean              readonly,
                GError              **error)
 {
-	gchar *queries = NULL;
-	const gchar *pragmas_file;
-
-	pragmas_file = g_getenv ("TRACKER_PRAGMAS_FILE");
-
-	if (pragmas_file && g_file_get_contents (pragmas_file, &queries, NULL, NULL)) {
-		gchar *query = strtok (queries, "\n");
-		g_debug ("PRAGMA's from file: %s", pragmas_file);
-		while (query) {
-			g_debug ("  INIT query: %s", query);
-			tracker_db_interface_execute_query (iface, NULL, "%s", query);
-			query = strtok (NULL, "\n");
-		}
-		g_free (queries);
-	} else {
-		GError *internal_error = NULL;
-		TrackerDBStatement *stmt;
+	GError *internal_error = NULL;
+	TrackerDBStatement *stmt;
 
 #ifdef DISABLE_JOURNAL
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
 #else
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 #endif /* DISABLE_JOURNAL */
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
-		if (readonly) {
-			tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = MEMORY;");
-		} else {
-			tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
-		}
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-		                                              &internal_error,
-		                                              "PRAGMA journal_mode = WAL;");
-
-		if (internal_error) {
-			g_message ("Can't set journal mode to WAL: '%s'",
-			           internal_error->message);
-			g_propagate_error (error, internal_error);
-		} else {
-			TrackerDBCursor *cursor;
-
-			cursor = tracker_db_statement_start_cursor (stmt, NULL);
-			if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-				if (g_ascii_strcasecmp (tracker_db_cursor_get_string (cursor, 0, NULL), "WAL") != 0) {
-					g_set_error (error,
-					             TRACKER_DB_INTERFACE_ERROR,
-					             TRACKER_DB_OPEN_ERROR,
-					             "Can't set journal mode to WAL");
-				}
-			}
-			g_object_unref (cursor);
-		}
-
-		if (stmt) {
-			g_object_unref (stmt);
-		}
-
-		/* disable autocheckpoint */
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA wal_autocheckpoint = 0");
-
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_size_limit = 10240000");
-
-		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
-			g_message ("  Setting page size to %d", page_size);
-			tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
-		}
-
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
-		g_message ("  Setting cache size to %d", cache_size);
+	if (readonly) {
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = MEMORY;");
+	} else {
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 	}
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                              &internal_error,
+	                                              "PRAGMA journal_mode = WAL;");
+
+	if (internal_error) {
+		g_message ("Can't set journal mode to WAL: '%s'",
+		           internal_error->message);
+		g_propagate_error (error, internal_error);
+	} else {
+		TrackerDBCursor *cursor;
+
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+			if (g_ascii_strcasecmp (tracker_db_cursor_get_string (cursor, 0, NULL), "WAL") != 0) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_OPEN_ERROR,
+				             "Can't set journal mode to WAL");
+			}
+		}
+		g_object_unref (cursor);
+	}
+
+	if (stmt) {
+		g_object_unref (stmt);
+	}
+
+	/* disable autocheckpoint */
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA wal_autocheckpoint = 0");
+
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_size_limit = 10240000");
+
+	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
+		g_message ("  Setting page size to %d", page_size);
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
+	}
+
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
+	g_message ("  Setting cache size to %d", cache_size);
 }
 
 

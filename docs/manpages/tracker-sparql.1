@@ -236,13 +236,6 @@ approach you can use if you want to \fIwrite\fR to the database.
 With "\fBauto\fR" the backend is decided for you, much like it would
 be if this environment variable was undefined.
 
-.TP
-.B TRACKER_PRAGMAS_FILE
-Tracker has a fixed set of PRAGMA settings for creating its SQLite connection.
-With this environment variable pointing to a text file you can override these
-settings. The file is a \\n separated list of SQLite queries to execute on any
-newly created SQLite connection in \fBtracker-store\fR.
-
 .SH EXAMPLES
 .TP
 List all classes
