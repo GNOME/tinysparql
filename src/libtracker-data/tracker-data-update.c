@@ -3565,11 +3565,13 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 	gint last_operation_type = 0;
 	const gchar *uri;
 	GError *n_error = NULL;
-
+	GFile *data_location;
 
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
-	tracker_db_journal_reader_init (NULL, &n_error);
+	data_location = tracker_data_manager_get_data_location ();
+	tracker_db_journal_reader_init (NULL, data_location, &n_error);
+	g_object_unref (data_location);
 	if (n_error) {
 		/* This is fatal (doesn't happen when file doesn't exist, does happen
 		 * when for some other reason the reader can't be created) */

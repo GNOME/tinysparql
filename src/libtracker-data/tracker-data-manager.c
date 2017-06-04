@@ -3841,7 +3841,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #ifndef DISABLE_JOURNAL
 	if (journal_check && is_first_time_index) {
 		/* Call may fail without notice (it's handled) */
-		if (tracker_db_journal_reader_init (NULL, &internal_error)) {
+		if (tracker_db_journal_reader_init (NULL, data_location, &internal_error)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
 				   is required to trigger journal replay */
@@ -3902,7 +3902,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	if (read_journal) {
 		in_journal_replay = TRUE;
 
-		if (tracker_db_journal_reader_ontology_init (NULL, &internal_error)) {
+		if (tracker_db_journal_reader_ontology_init (NULL, data_location, &internal_error)) {
 			/* Load ontology IDs from journal into memory */
 			load_ontology_ids_from_journal (&uri_id_map, &max_id);
 
@@ -3945,24 +3945,24 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 #ifndef DISABLE_JOURNAL
-		if (!read_journal) {
-			/* Truncate journal as it does not even contain a single valid transaction
-			 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
-			tracker_db_journal_init (NULL, cache_location, data_location,
-			                         TRUE, &internal_error);
+		/* If we are not replaying, truncate journal as it does not even
+		 * contain a single valid transaction, or is explicitly ignored
+		 * (journal_check == FALSE, only for test cases)
+		 */
+		tracker_db_journal_init (NULL, cache_location, data_location,
+		                         !in_journal_replay, &internal_error);
 
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
 
-				tracker_db_manager_shutdown ();
-				tracker_ontologies_shutdown ();
-				if (!reloading) {
-					tracker_locale_shutdown ();
-				}
-				tracker_data_update_shutdown ();
-
-				return FALSE;
+			tracker_db_manager_shutdown ();
+			tracker_ontologies_shutdown ();
+			if (!reloading) {
+				tracker_locale_shutdown ();
 			}
+			tracker_data_update_shutdown ();
+
+			return FALSE;
 		}
 #endif /* DISABLE_JOURNAL */
 
@@ -4065,7 +4065,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_data_commit_transaction (&internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-
 #ifndef DISABLE_JOURNAL
 			tracker_db_journal_shutdown (NULL);
 #endif /* DISABLE_JOURNAL */
@@ -4086,6 +4085,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		/* First time, no need to check ontology */
 		check_ontology = FALSE;
+
+#ifndef DISABLE_JOURNAL
+		/* If we are replaying, close it here again after the ontology
+		 * has been written.
+		 */
+		if (!read_only && in_journal_replay)
+			tracker_db_journal_shutdown (NULL);
+#endif /* DISABLE_JOURNAL */
 	} else {
 		if (!read_only) {
 

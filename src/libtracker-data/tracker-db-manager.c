@@ -1039,6 +1039,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		                                     TRACKER_DB_JOURNAL_FILENAME,
 		                                     NULL);
 		must_recreate = !tracker_db_journal_reader_verify_last (journal_filename,
+		                                                        data_location,
 		                                                        NULL);
 
 		g_free (journal_filename);
@@ -1257,6 +1258,14 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
                          GError                **error)
 {
 	gboolean retval;
+
+	if (!cache_location || !data_location) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "All data storage and ontology locations must be provided");
+		return FALSE;
+	}
 
 	g_mutex_lock (&init_mutex);
 

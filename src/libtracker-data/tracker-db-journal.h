@@ -118,8 +118,10 @@ gboolean     tracker_db_journal_truncate                     (gsize new_size);
  * Reader API
  */
 gboolean     tracker_db_journal_reader_init                  (const gchar   *filename,
+                                                              GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_ontology_init         (const gchar  *filename,
+gboolean     tracker_db_journal_reader_ontology_init         (const gchar   *filename,
+                                                              GFile         *data_location,
                                                               GError       **error);
 gboolean     tracker_db_journal_reader_shutdown              (void);
 TrackerDBJournalEntryType
@@ -141,6 +143,7 @@ gsize        tracker_db_journal_reader_get_size_of_correct   (void);
 gdouble      tracker_db_journal_reader_get_progress          (void);
 
 gboolean     tracker_db_journal_reader_verify_last           (const gchar  *filename,
+                                                              GFile        *data_location,
                                                               GError      **error);
 
 G_END_DECLS

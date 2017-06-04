@@ -319,7 +319,7 @@ reset_run (void)
 			return EXIT_FAILURE;
 		}
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, NULL, NULL, FALSE, NULL);
+		tracker_db_journal_init (NULL, NULL, data_location, FALSE, NULL);
 #endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_remove_all (hard_reset);

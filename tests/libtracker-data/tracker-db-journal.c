@@ -30,10 +30,21 @@ test_init_and_shutdown (void)
 {
 	GError *error = NULL;
 	gboolean result;
+	gchar *path;
+	GFile *data_location, *child;
+
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
+	data_location = g_file_new_for_path (path);
+	g_free (path);
+
+	child = g_file_get_child (data_location, "tracker-store.journal");
+	path = g_file_get_path (child);
+	g_unlink (path);
+	g_object_unref (child);
 
 	/* check double init/shutdown */
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, NULL, NULL, FALSE, &error);
+	result = tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -42,13 +53,16 @@ test_init_and_shutdown (void)
 	g_assert (result == TRUE);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, NULL, NULL, FALSE, &error);
+	result = tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
 	result = tracker_db_journal_shutdown (&error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
+
+	g_object_unref (data_location);
+	g_free (path);
 }
 
 static void
@@ -59,12 +73,20 @@ test_write_functions (void)
 	gsize initial_size, actual_size;
 	gboolean result;
 	GError *error = NULL;
+	GFile *data_location, *child;
 
-	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
+	data_location = g_file_new_for_path (path);
+	g_free (path);
+
+	child = g_file_get_child (data_location, "tracker-store.journal");
+	path = g_file_get_path (child);
 	g_unlink (path);
+	g_object_unref (child);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_db_journal_init (path, NULL, NULL, FALSE, &error);
+	tracker_db_journal_init (path, NULL, data_location, FALSE, &error);
+	g_object_unref (data_location);
 	g_assert_no_error (error);
 
 	filename = tracker_db_journal_get_filename ();
@@ -150,18 +172,27 @@ static void
 test_read_functions (void)
 {
 	GError *error = NULL;
-	gchar *path;
+	gchar *path, *filename;
 	gboolean result;
 	TrackerDBJournalEntryType type;
 	gint id, s_id, p_id, o_id;
 	const gchar *uri, *str;
+	GFile *data_location, *child;
 
-	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
+	data_location = g_file_new_for_path (path);
+	g_free (path);
+
+	child = g_file_get_child (data_location, "tracker-store.journal");
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
 	/* NOTE: we don't unlink here so we can use the data from the write tests */
 
 	/* Create an iterator */
-	result = tracker_db_journal_reader_init (path, &error);
+	result = tracker_db_journal_reader_init (filename, data_location, &error);
+	g_free (filename);
+	g_object_unref (data_location);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
@@ -351,8 +382,6 @@ test_read_functions (void)
 	/* Shutdown */
 	result = tracker_db_journal_reader_shutdown ();
 	g_assert_cmpint (result, ==, TRUE);
-
-	g_free (path);
 }
 
 #endif /* DISABLE_JOURNAL */
@@ -367,12 +396,12 @@ main (int argc, char **argv)
 
 #ifndef DISABLE_JOURNAL
 	/* None of these tests make sense in case of disabled journal */
-	g_test_add_func ("/libtracker-db/tracker-db-journal/init-and-shutdown",
-	                 test_init_and_shutdown);
 	g_test_add_func ("/libtracker-db/tracker-db-journal/write-functions",
 	                 test_write_functions);
 	g_test_add_func ("/libtracker-db/tracker-db-journal/read-functions",
 	                 test_read_functions);
+	g_test_add_func ("/libtracker-db/tracker-db-journal/init-and-shutdown",
+	                 test_init_and_shutdown);
 #endif /* DISABLE_JOURNAL */
 
 	result = g_test_run ();

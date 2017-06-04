@@ -1,4 +1,4 @@
-configdir = $(datadir)/tracker/ontologies
+nepomukdir = $(datadir)/tracker/ontologies/nepomuk
 
 internal_config = \
 	10-xsd.ontology	    10-xsd.description         \
@@ -7,7 +7,7 @@ internal_config = \
 	20-dc.ontology      20-dc.description          \
 	31-nao.ontology	    31-nao.description
 
-config_DATA =                                          \
+nepomuk_DATA =                                          \
 	nepomuk/30-nie.ontology	    nepomuk/30-nie.description         \
 	nepomuk/32-nco.ontology     nepomuk/32-nco.description         \
 	nepomuk/33-nfo.ontology	    nepomuk/33-nfo.description         \
