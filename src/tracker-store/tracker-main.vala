@@ -355,6 +355,10 @@ License which can be viewed at:
 				File.new_for_path (ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
 				File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies", "nepomuk"));
 
+			var env_ontology = Environment.get_variable ("TRACKER_DB_ONTOLOGIES_DIR");
+			if (env_ontology != null && env_ontology != "")
+				final_ontology_location = File.new_for_path (env_ontology);
+
 			Tracker.Data.Manager.init (flags,
 			                           final_cache_location,
 			                           final_data_location,

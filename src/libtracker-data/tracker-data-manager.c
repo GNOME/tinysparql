@@ -3742,7 +3742,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
 	GList *sorted = NULL, *l;
-	const gchar *env_path;
 	gint max_id = 0;
 	gboolean read_only;
 	GHashTable *uri_id_map = NULL;
@@ -3869,33 +3868,27 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	}
 #endif /* DISABLE_JOURNAL */
 
-	env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
-
 	g_set_object (&cache_location_stored, cache_location);
 	g_set_object (&ontology_location_stored, ontology_location);
 	g_set_object (&data_location_stored, data_location);
 
-	if (G_LIKELY (!env_path)) {
-		ontologies_dir = g_object_ref (ontology_location);
+	ontologies_dir = g_object_ref (ontology_location);
 
-		if (g_file_query_file_type (ontologies_dir, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
-			gchar *uri;
+	if (g_file_query_file_type (ontologies_dir, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
+		gchar *uri;
 
-			uri = g_file_get_uri (ontologies_dir);
-			g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
-			             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
-			             "'%s' is not a ontology location", uri);
-			g_free (uri);
-			tracker_db_manager_shutdown ();
-			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
-			tracker_data_update_shutdown ();
-			return FALSE;
+		uri = g_file_get_uri (ontologies_dir);
+		g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
+		             "'%s' is not a ontology location", uri);
+		g_free (uri);
+		tracker_db_manager_shutdown ();
+		tracker_ontologies_shutdown ();
+		if (!reloading) {
+			tracker_locale_shutdown ();
 		}
-	} else {
-		ontologies_dir = g_file_new_for_path (env_path);
+		tracker_data_update_shutdown ();
+		return FALSE;
 	}
 
 #ifndef DISABLE_JOURNAL
