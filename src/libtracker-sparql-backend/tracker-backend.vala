@@ -26,48 +26,15 @@ class Tracker.Sparql.Backend : Connection {
 		DIRECT,
 		BUS
 	}
-	GLib.BusType bus_type = BusType.SESSION;
 
 	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
-			// Important to make sure we check the right bus for the store
-			load_env ();
-
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available...");
-
-			// do not use proxy to work around race condition in GDBus
-			// NB#259760
-			var bus = GLib.Bus.get_sync (bus_type);
-			var msg = new DBusMessage.method_call (Tracker.DBUS_SERVICE, Tracker.DBUS_OBJECT_STATUS, Tracker.DBUS_INTERFACE_STATUS, "Wait");
-			bus.send_message_with_reply_sync (msg, 0, /* timeout */ int.MAX, null).to_gerror ();
-
-			debug ("Service is ready");
-
-			debug ("Constructing connection");
 			load_plugins ();
-			debug ("Backend is ready");
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
 
 		initialized = true;
-	}
-
-	private void load_env () {
-		string env_bus_type = Environment.get_variable ("TRACKER_BUS_TYPE");
-
-		if (env_bus_type != null) {
-			if (env_bus_type.ascii_casecmp ("system") == 0) {
-				bus_type = BusType.SYSTEM;
-				debug ("Using bus = 'SYSTEM'");
-			} else if (env_bus_type.ascii_casecmp ("session") == 0) {
-				bus_type = BusType.SESSION;
-				debug ("Using bus = 'SESSION'");
-			} else {
-				warning ("Environment variable TRACKER_BUS_TYPE set to unknown value '%s'", env_bus_type);
-			}
-		}
 	}
 
 	public override void dispose () {
