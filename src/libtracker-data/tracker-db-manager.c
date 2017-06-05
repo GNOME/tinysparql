@@ -236,8 +236,8 @@ db_set_params (TrackerDBInterface   *iface,
 	                                              "PRAGMA journal_mode = WAL;");
 
 	if (internal_error) {
-		g_message ("Can't set journal mode to WAL: '%s'",
-		           internal_error->message);
+		g_info ("Can't set journal mode to WAL: '%s'",
+		        internal_error->message);
 		g_propagate_error (error, internal_error);
 	} else {
 		TrackerDBCursor *cursor;
@@ -264,12 +264,12 @@ db_set_params (TrackerDBInterface   *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_size_limit = 10240000");
 
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
-		g_message ("  Setting page size to %d", page_size);
+		g_info ("  Setting page size to %d", page_size);
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
-	g_message ("  Setting cache size to %d", cache_size);
+	g_info ("  Setting cache size to %d", cache_size);
 }
 
 
@@ -308,10 +308,10 @@ db_interface_get (TrackerDB   type,
 		*create = FALSE;
 	}
 
-	g_message ("%s database... '%s' (%s)",
-	           *create ? "Creating" : "Loading",
-	           path,
-	           db_type_to_string (type));
+	g_info ("%s database... '%s' (%s)",
+	        *create ? "Creating" : "Loading",
+	        path,
+	        db_type_to_string (type));
 
 	iface = tracker_db_interface_sqlite_new (path, FALSE,
 	                                         &internal_error);
@@ -400,7 +400,7 @@ db_manager_remove_journal (void)
 		return;
 	}
 
-	g_message ("  Removing journal:'%s'", path);
+	g_info ("  Removing journal:'%s'", path);
 
 	directory = g_path_get_dirname (path);
 
@@ -409,8 +409,8 @@ db_manager_remove_journal (void)
 
 	if (error) {
 		/* TODO: propagate error */
-		g_message ("Ignored error while shutting down journal during remove: %s",
-		           error->message ? error->message : "No error given");
+		g_info ("Ignored error while shutting down journal during remove: %s",
+		        error->message ? error->message : "No error given");
 		g_error_free (error);
 	}
 
@@ -436,7 +436,7 @@ db_manager_remove_journal (void)
 
 			fullpath = g_build_filename (dirs[i], f, NULL);
 			if (g_unlink (fullpath) == -1) {
-				g_message ("%s", g_strerror (errno));
+				g_info ("Could not unlink rotated journal: %m");
 			}
 			g_free (fullpath);
 		}
@@ -449,7 +449,7 @@ db_manager_remove_journal (void)
 
 	/* Remove active journal */
 	if (g_unlink (path) == -1) {
-		g_message ("%s", g_strerror (errno));
+		g_info ("%s", g_strerror (errno));
 	}
 	g_free (path);
 #endif /* DISABLE_JOURNAL */
@@ -460,7 +460,7 @@ db_manager_remove_all (gboolean rm_journal)
 {
 	guint i;
 
-	g_message ("Removing all database/storage files");
+	g_info ("Removing all database/storage files");
 
 	/* Remove stamp files */
 	tracker_db_manager_set_first_index_done (FALSE);
@@ -473,7 +473,7 @@ db_manager_remove_all (gboolean rm_journal)
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		gchar *filename;
 
-		g_message ("  Removing database:'%s'", dbs[i].abs_filename);
+		g_info ("  Removing database:'%s'", dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
 
 		/* also delete shm and wal helper files */
@@ -514,20 +514,20 @@ db_get_version (void)
 			if (contents && strlen (contents) <= 2) {
 				version = atoi (contents);
 			} else {
-				g_message ("  Version file content size is either 0 or bigger than expected");
+				g_info ("  Version file content size is either 0 or bigger than expected");
 
 				version = TRACKER_DB_VERSION_UNKNOWN;
 			}
 
 			g_free (contents);
 		} else {
-			g_message ("  Could not get content of file '%s'", filename);
+			g_info ("  Could not get content of file '%s'", filename);
 
 			version = TRACKER_DB_VERSION_UNKNOWN;
 		}
 	} else {
-		g_message ("  Could not find database version file:'%s'", filename);
-		g_message ("  Current databases are either old or no databases are set up yet");
+		g_info ("  Could not find database version file:'%s'", filename);
+		g_info ("  Current databases are either old or no databases are set up yet");
 
 		version = TRACKER_DB_VERSION_UNKNOWN;
 	}
@@ -545,13 +545,13 @@ tracker_db_manager_create_version_file (void)
 	gchar  *str;
 
 	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
-	g_message ("  Creating version file '%s'", filename);
+	g_info ("  Creating version file '%s'", filename);
 
 	str = g_strdup_printf ("%d", TRACKER_DB_VERSION_NOW);
 
 	if (!g_file_set_contents (filename, str, -1, &error)) {
-		g_message ("  Could not set file contents, %s",
-		           error ? error->message : "no error given");
+		g_info ("  Could not set file contents, %s",
+		        error ? error->message : "no error given");
 		g_clear_error (&error);
 	}
 
@@ -565,7 +565,7 @@ tracker_db_manager_remove_version_file (void)
 	gchar *filename;
 
 	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
-	g_message ("  Removing db-version file:'%s'", filename);
+	g_info ("  Removing db-version file:'%s'", filename);
 	g_unlink (filename);
 	g_free (filename);
 }
@@ -576,7 +576,7 @@ db_remove_locale_file (void)
 	gchar *filename;
 
 	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
-	g_message ("  Removing db-locale file:'%s'", filename);
+	g_info ("  Removing db-locale file:'%s'", filename);
 	g_unlink (filename);
 	g_free (filename);
 }
@@ -606,7 +606,7 @@ db_get_locale (void)
 		}
 	} else {
 		/* expected when restoring from backup, always recreate indices */
-		g_message ("  Could not find database locale file:'%s'", filename);
+		g_info ("  Could not find database locale file:'%s'", filename);
 		locale = g_strdup ("unknown");
 	}
 
@@ -623,13 +623,13 @@ db_set_locale (const gchar *locale)
 	gchar  *str;
 
 	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
-	g_message ("  Creating locale file '%s'", filename);
+	g_info ("  Creating locale file '%s'", filename);
 
 	str = g_strdup_printf ("%s", locale ? locale : "");
 
 	if (!g_file_set_contents (filename, str, -1, &error)) {
-		g_message ("  Could not set file contents, %s",
-		           error ? error->message : "no error given");
+		g_info ("  Could not set file contents, %s",
+		        error ? error->message : "no error given");
 		g_clear_error (&error);
 	}
 
@@ -669,7 +669,7 @@ tracker_db_manager_locale_changed (GError **error)
 		             db_locale, current_locale);
 		changed = TRUE;
 	} else {
-		g_message ("Current and DB locales match: '%s'", db_locale);
+		g_info ("Current and DB locales match: '%s'", db_locale);
 		changed = FALSE;
 	}
 
@@ -686,7 +686,7 @@ tracker_db_manager_set_current_locale (void)
 
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
-	g_message ("Saving DB locale as: '%s'", current_locale);
+	g_info ("Saving DB locale as: '%s'", current_locale);
 	db_set_locale (current_locale);
 	g_free (current_locale);
 }
@@ -700,13 +700,13 @@ db_manager_analyze (TrackerDB           db,
 	current_mtime = tracker_file_get_mtime (dbs[db].abs_filename);
 
 	if (current_mtime > dbs[db].mtime) {
-		g_message ("  Analyzing DB:'%s'", dbs[db].name);
+		g_info ("  Analyzing DB:'%s'", dbs[db].name);
 		db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
 
 		/* Remember current mtime for future */
 		dbs[db].mtime = current_mtime;
 	} else {
-		g_message ("  Not updating DB:'%s', no changes since last optimize", dbs[db].name);
+		g_info ("  Not updating DB:'%s', no changes since last optimize", dbs[db].name);
 	}
 }
 
@@ -739,12 +739,12 @@ db_recreate_all (GError **error)
 	 * because at the time 'initialized' = FALSE and that
 	 * will cause errors and do nothing.
 	 */
-	g_message ("Cleaning up database files for reindex");
+	g_info ("Cleaning up database files for reindex");
 
 	db_manager_remove_all (FALSE);
 
 	/* Now create the databases and close them */
-	g_message ("Creating database files, this may take a few moments...");
+	g_info ("Creating database files, this may take a few moments...");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		dbs[i].iface = db_interface_create (i, &internal_error);
@@ -881,7 +881,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	db_type_enum_class_pointer = g_type_class_ref (etype);
 
 	/* Set up locations */
-	g_message ("Setting database locations");
+	g_info ("Setting database locations");
 
 	old_flags = flags;
 
@@ -899,17 +899,17 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 
 		/* Make sure the directories exist */
-		g_message ("Checking database directories exist");
+		g_info ("Checking database directories exist");
 
 		g_mkdir_with_parents (data_dir, 00755);
 		g_mkdir_with_parents (user_data_dir, 00755);
 
-		g_message ("Checking database version");
+		g_info ("Checking database version");
 
 		version = db_get_version ();
 
 		if (version < TRACKER_DB_VERSION_NOW) {
-			g_message ("  A reindex will be forced");
+			g_info ("  A reindex will be forced");
 			need_reindex = TRUE;
 		}
 
@@ -919,7 +919,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	g_message ("Checking database files exist");
+	g_info ("Checking database files exist");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		/* Check we have each database in place, if one is
@@ -937,8 +937,8 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 		if (!g_file_test (dbs[i].abs_filename, G_FILE_TEST_EXISTS)) {
 			if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-				g_message ("Could not find database file:'%s'", dbs[i].abs_filename);
-				g_message ("One or more database files are missing, a reindex will be forced");
+				g_info ("Could not find database file:'%s'", dbs[i].abs_filename);
+				g_info ("One or more database files are missing, a reindex will be forced");
 				need_reindex = TRUE;
 			} else {
 				guint y;
@@ -974,7 +974,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 	/* Set general database options */
 	if (shared_cache) {
-		g_message ("Enabling database shared cache");
+		g_info ("Enabling database shared cache");
 		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
 
@@ -1006,7 +1006,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 
 		/* Load databases */
-		g_message ("Loading databases files...");
+		g_info ("Loading databases files...");
 
 	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not do shutdown check for read-only mode (direct access) */
@@ -1016,7 +1016,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 		/* Load databases */
-		g_message ("Loading databases files...");
+		g_info ("Loading databases files...");
 
 #ifndef DISABLE_JOURNAL
 		journal_filename = g_build_filename (user_data_dir,
@@ -1032,7 +1032,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
 
-			g_message ("Didn't shut down cleanly last time, doing integrity checks");
+			g_info ("Didn't shut down cleanly last time, doing integrity checks");
 
 			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
 				struct stat st;
@@ -1143,11 +1143,11 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 
 		if (must_recreate) {
-			g_message ("Database severely damaged. We will recreate it"
+			g_info ("Database severely damaged. We will recreate it"
 #ifndef DISABLE_JOURNAL
-			           " and replay the journal if available.");
+			        " and replay the journal if available.");
 #else
-			           ".");
+			        ".");
 #endif /* DISABLE_JOURNAL */
 
 			perform_recreate (first_time, &internal_error);
@@ -1342,22 +1342,22 @@ tracker_db_manager_optimize (void)
 
 	g_return_if_fail (initialized != FALSE);
 
-	g_message ("Optimizing database...");
+	g_info ("Optimizing database...");
 
-	g_message ("  Checking database is not in use");
+	g_info ("  Checking database is not in use");
 
 	iface = tracker_db_manager_get_db_interface ();
 
 	/* Check if any connections are open? */
 	if (G_OBJECT (iface)->ref_count > 1) {
-		g_message ("  database is still in use with %d references!",
-		           G_OBJECT (iface)->ref_count);
+		g_info ("  database is still in use with %d references!",
+		        G_OBJECT (iface)->ref_count);
 
 		dbs_are_open = TRUE;
 	}
 
 	if (dbs_are_open) {
-		g_message ("  Not optimizing database, still in use with > 1 reference");
+		g_info ("  Not optimizing database, still in use with > 1 reference");
 		return;
 	}
 
@@ -1559,12 +1559,11 @@ tracker_db_manager_set_first_index_done (gboolean done)
 			           error->message);
 			g_error_free (error);
 		} else {
-			g_message ("  First index file:'%s' created",
-			           filename);
+			g_info ("  First index file:'%s' created", filename);
 		}
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
-		g_message ("  Removing first index file:'%s'", filename);
+		g_info ("  Removing first index file:'%s'", filename);
 
 		if (g_remove (filename)) {
 			g_warning ("    Could not remove file:'%s', %s",
@@ -1601,7 +1600,7 @@ tracker_db_manager_get_last_crawl_done (void)
 	filename = get_last_crawl_filename ();
 
 	if (!g_file_get_contents (filename, &content, NULL, NULL)) {
-		g_message ("  No previous timestamp, crawling forced");
+		g_info ("  No previous timestamp, crawling forced");
 		return 0;
 	}
 
@@ -1640,14 +1639,13 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 			           error->message);
 			g_error_free (error);
 		} else {
-			g_message ("  Last crawl file:'%s' created",
-			           filename);
+			g_info ("  Last crawl file:'%s' created", filename);
 		}
 
 		g_free (content);
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
-		g_message ("  Removing last crawl file:'%s'", filename);
+		g_info ("  Removing last crawl file:'%s'", filename);
 
 		if (g_remove (filename)) {
 			g_warning ("    Could not remove file:'%s', %s",
@@ -1731,12 +1729,11 @@ tracker_db_manager_set_need_mtime_check (gboolean needed)
 			           error->message);
 			g_error_free (error);
 		} else {
-			g_message ("  Need mtime check file:'%s' created",
-			           filename);
+			g_info ("  Need mtime check file:'%s' created", filename);
 		}
 	} else if (needed && already_exists) {
 		/* Remove stamp file */
-		g_message ("  Removing need mtime check file:'%s'", filename);
+		g_info ("  Removing need mtime check file:'%s'", filename);
 
 		if (g_remove (filename)) {
 			g_warning ("    Could not remove file:'%s', %s",

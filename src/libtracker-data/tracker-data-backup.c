@@ -350,7 +350,7 @@ move_to_temp (GFile *cache_location,
 {
 	gchar *data_dir, *cache_dir;
 
-	g_message ("Moving all database files to temporary location");
+	g_info ("Moving all database files to temporary location");
 
 	data_dir = g_file_get_path (data_location);
 	cache_dir = g_file_get_path (cache_location);
@@ -369,7 +369,7 @@ remove_temp (GFile *cache_location,
 	gchar *tmp_data_dir, *tmp_cache_dir;
 	GFile *child;
 
-	g_message ("Removing all database files from temporary location");
+	g_info ("Removing all database files from temporary location");
 
 	child = g_file_get_child (data_location, "tmp.data");
 	tmp_data_dir = g_file_get_path (child);
@@ -395,7 +395,7 @@ restore_from_temp (GFile *cache_location,
 {
 	gchar *data_dir, *cache_dir;
 
-	g_message ("Restoring all database files from temporary location");
+	g_info ("Restoring all database files from temporary location");
 
 	data_dir = g_file_get_path (data_location);
 	cache_dir = g_file_get_path (cache_location);

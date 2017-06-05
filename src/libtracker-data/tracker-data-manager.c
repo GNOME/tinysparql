@@ -3561,13 +3561,13 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 	gboolean status;
 	GError *internal_error = NULL;
 
-	g_message ("Reloading data manager...");
+	g_info ("Reloading data manager...");
 	/* Shutdown data manager... */
 	flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 	reloading = TRUE;
 	tracker_data_manager_shutdown ();
 
-	g_message ("  Data manager shut down, now initializing again...");
+	g_info ("  Data manager shut down, now initializing again...");
 
 	/* And initialize it again, this actually triggers index recreation. */
 	status = tracker_data_manager_init (flags,
@@ -3589,8 +3589,8 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 		g_propagate_error (error, internal_error);
 	}
 
-	g_message ("  %s reloading data manager",
-	           status ? "Succeeded" : "Failed");
+	g_info ("  %s reloading data manager",
+	        status ? "Succeeded" : "Failed");
 
 	return status;
 }
@@ -3706,7 +3706,7 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 	g_hash_table_unref (multivalued);
 	return TRUE;
 #else
-	g_message ("FTS support is disabled");
+	g_info ("FTS support is disabled");
 	return FALSE;
 #endif
 }

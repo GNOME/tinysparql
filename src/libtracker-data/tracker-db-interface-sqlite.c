@@ -1473,7 +1473,7 @@ open_database (TrackerDBInterface  *db_interface,
 		             "Could not open sqlite3 database:'%s': %s", db_interface->filename, str);
 		return;
 	} else {
-		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
+		g_info ("Opened sqlite3 database:'%s'", db_interface->filename);
 	}
 
 	/* Set our unicode collation function */
@@ -1905,7 +1905,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	close_database (db_interface);
 	g_free (db_interface->fts_properties);
 
-	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
+	g_info ("Closed sqlite3 database:'%s'", db_interface->filename);
 
 	g_free (db_interface->filename);
 	g_free (db_interface->busy_status);
