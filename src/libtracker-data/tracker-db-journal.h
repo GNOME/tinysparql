@@ -146,8 +146,7 @@ gboolean     tracker_db_journal_reader_get_statement_id      (TrackerDBJournalRe
 gsize        tracker_db_journal_reader_get_size_of_correct   (TrackerDBJournalReader  *reader);
 gdouble      tracker_db_journal_reader_get_progress          (TrackerDBJournalReader  *reader);
 
-gboolean     tracker_db_journal_reader_verify_last           (const gchar             *filename,
-                                                              GFile                   *data_location,
+gboolean     tracker_db_journal_reader_verify_last           (GFile                   *data_location,
                                                               GError                 **error);
 
 G_END_DECLS

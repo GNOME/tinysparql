@@ -1863,14 +1863,19 @@ tracker_db_journal_reader_next (TrackerDBJournalReader  *reader,
 }
 
 gboolean
-tracker_db_journal_reader_verify_last (const gchar  *filename,
-                                       GFile        *data_location,
-                                       GError      **error)
+tracker_db_journal_reader_verify_last (GFile   *data_location,
+                                       GError **error)
 {
 	guint32 entry_size_check;
 	gboolean success = FALSE;
 	TrackerDBJournalReader jreader = { 0 };
 	GError *n_error = NULL;
+	gchar *filename;
+	GFile *child;
+
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
 	if (db_journal_reader_init (&jreader, FALSE, filename, data_location, &n_error)) {
 
@@ -1878,6 +1883,7 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 			entry_size_check = read_uint32 (jreader.end - 4);
 
 			if (jreader.end - entry_size_check < jreader.current) {
+				g_free (filename);
 				g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 				             TRACKER_DB_JOURNAL_ERROR_DAMAGED_JOURNAL_ENTRY,
 				             "Damaged journal entry at end of journal");
@@ -1892,6 +1898,8 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 			success = TRUE;
 		}
 	}
+
+	g_free (filename);
 
 	if (n_error) {
 		g_propagate_error (error, n_error);

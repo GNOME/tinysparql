@@ -1011,22 +1011,13 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not do shutdown check for read-only mode (direct access) */
 		gboolean must_recreate = FALSE;
-#ifndef DISABLE_JOURNAL
-		gchar *journal_filename, *jfname;
-#endif /* DISABLE_JOURNAL */
 
 		/* Load databases */
 		g_info ("Loading databases files...");
 
 #ifndef DISABLE_JOURNAL
-		journal_filename = g_build_filename (user_data_dir,
-		                                     TRACKER_DB_JOURNAL_FILENAME,
-		                                     NULL);
-		must_recreate = !tracker_db_journal_reader_verify_last (journal_filename,
-		                                                        data_location,
+		must_recreate = !tracker_db_journal_reader_verify_last (data_location,
 		                                                        NULL);
-
-		g_free (journal_filename);
 #endif /* DISABLE_JOURNAL */
 
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
