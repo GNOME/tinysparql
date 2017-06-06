@@ -1478,7 +1478,7 @@ tracker_extract_module_init (GError **error)
 		"vaapivp8dec",
 		"vaapivp9dec",
 		"vaapih265dec",
-		"bmcdec",
+		"bcmdec",
 	};
 	GstRegistry *registry;
 	guint i;
