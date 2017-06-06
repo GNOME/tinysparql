@@ -4608,7 +4608,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (g_error_matches (internal_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
 				GError *n_error = NULL;
-				tracker_db_manager_remove_all (FALSE);
+				tracker_db_manager_remove_all ();
 				tracker_db_manager_shutdown ();
 				/* Call may fail without notice, we're in error handling already.
 				 * When fails it means that close() of journal file failed. */

@@ -66,7 +66,6 @@ gboolean     tracker_db_journal_init                         (GFile        *data
                                                               GError      **error);
 gboolean     tracker_db_journal_shutdown                     (GError      **error);
 
-const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
 
 void         tracker_db_journal_set_rotating                 (gboolean     do_rotating,
@@ -148,6 +147,8 @@ gdouble      tracker_db_journal_reader_get_progress          (TrackerDBJournalRe
 
 gboolean     tracker_db_journal_reader_verify_last           (GFile                   *data_location,
                                                               GError                 **error);
+
+void         tracker_db_journal_remove                       (void);
 
 G_END_DECLS
 

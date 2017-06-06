@@ -65,7 +65,7 @@ gboolean            tracker_db_manager_init                   (TrackerDBManagerF
                                                                const gchar            *busy_operation,
                                                                GError                **error);
 void                tracker_db_manager_shutdown               (void);
-void                tracker_db_manager_remove_all             (gboolean               rm_journal);
+void                tracker_db_manager_remove_all             (void);
 void                tracker_db_manager_optimize               (void);
 const gchar *       tracker_db_manager_get_file               (TrackerDB              db);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (void);

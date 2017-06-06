@@ -682,14 +682,6 @@ tracker_db_journal_get_size (void)
 	return writer.cur_size;
 }
 
-const gchar *
-tracker_db_journal_get_filename (void)
-{
-	/* Journal doesn't have to be open to get the filename, for example when
-	 * the file didn't exist and it was attempted opened in only read mode. */
-	return (const gchar*) writer.journal_filename;
-}
-
 static gboolean
 db_journal_writer_start_transaction (JournalWriter    *jwriter,
                                      time_t            time,
@@ -2196,6 +2188,74 @@ tracker_db_journal_rotate (GError **error)
 	}
 
 	return ret;
+}
+
+void
+tracker_db_journal_remove (void)
+{
+	gchar *path;
+	gchar *directory;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
+	guint i;
+	GError *error = NULL;
+
+	/* We duplicate the path here because later we shutdown the
+	 * journal which frees this data. We want to survive that.
+	 */
+	path = g_strdup (writer.journal_filename);
+	if (!path) {
+		return;
+	}
+
+	g_info ("  Removing journal:'%s'", path);
+
+	directory = g_path_get_dirname (path);
+	tracker_db_journal_shutdown (&error);
+
+	if (error) {
+		/* TODO: propagate error */
+		g_info ("Ignored error while shutting down journal during remove: %s",
+		        error->message ? error->message : "No error given");
+		g_error_free (error);
+	}
+
+	dirs[0] = directory;
+	dirs[1] = rotating_settings.do_rotating ? rotating_settings.rotate_to : NULL;
+
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f;
+
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
+		if (!journal_dir) {
+			continue;
+		}
+
+		/* Remove rotated chunks */
+		while ((f = g_dir_read_name (journal_dir)) != NULL) {
+			gchar *fullpath;
+
+			if (!g_str_has_prefix (f, TRACKER_DB_JOURNAL_FILENAME ".")) {
+				continue;
+			}
+
+			fullpath = g_build_filename (dirs[i], f, NULL);
+			if (g_unlink (fullpath) == -1) {
+				g_info ("Could not unlink rotated journal: %m");
+			}
+			g_free (fullpath);
+		}
+
+		g_dir_close (journal_dir);
+	}
+
+	g_free (directory);
+
+	/* Remove active journal */
+	if (g_unlink (path) == -1) {
+		g_info ("%s", g_strerror (errno));
+	}
+	g_free (path);
 }
 
 #else /* DISABLE_JOURNAL */

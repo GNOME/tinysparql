@@ -381,82 +381,7 @@ db_interface_create (TrackerDB db,
 }
 
 static void
-db_manager_remove_journal (void)
-{
-#ifndef DISABLE_JOURNAL
-	gchar *path;
-	gchar *directory, *rotate_to = NULL;
-	gsize chunk_size;
-	gboolean do_rotate = FALSE;
-	const gchar *dirs[3] = { NULL, NULL, NULL };
-	guint i;
-	GError *error = NULL;
-
-	/* We duplicate the path here because later we shutdown the
-	 * journal which frees this data. We want to survive that.
-	 */
-	path = g_strdup (tracker_db_journal_get_filename ());
-	if (!path) {
-		return;
-	}
-
-	g_info ("  Removing journal:'%s'", path);
-
-	directory = g_path_get_dirname (path);
-
-	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-	tracker_db_journal_shutdown (&error);
-
-	if (error) {
-		/* TODO: propagate error */
-		g_info ("Ignored error while shutting down journal during remove: %s",
-		        error->message ? error->message : "No error given");
-		g_error_free (error);
-	}
-
-	dirs[0] = directory;
-	dirs[1] = do_rotate ? rotate_to : NULL;
-
-	for (i = 0; dirs[i] != NULL; i++) {
-		GDir *journal_dir;
-		const gchar *f;
-
-		journal_dir = g_dir_open (dirs[i], 0, NULL);
-		if (!journal_dir) {
-			continue;
-		}
-
-		/* Remove rotated chunks */
-		while ((f = g_dir_read_name (journal_dir)) != NULL) {
-			gchar *fullpath;
-
-			if (!g_str_has_prefix (f, TRACKER_DB_JOURNAL_FILENAME ".")) {
-				continue;
-			}
-
-			fullpath = g_build_filename (dirs[i], f, NULL);
-			if (g_unlink (fullpath) == -1) {
-				g_info ("Could not unlink rotated journal: %m");
-			}
-			g_free (fullpath);
-		}
-
-		g_dir_close (journal_dir);
-	}
-
-	g_free (rotate_to);
-	g_free (directory);
-
-	/* Remove active journal */
-	if (g_unlink (path) == -1) {
-		g_info ("%s", g_strerror (errno));
-	}
-	g_free (path);
-#endif /* DISABLE_JOURNAL */
-}
-
-static void
-db_manager_remove_all (gboolean rm_journal)
+db_manager_remove_all (void)
 {
 	guint i;
 
@@ -484,14 +409,6 @@ db_manager_remove_all (gboolean rm_journal)
 		filename = g_strdup_printf ("%s-wal", dbs[i].abs_filename);
 		g_unlink (filename);
 		g_free (filename);
-	}
-
-	if (rm_journal) {
-		db_manager_remove_journal ();
-
-		/* If also the journal is gone, we can also remove db-version.txt, it
-		 * would have no more relevance whatsoever. */
-		tracker_db_manager_remove_version_file ();
 	}
 
 	/* Remove locale file also */
@@ -741,7 +658,7 @@ db_recreate_all (GError **error)
 	 */
 	g_info ("Cleaning up database files for reindex");
 
-	db_manager_remove_all (FALSE);
+	db_manager_remove_all ();
 
 	/* Now create the databases and close them */
 	g_info ("Creating database files, this may take a few moments...");
@@ -1318,11 +1235,11 @@ tracker_db_manager_shutdown (void)
 }
 
 void
-tracker_db_manager_remove_all (gboolean rm_journal)
+tracker_db_manager_remove_all (void)
 {
 	g_return_if_fail (initialized != FALSE);
 
-	db_manager_remove_all (rm_journal);
+	db_manager_remove_all ();
 }
 
 void

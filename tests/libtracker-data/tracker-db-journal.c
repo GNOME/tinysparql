@@ -69,7 +69,6 @@ static void
 test_write_functions (void)
 {
 	gchar *path;
-	const gchar *filename;
 	gsize initial_size, actual_size;
 	gboolean result;
 	GError *error = NULL;
@@ -88,10 +87,6 @@ test_write_functions (void)
 	tracker_db_journal_init (data_location, FALSE, &error);
 	g_object_unref (data_location);
 	g_assert_no_error (error);
-
-	filename = tracker_db_journal_get_filename ();
-	g_assert (filename != NULL);
-	g_assert_cmpstr (filename, ==, path);
 
 	/* Size is 8 due to header */
 	actual_size = tracker_db_journal_get_size ();
