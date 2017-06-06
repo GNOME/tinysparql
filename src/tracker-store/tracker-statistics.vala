@@ -26,11 +26,12 @@ public class Tracker.Statistics : Object {
 	[DBus (signature = "aas")]
 	public new Variant get (BusName sender) throws GLib.Error {
 		var request = DBusRequest.begin (sender, "Statistics.Get");
+		var ontologies = Data.Manager.get_ontologies ();
 
 		if (!initialized) {
 			var iface = DBManager.get_db_interface ();
 
-			foreach (var cl in Ontologies.get_classes ()) {
+			foreach (var cl in ontologies.get_classes ()) {
 				/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
 				if (!cl.name.has_prefix ("xsd:")) {
 					/* update statistics */
@@ -52,7 +53,7 @@ public class Tracker.Statistics : Object {
 
 		var builder = new VariantBuilder ((VariantType) "aas");
 
-		foreach (var cl in Ontologies.get_classes ()) {
+		foreach (var cl in ontologies.get_classes ()) {
 			if (cl.count == 0) {
 				/* skip classes without resources */
 				continue;

@@ -404,8 +404,9 @@ public class Tracker.Sparql.Query : Object {
 
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
+		var ontologies = Data.Manager.get_ontologies ();
 
-		foreach (Namespace ns in Ontologies.get_namespaces ()) {
+		foreach (Namespace ns in ontologies.get_namespaces ()) {
 			if (ns.prefix == null) {
 				critical ("Namespace does not specify a prefix: %s", ns.uri);
 				continue;
@@ -448,8 +449,9 @@ public class Tracker.Sparql.Query : Object {
 
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
+		var ontologies = Data.Manager.get_ontologies ();
 
-		foreach (Namespace ns in Ontologies.get_namespaces ()) {
+		foreach (Namespace ns in ontologies.get_namespaces ()) {
 			if (ns.prefix == null) {
 				critical ("Namespace does not specify a prefix: %s", ns.uri);
 				continue;

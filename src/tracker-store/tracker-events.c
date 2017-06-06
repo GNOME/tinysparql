@@ -167,12 +167,14 @@ tracker_events_get_classes (guint *length)
 void
 tracker_events_init (void)
 {
+	TrackerOntologies *ontologies;
 	TrackerClass **classes;
 	guint length = 0, i;
 
 	private = g_new0 (EventsPrivate, 1);
 
-	classes = tracker_ontologies_get_classes (&length);
+	ontologies = tracker_data_manager_get_ontologies ();
+	classes = tracker_ontologies_get_classes (ontologies, &length);
 
 	private->notify_classes = g_ptr_array_sized_new (length);
 	g_ptr_array_set_free_func (private->notify_classes, (GDestroyNotify) g_object_unref);

@@ -29,6 +29,7 @@ namespace Tracker.Sparql {
 		public string get_sql_query (Query query) throws Sparql.Error {
 			try {
 				var sql = new StringBuilder ();
+				var ontologies = Data.Manager.get_ontologies ();
 
 				if (subject != null) {
 					// single subject
@@ -47,9 +48,9 @@ namespace Tracker.Sparql {
 					bool first = true;
 					if (cursor != null) {
 						while (cursor.next ()) {
-							var domain = Ontologies.get_class_by_uri (cursor.get_string (0));
+							var domain = ontologies.get_class_by_uri (cursor.get_string (0));
 
-							foreach (Property prop in Ontologies.get_properties ()) {
+							foreach (Property prop in ontologies.get_properties ()) {
 								if (prop.domain == domain) {
 									if (first) {
 										first = false;
@@ -95,9 +96,9 @@ namespace Tracker.Sparql {
 					bool first = true;
 					if (cursor != null) {
 						while (cursor.next ()) {
-							var range = Ontologies.get_class_by_uri (cursor.get_string (0));
+							var range = ontologies.get_class_by_uri (cursor.get_string (0));
 
-							foreach (Property prop in Ontologies.get_properties ()) {
+							foreach (Property prop in ontologies.get_properties ()) {
 								if (prop.range == range) {
 									if (first) {
 										first = false;
@@ -125,7 +126,7 @@ namespace Tracker.Sparql {
 				} else if (domain != null) {
 					// any subject, predicates limited to a specific domain
 					bool first = true;
-					foreach (Property prop in Ontologies.get_properties ()) {
+					foreach (Property prop in ontologies.get_properties ()) {
 						if (prop.domain == domain) {
 							if (first) {
 								first = false;
@@ -878,7 +879,8 @@ class Tracker.Sparql.Pattern : Object {
 			} else {
 				return false;
 			}
-			var prop = Ontologies.get_property_by_uri (predicate);
+			var ontologies = Data.Manager.get_ontologies ();
+			var prop = ontologies.get_property_by_uri (predicate);
 			if (prop == null) {
 				return false;
 			}
@@ -1351,15 +1353,17 @@ class Tracker.Sparql.Pattern : Object {
 
 		Class subject_type = null;
 
+		var ontologies = Data.Manager.get_ontologies ();
+
 		if (!current_predicate_is_var) {
-			prop = Ontologies.get_property_by_uri (current_predicate);
+			prop = ontologies.get_property_by_uri (current_predicate);
 
 			if (current_predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 			    && !object_is_var && current_graph == null) {
 				// rdf:type query
 				// avoid special casing if GRAPH is used as graph matching is not supported when using class tables
 				rdftype = true;
-				var cl = Ontologies.get_class_by_uri (object);
+				var cl = ontologies.get_class_by_uri (object);
 				if (cl == null) {
 					throw new Sparql.Error.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
@@ -1380,7 +1384,7 @@ class Tracker.Sparql.Pattern : Object {
 				    && current_subject_is_var
 				    && !object_is_var) {
 					// rdfs:domain
-					var domain = Ontologies.get_class_by_uri (object);
+					var domain = ontologies.get_class_by_uri (object);
 					if (domain == null) {
 						throw new Sparql.Error.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}

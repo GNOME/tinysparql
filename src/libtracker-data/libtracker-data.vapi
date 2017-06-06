@@ -172,7 +172,7 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-ontologies.h")]
-	namespace Ontologies {
+	public class Ontologies : GLib.Object {
 		public unowned Class get_class_by_uri (string class_uri);
 		public unowned Property get_property_by_uri (string property_uri);
 		public unowned Namespace[] get_namespaces ();
@@ -232,6 +232,7 @@ namespace Tracker {
 	namespace Data.Manager {
 		public bool init (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
+                public unowned Ontologies get_ontologies ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

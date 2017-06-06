@@ -41,8 +41,10 @@ tracker_data_query_rdf_type (gint id)
 	TrackerDBStatement *stmt;
 	GPtrArray *ret = NULL;
 	GError *error = NULL;
+	TrackerOntologies *ontologies;
 
 	iface = tracker_db_manager_get_db_interface ();
+	ontologies = tracker_data_manager_get_ontologies ();
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
@@ -67,7 +69,7 @@ tracker_data_query_rdf_type (gint id)
 			TrackerClass *cl;
 
 			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			cl = tracker_ontologies_get_class_by_uri (class_uri);
+			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
 			if (!cl) {
 				g_critical ("Unknown class %s", class_uri);
 				continue;

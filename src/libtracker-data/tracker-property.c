@@ -73,6 +73,8 @@ struct _TrackerPropertyPrivate {
 	GArray        *last_super_properties;
 	gboolean       cardinality_changed;
 	gboolean       orig_multiple_values;
+
+	TrackerOntologies *ontologies;
 };
 
 static void property_finalize     (GObject      *object);
@@ -283,7 +285,7 @@ tracker_property_get_data_type (TrackerProperty *property)
 	if (priv->use_gvdb) {
 		const gchar *range_uri;
 
-		range_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "range");
+		range_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "range");
 		if (strcmp (range_uri, XSD_STRING) == 0) {
 			priv->data_type = TRACKER_PROPERTY_TYPE_STRING;
 		} else if (strcmp (range_uri, XSD_BOOLEAN) == 0) {
@@ -319,8 +321,8 @@ tracker_property_get_domain (TrackerProperty *property)
 	if (!priv->domain && priv->use_gvdb) {
 		const gchar *domain_uri;
 
-		domain_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "domain");
-		priv->domain = g_object_ref (tracker_ontologies_get_class_by_uri (domain_uri));
+		domain_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "domain");
+		priv->domain = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, domain_uri));
 	}
 
 	return priv->domain;
@@ -344,14 +346,14 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 
 		tracker_property_reset_domain_indexes (property);
 
-		variant = tracker_ontologies_get_property_value_gvdb (priv->uri, "domain-indexes");
+		variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "domain-indexes");
 		if (variant) {
 			GVariantIter iter;
 			const gchar *uri;
 
 			g_variant_iter_init (&iter, variant);
 			while (g_variant_iter_loop (&iter, "&s", &uri)) {
-				domain_index = tracker_ontologies_get_class_by_uri (uri);
+				domain_index = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
 
 				tracker_property_add_domain_index (property, domain_index);
 			}
@@ -406,8 +408,8 @@ tracker_property_get_range (TrackerProperty *property)
 	if (!priv->range && priv->use_gvdb) {
 		const gchar *range_uri;
 
-		range_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "range");
-		priv->range = g_object_ref (tracker_ontologies_get_class_by_uri (range_uri));
+		range_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "range");
+		priv->range = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, range_uri));
 	}
 
 	return priv->range;
@@ -477,7 +479,7 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 		GVariant *value;
 		gboolean result;
 
-		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "fulltext-indexed");
+		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "fulltext-indexed");
 		if (value != NULL) {
 			result = g_variant_get_boolean (value);
 			g_variant_unref (value);
@@ -589,7 +591,7 @@ tracker_property_get_multiple_values (TrackerProperty *property)
 		GVariant *value;
 		gboolean result;
 
-		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "max-cardinality");
+		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "max-cardinality");
 		if (value != NULL) {
 			result = FALSE;
 			g_variant_unref (value);
@@ -640,7 +642,7 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 		GVariant *value;
 		gboolean result;
 
-		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "inverse-functional");
+		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "inverse-functional");
 		if (value != NULL) {
 			result = g_variant_get_boolean (value);
 			g_variant_unref (value);
@@ -720,7 +722,7 @@ tracker_property_set_uri (TrackerProperty *property,
 			g_critical ("Unknown namespace of property %s", priv->uri);
 		} else {
 			namespace_uri = g_strndup (priv->uri, hash - priv->uri + 1);
-			namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
+			namespace = tracker_ontologies_get_namespace_by_uri (priv->ontologies, namespace_uri);
 			if (namespace == NULL) {
 				g_critical ("Unknown namespace %s of property %s", namespace_uri, priv->uri);
 			} else {
@@ -1151,4 +1153,17 @@ tracker_property_set_default_value (TrackerProperty *property,
 
 	g_free (priv->default_value);
 	priv->default_value = g_strdup (value);
+}
+
+void
+tracker_property_set_ontologies (TrackerProperty   *property,
+                                 TrackerOntologies *ontologies)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+	g_return_if_fail (ontologies != NULL);
+	priv = GET_PRIV (property);
+
+	priv->ontologies = ontologies;
 }

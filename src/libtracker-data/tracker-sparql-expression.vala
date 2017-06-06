@@ -853,7 +853,8 @@ class Tracker.Sparql.Expression : Object {
 			return PropertyType.STRING;
 		} else {
 			// support properties as functions
-			var prop = Ontologies.get_property_by_uri (uri);
+                        var ontologies = Data.Manager.get_ontologies ();
+			var prop = ontologies.get_property_by_uri (uri);
 			if (prop == null) {
 				throw get_error ("Unknown function");
 			}

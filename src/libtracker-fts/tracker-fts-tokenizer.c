@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-parser.h>
+#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-ontologies.h>
 
 #include "tracker-fts-tokenizer.h"
@@ -270,6 +271,7 @@ get_fts_weights (sqlite3_context *context)
 	static GHashTable *weights = NULL;
 	static GMutex mutex;
 	int rc = SQLITE_DONE;
+	TrackerOntologies *ontologies;
 
 	g_mutex_lock (&mutex);
 
@@ -287,6 +289,8 @@ get_fts_weights (sqlite3_context *context)
 		                         "WHERE \"rdf:Property\".\"tracker:fulltextIndexed\" = 1 ",
 		                         -1, &stmt, NULL);
 
+		ontologies = tracker_data_manager_get_ontologies ();
+
 		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
 			if (rc == SQLITE_ROW) {
 				TrackerProperty *property;
@@ -295,7 +299,7 @@ get_fts_weights (sqlite3_context *context)
 				weight = sqlite3_column_int (stmt, 0);
 				uri = (gchar *)sqlite3_column_text (stmt, 1);
 
-				property = tracker_ontologies_get_property_by_uri (uri);
+				property = tracker_ontologies_get_property_by_uri (ontologies, uri);
 				g_hash_table_insert (weights,
 				                     (gpointer) tracker_property_get_name (property),
 				                     GUINT_TO_POINTER (weight));

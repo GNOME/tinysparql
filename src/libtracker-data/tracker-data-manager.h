@@ -72,6 +72,7 @@ GFile * tracker_data_manager_get_cache_location();
 GFile * tracker_data_manager_get_data_location ();
 TrackerDBJournal * tracker_data_manager_get_journal_writer (void);
 TrackerDBJournal * tracker_data_manager_get_ontology_writer (void);
+TrackerOntologies * tracker_data_manager_get_ontologies (void);
 
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);

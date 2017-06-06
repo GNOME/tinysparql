@@ -32,203 +32,196 @@
 
 #include "tracker-ontologies.h"
 
-static gboolean    initialized;
+typedef struct _TrackerOntologiesPrivate TrackerOntologiesPrivate;
 
-/* List of TrackerNamespace objects */
-static GPtrArray  *namespaces;
+struct _TrackerOntologiesPrivate {
+	/* List of TrackerNamespace objects */
+	GPtrArray  *namespaces;
 
-/* Namespace uris */
-static GHashTable *namespace_uris;
+	/* Namespace uris */
+	GHashTable *namespace_uris;
 
-/* List of TrackerOntology objects */
-static GPtrArray  *ontologies;
+	/* List of TrackerOntology objects */
+	GPtrArray  *ontologies;
 
-/* Ontology uris */
-static GHashTable *ontology_uris;
+	/* Ontology uris */
+	GHashTable *ontology_uris;
 
-/* List of TrackerClass objects */
-static GPtrArray  *classes;
+	/* List of TrackerClass objects */
+	GPtrArray  *classes;
 
-/* Hash (gchar *class_uri, TrackerClass *service) */
-static GHashTable *class_uris;
+	/* Hash (gchar *class_uri, TrackerClass *service) */
+	GHashTable *class_uris;
 
-/* List of TrackerProperty objects */
-static GPtrArray  *properties;
+	/* List of TrackerProperty objects */
+	GPtrArray  *properties;
 
-/* Field uris */
-static GHashTable *property_uris;
+	/* Field uris */
+	GHashTable *property_uris;
 
-/* FieldType enum class */
-static gpointer    property_type_enum_class;
+	/* FieldType enum class */
+	gpointer    property_type_enum_class;
 
-/* Hash (int id, const gchar *uri) */
-static GHashTable *id_uri_pairs;
+	/* Hash (int id, const gchar *uri) */
+	GHashTable *id_uri_pairs;
 
-/* rdf:type */
-static TrackerProperty *rdf_type = NULL;
+	/* rdf:type */
+	TrackerProperty *rdf_type;
 
-static GvdbTable *gvdb_table;
-static GvdbTable *gvdb_namespaces_table;
-static GvdbTable *gvdb_classes_table;
-static GvdbTable *gvdb_properties_table;
+	GvdbTable *gvdb_table;
+	GvdbTable *gvdb_namespaces_table;
+	GvdbTable *gvdb_classes_table;
+	GvdbTable *gvdb_properties_table;
+};
 
-void
-tracker_ontologies_init (void)
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerOntologies, tracker_ontologies, G_TYPE_OBJECT)
+
+static void
+tracker_ontologies_init (TrackerOntologies *ontologies)
 {
-	if (initialized) {
-		return;
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	priv->namespaces = g_ptr_array_new_with_free_func (g_object_unref);
+
+	priv->ontologies = g_ptr_array_new_with_free_func (g_object_unref);
+
+	priv->namespace_uris = g_hash_table_new_full (g_str_hash,
+	                                              g_str_equal,
+	                                              g_free,
+	                                              g_object_unref);
+
+	priv->ontology_uris = g_hash_table_new_full (g_str_hash,
+	                                             g_str_equal,
+	                                             g_free,
+	                                             g_object_unref);
+
+	priv->classes = g_ptr_array_new_with_free_func (g_object_unref);
+
+	priv->class_uris = g_hash_table_new_full (g_str_hash,
+	                                          g_str_equal,
+	                                          g_free,
+	                                          g_object_unref);
+
+	priv->id_uri_pairs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+	                                            NULL,
+	                                            g_free);
+
+	priv->properties = g_ptr_array_new_with_free_func (g_object_unref);
+
+	priv->property_uris = g_hash_table_new_full (g_str_hash,
+	                                             g_str_equal,
+	                                             g_free,
+	                                             g_object_unref);
+}
+
+static void
+tracker_ontologies_finalize (GObject *object)
+{
+	TrackerOntologies *ontologies = TRACKER_ONTOLOGIES (object);
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	g_ptr_array_free (priv->namespaces, TRUE);
+	g_hash_table_unref (priv->namespace_uris);
+
+	g_ptr_array_free (priv->ontologies, TRUE);
+	g_hash_table_unref (priv->ontology_uris);
+
+	g_ptr_array_free (priv->classes, TRUE);
+	g_hash_table_unref (priv->class_uris);
+
+	g_hash_table_unref (priv->id_uri_pairs);
+
+	g_ptr_array_free (priv->properties, TRUE);
+	g_hash_table_unref (priv->property_uris);
+
+	if (priv->rdf_type) {
+		g_object_unref (priv->rdf_type);
 	}
 
-	namespaces = g_ptr_array_new ();
+	if (priv->gvdb_table) {
+		gvdb_table_unref (priv->gvdb_properties_table);
+		gvdb_table_unref (priv->gvdb_classes_table);
+		gvdb_table_unref (priv->gvdb_namespaces_table);
+		gvdb_table_unref (priv->gvdb_table);
+	}
 
-	ontologies = g_ptr_array_new ();
+	G_OBJECT_CLASS (tracker_ontologies_parent_class)->finalize (object);
+}
 
-	namespace_uris = g_hash_table_new_full (g_str_hash,
-	                                        g_str_equal,
-	                                        g_free,
-	                                        g_object_unref);
+static void
+tracker_ontologies_class_init (TrackerOntologiesClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	ontology_uris = g_hash_table_new_full (g_str_hash,
-	                                       g_str_equal,
-	                                       g_free,
-	                                       g_object_unref);
-
-	classes = g_ptr_array_new ();
-
-	class_uris = g_hash_table_new_full (g_str_hash,
-	                                    g_str_equal,
-	                                    g_free,
-	                                    g_object_unref);
-
-	id_uri_pairs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-	                                      NULL,
-	                                      g_free);
-
-	properties = g_ptr_array_new ();
-
-	property_uris = g_hash_table_new_full (g_str_hash,
-	                                       g_str_equal,
-	                                       g_free,
-	                                       g_object_unref);
+	object_class->finalize = tracker_ontologies_finalize;
 
 	/* We will need the class later in order to match strings to enum values
 	 * when inserting metadata types in the DB, so the enum class needs to be
 	 * created beforehand.
 	 */
-	property_type_enum_class = g_type_class_ref (TRACKER_TYPE_PROPERTY_TYPE);
-
-	initialized = TRUE;
-}
-
-void
-tracker_ontologies_shutdown (void)
-{
-	if (!initialized) {
-		return;
-	}
-
-	g_ptr_array_foreach (namespaces, (GFunc) g_object_unref, NULL);
-	g_ptr_array_free (namespaces, TRUE);
-
-	g_hash_table_unref (namespace_uris);
-	namespace_uris = NULL;
-
-	g_ptr_array_foreach (ontologies, (GFunc) g_object_unref, NULL);
-	g_ptr_array_free (ontologies, TRUE);
-
-	g_hash_table_unref (ontology_uris);
-	ontology_uris = NULL;
-
-	g_ptr_array_foreach (classes, (GFunc) g_object_unref, NULL);
-	g_ptr_array_free (classes, TRUE);
-
-	g_hash_table_unref (class_uris);
-	class_uris = NULL;
-
-	g_hash_table_unref (id_uri_pairs);
-	id_uri_pairs = NULL;
-
-	g_ptr_array_foreach (properties, (GFunc) g_object_unref, NULL);
-	g_ptr_array_free (properties, TRUE);
-
-	g_hash_table_unref (property_uris);
-	property_uris = NULL;
-
-	g_type_class_unref (property_type_enum_class);
-	property_type_enum_class = NULL;
-
-	if (rdf_type) {
-		g_object_unref (rdf_type);
-		rdf_type = NULL;
-	}
-
-	if (gvdb_table) {
-		gvdb_table_unref (gvdb_properties_table);
-		gvdb_properties_table = NULL;
-
-		gvdb_table_unref (gvdb_classes_table);
-		gvdb_classes_table = NULL;
-
-		gvdb_table_unref (gvdb_namespaces_table);
-		gvdb_namespaces_table = NULL;
-
-		gvdb_table_unref (gvdb_table);
-		gvdb_table = NULL;
-	}
-
-	initialized = FALSE;
+	g_type_ensure (TRACKER_TYPE_PROPERTY_TYPE);
 }
 
 TrackerProperty *
-tracker_ontologies_get_rdf_type (void)
+tracker_ontologies_get_rdf_type (TrackerOntologies *ontologies)
 {
-	g_return_val_if_fail (rdf_type != NULL, NULL);
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 
-	return rdf_type;
+	g_return_val_if_fail (priv->rdf_type != NULL, NULL);
+
+	return priv->rdf_type;
 }
 
 const gchar*
-tracker_ontologies_get_uri_by_id (gint id)
+tracker_ontologies_get_uri_by_id (TrackerOntologies *ontologies,
+                                  gint               id)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
 	g_return_val_if_fail (id != -1, NULL);
 
-	return g_hash_table_lookup (id_uri_pairs, GINT_TO_POINTER (id));
+	return g_hash_table_lookup (priv->id_uri_pairs, GINT_TO_POINTER (id));
 }
 
 void
-tracker_ontologies_add_class (TrackerClass *service)
+tracker_ontologies_add_class (TrackerOntologies *ontologies,
+                              TrackerClass      *service)
 {
-
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	uri = tracker_class_get_uri (service);
 
-	g_ptr_array_add (classes, g_object_ref (service));
+	g_ptr_array_add (priv->classes, g_object_ref (service));
+	tracker_class_set_ontologies (service, ontologies);
 
 	if (uri) {
-		g_hash_table_insert (class_uris,
+		g_hash_table_insert (priv->class_uris,
 		                     g_strdup (uri),
 		                     g_object_ref (service));
 	}
 }
 
 TrackerClass *
-tracker_ontologies_get_class_by_uri (const gchar *class_uri)
+tracker_ontologies_get_class_by_uri (TrackerOntologies *ontologies,
+                                     const gchar       *class_uri)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	TrackerClass *class;
 
 	g_return_val_if_fail (class_uri != NULL, NULL);
 
-	class = g_hash_table_lookup (class_uris, class_uri);
+	class = g_hash_table_lookup (priv->class_uris, class_uri);
 
-	if (!class && gvdb_table) {
-		if (tracker_ontologies_get_class_string_gvdb (class_uri, "name") != NULL) {
+	if (!class && priv->gvdb_table) {
+		if (tracker_ontologies_get_class_string_gvdb (ontologies, class_uri, "name") != NULL) {
 			class = tracker_class_new (TRUE);
+			tracker_class_set_ontologies (class, ontologies);
 			tracker_class_set_uri (class, class_uri);
 
-			g_hash_table_insert (class_uris,
+			g_hash_table_insert (priv->class_uris,
 				             g_strdup (class_uri),
 				             class);
 		}
@@ -238,93 +231,111 @@ tracker_ontologies_get_class_by_uri (const gchar *class_uri)
 }
 
 TrackerNamespace **
-tracker_ontologies_get_namespaces (guint *length)
+tracker_ontologies_get_namespaces (TrackerOntologies *ontologies,
+                                   guint             *length)
 {
-	if (namespaces->len == 0 && gvdb_table) {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	if (priv->namespaces->len == 0 && priv->gvdb_table) {
 		gchar **namespace_uris;
 		gint i;
 
-		namespace_uris = gvdb_table_list (gvdb_namespaces_table, "");
+		namespace_uris = gvdb_table_list (priv->gvdb_namespaces_table, "");
 
 		for (i = 0; namespace_uris[i]; i++) {
 			TrackerNamespace *namespace;
 
-			namespace = tracker_ontologies_get_namespace_by_uri (namespace_uris[i]);
+			namespace = tracker_ontologies_get_namespace_by_uri (ontologies,
+			                                                     namespace_uris[i]);
 
-			g_ptr_array_add (namespaces, g_object_ref (namespace));
+			g_ptr_array_add (priv->namespaces, g_object_ref (namespace));
+			tracker_namespace_set_ontologies (namespace, ontologies);
 		}
 
 		g_strfreev (namespace_uris);
 	}
 
-	*length = namespaces->len;
-	return (TrackerNamespace **) namespaces->pdata;
+	*length = priv->namespaces->len;
+	return (TrackerNamespace **) priv->namespaces->pdata;
 }
 
 TrackerOntology **
-tracker_ontologies_get_ontologies (guint *length)
+tracker_ontologies_get_ontologies (TrackerOntologies *ontologies,
+                                   guint             *length)
 {
-	if (G_UNLIKELY (!ontologies)) {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	if (G_UNLIKELY (!priv->ontologies)) {
 		*length = 0;
 		return NULL;
 	}
 
-	*length = ontologies->len;
-	return (TrackerOntology **) ontologies->pdata;
+	*length = priv->ontologies->len;
+	return (TrackerOntology **) priv->ontologies->pdata;
 }
 
 TrackerClass **
-tracker_ontologies_get_classes (guint *length)
+tracker_ontologies_get_classes (TrackerOntologies *ontologies,
+                                guint             *length)
 {
-	if (classes->len == 0 && gvdb_table) {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	if (priv->classes->len == 0 && priv->gvdb_table) {
 		gchar **class_uris;
 		gint i;
 
-		class_uris = gvdb_table_list (gvdb_classes_table, "");
+		class_uris = gvdb_table_list (priv->gvdb_classes_table, "");
 
 		for (i = 0; class_uris[i]; i++) {
 			TrackerClass *class;
 
-			class = tracker_ontologies_get_class_by_uri (class_uris[i]);
+			class = tracker_ontologies_get_class_by_uri (ontologies,class_uris[i]);
 
-			g_ptr_array_add (classes, g_object_ref (class));
+			g_ptr_array_add (priv->classes, g_object_ref (class));
+			tracker_class_set_ontologies (class, ontologies);
 		}
 
 		g_strfreev (class_uris);
 	}
 
-	*length = classes->len;
-	return (TrackerClass **) classes->pdata;
+	*length = priv->classes->len;
+	return (TrackerClass **) priv->classes->pdata;
 }
 
 TrackerProperty **
-tracker_ontologies_get_properties (guint *length)
+tracker_ontologies_get_properties (TrackerOntologies *ontologies,
+                                   guint             *length)
 {
-	if (properties->len == 0 && gvdb_table) {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	if (priv->properties->len == 0 && priv->gvdb_table) {
 		gchar **property_uris;
 		gint i;
 
-		property_uris = gvdb_table_list (gvdb_properties_table, "");
+		property_uris = gvdb_table_list (priv->gvdb_properties_table, "");
 
 		for (i = 0; property_uris[i]; i++) {
 			TrackerProperty *property;
 
-			property = tracker_ontologies_get_property_by_uri (property_uris[i]);
+			property = tracker_ontologies_get_property_by_uri (ontologies, property_uris[i]);
 
-			g_ptr_array_add (properties, g_object_ref (property));
+			g_ptr_array_add (priv->properties, g_object_ref (property));
+			tracker_property_set_ontologies (property, ontologies);
 		}
 
 		g_strfreev (property_uris);
 	}
 
-	*length = properties->len;
-	return (TrackerProperty **) properties->pdata;
+	*length = priv->properties->len;
+	return (TrackerProperty **) priv->properties->pdata;
 }
 
 /* Field mechanics */
 void
-tracker_ontologies_add_property (TrackerProperty *field)
+tracker_ontologies_add_property (TrackerOntologies *ontologies,
+                                 TrackerProperty   *field)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
@@ -332,42 +343,47 @@ tracker_ontologies_add_property (TrackerProperty *field)
 	uri = tracker_property_get_uri (field);
 
 	if (g_strcmp0 (uri, TRACKER_PREFIX_RDF "type") == 0) {
-		if (rdf_type) {
-			g_object_unref (rdf_type);
-		}
-		rdf_type = g_object_ref (field);
+		g_set_object (&priv->rdf_type, field);
 	}
 
-	g_ptr_array_add (properties, g_object_ref (field));
+	g_ptr_array_add (priv->properties, g_object_ref (field));
+	tracker_property_set_ontologies (field, ontologies);
 
-	g_hash_table_insert (property_uris,
+	g_hash_table_insert (priv->property_uris,
 	                     g_strdup (uri),
 	                     g_object_ref (field));
 }
 
 void
-tracker_ontologies_add_id_uri_pair (gint id, const gchar *uri)
+tracker_ontologies_add_id_uri_pair (TrackerOntologies *ontologies,
+                                    gint               id,
+                                    const gchar       *uri)
 {
-	g_hash_table_insert (id_uri_pairs,
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	g_hash_table_insert (priv->id_uri_pairs,
 	                     GINT_TO_POINTER (id),
 	                     g_strdup (uri));
 }
 
 TrackerProperty *
-tracker_ontologies_get_property_by_uri (const gchar *uri)
+tracker_ontologies_get_property_by_uri (TrackerOntologies *ontologies,
+                                        const gchar       *uri)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	TrackerProperty *property;
 
 	g_return_val_if_fail (uri != NULL, NULL);
 
-	property = g_hash_table_lookup (property_uris, uri);
+	property = g_hash_table_lookup (priv->property_uris, uri);
 
-	if (!property && gvdb_table) {
-		if (tracker_ontologies_get_property_string_gvdb (uri, "name") != NULL) {
+	if (!property && priv->gvdb_table) {
+		if (tracker_ontologies_get_property_string_gvdb (ontologies, uri, "name") != NULL) {
 			property = tracker_property_new (TRUE);
+			tracker_property_set_ontologies (property, ontologies);
 			tracker_property_set_uri (property, uri);
 
-			g_hash_table_insert (property_uris,
+			g_hash_table_insert (priv->property_uris,
 				             g_strdup (uri),
 				             property);
 		}
@@ -377,52 +393,61 @@ tracker_ontologies_get_property_by_uri (const gchar *uri)
 }
 
 void
-tracker_ontologies_add_namespace (TrackerNamespace *namespace)
+tracker_ontologies_add_namespace (TrackerOntologies *ontologies,
+                                  TrackerNamespace  *namespace)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
 	uri = tracker_namespace_get_uri (namespace);
 
-	g_ptr_array_add (namespaces, g_object_ref (namespace));
+	g_ptr_array_add (priv->namespaces, g_object_ref (namespace));
+	tracker_namespace_set_ontologies (namespace, ontologies);
 
-	g_hash_table_insert (namespace_uris,
+	g_hash_table_insert (priv->namespace_uris,
 	                     g_strdup (uri),
 	                     g_object_ref (namespace));
 }
 
 void
-tracker_ontologies_add_ontology (TrackerOntology *ontology)
+tracker_ontologies_add_ontology (TrackerOntologies *ontologies,
+                                 TrackerOntology   *ontology)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
 	uri = tracker_ontology_get_uri (ontology);
 
-	g_ptr_array_add (ontologies, g_object_ref (ontology));
+	g_ptr_array_add (priv->ontologies, g_object_ref (ontology));
+	tracker_ontology_set_ontologies (ontology, ontologies);
 
-	g_hash_table_insert (ontology_uris,
+	g_hash_table_insert (priv->ontology_uris,
 	                     g_strdup (uri),
 	                     g_object_ref (ontology));
 }
 
 TrackerNamespace *
-tracker_ontologies_get_namespace_by_uri (const gchar *uri)
+tracker_ontologies_get_namespace_by_uri (TrackerOntologies *ontologies,
+                                         const gchar       *uri)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	TrackerNamespace *namespace;
 
 	g_return_val_if_fail (uri != NULL, NULL);
 
-	namespace = g_hash_table_lookup (namespace_uris, uri);
+	namespace = g_hash_table_lookup (priv->namespace_uris, uri);
 
-	if (!namespace && gvdb_table) {
-		if (tracker_ontologies_get_namespace_string_gvdb (uri, "prefix") != NULL) {
+	if (!namespace && priv->gvdb_table) {
+		if (tracker_ontologies_get_namespace_string_gvdb (ontologies, uri, "prefix") != NULL) {
 			namespace = tracker_namespace_new (TRUE);
+			tracker_namespace_set_ontologies (namespace, ontologies);
 			tracker_namespace_set_uri (namespace, uri);
 
-			g_hash_table_insert (namespace_uris,
+			g_hash_table_insert (priv->namespace_uris,
 					     g_strdup (uri),
 					     namespace);
 		}
@@ -433,11 +458,14 @@ tracker_ontologies_get_namespace_by_uri (const gchar *uri)
 
 
 TrackerOntology *
-tracker_ontologies_get_ontology_by_uri (const gchar *uri)
+tracker_ontologies_get_ontology_by_uri (TrackerOntologies *ontologies,
+                                        const gchar       *uri)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
 	g_return_val_if_fail (uri != NULL, NULL);
 
-	return g_hash_table_lookup (ontology_uris, uri);
+	return g_hash_table_lookup (priv->ontology_uris, uri);
 }
 
 static void
@@ -481,9 +509,11 @@ gvdb_hash_table_insert_statement (GHashTable  *table,
 }
 
 gboolean
-tracker_ontologies_write_gvdb (const gchar  *filename,
-                               GError      **error)
+tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
+                               const gchar        *filename,
+                               GError            **error)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	GHashTable *root_table, *table;
 	GvdbItem *root, *item;
 	const gchar *uri;
@@ -494,10 +524,10 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 
 	table = gvdb_hash_table_new (root_table, "namespaces");
 	root = gvdb_hash_table_insert (table, "");
-	for (i = 0; i < namespaces->len; i++) {
+	for (i = 0; i < priv->namespaces->len; i++) {
 		TrackerNamespace *namespace;
 
-		namespace = namespaces->pdata[i];
+		namespace = priv->namespaces->pdata[i];
 		uri = tracker_namespace_get_uri (namespace);
 
 		item = gvdb_hash_table_insert_item (table, root, uri);
@@ -508,12 +538,12 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 
 	table = gvdb_hash_table_new (root_table, "classes");
 	root = gvdb_hash_table_insert (table, "");
-	for (i = 0; i < classes->len; i++) {
+	for (i = 0; i < priv->classes->len; i++) {
 		TrackerClass *class;
 		TrackerClass **super_classes;
 		GVariantBuilder builder;
 
-		class = classes->pdata[i];
+		class = priv->classes->pdata[i];
 		uri = tracker_class_get_uri (class);
 
 		item = gvdb_hash_table_insert_item (table, root, uri);
@@ -536,12 +566,12 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 
 	table = gvdb_hash_table_new (root_table, "properties");
 	root = gvdb_hash_table_insert (table, "");
-	for (i = 0; i < properties->len; i++) {
+	for (i = 0; i < priv->properties->len; i++) {
 		TrackerProperty *property;
 		TrackerClass **domain_indexes;
 		GVariantBuilder builder;
 
-		property = properties->pdata[i];
+		property = priv->properties->pdata[i];
 		uri = tracker_property_get_uri (property);
 
 		item = gvdb_hash_table_insert_item (table, root, uri);
@@ -583,47 +613,53 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 	return retval;
 }
 
-gboolean
+TrackerOntologies *
 tracker_ontologies_load_gvdb (const gchar  *filename,
                               GError      **error)
 {
-	tracker_ontologies_shutdown ();
+	TrackerOntologies *ontologies;
+	TrackerOntologiesPrivate *priv;
 
-	tracker_ontologies_init ();
+	ontologies = tracker_ontologies_new ();
+	priv = tracker_ontologies_get_instance_private (ontologies);
 
-	gvdb_table = gvdb_table_new (filename, TRUE, error);
-	if (!gvdb_table) {
-		return FALSE;
+	priv->gvdb_table = gvdb_table_new (filename, TRUE, error);
+	if (!priv->gvdb_table) {
+		g_object_unref (ontologies);
+		return NULL;
 	}
 
-	gvdb_namespaces_table = gvdb_table_get_table (gvdb_table, "namespaces");
-	gvdb_classes_table = gvdb_table_get_table (gvdb_table, "classes");
-	gvdb_properties_table = gvdb_table_get_table (gvdb_table, "properties");
-	return TRUE;
+	priv->gvdb_namespaces_table = gvdb_table_get_table (priv->gvdb_table, "namespaces");
+	priv->gvdb_classes_table = gvdb_table_get_table (priv->gvdb_table, "classes");
+	priv->gvdb_properties_table = gvdb_table_get_table (priv->gvdb_table, "properties");
+	return ontologies;
 }
 
 GVariant *
-tracker_ontologies_get_namespace_value_gvdb (const gchar *uri,
-                                             const gchar *predicate)
+tracker_ontologies_get_namespace_value_gvdb (TrackerOntologies *ontologies,
+                                             const gchar       *uri,
+                                             const gchar       *predicate)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	gchar *key;
 	GVariant *value;
 
 	key = g_strdup_printf ("%s#%s", uri, predicate);
-	value = gvdb_table_get_value (gvdb_namespaces_table, key);
+	value = gvdb_table_get_value (priv->gvdb_namespaces_table, key);
 	g_free (key);
 
 	return value;
 }
 
 const gchar *
-tracker_ontologies_get_namespace_string_gvdb (const gchar *uri,
-                                              const gchar *predicate)
+tracker_ontologies_get_namespace_string_gvdb (TrackerOntologies *ontologies,
+                                              const gchar       *uri,
+                                              const gchar       *predicate)
 {
 	GVariant *value;
 	const gchar *result;
 
-	value = tracker_ontologies_get_namespace_value_gvdb (uri, predicate);
+	value = tracker_ontologies_get_namespace_value_gvdb (ontologies, uri, predicate);
 
 	if (value == NULL) {
 		return NULL;
@@ -636,27 +672,30 @@ tracker_ontologies_get_namespace_string_gvdb (const gchar *uri,
 }
 
 GVariant *
-tracker_ontologies_get_class_value_gvdb (const gchar *uri,
-                                         const gchar *predicate)
+tracker_ontologies_get_class_value_gvdb (TrackerOntologies *ontologies,
+                                         const gchar       *uri,
+                                         const gchar       *predicate)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	gchar *key;
 	GVariant *value;
 
 	key = g_strdup_printf ("%s#%s", uri, predicate);
-	value = gvdb_table_get_value (gvdb_classes_table, key);
+	value = gvdb_table_get_value (priv->gvdb_classes_table, key);
 	g_free (key);
 
 	return value;
 }
 
 const gchar *
-tracker_ontologies_get_class_string_gvdb (const gchar *uri,
-                                          const gchar *predicate)
+tracker_ontologies_get_class_string_gvdb (TrackerOntologies *ontologies,
+                                          const gchar       *uri,
+                                          const gchar       *predicate)
 {
 	GVariant *value;
 	const gchar *result;
 
-	value = tracker_ontologies_get_class_value_gvdb (uri, predicate);
+	value = tracker_ontologies_get_class_value_gvdb (ontologies, uri, predicate);
 
 	if (value == NULL) {
 		return NULL;
@@ -669,27 +708,30 @@ tracker_ontologies_get_class_string_gvdb (const gchar *uri,
 }
 
 GVariant *
-tracker_ontologies_get_property_value_gvdb (const gchar *uri,
-                                            const gchar *predicate)
+tracker_ontologies_get_property_value_gvdb (TrackerOntologies *ontologies,
+                                            const gchar       *uri,
+                                            const gchar       *predicate)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 	gchar *key;
 	GVariant *value;
 
 	key = g_strdup_printf ("%s#%s", uri, predicate);
-	value = gvdb_table_get_value (gvdb_properties_table, key);
+	value = gvdb_table_get_value (priv->gvdb_properties_table, key);
 	g_free (key);
 
 	return value;
 }
 
 const gchar *
-tracker_ontologies_get_property_string_gvdb (const gchar *uri,
-                                             const gchar *predicate)
+tracker_ontologies_get_property_string_gvdb (TrackerOntologies *ontologies,
+                                             const gchar       *uri,
+                                             const gchar       *predicate)
 {
 	GVariant *value;
 	const gchar *result;
 
-	value = tracker_ontologies_get_property_value_gvdb (uri, predicate);
+	value = tracker_ontologies_get_property_value_gvdb (ontologies, uri, predicate);
 
 	if (value == NULL) {
 		return NULL;
@@ -710,8 +752,16 @@ class_sort_func (gconstpointer a,
 }
 
 void
-tracker_ontologies_sort (void)
+tracker_ontologies_sort (TrackerOntologies *ontologies)
 {
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
 	/* Sort result so it is alphabetical */
-	g_ptr_array_sort (classes, class_sort_func);
+	g_ptr_array_sort (priv->classes, class_sort_func);
+}
+
+TrackerOntologies *
+tracker_ontologies_new (void)
+{
+	return g_object_new (TRACKER_TYPE_ONTOLOGIES, NULL);
 }

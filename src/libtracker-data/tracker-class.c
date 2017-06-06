@@ -48,6 +48,8 @@ struct _TrackerClassPrivate {
 	GArray *last_domain_indexes;
 	GArray *last_super_classes;
 
+	TrackerOntologies *ontologies;
+
 	struct {
 		struct {
 			GArray *sub_pred_ids;
@@ -224,14 +226,14 @@ tracker_class_get_super_classes (TrackerClass *service)
 
 		tracker_class_reset_super_classes (service);
 
-		variant = tracker_ontologies_get_class_value_gvdb (priv->uri, "super-classes");
+		variant = tracker_ontologies_get_class_value_gvdb (priv->ontologies, priv->uri, "super-classes");
 		if (variant) {
 			GVariantIter iter;
 			const gchar *uri;
 
 			g_variant_iter_init (&iter, variant);
 			while (g_variant_iter_loop (&iter, "&s", &uri)) {
-				super_class = tracker_ontologies_get_class_by_uri (uri);
+				super_class = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
 
 				tracker_class_add_super_class (service, super_class);
 			}
@@ -346,7 +348,7 @@ tracker_class_set_uri (TrackerClass *service,
 			g_critical ("Unknown namespace of class %s", priv->uri);
 		} else {
 			namespace_uri = g_strndup (priv->uri, hash - priv->uri + 1);
-			namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
+			namespace = tracker_ontologies_get_namespace_by_uri (priv->ontologies, namespace_uri);
 			if (namespace == NULL) {
 				g_critical ("Unknown namespace %s of class %s", namespace_uri, priv->uri);
 			} else {
@@ -745,4 +747,17 @@ tracker_class_add_delete_event (TrackerClass *class,
 	                         subject_id,
 	                         pred_id,
 	                         object_id);
+}
+
+void
+tracker_class_set_ontologies (TrackerClass      *class,
+                              TrackerOntologies *ontologies)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	g_return_if_fail (ontologies != NULL);
+	priv = GET_PRIV (class);
+
+	priv->ontologies = ontologies;
 }
