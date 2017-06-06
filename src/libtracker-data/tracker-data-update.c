@@ -152,6 +152,8 @@ static GPtrArray *rollback_callbacks = NULL;
 static gint max_service_id = 0;
 static gint max_ontology_id = 0;
 
+static TrackerDBJournal *journal_writer = NULL;
+
 static gint         ensure_resource_id         (const gchar      *uri,
                                                 gboolean         *create);
 static void         cache_insert_value         (const gchar      *table_name,
@@ -657,7 +659,7 @@ ensure_resource_id (const gchar *uri,
 
 #ifndef DISABLE_JOURNAL
 		if (!in_journal_replay) {
-			tracker_db_journal_append_resource (id, uri);
+			tracker_db_journal_append_resource (journal_writer, id, uri);
 		}
 #endif /* DISABLE_JOURNAL */
 
@@ -1785,7 +1787,8 @@ delete_first_object (TrackerProperty  *field,
 
 #ifndef DISABLE_JOURNAL
 		if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
-			tracker_db_journal_append_delete_statement_id (graph_id,
+			tracker_db_journal_append_delete_statement_id (journal_writer,
+			                                               graph_id,
 			                                               resource_buffer->id,
 			                                               pred_id,
 			                                               object_id);
@@ -1817,12 +1820,14 @@ delete_first_object (TrackerProperty  *field,
 
 				damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 
-				tracker_db_journal_append_insert_statement (graph_id,
+				tracker_db_journal_append_insert_statement (journal_writer,
+				                                            graph_id,
 				                                            resource_buffer->id,
 				                                            tracker_property_get_id (damaged),
 				                                            "true");
 			} else {
-				tracker_db_journal_append_delete_statement (graph_id,
+				tracker_db_journal_append_delete_statement (journal_writer,
+				                                            graph_id,
 				                                            resource_buffer->id,
 				                                            pred_id,
 				                                            object_str);
@@ -2378,6 +2383,7 @@ tracker_data_delete_statement (const gchar  *graph,
 #ifndef DISABLE_JOURNAL
 			if (!in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
+				       journal_writer,
 				       (graph != NULL ? query_resource_id (graph) : 0),
 				       resource_buffer->id,
 				       tracker_data_query_resource_id (predicate),
@@ -2411,7 +2417,8 @@ tracker_data_delete_statement (const gchar  *graph,
 					tried = TRUE;
 
 #ifndef DISABLE_JOURNAL
-					tracker_db_journal_append_delete_statement_id (graph_id,
+					tracker_db_journal_append_delete_statement_id (journal_writer,
+					                                               graph_id,
 					                                               resource_buffer->id,
 					                                               pred_id,
 					                                               object_id);
@@ -2430,12 +2437,14 @@ tracker_data_delete_statement (const gchar  *graph,
 
 						damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
 
-						tracker_db_journal_append_insert_statement (graph_id,
+						tracker_db_journal_append_insert_statement (journal_writer,
+						                                            graph_id,
 						                                            resource_buffer->id,
 						                                            tracker_property_get_id (damaged),
 						                                            "true");
 					} else {
-						tracker_db_journal_append_delete_statement (graph_id,
+						tracker_db_journal_append_delete_statement (journal_writer,
+						                                            graph_id,
 						                                            resource_buffer->id,
 						                                            pred_id,
 						                                            object);
@@ -2764,6 +2773,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 #ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		tracker_db_journal_append_insert_statement_id (
+			journal_writer,
 			(graph != NULL ? query_resource_id (graph) : 0),
 			resource_buffer->id,
 			final_prop_id,
@@ -2860,12 +2870,14 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			TrackerProperty *damaged;
 
 			damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
-			tracker_db_journal_append_insert_statement (graph_id,
+			tracker_db_journal_append_insert_statement (journal_writer,
+			                                            graph_id,
 				                                    resource_buffer->id,
 				                                    tracker_property_get_id (damaged),
 				                                    "true");
 		} else {
-			tracker_db_journal_append_insert_statement (graph_id,
+			tracker_db_journal_append_insert_statement (journal_writer,
+			                                            graph_id,
 				                                    resource_buffer->id,
 				                                    pred_id,
 				                                    object);
@@ -3069,6 +3081,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 #ifndef DISABLE_JOURNAL
 	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
 		tracker_db_journal_append_update_statement_id (
+			journal_writer,
 			(graph != NULL ? query_resource_id (graph) : 0),
 			resource_buffer->id,
 			final_prop_id,
@@ -3205,12 +3218,14 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 			TrackerProperty *damaged;
 
 			damaged = tracker_ontologies_get_property_by_uri (TRACKER_PREFIX_TRACKER "damaged");
-			tracker_db_journal_append_update_statement (graph_id,
+			tracker_db_journal_append_update_statement (journal_writer,
+			                                            graph_id,
 			                                            resource_buffer->id,
 			                                            tracker_property_get_id (damaged),
 			                                            "true");
 		} else {
-			tracker_db_journal_append_update_statement (graph_id,
+			tracker_db_journal_append_update_statement (journal_writer,
+			                                            graph_id,
 			                                            resource_buffer->id,
 			                                            pred_id,
 			                                            object);
@@ -3311,20 +3326,13 @@ tracker_data_begin_transaction (GError **error)
 
 #ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
-		if (in_ontology_transaction) {
-			GError *n_error = NULL;
-			tracker_db_journal_start_ontology_transaction (resource_time, &n_error);
+		g_assert (journal_writer == NULL);
+		/* Pick the right journal writer for this transaction */
+		journal_writer = in_ontology_transaction ?
+			tracker_data_manager_get_ontology_writer () :
+			tracker_data_manager_get_journal_writer ();
 
-			if (n_error) {
-				/* No need for rollback here */
-				tracker_db_interface_end_db_transaction (iface, NULL);
-				g_propagate_error (error, n_error);
-				return;
-			}
-
-		} else {
-			tracker_db_journal_start_transaction (resource_time);
-		}
+		tracker_db_journal_start_transaction (journal_writer, resource_time);
 	}
 #endif /* DISABLE_JOURNAL */
 
@@ -3374,14 +3382,17 @@ tracker_data_commit_transaction (GError **error)
 
 #ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
+		g_assert (journal_writer != NULL);
 		if (has_persistent || in_ontology_transaction) {
-			tracker_db_journal_commit_db_transaction (&actual_error);
+			tracker_db_journal_commit_db_transaction (journal_writer, &actual_error);
 		} else {
 			/* If we only had transient properties, then we must not write
 			 * anything to the journal. So we roll it back, but only the
 			 * journal's part. */
-			tracker_db_journal_rollback_transaction (&actual_error);
+			tracker_db_journal_rollback_transaction (journal_writer);
 		}
+
+		journal_writer = NULL;
 
 		if (actual_error) {
 			/* Can't write in journal anymore; quite a serious problem */
@@ -3462,17 +3473,10 @@ tracker_data_rollback_transaction (void)
 	if (!in_journal_replay) {
 
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_rollback_transaction (&ignorable);
-
-		if (ignorable) {
-			/* Not sure if this is also ignorable: it's the close() of the
-			 * journal file failing (in case of TRANSACTION_FORMAT_ONTOLOGY) */
-			g_warning ("Error ignored while rolling back transaction in journal: %s",
-			           ignorable->message ? ignorable->message : "No error given");
-			g_clear_error (&ignorable);
-		}
+		g_assert (journal_writer != NULL);
+		tracker_db_journal_rollback_transaction (journal_writer);
+		journal_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-
 
 		if (rollback_callbacks) {
 			guint n;
@@ -3548,7 +3552,15 @@ void
 tracker_data_sync (void)
 {
 #ifndef DISABLE_JOURNAL
-	tracker_db_journal_fsync ();
+	TrackerDBJournal *writer;
+
+	writer = tracker_data_manager_get_journal_writer ();
+	if (writer)
+		tracker_db_journal_fsync (writer);
+
+	writer = tracker_data_manager_get_ontology_writer ();
+	if (writer)
+		tracker_db_journal_fsync (writer);
 #endif
 }
 
@@ -3834,6 +3846,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		GError *n_error = NULL;
 		gsize size;
 		GFile *cache_location, *data_location;
+		TrackerDBJournal *writer;
 
 		size = tracker_db_journal_reader_get_size_of_correct (reader);
 		tracker_db_journal_reader_free (reader);
@@ -3841,7 +3854,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		cache_location = tracker_data_manager_get_cache_location();
 		data_location = tracker_data_manager_get_data_location();
 
-		tracker_db_journal_init (data_location, FALSE, &n_error);
+		writer = tracker_db_journal_new (data_location, FALSE, &n_error);
 		g_object_unref (cache_location);
 		g_object_unref (data_location);
 
@@ -3851,8 +3864,8 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			g_propagate_error (error, n_error);
 			return;
 		}
-		tracker_db_journal_truncate (size);
-		tracker_db_journal_shutdown (&n_error);
+		tracker_db_journal_truncate (writer, size);
+		tracker_db_journal_free (writer, &n_error);
 
 		if (n_error) {
 			g_clear_error (&journal_error);

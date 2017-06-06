@@ -32,6 +32,7 @@ test_init_and_shutdown (void)
 	gboolean result;
 	gchar *path;
 	GFile *data_location, *child;
+	TrackerDBJournal *writer;
 
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
 	data_location = g_file_new_for_path (path);
@@ -44,20 +45,20 @@ test_init_and_shutdown (void)
 
 	/* check double init/shutdown */
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (data_location, FALSE, &error);
+	writer = tracker_db_journal_new (data_location, FALSE, &error);
 	g_assert_no_error (error);
-	g_assert (result == TRUE);
+	g_assert_nonnull (writer);
 
-	result = tracker_db_journal_shutdown (&error);
+	result = tracker_db_journal_free (writer, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (data_location, FALSE, &error);
+	writer = tracker_db_journal_new (data_location, FALSE, &error);
 	g_assert_no_error (error);
-	g_assert (result == TRUE);
+	g_assert_nonnull (writer);
 
-	result = tracker_db_journal_shutdown (&error);
+	result = tracker_db_journal_free (writer, &error);
 	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
@@ -73,6 +74,7 @@ test_write_functions (void)
 	gboolean result;
 	GError *error = NULL;
 	GFile *data_location, *child;
+	TrackerDBJournal *writer;
 
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", NULL);
 	data_location = g_file_new_for_path (path);
@@ -84,80 +86,79 @@ test_write_functions (void)
 	g_object_unref (child);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_db_journal_init (data_location, FALSE, &error);
+	writer = tracker_db_journal_new (data_location, FALSE, &error);
 	g_object_unref (data_location);
 	g_assert_no_error (error);
 
 	/* Size is 8 due to header */
-	actual_size = tracker_db_journal_get_size ();
+	actual_size = tracker_db_journal_get_size (writer);
 	g_assert_cmpint (actual_size, ==, 8);
 
 	/* Check with rollback, nothing is added */
-	initial_size = tracker_db_journal_get_size ();
-	result = tracker_db_journal_start_transaction (time (NULL));
+	initial_size = tracker_db_journal_get_size (writer);
+	result = tracker_db_journal_start_transaction (writer, time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (10, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 10, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (11, "http://predicate");
+	result = tracker_db_journal_append_resource (writer, 11, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_delete_statement (0, 10, 11, "test");
+	result = tracker_db_journal_append_delete_statement (writer, 0, 10, 11, "test");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_rollback_transaction (&error);
-	g_assert_no_error (error);
+	result = tracker_db_journal_rollback_transaction (writer);
 	g_assert_cmpint (result, ==, TRUE);
-	actual_size = tracker_db_journal_get_size ();
+	actual_size = tracker_db_journal_get_size (writer);
 	g_assert_cmpint (initial_size, ==, actual_size);
 
 	/* Check with commit, somethign is added */
-	result = tracker_db_journal_start_transaction (time (NULL));
+	result = tracker_db_journal_start_transaction (writer, time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (12, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 12, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (13, "http://predicate");
+	result = tracker_db_journal_append_resource (writer, 13, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (14, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 14, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_delete_statement_id (0, 12, 13, 14);
+	result = tracker_db_journal_append_delete_statement_id (writer, 0, 12, 13, 14);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction (&error);
+	result = tracker_db_journal_commit_db_transaction (writer, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
-	actual_size = tracker_db_journal_get_size ();
+	actual_size = tracker_db_journal_get_size (writer);
 	g_assert_cmpint (initial_size, !=, actual_size);
 
 	/* Test insert statement */
-	result = tracker_db_journal_start_transaction (time (NULL));
+	result = tracker_db_journal_start_transaction (writer, time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (15, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 15, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (16, "http://predicate");
+	result = tracker_db_journal_append_resource (writer, 16, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_insert_statement (0, 15, 16, "test");
+	result = tracker_db_journal_append_insert_statement (writer, 0, 15, 16, "test");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction (&error);
+	result = tracker_db_journal_commit_db_transaction (writer, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test insert id */
-	result = tracker_db_journal_start_transaction (time (NULL));
+	result = tracker_db_journal_start_transaction (writer, time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (17, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 17, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (18, "http://predicate");
+	result = tracker_db_journal_append_resource (writer, 18, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_resource (19, "http://resource");
+	result = tracker_db_journal_append_resource (writer, 19, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_insert_statement_id (0, 17, 18, 19);
+	result = tracker_db_journal_append_insert_statement_id (writer, 0, 17, 18, 19);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction (&error);
+	result = tracker_db_journal_commit_db_transaction (writer, &error);
 	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test fsync */
-	result = tracker_db_journal_fsync ();
+	result = tracker_db_journal_fsync (writer);
 	g_assert_cmpint (result, ==, TRUE);
 
-	tracker_db_journal_shutdown (&error);
+	tracker_db_journal_free (writer, &error);
 	g_assert_no_error (error);
 
 	g_free (path);

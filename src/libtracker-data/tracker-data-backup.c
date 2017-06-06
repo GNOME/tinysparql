@@ -573,6 +573,7 @@ tracker_data_backup_restore (GFile                *journal,
 
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags;
+		TrackerDBJournal *journal_writer;
 		guint select_cache_size, update_cache_size;
 		gboolean is_first;
 #ifndef DISABLE_JOURNAL
@@ -665,7 +666,7 @@ tracker_data_backup_restore (GFile                *journal,
 		tracker_db_manager_set_need_mtime_check (TRUE);
 
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (data_location, FALSE, &n_error);
+		journal_writer = tracker_db_journal_new (data_location, FALSE, &n_error);
 
 		if (n_error) {
 			if (!info->error) {
@@ -684,7 +685,7 @@ tracker_data_backup_restore (GFile                *journal,
 			remove_temp (cache_location, data_location);
 		}
 
-		tracker_db_journal_shutdown (&n_error);
+		tracker_db_journal_free (journal_writer, &n_error);
 
 		if (n_error) {
 			g_warning ("Ignored error while shuting down journal during backup: %s",

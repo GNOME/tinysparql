@@ -266,6 +266,7 @@ reset_run (void)
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
 		gint chunk_size_mb;
+		TrackerDBJournal *journal_writer;
 #endif /* DISABLE_JOURNAL */
 
 		dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
@@ -318,17 +319,15 @@ reset_run (void)
 
 			return EXIT_FAILURE;
 		}
+
+		tracker_db_manager_remove_all ();
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (data_location, FALSE, NULL);
-		tracker_db_journal_remove ();
+		journal_writer = tracker_db_journal_new (data_location, FALSE, NULL);
+		tracker_db_journal_remove (journal_writer);
 #endif /* DISABLE_JOURNAL */
 
 		tracker_db_manager_remove_version_file ();
-		tracker_db_manager_remove_all ();
 		tracker_db_manager_shutdown ();
-#ifndef DISABLE_JOURNAL
-		tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);

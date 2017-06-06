@@ -73,6 +73,8 @@ static gboolean  initialized;
 static gboolean  reloading = FALSE;
 #ifndef DISABLE_JOURNAL
 static gboolean  in_journal_replay;
+static TrackerDBJournal *journal_writer = NULL;
+static TrackerDBJournal *ontology_writer = NULL;
 #endif
 
 typedef struct {
@@ -2485,7 +2487,7 @@ insert_uri_in_resource_table (TrackerDBInterface  *iface,
 
 #ifndef DISABLE_JOURNAL
 	if (!in_journal_replay) {
-		tracker_db_journal_append_resource (id, uri);
+		tracker_db_journal_append_resource (ontology_writer, id, uri);
 	}
 #endif /* DISABLE_JOURNAL */
 
@@ -3946,11 +3948,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 #ifndef DISABLE_JOURNAL
-		/* If we are not replaying, truncate journal as it does not even
-		 * contain a single valid transaction, or is explicitly ignored
-		 * (journal_check == FALSE, only for test cases)
-		 */
-		tracker_db_journal_init (data_location, !in_journal_replay, &internal_error);
+		ontology_writer = tracker_db_journal_ontology_new (data_location, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -3995,7 +3993,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-			tracker_db_journal_shutdown (NULL);
+			tracker_db_journal_free (ontology_writer, NULL);
+			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
@@ -4016,7 +4015,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-			tracker_db_journal_shutdown (NULL);
+			tracker_db_journal_free (ontology_writer, NULL);
+			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
@@ -4043,7 +4043,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 
-					tracker_db_journal_shutdown (NULL);
+					tracker_db_journal_free (ontology_writer, NULL);
+					ontology_writer = NULL;
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
 					if (!reloading) {
@@ -4063,13 +4064,15 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		tracker_data_commit_transaction (&internal_error);
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-#ifndef DISABLE_JOURNAL
-			tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
+#ifndef DISABLE_JOURNAL
+			tracker_db_journal_free (ontology_writer, NULL);
+			ontology_writer = NULL;
+#endif /* DISABLE_JOURNAL */
 			if (!reloading) {
 				tracker_locale_shutdown ();
 			}
@@ -4087,17 +4090,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		check_ontology = FALSE;
 
 #ifndef DISABLE_JOURNAL
-		/* If we are replaying, close it here again after the ontology
-		 * has been written.
-		 */
-		if (!read_only && in_journal_replay)
-			tracker_db_journal_shutdown (NULL);
+		tracker_db_journal_free (ontology_writer, NULL);
+		ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 	} else {
 		if (!read_only) {
 
 #ifndef DISABLE_JOURNAL
-			tracker_db_journal_init (data_location, FALSE, &internal_error);
+			ontology_writer = tracker_db_journal_ontology_new (data_location, &internal_error);
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
@@ -4260,7 +4260,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 							g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-							tracker_db_journal_shutdown (NULL);
+							tracker_db_journal_free (ontology_writer, NULL);
+							ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 							tracker_db_manager_shutdown ();
 							tracker_ontologies_shutdown ();
@@ -4353,7 +4354,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-						tracker_db_journal_shutdown (NULL);
+						tracker_db_journal_free (ontology_writer, NULL);
+						ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 						tracker_db_manager_shutdown ();
 						tracker_ontologies_shutdown ();
@@ -4538,7 +4540,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_propagate_error (error, ontology_error);
 
 #ifndef DISABLE_JOURNAL
-				tracker_db_journal_shutdown (NULL);
+				tracker_db_journal_free (ontology_writer, NULL);
+				ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
@@ -4574,7 +4577,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-				tracker_db_journal_shutdown (NULL);
+				tracker_db_journal_free (ontology_writer, NULL);
+				ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
@@ -4585,6 +4589,11 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				return FALSE;
 			}
+
+#ifndef DISABLE_JOURNAL
+			tracker_db_journal_free (ontology_writer, NULL);
+			ontology_writer = NULL;
+#endif /* DISABLE_JOURNAL */
 		}
 
 		g_hash_table_unref (ontos_table);
@@ -4612,7 +4621,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_db_manager_shutdown ();
 				/* Call may fail without notice, we're in error handling already.
 				 * When fails it means that close() of journal file failed. */
-				tracker_db_journal_shutdown (&n_error);
 				if (n_error) {
 					g_warning ("Error closing journal: %s",
 					           n_error->message ? n_error->message : "No error given");
@@ -4623,7 +4631,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
 
-			tracker_db_journal_shutdown (NULL);
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
 			if (!reloading) {
@@ -4635,26 +4642,23 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		}
 
 		in_journal_replay = FALSE;
-
-		/* open journal for writing */
-		tracker_db_journal_init (data_location, FALSE, &internal_error);
-
-		if (internal_error) {
-			g_hash_table_unref (uri_id_map);
-			g_propagate_error (error, internal_error);
-
-			tracker_db_journal_shutdown (NULL);
-			tracker_db_manager_shutdown ();
-			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
-			tracker_data_update_shutdown ();
-
-			return FALSE;
-		}
-
 		g_hash_table_unref (uri_id_map);
+	}
+
+	/* open journal for writing */
+	journal_writer = tracker_db_journal_new (data_location, FALSE, &internal_error);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+
+		tracker_db_manager_shutdown ();
+		tracker_ontologies_shutdown ();
+		if (!reloading) {
+			tracker_locale_shutdown ();
+		}
+		tracker_data_update_shutdown ();
+
+		return FALSE;
 	}
 #endif /* DISABLE_JOURNAL */
 
@@ -4677,7 +4681,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_propagate_error (error, internal_error);
 
 #ifndef DISABLE_JOURNAL
-			tracker_db_journal_shutdown (NULL);
+			tracker_db_journal_free (journal_writer, NULL);
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
@@ -4725,13 +4729,15 @@ tracker_data_manager_shutdown (void)
 
 #ifndef DISABLE_JOURNAL
 	/* Make sure we shutdown all other modules we depend on */
-	tracker_db_journal_shutdown (&error);
+	if (journal_writer) {
+		tracker_db_journal_free (journal_writer, &error);
 
-	if (error) {
-		/* TODO: propagate error */
-		g_warning ("While shutting down journal %s",
-		           error->message ? error->message : "No error given");
-		g_error_free (error);
+		if (error) {
+			/* TODO: propagate error */
+			g_warning ("While shutting down journal %s",
+			           error->message ? error->message : "No error given");
+			g_error_free (error);
+		}
 	}
 #endif /* DISABLE_JOURNAL */
 
@@ -4751,3 +4757,17 @@ tracker_data_manager_shutdown (void)
 
 	initialized = FALSE;
 }
+
+#ifndef DISABLE_JOURNAL
+TrackerDBJournal *
+tracker_data_manager_get_journal_writer (void)
+{
+	return journal_writer;
+}
+
+TrackerDBJournal *
+tracker_data_manager_get_ontology_writer (void)
+{
+	return ontology_writer;
+}
+#endif

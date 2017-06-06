@@ -31,6 +31,7 @@
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-db-interface.h>
 #include <libtracker-data/tracker-db-manager.h>
+#include <libtracker-data/tracker-db-journal.h>
 
 G_BEGIN_DECLS
 
@@ -69,6 +70,8 @@ gboolean tracker_data_manager_reload                 (TrackerBusyCallback     bu
 
 GFile * tracker_data_manager_get_cache_location();
 GFile * tracker_data_manager_get_data_location ();
+TrackerDBJournal * tracker_data_manager_get_journal_writer (void);
+TrackerDBJournal * tracker_data_manager_get_ontology_writer (void);
 
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);
