@@ -69,7 +69,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-common/tracker-locale.h")]
 	namespace Locale {
-		public void init ();
+		public void sanity_check ();
 	}
 
 	[Compact]

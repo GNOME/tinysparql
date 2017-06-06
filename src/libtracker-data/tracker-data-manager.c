@@ -3794,7 +3794,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	tracker_ontologies_init ();
 
 	if (!reloading) {
-		tracker_locale_init ();
+		tracker_locale_sanity_check ();
 	}
 
 #ifndef DISABLE_JOURNAL
@@ -3816,9 +3816,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_propagate_error (error, internal_error);
 
 		tracker_ontologies_shutdown ();
-		if (!reloading) {
-			tracker_locale_shutdown ();
-		}
 		tracker_data_update_shutdown ();
 
 		return FALSE;
@@ -3863,9 +3860,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
-				if (!reloading) {
-					tracker_locale_shutdown ();
-				}
 				tracker_data_update_shutdown ();
 
 				return FALSE;
@@ -3892,9 +3886,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_free (uri);
 		tracker_db_manager_shutdown ();
 		tracker_ontologies_shutdown ();
-		if (!reloading) {
-			tracker_locale_shutdown ();
-		}
 		tracker_data_update_shutdown ();
 		return FALSE;
 	}
@@ -3919,9 +3910,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
-					if (!reloading) {
-						tracker_locale_shutdown ();
-					}
 					tracker_data_update_shutdown ();
 
 					return FALSE;
@@ -3955,9 +3943,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -3998,9 +3983,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -4020,9 +4002,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -4047,9 +4026,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					ontology_writer = NULL;
 					tracker_db_manager_shutdown ();
 					tracker_ontologies_shutdown ();
-					if (!reloading) {
-						tracker_locale_shutdown ();
-					}
 					tracker_data_update_shutdown ();
 
 					return FALSE;
@@ -4073,9 +4049,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_db_journal_free (ontology_writer, NULL);
 			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -4104,9 +4077,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
-				if (!reloading) {
-					tracker_locale_shutdown ();
-				}
 				tracker_data_update_shutdown ();
 
 				return FALSE;
@@ -4265,9 +4235,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 							tracker_db_manager_shutdown ();
 							tracker_ontologies_shutdown ();
-							if (!reloading) {
-								tracker_locale_shutdown ();
-							}
 							tracker_data_update_shutdown ();
 
 							return FALSE;
@@ -4315,7 +4282,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						}
 						initialized = TRUE;
 
-						/* This also does tracker_locale_shutdown */
 						tracker_data_manager_shutdown ();
 
 						return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
@@ -4359,9 +4325,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 						tracker_db_manager_shutdown ();
 						tracker_ontologies_shutdown ();
-						if (!reloading) {
-							tracker_locale_shutdown ();
-						}
 						tracker_data_update_shutdown ();
 
 						return FALSE;
@@ -4409,7 +4372,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					}
 					initialized = TRUE;
 
-					/* This also does tracker_locale_shutdown */
 					tracker_data_manager_shutdown ();
 
 					return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
@@ -4517,7 +4479,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				}
 				initialized = TRUE;
 
-				/* This also does tracker_locale_shutdown */
 				tracker_data_manager_shutdown ();
 
 				return tracker_data_manager_init (flags | TRACKER_DB_MANAGER_DO_NOT_CHECK_ONTOLOGY,
@@ -4545,9 +4506,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
-				if (!reloading) {
-					tracker_locale_shutdown ();
-				}
 				tracker_data_update_shutdown ();
 
 				return FALSE;
@@ -4582,9 +4540,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 				tracker_db_manager_shutdown ();
 				tracker_ontologies_shutdown ();
-				if (!reloading) {
-					tracker_locale_shutdown ();
-				}
 				tracker_data_update_shutdown ();
 
 				return FALSE;
@@ -4633,9 +4588,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -4653,9 +4605,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		tracker_db_manager_shutdown ();
 		tracker_ontologies_shutdown ();
-		if (!reloading) {
-			tracker_locale_shutdown ();
-		}
 		tracker_data_update_shutdown ();
 
 		return FALSE;
@@ -4685,9 +4634,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			tracker_db_manager_shutdown ();
 			tracker_ontologies_shutdown ();
-			if (!reloading) {
-				tracker_locale_shutdown ();
-			}
 			tracker_data_update_shutdown ();
 
 			return FALSE;
@@ -4743,9 +4689,6 @@ tracker_data_manager_shutdown (void)
 
 	tracker_db_manager_shutdown ();
 	tracker_ontologies_shutdown ();
-	if (!reloading) {
-		tracker_locale_shutdown ();
-	}
 
 #if HAVE_TRACKER_FTS
 	if (!tracker_fts_shutdown ()) {

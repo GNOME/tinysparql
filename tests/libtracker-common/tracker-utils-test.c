@@ -24,6 +24,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-locale.h>
+#include <locale.h>
 
 static void
 test_seconds_to_string ()
@@ -139,7 +140,7 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	tracker_locale_init ();
+	setlocale (LC_ALL, "");
 
 	g_test_add_func ("/libtracker-common/tracker-utils/seconds_to_string",
 	                 test_seconds_to_string);
@@ -160,8 +161,6 @@ main (int argc, char **argv)
                          test_strhex);
 
 	ret = g_test_run ();
-
-	tracker_locale_shutdown ();
 
 	return ret;
 }

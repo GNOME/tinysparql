@@ -271,7 +271,7 @@ run_standalone (TrackerConfig *config)
 	}
 	output_format = enum_value->value;
 
-	tracker_locale_init ();
+	tracker_locale_sanity_check ();
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
@@ -285,7 +285,6 @@ run_standalone (TrackerConfig *config)
 	if (!object) {
 		g_object_unref (file);
 		g_free (uri);
-		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
 
@@ -294,8 +293,6 @@ run_standalone (TrackerConfig *config)
 	g_object_unref (object);
 	g_object_unref (file);
 	g_free (uri);
-
-	tracker_locale_shutdown ();
 
 	return EXIT_SUCCESS;
 }
@@ -398,7 +395,7 @@ main (int argc, char *argv[])
 	         g_thread_self ());
 #endif /* THREAD_ENABLE_TRACE */
 
-	tracker_locale_init ();
+	tracker_locale_sanity_check ();
 
 	controller = tracker_extract_controller_new (decorator);
 	tracker_miner_start (TRACKER_MINER (decorator));
@@ -417,8 +414,6 @@ main (int argc, char *argv[])
 	tracker_miner_stop (TRACKER_MINER (decorator));
 
 	/* Shutdown subsystems */
-	tracker_locale_shutdown ();
-
 	g_object_unref (extract);
 	g_object_unref (decorator);
 	g_object_unref (controller);

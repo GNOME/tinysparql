@@ -118,7 +118,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		init_mutex.lock ();
 
 		try {
-			Locale.init ();
+			Locale.sanity_check ();
 			DBManagerFlags db_flags = DBManagerFlags.ENABLE_MUTEXES;
 			if ((flags & Sparql.ConnectionFlags.READONLY) != 0)
 				db_flags |= DBManagerFlags.READONLY;
