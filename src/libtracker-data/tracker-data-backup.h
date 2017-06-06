@@ -44,6 +44,7 @@ typedef void (*TrackerDataBackupFinished) (GError *error, gpointer user_data);
 
 GQuark tracker_data_backup_error_quark (void);
 void   tracker_data_backup_save        (GFile                     *destination,
+                                        GFile                     *data_location,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy);

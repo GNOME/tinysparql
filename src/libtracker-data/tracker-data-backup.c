@@ -409,6 +409,7 @@ restore_from_temp (GFile *cache_location,
 
 void
 tracker_data_backup_save (GFile                     *destination,
+                          GFile                     *data_location,
                           TrackerDataBackupFinished  callback,
                           gpointer                   user_data,
                           GDestroyNotify             destroy)
@@ -430,16 +431,13 @@ tracker_data_backup_save (GFile                     *destination,
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_object_ref (destination);
-	info->journal = g_file_new_for_path (tracker_db_journal_get_filename ());
 	info->callback = callback;
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	parent = g_file_get_parent (info->journal);
-	directory = g_file_get_path (parent);
-	g_object_unref (parent);
 	path = g_file_get_path (destination);
 
+	directory = g_file_get_path (data_location);
 	journal_dir = g_dir_open (directory, 0, NULL);
 	f_name = g_dir_read_name (journal_dir);
 	files = g_ptr_array_new ();
@@ -566,7 +564,7 @@ tracker_data_backup_restore (GFile                *journal,
 
 	info = g_new0 (BackupSaveInfo, 1);
 #ifndef DISABLE_JOURNAL
-	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
+	info->destination = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
 #else
 	info->destination = g_file_new_for_path (tracker_db_manager_get_file (TRACKER_DB_METADATA));
 #endif /* DISABLE_JOURNAL */

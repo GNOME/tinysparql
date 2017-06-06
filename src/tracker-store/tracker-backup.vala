@@ -40,7 +40,7 @@ public class Tracker.Backup : Object {
 			yield Tracker.Store.pause ();
 
 			Error backup_error = null;
-			Data.backup_save (destination, error => {
+			Data.backup_save (destination, null, error => {
 				backup_error = error;
 				save.callback ();
 			});

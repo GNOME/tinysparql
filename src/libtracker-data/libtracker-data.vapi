@@ -224,7 +224,7 @@ namespace Tracker {
 		[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
 		public delegate void BackupFinished (GLib.Error error);
 
-		public void backup_save (GLib.File destination, owned BackupFinished callback);
+		public void backup_save (GLib.File destination, GLib.File data_location, owned BackupFinished callback);
 		public void backup_restore (GLib.File journal, string? cache_location, string? data_location, GLib.File? ontology_location, BusyCallback busy_callback) throws GLib.Error;
 	}
 
