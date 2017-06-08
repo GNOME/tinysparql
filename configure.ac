@@ -213,7 +213,6 @@ GTK_REQUIRED=3.0.0
 LIBXML2_REQUIRED=2.6
 HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
-MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.16.0
 CAIRO_REQUIRED=1.0
 LIBICU_REQUIRED=4.8.1.1
@@ -398,13 +397,6 @@ TRACKER_MINER_APPS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                              gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
-
-# Check requirements for tracker-miner-user-guides
-TRACKER_MINER_USER_GUIDES_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                                    gio-unix-2.0 >= $GLIB_REQUIRED
-                                    libxml-2.0   >= $LIBXML2_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_USER_GUIDES, [$TRACKER_MINER_USER_GUIDES_REQUIRED])
 
 # Check requirements for tracker-miner-evolution
 evolution_plugin_name=""
@@ -631,7 +623,6 @@ if test "x$enable_minimal" = "xyes"; then
    enable_tracker_writeback=no
    enable_miner_fs=no
    enable_miner_apps=no
-   enable_miner_user_guides=no
    enable_miner_rss=no
    enable_miner_evolution=no
    enable_miner_thunderbird=no
@@ -699,22 +690,6 @@ AM_CONDITIONAL(OS_WIN32, test "$native_win32" = "yes")
 
 if test "$native_win32" = "yes" ; then
    AC_DEFINE(OS_WIN32, 1, [Define if we are on win32])
-fi
-
-####################################################################
-# Check if we should install Maemo/MeeGo specific ontologies
-####################################################################
-
-AC_ARG_ENABLE(maemo,
-              AS_HELP_STRING([--enable-maemo],
-                             [enable maemo ontology [[default=no]]]),
-              [enable_maemo=$enableval],
-              [enable_maemo=no])
-
-AM_CONDITIONAL(HAVE_MAEMO, test "x$enable_maemo" = "xyes")
-
-if test "x$enable_maemo" = "xyes" ; then
-   AC_DEFINE(HAVE_MAEMO, 1, [Define if we enable Maemo specific features])
 fi
 
 ####################################################################
@@ -1274,40 +1249,6 @@ fi
 
 AM_CONDITIONAL(HAVE_EXEMPI, test "x$have_exempi" = "xyes")
 
-####################################################################
-# Check for tracker-miner-fs: meegotouch, for MeeGo desktop files
-####################################################################
-
-AC_ARG_ENABLE(meegotouch,
-              AS_HELP_STRING([--enable-meegotouch],
-                             [enable libmeegotouch application extraction [[default=no]]]),
-              [enable_meegotouch=$enableval],
-              [enable_meegotouch=no])
-
-if test "x$enable_meegotouch" != "xno"; then
-   PKG_CHECK_MODULES(MEEGOTOUCH,
-                     [meegotouch >= $MEEGOTOUCH_REQUIRED],
-                     [have_meegotouch=yes],
-                     [have_meegotouch=no])
-
-   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $MEEGOTOUCH_CFLAGS"
-   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $MEEGOTOUCH_LIBS"
-
-   LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $MEEGOTOUCH_CFLAGS"
-   LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $MEEGOTOUCH_LIBS"
-
-   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $MEEGOTOUCH_CFLAGS"
-   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $MEEGOTOUCH_LIBS"
-
-   if test "x$have_meegotouch" = "xyes"; then
-      AC_DEFINE(HAVE_MEEGOTOUCH, [], [Define if we have meegotouch])
-   fi
-else
-   have_meegotouch="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_MEEGOTOUCH, test "x$have_meegotouch" = "xyes")
-
 ##################################################################
 # Check for tracker-miner-fs
 ##################################################################
@@ -1407,32 +1348,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_APPS, test "x$have_tracker_miner_apps" = "xyes")
-
-##################################################################
-# Check for tracker-miner-user-guides
-##################################################################
-
-have_tracker_miner_user_guides="yes"
-
-AC_ARG_ENABLE(miner_user_guides,
-              AS_HELP_STRING([--enable-miner-user-guides],
-                             [enable User guides miner [[default=auto]]]),
-              [enable_miner_user_guides=$enableval],
-              [enable_miner_user_guides=auto])
-
-enable_tracker_miner_user_guides=$enable_miner_user_guides
-
-if test "x$enable_tracker_miner_user_guides" = "xyes"; then
-   if test "x$have_tracker_miner_user_guides" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-miner-user-guides dependencies ($TRACKER_MINER_USER_GUIDES_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_user_guides" = "xno"; then
-      have_tracker_miner_user_guides="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_USER_GUIDES, test "x$have_tracker_miner_user_guides" = "xyes")
 
 ##################################################################
 # Check for tracker-miner-rss
@@ -2664,7 +2579,6 @@ AC_CONFIG_FILES([
 	src/miners/fs/Makefile
 	src/miners/apps/Makefile
 	src/miners/rss/Makefile
-	src/miners/user-guides/Makefile
 	src/ontologies/Makefile
 	src/tracker-store/Makefile
 	src/tracker/Makefile
@@ -2813,10 +2727,9 @@ Feature Support:
 
 Data Miners / Writebacks:
 
-	FS (File System):                       $have_tracker_miner_fs (MeeGo support: $have_meegotouch)
+	FS (File System):                       $have_tracker_miner_fs
 	Applications:                           $have_tracker_miner_apps
 	RSS:                                    $have_tracker_miner_rss
-	User Guides:                            $have_tracker_miner_user_guides
 	Email:
           Evolution:                            $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
           Thunderbird:                          $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
@@ -2871,8 +2784,6 @@ Applications:
 Frameworks / Options:
 
         Support GNOME's Nautilus                $have_tracker_nautilus_extension ($tracker_nautilus_extension_install_dir)
-	Support Maemo                           $enable_maemo
-	Support libmeegotouch                   $have_meegotouch
 	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 
 "

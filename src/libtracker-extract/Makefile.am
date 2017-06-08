@@ -56,12 +56,6 @@ libtracker_extract_la_SOURCES += \
 	tracker-encoding-enca.h
 endif
 
-if HAVE_MEEGOTOUCH
-libtracker_extract_la_SOURCES += \
-	tracker-encoding-meegotouch.cpp                \
-	tracker-encoding-meegotouch.h
-endif
-
 if HAVE_LIBICU_CHARSET_DETECTION
 libtracker_extract_la_SOURCES += \
 	tracker-encoding-libicu.c                      \

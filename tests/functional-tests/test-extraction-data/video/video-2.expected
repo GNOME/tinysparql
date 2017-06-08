@@ -5,7 +5,5 @@ Comment=Produces a Critical in Gstreamer freeing a component.
 
 [Metadata]
 a=nmm:Video
-
-[Meego]
 nfo_height=144
 nfo_width=192

@@ -18,12 +18,6 @@ config_SCRIPTS = \
 	$(slow_tests) \
 	$(standard_tests)
 
-if HAVE_MAEMO
-config_SCRIPTS += \
-	tests.xml \
-	tracker-tests.aegis
-endif
-
 standard_tests = \
 	01-insertion.py \
 	02-sparql-bugs.py
@@ -61,18 +55,6 @@ slow_tests = \
 	12-transactions.py \
 	13-threaded-store.py
 
-tests.xml:
-	@if test -h /targets/links/scratchbox.config ; then \
-		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-	fi;
-	$(top_srcdir)/tests/functional-tests/create-tests-xml.py $(standard_tests) > tests.xml
-
-tracker-tests.aegis:
-	@if test -h /targets/links/scratchbox.config ; then \
-		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-	fi;
-	$(top_srcdir)/tests/functional-tests/create-tests-aegis.py $(standard_tests) > tracker-tests.aegis
-
 10-sqlite-misused.py: ttl/gen-test-data.stamp
 11-sqlite-misused-batch.py: ttl/gen-test-data.stamp
 13-busy-store.py: ttl/gen-test-data.stamp
@@ -95,12 +77,5 @@ functional-test-slow: ${slow_tests}
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
 	$(config_DATA) \
-	create-tests-xml.py \
 	test-runner.sh \
 	meson.build
-
-if HAVE_MAEMO
-CLEANFILES = \
-	tests.xml \
-	tracker-tests.aegis
-endif

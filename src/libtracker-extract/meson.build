@@ -16,10 +16,6 @@ elif charset_library_name == 'icu'
   libtracker_extract_sources += 'tracker-encoding-libicu.c'
 endif
 
-if have_meegotouch
- libtracker_extract_sources += 'tracker-encoding-meegotouch.cpp'
-endif
-
 tracker_extract_dependencies = [charset_library, gmodule]
 
 if exempi.found()

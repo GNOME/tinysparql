@@ -14,7 +14,6 @@ src/tracker-status-icon/tracker-status-icon.desktop.in
 src/tracker-store/tracker-main.c
 src/tracker-store/tracker-store.desktop.in
 src/tracker-extract/tracker-extract.desktop.in
-src/miners/user-guides/tracker-miner-user-guides.desktop.in
 src/miners/apps/tracker-miner-apps.desktop.in
 src/miners/fs/tracker-miner-fs.desktop.in
 src/miners/rss/tracker-miner-rss.desktop.in

@@ -78,8 +78,7 @@ RAW_BINDIR = "@bindir@"
 EXEC_PREFIX = os.path.normpath (expandvars (RAW_EXEC_DIR))
 DATADIR = os.path.normpath (expandvars (RAW_DATA_DIR))
 BINDIR = os.path.normpath (expandvars (RAW_BINDIR))
-                            
-haveMaemo = ("@HAVE_MAEMO_TRUE@" == "")
+
 haveUpstart = ("@HAVE_UPSTART_TRUE@" == "")
 disableJournal = ("@DISABLE_JOURNAL_TRUE@" == "")
 

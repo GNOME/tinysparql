@@ -18,19 +18,13 @@ export REAL_HOME=`echo ~`
 # in the filesystem
 HOME=$TEMP_DIR
 
-if test -h /targets/links/scratchbox.config ; then
-    export SBOX_REDIRECT_IGNORE=/usr/bin/python ;
+eval `dbus-launch --sh-syntax`
 
-    meego-run $@
-else
-    eval `dbus-launch --sh-syntax`
+trap "/bin/kill $DBUS_SESSION_BUS_PID; exit" INT
 
-    trap "/bin/kill $DBUS_SESSION_BUS_PID; exit" INT
+echo "Running $@"
+$@
 
-    echo "Running $@"
-    $@
-
-    kill $DBUS_SESSION_BUS_PID
-fi ;
+kill $DBUS_SESSION_BUS_PID
 
 rm -R $TEMP_DIR

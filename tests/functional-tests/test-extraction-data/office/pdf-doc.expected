@@ -3,7 +3,5 @@ Filename=pdf-doc.pdf
 Comment=PDF document from the office tools
 
 [Metadata]
-
-[Meego]
 a=nfo:PaginatedTextDocument
 nfo_pageCount=22

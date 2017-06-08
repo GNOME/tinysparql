@@ -20,10 +20,6 @@ endif
 
 if HAVE_ENCA
 test_programs += tracker-encoding
-else
-if HAVE_MEEGOTOUCH
-test_programs += tracker-encoding
-endif
 endif
 
 AM_CPPFLAGS =                                          \

@@ -12,8 +12,4 @@ if HAVE_TRACKER_MINER_RSS
 SUBDIRS += rss
 endif
 
-if HAVE_TRACKER_MINER_USER_GUIDES
-SUBDIRS += user-guides
-endif
-
 EXTRA_DIST = meson.build

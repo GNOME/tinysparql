@@ -36,8 +36,6 @@ option('generic_media_extractor', type: 'combo', choices: ['auto', 'gstreamer', 
        description: 'Enables one of the (gstreamer, libav, auto) generic media extractor backends')
 option('gstreamer_backend', type: 'combo', choices: ['discoverer', 'gupnp'], value: 'discoverer',
        description: 'When GStreamer is used, this enables one of the (discoverer, gupnp) GStreamer backends')
-option('meegotouch', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'no',
-       description: 'Enable libmeegotouch application extraction')
 option('stemmer', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'no',
        description: 'Enable stemming words while indexing')
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',

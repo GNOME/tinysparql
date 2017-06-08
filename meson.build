@@ -56,7 +56,6 @@ libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
 libtiff = dependency('libtiff-4', required: false)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
 libvorbis = dependency('vorbisfile', version: '> 0.22')
-meegotouch = dependency('meegotouch', version: '> 0.20', required: false)
 nautilus_extension = dependency('libnautilus-extension', required: false)
 network_manager = dependency('libnm-glib', version: '> 0.8', required: false)
 poppler = dependency('poppler-glib', version: '> 0.16.0', required: false)
@@ -190,21 +189,6 @@ if unicode_library_name == ''
     error('libunistring explicitly requested, but not found')
   else
     error('Neither libicu or libunistring were found for Unicode support.')
-  endif
-endif
-
-####################################################################
-# Check for tracker-miner-fs: meegotouch, for MeeGo desktop files
-####################################################################
-
-have_meegotouch = false
-if get_option('meegotouch') != 'no'
-  meegotouch = dependency('meegotouch', version: '>= 0.20', required: false)
-
-  if meegotouch.found()
-    have_meegotouch = true
-  elif get_option('meegotouch') == 'yes'
-    error('meegotouch support explicitly requested, but meegotouch library couldn\'t be found')
   endif
 endif
 
@@ -441,7 +425,6 @@ conf.set('HAVE_LIBIPTCDATA', libiptcdata.found())
 conf.set('HAVE_LIBMEDIAART', libmediaart.found())
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
-conf.set('HAVE_MEEGOTOUCH', have_meegotouch)
 conf.set('HAVE_NETWORK_MANAGER', network_manager.found())
 conf.set('HAVE_UPOWER', battery_detection_library_name == 'upower')
 
@@ -485,7 +468,6 @@ add_global_arguments('-D_LARGEFILE64_SOURCE', language: 'c')
 
 have_tracker_miner_fs = true
 have_tracker_miner_apps = true
-have_tracker_miner_user_guides = true
 have_tracker_miner_rss = true
 have_tracker_miner_firefox = true
 have_tracker_extract = true
@@ -551,11 +533,9 @@ summary = [
   '    Cache media art                         ' + libmediaart.found().to_string(),
   '    Bash completion support:                ' + bash_completion_dir,
   '\nData Miners / Writebacks:',
-  '    FS (File System):                       @0@ (MeeGo support: @1@)'.format(
-      have_tracker_miner_fs, have_meegotouch),
+  '    FS (File System):                       ' + have_tracker_miner_fs.to_string(),
   '    Applications:                           ' + have_tracker_miner_apps.to_string(),
   '    RSS:                                    ' + have_tracker_miner_rss.to_string(),
-  '    User Guides:                            ' + have_tracker_miner_user_guides.to_string(),
   '    Email:',
   '        Evolution:                        @0@ (@1@)'.format(
       have_tracker_miner_evolution, tracker_miner_evolution_install_dir),
@@ -617,8 +597,6 @@ summary += [
     '\nFrameworks / Options:',
     '    Support Nautilus file manager           @0@ (@1@)'.format(
         nautilus_extension.found().to_string(), tracker_nautilus_extension_install_dir),
-    '    Support Maemo                           false',
-    '    Support libmeegotouch                   ' + meegotouch.found().to_string(),
     '    Support Guaranteed Metadata             ' + get_option('guarantee_metadata').to_string(),
 ]
 

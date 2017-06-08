@@ -78,9 +78,6 @@
 /* libunistring Unicode support library */
 #mesondefine HAVE_LIBUNISTRING
 
-/* Define if we have meegotouch */
-#mesondefine HAVE_MEEGOTOUCH
-
 /* Define if we have NetworkManager for network status detection */
 #mesondefine HAVE_NETWORK_MANAGER
 

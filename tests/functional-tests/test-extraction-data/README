@@ -7,8 +7,6 @@ The python test will traverse recursively this directory, loading the .expected 
 =====================
 
 It is a .ini (.desktop) formatted file with two mandatory sections: TestFile and Metadata.
-Optionally there can be a "Meego" section, for metadata that should be checked only on that platform.
-Adding more platforms is fairly trivial but requires to modify the python code.
 
 The TestFile section contains the 
 * Filename (mandatory): relative path from the .expected of the file under test.

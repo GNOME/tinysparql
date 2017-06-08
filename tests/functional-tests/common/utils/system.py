@@ -19,8 +19,7 @@ import helpers
 TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "data"),
                    "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "cache")}
 
-TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
-                   "LC_COLLATE": "en_GB.utf8",
+TEST_ENV_VARS = {  "LC_COLLATE": "en_GB.utf8",
                    "DCONF_PROFILE": os.path.join (cfg.DATADIR, "tracker-tests",
                                                   "trackertest") }
 

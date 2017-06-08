@@ -137,10 +137,6 @@ class ExtractionTestCase (ut.TestCase):
     def __assert_extraction_ok (self, result):
         self.__check_section ("Metadata", result)
 
-        if (cfg.haveMaemo and self.configParser.has_section ("Meego")):
-            self.__check_section ("Meego", result)
-
-
     def __check_section (self, section, result):
         error_missing_prop = "Property '%s' hasn't been extracted from file \n'%s'\n (requested on '%s' [%s])"
         error_wrong_value = "on property '%s' from file %s\n (requested on: '%s' [%s])"

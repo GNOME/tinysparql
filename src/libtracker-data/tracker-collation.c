@@ -108,11 +108,6 @@ tracker_collation_init (void)
 	/* Get locale! */
 	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
-#ifdef HAVE_MEEGOTOUCH
-	/* libmeegotouch ships modified ICU data */
-	u_setDataDirectory ("/usr/share/meegotouch/icu");
-#endif
-
 	g_debug ("[ICU collation] Initializing collator for locale '%s'", locale);
 	collator = ucol_open (locale, &status);
 	if (!collator) {

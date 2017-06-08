@@ -647,8 +647,8 @@ miner_needs_check (TrackerMiner *miner,
 		}
 
 		/* FIXME: We currently don't check the applications
-		 *  miner OR the userguides miner if we are finished
-		 * before returning TRUE/FALSE here, should we?
+		 *  miner if we are finished before returning TRUE/FALSE here, should
+		 *  we?
 		 */
 
 		/* We consider the miner finished */
