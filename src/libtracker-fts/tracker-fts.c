@@ -99,8 +99,9 @@ get_fts_properties (GHashTable  *tables)
 }
 
 gboolean
-tracker_fts_init_db (sqlite3    *db,
-                     GHashTable *tables)
+tracker_fts_init_db (sqlite3            *db,
+                     TrackerDBInterface *interface,
+                     GHashTable         *tables)
 {
 	gchar **property_names;
 	gboolean retval;
@@ -108,7 +109,7 @@ tracker_fts_init_db (sqlite3    *db,
 	g_return_val_if_fail (initialized == TRUE, FALSE);
 
 	property_names = get_fts_properties (tables);
-	retval = tracker_tokenizer_initialize (db, (const gchar **) property_names);
+	retval = tracker_tokenizer_initialize (db, interface, (const gchar **) property_names);
 	g_strfreev (property_names);
 
 	return retval;

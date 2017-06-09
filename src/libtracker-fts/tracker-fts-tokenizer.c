@@ -36,6 +36,7 @@
 
 typedef struct TrackerTokenizerData TrackerTokenizerData;
 typedef struct TrackerTokenizer TrackerTokenizer;
+typedef struct TrackerTokenizerFunctionData TrackerTokenizerFunctionData;
 
 struct TrackerTokenizerData {
 	TrackerLanguage *language;
@@ -50,6 +51,11 @@ struct TrackerTokenizerData {
 struct TrackerTokenizer {
 	TrackerTokenizerData *data;
 	TrackerParser *parser;
+};
+
+struct TrackerTokenizerFunctionData {
+	TrackerDBInterface *interface;
+	gchar **property_names;
 };
 
 static int
@@ -390,11 +396,32 @@ get_fts5_api (sqlite3 *db) {
 	return api;
 }
 
+TrackerTokenizerFunctionData *
+tracker_tokenizer_function_data_new (TrackerDBInterface  *interface,
+                                     const gchar        **property_names)
+{
+	TrackerTokenizerFunctionData *data;
+
+	data = g_new0 (TrackerTokenizerFunctionData, 1);
+	data->interface = g_object_ref (interface);
+	data->property_names = g_strdupv (property_names);
+}
+
+static void
+tracker_tokenizer_function_data_free (TrackerTokenizerFunctionData *data)
+{
+	g_object_unref (data->interface);
+	g_strfreev (data->property_names);
+	g_free (data);
+}
+
 gboolean
-tracker_tokenizer_initialize (sqlite3      *db,
-                              const gchar **property_names)
+tracker_tokenizer_initialize (sqlite3             *db,
+                              TrackerDBInterface  *interface,
+                              const gchar        **property_names)
 {
 	TrackerTokenizerData *data;
+	TrackerTokenizerFunctionData *func_data;
 	fts5_tokenizer *tokenizer;
 	fts5_api *api;
 
@@ -409,16 +436,16 @@ tracker_tokenizer_initialize (sqlite3      *db,
 	                       tracker_tokenizer_data_free);
 
 	/* Offsets */
-	api->xCreateFunction (api, "tracker_offsets",
-	                      g_strdupv ((gchar **) property_names),
+	func_data = tracker_tokenizer_function_data_new (interface, property_names);
+	api->xCreateFunction (api, "tracker_offsets", func_data,
 	                      &tracker_offsets_function,
-	                      (GDestroyNotify) g_strfreev);
+	                      (GDestroyNotify) tracker_tokenizer_function_data_free);
 
 	/* Rank */
-	api->xCreateFunction (api, "tracker_rank",
-	                      g_strdupv ((gchar **) property_names),
+	func_data = tracker_tokenizer_function_data_new (interface, property_names);
+	api->xCreateFunction (api, "tracker_rank", func_data,
 	                      &tracker_rank_function,
-	                      (GDestroyNotify) g_strfreev);
+	                      (GDestroyNotify) tracker_tokenizer_function_data_free);
 
 	return TRUE;
 }
