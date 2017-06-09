@@ -220,7 +220,7 @@ should_crawl (TrackerConfig *config,
 	} else {
 		guint64 then, now;
 
-		then = tracker_db_manager_get_last_crawl_done ();
+		then = tracker_miner_files_get_last_crawl_done ();
 
 		if (then < 1) {
 			return TRUE;
@@ -329,7 +329,7 @@ miner_finished_cb (TrackerMinerFS *fs,
 
 	if (TRACKER_IS_MINER_FILES (fs) &&
 	    tracker_miner_fs_get_initial_crawling (fs)) {
-		tracker_db_manager_set_last_crawl_done (TRUE);
+		tracker_miner_files_set_last_crawl_done (TRUE);
 	}
 
 	miner_handle_next ();
@@ -738,7 +738,7 @@ main (gint argc, gchar *argv[])
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	                                    tracker_miner_files_get_first_index_done () == FALSE);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -797,7 +797,7 @@ main (gint argc, gchar *argv[])
 	if (force_mtime_checking) {
 		do_mtime_checking = TRUE;
 	} else {
-		do_mtime_checking = tracker_db_manager_get_need_mtime_check ();
+		do_mtime_checking = tracker_miner_files_get_need_mtime_check ();
 	}
 
 	g_message ("  %s %s",
@@ -808,7 +808,7 @@ main (gint argc, gchar *argv[])
 	 * event of a crash, this is changed back on shutdown if
 	 * everything appears to be fine.
 	 */
-	tracker_db_manager_set_need_mtime_check (TRUE);
+	tracker_miner_files_set_need_mtime_check (TRUE);
 
 	/* Configure files miner */
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
@@ -832,7 +832,7 @@ main (gint argc, gchar *argv[])
 
 	if (miners_timeout_id == 0 &&
 	    !miner_needs_check (miner_files, store_available)) {
-		tracker_db_manager_set_need_mtime_check (FALSE);
+		tracker_miner_files_set_need_mtime_check (FALSE);
 	}
 
 	g_main_loop_unref (main_loop);

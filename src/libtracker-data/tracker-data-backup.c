@@ -660,11 +660,6 @@ tracker_data_backup_restore (GFile                *journal,
 		 * or after a backup restoration). */
 		tracker_db_manager_create_version_file ();
 
-		/* Given we're radically changing the database, we
-		 * force a full mtime check against all known files in
-		 * the database for complete synchronisation. */
-		tracker_db_manager_set_need_mtime_check (TRUE);
-
 #ifndef DISABLE_JOURNAL
 		journal_writer = tracker_db_journal_new (data_location, FALSE, &n_error);
 

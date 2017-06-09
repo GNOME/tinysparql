@@ -62,10 +62,6 @@
 
 #define IN_USE_FILENAME               ".meta.isrunning"
 
-/* Stamp files to know crawling/indexing state */
-#define FIRST_INDEX_FILENAME          "first-index.txt"
-#define LAST_CRAWL_FILENAME           "last-crawl.txt"
-#define NEED_MTIME_CHECK_FILENAME     "no-need-mtime-check.txt"
 #define PARSER_SHA1_FILENAME          "parser-sha1.txt"
 
 typedef enum {
@@ -386,11 +382,6 @@ db_manager_remove_all (void)
 	guint i;
 
 	g_info ("Removing all database/storage files");
-
-	/* Remove stamp files */
-	tracker_db_manager_set_first_index_done (FALSE);
-	tracker_db_manager_set_last_crawl_done (FALSE);
-	tracker_db_manager_set_need_mtime_check (TRUE);
 
 	/* NOTE: We don't have to be initialized for this so we
 	 * calculate the absolute directories here.
@@ -832,7 +823,6 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 		if (need_reindex) {
 			tracker_db_manager_create_version_file ();
-			tracker_db_manager_set_need_mtime_check (TRUE);
 		}
 	}
 
@@ -911,9 +901,6 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 
 			return FALSE;
 		}
-
-		/* Clear the first-index stamp file */
-		tracker_db_manager_set_first_index_done (FALSE);
 
 		perform_recreate (first_time, &internal_error);
 
@@ -1417,247 +1404,6 @@ gboolean
 tracker_db_manager_has_enough_space  (void)
 {
 	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
-}
-
-
-inline static gchar *
-get_first_index_filename (void)
-{
-	return g_build_filename (data_dir,
-	                         FIRST_INDEX_FILENAME,
-	                         NULL);
-}
-
-/**
- * tracker_db_manager_get_first_index_done:
- *
- * Check if first full index of files was already done.
- *
- * Returns: %TRUE if a first full index have been done, %FALSE otherwise.
- **/
-gboolean
-tracker_db_manager_get_first_index_done (void)
-{
-	gboolean exists;
-	gchar *filename;
-
-	filename = get_first_index_filename ();
-	exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-	g_free (filename);
-
-	return exists;
-}
-
-/**
- * tracker_db_manager_set_first_index_done:
- *
- * Set the status of the first full index of files. Should be set to
- *  %FALSE if the index was never done or if a reindex is needed. When
- *  the index is completed, should be set to %TRUE.
- **/
-void
-tracker_db_manager_set_first_index_done (gboolean done)
-{
-	gboolean already_exists;
-	gchar *filename;
-
-	filename = get_first_index_filename ();
-	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-
-	if (done && !already_exists) {
-		GError *error = NULL;
-
-		/* If done, create stamp file if not already there */
-		if (!g_file_set_contents (filename, PACKAGE_VERSION, -1, &error)) {
-			g_warning ("  Could not create file:'%s' failed, %s",
-			           filename,
-			           error->message);
-			g_error_free (error);
-		} else {
-			g_info ("  First index file:'%s' created", filename);
-		}
-	} else if (!done && already_exists) {
-		/* If NOT done, remove stamp file */
-		g_info ("  Removing first index file:'%s'", filename);
-
-		if (g_remove (filename)) {
-			g_warning ("    Could not remove file:'%s', %s",
-			           filename,
-			           g_strerror (errno));
-		}
-	}
-
-	g_free (filename);
-}
-
-inline static gchar *
-get_last_crawl_filename (void)
-{
-	return g_build_filename (data_dir,
-	                         LAST_CRAWL_FILENAME,
-	                         NULL);
-}
-
-/**
- * tracker_db_manager_get_last_crawl_done:
- *
- * Check when last crawl was performed.
- *
- * Returns: time_t() value when last crawl occurred, otherwise 0.
- **/
-guint64
-tracker_db_manager_get_last_crawl_done (void)
-{
-	gchar *filename;
-	gchar *content;
-	guint64 then;
-
-	filename = get_last_crawl_filename ();
-
-	if (!g_file_get_contents (filename, &content, NULL, NULL)) {
-		g_info ("  No previous timestamp, crawling forced");
-		return 0;
-	}
-
-	then = g_ascii_strtoull (content, NULL, 10);
-	g_free (content);
-
-	return then;
-}
-
-/**
- * tracker_db_manager_set_last_crawl_done:
- *
- * Set the status of the first full index of files. Should be set to
- *  %FALSE if the index was never done or if a reindex is needed. When
- *  the index is completed, should be set to %TRUE.
- **/
-void
-tracker_db_manager_set_last_crawl_done (gboolean done)
-{
-	gboolean already_exists;
-	gchar *filename;
-
-	filename = get_last_crawl_filename ();
-	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-
-	if (done && !already_exists) {
-		GError *error = NULL;
-		gchar *content;
-
-		content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
-
-		/* If done, create stamp file if not already there */
-		if (!g_file_set_contents (filename, content, -1, &error)) {
-			g_warning ("  Could not create file:'%s' failed, %s",
-			           filename,
-			           error->message);
-			g_error_free (error);
-		} else {
-			g_info ("  Last crawl file:'%s' created", filename);
-		}
-
-		g_free (content);
-	} else if (!done && already_exists) {
-		/* If NOT done, remove stamp file */
-		g_info ("  Removing last crawl file:'%s'", filename);
-
-		if (g_remove (filename)) {
-			g_warning ("    Could not remove file:'%s', %s",
-			           filename,
-			           g_strerror (errno));
-		}
-	}
-
-	g_free (filename);
-}
-
-inline static gchar *
-get_need_mtime_check_filename (void)
-{
-	return g_build_filename (data_dir,
-	                         NEED_MTIME_CHECK_FILENAME,
-	                         NULL);
-}
-
-/**
- * tracker_db_manager_get_need_mtime_check:
- *
- * Check if the miner-fs was cleanly shutdown or not.
- *
- * Returns: %TRUE if we need to check mtimes for directories against
- * the database on the next start for the miner-fs, %FALSE otherwise.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_db_manager_get_need_mtime_check (void)
-{
-	gboolean exists;
-	gchar *filename;
-
-	filename = get_need_mtime_check_filename ();
-	exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-	g_free (filename);
-
-	/* Existence of the file means we cleanly shutdown before and
-	 * don't need to do the mtime check again on this start.
-	 */
-	return !exists;
-}
-
-/**
- * tracker_db_manager_set_need_mtime_check:
- * @needed: a #gboolean
- *
- * If the next start of miner-fs should perform a full mtime check
- * against each directory found and those in the database (for
- * complete synchronisation), then @needed should be #TRUE, otherwise
- * #FALSE.
- *
- * Creates a file in $HOME/.cache/tracker/ if an mtime check is not
- * needed. The idea behind this is that a check is forced if the file
- * is not cleaned up properly on shutdown (i.e. due to a crash or any
- * other uncontrolled shutdown reason).
- *
- * Since: 0.10
- **/
-void
-tracker_db_manager_set_need_mtime_check (gboolean needed)
-{
-	gboolean already_exists;
-	gchar *filename;
-
-	filename = get_need_mtime_check_filename ();
-	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-
-	/* !needed = add file
-	 *  needed = remove file
-	 */
-	if (!needed && !already_exists) {
-		GError *error = NULL;
-
-		/* Create stamp file if not already there */
-		if (!g_file_set_contents (filename, PACKAGE_VERSION, -1, &error)) {
-			g_warning ("  Could not create file:'%s' failed, %s",
-			           filename,
-			           error->message);
-			g_error_free (error);
-		} else {
-			g_info ("  Need mtime check file:'%s' created", filename);
-		}
-	} else if (needed && already_exists) {
-		/* Remove stamp file */
-		g_info ("  Removing need mtime check file:'%s'", filename);
-
-		if (g_remove (filename)) {
-			g_warning ("    Could not remove file:'%s', %s",
-			           filename,
-			           g_strerror (errno));
-		}
-	}
-
-	g_free (filename);
 }
 
 inline static gchar *

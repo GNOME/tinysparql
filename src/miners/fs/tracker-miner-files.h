@@ -69,6 +69,16 @@ gboolean      tracker_miner_files_monitor_directory        (GFile             *f
 gboolean      tracker_miner_files_is_file_eligible         (TrackerMinerFiles *miner,
                                                             GFile             *file);
 
+/* Global functions to handle timestamp files */
+gboolean tracker_miner_files_get_first_index_done (void);
+void     tracker_miner_files_set_first_index_done (gboolean done);
+
+guint64  tracker_miner_files_get_last_crawl_done  (void);
+void     tracker_miner_files_set_last_crawl_done  (gboolean done);
+
+gboolean tracker_miner_files_get_need_mtime_check (void);
+void     tracker_miner_files_set_need_mtime_check (gboolean needed);
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_FS_FILES_H__ */

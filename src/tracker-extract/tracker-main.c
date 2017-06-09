@@ -274,8 +274,7 @@ run_standalone (TrackerConfig *config)
 	tracker_locale_sanity_check ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config), TRUE);
 
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
@@ -368,8 +367,7 @@ main (int argc, char *argv[])
 	initialize_directories ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config), TRUE);
 
 	extract = tracker_extract_new (TRUE, force_module);
 
