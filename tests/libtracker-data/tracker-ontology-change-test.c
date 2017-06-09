@@ -215,6 +215,7 @@ test_ontology_change (void)
 		gchar *source = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "source", changes[i].ontology, NULL);
 		gchar *update = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "updates", changes[i].update, NULL);
 		gchar *from, *to;
+		TrackerData *data;
 
 		file1 = g_file_new_for_path (source);
 
@@ -232,14 +233,14 @@ test_ontology_change (void)
 		tracker_data_manager_init (0, data_location, data_location, test_schemas,
 		                           NULL, FALSE, FALSE,
 		                           100, 100, NULL, NULL, NULL, &error);
+		data = tracker_data_manager_get_data ();
 
 		g_assert_no_error (error);
 
 		if (g_file_get_contents (update, &queries, NULL, NULL)) {
 			gchar *query = strtok (queries, "\n");
 			while (query) {
-
-				tracker_data_update_sparql (query, &error);
+				tracker_data_update_sparql (data, query, &error);
 
 				g_assert_no_error (error);
 				query = strtok (NULL, "\n");

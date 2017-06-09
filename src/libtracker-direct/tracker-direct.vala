@@ -289,7 +289,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		mutex.lock ();
 		try {
-			Tracker.Data.update_sparql (sparql);
+			var data = Data.Manager.get_data ();
+			data.update_sparql (sparql);
 		} finally {
 			mutex.unlock ();
 		}
@@ -309,7 +310,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		GLib.Variant? blank_nodes = null;
 		mutex.lock ();
 		try {
-			blank_nodes = Tracker.Data.update_sparql_blank (sparql);
+			var data = Data.Manager.get_data ();
+			blank_nodes = data.update_sparql_blank (sparql);
 		} finally {
 			mutex.unlock ();
 		}
@@ -332,7 +334,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		mutex.lock ();
 		try {
-			Tracker.Data.load_turtle_file (file);
+			var data = Data.Manager.get_data ();
+			data.load_turtle_file (file);
 		} finally {
 			mutex.unlock ();
 		}

@@ -137,30 +137,32 @@ public class Tracker.Store {
 		}
 	}
 
-	static Tracker.Data.CommitType commit_type (Task task) {
+	static Tracker.Data.Update.CommitType commit_type (Task task) {
 		switch (task.type) {
 			case TaskType.UPDATE:
 			case TaskType.UPDATE_BLANK:
 				if (((UpdateTask) task).priority == Priority.HIGH) {
-					return Tracker.Data.CommitType.REGULAR;
+					return Tracker.Data.Update.CommitType.REGULAR;
 				} else if (update_queues[Priority.LOW].get_length () > 0) {
-					return Tracker.Data.CommitType.BATCH;
+					return Tracker.Data.Update.CommitType.BATCH;
 				} else {
-					return Tracker.Data.CommitType.BATCH_LAST;
+					return Tracker.Data.Update.CommitType.BATCH_LAST;
 				}
 			case TaskType.TURTLE:
 				if (update_queues[Priority.TURTLE].get_length () > 0) {
-					return Tracker.Data.CommitType.BATCH;
+					return Tracker.Data.Update.CommitType.BATCH;
 				} else {
-					return Tracker.Data.CommitType.BATCH_LAST;
+					return Tracker.Data.Update.CommitType.BATCH_LAST;
 				}
 			default:
 				warn_if_reached ();
-				return Tracker.Data.CommitType.REGULAR;
+				return Tracker.Data.Update.CommitType.REGULAR;
 		}
 	}
 
 	static bool task_finish_cb (Task task) {
+		var data = Data.Manager.get_data ();
+
 		if (task.type == TaskType.QUERY) {
 			var query_task = (QueryTask) task;
 
@@ -177,7 +179,7 @@ public class Tracker.Store {
 			n_queries_running--;
 		} else if (task.type == TaskType.UPDATE || task.type == TaskType.UPDATE_BLANK) {
 			if (task.error == null) {
-				Tracker.Data.notify_transaction (commit_type (task));
+				data.notify_transaction (commit_type (task));
 			}
 
 			task.callback ();
@@ -186,7 +188,7 @@ public class Tracker.Store {
 			update_running = false;
 		} else if (task.type == TaskType.TURTLE) {
 			if (task.error == null) {
-				Tracker.Data.notify_transaction (commit_type (task));
+				data.notify_transaction (commit_type (task));
 			}
 
 			task.callback ();
@@ -213,17 +215,18 @@ public class Tracker.Store {
 
 				query_task.in_thread (cursor);
 			} else {
+				var data = Data.Manager.get_data ();
 				var iface = Data.Manager.get_db_interface ();
 				iface.sqlite_wal_hook (wal_hook);
 
 				if (task.type == TaskType.UPDATE) {
 					var update_task = (UpdateTask) task;
 
-					Tracker.Data.update_sparql (update_task.query);
+					data.update_sparql (update_task.query);
 				} else if (task.type == TaskType.UPDATE_BLANK) {
 					var update_task = (UpdateTask) task;
 
-					update_task.blank_nodes = Tracker.Data.update_sparql_blank (update_task.query);
+					update_task.blank_nodes = data.update_sparql_blank (update_task.query);
 				} else if (task.type == TaskType.TURTLE) {
 					var turtle_task = (TurtleTask) task;
 
@@ -231,7 +234,7 @@ public class Tracker.Store {
 
 					Tracker.Events.freeze ();
 					try {
-						Tracker.Data.load_turtle_file (file);
+						data.load_turtle_file (file);
 					} finally {
 						Tracker.Events.reset_pending ();
 					}

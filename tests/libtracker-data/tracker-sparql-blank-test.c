@@ -74,7 +74,8 @@ test_blank (TestInfo      *info,
 
 	/* perform update in transaction */
 
-	updates = tracker_data_update_sparql_blank ("INSERT { _:foo a rdfs:Resource } "
+	updates = tracker_data_update_sparql_blank (tracker_data_manager_get_data (),
+	                                            "INSERT { _:foo a rdfs:Resource } "
 	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                            &error);
 	g_assert_no_error (error);

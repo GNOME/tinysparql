@@ -628,6 +628,8 @@ public class Tracker.Sparql.Query : Object {
 		bool delete_where = false;
 		bool data = false;
 
+		var data_update = Data.Manager.get_data ();
+
 		// Sparql 1.1 defines deletes/inserts as a single
 		// operation with the syntax:
 		//   [DELETE {...}] [INSERT {...}] WHERE {...}
@@ -766,14 +768,14 @@ public class Tracker.Sparql.Query : Object {
 				solution.solution_index = i;
 				set_location (delete_location);
 				parse_construct_triples_block (solution, UpdateType.DELETE);
-				Data.update_buffer_might_flush ();
+				data_update.update_buffer_might_flush ();
 			}
 
 			// Force flush on delete/insert operations,
 			// so the elements are already removed at
 			// the time of insertion.
 			if (insert_location != null)
-				Data.update_buffer_flush ();
+				data_update.update_buffer_flush ();
 		}
 
 		// Then handle inserts/updates
@@ -793,7 +795,7 @@ public class Tracker.Sparql.Query : Object {
 					update_blank_nodes.add_value (blank_nodes);
 				}
 
-				Data.update_buffer_might_flush ();
+				data_update.update_buffer_might_flush ();
 			}
 		}
 
@@ -805,7 +807,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 
 		// ensure possible WHERE clause in next part gets the correct results
-		Data.update_buffer_flush ();
+		data_update.update_buffer_flush ();
 		bindings = null;
 
 		context = context.parent_context;
@@ -1053,6 +1055,7 @@ public class Tracker.Sparql.Query : Object {
 	void parse_construct_object (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		bool is_null = false;
 		string object = parse_construct_var_or_term (var_value_map, type, out is_null);
+		var data = Data.Manager.get_data ();
 		if (current_subject == null || current_predicate == null || object == null) {
 			// the SPARQL specification says that triples containing unbound variables
 			// should be excluded from the output RDF graph of CONSTRUCT
@@ -1061,19 +1064,19 @@ public class Tracker.Sparql.Query : Object {
 		try {
 			if (type == UpdateType.UPDATE) {
 				// update triple in database
-				Data.update_statement (current_graph, current_subject, current_predicate, is_null ? null : object);
+				data.update_statement (current_graph, current_subject, current_predicate, is_null ? null : object);
 			} else if (type == UpdateType.DELETE) {
 				// delete triple from database
 				if (is_null) {
 					throw get_error ("'null' not supported in this mode");
 				}
-				Data.delete_statement (current_graph, current_subject, current_predicate, object);
+				data.delete_statement (current_graph, current_subject, current_predicate, object);
 			} else if (type == UpdateType.INSERT) {
 				// insert triple into database
 				if (is_null) {
 					throw get_error ("'null' not supported in this mode");
 				}
-				Data.insert_statement (current_graph, current_subject, current_predicate, object);
+				data.insert_statement (current_graph, current_subject, current_predicate, object);
 			}
 		} catch (Sparql.Error e) {
 			if (!silent) {

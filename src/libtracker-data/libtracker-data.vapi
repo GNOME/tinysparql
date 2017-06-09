@@ -180,10 +180,10 @@ namespace Tracker {
 	}
 
 	public delegate void StatementCallback (int graph_id, string? graph, int subject_id, string subject, int predicate_id, int object_id, string object, GLib.PtrArray rdf_types);
-	public delegate void CommitCallback (Data.CommitType commit_type);
+	public delegate void CommitCallback (Data.Update.CommitType commit_type);
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h,libtracker-data/tracker-data-backup.h")]
-	namespace Data {
+	[CCode (lower_case_cprefix="tracker_data_", cname = "TrackerData", cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h")]
+	public class Data.Update : GLib.Object {
 		[CCode (cprefix = "TRACKER_DATA_COMMIT_")]
 		public enum CommitType {
 			REGULAR,
@@ -191,8 +191,6 @@ namespace Tracker {
 			BATCH_LAST
 		}
 
-		public int query_resource_id (string uri);
-		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 		public void begin_db_transaction ();
 		public void commit_db_transaction ();
 		public void begin_transaction () throws DBInterfaceError;
@@ -219,12 +217,18 @@ namespace Tracker {
 		public void remove_delete_statement_callback (StatementCallback callback);
 		public void remove_commit_statement_callback (CommitCallback callback);
 		public void remove_rollback_statement_callback (CommitCallback callback);
+	}
 
-		[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
-		public delegate void BackupFinished (GLib.Error error);
+	[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
+	namespace Data {
+		public int query_resource_id (string uri);
+		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 
 		public void backup_save (GLib.File destination, GLib.File data_location, owned BackupFinished callback);
 		public void backup_restore (GLib.File journal, string? cache_location, string? data_location, GLib.File? ontology_location, BusyCallback busy_callback) throws GLib.Error;
+
+		[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
+		public delegate void BackupFinished (GLib.Error error);
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
@@ -233,6 +237,7 @@ namespace Tracker {
 		public void shutdown ();
                 public unowned Ontologies get_ontologies ();
 		public unowned DBInterface get_db_interface ();
+		public unowned Data.Update get_data ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

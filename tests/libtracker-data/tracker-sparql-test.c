@@ -256,6 +256,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	GFile *file, *test_schemas, *data_location;
+	TrackerData *data_update;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -275,6 +276,7 @@ test_sparql_query (TestInfo      *test_info,
 	                           data_location, data_location, test_schemas, /* loc, domain and ontology_name */
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
+	data_update = tracker_data_manager_get_data ();
 
 	g_assert_no_error (error);
 
@@ -297,7 +299,7 @@ test_sparql_query (TestInfo      *test_info,
 		g_file_get_contents (data_filename, &data, NULL, &error);
 		g_assert_no_error (error);
 
-		tracker_data_update_sparql (data, &error);
+		tracker_data_update_sparql (data_update, data, &error);
 		if (test_info->expect_update_error) {
 			g_assert (error != NULL);
 			g_clear_error (&error);

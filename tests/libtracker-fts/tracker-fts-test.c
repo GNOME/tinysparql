@@ -57,6 +57,7 @@ test_sparql_query (gconstpointer test_data)
 	gchar *results, *results_filename;
 	gchar *prefix, *test_prefix;
 	GFile *ontology, *data_location;
+	TrackerData *data;
 	gint i;
 
 	error = NULL;
@@ -75,6 +76,7 @@ test_sparql_query (gconstpointer test_data)
 	                           data_location, data_location, ontology,
 	                           NULL, FALSE, FALSE,
 	                           100, 100, NULL, NULL, NULL, &error);
+	data = tracker_data_manager_get_data ();
 
 	g_assert_no_error (error);
 	g_object_unref (ontology);
@@ -85,7 +87,7 @@ test_sparql_query (gconstpointer test_data)
 	g_file_get_contents (update_filename, &update, NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_update_sparql (update, &error);
+	tracker_data_update_sparql (data, update, &error);
 	g_assert_no_error (error);
 
 	g_free (update_filename);

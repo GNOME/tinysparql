@@ -79,6 +79,7 @@ static TrackerDBJournal *ontology_writer = NULL;
 
 static TrackerDBManager *db_manager = NULL;
 static TrackerOntologies *ontologies = NULL;
+static TrackerData *data_update = NULL;
 
 typedef struct {
 	const gchar *from;
@@ -450,9 +451,9 @@ update_property_value (const gchar      *ontology_path,
 				}
 
 				if (!unsup_onto_err) {
-					tracker_data_delete_statement (NULL, subject, predicate, str, &error);
+					tracker_data_delete_statement (data_update, NULL, subject, predicate, str, &error);
 					if (!error)
-						tracker_data_update_buffer_flush (&error);
+						tracker_data_update_buffer_flush (data_update, &error);
 				}
 			}
 
@@ -473,11 +474,11 @@ update_property_value (const gchar      *ontology_path,
 
 
 	if (!error && needed && object) {
-		tracker_data_insert_statement (NULL, subject,
+		tracker_data_insert_statement (data_update, NULL, subject,
 		                               predicate, object,
 		                               &error);
 		if (!error)
-			tracker_data_update_buffer_flush (&error);
+			tracker_data_update_buffer_flush (data_update, &error);
 	}
 
 	if (error) {
@@ -1268,7 +1269,8 @@ check_for_deleted_domain_index (TrackerClass *class)
 			tracker_property_del_domain_index (prop, class);
 			tracker_class_del_domain_index (class, prop);
 
-			tracker_data_delete_statement (NULL, tracker_class_get_uri (class),
+			tracker_data_delete_statement (data_update, NULL,
+			                               tracker_class_get_uri (class),
 			                               TRACKER_PREFIX_TRACKER "domainIndex",
 			                               tracker_property_get_uri (prop),
 			                               &error);
@@ -1277,7 +1279,7 @@ check_for_deleted_domain_index (TrackerClass *class)
 				g_critical ("Ontology change, %s", error->message);
 				g_clear_error (&error);
 			} else {
-				tracker_data_update_buffer_flush (&error);
+				tracker_data_update_buffer_flush (data_update, &error);
 				if (error) {
 					g_critical ("Ontology change, %s", error->message);
 					g_clear_error (&error);
@@ -1438,12 +1440,12 @@ check_for_deleted_super_properties (TrackerProperty  *property,
 
 			tracker_property_del_super_property (property, prop_to_remove);
 
-			tracker_data_delete_statement (NULL, subject,
+			tracker_data_delete_statement (data_update, NULL, subject,
 			                               TRACKER_PREFIX_RDFS "subPropertyOf",
 			                               object, &n_error);
 
 			if (!n_error) {
-				tracker_data_update_buffer_flush (&n_error);
+				tracker_data_update_buffer_flush (data_update, &n_error);
 			}
 
 			if (n_error) {
@@ -1975,7 +1977,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 	}
 
 	if (is_uri) {
-		tracker_data_insert_statement_with_uri (graph, subject,
+		tracker_data_insert_statement_with_uri (data_update, graph, subject,
 		                                        predicate, object,
 		                                        &error);
 
@@ -1986,7 +1988,7 @@ tracker_data_ontology_process_statement (const gchar *graph,
 		}
 
 	} else {
-		tracker_data_insert_statement_with_string (graph, subject,
+		tracker_data_insert_statement_with_string (data_update, graph, subject,
 		                                           predicate, object,
 		                                           &error);
 
@@ -3785,8 +3787,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	}
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
-
-	tracker_data_update_init ();
+	data_update = tracker_data_new ();
 
 #if HAVE_TRACKER_FTS
 	if (!tracker_fts_init ()) {
@@ -3830,7 +3831,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_propagate_error (error, internal_error);
 
 		g_clear_object (&ontologies);
-		tracker_data_update_shutdown ();
+		g_clear_object (&data_update);
 
 		return FALSE;
 	}
@@ -3874,8 +3875,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
-
-				tracker_data_update_shutdown ();
+				g_clear_object (&data_update);
 
 				return FALSE;
 			} else {
@@ -3901,7 +3901,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		g_free (uri);
 		g_clear_pointer (&db_manager, tracker_db_manager_free);
 		g_clear_object (&ontologies);
-		tracker_data_update_shutdown ();
+		g_clear_object (&data_update);
 		return FALSE;
 	}
 
@@ -3925,7 +3925,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					g_clear_pointer (&db_manager, tracker_db_manager_free);
 					g_clear_object (&ontologies);
-					tracker_data_update_shutdown ();
+					g_clear_object (&data_update);
 
 					return FALSE;
 				} else {
@@ -3958,7 +3958,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -3988,7 +3988,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_free (uri);
 		}
 
-		tracker_data_begin_ontology_transaction (&internal_error);
+		tracker_data_begin_ontology_transaction (data_update, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
@@ -3998,7 +3998,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -4017,7 +4017,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -4041,7 +4041,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					ontology_writer = NULL;
 					g_clear_pointer (&db_manager, tracker_db_manager_free);
 					g_clear_object (&ontologies);
-					tracker_data_update_shutdown ();
+					g_clear_object (&data_update);
 
 					return FALSE;
 				}
@@ -4054,7 +4054,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			import_ontology_file (l->data, FALSE, !journal_check);
 		}
 
-		tracker_data_commit_transaction (&internal_error);
+		tracker_data_commit_transaction (data_update, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -4064,7 +4064,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_db_journal_free (ontology_writer, NULL);
 			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -4092,7 +4092,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
-				tracker_data_update_shutdown ();
+				g_clear_object (&data_update);
 
 				return FALSE;
 			}
@@ -4240,7 +4240,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					g_free (uri);
 
 					if (!transaction_started) {
-						tracker_data_begin_ontology_transaction (&internal_error);
+						tracker_data_begin_ontology_transaction (data_update, &internal_error);
 						if (internal_error) {
 							g_propagate_error (error, internal_error);
 
@@ -4250,7 +4250,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 							g_clear_pointer (&db_manager, tracker_db_manager_free);
 							g_clear_object (&ontologies);
-							tracker_data_update_shutdown ();
+							g_clear_object (&data_update);
 
 							return FALSE;
 						}
@@ -4283,7 +4283,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 						/* as we're processing an ontology change,
 						   transaction is guaranteed to be started */
-						tracker_data_rollback_transaction ();
+						tracker_data_rollback_transaction (data_update);
 
 						if (ontos_table) {
 							g_hash_table_unref (ontos_table);
@@ -4330,7 +4330,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				g_free (uri);
 
 				if (!transaction_started) {
-					tracker_data_begin_ontology_transaction (&internal_error);
+					tracker_data_begin_ontology_transaction (data_update, &internal_error);
 					if (internal_error) {
 						g_propagate_error (error, internal_error);
 
@@ -4340,7 +4340,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 						g_clear_pointer (&db_manager, tracker_db_manager_free);
 						g_clear_object (&ontologies);
-						tracker_data_update_shutdown ();
+						g_clear_object (&data_update);
 
 						return FALSE;
 					}
@@ -4373,7 +4373,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					/* as we're processing an ontology change,
 					   transaction is guaranteed to be started */
-					tracker_data_rollback_transaction ();
+					tracker_data_rollback_transaction (data_update);
 
 					if (ontos_table) {
 						g_hash_table_unref (ontos_table);
@@ -4480,7 +4480,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				/* as we're processing an ontology change,
 				   transaction is guaranteed to be started */
-				tracker_data_rollback_transaction ();
+				tracker_data_rollback_transaction (data_update);
 
 				if (ontos_table) {
 					g_hash_table_unref (ontos_table);
@@ -4521,7 +4521,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
-				tracker_data_update_shutdown ();
+				g_clear_object (&data_update);
 
 				return FALSE;
 			}
@@ -4545,7 +4545,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		tracker_data_ontology_import_finished ();
 
 		if (transaction_started) {
-			tracker_data_commit_transaction (&internal_error);
+			tracker_data_commit_transaction (data_update, &internal_error);
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 
@@ -4555,7 +4555,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
-				tracker_data_update_shutdown ();
+				g_clear_object (&data_update);
 
 				return FALSE;
 			}
@@ -4577,7 +4577,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		                               busy_operation,
 		                               "Replaying journal");
 		/* Start replay */
-		tracker_data_replay_journal (busy_callback,
+		tracker_data_replay_journal (data_update,
+		                             busy_callback,
 		                             busy_user_data,
 		                             busy_status,
 		                             &internal_error);
@@ -4603,7 +4604,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -4620,7 +4621,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		g_clear_pointer (&db_manager, tracker_db_manager_free);
 		g_clear_object (&ontologies);
-		tracker_data_update_shutdown ();
+		g_clear_object (&data_update);
 
 		return FALSE;
 	}
@@ -4649,7 +4650,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
-			tracker_data_update_shutdown ();
+			g_clear_object (&data_update);
 
 			return FALSE;
 		}
@@ -4711,7 +4712,7 @@ tracker_data_manager_shutdown (void)
 	}
 #endif
 
-	tracker_data_update_shutdown ();
+	g_clear_object (&data_update);
 
 	initialized = FALSE;
 }
@@ -4746,4 +4747,10 @@ TrackerDBInterface *
 tracker_data_manager_get_db_interface (void)
 {
 	return tracker_db_manager_get_db_interface (db_manager);
+}
+
+TrackerData *
+tracker_data_manager_get_data (void)
+{
+	return data_update;
 }

@@ -168,11 +168,12 @@ public class Tracker.Resources : Object {
 
 	public void sync (BusName sender) {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
+		var data = Data.Manager.get_data ();
 
 		// wal checkpoint implies sync
 		Tracker.Store.wal_checkpoint ();
 		// sync journal if available
-		Data.sync ();
+		data.sync ();
 
 		request.end ();
 	}
@@ -265,7 +266,7 @@ public class Tracker.Resources : Object {
 		return false;
 	}
 
-	void on_statements_committed (Tracker.Data.CommitType commit_type) {
+	void on_statements_committed (Tracker.Data.Update.CommitType commit_type) {
 		/* Class signal feature */
 
 		foreach (var cl in Tracker.Events.get_classes ()) {
@@ -287,11 +288,11 @@ public class Tracker.Resources : Object {
 			}
 		}
 
-		if (commit_type == Tracker.Data.CommitType.REGULAR) {
+		if (commit_type == Tracker.Data.Update.CommitType.REGULAR) {
 			regular_commit_pending = true;
 		}
 
-		if (regular_commit_pending || commit_type == Tracker.Data.CommitType.BATCH_LAST) {
+		if (regular_commit_pending || commit_type == Tracker.Data.Update.CommitType.BATCH_LAST) {
 			// timer wanted for non-batch commits and the last in a series of batch commits
 			if (signal_timeout == 0) {
 				signal_timeout = Timeout.add (config.graphupdated_delay, on_emit_signals);
@@ -302,7 +303,7 @@ public class Tracker.Resources : Object {
 		Tracker.Writeback.transact ();
 	}
 
-	void on_statements_rolled_back (Tracker.Data.CommitType commit_type) {
+	void on_statements_rolled_back (Tracker.Data.Update.CommitType commit_type) {
 		Tracker.Events.reset_pending ();
 		Tracker.Writeback.reset_pending ();
 	}
@@ -337,18 +338,20 @@ public class Tracker.Resources : Object {
 
 	[DBus (visible = false)]
 	public void enable_signals () {
-		Tracker.Data.add_insert_statement_callback (on_statement_inserted);
-		Tracker.Data.add_delete_statement_callback (on_statement_deleted);
-		Tracker.Data.add_commit_statement_callback (on_statements_committed);
-		Tracker.Data.add_rollback_statement_callback (on_statements_rolled_back);
+		var data = Data.Manager.get_data ();
+		data.add_insert_statement_callback (on_statement_inserted);
+		data.add_delete_statement_callback (on_statement_deleted);
+		data.add_commit_statement_callback (on_statements_committed);
+		data.add_rollback_statement_callback (on_statements_rolled_back);
 	}
 
 	[DBus (visible = false)]
 	public void disable_signals () {
-		Tracker.Data.remove_insert_statement_callback (on_statement_inserted);
-		Tracker.Data.remove_delete_statement_callback (on_statement_deleted);
-		Tracker.Data.remove_commit_statement_callback (on_statements_committed);
-		Tracker.Data.remove_rollback_statement_callback (on_statements_rolled_back);
+		var data = Data.Manager.get_data ();
+		data.remove_insert_statement_callback (on_statement_inserted);
+		data.remove_delete_statement_callback (on_statement_deleted);
+		data.remove_commit_statement_callback (on_statements_committed);
+		data.remove_rollback_statement_callback (on_statements_rolled_back);
 
 		if (signal_timeout != 0) {
 			Source.remove (signal_timeout);
