@@ -101,6 +101,10 @@ struct TrackerDBInterface {
 
 	/* Wal */
 	TrackerDBWalCallback wal_hook;
+
+	/* User data */
+	gpointer user_data;
+	GDestroyNotify user_data_destroy_notify;
 };
 
 struct TrackerDBInterfaceClass {
@@ -1910,6 +1914,9 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_free (db_interface->filename);
 	g_free (db_interface->busy_status);
 
+	if (db_interface->user_data && db_interface->user_data_destroy_notify)
+		db_interface->user_data_destroy_notify (db_interface->user_data);
+
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
 
@@ -2946,4 +2953,23 @@ tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
+}
+
+
+void
+tracker_db_interface_set_user_data (TrackerDBInterface *db_interface,
+                                    gpointer            user_data,
+                                    GDestroyNotify      destroy_notify)
+{
+	if (db_interface->user_data && db_interface->user_data_destroy_notify)
+		db_interface->user_data_destroy_notify (db_interface->user_data);
+
+	db_interface->user_data = user_data;
+	db_interface->user_data_destroy_notify = destroy_notify;
+}
+
+gpointer
+tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
+{
+	return db_interface->user_data;
 }

@@ -91,6 +91,12 @@ void                    tracker_db_interface_set_max_stmt_cache_size (TrackerDBI
                                                                       TrackerDBStatementCacheType cache_type,
                                                                       guint                       max_size);
 
+/* User data functions, mainly to attach the data manager */
+void                    tracker_db_interface_set_user_data           (TrackerDBInterface         *interface,
+                                                                      gpointer                    user_data,
+	                                                              GDestroyNotify              destroy_notify);
+gpointer                tracker_db_interface_get_user_data           (TrackerDBInterface         *interface);
+
 /* Functions to create queries/procedures */
 TrackerDBStatement *    tracker_db_interface_create_statement        (TrackerDBInterface          *interface,
                                                                       TrackerDBStatementCacheType  cache_type,
