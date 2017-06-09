@@ -3742,12 +3742,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 	data_update = tracker_data_new ();
 
-#if HAVE_TRACKER_FTS
-	if (!tracker_fts_init ()) {
-		g_warning ("FTS module initialization failed");
-	}
-#endif
-
 	/* First set defaults for return values */
 	if (first_time) {
 		*first_time = FALSE;
@@ -4658,13 +4652,6 @@ tracker_data_manager_shutdown (void)
 
 	g_clear_pointer (&db_manager, tracker_db_manager_free);
 	g_clear_object (&ontologies);
-
-#if HAVE_TRACKER_FTS
-	if (!tracker_fts_shutdown ()) {
-		g_warning ("FTS module shutdown failed");
-	}
-#endif
-
 	g_clear_object (&data_update);
 
 	initialized = FALSE;

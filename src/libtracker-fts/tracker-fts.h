@@ -29,8 +29,6 @@
 
 G_BEGIN_DECLS
 
-gboolean    tracker_fts_init             (void);
-gboolean    tracker_fts_shutdown         (void);
 gboolean    tracker_fts_init_db          (sqlite3            *db,
                                           TrackerDBInterface *interface,
                                           GHashTable         *tables);

@@ -205,10 +205,10 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
                           int                      n_args,
                           sqlite3_value          **args)
 {
+	TrackerTokenizerFunctionData *data;
 	GString *str;
 	int rc, n_hits, i;
 	GArray *offsets = NULL;
-	const gchar * const *property_names;
 	gint cur_col = -1;
 	gboolean first = TRUE;
 
@@ -217,7 +217,7 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 		return;
 	}
 
-	property_names = api->xUserData (fts_ctx);
+	data = api->xUserData (fts_ctx);
 	rc = api->xInstCount (fts_ctx, &n_hits);
 
 	if (rc != SQLITE_OK) {
@@ -255,7 +255,7 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 			break;
 
 		g_string_append_printf (str, "%s,%d",
-		                        property_names[col],
+		                        data->property_names[col],
 		                        g_array_index (offsets, gint, n_token));
 	}
 
@@ -272,7 +272,7 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 }
 
 static GHashTable *
-get_fts_weights (sqlite3_context *context)
+get_fts_weights (sqlite3_context    *context)
 {
 	static GHashTable *weights = NULL;
 	static GMutex mutex;
@@ -334,7 +334,7 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
                        int                      n_args,
                        sqlite3_value          **args)
 {
-	const gchar * const *property_names;
+	TrackerTokenizerFunctionData *data;
 	int i, rc, n_columns, n_tokens;
 	GHashTable *weights;
 	gdouble rank = 0;
@@ -345,7 +345,7 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
 	}
 
 	n_columns = api->xColumnCount (fts_ctx);
-	property_names = api->xUserData (fts_ctx);
+	data = api->xUserData (fts_ctx);
 	weights = get_fts_weights (ctx);
 
 	if (!weights) {
@@ -364,7 +364,7 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
 		if (n_tokens <= 0)
 			continue;
 
-		property = property_names[i];
+		property = data->property_names[i];
 		weight = GPOINTER_TO_UINT (g_hash_table_lookup (weights, property));
 		rank += weight;
 	}
@@ -396,21 +396,22 @@ get_fts5_api (sqlite3 *db) {
 	return api;
 }
 
-TrackerTokenizerFunctionData *
+static TrackerTokenizerFunctionData *
 tracker_tokenizer_function_data_new (TrackerDBInterface  *interface,
                                      const gchar        **property_names)
 {
 	TrackerTokenizerFunctionData *data;
 
 	data = g_new0 (TrackerTokenizerFunctionData, 1);
-	data->interface = g_object_ref (interface);
-	data->property_names = g_strdupv (property_names);
+	data->interface = interface;
+	data->property_names = g_strdupv ((gchar **) property_names);
+
+	return data;
 }
 
 static void
 tracker_tokenizer_function_data_free (TrackerTokenizerFunctionData *data)
 {
-	g_object_unref (data->interface);
 	g_strfreev (data->property_names);
 	g_free (data);
 }
