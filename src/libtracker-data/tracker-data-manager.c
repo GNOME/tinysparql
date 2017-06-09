@@ -77,6 +77,7 @@ static TrackerDBJournal *journal_writer = NULL;
 static TrackerDBJournal *ontology_writer = NULL;
 #endif
 
+static TrackerDBManager *db_manager = NULL;
 static TrackerOntologies *ontologies = NULL;
 
 typedef struct {
@@ -127,7 +128,7 @@ handle_unsupported_ontology_change (const gchar  *ontology_path,
 {
 #ifndef DISABLE_JOURNAL
 	/* force reindex on restart */
-	tracker_db_manager_remove_version_file ();
+	tracker_db_manager_remove_version_file (db_manager);
 #endif /* DISABLE_JOURNAL */
 
 	g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
@@ -538,7 +539,7 @@ fix_indexed (TrackerProperty  *property,
 	const gchar *service_name;
 	const gchar *field_name;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface (db_manager);
 
 	class = tracker_property_get_domain (property);
 	field_name = tracker_property_get_name (property);
@@ -2439,7 +2440,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 
 			/* super properties are only used in updates, never for queries */
-			if ((tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
+			if ((tracker_db_manager_get_flags (db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
 				property_add_super_properties_from_db (iface, property);
 			}
 
@@ -3362,7 +3363,7 @@ tracker_data_ontology_import_into_db (gboolean   in_update,
 	TrackerProperty **properties;
 	guint i, n_props, n_classes;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface (db_manager);
 
 	classes = tracker_ontologies_get_classes (ontologies, &n_classes);
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
@@ -3491,7 +3492,7 @@ get_new_service_id (TrackerDBInterface *iface)
 	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
 	 * if you use this, know what you are doing! */
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface (db_manager);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
@@ -3577,7 +3578,7 @@ tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
 
 	g_info ("Reloading data manager...");
 	/* Shutdown data manager... */
-	flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
+	flags = tracker_db_manager_get_flags (db_manager, &select_cache_size, &update_cache_size);
 	reloading = TRUE;
 	tracker_data_manager_shutdown ();
 
@@ -3703,7 +3704,7 @@ rebuild_fts_tokens (TrackerDBInterface *iface)
 	g_debug ("FTS tokens rebuilt");
 
 	/* Update the stamp file */
-	tracker_db_manager_tokenizer_update ();
+	tracker_db_manager_tokenizer_update (db_manager);
 }
 #endif
 
@@ -3813,18 +3814,19 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	read_journal = FALSE;
 #endif
 
-	if (!tracker_db_manager_init (flags,
-	                              cache_location,
-	                              data_location,
-	                              &is_first_time_index,
-	                              restoring_backup,
-	                              FALSE,
-	                              select_cache_size,
-	                              update_cache_size,
-	                              busy_callback,
-	                              busy_user_data,
-	                              busy_operation,
-	                              &internal_error)) {
+	db_manager = tracker_db_manager_new (flags,
+					     cache_location,
+					     data_location,
+					     &is_first_time_index,
+					     restoring_backup,
+					     FALSE,
+					     select_cache_size,
+					     update_cache_size,
+					     busy_callback,
+					     busy_user_data,
+					     busy_operation,
+					     &internal_error);
+	if (!db_manager) {
 		g_propagate_error (error, internal_error);
 
 		g_clear_object (&ontologies);
@@ -3847,7 +3849,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		*first_time = is_first_time_index;
 	}
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface (db_manager);
 
 #ifndef DISABLE_JOURNAL
 	if (journal_check && is_first_time_index) {
@@ -3870,8 +3872,9 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			                      TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 				g_propagate_error (error, internal_error);
 
-				tracker_db_manager_shutdown ();
+				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
+
 				tracker_data_update_shutdown ();
 
 				return FALSE;
@@ -3896,7 +3899,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
 		             "'%s' is not a ontology location", uri);
 		g_free (uri);
-		tracker_db_manager_shutdown ();
+		g_clear_pointer (&db_manager, tracker_db_manager_free);
 		g_clear_object (&ontologies);
 		tracker_data_update_shutdown ();
 		return FALSE;
@@ -3920,7 +3923,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					                  TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 					g_propagate_error (error, internal_error);
 
-					tracker_db_manager_shutdown ();
+					g_clear_pointer (&db_manager, tracker_db_manager_free);
 					g_clear_object (&ontologies);
 					tracker_data_update_shutdown ();
 
@@ -3953,7 +3956,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 			tracker_data_update_shutdown ();
 
@@ -3993,7 +3996,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_db_journal_free (ontology_writer, NULL);
 			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 			tracker_data_update_shutdown ();
 
@@ -4012,7 +4015,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			tracker_db_journal_free (ontology_writer, NULL);
 			ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 			tracker_data_update_shutdown ();
 
@@ -4036,7 +4039,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					tracker_db_journal_free (ontology_writer, NULL);
 					ontology_writer = NULL;
-					tracker_db_manager_shutdown ();
+					g_clear_pointer (&db_manager, tracker_db_manager_free);
 					g_clear_object (&ontologies);
 					tracker_data_update_shutdown ();
 
@@ -4055,7 +4058,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 #ifndef DISABLE_JOURNAL
 			tracker_db_journal_free (ontology_writer, NULL);
@@ -4087,7 +4090,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 
-				tracker_db_manager_shutdown ();
+				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
 				tracker_data_update_shutdown ();
 
@@ -4245,7 +4248,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 							tracker_db_journal_free (ontology_writer, NULL);
 							ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-							tracker_db_manager_shutdown ();
+							g_clear_pointer (&db_manager, tracker_db_manager_free);
 							g_clear_object (&ontologies);
 							tracker_data_update_shutdown ();
 
@@ -4335,7 +4338,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_db_journal_free (ontology_writer, NULL);
 						ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-						tracker_db_manager_shutdown ();
+						g_clear_pointer (&db_manager, tracker_db_manager_free);
 						g_clear_object (&ontologies);
 						tracker_data_update_shutdown ();
 
@@ -4516,7 +4519,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_db_journal_free (ontology_writer, NULL);
 				ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-				tracker_db_manager_shutdown ();
+				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
 				tracker_data_update_shutdown ();
 
@@ -4550,7 +4553,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_db_journal_free (ontology_writer, NULL);
 				ontology_writer = NULL;
 #endif /* DISABLE_JOURNAL */
-				tracker_db_manager_shutdown ();
+				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				g_clear_object (&ontologies);
 				tracker_data_update_shutdown ();
 
@@ -4584,8 +4587,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (g_error_matches (internal_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
 				GError *n_error = NULL;
-				tracker_db_manager_remove_all ();
-				tracker_db_manager_shutdown ();
+				tracker_db_manager_remove_all (db_manager);
+				g_clear_pointer (&db_manager, tracker_db_manager_free);
 				/* Call may fail without notice, we're in error handling already.
 				 * When fails it means that close() of journal file failed. */
 				if (n_error) {
@@ -4598,7 +4601,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
 
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 			tracker_data_update_shutdown ();
 
@@ -4615,7 +4618,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
 
-		tracker_db_manager_shutdown ();
+		g_clear_pointer (&db_manager, tracker_db_manager_free);
 		g_clear_object (&ontologies);
 		tracker_data_update_shutdown ();
 
@@ -4624,7 +4627,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #endif /* DISABLE_JOURNAL */
 
 	/* If locale changed, re-create indexes */
-	if (!read_only && tracker_db_manager_locale_changed (NULL)) {
+	if (!read_only && tracker_db_manager_locale_changed (db_manager, NULL)) {
 		/* Report OPERATION - STATUS */
 		busy_status = g_strdup_printf ("%s - %s",
 		                               busy_operation,
@@ -4644,18 +4647,18 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 #ifndef DISABLE_JOURNAL
 			tracker_db_journal_free (journal_writer, NULL);
 #endif /* DISABLE_JOURNAL */
-			tracker_db_manager_shutdown ();
+			g_clear_pointer (&db_manager, tracker_db_manager_free);
 			g_clear_object (&ontologies);
 			tracker_data_update_shutdown ();
 
 			return FALSE;
 		}
 
-		tracker_db_manager_set_current_locale ();
+		tracker_db_manager_set_current_locale (db_manager);
 
 #if HAVE_TRACKER_FTS
 		rebuild_fts_tokens (iface);
-	} else if (!read_only && tracker_db_manager_get_tokenizer_changed ()) {
+	} else if (!read_only && tracker_db_manager_get_tokenizer_changed (db_manager)) {
 		rebuild_fts_tokens (iface);
 #endif
 	}
@@ -4699,7 +4702,7 @@ tracker_data_manager_shutdown (void)
 	}
 #endif /* DISABLE_JOURNAL */
 
-	tracker_db_manager_shutdown ();
+	g_clear_pointer (&db_manager, tracker_db_manager_free);
 	g_clear_object (&ontologies);
 
 #if HAVE_TRACKER_FTS
@@ -4731,4 +4734,16 @@ TrackerOntologies *
 tracker_data_manager_get_ontologies (void)
 {
 	return ontologies;
+}
+
+TrackerDBManager *
+tracker_data_manager_get_db_manager (void)
+{
+	return db_manager;
+}
+
+TrackerDBInterface *
+tracker_data_manager_get_db_interface (void)
+{
+	return tracker_db_manager_get_db_interface (db_manager);
 }

@@ -74,6 +74,9 @@ TrackerDBJournal * tracker_data_manager_get_journal_writer (void);
 TrackerDBJournal * tracker_data_manager_get_ontology_writer (void);
 TrackerOntologies * tracker_data_manager_get_ontologies (void);
 
+TrackerDBManager * tracker_data_manager_get_db_manager (void);
+TrackerDBInterface * tracker_data_manager_get_db_interface (void);
+
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);
 

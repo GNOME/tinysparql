@@ -65,11 +65,6 @@
 #define PARSER_SHA1_FILENAME          "parser-sha1.txt"
 
 typedef enum {
-	TRACKER_DB_LOCATION_DATA_DIR,
-	TRACKER_DB_LOCATION_USER_DATA_DIR,
-} TrackerDBLocation;
-
-typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN, /* Unknown */
 	TRACKER_DB_VERSION_0_6_6,   /* before indexer-split */
 	TRACKER_DB_VERSION_0_6_90,  /* after  indexer-split */
@@ -98,8 +93,6 @@ typedef enum {
 } TrackerDBVersion;
 
 typedef struct {
-	TrackerDB           db;
-	TrackerDBLocation   location;
 	TrackerDBInterface *iface;
 	const gchar        *file;
 	const gchar        *name;
@@ -111,71 +104,40 @@ typedef struct {
 	guint64             mtime;
 } TrackerDBDefinition;
 
-static TrackerDBDefinition dbs[] = {
-	{ TRACKER_DB_UNKNOWN,
-	  TRACKER_DB_LOCATION_USER_DATA_DIR,
-	  NULL,
-	  NULL,
-	  NULL,
-	  NULL,
-	  32,
-	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  FALSE,
-	  FALSE,
-	  0 },
-	{ TRACKER_DB_METADATA,
-	  TRACKER_DB_LOCATION_DATA_DIR,
-	  NULL,
-	  "meta.db",
-	  "meta",
-	  NULL,
-	  TRACKER_DB_CACHE_SIZE_DEFAULT,
-	  8192,
-	  FALSE,
-	  FALSE,
-	  0 },
+static TrackerDBDefinition db_base = {
+	NULL,
+	"meta.db",
+	"meta",
+	NULL,
+	TRACKER_DB_CACHE_SIZE_DEFAULT,
+	8192,
+	FALSE,
+	FALSE,
+	0
+};
+
+struct _TrackerDBManager {
+	TrackerDBDefinition db;
+	gboolean locations_initialized;
+	gchar *data_dir;
+	gchar *user_data_dir;
+	gchar *in_use_filename;
+	GFile *cache_location;
+	GFile *data_location;
+	TrackerDBManagerFlags flags;
+	guint s_cache_size;
+	guint u_cache_size;
 };
 
 static gboolean            db_exec_no_reply                        (TrackerDBInterface   *iface,
                                                                     const gchar          *query,
                                                                     ...);
-static TrackerDBInterface *db_interface_create                      (TrackerDB            db,
-                                                                     GError             **error);
-static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (GError             **error,
+static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBManager    *db_manager,
                                                                      gboolean             readonly,
-                                                                     gint                 num,
-                                                                     ...);
-static void                db_remove_locale_file                    (void);
-
-static gboolean              initialized;
-static gboolean              locations_initialized;
-static gchar                *data_dir = NULL;
-static gchar                *user_data_dir = NULL;
-static gchar                *in_use_filename = NULL;
-static GFile                *in_use_cache_location = NULL;
-static GFile                *in_use_data_location = NULL;
-static gpointer              db_type_enum_class_pointer;
-static TrackerDBManagerFlags old_flags = 0;
-static guint                 s_cache_size;
-static guint                 u_cache_size;
+                                                                     GError             **error);
+static void                db_remove_locale_file                    (TrackerDBManager    *db_manager);
 
 static GPrivate              interface_data_key = G_PRIVATE_INIT ((GDestroyNotify)g_object_unref);
-
-/* mutex protecting DB manager initialization/shutdown */
-static GMutex                init_mutex;
-
-static const gchar *
-location_to_directory (TrackerDBLocation location)
-{
-	switch (location) {
-	case TRACKER_DB_LOCATION_DATA_DIR:
-		return data_dir;
-	case TRACKER_DB_LOCATION_USER_DATA_DIR:
-		return user_data_dir;
-	default:
-		return NULL;
-	};
-}
 
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
@@ -192,15 +154,17 @@ db_exec_no_reply (TrackerDBInterface *iface,
 }
 
 TrackerDBManagerFlags
-tracker_db_manager_get_flags (guint *select_cache_size, guint *update_cache_size)
+tracker_db_manager_get_flags (TrackerDBManager *db_manager,
+                              guint            *select_cache_size,
+                              guint            *update_cache_size)
 {
 	if (select_cache_size)
-		*select_cache_size = s_cache_size;
+		*select_cache_size = db_manager->s_cache_size;
 
 	if (update_cache_size)
-		*update_cache_size = u_cache_size;
+		*update_cache_size = db_manager->u_cache_size;
 
-	return old_flags;
+	return db_manager->flags;
 }
 
 static void
@@ -268,151 +232,36 @@ db_set_params (TrackerDBInterface   *iface,
 	g_info ("  Setting cache size to %d", cache_size);
 }
 
-
-static const gchar *
-db_type_to_string (TrackerDB db)
+void
+tracker_db_manager_remove_all (TrackerDBManager *db_manager)
 {
-	GType       type;
-	GEnumClass *enum_class;
-	GEnumValue *enum_value;
-
-	type = tracker_db_get_type ();
-	enum_class = G_ENUM_CLASS (g_type_class_peek (type));
-	enum_value = g_enum_get_value (enum_class, db);
-
-	if (!enum_value) {
-		return "unknown";
-	}
-
-	return enum_value->value_nick;
-}
-
-static TrackerDBInterface *
-db_interface_get (TrackerDB   type,
-                  gboolean   *create,
-                  GError    **error)
-{
-	TrackerDBInterface *iface;
-	const gchar *path;
-	GError *internal_error = NULL;
-
-	path = dbs[type].abs_filename;
-
-	if (!g_file_test (path, G_FILE_TEST_EXISTS)) {
-		*create = TRUE;
-	} else {
-		*create = FALSE;
-	}
-
-	g_info ("%s database... '%s' (%s)",
-	        *create ? "Creating" : "Loading",
-	        path,
-	        db_type_to_string (type));
-
-	iface = tracker_db_interface_sqlite_new (path, FALSE,
-	                                         &internal_error);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return NULL;
-	}
-
-	db_set_params (iface,
-	               dbs[type].cache_size,
-	               dbs[type].page_size,
-	               TRUE,
-	               &internal_error);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		g_object_unref (iface);
-		return NULL;
-	}
-
-	return iface;
-}
-
-static TrackerDBInterface *
-db_interface_get_metadata (GError **error)
-{
-	TrackerDBInterface *iface;
-	gboolean create;
-	GError *internal_error = NULL;
-
-	iface = db_interface_get (TRACKER_DB_METADATA, &create, &internal_error);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return NULL;
-	}
-
-	return iface;
-}
-
-static TrackerDBInterface *
-db_interface_create (TrackerDB db,
-                     GError **error)
-{
-	TrackerDBInterface *iface;
-	GError *internal_error = NULL;
-
-	switch (db) {
-	case TRACKER_DB_UNKNOWN:
-		return NULL;
-
-	case TRACKER_DB_METADATA:
-		iface = db_interface_get_metadata (&internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return NULL;
-		}
-		return iface;
-
-	default:
-		g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
-		            db,
-		            db_type_to_string (db));
-		return NULL;
-	}
-}
-
-static void
-db_manager_remove_all (void)
-{
-	guint i;
+	gchar *filename;
 
 	g_info ("Removing all database/storage files");
 
-	/* NOTE: We don't have to be initialized for this so we
-	 * calculate the absolute directories here.
-	 */
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		gchar *filename;
+	g_info ("  Removing database:'%s'", db_manager->db.abs_filename);
+	g_unlink (db_manager->db.abs_filename);
 
-		g_info ("  Removing database:'%s'", dbs[i].abs_filename);
-		g_unlink (dbs[i].abs_filename);
+	/* also delete shm and wal helper files */
+	filename = g_strdup_printf ("%s-shm", db_manager->db.abs_filename);
+	g_unlink (filename);
+	g_free (filename);
 
-		/* also delete shm and wal helper files */
-		filename = g_strdup_printf ("%s-shm", dbs[i].abs_filename);
-		g_unlink (filename);
-		g_free (filename);
-
-		filename = g_strdup_printf ("%s-wal", dbs[i].abs_filename);
-		g_unlink (filename);
-		g_free (filename);
-	}
+	filename = g_strdup_printf ("%s-wal", db_manager->db.abs_filename);
+	g_unlink (filename);
+	g_free (filename);
 
 	/* Remove locale file also */
-	db_remove_locale_file ();
+	db_remove_locale_file (db_manager);
 }
 
 static TrackerDBVersion
-db_get_version (void)
+db_get_version (TrackerDBManager *db_manager)
 {
 	TrackerDBVersion  version;
 	gchar            *filename;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_VERSION_FILE, NULL);
 
 	if (G_LIKELY (g_file_test (filename, G_FILE_TEST_EXISTS))) {
 		gchar *contents;
@@ -446,13 +295,13 @@ db_get_version (void)
 }
 
 void
-tracker_db_manager_create_version_file (void)
+tracker_db_manager_create_version_file (TrackerDBManager *db_manager)
 {
 	GError *error = NULL;
 	gchar  *filename;
 	gchar  *str;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_VERSION_FILE, NULL);
 	g_info ("  Creating version file '%s'", filename);
 
 	str = g_strdup_printf ("%d", TRACKER_DB_VERSION_NOW);
@@ -468,34 +317,34 @@ tracker_db_manager_create_version_file (void)
 }
 
 void
-tracker_db_manager_remove_version_file (void)
+tracker_db_manager_remove_version_file (TrackerDBManager *db_manager)
 {
 	gchar *filename;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_VERSION_FILE, NULL);
 	g_info ("  Removing db-version file:'%s'", filename);
 	g_unlink (filename);
 	g_free (filename);
 }
 
 static void
-db_remove_locale_file (void)
+db_remove_locale_file (TrackerDBManager *db_manager)
 {
 	gchar *filename;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_LOCALE_FILE, NULL);
 	g_info ("  Removing db-locale file:'%s'", filename);
 	g_unlink (filename);
 	g_free (filename);
 }
 
 static gchar *
-db_get_locale (void)
+db_get_locale (TrackerDBManager *db_manager)
 {
 	gchar *locale = NULL;
 	gchar *filename;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_LOCALE_FILE, NULL);
 
 	if (G_LIKELY (g_file_test (filename, G_FILE_TEST_EXISTS))) {
 		gchar *contents;
@@ -524,13 +373,14 @@ db_get_locale (void)
 }
 
 static void
-db_set_locale (const gchar *locale)
+db_set_locale (TrackerDBManager *db_manager,
+	       const gchar      *locale)
 {
 	GError *error = NULL;
 	gchar  *filename;
 	gchar  *str;
 
-	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+	filename = g_build_filename (db_manager->data_dir, TRACKER_DB_LOCALE_FILE, NULL);
 	g_info ("  Creating locale file '%s'", filename);
 
 	str = g_strdup_printf ("%s", locale ? locale : "");
@@ -546,7 +396,8 @@ db_set_locale (const gchar *locale)
 }
 
 gboolean
-tracker_db_manager_locale_changed (GError **error)
+tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
+                                   GError           **error)
 {
 	gchar *db_locale;
 	gchar *current_locale;
@@ -556,15 +407,13 @@ tracker_db_manager_locale_changed (GError **error)
 	 * tracker_data_manager_init() has been called, so it can be used
 	 * to check for locale mismatches for initializing the database.
 	 */
-	if (!locations_initialized) {
-		tracker_db_manager_init_locations (in_use_cache_location, in_use_data_location);
-	}
+	tracker_db_manager_ensure_locations (db_manager, db_manager->cache_location, db_manager->data_location);
 
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
 	/* Get db locale */
-	db_locale = db_get_locale ();
+	db_locale = db_get_locale (db_manager);
 
 	/* If they are different, recreate indexes. Note that having
 	 * both to NULL is actually valid, they would default to
@@ -588,56 +437,39 @@ tracker_db_manager_locale_changed (GError **error)
 }
 
 void
-tracker_db_manager_set_current_locale (void)
+tracker_db_manager_set_current_locale (TrackerDBManager *db_manager)
 {
 	gchar *current_locale;
 
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	g_info ("Saving DB locale as: '%s'", current_locale);
-	db_set_locale (current_locale);
+	db_set_locale (db_manager, current_locale);
 	g_free (current_locale);
 }
 
 static void
-db_manager_analyze (TrackerDB           db,
+db_manager_analyze (TrackerDBManager   *db_manager,
                     TrackerDBInterface *iface)
 {
 	guint64             current_mtime;
 
-	current_mtime = tracker_file_get_mtime (dbs[db].abs_filename);
+	current_mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
 
-	if (current_mtime > dbs[db].mtime) {
-		g_info ("  Analyzing DB:'%s'", dbs[db].name);
-		db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
+	if (current_mtime > db_manager->db.mtime) {
+		g_info ("  Analyzing DB:'%s'", db_manager->db.name);
+		db_exec_no_reply (iface, "ANALYZE %s.Services", db_manager->db.name);
 
 		/* Remember current mtime for future */
-		dbs[db].mtime = current_mtime;
+		db_manager->db.mtime = current_mtime;
 	} else {
-		g_info ("  Not updating DB:'%s', no changes since last optimize", dbs[db].name);
+		g_info ("  Not updating DB:'%s', no changes since last optimize", db_manager->db.name);
 	}
-}
-
-GType
-tracker_db_get_type (void)
-{
-	static GType etype = 0;
-
-	if (etype == 0) {
-		static const GEnumValue values[] = {
-			{ TRACKER_DB_METADATA,
-			  "TRACKER_DB_METADATA",
-			  "metadata" },
-		};
-
-		etype = g_enum_register_static ("TrackerDB", values);
-	}
-
-	return etype;
 }
 
 static void
-db_recreate_all (GError **error)
+db_recreate_all (TrackerDBManager  *db_manager,
+		 GError           **error)
 {
 	guint i;
 	gchar *locale;
@@ -649,69 +481,54 @@ db_recreate_all (GError **error)
 	 */
 	g_info ("Cleaning up database files for reindex");
 
-	db_manager_remove_all ();
+	tracker_db_manager_remove_all (db_manager);
 
 	/* Now create the databases and close them */
 	g_info ("Creating database files, this may take a few moments...");
 
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		dbs[i].iface = db_interface_create (i, &internal_error);
-		if (internal_error) {
-			guint y;
-
-			for (y = 1; y < i; y++) {
-				g_object_unref (dbs[y].iface);
-				dbs[y].iface = NULL;
-			}
-
-			g_propagate_error (error, internal_error);
-
-			return;
-		}
+	db_manager->db.iface = tracker_db_manager_create_db_interface (db_manager, FALSE, &internal_error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
 	}
 
-	/* We don't close the dbs in the same loop as before
-	 * becase some databases need other databases
-	 * attached to be created correctly.
-	 */
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		g_object_unref (dbs[i].iface);
-		dbs[i].iface = NULL;
-	}
+	g_clear_object (&db_manager->db.iface);
 
 	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	/* Initialize locale file */
-	db_set_locale (locale);
+	db_set_locale (db_manager, locale);
 	g_free (locale);
 }
 
 void
-tracker_db_manager_init_locations (GFile *cache_location,
-                                   GFile *data_location)
+tracker_db_manager_ensure_locations (TrackerDBManager *db_manager,
+                                     GFile            *cache_location,
+                                     GFile            *data_location)
 {
-	const gchar *dir;
-	guint i;
+	gchar *dir;
 
-	if (locations_initialized) {
+	if (db_manager->locations_initialized) {
 		return;
 	}
 
-	data_dir = g_file_get_path (cache_location);
+	db_manager->locations_initialized = TRUE;
+	db_manager->data_dir = g_file_get_path (cache_location);
 
 	/* For DISABLE_JOURNAL case we should use g_get_user_data_dir here. For now
 	 * keeping this as-is */
-	user_data_dir = g_file_get_path (data_location);
+	db_manager->user_data_dir = g_file_get_path (data_location);
 
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		dir = location_to_directory (dbs[i].location);
-		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
-	}
+	db_manager->db = db_base;
 
-	locations_initialized = TRUE;
+	dir = g_file_get_path (cache_location);
+	db_manager->db.abs_filename = g_build_filename (dir, db_manager->db.file, NULL);
+	g_free (dir);
 }
 
 static void
-perform_recreate (gboolean *first_time, GError **error)
+perform_recreate (TrackerDBManager  *db_manager,
+		  gboolean          *first_time,
+		  GError           **error)
 {
 	GError *internal_error = NULL;
 	guint i;
@@ -720,14 +537,9 @@ perform_recreate (gboolean *first_time, GError **error)
 		*first_time = TRUE;
 	}
 
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		if (dbs[i].iface) {
-			g_object_unref (dbs[i].iface);
-			dbs[i].iface = NULL;
-		}
-	}
+	g_clear_object (&db_manager->db.iface);
 
-	if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
+	if (!tracker_file_system_has_enough_space (db_manager->data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,
 		             TRACKER_DB_OPEN_ERROR,
@@ -735,28 +547,28 @@ perform_recreate (gboolean *first_time, GError **error)
 		return;
 	}
 
-	db_recreate_all (&internal_error);
+	db_recreate_all (db_manager, &internal_error);
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
 	}
 }
 
-static gboolean
-db_manager_init_unlocked (TrackerDBManagerFlags   flags,
-                          GFile                  *cache_location,
-                          GFile                  *data_location,
-                          gboolean               *first_time,
-                          gboolean                restoring_backup,
-                          gboolean                shared_cache,
-                          guint                   select_cache_size,
-                          guint                   update_cache_size,
-                          TrackerBusyCallback     busy_callback,
-                          gpointer                busy_user_data,
-                          const gchar            *busy_operation,
-                          GError                **error)
+TrackerDBManager *
+tracker_db_manager_new (TrackerDBManagerFlags   flags,
+			GFile                  *cache_location,
+			GFile                  *data_location,
+			gboolean               *first_time,
+			gboolean                restoring_backup,
+			gboolean                shared_cache,
+			guint                   select_cache_size,
+			guint                   update_cache_size,
+			TrackerBusyCallback     busy_callback,
+			gpointer                busy_user_data,
+			const gchar            *busy_operation,
+			GError                **error)
 {
-	GType etype;
+	TrackerDBManager *db_manager;
 	TrackerDBVersion version;
 	gboolean need_reindex;
 	guint i;
@@ -765,43 +577,35 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	TrackerDBInterface *resources_iface;
 	GError *internal_error = NULL;
 
+	if (!cache_location || !data_location) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "All data storage and ontology locations must be provided");
+		return NULL;
+	}
+
+	db_manager = g_new0 (TrackerDBManager, 1);
+
 	/* First set defaults for return values */
 	if (first_time) {
 		*first_time = FALSE;
 	}
 
-	if (initialized) {
-		return TRUE;
-	}
-
 	need_reindex = FALSE;
-
-	/* Since we don't reference this enum anywhere, we do
-	 * it here to make sure it exists when we call
-	 * g_type_class_peek(). This wouldn't be necessary if
-	 * it was a param in a GObject for example.
-	 *
-	 * This does mean that we are leaking by 1 reference
-	 * here and should clean it up, but it doesn't grow so
-	 * this is acceptable.
-	 */
-	etype = tracker_db_get_type ();
-	db_type_enum_class_pointer = g_type_class_ref (etype);
 
 	/* Set up locations */
 	g_info ("Setting database locations");
 
-	old_flags = flags;
+	db_manager->flags = flags;
 
-	g_set_object (&in_use_cache_location, cache_location);
-	g_set_object (&in_use_data_location, data_location);
+	g_set_object (&db_manager->cache_location, cache_location);
+	g_set_object (&db_manager->data_location, data_location);
 
-	tracker_db_manager_init_locations (cache_location, data_location);
-
-	g_free (in_use_filename);
-	in_use_filename = g_build_filename (user_data_dir,
-	                                    IN_USE_FILENAME,
-	                                    NULL);
+	tracker_db_manager_ensure_locations (db_manager, cache_location, data_location);
+	db_manager->in_use_filename = g_build_filename (db_manager->user_data_dir,
+							IN_USE_FILENAME,
+							NULL);
 
 	/* Don't do need_reindex checks for readonly (direct-access) */
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -809,12 +613,12 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		/* Make sure the directories exist */
 		g_info ("Checking database directories exist");
 
-		g_mkdir_with_parents (data_dir, 00755);
-		g_mkdir_with_parents (user_data_dir, 00755);
+		g_mkdir_with_parents (db_manager->data_dir, 00755);
+		g_mkdir_with_parents (db_manager->user_data_dir, 00755);
 
 		g_info ("Checking database version");
 
-		version = db_get_version ();
+		version = db_get_version (db_manager);
 
 		if (version < TRACKER_DB_VERSION_NOW) {
 			g_info ("  A reindex will be forced");
@@ -822,50 +626,36 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 
 		if (need_reindex) {
-			tracker_db_manager_create_version_file ();
+			tracker_db_manager_create_version_file (db_manager);
 		}
 	}
 
-	g_info ("Checking database files exist");
+	g_info ("Checking whether database files exist");
 
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		/* Check we have each database in place, if one is
-		 * missing, we reindex.
-		 */
-
+	/* Check we have the database in place, if it is
+	 * missing, we reindex.
+	 *
+	 * There's no need to check for files not existing (for
+	 * reindex) if reindexing is already needed.
+	 */
+	if (!need_reindex &&
+	    (flags & TRACKER_DB_MANAGER_READONLY) == 0 &&
+	    !g_file_test (db_manager->db.abs_filename, G_FILE_TEST_EXISTS)) {
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-			/* No need to check for other files not existing (for
-			 * reindex) if one is already missing.
-			 */
-			if (need_reindex) {
-				continue;
-			}
-		}
+			g_info ("Could not find database file:'%s', reindex will be forced", db_manager->db.abs_filename);
+			need_reindex = TRUE;
+		} else {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_OPEN_ERROR,
+			             "Could not find database file:'%s'.", db_manager->db.abs_filename);
 
-		if (!g_file_test (dbs[i].abs_filename, G_FILE_TEST_EXISTS)) {
-			if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-				g_info ("Could not find database file:'%s'", dbs[i].abs_filename);
-				g_info ("One or more database files are missing, a reindex will be forced");
-				need_reindex = TRUE;
-			} else {
-				guint y;
-
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_OPEN_ERROR,
-				             "Could not find database file:'%s'. One or more database files are missing", dbs[i].abs_filename);
-
-				for (y = 1; y <= i; y++) {
-					g_free (dbs[y].abs_filename);
-					dbs[y].abs_filename = NULL;
-				}
-
-				return FALSE;
-			}
+			tracker_db_manager_free (db_manager);
+			return NULL;
 		}
 	}
 
-	locations_initialized = TRUE;
+	db_manager->locations_initialized = TRUE;
 
 	/* Don't do remove-dbs for readonly (direct-access) */
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -874,8 +664,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		 * return here.
 		 */
 		if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
-			initialized = TRUE;
-			return TRUE;
+			return db_manager;
 		}
 	}
 
@@ -899,14 +688,16 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 			             TRACKER_DB_OPEN_ERROR,
 			             "No reindexing supported in read-only mode (direct access)");
 
-			return FALSE;
+			tracker_db_manager_free (db_manager);
+			return NULL;
 		}
 
-		perform_recreate (first_time, &internal_error);
+		perform_recreate (db_manager, first_time, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			tracker_db_manager_free (db_manager);
+			return NULL;
 		}
 
 		/* Load databases */
@@ -924,38 +715,38 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		                                                        NULL);
 #endif /* DISABLE_JOURNAL */
 
-		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
+		if (!must_recreate && g_file_test (db_manager->in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
+			struct stat st;
+			TrackerDBStatement *stmt;
+#ifndef DISABLE_JOURNAL
+			gchar *busy_status;
+#endif /* DISABLE_JOURNAL */
 
 			g_info ("Didn't shut down cleanly last time, doing integrity checks");
 
-			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
-				struct stat st;
-				TrackerDBStatement *stmt;
-#ifndef DISABLE_JOURNAL
-				gchar *busy_status;
-#endif /* DISABLE_JOURNAL */
+			if (g_stat (db_manager->db.abs_filename, &st) == 0) {
+				size = st.st_size;
+			}
 
-				if (g_stat (dbs[i].abs_filename, &st) == 0) {
-					size = st.st_size;
+			/* Size is 1 when using echo > file.db, none of our databases
+			 * are only one byte in size even initually. */
+
+			if (size <= 1) {
+				if (!restoring_backup) {
+					must_recreate = TRUE;
+				} else {
+					g_set_error (error,
+					             TRACKER_DB_INTERFACE_ERROR,
+					             TRACKER_DB_OPEN_ERROR,
+					             "Corrupt db file");
+					tracker_db_manager_free (db_manager);
+					return NULL;
 				}
+			}
 
-				/* Size is 1 when using echo > file.db, none of our databases
-				 * are only one byte in size even initually. */
-
-				if (size <= 1) {
-					if (!restoring_backup) {
-						must_recreate = TRUE;
-					} else {
-						g_set_error (&internal_error,
-						             TRACKER_DB_INTERFACE_ERROR,
-						             TRACKER_DB_OPEN_ERROR,
-						             "Corrupt db file");
-					}
-					continue;
-				}
-
-				dbs[i].iface = db_interface_create (i, &internal_error);
+			if (!must_recreate) {
+				db_manager->db.iface = tracker_db_manager_create_db_interface (db_manager, FALSE, &internal_error);
 
 				if (internal_error) {
 					/* If this already doesn't succeed, then surely the file is
@@ -963,11 +754,16 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 					if (!restoring_backup) {
 						g_clear_error (&internal_error);
 						must_recreate = TRUE;
+					} else {
+						g_propagate_error (error, internal_error);
+						tracker_db_manager_free (db_manager);
+						return NULL;
 					}
-					continue;
 				}
+			}
 
-				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+			if (!must_recreate) {
+				db_manager->db.mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
 
 				loaded = TRUE;
 
@@ -976,13 +772,13 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 				busy_status = g_strdup_printf ("%s - %s",
 				                               busy_operation,
 				                               "Integrity checking");
-				tracker_db_interface_set_busy_handler (dbs[i].iface,
+				tracker_db_interface_set_busy_handler (db_manager->db.iface,
 				                                       busy_callback,
 				                                       busy_status,
 				                                       busy_user_data);
 				g_free (busy_status);
 
-				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+				stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 				                                              &internal_error,
 				                                              "PRAGMA integrity_check(1)");
 
@@ -1015,10 +811,12 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 					}
 				}
 #endif /* DISABLE_JOURNAL */
+			}
 
+			if (!must_recreate) {
 				/* ensure that database has been initialized by an earlier tracker-store start
 				   by checking whether Resource table exists */
-				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+				stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 				                                              &internal_error,
 				                                              "SELECT 1 FROM Resource");
 				if (internal_error != NULL) {
@@ -1026,14 +824,12 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 						must_recreate = TRUE;
 						g_error_free (internal_error);
 						internal_error = NULL;
-					} else {
-						continue;
 					}
 				} else {
 					g_object_unref (stmt);
 				}
 
-				tracker_db_interface_set_busy_handler (dbs[i].iface, NULL, NULL, NULL);
+				tracker_db_interface_set_busy_handler (db_manager->db.iface, NULL, NULL, NULL);
 			}
 		}
 
@@ -1045,7 +841,7 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 			        ".");
 #endif /* DISABLE_JOURNAL */
 
-			perform_recreate (first_time, &internal_error);
+			perform_recreate (db_manager, first_time, &internal_error);
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 				return FALSE;
@@ -1060,14 +856,12 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	}
 
 	if (!loaded) {
-		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-			dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
-		}
+		db_manager->db.mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
 	}
 
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not create in-use file for read-only mode (direct access) */
-		in_use_file = g_open (in_use_filename,
+		in_use_file = g_open (db_manager->in_use_filename,
 			              O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
 			              S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 
@@ -1077,32 +871,29 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	initialized = TRUE;
-
-	resources_iface = tracker_db_manager_get_db_interfaces (&internal_error,
-	                                                        (flags & TRACKER_DB_MANAGER_READONLY) != 0,
-	                                                        1, TRACKER_DB_METADATA);
+	resources_iface = tracker_db_manager_create_db_interface (db_manager,
+	                                                          (flags & TRACKER_DB_MANAGER_READONLY) != 0,
+	                                                          &internal_error);
 
 	if (internal_error) {
 		if ((!restoring_backup) && (flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 			GError *new_error = NULL;
 
-			perform_recreate (first_time, &new_error);
+			perform_recreate (db_manager, first_time, &new_error);
 			if (!new_error) {
-				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error,
-				                                                        FALSE, 1,
-				                                                        TRACKER_DB_METADATA);
+				resources_iface = tracker_db_manager_create_db_interface (db_manager, FALSE,
+				                                                          &internal_error);
 			} else {
 				/* Most serious error is the recreate one here */
 				g_clear_error (&internal_error);
 				g_propagate_error (error, new_error);
-				initialized = FALSE;
-				return FALSE;
+				tracker_db_manager_free (db_manager);
+				return NULL;
 			}
 		} else {
 			g_propagate_error (error, internal_error);
-			initialized = FALSE;
-			return FALSE;
+			tracker_db_manager_free (db_manager);
+			return NULL;
 		}
 	}
 
@@ -1114,134 +905,43 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              update_cache_size);
 
-	s_cache_size = select_cache_size;
-	u_cache_size = update_cache_size;
+	db_manager->s_cache_size = select_cache_size;
+	db_manager->u_cache_size = update_cache_size;
 
 	g_private_replace (&interface_data_key, resources_iface);
 
-	return TRUE;
+	return db_manager;
 }
 
-gboolean
-tracker_db_manager_init (TrackerDBManagerFlags   flags,
-                         GFile                  *cache_location,
-                         GFile                  *data_location,
-                         gboolean               *first_time,
-                         gboolean                restoring_backup,
-                         gboolean                shared_cache,
-                         guint                   select_cache_size,
-                         guint                   update_cache_size,
-                         TrackerBusyCallback     busy_callback,
-                         gpointer                busy_user_data,
-                         const gchar            *busy_operation,
-                         GError                **error)
+void
+tracker_db_manager_free (TrackerDBManager *db_manager)
 {
-	gboolean retval;
+	g_free (db_manager->db.abs_filename);
+	g_clear_object (&db_manager->db.iface);
 
-	if (!cache_location || !data_location) {
-		g_set_error (error,
-		             TRACKER_DATA_ONTOLOGY_ERROR,
-		             TRACKER_DATA_UNSUPPORTED_LOCATION,
-		             "All data storage and ontology locations must be provided");
-		return FALSE;
-	}
+	g_free (db_manager->data_dir);
+	g_free (db_manager->user_data_dir);
 
-	g_mutex_lock (&init_mutex);
-
-	retval = db_manager_init_unlocked (flags, cache_location, data_location,
-	                                   first_time, restoring_backup,
-	                                   shared_cache,
-	                                   select_cache_size, update_cache_size,
-	                                   busy_callback, busy_user_data,
-	                                   busy_operation, error);
-
-	g_mutex_unlock (&init_mutex);
-
-	return retval;
-}
-
-static void
-db_manager_shutdown_unlocked (void)
-{
-	guint i;
-
-	if (!initialized) {
-		return;
-	}
-
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		if (dbs[i].abs_filename) {
-			g_free (dbs[i].abs_filename);
-			dbs[i].abs_filename = NULL;
-
-			if (dbs[i].iface) {
-				g_object_unref (dbs[i].iface);
-				dbs[i].iface = NULL;
-			}
-		}
-	}
-
-	g_free (data_dir);
-	data_dir = NULL;
-	g_free (user_data_dir);
-	user_data_dir = NULL;
-
-	/* shutdown db interface in all threads */
-	g_private_replace (&interface_data_key, NULL);
-
-	/* Since we don't reference this enum anywhere, we do
-	 * it here to make sure it exists when we call
-	 * g_type_class_peek(). This wouldn't be necessary if
-	 * it was a param in a GObject for example.
-	 *
-	 * This does mean that we are leaking by 1 reference
-	 * here and should clean it up, but it doesn't grow so
-	 * this is acceptable.
-	 */
-	g_type_class_unref (db_type_enum_class_pointer);
-	db_type_enum_class_pointer = NULL;
-
-	initialized = FALSE;
-	locations_initialized = FALSE;
-
-	if ((tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
+	if ((db_manager->flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not delete in-use file for read-only mode (direct access) */
-		g_unlink (in_use_filename);
+		g_unlink (db_manager->in_use_filename);
 	}
 
-	g_free (in_use_filename);
-	in_use_filename = NULL;
+	g_free (db_manager->in_use_filename);
+	g_free (db_manager);
 }
 
 void
-tracker_db_manager_shutdown (void)
-{
-	g_mutex_lock (&init_mutex);
-	db_manager_shutdown_unlocked ();
-	g_mutex_unlock (&init_mutex);
-}
-
-void
-tracker_db_manager_remove_all (void)
-{
-	g_return_if_fail (initialized != FALSE);
-
-	db_manager_remove_all ();
-}
-
-void
-tracker_db_manager_optimize (void)
+tracker_db_manager_optimize (TrackerDBManager *db_manager)
 {
 	gboolean dbs_are_open = FALSE;
 	TrackerDBInterface *iface;
-
-	g_return_if_fail (initialized != FALSE);
 
 	g_info ("Optimizing database...");
 
 	g_info ("  Checking database is not in use");
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface (db_manager);
 
 	/* Check if any connections are open? */
 	if (G_OBJECT (iface)->ref_count > 1) {
@@ -1257,87 +957,49 @@ tracker_db_manager_optimize (void)
 	}
 
 	/* Optimize the metadata database */
-	db_manager_analyze (TRACKER_DB_METADATA, iface);
+	db_manager_analyze (db_manager, iface);
 }
 
 const gchar *
-tracker_db_manager_get_file (TrackerDB db)
+tracker_db_manager_get_file (TrackerDBManager *db_manager)
 {
-	g_return_val_if_fail (initialized != FALSE, NULL);
-
-	return dbs[db].abs_filename;
+	return db_manager->db.abs_filename;
 }
 
-/**
- * tracker_db_manager_get_db_interfaces:
- * @num: amount of TrackerDB files wanted
- * @...: All the files that you want in the connection as TrackerDB items
- *
- * Request a database connection where the first requested file gets connected
- * to and the subsequent requsted files get attached to the connection.
- *
- * The caller must g_object_unref the result when finished using it.
- *
- * returns: (caller-owns): a database connection
- **/
 static TrackerDBInterface *
-tracker_db_manager_get_db_interfaces (GError   **error,
-                                      gboolean   readonly,
-                                      gint       num,
-                                      ...)
+tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
+                                        gboolean           readonly,
+                                        GError           **error)
 {
-	gint n_args;
-	va_list args;
-	TrackerDBInterface *connection = NULL;
+	TrackerDBInterface *connection;
 	GError *internal_error = NULL;
+	TrackerDBInterfaceFlags flags = 0;
 
-	g_return_val_if_fail (initialized != FALSE, NULL);
+	if (readonly)
+		flags |= TRACKER_DB_INTERFACE_READONLY;
+	if (db_manager->flags & TRACKER_DB_MANAGER_ENABLE_MUTEXES)
+		flags |= TRACKER_DB_INTERFACE_USE_MUTEX;
 
-	va_start (args, num);
-	for (n_args = 1; n_args <= num; n_args++) {
-		TrackerDB db = va_arg (args, TrackerDB);
+	connection = tracker_db_interface_sqlite_new (db_manager->db.abs_filename,
+	                                              flags,
+	                                              &internal_error);
 
-		if (!connection) {
-			TrackerDBInterfaceFlags flags = 0;
-
-			if (readonly)
-				flags |= TRACKER_DB_INTERFACE_READONLY;
-			if (tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_ENABLE_MUTEXES)
-				flags |= TRACKER_DB_INTERFACE_USE_MUTEX;
-
-			connection = tracker_db_interface_sqlite_new (dbs[db].abs_filename,
-			                                              flags,
-			                                              &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				connection = NULL;
-				goto end_on_error;
-			}
-
-			db_set_params (connection,
-			               dbs[db].cache_size,
-			               dbs[db].page_size,
-			               readonly,
-			               &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				g_clear_object (&connection);
-				goto end_on_error;
-			}
-		} else {
-			db_exec_no_reply (connection,
-			                  "ATTACH '%s' as '%s'",
-			                  dbs[db].abs_filename,
-			                  dbs[db].name);
-		}
-
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
 	}
 
-	end_on_error:
+	db_set_params (connection,
+	               db_manager->db.cache_size,
+	               db_manager->db.page_size,
+	               readonly,
+	               &internal_error);
 
-	va_end (args);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		g_object_unref (connection);
+		return NULL;
+	}
 
 	return connection;
 }
@@ -1352,12 +1014,10 @@ tracker_db_manager_get_db_interfaces (GError   **error,
  * returns: (callee-owns): a database connection
  **/
 TrackerDBInterface *
-tracker_db_manager_get_db_interface (void)
+tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 {
 	GError *internal_error = NULL;
 	TrackerDBInterface *interface;
-
-	g_return_val_if_fail (initialized != FALSE, NULL);
 
 	interface = g_private_get (&interface_data_key);
 
@@ -1365,10 +1025,10 @@ tracker_db_manager_get_db_interface (void)
 	if (!interface) {
 		TrackerDBManagerFlags flags;
 
-		flags = tracker_db_manager_get_flags (NULL, NULL);
-		interface = tracker_db_manager_get_db_interfaces (&internal_error,
-		                                                  (flags & TRACKER_DB_MANAGER_READONLY) != 0,
-		                                                  1, TRACKER_DB_METADATA);
+		flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+		interface = tracker_db_manager_create_db_interface (db_manager,
+		                                                    (flags & TRACKER_DB_MANAGER_READONLY) != 0,
+		                                                    &internal_error);
 
 		if (internal_error) {
 			g_critical ("Error opening database: %s", internal_error->message);
@@ -1380,11 +1040,11 @@ tracker_db_manager_get_db_interface (void)
 
 		tracker_db_interface_set_max_stmt_cache_size (interface,
 		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-		                                              s_cache_size);
+		                                              db_manager->s_cache_size);
 
 		tracker_db_interface_set_max_stmt_cache_size (interface,
 		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-		                                              u_cache_size);
+		                                              db_manager->u_cache_size);
 
 		g_private_set (&interface_data_key, interface);
 	}
@@ -1401,27 +1061,27 @@ tracker_db_manager_get_db_interface (void)
  * returns: TRUE if there is enough space, FALSE otherwise
  **/
 gboolean
-tracker_db_manager_has_enough_space  (void)
+tracker_db_manager_has_enough_space (TrackerDBManager *db_manager)
 {
-	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
+	return tracker_file_system_has_enough_space (db_manager->data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
 }
 
 inline static gchar *
-get_parser_sha1_filename (void)
+get_parser_sha1_filename (TrackerDBManager *db_manager)
 {
-	return g_build_filename (data_dir,
+	return g_build_filename (db_manager->data_dir,
 	                         PARSER_SHA1_FILENAME,
 	                         NULL);
 }
 
 
 gboolean
-tracker_db_manager_get_tokenizer_changed (void)
+tracker_db_manager_get_tokenizer_changed (TrackerDBManager *db_manager)
 {
 	gchar *filename, *sha1;
 	gboolean changed = TRUE;
 
-	filename = get_parser_sha1_filename ();
+	filename = get_parser_sha1_filename (db_manager);
 
 	if (g_file_get_contents (filename, &sha1, NULL, NULL)) {
 		changed = strcmp (sha1, TRACKER_PARSER_SHA1) != 0;
@@ -1434,12 +1094,12 @@ tracker_db_manager_get_tokenizer_changed (void)
 }
 
 void
-tracker_db_manager_tokenizer_update (void)
+tracker_db_manager_tokenizer_update (TrackerDBManager *db_manager)
 {
 	GError *error = NULL;
 	gchar *filename;
 
-	filename = get_parser_sha1_filename ();
+	filename = get_parser_sha1_filename (db_manager);
 
 	if (!g_file_set_contents (filename, TRACKER_PARSER_SHA1, -1, &error)) {
 		g_warning ("The file '%s' could not be rewritten by Tracker and "

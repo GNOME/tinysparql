@@ -358,7 +358,7 @@ tracker_data_update_get_new_service_id (void)
 			return ++max_ontology_id;
 		}
 
-		iface = tracker_db_manager_get_db_interface ();
+		iface = tracker_data_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
@@ -389,7 +389,7 @@ tracker_data_update_get_new_service_id (void)
 
 		max_service_id = TRACKER_ONTOLOGIES_MAX_ID;
 
-		iface = tracker_db_manager_get_db_interface ();
+		iface = tracker_data_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT MAX(ID) AS A FROM Resource");
@@ -425,7 +425,7 @@ tracker_data_update_get_next_modseq (void)
 	GError             *error = NULL;
 	gint                max_modseq = 0;
 
-	temp_iface = tracker_db_manager_get_db_interface ();
+	temp_iface = tracker_data_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT MAX(\"tracker:modified\") AS A FROM \"rdfs:Resource\"");
@@ -639,7 +639,7 @@ ensure_resource_id (const gchar *uri,
 	}
 
 	if (id == 0) {
-		iface = tracker_db_manager_get_db_interface ();
+		iface = tracker_data_manager_get_db_interface ();
 
 		id = tracker_data_update_get_new_service_id ();
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
@@ -729,7 +729,7 @@ tracker_data_resource_buffer_flush (GError **error)
 	gint                            i, param;
 	GError                         *actual_error = NULL;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	g_hash_table_iter_init (&iter, resource_buffer->tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -1379,7 +1379,7 @@ get_property_values (TrackerProperty *property)
 		table_name = tracker_property_get_table_name (property);
 		field_name = tracker_property_get_name (property);
 
-		iface = tracker_db_manager_get_db_interface ();
+		iface = tracker_data_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT \"%s\" FROM \"%s\" WHERE ID = ?",
@@ -1449,7 +1449,7 @@ get_old_property_values (TrackerProperty  *property,
 		if (tracker_property_get_fulltext_indexed (property)) {
 			TrackerDBInterface *iface;
 
-			iface = tracker_db_manager_get_db_interface ();
+			iface = tracker_data_manager_get_db_interface ();
 
 			if (!resource_buffer->fts_updated && !resource_buffer->create) {
 				TrackerOntologies *ontologies;
@@ -2090,7 +2090,7 @@ cache_delete_resource_type_full (TrackerClass *class,
 	GError             *error = NULL;
 	TrackerOntologies  *ontologies;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 	ontologies = tracker_data_manager_get_ontologies ();
 
 	if (!single_type) {
@@ -3322,10 +3322,13 @@ void
 tracker_data_begin_transaction (GError **error)
 {
 	TrackerDBInterface *iface;
+	TrackerDBManager *db_manager;
 
 	g_return_if_fail (!in_transaction);
 
-	if (!tracker_db_manager_has_enough_space ()) {
+	db_manager = tracker_data_manager_get_db_manager ();
+
+	if (!tracker_db_manager_has_enough_space (db_manager)) {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_NO_SPACE,
 			"There is not enough space on the file system for update operations");
 		return;
@@ -3348,7 +3351,7 @@ tracker_data_begin_transaction (GError **error)
 		blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 	}
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_UPDATE);
 
@@ -3392,7 +3395,7 @@ tracker_data_commit_transaction (GError **error)
 
 	g_return_if_fail (in_transaction);
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	tracker_data_update_buffer_flush (&actual_error);
 	if (actual_error) {
@@ -3486,7 +3489,7 @@ tracker_data_rollback_transaction (void)
 	in_transaction = FALSE;
 	in_ontology_transaction = FALSE;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	tracker_data_update_buffer_clear ();
 
@@ -3639,7 +3642,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 			tracker_db_journal_reader_get_resource (reader, &id, &uri);
 
-			iface = tracker_db_manager_get_db_interface ();
+			iface = tracker_data_manager_get_db_interface ();
 
 			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &new_error,
 			                                              "INSERT INTO Resource (ID, Uri) VALUES (?, ?)");

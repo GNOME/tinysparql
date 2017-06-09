@@ -43,7 +43,7 @@ tracker_data_query_rdf_type (gint id)
 	GError *error = NULL;
 	TrackerOntologies *ontologies;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 	ontologies = tracker_data_manager_get_ontologies ();
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
@@ -103,7 +103,7 @@ tracker_data_query_resource_id (const gchar *uri)
 
 	g_return_val_if_fail (uri != NULL, 0);
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");

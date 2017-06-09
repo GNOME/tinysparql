@@ -505,7 +505,7 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
-		var iface = DBManager.get_db_interface ();
+		var iface = Data.Manager.get_db_interface ();
 		if (iface == null) {
 			throw new DBInterfaceError.OPEN_ERROR ("Error opening database");
 		}

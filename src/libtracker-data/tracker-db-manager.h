@@ -33,14 +33,6 @@ G_BEGIN_DECLS
 #define TRACKER_DB_CACHE_SIZE_DEFAULT 250
 #define TRACKER_DB_CACHE_SIZE_UPDATE 2000
 
-#define TRACKER_TYPE_DB (tracker_db_get_type ())
-
-typedef enum {
-	TRACKER_DB_UNKNOWN,
-	TRACKER_DB_METADATA,
-	TRACKER_DB_FULLTEXT,
-} TrackerDB;
-
 typedef enum {
 	TRACKER_DB_MANAGER_FORCE_REINDEX         = 1 << 1,
 	TRACKER_DB_MANAGER_REMOVE_CACHE          = 1 << 2,
@@ -51,8 +43,9 @@ typedef enum {
 	TRACKER_DB_MANAGER_ENABLE_MUTEXES        = 1 << 7,
 } TrackerDBManagerFlags;
 
-GType               tracker_db_get_type                       (void) G_GNUC_CONST;
-gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags   flags,
+typedef struct _TrackerDBManager TrackerDBManager;
+
+TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
                                                                GFile                  *data_location,
                                                                gboolean               *first_time,
@@ -64,34 +57,40 @@ gboolean            tracker_db_manager_init                   (TrackerDBManagerF
                                                                gpointer                busy_user_data,
                                                                const gchar            *busy_operation,
                                                                GError                **error);
-void                tracker_db_manager_shutdown               (void);
-void                tracker_db_manager_remove_all             (void);
-void                tracker_db_manager_optimize               (void);
-const gchar *       tracker_db_manager_get_file               (TrackerDB              db);
-TrackerDBInterface *tracker_db_manager_get_db_interface       (void);
-void                tracker_db_manager_init_locations         (GFile                 *cache_location,
+void                tracker_db_manager_free                   (TrackerDBManager      *db_manager);
+void                tracker_db_manager_remove_all             (TrackerDBManager      *db_manager);
+void                tracker_db_manager_optimize               (TrackerDBManager      *db_manager);
+const gchar *       tracker_db_manager_get_file               (TrackerDBManager      *db_manager);
+TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager);
+void                tracker_db_manager_ensure_locations       (TrackerDBManager      *db_manager,
+							       GFile                 *cache_location,
                                                                GFile                 *data_location);
-gboolean            tracker_db_manager_has_enough_space       (void);
-void                tracker_db_manager_create_version_file    (void);
-void                tracker_db_manager_remove_version_file    (void);
+gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager      *db_manager);
+void                tracker_db_manager_create_version_file    (TrackerDBManager      *db_manager);
+void                tracker_db_manager_remove_version_file    (TrackerDBManager      *db_manager);
 
 TrackerDBManagerFlags
-                    tracker_db_manager_get_flags              (guint *select_cache_size,
-                                                               guint *update_cache_size);
+                    tracker_db_manager_get_flags              (TrackerDBManager      *db_manager,
+							       guint                 *select_cache_size,
+                                                               guint                 *update_cache_size);
 
-gboolean            tracker_db_manager_get_first_index_done   (void);
-guint64             tracker_db_manager_get_last_crawl_done    (void);
-gboolean            tracker_db_manager_get_need_mtime_check   (void);
+gboolean            tracker_db_manager_get_first_index_done   (TrackerDBManager      *db_manager);
+guint64             tracker_db_manager_get_last_crawl_done    (TrackerDBManager      *db_manager);
+gboolean            tracker_db_manager_get_need_mtime_check   (TrackerDBManager      *db_manager);
 
-void                tracker_db_manager_set_first_index_done   (gboolean done);
-void                tracker_db_manager_set_last_crawl_done    (gboolean done);
-void                tracker_db_manager_set_need_mtime_check   (gboolean needed);
+void                tracker_db_manager_set_first_index_done   (TrackerDBManager      *db_manager,
+							       gboolean               done);
+void                tracker_db_manager_set_last_crawl_done    (TrackerDBManager      *db_manager,
+							       gboolean               done);
+void                tracker_db_manager_set_need_mtime_check   (TrackerDBManager      *db_manager,
+							       gboolean               needed);
 
-gboolean            tracker_db_manager_locale_changed         (GError **error);
-void                tracker_db_manager_set_current_locale     (void);
+gboolean            tracker_db_manager_locale_changed         (TrackerDBManager      *db_manager,
+                                                               GError               **error);
+void                tracker_db_manager_set_current_locale     (TrackerDBManager      *db_manager);
 
-gboolean            tracker_db_manager_get_tokenizer_changed  (void);
-void                tracker_db_manager_tokenizer_update       (void);
+gboolean            tracker_db_manager_get_tokenizer_changed  (TrackerDBManager      *db_manager);
+void                tracker_db_manager_tokenizer_update       (TrackerDBManager      *db_manager);
 
 G_END_DECLS
 

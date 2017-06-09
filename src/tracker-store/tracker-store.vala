@@ -213,7 +213,7 @@ public class Tracker.Store {
 
 				query_task.in_thread (cursor);
 			} else {
-				var iface = DBManager.get_db_interface ();
+				var iface = Data.Manager.get_db_interface ();
 				iface.sqlite_wal_hook (wal_hook);
 
 				if (task.type == TaskType.UPDATE) {
@@ -250,7 +250,7 @@ public class Tracker.Store {
 	public static void wal_checkpoint () {
 		try {
 			debug ("Checkpointing database...");
-			var iface = DBManager.get_db_interface ();
+			var iface = Data.Manager.get_db_interface ();
 			iface.execute_query ("PRAGMA wal_checkpoint");
 			debug ("Checkpointing complete...");
 		} catch (Error e) {

@@ -86,7 +86,6 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
 	namespace DBManager {
-		public unowned DBInterface get_db_interface ();
 		public void lock ();
 		public bool trylock ();
 		public void unlock ();
@@ -233,6 +232,7 @@ namespace Tracker {
 		public bool init (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
 		public void shutdown ();
                 public unowned Ontologies get_ontologies ();
+		public unowned DBInterface get_db_interface ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

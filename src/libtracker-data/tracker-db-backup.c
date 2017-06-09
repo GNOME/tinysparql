@@ -87,6 +87,7 @@ backup_job (GTask        *task,
             GCancellable *cancellable)
 {
 	BackupInfo *info = task_data;
+	TrackerDBManager *db_manager;
 
 	const gchar *src_path;
 	GFile *parent_file, *temp_file;
@@ -96,7 +97,8 @@ backup_job (GTask        *task,
 	sqlite3 *temp_db = NULL;
 	sqlite3_backup *backup = NULL;
 
-	src_path = tracker_db_manager_get_file (TRACKER_DB_METADATA);
+	db_manager = tracker_data_manager_get_db_manager ();
+	src_path = tracker_db_manager_get_file (db_manager);
 	parent_file = g_file_get_parent (info->destination);
 	temp_file = g_file_get_child (parent_file, TRACKER_DB_BACKUP_META_FILENAME_T);
 	g_file_delete (temp_file, NULL, NULL);

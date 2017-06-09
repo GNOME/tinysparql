@@ -37,7 +37,7 @@ namespace Tracker.Sparql {
 
 					DBCursor cursor = null;
 					if (subject_id > 0) {
-						var iface = DBManager.get_db_interface ();
+						var iface = Data.Manager.get_db_interface ();
 						var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 						                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 						                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
@@ -86,7 +86,7 @@ namespace Tracker.Sparql {
 					// single object
 					var object_id = Data.query_resource_id (object);
 
-					var iface = DBManager.get_db_interface ();
+					var iface = Data.Manager.get_db_interface ();
 					var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 					                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 					                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");

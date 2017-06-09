@@ -553,6 +553,7 @@ tracker_data_backup_restore (GFile                *journal,
 {
 	BackupSaveInfo *info;
 	GError *internal_error = NULL;
+	TrackerDBManager *db_manager = NULL;
 
 	if (!cache_location || !data_location || !ontology_location) {
 		g_set_error (error,
@@ -562,11 +563,12 @@ tracker_data_backup_restore (GFile                *journal,
 		return;
 	}
 
+	db_manager = tracker_data_manager_get_db_manager ();
 	info = g_new0 (BackupSaveInfo, 1);
 #ifndef DISABLE_JOURNAL
 	info->destination = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
 #else
-	info->destination = g_file_new_for_path (tracker_db_manager_get_file (TRACKER_DB_METADATA));
+	info->destination = g_file_new_for_path (tracker_db_manager_get_file (db_manager));
 #endif /* DISABLE_JOURNAL */
 
 	info->journal = g_object_ref (journal);
@@ -586,7 +588,7 @@ tracker_data_backup_restore (GFile                *journal,
 		gint exit_status;
 #endif /* DISABLE_JOURNAL */
 
-		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
+		flags = tracker_db_manager_get_flags (db_manager, &select_cache_size, &update_cache_size);
 
 		tracker_data_manager_shutdown ();
 
@@ -653,12 +655,12 @@ tracker_data_backup_restore (GFile                *journal,
 		             &info->error);
 #endif /* DISABLE_JOURNAL */
 
-		tracker_db_manager_init_locations (cache_location, data_location);
+		tracker_db_manager_ensure_locations (db_manager, cache_location, data_location);
 
 		/* Re-set the DB version file, so that its mtime changes. The mtime of this
 		 * file will change only when the whole DB is recreated (after a hard reset
 		 * or after a backup restoration). */
-		tracker_db_manager_create_version_file ();
+		tracker_db_manager_create_version_file (db_manager);
 
 #ifndef DISABLE_JOURNAL
 		journal_writer = tracker_db_journal_new (data_location, FALSE, &n_error);

@@ -98,7 +98,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 
 	static void wal_checkpoint_on_thread () {
 		new Thread<void*> ("wal-checkpoint", () => {
-			var iface = DBManager.get_db_interface ();
+			var iface = Data.Manager.get_db_interface ();
 			wal_checkpoint (iface, false);
 			return null;
 		});
@@ -126,7 +126,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 			                   database_loc, journal_loc, ontology_loc,
 			                   null, false, false, 100, 100, null, null);
 
-			var iface = DBManager.get_db_interface ();
+			var iface = Data.Manager.get_db_interface ();
 			iface.sqlite_wal_hook (wal_hook);
 		} catch (Error e) {
 			init_error = e;

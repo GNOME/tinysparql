@@ -132,7 +132,7 @@ sql_by_query (void)
 	g_print ("--------------------------------------------------\n");
 	g_print ("\n\n");
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error, "%s", query);
 
