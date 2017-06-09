@@ -3565,53 +3565,6 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 	g_debug ("  Finished index re-creation...");
 }
 
-gboolean
-tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
-                             gpointer              busy_user_data,
-                             const gchar          *busy_operation,
-                             GError              **error)
-{
-	TrackerDBManagerFlags flags;
-	guint select_cache_size;
-	guint update_cache_size;
-	gboolean is_first;
-	gboolean status;
-	GError *internal_error = NULL;
-
-	g_info ("Reloading data manager...");
-	/* Shutdown data manager... */
-	flags = tracker_db_manager_get_flags (db_manager, &select_cache_size, &update_cache_size);
-	reloading = TRUE;
-	tracker_data_manager_shutdown ();
-
-	g_info ("  Data manager shut down, now initializing again...");
-
-	/* And initialize it again, this actually triggers index recreation. */
-	status = tracker_data_manager_init (flags,
-	                                    cache_location_stored,
-	                                    data_location_stored,
-	                                    ontology_location_stored,
-	                                    &is_first,
-	                                    TRUE,
-	                                    FALSE,
-	                                    select_cache_size,
-	                                    update_cache_size,
-	                                    busy_callback,
-	                                    busy_user_data,
-	                                    busy_operation,
-	                                    &internal_error);
-	reloading = FALSE;
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-	}
-
-	g_info ("  %s reloading data manager",
-	        status ? "Succeeded" : "Failed");
-
-	return status;
-}
-
 static gboolean
 write_ontologies_gvdb (gboolean   overwrite,
                        GError   **error)

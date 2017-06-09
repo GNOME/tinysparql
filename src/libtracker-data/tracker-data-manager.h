@@ -63,10 +63,6 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   fl
                                                       GError                **error);
 
 void     tracker_data_manager_shutdown               (void);
-gboolean tracker_data_manager_reload                 (TrackerBusyCallback     busy_callback,
-                                                      gpointer                busy_user_data,
-                                                      const gchar            *busy_operation,
-                                                      GError                **error);
 
 GFile * tracker_data_manager_get_cache_location();
 GFile * tracker_data_manager_get_data_location ();
