@@ -53,6 +53,7 @@
 
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
+#include "tracker-data-enum-types.h"
 
 #define UNKNOWN_STATUS 0.5
 
@@ -83,7 +84,7 @@ struct TrackerDBInterface {
 	/* Number of active cursors */
 	gint n_active_cursors;
 
-	guint ro : 1;
+	guint flags;
 	GCancellable *cancellable;
 
 	TrackerDBStatementLru select_stmt_lru;
@@ -95,9 +96,8 @@ struct TrackerDBInterface {
 
 	gchar *fts_properties;
 
-	/* Used if TRACKER_DB_MANAGER_ENABLE_MUTEXES is set */
+	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
-	guint use_mutex;
 
 	/* Wal */
 	TrackerDBWalCallback wal_hook;
@@ -153,7 +153,7 @@ static gboolean            db_cursor_iter_next                      (TrackerDBCu
 enum {
 	PROP_0,
 	PROP_FILENAME,
-	PROP_RO
+	PROP_FLAGS
 };
 
 enum {
@@ -1436,14 +1436,14 @@ initialize_functions (TrackerDBInterface *db_interface)
 static inline void
 tracker_db_interface_lock (TrackerDBInterface *iface)
 {
-	if (iface->use_mutex)
+	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
 		g_mutex_lock (&iface->mutex);
 }
 
 static inline void
 tracker_db_interface_unlock (TrackerDBInterface *iface)
 {
-	if (iface->use_mutex)
+	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
 		g_mutex_unlock (&iface->mutex);
 }
 
@@ -1456,7 +1456,7 @@ open_database (TrackerDBInterface  *db_interface,
 
 	g_assert (db_interface->filename != NULL);
 
-	if (!db_interface->ro) {
+	if ((db_interface->flags & TRACKER_DB_INTERFACE_READONLY) == 0) {
 		mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 	} else {
 		mode = SQLITE_OPEN_READONLY;
@@ -1525,8 +1525,8 @@ tracker_db_interface_sqlite_set_property (GObject       *object,
 	db_iface = TRACKER_DB_INTERFACE (object);
 
 	switch (prop_id) {
-	case PROP_RO:
-		db_iface->ro = g_value_get_boolean (value);
+	case PROP_FLAGS:
+		db_iface->flags = g_value_get_flags (value);
 		break;
 	case PROP_FILENAME:
 		db_iface->filename = g_value_dup_string (value);
@@ -1547,8 +1547,8 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 	db_iface = TRACKER_DB_INTERFACE (object);
 
 	switch (prop_id) {
-	case PROP_RO:
-		g_value_set_boolean (value, db_iface->ro);
+	case PROP_FLAGS:
+		g_value_set_flags (value, db_iface->flags);
 		break;
 	case PROP_FILENAME:
 		g_value_set_string (value, db_iface->filename);
@@ -1931,30 +1931,20 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
-	                                 PROP_RO,
-	                                 g_param_spec_boolean ("read-only",
-	                                                       "Read only",
-	                                                       "Whether the connection is read only",
-	                                                       FALSE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
-}
-
-static void
-prepare_database (TrackerDBInterface *db_interface)
-{
-	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                          NULL,
-	                                                          (GDestroyNotify) g_object_unref);
+	                                 PROP_FLAGS,
+	                                 g_param_spec_flags ("flags",
+	                                                     "Flags",
+	                                                     "Interface flags",
+	                                                     TRACKER_TYPE_DB_INTERFACE_FLAGS, 0,
+	                                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
 tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
-	db_interface->ro = FALSE;
-	db_interface->use_mutex = (tracker_db_manager_get_flags (NULL, NULL) &
-	                           TRACKER_DB_MANAGER_ENABLE_MUTEXES) != 0;
-
-	prepare_database (db_interface);
+	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                                          NULL,
+	                                                          (GDestroyNotify) g_object_unref);
 }
 
 void
@@ -2345,9 +2335,9 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 }
 
 TrackerDBInterface *
-tracker_db_interface_sqlite_new (const gchar  *filename,
-                                 gboolean      readonly,
-                                 GError      **error)
+tracker_db_interface_sqlite_new (const gchar              *filename,
+                                 TrackerDBInterfaceFlags   flags,
+                                 GError                  **error)
 {
 	TrackerDBInterface *object;
 	GError *internal_error = NULL;
@@ -2356,7 +2346,7 @@ tracker_db_interface_sqlite_new (const gchar  *filename,
 	                         NULL,
 	                         &internal_error,
 	                         "filename", filename,
-	                         "read-only", !!readonly,
+	                         "flags", flags,
 	                         NULL);
 
 	if (internal_error) {

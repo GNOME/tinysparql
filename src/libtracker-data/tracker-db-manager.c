@@ -1311,8 +1311,15 @@ tracker_db_manager_get_db_interfaces (GError   **error,
 		TrackerDB db = va_arg (args, TrackerDB);
 
 		if (!connection) {
+			TrackerDBInterfaceFlags flags = 0;
+
+			if (readonly)
+				flags |= TRACKER_DB_INTERFACE_READONLY;
+			if (tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_ENABLE_MUTEXES)
+				flags |= TRACKER_DB_INTERFACE_USE_MUTEX;
+
 			connection = tracker_db_interface_sqlite_new (dbs[db].abs_filename,
-			                                              readonly,
+			                                              flags,
 			                                              &internal_error);
 
 			if (internal_error) {
