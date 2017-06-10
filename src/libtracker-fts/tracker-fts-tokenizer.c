@@ -275,11 +275,14 @@ static GHashTable *
 get_fts_weights (TrackerDBInterface *iface,
                  sqlite3_context    *context)
 {
-	static GHashTable *weights = NULL;
-	static GMutex mutex;
+	static GQuark iface_qdata = 0;
+	GHashTable *weights;
 	int rc = SQLITE_DONE;
 
-	g_mutex_lock (&mutex);
+	if (G_UNLIKELY (iface_qdata == 0))
+		iface_qdata = g_quark_from_static_string ("tracker-fts-weights");
+
+	weights = g_object_get_qdata (G_OBJECT (iface), iface_qdata);
 
 	if (G_UNLIKELY (weights == NULL)) {
 		TrackerDataManager *manager;
@@ -323,9 +326,10 @@ get_fts_weights (TrackerDBInterface *iface,
 			g_hash_table_destroy (weights);
 			weights = NULL;
 		}
-	}
 
-	g_mutex_unlock (&mutex);
+		g_object_set_qdata_full (G_OBJECT (iface), iface_qdata,
+		                         weights, (GDestroyNotify) g_hash_table_unref);
+	}
 
 	return weights;
 }
