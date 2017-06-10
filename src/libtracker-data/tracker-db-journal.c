@@ -107,6 +107,7 @@ struct _TrackerDBJournal {
 
 	TransactionFormat transaction_format;
 	gboolean in_transaction;
+	gint cur_journal_file;
 };
 
 static struct {
@@ -1981,7 +1982,6 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 	GConverter *converter;
 	GInputStream *istream;
 	GOutputStream *ostream, *cstream;
-	static gint max = 0;
 	GError *n_error = NULL;
 	gboolean ret;
 
@@ -1989,7 +1989,7 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 	g_critical ("Journal is disabled, yet a journal function got called");
 #endif
 
-	if (max == 0) {
+	if (writer->cur_journal_file == 0) {
 		gchar *directory;
 		GDir *journal_dir;
 		const gchar *f_name;
@@ -2012,7 +2012,7 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 
 				ptr = f_name + strlen (TRACKER_DB_JOURNAL_FILENAME ".");
 				cur = atoi (ptr);
-				max = MAX (cur, max);
+				writer->cur_journal_file = MAX (cur, writer->cur_journal_file);
 			}
 
 			f_name = g_dir_read_name (journal_dir);
@@ -2032,7 +2032,7 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 		return FALSE;
 	}
 
-	fullpath = g_strdup_printf ("%s.%d", writer->journal_filename, ++max);
+	fullpath = g_strdup_printf ("%s.%d", writer->journal_filename, ++writer->cur_journal_file);
 
 	if (g_rename (writer->journal_filename, fullpath) < 0) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
