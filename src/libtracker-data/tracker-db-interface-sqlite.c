@@ -55,8 +55,6 @@
 #include "tracker-db-manager.h"
 #include "tracker-data-enum-types.h"
 
-#define UNKNOWN_STATUS 0.5
-
 typedef struct {
 	TrackerDBStatement *head;
 	TrackerDBStatement *tail;
@@ -89,10 +87,6 @@ struct TrackerDBInterface {
 
 	TrackerDBStatementLru select_stmt_lru;
 	TrackerDBStatementLru update_stmt_lru;
-
-	TrackerBusyCallback busy_callback;
-	gpointer busy_user_data;
-	gchar *busy_status;
 
 	gchar *fts_properties;
 
@@ -1362,12 +1356,6 @@ check_interrupt (void *user_data)
 {
 	TrackerDBInterface *db_interface = user_data;
 
-	if (db_interface->busy_callback) {
-		db_interface->busy_callback (db_interface->busy_status,
-		                             UNKNOWN_STATUS, /* No idea to get the status from SQLite */
-		                             db_interface->busy_user_data);
-	}
-
 	return g_cancellable_is_cancelled (db_interface->cancellable) ? 1 : 0;
 }
 
@@ -1913,7 +1901,6 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_info ("Closed sqlite3 database:'%s'", db_interface->filename);
 
 	g_free (db_interface->filename);
-	g_free (db_interface->busy_status);
 
 	if (db_interface->user_data && db_interface->user_data_destroy_notify)
 		db_interface->user_data_destroy_notify (db_interface->user_data);
@@ -1975,24 +1962,6 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 		stmt_lru->max = max_size;
 	} else {
 		stmt_lru->max = 3;
-	}
-}
-
-void
-tracker_db_interface_set_busy_handler (TrackerDBInterface  *db_interface,
-                                       TrackerBusyCallback  busy_callback,
-                                       const gchar         *busy_status,
-                                       gpointer             busy_user_data)
-{
-	g_return_if_fail (TRACKER_IS_DB_INTERFACE (db_interface));
-	db_interface->busy_callback = busy_callback;
-	db_interface->busy_user_data = busy_user_data;
-	g_free (db_interface->busy_status);
-
-	if (busy_status) {
-		db_interface->busy_status = g_strdup (busy_status);
-	} else {
-		db_interface->busy_status = NULL;
 	}
 }
 

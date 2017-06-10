@@ -46,6 +46,8 @@
 #include "tracker-db-interface.h"
 #include "tracker-data-manager.h"
 
+#define UNKNOWN_STATUS 0.5
+
 /* ZLib buffer settings */
 #define ZLIB_BUF_SIZE                 8192
 
@@ -772,10 +774,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 				busy_status = g_strdup_printf ("%s - %s",
 				                               busy_operation,
 				                               "Integrity checking");
-				tracker_db_interface_set_busy_handler (db_manager->db.iface,
-				                                       busy_callback,
-				                                       busy_status,
-				                                       busy_user_data);
+				busy_callback (busy_status, 0, busy_user_data);
 				g_free (busy_status);
 
 				stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
@@ -828,8 +827,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 				} else {
 					g_object_unref (stmt);
 				}
-
-				tracker_db_interface_set_busy_handler (db_manager->db.iface, NULL, NULL, NULL);
 			}
 		}
 
