@@ -1,5 +1,4 @@
 SUBDIRS =                                              \
-	gtk-sparql                                     \
 	ontology                                       \
 	data-generators                                \
 	mtp                                            \
