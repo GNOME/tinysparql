@@ -29,7 +29,8 @@ G_BEGIN_DECLS
 
 typedef GStrv (*TrackerWritebackGetPredicatesFunc) ();
 
-void        tracker_writeback_init          (TrackerWritebackGetPredicatesFunc callback);
+void        tracker_writeback_init          (TrackerDataManager                *data_manager,
+                                             TrackerWritebackGetPredicatesFunc  callback);
 void        tracker_writeback_shutdown      (void);
 void        tracker_writeback_check         (gint         graph_id,
                                              const gchar *graph,

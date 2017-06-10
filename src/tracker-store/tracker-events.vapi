@@ -20,7 +20,7 @@
 namespace Tracker {
 	[CCode (cheader_filename = "tracker-store/tracker-events.h")]
 	namespace Events {
-		public void init ();
+		public void init (Tracker.Data.Manager data_manager);
 		public void shutdown ();
 		public void add_insert (int graph_id, int subject_id, string subject, int pred_id, int object_id, string object, GLib.PtrArray rdf_types);
 		public void add_delete (int graph_id, int subject_id, string subject, int pred_id, int object_id, string object, GLib.PtrArray rdf_types);

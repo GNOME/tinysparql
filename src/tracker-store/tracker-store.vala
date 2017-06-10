@@ -30,7 +30,7 @@ public class Tracker.Store {
 	static bool update_running;
 	static ThreadPool<Task> update_pool;
 	static ThreadPool<Task> query_pool;
-	static ThreadPool<bool> checkpoint_pool;
+	static ThreadPool<DBInterface> checkpoint_pool;
 	static GenericArray<Task> running_tasks;
 	static int max_task_time;
 	static bool active;
@@ -57,6 +57,7 @@ public class Tracker.Store {
 		public string client_id;
 		public Error error;
 		public SourceFunc callback;
+		public Tracker.Data.Manager data_manager;
 	}
 
 	class QueryTask : Task {
@@ -161,7 +162,7 @@ public class Tracker.Store {
 	}
 
 	static bool task_finish_cb (Task task) {
-		var data = Data.Manager.get_data ();
+		var data = task.data_manager.get_data ();
 
 		if (task.type == TaskType.QUERY) {
 			var query_task = (QueryTask) task;
@@ -211,12 +212,12 @@ public class Tracker.Store {
 			if (task.type == TaskType.QUERY) {
 				var query_task = (QueryTask) task;
 
-				var cursor = Tracker.Data.query_sparql_cursor (query_task.query);
+				var cursor = Tracker.Data.query_sparql_cursor (task.data_manager, query_task.query);
 
 				query_task.in_thread (cursor);
 			} else {
-				var data = Data.Manager.get_data ();
-				var iface = Data.Manager.get_db_interface ();
+				var data = task.data_manager.get_data ();
+				var iface = task.data_manager.get_db_interface ();
 				iface.sqlite_wal_hook (wal_hook);
 
 				if (task.type == TaskType.UPDATE) {
@@ -250,10 +251,9 @@ public class Tracker.Store {
 		});
 	}
 
-	public static void wal_checkpoint () {
+	public static void wal_checkpoint (DBInterface iface) {
 		try {
 			debug ("Checkpointing database...");
-			var iface = Data.Manager.get_db_interface ();
 			iface.execute_query ("PRAGMA wal_checkpoint");
 			debug ("Checkpointing complete...");
 		} catch (Error e) {
@@ -271,12 +271,12 @@ public class Tracker.Store {
 		if (n_pages >= 10000) {
 			// do immediate checkpointing (blocking updates)
 			// to prevent excessive wal file growth
-			wal_checkpoint ();
+			wal_checkpoint (iface);
 		} else if (n_pages >= 1000) {
 			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
 				// initiate asynchronous checkpointing (not blocking updates)
 				try {
-					checkpoint_pool.push (true);
+					checkpoint_pool.push (iface);
 				} catch (Error e) {
 					warning (e.message);
 					AtomicInt.set (ref checkpointing, 0);
@@ -285,10 +285,10 @@ public class Tracker.Store {
 		}
 	}
 
-	static void checkpoint_dispatch_cb (bool task) {
+	static void checkpoint_dispatch_cb (DBInterface iface) {
 		// run in checkpoint thread
 
-		wal_checkpoint ();
+		wal_checkpoint (iface);
 		AtomicInt.set (ref checkpointing, 0);
 	}
 
@@ -310,7 +310,7 @@ public class Tracker.Store {
 		try {
 			update_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, 1, true);
 			query_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, MAX_CONCURRENT_QUERIES, true);
-			checkpoint_pool = new ThreadPool<bool>.with_owned_data (checkpoint_dispatch_cb, 1, true);
+			checkpoint_pool = new ThreadPool<DBInterface> (checkpoint_dispatch_cb, 1, true);
 		} catch (Error e) {
 			warning (e.message);
 		}
@@ -333,7 +333,7 @@ public class Tracker.Store {
 		}
 	}
 
-	public static async void sparql_query (string sparql, Priority priority, SparqlQueryInThread in_thread, string client_id) throws Error {
+	public static async void sparql_query (Tracker.Data.Manager manager, string sparql, Priority priority, SparqlQueryInThread in_thread, string client_id) throws Error {
 		var task = new QueryTask ();
 		task.type = TaskType.QUERY;
 		task.query = sparql;
@@ -341,6 +341,7 @@ public class Tracker.Store {
 		task.in_thread = in_thread;
 		task.callback = sparql_query.callback;
 		task.client_id = client_id;
+		task.data_manager = manager;
 
 		query_queues[priority].push_tail (task);
 
@@ -353,13 +354,14 @@ public class Tracker.Store {
 		}
 	}
 
-	public static async void sparql_update (string sparql, Priority priority, string client_id) throws Error {
+	public static async void sparql_update (Tracker.Data.Manager manager, string sparql, Priority priority, string client_id) throws Error {
 		var task = new UpdateTask ();
 		task.type = TaskType.UPDATE;
 		task.query = sparql;
 		task.priority = priority;
 		task.callback = sparql_update.callback;
 		task.client_id = client_id;
+		task.data_manager = manager;
 
 		update_queues[priority].push_tail (task);
 
@@ -372,13 +374,14 @@ public class Tracker.Store {
 		}
 	}
 
-	public static async Variant sparql_update_blank (string sparql, Priority priority, string client_id) throws Error {
+	public static async Variant sparql_update_blank (Tracker.Data.Manager manager, string sparql, Priority priority, string client_id) throws Error {
 		var task = new UpdateTask ();
 		task.type = TaskType.UPDATE_BLANK;
 		task.query = sparql;
 		task.priority = priority;
 		task.callback = sparql_update_blank.callback;
 		task.client_id = client_id;
+		task.data_manager = manager;
 
 		update_queues[priority].push_tail (task);
 
@@ -393,12 +396,13 @@ public class Tracker.Store {
 		return task.blank_nodes;
 	}
 
-	public static async void queue_turtle_import (File file, string client_id) throws Error {
+	public static async void queue_turtle_import (Tracker.Data.Manager manager, File file, string client_id) throws Error {
 		var task = new TurtleTask ();
 		task.type = TaskType.TURTLE;
 		task.path = file.get_path ();
 		task.callback = queue_turtle_import.callback;
 		task.client_id = client_id;
+		task.data_manager = manager;
 
 		update_queues[Priority.TURTLE].push_tail (task);
 
@@ -480,7 +484,7 @@ public class Tracker.Store {
 			// this will wait for checkpointing to finish
 			checkpoint_pool = null;
 			try {
-				checkpoint_pool = new ThreadPool<bool> (checkpoint_dispatch_cb, 1, true);
+				checkpoint_pool = new ThreadPool<DBInterface> (checkpoint_dispatch_cb, 1, true);
 			} catch (Error e) {
 				warning (e.message);
 			}

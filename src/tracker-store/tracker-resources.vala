@@ -66,8 +66,9 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.Load (uri: '%s')", uri);
 		try {
 			var file = File.new_for_uri (uri);
+			var data_manager = Tracker.Main.get_data_manager ();
 
-			yield Tracker.Store.queue_turtle_import (file, sender);
+			yield Tracker.Store.queue_turtle_import (data_manager, file, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -88,8 +89,9 @@ public class Tracker.Resources : Object {
 		request.debug ("query: %s", query);
 		try {
 			var builder = new VariantBuilder ((VariantType) "aas");
+			var data_manager = Tracker.Main.get_data_manager ();
 
-			yield Tracker.Store.sparql_query (query, Tracker.Store.Priority.HIGH, cursor => {
+			yield Tracker.Store.sparql_query (data_manager, query, Tracker.Store.Priority.HIGH, cursor => {
 				while (cursor.next ()) {
 					builder.open ((VariantType) "as");
 
@@ -129,7 +131,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdate");
 		request.debug ("query: %s", update);
 		try {
-			yield Tracker.Store.sparql_update (update, Tracker.Store.Priority.HIGH, sender);
+			var data_manager = Tracker.Main.get_data_manager ();
+			yield Tracker.Store.sparql_update (data_manager, update, Tracker.Store.Priority.HIGH, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -149,7 +152,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdateBlank");
 		request.debug ("query: %s", update);
 		try {
-			var variant = yield Tracker.Store.sparql_update_blank (update, Tracker.Store.Priority.HIGH, sender);
+			var data_manager = Tracker.Main.get_data_manager ();
+			var variant = yield Tracker.Store.sparql_update_blank (data_manager, update, Tracker.Store.Priority.HIGH, sender);
 
 			request.end ();
 
@@ -168,10 +172,12 @@ public class Tracker.Resources : Object {
 
 	public void sync (BusName sender) {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
-		var data = Data.Manager.get_data ();
+		var data_manager = Tracker.Main.get_data_manager ();
+		var data = data_manager.get_data ();
+		var iface = data_manager.get_db_interface ();
 
 		// wal checkpoint implies sync
-		Tracker.Store.wal_checkpoint ();
+		Tracker.Store.wal_checkpoint (iface);
 		// sync journal if available
 		data.sync ();
 
@@ -182,7 +188,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.BatchSparqlUpdate");
 		request.debug ("query: %s", update);
 		try {
-			yield Tracker.Store.sparql_update (update, Tracker.Store.Priority.LOW, sender);
+			var data_manager = Tracker.Main.get_data_manager ();
+			yield Tracker.Store.sparql_update (data_manager, update, Tracker.Store.Priority.LOW, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -338,7 +345,8 @@ public class Tracker.Resources : Object {
 
 	[DBus (visible = false)]
 	public void enable_signals () {
-		var data = Data.Manager.get_data ();
+		var data_manager = Tracker.Main.get_data_manager ();
+		var data = data_manager.get_data ();
 		data.add_insert_statement_callback (on_statement_inserted);
 		data.add_delete_statement_callback (on_statement_deleted);
 		data.add_commit_statement_callback (on_statements_committed);
@@ -347,7 +355,8 @@ public class Tracker.Resources : Object {
 
 	[DBus (visible = false)]
 	public void disable_signals () {
-		var data = Data.Manager.get_data ();
+		var data_manager = Tracker.Main.get_data_manager ();
+		var data = data_manager.get_data ();
 		data.remove_insert_statement_callback (on_statement_inserted);
 		data.remove_delete_statement_callback (on_statement_deleted);
 		data.remove_commit_statement_callback (on_statements_committed);

@@ -50,6 +50,7 @@ test_blank (TestInfo      *info,
 	guint len = 0;
 	gchar *solutions[3][3];
 	GFile *data_location;
+	TrackerDataManager *manager;
 
 	error = NULL;
 
@@ -58,23 +59,15 @@ test_blank (TestInfo      *info,
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_location, data_location, data_location, /* loc, domain and ontology_name */
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           &error);
-
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, data_location, /* loc, domain and ontology_name */
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
 	/* perform update in transaction */
 
-	updates = tracker_data_update_sparql_blank (tracker_data_manager_get_data (),
+	updates = tracker_data_update_sparql_blank (tracker_data_manager_get_data (manager),
 	                                            "INSERT { _:foo a rdfs:Resource } "
 	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                            &error);
@@ -130,8 +123,7 @@ test_blank (TestInfo      *info,
 
 	g_variant_unref (updates);
 	g_object_unref (data_location);
-
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 }
 
 static void

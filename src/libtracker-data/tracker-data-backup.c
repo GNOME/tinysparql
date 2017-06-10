@@ -543,7 +543,8 @@ tracker_data_backup_save (GFile                     *destination,
 }
 
 void
-tracker_data_backup_restore (GFile                *journal,
+tracker_data_backup_restore (TrackerDataManager   *manager,
+                             GFile                *journal,
                              GFile                *cache_location,
                              GFile                *data_location,
                              GFile                *ontology_location,
@@ -563,7 +564,7 @@ tracker_data_backup_restore (GFile                *journal,
 		return;
 	}
 
-	db_manager = tracker_data_manager_get_db_manager ();
+	db_manager = tracker_data_manager_get_db_manager (manager);
 	info = g_new0 (BackupSaveInfo, 1);
 #ifndef DISABLE_JOURNAL
 	info->destination = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
@@ -577,7 +578,6 @@ tracker_data_backup_restore (GFile                *journal,
 		TrackerDBManagerFlags flags;
 		TrackerDBJournal *journal_writer;
 		guint select_cache_size, update_cache_size;
-		gboolean is_first;
 #ifndef DISABLE_JOURNAL
 		GError *n_error = NULL;
 		GFile *parent = g_file_get_parent (info->destination);
@@ -590,7 +590,7 @@ tracker_data_backup_restore (GFile                *journal,
 
 		flags = tracker_db_manager_get_flags (db_manager, &select_cache_size, &update_cache_size);
 
-		tracker_data_manager_shutdown ();
+		//tracker_data_manager_shutdown ();
 
 		move_to_temp (cache_location, data_location);
 
@@ -691,24 +691,18 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, cache_location, data_location, ontology_location,
-		                           &is_first, TRUE, TRUE,
-		                           select_cache_size, update_cache_size,
-		                           busy_callback, busy_user_data,
-		                           "Restoring backup", &internal_error);
+		manager = tracker_data_manager_new (flags, cache_location, data_location, ontology_location,
+		                                    TRUE, TRUE, select_cache_size, update_cache_size);
+		g_initable_init (G_INITABLE (manager), NULL, &internal_error);
 
 #ifdef DISABLE_JOURNAL
 		if (internal_error) {
 			restore_from_temp ();
+			g_object_unref (manager);
 
-			tracker_data_manager_init (flags,
-			                           cache_location,
-			                           data_location,
-			                           ontology_location,
-			                           &is_first, TRUE, TRUE,
-			                           select_cache_size, update_cache_size,
-			                           busy_callback, busy_user_data,
-			                           "Restoring backup", &internal_error);
+			manager = tracker_data_manager_new (flags, cache_location, data_location, ontology_location,
+			                                    TRUE, TRUE, select_cache_size, update_cache_size);
+			g_initable_init (G_INITABLE (manager), NULL, &internal_error);
 		} else {
 			remove_temp ();
 		}

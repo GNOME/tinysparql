@@ -39,6 +39,8 @@ License which can be viewed at:
 
 	static bool shutdown;
 
+	static Tracker.Data.Manager data_manager;
+
 	/* Private command line parameters */
 	static bool version;
 	static int verbosity;
@@ -158,7 +160,7 @@ License which can be viewed at:
 		string[] predicates_to_signal = null;
 
 		try {
-			var cursor = Tracker.Data.query_sparql_cursor ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
+			var cursor = Tracker.Data.query_sparql_cursor (data_manager, "SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
 
 			while (cursor.next ()) {
 				predicates_to_signal += cursor.get_string (0);
@@ -178,6 +180,10 @@ License which can be viewed at:
 		         verbosity > 0 ? "enabling" : "disabling");
 
 		Tracker.DBusRequest.enable_client_lookup (verbosity > 0);
+	}
+
+	public static unowned Tracker.Data.Manager get_data_manager () {
+		return data_manager;
 	}
 
 	static int main (string[] args) {
@@ -300,7 +306,6 @@ License which can be viewed at:
 		}
 
 		var notifier = Tracker.DBus.register_notifier (domain, dbus_path, ontology_name);
-		var busy_callback = notifier.get_callback ();
 
 		Tracker.Store.init ();
 
@@ -342,8 +347,6 @@ License which can be viewed at:
 			update_cache_size = UPDATE_CACHE_SIZE;
 		}
 
-		bool is_first_time_index;
-
 		try {
 			File final_cache_location = cache_location != null ?
 				File.new_for_path (cache_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
@@ -359,17 +362,15 @@ License which can be viewed at:
 			if (env_ontology != null && env_ontology != "")
 				final_ontology_location = File.new_for_path (env_ontology);
 
-			Tracker.Data.Manager.init (flags,
-			                           final_cache_location,
-			                           final_data_location,
-			                           final_ontology_location,
-			                           out is_first_time_index,
-			                           true,
-			                           false,
-			                           select_cache_size,
-			                           update_cache_size,
-			                           busy_callback,
-			                           "Initializing");
+			data_manager = new Tracker.Data.Manager (flags,
+			                                         final_cache_location,
+			                                         final_data_location,
+			                                         final_ontology_location,
+			                                         true,
+			                                         false,
+			                                         select_cache_size,
+			                                         update_cache_size);
+			data_manager.init (null);
 		} catch (GLib.Error e) {
 			critical ("Cannot initialize database: %s", e.message);
 			return 1;
@@ -381,8 +382,8 @@ License which can be viewed at:
 		if (!shutdown) {
 			Tracker.DBus.register_prepare_class_signal ();
 
-			Tracker.Events.init ();
-			Tracker.Writeback.init (get_writeback_predicates);
+			Tracker.Events.init (data_manager);
+			Tracker.Writeback.init (data_manager, get_writeback_predicates);
 			Tracker.Store.resume ();
 
 			message ("Waiting for D-Bus requests...");
@@ -414,8 +415,8 @@ License which can be viewed at:
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
 
+		data_manager = null;
 		Tracker.DBus.shutdown (domain, dbus_path, ontology_name);
-		Tracker.Data.Manager.shutdown ();
 		Tracker.Log.shutdown ();
 
 		config.disconnect (config_verbosity_id);

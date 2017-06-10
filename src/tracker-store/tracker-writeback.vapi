@@ -23,7 +23,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "tracker-store/tracker-writeback.h")]
 	namespace Writeback {
-		public void init (WritebackGetPredicatesFunc callback);
+		public void init (Tracker.Data.Manager data_manager, WritebackGetPredicatesFunc callback);
 		public void shutdown ();
 		public void check (int graph_id, string graph, int subject_id, string subject, int pred_id, int object_id, string object, GLib.PtrArray rdf_types);
 		public unowned GLib.HashTable<int, GLib.Array<int>> get_ready ();

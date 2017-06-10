@@ -129,6 +129,8 @@ struct _TrackerDBManager {
 	TrackerDBManagerFlags flags;
 	guint s_cache_size;
 	guint u_cache_size;
+
+	GWeakRef iface_data;
 };
 
 static gboolean            db_exec_no_reply                        (TrackerDBInterface   *iface,
@@ -568,6 +570,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			TrackerBusyCallback     busy_callback,
 			gpointer                busy_user_data,
 			const gchar            *busy_operation,
+                        GObject                *iface_data,
 			GError                **error)
 {
 	TrackerDBManager *db_manager;
@@ -603,6 +606,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 
 	g_set_object (&db_manager->cache_location, cache_location);
 	g_set_object (&db_manager->data_location, data_location);
+	g_weak_ref_init (&db_manager->iface_data, iface_data);
 
 	tracker_db_manager_ensure_locations (db_manager, cache_location, data_location);
 	db_manager->in_use_filename = g_build_filename (db_manager->user_data_dir,
@@ -915,6 +919,7 @@ tracker_db_manager_free (TrackerDBManager *db_manager)
 {
 	g_free (db_manager->db.abs_filename);
 	g_clear_object (&db_manager->db.iface);
+	g_weak_ref_clear (&db_manager->iface_data);
 
 	g_free (db_manager->data_dir);
 	g_free (db_manager->user_data_dir);
@@ -980,6 +985,9 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	connection = tracker_db_interface_sqlite_new (db_manager->db.abs_filename,
 	                                              flags,
 	                                              &internal_error);
+	tracker_db_interface_set_user_data (connection,
+	                                    g_weak_ref_get (&db_manager->iface_data),
+	                                    g_object_unref);
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);

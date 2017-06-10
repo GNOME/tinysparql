@@ -90,7 +90,7 @@ delete_db (gboolean del_journal)
 }
 
 static void
-query_helper (const gchar *query_filename, const gchar *results_filename)
+query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
 {
 	GError *error = NULL;
 	gchar *queries = NULL, *query;
@@ -110,7 +110,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	while (query) {
 		TrackerDBCursor *cursor;
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -187,6 +187,7 @@ test_ontology_change (void)
 	guint i;
 	GError *error = NULL;
 	GFile *data_location, *test_schemas;
+	TrackerDataManager *manager;
 
 	delete_db (TRUE);
 
@@ -230,12 +231,12 @@ test_ontology_change (void)
 		g_assert_no_error (error);
 		g_chmod (ontology_file, 0666);
 
-		tracker_data_manager_init (0, data_location, data_location, test_schemas,
-		                           NULL, FALSE, FALSE,
-		                           100, 100, NULL, NULL, NULL, &error);
-		data = tracker_data_manager_get_data ();
-
+		manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
+		                                    FALSE, FALSE, 100, 100);
+		g_initable_init (G_INITABLE (manager), NULL, &error);
 		g_assert_no_error (error);
+
+		data = tracker_data_manager_get_data (manager);
 
 		if (g_file_get_contents (update, &queries, NULL, NULL)) {
 			gchar *query = strtok (queries, "\n");
@@ -262,22 +263,21 @@ test_ontology_change (void)
 			query_filename = g_strconcat (test_prefix, ".rq", NULL);
 			results_filename = g_strconcat (test_prefix, ".out", NULL);
 
-			query_helper (query_filename, results_filename);
+			query_helper (manager, query_filename, results_filename);
 
 			g_free (test_prefix);
 			g_free (query_filename);
 			g_free (results_filename);
 		}
 
-		tracker_data_manager_shutdown ();
+		g_object_unref (manager);
 	}
 
 	delete_db (FALSE);
 
-	tracker_data_manager_init (0, data_location, data_location, test_schemas,
-	                           NULL, TRUE, FALSE,
-	                           100, 100, NULL, NULL, NULL, &error);
-
+	manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
+	                                    TRUE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
 	for (i = 0; change_tests[i].test_name != NULL; i++) {
@@ -289,14 +289,14 @@ test_ontology_change (void)
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		results_filename = g_strconcat (test_prefix, ".out", NULL);
 
-		query_helper (query_filename, results_filename);
+		query_helper (manager, query_filename, results_filename);
 
 		g_free (test_prefix);
 		g_free (query_filename);
 		g_free (results_filename);
 	}
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 
 	g_file_delete (file2, NULL, NULL);
 

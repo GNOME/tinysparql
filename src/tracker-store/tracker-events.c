@@ -165,7 +165,7 @@ tracker_events_get_classes (guint *length)
 }
 
 void
-tracker_events_init (void)
+tracker_events_init (TrackerDataManager *data_manager)
 {
 	TrackerOntologies *ontologies;
 	TrackerClass **classes;
@@ -173,7 +173,7 @@ tracker_events_init (void)
 
 	private = g_new0 (EventsPrivate, 1);
 
-	ontologies = tracker_data_manager_get_ontologies ();
+	ontologies = tracker_data_manager_get_ontologies (data_manager);
 	classes = tracker_ontologies_get_classes (ontologies, &length);
 
 	private->notify_classes = g_ptr_array_sized_new (length);

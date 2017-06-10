@@ -34,8 +34,11 @@ class Tracker.Sparql.Expression : Object {
 
 	string? fts_sql;
 
+        Data.Manager manager;
+
 	public Expression (Query query) {
 		this.query = query;
+                this.manager = query.manager;
 	}
 
 	Context context {
@@ -853,7 +856,7 @@ class Tracker.Sparql.Expression : Object {
 			return PropertyType.STRING;
 		} else {
 			// support properties as functions
-                        var ontologies = Data.Manager.get_ontologies ();
+                        var ontologies = manager.get_ontologies ();
 			var prop = ontologies.get_property_by_uri (uri);
 			if (prop == null) {
 				throw get_error ("Unknown function");

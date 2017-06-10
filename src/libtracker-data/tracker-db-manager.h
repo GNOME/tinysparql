@@ -56,6 +56,7 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                TrackerBusyCallback     busy_callback,
                                                                gpointer                busy_user_data,
                                                                const gchar            *busy_operation,
+                                                               GObject                *iface_data,
                                                                GError                **error);
 void                tracker_db_manager_free                   (TrackerDBManager      *db_manager);
 void                tracker_db_manager_remove_all             (TrackerDBManager      *db_manager);

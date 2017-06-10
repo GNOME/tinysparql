@@ -242,12 +242,14 @@ public class Tracker.Sparql.Query : Object {
 	uchar[] base_uuid;
 	HashTable<string,string> blank_nodes;
 
+	public Data.Manager manager;
+
 	// Keep track of used SQL identifiers for SPARQL variables
 	public int last_var_index;
 
 	public bool no_cache { get; set; }
 
-	public Query (string query) {
+	public Query (Data.Manager manager, string query) {
 		no_cache = false; /* Start with false, expression sets it */
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
@@ -256,13 +258,14 @@ public class Tracker.Sparql.Query : Object {
 		uuid_generate (base_uuid);
 
 		this.query_string = query;
+		this.manager = manager;
 
 		expression = new Expression (this);
 		pattern = new Pattern (this);
 	}
 
-	public Query.update (string query) {
-		this (query);
+	public Query.update (Data.Manager manager, string query) {
+		this (manager, query);
 		this.update_extensions = true;
 	}
 
@@ -298,7 +301,7 @@ public class Tracker.Sparql.Query : Object {
 			uri = get_uuid_for_name (base_uuid, user_bnodeid);
 
 			if (blank_nodes != null) {
-				while (Data.query_resource_id (uri) > 0) {
+				while (Data.query_resource_id (manager, uri) > 0) {
 					// uri collision, generate new UUID
 					uchar[] new_base_uuid = new uchar[16];
 					uuid_generate (new_base_uuid);
@@ -404,7 +407,7 @@ public class Tracker.Sparql.Query : Object {
 
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
-		var ontologies = Data.Manager.get_ontologies ();
+		var ontologies = manager.get_ontologies ();
 
 		foreach (Namespace ns in ontologies.get_namespaces ()) {
 			if (ns.prefix == null) {
@@ -449,7 +452,7 @@ public class Tracker.Sparql.Query : Object {
 
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
-		var ontologies = Data.Manager.get_ontologies ();
+		var ontologies = manager.get_ontologies ();
 
 		foreach (Namespace ns in ontologies.get_namespaces ()) {
 			if (ns.prefix == null) {
@@ -505,7 +508,7 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
-		var iface = Data.Manager.get_db_interface ();
+		var iface = manager.get_db_interface ();
 		if (iface == null) {
 			throw new DBInterfaceError.OPEN_ERROR ("Error opening database");
 		}
@@ -628,7 +631,7 @@ public class Tracker.Sparql.Query : Object {
 		bool delete_where = false;
 		bool data = false;
 
-		var data_update = Data.Manager.get_data ();
+		var data_update = manager.get_data ();
 
 		// Sparql 1.1 defines deletes/inserts as a single
 		// operation with the syntax:
@@ -1055,7 +1058,7 @@ public class Tracker.Sparql.Query : Object {
 	void parse_construct_object (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		bool is_null = false;
 		string object = parse_construct_var_or_term (var_value_map, type, out is_null);
-		var data = Data.Manager.get_data ();
+		var data = manager.get_data ();
 		if (current_subject == null || current_predicate == null || object == null) {
 			// the SPARQL specification says that triples containing unbound variables
 			// should be excluded from the output RDF graph of CONSTRUCT

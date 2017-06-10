@@ -69,6 +69,7 @@ namespace Tracker {
 		[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
 		public void sqlite_wal_hook (DBWalCallback callback);
 		public void sqlite_wal_checkpoint (bool blocking) throws DBInterfaceError;
+		public unowned GLib.Object get_user_data ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
@@ -219,22 +220,21 @@ namespace Tracker {
 		public void remove_rollback_statement_callback (CommitCallback callback);
 	}
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
+	[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h,libtracker-data/tracker-data-query.h")]
 	namespace Data {
-		public int query_resource_id (string uri);
-		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
+		public int query_resource_id (Data.Manager manager, string uri);
+		public DBCursor query_sparql_cursor (Data.Manager manager, string query) throws Sparql.Error;
 
 		public void backup_save (GLib.File destination, GLib.File data_location, owned BackupFinished callback);
-		public void backup_restore (GLib.File journal, string? cache_location, string? data_location, GLib.File? ontology_location, BusyCallback busy_callback) throws GLib.Error;
+		public void backup_restore (Data.Manager manager, GLib.File journal, string? cache_location, string? data_location, GLib.File? ontology_location, BusyCallback busy_callback) throws GLib.Error;
 
 		[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
 		public delegate void BackupFinished (GLib.Error error);
 	}
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
-	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
-		public void shutdown ();
+	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h", type_id = "TRACKER_TYPE_DATA_MANAGER")]
+	public class Data.Manager : GLib.Object, GLib.Initable {
+		public Manager (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size);
                 public unowned Ontologies get_ontologies ();
 		public unowned DBInterface get_db_interface ();
 		public unowned Data.Update get_data ();

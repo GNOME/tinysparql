@@ -256,6 +256,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	GFile *file, *test_schemas, *data_location;
+	TrackerDataManager *manager;
 	TrackerData *data_update;
 
 	/* initialization */
@@ -272,13 +273,13 @@ test_sparql_query (TestInfo      *test_info,
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_location, data_location, test_schemas, /* loc, domain and ontology_name */
-	                           NULL, FALSE, FALSE,
-	                           100, 100, NULL, NULL, NULL, &error);
-	data_update = tracker_data_manager_get_data ();
-
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, test_schemas, /* loc, domain and ontology_name */
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
+
+	data_update = tracker_data_manager_get_data (manager);
 
 	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
 
@@ -286,7 +287,7 @@ test_sparql_query (TestInfo      *test_info,
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
 	if (g_file_test (data_filename, G_FILE_TEST_IS_REGULAR)) {
 		GFile *file = g_file_new_for_path (data_filename);
-		tracker_turtle_reader_load (file, &error);
+		tracker_turtle_reader_load (file, data_update, &error);
 		g_assert_no_error (error);
 		g_object_unref (file);
 	} else {
@@ -318,7 +319,7 @@ test_sparql_query (TestInfo      *test_info,
 
 	/* perform actual query */
 
-	cursor = tracker_data_query_sparql_cursor (query, &error);
+	cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 
 	check_result (cursor, test_info, results_filename, error);
 
@@ -328,7 +329,7 @@ test_sparql_query (TestInfo      *test_info,
 	query_filename = g_strconcat (test_prefix, ".extra.rq", NULL);
 	if (g_file_get_contents (query_filename, &query, NULL, NULL)) {
 		g_object_unref (cursor);
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 		g_free (results_filename);
 		results_filename = g_strconcat (test_prefix, ".extra.out", NULL);
@@ -350,8 +351,7 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (results_filename);
 	g_object_unref (test_schemas);
 	g_object_unref (data_location);
-
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 }
 
 static void

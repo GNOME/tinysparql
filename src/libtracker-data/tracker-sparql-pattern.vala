@@ -26,18 +26,24 @@ namespace Tracker.Sparql {
 
 		public Class? domain;
 
+		Data.Manager manager;
+
+		public PredicateVariable (Data.Manager manager) {
+			this.manager = manager;
+		}
+
 		public string get_sql_query (Query query) throws Sparql.Error {
 			try {
 				var sql = new StringBuilder ();
-				var ontologies = Data.Manager.get_ontologies ();
+				var ontologies = manager.get_ontologies ();
 
 				if (subject != null) {
 					// single subject
-					var subject_id = Data.query_resource_id (subject);
+					var subject_id = Tracker.Data.query_resource_id (manager, subject);
 
 					DBCursor cursor = null;
 					if (subject_id > 0) {
-						var iface = Data.Manager.get_db_interface ();
+						var iface = manager.get_db_interface ();
 						var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 						                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 						                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
@@ -84,9 +90,9 @@ namespace Tracker.Sparql {
 					}
 				} else if (object != null) {
 					// single object
-					var object_id = Data.query_resource_id (object);
+					var object_id = Data.query_resource_id (manager, object);
 
-					var iface = Data.Manager.get_db_interface ();
+					var iface = manager.get_db_interface ();
 					var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 					                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 					                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
@@ -175,8 +181,11 @@ class Tracker.Sparql.Pattern : Object {
 	internal StringBuilder? match_str;
 	public bool queries_fts_data = false;
 
+	Data.Manager manager;
+
 	public Pattern (Query query) {
 		this.query = query;
+		this.manager = query.manager;
 		this.expression = query.expression;
 	}
 
@@ -879,7 +888,7 @@ class Tracker.Sparql.Pattern : Object {
 			} else {
 				return false;
 			}
-			var ontologies = Data.Manager.get_ontologies ();
+			var ontologies = manager.get_ontologies ();
 			var prop = ontologies.get_property_by_uri (predicate);
 			if (prop == null) {
 				return false;
@@ -1353,7 +1362,7 @@ class Tracker.Sparql.Pattern : Object {
 
 		Class subject_type = null;
 
-		var ontologies = Data.Manager.get_ontologies ();
+		var ontologies = manager.get_ontologies ();
 
 		if (!current_predicate_is_var) {
 			prop = ontologies.get_property_by_uri (current_predicate);
@@ -1390,7 +1399,7 @@ class Tracker.Sparql.Pattern : Object {
 					}
 					var pv = context.predicate_variable_map.lookup (context.get_variable (current_subject));
 					if (pv == null) {
-						pv = new PredicateVariable ();
+						pv = new PredicateVariable (manager);
 						context.predicate_variable_map.insert (context.get_variable (current_subject), pv);
 					}
 					pv.domain = domain;
@@ -1465,7 +1474,7 @@ class Tracker.Sparql.Pattern : Object {
 			table = new DataTable ();
 			table.predicate_variable = context.predicate_variable_map.lookup (context.get_variable (current_predicate));
 			if (table.predicate_variable == null) {
-				table.predicate_variable = new PredicateVariable ();
+				table.predicate_variable = new PredicateVariable (manager);
 				context.predicate_variable_map.insert (context.get_variable (current_predicate), table.predicate_variable);
 			}
 			if (!current_subject_is_var) {

@@ -23,7 +23,16 @@
 #ifndef __LIBTRACKER_DATA_MANAGER_H__
 #define __LIBTRACKER_DATA_MANAGER_H__
 
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
+#endif
+
 #include <glib.h>
+
+G_BEGIN_DECLS
+
+typedef struct _TrackerDataManager TrackerDataManager;
+typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-sparql.h>
@@ -33,13 +42,14 @@
 #include <libtracker-data/tracker-db-manager.h>
 #include <libtracker-data/tracker-db-journal.h>
 
-G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #define TRACKER_DATA_ONTOLOGY_ERROR                  (tracker_data_ontology_error_quark ())
+
+#define TRACKER_TYPE_DATA_MANAGER         (tracker_data_manager_get_type ())
+#define TRACKER_DATA_MANAGER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA_MANAGER, TrackerDataManager))
+#define TRACKER_DATA_MANAGER_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_DATA_MANAGER, TrackerDataManagerClass))
+#define TRACKER_IS_DATA_MANAGER(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DATA_MANAGER))
+#define TRACKER_IS_DATA_MANAGER_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_DATA_MANAGER))
+#define TRACKER_DATA_MANAGER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_DATA_MANAGER, TrackerDataManagerClass))
 
 typedef enum {
 	TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
@@ -47,32 +57,27 @@ typedef enum {
 	TRACKER_DATA_UNSUPPORTED_LOCATION
 } TrackerDataOntologyError;
 
+GType    tracker_data_manager_get_type               (void) G_GNUC_CONST;
+
 GQuark   tracker_data_ontology_error_quark           (void);
-gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   flags,
+TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags   flags,
                                                       GFile                  *cache_location,
                                                       GFile                  *data_location,
                                                       GFile                  *ontology_location,
-                                                      gboolean               *first_time,
                                                       gboolean                journal_check,
                                                       gboolean                restoring_backup,
                                                       guint                   select_cache_size,
-                                                      guint                   update_cache_size,
-                                                      TrackerBusyCallback     busy_callback,
-                                                      gpointer                busy_user_data,
-                                                      const gchar            *busy_operation,
-                                                      GError                **error);
+                                                      guint                   update_cache_size);
 
-void     tracker_data_manager_shutdown               (void);
+GFile *              tracker_data_manager_get_cache_location  (TrackerDataManager *manager);
+GFile *              tracker_data_manager_get_data_location   (TrackerDataManager *manager);
+TrackerDBJournal *   tracker_data_manager_get_journal_writer  (TrackerDataManager *manager);
+TrackerDBJournal *   tracker_data_manager_get_ontology_writer (TrackerDataManager *manager);
+TrackerOntologies *  tracker_data_manager_get_ontologies      (TrackerDataManager *manager);
 
-GFile * tracker_data_manager_get_cache_location();
-GFile * tracker_data_manager_get_data_location ();
-TrackerDBJournal * tracker_data_manager_get_journal_writer (void);
-TrackerDBJournal * tracker_data_manager_get_ontology_writer (void);
-TrackerOntologies * tracker_data_manager_get_ontologies (void);
-
-TrackerDBManager * tracker_data_manager_get_db_manager (void);
-TrackerDBInterface * tracker_data_manager_get_db_interface (void);
-TrackerData * tracker_data_manager_get_data (void);
+TrackerDBManager *   tracker_data_manager_get_db_manager      (TrackerDataManager *manager);
+TrackerDBInterface * tracker_data_manager_get_db_interface    (TrackerDataManager *manager);
+TrackerData *        tracker_data_manager_get_data            (TrackerDataManager *manager);
 
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);

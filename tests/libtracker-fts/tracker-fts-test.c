@@ -57,6 +57,7 @@ test_sparql_query (gconstpointer test_data)
 	gchar *results, *results_filename;
 	gchar *prefix, *test_prefix;
 	GFile *ontology, *data_location;
+	TrackerDataManager *manager;
 	TrackerData *data;
 	gint i;
 
@@ -72,13 +73,13 @@ test_sparql_query (gconstpointer test_data)
 	data_location = g_file_new_for_path (datadir);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_location, data_location, ontology,
-	                           NULL, FALSE, FALSE,
-	                           100, 100, NULL, NULL, NULL, &error);
-	data = tracker_data_manager_get_data ();
-
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, ontology,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
+
+	data = tracker_data_manager_get_data (manager);
 	g_object_unref (ontology);
 
 	/* load data / perform updates */
@@ -104,7 +105,7 @@ test_sparql_query (gconstpointer test_data)
 		g_file_get_contents (results_filename, &results, NULL, &error);
 		g_assert_no_error (error);
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -170,8 +171,7 @@ test_sparql_query (gconstpointer test_data)
 
 	g_free (test_prefix);
 	g_object_unref (data_location);
-
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 }
 
 int

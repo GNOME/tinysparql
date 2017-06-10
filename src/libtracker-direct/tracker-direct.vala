@@ -24,6 +24,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	File? ontology_loc;
 	Sparql.ConnectionFlags flags;
 
+	Data.Manager data_manager;
+
 	// Mutex to hold datamanager
 	private Mutex mutex = Mutex ();
 	Thread<void*> thread;
@@ -96,9 +98,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		}
 	}
 
-	static void wal_checkpoint_on_thread () {
+	static void wal_checkpoint_on_thread (DBInterface iface) {
 		new Thread<void*> ("wal-checkpoint", () => {
-			var iface = Data.Manager.get_db_interface ();
 			wal_checkpoint (iface, false);
 			return null;
 		});
@@ -110,7 +111,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 			// to prevent excessive wal file growth
 			wal_checkpoint (iface, true);
 		} else if (n_pages >= 1000) {
-			wal_checkpoint_on_thread ();
+			wal_checkpoint_on_thread (iface);
 		}
 	}
 
@@ -122,11 +123,13 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 			DBManagerFlags db_flags = DBManagerFlags.ENABLE_MUTEXES;
 			if ((flags & Sparql.ConnectionFlags.READONLY) != 0)
 				db_flags |= DBManagerFlags.READONLY;
-			Data.Manager.init (db_flags,
-			                   database_loc, journal_loc, ontology_loc,
-			                   null, false, false, 100, 100, null, null);
 
-			var iface = Data.Manager.get_db_interface ();
+			data_manager = new Data.Manager (db_flags,
+			                                 database_loc, journal_loc, ontology_loc,
+			                                 false, false, 100, 100);
+			data_manager.init ();
+
+			var iface = data_manager.get_db_interface ();
 			iface.sqlite_wal_hook (wal_hook);
 		} catch (Error e) {
 			init_error = e;
@@ -207,18 +210,9 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		update_queue = new AsyncQueue<Task> ();
 	}
 
-	~Connection () {
-		if (!initialized) {
-			return;
-		}
-
-		// Clean up connection
-		Data.Manager.shutdown ();
-	}
-
 	Sparql.Cursor query_unlocked (string sparql) throws Sparql.Error, DBusError {
 		try {
-			var query_object = new Sparql.Query (sparql);
+			var query_object = new Sparql.Query (data_manager, sparql);
 			var cursor = query_object.execute_cursor ();
 			cursor.connection = this;
 			return cursor;
@@ -289,7 +283,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		mutex.lock ();
 		try {
-			var data = Data.Manager.get_data ();
+			var data = data_manager.get_data ();
 			data.update_sparql (sparql);
 		} finally {
 			mutex.unlock ();
@@ -310,7 +304,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		GLib.Variant? blank_nodes = null;
 		mutex.lock ();
 		try {
-			var data = Data.Manager.get_data ();
+			var data = data_manager.get_data ();
 			blank_nodes = data.update_sparql_blank (sparql);
 		} finally {
 			mutex.unlock ();
@@ -334,7 +328,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		mutex.lock ();
 		try {
-			var data = Data.Manager.get_data ();
+			var data = data_manager.get_data ();
 			data.load_turtle_file (file);
 		} finally {
 			mutex.unlock ();

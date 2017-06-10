@@ -272,16 +272,18 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 }
 
 static GHashTable *
-get_fts_weights (sqlite3_context    *context)
+get_fts_weights (TrackerDBInterface *iface,
+                 sqlite3_context    *context)
 {
 	static GHashTable *weights = NULL;
 	static GMutex mutex;
 	int rc = SQLITE_DONE;
-	TrackerOntologies *ontologies;
 
 	g_mutex_lock (&mutex);
 
 	if (G_UNLIKELY (weights == NULL)) {
+		TrackerDataManager *manager;
+		TrackerOntologies *ontologies;
 		sqlite3_stmt *stmt;
 		sqlite3 *db;
 		const gchar *uri;
@@ -295,7 +297,8 @@ get_fts_weights (sqlite3_context    *context)
 		                         "WHERE \"rdf:Property\".\"tracker:fulltextIndexed\" = 1 ",
 		                         -1, &stmt, NULL);
 
-		ontologies = tracker_data_manager_get_ontologies ();
+		manager = tracker_db_interface_get_user_data (iface);
+		ontologies = tracker_data_manager_get_ontologies (manager);
 
 		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
 			if (rc == SQLITE_ROW) {
@@ -346,7 +349,7 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
 
 	n_columns = api->xColumnCount (fts_ctx);
 	data = api->xUserData (fts_ctx);
-	weights = get_fts_weights (ctx);
+	weights = get_fts_weights (data->interface, ctx);
 
 	if (!weights) {
 		sqlite3_result_error (ctx, "Could not read FTS weights", -1);

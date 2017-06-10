@@ -135,7 +135,8 @@ free_private (gpointer user_data)
 }
 
 void
-tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
+tracker_writeback_init (TrackerDataManager                *data_manager,
+                        TrackerWritebackGetPredicatesFunc  func)
 {
 	TrackerOntologies *ontologies;
 	GStrv predicates_to_signal;
@@ -165,7 +166,7 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 	}
 
 	count = g_strv_length (predicates_to_signal);
-	ontologies = tracker_data_manager_get_ontologies ();
+	ontologies = tracker_data_manager_get_ontologies (data_manager);
 
 	for (i = 0; i < count; i++) {
 		TrackerProperty *predicate = tracker_ontologies_get_property_by_uri (ontologies, predicates_to_signal[i]);

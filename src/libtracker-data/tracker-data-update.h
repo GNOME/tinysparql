@@ -21,18 +21,21 @@
 #ifndef __LIBTRACKER_DATA_UPDATE_H__
 #define __LIBTRACKER_DATA_UPDATE_H__
 
-#include <glib.h>
-#include <gio/gio.h>
-
-#include <libtracker-sparql/tracker-sparql.h>
-
-#include "tracker-db-interface.h"
-
-G_BEGIN_DECLS
-
 #if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
+
+#include <glib.h>
+#include <gio/gio.h>
+
+G_BEGIN_DECLS
+
+typedef struct _TrackerData TrackerData;
+typedef struct _TrackerDataClass TrackerDataClass;
+
+#include <libtracker-sparql/tracker-sparql.h>
+#include "tracker-db-interface.h"
+#include "tracker-data-manager.h"
 
 #define TRACKER_TYPE_DATA         (tracker_data_get_type ())
 #define TRACKER_DATA(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA, TrackerData))
@@ -159,7 +162,7 @@ void     tracker_data_remove_rollback_statement_callback (TrackerData           
                                                           gpointer                   user_data);
 
 GType         tracker_data_get_type (void) G_GNUC_CONST;
-TrackerData * tracker_data_new      (void);
+TrackerData * tracker_data_new      (TrackerDataManager *manager);
 
 G_END_DECLS
 

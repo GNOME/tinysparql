@@ -90,7 +90,7 @@ const TestInfo nmo_tests[] = {
 };
 
 static void
-query_helper (const gchar *query_filename, const gchar *results_filename)
+query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
 {
 	GError *error = NULL;
 	gchar *queries = NULL, *query;
@@ -110,7 +110,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	while (query) {
 		TrackerDBCursor *cursor;
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -181,6 +181,7 @@ static void
 test_ontology_init (TestInfo      *test_info,
                     gconstpointer  context)
 {
+	TrackerDataManager *manager;
 	GError *error = NULL;
 	GFile *data_location;
 
@@ -189,41 +190,23 @@ test_ontology_init (TestInfo      *test_info,
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* first-time initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_location, data_location, data_location,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           &error);
-
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, data_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* initialization from existing database */
-	tracker_data_manager_init (0,
-	                           data_location, data_location, data_location,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           &error);
-
+	manager = tracker_data_manager_new (0, data_location, data_location, data_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_manager_shutdown ();
-
+	g_object_unref (manager);
 	g_object_unref (data_location);
 }
 
@@ -237,6 +220,8 @@ test_query (TestInfo      *test_info,
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix, *ontology_path;
 	GFile *file, *data_location, *ontology_location;
+	TrackerDataManager *manager;
+	TrackerData *data_update;
 
 	data_location = g_file_new_for_path (test_info->data_location);
 
@@ -252,22 +237,19 @@ test_query (TestInfo      *test_info,
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_location, data_location, ontology_location,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           NULL);
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, ontology_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
+	g_assert_no_error (error);
+
+	data_update = tracker_data_manager_get_data (manager);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
 	file = g_file_new_for_path (data_filename);
-	tracker_turtle_reader_load (file, &error);
+	data_update = tracker_data_manager_get_data (manager);
+	tracker_turtle_reader_load (file, data_update, &error);
 	g_assert_no_error (error);
 	g_object_unref (file);
 
@@ -277,7 +259,7 @@ test_query (TestInfo      *test_info,
 	g_free (data_prefix);
 	g_free (test_prefix);
 
-	query_helper (query_filename, results_filename);
+	query_helper (manager, query_filename, results_filename);
 
 	/* cleanup */
 
@@ -287,8 +269,7 @@ test_query (TestInfo      *test_info,
 
 	g_object_unref (ontology_location);
 	g_object_unref (data_location);
-
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 }
 
 static inline void
