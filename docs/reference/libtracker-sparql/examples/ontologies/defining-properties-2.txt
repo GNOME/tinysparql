@@ -1,0 +1,7 @@
+ex:parent a rdf:Property;
+          rdfs:domain ex:Mammal;
+          rdfs:range ex:Mammal;
+
+ex:pet a rdf:Property;
+       rdfs:domain ex:Mammal;
+       rdfs:range ex:Eukaryote;

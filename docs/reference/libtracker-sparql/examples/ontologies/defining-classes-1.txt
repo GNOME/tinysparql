@@ -1,0 +1,3 @@
+ex:Eukaryote a rdfs:Class;
+             rdfs:subclassOf rdfs:Resource;
+             rdfs:comment "An eukaryote".

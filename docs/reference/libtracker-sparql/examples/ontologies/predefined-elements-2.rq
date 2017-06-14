@@ -1,0 +1,2 @@
+INSERT DATA { ex:self ex:pets <cat> .
+              <cat> ex:pets ex:self }

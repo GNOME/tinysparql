@@ -1,0 +1,4 @@
+ex:cromosomes a rdf:Property;
+              rdfs:domain ex:Eukaryote;
+              rdfs:range xsd:integer;
+              nrl:maxCardinality 1.

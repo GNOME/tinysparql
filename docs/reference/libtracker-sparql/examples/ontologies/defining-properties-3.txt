@@ -1,0 +1,8 @@
+ex:geneticInformation a rdf:Property;
+                      rdfs:domain ex:Eukaryote;
+                      rdfs:range xsd:string;
+
+ex:dna a rdf:Property;
+       rdfs:domain ex:Mammal;
+       rdfs:range xsd:string;
+       rdfs:subPropertyOf ex:geneticInformation.

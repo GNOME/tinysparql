@@ -38,6 +38,7 @@
     <xi:include href="xml/tracker-version.xml"/>
   </part>
 
+  <xi:include href="ontologies.sgml"/>
   <xi:include href="examples.sgml"/>
 
   <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>

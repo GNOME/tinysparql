@@ -1,0 +1,7 @@
+# First insertion, this will succeed
+INSERT DATA { <drosophila> a ex:Eukariote;
+                           ex:geneticInformation "AGCT" }
+
+# This will fail
+INSERT DATA { <melanogaster> a ex:Eukariote;
+                             ex:geneticInformation "AGCT" }

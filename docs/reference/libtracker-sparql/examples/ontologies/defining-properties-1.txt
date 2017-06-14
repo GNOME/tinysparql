@@ -1,0 +1,11 @@
+ex:cromosomes a rdf:Property;
+              rdfs:domain ex:Eukaryote;
+              rdfs:range xsd:integer.
+
+ex:unicellular a rdf:Property;
+               rdfs:domain ex:Eukaryote;
+               rdfs:range xsd:bool;
+
+ex:dateOfBirth a rdf:Property;
+               rdfs:domain ex:Mammal;
+               rdfs:range xsd:dateTime;
