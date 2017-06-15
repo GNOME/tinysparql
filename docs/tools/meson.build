@@ -4,7 +4,6 @@ ttl_loader_files = [
     'ttl_loader.c',
     'ttl_model.c',
     'ttl_sgml.c',
-    'qname.c',
 ]
 
 ttl2sgml = executable('ttl2sgml',

@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include "ttl_sgml.h"
-#include "qname.h"
 
 #define DEFAULT_COPYRIGHT "&copy; 2009, 2010 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>"
 
@@ -205,8 +204,6 @@ ttl_sgml_print (OntologyDescription *description,
 	OntologyClass *def;
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
-
-        qname_init (description->baseUrl, description->localPrefix, NULL);
 	print_sgml_header (f, description);
 
 	g_fprintf (f, "<xi:include href='../%s-introduction.xml'><xi:fallback/></xi:include>",
