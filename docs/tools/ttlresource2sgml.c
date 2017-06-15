@@ -711,45 +711,6 @@ print_properties (FILE          *f,
 }
 
 static void
-print_see_also (FILE          *f,
-                OntologyClass *klass,
-                Ontology      *ontology)
-{
-	const gchar *short_prefix;
-	gchar *prefix, *id, *upper;
-
-	prefix = name_get_prefix (ontology, klass->classname);
-
-	if (!prefix)
-		return;
-
-	if (!g_str_has_prefix (prefix, "http"))
-		return;
-
-	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
-
-	if (!short_prefix) {
-		g_free (prefix);
-		return;
-	}
-
-	id = name_to_shortname (ontology, klass->classname, "-");
-	g_fprintf (f, "<refsect1 id='%s.see-also'>", id);
-	g_fprintf (f, "<title>See also</title>");
-	g_free (id);
-
-	upper = g_ascii_strup (short_prefix, -1);
-
-	g_fprintf (f, "<para>The upstream documentation for the <ulink url='%s'>%s ontology</ulink>.</para>",
-	           prefix, upper);
-
-	g_fprintf (f, "</refsect1>\n");
-
-	g_free (prefix);
-	g_free (upper);
-}
-
-static void
 generate_class_docs (OntologyClass *klass,
                      Ontology      *ontology,
                      FILE          *f)
@@ -759,7 +720,6 @@ generate_class_docs (OntologyClass *klass,
 	print_predefined_instances (f, klass, ontology);
 	print_fts_properties (f, klass, ontology);
 	print_properties (f, klass, ontology);
-	print_see_also (f, klass, ontology);
 	print_sgml_footer (f);
 }
 
