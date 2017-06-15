@@ -22,10 +22,6 @@
 
 #include "ttl_sgml.h"
 
-#define DEFAULT_COPYRIGHT "&copy; 2009, 2010 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>"
-
-#define SIGNALS_DOC "http://live.gnome.org/Tracker/Documentation/SignalsOnChanges"
-
 typedef struct {
 	Ontology *ontology;
 	OntologyDescription *description;
@@ -115,12 +111,14 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
         print_link_as_varlistentry (f, "Upstream:", "Upstream version", desc->upstream);
         print_link_as_varlistentry (f, "ChangeLog:", "Tracker changes", desc->gitlog);
 
-        g_fprintf (f, "<varlistentry>\n");
-        g_fprintf (f, "  <term>Copyright:</term>\n");
-        g_fprintf (f, "  <listitem>\n");
-        g_fprintf (f, "<para>%s</para>\n", (desc->copyright ? desc->copyright : DEFAULT_COPYRIGHT));
-        g_fprintf (f, "  </listitem>\n");
-        g_fprintf (f, "</varlistentry>\n");
+        if (desc->copyright) {
+	        g_fprintf (f, "<varlistentry>\n");
+	        g_fprintf (f, "  <term>Copyright:</term>\n");
+	        g_fprintf (f, "  <listitem>\n");
+	        g_fprintf (f, "<para>%s</para>\n", desc->copyright);
+	        g_fprintf (f, "  </listitem>\n");
+	        g_fprintf (f, "</varlistentry>\n");
+        }
 }
 
 static void
