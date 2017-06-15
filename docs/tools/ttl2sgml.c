@@ -27,7 +27,6 @@
 
 static gchar *desc_file = NULL;
 static gchar *output_file = NULL;
-static gchar *explanation_file = NULL;
 
 static GOptionEntry   entries[] = {
 	{ "desc", 'd', 0, G_OPTION_ARG_FILENAME, &desc_file,
@@ -36,10 +35,6 @@ static GOptionEntry   entries[] = {
 	},
 	{ "output", 'o', 0, G_OPTION_ARG_FILENAME, &output_file,
 	  "File to write the output (default stdout)",
-	  NULL
-	},
-	{ "explanation", 'e', 0, G_OPTION_ARG_FILENAME, &explanation_file,
-	  "Verbosy explanation file in HTML format to include in the webpage",
 	  NULL
 	},
 	{ NULL }
@@ -96,7 +91,7 @@ main (gint argc, gchar **argv)
 	g_free (ttl_file);
 	g_free (dirname);
 
-	ttl_sgml_print (description, ontology, f, explanation_file);
+	ttl_sgml_print (description, ontology, f);
 
 	ttl_loader_free_ontology (ontology);
 	ttl_loader_free_description (description);

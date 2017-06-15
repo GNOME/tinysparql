@@ -23,15 +23,14 @@ set -e
 
 if [ $# -lt 5 ]; then
 	echo "Insufficient arguments provided"
-	echo "Usage: $0 <ttl2sgml> <ttlres2sgml> <ontology-data-dir> <ontology-info-dir> <build-dir>"
+	echo "Usage: $0 <ttl2sgml> <ttlres2sgml> <ontology-data-dir> <build-dir>"
 	exit 1;
 fi
 
 TTL2SGML=$1
 TTLRES2SGML=$2
 ONTOLOGIES_DATA_DIR=$3
-ONTOLOGIES_INFO_DIR=$4
-BUILD_DIR=$5
+BUILD_DIR=$4
 
 if [ ! -e $BUILD_DIR ]; then
     mkdir -p $BUILD_DIR
@@ -44,8 +43,7 @@ for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     TMPNAME=${f%.description}
     PREFIX=${TMPNAME#*-}
 
-    $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml \
-	-e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
+    $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml
 done
 
 echo "Done"

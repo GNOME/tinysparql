@@ -125,20 +125,6 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
 }
 
 static void
-print_sgml_explanation (FILE *f, const gchar *explanation_file)
-{
-	gchar *raw_content;
-	gsize length;
-
-	if (explanation_file && g_file_test (explanation_file, G_FILE_TEST_EXISTS)) {
-		if (!g_file_get_contents (explanation_file, &raw_content, &length, NULL)) {
-			g_error ("Unable to load '%s'", explanation_file );
-		}
-		g_fprintf (f, "%s", raw_content);
-	}
-}
-
-static void
 print_sgml_footer (FILE *f)
 {
 	g_fprintf (f,"</chapter>\n");
@@ -212,8 +198,7 @@ print_ontology_class (Ontology      *ontology,
 void
 ttl_sgml_print (OntologyDescription *description,
                 Ontology *ontology,
-                FILE *f,
-                const gchar *explanation_file)
+                FILE *f)
 {
 	GHashTableIter iter;
         gchar *upper_name;
@@ -224,8 +209,8 @@ ttl_sgml_print (OntologyDescription *description,
         qname_init (description->baseUrl, description->localPrefix, NULL);
 	print_sgml_header (f, description);
 
-        /* FIXME: make desc files sgml */
-	print_sgml_explanation (f, explanation_file);
+	g_fprintf (f, "<xi:include href='../%s-introduction.xml'><xi:fallback/></xi:include>",
+		   description->localPrefix);
 
         g_fprintf (f, "<section id='%s-classes'>\n", description->localPrefix);
 	g_fprintf (f, "<title>%s Ontology Classes</title>\n", upper_name);
