@@ -26,23 +26,9 @@
 #include "ttl_loader.h"
 #include "ttl_model.h"
 #include "ttl_sgml.h"
-
-static gchar *ontology_dir = NULL;
-static gchar *output_dir = NULL;
+#include "ttlresource2sgml.h"
 
 #define TRACKER_ONTOLOGY_CLASS "http://www.tracker-project.org/ontologies/tracker#Ontology"
-
-static GOptionEntry   entries[] = {
-	{ "ontology-dir", 'd', 0, G_OPTION_ARG_FILENAME, &ontology_dir,
-	  "Ontology directory",
-	  NULL
-	},
-	{ "output-dir", 'o', 0, G_OPTION_ARG_FILENAME, &output_dir,
-	  "File to write the output (default stdout)",
-	  NULL
-	},
-	{ NULL }
-};
 
 static gchar *
 name_get_prefix (Ontology    *ontology,
@@ -94,20 +80,25 @@ name_to_shortname (Ontology    *ontology,
 
 static void
 class_get_parent_hierarchy (Ontology       *ontology,
-                            OntologyClass  *klass,
+                            const gchar    *class_name,
                             GList         **list)
 {
+	OntologyClass *klass;
 	GList *l;
 
 	/* Ensure we only got the same class there once */
-	*list = g_list_remove (*list, klass->classname);
-	*list = g_list_prepend (*list, klass->classname);
+	*list = g_list_remove (*list, (gpointer) class_name);
+	*list = g_list_prepend (*list, (gpointer) class_name);
+
+	klass = g_hash_table_lookup (ontology->classes, class_name);
+	if (!klass) {
+		klass = ttl_model_class_new (class_name);
+		g_hash_table_insert (ontology->classes, klass->classname, klass);
+		return;
+	}
 
 	for (l = klass->superclasses; l; l = l->next) {
-		OntologyClass *parent_class;
-
-		parent_class = g_hash_table_lookup (ontology->classes, l->data);
-		class_get_parent_hierarchy (ontology, parent_class, list);
+		class_get_parent_hierarchy (ontology, l->data, list);
 	}
 }
 
@@ -126,7 +117,7 @@ class_get_hierarchy (Ontology      *ontology,
 		hierarchy = g_list_prepend (hierarchy, l->data);
 	}
 
-	class_get_parent_hierarchy (ontology, klass, &hierarchy);
+	class_get_parent_hierarchy (ontology, klass->classname, &hierarchy);
 
 	return hierarchy;
 }
@@ -676,6 +667,15 @@ print_properties (FILE          *f,
 				OntologyClass *cl;
 
 				superprop = g_hash_table_lookup (ontology->properties, l->data);
+
+				if (!superprop) {
+					superprop = ttl_model_property_new (l->data);
+					g_hash_table_insert (ontology->properties, superprop->propertyname, superprop);
+				}
+
+				if (!superprop->domain)
+					continue;
+
 				cl = g_hash_table_lookup (ontology->classes, superprop->domain->data);
 
 				shortname = name_to_shortname (ontology, superprop->propertyname, NULL);
@@ -763,22 +763,26 @@ generate_class_docs (OntologyClass *klass,
 	print_sgml_footer (f);
 }
 
-static void
-generate_ontology_class_docs (Ontology    *ontology,
-                              const gchar *output_dir)
+void
+generate_ontology_class_docs (Ontology *ontology,
+                              GFile    *output_dir)
 {
-	GHashTableIter iter;
 	OntologyClass *klass;
+	GList *classes, *l;
 	FILE *f;
 
-	g_hash_table_iter_init (&iter, ontology->classes);
+	classes = g_hash_table_get_values (ontology->classes);
 
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &klass)) {
+	for (l = classes; l; l = l->next) {
 		gchar *shortname, *class_filename, *output_file;
+		GFile *child;
 
+		klass = l->data;
 		shortname = name_to_shortname (ontology, klass->classname, "-");
 		class_filename = g_strdup_printf ("%s.xml", shortname);
-		output_file = g_build_filename (output_dir, class_filename, NULL);
+		child = g_file_get_child (output_dir, class_filename);
+
+		output_file = g_file_get_path (child);
 
 		f = fopen (output_file, "w");
 
@@ -793,35 +797,6 @@ generate_ontology_class_docs (Ontology    *ontology,
 		generate_class_docs (klass, ontology, f);
 		fclose (f);
 	}
-}
 
-int
-main (int argc, char *argv[])
-{
-	GOptionContext *context;
-	Ontology *ontology;
-
-	context = g_option_context_new ("- Generates ontology docs");
-
-	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
-
-	if (!ontology_dir || !output_dir) {
-		gchar *help;
-
-		g_printerr ("%s\n\n",
-		            "Ontology and output dirs are mandatory");
-
-		help = g_option_context_get_help (context, TRUE, NULL);
-		g_option_context_free (context);
-		g_printerr ("%s", help);
-		g_free (help);
-
-		return -1;
-	}
-
-	ontology = ttl_loader_load_ontology_dir (ontology_dir);
-	generate_ontology_class_docs (ontology, output_dir);
-
-	return 0;
+	g_list_free (classes);
 }

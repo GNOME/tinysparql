@@ -196,12 +196,17 @@ print_ontology_class (Ontology      *ontology,
 
 void
 ttl_sgml_print (OntologyDescription *description,
-                Ontology *ontology,
-                FILE *f)
+                Ontology            *ontology,
+                GFile               *file)
 {
 	GHashTableIter iter;
-        gchar *upper_name;
+	gchar *upper_name, *path;
 	OntologyClass *def;
+	FILE *f;
+
+	path = g_file_get_path (file);
+	f = fopen (path, "w");
+	g_assert (f != NULL);
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
 	print_sgml_header (f, description);
@@ -220,5 +225,6 @@ ttl_sgml_print (OntologyDescription *description,
         g_fprintf (f, "</section>\n");
 	print_sgml_footer (f);
 
-        g_free (upper_name);
+	g_free (upper_name);
+	fclose (f);
 }

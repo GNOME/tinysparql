@@ -13,7 +13,7 @@ ONTOLOGY_INTRODUCTIONS =     \
 # Generation of the ontology XML files.
 gen-doc.stamp: $(ONTOLOGY_INTRODUCTIONS)
 	$(MKDIR_P) xml
-	$(top_srcdir)/docs/tools/gen-doc.sh $(top_builddir)/docs/tools/ttl2sgml $(top_builddir)/docs/tools/ttlresource2sgml $(top_srcdir)/src/ontologies/nepomuk xml/
+	$(top_builddir)/docs/tools/ttl2sgml -d $(top_srcdir)/src/ontologies/nepomuk -o xml/
 	$(AM_V_GEN) touch $@
 
 version.xml: gen-doc.stamp

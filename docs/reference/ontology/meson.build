@@ -13,14 +13,12 @@ version_xml = configure_file(input: 'version.xml.in',
 #        -e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
 
 
-gen_doc = meson.source_root() + '/docs/tools/gen-doc.sh'
 generated = custom_target('ontology-doc-generated',
     output: 'gen-doc.stamp',
-    command: [gen_doc, ttl2sgml, ttlresource2sgml,
-              meson.source_root() + '/src/ontologies',
-              meson.source_root() + '/docs/ontologies',
-              join_paths(meson.current_build_dir(), 'xml/')],
-    depends: [ttl2sgml, ttlresource2sgml],
+    command: [ttl2sgml,
+              '-d', meson.source_root() + '/src/ontologies/nepomuk',
+              '-o', join_paths(meson.current_build_dir(), 'xml/')],
+    depends: ttl2sgml,
     # FIXME: this shouldn't be necessary, but currently the 'dependencies'
     # parameter to gnome.gtkdoc() doesn't actually trigger building of custom
     # targets.
