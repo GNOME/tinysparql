@@ -18,7 +18,6 @@
  */
 
 #include <glib/gprintf.h>
-#include <string.h>
 
 #include "ttl_sgml.h"
 
@@ -127,54 +126,6 @@ print_sgml_footer (FILE *f)
 	g_fprintf (f,"</chapter>\n");
 }
 
-static gchar *
-name_get_prefix (Ontology    *ontology,
-		 const gchar *name)
-{
-	const gchar *delim;
-
-	delim = g_strrstr (name, "#");
-
-	if (!delim)
-		delim = g_strrstr (name, "/");
-
-	if (!delim)
-		return NULL;
-
-	delim++;
-
-	return g_strndup (name, delim - name);
-}
-
-static gchar *
-name_to_shortname (Ontology    *ontology,
-		   const gchar *name,
-		   const gchar *separator)
-{
-	gchar *prefix, *short_prefix;
-	const gchar *suffix;
-
-	if (!separator)
-		separator = ":";
-
-	prefix = name_get_prefix (ontology, name);
-
-	if (!prefix)
-		return g_strdup (name);
-
-	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
-
-	if (!short_prefix) {
-		g_free (prefix);
-		return g_strdup (name);
-	}
-
-	suffix = &name[strlen (prefix)];
-	g_free (prefix);
-
-	return g_strconcat (short_prefix, separator, suffix, NULL);
-}
-
 static void
 print_ontology_class (Ontology      *ontology,
 		      OntologyClass *def,
@@ -184,8 +135,8 @@ print_ontology_class (Ontology      *ontology,
 
 	g_return_if_fail (f != NULL);
 
-	name = name_to_shortname (ontology, def->classname, NULL);
-	id = name_to_shortname (ontology, def->classname, "-");
+	name = ttl_model_name_to_shortname (ontology, def->classname, NULL);
+	id = ttl_model_name_to_shortname (ontology, def->classname, "-");
 	g_fprintf (f, "<xi:include href='%s.xml'/>\n", id);
 	g_free (id);
 

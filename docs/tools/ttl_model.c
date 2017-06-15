@@ -18,6 +18,7 @@
  */
 
 #include "ttl_model.h"
+#include <string.h>
 
 OntologyClass *
 ttl_model_class_new (const gchar *classname)
@@ -132,4 +133,52 @@ ttl_model_description_free (OntologyDescription *desc)
 	g_free (desc->localPrefix);
 
 	g_free (desc);
+}
+
+static gchar *
+name_get_prefix (Ontology    *ontology,
+                 const gchar *name)
+{
+	const gchar *delim;
+
+	delim = g_strrstr (name, "#");
+
+	if (!delim)
+		delim = g_strrstr (name, "/");
+
+	if (!delim)
+		return NULL;
+
+	delim++;
+
+	return g_strndup (name, delim - name);
+}
+
+gchar *
+ttl_model_name_to_shortname (Ontology    *ontology,
+                             const gchar *name,
+                             const gchar *separator)
+{
+	gchar *prefix, *short_prefix;
+	const gchar *suffix;
+
+	if (!separator)
+		separator = ":";
+
+	prefix = name_get_prefix (ontology, name);
+
+	if (!prefix)
+		return g_strdup (name);
+
+	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
+
+	if (!short_prefix) {
+		g_free (prefix);
+		return g_strdup (name);
+	}
+
+	suffix = &name[strlen (prefix)];
+	g_free (prefix);
+
+	return g_strconcat (short_prefix, separator, suffix, NULL);
 }

@@ -19,7 +19,6 @@
  * Authors: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include <string.h>
 #include <glib-object.h>
 #include <glib/gprintf.h>
 #include <gio/gio.h>
@@ -29,54 +28,6 @@
 #include "ttlresource2sgml.h"
 
 #define TRACKER_ONTOLOGY_CLASS "http://www.tracker-project.org/ontologies/tracker#Ontology"
-
-static gchar *
-name_get_prefix (Ontology    *ontology,
-                 const gchar *name)
-{
-	const gchar *delim;
-
-	delim = g_strrstr (name, "#");
-
-	if (!delim)
-		delim = g_strrstr (name, "/");
-
-	if (!delim)
-		return NULL;
-
-	delim++;
-
-	return g_strndup (name, delim - name);
-}
-
-static gchar *
-name_to_shortname (Ontology    *ontology,
-                   const gchar *name,
-                   const gchar *separator)
-{
-	gchar *prefix, *short_prefix;
-	const gchar *suffix;
-
-	if (!separator)
-		separator = ":";
-
-	prefix = name_get_prefix (ontology, name);
-
-	if (!prefix)
-		return g_strdup (name);
-
-	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
-
-	if (!short_prefix) {
-		g_free (prefix);
-		return g_strdup (name);
-	}
-
-	suffix = &name[strlen (prefix)];
-	g_free (prefix);
-
-	return g_strconcat (short_prefix, separator, suffix, NULL);
-}
 
 static void
 class_get_parent_hierarchy (Ontology       *ontology,
@@ -129,8 +80,8 @@ print_sgml_header (FILE          *f,
 {
 	gchar *id, *shortname;
 
-	id = name_to_shortname (ontology, klass->classname, "-");
-	shortname = name_to_shortname (ontology, klass->classname, NULL);
+	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
 
         g_fprintf (f, "<?xml version='1.0' encoding='UTF-8'?>\n");
         g_fprintf (f, "<refentry id='%s'>\n", id);
@@ -175,8 +126,8 @@ print_predefined_instances (FILE          *f,
 	if (!klass->instances)
 		return;
 
-	shortname = name_to_shortname (ontology, klass->classname, NULL);
-	id = name_to_shortname (ontology, klass->classname, "-");
+	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
+	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 
 	g_fprintf (f, "<refsect1 id='%s.predefined-instances'>", id);
 	g_fprintf (f, "<title>Predefined instances</title><para>");
@@ -187,8 +138,8 @@ print_predefined_instances (FILE          *f,
 	g_free (id);
 
 	for (l = klass->instances; l; l = l->next) {
-		shortname = name_to_shortname (ontology, l->data, NULL);
-		id = name_to_shortname (ontology, l->data, "-");
+		shortname = ttl_model_name_to_shortname (ontology, l->data, NULL);
+		id = ttl_model_name_to_shortname (ontology, l->data, "-");
 
 		g_fprintf (f, "<listitem><para>");
 		g_fprintf (f, "<link linkend=\"%s\">%s</link>", id, shortname);
@@ -220,8 +171,8 @@ print_fts_properties (FILE          *f,
 	if (!fts_props)
 		return;
 
-	shortname = name_to_shortname (ontology, klass->classname, NULL);
-	id = name_to_shortname (ontology, klass->classname, "-");
+	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
+	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 
 	g_fprintf (f, "<refsect1 id='%s.fts-properties'>", id);
 	g_fprintf (f, "<title>Full-text-indexed properties</title><para>");
@@ -232,8 +183,8 @@ print_fts_properties (FILE          *f,
 		gchar *prop_shortname, *prop_id;
 		OntologyProperty *prop = l->data;
 
-		prop_shortname = name_to_shortname (ontology, prop->propertyname, NULL);
-		prop_id = name_to_shortname (ontology, prop->propertyname, "-");
+		prop_shortname = ttl_model_name_to_shortname (ontology, prop->propertyname, NULL);
+		prop_id = ttl_model_name_to_shortname (ontology, prop->propertyname, "-");
 
 		g_fprintf (f, "<listitem><para>");
 		g_fprintf (f, "<link linkend=\"%s.%s\">%s</link>", id, prop_id, prop_shortname);
@@ -436,8 +387,8 @@ hierarchy_context_resolve_class (HierarchyContext *context,
 	if (pos < 0)
 		return;
 
-	shortname = name_to_shortname (ontology, klass->classname, NULL);
-	link = name_to_shortname (ontology, klass->classname, "-");
+	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
+	link = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 	parents = g_hash_table_lookup (context->resolved_parents,
 	                               klass->classname);
 
@@ -585,7 +536,7 @@ print_class_hierarchy (FILE          *f,
 	if (!strings)
 		return;
 
-	id = name_to_shortname (ontology, klass->classname, "-");
+	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 
 	g_fprintf (f, "<refsect1 id='%s.hierarchy'>", id);
 	g_fprintf (f, "<title>Class hierarchy</title>");
@@ -613,7 +564,7 @@ print_properties (FILE          *f,
 	if (!klass->in_domain_of)
 		return;
 
-	id = name_to_shortname (ontology, klass->classname, "-");
+	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 	g_fprintf (f, "<refsect1 id='%s.properties'>", id);
 	g_fprintf (f, "<title>Properties</title>");
 
@@ -622,10 +573,10 @@ print_properties (FILE          *f,
 
 		prop = g_hash_table_lookup (ontology->properties, l->data);
 
-		prop_id = name_to_shortname (ontology, prop->propertyname, "-");
-		shortname = name_to_shortname (ontology, prop->propertyname, NULL);
-		type_name = name_to_shortname (ontology, prop->range->data, NULL);
-		type_class_id = name_to_shortname (ontology, prop->range->data, "-");
+		prop_id = ttl_model_name_to_shortname (ontology, prop->propertyname, "-");
+		shortname = ttl_model_name_to_shortname (ontology, prop->propertyname, NULL);
+		type_name = ttl_model_name_to_shortname (ontology, prop->range->data, NULL);
+		type_class_id = ttl_model_name_to_shortname (ontology, prop->range->data, "-");
 
 		g_fprintf (f, "<refsect2 id='%s.%s' role='property'>", id, prop_id);
 		g_fprintf (f, "<indexterm zone='%s.%s'><primary sortas='%s'>%s</primary></indexterm>",
@@ -678,10 +629,10 @@ print_properties (FILE          *f,
 
 				cl = g_hash_table_lookup (ontology->classes, superprop->domain->data);
 
-				shortname = name_to_shortname (ontology, superprop->propertyname, NULL);
-				class_shortname = name_to_shortname (ontology, cl->classname, NULL);
-				superprop_id = name_to_shortname (ontology, superprop->propertyname, "-");
-				class_id = name_to_shortname (ontology, cl->classname, "-");
+				shortname = ttl_model_name_to_shortname (ontology, superprop->propertyname, NULL);
+				class_shortname = ttl_model_name_to_shortname (ontology, cl->classname, NULL);
+				superprop_id = ttl_model_name_to_shortname (ontology, superprop->propertyname, "-");
+				class_id = ttl_model_name_to_shortname (ontology, cl->classname, "-");
 
 				g_fprintf (f, "<listitem><para>");
 				g_fprintf (f, "<link linkend=\"%s.%s\"><literal>“%s”</literal> from the <literal>%s</literal> class</link>",
@@ -738,7 +689,7 @@ generate_ontology_class_docs (Ontology *ontology,
 		GFile *child;
 
 		klass = l->data;
-		shortname = name_to_shortname (ontology, klass->classname, "-");
+		shortname = ttl_model_name_to_shortname (ontology, klass->classname, "-");
 		class_filename = g_strdup_printf ("%s.xml", shortname);
 		child = g_file_get_child (output_dir, class_filename);
 
