@@ -50,10 +50,6 @@
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
@@ -107,16 +103,6 @@ typedef struct {
 	gboolean        is_content_encrypted;
 
 	GSList         *artist_list;
-
-#ifdef HAVE_LIBMEDIAART
-	MediaArtType    media_art_type;
-	gchar          *media_art_artist;
-	gchar          *media_art_title;
-
-	unsigned char  *media_art_buffer;
-	guint           media_art_buffer_size;
-	const gchar    *media_art_buffer_mime;
-#endif
 
 	GstSample      *sample;
 	GstMapInfo      info;
@@ -405,82 +391,6 @@ translate_discoverer_toc (GstToc *gst_toc)
 	return toc;
 }
 
-#ifdef HAVE_LIBMEDIAART
-
-static gboolean
-get_embedded_media_art (MetadataExtractor *extractor)
-{
-	gboolean have_sample;
-	guint lindex;
-
-	lindex = 0;
-
-	do {
-		have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_IMAGE, lindex, &extractor->sample);
-
-		if (have_sample) {
-			GstBuffer *buffer;
-			const GstStructure *info_struct;
-			gint type;
-
-			buffer = gst_sample_get_buffer (extractor->sample);
-			info_struct = gst_sample_get_info (extractor->sample);
-			if (gst_structure_get_enum (info_struct,
-			                            "image-type",
-			                            GST_TYPE_TAG_IMAGE_TYPE,
-			                            &type)) {
-				if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER ||
-				    (type == GST_TAG_IMAGE_TYPE_UNDEFINED &&
-				     extractor->media_art_buffer_size == 0)) {
-					GstCaps *caps;
-					GstStructure *caps_struct;
-
-					if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
-						return FALSE;
-
-					caps = gst_sample_get_caps (extractor->sample);
-					caps_struct = gst_caps_get_structure (caps, 0);
-
-					extractor->media_art_buffer = extractor->info.data;
-					extractor->media_art_buffer_size = extractor->info.size;
-					extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
-
-					return TRUE;
-				}
-			}
-
-			lindex++;
-		}
-
-	} while (have_sample);
-
-	/* Fallback to the preview image */
-	have_sample = gst_tag_list_get_sample_index (extractor->tagcache, GST_TAG_PREVIEW_IMAGE, 0, &extractor->sample);
-
-	if (have_sample) {
-		GstBuffer *buffer;
-		GstCaps *caps;
-		GstStructure *caps_struct;
-
-		buffer = gst_sample_get_buffer (extractor->sample);
-		caps = gst_sample_get_caps (extractor->sample);
-		caps_struct = gst_caps_get_structure (caps, 0);
-
-		if (!gst_buffer_map (buffer, &extractor->info, GST_MAP_READ))
-			return FALSE;
-
-		extractor->media_art_buffer = extractor->info.data;
-		extractor->media_art_buffer_size = extractor->info.size;
-		extractor->media_art_buffer_mime = gst_structure_get_name (caps_struct);
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-#endif
-
 static TrackerResource *
 extractor_get_geolocation (MetadataExtractor     *extractor,
                            GstTagList            *tag_list)
@@ -617,16 +527,7 @@ extractor_apply_general_metadata (MetadataExtractor     *extractor,
 	set_property_from_gst_tag (resource, "dc:coverage", tag_list, GST_TAG_LOCATION);
 	set_property_from_gst_tag (resource, "nie:comment", tag_list, GST_TAG_COMMENT);
 
-#ifdef HAVE_LIBMEDIAART
-	if (extractor->media_art_type == MEDIA_ART_VIDEO) {
-		extractor->media_art_title = title_guaranteed;
-	} else {
-		g_free (title_guaranteed);
-	}
-#else
 	g_free (title_guaranteed);
-#endif
-
 	g_free (performer_temp);
 	g_free (artist_temp);
 	g_free (composer_name);
@@ -670,11 +571,6 @@ extractor_maybe_get_album_disc (MetadataExtractor *extractor,
 	set_property_from_gst_tag (album, "nmm:albumTrackCount", tag_list, GST_TAG_TRACK_COUNT);
 	set_property_from_gst_tag (album, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
 	set_property_from_gst_tag (album, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
-
-#ifdef HAVE_LIBMEDIAART
-	extractor->media_art_artist = g_strdup (tracker_coalesce_strip (2, album_artist_name, track_artist_temp));
-	extractor->media_art_title = album_title;
-#endif
 
 	g_clear_pointer (&datetime_temp, (GDestroyNotify) gst_date_time_unref);
 	g_free (album_artist_name);
@@ -865,10 +761,6 @@ extract_metadata (MetadataExtractor      *extractor,
 
 	resource = tracker_resource_new (NULL);
 
-#ifdef HAVE_LIBMEDIAART
-	extractor->media_art_type = MEDIA_ART_NONE;
-#endif
-
 	if (extractor->toc) {
 		gst_tag_list_insert (extractor->tagcache,
 		                     extractor->toc->tag_list,
@@ -922,16 +814,8 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			if (extractor->toc == NULL || extractor->toc->entry_list == NULL)
 				tracker_resource_add_uri (resource, "rdf:type", "nmm:MusicPiece");
-
-#ifdef HAVE_LIBMEDIAART
-			extractor->media_art_type = MEDIA_ART_ALBUM;
-#endif
 		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_resource_add_uri (resource, "rdf:type", "nmm:Video");
-
-#ifdef HAVE_LIBMEDIAART
-			extractor->media_art_type = MEDIA_ART_VIDEO;
-#endif
 		} else {
 			tracker_resource_add_uri (resource, "rdf:type", "nfo:Image");
 			tracker_resource_add_uri (resource, "rdf:type", "nmm:Photo");
@@ -1041,12 +925,6 @@ extract_metadata (MetadataExtractor      *extractor,
 /* #warning TODO: handle encrypted content with the Discoverer/GUPnP-DLNA backends */
 
 	common_extract_stream_metadata (extractor, file_url, resource);
-
-#ifdef HAVE_LIBMEDIAART
-	if (extractor->mime == EXTRACT_MIME_AUDIO) {
-		get_embedded_media_art (extractor);
-	}
-#endif
 
 	return resource;
 }
@@ -1313,20 +1191,11 @@ tracker_extract_gstreamer (const gchar          *uri,
 	gchar *cue_sheet;
 	gboolean success;
 
-#ifdef HAVE_LIBMEDIAART
-	MediaArtProcess *media_art_process;
-#endif
-
 	g_return_val_if_fail (uri, NULL);
 
 	extractor = g_slice_new0 (MetadataExtractor);
 	extractor->mime = type;
 	extractor->tagcache = gst_tag_list_new_empty ();
-
-#ifdef HAVE_LIBMEDIAART
-	media_art_process = tracker_extract_info_get_media_art_process (info);
-	extractor->media_art_type = MEDIA_ART_NONE;
-#endif
 
 	g_debug ("GStreamer backend in use:");
 	g_debug ("  Discoverer/GUPnP-DLNA");
@@ -1351,53 +1220,9 @@ tracker_extract_gstreamer (const gchar          *uri,
 		}
 
 		main_resource = extract_metadata (extractor, uri);
-
-#ifdef HAVE_LIBMEDIAART
-		if (extractor->media_art_type != MEDIA_ART_NONE &&
-		    (extractor->media_art_artist != NULL ||
-		     extractor->media_art_title != NULL)) {
-			GError *error = NULL;
-			gboolean success = TRUE;
-
-			if (extractor->media_art_buffer) {
-				success = media_art_process_buffer (media_art_process,
-				                                    extractor->media_art_type,
-				                                    MEDIA_ART_PROCESS_FLAGS_NONE,
-				                                    tracker_extract_info_get_file (info),
-				                                    extractor->media_art_buffer,
-				                                    extractor->media_art_buffer_size,
-				                                    extractor->media_art_buffer_mime,
-				                                    extractor->media_art_artist,
-				                                    extractor->media_art_title,
-				                                    NULL,
-				                                    &error);
-			} else {
-				success = media_art_process_file (media_art_process,
-				                                  extractor->media_art_type,
-				                                  MEDIA_ART_PROCESS_FLAGS_NONE,
-				                                  tracker_extract_info_get_file (info),
-				                                  extractor->media_art_artist,
-				                                  extractor->media_art_title,
-				                                  NULL,
-				                                  &error);
-			}
-
-			if (!success || error) {
-				g_warning ("Could not process media art for '%s', %s",
-				           uri,
-				           error ? error->message : "No error given");
-				g_clear_error (&error);
-			}
-		}
-#endif
 	}
 
 	/* Clean up */
-#ifdef HAVE_LIBMEDIAART
-	g_free (extractor->media_art_artist);
-	g_free (extractor->media_art_title);
-#endif
-
 	if (extractor->sample) {
 		buffer = gst_sample_get_buffer (extractor->sample);
 		gst_buffer_unmap (buffer, &extractor->info);

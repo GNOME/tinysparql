@@ -38,10 +38,6 @@
 #include <sys/resource.h>
 #endif
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-data/tracker-db-manager.h>

@@ -85,12 +85,6 @@ uninstall-local:
 	$(RM) "$(servicedir)/$(service_DATA)"
 
 # Desktop files: First we fix the VERSION and libexecdir
-if HAVE_LIBMEDIAART
-requires="libmediaart-1.0"
-else
-requires=
-endif
-
 %.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@

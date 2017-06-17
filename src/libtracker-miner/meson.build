@@ -20,10 +20,6 @@ private_sources = [
     'tracker-thumbnailer.c',
     'tracker-utils.c']
 
-if libmediaart.found()
-    private_sources.append(['tracker-media-art.c'])
-endif
-
 miner_headers = [
     'tracker-enumerator.h',
     'tracker-miner-online.h',

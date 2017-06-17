@@ -29,10 +29,6 @@
 #include <libtracker-sparql/tracker-sparql.h>
 #include <gio/gio.h>
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 G_BEGIN_DECLS
 
 typedef struct _TrackerExtractInfo TrackerExtractInfo;
@@ -49,14 +45,6 @@ const gchar *         tracker_extract_info_get_mimetype           (TrackerExtrac
 TrackerResource *     tracker_extract_info_get_resource           (TrackerExtractInfo *info);
 void                  tracker_extract_info_set_resource           (TrackerExtractInfo *info,
                                                                    TrackerResource    *resource);
-
-#ifdef HAVE_LIBMEDIAART
-
-MediaArtProcess *     tracker_extract_info_get_media_art_process  (TrackerExtractInfo *info);
-void                  tracker_extract_info_set_media_art_process  (TrackerExtractInfo *info,
-                                                                   MediaArtProcess    *media_art_process);
-
-#endif /* HAVE_LIBMEDIAART */
 
 G_END_DECLS
 

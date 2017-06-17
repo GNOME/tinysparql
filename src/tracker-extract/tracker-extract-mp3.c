@@ -36,10 +36,6 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -172,9 +168,9 @@ typedef struct {
 	gint set_number;
 	gint set_count;
 
-	unsigned char *media_art_data;
+	const unsigned char *media_art_data;
 	size_t media_art_size;
-	gchar *media_art_mime;
+	const gchar *media_art_mime;
 
 	id3tag id3v1;
 	id3v2tag id3v22;
@@ -1317,10 +1313,9 @@ get_id3v24_tags (id3v24frame           frame,
 			offset = pos + 1 + mime_len + 2;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->media_art_data = g_malloc0 (csize - offset);
-			filedata->media_art_mime = g_strndup (mime, mime_len);
-			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_data = &data[offset];
 			filedata->media_art_size = csize - offset;
+			filedata->media_art_mime = mime;
 		}
 		break;
 	}
@@ -1510,10 +1505,9 @@ get_id3v23_tags (id3v24frame           frame,
 			offset = pos + 1 + mime_len + 2;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->media_art_data = g_malloc0 (csize - offset);
-			filedata->media_art_mime = g_strndup (mime, mime_len);
-			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_data = &data[offset];
 			filedata->media_art_size = csize - offset;
+			filedata->media_art_mime = mime;
 		}
 		break;
 	}
@@ -1692,10 +1686,9 @@ get_id3v20_tags (id3v2frame            frame,
 			offset = pos + 1 + 3 + 1;
 			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->media_art_mime = g_strndup (mime, 3);
-			filedata->media_art_data = g_malloc0 (csize - offset);
-			memcpy (filedata->media_art_data, &data[offset], csize - offset);
+			filedata->media_art_data = &data[offset];
 			filedata->media_art_size = csize - offset;
+			filedata->media_art_mime = mime;
 		}
 	} else {
 		/* text frames */
@@ -2587,49 +2580,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 
 	/* Get mp3 stream info */
 	parsed = mp3_parse (buffer, buffer_size, audio_offset, uri, main_resource, &md);
-
-#ifdef HAVE_LIBMEDIAART
-	if (parsed && (md.performer || md.album)) {
-		MediaArtProcess *media_art_process;
-		GError *error = NULL;
-		gboolean success = TRUE;
-
-		media_art_process = tracker_extract_info_get_media_art_process (info);
-
-		if (md.media_art_data) {
-			success = media_art_process_buffer (media_art_process,
-			                                    MEDIA_ART_ALBUM,
-			                                    MEDIA_ART_PROCESS_FLAGS_NONE,
-			                                    file,
-			                                    md.media_art_data,
-			                                    md.media_art_size,
-			                                    md.media_art_mime,
-			                                    md.performer_name,
-			                                    md.album_name,
-			                                    NULL,
-			                                    &error);
-		} else {
-			success = media_art_process_file (media_art_process,
-			                                  MEDIA_ART_ALBUM,
-			                                  MEDIA_ART_PROCESS_FLAGS_NONE,
-			                                  file,
-			                                  md.performer_name,
-			                                  md.album_name,
-			                                  NULL,
-			                                  &error);
-		}
-
-		if (!success || error) {
-			g_warning ("Could not process media art for '%s', %s",
-			           uri,
-			           error ? error->message : "No error given");
-			g_clear_error (&error);
-		}
-	}
-#endif
 	g_clear_object (&md.performer);
-	g_free (md.media_art_data);
-	g_free (md.media_art_mime);
 
 	id3v2tag_free (&md.id3v22);
 	id3v2tag_free (&md.id3v23);

@@ -44,10 +44,6 @@ struct _TrackerExtractInfo
 	GFile *file;
 	gchar *mimetype;
 
-#ifdef HAVE_LIBMEDIAART
-	MediaArtProcess *media_art_process;
-#endif
-
 	gint ref_count;
 };
 
@@ -79,10 +75,6 @@ tracker_extract_info_new (GFile       *file,
 	info->mimetype = g_strdup (mimetype);
 
 	info->resource = NULL;
-
-#ifdef HAVE_LIBMEDIAART
-        info->media_art_process = NULL;
-#endif
 
 	info->ref_count = 1;
 
@@ -129,11 +121,6 @@ tracker_extract_info_unref (TrackerExtractInfo *info)
 
 		if (info->resource)
 			g_object_unref (info->resource);
-
-#ifdef HAVE_LIBMEDIAART
-		if (info->media_art_process)
-			g_object_unref (info->media_art_process);
-#endif
 
 		g_slice_free (TrackerExtractInfo, info);
 	}
@@ -233,49 +220,3 @@ tracker_extract_info_set_resource (TrackerExtractInfo *info,
 	g_object_ref (resource);
 	info->resource = resource;
 }
-
-#ifdef HAVE_LIBMEDIAART
-
-/**
- * tracker_extract_info_get_media_art_process:
- * @info: a #TrackerExtractInfo
- *
- * Returns the #MediaArtProcess object that can be used to retrieve
- * and store media art caches found in extracted content.
- *
- * Returns: (transfer none): The #MediaArtProcess. This object should
- * not be unreferenced.
- *
- * Since: 1.2
- **/
-MediaArtProcess *
-tracker_extract_info_get_media_art_process (TrackerExtractInfo *info)
-{
-	g_return_val_if_fail (info != NULL, NULL);
-	return info->media_art_process;
-}
-
-/**
- * tracker_extract_info_set_media_art_process:
- * @info: a #TrackerExtractInfo
- * @media_art_process: a #MediaArtProcess.
- *
- * Use @media_art_process for caching and looking up media art.
- *
- * Since: 1.2
- **/
-void
-tracker_extract_info_set_media_art_process (TrackerExtractInfo *info,
-                                            MediaArtProcess    *media_art_process)
-{
-	g_return_if_fail (info != NULL);
-	g_return_if_fail (MEDIA_ART_IS_PROCESS (media_art_process));
-
-	if (info->media_art_process) {
-		g_object_unref (info->media_art_process);
-	}
-
-	info->media_art_process = g_object_ref (media_art_process);
-}
-
-#endif /* HAVE_LIBMEDIAART */
