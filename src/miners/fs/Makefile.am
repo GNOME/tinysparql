@@ -40,6 +40,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-miner-files-peer-listener.h            \
 	tracker-storage.c                              \
 	tracker-storage.h                              \
+	tracker-thumbnailer.c                          \
+	tracker-thumbnailer.h                          \
 	tracker-writeback-listener.c                   \
 	tracker-writeback-listener.h                   \
 	tracker-writeback-dispatcher.c                 \

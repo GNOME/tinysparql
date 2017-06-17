@@ -17,7 +17,6 @@ private_sources = [
     'tracker-priority-queue.c',
     'tracker-task-pool.c',
     'tracker-sparql-buffer.c',
-    'tracker-thumbnailer.c',
     'tracker-utils.c']
 
 miner_headers = [

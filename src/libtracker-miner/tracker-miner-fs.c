@@ -25,7 +25,6 @@
 #include "tracker-miner-fs.h"
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
-#include "tracker-thumbnailer.h"
 #include "tracker-priority-queue.h"
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
@@ -164,11 +163,6 @@ typedef struct {
 	TrackerMiner *miner;
 } UpdateProcessingTaskContext;
 
-typedef struct {
-	GMainLoop *main_loop;
-	TrackerMiner *miner;
-} ThumbnailMoveData;
-
 struct _TrackerMinerFSPrivate {
 	/* File queues for indexer */
 	TrackerPriorityQueue *items_created;
@@ -211,8 +205,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* Writeback tasks */
 	TrackerTaskPool *writeback_pool;
-
-	TrackerThumbnailer *thumbnailer;
 
 	/* Status */
 	GTimer *timer;
@@ -771,8 +763,6 @@ miner_fs_initable_init (GInitable     *initable,
 	                  G_CALLBACK (file_notifier_finished),
 	                  initable);
 
-	priv->thumbnailer = tracker_thumbnailer_new ();
-
 	return TRUE;
 }
 
@@ -849,10 +839,6 @@ fs_finalize (GObject *object)
 
 	if (priv->file_notifier) {
 		g_object_unref (priv->file_notifier);
-	}
-
-	if (priv->thumbnailer) {
-		g_object_unref (priv->thumbnailer);
 	}
 
 	if (priv->roots_to_notify) {
@@ -1532,11 +1518,6 @@ item_remove (TrackerMinerFS *fs,
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
 
-	if (!only_children) {
-		if (fs->priv->thumbnailer)
-			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
-	}
-
 	g_object_set_qdata (G_OBJECT (file),
 	                    fs->priv->quark_recursive_removal,
 	                    GINT_TO_POINTER (TRUE));
@@ -1563,39 +1544,6 @@ item_remove (TrackerMinerFS *fs,
 	return TRUE;
 }
 
-static void
-move_thumbnails_cb (GObject      *object,
-                    GAsyncResult *result,
-                    gpointer      user_data)
-{
-	ThumbnailMoveData *data = user_data;
-	TrackerMinerFS *fs = TRACKER_MINER_FS (data->miner);
-	GError *error = NULL;
-
-	TrackerSparqlCursor *cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
-
-	if (error) {
-		g_critical ("Could move thumbnails: %s", error->message);
-		g_error_free (error);
-	} else {
-		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			const gchar *src, *dst, *mimetype;
-
-			src = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			dst = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-			mimetype = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-
-			if (fs->priv->thumbnailer) {
-				tracker_thumbnailer_move_add (fs->priv->thumbnailer,
-				                              src, mimetype, dst);
-			}
-		}
-	}
-
-	g_object_unref (cursor);
-	g_main_loop_quit (data->main_loop);
-}
-
 static gboolean
 item_move (TrackerMinerFS *fs,
            GFile          *file,
@@ -1614,8 +1562,6 @@ item_move (TrackerMinerFS *fs,
 
 	/* FIXME: Should check the _NO_STAT on TrackerDirectoryFlags first! */
 	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
@@ -1667,42 +1613,6 @@ item_move (TrackerMinerFS *fs,
 	recursive = ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
 	             (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
 	             g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
-
-	if (fs->priv->thumbnailer) {
-		tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
-					      g_file_info_get_content_type (file_info),
-					      uri);
-
-		if (recursive) {
-			ThumbnailMoveData move_data;
-			gchar *query;
-
-			g_debug ("Moving thumbnails within '%s'", uri);
-
-			/* Push all moved files to thumbnailer */
-			move_data.main_loop = g_main_loop_new (NULL, FALSE);
-			move_data.miner = TRACKER_MINER (fs);
-
-			query = g_strdup_printf ("SELECT ?url ?new_url nie:mimeType(?u) {"
-			                         "  ?u a rdfs:Resource ;"
-			                         "     nie:url ?url ."
-			                         "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
-			                         "  FILTER (STRSTARTS (?url, \"%s/\"))"
-			                         "}",
-			                         uri, source_uri, source_uri);
-
-			tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-			                                       query,
-			                                       NULL,
-			                                       move_thumbnails_cb,
-			                                       &move_data);
-
-			g_main_loop_run (move_data.main_loop);
-			g_main_loop_unref (move_data.main_loop);
-			g_free (query);
-		}
-	}
-
 
 	/* Delete destination item from store if any */
 	item_remove (fs, file, FALSE);
@@ -2143,9 +2053,6 @@ item_queue_handlers_cb (gpointer user_data)
 			if (tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0) {
 				/* Print stats and signal finished */
 				process_stop (fs);
-
-				if (fs->priv->thumbnailer)
-					tracker_thumbnailer_send (fs->priv->thumbnailer);
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,

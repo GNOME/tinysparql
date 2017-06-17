@@ -48,8 +48,6 @@ private_sources = 				       \
 	tracker-task-pool.c                            \
 	tracker-sparql-buffer.h                        \
 	tracker-sparql-buffer.c                        \
-	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h                          \
 	tracker-utils.c                                \
 	tracker-utils.h
 
