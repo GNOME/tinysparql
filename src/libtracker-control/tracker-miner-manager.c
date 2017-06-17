@@ -1391,65 +1391,6 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 	return NULL;
 }
 
-#ifndef TRACKER_DISABLE_DEPRECATED
-
-/**
- * tracker_miner_manager_ignore_next_update:
- * @manager: a #TrackerMinerManager
- * @miner: miner reference
- * @urls: (in): the subjects to ignore the next updates of
- *
- * Tells the @miner to ignore any events for the next @urls. This is
- * used for cases where a file is updated by Tracker by the
- * tracker-writeback service. This API is used to avoid signalling up
- * the stack the changes to @urls.
- *
- * Returns: %TRUE on success, otherwise %FALSE.
- *
- * Since: 0.8
- *
- * Deprecated: 0.12
- **/
-gboolean
-tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
-                                          const gchar         *miner,
-                                          const gchar        **urls)
-{
-	GDBusProxy *proxy;
-	GError *error = NULL;
-	GVariant *v;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
-	g_return_val_if_fail (miner != NULL, FALSE);
-
-	proxy = find_miner_proxy (manager, miner, TRUE);
-
-	if (!proxy) {
-		g_warning ("No D-Bus proxy found for miner '%s'", miner);
-		return FALSE;
-	}
-
-	v = g_dbus_proxy_call_sync (proxy,
-	                            "IgnoreNextUpdate",
-	                            g_variant_new ("(^as)", urls),
-	                            G_DBUS_CALL_FLAGS_NONE,
-	                            -1,
-	                            NULL,
-	                            &error);
-
-	if (error) {
-		g_warning ("Could not ignore next update for miner '%s': %s", miner, error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	g_variant_unref (v);
-
-	return TRUE;
-}
-
-#endif /* TRACKER_DISABLE_DEPRECATED */
-
 /**
  * tracker_miner_manager_error_quark:
  *

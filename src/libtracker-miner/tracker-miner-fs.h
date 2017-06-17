@@ -60,8 +60,6 @@ struct _TrackerMinerFS {
  * @parent: parent object class
  * @process_file: Called when the metadata associated to a file is
  * requested.
- * @ignore_next_update_file: Called after a writeback event happens on
- * a file (deprecated since 0.12).
  * @finished: Called when all processing has been performed.
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
@@ -77,10 +75,6 @@ typedef struct {
 	TrackerMinerClass parent;
 
 	gboolean (* process_file)             (TrackerMinerFS       *fs,
-	                                       GFile                *file,
-	                                       TrackerSparqlBuilder *builder,
-	                                       GCancellable         *cancellable);
-	gboolean (* ignore_next_update_file)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       TrackerSparqlBuilder *builder,
 	                                       GCancellable         *cancellable);

@@ -181,7 +181,6 @@ struct _TrackerMinerFSPrivate {
 
 	guint item_queues_handler_id;
 	GFile *item_queue_blocker;
-	GHashTable *items_ignore_next_update;
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	guint queue_status_timeout_id;
@@ -257,7 +256,6 @@ typedef enum {
 	QUEUE_UPDATED,
 	QUEUE_DELETED,
 	QUEUE_MOVED,
-	QUEUE_IGNORE_NEXT_UPDATE,
 	QUEUE_WAIT,
 	QUEUE_WRITEBACK
 } QueueState;
@@ -265,7 +263,6 @@ typedef enum {
 enum {
 	PROCESS_FILE,
 	PROCESS_FILE_ATTRIBUTES,
-	IGNORE_NEXT_UPDATE_FILE,
 	FINISHED,
 	WRITEBACK_FILE,
 	FINISHED_ROOT,
@@ -305,8 +302,6 @@ static void           miner_started                       (TrackerMiner         
 static void           miner_stopped                       (TrackerMiner         *miner);
 static void           miner_paused                        (TrackerMiner         *miner);
 static void           miner_resumed                       (TrackerMiner         *miner);
-static void           miner_ignore_next_update            (TrackerMiner         *miner,
-                                                           const GStrv           subjects);
 static ItemMovedData *item_moved_data_new                 (GFile                *file,
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
@@ -389,7 +384,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	miner_class->stopped = miner_stopped;
 	miner_class->paused  = miner_paused;
 	miner_class->resumed = miner_resumed;
-	miner_class->ignore_next_update = miner_ignore_next_update;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_THROTTLE,
@@ -509,36 +503,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, process_file_attributes),
-		              NULL, NULL,
-		              NULL,
-		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
-
-	/**
-	 * TrackerMinerFS::ignore-next-update-file:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @file: a #GFile
-	 * @builder: a #TrackerSparqlBuilder
-	 * @cancellable: a #GCancellable
-	 *
-	 * The ::ignore-next-update-file signal is emitted whenever a file should
-	 * be marked as to ignore on next update, and it's metadata prepared for that.
-	 *
-	 * @builder is the #TrackerSparqlBuilder where all sparql updates
-	 * to be performed for @file will be appended.
-	 *
-	 * Returns: %TRUE on success
-	 *          %FALSE on failure
-	 *
-	 * Since: 0.8
-	 *
-	 * Deprecated: 0.12
-	 **/
-	signals[IGNORE_NEXT_UPDATE_FILE] =
-		g_signal_new ("ignore-next-update-file",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_BOOLEAN,
@@ -705,10 +669,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                                       miner_fs_queues_status_trace_timeout_cb,
 	                                                       object);
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
-
-	priv->items_ignore_next_update = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                        (GDestroyNotify) g_free,
-	                                                        (GDestroyNotify) NULL);
 
 	/* Create processing pools */
 	priv->task_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
@@ -890,8 +850,6 @@ fs_finalize (GObject *object)
 	                                (GFunc) item_writeback_data_free,
 	                                NULL);
 	tracker_priority_queue_unref (priv->items_writeback);
-
-	g_hash_table_unref (priv->items_ignore_next_update);
 
 	if (priv->indexing_tree) {
 		g_object_unref (priv->indexing_tree);
@@ -1109,23 +1067,6 @@ miner_resumed (TrackerMiner *miner)
 	}
 }
 
-
-static void
-miner_ignore_next_update (TrackerMiner *miner, const GStrv urls)
-{
-	TrackerMinerFS *fs;
-	guint n;
-
-	fs = TRACKER_MINER_FS (miner);
-
-	for (n = 0; urls[n] != NULL; n++) {
-		g_hash_table_insert (fs->priv->items_ignore_next_update,
-		                     g_strdup (urls[n]),
-		                     GINT_TO_POINTER (TRUE));
-	}
-
-	item_queue_handlers_set_up (fs);
-}
 
 static void
 notify_roots_finished (TrackerMinerFS *fs,
@@ -1717,99 +1658,6 @@ item_remove (TrackerMinerFS *fs,
 	return TRUE;
 }
 
-static gboolean
-item_ignore_next_update (TrackerMinerFS *fs,
-                         GFile          *file,
-                         GFile          *source_file)
-{
-	TrackerSparqlBuilder *sparql;
-	gchar *uri;
-	gboolean success = FALSE;
-	GCancellable *cancellable;
-	GFile *working_file;
-
-	/* While we are in ignore-on-next-update:
-	 * o. We always ignore deletes because it's never the final operation
-	 *    of a write. We have a delete when both are null.
-	 * o. A create means the write used rename(). This is the final
-	 *    operation of a write and thus we make the update query.
-	 *    We have a create when file == null and source_file != null
-	 * o. A move means the write used rename(). This is the final
-	 *    operation of a write and thus we make the update query.
-	 *    We have a move when both file and source_file aren't null.
-	 * o. A update means the write didn't use rename(). This is the
-	 *    final operation of a write and thus we make the update query.
-	 *    An update means that file != null and source_file == null. */
-
-	/* Happens on delete while in write */
-	if (!file && !source_file) {
-		return TRUE;
-	}
-
-	/* Create or update, we are the final one so we make the update query */
-
-	if (!file && source_file) {
-		/* Happens on create while in write */
-		working_file = source_file;
-	} else {
-		/* Happens on update while in write */
-		working_file = file;
-	}
-
-	uri = g_file_get_uri (working_file);
-
-	g_debug ("Updating item: '%s' (IgnoreNextUpdate event)", uri);
-
-	cancellable = g_cancellable_new ();
-	sparql = tracker_sparql_builder_new_update ();
-	g_object_ref (working_file);
-
-	/* IgnoreNextUpdate */
-	g_signal_emit (fs, signals[IGNORE_NEXT_UPDATE_FILE], 0,
-	               working_file, sparql, cancellable, &success);
-
-	if (success) {
-		gchar *query;
-
-		/* Perhaps we should move the DELETE to tracker-miner-files.c?
-		 * Or we add support for DELETE to TrackerSparqlBuilder ofcrs */
-
-		query = g_strdup_printf ("DELETE { GRAPH <%s> { "
-		                         "  ?u nfo:fileSize ?unknown1 ; "
-		                         "     nfo:fileLastModified ?unknown2 ; "
-		                         "     nfo:fileLastAccessed ?unknown3 ; "
-		                         "     nie:mimeType ?unknown4 } "
-		                         "} WHERE { GRAPH <%s> { "
-		                         "  ?u nfo:fileSize ?unknown1 ; "
-		                         "     nfo:fileLastModified ?unknown2 ; "
-		                         "     nfo:fileLastAccessed ?unknown3 ; "
-		                         "     nie:mimeType ?unknown4 ; "
-		                         "     nie:url \"%s\" } "
-		                         "} %s", TRACKER_OWN_GRAPH_URN,
-		                         TRACKER_OWN_GRAPH_URN, uri,
-		                         tracker_sparql_builder_get_result (sparql));
-
-		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                        query,
-		                                        G_PRIORITY_DEFAULT,
-		                                        NULL,
-		                                        NULL,
-		                                        NULL);
-
-		g_free (query);
-	}
-
-	g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
-
-	g_object_unref (sparql);
-	g_object_unref (working_file);
-	g_object_unref (cancellable);
-
-	g_free (uri);
-
-	return FALSE;
-}
-
 static void
 move_thumbnails_cb (GObject      *object,
                     GAsyncResult *result,
@@ -2060,18 +1908,6 @@ item_move (TrackerMinerFS *fs,
 }
 
 static gboolean
-check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
-{
-	gchar *uri = g_file_get_uri (queue_file);
-	if (g_hash_table_lookup (fs->priv->items_ignore_next_update, uri)) {
-		g_free (uri);
-		return TRUE;
-	}
-	g_free (uri);
-	return FALSE;
-}
-
-static gboolean
 should_wait (TrackerMinerFS *fs,
              GFile          *file)
 {
@@ -2192,8 +2028,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("DELETED", queue_file);
 
-		/* Do not ignore DELETED event even if file is marked as
-		   IgnoreNextUpdate. We should never see DELETED on update
+		/* Do not ignore DELETED event. We should never see DELETED on update
 		   (atomic rename or in-place update) but we may see DELETED
 		   due to actual file deletion right after update. */
 
@@ -2220,32 +2055,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("CREATED", queue_file);
 
-		/* Note:
-		 * We won't be considering an IgnoreNextUpdate request if
-		 * the event being processed is a CREATED event and the
-		 * file was still unknown to tracker.
-		 */
-		if (check_ignore_next_update (fs, queue_file)) {
-			gchar *uri;
-
-			uri = g_file_get_uri (queue_file);
-
-			if (lookup_file_urn (fs, queue_file, FALSE) != NULL) {
-				g_debug ("CREATED event ignored on file '%s' as it already existed, "
-				         " processing as IgnoreNextUpdate...",
-				         uri);
-				g_free (uri);
-
-				return QUEUE_IGNORE_NEXT_UPDATE;
-			} else {
-				/* Just remove the IgnoreNextUpdate request */
-				g_debug ("Skipping the IgnoreNextUpdate request on CREATED event for '%s', file is actually new",
-				         uri);
-				g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
-				g_free (uri);
-			}
-		}
-
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
@@ -2270,18 +2079,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("UPDATED", queue_file);
 
-		if (check_ignore_next_update (fs, queue_file)) {
-			gchar *uri;
-
-			uri = g_file_get_uri (queue_file);
-			g_debug ("UPDATED event ignored on file '%s', "
-			         " processing as IgnoreNextUpdate...",
-			         uri);
-			g_free (uri);
-
-			return QUEUE_IGNORE_NEXT_UPDATE;
-		}
-
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
@@ -2302,24 +2099,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	                                    &priority);
 	if (data) {
 		trace_eq_pop_head_2 ("MOVED", data->file, data->source_file);
-
-		if (check_ignore_next_update (fs, data->file)) {
-			gchar *uri;
-			gchar *source_uri;
-
-			uri = g_file_get_uri (queue_file);
-			source_uri = g_file_get_uri (data->source_file);
-			g_debug ("MOVED event ignored on files '%s->%s', "
-			         " processing as IgnoreNextUpdate on '%s'",
-			         source_uri, uri, uri);
-			g_free (uri);
-			g_free (source_uri);
-
-			*file = g_object_ref (data->file);
-			*source_file = g_object_ref (data->source_file);
-			item_moved_data_free (data);
-			return QUEUE_IGNORE_NEXT_UPDATE;
-		}
 
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
@@ -2593,9 +2372,6 @@ item_queue_handlers_cb (gpointer user_data)
 			g_object_unref (parent);
 		}
 
-		break;
-	case QUEUE_IGNORE_NEXT_UPDATE:
-		keep_processing = item_ignore_next_update (fs, file, source_file);
 		break;
 	case QUEUE_WRITEBACK:
 		/* Nothing to do here */

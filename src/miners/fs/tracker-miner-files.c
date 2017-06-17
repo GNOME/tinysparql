@@ -180,10 +180,6 @@ static gboolean    miner_files_process_file_attributes  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
-static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *fs,
-                                                         GFile                *file,
-                                                         TrackerSparqlBuilder *sparql,
-                                                         GCancellable         *cancellable);
 static void        miner_files_finished                 (TrackerMinerFS       *fs,
                                                          gdouble               elapsed,
                                                          gint                  directories_found,
@@ -228,7 +224,6 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
-	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
 	miner_fs_class->finished = miner_files_finished;
 
 	g_object_class_install_property (object_class,
@@ -2418,79 +2413,6 @@ miner_files_process_file_attributes (TrackerMinerFS       *fs,
 	                         cancellable,
 	                         process_file_attributes_cb,
 	                         data);
-
-	return TRUE;
-}
-
-static gboolean
-miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
-                                     GFile                *file,
-                                     TrackerSparqlBuilder *sparql,
-                                     GCancellable         *cancellable)
-{
-	const gchar *attrs;
-	const gchar *mime_type;
-	GFileInfo *file_info;
-	guint64 time_;
-	gchar *uri;
-	GError *error = NULL;
-
-	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
-		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
-		G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
-		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
-		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
-		G_FILE_ATTRIBUTE_TIME_ACCESS;
-
-	file_info = g_file_query_info (file, attrs,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               cancellable, &error);
-
-	if (error) {
-		g_warning ("Can't ignore-next-update: '%s'", error->message);
-		g_clear_error (&error);
-		return FALSE;
-	}
-
-	uri = g_file_get_uri (file);
-	mime_type = g_file_info_get_content_type (file_info);
-
-	/* For ignore-next-update we only write a few properties back. These properties
-	 * should NEVER be marked as tracker:writeback in the ontology! (else you break
-	 * the tracker-writeback feature) */
-
-	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_OWN_GRAPH_URN);
-
-	tracker_sparql_builder_subject_variable (sparql, "urn");
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
-
-	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
-	tracker_sparql_builder_object_int64 (sparql, g_file_info_get_size (file_info));
-
-	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
-	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
-
-	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
-	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
-	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
-
-	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
-	tracker_sparql_builder_object_string (sparql, mime_type);
-
-	tracker_sparql_builder_insert_close (sparql);
-
-	tracker_sparql_builder_where_open (sparql);
-
-	tracker_sparql_builder_subject_variable (sparql, "urn");
-	tracker_sparql_builder_predicate (sparql, "nie:url");
-	tracker_sparql_builder_object_string (sparql, uri);
-
-	tracker_sparql_builder_where_close (sparql);
-
-	g_object_unref (file_info);
-	g_free (uri);
 
 	return TRUE;
 }

@@ -155,12 +155,6 @@ gboolean             tracker_miner_manager_index_file_for_process_finish (Tracke
                                                                           GAsyncResult         *result,
                                                                           GError              **error);
 
-#ifndef TRACKER_DISABLE_DEPRECATED
-gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
-                                                               const gchar          *miner,
-                                                               const gchar         **urls) G_GNUC_DEPRECATED;
-#endif /* TRACKER_DISABLE_DEPRECATED */
-
 G_END_DECLS
 
 #endif /* __LIBTRACKER_CONTROL_MANAGER_H__ */

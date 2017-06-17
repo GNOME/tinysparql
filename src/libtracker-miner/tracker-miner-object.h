@@ -113,7 +113,6 @@ struct _TrackerMiner {
  * @paused: Called when the miner is told to pause.
  * @resumed: Called when the miner is told to resume activity.
  * @progress: progress.
- * @ignore_next_update: Called after ignore on next update event happens.
  * @padding: Reserved for future API improvements.
  *
  * Virtual methods left to implement.
@@ -131,9 +130,6 @@ typedef struct {
 	void (* progress)           (TrackerMiner *miner,
 	                             const gchar  *status,
 	                             gdouble       progress);
-
-	void (* ignore_next_update) (TrackerMiner *miner,
-	                             const GStrv   urls);
 
 	/* <Private> */
 	gpointer padding[10];
@@ -175,8 +171,6 @@ GQuark                   tracker_miner_error_quark         (void);
 
 void                     tracker_miner_start               (TrackerMiner         *miner);
 void                     tracker_miner_stop                (TrackerMiner         *miner);
-void                     tracker_miner_ignore_next_update  (TrackerMiner         *miner,
-                                                            const GStrv           urls);
 gboolean                 tracker_miner_is_started          (TrackerMiner         *miner);
 gboolean                 tracker_miner_is_paused           (TrackerMiner         *miner);
 

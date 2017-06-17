@@ -232,7 +232,6 @@ TrackerMinerError
 tracker_miner_error_quark
 tracker_miner_start
 tracker_miner_stop
-tracker_miner_ignore_next_update
 tracker_miner_is_started
 tracker_miner_is_paused
 tracker_miner_get_n_pause_reasons

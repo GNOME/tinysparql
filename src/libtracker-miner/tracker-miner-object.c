@@ -96,9 +96,6 @@ static const gchar miner_introspection_xml[] =
   "    <method name='Resume'>"
   "      <arg type='i' name='cookie' direction='in' />"
   "    </method>"
-  "    <method name='IgnoreNextUpdate'>"
-  "      <arg type='as' name='urls' direction='in' />"
-  "    </method>"
   "    <signal name='Started' />"
   "    <signal name='Stopped' />"
   "    <signal name='Paused' />"
@@ -157,7 +154,6 @@ enum {
 	PAUSED,
 	RESUMED,
 	PROGRESS,
-	IGNORE_NEXT_UPDATE,
 	LAST_SIGNAL
 };
 
@@ -338,27 +334,6 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 		              G_TYPE_STRING,
 		              G_TYPE_DOUBLE,
 		              G_TYPE_INT);
-
-	/**
-	 * TrackerMiner::ignore-next-update:
-	 * @miner: the #TrackerMiner
-	 * @urls: the urls to mark as ignore on next update
-	 *
-	 * the ::ignore-next-update signal is emitted in the miner
-	 * right after it has been asked to mark @urls as to ignore on next update
-	 * through tracker_miner_ignore_next_update().
-	 *
-	 * Since: 0.8
-	 **/
-	signals[IGNORE_NEXT_UPDATE] =
-		g_signal_new ("ignore-next-update",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerClass, ignore_next_update),
-		              NULL, NULL,
-		              NULL,
-		              G_TYPE_NONE, 1,
-		              G_TYPE_STRV);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_NAME,
@@ -858,24 +833,6 @@ tracker_miner_stop (TrackerMiner *miner)
 }
 
 /**
- * tracker_miner_ignore_next_update:
- * @miner: a #TrackerMiner
- * @urls: (in): the urls to mark as to ignore on next update
- *
- * Tells the miner to mark @urls are to ignore on next update.
- *
- * Since: 0.8
- **/
-void
-tracker_miner_ignore_next_update (TrackerMiner *miner,
-                                  const GStrv   urls)
-{
-	g_return_if_fail (TRACKER_IS_MINER (miner));
-
-	g_signal_emit (miner, signals[IGNORE_NEXT_UPDATE], 0, urls);
-}
-
-/**
  * tracker_miner_is_started:
  * @miner: a #TrackerMiner
  *
@@ -1240,26 +1197,6 @@ handle_method_call_start (TrackerMiner          *miner,
 }
 
 static void
-handle_method_call_ignore_next_update (TrackerMiner          *miner,
-                                       GDBusMethodInvocation *invocation,
-                                       GVariant              *parameters)
-{
-	GStrv urls = NULL;
-	TrackerDBusRequest *request;
-
-	g_variant_get (parameters, "(^a&s)", &urls);
-
-	request = tracker_g_dbus_request_begin (invocation,
-	                                        "%s", __PRETTY_FUNCTION__);
-
-	tracker_miner_ignore_next_update (miner, urls);
-
-	tracker_dbus_request_end (request, NULL);
-	g_dbus_method_invocation_return_value (invocation, NULL);
-	g_free (urls);
-}
-
-static void
 handle_method_call_resume (TrackerMiner          *miner,
                            GDBusMethodInvocation *invocation,
                            GVariant              *parameters)
@@ -1465,9 +1402,7 @@ handle_method_call (GDBusConnection       *connection,
 
 	tracker_gdbus_async_return_if_fail (miner != NULL, invocation);
 
-	if (g_strcmp0 (method_name, "IgnoreNextUpdate") == 0) {
-		handle_method_call_ignore_next_update (miner, invocation, parameters);
-	} else if (g_strcmp0 (method_name, "Start") == 0) {
+	if (g_strcmp0 (method_name, "Start") == 0) {
 		handle_method_call_start (miner, invocation, parameters);
 	} else if (g_strcmp0 (method_name, "Resume") == 0) {
 		handle_method_call_resume (miner, invocation, parameters);

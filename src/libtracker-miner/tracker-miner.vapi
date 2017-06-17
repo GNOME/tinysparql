@@ -100,7 +100,6 @@ namespace Tracker {
 		[NoAccessorMethod]
 		public string status { owned get; set construct; }
 		[HasEmitter]
-		public virtual signal void ignore_next_update ([CCode (array_length = false, array_null_terminated = true)] string[] urls);
 		public virtual signal void paused ();
 		public virtual signal void resumed ();
 		public virtual signal void started ();
@@ -148,7 +147,6 @@ namespace Tracker {
 		public virtual signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 		public virtual signal void finished_root (GLib.File root);
 		[Deprecated (since = "0.12")]
-		public virtual signal bool ignore_next_update_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public virtual signal bool process_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public virtual signal bool process_file_attributes (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public signal bool writeback_file (GLib.File file, [CCode (array_length = false, array_null_terminated = true)] string[] rdf_types, GLib.GenericArray<string[]> results, GLib.Cancellable? cancellable = null);
