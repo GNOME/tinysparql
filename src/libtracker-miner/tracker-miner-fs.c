@@ -3551,37 +3551,6 @@ tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
 }
 
 /**
- * tracker_miner_fs_force_mtime_checking:
- * @fs: a #TrackerMinerFS
- * @directory: a #GFile representing the directory
- *
- * Tells @fs to force mtime checking (regardless of the global mtime check
- * configuration) on the given @directory.
- *
- * Since: 0.12
- **/
-void
-tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
-                                       GFile          *directory)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (directory));
-
-	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           directory,
-	                           flags);
-}
-
-/**
  * tracker_miner_fs_set_initial_crawling:
  * @fs: a #TrackerMinerFS
  * @do_initial_crawling: a #gboolean

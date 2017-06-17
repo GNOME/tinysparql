@@ -156,8 +156,6 @@ gboolean              tracker_miner_fs_directory_remove      (TrackerMinerFS  *f
                                                               GFile           *file);
 gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS  *fs,
                                                               GFile           *file);
-void                  tracker_miner_fs_force_mtime_checking  (TrackerMinerFS  *fs,
-                                                              GFile           *directory);
 
 /* Queueing files to be processed AFTER checking rules in IndexingTree */
 void                  tracker_miner_fs_check_file            (TrackerMinerFS  *fs,
