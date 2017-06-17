@@ -96,10 +96,10 @@ typedef struct {
 	                                       gint                  directories_ignored,
 	                                       gint                  files_found,
 	                                       gint                  files_ignored);
-	gboolean (* remove_file)              (TrackerMinerFS       *fs,
-	                                       GFile                *file,
-	                                       gboolean              children_only,
-	                                       TrackerSparqlBuilder *builder);
+	gchar *  (* remove_file)              (TrackerMinerFS       *fs,
+	                                       GFile                *file);
+	gchar *  (* remove_children)          (TrackerMinerFS       *fs,
+	                                       GFile                *file);
 
 	/* <Private> */
 	gpointer padding[8];

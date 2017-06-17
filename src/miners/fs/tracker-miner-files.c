@@ -179,6 +179,10 @@ static gboolean    miner_files_process_file             (TrackerMinerFS       *f
 static gboolean    miner_files_process_file_attributes  (TrackerMinerFS       *fs,
                                                          GFile                *file,
                                                          GTask                *task);
+static gchar *     miner_files_remove_children          (TrackerMinerFS       *fs,
+                                                         GFile                *file);
+static gchar *     miner_files_remove_file              (TrackerMinerFS       *fs,
+                                                         GFile                *file);
 static void        miner_files_finished                 (TrackerMinerFS       *fs,
                                                          gdouble               elapsed,
                                                          gint                  directories_found,
@@ -224,6 +228,8 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
 	miner_fs_class->finished = miner_files_finished;
+	miner_fs_class->remove_file = miner_files_remove_file;
+	miner_fs_class->remove_children = miner_files_remove_children;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -2426,6 +2432,56 @@ miner_files_finished (TrackerMinerFS *fs,
                       gint            files_ignored)
 {
 	tracker_miner_files_set_last_crawl_done (TRUE);
+}
+
+static gchar *
+create_delete_sparql (GFile    *file,
+		      gboolean  delete_self,
+		      gboolean  delete_children)
+{
+	GString *sparql;
+	gchar *uri;
+
+	g_return_val_if_fail (delete_self || delete_children, NULL);
+
+	uri = g_file_get_uri (file);
+	sparql = g_string_new ("DELETE {"
+			       "  ?f a rdfs:Resource . "
+			       "  ?ie a rdfs:Resource "
+			       "} WHERE {"
+			       "  ?f a rdfs:Resource ; "
+			       "     nie:url ?u . "
+			       "  ?ie nie:isStoredAs ?f . "
+			       "  FILTER (");
+
+	if (delete_self)
+		g_string_append_printf (sparql, "?u = \"%s\" ", uri);
+
+	if (delete_children) {
+		if (delete_self)
+			g_string_append (sparql, " || ");
+
+		g_string_append_printf (sparql, "STRSTARTS (?u, \"%s/\")", uri);
+	}
+
+	g_string_append (sparql, ")}");
+	g_free (uri);
+
+	return g_string_free (sparql, FALSE);
+}
+
+static gchar *
+miner_files_remove_children (TrackerMinerFS *fs,
+                             GFile          *file)
+{
+	return create_delete_sparql (file, FALSE, TRUE);
+}
+
+static gchar *
+miner_files_remove_file (TrackerMinerFS *fs,
+                         GFile          *file)
+{
+	return create_delete_sparql (file, TRUE, TRUE);
 }
 
 TrackerMiner *

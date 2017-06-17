@@ -266,6 +266,7 @@ enum {
 	WRITEBACK_FILE,
 	FINISHED_ROOT,
 	REMOVE_FILE,
+	REMOVE_CHILDREN,
 	LAST_SIGNAL
 };
 
@@ -282,10 +283,6 @@ enum {
 
 static void           miner_fs_initable_iface_init        (GInitableIface       *iface);
 
-static gboolean       miner_fs_remove_file                (TrackerMinerFS       *fs,
-                                                           GFile                *file,
-                                                           gboolean              children_only,
-                                                           TrackerSparqlBuilder *builder);
 static void           fs_finalize                         (GObject              *object);
 static void           fs_constructed                      (GObject              *object);
 static void           fs_set_property                     (GObject              *object,
@@ -371,8 +368,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
-
-	klass->remove_file = miner_fs_remove_file;
 
 	object_class->finalize = fs_finalize;
 	object_class->constructed = fs_constructed;
@@ -629,10 +624,17 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, remove_file),
 		              NULL, NULL, NULL,
-		              G_TYPE_BOOLEAN,
-		              3,
-		              G_TYPE_FILE, G_TYPE_BOOLEAN,
-		              TRACKER_SPARQL_TYPE_BUILDER);
+		              G_TYPE_STRING,
+		              1, G_TYPE_FILE);
+
+	signals[REMOVE_CHILDREN] =
+		g_signal_new ("remove-children",
+		              G_TYPE_FROM_CLASS (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, remove_children),
+		              NULL, NULL, NULL,
+		              G_TYPE_STRING,
+		              1, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
@@ -779,15 +781,6 @@ miner_fs_initable_iface_init (GInitableIface *iface)
 {
 	miner_fs_initable_parent_iface = g_type_interface_peek_parent (iface);
 	iface->init = miner_fs_initable_init;
-}
-
-static gboolean
-miner_fs_remove_file (TrackerMinerFS *fs,
-                      GFile                *file,
-                      gboolean              children_only,
-                      TrackerSparqlBuilder *builder)
-{
-	return FALSE;
 }
 
 static void
@@ -1543,11 +1536,9 @@ item_remove (TrackerMinerFS *fs,
              GFile          *file,
              gboolean        only_children)
 {
-	TrackerSparqlBuilder *builder;
-	gboolean delete_handled = FALSE;
-	gchar *uri;
+	gchar *uri, *sparql;
 	TrackerTask *task;
-	guint flags = 0;
+	guint signal_num;
 
 	uri = g_file_get_uri (file);
 
@@ -1563,69 +1554,16 @@ item_remove (TrackerMinerFS *fs,
 	                    fs->priv->quark_recursive_removal,
 	                    GINT_TO_POINTER (TRUE));
 
-	builder = tracker_sparql_builder_new_update ();
-	g_signal_emit (fs, signals[REMOVE_FILE], 0,
-	               file, only_children, builder, &delete_handled);
+	signal_num = only_children ? REMOVE_CHILDREN : REMOVE_FILE;
+	g_signal_emit (fs, signals[signal_num], 0, file, &sparql);
 
-	if (tracker_sparql_builder_get_length (builder) > 0) {
-		task = tracker_sparql_task_new_with_sparql (file, builder);
+	if (sparql) {
+		task = tracker_sparql_task_new_take_sparql_str (file, sparql);
 		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
-		tracker_task_unref (task);
-	}
-
-	g_object_unref (builder);
-
-	if (!delete_handled) {
-		if (!only_children)
-			flags = TRACKER_BULK_MATCH_EQUALS;
-
-		if (tracker_file_notifier_get_file_type (fs->priv->file_notifier, file) == G_FILE_TYPE_DIRECTORY)
-			flags |= TRACKER_BULK_MATCH_CHILDREN;
-
-		/* FIRST:
-		 * Remove tracker:available for the resources we're going to remove.
-		 * This is done so that unavailability of the resources is marked as soon
-		 * as possible, as the actual delete may take reaaaally a long time
-		 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
-		 * device). */
-
-		/* Add new task to processing pool */
-		task = tracker_sparql_task_new_bulk (file,
-		                                     "DELETE { "
-		                                     "  ?f tracker:available true "
-		                                     "}",
-		                                     flags);
-
-		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
-		tracker_task_unref (task);
-
-		/* SECOND:
-		 * Actually remove all resources. This operation is the one which may take
-		 * a long time.
-		 */
-
-		/* Add new task to processing pool */
-		task = tracker_sparql_task_new_bulk (file,
-		                                     "DELETE { "
-		                                     "  ?f a rdfs:Resource . "
-		                                     "  ?ie a rdfs:Resource "
-		                                     "}",
-		                                     flags |
-		                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
-
-		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
+					    task,
+					    G_PRIORITY_DEFAULT,
+					    sparql_buffer_task_finished_cb,
+					    fs);
 		tracker_task_unref (task);
 	}
 

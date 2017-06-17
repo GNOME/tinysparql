@@ -42,6 +42,8 @@ static gboolean miner_applications_process_file            (TrackerMinerFS      
 static gboolean miner_applications_process_file_attributes (TrackerMinerFS       *fs,
                                                             GFile                *file,
                                                             GTask                *task);
+static gchar *  miner_applications_remove_file             (TrackerMinerFS       *fs,
+                                                            GFile                *file);
 
 static GQuark miner_applications_error_quark = 0;
 
@@ -70,6 +72,7 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 
 	miner_fs_class->process_file = miner_applications_process_file;
 	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
+	miner_fs_class->remove_file = miner_applications_remove_file;
 
 	miner_applications_error_quark = g_quark_from_static_string ("TrackerMinerApplications");
 }
@@ -933,6 +936,23 @@ miner_applications_process_file_attributes (TrackerMinerFS       *fs,
 	g_free (uri);
 
 	return FALSE;
+}
+
+static gchar *
+miner_applications_remove_file (TrackerMinerFS *fs,
+                                GFile          *file)
+{
+	gchar *uri, *sparql;
+
+	uri = g_file_get_uri (file);
+	sparql = g_strdup_printf ("DELETE {"
+	                          "  ?u a rdfs:Resource"
+	                          "} WHERE {"
+	                          "  ?u nie:url \"%s\""
+	                          "}", uri);
+	g_free (uri);
+
+	return sparql;
 }
 
 TrackerMiner *
