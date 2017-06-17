@@ -159,7 +159,6 @@ typedef struct {
 typedef struct {
 	GFile *file;
 	gchar *urn;
-	gchar *parent_urn;
 	gint priority;
 	GCancellable *cancellable;
 	TrackerMiner *miner;
@@ -1301,7 +1300,6 @@ static UpdateProcessingTaskContext *
 update_processing_task_context_new (TrackerMiner         *miner,
                                     gint                  priority,
                                     const gchar          *urn,
-                                    const gchar          *parent_urn,
                                     GCancellable         *cancellable)
 {
 	UpdateProcessingTaskContext *ctxt;
@@ -1309,7 +1307,6 @@ update_processing_task_context_new (TrackerMiner         *miner,
 	ctxt = g_slice_new0 (UpdateProcessingTaskContext);
 	ctxt->miner = miner;
 	ctxt->urn = g_strdup (urn);
-	ctxt->parent_urn = g_strdup (parent_urn);
 	ctxt->priority = priority;
 
 	if (cancellable) {
@@ -1323,7 +1320,6 @@ static void
 update_processing_task_context_free (UpdateProcessingTaskContext *ctxt)
 {
 	g_free (ctxt->urn);
-	g_free (ctxt->parent_urn);
 
 	if (ctxt->cancellable) {
 		g_object_unref (ctxt->cancellable);
@@ -1457,9 +1453,8 @@ item_add_or_update (TrackerMinerFS *fs,
 	gboolean processing;
 	gboolean attribute_update_only;
 	TrackerTask *task;
-	const gchar *parent_urn, *urn;
+	const gchar *urn;
 	gchar *uri;
-	GFile *parent;
 	GTask *gtask;
 
 	priv = fs->priv;
@@ -1473,20 +1468,11 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * we have to UPDATE, not INSERT. */
 	urn = lookup_file_urn (fs, file, FALSE);
 
-	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
-		parent = g_file_get_parent (file);
-		parent_urn = lookup_file_urn (fs, parent, TRUE);
-		g_object_unref (parent);
-	} else {
-		parent_urn = NULL;
-	}
-
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
 	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
 	                                           priority,
 	                                           urn,
-	                                           parent_urn,
 	                                           cancellable);
 	task = tracker_task_new (file, ctxt,
 	                         (GDestroyNotify) update_processing_task_context_free);
@@ -3508,67 +3494,6 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	return g_strdup (lookup_file_urn (fs, file, TRUE));
-}
-
-/**
- * tracker_miner_fs_get_parent_urn:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile obtained in #TrackerMinerFS::process-file
- *
- * If @file is currently being processed by @fs, this function
- * will return the parent folder URN if any. This function is
- * useful to set the nie:belongsToContainer relationship. The
- * processing order of #TrackerMinerFS guarantees that a folder
- * has been already fully processed for indexing before any
- * children is processed, so most usually this function should
- * return non-%NULL.
- *
- * Returns: (transfer none) (nullable): The parent folder URN, or %NULL.
- *
- * Since: 0.8
- **/
-const gchar *
-tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
-                                 GFile          *file)
-{
-	TrackerTask *task;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
-	g_return_val_if_fail (G_IS_FILE (file), NULL);
-
-	/* Check if found in currently processed data */
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
-
-	if (!task) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-
-		g_critical ("File '%s' is not being currently processed, "
-		            "so the parent URN cannot be retrieved.", uri);
-		g_free (uri);
-
-		return NULL;
-	} else {
-		UpdateProcessingTaskContext *ctxt;
-
-		/* We are only storing the URN in the created/updated tasks */
-		ctxt = tracker_task_get_data (task);
-
-		if (!ctxt) {
-			gchar *uri;
-
-			uri = g_file_get_uri (file);
-			g_critical ("File '%s' is being processed, but not as a "
-			            "CREATED/UPDATED task, so cannot get parent "
-			            "URN",
-			            uri);
-			g_free (uri);
-			return NULL;
-		}
-
-		return ctxt->parent_urn;
-	}
 }
 
 void

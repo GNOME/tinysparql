@@ -125,7 +125,6 @@ namespace Tracker {
 		public unowned Tracker.IndexingTree get_indexing_tree ();
 		public bool get_initial_crawling ();
 		public bool get_mtime_checking ();
-		public unowned string? get_parent_urn (GLib.File file);
 		public double get_throttle ();
 		public unowned string? get_urn (GLib.File file);
 		public bool has_items_to_process ();

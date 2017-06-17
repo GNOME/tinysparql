@@ -204,7 +204,6 @@ tracker_miner_fs_writeback_file
 tracker_miner_fs_writeback_notify
 tracker_miner_fs_notify_finish
 tracker_miner_fs_get_urn
-tracker_miner_fs_get_parent_urn
 tracker_miner_fs_query_urn
 tracker_miner_fs_has_items_to_process
 <SUBSECTION Standard>

@@ -195,8 +195,6 @@ void                  tracker_miner_fs_notify_finish         (TrackerMinerFS  *f
 /* URNs */
 const gchar          *tracker_miner_fs_get_urn               (TrackerMinerFS  *fs,
                                                               GFile           *file);
-const gchar          *tracker_miner_fs_get_parent_urn        (TrackerMinerFS  *fs,
-                                                              GFile           *file);
 gchar                *tracker_miner_fs_query_urn             (TrackerMinerFS  *fs,
                                                               GFile           *file);
 

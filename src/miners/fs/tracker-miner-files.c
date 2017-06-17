@@ -2125,7 +2125,7 @@ process_file_cb (GObject      *object,
 	const gchar *mime_type, *urn, *parent_urn;
 	GFileInfo *file_info;
 	guint64 time_;
-	GFile *file;
+	GFile *file, *parent;
 	gchar *uri;
 	GError *error = NULL;
 	gboolean is_iri;
@@ -2205,7 +2205,9 @@ process_file_cb (GObject      *object,
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}
 
-	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), file);
+	parent = g_file_get_parent (file);
+	parent_urn = tracker_miner_fs_query_urn (TRACKER_MINER_FS (data->miner), parent);
+	g_object_unref (parent);
 
 	if (parent_urn) {
 		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");

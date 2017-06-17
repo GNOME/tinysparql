@@ -494,6 +494,7 @@ process_desktop_file (ProcessApplicationData  *data,
 {
 	TrackerSparqlBuilder *sparql;
 	GKeyFile *key_file;
+	GFile *parent;
 	gchar *name = NULL;
 	gchar *path;
 	gchar *type;
@@ -808,7 +809,9 @@ process_desktop_file (ProcessApplicationData  *data,
 		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
 	}
 
-	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), data->file);
+	parent = g_file_get_parent (data->file);
+	parent_urn = tracker_miner_fs_query_urn (TRACKER_MINER_FS (data->miner), parent);
+	g_object_unref (parent);
 
 	if (parent_urn) {
 		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
