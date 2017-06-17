@@ -3496,29 +3496,6 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 	return g_strdup (lookup_file_urn (fs, file, TRUE));
 }
 
-void
-tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
-{
-#if 0
-	GList *directories;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-
-	g_message ("Forcing re-check on all index directories");
-
-	directories = fs->priv->config_directories;
-
-	while (directories) {
-		tracker_priority_queue_add (fs->priv->directories,
-		                            directory_data_ref (directories->data),
-		                            G_PRIORITY_LOW);
-		directories = directories->next;
-	}
-
-	crawl_directories_start (fs);
-#endif
-}
-
 /**
  * tracker_miner_fs_set_mtime_checking:
  * @fs: a #TrackerMinerFS

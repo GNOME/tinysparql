@@ -177,7 +177,6 @@ void                  tracker_miner_fs_check_directory_with_priority
                                                               gint             priority,
                                                               gboolean         check_parents);
 
-void                  tracker_miner_fs_force_recheck         (TrackerMinerFS  *fs);
 void                  tracker_miner_fs_writeback_file        (TrackerMinerFS  *fs,
                                                               GFile           *file,
                                                               GStrv            rdf_types,

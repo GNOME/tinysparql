@@ -120,7 +120,6 @@ namespace Tracker {
 		public static GLib.Quark error_quark ();
 		public void notify_finish (GLib.File file, GLib.Task task, string sparql, GLib.Error error);
 		public void force_mtime_checking (GLib.File directory);
-		public void force_recheck ();
 		public unowned Tracker.DataProvider get_data_provider ();
 		public unowned Tracker.IndexingTree get_indexing_tree ();
 		public bool get_initial_crawling ();
