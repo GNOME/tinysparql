@@ -267,6 +267,7 @@ enum {
 	FINISHED_ROOT,
 	REMOVE_FILE,
 	REMOVE_CHILDREN,
+	MOVE_FILE,
 	LAST_SIGNAL
 };
 
@@ -1614,16 +1615,13 @@ item_move (TrackerMinerFS *fs,
            GFile          *file,
            GFile          *source_file)
 {
-	gchar     *uri, *source_uri;
+	gchar     *uri, *source_uri, *sparql;
 	GFileInfo *file_info;
-	GString   *sparql;
 	TrackerTask *task;
 	const gchar *source_iri;
-	gchar *display_name;
 	gboolean source_exists;
-	GFile *new_parent;
-	const gchar *new_parent_iri;
 	TrackerDirectoryFlags source_flags, flags;
+	gboolean recursive;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
@@ -1678,141 +1676,70 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	if (fs->priv->thumbnailer)
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
+	recursive = ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+	             (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+	             g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
+
+	if (fs->priv->thumbnailer) {
 		tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
 					      g_file_info_get_content_type (file_info),
 					      uri);
 
-	sparql = g_string_new ("");
+		if (recursive) {
+			ThumbnailMoveData move_data;
+			gchar *query;
 
-	/* Delete destination item from store if any */
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  ?urn a rdfs:Resource "
-	                        "} WHERE {"
-	                        "  ?urn nie:url \"%s\" "
-	                        "}",
-	                        uri);
+			g_debug ("Moving thumbnails within '%s'", uri);
 
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s ; "
-	                        "       nfo:belongsToContainer ?b"
-	                        "} WHERE { "
-	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s . "
-	                        "       OPTIONAL { <%s> nfo:belongsToContainer ?b }"
-	                        "} ",
-	                        source_iri, source_iri, source_iri);
+			/* Push all moved files to thumbnailer */
+			move_data.main_loop = g_main_loop_new (NULL, FALSE);
+			move_data.miner = TRACKER_MINER (fs);
 
-	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
+			query = g_strdup_printf ("SELECT ?url ?new_url nie:mimeType(?u) {"
+			                         "  ?u a rdfs:Resource ;"
+			                         "     nie:url ?url ."
+			                         "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
+			                         "  FILTER (STRSTARTS (?url, \"%s/\"))"
+			                         "}",
+			                         uri, source_uri, source_uri);
 
-	/* Get new parent information */
-	new_parent = g_file_get_parent (file);
-	new_parent_iri = lookup_file_urn (fs, new_parent, TRUE);
+			tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
+			                                       query,
+			                                       NULL,
+			                                       move_thumbnails_cb,
+			                                       &move_data);
 
-	if (new_parent && new_parent_iri) {
-		g_string_append_printf (sparql,
-		                        "INSERT INTO <%s> {"
-		                        "  <%s> nfo:fileName \"%s\" ; "
-		                        "       nie:url \"%s\" ; "
-		                        "       nie:isStoredAs <%s> ; "
-		                        "       nfo:belongsToContainer \"%s\""
-		                        "}"   ,
-		                        TRACKER_OWN_GRAPH_URN, source_iri,
-		                        display_name, uri,
-		                        source_iri,
-		                        new_parent_iri);
-	} else {
-		g_warning ("Adding moved item '%s' without nfo:belongsToContainer (new_parent: %p)",
-		           uri, new_parent);
-		g_string_append_printf (sparql,
-		                        "INSERT INTO <%s> {"
-		                        "  <%s> nfo:fileName \"%s\" ; "
-		                        "       nie:url \"%s\" ; "
-		                        "       nie:isStoredAs <%s>"
-		                        "} ",
-		                        TRACKER_OWN_GRAPH_URN, source_iri,
-		                        display_name, uri,
-		                        source_iri);
-	}
-
-	if (new_parent)
-		g_object_unref (new_parent);
-	g_free (display_name);
-
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
-
-	if ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
-	    g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-		                                file, &flags);
-
-		if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
-			if (fs->priv->thumbnailer) {
-				ThumbnailMoveData move_data;
-				gchar *query;
-
-				g_debug ("Moving thumbnails within '%s'", uri);
-
-				/* Push all moved files to thumbnailer */
-				move_data.main_loop = g_main_loop_new (NULL, FALSE);
-				move_data.miner = TRACKER_MINER (fs);
-
-				query = g_strdup_printf ("SELECT ?url ?new_url nie:mimeType(?u) {"
-				                         "  ?u a rdfs:Resource ;"
-				                         "     nie:url ?url ."
-				                         "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
-				                         "  FILTER (STRSTARTS (?url, \"%s/\"))"
-				                         "}",
-				                         uri, source_uri, source_uri);
-
-				tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-				                                       query,
-				                                       NULL,
-				                                       move_thumbnails_cb,
-				                                       &move_data);
-
-				g_main_loop_run (move_data.main_loop);
-				g_main_loop_unref (move_data.main_loop);
-				g_free (query);
-			}
-
-			g_string_append_printf (sparql,
-			                        " DELETE {"
-			                        "  ?u nie:url ?url "
-			                        "} INSERT { "
-			                        "  GRAPH <" TRACKER_OWN_GRAPH_URN "> {"
-			                        "    ?u nie:url ?new_url "
-			                        "  }"
-			                        "} WHERE {"
-			                        "  ?u a rdfs:Resource;"
-			                        "     nie:url ?url ."
-			                        "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
-			                        "  FILTER (STRSTARTS (?url, \"%s/\"))"
-			                        "} ",
-			                        uri, source_uri, source_uri);
-		} else {
-			/* A directory is being moved from a recursive location to
-			 * a non-recursive one, mark all children as deleted.
-			 */
-			item_remove (fs, source_file, TRUE);
+			g_main_loop_run (move_data.main_loop);
+			g_main_loop_unref (move_data.main_loop);
+			g_free (query);
 		}
 	}
 
-	/* Add new task to processing pool */
-	task = tracker_sparql_task_new_take_sparql_str (file,
-	                                                g_string_free (sparql,
-	                                                               FALSE));
-	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-	                            task,
-	                            G_PRIORITY_DEFAULT,
-	                            sparql_buffer_task_finished_cb,
-	                            fs);
-	tracker_task_unref (task);
+
+	/* Delete destination item from store if any */
+	item_remove (fs, file, FALSE);
+
+	/* If the original location is recursive, but the destination location
+	 * is not, remove all children.
+	 */
+	if (!recursive &&
+	    (source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)
+		item_remove (fs, source_file, TRUE);
+
+	g_signal_emit (fs, signals[MOVE_FILE], 0, file, source_file, recursive, &sparql);
+
+	if (sparql) {
+		/* Add new task to processing pool */
+		task = tracker_sparql_task_new_take_sparql_str (file, sparql);
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            task,
+		                            G_PRIORITY_DEFAULT,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+		tracker_task_unref (task);
+	}
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		item_queue_handlers_set_up (fs);

@@ -183,6 +183,10 @@ static gchar *     miner_files_remove_children          (TrackerMinerFS       *f
                                                          GFile                *file);
 static gchar *     miner_files_remove_file              (TrackerMinerFS       *fs,
                                                          GFile                *file);
+static gchar *     miner_files_move_file                (TrackerMinerFS       *fs,
+                                                         GFile                *file,
+                                                         GFile                *source_file,
+                                                         gboolean              recursive);
 static void        miner_files_finished                 (TrackerMinerFS       *fs,
                                                          gdouble               elapsed,
                                                          gint                  directories_found,
@@ -230,6 +234,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->finished = miner_files_finished;
 	miner_fs_class->remove_file = miner_files_remove_file;
 	miner_fs_class->remove_children = miner_files_remove_children;
+	miner_fs_class->move_file = miner_files_move_file;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -2482,6 +2487,86 @@ miner_files_remove_file (TrackerMinerFS *fs,
                          GFile          *file)
 {
 	return create_delete_sparql (file, TRUE, TRUE);
+}
+
+static gchar *
+miner_files_move_file (TrackerMinerFS *fs,
+                       GFile          *file,
+                       GFile          *source_file,
+                       gboolean        recursive)
+{
+	GString *sparql = g_string_new (NULL);
+	const gchar *new_parent_iri;
+	gchar *uri, *source_uri, *display_name;
+	gchar *source_iri;
+	gchar *path, *basename;
+	GFile *new_parent;
+
+	uri = g_file_get_uri (file);
+	source_uri = g_file_get_uri (source_file);
+	source_iri = tracker_miner_fs_query_urn (fs, file);
+
+	path = g_file_get_path (file);
+	basename = g_filename_display_basename (path);
+	display_name = tracker_sparql_escape_string (basename);
+	g_free (basename);
+	g_free (path);
+
+	g_string_append_printf (sparql,
+	                        "DELETE { "
+	                        "  <%s> nfo:fileName ?f ; "
+	                        "       nie:url ?u ; "
+	                        "       nie:isStoredAs ?s ; "
+	                        "       nfo:belongsToContainer ?b"
+	                        "} WHERE { "
+	                        "  <%s> nfo:fileName ?f ; "
+	                        "       nie:url ?u ; "
+	                        "       nie:isStoredAs ?s . "
+	                        "       OPTIONAL { <%s> nfo:belongsToContainer ?b }"
+	                        "} ",
+	                        source_iri, source_iri, source_iri);
+
+	/* Get new parent information */
+	new_parent = g_file_get_parent (file);
+	new_parent_iri = tracker_miner_fs_query_urn (fs, new_parent);
+
+	g_string_append_printf (sparql,
+	                        "INSERT INTO <" TRACKER_OWN_GRAPH_URN "> {"
+	                        "  <%s> nfo:fileName \"%s\" ; "
+	                        "       nie:url \"%s\" ; "
+	                        "       nie:isStoredAs <%s> ",
+	                        source_iri, display_name, uri, source_iri);
+
+	if (new_parent && new_parent_iri) {
+		g_string_append_printf (sparql, "; nfo:belongsToContainer \"%s\"",
+		                        new_parent_iri);
+	}
+
+	g_string_append (sparql, "}");
+
+	if (recursive) {
+		g_string_append_printf (sparql,
+		                        " DELETE {"
+		                        "  ?u nie:url ?url "
+		                        "} INSERT { "
+		                        "  GRAPH <" TRACKER_OWN_GRAPH_URN "> {"
+		                        "    ?u nie:url ?new_url "
+		                        "  }"
+		                        "} WHERE {"
+		                        "  ?u a rdfs:Resource;"
+		                        "     nie:url ?url ."
+		                        "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
+		                        "  FILTER (STRSTARTS (?url, \"%s/\"))"
+		                        "} ",
+		                        uri, source_uri, source_uri);
+	}
+
+	g_free (uri);
+	g_free (source_uri);
+	g_free (display_name);
+	g_clear_object (&new_parent);
+
+	return g_string_free (sparql, FALSE);
 }
 
 TrackerMiner *

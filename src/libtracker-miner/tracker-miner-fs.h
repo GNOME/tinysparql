@@ -100,6 +100,10 @@ typedef struct {
 	                                       GFile                *file);
 	gchar *  (* remove_children)          (TrackerMinerFS       *fs,
 	                                       GFile                *file);
+	gchar *  (* move_file)                (TrackerMinerFS       *fs,
+					       GFile                *source,
+	                                       GFile                *dest,
+	                                       gboolean              recursive);
 
 	/* <Private> */
 	gpointer padding[8];
