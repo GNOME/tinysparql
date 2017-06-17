@@ -76,8 +76,7 @@ typedef struct {
 
 	gboolean (* process_file)             (TrackerMinerFS       *fs,
 	                                       GFile                *file,
-	                                       TrackerSparqlBuilder *builder,
-	                                       GCancellable         *cancellable);
+					       GTask                *task);
 	void     (* finished)                 (TrackerMinerFS       *fs,
 	                                       gdouble               elapsed,
 	                                       gint                  directories_found,
@@ -86,8 +85,7 @@ typedef struct {
 	                                       gint                  files_ignored);
 	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,
-	                                       TrackerSparqlBuilder *builder,
-	                                       GCancellable         *cancellable);
+					       GTask                *task);
 	gboolean (* writeback_file)           (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 	                                       GStrv                 rdf_types,
@@ -185,9 +183,10 @@ void                  tracker_miner_fs_writeback_file        (TrackerMinerFS  *f
 void                  tracker_miner_fs_writeback_notify      (TrackerMinerFS  *fs,
                                                               GFile           *file,
                                                               const GError    *error);
-void                  tracker_miner_fs_file_notify           (TrackerMinerFS  *fs,
-                                                              GFile           *file,
-                                                              const GError    *error);
+void                  tracker_miner_fs_notify_finish         (TrackerMinerFS  *fs,
+							      GTask           *task,
+							      const gchar     *sparql,
+							      GError          *error);
 
 /* URNs */
 const gchar          *tracker_miner_fs_get_urn               (TrackerMinerFS  *fs,

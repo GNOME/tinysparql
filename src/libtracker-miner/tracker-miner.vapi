@@ -118,7 +118,7 @@ namespace Tracker {
 		public bool directory_remove (GLib.File file);
 		public bool directory_remove_full (GLib.File file);
 		public static GLib.Quark error_quark ();
-		public void file_notify (GLib.File file, GLib.Error error);
+		public void notify_finish (GLib.File file, GLib.Task task, string sparql, GLib.Error error);
 		public void force_mtime_checking (GLib.File directory);
 		public void force_recheck ();
 		public unowned Tracker.DataProvider get_data_provider ();

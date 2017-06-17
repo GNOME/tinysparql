@@ -162,7 +162,6 @@ typedef struct {
 	gchar *parent_urn;
 	gint priority;
 	GCancellable *cancellable;
-	TrackerSparqlBuilder *builder;
 	TrackerMiner *miner;
 } UpdateProcessingTaskContext;
 
@@ -453,7 +452,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * This signal allows both synchronous and asynchronous extraction,
 	 * in the synchronous case @cancellable can be safely ignored. In
 	 * either case, on successful metadata extraction, implementations
-	 * must call tracker_miner_fs_file_notify() to indicate that
+	 * must call tracker_miner_fs_notify_finish() to indicate that
 	 * processing has finished on @file, so the miner can execute
 	 * the SPARQL updates and continue processing other files.
 	 *
@@ -470,7 +469,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+		              2, G_TYPE_FILE, G_TYPE_TASK);
 
 	/**
 	 * TrackerMinerFS::process-file-attributes:
@@ -489,7 +488,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * This signal allows both synchronous and asynchronous extraction,
 	 * in the synchronous case @cancellable can be safely ignored. In
 	 * either case, on successful metadata extraction, implementations
-	 * must call tracker_miner_fs_file_notify() to indicate that
+	 * must call tracker_miner_fs_notify_finish() to indicate that
 	 * processing has finished on @file, so the miner can execute
 	 * the SPARQL updates and continue processing other files.
 	 *
@@ -506,7 +505,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+		              2, G_TYPE_FILE, G_TYPE_TASK);
 
 	/**
 	 * TrackerMinerFS::finished:
@@ -1309,8 +1308,7 @@ update_processing_task_context_new (TrackerMiner         *miner,
                                     gint                  priority,
                                     const gchar          *urn,
                                     const gchar          *parent_urn,
-                                    GCancellable         *cancellable,
-                                    TrackerSparqlBuilder *builder)
+                                    GCancellable         *cancellable)
 {
 	UpdateProcessingTaskContext *ctxt;
 
@@ -1322,10 +1320,6 @@ update_processing_task_context_new (TrackerMiner         *miner,
 
 	if (cancellable) {
 		ctxt->cancellable = g_object_ref (cancellable);
-	}
-
-	if (builder) {
-		ctxt->builder = g_object_ref (builder);
 	}
 
 	return ctxt;
@@ -1341,32 +1335,38 @@ update_processing_task_context_free (UpdateProcessingTaskContext *ctxt)
 		g_object_unref (ctxt->cancellable);
 	}
 
-	if (ctxt->builder) {
-		g_object_unref (ctxt->builder);
-	}
-
 	g_slice_free (UpdateProcessingTaskContext, ctxt);
 }
 
 static void
-item_add_or_update_continue (TrackerMinerFS *fs,
-                             TrackerTask    *task,
-                             const GError   *error)
+on_signal_gtask_complete (GObject      *source,
+			  GAsyncResult *res,
+			  gpointer      user_data)
 {
+	TrackerMinerFS *fs = TRACKER_MINER_FS (source);
+	TrackerTask *task, *sparql_task = NULL;
 	UpdateProcessingTaskContext *ctxt;
-	TrackerTask *sparql_task = NULL;
-	GFile *file;
-	gchar *uri;
+	GError *error = NULL;
+	GFile *file = user_data;
+	gchar *uri, *sparql;
+
+	sparql = g_task_propagate_pointer (G_TASK (res), &error);
+	g_object_unref (res);
+
+	task = tracker_task_pool_find (fs->priv->task_pool, file);
+	g_assert (task != NULL);
 
 	ctxt = tracker_task_get_data (task);
-	file = tracker_task_get_file (task);
 	uri = g_file_get_uri (file);
 
 	if (error) {
 		g_message ("Could not process '%s': %s", uri, error->message);
+		g_error_free (error);
 
 		fs->priv->total_files_notified_error++;
 	} else {
+		fs->priv->total_files_notified++;
+
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
 
@@ -1382,7 +1382,7 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 			g_debug ("Creating new item '%s'", uri);
 		}
 
-		sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
+		sparql_task = tracker_sparql_task_new_take_sparql_str (file, sparql);
 	}
 
 	if (sparql_task) {
@@ -1458,21 +1458,19 @@ item_add_or_update (TrackerMinerFS *fs,
                     gint            priority)
 {
 	TrackerMinerFSPrivate *priv;
-	TrackerSparqlBuilder *sparql;
 	UpdateProcessingTaskContext *ctxt;
 	GCancellable *cancellable;
 	gboolean processing;
-	gboolean keep_processing;
 	gboolean attribute_update_only;
 	TrackerTask *task;
 	const gchar *parent_urn, *urn;
 	gchar *uri;
 	GFile *parent;
+	GTask *gtask;
 
 	priv = fs->priv;
 
 	cancellable = g_cancellable_new ();
-	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
 
 	/* Always query. No matter we are notified the file was just
@@ -1495,8 +1493,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	                                           priority,
 	                                           urn,
 	                                           parent_urn,
-	                                           cancellable,
-	                                           sparql);
+	                                           cancellable);
 	task = tracker_task_new (file, ctxt,
 	                         (GDestroyNotify) update_processing_task_context_free);
 
@@ -1508,54 +1505,37 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	attribute_update_only = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (file), priv->quark_attribute_updated));
 
+	gtask = g_task_new (fs, ctxt->cancellable, on_signal_gtask_complete, file);
+
 	if (!attribute_update_only) {
 		g_debug ("Processing file '%s'...", uri);
 		g_signal_emit (fs, signals[PROCESS_FILE], 0,
-		               file,
-		               ctxt->builder,
-		               ctxt->cancellable,
+		               file, gtask,
 		               &processing);
 	} else {
 		g_debug ("Processing attributes in file '%s'...", uri);
 		g_signal_emit (fs, signals[PROCESS_FILE_ATTRIBUTES], 0,
-		               file,
-		               ctxt->builder,
-		               ctxt->cancellable,
+		               file, gtask,
 		               &processing);
 	}
 
-	keep_processing = TRUE;
-
 	if (!processing) {
-		/* Re-fetch data, since it might have been
-		 * removed in broken implementations
-		 */
-		task = tracker_task_pool_find (priv->task_pool, file);
+		GError *error;
 
-		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
-
-		if (!task) {
-			g_critical ("%s has returned FALSE in ::process-file for '%s', "
-			            "but it seems that this file has been processed through "
-			            "tracker_miner_fs_file_notify(), this is an "
-			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
-		} else {
-			tracker_task_pool_remove (priv->task_pool, task);
-		}
+		error = g_error_new (tracker_miner_fs_error_quark (),
+				     TRACKER_MINER_FS_ERROR_INIT,
+				     "TrackerMinerFS::%s returned FALSE",
+				     attribute_update_only ? "process-file-attributes" : "process-file");
+		g_task_return_error (gtask, error);
 	} else {
 		fs->priv->total_files_processed++;
-
-		if (tracker_task_pool_limit_reached (priv->task_pool)) {
-			keep_processing = FALSE;
-		}
 	}
 
 	g_free (uri);
 	g_object_unref (file);
 	g_object_unref (cancellable);
-	g_object_unref (sparql);
 
-	return keep_processing;
+	return !tracker_task_pool_limit_reached (priv->task_pool);
 }
 
 static gboolean
@@ -3493,55 +3473,35 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_file_notify:
+ * tracker_miner_fs_notify_finish:
  * @fs: a #TrackerMinerFS
- * @file: a #GFile
+ * @task: a #GTask obtained in a #TrackerMinerFS signal/vmethod
+ * @sparql: (nullable): Resulting sparql for the given operation, or %NULL if
+ *   there is an error
  * @error: a #GError with the error that happened during processing, or %NULL.
  *
  * Notifies @fs that all processing on @file has been finished, if any error
  * happened during file data processing, it should be passed in @error, else
- * that parameter will contain %NULL to reflect success.
+ * @sparql should contain correct SPARQL representing the operation in
+ * particular.
  *
- * Since: 0.8
+ * This function is expected to be called in reaction to all #TrackerMinerFS
+ * signals
  **/
 void
-tracker_miner_fs_file_notify (TrackerMinerFS *fs,
-                              GFile          *file,
-                              const GError   *error)
+tracker_miner_fs_notify_finish (TrackerMinerFS *fs,
+                                GTask          *task,
+                                const gchar    *sparql,
+                                GError         *error)
 {
-	TrackerTask *task;
-
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
+	g_return_if_fail (G_IS_TASK (task));
+	g_return_if_fail (sparql || error);
 
-	fs->priv->total_files_notified++;
-
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
-
-	if (!task) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		g_critical ("%s has notified that file '%s' has been processed, "
-		            "but that file was not in the processing queue. "
-		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_file_notify() is called on the same "
-		            "GFile that is passed in ::process-file, and that this"
-		            "signal didn't return FALSE for it",
-		            G_OBJECT_TYPE_NAME (fs), uri);
-		g_free (uri);
-
-		if (item_queue_is_blocked_by_file (fs, file)) {
-			/* Ensure we don't stall, although this is a very ugly situation */
-			g_object_unref (fs->priv->item_queue_blocker);
-			fs->priv->item_queue_blocker = NULL;
-			item_queue_handlers_set_up (fs);
-		}
-
-		return;
-	}
-
-	item_add_or_update_continue (fs, task, error);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_pointer (task, g_strdup (sparql), g_free);
 }
 
 /**

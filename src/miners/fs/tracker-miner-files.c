@@ -66,6 +66,7 @@ struct ProcessFileData {
 	GCancellable *cancellable;
 	GFile *file;
 	gchar *mime_type;
+	GTask *task;
 };
 
 struct TrackerMinerFilesPrivate {
@@ -174,12 +175,10 @@ static void        index_volumes_changed_cb             (GObject              *g
                                                          gpointer              user_data);
 static gboolean    miner_files_process_file             (TrackerMinerFS       *fs,
                                                          GFile                *file,
-                                                         TrackerSparqlBuilder *sparql,
-                                                         GCancellable         *cancellable);
+                                                         GTask                *task);
 static gboolean    miner_files_process_file_attributes  (TrackerMinerFS       *fs,
                                                          GFile                *file,
-                                                         TrackerSparqlBuilder *sparql,
-                                                         GCancellable         *cancellable);
+                                                         GTask                *task);
 static void        miner_files_finished                 (TrackerMinerFS       *fs,
                                                          gdouble               elapsed,
                                                          gint                  directories_found,
@@ -2014,6 +2013,7 @@ process_file_data_free (ProcessFileData *data)
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
 	g_object_unref (data->file);
+	g_object_unref (data->task);
 	g_free (data->mime_type);
 	g_slice_free (ProcessFileData, data);
 }
@@ -2128,11 +2128,9 @@ process_file_cb (GObject      *object,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task, NULL, error);
 		priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
 		process_file_data_free (data);
-		g_error_free (error);
-
 		return;
 	}
 
@@ -2237,7 +2235,9 @@ process_file_cb (GObject      *object,
         miner_files_add_rdf_types (sparql, file, mime_type);
 
 	sparql_builder_finish (data, NULL, NULL, NULL, NULL);
-	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
+	tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task,
+					tracker_sparql_builder_get_result (sparql),
+					NULL);
 
 	priv->extraction_queue = g_list_remove (priv->extraction_queue, data);
 	process_file_data_free (data);
@@ -2247,10 +2247,9 @@ process_file_cb (GObject      *object,
 }
 
 static gboolean
-miner_files_process_file (TrackerMinerFS       *fs,
-                          GFile                *file,
-                          TrackerSparqlBuilder *sparql,
-                          GCancellable         *cancellable)
+miner_files_process_file (TrackerMinerFS *fs,
+                          GFile          *file,
+                          GTask          *task)
 {
 	TrackerMinerFilesPrivate *priv;
 	ProcessFileData *data;
@@ -2258,9 +2257,10 @@ miner_files_process_file (TrackerMinerFS       *fs,
 
 	data = g_slice_new0 (ProcessFileData);
 	data->miner = g_object_ref (fs);
-	data->cancellable = g_object_ref (cancellable);
-	data->sparql = g_object_ref (sparql);
+	data->cancellable = g_object_ref (g_task_get_cancellable (task));
+	data->sparql = tracker_sparql_builder_new_update ();
 	data->file = g_object_ref (file);
+	data->task = g_object_ref (task);
 
 	priv = TRACKER_MINER_FILES (fs)->private;
 	priv->extraction_queue = g_list_prepend (priv->extraction_queue, data);
@@ -2276,7 +2276,7 @@ miner_files_process_file (TrackerMinerFS       *fs,
 	                         attrs,
 	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                         G_PRIORITY_DEFAULT,
-	                         cancellable,
+	                         data->cancellable,
 	                         process_file_cb,
 	                         data);
 
@@ -2305,9 +2305,8 @@ process_file_attributes_cb (GObject      *object,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task, NULL, error);
 		process_file_data_free (data);
-		g_error_free (error);
 		return;
 	}
 
@@ -2320,9 +2319,8 @@ process_file_attributes_cb (GObject      *object,
 		                             0,
 		                             "Received request to update attributes but no IRI available!");
 		/* Notify about the error */
-		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task, NULL, error);
 		process_file_data_free (data);
-		g_error_free (error);
 		return;
 	}
 
@@ -2382,25 +2380,27 @@ process_file_attributes_cb (GObject      *object,
 	g_free (uri);
 
 	/* Notify about the success */
-	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
+	tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task,
+					tracker_sparql_builder_get_result (sparql),
+					NULL);
 
 	process_file_data_free (data);
 }
 
 static gboolean
-miner_files_process_file_attributes (TrackerMinerFS       *fs,
-                                     GFile                *file,
-                                     TrackerSparqlBuilder *sparql,
-                                     GCancellable         *cancellable)
+miner_files_process_file_attributes (TrackerMinerFS *fs,
+                                     GFile          *file,
+                                     GTask          *task)
 {
 	ProcessFileData *data;
 	const gchar *attrs;
 
 	data = g_slice_new0 (ProcessFileData);
 	data->miner = g_object_ref (fs);
-	data->cancellable = g_object_ref (cancellable);
-	data->sparql = g_object_ref (sparql);
+	data->cancellable = g_object_ref (g_task_get_cancellable (task));
+	data->sparql = tracker_sparql_builder_new_update ();
 	data->file = g_object_ref (file);
+	data->task = g_object_ref (task);
 
 	/* Query only attributes that may change in an ATTRIBUTES_UPDATED event */
 	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
@@ -2410,7 +2410,7 @@ miner_files_process_file_attributes (TrackerMinerFS       *fs,
 	                         attrs,
 	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                         G_PRIORITY_DEFAULT,
-	                         cancellable,
+	                         data->cancellable,
 	                         process_file_attributes_cb,
 	                         data);
 

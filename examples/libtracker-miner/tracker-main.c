@@ -59,6 +59,7 @@ miner_start_cb (gpointer user_data)
 static gboolean
 process_file_cb (TrackerMinerFS *fs,
                  GFile          *file,
+                 GTask          *task,
                  gpointer        user_data)
 {
 	gchar *path;
@@ -68,7 +69,7 @@ process_file_cb (TrackerMinerFS *fs,
 	g_free (path);
 
 	/* Notify that processing is complete. */
-	tracker_miner_fs_file_notify (fs, file, NULL);
+	tracker_miner_fs_notify_finish (fs, task, "", NULL);
 
 	/* Return FALSE here if you ignored the file. */
 	return TRUE;
