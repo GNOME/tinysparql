@@ -25,15 +25,17 @@
 
 enum {
 	PROP_DECORATOR = 1,
+	PROP_CONNECTION,
 };
 
 struct TrackerExtractControllerPrivate {
 	TrackerDecorator *decorator;
 	TrackerConfig *config;
 	GCancellable *cancellable;
+	GDBusConnection *connection;
 	guint watch_id;
 	guint progress_signal_id;
-	gint pause_cookie;
+	gint paused;
 };
 
 G_DEFINE_TYPE (TrackerExtractController, tracker_extract_controller, G_TYPE_OBJECT)
@@ -42,16 +44,12 @@ static void
 files_miner_idleness_changed (TrackerExtractController *self,
                               gboolean                  idle)
 {
-	if (idle && self->priv->pause_cookie != 0) {
-		tracker_miner_resume (TRACKER_MINER (self->priv->decorator),
-		                      self->priv->pause_cookie,
-		                      NULL);
-		self->priv->pause_cookie = 0;
-	} else if (!idle && self->priv->pause_cookie == 0) {
-		self->priv->pause_cookie =
-			tracker_miner_pause (TRACKER_MINER (self->priv->decorator),
-			                     "Wait for files miner",
-			                     NULL);
+	if (idle && self->priv->paused) {
+		tracker_miner_resume (TRACKER_MINER (self->priv->decorator));
+		self->priv->paused = FALSE;
+	} else if (!idle && !self->priv->paused) {
+		self->priv->paused = FALSE;
+		tracker_miner_pause (TRACKER_MINER (self->priv->decorator));
 	}
 }
 
@@ -149,9 +147,7 @@ files_miner_progress_cb (GDBusConnection *connection,
 static void
 disconnect_all (TrackerExtractController *self)
 {
-	GDBusConnection *conn;
-
-	conn = tracker_miner_get_dbus_connection (TRACKER_MINER (self->priv->decorator));
+	GDBusConnection *conn = self->priv->connection;
 
 	if (self->priv->watch_id != 0)
 		g_bus_unwatch_name (self->priv->watch_id);
@@ -170,9 +166,7 @@ disconnect_all (TrackerExtractController *self)
 static void
 update_wait_for_miner_fs (TrackerExtractController *self)
 {
-	GDBusConnection *conn;
-
-	conn = tracker_miner_get_dbus_connection (TRACKER_MINER (self->priv->decorator));
+	GDBusConnection *conn = self->priv->connection;
 
 	if (tracker_config_get_wait_for_miner_fs (self->priv->config)) {
 		self->priv->progress_signal_id =
@@ -229,6 +223,9 @@ tracker_extract_controller_get_property (GObject    *object,
 	case PROP_DECORATOR:
 		g_value_set_object (value, self->priv->decorator);
 		break;
+	case PROP_CONNECTION:
+		g_value_set_object (value, self->priv->connection);
+		break;
 	}
 }
 
@@ -244,6 +241,9 @@ tracker_extract_controller_set_property (GObject      *object,
 	case PROP_DECORATOR:
 		g_assert (self->priv->decorator == NULL);
 		self->priv->decorator = g_value_dup_object (value);
+		break;
+	case PROP_CONNECTION:
+		self->priv->connection = g_value_dup_object (value);
 		break;
 	}
 }
@@ -279,6 +279,15 @@ tracker_extract_controller_class_init (TrackerExtractControllerClass *klass)
 	                                                      G_PARAM_STATIC_STRINGS |
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+	                                 PROP_CONNECTION,
+	                                 g_param_spec_object ("connection",
+	                                                      "Connection",
+	                                                      "Connection",
+	                                                      G_TYPE_DBUS_CONNECTION,
+	                                                      G_PARAM_STATIC_STRINGS |
+	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_CONSTRUCT_ONLY));
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerExtractControllerPrivate));
@@ -293,11 +302,13 @@ tracker_extract_controller_init (TrackerExtractController *self)
 }
 
 TrackerExtractController *
-tracker_extract_controller_new (TrackerDecorator *decorator)
+tracker_extract_controller_new (TrackerDecorator *decorator,
+                                GDBusConnection  *connection)
 {
 	g_return_val_if_fail (TRACKER_IS_DECORATOR (decorator), NULL);
 
 	return g_object_new (TRACKER_TYPE_EXTRACT_CONTROLLER,
 	                     "decorator", decorator,
+	                     "connection", connection,
 	                     NULL);
 }

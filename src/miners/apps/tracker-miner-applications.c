@@ -964,7 +964,6 @@ tracker_miner_applications_new (GError **error)
 	return g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
 	                       NULL,
 	                       error,
-	                       "name", "Applications",
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,
 	                       NULL);

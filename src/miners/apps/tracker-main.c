@@ -44,6 +44,9 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define DBUS_NAME "org.freedesktop.Tracker1.Miner.Applications"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Applications"
+
 static GMainLoop *main_loop;
 
 static gint verbosity = -1;
@@ -166,6 +169,8 @@ main (gint argc, gchar *argv[])
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
+	GDBusConnection *connection;
+	TrackerMinerProxy *proxy;
 
 	main_loop = NULL;
 
@@ -198,6 +203,21 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            DBUS_NAME, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
 	tracker_log_init (verbosity, &log_filename);
 	if (log_filename) {
 		g_message ("Using log file:'%s'", log_filename);
@@ -223,6 +243,14 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	proxy = tracker_miner_proxy_new (miner_applications, connection, DBUS_PATH, NULL, &error);
+	if (!proxy) {
+		g_critical ("Couldn't create miner DBus proxy: %s", error->message);
+		g_error_free (error);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
@@ -237,6 +265,8 @@ main (gint argc, gchar *argv[])
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (G_OBJECT (miner_applications));
+	g_object_unref (connection);
+	g_object_unref (proxy);
 
 	tracker_log_shutdown ();
 

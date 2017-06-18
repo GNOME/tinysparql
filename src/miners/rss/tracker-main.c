@@ -29,6 +29,9 @@
 
 #include "tracker-miner-rss.h"
 
+#define DBUS_NAME "org.freedesktop.Tracker1.Miner.RSS"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/RSS"
+
 static gint verbosity = -1;
 static gchar *add_feed;
 static gchar *title;
@@ -59,6 +62,7 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
+	TrackerMinerProxy *proxy;
 
 	setlocale (LC_ALL, "");
 
@@ -149,6 +153,21 @@ main (int argc, char **argv)
 		g_free (log_filename);
 	}
 
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            DBUS_NAME, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
 		g_critical ("Could not create new RSS miner: '%s', exiting...\n",
@@ -157,6 +176,12 @@ main (int argc, char **argv)
 	}
 
 	tracker_miner_start (TRACKER_MINER (miner));
+	proxy = tracker_miner_proxy_new (TRACKER_MINER (miner), connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Could not create miner DBus proxy: %s\n", error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
 
 	loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (loop);
@@ -164,6 +189,8 @@ main (int argc, char **argv)
 	tracker_log_shutdown ();
 	g_main_loop_unref (loop);
 	g_object_unref (miner);
+	g_object_unref (connection);
+	g_object_unref (proxy);
 
 	return EXIT_SUCCESS;
 }

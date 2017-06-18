@@ -12,6 +12,7 @@ src/libtracker-miner/tracker-data-provider.c
 src/libtracker-miner/tracker-miner-fs.c
 src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-online.c
+src/libtracker-miner/tracker-miner-proxy.c
 src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in
 src/miners/apps/tracker-main.c
 src/miners/apps/tracker-miner-apps.desktop.in.in

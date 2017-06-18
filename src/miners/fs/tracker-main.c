@@ -54,6 +54,9 @@
 
 #define SECONDS_PER_DAY 60 * 60 * 24
 
+#define DBUS_NAME "org.freedesktop.Tracker1.Miner.Files"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Files"
+
 static void miner_handle_next (void);
 
 static GMainLoop *main_loop;
@@ -661,7 +664,7 @@ miner_needs_check (TrackerMiner *miner,
 			/* Check whether there are more pause
 			 * reasons than the store being out.
 			 */
-			return tracker_miner_get_n_pause_reasons (miner) > 1;
+			return tracker_miner_is_paused (miner);
 		}
 	}
 }
@@ -678,6 +681,8 @@ main (gint argc, gchar *argv[])
 	gboolean do_mtime_checking;
 	gboolean force_mtime_checking = FALSE;
 	gboolean store_available;
+	TrackerMinerProxy *proxy;
+	GDBusConnection *connection;
 
 	main_loop = NULL;
 
@@ -713,6 +718,21 @@ main (gint argc, gchar *argv[])
 	if (eligible) {
 		check_eligible ();
 		return EXIT_SUCCESS;
+	}
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            DBUS_NAME, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
 	}
 
 	/* Initialize logging */
@@ -752,6 +772,16 @@ main (gint argc, gchar *argv[])
 		g_critical ("Couldn't create new Files miner: '%s'",
 		            error ? error->message : "unknown error");
 		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
+	proxy = tracker_miner_proxy_new (miner_files, connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Couldn't create miner proxy: %s", error->message);
+		g_error_free (error);
+		g_object_unref (config);
+		g_object_unref (miner_files);
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -840,6 +870,9 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);
+
+	g_object_unref (proxy);
+	g_object_unref (connection);
 
 	tracker_writeback_shutdown ();
 	tracker_log_shutdown ();

@@ -70,6 +70,8 @@ miner_sources = 				       \
 	tracker-miner-object.h                         \
 	tracker-miner-online.c                         \
 	tracker-miner-online.h                         \
+	tracker-miner-proxy.c                          \
+	tracker-miner-proxy.h                          \
 	tracker-miner-fs.c                             \
 	tracker-miner-fs.h
 
@@ -90,6 +92,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
 	tracker-miner-online.h                         \
+	tracker-miner-proxy.h                          \
 	tracker-miner-fs.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \

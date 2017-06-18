@@ -77,20 +77,12 @@ namespace Tracker {
 		protected Miner ();
 		public static GLib.Quark error_quark ();
 		public Tracker.Sparql.Connection get_connection ();
-		public unowned GLib.DBusConnection get_dbus_connection ();
-		public unowned string get_dbus_full_name ();
-		public unowned string get_dbus_full_path ();
-		public uint get_n_pause_reasons ();
 		public bool is_paused ();
 		public bool is_started ();
-		public int pause (string reason) throws GLib.Error;
-		public bool resume (int cookie) throws GLib.Error;
+		public void pause ();
+		public bool resume ();
 		public void start ();
 		public void stop ();
-		[NoAccessorMethod]
-		public void* introspection_handler { get; set construct; }
-		[NoAccessorMethod]
-		public string introspection_xml { owned get; set construct; }
 		[NoAccessorMethod]
 		public string name { owned get; construct; }
 		[NoAccessorMethod]

@@ -62,6 +62,9 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define DBUS_NAME "org.freedesktop.Tracker1.Miner.Extract"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Extract"
+
 static GMainLoop *main_loop;
 
 static gint verbosity = -1;
@@ -302,6 +305,8 @@ main (int argc, char *argv[])
 	TrackerExtractController *controller;
 	gchar *log_filename = NULL;
 	GMainLoop *my_main_loop;
+	GDBusConnection *connection;
+	TrackerMinerProxy *proxy;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -338,6 +343,21 @@ main (int argc, char *argv[])
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            DBUS_NAME, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
 
 	config = tracker_config_new ();
 
@@ -384,6 +404,16 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	proxy = tracker_miner_proxy_new (TRACKER_MINER (decorator), connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Could not create miner DBus proxy: %s\n", error->message);
+		g_error_free (error);
+		g_object_unref (decorator);
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
 	         g_thread_self ());
@@ -391,7 +421,7 @@ main (int argc, char *argv[])
 
 	tracker_locale_sanity_check ();
 
-	controller = tracker_extract_controller_new (decorator);
+	controller = tracker_extract_controller_new (decorator, connection);
 	tracker_miner_start (TRACKER_MINER (decorator));
 
 	/* Main loop */
@@ -411,6 +441,8 @@ main (int argc, char *argv[])
 	g_object_unref (extract);
 	g_object_unref (decorator);
 	g_object_unref (controller);
+	g_object_unref (proxy);
+	g_object_unref (connection);
 
 	tracker_log_shutdown ();
 

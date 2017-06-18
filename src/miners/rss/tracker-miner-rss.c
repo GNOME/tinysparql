@@ -1401,6 +1401,5 @@ tracker_miner_rss_new (GError **error)
 	return g_initable_new (TRACKER_TYPE_MINER_RSS,
 	                       NULL,
 	                       error,
-	                       "name", "RSS",
 	                       NULL);
 }

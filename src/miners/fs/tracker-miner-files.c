@@ -81,9 +81,9 @@ struct TrackerMinerFilesPrivate {
 	GSList *index_single_directories;
 
 	guint disk_space_check_id;
-	guint disk_space_pause_cookie;
+	gboolean disk_space_pause;
 
-	guint low_battery_pause_cookie;
+	gboolean low_battery_pause;
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	TrackerPower *power;
@@ -1382,19 +1382,15 @@ check_battery_status (TrackerMinerFiles *mf)
 
 	if (should_pause) {
 		/* Don't try to pause again */
-		if (mf->private->low_battery_pause_cookie == 0) {
-			mf->private->low_battery_pause_cookie =
-				tracker_miner_pause (TRACKER_MINER (mf),
-				                     _("Low battery"),
-				                     NULL);
+		if (!mf->private->low_battery_pause) {
+			mf->private->low_battery_pause = TRUE;
+			tracker_miner_pause (TRACKER_MINER (mf));
 		}
 	} else {
 		/* Don't try to resume again */
-		if (mf->private->low_battery_pause_cookie != 0) {
-			tracker_miner_resume (TRACKER_MINER (mf),
-			                      mf->private->low_battery_pause_cookie,
-			                      NULL);
-			mf->private->low_battery_pause_cookie = 0;
+		if (mf->private->low_battery_pause) {
+			tracker_miner_resume (TRACKER_MINER (mf));
+			mf->private->low_battery_pause = FALSE;
 		}
 	}
 
@@ -1509,19 +1505,15 @@ disk_space_check_cb (gpointer user_data)
 
 	if (disk_space_check (mf)) {
 		/* Don't try to pause again */
-		if (mf->private->disk_space_pause_cookie == 0) {
-			mf->private->disk_space_pause_cookie =
-				tracker_miner_pause (TRACKER_MINER (mf),
-				                     _("Low disk space"),
-				                     NULL);
+		if (!mf->private->disk_space_pause) {
+			mf->private->disk_space_pause = TRUE;
+			tracker_miner_pause (TRACKER_MINER (mf));
 		}
 	} else {
 		/* Don't try to resume again */
-		if (mf->private->disk_space_pause_cookie != 0) {
-			tracker_miner_resume (TRACKER_MINER (mf),
-			                      mf->private->disk_space_pause_cookie,
-			                      NULL);
-			mf->private->disk_space_pause_cookie = 0;
+		if (mf->private->disk_space_pause) {
+			tracker_miner_resume (TRACKER_MINER (mf));
+			mf->private->disk_space_pause = FALSE;
 		}
 	}
 
@@ -2684,7 +2676,6 @@ tracker_miner_files_new (TrackerConfig  *config,
 	return g_initable_new (TRACKER_TYPE_MINER_FILES,
 	                       NULL,
 	                       error,
-	                       "name", "Files",
 	                       "root", NULL,
 	                       "config", config,
 	                       "processing-pool-wait-limit", 10,
