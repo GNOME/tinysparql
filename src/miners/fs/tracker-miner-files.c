@@ -96,6 +96,7 @@ struct TrackerMinerFilesPrivate {
 
 	guint force_recheck_id;
 
+	gboolean mtime_check;
 	gboolean index_removable_devices;
 	gboolean index_optical_discs;
 	guint volumes_changed_id;
@@ -294,6 +295,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  G_CALLBACK (mount_pre_unmount_cb),
 	                  mf);
 
+	priv->mtime_check = TRUE;
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 }
 
@@ -437,7 +439,7 @@ miner_files_initable_init (GInitable     *initable,
 			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 		}
 
-		if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+		if (mf->private->mtime_check) {
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
@@ -492,7 +494,7 @@ miner_files_initable_init (GInitable     *initable,
 			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 		}
 
-		if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+		if (mf->private->mtime_check) {
 			flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 		}
 
@@ -1676,7 +1678,7 @@ update_directories_from_new_config (TrackerMinerFS *mf,
 		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
 	}
 
-	if (tracker_miner_fs_get_mtime_checking (TRACKER_MINER_FS (mf))) {
+	if (priv->mtime_check) {
 		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
 	}
 
@@ -3358,4 +3360,11 @@ tracker_miner_files_set_need_mtime_check (gboolean needed)
 	}
 
 	g_free (filename);
+}
+
+void
+tracker_miner_files_set_mtime_checking (TrackerMinerFiles *mf,
+                                        gboolean           mtime_check)
+{
+	mf->private->mtime_check = mtime_check;
 }

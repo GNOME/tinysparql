@@ -122,18 +122,15 @@ namespace Tracker {
 		public unowned Tracker.DataProvider get_data_provider ();
 		public unowned Tracker.IndexingTree get_indexing_tree ();
 		public bool get_initial_crawling ();
-		public bool get_mtime_checking ();
 		public double get_throttle ();
 		public unowned string? get_urn (GLib.File file);
 		public bool has_items_to_process ();
 		public string query_urn (GLib.File file);
 		public void set_initial_crawling (bool do_initial_crawling);
-		public void set_mtime_checking (bool mtime_checking);
 		public void set_throttle (double throttle);
 		public void writeback_notify (GLib.File file, GLib.Error error);
 		public Tracker.DataProvider data_provider { get; construct; }
 		public bool initial_crawling { get; set; }
-		public bool mtime_checking { get; set construct; }
 		[NoAccessorMethod]
 		public uint processing_pool_ready_limit { get; set construct; }
 		[NoAccessorMethod]

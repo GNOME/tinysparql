@@ -79,6 +79,9 @@ void     tracker_miner_files_set_last_crawl_done  (gboolean done);
 gboolean tracker_miner_files_get_need_mtime_check (void);
 void     tracker_miner_files_set_need_mtime_check (gboolean needed);
 
+void     tracker_miner_files_set_mtime_checking   (TrackerMinerFiles *miner,
+                                                   gboolean           mtime_checking);
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_FS_FILES_H__ */
