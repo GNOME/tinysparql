@@ -2221,7 +2221,7 @@ msgstr "Consulta la base de dades a baix nivell utilitzant SQL"
 #: ../src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
-"Mostra el progrés en l'indexació, estadístiques del contingut i l'estat de "
+"Mostra el progrés en la indexació, estadístiques del contingut i l'estat de "
 "l'índex"
 
 #: ../src/tracker/tracker-main.c:107
