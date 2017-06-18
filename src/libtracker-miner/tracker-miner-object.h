@@ -129,7 +129,8 @@ typedef struct {
 
 	void (* progress)           (TrackerMiner *miner,
 	                             const gchar  *status,
-	                             gdouble       progress);
+	                             gdouble       progress,
+	                             gint          remaining_time);
 
 	/* <Private> */
 	gpointer padding[10];
