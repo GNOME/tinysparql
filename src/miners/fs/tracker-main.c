@@ -67,6 +67,7 @@ static gboolean no_daemon;
 static gchar *eligible;
 static gboolean version;
 static guint miners_timeout_id = 0;
+static gboolean do_crawling = FALSE;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -327,8 +328,7 @@ miner_finished_cb (TrackerMinerFS *fs,
 	        total_directories_found,
 	        total_files_found);
 
-	if (TRACKER_IS_MINER_FILES (fs) &&
-	    tracker_miner_fs_get_initial_crawling (fs)) {
+	if (TRACKER_IS_MINER_FILES (fs) && do_crawling) {
 		tracker_miner_files_set_last_crawl_done (TRUE);
 	}
 
@@ -676,7 +676,6 @@ main (gint argc, gchar *argv[])
 	GError *error = NULL;
 	gchar *log_filename = NULL;
 	gboolean do_mtime_checking;
-	gboolean do_crawling;
 	gboolean force_mtime_checking = FALSE;
 	gboolean store_available;
 
@@ -811,7 +810,6 @@ main (gint argc, gchar *argv[])
 	tracker_miner_files_set_need_mtime_check (TRUE);
 
 	/* Configure files miner */
-	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
 	tracker_miner_files_set_mtime_checking (TRACKER_MINER_FILES (miner_files), do_mtime_checking);
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
@@ -819,7 +817,8 @@ main (gint argc, gchar *argv[])
 
 	miners = g_slist_prepend (miners, miner_files);
 
-	miner_handle_first (config, do_mtime_checking);
+	if (do_crawling)
+		miner_handle_first (config, do_mtime_checking);
 
 	initialize_signal_handler ();
 
