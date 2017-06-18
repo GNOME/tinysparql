@@ -9,16 +9,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-16 08:53+0200\n"
-"PO-Revision-Date: 2014-09-20 22:45+0200\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2017-02-23 12:37+0000\n"
+"PO-Revision-Date: 2017-06-18 12:14+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bits\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -79,8 +81,8 @@ msgstr[1] " %2.2d hores"
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
-msgstr[0] "%d minut"
-msgstr[1] "%d minuts"
+msgstr[0] "%2.2d minut"
+msgstr[1] "%2.2d minuts"
 
 #: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
@@ -97,7 +99,8 @@ msgstr "Longitud màxima de la paraula que s'ha d'indexar"
 msgid ""
 "Words with more characters than this length will be ignored by the indexer."
 msgstr ""
-"L'indexador ignorarà les paraules amb més caràcters que aquesta longitud."
+"Les paraules amb més caràcters que aquesta longitud seran ignorats per a "
+"l'indexador."
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
 msgid "Maximum number of words to index in a document"
@@ -115,8 +118,8 @@ msgstr "Habilita l'stemmer"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
 msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
 msgstr ""
 "Simplifica les paraules a la seva arrel per proporcionar més resultats. Per "
 "exemple: «prestatgeria» i «prestatge» a «prestat»"
@@ -127,8 +130,8 @@ msgstr "Habilita la no accentuació"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
 msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
 msgstr ""
 "Tradueix els caràcters accentuats al seu equivalent sense accentuar. Per "
 "exemple: «català» a «catala» per millorar la coincidència."
@@ -148,10 +151,10 @@ msgstr "Ignora les paraules buides"
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
+"words like “the”, “yes”, “no”, etc."
 msgstr ""
 "Si s'habilita, les paraules llistades a la llista de paraules buides "
-"s'ignoraran. Per exemple, paraules comuns com ara «el», «sí», «no», etc."
+"s'ignoraran. Per exemple, paraules comunes com ara «el», «sí», «no», etc."
 
 #: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
 msgid "Maximum size of journal"
@@ -172,18 +175,18 @@ msgid "Where to store a journal chunk when it hits the max size."
 msgstr ""
 "On s'emmagatzemen els trossos del diari quan s'arriba a la mida màxima."
 
-#: ../src/libtracker-data/tracker-data-backup.c:500
-#: ../src/libtracker-data/tracker-data-backup.c:620
-msgid "Error starting 'tar' program"
-msgstr ""
+#: ../src/libtracker-data/tracker-data-backup.c:505
+#: ../src/libtracker-data/tracker-data-backup.c:625
+msgid "Error starting “tar” program"
+msgstr "No s'ha pogut iniciar el programa «tar»"
 
-#: ../src/libtracker-data/tracker-data-backup.c:501
-#: ../src/libtracker-data/tracker-data-backup.c:621
+#: ../src/libtracker-data/tracker-data-backup.c:506
+#: ../src/libtracker-data/tracker-data-backup.c:626
 #: ../src/miners/rss/tracker-main.c:106
 #: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-extract/tracker-extract.c:146
+#: ../src/tracker-extract/tracker-extract.c:145
 #: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker/tracker-config.c:60 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
@@ -193,20 +196,20 @@ msgstr ""
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
 #: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:75 ../src/tracker/tracker-process.c:196
-#: ../src/tracker/tracker-process.c:325 ../src/tracker/tracker-process.c:346
-#: ../src/tracker/tracker-search.c:1579 ../src/tracker/tracker-sparql.c:168
-#: ../src/tracker/tracker-sparql.c:1078 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
 #: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:577
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
+#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "No s'ha rebut cap error"
 
-#: ../src/libtracker-data/tracker-data-backup.c:634
+#: ../src/libtracker-data/tracker-data-backup.c:639
 #, c-format
-msgid "Unknown error, 'tar' exited with status %d"
-msgstr ""
+msgid "Unknown error, “tar” exited with status %d"
+msgstr "Error desconegut, «tar» ha sortit amb l'estat %d"
 
 #: ../src/libtracker-miner/tracker-enumerator.c:114
 #: ../src/libtracker-miner/tracker-enumerator.c:165
@@ -266,7 +269,7 @@ msgstr ""
 #. Daemon options
 #: ../src/miners/apps/tracker-main.c:65 ../src/miners/fs/tracker-main.c:92
 #: ../src/miners/user-guides/tracker-main.c:65
-#: ../src/tracker-extract/tracker-main.c:99
+#: ../src/tracker-extract/tracker-main.c:103
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -276,12 +279,12 @@ msgstr "Mostra la informació de la versió"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/apps/tracker-main.c:184
-msgid "- start the application data miner"
-msgstr "- inicia l'extractor de dades d'aplicacions"
+msgid "— start the application data miner"
+msgstr "— inicia l'extractor de dades d'aplicacions"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
 msgid "Tracker Application Miner"
-msgstr "Extractor de dades d'aplicacions Tracker"
+msgstr "Extractor de dades d'aplicacions del Tracker"
 
 #: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
 msgid "Indexes information about applications installed"
@@ -367,7 +370,7 @@ msgstr ""
 "força només després d'aturades incorrectes i el -2 la desactiva completament."
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
+msgid "Removable devices’ data permanence threshold"
 msgstr "Llindar de permanència de les dades de dispositius extraïbles"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
@@ -412,14 +415,14 @@ msgstr ""
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 msgid "Index optical discs"
-msgstr "Indexa els discos òptics"
+msgstr "Indexa els discs òptics"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
+"removable devices are not indexed, optical discs won’t be either)"
 msgstr ""
-"Establiu a «true» (cert) per activar la indexació de CD, DVD i dispositius "
+"Establiu «true» (cert) per activar la indexació de CD's, DVD's i dispositius "
 "òptics en general (si els dispositius extraïbles no s'indexen, tampoc "
 "s'indexaran els discs òptics)"
 
@@ -430,7 +433,7 @@ msgstr "Indexa quan s'estigui utilitzant la bateria"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
 msgid "Set to true to index while running on battery"
 msgstr ""
-"Establiu a «true» (cert) per indexar quan s'estigui utilitzant la bateria"
+"Establiu «true» (cert) per indexar quan s'estigui utilitzant la bateria"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
 msgid "Perform initial indexing when running on battery"
@@ -439,12 +442,12 @@ msgstr "Realitza la indexació inicial quan s'estigui utilitzant la bateria"
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
 msgid "Set to true to index while running on battery for the first time only"
 msgstr ""
-"Establiu a «true» (cert) per indexar, només la primera vegada, quan "
-"s'estigui utilitzant la bateria"
+"Establiu «true» (cert) per indexar, només la primera vegada, quan s'estigui "
+"utilitzant la bateria"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
 msgid "Directories to index recursively"
-msgstr "Directoris que s'han d'indexar recursivament"
+msgstr "Directoris que s'han d'indexar de forma recursiva"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid ""
@@ -453,10 +456,10 @@ msgid ""
 "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
 "and $HOME/.config/user-dirs.default"
 msgstr ""
-"Llista de directoris a indexar recursivament, els valors especials inclouen: "
-"&amp;ESCRIPTORI, &amp;DOCUMENTS, &amp;BAIXADES, &amp;MÚSICA, &amp;IMATGES, "
-"&amp;PÚBLIC, &amp;PLANTILLES i &amp;VÍDEOS. Vegeu /etc/xdg/user-dirs."
-"defaults i $HOME/.config/user-dirs.default"
+"Llista de directoris a indexar de forma recursiva, els valors especials "
+"inclouen: &amp;ESCRIPTORI, &amp;DOCUMENTS, &amp;BAIXADES, &amp;MÚSICA, &amp;"
+"IMATGES, &amp;PÚBLIC, &amp;PLANTILLES i &amp;VÍDEOS. Vegeu /etc/xdg/user-"
+"dirs.defaults i $HOME/.config/user-dirs.default"
 
 #: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Directories to index non-recursively"
@@ -502,12 +505,12 @@ msgstr ""
 #: ../src/miners/fs/tracker-main.c:79
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr ""
-"Temps d'espera inicial (en segons), entre 0 i 10000¡ (predeterminat = 15)"
+"Temps d'espera inicial (en segons), entre 0 i 1000¡ (predeterminat =15)"
 
 #: ../src/miners/fs/tracker-main.c:84
 msgid "Runs until all configured locations are indexed and then exits"
 msgstr ""
-"Executa fins que totes les localitzacions configurades s'hagin indexat i "
+"Executa fins que totes les ubicacions configurades s'hagin indexat i "
 "aleshores surt"
 
 #: ../src/miners/fs/tracker-main.c:88
@@ -515,22 +518,23 @@ msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Comprova si, segons la configuració, s'han d'extreure les dades del FITXER"
 
-#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
 #: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
 #: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-sparql.c:105
-#: ../src/tracker/tracker-sql.c:44
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "FITXER"
 
 #: ../src/miners/fs/tracker-main.c:454
 #, c-format
-msgid "Data object '%s' currently exists"
+msgid "Data object “%s” currently exists"
 msgstr "L'objecte de dades «%s» ja existeix"
 
 #: ../src/miners/fs/tracker-main.c:455
 #, c-format
-msgid "Data object '%s' currently does not exist"
+msgid "Data object “%s” currently does not exist"
 msgstr "L'objecte de dades «%s» encara no existeix"
 
 #: ../src/miners/fs/tracker-main.c:470
@@ -614,14 +618,14 @@ msgstr "Se'n faria un seguiment"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/fs/tracker-main.c:697
-msgid "- start the tracker indexer"
-msgstr "- inicia l'indexador del Tracker"
+msgid "— start the tracker indexer"
+msgstr "— inicia l'indexador del Tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1354
+#: ../src/miners/fs/tracker-miner-files.c:1363
 msgid "Low battery"
 msgstr "La càrrega de la bateria és baixa"
 
-#: ../src/miners/fs/tracker-miner-files.c:1481
+#: ../src/miners/fs/tracker-miner-files.c:1490
 msgid "Low disk space"
 msgstr "Queda poc espai al disc"
 
@@ -658,12 +662,12 @@ msgstr "Títol a utilitzar (s'ha d'utilitzar amb «--add-feed»)"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- inicia l'indexador de canals"
+msgid "— start the feeds indexer"
+msgstr "— inicia l'indexador de canals"
 
 #: ../src/miners/rss/tracker-main.c:105 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1578
-#: ../src/tracker/tracker-sparql.c:167 ../src/tracker/tracker-sparql.c:1077
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
+#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
 #: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
 #: ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
@@ -693,12 +697,12 @@ msgstr "Guia d'usuari de l'extractor de dades"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/miners/user-guides/tracker-main.c:196
-msgid "- start the user guides data miner"
-msgstr "- inicia l'extractor de dades de les guies d'usuari"
+msgid "— start the user guides data miner"
+msgstr "— inicia l'extractor de dades de les guies d'usuari"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:1
 msgid "Tracker User Guides Miner"
-msgstr "Extractor de dades de les guies d'usuari Tracker"
+msgstr "Extractor de dades de les guies d'usuari del Tracker"
 
 #: ../src/miners/user-guides/tracker-miner-user-guides.desktop.in.in.h:2
 msgid "Crawls and processes user guides in shared areas"
@@ -733,7 +737,7 @@ msgid "Tags"
 msgstr "Etiquetes"
 
 #: ../src/plugins/nautilus/tracker-tags-view.c:1015
-#: ../src/tracker-needle/tracker-tags-view.vala:374
+#: ../src/tracker-needle/tracker-tags-view.vala:368
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -791,16 +795,16 @@ msgstr ""
 "entorns restringits quan és important llistar els fitxers ràpidament i es "
 "pot esperar per obtenir les metadades més tard."
 
-#: ../src/tracker-extract/tracker-extract.c:797
+#: ../src/tracker-extract/tracker-extract.c:726
 msgid "Metadata extraction failed"
 msgstr "Ha fallat l'extractor de metadades"
 
-#: ../src/tracker-extract/tracker-extract.c:862
+#: ../src/tracker-extract/tracker-extract.c:792
 msgid "No metadata or extractor modules found to handle this file"
 msgstr ""
 "No s'han trobat mòduls de metadades o extractors per gestionar aquest fitxer"
 
-#: ../src/tracker-extract/tracker-main.c:82
+#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -809,35 +813,48 @@ msgstr ""
 "Registre, 0 = només errors, 1 = mínim, 2 = detallat i 3 = depuració "
 "(predeterminat = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 msgid "File to extract metadata for"
 msgstr "Fitxer del qual extreure'n les metadades"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Tipus MIME per al fitxer (s'intentarà esbrinar si no es proporciona)"
 
-#: ../src/tracker-extract/tracker-main.c:92 ../src/tracker/tracker-index.c:57
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:95
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
-msgstr ""
-"Força l'ús d'un mòdul com extractor de dades (p. ex. «imatges» per «imatge."
-"jpg»)"
-
 #: ../src/tracker-extract/tracker-main.c:96
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+msgstr ""
+"Força l'ús d'un mòdul per extreure dades (p. ex. «imatges» per «imatge.jpg»)"
+
+#: ../src/tracker-extract/tracker-main.c:97
 msgid "MODULE"
 msgstr "MÒDUL"
 
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "Els resultats de sortida de format: \"«SPARQL», o «tortuga»"
+
+#: ../src/tracker-extract/tracker-main.c:100
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMAT"
+
+#: ../src/tracker-extract/tracker-main.c:269
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Format de serialització no compatible «%s»\n"
+
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:299
-msgid "- Extract file meta data"
-msgstr "- Extreu les metadades del fitxer"
+#: ../src/tracker-extract/tracker-main.c:320
+msgid "— Extract file meta data"
+msgstr "— Extreu les metadades del fitxer"
 
-#: ../src/tracker-extract/tracker-main.c:308
+#: ../src/tracker-extract/tracker-main.c:329
 msgid "Filename and mime type must be provided together"
 msgstr "S'ha de proporcionar alhora el nom de fitxer i el tipus MIME"
 
@@ -859,6 +876,10 @@ msgid ""
 "view of tracker-needle will be Categories view. When 2, default view of "
 "tracker-needle will be Files view."
 msgstr ""
+"Quan sigui 0, la vista per defecte de tracker-needle serà vista a Icones. "
+"Quan sigui 1, la vista per defecte de tracker-needle serà vista a "
+"categories. Quan sigui 2, la vista per defecte de tracker-needle serà veure "
+"els fitxers."
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 #: ../src/tracker-needle/tracker-needle.ui.h:1
@@ -867,7 +888,7 @@ msgstr "Cerca a l'escriptori"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid ""
-"Find what you're looking for on this computer by name or content using "
+"Find what you’re looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "Trobeu el que esteu buscant a l'ordinador ja sigui per nom o pel seu "
@@ -878,8 +899,8 @@ msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc. "
 "This includes searching the contents of files where applicable."
 msgstr ""
-"Mostra els resultats per categoria, per exemple: música, vídeos, "
-"aplicacions, etc. Això inclou la cerca dels continguts dels fitxers, si és "
+"Mostra els resultats per categoria, per exemple: Música, vídeos, "
+"Aplicacions, etc. Això inclou la cerca dels continguts dels fitxers, si és "
 "aplicable."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
@@ -900,7 +921,8 @@ msgstr "El criteri de cerca es basa en els títols dels fitxers"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
 msgid "Find search criteria in file tags only (separated by comma)"
-msgstr "El criteri de cerca només en les etiquetes dels fitxers (separats per coma)"
+msgstr ""
+"El criteri de cerca només en les etiquetes dels fitxers (separats per coma)"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 msgid "_Search:"
@@ -914,7 +936,7 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.ui.h:10
 msgid "Show statistics about the data stored"
-msgstr "Mostra estadístiques de les dades emmagatzemades"
+msgstr "Mostra estadístiques sobre les dades emmagatzemades"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:12
 #, no-c-format
@@ -930,25 +952,25 @@ msgstr "Afegeix una etiqueta"
 msgid "Remove selected tag"
 msgstr "Suprimeix l'etiqueta seleccionada"
 
-#: ../src/tracker-needle/tracker-needle.vala:75
+#: ../src/tracker-needle/tracker-needle.vala:72
 msgid "Search criteria was too generic"
 msgstr "El criteri de cerca era massa genèric"
 
-#: ../src/tracker-needle/tracker-needle.vala:76
+#: ../src/tracker-needle/tracker-needle.vala:73
 msgid "Only the first 500 items will be displayed"
 msgstr "Només es mostraran els primers 500 elements"
 
-#: ../src/tracker-needle/tracker-needle.vala:811
-#: ../src/tracker-preferences/tracker-preferences.vala:1016
+#: ../src/tracker-needle/tracker-needle.vala:802
+#: ../src/tracker-preferences/tracker-preferences.vala:942
 msgid "Print version"
 msgstr "Mostra la versió"
 
-#: ../src/tracker-needle/tracker-needle.vala:818
-#: ../src/tracker-needle/tracker-needle.vala:819
+#: ../src/tracker-needle/tracker-needle.vala:809
+#: ../src/tracker-needle/tracker-needle.vala:810
 msgid "[SEARCH-CRITERIA]"
 msgstr "[CRITERI-DE-CERCA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:824
+#: ../src/tracker-needle/tracker-needle.vala:815
 msgid "Desktop Search user interface using Tracker"
 msgstr "Eina de cerca de l'escriptori que utilitza el Tracker"
 
@@ -987,7 +1009,7 @@ msgstr[1] "Documents"
 
 #: ../src/tracker-needle/tracker-stats.vala:109
 #: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:171
+#: ../src/tracker-preferences/tracker-preferences.vala:156
 msgid "File"
 msgid_plural "Files"
 msgstr[0] "Fitxer"
@@ -1055,34 +1077,34 @@ msgid_plural "Bookmarks"
 msgstr[0] "Adreça d'interès"
 msgstr[1] "Adreces d'interès"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:324
+#: ../src/tracker-needle/tracker-tags-view.vala:318
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:380
+#: ../src/tracker-needle/tracker-tags-view.vala:374
 msgid "No items currently selected"
 msgstr "No hi ha cap element seleccionat actualment"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:466
-#: ../src/tracker-needle/tracker-tags-view.vala:607
+#: ../src/tracker-needle/tracker-tags-view.vala:460
+#: ../src/tracker-needle/tracker-tags-view.vala:601
 msgid "Could not update tags"
 msgstr "No s'ha pogut actualitzar les etiquetes"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:526
+#: ../src/tracker-needle/tracker-tags-view.vala:520
 #: ../src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
 msgstr "No s'ha pogut suprimir l'etiqueta"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:701
+#: ../src/tracker-needle/tracker-tags-view.vala:695
 msgid "Could not retrieve tags for the current selection"
 msgstr "No s'ha pogut recuperar les etiquetes per a la selecció actual"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:740
+#: ../src/tracker-needle/tracker-tags-view.vala:734
 #: ../src/tracker/tracker-tag.c:709
 msgid "Could not add tag"
 msgstr "No s'ha pogut afegir l'etiqueta"
 
-#: ../src/tracker-needle/tracker-tags-view.vala:797
+#: ../src/tracker-needle/tracker-tags-view.vala:791
 msgid "Could not update tags for file"
 msgstr "No s'ha pogut actualitzar les etiquetes al fitxer"
 
@@ -1176,7 +1198,7 @@ msgid "Folders"
 msgstr "Carpetes"
 
 #: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker/tracker-search.c:1001
+#: ../src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Adreces d'interès"
 
@@ -1192,8 +1214,8 @@ msgstr "S'està carregant…"
 #, c-format
 msgid "%d Page"
 msgid_plural "%d Pages"
-msgstr[0] "%d pàgina"
-msgstr[1] "%d pàgines"
+msgstr[0] "%d Pàgina"
+msgstr[1] "%d Pàgines"
 
 #: ../src/tracker-needle/tracker-view.vala:452
 msgid "_Show Parent Directory"
@@ -1233,7 +1255,8 @@ msgstr "Inclou els _suports extraïbles"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
-msgstr "Això inclou els medis extraïbles, targetes de memòria, CD, DVD, etc."
+msgstr ""
+"Això inclou els medis extraïbles, targetes de memòria, CD's, DVD's, etc."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Include optical di_scs"
@@ -1257,8 +1280,8 @@ msgstr ""
 "i prioritat de planificació.\n"
 "\n"
 "Aquesta opció us permet fer que el Tracker s'executi en segon pla i no "
-"consumeixi massa temps de CPU si teniu altres aplicacions que se'l mereixen "
-"més."
+"consumeixi massa temps de CPU si teniu d'altres aplicacions que se'l "
+"mereixen més."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid "Index content in the background:"
@@ -1289,9 +1312,10 @@ msgid ""
 "priority. This will only be the case on the <b>first index</b> of your "
 "content after you start your computer from a new install"
 msgstr ""
-"La indexació del contingut serà <b>molt més lenta</b> per altres aplicacions "
-"tindran prioritat. Això només serà per la <b>primera indexació<b> del "
-"contingut una vegada inicieu l'ordinador en una nova instal·lació"
+"La indexació del contingut serà <b>molt més lenta</b> però per altres "
+"aplicacions tindran prioritat. Això només serà per la <b>primera "
+"indexació<b> del contingut una vegada inicieu l'ordinador en una nova "
+"instal·lació"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "While _other applications are running"
@@ -1318,13 +1342,13 @@ msgid ""
 "Indexed content from removable devices that have not been inserted for a "
 "while, are cleaned up to avoid build up of unused resources."
 msgstr ""
-"De tant en tant s'esborra el contingut indexat dels dispositius "
-"extraïbles que no s'hagin inserit durant un temps per evitar l'acumulació de "
-"dades no usades."
+"De tant en tant s'esborra el contingut indexat dels dispositius extraïbles "
+"que no s'hagin inserit durant un temps per evitar l'acumulació de dades no "
+"usades."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Days before deleting removable devices:"
-msgstr "Dies abans de suprimir dels dispositius extraïbles:"
+msgstr "Dies abans de suprimir els dispositius extraïbles:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Garbage Collection"
@@ -1354,23 +1378,23 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Index Home Directory"
-msgstr "Indexa la carpeta de l'usuari"
+msgstr "Indexa el directori de la Carpeta de l'usuari"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Index Desktop Directory"
-msgstr "Indexa l'escriptori"
+msgstr "Indexa el directori de l'Escriptori"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Index Documents Directory"
-msgstr "Indexa el directori de documents"
+msgstr "Indexa el directori de Documents"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "Index Music Directory"
-msgstr "Indexa el directori de música"
+msgstr "Indexa el directori de Música"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "Index Pictures Directory"
-msgstr "Indexa el directori d'imatges"
+msgstr "Indexa el directori d'Imatges"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "Index Videos Directory"
@@ -1378,7 +1402,7 @@ msgstr "indexa el directori de vídeos"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "Index Download Directory"
-msgstr "Indexa el directori de baixades"
+msgstr "Indexa el directori de Baixades"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid ""
@@ -1426,7 +1450,7 @@ msgstr "Directoris"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:46
 msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Globbing patterns can be used here, for example: “*bar*”.\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
 "Podeu utilitzar patrons, per exemple «*bar*».\n"
@@ -1458,103 +1482,18 @@ msgstr "Què s'indexa?"
 msgid "Control"
 msgstr "Control"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All indexes and caches for your data will be removed! They can "
-"not be retrieved! Your REAL data and files will not be touched.</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Si reinicieu les dades indexades, s'esborraran les bases de dades i tots els "
-"fitxers deixaran d'estar indexats. Quan torneu a iniciar el Tracker "
-"començarà a indexar dades com si fos la primera vegada que s'executa.\n"
-"\n"
-"<b>Avís: s'esborraran totes les dades indexades! No les podreu recuperar. Les dades reals i els fitxers no es modificaran. </"
-"b>\n"
-"\n"
-"Si feu clic en aquest botó també es tancaran les preferències."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "Yes, remove all indexes"
-msgstr "Sí, suprimeix tots els índexs"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:60
-msgid ""
-"An 'index' is an ordered referenced to a piece of data. We use indexes to be "
-"able to quickly find your information and content."
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:61
-msgid "Reset Indexed Data"
-msgstr "Reinicia les dades indexades"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:62
-msgid "_Delay"
-msgstr "_Retard"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:63
-msgid "seconds"
-msgstr "segons"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:64
-msgid "Start up"
-msgstr "A l'inici"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:65
-msgid "System"
-msgstr "Sistema"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:168
-#: ../src/tracker-preferences/tracker-preferences.vala:169
-#: ../src/tracker-preferences/tracker-preferences.vala:170
+#: ../src/tracker-preferences/tracker-preferences.vala:153
+#: ../src/tracker-preferences/tracker-preferences.vala:154
+#: ../src/tracker-preferences/tracker-preferences.vala:155
 msgid "Directory"
 msgstr "Directori"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:322
+#: ../src/tracker-preferences/tracker-preferences.vala:296
 msgid ""
-"The changes you have made to your preferences here require a reindex to "
-"ensure all your data is correctly indexed as you have requested."
+"Some of the requested changes will take effect on the next session restart."
 msgstr ""
-"S'han de reindexar totes les dades degut als canvis que heu fet a les "
-"vostres preferències per tal d'assegurar que totes les dades estan "
-"correctament indexades tal com voleu."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:323
-msgid "This will close this dialog!"
-msgstr "Això tancarà el diàleg"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:324
-msgid "Would you like to reindex now?"
-msgstr "Voleu reindexar ara mateix?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:326
-msgid "Reindex"
-msgstr "Reindexa"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:327
-#: ../src/tracker-preferences/tracker-preferences.vala:350
-msgid "Do nothing"
-msgstr "No facis res"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:346
-msgid ""
-"The changes you have made to your preferences require restarting tracker "
-"processes."
-msgstr ""
-"S'han de reiniciar els processos del Tracker degut als canvis que heu fet a "
-"les vostres preferències."
-
-#: ../src/tracker-preferences/tracker-preferences.vala:347
-msgid "Would you like to restart now?"
-msgstr "Voleu reiniciar-los ara?"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:349
-msgid "Restart Tracker"
-msgstr "Reinicia el Tracker"
+"Alguns dels canvis sol·licitats es durà a terme en el següent reinici de "
+"sessió."
 
 #. To translators: This is a feature that is
 #. * disabled for disk space checking.
@@ -1563,38 +1502,38 @@ msgstr "Reinicia el Tracker"
 #. * disabled for removing a device from a
 #. * database cache.
 #.
-#: ../src/tracker-preferences/tracker-preferences.vala:415
-#: ../src/tracker-preferences/tracker-preferences.vala:428
+#: ../src/tracker-preferences/tracker-preferences.vala:346
+#: ../src/tracker-preferences/tracker-preferences.vala:359
 msgid "Disabled"
 msgstr "Inhabilitat"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:605
+#: ../src/tracker-preferences/tracker-preferences.vala:531
 msgid "Enter value"
 msgstr "Introduïu un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:608
-#: ../src/tracker-preferences/tracker-preferences.vala:637
+#: ../src/tracker-preferences/tracker-preferences.vala:534
+#: ../src/tracker-preferences/tracker-preferences.vala:563
 msgid "_Cancel"
 msgstr "_Cancel·la"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:609
-#: ../src/tracker-preferences/tracker-preferences.vala:639
+#: ../src/tracker-preferences/tracker-preferences.vala:535
+#: ../src/tracker-preferences/tracker-preferences.vala:565
 msgid "_OK"
 msgstr "_D'acord"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:634
+#: ../src/tracker-preferences/tracker-preferences.vala:560
 msgid "Select directory"
 msgstr "Seleccioneu un directori"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:655
+#: ../src/tracker-preferences/tracker-preferences.vala:581
 msgid "That directory is already selected as a location to index"
 msgstr "Aquest directori ja s'ha seleccionat com a localització per indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:917
+#: ../src/tracker-preferences/tracker-preferences.vala:843
 msgid "Recurse"
 msgstr "Recursiu"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:1022
+#: ../src/tracker-preferences/tracker-preferences.vala:948
 msgid "Desktop Search preferences"
 msgstr "Preferències de la cerca a l'escriptori"
 
@@ -1611,8 +1550,8 @@ msgstr "Permet que només es facin consultes de lectura a la base de dades"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:166
-msgid "- start the tracker daemon"
-msgstr "- inicia el dimoni del Tracker"
+msgid "— start the tracker daemon"
+msgstr "— inicia el dimoni del Tracker"
 
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:1
 msgid "Tracker Store"
@@ -1634,16 +1573,12 @@ msgstr ""
 "Període en mil·lisegons entre l'emissió dels senyals GraphUpdated quan les "
 "dades indexades han canviat a la base de dades."
 
-#: ../src/tracker/tracker-config.c:59
+#: ../src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "No s'ha pogut obtenir les GSettings de l'extractor de dades, no s'ha pogut "
 "crear el gestor, %s"
-
-#: ../src/tracker/tracker-compatible.c:221
-msgid "The 'tracker-control' command is no longer available"
-msgstr "The 'tracker-control' command"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
@@ -1661,13 +1596,13 @@ msgstr "S'està recollint…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-msgid "Crawling single directory '%s'"
-msgstr "S'està indexant el directori «%s»"
+msgid "Crawling single directory “%s”"
+msgstr "S'està arrossegant el directori «%s»"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "S'està indexant recursivament el directori «%s»"
+msgid "Crawling recursively directory “%s”"
+msgstr "S'està arrossegant de forma recursiva el directori «%s»"
 
 #: ../src/tracker/tracker-daemon.c:127
 msgid "Paused"
@@ -1695,7 +1630,7 @@ msgstr "ONTOLOGIA"
 
 #: ../src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
-msgstr "Llista els estats comuns pels extractors de dades i el magatzem"
+msgstr "Llista els estats comuns pels extractors de dades i d'emagatzematge"
 
 #: ../src/tracker/tracker-daemon.c:147
 msgid "Pause a miner (you must use this with --miner)"
@@ -1754,12 +1689,12 @@ msgstr "Llista tots els processos del Tracker"
 
 #: ../src/tracker/tracker-daemon.c:178
 msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Utilitza el senyal SIGKILL per aturar tots els processos coincidents. Pot "
 "ser tan «store» (emmagatzemament), «miners» (extractors de dades) o "
-"«all» (tots), cap paràmetre equival a tots."
+"«all» (tots), cap paràmetre equival a «all» (tots)."
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
 msgid "APPS"
@@ -1767,12 +1702,12 @@ msgstr "Aplicacions"
 
 #: ../src/tracker/tracker-daemon.c:181
 msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
 msgstr ""
 "Utilitza el senyal SIGTERM per aturar tots els processos coincidents. Pot "
-"ser tan «store» (emmagatzemament), «miners» (extractors de dades) o "
-"«all» (tots), cap paràmetre equival a tots."
+"ser tan «store» (emmagatzematge), «miners» (extractors de dades) o "
+"«all» (tots), cap paràmetre equival a «all» (tots)."
 
 #: ../src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1780,16 +1715,15 @@ msgstr ""
 "Inicia els extractors de dades (que indirectament també inicia el tracker-"
 "store)"
 
-#: ../src/tracker/tracker-daemon.c:187
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
 msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
 msgstr ""
 "Estableix el detall del registre al NIVELL («debug» (depuració), "
-"«detailed» (detallat), «minimal» (mínim), «errors» (només errors)) per a "
-"tots els processos"
+"«detailed» (detallat), «minimal» (mínim), «errors») per a tots els processos"
 
-#: ../src/tracker/tracker-daemon.c:188
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "NIVELL"
 
@@ -1808,7 +1742,7 @@ msgstr "No s'ha pogut obtenir l'estat de l'extractor de dades: %s"
 #: ../src/tracker/tracker-daemon.c:326
 #, c-format
 msgid "%s remaining"
-msgstr "restant %s"
+msgstr "%s restant "
 
 #: ../src/tracker/tracker-daemon.c:329
 msgid "unknown time left"
@@ -1831,11 +1765,11 @@ msgstr "No s'ha pogut obtenir l'estat de la «tracker-store»"
 msgid "Could not retrieve tracker-store progress"
 msgstr "No s'ha pogut obtenir el progrés de la «tracker-store»"
 
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:195
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "No s'han pogut recuperar els prefixos de l'espai de noms"
 
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:203
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "No s'ha retornat cap prefix d'espai de noms"
 
@@ -1846,7 +1780,7 @@ msgstr "No s'ha pogut executar la consulta SPARQL"
 #: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
 msgstr ""
-"No s'ha pogut executar «tracker_sparql_cursor_next()» a la consulta SPARQL"
+"No s'ha pogut cridar «tracker_sparql_cursor_next()» a la consulta SPARQL"
 
 #: ../src/tracker/tracker-daemon.c:889
 #, c-format
@@ -1857,7 +1791,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr ""
 "S'està intentant fer una pausa a l'extractor de dades «%s» amb el motiu «%s»"
 
@@ -1894,7 +1828,7 @@ msgid "Could not resume miner: %s"
 msgstr "No s'ha pogut reprendre l'extractor de dades: %s"
 
 #: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1387
+#: ../src/tracker/tracker-sparql.c:1396
 msgid "Done"
 msgstr "Fet"
 
@@ -1944,10 +1878,10 @@ msgid "No miners are paused"
 msgstr "No hi ha cap extractor de dades en pausa"
 
 #: ../src/tracker/tracker-daemon.c:1207
-msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr ""
 "Només es permet una de les opcions següents: «all» (tot), «store» (magatzem) "
-"i «miners» (extractors)"
+"i «miners» (extractors de dades)"
 
 #: ../src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
@@ -1959,13 +1893,13 @@ msgstr "S'està seguint si hi ha actualitzacions de recursos a la base de dades"
 
 #: ../src/tracker/tracker-daemon.c:1275
 msgid "All nie:plainTextContent properties are omitted"
-msgstr "S'ignoren totes les propietats «nie:plainTextContent»"
+msgstr "S'ignoren totes les propietats de «nie:plainTextContent»"
 
 #: ../src/tracker/tracker-daemon.c:1290
 msgid "Common statuses include"
 msgstr "Els estats més comuns són"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:576
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "No s'ha pogut obtenir l'estat, no s'ha pogut crear el gestor, %s"
@@ -1977,13 +1911,13 @@ msgstr "Magatzem"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-msgid "Could not get display name for miner '%s'"
-msgstr "No s'ha pogut obtenir el nom visible de l'extractor «%s»"
+msgid "Could not get display name for miner “%s”"
+msgstr "No s'ha pogut obtenir el nom visible de l'extractor de dades «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
-"No podeu utilitzar els arguments de fer una pausa i de reprendre alhora"
+"No podeu utilitzar els arguments de fer una pausa i de reprendre-la alhora"
 
 #: ../src/tracker/tracker-daemon.c:1467
 msgid "You must provide the miner for pause or resume commands"
@@ -2006,16 +1940,16 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr ""
 "No podeu utilitzar els arguments «--get-logging» i «--set-logging» alhora"
 
-#: ../src/tracker/tracker-daemon.c:1530
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "El detall de registre és incorrecte, proveu: «debug» (depuració), "
 "«detailed» (detallat), «minimal» (mínim) o «errors» (només errors)"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-msgid "Found process ID %d for '%s'"
-msgstr "S'ha trobat l'identificador de procés %d per «%s»"
+msgid "Found process ID %d for “%s”"
+msgstr "S'ha trobat l'identificador del procés %d per a «%s»"
 
 #: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
 msgid "Components"
@@ -2027,9 +1961,9 @@ msgstr "Només aquells amb la configuració llistada"
 
 #: ../src/tracker/tracker-daemon.c:1623
 #, c-format
-msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
 msgstr ""
-"S'està establint el detall de registre per a tots els components a «%s»…"
+"S'està establint el detall del registre per a tots els components a «%s»…"
 
 #: ../src/tracker/tracker-daemon.c:1662
 msgid "Starting miners…"
@@ -2038,7 +1972,8 @@ msgstr "S'estan iniciant els extractors de dades…"
 #: ../src/tracker/tracker-daemon.c:1667
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
-msgstr "No s'han pogut iniciar els extractors de dades, no s'ha pogut crear el "
+msgstr ""
+"No s'han pogut iniciar els extractors de dades, no s'ha pogut crear el "
 "gestor, %s"
 
 #: ../src/tracker/tracker-daemon.c:1692
@@ -2049,13 +1984,14 @@ msgstr "potser hi ha algun connector inhabilitat?"
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
-"Si no es donen arguments, es mostra l'estat de l'emmagatzematge i dels extractors de dades"
+"Si no es donen els arguments, es mostra l'estat de l'emmagatzematge i dels "
+"extractors de dades"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-index.c:410
-#: ../src/tracker/tracker-info.c:422 ../src/tracker/tracker-reset.c:315
-#: ../src/tracker/tracker-search.c:1776 ../src/tracker/tracker-sparql.c:1488
-#: ../src/tracker/tracker-sql.c:228 ../src/tracker/tracker-status.c:703
-#: ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:434 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:230
+#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "No s'han reconegut les opcions"
 
@@ -2069,10 +2005,14 @@ msgstr ""
 "No s'ha pogut crear el servidor intermediari, mitjançant D-Bus, a la "
 "«tracker-store»"
 
+#: ../src/tracker/tracker-extract.c:77
+msgid "Could not run tracker-extract: "
+msgstr "No s'ha pogut executar la «tracker-store»:"
+
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec '%s': %s"
-msgstr ""
+msgid "failed to exec “%s”: %s"
+msgstr "Ha fallat a l'executar «%s»: %s"
 
 #: ../src/tracker/tracker-index.c:56
 msgid ""
@@ -2089,15 +2029,19 @@ msgstr "(Torna a)indexar el fitxer donat"
 
 #: ../src/tracker/tracker-index.c:62
 msgid "Backup current index / database to the file provided"
-msgstr "Fes una còpia de seguretat de l'índex i la base de dades al fitxer proporcionat"
+msgstr ""
+"Fes una còpia de seguretat de l'índex i la base de dades al fitxer "
+"proporcionat"
 
 #: ../src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
-msgstr "Restaura una base de dades d'una còpia de seguretat prèvia (vegeu --backup)"
+msgstr ""
+"Restaura una base de dades d'una còpia de seguretat prèvia (vegeu --backup)"
 
 #: ../src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr "Importa un conjunt de dades des del fitxer proporcionat (en format Turtle)"
+msgstr ""
+"Importa un conjunt de dades des del fitxer proporcionat (en format Turtle)"
 
 #: ../src/tracker/tracker-index.c:122
 #, c-format
@@ -2112,12 +2056,13 @@ msgstr "No s'han pogut tornar a indexar els tipus MIME"
 
 #: ../src/tracker/tracker-index.c:138
 msgid "Reindexing mime types was successful"
-msgstr "S'han tornat a indexar correctament els tipus MIME"
+msgstr "S'ha tornat a indexar correctament els tipus MIME"
 
 #: ../src/tracker/tracker-index.c:154
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
-msgstr "No s'ha pogut (re)indexar el fitxer, no s'ha pogut crear el gestor, %s"
+msgstr ""
+"No s'ha pogut (tornar a)indexar el fitxer, no s'ha pogut crear el gestor, %s"
 
 #: ../src/tracker/tracker-index.c:169
 msgid "Could not (re)index file"
@@ -2147,31 +2092,35 @@ msgstr "No s'ha pogut crear una còpia de seguretat de la base de dades"
 msgid "Restoring database from backup"
 msgstr "S'està restaurant la base de dades des de la còpia de seguretat"
 
-#: ../src/tracker/tracker-index.c:435
+#: ../src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
+"Només una acció es pot utilitzar alhora(--backup, --restore, --index-arxiu o "
+"--import)"
 
-#: ../src/tracker/tracker-index.c:437
+#: ../src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Manquen un o més fitxers que són necessaris"
 
-#: ../src/tracker/tracker-index.c:439
+#: ../src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Només es pot usar un fitxer amb --backup i --restore"
 
-#: ../src/tracker/tracker-index.c:441
+#: ../src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
 msgstr ""
+"Accions (--backup, --restore, --index-file and --import) no es poden "
+"utilitzar amb --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
-"Mostra el nom d'espais sencer (per exemple mostra l'URL sencer en "
-"comptes de nie:title)"
+"Mostra el nom sencer d'espais (per exemple mostra l'URL sencer en comptes de "
+"nie:title)"
 
 #: ../src/tracker/tracker-info.c:53
 msgid "Show plain text content if available for resources"
@@ -2211,140 +2160,209 @@ msgstr "No s'ha pogut recuperar les dades per l'URI"
 msgid "No metadata available for that URI"
 msgstr "No hi ha metadades disponibles per aquest URI"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1453
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
-#: ../src/tracker/tracker-sql.c:136
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:138
 msgid "Results"
 msgstr "Resultats"
 
 #: ../src/tracker/tracker-main.c:48
-msgid "See 'tracker help <command>' to read about a specific subcommand."
-msgstr "Vegeu «tracker help <command>» per llegir més sobre una subordre específica."
+msgid "See “tracker help <command>” to read about a specific subcommand."
+msgstr ""
+"Vegeu «tracker help <command>» per a llegir més sobre una subordre "
+"específica."
 
 #: ../src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
-msgstr "Inicia, atura o fes pausa i llista els processos responsables per a indexar contingut"
+msgstr ""
+"Inicia, atura o fes pausa i llista els processos responsables per a indexar "
+"contingut"
 
 #: ../src/tracker/tracker-main.c:98
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Obteniu ajuda de com utilitzar el Tracker i qualsevol d'aquestes ordres."
+msgid "Extract information from a file"
+msgstr "Extrau informació des de un fitxer"
 
 #: ../src/tracker/tracker-main.c:99
-msgid "Show information known about local files or items indexed"
-msgstr "Mostra la informació coneguda sobre fitxers locals o ítems indexats"
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+"Obteniu ajuda de com utilitzar el Tracker i qualsevol d'aquestes ordres."
 
 #: ../src/tracker/tracker-main.c:100
-msgid "Backup, restore, import and (re)index by MIME type or file name"
-msgstr "Còpia de seguretat, restaura, importa o torna a indexar per tipus MIME o per nom de fitxer"
+msgid "Show information known about local files or items indexed"
+msgstr "Mostra la informació coneguda sobre fitxers locals o elements indexats"
 
 #: ../src/tracker/tracker-main.c:101
-msgid "Reset or remove index and revert configurations to defaults"
-msgstr "Reinicia o suprimeix l'índex i reverteix les configuracions als valors predeterminats"
+msgid "Backup, restore, import and (re)index by MIME type or file name"
+msgstr ""
+"Còpia de seguretat, restaura, importa i torna a indexar per a tipus MIME o "
+"per a nom de fitxer"
 
 #: ../src/tracker/tracker-main.c:102
+msgid "Reset or remove index and revert configurations to defaults"
+msgstr ""
+"Reinicia o suprimeix l'índex i reverteix les configuracions als valors "
+"predeterminats"
+
+#: ../src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Cerca el contingut indexat o mostra el contingut per tipus"
 
-#: ../src/tracker/tracker-main.c:103
+#: ../src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
-
-#: ../src/tracker/tracker-main.c:104
-msgid "Query the database at the lowest level using SQL"
-msgstr "Consulta la base de dades a baix nivell usant SQL"
+"Consulta i actualitza l'índex utilitzant SPARQL o cerca, la llista i l'arbre "
+"de l'ontologia"
 
 #: ../src/tracker/tracker-main.c:105
-msgid "Show the indexing progress, content statistics and index state"
-msgstr "Mostra el progrés en l'indexació, estadístiques del contingut i l'estat de l'índex"
+msgid "Query the database at the lowest level using SQL"
+msgstr "Consulta la base de dades a baix nivell utilitzant SQL"
 
 #: ../src/tracker/tracker-main.c:106
+msgid "Show the indexing progress, content statistics and index state"
+msgstr ""
+"Mostra el progrés en l'indexació, estadístiques del contingut i l'estat de "
+"l'índex"
+
+#: ../src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Crea, llista o suprimeix etiquetes per contingut indexat"
 
-#: ../src/tracker/tracker-main.c:107
+#: ../src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Mostra la llicencia i la versió en ús"
 
-#: ../src/tracker/tracker-main.c:152
+#: ../src/tracker/tracker-main.c:153
 #, c-format
-msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "«%s» no és una ordre del Tracker. Vegeu «tracker --help»"
 
-#: ../src/tracker/tracker-main.c:175
+#: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Les ordres disponibles del Tracker són:"
 
-#: ../src/tracker/tracker-process.c:74
+#: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "No s'ha pogut obrir /proc"
 
-#: ../src/tracker/tracker-process.c:124
+#: ../src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "No s'ha pogut executar «stat()» al fitxer"
 
-#: ../src/tracker/tracker-process.c:193
+#: ../src/tracker/tracker-process.c:203
 #, c-format
-msgid "Could not open '%s'"
+msgid "Could not open “%s”"
 msgstr "No s'ha pogut obrir «%s»"
 
-#: ../src/tracker/tracker-process.c:322
+#: ../src/tracker/tracker-process.c:332
 #, c-format
-msgid "Could not terminate process %d - '%s'"
-msgstr "No s'ha pogut acabar el procés %d - «%s»"
+msgid "Could not terminate process %d — “%s”"
+msgstr "No s'ha pogut acabar el procés %d — «%s»"
 
-#: ../src/tracker/tracker-process.c:328
+#: ../src/tracker/tracker-process.c:338
 #, c-format
-msgid "Terminated process %d - '%s'"
-msgstr "S'ha finalitzat el procés %d - «%s»"
+msgid "Terminated process %d — “%s”"
+msgstr "S'ha finalitzat el procés %d — «%s»"
 
-#: ../src/tracker/tracker-process.c:343
+#: ../src/tracker/tracker-process.c:353
 #, c-format
-msgid "Could not kill process %d - '%s'"
-msgstr "No s'ha pogut matar el procés %d - «%s»"
+msgid "Could not kill process %d — “%s”"
+msgstr "No s'ha pogut matar el procés %d — «%s»"
 
-#: ../src/tracker/tracker-process.c:349
-#,  c-format
-msgid "Killed process %d - '%s'"
-msgstr "S'ha matat el procés %d - «%s»"
+#: ../src/tracker/tracker-process.c:359
+#, c-format
+msgid "Killed process %d — “%s”"
+msgstr "S'ha matat el procés %d — «%s»"
 
-#: ../src/tracker/tracker-reset.c:48
+#: ../src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr ""
 "Mata tots els processos del Tracker i suprimeix totes les bases de dades"
 
-#: ../src/tracker/tracker-reset.c:51
+#: ../src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Igual que «--hard-reset» però es restauren la còpia de seguretat i el "
 "dietari després de reiniciar"
 
-#: ../src/tracker/tracker-reset.c:54
+#: ../src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Suprimeix tots els fitxers de configuració de manera que es tornin a generar "
 "la pròxima vegada que s'iniciï"
 
-#: ../src/tracker/tracker-reset.c:132
+#: ../src/tracker/tracker-reset.c:62
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Esborra la informació sobre un fitxer indexat, que funciona de manera "
+"recursiva per als directoris"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:167
+msgid "Deleting…"
+msgstr "S'està suprimint…"
+
+#: ../src/tracker/tracker-reset.c:188
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"Les dades indexades per a aquest fitxer han estat esborrades i re-indexades "
+"de nou."
+
+#. TRANSLATORS: --hard and --soft are commandline arguments
+#: ../src/tracker/tracker-reset.c:215
 msgid "You can not use the --hard and --soft arguments together"
 msgstr ""
 "No podeu utilitzar els arguments «--hard-reset» i «--soft-reset» alhora"
 
-#: ../src/tracker/tracker-reset.c:232
+#: ../src/tracker/tracker-reset.c:223
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "ATENCIÓ: Aquest procés pot eliminar de forma irreversible les dades."
+
+#: ../src/tracker/tracker-reset.c:224
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"Tot i que la majoria del contingut indexat per Tracker pot ser re-indexada "
+"amb seguretat, no es pot estar segur que aquest és el cas per a totes les "
+"dades. Recordeu que és possible que s'incorri en una situació de pèrdua de "
+"dades, procedeixi al seu propi risc."
+
+#: ../src/tracker/tracker-reset.c:229
+msgid "Are you sure you want to proceed?"
+msgstr "Esteu segur que voleu continuar?"
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:231
+msgid "[y|N]"
+msgstr "[y|N]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:240
+msgid "yes"
+msgstr "sí"
+
+#: ../src/tracker/tracker-reset.c:351
 msgid "Removing configuration files…"
 msgstr "S'estan eliminant els fitxers de configuració…"
 
-#: ../src/tracker/tracker-reset.c:237
+#: ../src/tracker/tracker-reset.c:356
 msgid "Resetting existing configuration…"
 msgstr "S'està reiniciant la configuració existent…"
 
 #: ../src/tracker/tracker-search.c:80
 msgid "Search for files"
-msgstr "Cerca per noms de fitxers"
+msgstr "Cerca per fitxers"
 
 #: ../src/tracker/tracker-search.c:84
 msgid "Search for folders"
-msgstr "Cerca per directoris"
+msgstr "Cerca per carpetes"
 
 #: ../src/tracker/tracker-search.c:88
 msgid "Search for music files"
@@ -2360,15 +2378,15 @@ msgstr "Cerca per artistes de música («--all» no modifica la cerca)"
 
 #: ../src/tracker/tracker-search.c:100
 msgid "Search for image files"
-msgstr "Cerca per imatges"
+msgstr "Cerca per fitxers d'imatges"
 
 #: ../src/tracker/tracker-search.c:104
 msgid "Search for video files"
-msgstr "Cerca per vídeos"
+msgstr "Cerca per fitxers de vídeos"
 
 #: ../src/tracker/tracker-search.c:108
 msgid "Search for document files"
-msgstr "Cerca per documents"
+msgstr "Cerca per fitxers de documents"
 
 #: ../src/tracker/tracker-search.c:112
 msgid "Search for emails"
@@ -2408,10 +2426,10 @@ msgstr "Utilitza «o» en comptes de «i» (predeterminat) per cercar termes"
 
 #: ../src/tracker/tracker-search.c:150
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostra els URN dels resultats (no s'aplica a «--music-albums», «--music-"
+"Mostra els URN's dels resultats (no s'aplica a «--music-albums», «--music-"
 "artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker/tracker-search.c:154
@@ -2426,7 +2444,7 @@ msgid ""
 "categories, e.g. Documents, Music…"
 msgstr ""
 "No mostris el context en els resultats. Només es mostra per algunes "
-"categories, p. ex. documents, música…"
+"categories, p. ex. Documents, Música…"
 
 #: ../src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
@@ -2435,8 +2453,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
-msgstr ""
-"No utilitzis diferents colors quan es mostrin els contextos i els resultats"
+msgstr "Inhabilita el color en imprimir fragments i resultats"
 
 #: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
 msgid "search terms"
@@ -2454,10 +2471,10 @@ msgstr ""
 "estan llistats aquí"
 
 #: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:809
-#: ../src/tracker/tracker-search.c:898 ../src/tracker/tracker-search.c:988
-#: ../src/tracker/tracker-search.c:1070 ../src/tracker/tracker-search.c:1154
-#: ../src/tracker/tracker-search.c:1236 ../src/tracker/tracker-search.c:1440
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "No s'ha pogut obtenir els resultats de cerca"
 
@@ -2485,95 +2502,95 @@ msgstr "No s'ha trobat cap correu"
 msgid "No files were found"
 msgstr "No s'ha trobat cap fitxer"
 
-#: ../src/tracker/tracker-search.c:818
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "No s'ha trobat cap artista"
 
-#: ../src/tracker/tracker-search.c:822
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Artistes"
 
-#: ../src/tracker/tracker-search.c:907
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "No s'ha trobat música"
 
-#: ../src/tracker/tracker-search.c:911
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Àlbums"
 
-#: ../src/tracker/tracker-search.c:997
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "No s'ha trobat cap adreça d'interès"
 
-#: ../src/tracker/tracker-search.c:1079
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "No s'ha trobat cap canal"
 
-#: ../src/tracker/tracker-search.c:1083
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Canals"
 
-#: ../src/tracker/tracker-search.c:1163
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "No s'ha trobat cap programari"
 
-#: ../src/tracker/tracker-search.c:1167
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Programari"
 
-#: ../src/tracker/tracker-search.c:1245
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "No s'ha trobat cap categoria de programari"
 
-#: ../src/tracker/tracker-search.c:1249
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Categories de programari"
 
-#: ../src/tracker/tracker-search.c:1449
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "No s'ha trobat cap resultat que coincideixi amb la consulta"
 
-#: ../src/tracker/tracker-search.c:1551
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
 msgstr "El terme de cerca «%s» és una paraula buida."
 
-#: ../src/tracker/tracker-search.c:1562
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr ""
-"Les paraules  buides són paraules comunes que s'ignoren en el procés "
+"Les paraules buides són paraules comunes que s'ignoren en el procés "
 "d'indexació."
 
-#: ../src/tracker/tracker-sparql.c:104
+#: ../src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Camí a utilitzar per executar la consulta o actualitzar des d'un fitxer"
 
-#: ../src/tracker/tracker-sparql.c:108
+#: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "Consulta SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:109
+#: ../src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:112
+#: ../src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Només s'utilitza amb «--query» i només per actualitzacions de la base de "
 "dades."
 
-#: ../src/tracker/tracker-sparql.c:116
+#: ../src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "Recupera les classes"
 
-#: ../src/tracker/tracker-sparql.c:120
+#: ../src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "Recupera els prefixos de classe"
 
-#: ../src/tracker/tracker-sparql.c:124
+#: ../src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -2581,20 +2598,20 @@ msgstr ""
 "Recupera les propietats per una classe, també es poden utilitzar prefixos "
 "(per exemple rdfs:Resource)"
 
-#: ../src/tracker/tracker-sparql.c:125 ../src/tracker/tracker-sparql.c:129
-#: ../src/tracker/tracker-sparql.c:137 ../src/tracker/tracker-sparql.c:145
-#: ../src/tracker/tracker-sparql.c:149
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: ../src/tracker/tracker-sparql.c:128
+#: ../src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Recupera classes que notifiquin de canvis a la base de dades («CLASSE» és "
 "opcional)"
 
-#: ../src/tracker/tracker-sparql.c:132
+#: ../src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -2602,11 +2619,11 @@ msgstr ""
 "Recupera índexs utilitzats a la base de dades per millorar el rendiment "
 "(«PROPIETAT» és opcional)"
 
-#: ../src/tracker/tracker-sparql.c:133
+#: ../src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "PROPIETAT"
 
-#: ../src/tracker/tracker-sparql.c:136
+#: ../src/tracker/tracker-sparql.c:137
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -2614,29 +2631,37 @@ msgstr ""
 "Descriu subclasses, superclasses (es pot utilitzar amb -s per realçar les "
 "parts de l'arbre i -p per mostrar les propietats)"
 
-#: ../src/tracker/tracker-sparql.c:140
+#: ../src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cerca una classe o propietat i mostra'n informació (per exemple «Document»)"
 
-#: ../src/tracker/tracker-sparql.c:141
+#: ../src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPIETAT"
 
-#: ../src/tracker/tracker-sparql.c:144
+#: ../src/tracker/tracker-sparql.c:145
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Retorna el nom abreviat d'una classe (p. ex. nfo:FileDataObject)."
 
-#: ../src/tracker/tracker-sparql.c:148
+#: ../src/tracker/tracker-sparql.c:149
 msgid "Returns the full namespace for a class."
 msgstr "Retorna el nom d'espais complet d'una classe."
 
-#: ../src/tracker/tracker-sparql.c:249
+#: ../src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "El servei remot per consultar a"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "BASE_URL"
+
+#: ../src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "No s'han pogut obtenir els prefixos d'espai de noms"
 
-#: ../src/tracker/tracker-sparql.c:258
+#: ../src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "No s'ha trobat prefixos d'espai de nom"
 
@@ -2667,132 +2692,132 @@ msgstr "No s'ha trobat prefixos d'espai de nom"
 #. *     None
 #. *
 #.
-#: ../src/tracker/tracker-sparql.c:504 ../src/tracker/tracker-sparql.c:552
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
 #: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "Cap"
 
-#: ../src/tracker/tracker-sparql.c:958
+#: ../src/tracker/tracker-sparql.c:963
 msgid "Could not create tree: subclass query failed"
 msgstr "No s'ha pogut crear l'arbre: ha fallat la consulta de la subclasse"
 
-#: ../src/tracker/tracker-sparql.c:1007
+#: ../src/tracker/tracker-sparql.c:1012
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "No s'ha pogut crear l'arbre: ha fallat la consulta de les propietats de la "
 "classe"
 
-#: ../src/tracker/tracker-sparql.c:1091
+#: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "No s'ha pogut llistar les classes"
 
-#: ../src/tracker/tracker-sparql.c:1099
+#: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "No s'ha trobat cap classe"
 
-#: ../src/tracker/tracker-sparql.c:1099 ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "Classes"
 
-#: ../src/tracker/tracker-sparql.c:1115
+#: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "No s'ha pogut llistar els prefixos de classe"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "No s'ha trobat cap prefix de classe"
 
-#: ../src/tracker/tracker-sparql.c:1123
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: ../src/tracker/tracker-sparql.c:1143
+#: ../src/tracker/tracker-sparql.c:1152
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"No s'ha pogut trobar la propietat per al prefix de la classe, per exemple:"
-"Resource a «rdfs:Resource»"
+"No s'ha pogut trobar la propietat per al prefix de la classe, per exemple :"
+"Recursos a «rdfs:Resource»"
 
-#: ../src/tracker/tracker-sparql.c:1182
+#: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
-msgstr "No s'han pogut llistar les propietats"
+msgstr "No s'ha pogut llistar les propietats"
 
-#: ../src/tracker/tracker-sparql.c:1190
+#: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "No s'ha trobat cap propietat"
 
-#: ../src/tracker/tracker-sparql.c:1190 ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "Propietats"
 
-#: ../src/tracker/tracker-sparql.c:1218
+#: ../src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "No s'ha trobat cap classe de notificació"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "No s'ha trobat cap notificació"
 
-#: ../src/tracker/tracker-sparql.c:1226
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "Notificacions"
 
-#: ../src/tracker/tracker-sparql.c:1252
+#: ../src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "No s'ha pogut trobar cap propietat indexada"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "No s'ha trobat cap índex"
 
-#: ../src/tracker/tracker-sparql.c:1260
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "Índexs"
 
-#: ../src/tracker/tracker-sparql.c:1282
+#: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "No s'ha pogut cercar les classes"
 
-#: ../src/tracker/tracker-sparql.c:1290
+#: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "No s'ha trobat cap classe que coincideixi amb el terme de cerca"
 
-#: ../src/tracker/tracker-sparql.c:1305
+#: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
-msgstr "No s'han pogut cercar les propietats"
+msgstr "No s'ha pogut cercar les propietats"
 
-#: ../src/tracker/tracker-sparql.c:1313
+#: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "No s'ha trobat cap propietat que coincideixi amb el terme de cerca"
 
-#: ../src/tracker/tracker-sparql.c:1349 ../src/tracker/tracker-sql.c:63
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "No s'ha pogut obtenir el camí UTF-8 del camí"
 
-#: ../src/tracker/tracker-sparql.c:1361 ../src/tracker/tracker-sql.c:74
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "No s'ha pogut llegir el fitxer"
 
-#: ../src/tracker/tracker-sparql.c:1380
+#: ../src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "No s'ha pogut executar l'actualització"
 
-#: ../src/tracker/tracker-sparql.c:1428 ../src/tracker/tracker-sql.c:129
-#: ../src/tracker/tracker-sql.c:162
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:131
+#: ../src/tracker/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "No s'ha pogut executar la consulta"
 
-#: ../src/tracker/tracker-sparql.c:1440 ../src/tracker/tracker-sparql.c:1443
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "No s'ha trobat cap resultat que coincideixi amb la consulta"
 
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:237
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:239
 msgid "File and query can not be used together"
 msgstr "No es poden utilitzar alhora un fitxer i una consulta"
 
-#: ../src/tracker/tracker-sparql.c:1499
+#: ../src/tracker/tracker-sparql.c:1508
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -2802,8 +2827,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sql.c:43
 msgid "Path to use to run a query from file"
-msgstr ""
-"Camí a utilitzar per executar la consulta des d'un fitxer"
+msgstr "Camí a utilitzar per executar la consulta des d'un fitxer"
 
 #: ../src/tracker/tracker-sql.c:47
 msgid "SQL query"
@@ -2813,11 +2837,11 @@ msgstr "Consulta SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: ../src/tracker/tracker-sql.c:110
+#: ../src/tracker/tracker-sql.c:112
 msgid "Failed to initialize data manager"
 msgstr "No s'ha pogut iniciar el gestor de dades"
 
-#: ../src/tracker/tracker-sql.c:170
+#: ../src/tracker/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "El conjunt de resultats és buit"
 
@@ -2831,15 +2855,15 @@ msgid ""
 "default (implied by search terms)"
 msgstr ""
 "Mostra estadístiques sobre totes les classes RDF, no només les més comunes, "
-"que ja és el per defecte (segons els termes de cerca)"
+"que ja són per defecte (segons els termes de cerca)"
 
 #: ../src/tracker/tracker-status.c:60
 msgid ""
 "Collect debug information useful for problem reporting and investigation, "
 "results are output to terminal"
 msgstr ""
-"Recull informació de depuració útil per a la investigació in proveïment "
-"d'informació del problema. Els resultats surten a un terminal."
+"Recull informació de depuració útil per a la investigació i proveïment "
+"d'informació del problema, els resultats surten a un terminal."
 
 #: ../src/tracker/tracker-status.c:187
 msgid "Could not get Tracker statistics"
@@ -2849,6 +2873,9 @@ msgstr "No s'han pogut obtenir les estadístiques del Tracker"
 msgid "No statistics available"
 msgstr "No hi ha estadístiques disponibles"
 
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
 #: ../src/tracker/tracker-status.c:248
 msgid "Statistics:"
 msgstr "Estadístiques:"
@@ -2861,7 +2888,7 @@ msgstr "Versió"
 msgid "Disk Information"
 msgstr "Informació del disc"
 
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:654
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
 msgid "Remaining space on database partition"
 msgstr "Espai lliure a la partició de la base de dades"
 
@@ -2902,25 +2929,25 @@ msgstr "No hi havia estadístiques disponibles"
 msgid "Database is currently empty"
 msgstr "La base de dades està buida"
 
-#: ../src/tracker/tracker-status.c:524 ../src/tracker/tracker-status.c:547
+#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
 msgid "Could not get basic status for Tracker"
 msgstr "No s'ha pogut obtenir l'estat bàsic del Tracker"
 
-#: ../src/tracker/tracker-status.c:631
+#: ../src/tracker/tracker-status.c:634
 #, c-format
 msgid "Currently indexed"
 msgstr "Actualment indexat"
 
-#: ../src/tracker/tracker-status.c:666
+#: ../src/tracker/tracker-status.c:669
 msgid "Data is still being indexed"
 msgstr "Les dades encara s'estan indexant"
 
-#: ../src/tracker/tracker-status.c:667
+#: ../src/tracker/tracker-status.c:670
 #, c-format
 msgid "Estimated %s left"
 msgstr "%s restant estimat"
 
-#: ../src/tracker/tracker-status.c:671
+#: ../src/tracker/tracker-status.c:674
 msgid "All data miners are idle, indexing complete"
 msgstr "Tots els extractors de dades estan inactius, s'ha completat l'índex"
 
@@ -2953,8 +2980,8 @@ msgstr "ETIQUETA"
 #: ../src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
-"Suprimeix una etiqueta (si s'omet «FITXER» es suprimirà l'«ETIQUETA» de tots "
-"els fitxers)"
+"Suprimeix una etiqueta (si s'omet «FITXER's» es suprimirà l'«ETIQUETA» de "
+"tots els fitxers)"
 
 #: ../src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
@@ -2979,7 +3006,7 @@ msgstr "FITXER [FITXER…]"
 
 #: ../src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
-msgstr "No s'ha pogut obtenir l'URN del fitxer"
+msgstr "No s'ha pogut obtenir les URN del fitxer"
 
 #: ../src/tracker/tracker-tag.c:314
 msgid "Could not get files related to tag"
@@ -3018,8 +3045,8 @@ msgid "No files were modified"
 msgstr "No s'havia modificat cap fitxer"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren't indexed"
-msgstr "Els fitxers, o bé no existeixen o no estan indexats"
+msgid "Files do not exist or aren’t indexed"
+msgstr "Els fitxers, o bé no existeixen o bé no estan indexats"
 
 #: ../src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
@@ -3039,7 +3066,7 @@ msgstr "No està etiquetat, el fitxer no està indexat"
 
 #: ../src/tracker/tracker-tag.c:811
 msgid "Could not get tag by label"
-msgstr "No s'ha pogut l'etiqueta per la marca"
+msgstr "No s'ha pogut obtenir l'etiqueta per la marca"
 
 #: ../src/tracker/tracker-tag.c:822
 msgid "No tags were found by that name"
@@ -3089,12 +3116,85 @@ msgstr "Inhabilita l'aturada després de 30 segons d'inactivitat"
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- inicia el servei d'escriptura del Tracker"
+msgid "— start the tracker writeback service"
+msgstr "— inicia el servei d'escriptura del Tracker"
 
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultes desades"
+
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Si reinicieu les dades indexades, s'esborraran les bases de dades i tots "
+#~ "els fitxers deixaran d'estar indexats. Quan torneu a iniciar el Tracker "
+#~ "començarà a indexar dades com si fos la primera vegada que s'executa.\n"
+#~ "\n"
+#~ "<b>Avís: s'esborraran totes les dades indexades! No les podreu recuperar. "
+#~ "Les dades reals i els fitxers no es modificaran. </b>\n"
+#~ "\n"
+#~ "Si feu clic en aquest botó també es tancaran les preferències."
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Sí, suprimeix tots els índexs"
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Reinicia les dades indexades"
+
+#~ msgid "_Delay"
+#~ msgstr "_Retard"
+
+#~ msgid "seconds"
+#~ msgstr "segons"
+
+#~ msgid "Start up"
+#~ msgstr "A l'inici"
+
+#~ msgid "System"
+#~ msgstr "Sistema"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "S'han de reindexar totes les dades degut als canvis que heu fet a les "
+#~ "vostres preferències per tal d'assegurar que totes les dades estan "
+#~ "correctament indexades tal com voleu."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Això tancarà el diàleg"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Voleu reindexar ara mateix?"
+
+#~ msgid "Reindex"
+#~ msgstr "Reindexa"
+
+#~ msgid "Do nothing"
+#~ msgstr "No facis res"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "S'han de reiniciar els processos del Tracker degut als canvis que heu fet "
+#~ "a les vostres preferències."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Voleu reiniciar-los ara?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Reinicia el Tracker"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "The 'tracker-control' command"
 
 #~ msgid "Add feed (must be used with --title)"
 #~ msgstr "Afegeix un canal (s'ha d'utilitzar amb «--title»)"
