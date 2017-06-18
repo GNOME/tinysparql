@@ -227,7 +227,8 @@ mime_types_cb (GObject      *object,
 
 			url = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			file = g_file_new_for_uri (url);
-			tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files), file, FALSE);
+			tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files),
+			                             file, G_PRIORITY_HIGH, FALSE);
 			g_object_unref (file);
 		}
 
@@ -411,7 +412,8 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 			                                             file);
 		}
 	} else {
-		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner),
+		                             file, G_PRIORITY_HIGH, do_checks);
 	}
 
 	tracker_dbus_request_end (request, NULL);

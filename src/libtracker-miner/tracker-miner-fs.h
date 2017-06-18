@@ -137,10 +137,6 @@ void                  tracker_miner_fs_set_throttle          (TrackerMinerFS  *f
 /* Queueing files to be processed AFTER checking rules in IndexingTree */
 void                  tracker_miner_fs_check_file            (TrackerMinerFS  *fs,
                                                               GFile           *file,
-                                                              gboolean         check_parents);
-void                  tracker_miner_fs_check_file_with_priority
-                                                             (TrackerMinerFS  *fs,
-                                                              GFile           *file,
                                                               gint             priority,
                                                               gboolean         check_parents);
 
