@@ -109,8 +109,6 @@ namespace Tracker {
 	public abstract class MinerFS : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		protected MinerFS ();
-		public void check_directory (GLib.File file, bool check_parents);
-		public void check_directory_with_priority (GLib.File file, int priority, bool check_parents);
 		public void check_file (GLib.File file, bool check_parents);
 		public void check_file_with_priority (GLib.File file, int priority, bool check_parents);
 		public static GLib.Quark error_quark ();
