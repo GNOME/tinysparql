@@ -305,12 +305,12 @@ License which can be viewed at:
 			flags |= DBManagerFlags.FORCE_REINDEX;
 		}
 
-		var notifier = Tracker.DBus.register_notifier (domain, dbus_path, ontology_name);
+		var notifier = Tracker.DBus.register_notifier ();
 
 		Tracker.Store.init ();
 
 		/* Make Tracker available for introspection */
-		if (!Tracker.DBus.register_objects (domain, dbus_path, ontology_name)) {
+		if (!Tracker.DBus.register_objects ()) {
 			return 1;
 		}
 
@@ -416,7 +416,7 @@ License which can be viewed at:
 		Tracker.Events.shutdown ();
 
 		data_manager = null;
-		Tracker.DBus.shutdown (domain, dbus_path, ontology_name);
+		Tracker.DBus.shutdown ();
 		Tracker.Log.shutdown ();
 
 		config.disconnect (config_verbosity_id);
