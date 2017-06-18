@@ -198,8 +198,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* Properties */
 	gdouble throttle;
-	guint initial_crawling : 1; /* TRUE if initial crawling should be
-	                             * done */
 
 	/* Writeback tasks */
 	TrackerTaskPool *writeback_pool;
@@ -266,8 +264,7 @@ enum {
 	PROP_ROOT,
 	PROP_WAIT_POOL_LIMIT,
 	PROP_READY_POOL_LIMIT,
-	PROP_DATA_PROVIDER,
-	PROP_INITIAL_CRAWLING
+	PROP_DATA_PROVIDER
 };
 
 static void           miner_fs_initable_iface_init        (GInitableIface       *iface);
@@ -405,13 +402,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                      "Data provider populating data, e.g. like GFileEnumerator",
 	                                                      TRACKER_TYPE_DATA_PROVIDER,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
-	g_object_class_install_property (object_class,
-	                                 PROP_INITIAL_CRAWLING,
-	                                 g_param_spec_boolean ("initial-crawling",
-	                                                       "Initial crawling",
-	                                                       "Whether to perform initial crawling or not",
-	                                                       TRUE,
-	                                                       G_PARAM_READWRITE));
 
 	/**
 	 * TrackerMinerFS::process-file:
@@ -668,8 +658,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 	priv->quark_reentry_counter = g_quark_from_static_string ("tracker-reentry-counter");
 
-	priv->initial_crawling = TRUE;
-
 	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
 	                                               (GEqualFunc) g_file_equal,
 	                                               g_object_unref,
@@ -906,9 +894,6 @@ fs_set_property (GObject      *object,
 	case PROP_DATA_PROVIDER:
 		fs->priv->data_provider = g_value_dup_object (value);
 		break;
-	case PROP_INITIAL_CRAWLING:
-		fs->priv->initial_crawling = g_value_get_boolean (value);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -940,9 +925,6 @@ fs_get_property (GObject    *object,
 		break;
 	case PROP_DATA_PROVIDER:
 		g_value_set_object (value, fs->priv->data_provider);
-		break;
-	case PROP_INITIAL_CRAWLING:
-		g_value_set_boolean (value, fs->priv->initial_crawling);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3380,61 +3362,6 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	return g_strdup (lookup_file_urn (fs, file, TRUE));
-}
-
-/**
- * tracker_miner_fs_set_initial_crawling:
- * @fs: a #TrackerMinerFS
- * @do_initial_crawling: a #gboolean
- *
- * Tells the @fs that crawling the #TrackerIndexingTree should happen
- * initially. This is actually required to set up file system monitor
- * using technologies like inotify, etc.
- *
- * Setting this to #FALSE can dramatically improve the start up the
- * crawling of the @fs.
- *
- * The down side is that using this consistently means that some files
- * on the disk may be out of date with files in the database.
- *
- * The main purpose of this function is for systems where a @fs is
- * running the entire time and where it is very unlikely that a file
- * could be changed outside between startup and shutdown of the
- * process using this API.
- *
- * The default if not set directly is that @do_initial_crawling is %TRUE.
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
-                                       gboolean        do_initial_crawling)
-{
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-
-	fs->priv->initial_crawling = do_initial_crawling;
-}
-
-/**
- * tracker_miner_fs_get_initial_crawling:
- * @fs: a #TrackerMinerFS
- *
- * Returns a boolean which indicates if the indexing tree is crawled
- * upon start up or not. This may be set to %FALSE if working
- * prodominently with cloud data where you can't perform these checks.
- * By default and for local file systems, this is enabled.
- *
- * Returns: %TRUE if a file system structure is crawled for new
- * updates on start up, otherwise %FALSE.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-
-	return fs->priv->initial_crawling;
 }
 
 /**

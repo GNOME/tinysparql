@@ -131,12 +131,8 @@ GQuark                tracker_miner_fs_error_quark           (void);
 TrackerIndexingTree * tracker_miner_fs_get_indexing_tree     (TrackerMinerFS  *fs);
 TrackerDataProvider * tracker_miner_fs_get_data_provider     (TrackerMinerFS  *fs);
 gdouble               tracker_miner_fs_get_throttle          (TrackerMinerFS  *fs);
-gboolean              tracker_miner_fs_get_initial_crawling  (TrackerMinerFS  *fs);
-
 void                  tracker_miner_fs_set_throttle          (TrackerMinerFS  *fs,
                                                               gdouble          throttle);
-void                  tracker_miner_fs_set_initial_crawling  (TrackerMinerFS  *fs,
-                                                              gboolean         do_initial_crawling);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 /* Setting locations to be processed in IndexingTree */
