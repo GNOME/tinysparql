@@ -109,14 +109,10 @@ namespace Tracker {
 	public abstract class MinerFS : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		protected MinerFS ();
-		public void add_directory_without_parent (GLib.File file);
 		public void check_directory (GLib.File file, bool check_parents);
 		public void check_directory_with_priority (GLib.File file, int priority, bool check_parents);
 		public void check_file (GLib.File file, bool check_parents);
 		public void check_file_with_priority (GLib.File file, int priority, bool check_parents);
-		public void directory_add (GLib.File file, bool recurse);
-		public bool directory_remove (GLib.File file);
-		public bool directory_remove_full (GLib.File file);
 		public static GLib.Quark error_quark ();
 		public void notify_finish (GLib.File file, GLib.Task task, string sparql, GLib.Error error);
 		public unowned Tracker.DataProvider get_data_provider ();

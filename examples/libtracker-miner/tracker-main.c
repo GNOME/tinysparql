@@ -80,10 +80,16 @@ add_directory_path (TrackerMinerFS *fs,
                     const gchar    *path,
                     gboolean        recurse)
 {
+	TrackerIndexingTree *tree;
+	TrackerDirectoryFlags flags = 0;
 	GFile *file;
 
+	if (recurse)
+		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
+
 	file = g_file_new_for_path (path);
-	tracker_miner_fs_directory_add (fs, file, recurse);
+	tree = tracker_miner_fs_get_indexing_tree (fs);
+	tracker_indexing_tree_add (tree, file, flags);
 	g_object_unref (file);
 }
 

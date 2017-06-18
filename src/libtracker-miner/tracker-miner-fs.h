@@ -134,22 +134,6 @@ gdouble               tracker_miner_fs_get_throttle          (TrackerMinerFS  *f
 void                  tracker_miner_fs_set_throttle          (TrackerMinerFS  *fs,
                                                               gdouble          throttle);
 
-#ifndef TRACKER_DISABLE_DEPRECATED
-/* Setting locations to be processed in IndexingTree */
-void                  tracker_miner_fs_add_directory_without_parent
-                                                             (TrackerMinerFS  *fs,
-                                                              GFile           *file)
-                                                             G_GNUC_DEPRECATED;
-#endif
-
-void                  tracker_miner_fs_directory_add         (TrackerMinerFS  *fs,
-                                                              GFile           *file,
-                                                              gboolean         recurse);
-gboolean              tracker_miner_fs_directory_remove      (TrackerMinerFS  *fs,
-                                                              GFile           *file);
-gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS  *fs,
-                                                              GFile           *file);
-
 /* Queueing files to be processed AFTER checking rules in IndexingTree */
 void                  tracker_miner_fs_check_file            (TrackerMinerFS  *fs,
                                                               GFile           *file,

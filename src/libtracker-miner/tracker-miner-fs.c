@@ -2693,39 +2693,6 @@ file_equal_or_descendant (GFile *file,
 	return FALSE;
 }
 
-/**
- * tracker_miner_fs_directory_add:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to inspect
- * @recurse: whether the directory should be inspected recursively
- *
- * Tells the filesystem miner to inspect a directory.
- *
- * Since: 0.8
- **/
-void
-tracker_miner_fs_directory_add (TrackerMinerFS *fs,
-                                GFile          *file,
-                                gboolean        recurse)
-{
-	TrackerDirectoryFlags flags = TRACKER_DIRECTORY_FLAG_NONE;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	if (recurse) {
-		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
-	}
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           file,
-	                           flags);
-}
-
 static void
 task_pool_cancel_foreach (gpointer data,
                           gpointer user_data)
@@ -2807,82 +2774,6 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 
 	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
 	g_timer_destroy (timer);
-}
-
-/**
- * tracker_miner_fs_directory_remove:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to be removed
- *
- * Removes a directory from being inspected by @fs. Note that only directory
- *  watches are removed.
- *
- * Returns: %TRUE if the directory was successfully removed.
- *
- * Since: 0.8
- **/
-gboolean
-tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
-                                   GFile          *file)
-{
-	TrackerMinerFSPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	priv = fs->priv;
-
-	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
-		return FALSE;
-	}
-
-	g_debug ("Removing directory");
-	tracker_indexing_tree_remove (priv->indexing_tree, file);
-
-	return TRUE;
-}
-
-
-/**
- * tracker_miner_fs_directory_remove_full:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to be removed
- *
- * Removes a directory from being inspected by @fs, and removes all
- * associated metadata of the directory (and its contents) from the
- * store.
- *
- * Returns: %TRUE if the directory was successfully removed.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
-                                        GFile          *file)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
-
-	if (tracker_miner_fs_directory_remove (fs, file)) {
-		if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
-			/* If the preserve flag is unset, TrackerFileNotifier
-			 * will delete automatically files from this config
-			 * directory, if it's set, we force the delete here
-			 * to preserve remove_full() semantics.
-			 */
-			trace_eq_push_tail ("DELETED", file, "on remove full");
-			miner_fs_queue_file (fs, fs->priv->items_deleted, file, FALSE);
-			item_queue_handlers_set_up (fs);
-		}
-
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 static gboolean
@@ -3394,43 +3285,6 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 
 	return FALSE;
 }
-
-#ifndef TRACKER_DISABLE_DEPRECATED
-/**
- * tracker_miner_fs_add_directory_without_parent:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile
- *
- * Tells the miner-fs that the given #GFile corresponds to a
- * directory which was created in the store without a specific
- * parent object. In this case, when regenerating internal
- * caches, an extra query will be done so that these elements
- * are taken into account.
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
-                                               GFile          *file)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-		TRACKER_DIRECTORY_FLAG_PRESERVE |
-		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           file,
-	                           flags);
-}
-#endif
 
 /**
  * tracker_miner_fs_get_indexing_tree:
