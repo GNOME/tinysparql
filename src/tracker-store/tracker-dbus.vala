@@ -77,7 +77,7 @@ public class Tracker.DBus {
 		}
 	}
 
-	public static bool register_names (string? domain, string? dbus_path, string? ontology_name) {
+	public static bool register_names (string? domain, string? ontology_name) {
 		/* Register the service name for org.freedesktop.Tracker */
 		
 		if (domain != null) {
