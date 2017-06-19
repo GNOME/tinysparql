@@ -59,7 +59,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(): '%s'", Log.METHOD, sparql);
+		debug ("%s(): '%s'", GLib.Log.METHOD, sparql);
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
 		} else {
@@ -68,7 +68,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(): '%s'", Log.METHOD, sparql);
+		debug ("%s(): '%s'", GLib.Log.METHOD, sparql);
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
 		} else {
@@ -77,7 +77,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -85,7 +85,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -93,7 +93,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -108,7 +108,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -117,7 +117,7 @@ class Tracker.Sparql.Backend : Connection {
 
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
-		debug ("%s(): '%s'", Log.METHOD, uri);
+		debug ("%s(): '%s'", GLib.Log.METHOD, uri);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -126,7 +126,7 @@ class Tracker.Sparql.Backend : Connection {
 
 	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
-		debug ("%s(): '%s'", Log.METHOD, uri);
+		debug ("%s(): '%s'", GLib.Log.METHOD, uri);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -134,7 +134,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		debug ("%s()", Log.METHOD);
+		debug ("%s()", GLib.Log.METHOD);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
 		}
@@ -142,7 +142,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		debug ("%s()", Log.METHOD);
+		debug ("%s()", GLib.Log.METHOD);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
 		}
