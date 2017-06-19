@@ -5,7 +5,7 @@ int
 main( string[] args )
 {
 	try {
-		TestApp app = new TestApp (new  Tracker.Bus.Connection ());
+		TestApp app = new TestApp (new  Tracker.Bus.Connection ("org.freedesktop.Tracker1"));
 
 		return app.run ();
 	} catch (GLib.Error e) {

@@ -17,6 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+static string domain_name = null;
+static Tracker.DomainOntology domain_ontology = null;
+
 class Tracker.Sparql.Backend : Connection {
 	bool initialized;
 	Tracker.Sparql.Connection direct = null;
@@ -29,9 +32,10 @@ class Tracker.Sparql.Backend : Connection {
 
 	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
+			domain_ontology = new Tracker.DomainOntology (domain_name, null);
 			load_plugins ();
 		} catch (GLib.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
+			throw new Sparql.Error.INTERNAL ("Failed to load SPARQL backend: " + e.message);
 		}
 
 		initialized = true;
@@ -150,8 +154,10 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	private Connection create_readonly_direct () throws GLib.Error, Sparql.Error, IOError, DBusError {
-		File store = File.new_for_path (Path.build_filename (Environment.get_user_cache_dir(), "tracker"));
-		var conn = new Tracker.Direct.Connection (Tracker.Sparql.ConnectionFlags.READONLY, store, null, null);
+		var conn = new Tracker.Direct.Connection (Tracker.Sparql.ConnectionFlags.READONLY,
+		                                          domain_ontology.get_cache (),
+		                                          domain_ontology.get_journal (),
+		                                          domain_ontology.get_ontology ());
 		conn.init ();
 		return conn;
 	}
@@ -185,7 +191,7 @@ class Tracker.Sparql.Backend : Connection {
 				warning ("Falling back to bus backend, the direct backend failed to initialize: " + e.message);
 			}
 
-			bus = new Tracker.Bus.Connection ();
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
 			break;
 
 		case Backend.DIRECT:
@@ -193,7 +199,7 @@ class Tracker.Sparql.Backend : Connection {
 			break;
 
 		case Backend.BUS:
-			bus = new Tracker.Bus.Connection ();
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
 			break;
 
 		default:
@@ -342,4 +348,13 @@ public static async Tracker.Sparql.Connection tracker_sparql_connection_local_ne
 	conn.init_async.begin (Priority.DEFAULT, cancellable);
 	yield;
 	return conn;
+}
+
+public static void tracker_sparql_connection_set_domain (string? domain) {
+	if (domain_name == null)
+		domain_name = domain;
+}
+
+public static string? tracker_sparql_connection_get_domain () {
+	return domain_name;
 }
