@@ -47,9 +47,9 @@ License which can be viewed at:
 	static bool force_reindex;
 	static bool readonly_mode;
 	static string domain_ontology;
-	static string cache_location;
-	static string data_location;
-	static string ontology_location;
+	static File cache_location;
+	static File data_location;
+	static File ontology_location;
 	static string domain;
 	static string ontology_name;
 
@@ -82,11 +82,11 @@ License which can be viewed at:
 			message ("  Ontology name..........................  %s", ontology_name);
 
 		if (cache_location != null)
-			message ("  Cache location.........................  %s", cache_location);
+			message ("  Cache location.........................  %s", cache_location.get_uri());
 		if (data_location != null)
-			message ("  Data location..........................  %s", data_location);
+			message ("  Data location..........................  %s", data_location.get_uri());
 		if (ontology_location != null)
-			message ("  Ontology location......................  %s", ontology_location);
+			message ("  Ontology location......................  %s", ontology_location.get_uri());
 	}
 
 	static void do_shutdown () {
@@ -226,51 +226,19 @@ License which can be viewed at:
 			message ("Using log file:'%s'", log_filename);
 		}
 
-		if (domain_ontology != null) {
-			string keyfile_path = Path.build_filename (SHAREDIR,
-			                                           "tracker",
-			                                           "domain-ontologies",
-			                                           domain_ontology+".rule");
-			try {
-				KeyFile keyfile = new KeyFile ( );
-				keyfile.load_from_file (keyfile_path, GLib.KeyFileFlags.NONE);
-				
-				try {
-					string? loaded_data_location = keyfile.get_string ("DomainOntology", "DataLocation");
-					if (data_location == null)
-						data_location = loaded_data_location;
-				} catch (KeyFileError m) {}
+		Tracker.DomainOntology domain_ontology_config;
 
-				try {
-					string? loaded_cache_location = keyfile.get_string ("DomainOntology", "CacheLocation");
-					if (cache_location == null)
-						cache_location = loaded_cache_location;
-				} catch (KeyFileError m) {}
-
-				try {
-					string? loaded_ontology_location = keyfile.get_string ("DomainOntology", "OntologyLocation");
-					if (ontology_location == null)
-						ontology_location = loaded_ontology_location;
-				} catch (KeyFileError m) {}
-
-				try {
-					string? loaded_domain = keyfile.get_string ("DomainOntology", "Domain");
-					if (domain == null)
-						domain = loaded_domain;
-				} catch (KeyFileError m) {}
-
-				try {
-					string? loaded_ontology_name = keyfile.get_string ("DomainOntology", "OntologyName");
-					if (ontology_name == null)
-						ontology_name = loaded_ontology_name;
-				} catch (KeyFileError m) {}
-
-			} catch (KeyFileError ke) {
-				critical("Loading " + keyfile_path + " " + ke.message);
-			} catch (FileError fe) {
-				critical("Loading " + keyfile_path + " " + fe.message);
-			}
+		try {
+			domain_ontology_config = new Tracker.DomainOntology (domain_ontology, null);
+		} catch (Error e) {
+			critical ("Could not load domain ontology definition '%s': %s", domain_ontology, e.message);
+			return -1;
 		}
+
+		cache_location = domain_ontology_config.get_cache ();
+		data_location = domain_ontology_config.get_journal ();
+		ontology_location = domain_ontology_config.get_ontology ();
+		domain = domain_ontology_config.get_domain ();
 
 		sanity_check_option_values (config);
 
@@ -334,24 +302,10 @@ License which can be viewed at:
 		}
 
 		try {
-			File final_cache_location = cache_location != null ?
-				File.new_for_path (cache_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
-				File.new_for_path (Path.build_filename (Environment.get_user_cache_dir (), "tracker"));
-			File final_data_location = data_location != null ?
-				File.new_for_path (data_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
-				File.new_for_path (Path.build_filename (Environment.get_user_data_dir (), "tracker", "data"));
-			File final_ontology_location = ontology_location != null ?
-				File.new_for_path (ontology_location.replace ("%HOME%", Environment.get_home_dir()).replace("%SHAREDIR%", SHAREDIR)) :
-				File.new_for_path (Path.build_filename (SHAREDIR, "tracker", "ontologies", "nepomuk"));
-
-			var env_ontology = Environment.get_variable ("TRACKER_DB_ONTOLOGIES_DIR");
-			if (env_ontology != null && env_ontology != "")
-				final_ontology_location = File.new_for_path (env_ontology);
-
 			data_manager = new Tracker.Data.Manager (flags,
-			                                         final_cache_location,
-			                                         final_data_location,
-			                                         final_ontology_location,
+			                                         cache_location,
+			                                         data_location,
+			                                         ontology_location,
 			                                         true,
 			                                         false,
 			                                         select_cache_size,
