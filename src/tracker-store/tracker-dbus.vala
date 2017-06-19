@@ -77,25 +77,17 @@ public class Tracker.DBus {
 		}
 	}
 
-	public static bool register_names (string? domain, string? ontology_name) {
-		/* Register the service name for org.freedesktop.Tracker */
-		
+	public static bool register_names (string? domain) {
+		string service_name;
+
 		if (domain != null) {
-			if (ontology_name != null) {
-				if (!dbus_register_service (domain+"."+ontology_name)) {
-					return false;
-				}
-			} else {
-				if (!dbus_register_service (domain)) {
-					return false;
-				}
-			}
+			service_name = domain;
 		} else {
-			if (!dbus_register_service (SERVICE)) {
-				return false;
-			}
+			/* Register the service name for org.freedesktop.Tracker */
+			service_name = SERVICE;
 		}
-		return true;
+
+		return dbus_register_service (service_name);
 	}
 
 	public static bool init (Tracker.Config config_p) {

@@ -300,7 +300,7 @@ License which can be viewed at:
 			return 1;
 		}
 
-		if (!Tracker.DBus.register_names (domain, ontology_name)) {
+		if (!Tracker.DBus.register_names (domain)) {
 			return 1;
 		}
 
