@@ -62,7 +62,7 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-#define DBUS_NAME "org.freedesktop.Tracker1.Miner.Extract"
+#define DBUS_NAME_SUFFIX "Miner.Extract"
 #define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Extract"
 
 static GMainLoop *main_loop;
@@ -73,6 +73,7 @@ static gchar *mime_type;
 static gchar *force_module;
 static gchar *output_format_name;
 static gboolean version;
+static gchar *domain_ontology_name = NULL;
 
 static TrackerConfig *config;
 
@@ -97,6 +98,10 @@ static GOptionEntry entries[] = {
 	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format_name,
 	  N_("Output results format: “sparql”, or “turtle”"),
 	  N_("FORMAT") },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
@@ -307,6 +312,8 @@ main (int argc, char *argv[])
 	GMainLoop *my_main_loop;
 	GDBusConnection *connection;
 	TrackerMinerProxy *proxy;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -344,6 +351,16 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
+	tracker_sparql_connection_set_domain (domain_ontology_name);
+
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
 	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 	if (error) {
 		g_critical ("Could not create DBus connection: %s\n",
@@ -352,12 +369,17 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
 		g_critical ("Could not request DBus name '%s': %s",
-		            DBUS_NAME, error->message);
+		            dbus_name, error->message);
 		g_error_free (error);
+		g_free (dbus_name);
 		return EXIT_FAILURE;
 	}
+
+	g_free (dbus_name);
 
 	config = tracker_config_new ();
 
@@ -443,6 +465,7 @@ main (int argc, char *argv[])
 	g_object_unref (controller);
 	g_object_unref (proxy);
 	g_object_unref (connection);
+	g_object_unref (domain_ontology);
 
 	tracker_log_shutdown ();
 
