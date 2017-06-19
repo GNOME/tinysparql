@@ -78,6 +78,7 @@ enum {
 	PROP_STATUS,
 	PROP_PROGRESS,
 	PROP_REMAINING_TIME,
+	PROP_CONNECTION
 };
 
 enum {
@@ -258,6 +259,14 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                   G_MAXINT,
 	                                                   -1,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_CONNECTION,
+	                                 g_param_spec_object ("connection",
+	                                                      "Connection",
+	                                                      "SPARQL Connection",
+	                                                      TRACKER_SPARQL_TYPE_CONNECTION,
+	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_CONSTRUCT_ONLY));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 }
@@ -276,8 +285,11 @@ miner_initable_init (GInitable     *initable,
 	TrackerMiner *miner = TRACKER_MINER (initable);
 	GError *inner_error = NULL;
 
-	/* Try to get SPARQL connection... */
-	miner->priv->connection = tracker_sparql_connection_get (NULL, &inner_error);
+	if (!miner->priv->connection) {
+		/* Try to get SPARQL connection... */
+		miner->priv->connection = tracker_sparql_connection_get (NULL, &inner_error);
+	}
+
 	if (!miner->priv->connection) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
@@ -429,6 +441,10 @@ miner_set_property (GObject      *object,
 		}
 		break;
 	}
+	case PROP_CONNECTION: {
+		miner->priv->connection = g_value_dup_object (value);
+		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -453,6 +469,8 @@ miner_get_property (GObject    *object,
 	case PROP_REMAINING_TIME:
 		g_value_set_int (value, miner->priv->remaining_time);
 		break;
+	case PROP_CONNECTION:
+		g_value_set_object (value, miner->priv->connection);
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
