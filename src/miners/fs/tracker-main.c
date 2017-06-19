@@ -54,7 +54,7 @@
 
 #define SECONDS_PER_DAY 60 * 60 * 24
 
-#define DBUS_NAME "org.freedesktop.Tracker1.Miner.Files"
+#define DBUS_NAME_SUFFIX "Miner.Files"
 #define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Files"
 
 static void miner_handle_next (void);
@@ -71,6 +71,7 @@ static gchar *eligible;
 static gboolean version;
 static guint miners_timeout_id = 0;
 static gboolean do_crawling = FALSE;
+static gchar *domain_ontology_name = NULL;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -91,6 +92,10 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_FILENAME, &eligible,
 	  N_("Checks if FILE is eligible for being mined based on configuration"),
 	  N_("FILE") },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
@@ -683,6 +688,8 @@ main (gint argc, gchar *argv[])
 	gboolean store_available;
 	TrackerMinerProxy *proxy;
 	GDBusConnection *connection;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	main_loop = NULL;
 
@@ -720,6 +727,16 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	tracker_sparql_connection_set_domain (domain_ontology_name);
+
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
 	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 	if (error) {
 		g_critical ("Could not create DBus connection: %s\n",
@@ -728,12 +745,17 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
 		g_critical ("Could not request DBus name '%s': %s",
-		            DBUS_NAME, error->message);
+		            dbus_name, error->message);
 		g_error_free (error);
+		g_free (dbus_name);
 		return EXIT_FAILURE;
 	}
+
+	g_free (dbus_name);
 
 	/* Initialize logging */
 	config = tracker_config_new ();
@@ -873,6 +895,7 @@ main (gint argc, gchar *argv[])
 
 	g_object_unref (proxy);
 	g_object_unref (connection);
+	g_object_unref (domain_ontology);
 
 	tracker_writeback_shutdown ();
 	tracker_log_shutdown ();
