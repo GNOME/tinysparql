@@ -62,12 +62,6 @@ License which can be viewed at:
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
 		{ "domain-ontology", 'd', 0, OptionArg.STRING, ref domain_ontology, N_("Load a specified domain ontology"), null },
-		{ "domain", 'a', 0, OptionArg.STRING, ref domain, N_("Override domain to be used"), null },
-		{ "ontology-name", 'o', 0, OptionArg.STRING, ref ontology_name, N_("Override ontology name to be used"), null },
-		{ "cache-location", 'c', 0, OptionArg.STRING, ref cache_location, N_("Override cache location to be used"), null },
-		{ "data-location", 'm', 0, OptionArg.STRING, ref data_location, N_("Override data location to be used"), null },
-		{ "ontology-location", 'n', 0, OptionArg.STRING, ref ontology_location, N_("Override ontology location to be used"), null },
-
 		{ null }
 	};
 
