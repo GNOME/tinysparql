@@ -8,7 +8,7 @@ namespace Tracker {
 		public MinerManager ();
 		public static GLib.Quark error_quark ();
 		[CCode (has_construct_function = false)]
-		public MinerManager.full (bool auto_start) throws GLib.Error;
+		public MinerManager.full (string? domain_name, bool auto_start) throws GLib.Error;
 		public GLib.SList<string>? get_available ();
 		public unowned string get_description (string miner);
 		public unowned string get_display_name (string miner);

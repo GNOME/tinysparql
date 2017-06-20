@@ -67,6 +67,7 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
+	GDBusConnection *connection;
 	TrackerMinerProxy *proxy;
 	TrackerDomainOntology *domain_ontology;
 	gchar *dbus_name;
