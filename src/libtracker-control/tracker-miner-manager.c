@@ -670,13 +670,6 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 			continue;
 		}
 
-		/* Special case miner-fs which has
-		 * additional D-Bus interface.
-		 */
-		if (strcmp (str, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
-			continue;
-		}
-
 		list = g_slist_prepend (list, g_strdup (str));
 	}
 
@@ -1451,7 +1444,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	v = g_dbus_connection_call_sync (priv->connection,
-	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
+	                                 "org.freedesktop.Tracker1.Miner.Files",
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 "ReindexMimeTypes",
@@ -1506,7 +1499,7 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 	uri = g_file_get_uri (file);
 
 	v = g_dbus_connection_call_sync (priv->connection,
-	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
+	                                 "org.freedesktop.Tracker1.Miner.Files",
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 method_name,

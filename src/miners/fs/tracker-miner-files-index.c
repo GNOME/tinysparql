@@ -510,8 +510,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	GObject *miner;
 	TrackerMinerFilesIndexPrivate *priv;
 	gchar *full_path, *full_name;
-	GVariant *reply;
-	guint32 rval;
 	GError *error = NULL;
 	TrackerIndexingTree *indexing_tree;
 	GDBusInterfaceVTable interface_vtable = {
@@ -568,35 +566,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 		            full_path,
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
-		g_object_unref (miner);
-		return NULL;
-	}
-
-	reply = g_dbus_connection_call_sync (priv->d_connection,
-	                                     "org.freedesktop.DBus",
-	                                     "/org/freedesktop/DBus",
-	                                     "org.freedesktop.DBus",
-	                                     "RequestName",
-	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
-	                                     G_VARIANT_TYPE ("(u)"),
-	                                     0, -1, NULL, &error);
-
-	if (error) {
-		g_critical ("Could not acquire name:'%s', %s",
-		            full_name,
-		            error->message);
-		g_clear_error (&error);
-		g_object_unref (miner);
-		return NULL;
-	}
-
-	g_variant_get (reply, "(u)", &rval);
-	g_variant_unref (reply);
-
-	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the daemon is already running?",
-		            full_name);
 		g_object_unref (miner);
 		return NULL;
 	}
