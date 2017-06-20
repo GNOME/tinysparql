@@ -235,21 +235,5 @@ The \fIcookie\fR is given by a successful \fB\-\-pause\fR command. It
 is a number which identifies each pause request. When all pauses have
 been resumed, the miner will resume working.
 
-.SH ENVIRONMENT
-.TP
-.B TRACKER_MINERS_DIR
-Miners that are installed should have a .desktop file in
-/usr/share/tracker/miners/, this is how tracker-control knows about
-miners which exist but may not have not been started. This environment
-variable allows the location that miner .desktop files are loaded from
-to be overridden by setting it to a new path.
-.TP
-.B TRACKER_MINERS_DIR_DISABLED
-If you don't have .desktop files for miners, you can use this
-environment variable to get status information from \fBRUNNING\fR
-processes. This doesn't give any indication for miners \fBNOT\fR
-running. This uses registered miners on DBus to know about existing
-Tracker based data miners.
-
 .SH SEE ALSO
 .BR tracker-store (1).
