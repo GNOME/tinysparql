@@ -29,12 +29,13 @@
 
 #include "tracker-miner-rss.h"
 
-#define DBUS_NAME "org.freedesktop.Tracker1.Miner.RSS"
+#define DBUS_NAME_SUFFIX "Miner.RSS"
 #define DBUS_PATH "/org/freedesktop/Tracker1/Miner/RSS"
 
 static gint verbosity = -1;
 static gchar *add_feed;
 static gchar *title;
+static gchar *domain_ontology_name = NULL;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -51,6 +52,10 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_STRING, &title,
 	  N_("Title to use (must be used with --add-feed)"),
 	  NULL },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ NULL }
 };
 
@@ -63,6 +68,8 @@ main (int argc, char **argv)
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
 	TrackerMinerProxy *proxy;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	setlocale (LC_ALL, "");
 
@@ -90,6 +97,8 @@ main (int argc, char **argv)
 	}
 
 	g_option_context_free (context);
+
+	tracker_sparql_connection_set_domain (domain_ontology_name);
 
 	/* Command line stuff doesn't use logging, so we're using g_print*() */
 	if (add_feed) {
@@ -153,6 +162,14 @@ main (int argc, char **argv)
 		g_free (log_filename);
 	}
 
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
 	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
 	if (error) {
 		g_critical ("Could not create DBus connection: %s\n",
@@ -161,12 +178,17 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (!tracker_dbus_request_name (connection, DBUS_NAME, &error)) {
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
 		g_critical ("Could not request DBus name '%s': %s",
-		            DBUS_NAME, error->message);
+		            dbus_name, error->message);
 		g_error_free (error);
+		g_free (dbus_name);
 		return EXIT_FAILURE;
 	}
+
+	g_free (dbus_name);
 
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
@@ -191,6 +213,7 @@ main (int argc, char **argv)
 	g_object_unref (miner);
 	g_object_unref (connection);
 	g_object_unref (proxy);
+	g_object_unref (domain_ontology);
 
 	return EXIT_SUCCESS;
 }
