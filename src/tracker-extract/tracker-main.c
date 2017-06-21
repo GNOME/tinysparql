@@ -300,6 +300,15 @@ run_standalone (TrackerConfig *config)
 	return EXIT_SUCCESS;
 }
 
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -448,6 +457,13 @@ main (int argc, char *argv[])
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                main_loop, NULL);
+	}
 
 	initialize_signal_handler ();
 
