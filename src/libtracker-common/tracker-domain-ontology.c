@@ -70,6 +70,8 @@ struct {
 #define ONTOLOGY_NAME_KEY "OntologyName"
 #define DOMAIN_KEY "Domain"
 
+#define DEFAULT_RULE "default.rule"
+
 static void tracker_domain_ontology_initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerDomainOntology, tracker_domain_ontology, G_TYPE_OBJECT,
@@ -256,6 +258,33 @@ key_file_get_location (GKeyFile     *key_file,
 	return file;
 }
 
+static gchar *
+find_rule_in_data_dirs (const gchar *name)
+{
+	const gchar* const *data_dirs;
+	gchar *path, *rule_name;
+	guint i;
+
+	data_dirs = g_get_system_data_dirs ();
+	rule_name = g_strconcat (name, ".rule", NULL);
+
+	for (i = 0; data_dirs[i] != NULL; i++) {
+		path = g_build_filename (data_dirs[i],
+		                         "tracker", "domain-ontologies",
+		                         rule_name, NULL);
+		if (g_file_test (path, G_FILE_TEST_IS_REGULAR)) {
+			g_free (rule_name);
+			return path;
+		}
+
+		g_free (path);
+	}
+
+	g_free (rule_name);
+
+	return NULL;
+}
+
 static gboolean
 tracker_domain_ontology_initable_init (GInitable     *initable,
                                        GCancellable  *cancellable,
@@ -264,19 +293,29 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 	TrackerDomainOntology *domain_ontology;
 	TrackerDomainOntologyPrivate *priv;
 	GError *inner_error = NULL;
-	GKeyFile *key_file;
-	gchar *rulename, *path;
+	GKeyFile *key_file = NULL;
+	gchar *path;
 
 	domain_ontology = TRACKER_DOMAIN_ONTOLOGY (initable);
 	priv = tracker_domain_ontology_get_instance_private (domain_ontology);
 
-	rulename = g_strconcat (priv->name ? priv->name : "default", ".rule", NULL);
-	path = g_build_filename (SHAREDIR, "tracker", "domain-ontologies",
-	                         rulename, NULL);
+	if (priv->name) {
+		path = find_rule_in_data_dirs (priv->name);
+
+		if (!path) {
+			inner_error = g_error_new (G_KEY_FILE_ERROR,
+			                           G_KEY_FILE_ERROR_NOT_FOUND,
+			                           "Could not find rule '%s' in data dirs",
+			                           priv->name);
+			goto end;
+		}
+	} else {
+		path = g_build_filename (SHAREDIR, "tracker", "domain-ontologies",
+		                         DEFAULT_RULE, NULL);
+	}
+
 	key_file = g_key_file_new ();
 	g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &inner_error);
-
-	g_free (rulename);
 	g_free (path);
 
 	if (inner_error)
@@ -329,7 +368,8 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 	}
 
 end:
-	g_key_file_free (key_file);
+	if (key_file)
+		g_key_file_free (key_file);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
