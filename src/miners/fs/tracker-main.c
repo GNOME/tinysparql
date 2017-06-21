@@ -674,6 +674,15 @@ miner_needs_check (TrackerMiner *miner,
 	}
 }
 
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
+}
+
 int
 main (gint argc, gchar *argv[])
 {
@@ -782,6 +791,13 @@ main (gint argc, gchar *argv[])
 	                                    tracker_miner_files_get_first_index_done () == FALSE);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                main_loop, NULL);
+	}
 
 	g_message ("Checking if we're running as a daemon:");
 	g_message ("  %s %s",
