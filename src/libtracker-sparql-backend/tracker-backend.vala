@@ -185,13 +185,14 @@ class Tracker.Sparql.Backend : Connection {
 
 		switch (backend) {
 		case Backend.AUTO:
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
+
 			try {
 				direct = create_readonly_direct ();
 			} catch (Error e) {
 				warning ("Falling back to bus backend, the direct backend failed to initialize: " + e.message);
 			}
 
-			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
 			break;
 
 		case Backend.DIRECT:
