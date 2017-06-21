@@ -335,6 +335,9 @@ License which can be viewed at:
 		if (!shutdown) {
 			main_loop = new MainLoop ();
 
+			if (domain != null)
+				Tracker.DBus.watch_domain (domain_ontology, main_loop);
+
 			initialize_signal_handler ();
 
 			main_loop.run ();

@@ -35,6 +35,8 @@ public class Tracker.DBus {
 	static Tracker.Backup backup;
 	static uint backup_id;
 	static Tracker.Config config;
+	static uint domain_watch_id;
+	static MainLoop watch_main_loop;
 
 	static bool dbus_register_service (string name) {
 		message ("Registering D-Bus service...\n  Name:'%s'", name);
@@ -88,6 +90,22 @@ public class Tracker.DBus {
 		}
 
 		return dbus_register_service (service_name);
+	}
+
+	public static void on_domain_name_disappeared (DBusConnection connection, string name) {
+		notifier.wait ();
+		yield;
+		watch_main_loop.quit ();
+	}
+
+	public static void watch_domain (string? domain, MainLoop main_loop) {
+		if (domain_watch_id == 0 && domain != null) {
+			watch_main_loop = main_loop;
+			domain_watch_id = GLib.Bus.watch_name_on_connection (connection,
+			                                                     domain,
+			                                                     GLib.BusNameWatcherFlags.NONE,
+			                                                     null, on_domain_name_disappeared);
+		}
 	}
 
 	public static bool init (Tracker.Config config_p) {
@@ -152,6 +170,11 @@ public class Tracker.DBus {
 			connection.unregister_object (notifier_id);
 			notifier = null;
 			notifier_id = 0;
+		}
+
+		if (domain_watch_id != 0) {
+			GLib.Bus.unwatch_name (domain_watch_id);
+			domain_watch_id = 0;
 		}
 
 		connection = null;
