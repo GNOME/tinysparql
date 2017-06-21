@@ -408,7 +408,8 @@ restore_from_temp (GFile *cache_location,
 }
 
 void
-tracker_data_backup_save (GFile                     *destination,
+tracker_data_backup_save (TrackerDataManager        *data_manager,
+                          GFile                     *destination,
                           GFile                     *data_location,
                           TrackerDataBackupFinished  callback,
                           gpointer                   user_data,
@@ -528,6 +529,8 @@ tracker_data_backup_save (GFile                     *destination,
 	g_strfreev (argv);
 #else
 	BackupSaveInfo *info;
+	TrackerDBManager *db_manager;
+	GFile *db_file;
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_object_ref (destination);
@@ -535,10 +538,15 @@ tracker_data_backup_save (GFile                     *destination,
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	tracker_db_backup_save (destination,
-	                        on_backup_finished, 
+	db_manager = tracker_data_manager_get_db_manager (data_manager);
+	db_file = g_file_new_for_path (tracker_db_manager_get_file (db_manager));
+
+	tracker_db_backup_save (destination, db_file,
+	                        on_backup_finished,
 	                        info,
 	                        NULL);
+
+	g_object_unref (db_file);
 #endif /* DISABLE_JOURNAL */
 }
 

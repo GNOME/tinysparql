@@ -154,7 +154,8 @@ test_backup_and_restore_helper (const gchar *db_location,
 	backup_file = g_file_new_for_path (backup_filename);
 	g_free (backup_filename);
 	g_free (backup_location);
-	tracker_data_backup_save (backup_file,
+	tracker_data_backup_save (manager,
+	                          backup_file,
 				  data_location,
 	                          backup_finished_cb,
 	                          NULL,

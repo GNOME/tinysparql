@@ -38,6 +38,7 @@
 
 typedef struct {
 	GFile *destination;
+	GFile *file;
 	TrackerDBBackupFinished callback;
 	gpointer user_data;
 	GDestroyNotify destroy;
@@ -71,6 +72,10 @@ backup_info_free (gpointer user_data)
 		g_object_unref (info->destination);
 	}
 
+	if (info->file) {
+		g_object_unref (info->file);
+	}
+
 	if (info->destroy) {
 		info->destroy (info->user_data);
 	}
@@ -87,18 +92,15 @@ backup_job (GTask        *task,
             GCancellable *cancellable)
 {
 	BackupInfo *info = task_data;
-	TrackerDBManager *db_manager;
 
-	const gchar *src_path;
 	GFile *parent_file, *temp_file;
-	gchar *temp_path;
+	gchar *temp_path, *src_path;
 
 	sqlite3 *src_db = NULL;
 	sqlite3 *temp_db = NULL;
 	sqlite3_backup *backup = NULL;
 
-	db_manager = tracker_data_manager_get_db_manager ();
-	src_path = tracker_db_manager_get_file (db_manager);
+	src_path = g_file_get_path (info->file);
 	parent_file = g_file_get_parent (info->destination);
 	temp_file = g_file_get_child (parent_file, TRACKER_DB_BACKUP_META_FILENAME_T);
 	g_file_delete (temp_file, NULL, NULL);
@@ -160,6 +162,7 @@ backup_job (GTask        *task,
 		             &info->error);
 	}
 
+	g_free (src_path);
 	g_free (temp_path);
 	g_object_unref (temp_file);
 	g_object_unref (parent_file);
@@ -170,6 +173,7 @@ backup_job (GTask        *task,
 
 void
 tracker_db_backup_save (GFile                   *destination,
+                        GFile                   *file,
                         TrackerDBBackupFinished  callback,
                         gpointer                 user_data,
                         GDestroyNotify           destroy)
@@ -180,6 +184,7 @@ tracker_db_backup_save (GFile                   *destination,
 	info = g_slice_new0 (BackupInfo);
 
 	info->destination = g_object_ref (destination);
+	info->file = g_object_ref (file);
 
 	info->callback = callback;
 	info->user_data = user_data;
