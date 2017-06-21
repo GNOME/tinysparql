@@ -24,6 +24,7 @@
 #include <glib/gi18n.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-domain-ontology.h>
 
 #include "tracker-miner-proxy.h"
 
@@ -771,6 +772,8 @@ tracker_miner_proxy_initable_init (GInitable     *initable,
 	TrackerMinerProxy *proxy = TRACKER_MINER_PROXY (initable);
 	TrackerMinerProxyPrivate *priv = tracker_miner_proxy_get_instance_private (proxy);
 	GError *inner_error = NULL;
+	TrackerDomainOntology *domain_ontology;
+	gchar *store_name;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
 		handle_get_property,
@@ -797,14 +800,24 @@ tracker_miner_proxy_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
+	domain_ontology = tracker_domain_ontology_new (tracker_sparql_connection_get_domain (),
+	                                               cancellable, &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	store_name = tracker_domain_ontology_get_domain (domain_ontology, NULL);
+
 	priv->watch_name_id =
 		g_bus_watch_name_on_connection (priv->d_connection,
-		                                TRACKER_SERVICE,
+		                                store_name,
 		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
 		                                on_tracker_store_appeared,
 		                                on_tracker_store_disappeared,
 		                                proxy,
 		                                NULL);
+	g_free (store_name);
 
 	g_signal_connect (priv->miner, "started",
 	                  G_CALLBACK (miner_started_cb), proxy);
