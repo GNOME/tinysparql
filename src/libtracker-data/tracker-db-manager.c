@@ -985,14 +985,14 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	connection = tracker_db_interface_sqlite_new (db_manager->db.abs_filename,
 	                                              flags,
 	                                              &internal_error);
-	tracker_db_interface_set_user_data (connection,
-	                                    g_weak_ref_get (&db_manager->iface_data),
-	                                    g_object_unref);
-
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
 		return NULL;
 	}
+
+	tracker_db_interface_set_user_data (connection,
+	                                    g_weak_ref_get (&db_manager->iface_data),
+	                                    g_object_unref);
 
 	db_set_params (connection,
 	               db_manager->db.cache_size,
