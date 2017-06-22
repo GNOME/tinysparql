@@ -51,7 +51,6 @@ License which can be viewed at:
 	static File data_location;
 	static File ontology_location;
 	static string domain;
-	static string ontology_name;
 
 	const OptionEntry entries[] = {
 		/* Daemon options */
@@ -78,8 +77,6 @@ License which can be viewed at:
 
 		if (domain != null)
 			message ("  Domain.................................  %s", domain);
-		if (ontology_name != null)
-			message ("  Ontology name..........................  %s", ontology_name);
 
 		if (cache_location != null)
 			message ("  Cache location.........................  %s", cache_location.get_uri());
