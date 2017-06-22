@@ -98,7 +98,7 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
-	public interface DBStatement : GLib.Object {
+	public interface DBStatement : GLib.InitiallyUnowned {
 		public abstract void bind_double (int index, double value);
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
