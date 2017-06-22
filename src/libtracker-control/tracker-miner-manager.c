@@ -754,6 +754,15 @@ check_file (GFile    *file,
 		return;
 	}
 
+	if (!tracker_domain_ontology_uses_miner (priv->domain_ontology, name_suffix)) {
+		/* Silently ignore, this domain ontology is not meant to use this miner */
+		g_key_file_free (key_file);
+		g_free (dbus_path);
+		g_free (display_name);
+		g_free (name_suffix);
+		return;
+	}
+
 	description = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DESCRIPTION_KEY, NULL, NULL);
 
 	data = g_slice_new0 (MinerData);
