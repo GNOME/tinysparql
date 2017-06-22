@@ -36,3 +36,9 @@ OntologyName=nepomuk
 # eg. org.gnome.Photos
 Domain=org.freedesktop
 
+# Miners that the domain ontology will require. This is
+# purely a hint (mainly for libtracker-control), and not
+# any sort of white list. Anything else knowing about this
+# domain ontology may still perform updates, miners and
+# non-miners.
+Miners=Miner.Files;Miner.Extract;Miner.Applications;Miner.RSS
