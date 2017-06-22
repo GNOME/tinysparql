@@ -62,4 +62,8 @@ GFile * tracker_domain_ontology_get_ontology (TrackerDomainOntology *domain_onto
 gchar * tracker_domain_ontology_get_domain   (TrackerDomainOntology *domain_ontology,
                                               const gchar           *suffix);
 
+gboolean tracker_domain_ontology_uses_miner  (TrackerDomainOntology *domain_ontology,
+                                              const gchar           *suffix);
+
+
 #endif /* __TRACKER_MINER_PROXY_H__ */

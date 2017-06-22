@@ -32,6 +32,7 @@ typedef struct {
 	gchar *name;
 	gchar *domain;
 	gchar *ontology_name;
+	gchar **miners;
 } TrackerDomainOntologyPrivate;
 
 enum {
@@ -69,6 +70,7 @@ struct {
 #define ONTOLOGY_KEY "OntologyLocation"
 #define ONTOLOGY_NAME_KEY "OntologyName"
 #define DOMAIN_KEY "Domain"
+#define MINERS_KEY "Miners"
 
 #define DEFAULT_RULE "default.rule"
 
@@ -136,6 +138,7 @@ tracker_domain_ontology_finalize (GObject *object)
 	g_clear_object (&priv->ontology_location);
 	g_free (priv->name);
 	g_free (priv->domain);
+	g_strfreev (priv->miners);
 
 	G_OBJECT_CLASS (tracker_domain_ontology_parent_class)->finalize (object);
 }
@@ -346,6 +349,8 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 
 	priv->ontology_name = g_key_file_get_string (key_file, DOMAIN_ONTOLOGY_SECTION,
 	                                             ONTOLOGY_NAME_KEY, NULL);
+	priv->miners = g_key_file_get_string_list (key_file, DOMAIN_ONTOLOGY_SECTION,
+	                                           MINERS_KEY, NULL, NULL);
 
 	/* Consistency check, we need one of OntologyLocation and OntologyName,
 	 * no more, no less.
@@ -434,4 +439,27 @@ tracker_domain_ontology_get_domain (TrackerDomainOntology *domain_ontology,
 		return g_strconcat (priv->domain, ".Tracker1.", suffix, NULL);
 	else
 		return g_strconcat (priv->domain, ".Tracker1", NULL);
+}
+
+gboolean
+tracker_domain_ontology_uses_miner (TrackerDomainOntology *domain_ontology,
+                                    const gchar           *suffix)
+{
+	TrackerDomainOntologyPrivate *priv;
+	guint i;
+
+	g_return_val_if_fail (suffix != NULL, FALSE);
+
+	priv = tracker_domain_ontology_get_instance_private (domain_ontology);
+
+	if (!priv->miners)
+		return FALSE;
+
+	for (i = 0; priv->miners[i] != NULL; i++) {
+		if (strcmp (priv->miners[i], suffix) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
