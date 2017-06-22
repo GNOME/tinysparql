@@ -103,6 +103,7 @@ main (gint argc, gchar **argv)
 	OntologyDescription *description = NULL;
 	GList *description_files, *l;
 	GFile *ontology_file, *output_file;
+	gchar *path;
 
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
@@ -127,14 +128,18 @@ main (gint argc, gchar **argv)
 		return -1;
 	}
 
-	ontology_file = g_file_new_for_path (ontology_dir);
-	output_file = g_file_new_for_path (output_dir);
+	ontology_file = g_file_new_for_commandline_arg (ontology_dir);
+	output_file = g_file_new_for_commandline_arg (output_dir);
 	description_files = get_description_files (ontology_file);
 
 	if (!description_files) {
 		g_printerr ("Ontology description files not found in dir\n");
 		return -1;
 	}
+
+	path = g_file_get_path (output_file);
+	g_mkdir_with_parents (path, 0755);
+	g_free (path);
 
 	ontology = ttl_loader_new_ontology ();
 
