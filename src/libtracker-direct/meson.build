@@ -3,9 +3,7 @@ libtracker_direct = static_library('tracker-direct',
     'tracker-namespace.vala',
     '../libtracker-common/libtracker-common.vapi',
     '../libtracker-data/libtracker-data.vapi',
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    c_args: tracker_c_args,
     vala_args: [
         '--debug',
         '--pkg', 'posix',

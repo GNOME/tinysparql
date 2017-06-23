@@ -33,8 +33,7 @@ endif
 libtracker_extract = library('tracker-extract',
   libtracker_extract_sources,
   dependencies: [tracker_common_dep, tracker_sparql_dep] + tracker_extract_dependencies,
-  c_args: [
-    '-DTRACKER_COMPILATION',
+  c_args: tracker_c_args + [
     '-DTRACKER_EXTRACTOR_RULES_DIR="@0@"'.format(tracker_extract_rules_dir),
     '-DTRACKER_EXTRACTORS_DIR="@0@"'.format(tracker_extract_modules_dir)
   ],

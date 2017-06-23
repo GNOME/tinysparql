@@ -17,11 +17,10 @@ sources = [
 ]
 
 executable('tracker', sources,
-    c_args: [
+    c_args: tracker_c_args + [
         '-DLIBEXECDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('libexecdir'))),
         '-DMANDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('datadir'), 'man')),
         '-DTRACKER_EXTRACTOR_RULES_DIR="@0@"'.format(tracker_extract_rules_dir),
-        '-DTRACKER_COMPILATION',
     ],
     install: true,
     install_rpath: tracker_internal_libs_dir,

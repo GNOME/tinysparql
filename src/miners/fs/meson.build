@@ -19,9 +19,7 @@ endif
 
 executable('tracker-miner-fs', sources,
     dependencies: [tracker_common_dep, tracker_miner_dep, tracker_extract_dep],
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    c_args: tracker_c_args,
     install: true,
     install_dir: get_option('libexecdir'),
     install_rpath: tracker_internal_libs_dir,

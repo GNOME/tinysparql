@@ -11,10 +11,8 @@ libtracker_fts = static_library('libtracker-fts',
     'tracker-fts-config.c',
     'tracker-fts-tokenizer.c',
     libtracker_fts_fts5,
-    dependencies: tracker_common_dep,
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    dependencies: [tracker_common_dep, tracker_sparql_intermediate_dep],
+    c_args: tracker_c_args
 )
 
 tracker_fts_dep = declare_dependency(

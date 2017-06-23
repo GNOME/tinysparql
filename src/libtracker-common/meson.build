@@ -6,12 +6,12 @@ enums = gnome.mkenums('tracker-enum-types',
   h_template: 'tracker-enum-types.h.template',
 )
 
-tracker_common_enum_header = enums[1]
-
-parser_sha1_header = configure_file(
+tracker_common_parser_sha1_header = configure_file(
   input: 'tracker-parser-sha1.h.in',
   output: 'tracker-parser-sha1.h',
   command: ['generate-tracker-parser-sha1-header.sh'])
+
+tracker_common_enum_header = enums[1]
 
 tracker_common_sources = [
   'tracker-date-time.c',
@@ -27,7 +27,7 @@ tracker_common_sources = [
   'tracker-language.c',
   'tracker-seccomp.c',
   enums[0], enums[1],
-  parser_sha1_header,
+  tracker_common_parser_sha1_header,
 ]
 
 if unicode_library_name == 'icu'
@@ -42,9 +42,7 @@ tracker_common_dependencies = [glib, gio, gio_unix, libmath]
 libtracker_common = library('tracker-common',
   tracker_common_sources,
   dependencies: tracker_common_dependencies + [unicode_library],
-  c_args: [
-      '-DTRACKER_COMPILATION',
-  ],
+  c_args: tracker_c_args,
   include_directories: [configinc, srcinc],
   install: true,
   install_dir: tracker_internal_libs_dir,
@@ -62,7 +60,7 @@ commoninc = include_directories('.')
 #
 # Upstream issue: https://github.com/mesonbuild/meson/issues/671
 tracker_common_dep = declare_dependency(
-  sources: enums[1],
+  sources: [tracker_common_enum_header, tracker_common_parser_sha1_header],
   link_with: libtracker_common,
   dependencies: tracker_common_dependencies,
   include_directories: [configinc, srcinc, commoninc],

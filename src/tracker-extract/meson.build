@@ -117,7 +117,7 @@ foreach module : modules
   dependencies = module[3]
 
   shared_module(name, sources,
-    c_args: [ '-DTRACKER_COMPILATION' ],
+    c_args: tracker_c_args,
     dependencies: [tracker_extract_dep] + dependencies,
     include_directories: configinc,
     install: true,
@@ -155,7 +155,8 @@ endif
 
 executable('tracker-extract',
   tracker_extract_sources,
-  c_args: [ '-DTRACKER_COMPILATION' ],
+  # Manually add the root dir to work around https://github.com/mesonbuild/meson/issues/1387
+  c_args: tracker_c_args + ['-I' + meson.build_root()],
   dependencies: tracker_extract_dependencies,
   install: true,
   install_dir: join_paths(get_option('prefix'), get_option('libexecdir')))

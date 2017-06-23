@@ -22,7 +22,7 @@ libtracker_sparql_intermediate = static_library('tracker-sparql',
     'tracker-uri.c',
     'tracker-version.c',
     vala_header: 'tracker-generated-no-checks.h',
-    c_args: [ '-DTRACKER_COMPILATION', ],
+    c_args: tracker_c_args,
     # FIXME: getting Vala to output the GIR means that the symbols from the
     # C files aren't included. This problem seems to affect the Autotools
     # build system as well.

@@ -1,5 +1,4 @@
-test_c_args = [
-    '-DTRACKER_COMPILATION',
+test_c_args = tracker_c_args + [
     '-DTOP_BUILDDIR="@0@"'.format(meson.build_root()),
     '-DTOP_SRCDIR="@0@"'.format(meson.source_root()),
 ]

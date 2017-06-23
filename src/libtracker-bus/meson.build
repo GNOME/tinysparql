@@ -4,9 +4,8 @@ libtracker_bus = static_library('tracker-bus',
     'tracker-array-cursor.vala',
     'tracker-bus-fd-cursor.vala',
     '../libtracker-common/libtracker-common.vapi',
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    tracker_common_enum_header, tracker_common_parser_sha1_header,
+    c_args: tracker_c_args,
     vala_args: [
         '--debug',
         '--pkg', 'posix',
@@ -19,7 +18,6 @@ libtracker_bus = static_library('tracker-bus',
     dependencies: [glib, gio, gio_unix, tracker_sparql_intermediate_dep],
     include_directories: [commoninc, configinc, srcinc],
     link_with: libtracker_common,
-    sources: tracker_common_enum_header,
 )
 
 tracker_sparql_bus_dep = declare_dependency(

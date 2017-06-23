@@ -54,9 +54,7 @@ libtracker_miner_private = static_library(
     'tracker-miner-private',
     miner_enums[0], miner_enums[1], private_sources,
     dependencies: [tracker_common_dep, tracker_sparql_dep],
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    c_args: tracker_c_args,
 )
 
 tracker_miner_dependencies = []
@@ -67,7 +65,7 @@ endif
 libtracker_miner = library(
     'tracker-miner-' + tracker_api_version,
     miner_enums[0], miner_enums[1], miner_sources,
-    c_args: [ '-DTRACKER_COMPILATION', ],
+    c_args: tracker_c_args,
     install: true,
     install_rpath: tracker_internal_libs_dir,
     # This doesn't depend on tracker_common_dep because of
@@ -93,9 +91,8 @@ tracker_miner_gir = gnome.generate_gir(libtracker_miner,
     # but we can't currently access that from the Vala target
     includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
     install: true,
-    extra_args: [
+    extra_args: tracker_c_args + [
         '--c-include=libtracker-miner/tracker-miner.h',
-        '-D', 'TRACKER_COMPILATION',
     ])
 
 configure_file(

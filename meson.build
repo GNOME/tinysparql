@@ -461,10 +461,17 @@ configure_file(input: 'config.h.meson.in',
                output: 'config.h',
                configuration: conf)
 
-# Needed for O_NOATIME, and probably other stuff.
-add_global_arguments('-D_GNU_SOURCE', language: 'c')
-# Needed for statvfs64, and probably other stuff
-add_global_arguments('-D_LARGEFILE64_SOURCE', language: 'c')
+# Global compiler defines. We avoid add_global_arguments() as it breaks
+# when we are included by another project as a subproject.
+tracker_c_args = [
+  # Needed for O_NOATIME, and probably other stuff.
+  '-D_GNU_SOURCE',
+
+  # Needed for statvfs64, and probably other stuff
+  '-D_LARGEFILE64_SOURCE',
+
+  '-DTRACKER_COMPILATION'
+]
 
 have_tracker_miner_fs = true
 have_tracker_miner_apps = true

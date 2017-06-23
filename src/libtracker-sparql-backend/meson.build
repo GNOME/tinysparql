@@ -2,6 +2,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     'tracker-backend.vala',
     install: true,
     install_rpath: tracker_internal_libs_dir,
+    c_args: tracker_c_args,
     dependencies: [tracker_sparql_intermediate_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep],
 )
 

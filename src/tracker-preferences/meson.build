@@ -4,10 +4,9 @@ executable(
     'tracker-preferences.vala',
     '../miners/fs/tracker-config.c',
     dependencies: [tracker_common_dep, tracker_sparql_dep, gmodule, gtk3],
-    c_args: [
+    c_args: tracker_c_args + [
         '-D_XOPEN_SOURCE',
         '-D_XOPEN_SOURCE_EXTENDED',
-        '-DTRACKER_COMPILATION',
         '-include', 'config.h'
     ],
     vala_args: [

@@ -20,7 +20,7 @@ foreach module : modules
   dependencies = module[2]
 
   shared_module(name, sources,
-    c_args: [ '-DTRACKER_COMPILATION' ],
+    c_args: tracker_c_args,
     dependencies: dependencies,
     include_directories: configinc,
     install: true,
@@ -41,8 +41,7 @@ tracker_writeback_sources = [
 
 executable('tracker-writeback',
   tracker_writeback_sources,
-  c_args: [
-    '-DTRACKER_COMPILATION',
+  c_args: tracker_c_args + [
     '-DWRITEBACK_MODULES_DIR="@0@"'.format(tracker_writeback_modules_dir),
   ],
   dependencies: [gmodule, tracker_common_dep, tracker_miner_dep, tracker_sparql_dep],

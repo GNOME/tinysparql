@@ -20,8 +20,7 @@ tracker_store_sources = [
 
 executable('tracker-store',
     tracker_store_sources,
-    c_args: [
-        '-DTRACKER_COMPILATION',
+    c_args: tracker_c_args + [
         '-include', 'config.h'
     ],
     vala_args: [ '--pkg', 'posix' ],

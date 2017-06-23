@@ -10,9 +10,8 @@ libtracker_data_vala = static_library('tracker-sparql-query',
     'tracker-turtle-reader.vala',
     '../libtracker-common/libtracker-common.vapi',
     '../libtracker-data/libtracker-data.vapi',
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    tracker_common_enum_header, tracker_common_parser_sha1_header,
+    c_args: tracker_c_args,
     vala_args: [
         '--debug',
         '--pkg', 'posix',
@@ -24,7 +23,6 @@ libtracker_data_vala = static_library('tracker-sparql-query',
     # https://github.com/mesonbuild/meson/issues/671
     dependencies: [glib, gio, tracker_sparql_intermediate_dep],
     include_directories: [commoninc, configinc, srcinc],
-    sources: tracker_common_enum_header,
 )
 
 tracker_data_dependencies = [
@@ -35,7 +33,6 @@ if get_option('fts')
     tracker_data_dependencies += tracker_fts_dep
 endif
 
- #[gio_unix, glib, libmath, sqlite, uuid]
 libtracker_data = library('tracker-data',
     'tracker-class.c',
     'tracker-collation.c',
@@ -54,9 +51,8 @@ libtracker_data = library('tracker-data',
     'tracker-ontology.c',
     'tracker-ontologies.c',
     'tracker-property.c',
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
+    tracker_common_enum_header, tracker_common_parser_sha1_header,
+    c_args: tracker_c_args,
     install: true,
     install_dir: tracker_internal_libs_dir,
     # This doesn't depend on tracker_common_dep because of
@@ -69,5 +65,6 @@ libtracker_data = library('tracker-data',
 tracker_data_dep = declare_dependency(
     link_with: [libtracker_data, libtracker_data_vala],
     dependencies: tracker_data_dependencies,
-    include_directories: include_directories('.')
+    include_directories: include_directories('.'),
+    source: enums[1],
 )

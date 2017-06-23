@@ -4,7 +4,8 @@ headers = ['tracker-control.h', 'tracker-miner-manager.h']
 
 libtracker_control = library('tracker-control-' + tracker_api_version,
     sources,
-    c_args: '-DTRACKER_COMPILATION',
+    tracker_common_enum_header, tracker_common_parser_sha1_header,
+    c_args: tracker_c_args,
     install: true,
     install_rpath: tracker_internal_libs_dir,
     # This doesn't depend on tracker_common_dep because of
@@ -12,7 +13,6 @@ libtracker_control = library('tracker-control-' + tracker_api_version,
     dependencies: [gio, tracker_sparql_dep, tracker_miner_dep],
     include_directories: [commoninc, configinc, srcinc],
     link_with: libtracker_common,
-    sources: tracker_common_enum_header,
 )
 
 tracker_control_dep = declare_dependency(
