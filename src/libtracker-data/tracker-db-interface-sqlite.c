@@ -2589,7 +2589,9 @@ tracker_db_statement_bind_double (TrackerDBStatement *stmt,
 
 	g_assert (!stmt->stmt_is_used);
 
+	tracker_db_interface_lock (stmt->db_interface);
 	sqlite3_bind_double (stmt->stmt, index + 1, value);
+	tracker_db_interface_unlock (stmt->db_interface);
 }
 
 void
@@ -2601,7 +2603,9 @@ tracker_db_statement_bind_int (TrackerDBStatement *stmt,
 
 	g_assert (!stmt->stmt_is_used);
 
+	tracker_db_interface_lock (stmt->db_interface);
 	sqlite3_bind_int64 (stmt->stmt, index + 1, value);
+	tracker_db_interface_unlock (stmt->db_interface);
 }
 
 void
@@ -2612,7 +2616,9 @@ tracker_db_statement_bind_null (TrackerDBStatement *stmt,
 
 	g_assert (!stmt->stmt_is_used);
 
+	tracker_db_interface_lock (stmt->db_interface);
 	sqlite3_bind_null (stmt->stmt, index + 1);
+	tracker_db_interface_unlock (stmt->db_interface);
 }
 
 void
@@ -2624,7 +2630,9 @@ tracker_db_statement_bind_text (TrackerDBStatement *stmt,
 
 	g_assert (!stmt->stmt_is_used);
 
+	tracker_db_interface_lock (stmt->db_interface);
 	sqlite3_bind_text (stmt->stmt, index + 1, value, -1, SQLITE_TRANSIENT);
+	tracker_db_interface_unlock (stmt->db_interface);
 }
 
 void
