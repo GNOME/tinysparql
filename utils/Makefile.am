@@ -1,4 +1,5 @@
 SUBDIRS =                                              \
+	g-ir-merge                                     \
 	gtk-sparql                                     \
 	ontology                                       \
 	data-generators                                \
