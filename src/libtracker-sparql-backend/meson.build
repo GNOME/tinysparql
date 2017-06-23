@@ -2,7 +2,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     'tracker-backend.vala',
     install: true,
     install_rpath: tracker_internal_libs_dir,
-    c_args: tracker_c_args,
+    link_whole: libtracker_sparql_intermediate_c,
     dependencies: [tracker_sparql_intermediate_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep],
 )
 
@@ -11,3 +11,40 @@ tracker_sparql_dep = declare_dependency(
     include_directories: srcinc,
     dependencies: [tracker_sparql_intermediate_dep],
 )
+
+# The introspection generation for libtracker-sparql is awkward because we have
+# both C and Vala code, and we have to generate an introspection repo for each
+# one separately and then combine them together manually.
+#
+# See: <https://bugzilla.gnome.org/show_bug.cgi?id=782091>
+
+tracker_sparql_c_gir = gnome.generate_gir(libtracker_sparql,
+    sources: libtracker_sparql_c_sources + libtracker_sparql_c_public_headers,
+    nsversion: tracker_api_version,
+    namespace: 'Tracker_C',
+    identifier_prefix: 'Tracker',
+    symbol_prefix: 'tracker',
+    includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
+    link_with: libtracker_sparql,
+    extra_args: [
+        '--c-include', 'libtracker-sparql/tracker-sparql.h',
+        '-D', 'TRACKER_COMPILATION',
+    ])
+
+tracker_sparql_c_gir = tracker_sparql_c_gir[0]  # Ignore this .typelib
+tracker_sparql_vala_gir = join_paths(meson.current_build_dir(), '..', 'libtracker-sparql', 'Tracker_Vala-' + tracker_api_version + '.gir')
+
+tracker_sparql_gir = custom_target('tracker-sparql-gir',
+    command: [g_ir_merge, '--namespace', 'Tracker', '--nsversion', tracker_api_version, '@INPUT@', tracker_sparql_vala_gir],
+    input: [tracker_sparql_c_gir],
+    capture: true,
+    output: 'Tracker-1.0.gir',
+    install: true,
+    install_dir: gir_dir)
+
+tracker_sparql_typelib = custom_target('tracker-sparql-typelib',
+    command: [g_ir_compiler, '--output', '@OUTPUT@', '@INPUT@'],
+    input: tracker_sparql_gir,
+    output: 'Tracker-1.0.typelib',
+    install: true,
+    install_dir: typelib_dir)

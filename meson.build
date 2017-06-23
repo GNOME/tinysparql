@@ -32,6 +32,7 @@ gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
 glib = dependency('glib-2.0', version: '>' + glib_required)
 gmodule = dependency('gmodule-2.0', version: '>' + glib_required)
 gobject = dependency('gobject-2.0', version: '>' + glib_required)
+gobject_introspection = dependency('gobject-introspection-1.0')
 gstreamer = dependency('gstreamer-1.0', required: false)
 gstreamer_pbutils = dependency('gstreamer-pbutils-1.0', required: false)
 gstreamer_tag = dependency('gstreamer-tag-1.0', required: false)
@@ -495,6 +496,15 @@ tracker_miner_services_dir = join_paths(get_option('prefix'), get_option('datadi
 tracker_writeback_modules_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-@0@/writeback-modules'.format(tracker_api_version))
 
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
+
+g_ir_compiler = find_program('g-ir-compiler', gobject_introspection.get_pkgconfig_variable('g_ir_compiler'))
+g_ir_merge = find_program('g-ir-merge', join_paths(meson.source_root(), 'utils', 'g-ir-merge', 'g-ir-merge'))
+
+# You can use the gobject_introspection.get_pkgconfig_variable() to find these,
+# but then get_option('prefix') won't be honoured if it differs from the prefix
+# gobject-introspection is installed to.
+gir_dir = join_paths(get_option('prefix'), get_option('datadir'), 'gir-1.0')
+typelib_dir = join_paths(get_option('libdir'), 'girepository-1.0')
 
 subdir('src')
 
