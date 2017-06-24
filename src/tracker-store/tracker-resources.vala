@@ -177,7 +177,7 @@ public class Tracker.Resources : Object {
 		var iface = data_manager.get_db_interface ();
 
 		// wal checkpoint implies sync
-		Tracker.Store.wal_checkpoint (iface);
+		Tracker.Store.wal_checkpoint (iface, true);
 		// sync journal if available
 		data.sync ();
 

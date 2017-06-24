@@ -251,10 +251,10 @@ public class Tracker.Store {
 		});
 	}
 
-	public static void wal_checkpoint (DBInterface iface) {
+	public static void wal_checkpoint (DBInterface iface, bool blocking) {
 		try {
 			debug ("Checkpointing database...");
-			iface.execute_query ("PRAGMA wal_checkpoint");
+			iface.sqlite_wal_checkpoint (blocking);
 			debug ("Checkpointing complete...");
 		} catch (Error e) {
 			warning (e.message);
@@ -271,7 +271,7 @@ public class Tracker.Store {
 		if (n_pages >= 10000) {
 			// do immediate checkpointing (blocking updates)
 			// to prevent excessive wal file growth
-			wal_checkpoint (iface);
+			wal_checkpoint (iface, true);
 		} else if (n_pages >= 1000) {
 			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
 				// initiate asynchronous checkpointing (not blocking updates)
@@ -286,9 +286,11 @@ public class Tracker.Store {
 	}
 
 	static void checkpoint_dispatch_cb (DBInterface iface) {
-		// run in checkpoint thread
+		// run in checkpoint thread, we must fetch the right
+		// interface for this thread.
+		var manager = (Data.Manager) iface.get_user_data ();
 
-		wal_checkpoint (iface);
+		wal_checkpoint (manager.get_db_interface (), false);
 		AtomicInt.set (ref checkpointing, 0);
 	}
 
