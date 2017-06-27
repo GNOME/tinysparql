@@ -175,7 +175,7 @@ introspection_sources = \
 TrackerMiner-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libtracker-miner-$(TRACKER_API_VERSION).la Makefile
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_SCANNERFLAGS = \
-	--include-uninstalled=$(top_srcdir)/src/libtracker-sparql/Tracker-$(TRACKER_API_VERSION).gir
+	--include-uninstalled=$(top_builddir)/src/libtracker-sparql-backend/Tracker-$(TRACKER_API_VERSION).gir
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_CFLAGS = $(INCLUDES)
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_NAMESPACE = "TrackerMiner"
 TrackerMiner_@TRACKER_API_VERSION_UNDERSCORES@_gir_LIBS = libtracker-miner-$(TRACKER_API_VERSION).la

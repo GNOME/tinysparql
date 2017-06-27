@@ -1,7 +1,7 @@
-noinst_LTLIBRARIES = libtracker-sparql.la
+noinst_LTLIBRARIES = libtracker-sparql-intermediate-vala.la libtracker-sparql-intermediate-c.la
 
-libtracker_sparql_la_VALAFLAGS =                       \
-	--gir Tracker-$(TRACKER_API_VERSION).gir       \
+libtracker_sparql_intermediate_vala_la_VALAFLAGS =     \
+	--gir Tracker_Vala-$(TRACKER_API_VERSION).gir  \
 	--library tracker-sparql-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
 	--header $(vala_header:.h=-no-checks.h)        \
@@ -27,28 +27,31 @@ ENUM_SOURCES =                                         \
 	tracker-sparql-enum-types.c                    \
 	tracker-sparql-enum-types.h
 
-libtracker_sparql_la_SOURCES =   \
-	$(ENUM_SOURCES)                                \
+libtracker_sparql_intermediate_vala_la_SOURCES =       \
 	tracker-namespace.vala                         \
 	tracker-builder.vala                           \
 	tracker-connection.vala                        \
 	tracker-cursor.vala                            \
+	tracker-utils.vala
+
+libtracker_sparql_intermediate_vala_la_LIBADD =        \
+	$(BUILD_LIBS)                                  \
+	$(LIBTRACKER_SPARQL_LIBS)
+
+libtracker_sparql_intermediate_c_la_SOURCES =          \
+	$(ENUM_SOURCES)                                \
 	tracker-namespace-manager.c                    \
 	tracker-namespace-manager.h                    \
 	tracker-notifier.c                             \
 	tracker-notifier.h                             \
 	tracker-resource.c                             \
 	tracker-resource.h                             \
-	tracker-utils.vala                             \
 	tracker-uri.c                                  \
 	tracker-uri.h                                  \
 	tracker-ontologies.h \
 	tracker-version.c \
 	tracker-version.h
 
-libtracker_sparql_la_LIBADD =    \
-	$(BUILD_LIBS)                                  \
-	$(LIBTRACKER_SPARQL_LIBS)
 
 # Should only be one file
 vala_header = tracker-generated.h
@@ -94,7 +97,7 @@ vapi_DATA =                                            \
 	tracker-sparql-$(TRACKER_API_VERSION).deps
 
 BUILT_SOURCES =                                        \
-	libtracker_sparql_la_vala.stamp
+	libtracker_sparql_intermediate_vala_la_vala.stamp
 
 MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
@@ -111,22 +114,3 @@ EXTRA_DIST =                                           \
 	$(vala_header:.h=-no-checks.h)                 \
 	tracker-sparql-add-include-guards.sh           \
 	meson.build
-
-# Introspection foo
--include $(INTROSPECTION_MAKEFILE)
-
-if HAVE_INTROSPECTION
-Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
-	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so.0 -o $@ $^
-
-girdir = $(datadir)/gir-1.0
-gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
-
-typelibdir = $(libdir)/girepository-1.0
-typelib_DATA = $(gir_DATA:.gir=.typelib)
-
-# We don't clean the gir/typelib data for *Vala* generated g-ir files.
-# However, we do for *C* generated g-ir files due to Vala not being
-# required when building from a tarball.
-DISTCLEANFILES = $(gir_DATA) $(typelib_DATA)
-endif
