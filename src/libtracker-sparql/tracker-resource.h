@@ -26,11 +26,6 @@
 
 G_BEGIN_DECLS
 
-/* This is defined in the Vala code, which we can't include here
- * because it might not yet have been built.
- */
-typedef struct _TrackerSparqlBuilder TrackerSparqlBuilder;
-
 #define TRACKER_TYPE_RESOURCE tracker_resource_get_type()
 G_DECLARE_DERIVABLE_TYPE (TrackerResource, tracker_resource, TRACKER, RESOURCE, GObject)
 
