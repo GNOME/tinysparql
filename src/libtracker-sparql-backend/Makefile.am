@@ -70,8 +70,8 @@ INTROSPECTION_GIRS = Tracker_C-$(TRACKER_API_VERSION).gir
 
 noinst_DATA = $(INTROSPECTION_GIRS)
 
-Tracker-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_GIRS) $(top_builddir)/src/libtracker-sparql/Tracker_Vala-$(TRACKER_API_VERSION).gir
-	$(AM_V_GEN) (cd $(srcdir) && $(top_srcdir)/utils/g-ir-merge/g-ir-merge --namespace Tracker --nsversion $(TRACKER_API_VERSION) $(INTROSPECTION_GIRS) $(top_builddir)/src/libtracker-sparql/Tracker_Vala-$(TRACKER_API_VERSION).gir) > $@
+Tracker-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_GIRS) $(top_srcdir)/src/libtracker-sparql/Tracker_Vala-$(TRACKER_API_VERSION).gir
+	$(AM_V_GEN) ($(top_srcdir)/utils/g-ir-merge/g-ir-merge --namespace Tracker --nsversion $(TRACKER_API_VERSION) $(INTROSPECTION_GIRS) $(top_srcdir)/src/libtracker-sparql/Tracker_Vala-$(TRACKER_API_VERSION).gir) > $@
 
 GIRS = Tracker-$(TRACKER_API_VERSION).gir
 
