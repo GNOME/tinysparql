@@ -1,11 +1,11 @@
-project('tracker', 'c', 'vala', 'cpp', version: '1.13.0')
+project('tracker', 'c', 'vala', 'cpp', version: '1.99.0')
 
 gnome = import('gnome')
 i18n = import('i18n')
 cc = meson.get_compiler('c')
 
 # This is the X.Y used in -llibtracker-FOO-X.Y
-tracker_api_version = '1.0'
+tracker_api_version = '2.0'
 
 glib_required = '2.40.0'
 
