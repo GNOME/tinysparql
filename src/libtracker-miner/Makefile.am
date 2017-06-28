@@ -101,6 +101,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-fs.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
+	$(DTAGS_LDFLAGS)                               \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 if !ENABLE_GCOV 
 # Using enable_gcov instead of have_unit_test because when doing a release

@@ -3,7 +3,7 @@
 #
 rulesdir = $(TRACKER_EXTRACT_RULES_DIR)
 
-module_flags = -module -avoid-version -no-undefined
+module_flags = $(DTAGS_LDFLAGS) -module -avoid-version -no-undefined
 
 AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \

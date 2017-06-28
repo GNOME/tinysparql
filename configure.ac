@@ -600,9 +600,11 @@ LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
 AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
              [enable_new_dtags=yes; AC_MSG_RESULT(yes)], [enable_new_dtags=no; AC_MSG_RESULT(no)])
 LDFLAGS=$save_LDFLAGS
+DTAGS_LDFLAGS=
 if test "x$enable_new_dtags" = "xyes"; then
-    LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
+    DTAGS_LDFLAGS="-Wl,--enable-new-dtags"
 fi
+AC_SUBST(DTAGS_LDFLAGS)
 
 ####################################################################
 # Check for minimal
